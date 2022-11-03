@@ -7,7 +7,6 @@ import {
   selectMyUpdatedCollections,
   selectSavedCollectionIds,
   selectSavedCollections,
-  selectHasCollections,
   selectCollectionsById,
 } from 'redux/selectors/collections';
 import { doResolveClaimIds } from 'redux/actions/claims';
@@ -23,7 +22,6 @@ const select = (state) => ({
   savedCollectionIds: selectSavedCollectionIds(state),
   savedCollections: selectSavedCollections(state),
   isFetchingCollections: selectIsFetchingMyCollections(state),
-  hasCollections: selectHasCollections(state),
   collectionsById: selectCollectionsById(state),
 });
 

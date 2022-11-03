@@ -9,10 +9,6 @@ import { useHistory } from 'react-router-dom';
 import { getTitleForCollection } from 'util/collections';
 
 import CollectionPreview from './internal/collectionPreview';
-import Button from 'component/button';
-import Spinner from 'component/spinner';
-import Yrbl from 'component/yrbl';
-import BuiltinPlaylists from '../builtin-playlists';
 import SectionLabel from './internal/label';
 import TableHeader from './internal/table-header';
 import CollectionListHeader from './internal/collectionListHeader/index';
@@ -21,7 +17,6 @@ import usePersistedState from 'effects/use-persisted-state';
 import PageItemsLabel from './internal/page-items-label';
 
 type Props = {
-  handleCreatePlaylist: () => void,
   // -- redux --
   publishedCollections: CollectionGroup,
   unpublishedCollections: CollectionGroup,
@@ -29,11 +24,8 @@ type Props = {
   updatedCollections: CollectionGroup,
   savedCollections: CollectionGroup,
   savedCollectionIds: ClaimIds,
-  isFetchingCollections: boolean,
-  hasCollections: boolean,
   collectionsById: { [collectionId: string]: Collection },
   doResolveClaimIds: (collectionIds: ClaimIds) => void,
-  doFetchCollectionListMine: () => void,
 };
 
 // Avoid prop drilling
@@ -41,7 +33,6 @@ export const CollectionsListContext = React.createContext<any>();
 
 export default function CollectionsListMine(props: Props) {
   const {
-    handleCreatePlaylist,
     // -- redux --
     publishedCollections,
     unpublishedCollections,
@@ -49,11 +40,8 @@ export default function CollectionsListMine(props: Props) {
     updatedCollections,
     savedCollections,
     savedCollectionIds,
-    isFetchingCollections,
-    hasCollections,
     collectionsById,
     doResolveClaimIds,
-    doFetchCollectionListMine,
   } = props;
 
   const isMobile = useIsMobile();
@@ -75,8 +63,6 @@ export default function CollectionsListMine(props: Props) {
   const publishedList = (Object.keys(publishedCollections || {}): any);
   const editedList = (Object.keys(editedCollections || {}): any);
   const savedList = (Object.keys(savedCollections || {}): any);
-  const hasLocalSyncLists = unpublishedCollectionsList.length > 0 || editedList.length > 0 || savedList.length > 0;
-  const collectionsUnresolved = unpublishedCollectionsList.length === 0 && publishedList.length === 0 && hasCollections;
 
   const collectionsToShow = React.useMemo(() => {
     let collections;
@@ -206,10 +192,6 @@ export default function CollectionsListMine(props: Props) {
   );
 
   React.useEffect(() => {
-    if (isFetchingCollections === undefined) doFetchCollectionListMine();
-  }, [isFetchingCollections, doFetchCollectionListMine]);
-
-  React.useEffect(() => {
     if (savedCollectionIds.length > 0) {
       doResolveClaimIds(savedCollectionIds);
     }
@@ -217,80 +199,50 @@ export default function CollectionsListMine(props: Props) {
 
   return (
     <>
-      <div className="claim-grid__wrapper">
-        <BuiltinPlaylists />
+      <SectionLabel label={__('Your Playlists')} />
 
-        <SectionLabel label={__('Your Playlists')} />
+      <CollectionsListContext.Provider
+        value={{
+          searchText,
+          setSearchText,
+          totalLength,
+          filteredCollectionsLength,
+        }}
+      >
+        <CollectionListHeader
+          filterType={filterType}
+          isTruncated={totalLength > filteredCollectionsLength}
+          setFilterType={setFilterType}
+          // $FlowFixMe
+          sortOption={sortOption}
+          setSortOption={setSortOption}
+          persistedOption={persistedOption}
+          setPersistedOption={setPersistedOption}
+        />
+      </CollectionsListContext.Provider>
 
-        {!hasLocalSyncLists && isFetchingCollections !== false ? (
-          <div className="main--empty empty">
-            <Spinner text={__('Loading your playlists...')} />
-          </div>
-        ) : (
-          <>
-            <CollectionsListContext.Provider
-              value={{
-                searchText,
-                setSearchText,
-                totalLength,
-                filteredCollectionsLength,
-              }}
-            >
-              <CollectionListHeader
-                filterType={filterType}
-                isTruncated={totalLength > filteredCollectionsLength}
-                setFilterType={setFilterType}
-                // $FlowFixMe
-                sortOption={sortOption}
-                setSortOption={setSortOption}
-                persistedOption={persistedOption}
-                setPersistedOption={setPersistedOption}
-              />
-            </CollectionsListContext.Provider>
+      {/* Playlists: previews */}
+      {filteredCollectionsLength > 0 ? (
+        <ul className={classnames('ul--no-style claim-list', { playlists: !isMobile })}>
+          {!isMobile && <TableHeader />}
 
-            {/* Playlists: previews */}
-            {hasCollections && !collectionsUnresolved ? (
-              filteredCollectionsLength > 0 ? (
-                <ul className={classnames('ul--no-style claim-list', { playlists: !isMobile })}>
-                  {!isMobile && <TableHeader />}
+          {paginatedCollections.map((key) => (
+            <CollectionPreview collectionId={key} key={key} />
+          ))}
 
-                  {paginatedCollections.map((key) => (
-                    <CollectionPreview collectionId={key} key={key} />
-                  ))}
+          {totalPages > 1 && (
+            <PageItemsLabel
+              totalLength={filteredCollectionsLength}
+              firstItemIndexForPage={firstItemIndexForPage}
+              paginatedCollectionsLength={paginatedCollections.length}
+            />
+          )}
 
-                  {totalPages > 1 && (
-                    <PageItemsLabel
-                      totalLength={filteredCollectionsLength}
-                      firstItemIndexForPage={firstItemIndexForPage}
-                      paginatedCollectionsLength={paginatedCollections.length}
-                    />
-                  )}
-
-                  <Paginate totalPages={totalPages} />
-                </ul>
-              ) : (
-                <div className="empty main--empty">{__('No matching playlists')}</div>
-              )
-            ) : (
-              <div className="main--empty">
-                {!isFetchingCollections && !collectionsUnresolved ? (
-                  <Yrbl
-                    type="sad"
-                    title={__('You have no Playlists yet. Better start hoarding!')}
-                    actions={
-                      <div className="section__actions">
-                        <Button button="primary" label={__('Create a Playlist')} onClick={handleCreatePlaylist} />
-                      </div>
-                    }
-                  />
-                ) : (
-                  <h2 className="main--empty empty">{__('Loading...')}</h2>
-                )}
-              </div>
-            )}
-          </>
-        )}
-      </div>
+          <Paginate totalPages={totalPages} />
+        </ul>
+      ) : (
+        <div className="empty main--empty">{__('No matching playlists')}</div>
+      )}
     </>
   );
 }

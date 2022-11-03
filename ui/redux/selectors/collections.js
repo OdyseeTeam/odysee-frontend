@@ -66,11 +66,24 @@ export const selectSavedCollections = createSelector(
   }
 );
 
+export const selectHasLocalSyncCollections = createSelector(
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectSavedCollections,
+  (unpublished, edited, saved) => {
+    const unpublishedCollectionsList = (Object.keys(unpublished || {}): any);
+    const editedList = (Object.keys(edited || {}): any);
+    const savedList = (Object.keys(saved || {}): any);
+
+    return unpublishedCollectionsList.length > 0 || editedList.length > 0 || savedList.length > 0;
+  }
+);
+
 export const selectHasCollections = (state: State) => {
-  const unpublishedCollections = selectUnpublishedCollectionsList(state);
+  const hasLocalSyncCollections = selectHasLocalSyncCollections(state);
   const publishedCollectionIds = selectMyCollectionClaimIds(state);
 
-  return unpublishedCollections.length > 0 || (publishedCollectionIds && publishedCollectionIds.length > 0);
+  return hasLocalSyncCollections || (publishedCollectionIds && publishedCollectionIds.length > 0);
 };
 
 export const selectEditedCollectionForId = (state: State, id: string) => selectMyEditedCollections(state)[id];
