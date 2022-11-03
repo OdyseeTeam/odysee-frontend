@@ -38,6 +38,8 @@ const PublishReleaseDate = (props: Props) => {
     allowDefault = true,
     showNowBtn = true,
     useMaxDate = true,
+    isHiddenScheduledContent,
+    isVisibleScheduledContent,
   } = props;
   const maxDate = useMaxDate ? new Date() : undefined;
   const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : undefined);
@@ -150,6 +152,7 @@ const PublishReleaseDate = (props: Props) => {
     }
   }
 
+  // TODO: rename this content
   function setWhetherToShowScheduledContentOnChannelPage(showScheduledContentOnChannelPage) {
     if (showScheduledContentOnChannelPage) {
       setShowScheduledOnChannelPage(true);
@@ -177,6 +180,16 @@ const PublishReleaseDate = (props: Props) => {
       updatePublishForm({ scheduledContent: undefined });
     };
   }, []);
+
+  useEffect(() => {
+    if (isVisibleScheduledContent) {
+      setReleaseDateIsInFuture(true);
+      setWhetherToShowScheduledContentOnChannelPage(true);
+    } else if (isHiddenScheduledContent) {
+      setReleaseDateIsInFuture(true);
+      setWhetherToShowScheduledContentOnChannelPage(false);
+    }
+  }, [isHiddenScheduledContent, isVisibleScheduledContent]);
 
   useEffect(() => {
     updatePublishForm({ releaseTimeError: error.join(';') });

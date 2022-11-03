@@ -868,6 +868,21 @@ export const selectPrivateContentTag = createSelector(
   (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:private')
 );
 
+export const selectScheduledContentTag = createSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:scheduled:show' || 'c:scheduled:hide')
+);
+
+export const selectHiddenScheduledContentTag = createSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:scheduled:hide')
+);
+
+export const selectVisibleScheduledContentTag = createSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:scheduled:show')
+);
+
 export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return parseRentalTag(metadata?.tags);
 })((state, uri) => String(uri));

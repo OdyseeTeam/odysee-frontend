@@ -225,6 +225,8 @@ export const GOLIVE = 'GOLIVE';
 export const GHOST = 'Ghost';
 export const SPIRITUALITY = 'Spirituality';
 export const HORROR = 'Horror';
+export const PRIVATE = 'PRIVATE';
+export const SCHEDULED = 'SCHEDULED';
 
 // -- Temporary --
 export const HOLIDAY = 'Holiday';
