@@ -19,6 +19,20 @@
   }
 }
 
+.claim-tile__title,
+.channel-name,
+.claim-tile__about,
+.menu__button,
+.footer__link {
+  color: white !important;
+  .icon {
+    stroke: white !important;
+  }
+  .button__label {
+    color: white !important;
+  }
+}
+
 html {
   height: 100%;
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
@@ -357,6 +371,7 @@ html {
     1060px 444px #fff, 323px 1676px #fff, 1593px 1616px #fff;
 }
 
+/*
 #stars3 {
   width: 3px;
   height: 3px;
@@ -405,27 +420,7 @@ html {
     1924px 1714px #fff, 495px 1149px #fff, 267px 1851px #fff, 1293px 1431px #fff, 1159px 433px #fff, 1725px 1170px #fff,
     1067px 296px #fff, 746px 463px #fff, 412px 349px #fff, 1193px 1421px #fff, 564px 455px #fff, 1675px 589px #fff;
 }
-
-#title {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  color: #fff;
-  text-align: center;
-  font-family: 'lato', sans-serif;
-  font-weight: 300;
-  font-size: 50px;
-  letter-spacing: 10px;
-  margin-top: -60px;
-  padding-left: 10px;
-}
-#title span {
-  background: -webkit-linear-gradient(white, #38495a);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+*/
 
 @keyframes animStar {
   from {
@@ -434,6 +429,6 @@ html {
   }
   to {
     transform: translateY(-2000px);
-    transform: translateX(1000px);
+    transform: translateX(500px);
   }
 }

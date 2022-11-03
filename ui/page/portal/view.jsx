@@ -30,6 +30,7 @@ function PortalPage(props: Props) {
       // theme[0].style.backgroundImage = 'radial-gradient(circle at 80% 20%, #140019, #000 50%, rgba(200,200,200,0.2) 25%, rgba(101,15,124,0.9) 75%)'
       theme[0].style.backgroundImage =
         'radial-gradient(circle at 80% 20%, rgba(0,0,0,0.6), #000 50%, rgba(101,15,124,0.9) 25%, #000 75%)';
+      theme[0].classList.add('theme-stars');
     }
   }, [portals]);
 
@@ -38,9 +39,6 @@ function PortalPage(props: Props) {
   return (
     <>
       <Page className="portal-wrapper" fullWidthPage>
-        <div id="stars"></div>
-        <div id="stars2"></div>
-        {/* <div id="stars3"></div> */}
         <div className="portal-header">
           <img src={portal.image} />
           <div className="portal-meta">

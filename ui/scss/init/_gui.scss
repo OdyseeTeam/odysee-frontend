@@ -683,6 +683,16 @@ img {
   top: 0px;
   bottom: 0px;
   background-image: var(--background-shade);
+
+  div {
+    display: none;
+  }
+}
+
+.theme-stars {
+  div {
+    display: block;
+  }
 }
 
 .homePage-wrapper {
