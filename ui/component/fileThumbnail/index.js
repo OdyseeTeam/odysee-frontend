@@ -4,11 +4,12 @@ import { selectHasResolvedClaimForUri, selectThumbnailForUri } from 'redux/selec
 import CardMedia from './view';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, secondaryUri } = props;
 
   return {
     hasResolvedClaim: uri ? selectHasResolvedClaimForUri(state, uri) : undefined,
     thumbnailFromClaim: selectThumbnailForUri(state, uri),
+    thumbnailFromSecondaryClaim: selectThumbnailForUri(state, secondaryUri, true),
   };
 };
 

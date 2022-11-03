@@ -101,7 +101,11 @@ function CollectionPreview(props: Props) {
     >
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
-          <FileThumbnail uri={uri || firstCollectionItemUrl} thumbnail={thumbnail}>
+          <FileThumbnail
+            uri={uri || firstCollectionItemUrl}
+            secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
+            thumbnail={thumbnail || null}
+          >
             <CollectionItemCount collectionId={collectionId} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>
