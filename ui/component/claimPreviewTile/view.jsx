@@ -111,7 +111,7 @@ function ClaimPreviewTile(props: Props) {
     (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const shouldFetch = claim === undefined;
-  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, firstCollectionItemUrl ? false : placeholder);
+  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId;
@@ -252,12 +252,7 @@ function ClaimPreviewTile(props: Props) {
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
-        <FileThumbnail
-          thumbnail={thumbnailUrl}
-          allowGifs
-          tileLayout
-          uri={thumbnailUrl || !firstCollectionItemUrl ? uri : firstCollectionItemUrl}
-        >
+        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
           {!isChannel && (
             <React.Fragment>
               {((fypId && isStream) || isPlayable) && (

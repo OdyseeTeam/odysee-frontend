@@ -30,6 +30,7 @@ type Props = {
   // -- redux --
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
+  thumbnailFromSecondaryClaim: ?string,
   // doResolveUri: (uri: string) => void,
 };
 
@@ -45,13 +46,16 @@ function FileThumbnail(props: Props) {
     // -- redux --
     hasResolvedClaim,
     thumbnailFromClaim,
+    thumbnailFromSecondaryClaim,
     // doResolveUri,
   } = props;
 
   const isMobile = useIsMobile();
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
-  const thumbnail = passedThumbnail || thumbnailFromClaim;
+  const thumbnail =
+    passedThumbnail ||
+    (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
   // thumbnailFromClaim returned null and passedThumbnail is still being set by useGetThumbnail hook
   const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
   const isGif = thumbnail && thumbnail.endsWith('gif');

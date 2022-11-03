@@ -269,8 +269,9 @@ export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
 
 export const selectFirstItemUrlForCollection = (state: State, id: string) => {
   const collectionItemUrls = selectUrlsForCollectionId(state, id, 1);
+  if (!collectionItemUrls) return collectionItemUrls;
 
-  return collectionItemUrls?.length > 0 && collectionItemUrls[0];
+  return collectionItemUrls.length > 0 ? collectionItemUrls[0] : null;
 };
 
 export const selectCollectionLengthForId = (state: State, id: string) => {
@@ -416,7 +417,9 @@ export const selectUrlsForCollectionId = createCachedSelector(
       }
     });
 
-    if (notFetched && !Number.isInteger(itemCount)) return undefined;
+    if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.size)) {
+      return undefined;
+    }
 
     return Array.from(uris);
   }
