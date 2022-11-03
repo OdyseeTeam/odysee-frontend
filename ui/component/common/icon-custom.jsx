@@ -3499,7 +3499,51 @@ export const icons = {
       <path d="M9.06674 12.4247C9.3956 11.5703 10.6044 11.5703 10.9333 12.4247L11.2089 13.1408C11.461 13.7958 10.9775 14.5 10.2756 14.5H9.72437C9.02248 14.5 8.53899 13.7958 8.79111 13.1408L9.06674 12.4247Z" />
     </svg>
   ),
+  [ICONS.PRIVATE]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
 
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 14 14"
+        height={size}
+        width={size}
+        stroke={color}
+        fill="none"
+        {...otherProps}
+      >
+        <path d="M5,10.5H1.5a1,1,0,0,1-1-1v-8a1,1,0,0,1,1-1h8a1,1,0,0,1,1,1v2" />
+        <circle cx="5.5" cy="3.75" r="1.5"  />
+        <path d="M6.21,6.82a3.35,3.35,0,0,0-.71-.07,3.49,3.49,0,0,0-2.8,1.4" />
+        <rect x="7.5" y="9" width="6" height="4.5" rx="0.5" />
+        <path d="M8.5,9V8a2,2,0,0,1,4,0V9" />
+      </svg>
+    );
+  },
+  [ICONS.SCHEDULED]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        height={size}
+        width={size}
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+        {...otherProps}
+      >
+        <path d="M11.500 17.501 A6.000 6.000 0 1 0 23.500 17.501 A6.000 6.000 0 1 0 11.500 17.501 Z" />
+        <path d="M19.5 17.501L17.5 17.501 17.5 14.501" />
+        <path d="M9.5,18.5h-8a1,1,0,0,1-1-1V3.5a1,1,0,0,1,1-1h18a1,1,0,0,1,1,1V10" />
+        <path d="M5.5 0.501L5.5 5.501" />
+        <path d="M15.5 0.501L15.5 5.501" />
+        <path d="M0.5 7.501L20.5 7.501" />
+      </svg>
+    );
+  },
   // -- Temporary --
 
   [ICONS.HOLIDAY]: (props: IconProps) => (
