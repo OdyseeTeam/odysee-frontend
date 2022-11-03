@@ -109,3 +109,4 @@ exports.CAREERS_SENIOR_SYSADMIN = 'careers/senior_sysadmin';
 exports.CAREERS_SOFTWARE_SECURITY_ENGINEER = 'careers/software_security_engineer';
 exports.CAREERS_SENIOR_ANDROID_DEVELOPER = 'careers/senior_android_developer';
 exports.CAREERS_SENIOR_IOS_DEVELOPER = 'careers/senior_ios_developer';
+exports.ICONS_VIEWER = 'icons_viewer';
