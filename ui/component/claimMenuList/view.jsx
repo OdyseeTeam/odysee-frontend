@@ -59,6 +59,7 @@ type Props = {
   fypId?: string,
   doToast: ({ message: string, isError?: boolean, linkText?: string, linkTarget?: string }) => void,
   claimIsMine: boolean,
+  // settingsByChannelId: boolean,
   fileInfo: FileListItem,
   prepareEdit: ({}, string, string) => void,
   isSubscribed: boolean,
@@ -113,6 +114,7 @@ function ClaimMenuList(props: Props) {
     fypId,
     doToast,
     claimIsMine,
+    // settingsByChannelId,
     fileInfo,
     prepareEdit,
     isSubscribed,
@@ -261,6 +263,13 @@ function ClaimMenuList(props: Props) {
       push(`/${channelUrl}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`);
     }
   }
+
+  /*
+  function handleFeature(){
+    const { homepage_settings } = settingsByChannelId[Object.keys(settingsByChannelId)[0]];
+    console.log('homepage_settings: ', homepage_settings)
+  }
+  */
 
   function handleDelete() {
     if (!repostedClaim && !isChannel) {
@@ -526,6 +535,14 @@ function ClaimMenuList(props: Props) {
                   )
                 ) : (
                   <>
+                    {/* claimIsMine && (
+                      <MenuItem className="comment__menu-option" onSelect={handleFeature}>
+                        <div className="menu__link">
+                          <Icon aria-hidden icon={ICONS.HOME} />
+                          {__('Feature')}
+                        </div>
+                      </MenuItem>
+                    ) */}
                     {!isChannelPage && !repostedClaim && (
                       <MenuItem className="comment__menu-option" onSelect={handleEdit}>
                         <div className="menu__link">

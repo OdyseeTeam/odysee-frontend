@@ -356,7 +356,6 @@ $actions-z-index: 2;
 .channel-cover {
   position: relative;
   background-image: linear-gradient(to right, #637ad2, #318794 80%);
-  // background-image: url('https://thumbnails.odycdn.com/optimize/s:0:0/quality:95/plain/https://thumbs.odycdn.com/28910ac9cc58feced571d1e83e1e47d5.webp');
   background-repeat: no-repeat;
   background-size: 100vw auto;
   background-attachment: fixed;
@@ -366,16 +365,12 @@ $actions-z-index: 2;
 
   @media (min-width: $breakpoint-large) {
     background-position-x: calc(50% + (var(--side-nav-width--micro) / 2));
-    // background-position-y: 50%;
     background-size: calc(100% - var(--side-nav-width--micro));
-    //background-position: 50% 380%;
-    // background-size:contain;
   }
 
   @media (max-width: $breakpoint-large) {
     background-position-x: calc(50% + var(--side-nav-width--micro));
-    // background-size: auto 240px;
-    background-size: auto 290px;
+    background-size: auto 284px;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -434,7 +429,7 @@ $actions-z-index: 2;
 .channel-cover__custom {
   min-height: var(--cover-photo-height);
   // height: 240px;
-  height: 290px;
+  height: 284px;
   width: 100%;
   border-bottom: none;
 
@@ -1269,6 +1264,11 @@ $actions-z-index: 2;
         @media (max-width: $breakpoint-small) {
           margin-bottom: -30%;
         }
+      }
+      .icon--PremiumPlus,
+      .icon--Premium {
+        width: 18px;
+        margin-bottom: -12%;
       }
     }
 

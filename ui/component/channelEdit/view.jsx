@@ -316,9 +316,7 @@ function ChannelForm(props: Props) {
                   openModal(MODALS.IMAGE_UPLOAD, {
                     onUpdate: (coverUrl, isUpload) => handleCoverChange(coverUrl, isUpload),
                     title: __('Edit Cover Image'),
-                    helpText: __('(6.25:1 ratio)', {
-                      max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                    }),
+                    helpText: __('(Recommmended: 2048x320 px)'),
                     assetName: __('Cover Image'),
                     currentValue: params.coverUrl,
                     otherValue: params.thumbnailUrl,

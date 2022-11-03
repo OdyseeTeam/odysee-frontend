@@ -170,6 +170,7 @@ function HomeTab(props: Props) {
                 section={section}
                 editMode={edit}
                 index={i}
+                hasFeaturedContent={home.some((s) => s?.type === 'featured')}
                 handleEditCollection={(e) => handleEditCollection(e, i)}
               />
             </div>

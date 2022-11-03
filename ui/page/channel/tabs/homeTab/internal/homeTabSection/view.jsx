@@ -11,6 +11,7 @@ type Props = {
   channelClaimId: any,
   section: any,
   editMode: boolean,
+  hasFeaturedContent: boolean,
   handleEditCollection: (any) => void,
   // --- select ---
   claimSearchResults: Array<string>,
@@ -29,6 +30,7 @@ function HomeTabSection(props: Props) {
     channelClaimId,
     section,
     editMode,
+    hasFeaturedContent,
     handleEditCollection,
     claimSearchResults,
     collectionUrls,
@@ -177,7 +179,9 @@ function HomeTabSection(props: Props) {
               <option value="select" disabled="disabled">
                 {__('Select')}
               </option>
-              <option value="featured">{__('Featured')}</option>
+              <option value="featured" disabled={hasFeaturedContent}>
+                {__('Featured')}
+              </option>
               <option value="content">{__('Content')}</option>
               <option value="playlists">{__('Playlists')}</option>
               <option value="playlist">{__('Playlist')}</option>
