@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { doClaimSearch } from 'redux/actions/claims';
+import { doClaimSearch, doResolveClaimId } from 'redux/actions/claims';
+
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import {
   selectClaimSearchByQuery,
@@ -39,8 +40,6 @@ const select = (state, props) => {
 
   const searchKey = createNormalizedClaimSearchKey(options);
 
-  // ae40b0f7b5d324b3610735551e44c588c8375a98
-
   const requiresSearch = props.section.type === 'content' || props.section.type === 'playlists';
   const fetchingClaimSearch = requiresSearch ? selectFetchingClaimSearchByQuery(state)[searchKey] : undefined;
   const claimSearchResults =
@@ -68,6 +67,7 @@ const select = (state, props) => {
 
 const perform = {
   doClaimSearch,
+  doResolveClaimId,
 };
 
 export default connect(select, perform)(HomeTabSection);

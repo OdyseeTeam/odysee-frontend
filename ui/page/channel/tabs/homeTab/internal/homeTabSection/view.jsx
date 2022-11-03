@@ -24,6 +24,7 @@ type Props = {
   singleClaimUri: string,
   // --- perform ---
   doClaimSearch: ({}) => void,
+  doResolveClaimId: (claimId: string) => void,
 };
 
 function HomeTabSection(props: Props) {
@@ -42,6 +43,7 @@ function HomeTabSection(props: Props) {
     publishedCollections,
     singleClaimUri,
     doClaimSearch,
+    doResolveClaimId,
   } = props;
 
   const timedOut = claimSearchResults === null;
@@ -51,7 +53,6 @@ function HomeTabSection(props: Props) {
   // section.type !== 'featured';
   const publishedList = (Object.keys(publishedCollections || {}): any);
 
-  // console.log('collectionUrls: ', collectionUrls)
   const windowSize = useWindowSize();
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
 
@@ -61,6 +62,12 @@ function HomeTabSection(props: Props) {
       doClaimSearch(searchOptions);
     }
   }, [doClaimSearch, shouldPerformSearch]);
+
+  React.useEffect(() => {
+    if (section.claim_id) {
+      doResolveClaimId(section.claim_id);
+    }
+  }, [section]);
 
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearching, setIsSearching] = React.useState(false);
