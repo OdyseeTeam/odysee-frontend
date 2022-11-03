@@ -294,7 +294,7 @@ function HomeTabSection(props: Props) {
               />
             </>
           ) : (
-            <FeaturedSection uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])} />
+            <FeaturedSection uri={singleClaimUri || (claimSearchResults && claimSearchResults[0]) || undefined} />
           )}
         </div>
       )}
