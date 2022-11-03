@@ -44,16 +44,12 @@ function HomeTabSection(props: Props) {
 
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
-    !singleClaimUri &&
-    !fetchingClaimSearch &&
-    !timedOut &&
-    !claimSearchResults &&
-    !collectionUrls &&
-    section &&
-    section.type !== 'playlist' &&
-    section.type !== 'featured';
+    !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls && section;
+  // section.type !== 'playlist'
+  // section.type !== 'featured';
   const publishedList = (Object.keys(publishedCollections || {}): any);
 
+  // console.log('collectionUrls: ', collectionUrls)
   const windowSize = useWindowSize();
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
 
@@ -165,6 +161,8 @@ function HomeTabSection(props: Props) {
     }
   }
 
+  console.log('section.claim_id: ', section.claim_id);
+  console.log('singleClaimUri: ', singleClaimUri);
   return (
     <div className="home-section-content">
       {editMode && (
@@ -294,7 +292,10 @@ function HomeTabSection(props: Props) {
               />
             </>
           ) : (
-            <FeaturedSection uri={singleClaimUri || (claimSearchResults && claimSearchResults[0]) || undefined} />
+            <FeaturedSection
+              uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])}
+              claimId={section.claim_id}
+            />
           )}
         </div>
       )}

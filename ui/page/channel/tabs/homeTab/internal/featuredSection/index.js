@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { getClaimMetadata } from 'util/claim';
 import { selectClaimForUri } from 'redux/selectors/claims';
+import { doResolveClaimId } from 'redux/actions/claims';
 import FeaturedSection from './view';
 
 const select = (state, props) => {
@@ -13,4 +14,8 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select)(FeaturedSection);
+const perform = {
+  doResolveClaimId,
+};
+
+export default connect(select, perform)(FeaturedSection);

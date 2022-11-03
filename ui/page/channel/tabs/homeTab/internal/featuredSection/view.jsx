@@ -16,14 +16,17 @@ import './style.scss';
 
 type Props = {
   uri: string,
+  claimId: string,
   section: any,
   description: string,
   // --- select ---
   claim: ChannelClaim,
+  // ---perform ---
+  doResolveClaimId: (claimId: string) => void,
 };
 
 function FeaturedSection(props: Props) {
-  const { uri, claim, description } = props;
+  const { uri, claimId, claim, description, doResolveClaimId } = props;
 
   const navigateUrl = formatLbryUrlForWeb(uri || '/');
   const navLinkProps = {
@@ -34,6 +37,12 @@ function FeaturedSection(props: Props) {
       }
     },
   };
+
+  React.useEffect(() => {
+    if (!uri) {
+      doResolveClaimId(claimId);
+    }
+  }, [uri]);
 
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>

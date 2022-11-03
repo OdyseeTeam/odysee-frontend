@@ -37,30 +37,27 @@ const select = (state, props) => {
   };
 
   const searchKey = createNormalizedClaimSearchKey(options);
-  const singleClaimUri = props.section.claim_id ? selectClaimUriForId(state, props.section.claim_id) : undefined;
+
+  // ae40b0f7b5d324b3610735551e44c588c8375a98
 
   const requiresSearch = props.section.type === 'content' || props.section.type === 'playlists';
   const fetchingClaimSearch = requiresSearch ? selectFetchingClaimSearchByQuery(state)[searchKey] : undefined;
   const claimSearchResults =
     requiresSearch && !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined;
 
-  const collectionUrls =
-    props.section.type === 'playlist' && props.section.claim_id
-      ? selectUrlsForCollectionId(state, props.section.claim_id)
-      : undefined;
-  const collectionName =
-    props.section.type === 'playlist' && props.section.claim_id
-      ? selectCollectionTitleForId(state, props.section.claim_id)
-      : undefined;
-
   return {
     fetchingClaimSearch,
     claimSearchResults,
     optionsStringified: JSON.stringify(options),
-    collectionUrls,
-    collectionName,
+    collectionUrls:
+      props.section.type === 'playlist' && props.section.claim_id
+        ? selectUrlsForCollectionId(state, props.section.claim_id)
+        : undefined,
+    collectionName:
+      props.section.type === 'playlist' ? selectCollectionTitleForId(state, props.section.claim_id) : undefined,
     publishedCollections: selectMyPublishedCollections(state),
-    singleClaimUri,
+    singleClaimUri:
+      props.section.type === 'featured' && props.section.claim_id && selectClaimUriForId(state, props.section.claim_id),
   };
 };
 
