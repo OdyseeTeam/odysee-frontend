@@ -385,7 +385,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: State): State =>
   });
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any): State => {
-  const { result }: { result: ClaimListResponse } = action.data;
+  const { result, setNewPageItems }: { result: ClaimListResponse, setNewPageItems?: boolean } = action.data;
   const claims = result.items;
   const page = result.page;
   const totalItems = result.total_items;
@@ -443,9 +443,9 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
     byId: resolveDelta(state.byId, byIdDelta),
     pendingById: resolveDelta(state.pendingById, pendingByIdDelta),
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
-    myClaimsPageResults: urlsForCurrentPage,
-    myClaimsPageNumber: page,
-    myClaimsPageTotalResults: totalItems,
+    ...(setNewPageItems
+      ? { myClaimsPageResults: urlsForCurrentPage, myClaimsPageNumber: page, myClaimsPageTotalResults: totalItems }
+      : {}),
   });
 };
 
