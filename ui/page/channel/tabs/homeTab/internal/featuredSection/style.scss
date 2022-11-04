@@ -25,6 +25,14 @@
       opacity: 0.85;
     }
 
+    .ff-container {
+      .ff-canvas,
+      .ff-image {
+        width: 100% !important;
+        height: 100% !important;
+      }
+    }
+
     @media (max-width: $breakpoint-small) {
       width: 100% !important;
     }
