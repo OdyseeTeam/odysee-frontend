@@ -145,7 +145,7 @@ export function GetLinksData(
       icon: ICONS.SUBSCRIBE,
       hideSort: false,
       options: {
-        orderBy: CS.ORDER_BY_NEW_VALUE,
+        orderBy: CS.ORDER_BY_NEW,
         releaseTime:
           subscribedChannels.length > 20
             ? `>${Math.floor(moment().subtract(9, 'months').startOf('week').unix())}`
@@ -257,7 +257,7 @@ export function GetLinksData(
     hideSort: false,
     options: {
       claimType: ['stream'],
-      orderBy: CS.ORDER_BY_NEW_VALUE,
+      orderBy: CS.ORDER_BY_NEW,
       pageSize: getPageSize(12),
       channelIds: YOUTUBER_CHANNEL_IDS,
       limitClaimsPerChannel: 1,
@@ -271,7 +271,7 @@ export function GetLinksData(
     hideSort: false,
     options: {
       pageSize: getPageSize(showPersonalizedChannels || showPersonalizedTags ? 4 : 8),
-      orderBy: CS.ORDER_BY_TOP_VALUE,
+      orderBy: CS.ORDER_BY_TOP,
       claimType: ['stream'],
       limitClaimsPerChannel: 2,
       releaseTime: `>${Math.floor(moment().subtract(1, 'day').startOf('day').unix())}`,
@@ -282,7 +282,7 @@ export function GetLinksData(
     title: __('Top Channels On LBRY'),
     link: `/$/${PAGES.DISCOVER}?claim_type=channel&${CS.ORDER_BY_KEY}=${CS.ORDER_BY_TOP}&${CS.FRESH_KEY}=${CS.FRESH_ALL}`,
     options: {
-      orderBy: CS.ORDER_BY_TOP_VALUE,
+      orderBy: CS.ORDER_BY_TOP,
       claimType: ['channel'],
     },
   };
@@ -291,7 +291,7 @@ export function GetLinksData(
     title: __('Latest From @lbry'),
     link: `/@lbry:3f`,
     options: {
-      orderBy: CS.ORDER_BY_NEW_VALUE,
+      orderBy: CS.ORDER_BY_NEW,
       pageSize: getPageSize(4),
       channelIds: ['3fda836a92faaceedfe398225fb9b2ee2ed1f01a'],
     },
@@ -306,6 +306,7 @@ export function GetLinksData(
         hideSort: false,
         options: {
           pageSize: getPageSize(4),
+          orderBy: CS.ORDER_BY_NEW,
           tags: followedTags.map((tag) => tag.name),
           claimType: ['stream'],
           limitClaimsPerChannel: 2,
