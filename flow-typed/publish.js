@@ -81,6 +81,7 @@ declare type FileUploadSdkParams = {
   uploadUrl?: string,
   sdkRan?: boolean,
   isMarkdown: boolean,
+  channel_id: ?string,
 };
 
 declare type UploadStatus = 'error' | 'retry' | 'notify_ok' | 'notify_failed' | 'conflict';

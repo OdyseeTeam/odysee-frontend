@@ -36,6 +36,7 @@ const SeniorAndroidDeveloperPage = lazyImport(() =>
 const SeniorIosDeveloperPage = lazyImport(() =>
   import('web/page/careers/seniorIosDeveloper' /* webpackChunkName: "seniorIosDeveloper" */)
 );
+const IconsViewerPage = lazyImport(() => import('page/iconsViewer' /* webpackChunkName: "iconsViewer" */));
 
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
@@ -373,6 +374,7 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.CAREERS_SENIOR_IOS_DEVELOPER}`} exact component={SeniorIosDeveloperPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
+        <Route path={`/$/${PAGES.ICONS_VIEWER}`} exact component={IconsViewerPage} />
 
         <Route path={`/$/${PAGES.AUTH_VERIFY}`} exact component={SignInVerifyPage} />
         <Route path={`/$/${PAGES.SEARCH}`} exact component={SearchPage} />
