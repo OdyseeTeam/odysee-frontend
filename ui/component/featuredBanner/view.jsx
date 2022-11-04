@@ -18,7 +18,7 @@ export default function FeaturedBanner(props: Props) {
       const interval = setInterval(() => {
         let newWidth = marginLeft * -1 < (featured.items.length - 1) * width ? marginLeft - width : 0;
         setMarginLeft(newWidth);
-      }, featured.transitionTime * 1000);
+      }, featured.transitionTime * 1000 + 2000);
       return () => clearInterval(interval);
     }
   }, [featured, marginLeft, width]);
