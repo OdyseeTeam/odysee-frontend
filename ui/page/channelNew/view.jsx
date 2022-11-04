@@ -28,7 +28,7 @@ function ChannelNew(props: Props) {
 
   return (
     <Page
-      className="channelPage-wrapper channelPage-new-wrapper"
+      className="channelPage-wrapper channelPage-edit-wrapper channelPage-new-wrapper"
       noSideNavigation
       fullWidthPage
       noFooter
