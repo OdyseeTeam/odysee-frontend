@@ -61,6 +61,12 @@
         width: 1.1rem;
         height: 1.1rem;
         margin-top: 1px;
+        .ff-container {
+          .ff-canvas {
+            height: unset !important;
+            width: unset !important;
+          }
+        }
       }
       .channel-name {
         &:after {
