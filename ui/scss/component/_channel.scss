@@ -1331,3 +1331,14 @@ $actions-z-index: 2;
     }
   }
 }
+
+.channelPage-new-wrapper {
+  margin-left: calc(var(--side-nav-width--micro) * -1) !important;
+  width: calc(100% + var(--side-nav-width--micro)) !important;
+
+  .card__body.card__body--no-title {
+    .button--primary {
+      margin-bottom: var(--spacing-m);
+    }
+  }
+}

@@ -378,11 +378,9 @@ function ChannelForm(props: Props) {
               <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
                 {__('About')}
               </Tab>
-              {!isNewChannel && (
-                <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
-                  {__('Other')}
-                </Tab>
-              )}
+              <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+                {!isNewChannel && __('Other')}
+              </Tab>
             </TabList>
           </div>
           <TabPanels>
