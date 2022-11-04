@@ -282,31 +282,35 @@ function HomeTabSection(props: Props) {
           )}
         </div>
       )}
-      {section.type && (section.claim_id || collectionUrls || (claimSearchResults && claimSearchResults.length > 0)) && (
-        <div className="section">
-          {section.type !== 'featured' ? (
-            <>
-              <label className="home-section-title">{collectionName || getTitle()}</label>
-              <ClaimListDiscover
-                hideFilters
-                hideAdvancedFilter
-                hideLayoutButton
-                tileLayout
-                infiniteScroll={false}
-                maxClaimRender={maxTilesPerRow}
-                useSkeletonScreen={false}
-                uris={collectionUrls || claimSearchResults}
-                claimIds={collectionClaimIds}
+      {section.type &&
+        (section.claim_id ||
+          collectionUrls ||
+          (claimSearchResults && claimSearchResults.length > 0) ||
+          section.type === 'featured') && (
+          <div className="section">
+            {section.type !== 'featured' ? (
+              <>
+                <label className="home-section-title">{collectionName || getTitle()}</label>
+                <ClaimListDiscover
+                  hideFilters
+                  hideAdvancedFilter
+                  hideLayoutButton
+                  tileLayout
+                  infiniteScroll={false}
+                  maxClaimRender={maxTilesPerRow}
+                  useSkeletonScreen={false}
+                  uris={collectionUrls || claimSearchResults}
+                  claimIds={collectionClaimIds}
+                />
+              </>
+            ) : (
+              <FeaturedSection
+                uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])}
+                claimId={section.claim_id}
               />
-            </>
-          ) : (
-            <FeaturedSection
-              uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])}
-              claimId={section.claim_id}
-            />
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
     </div>
   );
 }

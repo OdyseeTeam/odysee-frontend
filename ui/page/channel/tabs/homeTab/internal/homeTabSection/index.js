@@ -30,17 +30,19 @@ const select = (state, props) => {
     channel_ids: [props.channelClaimId],
     stream_types: stream_types,
     claim_type: props.section.type === 'playlists' ? 'collection' : 'stream',
-    order_by: props.section.type !== 'featured' ? props.section.order_by : ['effective_amount'],
+    order_by: props.section.order_by && ['effective_amount'],
     not_tags:
       props.section.type === 'playlists' ? CsOptions.not_tags([SECTION_TAGS.FEATURED_CHANNELS]) : CsOptions.not_tags(),
     any_tags: props.section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
     no_totals: true,
     index: props.index,
   };
-
   const searchKey = createNormalizedClaimSearchKey(options);
 
-  const requiresSearch = props.section.type === 'content' || props.section.type === 'playlists';
+  const requiresSearch =
+    props.section.type === 'content' ||
+    props.section.type === 'playlists' ||
+    (props.section.type === 'featured' && !props.section.claim_id);
   const fetchingClaimSearch = requiresSearch ? selectFetchingClaimSearchByQuery(state)[searchKey] : undefined;
   const claimSearchResults =
     requiresSearch && !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined;

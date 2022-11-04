@@ -39,7 +39,7 @@ function HomeTab(props: Props) {
     {
       type: 'featured',
       file_type: undefined,
-      order_by: undefined,
+      order_by: CS.ORDER_BY_TOP_VALUE,
       claim_id: undefined,
       rows: 1,
     },
@@ -54,7 +54,6 @@ function HomeTab(props: Props) {
 
   const [home, setHome] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
-  // const [hasChanges, setHasChanges] = React.useState(false);
 
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
@@ -79,7 +78,6 @@ function HomeTab(props: Props) {
     } else if (e.delete) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
-      console.log('change: ', e.change);
       if (e.change.field && e.change.field !== 'order_by') {
         if (e.change.field === 'type') {
           // $FlowIgnore
