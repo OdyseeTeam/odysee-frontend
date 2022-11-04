@@ -1341,4 +1341,13 @@ $actions-z-index: 2;
       margin-bottom: var(--spacing-m);
     }
   }
+
+  .card-fixed-bottom {
+    width: 100%;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
 }
