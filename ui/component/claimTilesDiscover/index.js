@@ -17,6 +17,7 @@ import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptions } from 'util/claim-search';
+import * as CS from 'constants/claim_search';
 
 import ClaimListDiscover from './view';
 
@@ -119,10 +120,32 @@ function resolveSearchOptions(props) {
     any_languages: languages,
     channel_ids: channelIds || [],
     not_channel_ids: mutedAndBlockedChannelIds,
-    order_by: orderBy || ['trending_group', 'trending_mixed'],
+    order_by: resolveOrderByOption(orderBy),
     stream_types: streamTypesParam,
     remove_duplicates: true,
   };
+
+  function resolveOrderByOption(orderBy: string | Array<string>) {
+    let order_by;
+
+    switch (orderBy) {
+      case CS.ORDER_BY_TRENDING:
+        order_by = CS.ORDER_BY_TRENDING_VALUE;
+        break;
+      case CS.ORDER_BY_NEW:
+        order_by = CS.ORDER_BY_NEW_VALUE;
+        break;
+      case CS.ORDER_BY_NEW_ASC:
+        order_by = CS.ORDER_BY_NEW_ASC_VALUE;
+        break;
+      case CS.ORDER_BY_NAME_ASC:
+        order_by = CS.ORDER_BY_NAME_ASC_VALUE;
+        break;
+      default:
+        order_by = CS.ORDER_BY_TRENDING_VALUE;
+    }
+    return order_by;
+  }
 
   if (ENABLE_NO_SOURCE_CLAIMS && hasNoSource) {
     options.has_no_source = true;
