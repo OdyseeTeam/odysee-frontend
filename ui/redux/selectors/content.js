@@ -67,9 +67,12 @@ export const selectListIsLoopedForId = (state: State, id: string) => {
 
 export const selectFileIsPlayingOnPage = (state: State, uri: string) => {
   const primaryUri = selectPrimaryUri(state);
-  const url = selectCanonicalUrlForUri(state, uri);
+  if (primaryUri === uri) return true;
 
-  return primaryUri === url;
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim;
+
+  return (claim.canonical_url, claim.permanent_url).includes(primaryUri);
 };
 
 export const selectIsUriCurrentlyPlaying = (state: State, uri: string) => {
