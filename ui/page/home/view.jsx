@@ -206,8 +206,8 @@ function HomePage(props: Props) {
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>
-      <FeaturedBanner featured={homepageData} />
-      <Portals portals={homepageData.portals} />
+      <FeaturedBanner featured={homepageData.featured} />
+      {/* <Portals portals={homepageData.portals} /> */}
       {/* <Meme meme={homepageMeme} /> */}
 
       {!fetchingActiveLivestreams && (

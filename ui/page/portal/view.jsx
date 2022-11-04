@@ -46,7 +46,7 @@ function PortalPage(props: Props) {
             <p>{portal.description}</p>
           </div>
         </div>
-        <ClaimTilesDiscover claimIds={portal.claimIds} uris={[]} pageSize={18} />
+        <ClaimTilesDiscover claimIds={(portal.claimIds && portal.claimIds.videos) || []} uris={[]} pageSize={18} />
       </Page>
     </>
   );

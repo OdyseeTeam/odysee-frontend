@@ -225,7 +225,7 @@ function AppRouter(props: Props) {
   const isLargeScreen = useIsLargeScreen();
 
   const categoryPages = React.useMemo(() => {
-    const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
+    const dynamicRoutes = GetLinksData((homepageData && homepageData.categories) || {}, isLargeScreen).filter(
       (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
     );
 
