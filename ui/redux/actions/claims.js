@@ -605,6 +605,7 @@ export function doUpdateChannel(params: any, cb: any) {
       languages: params.languages || [],
       locations: [],
       blocking: true,
+      featured: params.featured || [],
     };
 
     if (params.tags) {

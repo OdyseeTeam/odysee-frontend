@@ -43,12 +43,6 @@
   z-index: 4;
 }
 
-.channel__thumbnail--channel-page.isSticky {
-  position: fixed;
-  background-color: #b95e5e;
-  margin-top: 100px;
-}
-
 .commentCreate {
   .tabs {
     overflow: hidden;
@@ -113,7 +107,7 @@
 }
 
 .tabs__list--comment-selector {
-  @extend .tabs__list--channel-page;
+  // @extend .tabs__list--channel-page;
   padding-left: var(--spacing-m) !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -135,6 +129,7 @@
   }
 }
 
+/*
 .tabs__list--channel-page {
   padding-left: calc(var(--channel-thumbnail-width) + var(--spacing-xl));
   padding-right: var(--spacing-m);
@@ -160,13 +155,16 @@
     }
   }
 }
+*/
 
+/*
 .tabs__list--channel-page--absolute {
   position: fixed;
   top: var(--header-height);
   z-index: 10;
   width: var(--page-max-width);
 }
+*/
 
 .tabs__list--collection-edit-page {
   padding-right: var(--spacing-m);

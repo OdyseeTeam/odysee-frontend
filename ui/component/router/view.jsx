@@ -122,7 +122,7 @@ const SettingsStripeCard = lazyImport(() =>
 const SettingsStripeAccount = lazyImport(() =>
   import('page/settingsStripeAccount' /* webpackChunkName: "settingsStripeAccount" */)
 );
-const SettingsCreatorPage = lazyImport(() => import('page/settingsCreator' /* webpackChunkName: "settingsCreator" */));
+// const SettingsCreatorPage = lazyImport(() => import('page/settingsCreator' /* webpackChunkName: "settingsCreator" */));
 const SettingsNotificationsPage = lazyImport(() =>
   import('page/settingsNotifications' /* webpackChunkName: "settingsNotifications" */)
 );
@@ -426,7 +426,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.WATCH_HISTORY}`} component={WatchHistoryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`} component={ListBlockedPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} />
+        {/* <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} /> */}
         <PrivateRoute {...props} path={`/$/${PAGES.WALLET}`} exact component={WalletPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNELS}`} component={ChannelsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CREATE}`} component={LivestreamCreatePage} />

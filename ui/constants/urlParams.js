@@ -3,12 +3,14 @@ export const FYP_ID = 'fypId';
 export const CHANNEL_PAGE = Object.freeze({
   QUERIES: { VIEW: 'view' },
   VIEWS: {
+    HOME: 'home',
     CONTENT: 'content',
     PLAYLISTS: 'playlists',
     CHANNELS: 'channels',
     MEMBERSHIP: 'membership',
     DISCUSSION: 'discussion',
     ABOUT: 'about',
+    SETTINGS: 'settings',
     EDIT: 'edit',
   },
 });

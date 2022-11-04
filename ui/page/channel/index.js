@@ -27,7 +27,7 @@ const select = (state, props) => {
   return {
     title: selectTitleForUri(state, props.uri),
     thumbnail: getThumbnailFromClaim(claim),
-    cover: makeSelectCoverForUri(props.uri)(state),
+    coverUrl: makeSelectCoverForUri(props.uri)(state),
     channelIsMine: selectClaimIsMine(state, claim),
     page: selectCurrentChannelPage(state),
     claim,

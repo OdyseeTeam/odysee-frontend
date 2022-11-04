@@ -1,6 +1,10 @@
 import { connect } from 'react-redux';
 
-import { selectHasPrivateCollectionForId, selectUrlsForCollectionId, selectClaimIdsForCollectionId } from 'redux/selectors/collections';
+import {
+  selectHasPrivateCollectionForId,
+  selectUrlsForCollectionId,
+  selectClaimIdsForCollectionId,
+} from 'redux/selectors/collections';
 
 import { doResolveClaimId } from 'redux/actions/claims';
 import { doFetchItemsInCollection } from 'redux/actions/collections';

@@ -1210,7 +1210,7 @@
   "Use a URL": "Use a URL",
   "Edit Cover Image": "Edit Cover Image",
   "Cover Image": "Cover Image",
-  "(6.25:1 ratio, %max_size%MB max)": "(6.25:1 ratio, %max_size%MB max)",
+  "(Recommmended: 2048x320 px)": "(Recommmended: 2048x320 px)",
   "(1:1 ratio, %max_size%MB max)": "(1:1 ratio, %max_size%MB max)",
   "You Followed Your First Channel!": "You Followed Your First Channel!",
   "You followed %CHANNEL_NAME%!": "You followed %CHANNEL_NAME%!",

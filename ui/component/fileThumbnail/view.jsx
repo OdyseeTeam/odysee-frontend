@@ -27,6 +27,8 @@ type Props = {
   claim: ?StreamClaim,
   className?: string,
   small?: boolean,
+  // forcePlaceholder?: boolean,
+  forceReload?: boolean,
   // -- redux --
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
@@ -43,6 +45,8 @@ function FileThumbnail(props: Props) {
     allowGifs = false,
     className,
     small,
+    // forcePlaceholder,
+    forceReload,
     // -- redux --
     hasResolvedClaim,
     thumbnailFromClaim,
@@ -105,7 +109,13 @@ function FileThumbnail(props: Props) {
 
   if (!gettingThumbnail && thumbnailUrl !== undefined) {
     return (
-      <Thumb small={small} thumb={thumbnailUrl} fallback={FALLBACK} className={className}>
+      <Thumb
+        small={small}
+        thumb={thumbnailUrl || MISSING_THUMB_DEFAULT}
+        fallback={FALLBACK}
+        className={className}
+        forceReload={forceReload}
+      >
         <PreviewOverlayProtectedContent uri={uri} />
         {children}
       </Thumb>

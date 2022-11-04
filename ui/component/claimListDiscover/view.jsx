@@ -686,6 +686,9 @@ function ClaimListDiscover(props: Props) {
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh]);
 
+  // console.log('searchOptions: ', optionsStringForEffect)
+  // console.log('claimSearchByQuery: ', claimSearchByQuery)
+
   const headerToUse = header || (
     <ClaimListHeader
       channelIds={channelIds}

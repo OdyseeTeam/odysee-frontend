@@ -25,6 +25,7 @@ import {
   selectHasAdminChannel,
   makeSelectChannelIsBlocked,
   makeSelectChannelIsAdminBlocked,
+  // selectSettingsByChannelId,
 } from 'redux/selectors/comments';
 import { doToast } from 'redux/actions/notifications';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
@@ -51,6 +52,8 @@ const select = (state, props) => {
   const isLivestreamClaim = isStreamPlaceholderClaim(claim);
   const permanentUrl = (claim && claim.permanent_url) || '';
   const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
+  const claimIsMine = selectClaimIsMine(state, claim);
+  // const settingsByChannelId = selectSettingsByChannelId(state);
 
   return {
     claim,
@@ -60,7 +63,8 @@ const select = (state, props) => {
     contentChannelUri,
     isLivestreamClaim,
     isPostClaim,
-    claimIsMine: selectClaimIsMine(state, claim),
+    claimIsMine,
+    // settingsByChannelId,
     hasClaimInWatchLater: selectCollectionForIdHasClaimUrl(
       state,
       COLLECTIONS_CONSTS.WATCH_LATER_ID,
