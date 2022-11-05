@@ -131,6 +131,19 @@ function ChannelPage(props: Props) {
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
 
+  const [legacyHeader, setLegacyHeader] = React.useState(false);
+  React.useEffect(() => {
+    const image = new Image();
+    if (coverUrl) {
+      image.src = coverUrl;
+      image.onload = function () {
+        if (image.naturalWidth / image.naturalHeight < 2) {
+          setLegacyHeader(true);
+        }
+      };
+    }
+  }, [coverUrl]);
+
   const [scrollPast, setScrollPast] = React.useState(0);
   const onScroll = () => {
     if (window.pageYOffset > 240) {
@@ -276,7 +289,10 @@ function ChannelPage(props: Props) {
   return (
     <Page className="channelPage-wrapper" noFooter fullWidthPage>
       <ChannelPageContext.Provider value>
-        <header className="channel-cover" style={coverUrl && { backgroundImage: 'url(' + String(coverUrl) + ')' }}>
+        <header
+          className={classnames('channel-cover', { 'channel-cover-legacy': legacyHeader })}
+          style={coverUrl && { backgroundImage: 'url(' + String(coverUrl) + ')' }}
+        >
           <div className="channel-header-content">
             <div className="channel__quick-actions">
               {isMyYouTubeChannel && (

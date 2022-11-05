@@ -418,6 +418,18 @@ $actions-z-index: 2;
   }
 }
 
+.channel-cover-legacy {
+  @media (min-width: $breakpoint-large) {
+    background-position-y: calc(50% - 280px);
+    background-size: cover;
+  }
+
+  @media (max-width: $breakpoint-large) {
+    background-position-y: calc(50% - 120px);
+    background-size: cover;
+  }
+}
+
 .channel-cover__custom {
   z-index: $cover-z-index;
   align-self: flex-start;
