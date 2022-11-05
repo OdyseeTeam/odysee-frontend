@@ -107,7 +107,7 @@ function HomeTab(props: Props) {
     newHome.push({
       type: undefined,
       file_type: CS.FILE_TYPES,
-      order_by: [],
+      order_by: CS.ORDER_BY_NEW_VALUE,
       claim_id: undefined,
     });
     setHome(newHome);
