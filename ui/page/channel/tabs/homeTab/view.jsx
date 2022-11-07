@@ -48,7 +48,7 @@ function HomeTab(props: Props) {
       file_type: CS.FILE_TYPES,
       order_by: CS.ORDER_BY_NEW_VALUE,
       claim_id: undefined,
-      rows: 1,
+      rows: 2,
     },
   ];
 
@@ -109,6 +109,7 @@ function HomeTab(props: Props) {
       file_type: CS.FILE_TYPES,
       order_by: CS.ORDER_BY_NEW_VALUE,
       claim_id: undefined,
+      rows: 1,
     });
     setHome(newHome);
   }
