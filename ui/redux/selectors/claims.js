@@ -21,7 +21,12 @@ import {
   getChannelPermanentUrlFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
-import { INTERNAL_TAGS, MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
+import {
+  INTERNAL_TAGS,
+  MEMBERS_ONLY_CONTENT_TAG,
+  RESTRICTED_CHAT_COMMENTS_TAG,
+  SCHEDULED_HIDDEN_TAG,
+} from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { removeInternalStringTags } from 'util/tags';
@@ -856,6 +861,16 @@ export const selectProtectedContentTagForUri = createSelector(
 export const selectedRestrictedCommentsChatTagForUri = createSelector(
   selectMetadataForUri,
   (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has(RESTRICTED_CHAT_COMMENTS_TAG)
+);
+
+export const selectShouldHideHiddenScheduledContent = createSelector(
+  selectMetadataForUri,
+  selectDateForUri,
+  (metadata: ?GenericMetadata, releaseTime) => {
+    const isScheduledHidden = metadata && new Set(metadata.tags).has(SCHEDULED_HIDDEN_TAG);
+    const releaseTimeInFuture = releaseTime > new Date();
+    return isScheduledHidden && releaseTimeInFuture;
+  }
 );
 
 export const selectUnlistedContentTag = createSelector(

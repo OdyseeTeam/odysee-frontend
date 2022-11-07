@@ -8,6 +8,7 @@ import {
   selectTitleForUri,
   selectDateForUri,
   selectGeoRestrictionForUri,
+  selectShouldHideHiddenScheduledContent,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectCollectionIsMine, selectFirstItemUrlForCollection } from 'redux/selectors/collections';
@@ -55,6 +56,7 @@ const select = (state, props) => {
     streamingUrl: (repostSrcUri || props.uri) && selectStreamingUrlForUri(state, repostSrcUri || props.uri),
     title: props.uri && selectTitleForUri(state, props.uri),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
+    shouldHideHiddenScheduledContent: selectShouldHideHiddenScheduledContent(state, props.uri),
   };
 };
 
