@@ -125,7 +125,6 @@ function HomePage(props: Props) {
   };
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
-    console.log('homepageOrder: ', homepageOrder);
     if (id === 'BANNER') {
       return <FeaturedBanner featured={homepageData.featured} />;
     } else if (id === 'PORTALS') {

@@ -15,14 +15,14 @@ export const PortalContext = React.createContext<any>();
 
 function PortalPage(props: Props) {
   const { portals } = props;
-  const [portal, setPortal] = React.useState(1);
+  const [portal, setIndex] = React.useState(undefined);
 
   let { portalName } = useParams();
 
   React.useEffect(() => {
     if (portals) {
       const index = portals.find((portal) => portal.name === portalName);
-      setPortal(index);
+      setIndex(index);
 
       const theme = document.getElementsByClassName('theme');
       // theme[0].style.backgroundImage = 'linear-gradient(312deg, rgba(0,0,0,1) 0%, rgba(101,15,124,1) 100%)';
@@ -37,18 +37,22 @@ function PortalPage(props: Props) {
   if (portal) console.log('portal: ', portal);
 
   return (
-    <>
-      <Page className="portal-wrapper" fullWidthPage>
-        <div className="portal-header">
-          <img src={portal.image} />
-          <div className="portal-meta">
-            <h1>{portal.label}</h1>
-            <p>{portal.description}</p>
+    portal && (
+      <>
+        <Page className="portal-wrapper" fullWidthPage>
+          <div className="portal-header">
+            <img src={portal.image} />
+            <div className="portal-meta">
+              <h1>{portal.label}</h1>
+              <p>{portal.description}</p>
+            </div>
           </div>
-        </div>
-        <ClaimTilesDiscover claimIds={(portal.claimIds && portal.claimIds.videos) || []} uris={[]} pageSize={18} />
-      </Page>
-    </>
+          <div className="portal-content">
+            <ClaimTilesDiscover claimIds={(portal.claimIds && portal.claimIds.videos) || []} uris={[]} pageSize={18} />
+          </div>
+        </Page>
+      </>
+    )
   );
 }
 
