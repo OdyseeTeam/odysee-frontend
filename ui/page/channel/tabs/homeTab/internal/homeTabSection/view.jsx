@@ -301,6 +301,7 @@ function HomeTabSection(props: Props) {
                   useSkeletonScreen={false}
                   uris={collectionUrls || claimSearchResults}
                   claimIds={collectionClaimIds}
+                  fetchViewCount
                 />
               </>
             ) : (
