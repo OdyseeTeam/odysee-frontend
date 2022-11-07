@@ -36,6 +36,7 @@ export default function ModalCustomizeHomepage(props: Props) {
   const [applyToSidebar, setApplyToSidebar] = React.useState(alsoApplyToSidebar);
   const order = React.useRef();
 
+  console.log('homepageOrder: ', homepageOrder);
   function handleNewOrder(newOrder: HomepageOrder) {
     order.current = newOrder;
   }

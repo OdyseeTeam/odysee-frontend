@@ -16,7 +16,9 @@ const Lazy = {
 };
 
 const NON_CATEGORY = Object.freeze({
+  BANNER: { label: 'Banner' },
   FOLLOWING: { label: 'Following' },
+  PORTALS: { label: 'Portals' },
   FYP: { label: 'Recommended' },
 });
 

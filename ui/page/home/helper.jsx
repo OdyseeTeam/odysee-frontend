@@ -46,6 +46,12 @@ export function getSortedRowData(
         } else if (key === 'FYP') {
           // Special-case injection (not part of category definition):
           sortedRowData.push(FYP_SECTION);
+        } else if (key === 'BANNER') {
+          // Special-case injection (not part of category definition):
+          sortedRowData.push({ id: 'BANNER', title: undefined });
+        } else if (key === 'PORTALS') {
+          // Special-case injection (not part of category definition):
+          sortedRowData.push({ id: 'PORTALS', title: undefined });
         }
       });
 

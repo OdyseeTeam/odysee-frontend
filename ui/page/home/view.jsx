@@ -125,6 +125,13 @@ function HomePage(props: Props) {
   };
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
+    console.log('homepageOrder: ', homepageOrder);
+    if (id === 'BANNER') {
+      return <FeaturedBanner featured={homepageData.featured} />;
+    } else if (id === 'PORTALS') {
+      return <Portals portals={homepageData.portals} />;
+    }
+
     const tilePlaceholder = (
       <ul className="claim-grid">
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
@@ -208,8 +215,6 @@ function HomePage(props: Props) {
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>
-      <FeaturedBanner featured={homepageData.featured} />
-      <Portals portals={homepageData.portals} />
       {/* <Meme meme={homepageMeme} /> */}
 
       {!fetchingActiveLivestreams && (
