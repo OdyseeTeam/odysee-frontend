@@ -15,22 +15,24 @@ export default function FeaturedBanner(props: Props) {
   const [marginLeft, setMarginLeft] = React.useState(0);
   const [width, setWidth] = React.useState(0);
   const [index, setIndex] = React.useState(1);
+  const [pause, setPause] = React.useState(false);
   const wrapper = React.useRef(null);
 
   React.useEffect(() => {
     if (featured && width) {
       const interval = setInterval(() => {
-        setIndex(index + 1 <= featured.items.length ? index + 1 : 1);
+        if (!pause) {
+          setIndex(index + 1 <= featured.items.length ? index + 1 : 1);
+        }
       }, featured.transitionTime * 1000 + 1000);
       return () => clearInterval(interval);
     }
-  }, [featured, marginLeft, width]);
+  }, [featured, marginLeft, width, pause]);
 
   React.useEffect(() => {
     if (featured && width) {
       let newWidth = marginLeft * -1 < (index - 1) * width ? marginLeft - width : 0;
       setMarginLeft(newWidth);
-      console.log('index: ', index);
     }
   }, [featured, index, width]);
 
@@ -50,7 +52,12 @@ export default function FeaturedBanner(props: Props) {
   }
 
   return (
-    <div className="featured-banner-wrapper" ref={wrapper}>
+    <div
+      className="featured-banner-wrapper"
+      ref={wrapper}
+      onMouseEnter={() => setPause(true)}
+      onMouseLeave={() => setPause(false)}
+    >
       <div className="featured-banner-remove">
         <Icon icon={ICONS.REMOVE} />
       </div>
