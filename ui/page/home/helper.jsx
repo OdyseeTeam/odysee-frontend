@@ -67,6 +67,8 @@ export function getSortedRowData(
       sortedRowData = pushAllValidCategories(rowData, hasMembership);
     }
   } else {
+    rowData.unshift({ id: 'BANNER', title: undefined });
+    rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
     sortedRowData = pushAllValidCategories(rowData, hasMembership);
   }
 
