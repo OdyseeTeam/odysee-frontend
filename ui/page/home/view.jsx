@@ -74,7 +74,7 @@ function HomePage(props: Props) {
   const subscriptionChannelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
 
   const rowData: Array<RowDataItem> = GetLinksData(
-    homepageData.categories,
+    homepageData,
     isLargeScreen,
     true,
     authenticated,

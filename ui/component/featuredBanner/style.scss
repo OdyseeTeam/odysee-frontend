@@ -9,12 +9,35 @@
   .featured-banner-rotator {
     margin-left: 0;
     transition: all 1s;
-    // overflow-x:scroll;
     overflow: hidden;
     display: flex;
     height: 100%;
   }
   .featured-banner-image {
     display: inline-block;
+    img {
+      width: 100%;
+    }
+  }
+  .featured-banner-remove {
+    position: absolute;
+    top: var(--spacing-m);
+    right: var(--spacing-m);
+    background-color: var(--color-primary);
+    padding: 0.3rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    opacity: 0;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  &:hover {
+    .featured-banner-remove {
+      opacity: 1;
+    }
   }
 }
