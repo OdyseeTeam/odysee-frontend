@@ -125,7 +125,6 @@ function HomePage(props: Props) {
   };
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
-    console.log('title 2: ', title);
     const tilePlaceholder = (
       <ul className="claim-grid">
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
@@ -204,6 +203,8 @@ function HomePage(props: Props) {
   React.useEffect(() => {
     doFetchActiveLivestreams();
   }, []);
+
+  console.log('homepageData:; ', homepageData);
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>

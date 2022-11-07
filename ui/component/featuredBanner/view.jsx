@@ -14,17 +14,25 @@ export default function FeaturedBanner(props: Props) {
   const { featured } = props;
   const [marginLeft, setMarginLeft] = React.useState(0);
   const [width, setWidth] = React.useState(0);
+  const [index, setIndex] = React.useState(1);
   const wrapper = React.useRef(null);
 
   React.useEffect(() => {
     if (featured && width) {
       const interval = setInterval(() => {
-        let newWidth = marginLeft * -1 < (featured.items.length - 1) * width ? marginLeft - width : 0;
-        setMarginLeft(newWidth);
+        setIndex(index + 1 <= featured.items.length ? index + 1 : 1);
       }, featured.transitionTime * 1000 + 1000);
       return () => clearInterval(interval);
     }
   }, [featured, marginLeft, width]);
+
+  React.useEffect(() => {
+    if (featured && width) {
+      let newWidth = marginLeft * -1 < (index - 1) * width ? marginLeft - width : 0;
+      setMarginLeft(newWidth);
+      console.log('index: ', index);
+    }
+  }, [featured, index, width]);
 
   useOnResize(() => {
     if (wrapper.current) {
@@ -61,6 +69,25 @@ export default function FeaturedBanner(props: Props) {
                 <img src={item.image} style={{ width: width }} />
               </NavLink>
             );
+          })}
+      </div>
+      {index > 1 && (
+        <div className="banner-browse left" onClick={() => setIndex(index > 1 ? index - 1 : 1)}>
+          ‹
+        </div>
+      )}
+      {featured && index < featured.items.length && (
+        <div
+          className="banner-browse right"
+          onClick={() => setIndex(index < featured.items.length ? index + 1 : featured.items.length)}
+        >
+          ›
+        </div>
+      )}
+      <div className="banner-active-indicator">
+        {featured &&
+          featured.items.map((item, i) => {
+            return <div key={i} className={i + 1 === index && 'banner-active-indicator-active'} />;
           })}
       </div>
     </div>

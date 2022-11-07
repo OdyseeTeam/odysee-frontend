@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { NavLink, withRouter } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import './style.scss';
 type Props = {
   portals: any,
@@ -17,9 +17,9 @@ export default function Portals(props: Props) {
   return portals && portals.mainPortal ? (
     <div className="portals-wrapper">
       <h1>{portals.mainPortal.description}</h1>
-      {portals.mainPortal.portals.map((portal) => {
+      {portals.mainPortal.portals.map((portal, i) => {
         return (
-          <div className="portal-wrapper">
+          <div className="portal-wrapper" key={i}>
             <NavLink aria-hidden tabIndex={-1} to={{ pathname: '$/portal/' + portal.name, state: portal }}>
               <div className="portal-thumbnail">
                 <img src={portal.image} />
@@ -31,8 +31,8 @@ export default function Portals(props: Props) {
           </div>
         );
       })}
-      <div className="portal-browse left">◄</div>
-      <div className="portal-browse right">►</div>
+      <div className="portal-browse left">‹</div>
+      <div className="portal-browse right">›</div>
 
       <div className="portal-page-indicator">
         <div />
