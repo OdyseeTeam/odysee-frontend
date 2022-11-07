@@ -799,10 +799,20 @@ export const doPublish = (success: Function, fail: Function, previewFn?: Functio
 
   const { channel_id: channelClaimId } = publishPayload;
 
+  const existingClaimId = myClaimForUri?.claim_id;
+
   // hit backend to save restricted memberships
   // hit the backend immediately to save the data, we will overwrite it if publish succeeds
   if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '') && !previewFn) {
-    dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, '', name, restrictedToMemberships, true));
+    dispatch(
+      doSaveMembershipRestrictionsForContent(
+        channelClaimId,
+        existingClaimId,
+        name,
+        restrictedToMemberships,
+        existingClaimId ? undefined : true
+      )
+    );
   }
 
   if (previewFn) {
