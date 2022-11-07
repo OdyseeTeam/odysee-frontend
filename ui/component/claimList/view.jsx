@@ -277,9 +277,13 @@ export default function ClaimList(props: Props) {
         // currentActiveItem.current !== node prevents re-scrolling during the same render
         // so it should only auto scroll when the active item switches, the button to scroll is clicked
         // or the list itself changes (switch between floating player vs file page)
-        if (isActive && setActiveListItemRef && currentActiveItem.current !== node) {
+        if (
+          isActive &&
+          setActiveListItemRef &&
+          currentActiveItem.current !== node.getAttribute('data-rbd-draggable-id')
+        ) {
           setActiveListItemRef(node);
-          currentActiveItem.current = node;
+          currentActiveItem.current = node.getAttribute('data-rbd-draggable-id');
         }
       }
     },
@@ -400,9 +404,6 @@ export default function ClaimList(props: Props) {
                         Number(
                           playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
                         );
-                      if (playerElem && navigator.userAgent.toLowerCase().includes('firefox')) {
-                        playerTop -= playerElem.offsetHeight;
-                      }
 
                       const style = {
                         ...draggableProvided.draggableProps.style,

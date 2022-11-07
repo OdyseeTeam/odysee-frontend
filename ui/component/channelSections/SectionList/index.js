@@ -1,35 +1,23 @@
 import SectionList from './view';
 import { connect } from 'react-redux';
+
 import { doOpenModal } from 'redux/actions/app';
-import { doClaimSearch } from 'redux/actions/claims';
-import { doFetchItemsInCollections, doPublishFeaturedChannels } from 'redux/actions/collections';
-import { selectClaimIdForUri, selectClaimSearchByQuery, selectIsFetchingMyCollections } from 'redux/selectors/claims';
-import {
-  selectFeaturedChannelsByChannelId,
-  selectFeaturedChannelsPublishing,
-  selectMyEditedCollections,
-  selectMyUnpublishedCollections,
-} from 'redux/selectors/collections';
-import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
+
+import { selectClaimIdForUri } from 'redux/selectors/claims';
+import { selectFeaturedChannelsForChannelId, selectFetchingCreatorSettings } from 'redux/selectors/comments';
 
 const select = (state, props) => {
+  const claimId = selectClaimIdForUri(state, props.uri);
+
   return {
-    claimId: selectClaimIdForUri(state, props.uri),
-    featuredChannelsByChannelId: selectFeaturedChannelsByChannelId(state),
-    claimSearchByQuery: selectClaimSearchByQuery(state),
-    myUnpublishedCollections: selectMyUnpublishedCollections(state),
-    myEditedCollections: selectMyEditedCollections(state),
-    isPublishing: selectFeaturedChannelsPublishing(state),
-    isFetchingMyCollections: selectIsFetchingMyCollections(state),
-    userHasOdyseeMembership: selectUserHasValidOdyseeMembership(state),
+    claimId,
+    featuredChannels: selectFeaturedChannelsForChannelId(state, claimId),
+    fetchingCreatorSettings: selectFetchingCreatorSettings(state),
   };
 };
 
 const perform = {
   doOpenModal,
-  doClaimSearch,
-  doFetchItemsInCollections,
-  doPublishFeaturedChannels,
 };
 
 export default connect(select, perform)(SectionList);

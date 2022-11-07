@@ -52,18 +52,23 @@ body {
 
 .sidebar--pusher {
   animation-timing-function: var(--resizing-animation-function);
-  transition: transform var(--resizing-animation-timing);
-  transform-origin: top center;
+  // transition: transform var(--resizing-animation-timing);
+  // transform-origin: top center;
+  // will-change: transform;
+  padding-left: var(--side-nav-width--micro);
   position: absolute;
+  width: 100%;
 
   @media (max-width: $breakpoint-small) {
-    transform: translateX(0);
-    width: calc(100% - var(--spacing-m));
+    // transform: translateX(0);
+    // width: calc(100% - var(--spacing-m));
+    padding-left: 0;
+    margin-left: calc(var(--spacing-xs) * -1);
   }
 
   @media (min-width: $breakpoint-small) {
-    transform: translateX(var(--side-nav-width--micro));
-    width: calc(100% - ((var(--side-nav-width--micro))));
+    // transform: translateX(var(--side-nav-width--micro));
+    // width: calc(100% - ((var(--side-nav-width--micro))));
   }
 }
 
@@ -72,9 +77,11 @@ body {
 }
 
 .sidebar--pusher--open {
+  /*
   @media (min-width: $breakpoint-medium) {
     transform: scaleX(0.9) translateX(calc(5.4 * var(--spacing-l))) scaleY(0.9);
   }
+  */
 }
 
 .main-wrapper__inner--auth {

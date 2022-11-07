@@ -39,7 +39,6 @@ type Props = {
   collectionId: string,
   collection: Collection,
   collectionUrls: Array<string>,
-  isResolvingCollection: boolean,
   isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
   homepageFetched: boolean,
@@ -52,7 +51,7 @@ type Props = {
   fetchChannelLiveStatus: (channelId: string) => void,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (name: ?string) => void,
-  doFetchItemsInCollection: ({ collectionId: string }) => void,
+  doResolveClaimId: (claimId: string) => void,
   doOpenModal: (string, {}) => void,
   preferEmbed: boolean,
 };
@@ -73,7 +72,6 @@ export default function ShowPage(props: Props) {
     collectionId,
     collection,
     collectionUrls,
-    isResolvingCollection,
     isAuthenticated,
     geoRestriction,
     homepageFetched,
@@ -85,8 +83,8 @@ export default function ShowPage(props: Props) {
     fetchLatestClaimForChannel,
     fetchChannelLiveStatus,
     doResolveUri,
+    doResolveClaimId,
     doBeginPublish,
-    doFetchItemsInCollection,
     doOpenModal,
     preferEmbed,
   } = props;
@@ -108,7 +106,6 @@ export default function ShowPage(props: Props) {
 
   const { contentName, isChannel } = parseURI(uri); // deprecated contentName - use streamName and channelName
   const isCollection = claim && claim.value_type === 'collection';
-  const resolvedCollection = collection && collection.id; // not null
   const showLiveStream = isLivestream && ENABLE_NO_SOURCE_CLAIMS;
 
   const channelOutpoint = signingChannel ? `${signingChannel.txid}:${signingChannel.nout}` : '';
@@ -140,12 +137,9 @@ export default function ShowPage(props: Props) {
     }
   }, [canonicalUrl, fetchLatestClaimForChannel, latestClaimUrl, latestContentPath]);
 
-  // changed this from 'isCollection' to resolve strangers' collections.
-  useEffect(() => {
-    if (collectionId && !resolvedCollection) {
-      doFetchItemsInCollection({ collectionId });
-    }
-  }, [isCollection, resolvedCollection, collectionId, doFetchItemsInCollection]);
+  React.useEffect(() => {
+    if (collectionId) doResolveClaimId(collectionId);
+  }, [collectionId, doResolveClaimId]);
 
   useEffect(() => {
     if (canonicalUrl) {
@@ -250,8 +244,6 @@ export default function ShowPage(props: Props) {
         {(haventFetchedYet ||
           shouldResolveUri || // covers the initial mount case where we haven't run doResolveUri, so 'isResolvingUri' is not true yet.
           isResolvingUri ||
-          isResolvingCollection || // added for collection
-          (isCollection && !urlForCollectionZero) || // added for collection - make sure we accept urls = []
           (creatorSettings === undefined && channelClaimId)) && (
           <div className="main--empty">
             <Spinner />

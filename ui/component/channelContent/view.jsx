@@ -206,7 +206,7 @@ function ChannelContent(props: Props) {
             isChannel
             channelIsMine={channelIsMine}
             empty={isSearching ? ' ' : empty}
-            notTags={claimType === 'collection' ? SECTION_TAGS.FEATURED_CHANNELS : undefined}
+            notTags={claimType === 'collection' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined}
             csOptionsHook={tagSearchCsOptionsHook}
           />
         </ClaimSearchFilterContext.Provider>

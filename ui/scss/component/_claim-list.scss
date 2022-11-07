@@ -384,7 +384,7 @@
   }
 
   .button--uri-indicator {
-    max-width: 12rem;
+    max-width: 11.4rem;
   }
 
   .claim__menu-button {
@@ -1647,8 +1647,11 @@ $claim-preview-progress-bar-height: 5px;
 .claim-preview__overlay-properties--small {
   @extend .claim-preview__overlay-properties;
   line-height: 0.9;
-  font-size: var(--font-xxsmall);
   color: var(--color-text);
+
+  &:not(.playlist-channel) {
+    font-size: var(--font-xxsmall);
+  }
 
   @media (min-width: $breakpoint-small) {
     &.playlist-channel {

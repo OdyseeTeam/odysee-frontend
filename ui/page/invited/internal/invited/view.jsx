@@ -8,7 +8,7 @@ import Card from 'component/common/card';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { ERRORS } from 'lbryinc';
 import { formatLbryUrlForWeb } from 'util/url';
-import ChannelContent from 'component/channelContent';
+import ContentTab from 'page/channel/tabs/contentTab';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
 
@@ -98,7 +98,7 @@ function Invited(props: Props) {
       referrerIsChannel && (
         <div className="claim-preview--channel">
           <div className="section">
-            <ChannelContent uri={referrerUri} defaultPageSize={3} defaultInfiniteScroll={false} />
+            <ContentTab uri={referrerUri} defaultPageSize={3} defaultInfiniteScroll={false} />
           </div>
         </div>
       ),

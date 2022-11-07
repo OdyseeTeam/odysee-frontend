@@ -25,6 +25,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
+import snapshotButton from './plugins/videojs-snapshot-button/plugin';
+
 // import runAds from './ads';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
@@ -77,6 +79,8 @@ export type Player = {
   src: ({ src: string, type: string }) => ?string,
   currentSrc: () => string,
   userActive: (?boolean) => boolean,
+  videoWidth: () => number,
+  videoHeight: () => number,
   volume: (?number) => number,
 };
 
@@ -85,7 +89,7 @@ type Props = {
   allowPreRoll: ?boolean,
   autoplay: boolean,
   claimId: ?string,
-  title: ?string,
+  // title: ?string,
   // channelName: string,
   channelTitle: string,
   embedded: boolean, // `/$/embed`
@@ -130,6 +134,7 @@ const PLUGIN_MAP = {
   recsys: recsys,
   i18n: i18n,
   watchdog: watchdog,
+  snapshotButton: snapshotButton,
 };
 
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {

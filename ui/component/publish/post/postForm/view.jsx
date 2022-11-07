@@ -496,7 +496,7 @@ function PostForm(props: Props) {
                 odysee_community_guidelines: (
                   <Button
                     button="link"
-                    href="https://help.odysee.tv/communityguidelines"
+                    href="https://help.odysee.tv/communityguidelines/"
                     target="_blank"
                     label={__('Community Guidelines')}
                   />

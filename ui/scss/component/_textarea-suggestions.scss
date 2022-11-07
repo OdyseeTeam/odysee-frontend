@@ -20,7 +20,7 @@
 .MuiAutocomplete-root {
   background-color: var(--color-input-bg);
   border-radius: var(--border-radius);
-  border: 2px solid var(--color-border) !important;
+  // border: 2px solid var(--color-border) !important;
 }
 
 .comment-create__auth {
@@ -178,7 +178,7 @@
 
 .MuiFormControl-root {
   border-radius: var(--border-radius);
-  box-shadow: 0 0 0 2px var(--color-border) inset;
+  // box-shadow: 0 0 0 2px var(--color-border) inset;
 }
 
 .MuiAutocomplete-paper {

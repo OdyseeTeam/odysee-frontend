@@ -29,7 +29,6 @@ type Props = {
   hideReposts: ?boolean,
   showNsfw: boolean,
   hideScheduledLivestreams: boolean,
-  myChannelUrls: ?Array<string>,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
@@ -50,7 +49,6 @@ export default function SettingContent(props: Props) {
     hideReposts,
     showNsfw,
     hideScheduledLivestreams,
-    myChannelUrls,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
@@ -184,17 +182,6 @@ export default function SettingContent(props: Props) {
                     navigate={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`}
                   />
                 </SettingsRow>
-
-                {myChannelUrls && myChannelUrls.length > 0 && (
-                  <SettingsRow title={__('Creator settings')}>
-                    <Button
-                      button="inverse"
-                      label={__('Manage')}
-                      icon={ICONS.ARROW_RIGHT}
-                      navigate={`/$/${PAGES.SETTINGS_CREATOR}`}
-                    />
-                  </SettingsRow>
-                )}
               </>
             )}
 

@@ -12,7 +12,7 @@ import analytics from 'analytics';
 import { sortLanguageMap } from 'util/default-languages';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
-import { AVATAR_DEFAULT, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import { AVATAR_DEFAULT } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PUBLISH from 'constants/publish';
 
@@ -166,9 +166,7 @@ function UserFirstChannel(props: Props) {
                     openModal(MODALS.IMAGE_UPLOAD, {
                       onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
                       title: __('Edit Thumbnail Image'),
-                      helpText: __('(1:1 ratio, %max_size%MB max)', {
-                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                      }),
+                      helpText: __('(1:1 ratio)'),
                       assetName: __('Thumbnail'),
                       currentValue: params.thumbnailUrl,
                     })

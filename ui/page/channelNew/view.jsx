@@ -27,7 +27,13 @@ function ChannelNew(props: Props) {
   }, [isAuthenticated, claimConfirmEmailReward, emptyBalance]);
 
   return (
-    <Page noSideNavigation noFooter backout={{ title: __('Create a channel'), backLabel: __('Cancel') }}>
+    <Page
+      className="channelPage-wrapper channelPage-edit-wrapper channelPage-new-wrapper"
+      noSideNavigation
+      fullWidthPage
+      noFooter
+      backout={{ title: __('Create a channel'), backLabel: __('Cancel') }}
+    >
       {emptyBalance && <YrblWalletEmpty />}
 
       {channelCountOverLimit && (

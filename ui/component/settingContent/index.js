@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { selectMyChannelClaimUrls } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
 import { doOpenModal } from 'redux/actions/app';
 import { doClearPlayingUri } from 'redux/actions/content';
@@ -20,7 +19,6 @@ const select = (state, props) => ({
   hideReposts: selectClientSetting(state, SETTINGS.HIDE_REPOSTS),
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   showNsfw: selectShowMatureContent(state),
-  myChannelUrls: selectMyChannelClaimUrls(state),
   instantPurchaseEnabled: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED),
   instantPurchaseMax: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX),
   enablePublishPreview: selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW),

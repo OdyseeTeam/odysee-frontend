@@ -35,7 +35,7 @@ type Props = {
   hideCancel: boolean,
   history: {
     goBack: () => void,
-    location: { pathname: string },
+    location: { pathname: string, search: string },
     push: (string) => void,
     replace: (string) => void,
   },
@@ -61,6 +61,7 @@ const Header = (props: Props) => {
     backout,
     balance,
     emailToVerify,
+    hasNavigated,
     hideBalance,
     hideCancel,
     history,
@@ -79,7 +80,7 @@ const Header = (props: Props) => {
   } = props;
 
   const {
-    location: { pathname },
+    location: { pathname, search },
     goBack,
     push,
   } = history;
@@ -92,6 +93,9 @@ const Header = (props: Props) => {
   const isSignInPage = pathname.includes(PAGES.AUTH_SIGNIN);
   const isPwdResetPage = pathname.includes(PAGES.AUTH_PASSWORD_RESET);
   const iYTSyncPage = pathname.includes(PAGES.YOUTUBE_SYNC);
+
+  const urlParams = new URLSearchParams(search);
+  const returnPath = urlParams.get('redirect');
 
   // For pages that allow for "backing out", shows a backout option instead of the Home logo
   const canBackout = Boolean(backout);
@@ -112,21 +116,20 @@ const Header = (props: Props) => {
 
   const onBackout = React.useCallback(
     (e: any) => {
-      const { hasNavigated } = props;
-      const { replace } = history;
-
       window.removeEventListener('popstate', onBackout);
 
       if (e.type !== 'popstate') {
-        // if not initiated by pop (back button)
-        if (hasNavigated && !backNavDefault) {
+        if (returnPath) {
+          push(returnPath);
+        } else if (hasNavigated && !backNavDefault) {
+          // if not initiated by pop (back button)
           goBack();
         } else {
-          replace(backNavDefault || `/`);
+          push(backNavDefault || `/`);
         }
       }
     },
-    [backNavDefault, goBack, history, props]
+    [backNavDefault, goBack, hasNavigated, push, returnPath]
   );
 
   React.useEffect(() => {

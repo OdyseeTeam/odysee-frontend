@@ -38,7 +38,6 @@ type Props = {
   isResolvingUri: boolean,
   claimIsMine: boolean,
   history: { push: (string) => void },
-  thumbnail: string,
   title: string,
   placeholder: boolean,
   banState: { blacklisted?: boolean, filtered?: boolean, muted?: boolean, blocked?: boolean },
@@ -60,6 +59,7 @@ type Props = {
   swipeLayout: boolean,
   onHidden?: (string) => void,
   pulse?: boolean,
+  firstCollectionItemUrl: ?string,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -70,7 +70,6 @@ function ClaimPreviewTile(props: Props) {
     date,
     isResolvingUri,
     claimIsMine,
-    thumbnail,
     title,
     resolveUri,
     claim,
@@ -95,6 +94,7 @@ function ClaimPreviewTile(props: Props) {
     swipeLayout = false,
     onHidden,
     pulse,
+    firstCollectionItemUrl,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -111,7 +111,7 @@ function ClaimPreviewTile(props: Props) {
     (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const shouldFetch = claim === undefined;
-  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder) || thumbnail;
+  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId;
@@ -252,7 +252,7 @@ function ClaimPreviewTile(props: Props) {
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
-        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri}>
+        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
           {!isChannel && (
             <React.Fragment>
               {((fypId && isStream) || isPlayable) && (

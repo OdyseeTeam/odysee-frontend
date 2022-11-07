@@ -51,6 +51,7 @@ function DiscoverPage(props: Props) {
 
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
   const isCategory = Boolean(dynamicRouteProps);
+  const hideFilter = dynamicRouteProps?.hideSort || undefined;
 
   const urlParams = new URLSearchParams(search);
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
@@ -174,8 +175,7 @@ function DiscoverPage(props: Props) {
     // don't know what the fallback actually is for our remaining logic (i.e.
     // getReleaseTime()) to work correctly.
     // Make it explicit here rather than depending on the component's default.
-
-    return isWildWest || tags ? CS.ORDER_BY_TRENDING : CS.ORDER_BY_TOP;
+    return isWildWest || tags ? CS.ORDER_BY_TRENDING : dynamicRouteProps?.options?.orderBy || CS.ORDER_BY_TOP;
   }
 
   function getReleaseTime() {
@@ -218,7 +218,7 @@ function DiscoverPage(props: Props) {
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
         <ClaimListDiscover
           pins={getPins(dynamicRouteProps)}
-          hideFilters={isWildWest ? true : undefined}
+          hideFilters={isWildWest ? true : hideFilter}
           header={repostedUri ? <span /> : undefined}
           subSection={getSubSection()}
           tileLayout={repostedUri ? false : tileLayout}

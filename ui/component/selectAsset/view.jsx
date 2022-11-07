@@ -7,6 +7,7 @@ import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import usePersistedState from 'effects/use-persisted-state';
+import './style.scss';
 
 var accept = '.png, .jpg, .jpeg, .gif';
 if (window.cordova) accept = 'image/*';
@@ -15,6 +16,7 @@ const STATUS = { READY: 'READY', UPLOADING: 'UPLOADING' };
 type Props = {
   assetName: string,
   currentValue: ?string,
+  otherValue: ?string,
   onUpdate: (string, boolean) => void,
   recommended: string,
   title: string,
@@ -23,10 +25,12 @@ type Props = {
 };
 
 function SelectAsset(props: Props) {
-  const { onUpdate, onDone, assetName, currentValue, recommended, title, inline } = props;
+  const { onUpdate, onDone, assetName, currentValue, otherValue, recommended, title, inline } = props;
   const [pathSelected, setPathSelected] = React.useState('');
   const [fileSelected, setFileSelected] = React.useState<any>(null);
   const [uploadStatus, setUploadStatus] = React.useState(STATUS.READY);
+  const [imagePreview, setImagePreview] = React.useState(null);
+
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
@@ -96,6 +100,42 @@ function SelectAsset(props: Props) {
     // Include the same label/recommendation for both 'URL' and 'UPLOAD'.
     fileSelectorLabel = `${label} ${fileSelected || pathSelected ? __(selectedLabel) : __(selectFileLabel)}`;
   }
+
+  const currentPlaceholder = pathSelected ? imagePreview : currentValue;
+  const ChannelPreview = () => {
+    return (
+      <div className="channel-preview-wrapper">
+        <div
+          className="channel-preview-header"
+          style={{
+            backgroundImage:
+              'url(' + (assetName === 'Cover Image' ? String(currentPlaceholder) : String(otherValue)) + ')',
+          }}
+        />
+        <div className="channel-preview-tabs" />
+        <div className="channel-preview-thumbnail">
+          {otherValue && <img src={assetName === 'Cover Image' ? String(otherValue) : String(currentPlaceholder)} />}
+        </div>
+        <div className="channel-preview-grid">
+          {Array.from(Array(6), (e, i) => {
+            return (
+              <div className="channel-preview-grid-tile">
+                <div />
+                <div />
+                <div />
+                <div />
+                <div>
+                  <div />
+                  <div />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const formBody = (
     <>
       <fieldset-section>
@@ -114,30 +154,34 @@ function SelectAsset(props: Props) {
             }}
           />
         ) : (
-          <FileSelector
-            autoFocus
-            disabled={uploadStatus === STATUS.UPLOADING}
-            label={fileSelectorLabel}
-            name="assetSelector"
-            currentPath={pathSelected}
-            onFileChosen={(file) => {
-              if (file.name) {
-                setFileSelected(file);
-                // what why? why not target=WEB this?
-                // file.path is undefined in web but available in electron
-                setPathSelected(file.name || file.path);
-                setUploadErrorMsg('');
+          <>
+            <FileSelector
+              autoFocus
+              disabled={uploadStatus === STATUS.UPLOADING}
+              label={fileSelectorLabel}
+              name="assetSelector"
+              currentPath={pathSelected}
+              onFileChosen={(file) => {
+                if (file.name) {
+                  setFileSelected(file);
+                  // what why? why not target=WEB this?
+                  // file.path is undefined in web but available in electron
+                  setPathSelected(file.name || file.path);
+                  setUploadErrorMsg('');
+                  setImagePreview(URL.createObjectURL(file));
 
-                if (file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
-                  const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
-                  setUploadErrorMsg(
-                    __('Thumbnail size over %max_size%MB, please edit and reupload.', { max_size: maxSizeMB })
-                  );
+                  if (file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
+                    const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
+                    setUploadErrorMsg(
+                      __('Thumbnail size over %max_size%MB, please edit and reupload.', { max_size: maxSizeMB })
+                    );
+                  }
                 }
-              }
-            }}
-            accept={accept}
-          />
+              }}
+              accept={accept}
+            />
+            {(assetName === 'Cover Image' || assetName === 'Thumbnail') && <ChannelPreview />}
+          </>
         )}
       </fieldset-section>
 

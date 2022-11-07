@@ -1,7 +1,8 @@
 // @flow
 import React from 'react';
+
 import ClaimList from 'component/claimList';
-import Spinner from 'component/spinner';
+import withCollectionItems from 'hocs/withCollectionItems';
 
 // prettier-ignore
 const Lazy = {
@@ -14,33 +15,12 @@ const Lazy = {
 type Props = {
   collectionId: string,
   // -- redux --
-  collection: Collection,
-  isPrivateCollection: boolean,
-  isEditedCollection: boolean,
-  isResolvingCollection: boolean,
-  collectionUrls: Array<string>,
+  collectionUrls: ?Array<string>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
-  doFetchItemsInCollection: (options: { collectionId: string, pageSize?: number }) => void,
 };
 
 const CollectionItemsList = (props: Props) => {
-  const {
-    collectionId,
-    collection,
-    isPrivateCollection,
-    isEditedCollection,
-    collectionUrls,
-    isResolvingCollection,
-    doCollectionEdit,
-    doFetchItemsInCollection,
-    ...claimListProps
-  } = props;
-
-  const { totalItems } = collection || {};
-
-  const urlsReady = collectionUrls && (totalItems === undefined || totalItems === collectionUrls.length);
-  const shouldFetchItems = isPrivateCollection || isEditedCollection || (!urlsReady && collectionId && !collection);
-  const didInitialFetch = React.useRef(!shouldFetchItems);
+  const { collectionId, collectionUrls, doCollectionEdit, ...claimListProps } = props;
 
   function handleOnDragEnd(result: any) {
     const { source, destination } = result;
@@ -52,35 +32,23 @@ const CollectionItemsList = (props: Props) => {
 
     doCollectionEdit(collectionId, { order: { from, to } });
   }
-  React.useEffect(() => {
-    if (shouldFetchItems && !didInitialFetch.current) {
-      doFetchItemsInCollection({ collectionId });
-      didInitialFetch.current = true;
-    }
-  }, [collectionId, doFetchItemsInCollection, shouldFetchItems]);
 
   return (
     <React.Suspense fallback={null}>
-      {isResolvingCollection ? (
-        <div className="main--empty">
-          <Spinner />
-        </div>
-      ) : (
-        <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-          <Lazy.Droppable droppableId="list__ordering">
-            {(DroppableProvided) => (
-              <ClaimList
-                collectionId={collectionId}
-                uris={collectionUrls}
-                droppableProvided={DroppableProvided}
-                {...claimListProps}
-              />
-            )}
-          </Lazy.Droppable>
-        </Lazy.DragDropContext>
-      )}
+      <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+        <Lazy.Droppable droppableId="list__ordering">
+          {(DroppableProvided) => (
+            <ClaimList
+              collectionId={collectionId}
+              uris={collectionUrls}
+              droppableProvided={DroppableProvided}
+              {...claimListProps}
+            />
+          )}
+        </Lazy.Droppable>
+      </Lazy.DragDropContext>
     </React.Suspense>
   );
 };
 
-export default CollectionItemsList;
+export default withCollectionItems(CollectionItemsList);

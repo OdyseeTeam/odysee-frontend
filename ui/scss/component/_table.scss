@@ -302,8 +302,11 @@ td {
       color: var(--color-text);
       font-size: var(--font-medium);
     }
+
     @media (max-width: $breakpoint-medium) {
       width: 20%;
+      transform: translateY(10px);
+
       label {
         display: unset;
       }
