@@ -35,7 +35,7 @@ type Props = {
   subscribedChannels: Array<Subscription>,
   showNsfw: boolean,
   homepageData: any,
-  homepageMeme: ?{ text: string, url: string },
+  // homepageMeme: ?{ text: string, url: string },
   homepageFetched: boolean,
   activeLivestreams: any,
   doFetchActiveLivestreams: () => void,
@@ -55,7 +55,7 @@ function HomePage(props: Props) {
     authenticated,
     showNsfw,
     homepageData,
-    homepageMeme,
+    // homepageMeme,
     homepageFetched,
     activeLivestreams,
     doFetchActiveLivestreams,
@@ -74,7 +74,7 @@ function HomePage(props: Props) {
   const subscriptionChannelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
 
   const rowData: Array<RowDataItem> = GetLinksData(
-    homepageData,
+    homepageData.categories,
     isLargeScreen,
     true,
     authenticated,
@@ -125,6 +125,7 @@ function HomePage(props: Props) {
   };
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
+    console.log('title 2: ', title);
     const tilePlaceholder = (
       <ul className="claim-grid">
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
