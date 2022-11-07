@@ -19,9 +19,7 @@
   }
 }
 
-/*
 .claim-tile__title,
-.channel-name,
 .claim-tile__about,
 .menu__button,
 .footer__link {
@@ -33,7 +31,25 @@
     color: white !important;
   }
 }
-*/
+
+.claim-preview--tile {
+  &:hover {
+    .claim-tile__title {
+      color: var(--color-primary) !important;
+    }
+  }
+}
+
+.channel-name,
+.date_time {
+  color: rgba(255, 255, 255, 0.6);
+  p {
+    color: rgba(255, 255, 255, 0.6);
+    &:hover {
+      color: white;
+    }
+  }
+}
 
 html {
   height: 100%;
