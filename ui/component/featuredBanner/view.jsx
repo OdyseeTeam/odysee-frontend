@@ -41,7 +41,7 @@ export default function FeaturedBanner(props: Props) {
       setWidth(wrapper.current.offsetWidth);
     }
   });
-  console.log('featured: ', featured);
+
   function getUriTo(uri) {
     if (uri.includes('odysee.com')) {
       uri = uri.substring(uri.indexOf('odysee.com') + 10);
