@@ -10,7 +10,6 @@ import { doUserSetReferrerForUri } from 'redux/actions/user';
 import { doSetLastViewedAnnouncement } from 'redux/actions/content';
 import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
-import { doFetchChannelListMine, doFetchCollectionListMine } from 'redux/actions/claims';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import {
   selectLanguage,
@@ -51,8 +50,6 @@ const select = (state) => ({
 });
 
 const perform = {
-  fetchChannelListMine: doFetchChannelListMine,
-  fetchCollectionListMine: doFetchCollectionListMine,
   setLanguage: doSetLanguage,
   fetchLanguage: doFetchLanguage,
   signIn: doSignIn,

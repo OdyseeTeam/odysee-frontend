@@ -301,14 +301,16 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     const pendingClaim = successResponse.outputs[0];
     const publishData = selectPublishFormValues(state);
 
-    const { restrictedToMemberships } = publishData;
+    const { restrictedToMemberships, name } = publishData;
 
     const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
       const channelClaimId = getChannelIdFromClaim(claimResult);
 
       // hit backend to save restricted memberships
       if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
-        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, restrictedToMemberships));
+        dispatch(
+          doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
+        );
       }
     };
 
@@ -413,14 +415,16 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
     const { permanent_url: url } = pendingClaim;
     const publishData = selectPublishFormValues(state);
 
-    const { restrictedToMemberships } = publishData;
+    const { restrictedToMemberships, name } = publishData;
 
     const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
       const channelClaimId = getChannelIdFromClaim(claimResult);
 
       // hit backend to save restricted memberships
       if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
-        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, restrictedToMemberships));
+        dispatch(
+          doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
+        );
       }
     };
 
@@ -790,6 +794,16 @@ export const doPublish = (success: Function, fail: Function, previewFn?: Functio
   const publishData = selectPublishFormValues(state);
 
   const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, previewFn);
+
+  const { restrictedToMemberships, name } = publishData;
+
+  const { channel_id: channelClaimId } = publishPayload;
+
+  // hit backend to save restricted memberships
+  // hit the backend immediately to save the data, we will overwrite it if publish succeeds
+  if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '') && !previewFn) {
+    dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, '', name, restrictedToMemberships, true));
+  }
 
   if (previewFn) {
     return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {

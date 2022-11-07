@@ -1,0 +1,42 @@
+.creator-settings-tab {
+  margin-bottom: var(--spacing-l);
+
+  .card__body {
+    background-color: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    border-top: unset;
+    padding-top: 0;
+  }
+
+  .settings-row {
+    margin-top: 0;
+    padding: var(--spacing-s);
+    border-bottom: 1px solid var(--color-border);
+
+    .tag--blocked-words {
+      margin-bottom: 0;
+    }
+    .settings-row__value--multirow {
+      margin-top: var(--spacing-s);
+    }
+    .tags--remove,
+    .tag__input {
+      margin-bottom: 0;
+    }
+    &:last-of-type {
+      border-bottom: none;
+    }
+  }
+
+  .card__main-actions {
+    border-top: unset;
+  }
+
+  .settings-row__subtitle {
+    margin-bottom: 0;
+  }
+
+  .tag--remove {
+    color: black !important;
+  }
+}

@@ -62,7 +62,6 @@ export default function ChannelSectionsEdit(props: Props) {
           />
           <h1 className="channel__title">{title || (channelName && '@' + channelName)}</h1>
         </div>
-        <div className="channel-cover__gradient" />
       </header>
 
       <Tabs className="channelPage-wrapper">

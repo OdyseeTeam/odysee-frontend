@@ -696,6 +696,7 @@ img {
 }
 
 .homePage-wrapper {
+  padding: 0 var(--spacing-xs);
   .mb-xl {
     margin-bottom: 0px;
   }
@@ -825,6 +826,152 @@ img {
   @media (max-width: $breakpoint-small) {
     -webkit-column-gap: var(--spacing-s);
     column-gap: var(--spacing-s);
+  }
+}
+
+.card--publish-section {
+  background: rgba(var(--color-header-background-base), 0.4);
+  border-radius: var(--border-radius);
+
+  .card__main-actions {
+    padding: 0;
+  }
+
+  fieldset-section {
+    padding: var(--spacing-s);
+  }
+
+  fieldset-section.radio {
+    margin-top: 0;
+    padding-bottom: 0;
+  }
+  fieldset-section.radio:last-of-type {
+    padding-bottom: var(--spacing-s);
+  }
+
+  fieldset-group {
+    margin-top: 0;
+    fieldset-section {
+      padding-right: 0;
+    }
+    .input--currency-select {
+      padding-left: 2px;
+    }
+  }
+
+  .publish-row {
+    .form-field__help {
+      padding: var(--spacing-s);
+      padding-top: 0;
+    }
+  }
+
+  .form-field-date-picker {
+    padding: var(--spacing-s);
+    margin-bottom: 0;
+  }
+}
+
+.card--additional-options {
+  margin-bottom: var(--spacing-l) !important;
+  .card {
+    margin-bottom: 0 !important;
+    fieldset-section {
+      padding-bottom: 0;
+    }
+  }
+  .card__main-actions {
+    //padding-top:var(--spacing-s);
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .section__actions {
+    padding: var(--spacing-s);
+  }
+  input,
+  select {
+    box-shadow: 0 0 0 2px var(--color-border) inset;
+    &:focus-visible {
+      box-shadow: 0 0 0 2px var(--color-primary) inset;
+    }
+  }
+  .react-datetime-picker {
+    box-shadow: 0 0 0 2px var(--color-border) inset;
+    input {
+      box-shadow: unset;
+    }
+    .react-datetime-picker__inputGroup__amPm {
+      margin-top: 4px;
+      height: calc(100% - 8px);
+      box-shadow: unset;
+      &:focus-visible {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
+  }
+
+  .form-field__help {
+    margin-bottom: 0;
+  }
+  fieldset {
+    .form-field__help {
+      margin-top: 0;
+    }
+  }
+
+  fieldset-section {
+    margin-top: 0;
+  }
+
+  fieldset-group:not(.fieldset-group--smushed) {
+    fieldset-section {
+      width: 50%;
+      &:last-of-type {
+        padding-right: var(--spacing-s);
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    button {
+      margin-bottom: 0;
+    }
+    border-top: unset;
+  }
+
+  .radio {
+    padding-left: 0;
+    .input--currency-select {
+      label {
+        margin-left: 0 !important;
+      }
+    }
+    .form-field--price-amount,
+    select {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      .card__main-actions {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .fieldset-group--smushed {
+    fieldset-section {
+      padding-left: 0;
+      padding-right: 0 !important;
+
+      .form-field--price-amount {
+        margin-right: 2px;
+      }
+    }
+    .input--currency-select {
+      label {
+        margin-left: 0;
+      }
+    }
   }
 }
 
@@ -984,49 +1131,6 @@ img {
     border-width: 2px 2px 2px 0 !important;
     border-color: var(--color-border) !important;
     background-color: var(--color-border) !important;
-  }
-
-  .card--publish-section {
-    background: rgba(var(--color-header-background-base), 0.4);
-    border-radius: var(--border-radius);
-
-    .card__main-actions {
-      padding: 0;
-    }
-
-    fieldset-section {
-      padding: var(--spacing-s);
-    }
-
-    fieldset-section.radio {
-      margin-top: 0;
-      padding-bottom: 0;
-    }
-    fieldset-section.radio:last-of-type {
-      padding-bottom: var(--spacing-s);
-    }
-
-    fieldset-group {
-      margin-top: 0;
-      fieldset-section {
-        padding-right: 0;
-      }
-      .input--currency-select {
-        padding-left: 2px;
-      }
-    }
-
-    .publish-row {
-      .form-field__help {
-        padding: var(--spacing-s);
-        padding-top: 0;
-      }
-    }
-
-    .form-field-date-picker {
-      padding: var(--spacing-s);
-      margin-bottom: 0;
-    }
   }
 
   .tags__input-wrapper {
@@ -1308,109 +1412,6 @@ img {
       }
       .card__main-actions {
         margin-top: 0;
-      }
-    }
-  }
-
-  .card--additional-options {
-    margin-bottom: var(--spacing-l) !important;
-    .card {
-      margin-bottom: 0 !important;
-      fieldset-section {
-        padding-bottom: 0;
-      }
-    }
-    .card__main-actions {
-      //padding-top:var(--spacing-s);
-      padding-top: 0;
-      margin-top: 0;
-    }
-    .section__actions {
-      padding: var(--spacing-s);
-    }
-    input,
-    select {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-      &:focus-visible {
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
-    .react-datetime-picker {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-      input {
-        box-shadow: unset;
-      }
-      .react-datetime-picker__inputGroup__amPm {
-        margin-top: 4px;
-        height: calc(100% - 8px);
-        box-shadow: unset;
-        &:focus-visible {
-          box-shadow: 0 0 0 2px var(--color-primary) inset;
-        }
-      }
-    }
-
-    .form-field__help {
-      margin-bottom: 0;
-    }
-    fieldset {
-      .form-field__help {
-        margin-top: 0;
-      }
-    }
-
-    fieldset-section {
-      margin-top: 0;
-    }
-
-    fieldset-group:not(.fieldset-group--smushed) {
-      fieldset-section {
-        width: 50%;
-        &:last-of-type {
-          padding-right: var(--spacing-s);
-        }
-      }
-    }
-
-    @media (max-width: $breakpoint-small) {
-      button {
-        margin-bottom: 0;
-      }
-      border-top: unset;
-    }
-
-    .radio {
-      padding-left: 0;
-      .input--currency-select {
-        label {
-          margin-left: 0 !important;
-        }
-      }
-      .form-field--price-amount,
-      select {
-        box-shadow: 0 0 0 2px var(--color-border) inset;
-      }
-
-      @media (max-width: $breakpoint-small) {
-        .card__main-actions {
-          margin-top: 0;
-        }
-      }
-    }
-
-    .fieldset-group--smushed {
-      fieldset-section {
-        padding-left: 0;
-        padding-right: 0 !important;
-
-        .form-field--price-amount {
-          margin-right: 2px;
-        }
-      }
-      .input--currency-select {
-        label {
-          margin-left: 0;
-        }
       }
     }
   }
@@ -1758,7 +1759,7 @@ img {
     }
 
     .section__header--actions {
-      @media (max-width: $breakpoint-small) {
+      @media (max-width: $breakpoint-medium) {
         .claim-search__menu-group {
           .button-toggle {
             flex: auto;
@@ -1857,7 +1858,7 @@ img {
     }
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: $breakpoint-medium) {
     .card__subtitle {
       p {
         margin-bottom: var(--spacing-m);
@@ -1920,9 +1921,14 @@ img {
     }
   }
   .section__header--actions {
-    @media (max-width: $breakpoint-small) {
+    @media (max-width: $breakpoint-medium) {
       .claim-search__wrapper--wrap {
         width: 100%;
+
+        &:last-of-type {
+          margin-top: var(--spacing-s);
+        }
+
         .claim-search__menu-group:last-child {
           display: inline-block;
           width: auto;
@@ -1939,7 +1945,7 @@ img {
   }
 }
 
-.publishList-wrapper {
+.collection-publish-form__wrapper {
   .help {
     color: var(--color-text);
   }

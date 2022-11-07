@@ -1,11 +1,11 @@
 import { connect } from 'react-redux';
 
-import { selectClaimForId } from 'redux/selectors/claims';
+import { selectClaimForId, selectHasClaimForId, selectTotalStakedAmountForUri } from 'redux/selectors/claims';
 import {
   selectCollectionDescriptionForId,
   selectCountForCollectionId,
   selectCollectionHasEditsForId,
-  selectMyPublishedCollectionCountForId,
+  selectSourceIdForCollectionId,
 } from 'redux/selectors/collections';
 
 import CollectionHeader from './view';
@@ -20,8 +20,10 @@ const select = (state, props) => {
     uri,
     collectionDescription: selectCollectionDescriptionForId(state, collectionId),
     collectionCount: selectCountForCollectionId(state, collectionId),
-    publishedCollectionCount: selectMyPublishedCollectionCountForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
+    sourceId: selectSourceIdForCollectionId(state, collectionId),
+    hasClaim: selectHasClaimForId(state, collectionId),
+    claimAmount: selectTotalStakedAmountForUri(state, uri),
   };
 };
 

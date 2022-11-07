@@ -12,13 +12,12 @@ import {
 import {
   selectCollectionForId,
   selectUrlsForCollectionId,
-  selectIsResolvingCollectionForId,
+  selectAreCollectionItemsFetchingForId,
 } from 'redux/selectors/collections';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
-import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
+import { doResolveUri, doResolveClaimId, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
-import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
@@ -66,7 +65,7 @@ const select = (state, props) => {
     collection: selectCollectionForId(state, collectionId),
     collectionId,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
-    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
+    isResolvingCollection: selectAreCollectionItemsFetchingForId(state, collectionId),
     isAuthenticated: selectUserVerifiedEmail(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     homepageFetched: selectHomepageFetched(state),
@@ -77,7 +76,7 @@ const select = (state, props) => {
 const perform = {
   doResolveUri,
   doBeginPublish,
-  doFetchItemsInCollection,
+  doResolveClaimId,
   doOpenModal,
   fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
   fetchChannelLiveStatus: doFetchChannelLiveStatus,

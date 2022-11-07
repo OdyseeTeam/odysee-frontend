@@ -3,16 +3,80 @@ $metadata-z-index: 1;
 $actions-z-index: 2;
 
 .channelPage-wrapper {
-  .card__header--between {
+  width: 100% !important;
+  margin-top: calc(var(--spacing-l) * -1);
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: calc(var(--spacing-xs) * -1);
+  }
+
+  .tags--remove {
+    .tag {
+      color: var(--color-text-inverse) !important;
+    }
+  }
+
+  .tab__wrapper {
+    transition: background-color 0.2s;
+    background-color: var(--color-header-background);
+    position: sticky;
+    top: var(--header-height);
+    z-index: 10;
+    margin-bottom: var(--spacing-l);
     @media (max-width: $breakpoint-small) {
-      .card__title-actions-container {
-        .comment__actions {
-          margin-top: 6px;
-          justify-content: end;
-        }
+      top: var(--header-height-mobile);
+      margin-bottom: var(--spacing-s);
+      padding: 0;
+    }
+  }
+  .tab__wrapper-fixed {
+    background-color: rgba(var(--color-header-background-base), 0.99);
+    .tabs__list {
+      padding-left: 5rem;
+      @media (max-width: $breakpoint-small) {
+        padding-left: 4rem;
       }
     }
   }
+
+  .tab__panel {
+    margin-bottom: calc(var(--spacing-xxl) * 2);
+  }
+
+  .tabs__list {
+    padding-left: 11rem;
+    width: calc(100% - 2 * var(--spacing-l));
+    max-width: var(--page-max-width);
+    margin-right: auto;
+    margin-left: auto;
+    background-color: unset;
+    transition: padding-left 0.2s;
+
+    .tab {
+      &[aria-selected='true'] {
+        &:after {
+          height: 8px;
+          background-color: var(--color-link);
+        }
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+      padding: var(--spacing-s) var(--spacing-xs);
+    }
+  }
+  .tab__panel {
+    width: calc(100% - 2 * var(--spacing-l));
+    max-width: var(--page-max-width);
+    margin-right: auto;
+    margin-left: auto;
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+      padding: 0 var(--spacing-xs);
+    }
+  }
+
   .section__header--actions {
     @media (max-width: $breakpoint-small) {
       .section__actions {
@@ -181,15 +245,152 @@ $actions-z-index: 2;
   .media__info-text:first-of-type {
     opacity: 1;
   }
+
+  .channelpage-edit-tags {
+    .tag {
+      background: var(--color-header-button);
+    }
+  }
+}
+
+.channelPage-edit-wrapper {
+  .card {
+    padding: var(--spacing-s);
+    background-color: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+
+    input,
+    select {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+    }
+
+    .card__body {
+      padding: 0;
+      label:first-of-type {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .card-fixed-bottom {
+    position: fixed;
+    display: flex;
+    width: calc(100% - var(--side-nav-width--micro));
+    bottom: 0;
+
+    .card--after-tabs {
+      display: flex;
+      margin-left: auto;
+      margin-right: auto;
+      width: calc(100% - 2 * var(--spacing-l));
+      max-width: var(--page-max-width);
+      margin-top: 0;
+      margin-bottom: 0;
+      border: 2px solid var(--color-border);
+      border-bottom: none;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      box-shadow: 0px 1px 4px 1px var(--color-shadow);
+      backdrop-filter: blur(4px);
+      background-color: var(--color-header-background);
+      .section__actions {
+        flex-flow: row;
+        margin-bottom: 0;
+
+        .button--link {
+          margin-right: var(--spacing-l);
+        }
+      }
+      .card__main-actions {
+        padding-top: 0;
+        margin-top: 0;
+      }
+      .card__first-pane {
+        width: 100%;
+      }
+      p {
+        margin-top: 0;
+        margin-left: auto;
+        border: 2px solid #ffdda2;
+        padding: var(--spacing-xs);
+        border-radius: var(--border-radius);
+        background-color: rgba(255, 221, 162, 0.1);
+
+        .icon {
+          margin-right: var(--spacing-xxs);
+          margin-bottom: -3px;
+        }
+      }
+    }
+
+    @media (max-width: $breakpoint-xsmall) {
+      width: 100%;
+      .card--after-tabs {
+        width: 100%;
+        margin-left: var(--spacing-xs);
+        margin-right: var(--spacing-xs);
+        .card__main-actions {
+          margin-top: 0;
+          padding-bottom: 0;
+          .section__actions {
+            margin-bottom: 0;
+          }
+        }
+        p {
+          margin-top: var(--spacing-s);
+        }
+        .section__actions {
+          flex-flow: wrap;
+        }
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .tab__panel {
+      margin-bottom: calc(var(--spacing-xxl) * 3);
+    }
+  }
 }
 
 .channel-cover {
   position: relative;
   background-image: linear-gradient(to right, #637ad2, #318794 80%);
-  display: flex;
-  align-items: flex-end;
-  box-sizing: content-box;
-  color: #fff;
+  background-repeat: no-repeat;
+  background-size: 100vw auto;
+  background-attachment: fixed;
+
+  background-position-y: var(--header-height);
+  background-position-x: var(--side-nav-width--micro);
+
+  @media (min-width: $breakpoint-large) {
+    background-position-x: calc(50% + (var(--side-nav-width--micro) / 2));
+    background-size: calc(100% - var(--side-nav-width--micro));
+  }
+
+  @media (max-width: $breakpoint-large) {
+    background-position-x: calc(50% + var(--side-nav-width--micro));
+    background-size: auto 284px;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    background-size: auto 322px;
+    background-position-x: 50%;
+    background-position-y: var(--header-height-mobile);
+  }
+
+  .channel-header-content {
+    position: relative;
+    height: 100%;
+    width: calc(100% - 2 * var(--spacing-l));
+    max-width: var(--page-max-width);
+    margin-right: auto;
+    margin-left: auto;
+
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+    }
+  }
 
   .channel-cover__customm,
   .channel__quick-actions {
@@ -197,6 +398,35 @@ $actions-z-index: 2;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
+    @media (max-width: $breakpoint-small) {
+      padding: var(--spacing-xs);
+      margin: 0;
+    }
+  }
+
+  &:after {
+    position: absolute;
+    bottom: 0;
+    opacity: 1;
+    content: '';
+    height: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background: linear-gradient(0deg, #0d0d0d 0, transparent 65%);
+  }
+}
+
+.channel-cover-legacy {
+  @media (min-width: $breakpoint-large) {
+    background-position-y: calc(50% - 280px);
+    background-size: cover;
+  }
+
+  @media (max-width: $breakpoint-large) {
+    background-position-y: calc(50% - 120px);
+    background-size: cover;
   }
 }
 
@@ -210,16 +440,15 @@ $actions-z-index: 2;
 .channel-cover,
 .channel-cover__custom {
   min-height: var(--cover-photo-height);
-  height: 100%;
+  // height: 240px;
+  height: 284px;
   width: 100%;
-  border-top-left-radius: var(--card-radius);
-  border-top-right-radius: var(--card-radius);
-  border: 1px sold var(--color-border);
   border-bottom: none;
 
+  @media (min-width: $breakpoint-xlarge) {
+    height: 390px;
+  }
   @media (max-width: $breakpoint-small) {
-    // Yikes
-    // I, Sean Yesmunt, take full responsibility for this monster
     min-height: calc(var(--cover-photo-height) + 2 * var(--spacing-xl) + var(--spacing-m));
   }
 
@@ -236,24 +465,6 @@ $actions-z-index: 2;
   position: absolute;
   p {
     padding: var(--padding-m);
-  }
-}
-
-.channel-cover__gradient {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-
-  &:after {
-    position: absolute;
-    bottom: 0;
-    opacity: 1;
-    content: '';
-    height: 100%;
-    left: 0;
-    right: 0;
-    width: 100%;
-    background: linear-gradient(0deg, #0d0d0d 0, transparent 65%);
   }
 }
 
@@ -353,14 +564,36 @@ $actions-z-index: 2;
   position: absolute;
   height: var(--channel-thumbnail-width);
   width: var(--channel-thumbnail-width);
-  left: var(--spacing-m);
-  top: 4rem;
+  left: calc((100% - (var(--page-max-width))) / 2);
+  top: -9.2rem;
   margin-top: var(--spacing-l);
-  box-shadow: var(--card-box-shadow);
+  box-shadow: 0 3px 6px 0 var(--color-shadow), 0 4px 10px 0 rgba(0, 0, 0, 0.6);
+  z-index: 11;
+  transition: width 0.2s, height 0.2s, top 0.2s;
+  background-color: var(--color-header-background);
 
+  @media (min-width: 1600px) {
+    left: calc((100% - (var(--page-max-width))) / 2);
+  }
+  @media (min-width: 1450px) and (max-width: $breakpoint-large) {
+    left: calc((100% - (var(--page-max-width))) / 2) !important;
+  }
+  @media (min-width: $breakpoint-small) and (max-width: 1449px) {
+    left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
+  }
   @media (max-width: $breakpoint-small) {
-    top: 0;
-    margin-top: var(--spacing-xl);
+    width: 5rem;
+    height: 5rem;
+    top: -7.2rem;
+    left: var(--spacing-xs);
+  }
+
+  &:active {
+    box-shadow: 0 0 0 0 var(--color-shadow), 0 0 0 0 rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(0, 0, 0, 0.6);
+  }
+  &:hover {
+    cursor: pointer;
   }
 
   .comment__badge {
@@ -375,6 +608,29 @@ $actions-z-index: 2;
       width: 100%;
       height: 100%;
     }
+  }
+}
+
+.channel__thumbnail--channel-page-fixed {
+  height: 50px;
+  width: 50px;
+  top: -1.6rem;
+
+  @media (min-width: 1449px) {
+    left: calc((100% - (var(--page-max-width))) / 2);
+  }
+  @media (min-width: $breakpoint-medium) and (max-width: 1449px) {
+    left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
+  }
+
+  @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
+    left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    left: var(--spacing-xs);
+    height: calc(var(--header-height-mobile) - var(--spacing-m));
+    width: calc(var(--header-height-mobile) - var(--spacing-m));
   }
 }
 
@@ -436,22 +692,20 @@ $actions-z-index: 2;
 }
 
 .channel__primary-info {
-  // Ensure the profile pic/title sit ontop of the default cover background
-  //z-index: $metadata-z-index;
   z-index: 5;
-  // Jump over the thumbnail photo because it is absolutely positioned
-  // Then add normal page spacing, _then_ add the actual padding
-  padding-left: calc(var(--channel-thumbnail-width) + var(--spacing-xl));
-  padding-right: var(--spacing-m);
+  padding-left: 12rem;
   padding-bottom: var(--spacing-m);
   margin-top: var(--spacing-xl);
   min-width: 0;
   width: 100%;
+  bottom: 0;
+  position: absolute;
+  box-sizing: border-box;
+  color: white;
 
   .channel__edit-thumb {
     z-index: 5;
     .button--alt {
-      // border: 1px solid rgba(var(--color-primary-dynamic), 0.1);
       &:hover {
         background-color: var(--color-button-alt-bg);
         color: var(--color-primary);
@@ -466,8 +720,14 @@ $actions-z-index: 2;
   }
 
   @media (max-width: $breakpoint-small) {
-    padding-left: var(--spacing-m);
-    margin-top: calc(var(--channel-thumbnail-width) + var(--spacing-xxl) + var(--spacing-l));
+    padding-left: calc(((100% - calc(100% - 2 * var(--spacing-l)) - 2rem) / 2) + 5rem);
+    padding-bottom: var(--spacing-s);
+    margin-top: 0;
+    margin-bottom: 0;
+    .channel__title {
+      padding-top: 0;
+      font-size: x-large;
+    }
   }
 }
 
@@ -505,13 +765,28 @@ $actions-z-index: 2;
   align-items: flex-end;
 }
 
+.channel__edit {
+  position: absolute;
+  right: 0;
+  bottom: var(--spacing-m);
+  .button {
+    &:hover {
+      background-color: rgba(var(--color-header-background-base), 0.95);
+      color: var(--color-primary);
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    right: var(--spacing-xs);
+  }
+}
+
 .channel__quick-actions {
   display: flex;
   flex-direction: row;
   margin-left: var(--spacing-m);
   position: absolute;
   top: 0;
-  right: var(--spacing-m);
+  right: 0;
   margin-top: var(--spacing-m);
   z-index: $actions-z-index;
   flex-wrap: wrap;
@@ -544,19 +819,20 @@ $actions-z-index: 2;
       margin-bottom: var(--spacing-xs);
       margin-left: auto;
 
-      // Needed for specificity above
       &:not(:last-child) {
         margin-right: 0;
       }
     }
 
+    /*
     .claim__menu-button--inline {
-      z-index: 10;
+      z-index: 7;
       .icon {
         padding: 1rem;
         margin: -1rem;
       }
     }
+    */
   }
 
   .button,
@@ -574,16 +850,28 @@ $actions-z-index: 2;
 
 .channel__edit-thumb {
   position: absolute;
-  top: 0;
-  left: var(--spacing-l);
-  margin-top: calc(var(--spacing-m) * 7);
-  z-index: $metadata-z-index;
+  bottom: calc(var(--channel-thumbnail-width) / 2);
+  left: calc(((100% - (var(--page-max-width))) / 2) + ((var(--channel-thumbnail-width) / 2) - 17px));
+  z-index: 12;
+
+  @media (max-width: 1449px) {
+    left: calc((var(--channel-thumbnail-width) / 2) + var(--spacing-m));
+  }
 
   > * {
     padding: 0 var(--spacing-xs);
 
     &:not(:last-child) {
       margin-right: var(--spacing-m);
+    }
+  }
+
+  .button--alt {
+    &:hover {
+      background-color: rgba(var(--color-header-background-base), 1);
+      .icon {
+        stroke: var(--color-primary);
+      }
     }
   }
 
@@ -989,6 +1277,11 @@ $actions-z-index: 2;
           margin-bottom: -30%;
         }
       }
+      .icon--PremiumPlus,
+      .icon--Premium {
+        width: 18px;
+        margin-bottom: -12%;
+      }
     }
 
     .claim__menu-button {
@@ -1048,5 +1341,25 @@ $actions-z-index: 2;
     .yrbl__wrap {
       margin-top: var(--spacing-l);
     }
+  }
+}
+
+.channelPage-new-wrapper {
+  margin-left: calc(var(--side-nav-width--micro) * -1) !important;
+  width: calc(100% + var(--side-nav-width--micro)) !important;
+
+  .card__body.card__body--no-title {
+    .button--primary {
+      margin-bottom: var(--spacing-m);
+    }
+  }
+
+  .card-fixed-bottom {
+    width: 100%;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    width: 100% !important;
+    margin-left: 0 !important;
   }
 }

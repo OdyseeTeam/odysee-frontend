@@ -1,13 +1,12 @@
 import { connect } from 'react-redux';
 import PlaylistCard from './view';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectChannelNameForId } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
-  selectNameForCollectionId,
+  selectCollectionTitleForId,
   selectCollectionIsMine,
-  selectIsCollectionPrivateForId,
-  selectPublishedCollectionChannelNameForId,
-  selectIndexForUrlInCollection,
+  selectHasPrivateCollectionForId,
+  selectIndexForUrlInCollectionForId,
   selectCollectionLengthForId,
   selectCollectionIsEmptyForId,
   selectCollectionForId,
@@ -28,17 +27,16 @@ const select = (state, props) => {
 
   const playingCurrentPlaylist = collectionId === playingCollectionId;
   const { permanent_url: playingItemUrl } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
-  const playingItemIndex = selectIndexForUrlInCollection(state, playingItemUrl, playingCollectionId, true);
 
   return {
     playingItemUrl,
     playingCurrentPlaylist,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectCollectionTitleForId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
-    isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
-    publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
-    playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,
+    isPrivateCollection: selectHasPrivateCollectionForId(state, collectionId),
+    publishedCollectionName: selectChannelNameForId(state, collectionId),
+    playingItemIndex: selectIndexForUrlInCollectionForId(state, playingCollectionId, playingItemUrl),
     collectionLength: selectCollectionLengthForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),

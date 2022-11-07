@@ -42,7 +42,7 @@ function ChannelThumbnail(props: Props) {
     obscure,
     small = false,
     xsmall = false,
-    xxsmall,
+    xxsmall = false,
     allowGifs = false,
     claim,
     doResolveUri,

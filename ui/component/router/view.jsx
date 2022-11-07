@@ -36,6 +36,7 @@ const SeniorAndroidDeveloperPage = lazyImport(() =>
 const SeniorIosDeveloperPage = lazyImport(() =>
   import('web/page/careers/seniorIosDeveloper' /* webpackChunkName: "seniorIosDeveloper" */)
 );
+const IconsViewerPage = lazyImport(() => import('page/iconsViewer' /* webpackChunkName: "iconsViewer" */));
 
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
@@ -71,6 +72,9 @@ const CreatorDashboard = lazyImport(() => import('page/creatorDashboard' /* webp
 const DiscoverPage = lazyImport(() => import('page/discover' /* webpackChunkName: "discover" */));
 const EmbedWrapperPage = lazyImport(() => import('page/embedWrapper' /* webpackChunkName: "embedWrapper" */));
 const PopoutChatPage = lazyImport(() => import('page/popoutChatWrapper' /* webpackChunkName: "popoutChat" */));
+const FeaturedChannelsPage = lazyImport(() =>
+  import('page/featuredChannels' /* webpackChunkName: "featuredChannels" */)
+);
 const FileListPublished = lazyImport(() =>
   import('page/fileListPublished' /* webpackChunkName: "fileListPublished" */)
 );
@@ -80,7 +84,7 @@ const InvitePage = lazyImport(() => import('page/invite' /* webpackChunkName: "i
 const InvitedPage = lazyImport(() => import('page/invited' /* webpackChunkName: "invited" */));
 const LibraryPage = lazyImport(() => import('page/library' /* webpackChunkName: "library" */));
 const ListBlockedPage = lazyImport(() => import('page/listBlocked' /* webpackChunkName: "listBlocked" */));
-const PlaylistsPage = lazyImport(() => import('page/playlists/view' /* webpackChunkName: "playlists" */));
+const PlaylistsPage = lazyImport(() => import('page/playlists' /* webpackChunkName: "playlists" */));
 const WatchHistoryPage = lazyImport(() => import('page/watchHistory' /* webpackChunkName: "history" */));
 const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* webpackChunkName: "livestreamSetup" */));
 const LivestreamCurrentPage = lazyImport(() =>
@@ -119,7 +123,7 @@ const SettingsStripeCard = lazyImport(() =>
 const SettingsStripeAccount = lazyImport(() =>
   import('page/settingsStripeAccount' /* webpackChunkName: "settingsStripeAccount" */)
 );
-const SettingsCreatorPage = lazyImport(() => import('page/settingsCreator' /* webpackChunkName: "settingsCreator" */));
+// const SettingsCreatorPage = lazyImport(() => import('page/settingsCreator' /* webpackChunkName: "settingsCreator" */));
 const SettingsNotificationsPage = lazyImport(() =>
   import('page/settingsNotifications' /* webpackChunkName: "settingsNotifications" */)
 );
@@ -359,6 +363,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.HELP}`} exact component={HelpPage} />
 
+        <Route path={`/$/${PAGES.FEATURED_CHANNELS}`} exact component={FeaturedChannelsPage} />
         <Route path={`/$/${PAGES.CODE_2257}`} exact component={Code2257Page} />
         <Route path={`/$/${PAGES.PRIVACY_POLICY}`} exact component={PrivacyPolicyPage} />
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
@@ -370,6 +375,7 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.CAREERS_SENIOR_IOS_DEVELOPER}`} exact component={SeniorIosDeveloperPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
+        <Route path={`/$/${PAGES.ICONS_VIEWER}`} exact component={IconsViewerPage} />
 
         <Route path={`/$/${PAGES.AUTH_VERIFY}`} exact component={SignInVerifyPage} />
         <Route path={`/$/${PAGES.SEARCH}`} exact component={SearchPage} />
@@ -421,7 +427,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.WATCH_HISTORY}`} component={WatchHistoryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`} component={ListBlockedPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} />
+        {/* <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} /> */}
         <PrivateRoute {...props} path={`/$/${PAGES.WALLET}`} exact component={WalletPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNELS}`} component={ChannelsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CREATE}`} component={LivestreamCreatePage} />

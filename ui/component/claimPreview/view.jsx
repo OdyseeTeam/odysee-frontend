@@ -105,6 +105,7 @@ type Props = {
   showIndexes?: boolean,
   playItemsOnClick?: boolean,
   disableClickNavigation?: boolean,
+  firstCollectionItemUrl: ?string,
   doClearContentHistoryUri: (uri: string) => void,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
@@ -179,6 +180,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     showIndexes,
     playItemsOnClick,
     disableClickNavigation,
+    firstCollectionItemUrl,
     doClearContentHistoryUri,
     doUriInitiatePlay,
     doDisablePlayerDrag,
@@ -286,7 +288,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       search: disableClickNavigation ? search : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
     },
     onClick: handleNavLinkClick,
-    onAuxClick: handleNavLinkClick,
+    // if items play on click, don't play on auxClick
+    onAuxClick: playItemsOnClick ? undefined : handleNavLinkClick,
   };
 
   let shouldHide =
@@ -499,7 +502,12 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             <>
               {!pending ? (
                 <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
-                  <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail} uri={uri}>
+                  <FileThumbnail
+                    thumbnail={thumbnailUrl}
+                    small={smallThumbnail}
+                    uri={uri}
+                    secondaryUri={firstCollectionItemUrl}
+                  >
                     {isPlayable && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
                         <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
