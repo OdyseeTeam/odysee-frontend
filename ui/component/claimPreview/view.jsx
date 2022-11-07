@@ -109,6 +109,7 @@ type Props = {
   doClearContentHistoryUri: (uri: string) => void,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
+  shouldHideHiddenScheduledContent?: boolean,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -184,6 +185,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doClearContentHistoryUri,
     doUriInitiatePlay,
     doDisablePlayerDrag,
+    shouldHideHiddenScheduledContent,
   } = props;
 
   const isMobile = useIsMobile();
@@ -318,6 +320,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     if (customShouldHide(claim)) {
       shouldHide = true;
     }
+  }
+
+  if (shouldHideHiddenScheduledContent) {
+    shouldHide = true;
   }
 
   // **************************************************************************

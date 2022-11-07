@@ -60,6 +60,7 @@ type Props = {
   onHidden?: (string) => void,
   pulse?: boolean,
   firstCollectionItemUrl: ?string,
+  shouldHideHiddenScheduledContent?: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -95,6 +96,7 @@ function ClaimPreviewTile(props: Props) {
     onHidden,
     pulse,
     firstCollectionItemUrl,
+    shouldHideHiddenScheduledContent,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -153,6 +155,10 @@ function ClaimPreviewTile(props: Props) {
   }
 
   if (!shouldHide && geoRestriction && !claimIsMine) {
+    shouldHide = true;
+  }
+
+  if (shouldHideHiddenScheduledContent) {
     shouldHide = true;
   }
 

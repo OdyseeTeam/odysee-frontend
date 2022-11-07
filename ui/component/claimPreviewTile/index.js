@@ -6,6 +6,7 @@ import {
   selectDateForUri,
   selectGeoRestrictionForUri,
   selectClaimIsMine,
+  selectShouldHideHiddenScheduledContent,
 } from 'redux/selectors/claims';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doResolveUri } from 'redux/actions/claims';
@@ -43,6 +44,7 @@ const select = (state, props) => {
     livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
     viewCount: selectViewCountForUri(state, props.uri),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
+    shouldHideHiddenScheduledContent: selectShouldHideHiddenScheduledContent(state, props.uri),
   };
 };
 
