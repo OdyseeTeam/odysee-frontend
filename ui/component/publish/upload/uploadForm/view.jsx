@@ -128,9 +128,13 @@ function UploadForm(props: Props) {
     updatePublishForm,
     uploadThumbnailStatus,
     user,
+    visibility,
     ytSignupPending,
     restrictedToMemberships,
   } = props;
+
+  l('visibility');
+  l(visibility);
 
   const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
@@ -477,9 +481,12 @@ function UploadForm(props: Props) {
 
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
-      {!publishing && (
-        <div className={classnames({ 'card--disabled': formDisabled })}>
-          <PublishVisibility />
+      {1 == 1 && (
+      // {!publishing && (
+        <div
+          // className={classnames({ 'card--disabled': formDisabled })}
+        >
+          <PublishVisibility uri={permanentUrl} />
 
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
@@ -519,7 +526,7 @@ function UploadForm(props: Props) {
             tagsChosen={tags}
           />
 
-          <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
+          <PublishAdditionalOptions showSchedulingOptions={showSchedulingOptions} uri={permanentUrl} />
         </div>
       )}
       <section>

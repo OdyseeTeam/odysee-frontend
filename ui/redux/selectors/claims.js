@@ -885,7 +885,10 @@ export const selectPrivateContentTag = createSelector(
 
 export const selectScheduledContentTag = createSelector(
   selectMetadataForUri,
-  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:scheduled:show' || 'c:scheduled:hide')
+  (metadata: ?GenericMetadata) => {
+    const tags = new Set(metadata.tags);
+    return tags.has('c:scheduled:show') ||  tags.has('c:scheduled:hide');
+  }
 );
 
 export const selectHiddenScheduledContentTag = createSelector(

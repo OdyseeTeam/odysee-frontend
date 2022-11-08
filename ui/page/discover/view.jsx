@@ -17,6 +17,7 @@ import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './livestreamSection';
 import { tagSearchCsOptionsHook } from 'util/search';
+import { doVerifyClaimSignature } from '../../redux/actions/comments';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 
@@ -49,6 +50,8 @@ function DiscoverPage(props: Props) {
     doFetchActiveLivestreams,
     dynamicRouteProps,
     hasPremiumPlus,
+    isUnlistedContent,
+    doVerifyClaimSignature
   } = props;
 
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
@@ -233,7 +236,7 @@ function DiscoverPage(props: Props) {
           injectedItem={getAds()}
           // TODO: find a better way to determine discover / wild west vs other modes release times
           // for now including && !tags so that
-          releaseTime={getReleaseTime()}
+          releaseTime={'10000'}
           feeAmount={undefined}
           channelIds={channelIds}
           excludedChannelIds={excludedChannelIds}
@@ -249,6 +252,7 @@ function DiscoverPage(props: Props) {
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
           duration={dynamicRouteProps?.options?.duration}
           csOptionsHook={tagSearchCsOptionsHook}
+          fred={'jack'}
         />
       </ClaimSearchFilterContext.Provider>
     </Page>

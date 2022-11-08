@@ -1,7 +1,8 @@
 import * as CS from 'constants/claim_search';
 import { connect } from 'react-redux';
 import { doResolveUri } from 'redux/actions/claims';
-import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { doVerifyClaimSignature } from 'redux/actions/comments';
+import { makeSelectClaimForUri, selectUnlistedContentTag } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
 import { doFetchActiveLivestreams } from 'redux/actions/livestream';
 import { selectActiveLivestreams } from 'redux/selectors/livestream';
@@ -22,6 +23,7 @@ const select = (state, props) => {
     languageSetting: selectLanguage(state),
     searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
+    isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
   };
 };
 

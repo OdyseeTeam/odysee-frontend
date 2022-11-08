@@ -77,6 +77,7 @@ function FileListPublished(props: Props) {
           <>
             <ClaimList
               noEmpty
+              uploadsPage
               header={
                 <span>
                   <Button
