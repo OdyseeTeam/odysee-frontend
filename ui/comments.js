@@ -28,6 +28,8 @@ const Comments = {
   setting_update: (params: UpdateSettingsParams) => fetchCommentsApi('setting.Update', params),
   setting_get: (params: SettingsParams) => fetchCommentsApi('setting.Get', params),
   super_list: (params: SuperListParams) => fetchCommentsApi('comment.SuperChatList', params),
+  verify_claim_signature: (params: VerifyClaimSignatureParams) => fetchCommentsApi('verify.ClaimSignature', params),
+
 };
 
 function fetchCommentsApi(method: string, params: {}) {
