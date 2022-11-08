@@ -1332,6 +1332,10 @@ body {
       }
     }
   }
+  
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.
