@@ -1,7 +1,7 @@
 // @flow
 import * as PAGES from 'constants/pages';
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
-import * as React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
@@ -24,6 +24,7 @@ import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
 import ProtectedContentOverlay from 'component/protectedContentOverlay';
+import Comments from 'comments';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -157,9 +158,14 @@ export default function FilePage(props: Props) {
   }, [audioVideoDuration, fileInfo, position]);
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
 
+  const [pendingUnlistedAuth, setPendingUnlistedAuth] = React.useState(isUnlistedContent && !claimIsMine);
+
+  const [unauthedToViewUnlistedContent, setUnauthedToViewUnlistedContent] = React.useState(isUnlistedContent && !claimIsMine);
+
+  // add the signature and timestamp query params to url for unlisted if on own content
   React.useEffect(() => {
     (async function() {
-      if ((isPrivateContent || isUnlistedContent) && claimIsMine) {
+      if (isUnlistedContent && claimIsMine) {
         let signedObject;
 
         try {
@@ -181,6 +187,34 @@ export default function FilePage(props: Props) {
       }
     })();
   }, [claimIsMine, isUnlistedContent, isPrivateContent]);
+
+  React.useEffect(() => {
+    if (isUnlistedContent && !claimIsMine) {
+      const { signature, ts: signingTimestamp } = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+      });
+
+      return Comments.verify_claim_signature({
+        channel_id: channelId,
+        claim_id: claimId,
+        signature,
+        signing_ts: signingTimestamp,
+      })
+        .then((result: VerifyClaimSignatureResponse) => {
+          l('verified');
+          l(result);
+          setPendingUnlistedAuth(false);
+          setUnauthedToViewUnlistedContent(false);
+        })
+        .catch((error) => {
+          setUnauthedToViewUnlistedContent(true);
+          setPendingUnlistedAuth(false);
+          l('error');
+          l(error.message);
+        });
+
+    }
+  }, [isUnlistedContent, claimIsMine]);
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
@@ -249,8 +283,24 @@ export default function FilePage(props: Props) {
     [doSetMainPlayerDimension]
   );
 
+  l('pending unlisted auth');
+  l(pendingUnlistedAuth)
+
   function renderFilePageLayout() {
+    if(pendingUnlistedAuth){
+      return (
+        <></>
+      );
+    }
+
+    if (unauthedToViewUnlistedContent) {
+      l('confirmed unauthed');
+      return <><h2>This content is unlisted, please check with the creator for a proper link.
+        If you are the creator and it's not working as expected, please reach out to hello@odysee.com from the account that uploaded this.</h2></>
+    }
+
     if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
+      l('rendering');
       return (
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
           <ProtectedContentOverlay uri={uri} />
@@ -334,7 +384,7 @@ export default function FilePage(props: Props) {
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
         {renderFilePageLayout()}
 
-        {!isMarkdown && (
+        {!isMarkdown && !unauthedToViewUnlistedContent && (
           <div className="file-page__secondary-content">
             <section className="file-page__media-actions">
               <PreorderAndPurchaseContentButton uri={uri} />
