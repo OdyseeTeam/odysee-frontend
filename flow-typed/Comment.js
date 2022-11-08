@@ -375,3 +375,14 @@ declare type WebsocketSettingDataResponse = {
   LivestreamChatMembersOnly?: boolean,
   CommentsMembersOnly?: boolean,
 };
+
+declare type VerifyClaimSignatureParams = {
+  channel_id: string,
+  claim_id: string,
+  signature: string,
+  signing_ts: string,
+};
+
+declare type VerifyClaimSignatureResponse = {
+  is_valid: boolean,
+};
