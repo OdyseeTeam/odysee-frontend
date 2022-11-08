@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
  */
 export default function useFetchViewCount(
   shouldFetch: ?boolean,
-  uris: Array<string>,
+  uris: ?Array<string>,
   claimsByUri: {},
   doFetchViewCount: (string) => void
 ) {

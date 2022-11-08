@@ -226,6 +226,8 @@ function ClaimListDiscover(props: Props) {
   const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
 
+  const [finalUris, setFinalUris] = React.useState();
+
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
   const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLang, searchLanguages, langParam);
@@ -526,24 +528,32 @@ function ClaimListDiscover(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  let finalUris;
+  const excludeUrisStr = JSON.stringify(excludeUris);
 
-  if (uris) {
-    // --- direct uris
-    finalUris = uris;
-    injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
-    finalUris = filterExcludedUris(finalUris, excludeUris);
-  } else {
-    // --- searched uris
-    if (isUnfetchedClaimSearch && prevUris.current) {
-      finalUris = prevUris.current;
+  React.useEffect(() => {
+    const excludeUris = JSON.parse(excludeUrisStr);
+
+    if (uris) {
+      // --- direct uris
+      const newUris = uris && Array.from(new Set(uris));
+      injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+      const newFinalUris = filterExcludedUris(newUris, excludeUris);
+
+      setFinalUris(newFinalUris);
     } else {
-      finalUris = claimSearchResult;
-      injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
-      finalUris = filterExcludedUris(finalUris, excludeUris);
-      prevUris.current = finalUris;
+      // --- searched uris
+      if (isUnfetchedClaimSearch && prevUris.current) {
+        setFinalUris(prevUris.current);
+      } else {
+        const newUris = Array.from(new Set(claimSearchResult));
+        injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+        const newFinalUris = filterExcludedUris(newUris, excludeUris);
+
+        setFinalUris(newFinalUris);
+        prevUris.current = newFinalUris;
+      }
     }
-  }
+  }, [claimSearchResult, excludeUrisStr, isUnfetchedClaimSearch, orderParam, pins, resolvedPinUris, uris]);
 
   // **************************************************************************
   // Helpers
