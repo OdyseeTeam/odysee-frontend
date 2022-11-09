@@ -40,7 +40,7 @@ export default function FeaturedBanner(props: Props) {
 
   React.useEffect(() => {
     if (featured && width) {
-      let newWidth = marginLeft * -1 < (index - 1) * width ? marginLeft - width : 0;
+      let newWidth = marginLeft * -1 < (index - 1) * width ? marginLeft - width : (index - 1) * width * -1;
       setMarginLeft(newWidth);
     }
   }, [featured, index, width]);
