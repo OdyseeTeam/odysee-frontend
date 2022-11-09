@@ -2,7 +2,7 @@
 import React from 'react';
 import Page from 'component/page';
 import { useParams } from 'react-router-dom';
-import ClaimTilesDiscover from 'component/claimTilesDiscover';
+import ClaimListDiscover from 'component/claimListDiscover';
 import './style.scss';
 
 type Props = {
@@ -38,8 +38,6 @@ function PortalPage(props: Props) {
     }
   }, [portal]);
 
-  // if (portal) console.log('portal: ', portal);
-
   return portal ? (
     <>
       <Page className="portal-wrapper" fullWidthPage>
@@ -51,7 +49,13 @@ function PortalPage(props: Props) {
           </div>
         </div>
         <div className="portal-content">
-          <ClaimTilesDiscover claimIds={(portal.claimIds && portal.claimIds.videos) || []} uris={[]} pageSize={18} />
+          <ClaimListDiscover
+            claimIds={(portal.claimIds && portal.claimIds.videos) || []}
+            // uris={[]}
+            infiniteScroll
+            // pageSize={18}
+            tileLayout
+          />
         </div>
       </Page>
     </>

@@ -11,7 +11,7 @@ const FYP_SECTION: RowDataItem = {
   link: `/$/${PAGES.FYP}`,
 };
 
-function pushAllValidCategories(rowData: Array<RowDataItem>, hasMembership: ?boolean) {
+function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?boolean) {
   const x: Array<RowDataItem> = [];
 
   rowData.forEach((data: RowDataItem) => {
@@ -19,7 +19,7 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, hasMembership: ?boo
       x.push(data);
     }
 
-    if (data.id === 'FOLLOWING' && hasMembership) {
+    if (data.id === 'FOLLOWING' && isAuthenticated) {
       x.push(FYP_SECTION);
     }
   });
@@ -48,6 +48,7 @@ export function getSortedRowData(
           sortedRowData.push(FYP_SECTION);
         } else if (key === 'BANNER') {
           // Special-case injection (not part of category definition):
+
           sortedRowData.push({ id: 'BANNER', title: undefined });
         } else if (key === 'PORTALS') {
           // Special-case injection (not part of category definition):
@@ -64,6 +65,8 @@ export function getSortedRowData(
         }
       });
     } else {
+      rowData.unshift({ id: 'BANNER', title: undefined });
+      rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
       sortedRowData = pushAllValidCategories(rowData, hasMembership);
     }
   } else {

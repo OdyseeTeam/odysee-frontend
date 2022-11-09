@@ -5,7 +5,6 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import HomepageSort from 'component/homepageSort';
-import MembershipSplash from 'component/membershipSplash';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import { Modal } from 'modal/modal';
@@ -27,7 +26,6 @@ export default function ModalCustomizeHomepage(props: Props) {
   const [applyToSidebar, setApplyToSidebar] = React.useState(alsoApplyToSidebar);
   const order = React.useRef();
 
-  console.log('homepageOrder: ', homepageOrder);
   function handleNewOrder(newOrder: HomepageOrder) {
     order.current = newOrder;
   }
@@ -85,16 +83,6 @@ export default function ModalCustomizeHomepage(props: Props) {
 
   return (
     <Modal className="modal-customize-homepage" isOpen type="custom" width="wide-fixed" onAborted={undefined}>
-      <Card
-        title={__('Customize Homepage')}
-        subtitle={__('This is currently an early-access feature for Premium members.')}
-        body={
-          <div className="card__main-actions">
-            <MembershipSplash pageLocation={'confirmPage'} currencyToUse={'usd'} />
-          </div>
-        }
-      />
-
       <Card
         title={__('Customize Homepage')}
         body={

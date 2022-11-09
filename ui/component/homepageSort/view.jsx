@@ -61,7 +61,13 @@ function getInitialList(listId, savedOrder, homepageSections) {
         // ... unless it is a 'hideByDefault' category.
         hiddenOrder.push(key);
       } else {
-        activeOrder.push(key);
+        if (key === 'BANNER') {
+          activeOrder.unshift(key);
+        } else if (key === 'PORTALS') {
+          activeOrder.splice(2, 0, key);
+        } else {
+          activeOrder.push(key);
+        }
       }
     }
   });
@@ -128,7 +134,9 @@ export default function HomepageSort(props: Props) {
           }
           return (
             <div
-              className="homepage-sort__entry"
+              className={classnames('homepage-sort__entry', {
+                'homepage-sort__entry-special': item === 'BANNER' || item === 'PORTALS',
+              })}
               ref={draggableProvided.innerRef}
               {...draggableProvided.draggableProps}
               {...draggableProvided.dragHandleProps}

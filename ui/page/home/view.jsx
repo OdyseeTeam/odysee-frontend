@@ -166,7 +166,7 @@ function HomePage(props: Props) {
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {index === 0 && <CustomizeHomepage />}
+              {id === 'FOLLOWING' && <CustomizeHomepage />}
             </div>
           )}
         </>
@@ -209,8 +209,6 @@ function HomePage(props: Props) {
   React.useEffect(() => {
     doFetchActiveLivestreams();
   }, []);
-
-  console.log('homepageData:; ', homepageData);
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>

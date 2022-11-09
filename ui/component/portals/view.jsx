@@ -14,7 +14,6 @@ export default function Portals(props: Props) {
     portals.mainPortal.portals = portals.mainPortal.portals.splice(0, 6);
   }
 
-  console.log(portals);
   return portals && portals.mainPortal ? (
     <div className="portals-wrapper" style={{ backgroundImage: 'url(' + portals.mainPortal.background + ')' }}>
       <h1>{portals.mainPortal.description}</h1>
