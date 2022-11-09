@@ -13,12 +13,13 @@ type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 type Props = {
   featured: any,
   homepageOrder: HomepageOrder,
+  authenticated: boolean,
   // --- perform ---
   doSetClientSetting: (key: string, value: any, push: boolean) => void,
 };
 
 export default function FeaturedBanner(props: Props) {
-  const { featured, homepageOrder, doSetClientSetting } = props;
+  const { featured, homepageOrder, doSetClientSetting, authenticated } = props;
   const [marginLeft, setMarginLeft] = React.useState(0);
   const [width, setWidth] = React.useState(0);
   const [index, setIndex] = React.useState(1);
@@ -80,9 +81,11 @@ export default function FeaturedBanner(props: Props) {
       onMouseEnter={() => setPause(true)}
       onMouseLeave={() => setPause(false)}
     >
-      <div className="featured-banner-remove" onClick={() => removeBanner()}>
-        <Icon icon={ICONS.REMOVE} />
-      </div>
+      {authenticated && (
+        <div className="featured-banner-remove" onClick={() => removeBanner()}>
+          <Icon icon={ICONS.REMOVE} />
+        </div>
+      )}
       <div className="featured-banner-rotator" style={{ marginLeft: marginLeft }}>
         {featured &&
           featured.items.map((item, i) => {

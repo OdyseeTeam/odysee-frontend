@@ -12,12 +12,13 @@ type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 type Props = {
   portals: any,
   homepageOrder: HomepageOrder,
+  authenticated: boolean,
   // --- perform ---
   doSetClientSetting: (key: string, value: any, push: boolean) => void,
 };
 
 export default function Portals(props: Props) {
-  const { portals, homepageOrder, doSetClientSetting } = props;
+  const { portals, homepageOrder, doSetClientSetting, authenticated } = props;
   const [kill, setKill] = React.useState(false);
 
   if (portals && portals.mainPortal) {
@@ -70,9 +71,11 @@ export default function Portals(props: Props) {
           <div />
         </div>
       */}
-      <div className="portals-remove" onClick={() => removePortals()}>
-        <Icon icon={ICONS.REMOVE} />
-      </div>
+      {authenticated && (
+        <div className="portals-remove" onClick={() => removePortals()}>
+          <Icon icon={ICONS.REMOVE} />
+        </div>
+      )}
     </div>
   ) : (
     <div className="portals-wrapper">

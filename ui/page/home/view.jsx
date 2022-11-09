@@ -127,9 +127,9 @@ function HomePage(props: Props) {
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     if (id === 'BANNER') {
-      return <FeaturedBanner featured={homepageData.featured} />;
+      return <FeaturedBanner featured={homepageData.featured} authenticated={authenticated} />;
     } else if (id === 'PORTALS') {
-      return <Portals portals={homepageData.portals} />;
+      return <Portals portals={homepageData.portals} authenticated={authenticated} />;
     }
 
     const tilePlaceholder = (
