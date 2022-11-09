@@ -3,6 +3,7 @@ import { getClaimMetadata } from 'util/claim';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { doResolveClaimId } from 'redux/actions/claims';
 import FeaturedSection from './view';
+import { doFetchViewCount } from 'lbryinc';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -16,6 +17,7 @@ const select = (state, props) => {
 
 const perform = {
   doResolveClaimId,
+  doFetchViewCount,
 };
 
 export default connect(select, perform)(FeaturedSection);

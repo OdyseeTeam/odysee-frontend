@@ -297,10 +297,11 @@ function HomeTabSection(props: Props) {
                   hideLayoutButton
                   tileLayout
                   infiniteScroll={false}
-                  maxClaimRender={maxTilesPerRow}
+                  maxClaimRender={maxTilesPerRow * section.rows}
                   useSkeletonScreen={false}
                   uris={collectionUrls || claimSearchResults}
                   claimIds={collectionClaimIds}
+                  fetchViewCount
                 />
               </>
             ) : (

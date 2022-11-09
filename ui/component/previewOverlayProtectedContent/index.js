@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { getChannelFromClaim } from 'util/claim';
 
-import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import {
   selectUserIsMemberOfProtectedContentForId,
   selectPriceOfCheapestPlanForClaimId,
@@ -24,6 +24,7 @@ const select = (state, props) => {
     protectedMembershipIds: channel && selectProtectedContentMembershipsForClaimId(state, channel.claim_id, claimId),
     userIsAMember: selectUserIsMemberOfProtectedContentForId(state, claimId),
     cheapestPlanPrice: selectPriceOfCheapestPlanForClaimId(state, claimId),
+    hasProtectedContentTag: Boolean(selectProtectedContentTagForUri(state, props.uri)),
   };
 };
 

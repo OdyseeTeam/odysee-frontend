@@ -51,6 +51,10 @@ export default function FeaturedBanner(props: Props) {
     };
   }
 
+  function removeBanner() {
+    console.log('remove banner');
+  }
+
   return (
     <div
       className="featured-banner-wrapper"
@@ -58,7 +62,7 @@ export default function FeaturedBanner(props: Props) {
       onMouseEnter={() => setPause(true)}
       onMouseLeave={() => setPause(false)}
     >
-      <div className="featured-banner-remove">
+      <div className="featured-banner-remove" onClick={() => removeBanner()}>
         <Icon icon={ICONS.REMOVE} />
       </div>
       <div className="featured-banner-rotator" style={{ marginLeft: marginLeft }}>

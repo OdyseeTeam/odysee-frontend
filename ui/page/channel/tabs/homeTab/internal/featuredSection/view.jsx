@@ -8,7 +8,6 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import ClaimPreviewSubtitle from 'component/claimPreviewSubtitle';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
-
 import { formatLbryUrlForWeb } from 'util/url';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 
@@ -23,10 +22,11 @@ type Props = {
   claim: ChannelClaim,
   // ---perform ---
   doResolveClaimId: (claimId: string) => void,
+  doFetchViewCount: (claimIdCsv: string) => void,
 };
 
 function FeaturedSection(props: Props) {
-  const { uri, claimId, claim, description, doResolveClaimId } = props;
+  const { uri, claimId, claim, description, doResolveClaimId, doFetchViewCount } = props;
 
   const navigateUrl = formatLbryUrlForWeb(uri || '/');
   const navLinkProps = {
@@ -41,6 +41,7 @@ function FeaturedSection(props: Props) {
   React.useEffect(() => {
     if (!uri) {
       doResolveClaimId(claimId);
+      doFetchViewCount(claimId);
     }
   }, [uri]);
 
