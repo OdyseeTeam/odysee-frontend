@@ -22,6 +22,7 @@
     text-align: center;
     font-size: var(--font-title);
     padding: var(--spacing-l) 0;
+    color: white;
   }
 
   .portal-wrapper {
@@ -38,7 +39,7 @@
     .portal-title {
       text-align: center;
       label {
-        color: var(--color-text-inverse);
+        color: white;
       }
     }
   }
