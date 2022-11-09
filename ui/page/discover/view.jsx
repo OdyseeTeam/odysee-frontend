@@ -68,8 +68,7 @@ function DiscoverPage(props: Props) {
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
   const tag = (tags && tags[0]) || null;
-  const routedChannelIds = dynamicRouteProps?.options?.channelIds?.length;
-  const channelIds = routedChannelIds && routedChannelIds.length > 0 ? routedChannelIds : undefined;
+  const channelIds = dynamicRouteProps?.options?.channelIds || undefined;
   const excludedChannelIds = dynamicRouteProps?.options?.excludedChannelIds || undefined;
 
   const claimSearchFilters = {
@@ -98,7 +97,7 @@ function DiscoverPage(props: Props) {
 
   function getSubSection() {
     const includeLivestreams = !tagsQuery;
-    if (includeLivestreams && channelIds && channelIds.length > 0) {
+    if (includeLivestreams) {
       return (
         <LivestreamSection
           tileLayout={repostedUri ? false : tileLayout}

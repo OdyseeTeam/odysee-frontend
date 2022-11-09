@@ -319,8 +319,6 @@ function ClaimListDiscover(props: Props) {
 
   if (channelIdsParam) {
     options.channel_ids = channelIdsParam;
-  } else if (pins) {
-    options.claim_ids = pins.claimIds;
   }
 
   if (excludedIdsParam) {
