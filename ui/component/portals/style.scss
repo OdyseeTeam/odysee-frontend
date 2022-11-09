@@ -23,6 +23,7 @@
     font-size: var(--font-title);
     padding: var(--spacing-l) 0;
   }
+
   .portal-wrapper {
     width: calc((100% - var(--spacing-l) * 5) / 6);
     .portal-thumbnail {
@@ -78,9 +79,37 @@
     }
   }
 
+  .portals-remove {
+    position: absolute;
+    top: var(--spacing-m);
+    right: var(--spacing-m);
+    background-color: var(--color-primary);
+    padding: 0.3rem;
+    border-radius: var(--border-radius);
+    display: flex;
+    opacity: 0;
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      stroke: white;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
+  &.kill {
+    display: none;
+  }
+
   &:hover {
     .portal-browse {
       opacity: 0.8;
+    }
+    .portals-remove {
+      opacity: 1;
     }
   }
 }
