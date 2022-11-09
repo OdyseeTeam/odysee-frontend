@@ -37,6 +37,9 @@
     }
     .portal-title {
       text-align: center;
+      label {
+        color: var(--color-text-inverse);
+      }
     }
   }
 
