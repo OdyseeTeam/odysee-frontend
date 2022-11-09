@@ -36,6 +36,7 @@ const select = (state, props) => {
     any_tags: props.section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
     no_totals: true,
     index: props.index,
+    has_source: true,
   };
 
   const searchKey = createNormalizedClaimSearchKey(options);
