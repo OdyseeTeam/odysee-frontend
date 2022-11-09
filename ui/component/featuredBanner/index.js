@@ -1,14 +1,15 @@
 import { connect } from 'react-redux';
-import { doSetHomepage } from 'redux/actions/settings';
-import { selectHomepageCode } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
 import FeaturedBanner from './view';
 
 const select = (state) => ({
-  // homepage: selectHomepageCode(state),
+  homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
 });
 
-const perform = (dispatch) => ({
-  // setHomepage: value => dispatch(doSetHomepage(value)),
-});
+const perform = {
+  doSetClientSetting,
+};
 
 export default connect(select, perform)(FeaturedBanner);

@@ -3,19 +3,27 @@ import React from 'react';
 import { useOnResize } from 'effects/use-on-resize';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
+import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
-
 import './style.scss';
+
+type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
 type Props = {
   featured: any,
+  homepageOrder: HomepageOrder,
+  // --- perform ---
+  doSetClientSetting: (key: string, value: any, push: boolean) => void,
 };
 
 export default function FeaturedBanner(props: Props) {
-  const { featured } = props;
+  const { featured, homepageOrder, doSetClientSetting } = props;
   const [marginLeft, setMarginLeft] = React.useState(0);
   const [width, setWidth] = React.useState(0);
   const [index, setIndex] = React.useState(1);
   const [pause, setPause] = React.useState(false);
+  const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
 
   React.useEffect(() => {
@@ -52,12 +60,22 @@ export default function FeaturedBanner(props: Props) {
   }
 
   function removeBanner() {
-    console.log('remove banner');
+    let orderToSave = homepageOrder;
+    if (orderToSave.active && orderToSave.active.includes('BANNER')) {
+      orderToSave.active.splice(orderToSave.active.indexOf('BANNER'), 1);
+      if (orderToSave.hidden) {
+        orderToSave.hidden.push('BANNER');
+      } else {
+        orderToSave.hidden = ['BANNER'];
+      }
+      doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
+      setKill(true);
+    }
   }
 
   return (
     <div
-      className="featured-banner-wrapper"
+      className={classnames('featured-banner-wrapper', { kill: kill })}
       ref={wrapper}
       onMouseEnter={() => setPause(true)}
       onMouseLeave={() => setPause(false)}

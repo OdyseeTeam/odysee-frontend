@@ -101,6 +101,10 @@
     }
   }
 
+  &.kill {
+    display: none;
+  }
+
   &:hover {
     .banner-browse,
     .featured-banner-remove {
