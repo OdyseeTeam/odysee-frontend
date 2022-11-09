@@ -51,10 +51,9 @@ function PortalPage(props: Props) {
         <div className="portal-content">
           <ClaimListDiscover
             claimIds={(portal.claimIds && portal.claimIds.videos) || []}
-            // uris={[]}
             infiniteScroll
-            // pageSize={18}
             tileLayout
+            showHeader={false}
           />
         </div>
       </Page>
