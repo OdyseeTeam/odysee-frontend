@@ -227,6 +227,7 @@ const Wallpaper = (props: Props) => {
         }}
       />
       <div className={'theme'}>
+        <div />
         <div id="stars"></div>
         <div id="stars2"></div>
       </div>
