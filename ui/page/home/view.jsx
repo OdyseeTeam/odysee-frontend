@@ -90,6 +90,7 @@ function HomePage(props: Props) {
     authenticated,
     userHasOdyseeMembership,
     homepageOrder,
+    homepageData,
     rowData
   );
 

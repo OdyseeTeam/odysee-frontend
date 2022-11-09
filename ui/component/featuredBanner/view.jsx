@@ -27,7 +27,7 @@ export default function FeaturedBanner(props: Props) {
       }, featured.transitionTime * 1000 + 1000);
       return () => clearInterval(interval);
     }
-  }, [featured, marginLeft, width, pause]);
+  }, [featured, marginLeft, width, pause, index]);
 
   React.useEffect(() => {
     if (featured && width) {
@@ -82,19 +82,15 @@ export default function FeaturedBanner(props: Props) {
             );
           })}
       </div>
-      {index > 1 && (
-        <div className="banner-browse left" onClick={() => setIndex(index > 1 ? index - 1 : 1)}>
-          ‹
-        </div>
-      )}
-      {featured && index < featured.items.length && (
-        <div
-          className="banner-browse right"
-          onClick={() => setIndex(index < featured.items.length ? index + 1 : featured.items.length)}
-        >
-          ›
-        </div>
-      )}
+      <div className="banner-browse left" onClick={() => setIndex(index > 1 ? index - 1 : 1)}>
+        ‹
+      </div>
+      <div
+        className="banner-browse right"
+        onClick={() => setIndex(index < featured.items.length ? index + 1 : featured.items.length)}
+      >
+        ›
+      </div>
       <div className="banner-active-indicator">
         {featured &&
           featured.items.map((item, i) => {

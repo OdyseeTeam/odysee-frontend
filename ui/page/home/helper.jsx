@@ -31,9 +31,12 @@ export function getSortedRowData(
   authenticated: boolean,
   hasMembership: ?boolean,
   homepageOrder: HomepageOrder,
+  homepageData: any,
   rowData: Array<RowDataItem>
 ) {
   let sortedRowData: Array<RowDataItem> = [];
+  const hasBanner = Boolean(homepageData.featured);
+  const hasPortals = Boolean(homepageData.portals);
 
   if (authenticated) {
     if (homepageOrder.active) {
@@ -46,12 +49,9 @@ export function getSortedRowData(
         } else if (key === 'FYP') {
           // Special-case injection (not part of category definition):
           sortedRowData.push(FYP_SECTION);
-        } else if (key === 'BANNER') {
-          // Special-case injection (not part of category definition):
-
+        } else if (key === 'BANNER' && hasBanner) {
           sortedRowData.push({ id: 'BANNER', title: undefined });
-        } else if (key === 'PORTALS') {
-          // Special-case injection (not part of category definition):
+        } else if (key === 'PORTALS' && hasPortals) {
           sortedRowData.push({ id: 'PORTALS', title: undefined });
         }
       });
@@ -65,13 +65,13 @@ export function getSortedRowData(
         }
       });
     } else {
-      rowData.unshift({ id: 'BANNER', title: undefined });
-      rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
+      if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
+      if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
       sortedRowData = pushAllValidCategories(rowData, hasMembership);
     }
   } else {
-    rowData.unshift({ id: 'BANNER', title: undefined });
-    rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
+    if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
+    if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
     sortedRowData = pushAllValidCategories(rowData, hasMembership);
   }
 

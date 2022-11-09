@@ -312,7 +312,13 @@ function SideNavigation(props: Props) {
     let categories = rowData;
 
     if (homepageOrderApplyToSidebar) {
-      const sortedRowData: Array<RowDataItem> = getSortedRowData(Boolean(email), hasMembership, homepageOrder, rowData);
+      const sortedRowData: Array<RowDataItem> = getSortedRowData(
+        Boolean(email),
+        hasMembership,
+        homepageOrder,
+        homepageData,
+        rowData
+      );
       categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
     }
 
