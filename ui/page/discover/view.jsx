@@ -98,7 +98,7 @@ function DiscoverPage(props: Props) {
 
   function getSubSection() {
     const includeLivestreams = !tagsQuery;
-    if (includeLivestreams && channelIds && channelIds.length > 0) {
+    if (includeLivestreams && (isWildWest || (channelIds && channelIds.length > 0))) {
       return (
         <LivestreamSection
           tileLayout={repostedUri ? false : tileLayout}
