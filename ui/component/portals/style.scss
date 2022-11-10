@@ -48,6 +48,9 @@
       label {
         font-weight: var(--font-weight-bold);
         color: white;
+        &:hover {
+          cursor: pointer;
+        }
       }
     }
   }

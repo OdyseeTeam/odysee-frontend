@@ -4,12 +4,14 @@ import React from 'react';
 import * as CS from 'constants/claim_search';
 import moment from 'moment';
 import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
 import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
 import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
 import * as SETTINGS from 'constants/settings';
+import './style.scss';
 
 type Props = {
   channelIds: Array<string>,
@@ -62,17 +64,25 @@ const ScheduledStreams = (props: Props) => {
 
   const Header = () => {
     return (
-      <div>
-        {__('Upcoming Livestreams')}
-        {showHideSetting && (
-          <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'ml-s text-s'} />
-        )}
+      <div className="claim-grid__header">
+        <div className="button__content">
+          <span className="icon__wrapper">
+            <Icon icon={ICONS.VIDEO} />
+          </span>
+          <span className="claim-grid__title">{__('Upcoming Livestreams')}</span>
+          {showHideSetting && (
+            <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'ml-s text-s'} />
+          )}
+        </div>
       </div>
     );
   };
 
   return (
-    <div className={'mb-m mt-m md:mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
+    <div
+      className={'mb-m mt-m md:mb-xl upcoming-livestreams'}
+      style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}
+    >
       <ClaimListDiscover
         swipeLayout={useSwipeLayout}
         useSkeletonScreen={false}
@@ -95,7 +105,6 @@ const ScheduledStreams = (props: Props) => {
         infiniteScroll={false}
         showNoSourceClaims
         hideLayoutButton
-        // header={__('🔴 Upcoming Livestreams')}
         header={<Header />}
         maxClaimRender={upcomingMax}
         excludeUris={liveUris}

@@ -215,19 +215,6 @@ function HomePage(props: Props) {
     <Page className="homePage-wrapper" fullWidthPage>
       {/* <Meme meme={homepageMeme} /> */}
 
-      {!fetchingActiveLivestreams && (
-        <>
-          {authenticated && subscriptionChannelIds.length > 0 && !hideScheduledLivestreams && (
-            <ScheduledStreams
-              channelIds={subscriptionChannelIds}
-              tileLayout
-              liveUris={getLivestreamUris(activeLivestreams, subscriptionChannelIds)}
-              limitClaimsPerChannel={2}
-            />
-          )}
-        </>
-      )}
-
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
           <Yrbl
@@ -240,7 +227,26 @@ function HomePage(props: Props) {
 
       {sortedRowData.map(
         ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-          return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
+          if (id !== 'FOLLOWING') {
+            return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
+          } else {
+            return (
+              <>
+                {!fetchingActiveLivestreams &&
+                  authenticated &&
+                  subscriptionChannelIds.length > 0 &&
+                  !hideScheduledLivestreams && (
+                    <ScheduledStreams
+                      channelIds={subscriptionChannelIds}
+                      tileLayout
+                      liveUris={getLivestreamUris(activeLivestreams, subscriptionChannelIds)}
+                      limitClaimsPerChannel={2}
+                    />
+                  )}
+                {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
+              </>
+            );
+          }
         }
       )}
     </Page>
