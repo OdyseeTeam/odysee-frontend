@@ -110,7 +110,7 @@ export default function Portals(props: Props) {
                   border: `2px solid rgba(` + portal.css.rgb + `,1)`,
                 }}
               >
-                <img src={portal.image} />
+                <img src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image} />
               </div>
               <div className="portal-title" style={{ border: `2px solid rgba(` + portal.css.rgb + `,1)` }}>
                 <label>{portal.label}</label>

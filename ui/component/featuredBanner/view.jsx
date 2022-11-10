@@ -144,7 +144,10 @@ export default function FeaturedBanner(props: Props) {
                 key={i}
                 style={{ minWidth: width }}
               >
-                <img src={item.image} style={{ width: width }} />
+                <img
+                  src={'https://thumbnails.odycdn.com/optimize/s:1735:0/quality:95/plain/' + item.image}
+                  style={{ width: width }}
+                />
               </NavLink>
             );
           })}
