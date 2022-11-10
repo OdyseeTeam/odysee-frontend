@@ -1,3 +1,5 @@
+@import '~ui/scss/init/breakpoints';
+
 .featured-banner-wrapper {
   position: relative;
   width: 100%;
@@ -66,12 +68,24 @@
       margin: 0 var(--spacing-xxs);
       transition: all 1s;
     }
+
+    @media (max-width: $breakpoint-small) {
+      bottom: 3px;
+      div {
+        width: 6px;
+        height: 6px;
+      }
+    }
   }
 
   .banner-active-indicator-active {
     width: 12px !important;
     height: 12px !important;
     background: white !important;
+    @media (max-width: $breakpoint-small) {
+      width: 8px !important;
+      height: 8px !important;
+    }
   }
 
   .banner-browse {
