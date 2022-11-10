@@ -9,13 +9,12 @@ type Props = {
   uri: string,
   portals: any,
   homepageData: any,
-  activeTheme: string,
 };
 
 export const PortalContext = React.createContext<any>();
 
 function PortalPage(props: Props) {
-  const { portals, activeTheme } = props;
+  const { portals } = props;
   const [portal, setIndex] = React.useState(undefined);
 
   let { portalName } = useParams();
@@ -33,16 +32,15 @@ function PortalPage(props: Props) {
       const stars = document.getElementsByClassName('stars');
       theme[0].style.backgroundImage =
         'radial-gradient(circle at 80% 20%, rgba(0,0,0,0.6), #000 50%, rgba(101,15,124,0.9) 25%, #000 75%)';
-
       stars[0].classList.add('stars-active');
     }
-  }, [portal, activeTheme]);
+  }, [portal]);
 
   return portal ? (
     <>
       <Page className="portal-wrapper" fullWidthPage>
         <div className="portal-header">
-          <img src={portal.image} />
+          <img src={portal.image} style={{ background: `rgba(` + portal.css.rgb + `,0.8)` }} />
           <div className="portal-meta">
             <h1>{portal.label}</h1>
             <p>{portal.description}</p>

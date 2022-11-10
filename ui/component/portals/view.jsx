@@ -22,15 +22,6 @@ export default function Portals(props: Props) {
   const [hover, setHover] = React.useState(undefined);
   const [kill, setKill] = React.useState(false);
 
-  const temp = {
-    adventureaddict: '255,221,162',
-    horrorfreak: '239,25,112',
-    innovativeartist: '100,68,154',
-    techwizard: '48,117,220',
-    outdoordad: '212,105,77',
-  };
-  // console.log('P . ', portals)
-
   if (portals && portals.mainPortal) {
     portals.mainPortal.portals = portals.mainPortal.portals.concat(portals.mainPortal.portals);
     portals.mainPortal.portals = portals.mainPortal.portals.splice(0, 6);
@@ -50,12 +41,6 @@ export default function Portals(props: Props) {
     }
   }
 
-  React.useEffect(() => {
-    console.log('hover: ', hover);
-  }, [hover]);
-
-  //
-
   return portals && portals.mainPortal ? (
     <div
       className={classnames('portals-wrapper', { kill: kill })}
@@ -74,13 +59,13 @@ export default function Portals(props: Props) {
               <div
                 className="portal-thumbnail"
                 style={{
-                  background: `rgba(` + temp[portal.name] + `,` + (hover === portal.name ? 1 : 0.8) + `)`,
-                  border: `2px solid rgba(` + temp[portal.name] + `,1)`,
+                  background: `rgba(` + portal.css.rgb + `,` + (hover === portal.name ? 1 : 0.8) + `)`,
+                  border: `2px solid rgba(` + portal.css.rgb + `,1)`,
                 }}
               >
                 <img src={portal.image} />
               </div>
-              <div className="portal-title" style={{ border: `2px solid rgba(` + temp[portal.name] + `,1)` }}>
+              <div className="portal-title" style={{ border: `2px solid rgba(` + portal.css.rgb + `,1)` }}>
                 <label>{portal.label}</label>
               </div>
             </NavLink>

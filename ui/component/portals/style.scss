@@ -24,9 +24,7 @@
     font-weight: var(--font-weight-bold);
     padding: var(--spacing-l) 0;
     color: rgba(255, 255, 255, 0.9);
-    // background:rgba(0,0,0,0.6);
-    // background: linear-gradient(90deg, rgba(153,0,255,0) 0%, rgba(0,0,0,1) 50%, rgba(255,149,0,0) 100%);
-    background: radial-gradient(rgba(101, 15, 124, 0.9) 0%, transparent 60%);
+    background: radial-gradient(rgba(101, 15, 124, 0.7) 0%, transparent 60%);
   }
 
   .portal-wrapper {
