@@ -6,7 +6,7 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import './style.scss';
 
 type Props = {
-  uri: string,
+  // uri: string,
   portals: any,
   homepageData: any,
 };
@@ -33,13 +33,12 @@ function PortalPage(props: Props) {
       theme[0].style.backgroundImage =
         'radial-gradient(circle at 80% 20%, rgba(0,0,0,0.6), #000 50%, rgba(101,15,124,0.9) 25%, #000 75%)';
       stars[0].classList.add('stars-active');
+      setTimeout(() => {
+        const footer = document.getElementsByClassName('footer');
+        footer && footer[0] && footer[0].classList.add('footer-background');
+      }, 1000);
     }
   }, [portal]);
-
-  React.useEffect(() => {
-    const footer = document.getElementsByClassName('footer');
-    footer && footer[0] && footer[0].classList.add('footer-background');
-  }, []);
 
   return portal ? (
     <>

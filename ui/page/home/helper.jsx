@@ -38,8 +38,6 @@ export function getSortedRowData(
   const hasBanner = Boolean(homepageData.featured);
   const hasPortals = Boolean(homepageData.portals);
 
-  console.log('sortedRowData: ', sortedRowData);
-
   if (authenticated) {
     if (homepageOrder.active) {
       // Grab categories that are still valid in the latest homepage:
