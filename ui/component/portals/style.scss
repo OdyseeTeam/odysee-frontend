@@ -1,3 +1,5 @@
+@import '~ui/scss/init/breakpoints';
+
 .portals-wrapper {
   width: 100%;
   background-size: cover;
@@ -47,6 +49,18 @@
         font-weight: var(--font-weight-bold);
         color: white;
       }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-s) var(--spacing-m);
+    .portal-wrapper {
+      width: calc((100% - var(--spacing-m) * 1) / 2);
+      margin-bottom: var(--spacing-s);
+    }
+
+    h1 {
+      padding: var(--spacing-s) var(--spacing-m);
     }
   }
 
