@@ -84,7 +84,7 @@ function HomeTab(props: Props) {
           newHome[index] = {
             type: e.change.value,
             file_type: e.change.value === 'content' ? CS.FILE_TYPES : undefined,
-            order_by: [],
+            order_by: CS.ORDER_BY_NEW_VALUE,
             claim_id: undefined,
           };
         } else if (e.change.field === 'file_type') {

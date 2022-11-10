@@ -1,13 +1,15 @@
+@import '~ui/scss/init/breakpoints';
+
 .portal-header {
   position: relative;
-  width: 100%;
-  height: 160px;
   background: var(--color-header-background);
   display: flex;
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-xl);
 
   img {
+    height: 110px;
+    padding: var(--spacing-xxs);
     border-radius: var(--border-radius) 0 0 var(--border-radius);
   }
 
@@ -15,61 +17,33 @@
     padding: var(--spacing-m);
     h1 {
       font-size: var(--font-title);
-    }
-  }
-}
-
-/*
-.portal-content {
-  .claim-tile__title,
-  .claim-tile__about,
-  .menu__button,
-  .footer__link {
-    color: white !important;
-    .icon {
-      stroke: white !important;
-    }
-    .button__label {
-      color: white !important;
+      font-weight: var(--font-weight-bold);
     }
   }
 
-  .claim-preview--tile {
-    &:hover {
-      .claim-tile__title {
-        color: var(--color-primary) !important;
+  @media (max-width: $breakpoint-small) {
+    margin: var(--spacing-xxs);
+
+    .portal-meta {
+      padding: var(--spacing-xs);
+      h1 {
+        font-size: var(--font-body);
       }
-    }
-  }
-
-  .channel-name,
-  .date_time {
-    color: rgba(255, 255, 255, 0.6);
-    p {
-      color: rgba(255, 255, 255, 0.6);
-      &:hover {
-        color: white;
+      p {
+        font-size: var(--font-small);
       }
     }
   }
 }
-*/
-
-/*
-.backdrop{
-  position:fixed;
-  left:0;
-  right:0;
-  top:0;
-  bottom:0;
-  backdrop-filter: blur(4px);
-}
-*/
 
 .portal-content {
   padding: var(--spacing-m);
   border-radius: var(--border-radius);
   background: rgba(var(--color-header-background-base), 0.8);
+
+  @media (max-width: $breakpoint-small) {
+    margin: var(--spacing-xxs);
+  }
 }
 
 html {
