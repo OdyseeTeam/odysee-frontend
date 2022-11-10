@@ -67,6 +67,10 @@
       display: inline-block;
       margin: 0 var(--spacing-xxs);
       transition: all 1s;
+      &:hover {
+        cursor: pointer;
+        background: white !important;
+      }
     }
 
     @media (max-width: $breakpoint-small) {

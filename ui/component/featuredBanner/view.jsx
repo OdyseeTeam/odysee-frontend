@@ -40,8 +40,7 @@ export default function FeaturedBanner(props: Props) {
 
   React.useEffect(() => {
     if (featured && width) {
-      let newWidth = marginLeft * -1 < (index - 1) * width ? marginLeft - width : (index - 1) * width * -1;
-      setMarginLeft(newWidth);
+      setMarginLeft((index - 1) * (width * -1));
     }
   }, [featured, index, width]);
 
@@ -103,19 +102,22 @@ export default function FeaturedBanner(props: Props) {
             );
           })}
       </div>
-      <div className="banner-browse left" onClick={() => setIndex(index > 1 ? index - 1 : 1)}>
+      <div className="banner-browse left" onClick={() => setIndex(index > 1 ? index - 1 : featured.items.length)}>
         ‹
       </div>
-      <div
-        className="banner-browse right"
-        onClick={() => setIndex(index < featured.items.length ? index + 1 : featured.items.length)}
-      >
+      <div className="banner-browse right" onClick={() => setIndex(index < featured.items.length ? index + 1 : 1)}>
         ›
       </div>
       <div className="banner-active-indicator">
         {featured &&
           featured.items.map((item, i) => {
-            return <div key={i} className={i + 1 === index && 'banner-active-indicator-active'} />;
+            return (
+              <div
+                key={i}
+                className={i + 1 === index && 'banner-active-indicator-active'}
+                onClick={() => setIndex(i + 1)}
+              />
+            );
           })}
       </div>
     </div>
