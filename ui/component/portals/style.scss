@@ -55,6 +55,14 @@
     }
   }
 
+  @media (max-width: $breakpoint-medium) {
+    padding: var(--spacing-s) var(--spacing-xxl);
+    .portal-wrapper {
+      width: calc((100% - var(--spacing-xxl) * 2) / 3);
+      margin-bottom: var(--spacing-l);
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s) var(--spacing-m);
     .portal-wrapper {

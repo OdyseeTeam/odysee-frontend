@@ -38,6 +38,8 @@ export function getSortedRowData(
   const hasBanner = Boolean(homepageData.featured);
   const hasPortals = Boolean(homepageData.portals);
 
+  console.log('sortedRowData: ', sortedRowData);
+
   if (authenticated) {
     if (homepageOrder.active) {
       // Grab categories that are still valid in the latest homepage:
@@ -64,6 +66,23 @@ export function getSortedRowData(
           }
         }
       });
+
+      if (
+        homepageOrder.active &&
+        !homepageOrder.active.includes('BANNER') &&
+        homepageOrder.hidden &&
+        !homepageOrder.hidden.includes('BANNER')
+      ) {
+        sortedRowData.unshift({ id: 'BANNER', title: undefined });
+      }
+      if (
+        homepageOrder.active &&
+        !homepageOrder.active.includes('PORTALS') &&
+        homepageOrder.hidden &&
+        !homepageOrder.hidden.includes('PORTALS')
+      ) {
+        sortedRowData.splice(2, 0, { id: 'PORTALS', title: undefined });
+      }
     } else {
       if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
       if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
