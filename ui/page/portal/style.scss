@@ -19,6 +19,7 @@
   }
 }
 
+/*
 .portal-content {
   .claim-tile__title,
   .claim-tile__about,
@@ -51,6 +52,24 @@
       }
     }
   }
+}
+*/
+
+/*
+.backdrop{
+  position:fixed;
+  left:0;
+  right:0;
+  top:0;
+  bottom:0;
+  backdrop-filter: blur(4px);
+}
+*/
+
+.portal-content {
+  padding: var(--spacing-m);
+  border-radius: var(--border-radius);
+  background: rgba(var(--color-header-background-base), 0.8);
 }
 
 html {

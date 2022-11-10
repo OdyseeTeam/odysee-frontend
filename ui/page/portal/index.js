@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
-import { doSetHomepage } from 'redux/actions/settings';
-import { selectHomepageCode } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
 import { selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import PortalPage from './view';
 
@@ -11,8 +10,8 @@ const select = (state) => {
 
   return {
     portals: mainPortal?.portals,
+    activeTheme: selectClientSetting(state, SETTINGS.THEME),
   };
-  // homepage: selectHomepageCode(state),
 };
 
 const perform = (dispatch) => ({

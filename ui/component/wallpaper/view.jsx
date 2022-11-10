@@ -226,10 +226,11 @@ const Wallpaper = (props: Props) => {
             'url("https://thumbnails.odycdn.com/optimize/plain/https://player.odycdn.com/speech/2e9a7dc6c99f0fb9.jpg")',
         }}
       />
-      <div className={'theme'}>
-        <div />
-        <div id="stars"></div>
-        <div id="stars2"></div>
+      <div className="theme" />
+      {/* <div className="backdrop"/> */}
+      <div className="stars">
+        <div id="stars" />
+        <div id="stars2" />
       </div>
     </>
   );
