@@ -10,7 +10,7 @@ import './style.scss';
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
 type Props = {
-  portals: any,
+  homepageData: any,
   homepageOrder: HomepageOrder,
   authenticated: boolean,
   // --- perform ---
@@ -18,13 +18,54 @@ type Props = {
 };
 
 export default function Portals(props: Props) {
-  const { portals, homepageOrder, doSetClientSetting, authenticated } = props;
+  const { homepageData, homepageOrder, doSetClientSetting, authenticated } = props;
+  const { portals, categories } = homepageData;
   const [hover, setHover] = React.useState(undefined);
   const [kill, setKill] = React.useState(false);
 
   if (portals && portals.mainPortal) {
     portals.mainPortal.portals = portals.mainPortal.portals.concat(portals.mainPortal.portals);
     portals.mainPortal.portals = portals.mainPortal.portals.splice(0, 6);
+  }
+
+  const NON_CATEGORY = Object.freeze({
+    BANNER: { label: 'Banner' },
+    FOLLOWING: { label: 'Following' },
+    PORTALS: { label: 'Portals' },
+    FYP: { label: 'Recommended' },
+  });
+
+  function getInitialList(listId, savedOrder, homepageSections) {
+    const savedActiveOrder = savedOrder.active || [];
+    const savedHiddenOrder = savedOrder.hidden || [];
+    const sectionKeys = Object.keys(homepageSections);
+
+    // From the saved entries, trim those that no longer exists in the latest (or different) Homepage.
+    let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
+    let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
+
+    // Add any new categories found into 'active' ...
+    sectionKeys.forEach((key: string) => {
+      if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
+        if (homepageSections[key].hideByDefault) {
+          // ... unless it is a 'hideByDefault' category.
+          hiddenOrder.push(key);
+        } else {
+          if (key === 'BANNER') {
+            activeOrder.unshift(key);
+          } else if (key === 'PORTALS') {
+            // Skip
+          } else {
+            activeOrder.push(key);
+          }
+        }
+      }
+    });
+
+    // Final check to exclude items that were previously moved to Hidden.
+    activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
+
+    return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
   }
 
   function removePortals() {
@@ -36,9 +77,15 @@ export default function Portals(props: Props) {
       } else {
         orderToSave.hidden = ['PORTALS'];
       }
-      doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
-      setKill(true);
+    } else if (!orderToSave.hidden) {
+      const SECTIONS = { ...NON_CATEGORY, ...categories };
+      orderToSave = { active: [], hidden: [] };
+      orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
+      orderToSave.hidden = getInitialList('HIDDEN', homepageOrder, SECTIONS);
+      orderToSave.hidden.push('PORTALS');
     }
+    doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
+    setKill(true);
   }
 
   return portals && portals.mainPortal ? (

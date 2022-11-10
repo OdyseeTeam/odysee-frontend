@@ -11,7 +11,7 @@ import './style.scss';
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
 type Props = {
-  featured: any,
+  homepageData: any,
   homepageOrder: HomepageOrder,
   authenticated: boolean,
   // --- perform ---
@@ -19,7 +19,8 @@ type Props = {
 };
 
 export default function FeaturedBanner(props: Props) {
-  const { featured, homepageOrder, doSetClientSetting, authenticated } = props;
+  const { homepageData, homepageOrder, doSetClientSetting, authenticated } = props;
+  const { featured, categories } = homepageData;
   const [marginLeft, setMarginLeft] = React.useState(0);
   const [width, setWidth] = React.useState(0);
   const [index, setIndex] = React.useState(1);
@@ -59,6 +60,46 @@ export default function FeaturedBanner(props: Props) {
     };
   }
 
+  const NON_CATEGORY = Object.freeze({
+    BANNER: { label: 'Banner' },
+    FOLLOWING: { label: 'Following' },
+    PORTALS: { label: 'Portals' },
+    FYP: { label: 'Recommended' },
+  });
+
+  function getInitialList(listId, savedOrder, homepageSections) {
+    const savedActiveOrder = savedOrder.active || [];
+    const savedHiddenOrder = savedOrder.hidden || [];
+    const sectionKeys = Object.keys(homepageSections);
+
+    // From the saved entries, trim those that no longer exists in the latest (or different) Homepage.
+    let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
+    let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
+
+    // Add any new categories found into 'active' ...
+    sectionKeys.forEach((key: string) => {
+      if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
+        if (homepageSections[key].hideByDefault) {
+          // ... unless it is a 'hideByDefault' category.
+          hiddenOrder.push(key);
+        } else {
+          if (key === 'BANNER') {
+            // Skip
+          } else if (key === 'PORTALS') {
+            activeOrder.splice(2, 0, key);
+          } else {
+            activeOrder.push(key);
+          }
+        }
+      }
+    });
+
+    // Final check to exclude items that were previously moved to Hidden.
+    activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
+
+    return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
+  }
+
   function removeBanner() {
     let orderToSave = homepageOrder;
     if (orderToSave.active && orderToSave.active.includes('BANNER')) {
@@ -68,9 +109,15 @@ export default function FeaturedBanner(props: Props) {
       } else {
         orderToSave.hidden = ['BANNER'];
       }
-      doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
-      setKill(true);
+    } else if (!orderToSave.hidden) {
+      const SECTIONS = { ...NON_CATEGORY, ...categories };
+      orderToSave = { active: [], hidden: [] };
+      orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
+      orderToSave.hidden = getInitialList('HIDDEN', homepageOrder, SECTIONS);
+      orderToSave.hidden.push('BANNER');
     }
+    doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
+    setKill(true);
   }
 
   return (
@@ -114,7 +161,7 @@ export default function FeaturedBanner(props: Props) {
             return (
               <div
                 key={i}
-                className={i + 1 === index && 'banner-active-indicator-active'}
+                className={i + 1 === index ? 'banner-active-indicator-active' : ''}
                 onClick={() => setIndex(i + 1)}
               />
             );

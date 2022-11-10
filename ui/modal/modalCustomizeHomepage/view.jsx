@@ -22,11 +22,13 @@ type Props = {
 
 export default function ModalCustomizeHomepage(props: Props) {
   const { homepageOrder, alsoApplyToSidebar, doSetClientSetting, doToast, doOpenModal, doHideModal } = props;
+  console.log('homepageOrder1 : ', homepageOrder);
 
   const [applyToSidebar, setApplyToSidebar] = React.useState(alsoApplyToSidebar);
   const order = React.useRef();
 
   function handleNewOrder(newOrder: HomepageOrder) {
+    console.log('newOrder : ', newOrder);
     order.current = newOrder;
   }
 
