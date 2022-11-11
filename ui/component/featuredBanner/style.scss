@@ -38,7 +38,6 @@
     background-color: var(--color-primary);
     padding: 0.3rem;
     border-radius: var(--border-radius);
-    // border:1px solid white;
     display: flex;
     opacity: 0;
 
@@ -102,7 +101,6 @@
     height: 60px;
     border-radius: 50%;
     background: rgba(var(--color-header-background-base), 0.8);
-    // border:2px solid rgba(255,255,255,0.4);
     opacity: 0;
     text-align: center;
     font-size: 38px;
@@ -118,7 +116,6 @@
       cursor: pointer;
       opacity: 1 !important;
       background: rgba(var(--color-header-background-base), 1);
-      // border:2px solid rgba(255,255,255,1);
     }
   }
 

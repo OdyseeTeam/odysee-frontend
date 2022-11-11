@@ -40,15 +40,12 @@ export default function Portals(props: Props) {
     const savedHiddenOrder = savedOrder.hidden || [];
     const sectionKeys = Object.keys(homepageSections);
 
-    // From the saved entries, trim those that no longer exists in the latest (or different) Homepage.
     let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
     let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
 
-    // Add any new categories found into 'active' ...
     sectionKeys.forEach((key: string) => {
       if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
         if (homepageSections[key].hideByDefault) {
-          // ... unless it is a 'hideByDefault' category.
           hiddenOrder.push(key);
         } else {
           if (key === 'BANNER') {
@@ -61,10 +58,7 @@ export default function Portals(props: Props) {
         }
       }
     });
-
-    // Final check to exclude items that were previously moved to Hidden.
     activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
-
     return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
   }
 
