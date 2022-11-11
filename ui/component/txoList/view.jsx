@@ -252,36 +252,7 @@ function TxoList(props: Props) {
 
   return (
     <Card
-      title={
-        <>
-          <div className="table__header-text txo__table_header">{__(`Tips`)}</div>
-          <div className="txo__radios_container">
-            <fieldset-section style={{ display: 'inline' }} className="txo__radios_fieldset">
-              {/* toggle between LBC and fiat buttons */}
-              <div className={'txo__radios'}>
-                {/* toggle to LBC */}
-                <Button
-                  button="alt"
-                  onClick={(e) => handleChange({ changedParameterKey: QUERY_NAME_CURRENCY, value: 'credits' })}
-                  className={classnames(`button-toggle`, {
-                    'button-toggle--active': currency === 'credits',
-                  })}
-                  label={__('Credits --[transactions tab]--')}
-                />
-                {/* toggle to fiat */}
-                <Button
-                  button="alt"
-                  onClick={(e) => handleChange({ changedParameterKey: QUERY_NAME_CURRENCY, value: 'fiat' })}
-                  className={classnames(`button-toggle`, {
-                    'button-toggle--active': currency === 'fiat',
-                  })}
-                  label={__('Currency --[transactions tab]--')}
-                />
-              </div>
-            </fieldset-section>
-          </div>
-        </>
-      }
+      title={<></>}
       isBodyList
       body={
         currency === 'credits' ? (
