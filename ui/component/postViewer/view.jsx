@@ -8,7 +8,7 @@ import GeoRestictionInfo from 'component/geoRestictionInfo';
 import ClaimAuthor from 'component/claimAuthor';
 import FileTitle from 'component/fileTitle';
 import FileActions from 'component/fileActions';
-import FileRenderInitiator from 'component/fileRenderInitiator';
+import VideoClaimInitiator from 'component/videoClaimInitiator';
 import FileRenderInline from 'component/fileRenderInline';
 import FileValues from 'component/fileValues';
 import FileViewCount from 'component/fileViewCount';
@@ -111,7 +111,7 @@ function PostViewer(props: Props) {
 
       <div className="file-render--post-container">
         <ProtectedContentOverlay uri={uri} />
-        <FileRenderInitiator uri={uri} />
+        <VideoClaimInitiator uri={uri} />
         <FileRenderInline uri={uri} />
       </div>
       <FileActions uri={uri} />

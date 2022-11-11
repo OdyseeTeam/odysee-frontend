@@ -2,7 +2,7 @@
 import { INLINE_PLAYER_WRAPPER_CLASS } from 'constants/player';
 import * as React from 'react';
 import Button from 'component/button';
-import FileRenderInitiator from 'component/fileRenderInitiator';
+import VideoClaimInitiator from 'component/videoClaimInitiator';
 import UriIndicator from 'component/uriIndicator';
 import { v4 as uuid } from 'uuid';
 
@@ -100,7 +100,7 @@ class ClaimLink extends React.Component<Props, State> {
       return (
         <div className="claim-link">
           <div className={isPlayingInline ? INLINE_PLAYER_WRAPPER_CLASS : 'embed__inline-wrapper'} id={claimLinkId}>
-            <FileRenderInitiator
+            <VideoClaimInitiator
               uri={uri}
               parentCommentId={parentCommentId}
               isMarkdownPost={isMarkdownPost}
