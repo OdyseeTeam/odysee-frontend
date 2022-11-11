@@ -8,7 +8,7 @@ import FileTitleSection from 'component/fileTitleSection';
 import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'constants/player';
-import FileRenderInitiator from 'component/fileRenderInitiator';
+import VideoClaimInitiator from 'component/videoClaimInitiator';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
@@ -74,7 +74,7 @@ export default function LivestreamLayout(props: Props) {
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
         <ProtectedContentOverlay uri={uri} />
-        <FileRenderInitiator
+        <VideoClaimInitiator
           videoTheaterMode={theaterMode}
           uri={claim.canonical_url}
           customAction={showScheduledInfo && <LivestreamScheduledInfo releaseTimeMs={releaseTimeMs} />}

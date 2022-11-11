@@ -6,7 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import FileTitleSection from 'component/fileTitleSection';
-import FileRenderInitiator from 'component/fileRenderInitiator';
+import VideoClaimInitiator from 'component/videoClaimInitiator';
 import RecommendedContent from 'component/recommendedContent';
 import PlaylistCard from 'component/playlistCard';
 import Empty from 'component/common/empty';
@@ -139,7 +139,7 @@ export default function VideoPlayersPage(props: Props) {
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
           <ProtectedContentOverlay uri={uri} />
           {/* playables will be rendered and injected by <FileRenderFloating> */}
-          <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+          <VideoClaimInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
         </div>
 
         <div className="file-page__secondary-content">

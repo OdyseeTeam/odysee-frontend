@@ -20,7 +20,6 @@ import {
   selectInsufficientCreditsForUri,
   makeSelectFileRenderModeForUri,
 } from 'redux/selectors/content';
-import FileRenderInitiator from './view';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { getThumbnailFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
@@ -28,6 +27,8 @@ import {
   selectIsProtectedContentLockedFromUserForId,
   selectNoRestrictionOrUserIsMemberForContentClaimId,
 } from 'redux/selectors/memberships';
+
+import VideoClaimInitiator from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -65,4 +66,4 @@ const perform = {
   doFetchChannelLiveStatus,
 };
 
-export default withRouter(connect(select, perform)(FileRenderInitiator));
+export default withRouter(connect(select, perform)(VideoClaimInitiator));

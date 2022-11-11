@@ -64,7 +64,7 @@ type Props = {
   contentUnlocked: boolean,
 };
 
-export default function FileRenderInitiator(props: Props) {
+const VideoClaimInitiator = (props: Props) => {
   const {
     authenticated,
     autoplay,
@@ -294,4 +294,6 @@ export default function FileRenderInitiator(props: Props) {
       {customAction}
     </div>
   );
-}
+};
+
+export default VideoClaimInitiator;

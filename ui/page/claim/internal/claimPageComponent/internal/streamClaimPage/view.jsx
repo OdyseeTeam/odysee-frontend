@@ -7,7 +7,7 @@ import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import FileTitleSection from 'component/fileTitleSection';
-import FileRenderInitiator from 'component/fileRenderInitiator';
+import VideoClaimInitiator from 'component/videoClaimInitiator';
 import FileRenderInline from 'component/fileRenderInline';
 import FileRenderDownload from 'component/fileRenderDownload';
 import RecommendedContent from 'component/recommendedContent';
@@ -179,7 +179,7 @@ export default function StreamClaimPage(props: Props) {
         <div className="file-page__pdf-wrapper">
           <ProtectedContentOverlay uri={uri} />
           <FileRenderInline uri={uri} />
-          <FileRenderInitiator uri={uri} />
+          <VideoClaimInitiator uri={uri} />
         </div>
       );
     }
@@ -188,7 +188,7 @@ export default function StreamClaimPage(props: Props) {
       return (
         <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
           <ProtectedContentOverlay uri={uri} />
-          <FileRenderInitiator uri={uri} />
+          <VideoClaimInitiator uri={uri} />
           <FileRenderInline uri={uri} />
         </div>
       );
@@ -196,7 +196,7 @@ export default function StreamClaimPage(props: Props) {
 
     return (
       <>
-        <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
+        <VideoClaimInitiator uri={uri} videoTheaterMode={theaterMode} />
         <FileRenderInline uri={uri} />
       </>
     );
