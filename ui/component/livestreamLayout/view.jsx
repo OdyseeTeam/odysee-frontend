@@ -7,7 +7,7 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import FileTitleSection from 'component/fileTitleSection';
 import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
-import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'page/file/view';
+import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'constants/player';
 import FileRenderInitiator from 'component/fileRenderInitiator';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';

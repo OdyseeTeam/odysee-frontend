@@ -1,6 +1,10 @@
 // @flow
 import * as PAGES from 'constants/pages';
-import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
+import {
+  VIDEO_ALMOST_FINISHED_THRESHOLD,
+  PRIMARY_PLAYER_WRAPPER_CLASS,
+  PRIMARY_IMAGE_WRAPPER_CLASS,
+} from 'constants/player';
 import * as React from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
@@ -25,9 +29,6 @@ import ProtectedContentOverlay from 'component/protectedContentOverlay';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
-
-export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
-export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
 
 type Props = {
   audioVideoDuration: ?number,
@@ -75,7 +76,7 @@ type Props = {
   contentUnlocked: boolean,
 };
 
-export default function FilePage(props: Props) {
+export default function StreamClaimPage(props: Props) {
   const {
     playingCollectionId,
     uri,
