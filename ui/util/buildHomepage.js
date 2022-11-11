@@ -352,7 +352,7 @@ export function GetLinksData(
     const key = entries[i][0];
     const val = entries[i][1];
 
-    // $FlowIgnore , val(https://github.com/facebook/flow/issues/2221)
+    // $FlowIgnore (https://github.com/facebook/flow/issues/2221)
     rowData.push(getHomepageRowForCat(key, val));
   }
 
