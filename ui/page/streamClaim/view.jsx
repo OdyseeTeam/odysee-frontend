@@ -28,7 +28,7 @@ import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/us
 import ProtectedContentOverlay from 'component/protectedContentOverlay';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
-const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
+const MarkdownPostPage = lazyImport(() => import('./internal/markdownPost' /* webpackChunkName: "markdownPost" */));
 
 type Props = {
   audioVideoDuration: ?number,
@@ -219,6 +219,10 @@ export default function StreamClaimPage(props: Props) {
     [doSetMainPlayerDimension]
   );
 
+  if (isMarkdown) {
+    return <MarkdownPostPage uri={uri} accessStatus={accessStatus} />;
+  }
+
   function renderFilePageLayout() {
     if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
       return (
@@ -236,14 +240,6 @@ export default function StreamClaimPage(props: Props) {
           <FileTitleSection uri={uri} accessStatus={accessStatus} />
           <FileRenderDownload uri={uri} isFree={cost === 0} />
         </>
-      );
-    }
-
-    if (isMarkdown) {
-      return (
-        <React.Suspense fallback={null}>
-          <PostViewer uri={uri} />
-        </React.Suspense>
       );
     }
 
@@ -286,12 +282,12 @@ export default function StreamClaimPage(props: Props) {
 
   if (obscureNsfw && isMature) {
     return (
-      <Page className="file-page" filePage isMarkdown={isMarkdown}>
+      <Page className="file-page" filePage isMarkdown={false}>
         <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
         {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
-        {!isMarkdown && !theaterMode && <RightSideContent {...rightSideProps} />}
+        {!theaterMode && <RightSideContent {...rightSideProps} />}
       </Page>
     );
   }
@@ -304,64 +300,54 @@ export default function StreamClaimPage(props: Props) {
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
         {renderFilePageLayout()}
 
-        {!isMarkdown && (
-          <div className="file-page__secondary-content">
-            <section className="file-page__media-actions">
-              <PreorderAndPurchaseContentButton uri={uri} />
-              {claimIsMine && isLivestream && (
-                <div className="livestream__creator-message">
-                  <h4>{__('Only visible to you')}</h4>
-                  {__(
-                    'People who view this link will be redirected to your livestream. Make sure to use this for sharing so your title and thumbnail are displayed properly.'
-                  )}
-                  <div className="section__actions">
-                    <Button button="primary" navigate={`/$/${PAGES.LIVESTREAM}`} label={__('View livestream')} />
-                  </div>
+        <div className="file-page__secondary-content">
+          <section className="file-page__media-actions">
+            <PreorderAndPurchaseContentButton uri={uri} />
+            {claimIsMine && isLivestream && (
+              <div className="livestream__creator-message">
+                <h4>{__('Only visible to you')}</h4>
+                {__(
+                  'People who view this link will be redirected to your livestream. Make sure to use this for sharing so your title and thumbnail are displayed properly.'
+                )}
+                <div className="section__actions">
+                  <Button button="primary" navigate={`/$/${PAGES.LIVESTREAM}`} label={__('View livestream')} />
                 </div>
-              )}
+              </div>
+            )}
 
-              {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+            {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
 
-              {RENDER_MODES.FLOATING_MODES.includes(renderMode) && (
-                <FileTitleSection uri={uri} accessStatus={accessStatus} />
-              )}
+            {RENDER_MODES.FLOATING_MODES.includes(renderMode) && (
+              <FileTitleSection uri={uri} accessStatus={accessStatus} />
+            )}
 
-              {contentUnlocked && (
-                <React.Suspense fallback={null}>
-                  {commentSettingDisabled ? (
-                    <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                  ) : isMobile && !isLandscapeRotated ? (
-                    <React.Fragment>
-                      <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
-                        <CommentsList {...commentsListProps} />
-                      </SwipeableDrawer>
+            {contentUnlocked && (
+              <React.Suspense fallback={null}>
+                {commentSettingDisabled ? (
+                  <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
+                ) : isMobile && !isLandscapeRotated ? (
+                  <React.Fragment>
+                    <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
+                      <CommentsList {...commentsListProps} />
+                    </SwipeableDrawer>
 
-                      <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
-                    </React.Fragment>
-                  ) : (
-                    <>
-                      {/* normal comments list */}
-                      {contentUnlocked && <CommentsList {...commentsListProps} notInDrawer />}
-                    </>
-                  )}
-                </React.Suspense>
-              )}
-            </section>
+                    <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
+                  </React.Fragment>
+                ) : (
+                  <>
+                    {/* normal comments list */}
+                    {contentUnlocked && <CommentsList {...commentsListProps} notInDrawer />}
+                  </>
+                )}
+              </React.Suspense>
+            )}
+          </section>
 
-            {theaterMode && <RightSideContent {...rightSideProps} />}
-          </div>
-        )}
+          {theaterMode && <RightSideContent {...rightSideProps} />}
+        </div>
       </div>
 
-      {!isMarkdown
-        ? !theaterMode && <RightSideContent {...rightSideProps} />
-        : !commentSettingDisabled && (
-            <div className="file-page__post-comments">
-              <React.Suspense fallback={null}>
-                <>{contentUnlocked && <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />}</>
-              </React.Suspense>
-            </div>
-          )}
+      {!theaterMode && <RightSideContent {...rightSideProps} />}
     </Page>
   );
 }
