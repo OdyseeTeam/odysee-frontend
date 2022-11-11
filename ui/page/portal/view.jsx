@@ -44,7 +44,10 @@ function PortalPage(props: Props) {
     <>
       <Page className="portal-wrapper" fullWidthPage>
         <div className="portal-header">
-          <img src={portal.image} style={{ background: `rgba(` + portal.css.rgb + `,1)` }} />
+          <img
+            src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image}
+            style={{ background: `rgba(` + portal.css.rgb + `,1)` }}
+          />
           <div className="portal-meta">
             <h1>{portal.label}</h1>
             <p>{portal.description}</p>
