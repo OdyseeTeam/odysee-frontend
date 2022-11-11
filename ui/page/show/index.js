@@ -18,7 +18,7 @@ import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/
 import { doResolveUri, doResolveClaimId, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
-import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
+import { getChannelIdFromClaim } from 'util/claim';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
@@ -62,7 +62,6 @@ const select = (state, props) => {
     isSubscribed: selectIsSubscribedForUri(state, uri),
     claimIsMine: selectClaimIsMine(state, claim),
     claimIsPending: makeSelectClaimIsPending(uri)(state),
-    isLivestream: isStreamPlaceholderClaim(claim),
     collection: selectCollectionForId(state, collectionId),
     collectionId,
     collectionFirstItemUri: selectFirstItemUrlForCollection(state, collectionId),

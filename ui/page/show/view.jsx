@@ -1,5 +1,5 @@
 // @flow
-import { DOMAIN, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import { DOMAIN } from 'config';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import React, { useEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
@@ -20,8 +20,7 @@ import PAGES from 'constants/pages';
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
 );
-const StreamClaimPage = lazyImport(() => import('page/streamClaim' /* webpackChunkName: "filePage" */));
-const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
+const StreamClaimPage = lazyImport(() => import('page/streamClaim' /* webpackChunkName: "streamClaimPage" */));
 const isDev = process.env.NODE_ENV !== 'production';
 
 type Props = {
@@ -35,7 +34,6 @@ type Props = {
   filteredOutpointMap: { [string]: number },
   claimIsMine: boolean,
   claimIsPending: boolean,
-  isLivestream: boolean,
   collectionId: string,
   collection: Collection,
   collectionFirstItemUri: ?string,
@@ -69,7 +67,6 @@ export default function ShowPage(props: Props) {
     claimIsMine,
     isSubscribed,
     claimIsPending,
-    isLivestream,
     collectionId,
     collection,
     collectionFirstItemUri,
@@ -106,7 +103,6 @@ export default function ShowPage(props: Props) {
 
   const { contentName, isChannel } = parseURI(uri); // deprecated contentName - use streamName and channelName
   const isCollection = claim && claim.value_type === 'collection';
-  const showLiveStream = isLivestream && ENABLE_NO_SOURCE_CLAIMS;
 
   const channelOutpoint = signingChannel ? `${signingChannel.txid}:${signingChannel.nout}` : '';
   const claimOutpoint = claim ? `${claim.txid}:${claim.nout}` : '';
@@ -332,14 +328,6 @@ export default function ShowPage(props: Props) {
           subtitle={__('This content violates the terms and conditions of Odysee and has been filtered.')}
         />
       </Page>
-    );
-  }
-
-  if (showLiveStream) {
-    return (
-      <React.Suspense fallback={null}>
-        <LivestreamPage uri={uri} claim={claim} />
-      </React.Suspense>
     );
   }
 

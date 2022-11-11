@@ -6,7 +6,7 @@ import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
-import { selectClaimIsNsfwForUri, selectIsStreamPlaceholderForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimIsNsfwForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { selectClientSetting } from 'redux/selectors/settings';
 import {
@@ -36,7 +36,6 @@ const select = (state, props) => {
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     fileInfo: makeSelectFileInfoForUri(uri)(state),
-    isLivestream: selectIsStreamPlaceholderForUri(state, uri),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),

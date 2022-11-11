@@ -22,12 +22,10 @@ type Props = {
   uri: string,
   socketConnection: { connected: ?boolean },
   isStreamPlaying: boolean,
-  doSetPrimaryUri: (uri: ?string) => void,
   doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: ?string) => void,
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
   theaterMode?: Boolean,
-  doMembershipContentforStreamClaimId: (type: string) => void,
   contentUnlocked: boolean,
 };
 
@@ -43,12 +41,10 @@ export default function LivestreamPage(props: Props) {
     uri,
     socketConnection,
     isStreamPlaying,
-    doSetPrimaryUri,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doFetchChannelLiveStatus,
     theaterMode,
-    doMembershipContentforStreamClaimId,
     contentUnlocked,
   } = props;
 
@@ -95,12 +91,6 @@ export default function LivestreamPage(props: Props) {
     // use for unmount case without triggering render
     streamPlayingRef.current = isStreamPlaying;
   }, [isStreamPlaying]);
-
-  React.useEffect(() => {
-    doMembershipContentforStreamClaimId(claimId);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claimId]);
 
   React.useEffect(() => {
     return () => {
@@ -160,11 +150,6 @@ export default function LivestreamPage(props: Props) {
 
     return () => clearInterval(intervalId);
   }, [chatDisabled, isChannelBroadcasting, releaseTime, isCurrentClaimLive, isInitialized]);
-
-  React.useEffect(() => {
-    doSetPrimaryUri(uri);
-    return () => doSetPrimaryUri(null);
-  }, [doSetPrimaryUri, uri, isStreamPlaying]);
 
   return (
     <Page

@@ -22,6 +22,7 @@ import ProtectedContentOverlay from 'component/protectedContentOverlay';
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const MarkdownPostPage = lazyImport(() => import('./internal/markdownPost' /* webpackChunkName: "markdownPost" */));
 const VideoPlayersPage = lazyImport(() => import('./internal/videoPlayers' /* webpackChunkName: "videoPlayersPage" */));
+const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
 
 type Props = {
   claimId: string,
@@ -55,6 +56,7 @@ type Props = {
   protectedContentTag?: string,
   isProtectedContent?: boolean,
   contentUnlocked: boolean,
+  isLivestream: boolean,
 };
 
 export default function StreamClaimPage(props: Props) {
@@ -85,6 +87,7 @@ export default function StreamClaimPage(props: Props) {
     rentalTag,
     isProtectedContent,
     contentUnlocked,
+    isLivestream,
   } = props;
 
   const isMobile = useIsMobile();
@@ -144,46 +147,51 @@ export default function StreamClaimPage(props: Props) {
   ]);
 
   if (isMarkdown) {
-    return <MarkdownPostPage uri={uri} accessStatus={accessStatus} />;
+    return (
+      <React.Suspense fallback={null}>
+        <MarkdownPostPage uri={uri} accessStatus={accessStatus} />
+      </React.Suspense>
+    );
   }
 
   if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
-    return <VideoPlayersPage uri={uri} accessStatus={accessStatus} />;
+    if (isLivestream) {
+      return (
+        <React.Suspense fallback={null}>
+          <LivestreamPage uri={uri} accessStatus={accessStatus} />
+        </React.Suspense>
+      );
+    }
+
+    return (
+      <React.Suspense fallback={null}>
+        <VideoPlayersPage uri={uri} accessStatus={accessStatus} />
+      </React.Suspense>
+    );
   }
 
-  function renderFilePageLayout() {
-    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode) && !isMature) {
-      return (
-        <>
-          <FileTitleSection uri={uri} accessStatus={accessStatus} />
-          <FileRenderDownload uri={uri} isFree={cost === 0} />
-        </>
-      );
+  function renderClaimLayout() {
+    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode)) {
+      return <FileRenderDownload uri={uri} isFree={cost === 0} />;
     }
 
     if (RENDER_MODES.TEXT_MODES.includes(renderMode)) {
       return (
-        <>
-          <div className="file-page__pdf-wrapper">
-            <ProtectedContentOverlay uri={uri} />
-            <FileRenderInline uri={uri} />
-            <FileRenderInitiator uri={uri} />
-          </div>
-          <FileTitleSection uri={uri} accessStatus={accessStatus} />
-        </>
+        <div className="file-page__pdf-wrapper">
+          <ProtectedContentOverlay uri={uri} />
+          <FileRenderInline uri={uri} />
+          <FileRenderInitiator uri={uri} />
+        </div>
       );
     }
 
     if (renderMode === RENDER_MODES.IMAGE) {
       return (
-        <>
-          <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
-            <ProtectedContentOverlay uri={uri} />
-            <FileRenderInitiator uri={uri} />
-            <FileRenderInline uri={uri} />
-          </div>
-          <FileTitleSection uri={uri} accessStatus={accessStatus} />
-        </>
+        <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
+          <ProtectedContentOverlay uri={uri} />
+          <FileRenderInitiator uri={uri} />
+          <FileRenderInline uri={uri} />
+        </div>
       );
     }
 
@@ -191,7 +199,6 @@ export default function StreamClaimPage(props: Props) {
       <>
         <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         <FileRenderInline uri={uri} />
-        <FileTitleSection uri={uri} accessStatus={accessStatus} />
       </>
     );
   }
@@ -199,10 +206,8 @@ export default function StreamClaimPage(props: Props) {
   if (isMature) {
     return (
       <Page className="file-page" filePage isMarkdown={false}>
-        <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
-          <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
-        </div>
-        {!theaterMode && <RecommendedContent uri={uri} />}
+        <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
+        <RecommendedContent uri={uri} />
       </Page>
     );
   }
@@ -211,9 +216,11 @@ export default function StreamClaimPage(props: Props) {
   const emptyMsgProps = { padded: !isMobile };
 
   return (
-    <Page className="file-page" filePage isMarkdown={isMarkdown}>
+    <Page className="file-page" filePage isMarkdown={false}>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
-        {renderFilePageLayout()}
+        {renderClaimLayout()}
+
+        <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">

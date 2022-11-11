@@ -1,5 +1,4 @@
 // @flow
-import * as PAGES from 'constants/pages';
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
@@ -11,7 +10,6 @@ import FileTitleSection from 'component/fileTitleSection';
 import FileRenderInitiator from 'component/fileRenderInitiator';
 import RecommendedContent from 'component/recommendedContent';
 import PlaylistCard from 'component/playlistCard';
-import Button from 'component/button';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
@@ -29,10 +27,8 @@ type Props = {
   accessStatus: ?string,
   // -- redux --
   audioVideoDuration: ?number,
-  claimIsMine: boolean,
   commentsListTitle: string,
   fileInfo: FileListItem,
-  isLivestream: boolean,
   isMature: boolean,
   isUriPlaying: boolean,
   linkedCommentId?: string,
@@ -60,9 +56,7 @@ export default function VideoPlayersPage(props: Props) {
     videoTheaterMode,
     commentSettingDisabled,
     audioVideoDuration,
-    claimIsMine,
     commentsListTitle,
-    isLivestream,
     isUriPlaying,
     location,
     position,
@@ -152,18 +146,6 @@ export default function VideoPlayersPage(props: Props) {
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
             <PreorderAndPurchaseContentButton uri={uri} />
-
-            {claimIsMine && isLivestream && (
-              <div className="livestream__creator-message">
-                <h4>{__('Only visible to you')}</h4>
-                {__(
-                  'People who view this link will be redirected to your livestream. Make sure to use this for sharing so your title and thumbnail are displayed properly.'
-                )}
-                <div className="section__actions">
-                  <Button button="primary" navigate={`/$/${PAGES.LIVESTREAM}`} label={__('View livestream')} />
-                </div>
-              </div>
-            )}
 
             {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
 
