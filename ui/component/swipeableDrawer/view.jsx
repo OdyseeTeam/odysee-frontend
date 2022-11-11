@@ -7,7 +7,7 @@ import { Global } from '@emotion/react';
 import { grey } from '@mui/material/colors';
 
 import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
-import { PRIMARY_PLAYER_WRAPPER_CLASS, PRIMARY_IMAGE_WRAPPER_CLASS } from 'page/file/view';
+import { PRIMARY_PLAYER_WRAPPER_CLASS, PRIMARY_IMAGE_WRAPPER_CLASS } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import Drawer from '@mui/material/Drawer';
 import * as ICONS from 'constants/icons';

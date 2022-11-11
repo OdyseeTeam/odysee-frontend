@@ -31,13 +31,13 @@ import { doToggleAppDrawer, doSetMainPlayerDimension } from 'redux/actions/app';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
-
-import FilePage from './view';
 import { doMembershipContentforStreamClaimId, doMembershipMine } from 'redux/actions/memberships';
 import {
   selectMembershipMineFetched,
   selectNoRestrictionOrUserIsMemberForContentClaimId,
 } from 'redux/selectors/memberships';
+
+import StreamClaimPage from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -91,4 +91,4 @@ const perform = {
   doMembershipMine,
 };
 
-export default withRouter(connect(select, perform)(FilePage));
+export default withRouter(connect(select, perform)(StreamClaimPage));

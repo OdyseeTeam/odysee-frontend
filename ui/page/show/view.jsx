@@ -20,7 +20,7 @@ import PAGES from 'constants/pages';
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
 );
-const FilePage = lazyImport(() => import('page/file' /* webpackChunkName: "filePage" */));
+const StreamClaimPage = lazyImport(() => import('page/streamClaim' /* webpackChunkName: "filePage" */));
 const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -345,7 +345,7 @@ export default function ShowPage(props: Props) {
 
   return (
     <React.Suspense fallback={null}>
-      <FilePage
+      <StreamClaimPage
         uri={uri}
         collectionId={collectionId}
         linkedCommentId={linkedCommentId}

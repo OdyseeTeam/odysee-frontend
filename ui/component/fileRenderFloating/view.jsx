@@ -7,7 +7,12 @@ import type { ElementRef } from 'react';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import * as RENDER_MODES from 'constants/file_render_modes';
-import { INLINE_PLAYER_WRAPPER_CLASS, FLOATING_PLAYER_CLASS, DEFAULT_INITIAL_FLOATING_POS } from 'constants/player';
+import {
+  PRIMARY_PLAYER_WRAPPER_CLASS,
+  INLINE_PLAYER_WRAPPER_CLASS,
+  FLOATING_PLAYER_CLASS,
+  DEFAULT_INITIAL_FLOATING_POS,
+} from 'constants/player';
 import React from 'react';
 import Button from 'component/button';
 import classnames from 'classnames';
@@ -15,7 +20,6 @@ import LoadingScreen from 'component/common/loading-screen';
 import FileRender from 'component/fileRender';
 import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
-import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'page/file/view';
 import Draggable from 'react-draggable';
 import { onFullscreenChange } from 'util/full-screen';
 import { generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
