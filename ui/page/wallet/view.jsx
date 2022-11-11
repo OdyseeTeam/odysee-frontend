@@ -77,7 +77,7 @@ const WalletPage = (props: Props) => {
         <Tabs onChange={onTabChange} index={tabIndex}>
           <TabList className="tabs__list--collection-edit-page">
             <Tab>{__('Balance')}</Tab>
-            <Tab>{__('Transactions')}</Tab>
+            <Tab>{__('Tips')}</Tab>
           </TabList>
           <TabPanels>
             {/* balances for lbc and fiat */}
