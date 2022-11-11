@@ -3,6 +3,7 @@
 .featured-banner-wrapper {
   position: relative;
   width: 100%;
+  padding-top: 20%;
   background: black;
   margin-bottom: var(--spacing-l);
   overflow: hidden;
@@ -16,6 +17,8 @@
   user-select: none;
 
   .featured-banner-rotator {
+    position: absolute;
+    top: 0;
     margin-left: 0;
     transition: all 1s;
     overflow: hidden;
