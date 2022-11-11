@@ -77,7 +77,7 @@ export default function LivestreamPage(props: Props) {
   const { signing_channel: channelClaim } = claim || {};
   const { canonical_url: channelUrl } = channelClaim || {};
 
-  // On livestream page, only connect, fileRenderFloating will handle disconnect.
+  // On livestream page, only connect, videoRenderFloating will handle disconnect.
   // (either by leaving page with floating player off, or by closing the player)
   React.useEffect(() => {
     const { claim_id: claimId, signing_channel: channelClaim } = claim;

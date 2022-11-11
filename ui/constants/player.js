@@ -1,3 +1,6 @@
+// --header-height-mobile
+export const HEADER_HEIGHT_MOBILE = 56;
+
 export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
 
