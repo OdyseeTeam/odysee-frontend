@@ -1,12 +1,5 @@
 import { connect } from 'react-redux';
-import {
-  selectClaimForUri,
-  selectTitleForUri,
-  selectClaimWasPurchasedForUri,
-  selectGeoRestrictionForUri,
-  selectClaimIsNsfwForUri,
-  selectCostInfoForUri,
-} from 'redux/selectors/claims';
+import { selectClaimForUri, selectTitleForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
   selectCollectionForId,
@@ -34,7 +27,7 @@ import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions
 import { isStreamPlaceholderClaim, getVideoClaimAspectRatio } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
-import FileRenderFloating from './view';
+import VideoRenderFloating from './view';
 
 const select = (state, props) => {
   const { location } = props;
@@ -68,8 +61,6 @@ const select = (state, props) => {
     floatingPlayerEnabled: playingFromQueue || isInlinePlayer || selectClientSetting(state, SETTINGS.FLOATING_PLAYER),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
-    costInfo: selectCostInfoForUri(state, uri),
-    claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
     nextListUri: collectionId && selectNextUriForUriInPlayingCollectionForId(state, collectionId, uri),
     previousListUri: collectionId && selectPreviousUriForUriInPlayingCollectionForId(state, collectionId, uri),
     collectionId,
@@ -79,7 +70,6 @@ const select = (state, props) => {
     videoAspectRatio: getVideoClaimAspectRatio(claim),
     socketConnection: selectSocketConnectionForId(state, claimId),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
-    geoRestriction: selectGeoRestrictionForUri(state, uri),
     appDrawerOpen: selectHasAppDrawerOpen(state),
     hasClaimInQueue:
       permanent_url && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanent_url),
@@ -101,4 +91,4 @@ const perform = {
   doClearPlayingSource,
 };
 
-export default withRouter(connect(select, perform)(FileRenderFloating));
+export default withRouter(connect(select, perform)(VideoRenderFloating));

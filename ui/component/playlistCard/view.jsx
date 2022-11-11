@@ -22,7 +22,7 @@ import LoopButton from './internal/loopButton';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import usePersistedState from 'effects/use-persisted-state';
-import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
+import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 

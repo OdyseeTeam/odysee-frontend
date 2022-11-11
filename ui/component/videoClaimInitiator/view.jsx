@@ -1,6 +1,6 @@
 // @flow
 // This component is entirely for triggering the start of a file view
-// The actual viewer for a file exists in TextViewer and FileRenderFloating
+// The actual viewer for a file exists in TextViewer and VideoRenderFloating
 // They can't exist in one component because we need to handle/listen for the start of a new file view
 // while a file is currently being viewed
 import { useIsMobile } from 'effects/use-screensize';
