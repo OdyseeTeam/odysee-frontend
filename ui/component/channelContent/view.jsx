@@ -7,7 +7,6 @@ import React, { Fragment } from 'react';
 import GeoRestrictionInfo from 'component/geoRestictionInfo';
 import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
-import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Ads from 'web/component/ads';
 import Icon from 'component/common/icon';
@@ -26,7 +25,6 @@ const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 type Props = {
   uri: string,
   totalPages: number,
-  fetching: boolean,
   params: { page: number },
   pageOfClaimsInChannel: Array<StreamClaim>,
   channelIsBlocked: boolean,
@@ -52,7 +50,6 @@ type Props = {
 function ChannelContent(props: Props) {
   const {
     uri,
-    fetching,
     channelIsMine,
     channelIsBlocked,
     channelIsBlackListed,
@@ -119,15 +116,13 @@ function ChannelContent(props: Props) {
     <Fragment>
       <GeoRestrictionInfo uri={uri} />
 
-      {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
-        <HiddenNsfwClaims uri={uri} />
-      )}
+      {Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && <HiddenNsfwClaims uri={uri} />}
 
-      {!fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
+      {isInitialized && isChannelBroadcasting && !isChannelEmpty && (
         <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
       )}
 
-      {!fetching && showScheduledLiveStreams && (
+      {showScheduledLiveStreams && (
         <ScheduledStreams
           channelIds={[claimId]}
           tileLayout={tileLayout}
@@ -138,20 +133,7 @@ function ChannelContent(props: Props) {
         />
       )}
 
-      {!fetching && channelIsBlackListed && (
-        <section className="card card--section">
-          <p>
-            {__(
-              'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this channel from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
-            )}
-          </p>
-          <div className="section__actions">
-            <Button button="link" href="https://help.odysee.tv/copyright/" label={__('Read More')} />
-          </div>
-        </section>
-      )}
-
-      {!fetching && channelIsBlocked && (
+      {channelIsBlocked && (
         <div className="card--section">
           <h2 className="help">{__('You have blocked this channel content.')}</h2>
         </div>
@@ -159,71 +141,69 @@ function ChannelContent(props: Props) {
 
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
-      {!fetching && (
-        <ClaimSearchFilterContext.Provider value={claimSearchFilterCtx}>
-          <ClaimListDiscover
-            ignoreSearchInLanguage
-            hasSource
-            defaultFreshness={CS.FRESH_ALL}
-            showHiddenByUser={viewHiddenChannels}
-            hideRepostsOverride={hideReposts}
-            hideMembersOnly={hideMembersOnly}
-            fetchViewCount
-            hideFilters={!showFilters}
-            hideAdvancedFilter={!showFilters}
-            tileLayout={tileLayout}
-            uris={isSearching ? [] : null}
-            streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-            channelIds={[claimId]}
-            claimType={claimType}
-            feeAmount={undefined}
-            defaultOrderBy={CS.ORDER_BY_NEW}
-            pageSize={dynamicPageSize}
-            infiniteScroll={defaultInfiniteScroll}
-            injectedItem={
-              !hasPremiumPlus && {
-                node: (index, lastVisibleIndex, pageSize) => {
-                  if (pageSize && index < pageSize) {
-                    return index === lastVisibleIndex ? <Ads type="video" tileLayout={tileLayout} small /> : null;
-                  } else {
-                    return index % (pageSize * 2) === 0 ? <Ads type="video" tileLayout={tileLayout} small /> : null;
-                  }
-                },
-              }
+      <ClaimSearchFilterContext.Provider value={claimSearchFilterCtx}>
+        <ClaimListDiscover
+          ignoreSearchInLanguage
+          hasSource
+          defaultFreshness={CS.FRESH_ALL}
+          showHiddenByUser={viewHiddenChannels}
+          hideRepostsOverride={hideReposts}
+          hideMembersOnly={hideMembersOnly}
+          fetchViewCount
+          hideFilters={!showFilters}
+          hideAdvancedFilter={!showFilters}
+          tileLayout={tileLayout}
+          uris={isSearching ? [] : null}
+          streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+          channelIds={[claimId]}
+          claimType={claimType}
+          feeAmount={undefined}
+          defaultOrderBy={CS.ORDER_BY_NEW}
+          pageSize={dynamicPageSize}
+          infiniteScroll={defaultInfiniteScroll}
+          injectedItem={
+            !hasPremiumPlus && {
+              node: (index, lastVisibleIndex, pageSize) => {
+                if (pageSize && index < pageSize) {
+                  return index === lastVisibleIndex ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                } else {
+                  return index % (pageSize * 2) === 0 ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                }
+              },
             }
-            meta={
-              showFilters && (
-                <Form onSubmit={() => {}} className="wunderbar--inline">
-                  <Icon icon={ICONS.SEARCH} />
-                  <FormField
-                    name="channel_search"
-                    className="wunderbar__input--inline"
-                    value={searchQuery}
-                    onChange={handleInputChange}
-                    type="text"
-                    placeholder={__('Search')}
-                  />
-                </Form>
-              )
-            }
-            subSection={
-              <SearchResults
-                searchQuery={searchQuery}
-                claimId={claimId}
-                showMature={showMature}
-                tileLayout={tileLayout}
-                onResults={(results) => setIsSearching(results !== null)}
-                doResolveUris={doResolveUris}
-              />
-            }
-            isChannel
-            channelIsMine={channelIsMine}
-            empty={isSearching ? ' ' : empty}
-            notTags={claimType === 'collection' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined}
-            csOptionsHook={tagSearchCsOptionsHook}
-          />
-        </ClaimSearchFilterContext.Provider>
-      )}
+          }
+          meta={
+            showFilters && (
+              <Form onSubmit={() => {}} className="wunderbar--inline">
+                <Icon icon={ICONS.SEARCH} />
+                <FormField
+                  name="channel_search"
+                  className="wunderbar__input--inline"
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  type="text"
+                  placeholder={__('Search')}
+                />
+              </Form>
+            )
+          }
+          subSection={
+            <SearchResults
+              searchQuery={searchQuery}
+              claimId={claimId}
+              showMature={showMature}
+              tileLayout={tileLayout}
+              onResults={(results) => setIsSearching(results !== null)}
+              doResolveUris={doResolveUris}
+            />
+          }
+          isChannel
+          channelIsMine={channelIsMine}
+          empty={isSearching ? ' ' : empty}
+          notTags={claimType === 'collection' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined}
+          csOptionsHook={tagSearchCsOptionsHook}
+        />
+      </ClaimSearchFilterContext.Provider>
     </Fragment>
   );
 }

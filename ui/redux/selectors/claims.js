@@ -211,9 +211,16 @@ export const selectChannelNameForUri = (state: State, uri: string) =>
 
 export const selectHasClaimForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim; // null/undefined here
+
   return Boolean(claim);
 };
-export const selectHasClaimForId = (state: State, id: ClaimId) => selectClaimForId(state, id);
+export const selectHasClaimForId = (state: State, id: ClaimId) => {
+  const claim = selectClaimForId(state, id);
+  if (!claim) return claim; // null/undefined here
+
+  return Boolean(claim);
+};
 
 export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
   // This selector assumes that `uri` is never null and is valid. It

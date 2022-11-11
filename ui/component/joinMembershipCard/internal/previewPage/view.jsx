@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import { ChannelPageContext } from 'page/channel/view';
+import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';

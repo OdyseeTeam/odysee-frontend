@@ -1,6 +1,6 @@
 // @flow
 import { URL, SHARE_DOMAIN_URL } from 'config';
-import { ChannelPageContext } from 'page/channel/view';
+import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';

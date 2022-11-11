@@ -235,6 +235,11 @@ export const makeSelectFileRenderModeForUri = (uri: string) =>
     }
   );
 
+export const selectIsMarkdownPostForUri = (state: State, uri: string) => {
+  const renderMode = makeSelectFileRenderModeForUri(uri)(state);
+  return renderMode === RENDER_MODES.MARKDOWN;
+};
+
 export const selectInsufficientCreditsForUri = (state: State, uri: string) => {
   const isMine = selectClaimIsMineForUri(state, uri);
   const costInfo = selectCostInfoForUri(state, uri);

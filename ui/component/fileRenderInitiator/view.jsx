@@ -12,7 +12,7 @@ import Button from 'component/button';
 import Nag from 'component/nag';
 import PaidContentOverlay from 'component/paidContentOverlay';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { LivestreamContext } from 'page/livestream/view';
+import { LivestreamContext } from 'contexts/livestream';
 import { formatLbryUrlForWeb } from 'util/url';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useFetchLiveStatus from 'effects/use-fetch-live';

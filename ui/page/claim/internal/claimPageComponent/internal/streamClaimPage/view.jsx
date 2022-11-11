@@ -3,7 +3,6 @@ import { PRIMARY_IMAGE_WRAPPER_CLASS } from 'constants/player';
 import * as React from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
-import Page from 'component/page';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -22,7 +21,7 @@ import ProtectedContentOverlay from 'component/protectedContentOverlay';
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const MarkdownPostPage = lazyImport(() => import('./internal/markdownPost' /* webpackChunkName: "markdownPost" */));
 const VideoPlayersPage = lazyImport(() => import('./internal/videoPlayers' /* webpackChunkName: "videoPlayersPage" */));
-const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
+const LivestreamPage = lazyImport(() => import('./internal/livestream' /* webpackChunkName: "livestream" */));
 
 type Props = {
   claimId: string,
@@ -205,10 +204,10 @@ export default function StreamClaimPage(props: Props) {
 
   if (isMature) {
     return (
-      <Page className="file-page" filePage isMarkdown={false}>
+      <>
         <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         <RecommendedContent uri={uri} />
-      </Page>
+      </>
     );
   }
 
@@ -216,7 +215,7 @@ export default function StreamClaimPage(props: Props) {
   const emptyMsgProps = { padded: !isMobile };
 
   return (
-    <Page className="file-page" filePage isMarkdown={false}>
+    <>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
         {renderClaimLayout()}
 
@@ -248,6 +247,6 @@ export default function StreamClaimPage(props: Props) {
       </div>
 
       <RecommendedContent uri={uri} />
-    </Page>
+    </>
   );
 }

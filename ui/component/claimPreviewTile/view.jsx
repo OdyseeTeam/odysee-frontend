@@ -2,7 +2,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import { NavLink, withRouter } from 'react-router-dom';
-import { ChannelPageContext } from 'page/channel/view';
+import { ChannelPageContext } from 'contexts/channel';
 import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';

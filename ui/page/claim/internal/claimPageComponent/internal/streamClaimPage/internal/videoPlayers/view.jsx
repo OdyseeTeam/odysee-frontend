@@ -2,7 +2,6 @@
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
-import Page from 'component/page';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -121,21 +120,21 @@ export default function VideoPlayersPage(props: Props) {
 
   if (isMature) {
     return (
-      <Page className="file-page" filePage isMarkdown={false}>
+      <>
         <div className="section card-stack file-page__video">
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 
         {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
-      </Page>
+      </>
     );
   }
 
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
 
   return (
-    <Page className="file-page" filePage isMarkdown={false}>
+    <>
       <div className="section card-stack file-page__video">
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
           <ProtectedContentOverlay uri={uri} />
@@ -176,7 +175,7 @@ export default function VideoPlayersPage(props: Props) {
       </div>
 
       {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
-    </Page>
+    </>
   );
 }
 
