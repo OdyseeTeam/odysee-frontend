@@ -1,7 +1,6 @@
 // @flow
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
-import Page from 'component/page';
 import FileTitleSection from 'component/fileTitleSection';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
@@ -32,16 +31,14 @@ export default function MarkdownPostPage(props: Props) {
 
   if (isMature) {
     return (
-      <PageWrapper>
-        <PostWrapper>
-          <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
-        </PostWrapper>
-      </PageWrapper>
+      <PostWrapper>
+        <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
+      </PostWrapper>
     );
   }
 
   return (
-    <PageWrapper>
+    <>
       <PostWrapper>
         <React.Suspense fallback={null}>
           <PostViewer uri={uri} />
@@ -61,15 +58,9 @@ export default function MarkdownPostPage(props: Props) {
           </React.Suspense>
         </div>
       )}
-    </PageWrapper>
+    </>
   );
 }
-
-const PageWrapper = ({ children }: { children: any }) => (
-  <Page className="file-page" filePage isMarkdown>
-    {children}
-  </Page>
-);
 
 const PostWrapper = ({ children }: { children: any }) => (
   <div className="section card-stack file-page__md">{children}</div>

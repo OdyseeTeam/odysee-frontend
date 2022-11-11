@@ -7,6 +7,11 @@
   justify-content: space-between;
   align-items: center;
   background-color: var(--color-black);
+  color: var(--color-text-inverse);
+
+  .card__subtitle {
+    color: var(--color-text-help);
+  }
 }
 
 .embed__wrapper--light-background {

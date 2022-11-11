@@ -3,9 +3,9 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import { getChannelSubCountStr } from 'util/formatMediaDuration';
+import { ChannelPageContext } from 'contexts/channel';
 import { parseURI } from 'util/lbryURI';
 import { YOUTUBE_STATUSES } from 'lbryinc';
-import Page from 'component/page';
 import SubscribeButton from 'component/subscribeButton';
 import ClaimShareButton from 'component/claimShareButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
@@ -73,8 +73,6 @@ type Props = {
   preferEmbed: boolean,
   banState: any,
 };
-
-export const ChannelPageContext = React.createContext<any>();
 
 function ChannelPage(props: Props) {
   const {
@@ -303,11 +301,7 @@ function ChannelPage(props: Props) {
   }, [doMembershipMine, myMembershipsFetched]);
 
   if (editing) {
-    return (
-      <Page className="channelPage-wrapper channelPage-edit-wrapper" noFooter fullWidthPage>
-        <ChannelEdit uri={uri} onDone={() => goBack()} />
-      </Page>
-    );
+    return <ChannelEdit uri={uri} onDone={() => goBack()} />;
   }
 
   function handleViewMore(section) {
@@ -358,189 +352,187 @@ function ChannelPage(props: Props) {
   }
 
   return (
-    <Page className="channelPage-wrapper" noFooter fullWidthPage>
-      <ChannelPageContext.Provider value>
-        <header
-          className={classnames('channel-cover', { 'channel-cover-legacy': legacyHeader })}
-          style={coverUrl && { backgroundImage: 'url(' + String(coverUrl) + ')' }}
-        >
-          <div className="channel-header-content">
-            <div className="channel__quick-actions">
-              {isMyYouTubeChannel && (
-                <Button
-                  button="alt"
-                  label={__('Claim Your Channel')}
-                  icon={ICONS.YOUTUBE}
-                  navigate={`/$/${PAGES.CHANNELS}`}
-                />
-              )}
-              <JoinMembershipButton uri={uri} />
-              {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
-              {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
-              {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && (
-                <SubscribeButton uri={permanentUrl} />
-              )}
-              <ClaimMenuList uri={claim.permanent_url} inline />
+    <ChannelPageContext.Provider value>
+      <header
+        className={classnames('channel-cover', { 'channel-cover-legacy': legacyHeader })}
+        style={coverUrl && { backgroundImage: 'url(' + String(coverUrl) + ')' }}
+      >
+        <div className="channel-header-content">
+          <div className="channel__quick-actions">
+            {isMyYouTubeChannel && (
+              <Button
+                button="alt"
+                label={__('Claim Your Channel')}
+                icon={ICONS.YOUTUBE}
+                navigate={`/$/${PAGES.CHANNELS}`}
+              />
+            )}
+            <JoinMembershipButton uri={uri} />
+            {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
+            {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
+            {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && (
+              <SubscribeButton uri={permanentUrl} />
+            )}
+            <ClaimMenuList uri={claim.permanent_url} inline />
+          </div>
+          <div className="channel__primary-info">
+            <h1 className="channel__title">
+              <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
+              {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}
+            </h1>
+            <div className="channel__meta">
+              <Tooltip title={formattedSubCount} followCursor placement="top">
+                <span>
+                  {getChannelSubCountStr(subCount, compactSubCount)}
+                  {Number.isInteger(subCount) ? (
+                    <HelpLink href="https://help.odysee.tv/category-interaction/following/" />
+                  ) : (
+                    '\u00A0'
+                  )}
+                </span>
+              </Tooltip>
             </div>
-            <div className="channel__primary-info">
-              <h1 className="channel__title">
-                <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
-                {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}
-              </h1>
-              <div className="channel__meta">
-                <Tooltip title={formattedSubCount} followCursor placement="top">
-                  <span>
-                    {getChannelSubCountStr(subCount, compactSubCount)}
-                    {Number.isInteger(subCount) ? (
-                      <HelpLink href="https://help.odysee.tv/category-interaction/following/" />
-                    ) : (
-                      '\u00A0'
-                    )}
-                  </span>
-                </Tooltip>
-              </div>
-              <div className="channel__edit">
-                {channelIsMine && (
-                  <>
-                    {pending ? (
-                      <span>{__('Your changes will be live in a few minutes')}</span>
-                    ) : (
-                      <Button
-                        button="alt"
-                        title={__('Edit')}
-                        onClick={() => push(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
-                        icon={ICONS.EDIT}
-                        iconSize={18}
-                        disabled={pending}
-                      />
-                    )}
-                  </>
-                )}
-              </div>
+            <div className="channel__edit">
+              {channelIsMine && (
+                <>
+                  {pending ? (
+                    <span>{__('Your changes will be live in a few minutes')}</span>
+                  ) : (
+                    <Button
+                      button="alt"
+                      title={__('Edit')}
+                      onClick={() => push(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
+                      icon={ICONS.EDIT}
+                      iconSize={18}
+                      disabled={pending}
+                    />
+                  )}
+                </>
+              )}
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        {(isBlocked || isMuted) && !viewBlockedChannel ? (
-          <div className="main--empty">
-            <Yrbl
-              title={isBlocked ? __('This channel is blocked') : __('This channel is muted')}
-              subtitle={
-                isBlocked
-                  ? __('Are you sure you want to view this content? Viewing will not unblock @%channel%', {
-                      channel: channelName,
-                    })
-                  : __('Are you sure you want to view this content? Viewing will not unmute @%channel%', {
-                      channel: channelName,
-                    })
-              }
-              actions={
-                <div className="section__actions">
-                  <Button button="primary" label={__('View Content')} onClick={() => setViewBlockedChannel(true)} />
-                </div>
-              }
-            />
+      {(isBlocked || isMuted) && !viewBlockedChannel ? (
+        <div className="main--empty">
+          <Yrbl
+            title={isBlocked ? __('This channel is blocked') : __('This channel is muted')}
+            subtitle={
+              isBlocked
+                ? __('Are you sure you want to view this content? Viewing will not unblock @%channel%', {
+                    channel: channelName,
+                  })
+                : __('Are you sure you want to view this content? Viewing will not unmute @%channel%', {
+                    channel: channelName,
+                  })
+            }
+            actions={
+              <div className="section__actions">
+                <Button button="primary" label={__('View Content')} onClick={() => setViewBlockedChannel(true)} />
+              </div>
+            }
+          />
+        </div>
+      ) : (
+        <Tabs onChange={onTabChange} index={tabIndex}>
+          <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+            <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <ChannelThumbnail
+                className={classnames('channel__thumbnail--channel-page', {
+                  'channel__thumbnail--channel-page-fixed': scrollPast,
+                })}
+                uri={uri}
+                allowGifs
+                isChannel
+                hideStakedIndicator
+              />
+            </div>
+            <TabList>
+              <Tab aria-selected={tabIndex === 0} disabled={editing || !showClaims} onClick={() => onTabChange(0)}>
+                {__('Home')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 1} disabled={editing || !showClaims} onClick={() => onTabChange(1)}>
+                {__('Content')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 2} disabled={editing || !showClaims} onClick={() => onTabChange(2)}>
+                {__('Playlists')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
+                {__('Channels')}
+              </Tab>
+              <Tab
+                className="tab--membership"
+                aria-selected={tabIndex === 4}
+                disabled={editing || isOdyseeChannel}
+                onClick={() => onTabChange(4)}
+              >
+                {__('Membership')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 5} disabled={editing} onClick={() => onTabChange(5)}>
+                {__('Community')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 6} onClick={() => onTabChange(6)}>
+                {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 7} disabled={editing} onClick={() => onTabChange(7)}>
+                {channelIsMine && __('Settings')}
+              </Tab>
+            </TabList>
           </div>
-        ) : (
-          <Tabs onChange={onTabChange} index={tabIndex}>
-            <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
-              <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                <ChannelThumbnail
-                  className={classnames('channel__thumbnail--channel-page', {
-                    'channel__thumbnail--channel-page-fixed': scrollPast,
-                  })}
+
+          <TabPanels>
+            <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.HOME && (
+                <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
+              )}
+            </TabPanel>
+            <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
+                <ContentTab
                   uri={uri}
-                  allowGifs
-                  isChannel
-                  hideStakedIndicator
+                  channelIsBlackListed={channelIsBlackListed}
+                  viewHiddenChannels
+                  claimType={['stream', 'repost']}
+                  empty={<section className="main--empty">{__('No Content Found')}</section>}
+                  filters={filters}
                 />
-              </div>
-              <TabList>
-                <Tab aria-selected={tabIndex === 0} disabled={editing || !showClaims} onClick={() => onTabChange(0)}>
-                  {__('Home')}
-                </Tab>
-                <Tab aria-selected={tabIndex === 1} disabled={editing || !showClaims} onClick={() => onTabChange(1)}>
-                  {__('Content')}
-                </Tab>
-                <Tab aria-selected={tabIndex === 2} disabled={editing || !showClaims} onClick={() => onTabChange(2)}>
-                  {__('Playlists')}
-                </Tab>
-                <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
-                  {__('Channels')}
-                </Tab>
-                <Tab
-                  className="tab--membership"
-                  aria-selected={tabIndex === 4}
-                  disabled={editing || isOdyseeChannel}
-                  onClick={() => onTabChange(4)}
-                >
-                  {__('Membership')}
-                </Tab>
-                <Tab aria-selected={tabIndex === 5} disabled={editing} onClick={() => onTabChange(5)}>
-                  {__('Community')}
-                </Tab>
-                <Tab aria-selected={tabIndex === 6} onClick={() => onTabChange(6)}>
-                  {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
-                </Tab>
-                <Tab aria-selected={tabIndex === 7} disabled={editing} onClick={() => onTabChange(7)}>
-                  {channelIsMine && __('Settings')}
-                </Tab>
-              </TabList>
-            </div>
-
-            <TabPanels>
-              <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.HOME && (
-                  <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
-                )}
-              </TabPanel>
-              <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
-                  <ContentTab
-                    uri={uri}
-                    channelIsBlackListed={channelIsBlackListed}
-                    viewHiddenChannels
-                    claimType={['stream', 'repost']}
-                    empty={<section className="main--empty">{__('No Content Found')}</section>}
-                    filters={filters}
-                  />
-                )}
-              </TabPanel>
-              <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
-                  <ContentTab
-                    claimType={'collection'}
-                    uri={uri}
-                    channelIsBlackListed={channelIsBlackListed}
-                    viewHiddenChannels
-                    empty={collectionEmpty}
-                  />
-                )}
-              </TabPanel>
-              <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}
-              </TabPanel>
-              <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}
-              </TabPanel>
-              <TabPanel>
-                {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
-              </TabPanel>
-              <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.ABOUT && (
-                  <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
-                )}
-              </TabPanel>
-              <TabPanel>
-                {channelIsMine && currentView === CHANNEL_PAGE.VIEWS.SETTINGS && (
-                  <CreatorSettingsTab activeChannelClaim={claim} />
-                )}
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        )}
-      </ChannelPageContext.Provider>
-    </Page>
+              )}
+            </TabPanel>
+            <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
+                <ContentTab
+                  claimType={'collection'}
+                  uri={uri}
+                  channelIsBlackListed={channelIsBlackListed}
+                  viewHiddenChannels
+                  empty={collectionEmpty}
+                />
+              )}
+            </TabPanel>
+            <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}
+            </TabPanel>
+            <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}
+            </TabPanel>
+            <TabPanel>
+              {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
+            </TabPanel>
+            <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.ABOUT && (
+                <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
+              )}
+            </TabPanel>
+            <TabPanel>
+              {channelIsMine && currentView === CHANNEL_PAGE.VIEWS.SETTINGS && (
+                <CreatorSettingsTab activeChannelClaim={claim} />
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      )}
+    </ChannelPageContext.Provider>
   );
 }
 

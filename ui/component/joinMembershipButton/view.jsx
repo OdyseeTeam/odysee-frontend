@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 
-import { ChannelPageContext } from 'page/channel/view';
+import { ChannelPageContext } from 'contexts/channel';
 import { parseURI } from 'util/lbryURI';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';

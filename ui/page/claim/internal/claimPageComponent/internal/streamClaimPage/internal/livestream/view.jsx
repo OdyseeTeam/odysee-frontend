@@ -7,7 +7,7 @@ import LivestreamLayout from 'component/livestreamLayout';
 import moment from 'moment';
 import Page from 'component/page';
 import React from 'react';
-import { useIsMobile } from 'effects/use-screensize';
+import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import Spinner from 'component/spinner';
 
@@ -49,6 +49,7 @@ export default function LivestreamPage(props: Props) {
   } = props;
 
   const isMobile = useIsMobile();
+  const isLandscapeRotated = useIsMobileLandscape();
 
   const streamPlayingRef = React.useRef();
 
@@ -152,27 +153,7 @@ export default function LivestreamPage(props: Props) {
   }, [chatDisabled, isChannelBroadcasting, releaseTime, isCurrentClaimLive, isInitialized]);
 
   return (
-    <Page
-      className="file-page scheduledLivestream-wrapper"
-      noFooter
-      livestream
-      chatDisabled={hideComments}
-      rightSide={
-        !theaterMode &&
-        !hideComments &&
-        isInitialized &&
-        contentUnlocked && (
-          <React.Suspense fallback={null}>
-            <ChatLayout
-              uri={uri}
-              hyperchatsHidden={hyperchatsHidden}
-              toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
-              setLayountRendered={setLayountRendered}
-            />
-          </React.Suspense>
-        )
-      }
-    >
+    <Page className="file-page scheduledLivestream-wrapper" noFooter livestream={!hideComments}>
       {isInitialized ? (
         <LivestreamContext.Provider value={{ livestreamPage: true, layountRendered }}>
           <LivestreamLayout
@@ -185,6 +166,17 @@ export default function LivestreamPage(props: Props) {
             activeStreamUri={activeStreamUri}
             theaterMode={theaterMode}
           />
+
+          {(!isMobile || isLandscapeRotated) && !theaterMode && !hideComments && contentUnlocked && (
+            <React.Suspense fallback={null}>
+              <ChatLayout
+                uri={uri}
+                hyperchatsHidden={hyperchatsHidden}
+                toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
+                setLayountRendered={setLayountRendered}
+              />
+            </React.Suspense>
+          )}
         </LivestreamContext.Provider>
       ) : (
         <div className="main--empty">
