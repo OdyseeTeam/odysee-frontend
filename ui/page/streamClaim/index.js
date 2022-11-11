@@ -9,6 +9,7 @@ import {
   selectPurchaseTagForUri,
   selectRentalTagForUri,
   selectProtectedContentTagForUri,
+  selectIsStreamPlaceholderForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
@@ -57,6 +58,7 @@ const select = (state, props) => {
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    isLivestream: selectIsStreamPlaceholderForUri(state, uri),
   };
 };
 

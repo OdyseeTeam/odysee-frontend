@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri } from 'redux/selectors/claims';
-import { doSetPrimaryUri } from 'redux/actions/content';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { getChannelIdFromClaim } from 'util/claim';
 import {
@@ -12,7 +11,6 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import { doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
@@ -26,6 +24,7 @@ const select = (state, props) => {
   const channelClaimId = getChannelIdFromClaim(claim);
 
   return {
+    claim,
     chatDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
@@ -39,11 +38,9 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doSetPrimaryUri,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchChannelLiveStatus,
-  doMembershipContentforStreamClaimId,
 };
 
 export default connect(select, perform)(LivestreamPage);
