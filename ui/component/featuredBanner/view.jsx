@@ -19,7 +19,7 @@ type Props = {
 };
 
 export default function FeaturedBanner(props: Props) {
-  const { homepageData, homepageOrder, doSetClientSetting, authenticated } = props;
+  const { homepageData, homepageOrder, authenticated, doSetClientSetting } = props;
   const { featured, categories } = homepageData;
   const [marginLeft, setMarginLeft] = React.useState(0);
   const [width, setWidth] = React.useState(0);
@@ -121,11 +121,6 @@ export default function FeaturedBanner(props: Props) {
       onMouseEnter={() => setPause(true)}
       onMouseLeave={() => setPause(false)}
     >
-      {authenticated && (
-        <div className="featured-banner-remove" onClick={() => removeBanner()}>
-          <Icon icon={ICONS.REMOVE} />
-        </div>
-      )}
       <div className="featured-banner-rotator" style={{ marginLeft: marginLeft }}>
         {featured &&
           featured.items.map((item, i) => {
@@ -164,6 +159,11 @@ export default function FeaturedBanner(props: Props) {
             );
           })}
       </div>
+      {authenticated && (
+        <div className="featured-banner-remove" onClick={() => removeBanner()}>
+          <Icon icon={ICONS.REMOVE} />
+        </div>
+      )}
     </div>
   );
 }
