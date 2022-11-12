@@ -71,7 +71,7 @@ type Props = {
   previousListUri: string,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
-  doAnalyticsView: (string, number) => void,
+  doAnalyticsViewForUri: (string) => void,
   claimRewards: () => void,
   isLivestreamClaim: boolean,
   activeLivestreamForChannel: any,
@@ -107,7 +107,7 @@ function VideoViewer(props: Props) {
     autoplayNext,
     autoplayIfEmbedded,
     doAnalyticsBuffer,
-    doAnalyticsView,
+    doAnalyticsViewForUri,
     claimRewards,
     savePosition,
     clearPosition,
@@ -633,7 +633,7 @@ function VideoViewer(props: Props) {
         embedded={embedded}
         embeddedInternal={isMarkdownOrComment}
         claimValues={claim.value}
-        doAnalyticsView={doAnalyticsView}
+        doAnalyticsViewForUri={doAnalyticsViewForUri}
         doAnalyticsBuffer={doAnalyticsBuffer}
         claimRewards={claimRewards}
         uri={uri}
