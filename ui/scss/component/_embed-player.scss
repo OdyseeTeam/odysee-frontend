@@ -1,11 +1,8 @@
 .embed__wrapper {
   height: 100vh;
   width: 100vw;
-  position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
   background-color: var(--color-black);
   color: var(--color-text-inverse);
 

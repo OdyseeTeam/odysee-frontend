@@ -299,13 +299,6 @@ const VideoJsEvents = ({
       player.one('playing', determineVideoFps);
     }
 
-    player.on('loadstart', function () {
-      if (embedded) {
-        // $FlowIssue
-        player.bigPlayButton?.show();
-      }
-    });
-
     player.on('playing', removeControlBar);
     player.on('playerClosed', () => {
       player.off('play', onInitialPlay);
