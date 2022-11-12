@@ -75,7 +75,6 @@ export default function LivestreamLayout(props: Props) {
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
         <ProtectedContentOverlay uri={uri} />
         <VideoClaimInitiator
-          videoTheaterMode={theaterMode}
           uri={claim.canonical_url}
           customAction={showScheduledInfo && <LivestreamScheduledInfo releaseTimeMs={releaseTimeMs} />}
         />

@@ -46,7 +46,6 @@ type Props = {
   commentSettingDisabled: ?boolean,
   threadCommentId?: string,
   uri: string,
-  videoTheaterMode: boolean,
   myMembershipsFetched: boolean,
   doMembershipMine: () => void,
   protectedMembershipIds?: Array<number>,
@@ -66,7 +65,6 @@ export default function StreamClaimPage(props: Props) {
     costInfo,
     linkedCommentId,
     threadCommentId,
-    videoTheaterMode,
     commentSettingDisabled,
     claimId,
     claimWasPurchased,
@@ -89,7 +87,6 @@ export default function StreamClaimPage(props: Props) {
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
-  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
 
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
@@ -184,7 +181,7 @@ export default function StreamClaimPage(props: Props) {
 
     return (
       <>
-        <VideoClaimInitiator uri={uri} videoTheaterMode={theaterMode} />
+        <VideoClaimInitiator uri={uri} />
         <FileRenderInline uri={uri} />
       </>
     );

@@ -14,8 +14,6 @@ import {
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
-import * as SETTINGS from 'constants/settings';
-import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { doToggleAppDrawer } from 'redux/actions/app';
@@ -55,7 +53,6 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     rentalTag: selectRentalTagForUri(state, props.uri),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
-    videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
