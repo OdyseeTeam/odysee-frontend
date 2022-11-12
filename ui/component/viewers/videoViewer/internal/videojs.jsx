@@ -274,7 +274,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     techOrder: ['chromecast', 'html5'],
     ...Chromecast.getOptions(),
-    bigPlayButton: embedded, // only show big play button if embedded
     suppressNotSupportedError: true,
     liveui: true,
   };
@@ -424,12 +423,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.recsys.watchedDuration = { total: 0, lastTimestamp: -1 };
       }
 
-      if (!embedded) {
-        vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
-      } else {
-        // $FlowIssue
-        vjsPlayer.bigPlayButton?.show();
-      }
+      vjsPlayer.bigPlayButton && vjsPlayer.bigPlayButton.hide();
 
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');

@@ -615,7 +615,7 @@ function VideoViewer(props: Props) {
         source={adUrl || source}
         sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType}
         isAudio={isAudio}
-        poster={isAudio || (embedded && !autoplayIfEmbedded) ? thumbnail : ''}
+        poster={isAudio ? thumbnail : ''}
         onPlayerReady={onPlayerReady}
         startMuted={autoplayIfEmbedded}
         toggleVideoTheaterMode={toggleVideoTheaterMode}
