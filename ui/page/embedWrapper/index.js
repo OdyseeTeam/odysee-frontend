@@ -7,12 +7,12 @@ import {
   selectLatestClaimForUri,
   selectIsFiatRequiredForUri,
   selectCostInfoForUri,
+  selectClaimIsNsfwForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doPlayUri } from 'redux/actions/content';
-import { selectShouldObscurePreviewForUri } from 'redux/selectors/content';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { doFetchActiveLivestreams, doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import {
@@ -75,7 +75,7 @@ const select = (state, props) => {
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, isNewestPath ? latestClaimUrl : canonicalUrl),
     isLivestreamClaim: featureParam === PAGES.LIVE_NOW || isStreamPlaceholderClaim(claim),
-    obscurePreview: selectShouldObscurePreviewForUri(state, uri),
+    isMature: selectClaimIsNsfwForUri(state, uri),
     claimThumbnail: getThumbnailFromClaim(claim),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),

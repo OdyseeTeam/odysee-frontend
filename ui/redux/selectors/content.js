@@ -2,7 +2,6 @@
 import { createSelector } from 'reselect';
 import {
   selectClaimsByUri,
-  selectClaimIsNsfwForUri,
   selectClaimIsMineForUri,
   makeSelectContentTypeForUri,
   selectClaimForUri,
@@ -11,7 +10,6 @@ import {
 } from 'redux/selectors/claims';
 import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
 import { selectBalance } from 'redux/selectors/wallet';
-import { selectShowMatureContent } from 'redux/selectors/settings';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import path from 'path';
@@ -162,12 +160,6 @@ export const selectWatchHistoryUris = createSelector(selectHistory, (history) =>
   }
   return uris;
 });
-
-export const selectShouldObscurePreviewForUri = (state: State, uri: string) => {
-  const showMatureContent = selectShowMatureContent(state);
-  const isClaimMature = selectClaimIsNsfwForUri(state, uri);
-  return isClaimMature && !showMatureContent;
-};
 
 // should probably be in lbry-redux, yarn link was fighting me
 export const makeSelectFileExtensionForUri = (uri: string) =>

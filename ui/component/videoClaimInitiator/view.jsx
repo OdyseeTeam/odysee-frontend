@@ -15,8 +15,8 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { LivestreamContext } from 'contexts/livestream';
 import { formatLbryUrlForWeb } from 'util/url';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
+import ClaimCoverRender from 'component/claimCoverRender';
 import useFetchLiveStatus from 'effects/use-fetch-live';
-import useGetPoster from 'effects/use-get-poster';
 import { ChatCommentContext } from 'component/chat/chatComment/view';
 import { ExpandableContext } from 'component/common/expandable';
 
@@ -34,9 +34,7 @@ type Props = {
     href: string,
     state: ?{ forceAutoplay?: boolean, forceDisableAutoplay?: boolean },
   },
-  obscurePreview: boolean,
   insufficientCredits: boolean,
-  claimThumbnail?: string,
   autoplay: boolean,
   costInfo: any,
   inline: boolean,
@@ -46,7 +44,6 @@ type Props = {
   fiatRequired: boolean,
   isFetchingPurchases: boolean,
   authenticated: boolean,
-  videoTheaterMode: boolean,
   isCurrentClaimLive?: boolean,
   isLivestreamClaim: boolean,
   customAction?: any,
@@ -57,10 +54,6 @@ type Props = {
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
   doFetchChannelLiveStatus: (string) => void,
   claimIsMine: boolean,
-  protectedMembershipIds?: Array<number>,
-  validMembershipIds?: Array<number>,
-  protectedContentTag?: string,
-  contentRestrictedFromUser: boolean,
   contentUnlocked: boolean,
 };
 
@@ -71,7 +64,6 @@ const VideoClaimInitiator = (props: Props) => {
     channelClaimId,
     claimIsMine,
     claimLinkId,
-    claimThumbnail,
     sdkPaid,
     fiatPaid,
     fiatRequired,
@@ -89,19 +81,15 @@ const VideoClaimInitiator = (props: Props) => {
     isMarkdownPost,
     isPlaying,
     location,
-    obscurePreview,
     parentCommentId,
     renderMode,
     uri,
-    videoTheaterMode,
-    // contentRestrictedFromUser,
     contentUnlocked,
   } = props;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
   const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
 
-  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const { livestreamPage, layountRendered } = React.useContext(LivestreamContext) || {};
 
   const isMobile = useIsMobile();
@@ -140,14 +128,8 @@ const VideoClaimInitiator = (props: Props) => {
 
   const shouldRedirect = !authenticated && !isFree;
 
-  function doAuthRedirect() {
-    history.push(`/$/${PAGES.AUTH}?redirect=${encodeURIComponent(pathname)}`);
-  }
-
   // in case of a livestream outside of the livestream page component, like embed
   useFetchLiveStatus(isLivestreamClaim && !livestreamPage ? channelClaimId : undefined, doFetchChannelLiveStatus);
-
-  const thumbnail = useGetPoster(claimThumbnail);
 
   function getActionType() {
     if (fiatRequired) {
@@ -234,19 +216,7 @@ const VideoClaimInitiator = (props: Props) => {
   }
 
   return (
-    <div
-      onClick={disabled ? undefined : shouldRedirect ? doAuthRedirect : handleClick}
-      style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
-      className={
-        embedded
-          ? 'embed__inline-button'
-          : classnames('content__cover', {
-              'content__cover--disabled': disabled,
-              'content__cover--theater-mode': theaterMode && !isMobile,
-              'card__media--nsfw': obscurePreview,
-            })
-      }
-    >
+    <ClaimCoverRender uri={uri}>
       {embedded && <FileViewerEmbeddedTitle uri={uri} isInApp />}
 
       {renderUnsupported ? (
@@ -292,7 +262,7 @@ const VideoClaimInitiator = (props: Props) => {
       ) : null}
 
       {customAction}
-    </div>
+    </ClaimCoverRender>
   );
 };
 

@@ -139,7 +139,7 @@ export default function VideoPlayersPage(props: Props) {
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
           <ProtectedContentOverlay uri={uri} />
           {/* playables will be rendered and injected by <VideoRenderFloating> */}
-          <VideoClaimInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+          <VideoClaimInitiator uri={uri} />
         </div>
 
         <div className="file-page__secondary-content">

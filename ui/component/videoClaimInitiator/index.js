@@ -16,17 +16,13 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { withRouter } from 'react-router';
 import {
   selectFileIsPlayingOnPage,
-  selectShouldObscurePreviewForUri,
   selectInsufficientCreditsForUri,
   makeSelectFileRenderModeForUri,
 } from 'redux/selectors/content';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
-import { getThumbnailFromClaim, isStreamPlaceholderClaim } from 'util/claim';
+import { isStreamPlaceholderClaim } from 'util/claim';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import {
-  selectIsProtectedContentLockedFromUserForId,
-  selectNoRestrictionOrUserIsMemberForContentClaimId,
-} from 'redux/selectors/memberships';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import VideoClaimInitiator from './view';
 
@@ -43,7 +39,6 @@ const select = (state, props) => {
     channelClaimId,
     claimId,
     claimIsMine: selectClaimIsMine(state, claim),
-    claimThumbnail: getThumbnailFromClaim(claim),
     sdkPaid: selectClaimWasPurchasedForUri(state, uri),
     fiatPaid: selectIsFiatPaidForUri(state, uri),
     fiatRequired: selectIsFiatRequiredForUri(state, uri),
@@ -54,9 +49,7 @@ const select = (state, props) => {
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     isPlaying: selectFileIsPlayingOnPage(state, uri),
-    obscurePreview: selectShouldObscurePreviewForUri(state, uri),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
-    contentRestrictedFromUser: claimId && selectIsProtectedContentLockedFromUserForId(state, claimId),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
   };
 };

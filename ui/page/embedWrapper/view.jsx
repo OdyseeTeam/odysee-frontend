@@ -25,7 +25,7 @@ type Props = {
   isCurrentClaimLive: boolean,
   isLivestreamClaim: boolean,
   claimThumbnail?: string,
-  obscurePreview: boolean,
+  isMature: boolean,
   activeLivestreamInitialized: boolean,
   latestClaimUrl: ?string,
   isNewestPath: ?boolean,
@@ -55,7 +55,7 @@ const EmbedWrapperPage = (props: Props) => {
     isCurrentClaimLive,
     isLivestreamClaim,
     claimThumbnail,
-    obscurePreview,
+    isMature,
     activeLivestreamInitialized,
     latestClaimUrl,
     isNewestPath,
@@ -160,7 +160,7 @@ const EmbedWrapperPage = (props: Props) => {
     return (
       <div
         className="embed__inline-button"
-        style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")`, height: '100%' } : {}}
+        style={thumbnail && !isMature ? { backgroundImage: `url("${thumbnail}")`, height: '100%' } : {}}
       >
         <FileViewerEmbeddedTitle uri={uri} />
 
