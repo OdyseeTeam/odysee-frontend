@@ -15,7 +15,7 @@ import {
   selectIndexForUriInPlayingCollectionForId,
 } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
-import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsView } from 'redux/actions/app';
+import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsViewForUri } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
 import { savePosition, clearPosition, doUriInitiatePlay, doSetContentHistoryItem } from 'redux/actions/content';
 import { makeSelectIsPlayerFloating, selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
@@ -99,7 +99,7 @@ const perform = (dispatch) => ({
   toggleAutoplayNext: () => dispatch(toggleAutoplayNext()),
   setVideoPlaybackRate: (rate) => dispatch(doSetClientSetting(SETTINGS.VIDEO_PLAYBACK_RATE, rate)),
   doPlayUri: (params) => dispatch(doUriInitiatePlay(params, true, true)),
-  doAnalyticsView: (uri, timeToStart) => dispatch(doAnalyticsView(uri, timeToStart)),
+  doAnalyticsViewForUri: (uri) => dispatch(doAnalyticsViewForUri(uri)),
   claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
   doToast: (props) => dispatch(doToast(props)),
   doSetContentHistoryItem: (uri) => dispatch(doSetContentHistoryItem(uri)),

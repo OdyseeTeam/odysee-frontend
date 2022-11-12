@@ -25,7 +25,7 @@ const VideoJsEvents = ({
   channelTitle,
   embedded,
   uri,
-  doAnalyticsView,
+  doAnalyticsViewForUri,
   doAnalyticsBuffer,
   claimRewards,
   playerServerRef,
@@ -41,7 +41,7 @@ const VideoJsEvents = ({
   channelTitle: string,
   embedded: boolean,
   uri: string,
-  doAnalyticsView: (string, number) => any,
+  doAnalyticsViewForUri: (string) => any,
   doAnalyticsBuffer: (string, any) => void,
   claimRewards: () => void,
   playerServerRef: any,
@@ -106,9 +106,7 @@ const VideoJsEvents = ({
     }
 
     // hit backend to mark a view
-    doAnalyticsView(uri, timeToStartVideo).then(() => {
-      claimRewards();
-    });
+    doAnalyticsViewForUri(uri).then(claimRewards);
   }
 
   function onInitialPlay() {

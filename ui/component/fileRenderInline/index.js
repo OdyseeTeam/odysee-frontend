@@ -11,7 +11,7 @@ import {
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { makeSelectFileRenderModeForUri, selectFileIsPlayingOnPage } from 'redux/selectors/content';
 import { withRouter } from 'react-router';
-import { doAnalyticsView } from 'redux/actions/app';
+import { doAnalyticsViewForUri } from 'redux/actions/app';
 import FileRenderInline from './view';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 
@@ -35,7 +35,7 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
-  triggerAnalyticsView: (uri, timeToStart) => dispatch(doAnalyticsView(uri, timeToStart)),
+  triggerAnalyticsView: (uri) => dispatch(doAnalyticsViewForUri(uri)),
   claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
 });
 

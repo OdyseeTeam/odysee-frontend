@@ -8,7 +8,7 @@ import * as PAGES from 'constants/pages';
 import { ipcRenderer } from 'electron';
 // @endif
 import { push } from 'connected-react-router';
-import { doOpenModal, doAnalyticsView, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
+import { doOpenModal, doAnalyticsViewForUri, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import {
   makeSelectClaimForUri,
@@ -175,7 +175,7 @@ export function doPurchaseUriWrapper(uri: string, cost: number, cb: ?(GetRespons
 }
 
 export function doDownloadUri(uri: string) {
-  return (dispatch: Dispatch) => dispatch(doPlayUri(uri, false, true, () => dispatch(doAnalyticsView(uri))));
+  return (dispatch: Dispatch) => dispatch(doPlayUri(uri, false, true, () => dispatch(doAnalyticsViewForUri(uri))));
 }
 
 export function doUriInitiatePlay(

@@ -1,5 +1,5 @@
 // @flow
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import FileRender from 'component/fileRender';
 import LoadingScreen from 'component/common/loading-screen';
 import { NON_STREAM_MODES } from 'constants/file_render_modes';
@@ -10,7 +10,7 @@ type Props = {
   uri: string,
   renderMode: string,
   streamingUrl?: string,
-  triggerAnalyticsView: (string, number) => Promise<any>,
+  triggerAnalyticsView: (string) => Promise<any>,
   claimRewards: () => void,
   claimIsMine: boolean,
   costInfo: any,
@@ -37,8 +37,6 @@ export default function FileRenderInline(props: Props) {
     isFiatPaid,
   } = props;
 
-  const [playTime, setPlayTime] = useState();
-
   const isSdkFree = !costInfo || (costInfo.cost !== undefined && costInfo.cost === 0);
   const isPaymentCleared = claimIsMine || ((isSdkFree || sdkPaid) && (!isFiatRequired || isFiatPaid));
 
@@ -54,24 +52,13 @@ export default function FileRenderInline(props: Props) {
   }
 
   useEffect(() => {
-    if (isPlaying) {
-      setPlayTime(Date.now());
-    }
-  }, [isPlaying, setPlayTime, uri]);
-
-  useEffect(() => {
     /*
     note: code can currently double fire with videoViewer logic if a video is rendered by FileRenderInline (currently this never happens)
      */
-    if (playTime && isReadyToPlay) {
-      const timeToStart = Date.now() - playTime;
-
-      triggerAnalyticsView(uri, timeToStart).then(() => {
-        claimRewards();
-        setPlayTime(null);
-      });
+    if (isPlaying) {
+      triggerAnalyticsView(uri).then(claimRewards);
     }
-  }, [setPlayTime, claimRewards, triggerAnalyticsView, isReadyToPlay, playTime, uri]);
+  }, [claimRewards, isPlaying, triggerAnalyticsView, uri]);
 
   if (!isPlaying || !isPaymentCleared || contentRestrictedFromUser) {
     return null;
