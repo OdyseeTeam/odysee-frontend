@@ -128,7 +128,7 @@ const SettingsNotificationsPage = lazyImport(() =>
   import('page/settingsNotifications' /* webpackChunkName: "settingsNotifications" */)
 );
 const SettingsPage = lazyImport(() => import('page/settings' /* webpackChunkName: "settings" */));
-const ShowPage = lazyImport(() => import('page/show' /* webpackChunkName: "show" */));
+const ClaimPage = lazyImport(() => import('page/claim' /* webpackChunkName: "claimPage" */));
 const TagsFollowingManagePage = lazyImport(() =>
   import('page/tagsFollowingManage' /* webpackChunkName: "tagsFollowingManage" */)
 );
@@ -227,6 +227,10 @@ function AppRouter(props: Props) {
   const hasLinkedCommentInUrl = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const tagParams = urlParams.get(CS.TAGS_KEY);
   const isLargeScreen = useIsLargeScreen();
+
+  const ClaimPageRender = React.useMemo(() => () => <ClaimPage uri={uri} />, [uri]);
+  const ClaimPageLatest = React.useMemo(() => () => <ClaimPage uri={uri} latestContentPath />, [uri]);
+  const ClaimPageLivenow = React.useMemo(() => () => <ClaimPage uri={uri} liveContentPath />, [uri]);
 
   const categoryPages = React.useMemo(() => {
     const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
@@ -452,10 +456,10 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
-        <Route path={`/$/${PAGES.LATEST}/:channelName`} exact render={() => <ShowPage uri={uri} latestContentPath />} />
-        <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact render={() => <ShowPage uri={uri} liveContentPath />} />
-        <Route path="/:claimName" exact render={() => <ShowPage uri={uri} />} />
-        <Route path="/:claimName/:streamName" exact render={() => <ShowPage uri={uri} />} />
+        <Route path={`/$/${PAGES.LATEST}/:channelName`} exact component={ClaimPageLatest} />
+        <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact component={ClaimPageLivenow} />
+        <Route path="/:claimName" exact component={ClaimPageRender} />
+        <Route path="/:claimName/:streamName" exact component={ClaimPageRender} />
         <Route path="/*" component={FourOhFourPage} />
       </Switch>
     </React.Suspense>
