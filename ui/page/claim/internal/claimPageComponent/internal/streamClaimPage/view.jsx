@@ -7,16 +7,13 @@ import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import FileTitleSection from 'component/fileTitleSection';
-import VideoClaimInitiator from 'component/videoClaimInitiator';
-import FileRenderInline from 'component/fileRenderInline';
+import StreamClaimRenderInline from 'component/streamClaimRenderInline';
 import FileRenderDownload from 'component/fileRenderDownload';
 import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
-import ProtectedContentOverlay from 'component/protectedContentOverlay';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const MarkdownPostPage = lazyImport(() => import('./internal/markdownPost' /* webpackChunkName: "markdownPost" */));
@@ -24,72 +21,46 @@ const VideoPlayersPage = lazyImport(() => import('./internal/videoPlayers' /* we
 const LivestreamPage = lazyImport(() => import('./internal/livestream' /* webpackChunkName: "livestream" */));
 
 type Props = {
-  claimId: string,
-  claimWasPurchased: boolean,
+  uri: string,
+  // -- redux --
   commentsListTitle: string,
   costInfo: ?{ includesData: boolean, cost: number },
-  doCheckIfPurchasedClaimId: (claimId: string) => void,
-  doClearPlayingUri: () => void,
-  doFileGetForUri: (uri: string) => void,
-  doSetContentHistoryItem: (uri: string) => void,
-  doSetPrimaryUri: (uri: ?string) => void,
-  doToggleAppDrawer: (type: string) => void,
-  doMembershipContentforStreamClaimId: (type: string) => void,
-  fileInfo: FileListItem,
   isMature: boolean,
-  isPlaying?: boolean,
   linkedCommentId?: string,
-  preorderTag: number,
-  purchaseTag: number,
   renderMode: string,
-  rentalTag: string,
   commentSettingDisabled: ?boolean,
   threadCommentId?: string,
-  uri: string,
-  myMembershipsFetched: boolean,
-  doMembershipMine: () => void,
-  protectedMembershipIds?: Array<number>,
-  validMembershipIds?: Array<number>,
-  protectedContentTag?: string,
   isProtectedContent?: boolean,
   contentUnlocked: boolean,
   isLivestream: boolean,
+  doSetContentHistoryItem: (uri: string) => void,
+  doSetPrimaryUri: (uri: ?string) => void,
+  doToggleAppDrawer: (type: string) => void,
 };
 
-export default function StreamClaimPage(props: Props) {
+const StreamClaimPage = (props: Props) => {
   const {
     uri,
-    renderMode,
-    fileInfo,
-    isMature,
-    costInfo,
-    linkedCommentId,
-    threadCommentId,
-    commentSettingDisabled,
-    claimId,
-    claimWasPurchased,
+    // -- redux --
     commentsListTitle,
-    doCheckIfPurchasedClaimId,
-    doFileGetForUri,
-    doMembershipContentforStreamClaimId,
-    doMembershipMine,
-    doSetContentHistoryItem,
-    doSetPrimaryUri,
-    doToggleAppDrawer,
-    myMembershipsFetched,
-    preorderTag,
-    purchaseTag,
-    rentalTag,
+    costInfo,
+    isMature,
+    linkedCommentId,
+    renderMode,
+    commentSettingDisabled,
+    threadCommentId,
     isProtectedContent,
     contentUnlocked,
     isLivestream,
+    doSetContentHistoryItem,
+    doSetPrimaryUri,
+    doToggleAppDrawer,
   } = props;
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
 
   const cost = costInfo ? costInfo.cost : null;
-  const hasFileInfo = fileInfo !== undefined;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
 
@@ -103,32 +74,11 @@ export default function StreamClaimPage(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    if (!myMembershipsFetched) {
-      doMembershipMine();
-    }
-  }, [doMembershipMine, myMembershipsFetched]);
-
-  React.useEffect(() => {
-    const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
-    if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purchaseTag, preorderTag, rentalTag, claimId]);
-
-  React.useEffect(() => {
-    if (claimId) {
-      doMembershipContentforStreamClaimId(claimId);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claimId]);
-
-  React.useEffect(() => {
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);
-    if (claimWasPurchased && !hasFileInfo) doFileGetForUri(uri);
 
     return () => doSetPrimaryUri(null);
-  }, [claimWasPurchased, doFileGetForUri, doSetContentHistoryItem, doSetPrimaryUri, hasFileInfo, uri]);
+  }, [doSetContentHistoryItem, doSetPrimaryUri, uri]);
 
   if (isMarkdown) {
     return (
@@ -162,9 +112,7 @@ export default function StreamClaimPage(props: Props) {
     if (RENDER_MODES.TEXT_MODES.includes(renderMode)) {
       return (
         <div className="file-page__pdf-wrapper">
-          <ProtectedContentOverlay uri={uri} />
-          <FileRenderInline uri={uri} />
-          <VideoClaimInitiator uri={uri} />
+          <StreamClaimRenderInline uri={uri} />
         </div>
       );
     }
@@ -172,19 +120,12 @@ export default function StreamClaimPage(props: Props) {
     if (renderMode === RENDER_MODES.IMAGE) {
       return (
         <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
-          <ProtectedContentOverlay uri={uri} />
-          <VideoClaimInitiator uri={uri} />
-          <FileRenderInline uri={uri} />
+          <StreamClaimRenderInline uri={uri} />
         </div>
       );
     }
 
-    return (
-      <>
-        <VideoClaimInitiator uri={uri} />
-        <FileRenderInline uri={uri} />
-      </>
-    );
+    return <StreamClaimRenderInline uri={uri} />;
   }
 
   if (isMature) {
@@ -206,11 +147,9 @@ export default function StreamClaimPage(props: Props) {
 
         <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
-        <div className="file-page__secondary-content">
-          <section className="file-page__media-actions">
-            <PreorderAndPurchaseContentButton uri={uri} />
-
-            {contentUnlocked && (
+        {contentUnlocked && (
+          <div className="file-page__secondary-content">
+            <section className="file-page__media-actions">
               <React.Suspense fallback={null}>
                 {commentSettingDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
@@ -226,12 +165,14 @@ export default function StreamClaimPage(props: Props) {
                   <CommentsList {...commentsListProps} notInDrawer />
                 )}
               </React.Suspense>
-            )}
-          </section>
-        </div>
+            </section>
+          </div>
+        )}
       </div>
 
       <RecommendedContent uri={uri} />
     </>
   );
-}
+};
+
+export default StreamClaimPage;

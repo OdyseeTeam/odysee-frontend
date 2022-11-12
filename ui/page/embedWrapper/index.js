@@ -5,14 +5,11 @@ import {
   selectClaimForUri,
   selectIsUriResolving,
   selectLatestClaimForUri,
-  selectIsFiatRequiredForUri,
-  selectCostInfoForUri,
   selectClaimIsNsfwForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
+import { doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
-import { doPlayUri } from 'redux/actions/content';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { doFetchActiveLivestreams, doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import {
@@ -68,9 +65,6 @@ const select = (state, props) => {
     channelUri,
     channelClaimId,
     latestClaimUrl,
-    isNewestPath,
-    isFiatRequired: selectIsFiatRequiredForUri(state, uri),
-    costInfo: uri && selectCostInfoForUri(state, uri),
     streamingUrl: selectStreamingUrlForUri(state, uri),
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, isNewestPath ? latestClaimUrl : canonicalUrl),
@@ -83,8 +77,6 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doResolveUri,
-  doPlayUri,
   doFetchChannelLiveStatus,
   doCommentSocketConnect,
   doCommentSocketDisconnect,

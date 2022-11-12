@@ -12,9 +12,7 @@ import PlaylistCard from 'component/playlistCard';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
-import ProtectedContentOverlay from 'component/protectedContentOverlay';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 
@@ -137,15 +135,11 @@ export default function VideoPlayersPage(props: Props) {
     <>
       <div className="section card-stack file-page__video">
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
-          <ProtectedContentOverlay uri={uri} />
-          {/* playables will be rendered and injected by <VideoRenderFloating> */}
           <VideoClaimInitiator uri={uri} />
         </div>
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
-            <PreorderAndPurchaseContentButton uri={uri} />
-
             {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />

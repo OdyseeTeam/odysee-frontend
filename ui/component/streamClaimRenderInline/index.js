@@ -4,7 +4,10 @@ import { makeSelectClaimForUri, selectThumbnailForUri, makeSelectContentTypeForU
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri, makeSelectFileExtensionForUri } from 'redux/selectors/content';
-import FileRender from './view';
+
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
+
+import StreamClaimRenderInline from './view';
 
 const select = (state, props) => {
   const autoplay = props.embedded ? false : selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA);
@@ -21,4 +24,4 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select)(FileRender);
+export default withStreamClaimRender(connect(select)(StreamClaimRenderInline));

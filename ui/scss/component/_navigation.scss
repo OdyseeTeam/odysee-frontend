@@ -1,7 +1,6 @@
 .navigation__wrapper {
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
-  transition: width 0.2s;
 
   @media (max-width: $breakpoint-small) {
     height: calc(100vh - var(--header-height-mobile));

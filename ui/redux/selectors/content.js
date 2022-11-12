@@ -5,7 +5,6 @@ import {
   selectClaimIsMineForUri,
   makeSelectContentTypeForUri,
   selectClaimForUri,
-  selectCanonicalUrlForUri,
   selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
@@ -74,11 +73,15 @@ export const selectFileIsPlayingOnPage = (state: State, uri: string) => {
 };
 
 export const selectIsUriCurrentlyPlaying = (state: State, uri: string) => {
-  const { uri: playingUrl } = selectPlayingUri(state);
-  if (!playingUrl) return false;
+  const { uri: playingUri } = selectPlayingUri(state);
+  if (!playingUri) return false;
 
-  const canonicalUrl = selectCanonicalUrlForUri(state, uri);
-  return canonicalUrl === playingUrl;
+  if (playingUri === uri) return true;
+
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return false;
+
+  return (claim.canonical_url, claim.permanent_url).includes(playingUri);
 };
 
 export const makeSelectIsPlayerFloating = (location: UrlLocation) =>

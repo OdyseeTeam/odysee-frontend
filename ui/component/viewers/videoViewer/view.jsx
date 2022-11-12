@@ -9,7 +9,7 @@ import * as Chapters from './internal/chapters';
 import type { Player } from './internal/videojs';
 import VideoJs from './internal/videojs';
 import analytics from 'analytics';
-import { EmbedContext } from 'page/embedWrapper/view';
+import { EmbedContext } from 'contexts/embed';
 import classnames from 'classnames';
 import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
 import AutoplayCountdown from 'component/autoplayCountdown';
@@ -419,39 +419,38 @@ function VideoViewer(props: Props) {
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
     playerEndedDuration.current = false;
     // add buttons and initialize some settings for the player
-    if (!embedded) {
-      setVideoNode(videoNode);
-      player.muted(muted);
-      player.volume(volume);
-      player.playbackRate(videoPlaybackRate);
-      if (!isMarkdownOrComment) {
-        addTheaterModeButton(player, toggleVideoTheaterMode);
-        // if part of a playlist
+    setVideoNode(videoNode);
+    player.muted(muted || autoplayIfEmbedded);
+    player.volume(volume);
+    player.playbackRate(videoPlaybackRate);
+    if (!isMarkdownOrComment) {
+      addTheaterModeButton(player, toggleVideoTheaterMode);
+      // if part of a playlist
 
-        // remove old play next/previous buttons if they exist
-        const controlBar = player.controlBar;
-        if (controlBar) {
-          const existingPlayNextButton = controlBar.getChild('PlayNextButton');
-          if (existingPlayNextButton) controlBar.removeChild('PlayNextButton');
+      // remove old play next/previous buttons if they exist
+      const controlBar = player.controlBar;
+      if (controlBar) {
+        const existingPlayNextButton = controlBar.getChild('PlayNextButton');
+        if (existingPlayNextButton) controlBar.removeChild('PlayNextButton');
 
-          const existingPlayPreviousButton = controlBar.getChild('PlayPreviousButton');
-          if (existingPlayPreviousButton) controlBar.removeChild('PlayPreviousButton');
+        const existingPlayPreviousButton = controlBar.getChild('PlayPreviousButton');
+        if (existingPlayPreviousButton) controlBar.removeChild('PlayPreviousButton');
 
-          const existingAutoplayButton = controlBar.getChild('AutoplayNextButton');
-          if (existingAutoplayButton) controlBar.removeChild('AutoplayNextButton');
+        const existingAutoplayButton = controlBar.getChild('AutoplayNextButton');
+        if (existingAutoplayButton) controlBar.removeChild('AutoplayNextButton');
 
-          setControlBar(controlBar);
-          setPlayer(player);
-        }
-
-        if (collectionId) {
-          addPlayNextButton(player, doPlayNext);
-          addPlayPreviousButton(player, doPlayPrevious);
-        }
-
-        addAutoplayNextButton(player, () => setLocalAutoplayNext((e) => !e), autoplayNext);
+        setControlBar(controlBar);
+        setPlayer(player);
       }
+
+      if (collectionId) {
+        addPlayNextButton(player, doPlayNext);
+        addPlayPreviousButton(player, doPlayPrevious);
+      }
+
+      addAutoplayNextButton(player, () => setLocalAutoplayNext((e) => !e), autoplayNext);
     }
+
     // PR: #5535
     // Move the restoration to a later `loadedmetadata` phase to counter the
     // delay from the header-fetch. This is a temp change until the next
@@ -620,7 +619,6 @@ function VideoViewer(props: Props) {
         onPlayerReady={onPlayerReady}
         startMuted={autoplayIfEmbedded}
         toggleVideoTheaterMode={toggleVideoTheaterMode}
-        autoplay={!embedded || autoplayIfEmbedded}
         claimId={claimId}
         title={claim && ((claim.value && claim.value.title) || claim.name)}
         channelTitle={channelTitle}

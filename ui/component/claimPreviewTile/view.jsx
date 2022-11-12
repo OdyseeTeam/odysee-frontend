@@ -60,6 +60,7 @@ type Props = {
   onHidden?: (string) => void,
   pulse?: boolean,
   firstCollectionItemUrl: ?string,
+  onlyThumb?: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -95,6 +96,7 @@ function ClaimPreviewTile(props: Props) {
     onHidden,
     pulse,
     firstCollectionItemUrl,
+    onlyThumb,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -281,53 +283,58 @@ function ClaimPreviewTile(props: Props) {
           {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
         </FileThumbnail>
       </NavLink>
-      <div className="claim-tile__header">
-        <NavLink aria-label={ariaLabelData} {...navLinkProps}>
-          <h2 className="claim-tile__title">
-            <TruncatedText text={title || (claim && claim.name)} lines={isChannel ? 1 : 2} />
-            {isChannel && (
-              <div className="claim-tile__about">
-                <UriIndicator uri={uri} />
+
+      {!onlyThumb && (
+        <>
+          <div className="claim-tile__header">
+            <NavLink aria-label={ariaLabelData} {...navLinkProps}>
+              <h2 className="claim-tile__title">
+                <TruncatedText text={title || (claim && claim.name)} lines={isChannel ? 1 : 2} />
+                {isChannel && (
+                  <div className="claim-tile__about">
+                    <UriIndicator uri={uri} />
+                  </div>
+                )}
+              </h2>
+            </NavLink>
+            <ClaimMenuList uri={uri} collectionId={listId} fypId={fypId} channelUri={channelUri} />
+          </div>
+          <div>
+            <div
+              className={classnames('claim-tile__info', {
+                contains_view_count: shouldShowViewCount,
+              })}
+            >
+              {isChannel ? (
+                //  <div className="claim-tile__about--channel">
+                //    <SubscribeButton uri={repostedChannelUri || uri} />
+                //  </div>
+                <></>
+              ) : (
+                <React.Fragment>
+                  <UriIndicator focusable={false} uri={uri} link hideAnonymous>
+                    <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
+                  </UriIndicator>
+
+                  <div className="claim-tile__about">
+                    <UriIndicator uri={uri} link />
+                    <div className="claim-tile__about--counts">
+                      <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                      {isLivestream && <LivestreamDateTime uri={uri} />}
+                      {!isLivestream && <DateTime timeAgo uri={uri} />}
+                    </div>
+                  </div>
+                </React.Fragment>
+              )}
+            </div>
+            {isRepost && (
+              <div className="claim-tile__repost-author">
+                <ClaimRepostAuthor uri={uri} />
               </div>
             )}
-          </h2>
-        </NavLink>
-        <ClaimMenuList uri={uri} collectionId={listId} fypId={fypId} channelUri={channelUri} />
-      </div>
-      <div>
-        <div
-          className={classnames('claim-tile__info', {
-            contains_view_count: shouldShowViewCount,
-          })}
-        >
-          {isChannel ? (
-            //  <div className="claim-tile__about--channel">
-            //    <SubscribeButton uri={repostedChannelUri || uri} />
-            //  </div>
-            <></>
-          ) : (
-            <React.Fragment>
-              <UriIndicator focusable={false} uri={uri} link hideAnonymous>
-                <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
-              </UriIndicator>
-
-              <div className="claim-tile__about">
-                <UriIndicator uri={uri} link />
-                <div className="claim-tile__about--counts">
-                  <FileViewCountInline uri={uri} isLivestream={isLivestream} />
-                  {isLivestream && <LivestreamDateTime uri={uri} />}
-                  {!isLivestream && <DateTime timeAgo uri={uri} />}
-                </div>
-              </div>
-            </React.Fragment>
-          )}
-        </div>
-        {isRepost && (
-          <div className="claim-tile__repost-author">
-            <ClaimRepostAuthor uri={uri} />
           </div>
-        )}
-      </div>
+        </>
+      )}
     </li>
   );
 }

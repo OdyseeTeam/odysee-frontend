@@ -1,62 +1,23 @@
 import { connect } from 'react-redux';
-import { doUriInitiatePlay } from 'redux/actions/content';
-import {
-  selectClaimWasPurchasedForUri,
-  selectClaimForUri,
-  selectClaimIsMine,
-  selectIsFiatPaidForUri,
-  selectIsFiatRequiredForUri,
-  selectIsFetchingPurchases,
-  selectCostInfoForUri,
-} from 'redux/selectors/claims';
-import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
-import * as SETTINGS from 'constants/settings';
-import { selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectClientSetting } from 'redux/selectors/settings';
-import { withRouter } from 'react-router';
-import {
-  selectFileIsPlayingOnPage,
-  selectInsufficientCreditsForUri,
-  makeSelectFileRenderModeForUri,
-} from 'redux/selectors/content';
-import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
-import { isStreamPlaceholderClaim } from 'util/claim';
+
+import { selectChannelClaimIdForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+
+import withStreamClaimRender from 'hocs/withStreamClaimRender';
 
 import VideoClaimInitiator from './view';
 
 const select = (state, props) => {
   const { uri } = props;
 
-  const claim = selectClaimForUri(state, uri);
-  const { claim_id: claimId, signing_channel: channelClaim } = claim || {};
-  const { claim_id: channelClaimId } = channelClaim || {};
-
   return {
-    authenticated: selectUserVerifiedEmail(state),
-    autoplay: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
-    channelClaimId,
-    claimId,
-    claimIsMine: selectClaimIsMine(state, claim),
-    sdkPaid: selectClaimWasPurchasedForUri(state, uri),
-    fiatPaid: selectIsFiatPaidForUri(state, uri),
-    fiatRequired: selectIsFiatRequiredForUri(state, uri),
-    isFetchingPurchases: selectIsFetchingPurchases(state),
-    costInfo: selectCostInfoForUri(state, uri),
-    fileInfo: makeSelectFileInfoForUri(uri)(state),
-    insufficientCredits: selectInsufficientCreditsForUri(state, uri),
-    isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
-    isLivestreamClaim: isStreamPlaceholderClaim(claim),
-    isPlaying: selectFileIsPlayingOnPage(state, uri),
-    renderMode: makeSelectFileRenderModeForUri(uri)(state),
-    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    channelClaimId: selectChannelClaimIdForUri(state, uri),
+    isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
   };
 };
 
 const perform = {
-  doUriInitiatePlay,
   doFetchChannelLiveStatus,
 };
 
-export default withRouter(connect(select, perform)(VideoClaimInitiator));
+export default withStreamClaimRender(connect(select, perform)(VideoClaimInitiator));

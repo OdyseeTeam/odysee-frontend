@@ -1,9 +1,12 @@
 // @flow
 import { INLINE_PLAYER_WRAPPER_CLASS } from 'constants/player';
 import * as React from 'react';
+import * as RENDER_MODES from 'constants/file_render_modes';
 import Button from 'component/button';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import UriIndicator from 'component/uriIndicator';
+import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
+import ClaimPreviewTile from 'component/claimPreviewTile';
 import { v4 as uuid } from 'uuid';
 
 type Props = {
@@ -18,6 +21,7 @@ type Props = {
   parentCommentId?: string,
   isMarkdownPost?: boolean,
   allowPreview: boolean,
+  renderMode: string,
 };
 
 type State = {
@@ -70,6 +74,7 @@ class ClaimLink extends React.Component<Props, State> {
       parentCommentId,
       isMarkdownPost,
       allowPreview,
+      renderMode,
     } = this.props;
 
     const claimLinkId = this.state.claimLinkId;
@@ -97,17 +102,31 @@ class ClaimLink extends React.Component<Props, State> {
     }
 
     if (allowPreview) {
+      // -- Floating Render Claims are able to be played inline from the claim link
+      if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
+        return (
+          <div className="claim-link">
+            <div className={isPlayingInline ? INLINE_PLAYER_WRAPPER_CLASS : 'embed__inline-wrapper'} id={claimLinkId}>
+              <FileViewerEmbeddedTitle uri={uri} />
+
+              <VideoClaimInitiator
+                uri={uri}
+                parentCommentId={parentCommentId}
+                isMarkdownPost={isMarkdownPost}
+                embedded
+                claimLinkId={claimLinkId}
+              />
+            </div>
+
+            <Button button="link" className="preview-link__url" label={uri} navigate={uri} />
+          </div>
+        );
+      }
+
       return (
         <div className="claim-link">
-          <div className={isPlayingInline ? INLINE_PLAYER_WRAPPER_CLASS : 'embed__inline-wrapper'} id={claimLinkId}>
-            <VideoClaimInitiator
-              uri={uri}
-              parentCommentId={parentCommentId}
-              isMarkdownPost={isMarkdownPost}
-              embedded
-              claimLinkId={claimLinkId}
-            />
-          </div>
+          <FileViewerEmbeddedTitle uri={uri} />
+          <ClaimPreviewTile uri={uri} onlyThumb />
           <Button button="link" className="preview-link__url" label={uri} navigate={uri} />
         </div>
       );
