@@ -20,7 +20,7 @@ import PAGES from 'constants/pages';
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
 );
-const StreamClaimPage = lazyImport(() => import('page/streamClaim' /* webpackChunkName: "streamClaimPage" */));
+const StreamClaimPage = lazyImport(() => import('component/streamClaimPage' /* webpackChunkName: "streamClaimPage" */));
 const isDev = process.env.NODE_ENV !== 'production';
 
 type Props = {
