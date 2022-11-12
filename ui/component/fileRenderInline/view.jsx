@@ -64,5 +64,5 @@ export default function FileRenderInline(props: Props) {
     return null;
   }
 
-  return renderContent ? <FileRender uri={uri} /> : <LoadingScreen isDocument />;
+  return renderContent ? <FileRender uri={uri} /> : <LoadingScreen transparent />;
 }
