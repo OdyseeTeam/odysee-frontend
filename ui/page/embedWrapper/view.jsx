@@ -2,15 +2,14 @@
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import classnames from 'classnames';
-import FileRender from 'component/fileRender';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import Button from 'component/button';
 import { formatLbryUrlForWeb, formatLbryChannelName } from 'util/url';
 import { useHistory } from 'react-router';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import useGetPoster from 'effects/use-get-poster';
-
-import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
+import { EmbedContext } from 'contexts/embed';
+import EmbedClaimComponent from './internal/embedClaimComponent';
 
 type Props = {
   uri: string,
@@ -19,8 +18,6 @@ type Props = {
   canonicalUrl: ?string,
   channelUri: ?string,
   channelClaimId: ?string,
-  isFiatRequired: boolean,
-  costInfo: any,
   streamingUrl: string,
   isCurrentClaimLive: boolean,
   isLivestreamClaim: boolean,
@@ -28,18 +25,13 @@ type Props = {
   isMature: boolean,
   activeLivestreamInitialized: boolean,
   latestClaimUrl: ?string,
-  isNewestPath: ?boolean,
   doFetchLatestClaimForChannel: (uri: string, isEmbed: boolean) => void,
-  doResolveUri: (uri: string) => void,
-  doPlayUri: (uri: string) => void,
   doFetchChannelLiveStatus: (string) => void,
   doCommentSocketConnect: (string, string, string, ?string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doFetchActiveLivestreams: () => void,
   contentUnlocked: boolean,
 };
-
-export const EmbedContext = React.createContext<any>();
 
 const EmbedWrapperPage = (props: Props) => {
   const {
@@ -49,8 +41,6 @@ const EmbedWrapperPage = (props: Props) => {
     canonicalUrl,
     channelUri,
     channelClaimId,
-    isFiatRequired,
-    costInfo,
     streamingUrl,
     isCurrentClaimLive,
     isLivestreamClaim,
@@ -58,10 +48,7 @@ const EmbedWrapperPage = (props: Props) => {
     isMature,
     activeLivestreamInitialized,
     latestClaimUrl,
-    isNewestPath,
     doFetchLatestClaimForChannel,
-    doResolveUri,
-    doPlayUri,
     doFetchChannelLiveStatus,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
@@ -131,29 +118,6 @@ const EmbedWrapperPage = (props: Props) => {
     contentUnlocked,
   ]);
 
-  React.useEffect(() => {
-    if (
-      uri &&
-      !isLivestreamClaim &&
-      (isNewestPath ? latestClaimUrl : haveClaim) &&
-      costInfo &&
-      costInfo.cost === 0 &&
-      !isFiatRequired
-    ) {
-      doPlayUri(uri);
-    }
-  }, [
-    doPlayUri,
-    isLivestreamClaim,
-    doResolveUri,
-    haveClaim,
-    costInfo,
-    isFiatRequired,
-    uri,
-    isNewestPath,
-    latestClaimUrl,
-  ]);
-
   useFetchLiveStatus(livestreamsFetched ? channelClaimId : undefined, doFetchChannelLiveStatus);
 
   if (isLiveClaimNotPlaying) {
@@ -174,19 +138,11 @@ const EmbedWrapperPage = (props: Props) => {
   return (
     <div className={classnames('embed__wrapper', { 'embed__wrapper--light-background': embedLightBackground })}>
       <EmbedContext.Provider value>
-        <EmbeddedClaim uri={uri} delayed />
+        <EmbedClaimComponent uri={uri} />
+        <FileViewerEmbeddedTitle uri={uri} />
       </EmbedContext.Provider>
     </div>
   );
 };
-
-const EmbeddedClaimComponent = ({ uri }: { uri: string }) => (
-  <>
-    <FileViewerEmbeddedTitle uri={uri} />
-    <FileRender uri={uri} embedded />
-  </>
-);
-
-const EmbeddedClaim = withResolvedClaimRender(EmbeddedClaimComponent);
 
 export default EmbedWrapperPage;

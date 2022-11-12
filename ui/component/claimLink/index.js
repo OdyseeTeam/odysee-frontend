@@ -3,7 +3,7 @@ import { selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims'
 import { doResolveUri } from 'redux/actions/claims';
 import { doSetPlayingUri } from 'redux/actions/content';
 import { punctuationMarks } from 'util/remark-lbry';
-import { selectPlayingUri } from 'redux/selectors/content';
+import { selectPlayingUri, makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import ClaimLink from './view';
 
 const select = (state, props) => {
@@ -32,6 +32,7 @@ const select = (state, props) => {
     fullUri: props.uri,
     isResolvingUri: selectIsUriResolving(state, uri),
     playingUri: selectPlayingUri(state),
+    renderMode: makeSelectFileRenderModeForUri(uri)(state),
   };
 };
 

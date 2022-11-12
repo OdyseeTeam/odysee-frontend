@@ -418,6 +418,8 @@ export const selectNoRestrictionOrUserIsMemberForContentClaimId = (state: State,
 
 export const selectIsProtectedContentLockedFromUserForId = (state: State, claimId: ClaimId) => {
   const protectedContentMemberships = selectContentHasProtectedMembershipIds(state, claimId);
+  if (!protectedContentMemberships) return protectedContentMemberships;
+
   const userHasAccess = selectUserIsMemberOfProtectedContentForId(state, claimId);
   const claimIsMine = selectClaimIsMineForId(state, claimId);
 

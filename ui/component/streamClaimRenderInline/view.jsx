@@ -5,8 +5,6 @@ import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as KEYCODES from 'constants/keycodes';
-import VideoViewer from 'component/viewers/videoViewer';
-import { withRouter } from 'react-router-dom';
 import fs from 'fs';
 import analytics from 'analytics';
 
@@ -39,7 +37,7 @@ type Props = {
   className?: string,
 };
 
-class FileRender extends React.PureComponent<Props> {
+class StreamClaimRenderInline extends React.PureComponent<Props> {
   constructor(props: Props) {
     super(props);
 
@@ -78,9 +76,6 @@ class FileRender extends React.PureComponent<Props> {
     const source = streamingUrl;
 
     switch (renderMode) {
-      case RENDER_MODES.AUDIO:
-      case RENDER_MODES.VIDEO:
-        return <VideoViewer uri={uri} source={source} contentType={contentType} />;
       case RENDER_MODES.IMAGE:
         return (
           <React.Suspense fallback={null}>
@@ -95,20 +90,7 @@ class FileRender extends React.PureComponent<Props> {
         );
       case RENDER_MODES.DOCUMENT:
       case RENDER_MODES.MARKDOWN:
-        return (
-          <DocumentViewer
-            source={{
-              // @if TARGET='app'
-              file: (options) => fs.createReadStream(downloadPath, options),
-              // @endif
-              stream: source,
-              fileExtension,
-              contentType,
-            }}
-            renderMode={renderMode}
-            theme={currentTheme}
-          />
-        );
+        return <DocumentViewer source={{ stream: source, contentType }} renderMode={renderMode} theme={currentTheme} />;
       case RENDER_MODES.DOCX:
         return <DocxViewer source={downloadPath} />;
       case RENDER_MODES.PDF:
@@ -158,7 +140,6 @@ class FileRender extends React.PureComponent<Props> {
         className={classnames('file-render', className, {
           'file-render--document': RENDER_MODES.TEXT_MODES.includes(renderMode) && !embedded,
           'file-render--embed': embedded,
-          'file-render--video': renderMode === RENDER_MODES.VIDEO || renderMode === RENDER_MODES.AUDIO,
         })}
       >
         {this.renderViewer()}
@@ -167,4 +148,4 @@ class FileRender extends React.PureComponent<Props> {
   }
 }
 
-export default withRouter(FileRender);
+export default StreamClaimRenderInline;

@@ -5,8 +5,8 @@ import * as ABANDON_STATES from 'constants/abandon_states';
 import { shell } from 'electron';
 // @endif
 import Lbry from 'lbry';
-import { selectClaimForUri } from 'redux/selectors/claims';
-import { doAbandonClaim, doGetClaimFromUriResolve } from 'redux/actions/claims';
+import { selectClaimForUri, selectClaimOutpointForUri, selectIsLivestreamClaimForUri } from 'redux/selectors/claims';
+import { doAbandonClaim } from 'redux/actions/claims';
 import { batchActions } from 'util/batch-actions';
 
 import { doHideModal } from 'redux/actions/app';
@@ -16,7 +16,6 @@ import { selectPlayingUri } from 'redux/selectors/content';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectOutpointFetchingForUri } from 'redux/selectors/file_info';
-import { isStreamPlaceholderClaim } from 'util/claim';
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
@@ -120,15 +119,11 @@ export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) =
 ) => {
   const state = getState();
   const alreadyFetching = selectOutpointFetchingForUri(state, uri);
+  const fileInfo = makeSelectFileInfoForUri(uri)(state);
 
-  if (alreadyFetching && !onSuccess) return;
+  if (fileInfo !== undefined || (alreadyFetching && !onSuccess)) return;
 
-  let claim = selectClaimForUri(state, uri);
-  if (!claim) {
-    claim = await dispatch(doGetClaimFromUriResolve(uri));
-  }
-  const { nout, txid } = claim;
-  const outpoint = `${txid}:${nout}`;
+  const outpoint = selectClaimOutpointForUri(state, uri);
 
   dispatch({ type: ACTIONS.FETCH_FILE_INFO_STARTED, data: { outpoint } });
 
@@ -176,7 +171,7 @@ export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) =
 
       // TODO: probably a better way to address this
       // supress no source error if it's a livestream
-      const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+      const isLivestreamClaim = selectIsLivestreamClaimForUri(state, uri);
       if (isLivestreamClaim && error.message === "stream doesn't have source data") return;
 
       dispatch(

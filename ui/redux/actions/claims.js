@@ -248,21 +248,6 @@ export function doResolveUri(
   return doResolveUris([uri], returnCachedClaims, resolveReposts, additionalOptions);
 }
 
-export function doGetClaimFromUriResolve(uri: string) {
-  return async (dispatch: Dispatch) => {
-    let claim;
-    await dispatch(doResolveUri(uri, true))
-      .then((response) =>
-        Object.values(response).forEach((resposne) => {
-          claim = resposne;
-        })
-      )
-      .catch((e) => {});
-
-    return claim;
-  };
-}
-
 export function doFetchClaimListMine(
   page: number = 1,
   pageSize: number = 99999,

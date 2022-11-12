@@ -88,7 +88,6 @@ export type Player = {
 type Props = {
   adUrl: ?string,
   allowPreRoll: ?boolean,
-  autoplay: boolean,
   claimId: ?string,
   title: ?string,
   channelTitle: string,
@@ -155,7 +154,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const {
     // adUrl, // TODO: this ad functionality isn't used, can be pulled out
     // allowPreRoll,
-    autoplay,
     claimId,
     title,
     channelTitle,
@@ -554,56 +552,54 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // allow tap to unmute if no perms on iOS
-      if (autoplay) {
-        const promise = vjsPlayer.play();
+      const promise = vjsPlayer.play();
 
-        window.player.userActive(true);
+      window.player.userActive(true);
 
-        if (promise !== undefined) {
-          promise
-            .then((_) => {
-              // $FlowIssue
-              vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
-            })
-            .catch((error) => {
-              const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+      if (promise !== undefined) {
+        promise
+          .then((_) => {
+            // $FlowIssue
+            vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
+          })
+          .catch((error) => {
+            const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
-              if (noPermissionError) {
-                if (IS_IOS) {
-                  // autoplay not allowed, mute video, play and show 'tap to unmute' button
-                  // $FlowIssue
-                  vjsPlayer?.muted(true);
-                  // $FlowIssue
-                  const mutedPlayPromise = vjsPlayer?.play();
-                  if (mutedPlayPromise !== undefined) {
-                    mutedPlayPromise
-                      .then(() => {
-                        const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
+            if (noPermissionError) {
+              if (IS_IOS) {
+                // autoplay not allowed, mute video, play and show 'tap to unmute' button
+                // $FlowIssue
+                vjsPlayer?.muted(true);
+                // $FlowIssue
+                const mutedPlayPromise = vjsPlayer?.play();
+                if (mutedPlayPromise !== undefined) {
+                  mutedPlayPromise
+                    .then(() => {
+                      const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
 
-                        // $FlowIssue
-                        tapToUnmuteButton?.style.setProperty('visibility', 'visible');
-                        // $FlowIssue
-                        tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
-                      })
-                      .catch((error) => {
-                        // $FlowFixMe
-                        vjsPlayer?.addClass('vjs-paused');
-                        // $FlowFixMe
-                        vjsPlayer?.addClass('vjs-has-started');
+                      // $FlowIssue
+                      tapToUnmuteButton?.style.setProperty('visibility', 'visible');
+                      // $FlowIssue
+                      tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
+                    })
+                    .catch((error) => {
+                      // $FlowFixMe
+                      vjsPlayer?.addClass('vjs-paused');
+                      // $FlowFixMe
+                      vjsPlayer?.addClass('vjs-has-started');
 
-                        // $FlowFixMe
-                        document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
-                        // $FlowFixMe
-                        document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
-                      });
-                  }
-                } else {
-                  // $FlowIssue
-                  vjsPlayer?.bigPlayButton?.show();
+                      // $FlowFixMe
+                      document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
+                      // $FlowFixMe
+                      document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
+                    });
                 }
+              } else {
+                // $FlowIssue
+                vjsPlayer?.bigPlayButton?.show();
               }
-            });
-        }
+            }
+          });
       }
     })();
 

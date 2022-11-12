@@ -50,10 +50,6 @@
   .nag--inline {
     top: unset;
   }
-
-  @media (max-width: $breakpoint-small) {
-    height: 200px;
-  }
 }
 
 .embed__inline-button--preview {
