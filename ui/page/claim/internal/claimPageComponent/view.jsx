@@ -170,22 +170,16 @@ const ClaimPageComponent = (props: Props) => {
   }
 
   if (isChannel) {
-    return (
-      <React.Suspense fallback={null}>
-        <ChannelPage uri={uri} location={location} />
-      </React.Suspense>
-    );
+    return <ChannelPage uri={uri} location={location} />;
   }
 
   return (
-    <React.Suspense fallback={null}>
-      <StreamClaimPage
-        uri={uri}
-        collectionId={collectionId}
-        linkedCommentId={linkedCommentId}
-        threadCommentId={threadCommentId}
-      />
-    </React.Suspense>
+    <StreamClaimPage
+      uri={uri}
+      collectionId={collectionId}
+      linkedCommentId={linkedCommentId}
+      threadCommentId={threadCommentId}
+    />
   );
 };
 
