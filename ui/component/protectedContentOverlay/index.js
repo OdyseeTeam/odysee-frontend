@@ -1,12 +1,16 @@
 import { connect } from 'react-redux';
-import ProtectedContentOverlay from './view';
+import { getChannelTitleFromClaim } from 'util/claim';
+
 import { selectClaimForUri, selectClaimIsMine, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import {
   selectMyProtectedContentMembershipForId,
   selectUserIsMemberOfProtectedContentForId,
   selectPriceOfCheapestPlanForClaimId,
 } from 'redux/selectors/memberships';
+
 import { doOpenModal } from 'redux/actions/app';
+
+import ProtectedContentOverlay from './view';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -14,7 +18,7 @@ const select = (state, props) => {
 
   return {
     claimIsMine: selectClaimIsMine(state, claim),
-    claim,
+    channelName: getChannelTitleFromClaim(claim),
     isProtected: Boolean(selectProtectedContentTagForUri(state, props.uri)),
     userIsAMember: selectUserIsMemberOfProtectedContentForId(state, claimId),
     myMembership: selectMyProtectedContentMembershipForId(state, claimId),
