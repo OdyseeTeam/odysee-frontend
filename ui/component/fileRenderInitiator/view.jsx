@@ -96,6 +96,8 @@ export default function FileRenderInitiator(props: Props) {
     videoTheaterMode,
     // contentRestrictedFromUser,
     contentUnlocked,
+    isUnlistedContent,
+    isProtectedContent,
   } = props;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
@@ -139,6 +141,10 @@ export default function FileRenderInitiator(props: Props) {
   const action: Action = getActionType();
 
   const shouldRedirect = !authenticated && !isFree;
+
+  const unlistedLivestream = isLivestreamClaim && isUnlistedContent;
+
+  const protectedContentOrUnlistedLivestream = isProtectedContent || unlistedLivestream;
 
   function doAuthRedirect() {
     history.push(`/$/${PAGES.AUTH}?redirect=${encodeURIComponent(pathname)}`);
@@ -199,7 +205,10 @@ export default function FileRenderInitiator(props: Props) {
       playingOptions.source = 'markdown';
     }
 
-    doUriInitiatePlay(playingOptions, isPlayable);
+    // the call will fail for protected content or unlisted livestreams, so no need to run this
+    if (!protectedContentOrUnlistedLivestream) {
+      doUriInitiatePlay(playingOptions, isPlayable);
+    }
   }, [
     claimLinkId,
     collectionId,

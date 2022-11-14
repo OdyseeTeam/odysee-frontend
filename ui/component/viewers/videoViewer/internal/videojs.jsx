@@ -119,6 +119,7 @@ type Props = {
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   isProtectedContent: boolean,
+  isUnlistedContent: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -186,7 +187,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    isUnlistedContent,
   } = props;
+
+  const unlistedLivestream = isLivestreamClaim && isUnlistedContent;
 
   // used to notify about default quality setting
   // if already has a quality set, no need to notify
@@ -474,12 +478,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
 
+        const { signature, ts: signature_ts } = new Proxy(new URLSearchParams(window.location.search), {
+          get: (searchParams, prop) => searchParams.get(prop),
+        });
+
         // get the protected url if needed
-        if (isProtectedContent) {
+        if (isProtectedContent || unlistedLivestream) {
           const protectedLivestreamResponse = await Lbry.get({
             uri: activeLivestreamForChannel.claimUri,
             base_streaming_url: activeLivestreamForChannel.url,
             environment: stripeEnvironment,
+            signature: signature || undefined,
+            signature_ts: signature_ts || undefined,
           });
 
           vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });

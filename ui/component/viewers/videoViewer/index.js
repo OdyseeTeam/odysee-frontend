@@ -6,6 +6,7 @@ import {
   selectPurchaseMadeForClaimId,
   selectRentalTagForUri,
   selectProtectedContentTagForUri,
+  selectUnlistedContentTag,
 } from 'redux/selectors/claims';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
@@ -86,6 +87,7 @@ const select = (state, props) => {
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
   };
 };
 

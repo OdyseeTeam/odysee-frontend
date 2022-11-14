@@ -84,6 +84,7 @@ type Props = {
   isRentableContent: boolean,
   purchaseMadeForClaimId: boolean,
   isProtectedContent: boolean,
+  isUnlistedContent: boolean,
 };
 
 /*
@@ -136,6 +137,7 @@ function VideoViewer(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    isUnlistedContent,
     // purchaseMadeForClaimId,
   } = props;
 
@@ -645,6 +647,7 @@ function VideoViewer(props: Props) {
         isPurchasableContent={isPurchasableContent}
         isRentableContent={isRentableContent}
         isProtectedContent={isProtectedContent}
+        isUnlistedContent={isUnlistedContent}
       />
     </div>
   );
