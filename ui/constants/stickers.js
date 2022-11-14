@@ -69,8 +69,8 @@ const INTERESTING = 'MISC/PNG/interesting.png';
 const BRAVO = 'MISC/PNG/bravo.png';
 const WOW = 'MISC/PNG/wow.png';
 const GRR = 'MISC/PNG/grr.png';
-const ACTUALLY: 'MISC/PNG/actually.png';
-const THUMBS_UP: 'MISC/PNG/thumbs_up.png';
+const ACTUALLY = 'MISC/PNG/actually.png';
+const THUMBS_UP = 'MISC/PNG/thumbs_up.png';
 
 export const FREE_GLOBAL_STICKERS = [
   buildSticker('CAT', CAT_BORDER),
