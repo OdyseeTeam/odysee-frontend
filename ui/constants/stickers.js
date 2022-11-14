@@ -65,7 +65,7 @@ export const FREE_GLOBAL_STICKERS = [
   buildSticker('THUMBS_UP', THUMBS_UP),
   buildSticker('ACTUALLY', INTERESTING),
   buildSticker('INTERESTING', INTERESTING),
-  buildSticker('BRAVO', BRAVO,
+  buildSticker('BRAVO', BRAVO),
   buildSticker('WOW', WOW),
   buildSticker('GRR', GRR),
   buildSticker('WAITING', WAITING),
