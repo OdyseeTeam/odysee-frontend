@@ -32,16 +32,19 @@ const EmbedClaimComponent = (props: Props) => {
   }
 
   if (isVideo) {
-    return <EmbeddedClaim uri={uri} embedded />;
+    return <EmbeddedVideoClaim uri={uri} embedded />;
   }
 
-  return <ClaimPreviewTile uri={uri} onlyThumb />;
+  return <EmbeddedClaim uri={uri} />;
 };
 
-const EmbeddedClaimComponent = ({ uri, streamClaim }: { uri: string, streamClaim: () => void }) => (
+const EmbeddedVideoClaimComponent = ({ uri, streamClaim }: { uri: string, streamClaim: () => void }) => (
   <VideoRender uri={uri} embedded streamClaim={streamClaim} />
 );
+const EmbeddedVideoClaim = withStreamClaimRender(EmbeddedVideoClaimComponent);
 
+const EmbeddedClaimComponent = ({ uri }: { uri: string }) => <ClaimPreviewTile uri={uri} onlyThumb />;
+// -- this allows rendering the appropriate restricted overlays linking to join from the embed --
 const EmbeddedClaim = withStreamClaimRender(EmbeddedClaimComponent);
 
 export default EmbedClaimComponent;

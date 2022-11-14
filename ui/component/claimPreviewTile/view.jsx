@@ -26,6 +26,7 @@ import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import * as ICONS from 'constants/icons';
 import { FYP_ID } from 'constants/urlParams';
+import { EmbedContext } from 'contexts/embed';
 // $FlowFixMe cannot resolve ...
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 
@@ -98,6 +99,9 @@ function ClaimPreviewTile(props: Props) {
     firstCollectionItemUrl,
     onlyThumb,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
+
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
   const isStream = claim && claim.value_type === 'stream';
@@ -174,7 +178,7 @@ function ClaimPreviewTile(props: Props) {
   // **************************************************************************
 
   function handleClick(e) {
-    if (navigateUrl) {
+    if (navigateUrl && !isEmbed) {
       history.push(navigateUrl);
     }
   }
@@ -253,7 +257,7 @@ function ClaimPreviewTile(props: Props) {
         'swipe-list__item claim-preview--horizontal-tile': swipeLayout,
       })}
     >
-      <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
+      <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
           {!isChannel && (
             <React.Fragment>
@@ -287,12 +291,12 @@ function ClaimPreviewTile(props: Props) {
       {!onlyThumb && (
         <>
           <div className="claim-tile__header">
-            <NavLink aria-label={ariaLabelData} {...navLinkProps}>
+            <NavLink aria-label={ariaLabelData} {...navLinkProps} target={isEmbed && '_blank'}>
               <h2 className="claim-tile__title">
                 <TruncatedText text={title || (claim && claim.name)} lines={isChannel ? 1 : 2} />
                 {isChannel && (
                   <div className="claim-tile__about">
-                    <UriIndicator uri={uri} />
+                    <UriIndicator uri={uri} external={isEmbed} />
                   </div>
                 )}
               </h2>
@@ -312,12 +316,12 @@ function ClaimPreviewTile(props: Props) {
                 <></>
               ) : (
                 <React.Fragment>
-                  <UriIndicator focusable={false} uri={uri} link hideAnonymous>
+                  <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
                     <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
                   </UriIndicator>
 
                   <div className="claim-tile__about">
-                    <UriIndicator uri={uri} link />
+                    <UriIndicator uri={uri} link external={isEmbed} />
                     <div className="claim-tile__about--counts">
                       <FileViewCountInline uri={uri} isLivestream={isLivestream} />
                       {isLivestream && <LivestreamDateTime uri={uri} />}
