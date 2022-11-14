@@ -220,9 +220,10 @@ function ClaimListDiscover(props: Props) {
     (defaultTags && getParamFromTags(defaultTags));
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
   const sortByParam = sortBy || urlParams.get(CS.SORT_BY_KEY) || CS.SORT_BY.NEWEST.key;
-  const mutedAndBlockedChannelIds = Array.from(
-    new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1]))
-  );
+  const mutedAndBlockedChannelIds =
+    mutedUris &&
+    blockedUris &&
+    Array.from(new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1])));
   const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
 
@@ -484,6 +485,7 @@ function ClaimListDiscover(props: Props) {
   }
 
   const shouldPerformSearch =
+    mutedAndBlockedChannelIds &&
     !uris &&
     (claimSearchResult === undefined ||
       didNavigateForward ||

@@ -3,7 +3,7 @@ import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
 const defaultState: BlocklistState = {
-  blockedChannels: [],
+  blockedChannels: undefined,
   geoBlockedList: undefined,
 };
 

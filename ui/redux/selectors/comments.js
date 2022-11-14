@@ -92,7 +92,7 @@ export const selectPinnedCommentsForUri = createCachedSelector(
 export const selectModerationBlockList = createSelector(
   (state) => selectState(state).moderationBlockList,
   (moderationBlockList) => {
-    return moderationBlockList ? moderationBlockList.reverse() : [];
+    return moderationBlockList !== undefined ? (moderationBlockList ? moderationBlockList.reverse() : []) : undefined;
   }
 );
 export const selectAdminBlockList = createSelector(selectState, (state) =>
