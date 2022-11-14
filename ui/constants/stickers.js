@@ -65,37 +65,35 @@ const DOGE = 'MISC/PNG/doge.png';
 const TWITCH = 'MISC/PNG/twitch.png';
 const LIKE = 'MISC/PNG/like.png';
 const WAITING = 'MISC/PNG/waiting.png';
+const INTERESTING = 'MISC/PNG/interesting.png';
+const BRAVO = 'MISC/PNG/bravo.png';
+const WOW = 'MISC/PNG/wow.png';
+const GRR = 'MISC/PNG/grr.png';
+const ACTUALLY = 'MISC/PNG/actually.png';
+const THUMBS_UP = 'MISC/PNG/thumbs_up.png';
 
 export const FREE_GLOBAL_STICKERS = [
+  buildSticker('THUMBS_UP', THUMBS_UP_WITH_FRAME),
+  buildSticker('FIRE', FIRE_WITH_FRAME),
+  buildSticker('SLIME', SLIME_WITH_FRAME),
+  buildSticker('PISS', PISS),
+  buildSticker('TWITCH', TWITCH),
+  buildSticker('ACTUALLY', INTERESTING_WITH_FRAME),
+  buildSticker('INTERESTING', INTERESTING_WITH_FRAME),
+  buildSticker('BRAVO', BRAVO_WITH_FRAME),
+  buildSticker('WOW', WOW_WITH_FRAME),
+  buildSticker('GRR', GRR_WITH_FRAME),
+  buildSticker('WAITING', WAITING),
   buildSticker('CAT', CAT_BORDER),
   buildSticker('FAIL', FAIL_BORDER),
   buildSticker('HYPE', HYPE_BORDER),
   buildSticker('PANTS_1', PANTS_1_WITH_FRAME),
   buildSticker('DOGE', DOGE),
   // buildSticker('XMAS', XMAS),
-  buildSticker('LIKE', LIKE),
-  buildSticker('FIRE', FIRE_WITH_FRAME),
-  buildSticker('SLIME', SLIME_WITH_FRAME),
-  buildSticker('PISS', PISS),
-  buildSticker('TWITCH', TWITCH),
-  buildSticker('WAITING', WAITING),
   buildSticker('BULL_RIDE', BULL_RIDE),
   buildSticker('ELIMINATED', ELIMINATED),
-  buildSticker('EGG_CARTON', EGG_CARTON),
   buildSticker('BAN', BAN),
-  buildSticker('MONEY_PRINTER', MONEY_PRINTER),
-  buildSticker('MOUNT_RUSHMORE', MOUNT_RUSHMORE),
   buildSticker('EGIRL', EGIRL),
-  buildSticker('KANYE_WEST', KANYE_WEST),
-  buildSticker('TAYLOR_SWIFT', TAYLOR_SWIFT),
-  buildSticker('DONALD_TRUMP', DONALD_TRUMP),
-  buildSticker('BILL_CLINTON', BILL_CLINTON),
-  buildSticker('EPSTEIN_ISLAND', EPSTEIN_ISLAND),
-  buildSticker('KURT_COBAIN', KURT_COBAIN),
-  buildSticker('BILL_COSBY', BILL_COSBY),
-  buildSticker('CHE_GUEVARA', CHE_GUEVARA),
-  buildSticker('PREGNANT_MAN_BLONDE', PREGNANT_MAN_BLONDE_WHITE_BORDER),
-  buildSticker('PREGNANT_WOMAN_BROWN_HAIR', PREGNANT_WOMAN_BROWN_HAIR_WHITE_BORDER),
   buildSticker('ROCKET_SPACEMAN', ROCKET_SPACEMAN_WITH_BORDER),
   buildSticker('SALTY', SALTY),
   buildSticker('SICK_FLAME', SICK_2_WITH_BORDER),
