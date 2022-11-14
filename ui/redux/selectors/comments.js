@@ -386,7 +386,7 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
         if (claimId) {
           const claimIdIsMine = myClaimIds && myClaimIds.size > 0 && myClaimIds.includes(claimId);
           if (!claimIdIsMine) {
-            if (personalBlockList.includes(comment.channel_url)) {
+            if (personalBlockList && personalBlockList.includes(comment.channel_url)) {
               return false;
             }
           }

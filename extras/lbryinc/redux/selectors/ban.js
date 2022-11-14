@@ -57,7 +57,7 @@ export const selectBanStateForUri = createCachedSelector(
     }
 
     // Commentron blocklist
-    if (personalBlocklist.length && channelClaim) {
+    if (personalBlocklist?.length && channelClaim) {
       if (personalBlocklist.some((blockedUri) => isURIEqual(blockedUri, channelClaim.permanent_url))) {
         banState['blocked'] = true;
       }
