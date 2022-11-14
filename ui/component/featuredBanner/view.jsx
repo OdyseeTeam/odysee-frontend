@@ -104,6 +104,7 @@ export default function FeaturedBanner(props: Props) {
         orderToSave.hidden = ['BANNER'];
       }
     } else if (!orderToSave.hidden) {
+      console.log('5');
       const SECTIONS = { ...NON_CATEGORY, ...categories };
       orderToSave = { active: [], hidden: [] };
       orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
