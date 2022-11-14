@@ -11,6 +11,11 @@
   }
 }
 
+.embed__wrapper:has(.claim-preview__wrapper--channel) {
+  justify-content: center;
+  align-items: center;
+}
+
 .embed__wrapper--light-background {
   @extend .embed__wrapper;
 

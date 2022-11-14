@@ -39,6 +39,7 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
+import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 
 const AbandonedChannelPreview = lazyImport(() =>
@@ -186,6 +187,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doDisablePlayerDrag,
   } = props;
 
+  const isEmbed = React.useContext(EmbedContext);
+
   const isMobile = useIsMobile();
 
   const {
@@ -332,7 +335,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       onClick(e, claim, indexInContainer);
     }
 
-    if (claim && !pending && !disableNavigation && !disableClickNavigation) {
+    if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {
       history.push({
         pathname: navigateUrl,
         search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
@@ -495,13 +498,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           )}
 
           {isChannelUri && claim ? (
-            <UriIndicator focusable={false} uri={uri} link>
+            <UriIndicator focusable={false} uri={uri} link external={isEmbed}>
               <ChannelThumbnail uri={uri} small={type === 'inline'} checkMembership={false} />
             </UriIndicator>
           ) : (
             <>
               {!pending ? (
-                <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
+                <NavLink aria-hidden tabIndex={-1} {...navLinkProps} target={isEmbed && '_blank'}>
                   <FileThumbnail
                     thumbnail={thumbnailUrl}
                     small={smallThumbnail}
@@ -540,15 +543,20 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {pending ? (
                   <ClaimPreviewTitle uri={uri} />
                 ) : (
-                  <NavLink aria-label={ariaLabelData} aria-current={active ? 'page' : null} {...navLinkProps}>
+                  <NavLink
+                    aria-label={ariaLabelData}
+                    aria-current={active ? 'page' : null}
+                    {...navLinkProps}
+                    target={isEmbed && '_blank'}
+                  >
                     <ClaimPreviewTitle uri={uri} />
                   </NavLink>
                 )}
               </div>
-              <div className="claim-tile__info" uri={uri}>
+              <div className="claim-tile__info">
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
-                    <UriIndicator focusable={false} uri={uri} link hideAnonymous>
+                    <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
                       <ChannelThumbnail uri={signingChannel.permanent_url} xsmall checkMembership={false} />
                     </UriIndicator>
                   </div>
