@@ -13,7 +13,7 @@ const TAB_QUERY = 'tab';
 
 const CURRENCY_QUERY_PARAM = 'currency';
 const CREDITS_QUERY_PARAM_VALUE = 'credits';
-const FIAT_QUERY_PARAM_VALUE = 'currency';
+const FIAT_QUERY_PARAM_VALUE = 'fiat';
 
 const TABS = {
   LBRY_CREDITS_TAB: 'credits',
@@ -64,7 +64,7 @@ const WalletPage = (props: Props) => {
     } else if (newTabIndex === 1) {
       url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${CREDITS_QUERY_PARAM_VALUE}`;
     } else if (newTabIndex === 2) {
-      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${CURRENCY_QUERY_PARAM}`;
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}`;
     } else {
       url += `${TAB_QUERY}=${TABS.LBRY_CREDITS_TAB}`;
     }
