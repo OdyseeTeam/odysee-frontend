@@ -73,18 +73,17 @@ const ACTUALLY = 'MISC/PNG/actually.png';
 const THUMBS_UP = 'MISC/PNG/thumbs_up.png';
 
 export const FREE_GLOBAL_STICKERS = [
-  buildSticker('THUMBS_UP', THUMBS_UP_WITH_FRAME),
+  buildSticker('CAT', CAT_BORDER),
+  buildSticker('PISS', PISS),
   buildSticker('FIRE', FIRE_WITH_FRAME),
   buildSticker('SLIME', SLIME_WITH_FRAME),
-  buildSticker('PISS', PISS),
-  buildSticker('TWITCH', TWITCH),
+  buildSticker('THUMBS_UP', THUMBS_UP_WITH_FRAME),
   buildSticker('ACTUALLY', INTERESTING_WITH_FRAME),
   buildSticker('INTERESTING', INTERESTING_WITH_FRAME),
   buildSticker('BRAVO', BRAVO_WITH_FRAME),
   buildSticker('WOW', WOW_WITH_FRAME),
   buildSticker('GRR', GRR_WITH_FRAME),
   buildSticker('WAITING', WAITING),
-  buildSticker('CAT', CAT_BORDER),
   buildSticker('FAIL', FAIL_BORDER),
   buildSticker('HYPE', HYPE_BORDER),
   buildSticker('PANTS_1', PANTS_1_WITH_FRAME),
