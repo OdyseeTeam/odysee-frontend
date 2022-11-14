@@ -530,8 +530,10 @@
   }
 }
 
-.embed__wrapper:has(.file-viewer--is-playing:not(:hover)) .file-viewer__embedded-header {
-  display: none;
+.embed__wrapper:has(.file-viewer--is-playing):not(:hover) {
+  .file-viewer__embedded-header {
+    display: none;
+  }
 }
 
 .content__viewer--secondary:has(.file-viewer--is-playing) {
