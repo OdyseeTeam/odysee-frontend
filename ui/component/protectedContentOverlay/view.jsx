@@ -1,13 +1,19 @@
 // @flow
+import React from 'react';
+
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
-import * as React from 'react';
+
+import { formatLbryUrlForWeb, getModalUrlParam } from 'util/url';
+import { AppContext } from 'component/app/view';
+import { EmbedContext } from 'contexts/embed';
+
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 
-import { AppContext } from 'component/app/view';
-
 type Props = {
+  fileUri?: string,
+  channelName: ?string,
   claimIsMine: boolean,
   isProtected: boolean,
   uri: string,
@@ -18,9 +24,20 @@ type Props = {
 };
 
 const ProtectedContentOverlay = (props: Props) => {
-  const { claimIsMine, uri, isProtected, myMembership, userIsAMember, cheapestPlanPrice, doOpenModal } = props;
+  const {
+    channelName,
+    claimIsMine,
+    uri,
+    isProtected,
+    myMembership,
+    userIsAMember,
+    cheapestPlanPrice,
+    doOpenModal,
+  } = props;
 
-  const fileUri = React.useContext(AppContext)?.uri;
+  const appFileUri = React.useContext(AppContext)?.uri;
+  const fileUri = props.fileUri || appFileUri;
+  const isEmbed = React.useContext(EmbedContext);
   const membershipFetching = myMembership === undefined;
 
   if (membershipFetching || !isProtected || userIsAMember || claimIsMine) return null;
@@ -28,17 +45,24 @@ const ProtectedContentOverlay = (props: Props) => {
   return (
     <div className="protected-content-overlay">
       <Icon icon={ICONS.LOCK} />
-      <span>{__('Only channel members can view this content.')}</span>
+      <span>{__('Only %channel_name% members can view this content.', { channel_name: channelName })}</span>
+
       <Button
         button="primary"
         icon={ICONS.MEMBERSHIP}
         label={
           cheapestPlanPrice
-            ? __('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })
+            ? __(
+                isEmbed
+                  ? 'Join on Odysee now for $%membership_price% per month!'
+                  : 'Join for $%membership_price% per month',
+                { membership_price: cheapestPlanPrice }
+              )
             : __('Membership options')
         }
         title={__('Become a member')}
-        onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
+        href={isEmbed && `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}`}
+        onClick={!isEmbed && (() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri }))}
       />
     </div>
   );

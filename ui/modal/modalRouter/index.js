@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectModal } from 'redux/selectors/app';
-import { doHideModal } from 'redux/actions/app';
+import { doOpenModal, doHideModal } from 'redux/actions/app';
 import { selectError } from 'redux/selectors/notifications'; // RENAME THIS 'selectNotificationError'
 import ModalRouter from './view';
 
@@ -10,6 +10,7 @@ const select = (state, props) => ({
 });
 
 const perform = {
+  doOpenModal,
   doHideModal,
 };
 

@@ -3,6 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import * as MODALS from 'constants/modal_types';
+import * as URL from 'constants/urlParams';
 import ModalError from 'modal/modalError';
 import { lazyImport } from 'util/lazyImport';
 
@@ -67,19 +68,45 @@ const MAP = Object.freeze({
 type Props = {
   modal: { id: string, modalProps: {} },
   error: { message: string },
-  location: { pathname: string },
+  location: { pathname: string, search: string },
+  doOpenModal: (modalId: string, modalProps: {}) => void,
   doHideModal: () => void,
 };
 
 export const ModalContext = React.createContext<any>();
 
 function ModalRouter(props: Props) {
-  const { modal, error, location, doHideModal } = props;
-  const { pathname } = location;
+  const { modal, error, location, doOpenModal, doHideModal } = props;
+
+  const modalUrlOpened = React.useRef();
+
+  const { pathname, search } = location;
+  const urlParams = new URLSearchParams(search);
+  const modalUrlId = urlParams.get(URL.MODAL);
+  const modalUrlParams = modalUrlId && JSON.parse(decodeURIComponent(urlParams.get(URL.MODAL_PARAMS)));
 
   React.useEffect(() => {
-    doHideModal();
-  }, [pathname, doHideModal]);
+    if (modalUrlId && !modalUrlOpened.current && !modal?.id) {
+      doOpenModal(modalUrlId, modalUrlParams);
+      modalUrlOpened.current = true;
+    } else {
+      const newUrlParams = new URLSearchParams(search);
+      newUrlParams.delete(URL.MODAL);
+      newUrlParams.delete(URL.MODAL_PARAMS);
+      const newUrlParamsStr = newUrlParams.toString();
+
+      history.replaceState(history.state, '', `${pathname}${newUrlParamsStr ? `?${newUrlParamsStr}` : ''}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
+  }, [doOpenModal, search]);
+
+  React.useEffect(() => {
+    if (!modalUrlId) {
+      doHideModal();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
+  }, [search, doHideModal]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];

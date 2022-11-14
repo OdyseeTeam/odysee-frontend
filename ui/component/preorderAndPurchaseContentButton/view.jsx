@@ -12,6 +12,8 @@ import * as PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import { secondsToDhms } from 'util/time';
+import { EmbedContext } from 'contexts/embed';
+import { formatLbryUrlForWeb, getModalUrlParam } from 'util/url';
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
@@ -56,6 +58,8 @@ export default function PreorderAndPurchaseButton(props: Props) {
     canReceiveFiatTips,
     doTipAccountCheckForUri,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
 
   const [rentExpiresTime, setRentExpiresTime] = React.useState(false);
 
@@ -159,16 +163,28 @@ export default function PreorderAndPurchaseButton(props: Props) {
                   icon={fiatIconToUse}
                   button="primary"
                   label={__('Purchase or Rent')}
-                  requiresAuth
-                  onClick={() =>
-                    doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                  href={
+                    isEmbed &&
+                    `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                       uri,
                       purchaseTag,
                       doCheckIfPurchasedClaimId,
                       claimId: claim.claim_id,
                       tags,
                       humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
-                    })
+                    })}`
+                  }
+                  onClick={
+                    !isEmbed &&
+                    (() =>
+                      doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                        uri,
+                        purchaseTag,
+                        doCheckIfPurchasedClaimId,
+                        claimId: claim.claim_id,
+                        tags,
+                        humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
+                      }))
                   }
                 />
               </>
@@ -190,16 +206,28 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 icon={fiatIconToUse}
                 button="primary"
                 label={__('Rent')}
-                requiresAuth
-                onClick={() =>
-                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                href={
+                  isEmbed &&
+                  `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
                     purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
                     tags,
                     humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
-                  })
+                  })}`
+                }
+                onClick={
+                  !isEmbed &&
+                  (() =>
+                    doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                      uri,
+                      purchaseTag,
+                      doCheckIfPurchasedClaimId,
+                      claimId: claim.claim_id,
+                      tags,
+                      humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
+                    }))
                 }
               />
             </>
@@ -217,15 +245,26 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 icon={fiatIconToUse}
                 button="primary"
                 label={__('Purchase')}
-                requiresAuth
-                onClick={() =>
-                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                href={
+                  isEmbed &&
+                  `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
                     purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
                     tags,
-                  })
+                  })}`
+                }
+                onClick={
+                  !isEmbed &&
+                  (() =>
+                    doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                      uri,
+                      purchaseTag,
+                      doCheckIfPurchasedClaimId,
+                      claimId: claim.claim_id,
+                      tags,
+                    }))
                 }
               />
             </>
@@ -271,15 +310,26 @@ export default function PreorderAndPurchaseButton(props: Props) {
                   fiatSymbol,
                   preorderTag,
                 })}
-                requiresAuth
-                onClick={() =>
-                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                href={
+                  isEmbed &&
+                  `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
                     preorderTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
                     tags,
-                  })
+                  })}`
+                }
+                onClick={
+                  !isEmbed &&
+                  (() =>
+                    doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                      uri,
+                      preorderTag,
+                      doCheckIfPurchasedClaimId,
+                      claimId: claim.claim_id,
+                      tags,
+                    }))
                 }
               />
             </div>
