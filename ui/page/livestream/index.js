@@ -1,5 +1,9 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import {
+  selectClaimForUri,
+  selectUnlistedContentTag,
+  selectClaimIsMineForUri,
+} from 'redux/selectors/claims';
 import { doSetPrimaryUri } from 'redux/actions/content';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { getChannelIdFromClaim } from 'util/claim';
@@ -25,7 +29,10 @@ const select = (state, props) => {
   const { claim_id: claimId, canonical_url } = claim || {};
   const channelClaimId = getChannelIdFromClaim(claim);
 
+  const channelId = getChannelIdFromClaim(claim);
+
   return {
+    channelId,
     chatDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
@@ -35,6 +42,8 @@ const select = (state, props) => {
     theaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     uri: canonical_url || '',
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
+    claimIsMine: selectClaimIsMineForUri(state, uri),
   };
 };
 

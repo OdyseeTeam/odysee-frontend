@@ -3,6 +3,7 @@ import { formatLbryChannelName } from 'util/url';
 import { lazyImport } from 'util/lazyImport';
 import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
 import analytics from 'analytics';
+import Lbry from 'lbry';
 import LivestreamLayout from 'component/livestreamLayout';
 import moment from 'moment';
 import Page from 'component/page';
@@ -10,6 +11,7 @@ import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import Spinner from 'component/spinner';
+import { toHex } from 'util/hex';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
@@ -50,6 +52,9 @@ export default function LivestreamPage(props: Props) {
     theaterMode,
     doMembershipContentforStreamClaimId,
     contentUnlocked,
+    isUnlistedContent,
+    claimIsMine,
+    channelId,
   } = props;
 
   const isMobile = useIsMobile();
@@ -119,6 +124,32 @@ export default function LivestreamPage(props: Props) {
   React.useEffect(() => {
     setActiveStreamUri(!isCurrentClaimLive && isChannelBroadcasting ? activeLivestreamForChannel.claimUri : false);
   }, [isCurrentClaimLive, isChannelBroadcasting]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // add the signature and timestamp query params to url for unlisted if on own content
+  React.useEffect(() => {
+    (async function() {
+      if (isUnlistedContent && claimIsMine) {
+        let signedObject;
+
+        try {
+          signedObject = await Lbry.channel_sign({
+            channel_id: channelId,
+            hexdata: toHex(claimId),
+          });
+
+          signedObject['claim_id'] = channelId;
+          signedObject['name'] = claimId;
+        } catch (e) {}
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('signature', signedObject.signature);
+        url.searchParams.set('ts', signedObject.signing_ts);
+        window.history.replaceState(null, null, url); // or pushState
+
+        return signedObject;
+      }
+    })();
+  }, [claimIsMine, isUnlistedContent]);
 
   React.useEffect(() => {
     if (!isInitialized) return;
