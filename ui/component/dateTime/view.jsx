@@ -70,7 +70,7 @@ class DateTime extends React.Component<Props, State> {
     let timeToUse = '...';
     if (date) {
       if (timeAgo) {
-        timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds)
+        timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds);
       } else {
         if (type === 'date') {
           timeToUse = moment(date).format('MMMM Do, YYYY');

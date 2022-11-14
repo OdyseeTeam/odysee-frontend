@@ -212,7 +212,6 @@ export default function FilePage(props: Props) {
           l('error');
           l(error.message);
         });
-
     }
   }, [isUnlistedContent, claimIsMine]);
 
@@ -284,10 +283,10 @@ export default function FilePage(props: Props) {
   );
 
   l('pending unlisted auth');
-  l(pendingUnlistedAuth)
+  l(pendingUnlistedAuth);
 
   function renderFilePageLayout() {
-    if(pendingUnlistedAuth){
+    if (pendingUnlistedAuth) {
       return (
         <></>
       );
@@ -296,7 +295,7 @@ export default function FilePage(props: Props) {
     if (unauthedToViewUnlistedContent) {
       l('confirmed unauthed');
       return <><h2>This content is unlisted, please check with the creator for a proper link.
-        If you are the creator and it's not working as expected, please reach out to hello@odysee.com from the account that uploaded this.</h2></>
+        If you are the creator and it's not working as expected, please reach out to hello@odysee.com from the account that uploaded this.</h2></>;
     }
 
     if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {

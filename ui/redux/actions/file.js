@@ -13,10 +13,11 @@ import { doHideModal } from 'redux/actions/app';
 import { goBack } from 'connected-react-router';
 import { doClearPlayingUri } from 'redux/actions/content';
 import { selectPlayingUri } from 'redux/selectors/content';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectOutpointFetchingForUri } from 'redux/selectors/file_info';
-import { isStreamPlaceholderClaim } from 'util/claim';
+import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
@@ -124,6 +125,12 @@ export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) =
   if (alreadyFetching && !onSuccess) return;
 
   let claim = selectClaimForUri(state, uri);
+  const activeLivestreamForChannel = selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim));
+  const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+
+  // this will give back an error since there is no activeStreamingUrl yet
+  if (isLivestreamClaim && !activeLivestreamForChannel) return;
+
   if (!claim) {
     claim = await dispatch(doGetClaimFromUriResolve(uri));
   }

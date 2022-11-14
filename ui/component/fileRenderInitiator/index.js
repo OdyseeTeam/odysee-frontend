@@ -7,8 +7,6 @@ import {
   selectIsFiatPaidForUri,
   selectIsFiatRequiredForUri,
   selectIsFetchingPurchases,
-  selectUnlistedContentTag,
-  selectProtectedContentTagForUri
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
@@ -59,8 +57,6 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     contentRestrictedFromUser: claimId && selectIsProtectedContentLockedFromUserForId(state, claimId),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
-    isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
-    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
   };
 };
 
