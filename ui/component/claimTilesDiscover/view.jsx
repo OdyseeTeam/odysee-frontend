@@ -123,6 +123,7 @@ function ClaimTilesDiscover(props: Props) {
         }
 
         const uri = claim.canonical_url || claim.canonical_url;
+        // $FlowFixMe
         resolvedPinUris.push(uri);
       });
     }
@@ -204,8 +205,10 @@ function ClaimTilesDiscover(props: Props) {
   React.useEffect(() => {
     if (!hasPins) return;
 
+    // $FlowFixMe
     if (pins.claimIds) {
       doResolveClaimIds(pins.claimIds);
+      // $FlowFixMe
     } else if (pins.urls) {
       doResolveUris(pins.urls, true);
     }
