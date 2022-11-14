@@ -13,7 +13,6 @@ export { doTransifexUpload } from 'util/transifex-upload';
 
 // actions
 export { doGenerateAuthToken } from './redux/actions/auth';
-export { doFetchCostInfoForUri } from './redux/actions/cost_info';
 export { doBlackListedOutpointsSubscribe } from './redux/actions/blacklist';
 export { doFilteredOutpointsSubscribe } from './redux/actions/filtered';
 // export { doFetchFeaturedUris, doFetchTrendingUris } from './redux/actions/homepage';
@@ -30,7 +29,6 @@ export {
 
 // reducers
 export { authReducer } from './redux/reducers/auth';
-export { costInfoReducer } from './redux/reducers/cost_info';
 export { blacklistReducer } from './redux/reducers/blacklist';
 export { filteredReducer } from './redux/reducers/filtered';
 // export { homepageReducer } from './redux/reducers/homepage';
@@ -39,12 +37,6 @@ export { syncReducer } from './redux/reducers/sync';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from './redux/selectors/auth';
-export {
-  selectFetchingCostInfoForUri,
-  selectCostInfoForUri,
-  selectAllCostInfoByUri,
-  selectFetchingCostInfo,
-} from './redux/selectors/cost_info';
 export { selectBlackListedOutpoints, selectBlacklistedOutpointMap, selectIsClaimBlackListedForUri } from './redux/selectors/blacklist';
 export { selectFilteredOutpoints, selectFilteredOutpointMap, selectIsClaimFilteredForUri } from './redux/selectors/filtered';
 // export {

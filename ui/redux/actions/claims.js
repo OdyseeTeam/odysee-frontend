@@ -1,6 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
+import { Lbryio } from 'lbryinc';
 import Lbry from 'lbry';
 import { normalizeURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
@@ -29,6 +30,23 @@ import { PAGE_SIZE } from 'constants/claim';
 
 let onChannelConfirmCallback;
 let checkPendingInterval;
+
+async function getCostInfoForFee(fee: Fee) {
+  if (fee === undefined) {
+    return Promise.resolve({ cost: 0, includesData: true });
+  }
+
+  if (fee.currency === 'LBC') {
+    return Promise.resolve({ cost: fee.amount, includesData: true });
+  }
+
+  const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
+    cost: fee.amount / LBC_USD,
+    includesData: true,
+  }));
+
+  return Promise.resolve(exchangeRate);
+}
 
 export function doResolveUris(
   uris: Array<string>,
@@ -66,7 +84,7 @@ export function doResolveUris(
     dispatch({ type: ACTIONS.RESOLVE_URIS_START, data: { uris: normalizedUris } });
 
     return Lbry.resolve({ urls: urisToResolve, ...additionalOptions })
-      .then((response: ResolveResponse) => {
+      .then(async (response: ResolveResponse) => {
         const collectionIds = new Set([]);
         const repostsToResolve = new Set([]);
         const streamClaimIds = new Set([]);
@@ -136,6 +154,8 @@ export function doResolveUris(
                 resultResponse.channel = channel;
                 resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
               }
+
+              stream.costInfo = await getCostInfoForFee(stream.value ? stream.value.fee : undefined);
             }
 
             const channelId = getChannelIdFromClaim(uriResolveInfo);
@@ -726,12 +746,13 @@ export function doClaimSearch(
       let collectionResolveInfo;
       const shouldFetchPurchases = settings.fetchStripeTransactions && !options.has_no_source;
 
-      data.items.forEach((stream: Claim) => {
+      data.items.forEach(async (stream: Claim) => {
         resolveInfo[stream.canonical_url] = { stream };
         urls.push(stream.canonical_url);
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           streamClaimIds.add(stream.claim_id);
+          stream.costInfo = await getCostInfoForFee(stream.value ? stream.value.fee : undefined);
         }
 
         if (stream.value_type === 'collection') {

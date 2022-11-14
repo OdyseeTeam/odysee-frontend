@@ -21,6 +21,7 @@ import {
   selectValidRentalPurchaseForClaimId,
   selectClaimIdForUri,
   selectIsFiatRequiredForUri,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri, selectFileInfosByOutpoint } from 'redux/selectors/file_info';
 import {
@@ -35,7 +36,7 @@ import { doPurchaseUri } from 'redux/actions/file';
 import Lbry from 'lbry';
 import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
-import { selectCostInfoForUri, Lbryio, doFetchCostInfoForUri } from 'lbryinc';
+import { Lbryio } from 'lbryinc';
 import { selectClientSetting, selectosNotificationsEnabled } from 'redux/selectors/settings';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import {
@@ -385,11 +386,7 @@ export function doPlayUri(
     const claimWasPurchased = selectClaimWasPurchasedForUri(state, uri);
     const claimId = selectClaimIdForUri(state, uri);
 
-    let costInfo = selectCostInfoForUri(state, uri);
-    if (!costInfo) {
-      costInfo = await dispatch(doFetchCostInfoForUri(uri));
-    }
-
+    const costInfo = selectCostInfoForUri(state, uri);
     const cost = costInfo && Number(costInfo.cost);
     const instantPurchaseEnabled = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED);
     const instantPurchaseMax = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX);

@@ -10,11 +10,11 @@ import {
   selectRentalTagForUri,
   selectProtectedContentTagForUri,
   selectIsStreamPlaceholderForUri,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as SETTINGS from 'constants/settings';
-import { selectCostInfoForUri, doFetchCostInfoForUri } from 'lbryinc';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
@@ -63,7 +63,6 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doFetchCostInfoForUri,
   doSetContentHistoryItem,
   doSetPrimaryUri,
   doToggleAppDrawer,

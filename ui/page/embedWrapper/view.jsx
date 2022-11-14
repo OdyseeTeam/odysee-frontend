@@ -32,7 +32,6 @@ type Props = {
   doFetchLatestClaimForChannel: (uri: string, isEmbed: boolean) => void,
   doResolveUri: (uri: string) => void,
   doPlayUri: (uri: string) => void,
-  doFetchCostInfoForUri: (uri: string) => void,
   doFetchChannelLiveStatus: (string) => void,
   doCommentSocketConnect: (string, string, string, ?string) => void,
   doCommentSocketDisconnect: (string, string) => void,
@@ -63,7 +62,6 @@ const EmbedWrapperPage = (props: Props) => {
     doFetchLatestClaimForChannel,
     doResolveUri,
     doPlayUri,
-    doFetchCostInfoForUri,
     doFetchChannelLiveStatus,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
@@ -155,12 +153,6 @@ const EmbedWrapperPage = (props: Props) => {
     isNewestPath,
     latestClaimUrl,
   ]);
-
-  React.useEffect(() => {
-    if (haveClaim && uri) {
-      doFetchCostInfoForUri(uri);
-    }
-  }, [uri, haveClaim, doFetchCostInfoForUri]);
 
   useFetchLiveStatus(livestreamsFetched ? channelClaimId : undefined, doFetchChannelLiveStatus);
 

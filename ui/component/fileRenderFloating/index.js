@@ -5,6 +5,7 @@ import {
   selectClaimWasPurchasedForUri,
   selectGeoRestrictionForUri,
   selectClaimIsNsfwForUri,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
@@ -24,7 +25,6 @@ import {
 } from 'redux/selectors/content';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doClearQueueList } from 'redux/actions/collections';
-import { selectCostInfoForUri } from 'lbryinc';
 import { doUriInitiatePlay, doClearPlayingUri, doClearPlayingSource } from 'redux/actions/content';
 import { doFetchRecommendedContent } from 'redux/actions/search';
 import { withRouter } from 'react-router';
