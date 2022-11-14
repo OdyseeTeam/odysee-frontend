@@ -56,6 +56,17 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     const claimIsRestricted =
       !claimIsMine && (geoRestriction || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
 
+    const LoadingSpinner = React.useMemo(
+      () => () => (
+        <Wrapper>
+          <div className="main--empty">
+            <Spinner delayed={delayed} />
+          </div>
+        </Wrapper>
+      ),
+      [delayed]
+    );
+
     const resolveClaim = React.useCallback(
       () =>
         doResolveUri(
@@ -75,13 +86,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
 
     if (!hasClaim) {
       if (hasClaim === undefined) {
-        return (
-          <Wrapper>
-            <div className="main--empty">
-              <Spinner delayed={delayed} />
-            </div>
-          </Wrapper>
-        );
+        return <LoadingSpinner />;
       }
 
       return (
@@ -164,9 +169,11 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     }
 
     return (
-      <ClaimRenderWrapper>
-        <ClaimRenderComponent uri={uri} />
-      </ClaimRenderWrapper>
+      <React.Suspense fallback={<LoadingSpinner />}>
+        <ClaimRenderWrapper>
+          <ClaimRenderComponent uri={uri} />
+        </ClaimRenderWrapper>
+      </React.Suspense>
     );
   };
 
