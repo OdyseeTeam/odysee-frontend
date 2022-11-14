@@ -9,6 +9,7 @@ import FileViewCountInline from 'component/fileViewCountInline';
 import { getChannelSubCountStr, getChannelViewCountStr } from 'util/formatMediaDuration';
 import { toCompactNotation } from 'util/string';
 import { parseURI } from 'util/lbryURI';
+import { EmbedContext } from 'contexts/embed';
 
 const SPACED_BULLET = '\u00A0\u2022\u00A0';
 
@@ -29,6 +30,9 @@ type Props = {
 // previews used in channel overview and homepage (and other places?)
 function ClaimPreviewSubtitle(props: Props) {
   const { pending, uri, claim, type, beginPublish, isLivestream, fetchSubCount, subCount, showAtSign, lang } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
+
   const isChannel = claim && claim.value_type === 'channel';
   const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
@@ -50,7 +54,7 @@ function ClaimPreviewSubtitle(props: Props) {
     <div className="media__subtitle">
       {claim ? (
         <React.Fragment>
-          <UriIndicator uri={uri} showAtSign={showAtSign} link />{' '}
+          <UriIndicator uri={uri} showAtSign={showAtSign} link external={isEmbed} />
           {!pending && claim && (
             <>
               {isChannel && type !== 'inline' && (

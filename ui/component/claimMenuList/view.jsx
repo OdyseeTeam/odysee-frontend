@@ -1,5 +1,6 @@
 // @flow
 import { URL, SHARE_DOMAIN_URL } from 'config';
+import { NavLink } from 'react-router-dom';
 import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
@@ -14,6 +15,7 @@ import Icon from 'component/common/icon';
 import { generateShareUrl, generateRssUrl, generateLbryContentUrl, formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { buildURI, parseURI } from 'util/lbryURI';
+import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
@@ -122,6 +124,8 @@ function ClaimMenuList(props: Props) {
     doPlaylistAddAndAllowPlaying,
     isContentProtectedAndLocked,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
 
   const isChannelPage = React.useContext(ChannelPageContext);
 
@@ -548,11 +552,18 @@ function ClaimMenuList(props: Props) {
         )}
 
         {!claimIsMine && !isMyCollection && (
-          <MenuItem className="comment__menu-option" onSelect={handleReportContent}>
-            <div className="menu__link">
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={isEmbed ? (e) => e.preventDefault() : handleReportContent}
+          >
+            <NavLink
+              className="menu__link"
+              to={{ pathname: `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim && contentClaim.claim_id}` }}
+              target={isEmbed && '_blank'}
+            >
               <Icon aria-hidden icon={ICONS.REPORT} />
               {__('Report Content')}
-            </div>
+            </NavLink>
           </MenuItem>
         )}
       </MenuList>
