@@ -1,5 +1,5 @@
 declare type BlocklistState = {
-  blockedChannels: Array<string>,
+  blockedChannels: ?Array<string>,
   geoBlockedList: ?GBL,
 };
 
