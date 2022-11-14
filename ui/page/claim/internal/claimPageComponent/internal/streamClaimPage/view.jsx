@@ -30,7 +30,6 @@ type Props = {
   costInfo: ?{ includesData: boolean, cost: number },
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doClearPlayingUri: () => void,
-  doFetchCostInfoForUri: (uri: string) => void,
   doFileGetForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
@@ -73,7 +72,6 @@ export default function StreamClaimPage(props: Props) {
     claimWasPurchased,
     commentsListTitle,
     doCheckIfPurchasedClaimId,
-    doFetchCostInfoForUri,
     doFileGetForUri,
     doMembershipContentforStreamClaimId,
     doMembershipMine,
@@ -128,22 +126,12 @@ export default function StreamClaimPage(props: Props) {
   }, [claimId]);
 
   React.useEffect(() => {
-    // See https://github.com/lbryio/lbry-desktop/pull/1563 for discussion
-    doFetchCostInfoForUri(uri);
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);
     if (claimWasPurchased && !hasFileInfo) doFileGetForUri(uri);
 
     return () => doSetPrimaryUri(null);
-  }, [
-    claimWasPurchased,
-    doFetchCostInfoForUri,
-    doFileGetForUri,
-    doSetContentHistoryItem,
-    doSetPrimaryUri,
-    hasFileInfo,
-    uri,
-  ]);
+  }, [claimWasPurchased, doFileGetForUri, doSetContentHistoryItem, doSetPrimaryUri, hasFileInfo, uri]);
 
   if (isMarkdown) {
     return (

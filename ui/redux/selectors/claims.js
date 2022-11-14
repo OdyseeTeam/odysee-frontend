@@ -1087,3 +1087,10 @@ export const selectClaimHasSupportsForUri = (state: State, uri: string) => {
 
   return hasSupport;
 };
+
+export const selectCostInfoForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim;
+
+  return claim.costInfo;
+};

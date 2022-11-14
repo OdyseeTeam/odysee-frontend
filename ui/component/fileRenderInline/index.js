@@ -6,13 +6,13 @@ import {
   selectClaimIsMine,
   selectIsFiatRequiredForUri,
   selectIsFiatPaidForUri,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { makeSelectFileRenderModeForUri, selectFileIsPlayingOnPage } from 'redux/selectors/content';
 import { withRouter } from 'react-router';
 import { doAnalyticsView } from 'redux/actions/app';
 import FileRenderInline from './view';
-import { selectCostInfoForUri } from 'lbryinc';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {

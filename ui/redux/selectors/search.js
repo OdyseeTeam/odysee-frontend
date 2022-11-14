@@ -8,6 +8,7 @@ import {
   selectClaimIsNsfwForUri,
   makeSelectPendingClaimForUri,
   selectIsUriResolving,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import { isClaimNsfw } from 'util/claim';
@@ -16,7 +17,6 @@ import { createCachedSelector } from 're-reselect';
 import { createNormalizedSearchKey, getRecommendationSearchKey, getRecommendationSearchOptions } from 'util/search';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectHistory } from 'redux/selectors/content';
-import { selectAllCostInfoByUri } from 'lbryinc';
 import * as SETTINGS from 'constants/settings';
 
 type State = { claims: any, search: SearchState, user: UserState };
@@ -81,8 +81,8 @@ export const selectRecommendedContentForUri = createCachedSelector(
   selectRecommendedContentRawForUri, // (state, uri)
   selectClaimsByUri,
   selectMutedChannels,
-  selectAllCostInfoByUri,
-  (uri, history, rawRecommendations, claimsByUri, blockedChannels, costInfoByUri) => {
+  selectCostInfoForUri,
+  (uri, history, rawRecommendations, claimsByUri, blockedChannels, costInfo) => {
     const claim = claimsByUri[uri];
     if (!claim) return;
 
@@ -117,7 +117,6 @@ export const selectRecommendedContentForUri = createCachedSelector(
       // Claim to play next: playable and free claims not played before in history
       for (let i = 0; i < recommendedContent.length; ++i) {
         const nextRecommendedUri = recommendedContent[i];
-        const costInfo = costInfoByUri[nextRecommendedUri] && costInfoByUri[nextRecommendedUri].cost;
         const recommendedClaim = claimsByUri[nextRecommendedUri];
         const isVideo = recommendedClaim && recommendedClaim.value && recommendedClaim.value.stream_type === 'video';
         const isAudio = recommendedClaim && recommendedClaim.value && recommendedClaim.value.stream_type === 'audio';

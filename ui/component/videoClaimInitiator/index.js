@@ -7,10 +7,10 @@ import {
   selectIsFiatPaidForUri,
   selectIsFiatRequiredForUri,
   selectIsFetchingPurchases,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
-import { selectCostInfoForUri } from 'lbryinc';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { withRouter } from 'react-router';

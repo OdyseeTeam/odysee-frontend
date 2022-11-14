@@ -9,10 +9,10 @@ import {
   selectProtectedContentTagForUri,
   selectIsFiatRequiredForUri,
   selectIsFiatPaidForUri,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doPrepareEdit } from 'redux/actions/publish';
-import { selectCostInfoForUri } from 'lbryinc';
 import { doDownloadUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
 import { doOpenModal } from 'redux/actions/app';
