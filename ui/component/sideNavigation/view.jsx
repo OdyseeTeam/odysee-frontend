@@ -504,8 +504,10 @@ function SideNavigation(props: Props) {
   }, [hideMenuFromView, menuInitialized]);
 
   React.useEffect(() => {
-    doFetchLastActiveSubs();
-  }, []);
+    if (sidebarOpen) {
+      doFetchLastActiveSubs();
+    }
+  }, [doFetchLastActiveSubs, sidebarOpen]);
 
   // **************************************************************************
   // **************************************************************************
