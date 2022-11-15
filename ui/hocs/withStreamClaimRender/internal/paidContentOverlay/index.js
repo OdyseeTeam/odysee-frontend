@@ -5,6 +5,7 @@ import {
   selectClaimForId,
   selectPurchaseTagForUri,
   selectRentalTagForUri,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import PaidContentOvelay from './view';
 import { doOpenModal } from 'redux/actions/app';
@@ -21,6 +22,7 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, uri),
     purchaseTag: selectPurchaseTagForUri(state, uri),
     rentalTag: selectRentalTagForUri(state, uri),
+    costInfo: selectCostInfoForUri(state, uri),
   };
 };
 

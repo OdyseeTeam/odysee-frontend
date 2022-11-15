@@ -112,9 +112,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
     const shouldAutoplay = autoplayVideo || autoRenderClaim;
 
-    const sdkFeeRequired = costInfo === undefined || (costInfo && costInfo.cost !== 0);
+    const sdkFeePending = costInfo === undefined || (costInfo && costInfo.cost !== 0);
     const pendingFiatPayment = !claimIsMine && fiatRequired && (!fiatPaid || isFetchingPurchases);
-    const pendingSdkPayment = !claimIsMine && sdkFeeRequired && !sdkPaid;
+    const pendingSdkPayment = !claimIsMine && sdkFeePending && !sdkPaid;
     const pendingPurchase = pendingFiatPayment || pendingSdkPayment;
 
     // false means no restrictions, undefined === fetching, true === restricted

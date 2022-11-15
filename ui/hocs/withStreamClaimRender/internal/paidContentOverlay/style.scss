@@ -26,7 +26,7 @@ $ICON_OFFSET: 2px; // depends on font used. boo.
   color: white;
   background-color: rgba(0, 0, 0, 0.5);
 
-  .button--primary {
+  .purchase-button:not(.purchase-button--fee) {
     background-color: var(--color-fiat-payment) !important;
   }
 }

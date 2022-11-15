@@ -9,7 +9,7 @@ type Props = {
   doHideModal: () => void,
 };
 
-class ModalPreorderContent extends React.PureComponent<Props> {
+class ModalPreorderAndPurchaseContent extends React.PureComponent<Props> {
   render() {
     const { uri, doHideModal } = this.props;
 
@@ -21,4 +21,4 @@ class ModalPreorderContent extends React.PureComponent<Props> {
   }
 }
 
-export default ModalPreorderContent;
+export default ModalPreorderAndPurchaseContent;

@@ -11,6 +11,8 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import withCreditCard from 'hocs/withCreditCard';
 import { secondsToDhms } from 'util/time';
+import Icon from 'component/common/icon';
+import I18nMessage from 'component/i18nMessage';
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
@@ -43,9 +45,11 @@ type Props = {
   preorderTag: number,
   purchaseTag: ?number,
   rentalTag: RentalTagParams,
+  costInfo: any,
   doHideModal: () => void,
   doPurchaseClaimForUri: (params: { uri: string, type: string }) => void,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
+  doPlayUri: (params: { uri: string, collection: { collectionId: ?string } }) => void,
 };
 
 export default function PreorderAndPurchaseContentCard(props: Props) {
@@ -56,13 +60,16 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     rentalTag,
     purchaseTag,
     preorderTag,
+    costInfo,
     doHideModal,
     doPurchaseClaimForUri,
     doCheckIfPurchasedClaimId,
+    doPlayUri,
   } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
   const tags = { rentalTag, purchaseTag, preorderTag };
+  const sdkFeeRequired = costInfo && costInfo.cost > 0;
 
   let tipAmount = 0;
   let rentTipAmount = 0;
@@ -123,7 +130,19 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
 
-            {waitingForBackend ? (
+            {sdkFeeRequired ? (
+              <Button
+                button="primary"
+                requiresAuth
+                onClick={() => doPlayUri(uri, true, undefined, doHideModal)}
+                label={
+                  <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost }}>
+                    Purchase for %currency%%amount%
+                  </I18nMessage>
+                }
+                icon={ICONS.BUY}
+              />
+            ) : waitingForBackend ? (
               <BusyIndicator message={__('Processing order...')} />
             ) : (
               <SubmitArea

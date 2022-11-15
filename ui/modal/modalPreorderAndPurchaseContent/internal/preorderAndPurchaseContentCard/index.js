@@ -4,7 +4,9 @@ import {
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
   selectRentalTagForUri,
+  selectCostInfoForUri,
 } from 'redux/selectors/claims';
+import { doPlayUri } from 'redux/actions/content';
 import { doHideModal } from 'redux/actions/app';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doPurchaseClaimForUri } from 'redux/actions/wallet';
@@ -25,6 +27,7 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, uri),
     purchaseTag: selectPurchaseTagForUri(state, uri),
     rentalTag: selectRentalTagForUri(state, uri),
+    costInfo: selectCostInfoForUri(state, uri),
   };
 };
 
@@ -32,6 +35,7 @@ const perform = {
   doHideModal,
   doPurchaseClaimForUri,
   doCheckIfPurchasedClaimId,
+  doPlayUri,
 };
 
 export default withRouter(connect(select, perform)(PreorderAndPurchaseContent));
