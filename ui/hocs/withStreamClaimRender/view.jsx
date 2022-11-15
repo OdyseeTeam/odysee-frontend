@@ -5,9 +5,9 @@ import analytics from 'analytics';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
-import ProtectedContentOverlay from 'component/protectedContentOverlay';
+import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
-import PaidContentOverlay from 'component/paidContentOverlay';
+import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
 import Button from 'component/button';
 
