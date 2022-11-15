@@ -92,7 +92,7 @@ export const selectPinnedCommentsForUri = createCachedSelector(
 export const selectModerationBlockList = createSelector(
   (state) => selectState(state).moderationBlockList,
   (moderationBlockList) => {
-    return moderationBlockList !== undefined ? (moderationBlockList ? moderationBlockList.reverse() : []) : undefined;
+    return moderationBlockList ? moderationBlockList.reverse() : [];
   }
 );
 export const selectAdminBlockList = createSelector(selectState, (state) =>
@@ -386,7 +386,7 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
         if (claimId) {
           const claimIdIsMine = myClaimIds && myClaimIds.size > 0 && myClaimIds.includes(claimId);
           if (!claimIdIsMine) {
-            if (personalBlockList && personalBlockList.includes(comment.channel_url)) {
+            if (personalBlockList.includes(comment.channel_url)) {
               return false;
             }
           }

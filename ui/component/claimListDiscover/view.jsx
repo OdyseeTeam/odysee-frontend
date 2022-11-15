@@ -19,6 +19,7 @@ import I18nMessage from 'component/i18nMessage';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
+import useResolvePins from 'effects/use-resolve-pins';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
@@ -204,29 +205,7 @@ function ClaimListDiscover(props: Props) {
     doResolveClaimIds,
   } = props;
 
-  const hasPins = pins && (pins.claimIds || pins.urls);
-  const resolvedPinUris = React.useMemo(() => {
-    if (!hasPins) return undefined;
-
-    let resolvedPinUris = [];
-
-    if (pins && pins.claimIds) {
-      pins.claimIds.some((id) => {
-        const claim = claimsById[id];
-        if (!claim) {
-          resolvedPinUris = undefined;
-          return;
-        }
-
-        const uri = claim.canonical_url || claim.canonical_url;
-        // $FlowFixMe
-        resolvedPinUris.push(uri);
-      });
-    }
-
-    return resolvedPinUris;
-  }, [claimsById, hasPins, pins]);
-
+  const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;
   const prevUris = React.useRef();
@@ -241,10 +220,9 @@ function ClaimListDiscover(props: Props) {
     (defaultTags && getParamFromTags(defaultTags));
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
   const sortByParam = sortBy || urlParams.get(CS.SORT_BY_KEY) || CS.SORT_BY.NEWEST.key;
-  const mutedAndBlockedChannelIds =
-    mutedUris &&
-    blockedUris &&
-    Array.from(new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1])));
+  const mutedAndBlockedChannelIds = Array.from(
+    new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1]))
+  );
   const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
 
@@ -341,6 +319,8 @@ function ClaimListDiscover(props: Props) {
 
   if (channelIdsParam) {
     options.channel_ids = channelIdsParam;
+  } else if (pins) {
+    options.claim_ids = pins.claimIds;
   }
 
   if (excludedIdsParam) {
@@ -504,20 +484,16 @@ function ClaimListDiscover(props: Props) {
   }
 
   const shouldPerformSearch =
-    // -- pins alone will be resolved by the doResolveUris/doResolveClaimIds call
-    hasPins && !channelIdsParam
-      ? false
-      : mutedAndBlockedChannelIds &&
-        !uris &&
-        (claimSearchResult === undefined ||
-          didNavigateForward ||
-          (!loading &&
-            !claimSearchResultLastPageReached &&
-            claimSearchResult &&
-            claimSearchResult.length &&
-            // $FlowIgnore: page is always defined in this component
-            claimSearchResult.length < dynamicPageSize * options.page &&
-            claimSearchResult.length % dynamicPageSize === 0));
+    !uris &&
+    (claimSearchResult === undefined ||
+      didNavigateForward ||
+      (!loading &&
+        !claimSearchResultLastPageReached &&
+        claimSearchResult &&
+        claimSearchResult.length &&
+        // $FlowIgnore: page is always defined in this component
+        claimSearchResult.length < dynamicPageSize * options.page &&
+        claimSearchResult.length % dynamicPageSize === 0));
 
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
   const optionsStringForEffect = JSON.stringify(options);
@@ -554,18 +530,6 @@ function ClaimListDiscover(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  React.useEffect(() => {
-    if (!hasPins) return;
-
-    // $FlowFixMe
-    if (pins.claimIds) {
-      doResolveClaimIds(pins.claimIds);
-      // $FlowFixMe
-    } else if (pins.urls) {
-      doResolveUris(pins.urls, true);
-    }
-  }, [pins, doResolveUris, doResolveClaimIds, hasPins]);
-
   const excludeUrisStr = JSON.stringify(excludeUris);
 
   React.useEffect(() => {
@@ -578,35 +542,20 @@ function ClaimListDiscover(props: Props) {
       const newFinalUris = filterExcludedUris(newUris, excludeUris);
 
       setFinalUris(newFinalUris);
-    } else if (claimSearchResult) {
+    } else {
       // --- searched uris
       if (isUnfetchedClaimSearch && prevUris.current) {
         setFinalUris(prevUris.current);
-      } else if (!hasPins) {
-        setFinalUris(claimSearchResult);
-        prevUris.current = claimSearchResult;
       } else {
         const newUris = Array.from(new Set(claimSearchResult));
-        const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
-        const newFinalUris = filterExcludedUris(injected, excludeUris);
+        injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+        const newFinalUris = filterExcludedUris(newUris, excludeUris);
 
         setFinalUris(newFinalUris);
         prevUris.current = newFinalUris;
       }
-    } else if (resolvedPinUris && !channelIdsParam) {
-      setFinalUris(resolvedPinUris);
     }
-  }, [
-    channelIdsParam,
-    claimSearchResult,
-    excludeUrisStr,
-    hasPins,
-    isUnfetchedClaimSearch,
-    orderParam,
-    pins,
-    resolvedPinUris,
-    uris,
-  ]);
+  }, [claimSearchResult, excludeUrisStr, isUnfetchedClaimSearch, orderParam, pins, resolvedPinUris, uris]);
 
   // **************************************************************************
   // Helpers
@@ -689,15 +638,11 @@ function ClaimListDiscover(props: Props) {
   }
 
   function injectPinUrls(uris, order, pins, resolvedPinUris) {
-    if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
+    if (!pins || !uris || uris.length <= 2 || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
       return;
     }
 
     if (resolvedPinUris) {
-      if (uris.length < resolvedPinUris.length) {
-        return uris.concat(resolvedPinUris);
-      }
-
       resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
           uris.splice(uris.indexOf(pin), 1);
@@ -706,7 +651,7 @@ function ClaimListDiscover(props: Props) {
         }
       });
 
-      return uris.splice(2, 0, ...resolvedPinUris);
+      uris.splice(2, 0, ...resolvedPinUris);
     }
   }
 
@@ -780,11 +725,6 @@ function ClaimListDiscover(props: Props) {
     />
   );
 
-  const claimListLoading =
-    loading ||
-    mutedAndBlockedChannelIds === undefined ||
-    (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
-
   return (
     <React.Fragment>
       {headerLabel && <label className="claim-list__header-label">{headerLabel}</label>}
@@ -802,7 +742,7 @@ function ClaimListDiscover(props: Props) {
           {subSection && <div>{subSection}</div>}
           <ClaimList
             tileLayout
-            loading={claimListLoading}
+            loading={loading}
             uris={finalUris}
             prefixUris={prefixUris}
             onScrollBottom={handleScrollBottom}
@@ -821,8 +761,7 @@ function ClaimListDiscover(props: Props) {
             swipeLayout={swipeLayout}
             onHidden={onHidden}
           />
-
-          {claimListLoading && useSkeletonScreen && (
+          {loading && useSkeletonScreen && (
             <div className="claim-grid">
               {new Array(dynamicPageSize).fill(1).map((x, i) => (
                 <ClaimPreviewTile key={i} placeholder="loading" pulse />
@@ -844,7 +783,7 @@ function ClaimListDiscover(props: Props) {
           {subSection && <div>{subSection}</div>}
           <ClaimList
             type={type}
-            loading={claimListLoading}
+            loading={loading}
             uris={finalUris}
             prefixUris={prefixUris}
             onScrollBottom={handleScrollBottom}
@@ -863,8 +802,7 @@ function ClaimListDiscover(props: Props) {
             swipeLayout={swipeLayout}
             onHidden={onHidden}
           />
-
-          {claimListLoading &&
+          {loading &&
             useSkeletonScreen &&
             new Array(dynamicPageSize)
               .fill(1)

@@ -864,8 +864,6 @@ export const selectPreorderContentClaimIdForUri = createCachedSelector(
 )((state, uri) => String(uri));
 
 export const selectFetchingClaimSearchByQuery = (state: State) => selectState(state).fetchingClaimSearchByQuery || {};
-export const selectIsFetchingClaimSearchForQuery = (state: State, query: string) =>
-  selectFetchingClaimSearchByQuery(state)[query] || false;
 
 export const selectFetchingClaimSearch = createSelector(
   selectFetchingClaimSearchByQuery,

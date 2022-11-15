@@ -1551,7 +1551,7 @@ export function doFetchModBlockedList() {
 export const doUpdateBlockListForPublishedChannel = (channelClaim: ChannelClaim) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const blockedUris = selectModerationBlockList(state) || [];
+    const blockedUris = selectModerationBlockList(state);
 
     let channelSignature: ?{
       signature: string,
