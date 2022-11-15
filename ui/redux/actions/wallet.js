@@ -17,8 +17,22 @@ import {
 import { resolveApiMessage } from 'util/api-message';
 import { creditsToString } from 'util/format-credits';
 import { dispatchToast } from 'util/toast-wrappers';
-import { selectMyClaimsRaw, selectClaimsById } from 'redux/selectors/claims';
+import {
+  selectMyClaimsRaw,
+  selectClaimsById,
+  selectClaimForUri,
+  selectPreorderTagForUri,
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
+} from 'redux/selectors/claims';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { getChannelFromClaim } from 'util/claim';
 import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
+
+import { getStripeEnvironment } from 'util/stripe';
+const stripeEnvironment = getStripeEnvironment();
+
 const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
 
@@ -805,34 +819,58 @@ export const doSendCashTip = (
     });
 };
 
-export const preOrderPurchase = (
-  tipParams,
-  anonymous,
-  userParams,
-  claimId,
-  stripeEnvironment,
-  preferredCurrency,
-  type,
-  expirationTime,
-  successCallback,
-  failureCallback
-) => (dispatch) => {
-  Lbryio.call(
+export const doPurchaseClaimForUri = ({ uri, transactionType }) => (dispatch, getState) => {
+  const state = getState();
+  const claim = selectClaimForUri(state, uri);
+  const channelClaim = getChannelFromClaim(claim);
+
+  if (!channelClaim) return Promise.resolve();
+
+  const { claim_id: channelClaimId, name: tipChannelName } = channelClaim;
+
+  const activeChannelClaim = selectActiveChannelClaim(state);
+  const preferredCurrency = selectPreferredCurrency(state);
+
+  const preorderTag = selectPreorderTagForUri(state, uri);
+  const purchaseTag = selectPurchaseTagForUri(state, uri);
+  const rentalTag = selectRentalTagForUri(state, uri);
+  const tags = { rentalTag, purchaseTag, preorderTag };
+
+  const itsARental = transactionType === 'rental';
+
+  let tipAmount = 0;
+  let rentTipAmount = 0;
+
+  if (tags.purchaseTag && tags.rentalTag) {
+    tipAmount = tags.purchaseTag;
+    rentTipAmount = tags.rentalTag.price;
+  } else if (tags.purchaseTag) {
+    tipAmount = tags.purchaseTag;
+  } else if (tags.rentalTag) {
+    tipAmount = tags.rentalTag.price;
+  } else if (tags.preorderTag) {
+    tipAmount = tags.preorderTag;
+  }
+
+  const amount = itsARental ? rentTipAmount : tipAmount;
+  const expirationTime = itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
+
+  return Lbryio.call(
     'customer',
     'new_transaction',
     {
       // round to fix issues with floating point numbers
-      amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
-      creator_channel_name: tipParams.tipChannelName, // creator_channel_name
-      creator_channel_claim_id: tipParams.channelClaimId,
-      tipper_channel_name: userParams.activeChannelName,
-      tipper_channel_claim_id: userParams.activeChannelId,
+      amount: Math.round(100 * amount), // convert from dollars to cents
+      creator_channel_name: tipChannelName,
+      creator_channel_claim_id: channelClaimId,
+      ...(activeChannelClaim
+        ? { tipper_channel_name: activeChannelClaim.name, tipper_channel_claim_id: activeChannelClaim.claim_id }
+        : { anonymous: true }),
       currency: preferredCurrency || 'USD',
-      anonymous: anonymous,
-      source_claim_id: claimId,
       environment: stripeEnvironment,
-      target_claim_id: claimId,
-      type,
+      source_claim_id: claim.claim_id,
+      target_claim_id: claim.claim_id,
+      type: transactionType,
       validity_seconds: expirationTime,
     },
     'post'
@@ -853,16 +891,9 @@ export const preOrderPurchase = (
         },
       };
 
-      const stringsToUse = STRINGS[type];
+      const stringsToUse = STRINGS[transactionType];
 
-      dispatch(
-        doToast({
-          message: __(stringsToUse.title),
-          subMessage: __(stringsToUse.subtitle),
-        })
-      );
-
-      if (successCallback) successCallback(customerTipResponse);
+      dispatch(doToast({ message: __(stringsToUse.title), subMessage: __(stringsToUse.subtitle) }));
     })
     .catch((error) => {
       dispatch(
@@ -871,7 +902,5 @@ export const preOrderPurchase = (
           isError: true,
         })
       );
-
-      if (failureCallback) failureCallback(error);
     });
 };
