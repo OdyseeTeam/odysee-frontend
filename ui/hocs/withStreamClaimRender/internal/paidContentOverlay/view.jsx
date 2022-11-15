@@ -10,6 +10,7 @@ import Button from 'component/button';
 import { secondsToDhms } from 'util/time';
 import { EmbedContext } from 'contexts/embed';
 import { formatLbryUrlForWeb, getModalUrlParam } from 'util/url';
+import I18nMessage from 'component/i18nMessage';
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
@@ -21,6 +22,7 @@ type Props = {
   preorderTag: number,
   purchaseTag: string,
   rentalTag: RentalTagParams,
+  costInfo: any,
   doOpenModal: (string, {}) => void,
 };
 
@@ -33,12 +35,14 @@ export default function PaidContentOvelay(props: Props) {
     preorderTag, // the price of the preorder
     purchaseTag, // the price of the purchase
     rentalTag,
+    costInfo,
     doOpenModal,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
 
   const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
+  const sdkFeeRequired = costInfo && costInfo.cost > 0;
 
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
@@ -51,8 +55,7 @@ export default function PaidContentOvelay(props: Props) {
   const ButtonPurchase = React.useMemo(
     () => ({ label }: { label: string }) => (
       <Button
-        iconColor="red"
-        className="purchase-button"
+        className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
         icon={fiatIconToUse}
         button="primary"
         label={label}
@@ -62,14 +65,25 @@ export default function PaidContentOvelay(props: Props) {
         onClick={!isEmbed && (() => doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri }))}
       />
     ),
-    [doOpenModal, fiatIconToUse, isEmbed, uri]
+    [doOpenModal, fiatIconToUse, isEmbed, sdkFeeRequired, uri]
   );
 
   return (
     <div className="paid-content-overlay">
       <div className="paid-content-overlay__body">
         <div className="paid-content-prompt paid-content-prompt--overlay">
-          {rentalTag && purchaseTag ? (
+          {sdkFeeRequired ? (
+            <>
+              <div className="paid-content-prompt__price">
+                <Icon icon={ICONS.BUY} />
+                <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost }}>
+                  Purchase for %currency%%amount%
+                </I18nMessage>
+              </div>
+
+              <ButtonPurchase label={__('Purchase')} />
+            </>
+          ) : rentalTag && purchaseTag ? (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
