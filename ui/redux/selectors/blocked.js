@@ -15,7 +15,7 @@ export const selectGeoBlockLists = (state: State) => selectState(state).geoBlock
 
 export const makeSelectChannelIsMuted = (uri: string) =>
   createSelector(selectMutedChannels, (state: Array<string>) => {
-    return state.includes(uri);
+    return state !== undefined ? state.includes(uri) || [] : undefined;
   });
 
 export const selectMutedAndBlockedChannelIds = createSelector(
