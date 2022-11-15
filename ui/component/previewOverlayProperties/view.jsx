@@ -41,6 +41,7 @@ export default function PreviewOverlayProperties(props: Props) {
     isPrivateContent,
     isScheduledContent,
   } = props;
+
   const isCollection = claim && claim.value_type === 'collection';
   // $FlowFixMe
   const claimLength = claim && claim.value && claim.value.claims && claim.value.claims.length;

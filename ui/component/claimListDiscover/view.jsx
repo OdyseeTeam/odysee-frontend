@@ -129,85 +129,85 @@ type Props = {
 
 function ClaimListDiscover(props: Props) {
   const {
-    doClaimSearch,
-    claimSearchByQuery,
-    showHeader = true,
-    type,
-    duration,
-    claimSearchByQueryLastPageReached,
-    tags,
-    notTags,
-    defaultTags,
-    loading,
-    meta,
-    subSection,
-    channelIds,
-    excludedChannelIds,
-    showNsfw,
-    hideReposts,
-    fetchViewCount,
-    history,
-    location,
-    mutedUris,
     blockedUris,
-    hiddenNsfwMessage,
-    defaultOrderBy,
-    sortBy,
-    orderBy,
-    headerLabel,
-    header,
-    name,
+    channelIds,
+    claimIds,
+    claimSearchByQuery,
+    claimSearchByQueryLastPageReached,
     claimType,
+    claimsById,
+    claimsByUri,
+    csOptionsHook,
     defaultClaimType,
-    streamType,
+    defaultFreshness = CS.FRESH_WEEK,
+    defaultOrderBy,
     defaultStreamType,
     contentType,
-    freshness,
-    defaultFreshness = CS.FRESH_WEEK,
-    renderProperties,
-    csOptionsHook,
-    includeSupportAction,
-    repostedClaimId,
-    hideAdvancedFilter,
-    hideMembersOnly,
-    infiniteScroll = true,
-    followedTags,
-    injectedItem,
-    feeAmount,
-    uris,
-    prefixUris,
-    pins,
-    tileLayout,
-    hideFilters = false,
-    claimIds,
-    maxPages,
-    hideRepostsOverride,
-    languageSetting,
-    searchLanguages,
-    searchInLanguage,
-    ignoreSearchInLanguage,
-    limitClaimsPerChannel,
-    releaseTime,
-    scrollAnchor,
-    showHiddenByUser = false,
-    hasSource,
-    hasNoSource,
-    isChannel = false,
-    showNoSourceClaims,
-    empty,
-    claimsByUri,
-    claimsById,
-    doFetchViewCount,
-    hideLayoutButton = false,
-    loadedCallback,
-    maxClaimRender,
-    useSkeletonScreen = true,
-    excludeUris = [],
-    doFetchOdyseeMembershipForChannelIds,
+    defaultTags,
+    doClaimSearch,
     doFetchItemsInCollection,
-    swipeLayout = false,
-    doResolveUris,
+    doFetchOdyseeMembershipForChannelIds,
+    doFetchViewCount,
     doResolveClaimIds,
+    doResolveUris,
+    duration,
+    empty,
+    excludeUris = [],
+    excludedChannelIds,
+    feeAmount,
+    fetchViewCount,
+    followedTags,
+    freshness,
+    hasNoSource,
+    hasSource,
+    header,
+    headerLabel,
+    hiddenNsfwMessage,
+    hideAdvancedFilter,
+    hideFilters = false,
+    hideLayoutButton = false,
+    hideMembersOnly,
+    hideReposts,
+    hideRepostsOverride,
+    history,
+    ignoreSearchInLanguage,
+    includeSupportAction,
+    infiniteScroll = true,
+    injectedItem,
+    isChannel = false,
+    languageSetting,
+    limitClaimsPerChannel,
+    loadedCallback,
+    loading,
+    location,
+    maxClaimRender,
+    maxPages,
+    meta,
+    mutedUris,
+    name,
+    notTags,
+    orderBy,
+    pins,
+    prefixUris,
+    releaseTime,
+    renderProperties,
+    repostedClaimId,
+    scrollAnchor,
+    searchInLanguage,
+    searchLanguages,
+    showHeader = true,
+    showHiddenByUser = false,
+    showNoSourceClaims,
+    showNsfw,
+    sortBy,
+    streamType,
+    subSection,
+    swipeLayout = false,
+    tags,
+    tileLayout,
+    type,
+    uris,
+    useSkeletonScreen = true,
   } = props;
 
   const hasPins = pins && (pins.claimIds || pins.urls);
@@ -373,7 +373,7 @@ function ClaimListDiscover(props: Props) {
     options.release_time = releaseTime;
   } else if (claimTypeParam !== CS.CLAIM_CHANNEL) {
     if (orderParam === CS.ORDER_BY_TOP && freshnessParam !== CS.FRESH_ALL) {
-      options.release_time = `>${Math.floor(moment().subtract(1, freshnessParam).startOf('hour').unix())}`;
+      // options.release_time = `>${Math.floor(moment().subtract(1, freshnessParam).startOf('hour').unix())}`;
     } else if (orderParam === CS.ORDER_BY_NEW || orderParam === CS.ORDER_BY_TRENDING) {
       // Warning - hack below
       // If users are following more than 10 channels or tags, limit results to stuff less than a year old
@@ -384,15 +384,15 @@ function ClaimListDiscover(props: Props) {
         (options.channel_ids && options.channel_ids.length > 20) ||
         (options.any_tags && options.any_tags.length > 20)
       ) {
-        options.release_time = `>${Math.floor(moment().subtract(3, CS.FRESH_MONTH).startOf('week').unix())}`;
+        // options.release_time = `>${Math.floor(moment().subtract(3, CS.FRESH_MONTH).startOf('week').unix())}`;
       } else if (
         (options.channel_ids && options.channel_ids.length > 10) ||
         (options.any_tags && options.any_tags.length > 10)
       ) {
-        options.release_time = `>${Math.floor(moment().subtract(1, CS.FRESH_YEAR).startOf('week').unix())}`;
+        // options.release_time = `>${Math.floor(moment().subtract(1, CS.FRESH_YEAR).startOf('week').unix())}`;
       } else {
         // Hack for at least the New page until https://github.com/lbryio/lbry-sdk/issues/2591 is fixed
-        options.release_time = `<${Math.floor(moment().startOf('minute').unix())}`;
+        // options.release_time = `<${Math.floor(moment().startOf('minute').unix())}`;
       }
     }
   }
@@ -470,6 +470,12 @@ function ClaimListDiscover(props: Props) {
 
   const searchKey = createNormalizedClaimSearchKey(options);
   const claimSearchResult = claimSearchByQuery[searchKey];
+
+  // l('claim search result');
+  // l(claimSearchResult);
+  // l('search key');
+  // l(searchKey);
+
   const claimSearchResultLastPageReached = claimSearchByQueryLastPageReached[searchKey];
   const isUnfetchedClaimSearch = claimSearchResult === undefined;
 
@@ -747,6 +753,9 @@ function ClaimListDiscover(props: Props) {
   React.useEffect(() => {
     if (claimSearchResult && claimType && claimType.includes('collection')) {
       const claimIds = claimSearchResult.map((uri) => claimsByUri[uri]?.claim_id);
+      l('claim ids');
+      l(claimIds);
+
       claimIds.forEach((collectionId) =>
         doFetchItemsInCollection({ collectionId, itemCount: COLLECTIONS_CONSTS.THUMBNAIL_PREVIEW_AMOUNT })
       );
@@ -756,6 +765,7 @@ function ClaimListDiscover(props: Props) {
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
+      l('performing search!!!!');
       const searchOptions = JSON.parse(optionsStringForEffect);
       doClaimSearch(searchOptions);
     }
@@ -851,21 +861,21 @@ function ClaimListDiscover(props: Props) {
             loading={claimListLoading}
             uris={finalUris}
             prefixUris={prefixUris}
+            empty={empty}
+            includeSupportAction={includeSupportAction}
+            injectedItem={injectedItem}
+            loadedCallback={loadedCallback}
+            maxClaimRender={maxClaimRender}
+            onHidden={onHidden}
             onScrollBottom={handleScrollBottom}
             page={page}
             pageSize={dynamicPageSize}
-            timedOutMessage={timedOutMessage}
             renderProperties={renderProperties}
-            includeSupportAction={includeSupportAction}
-            injectedItem={injectedItem}
-            showHiddenByUser={showHiddenByUser}
             searchOptions={options}
+            showHiddenByUser={showHiddenByUser}
             showNoSourceClaims={hasNoSource || showNoSourceClaims}
-            empty={empty}
-            maxClaimRender={maxClaimRender}
-            loadedCallback={loadedCallback}
             swipeLayout={swipeLayout}
-            onHidden={onHidden}
+            timedOutMessage={timedOutMessage}
           />
 
           {claimListLoading &&

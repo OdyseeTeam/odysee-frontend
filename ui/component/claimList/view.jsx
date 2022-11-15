@@ -73,6 +73,7 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
+  uploadsPage: boolean,
 };
 
 export default function ClaimList(props: Props) {
@@ -124,6 +125,7 @@ export default function ClaimList(props: Props) {
     doDisablePlayerDrag,
     restoreScrollPos,
     setHasActive,
+    uploadsPage,
   } = props;
 
   const isMobile = useIsMobile();
@@ -203,7 +205,7 @@ export default function ClaimList(props: Props) {
     }
   }, [loading, onScrollBottom, urisLength, pageSize, page]);
 
-  const getClaimPreview = (uri: string, index: number, draggableProvided?: any) => (
+  const getClaimPreview = (uri: string, index: number, draggableProvided?: any, uploadsPage?: boolean) => (
     <ClaimPreview
       uri={uri}
       key={uri}
@@ -233,6 +235,7 @@ export default function ClaimList(props: Props) {
       playItemsOnClick={playItemsOnClick}
       disableClickNavigation={disableClickNavigation}
       doDisablePlayerDrag={doDisablePlayerDrag}
+      uploadsPage={uploadsPage}
     />
   );
 
@@ -441,7 +444,7 @@ export default function ClaimList(props: Props) {
             sortedUris.map((uri, index) => (
               <React.Fragment key={uri}>
                 {getInjectedItem(index)}
-                {getClaimPreview(uri, index)}
+                {getClaimPreview(uri, index, null, uploadsPage)}
               </React.Fragment>
             ))
           )}

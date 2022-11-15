@@ -186,6 +186,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doUriInitiatePlay,
     doDisablePlayerDrag,
     shouldHideHiddenScheduledContent,
+    uploadsPage,
   } = props;
 
   const isMobile = useIsMobile();
@@ -322,7 +323,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }
 
-  if (shouldHideHiddenScheduledContent) {
+  if (shouldHideHiddenScheduledContent && !uploadsPage) {
     shouldHide = true;
   }
 
