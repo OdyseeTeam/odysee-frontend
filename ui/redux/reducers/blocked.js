@@ -3,7 +3,7 @@ import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
 const defaultState: BlocklistState = {
-  blockedChannels: [],
+  blockedChannels: undefined,
   geoBlockedList: undefined,
 };
 
@@ -12,7 +12,7 @@ export default handleActions(
     [ACTIONS.TOGGLE_BLOCK_CHANNEL]: (state: BlocklistState, action: BlocklistAction): BlocklistState => {
       const { blockedChannels } = state;
       const { uri } = action.data;
-      let newBlockedChannels = blockedChannels.slice();
+      let newBlockedChannels = blockedChannels ? blockedChannels.slice() : [];
 
       if (newBlockedChannels.includes(uri)) {
         newBlockedChannels = newBlockedChannels.filter((id) => id !== uri);

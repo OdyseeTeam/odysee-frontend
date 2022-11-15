@@ -16,6 +16,7 @@ import {
   selectMyChannelClaimIds,
   selectFetchingMyChannels,
   selectResolvingIds,
+  selectIsFetchingClaimSearchForQuery,
 } from 'redux/selectors/claims';
 import { doCheckIfPurchasedClaimIds } from 'redux/actions/stripe';
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -704,7 +705,13 @@ export function doClaimSearch(
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
-  return async (dispatch: Dispatch) => {
+
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const alreadyFetching = selectIsFetchingClaimSearchForQuery(state, query);
+
+    if (alreadyFetching) return Promise.resolve();
+
     dispatch({
       type: ACTIONS.CLAIM_SEARCH_STARTED,
       data: { query: query },

@@ -16,8 +16,8 @@ import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import ListBlocked from './view';
 
 const select = (state) => ({
-  mutedUris: selectMutedChannels(state),
-  personalBlockList: selectModerationBlockList(state),
+  mutedUris: selectMutedChannels(state) || [],
+  personalBlockList: selectModerationBlockList(state) || [],
   adminBlockList: selectAdminBlockList(state),
   moderatorBlockList: selectModeratorBlockList(state),
   personalTimeoutMap: selectPersonalTimeoutMap(state),
