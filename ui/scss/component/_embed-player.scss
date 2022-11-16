@@ -9,6 +9,12 @@
   .card__subtitle {
     color: var(--color-text-help);
   }
+
+  .yrbl__wrap {
+    .section__title {
+      color: var(--color-primary-contrast);
+    }
+  }
 }
 
 .embed__wrapper:has(.claim-preview__wrapper--channel) {

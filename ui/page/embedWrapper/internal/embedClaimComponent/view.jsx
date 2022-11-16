@@ -4,12 +4,16 @@ import React from 'react';
 import * as RENDER_MODES from 'constants/file_render_modes';
 
 import { parseURI } from 'util/lbryURI';
-
-import ClaimPreviewTile from 'component/claimPreviewTile';
-import ClaimPreview from 'component/claimPreview';
-import VideoRender from 'component/videoClaimRender';
+import { lazyImport } from 'util/lazyImport';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import Spinner from 'component/spinner';
+
+const ClaimPreviewTile = lazyImport(() =>
+  import('component/claimPreviewTile' /* webpackChunkName: "claimPreviewTile" */)
+);
+const ClaimPreview = lazyImport(() => import('component/claimPreview' /* webpackChunkName: "claimPreview" */));
+const VideoRender = lazyImport(() => import('component/videoClaimRender' /* webpackChunkName: "videoClaimRender" */));
 
 type Props = {
   uri: string,
@@ -28,7 +32,17 @@ const EmbedClaimComponent = (props: Props) => {
   const isVideo = RENDER_MODES.FLOATING_MODES.includes(renderMode);
 
   if (isChannel) {
-    return <ClaimPreview uri={uri} />;
+    return (
+      <React.Suspense
+        fallback={
+          <div className="main--empty">
+            <Spinner text={__('Loading...')} />
+          </div>
+        }
+      >
+        <ClaimPreview uri={uri} />
+      </React.Suspense>
+    );
   }
 
   if (isVideo) {
