@@ -11,17 +11,18 @@ type Props = {
   livestream?: boolean,
   isLive?: boolean,
   contentUnlocked: boolean,
+  shouldDisableShownScheduledContent?: boolean,
 };
 
 function FileSubtitle(props: Props) {
-  const { uri, livestream = false, isLive = false, contentUnlocked } = props;
+  const { uri, livestream = false, isLive = false, contentUnlocked, shouldDisableShownScheduledContent } = props;
   return (
     <>
       <div className="media__subtitle--between">
         <div className="file__viewdate">
           {livestream && isLive && <LivestreamDateTime uri={uri} />}
           {!livestream && <DateTime uri={uri} type="date" />}
-          {contentUnlocked && <FileViewCount uri={uri} livestream={livestream} isLive={isLive} />}
+          {!shouldDisableShownScheduledContent && contentUnlocked && <FileViewCount uri={uri} livestream={livestream} isLive={isLive} />}
         </div>
 
         <FileActions uri={uri} hideRepost={livestream} livestream={livestream} />

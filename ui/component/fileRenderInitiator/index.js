@@ -7,6 +7,7 @@ import {
   selectIsFiatPaidForUri,
   selectIsFiatRequiredForUri,
   selectIsFetchingPurchases,
+  selectShouldDisableShownScheduledContent,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
@@ -57,6 +58,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     contentRestrictedFromUser: claimId && selectIsProtectedContentLockedFromUserForId(state, claimId),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    shouldDisableShownScheduledContent: selectShouldDisableShownScheduledContent(state, props.uri),
   };
 };
 

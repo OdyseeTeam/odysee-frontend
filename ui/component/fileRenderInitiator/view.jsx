@@ -98,6 +98,7 @@ export default function FileRenderInitiator(props: Props) {
     videoTheaterMode,
     // contentRestrictedFromUser,
     contentUnlocked,
+    shouldDisableShownScheduledContent,
   } = props;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
@@ -121,6 +122,8 @@ export default function FileRenderInitiator(props: Props) {
   const isFree = costInfo && costInfo.cost === 0 && !fiatRequired;
   const isAnonymousFiatContent = fiatRequired && !channelClaimId;
 
+  const disableShownScheduledContent = shouldDisableShownScheduledContent && !claimIsMine;
+
   const cannotViewFile =
     (!claimIsMine &&
       ((fiatRequired && (!fiatPaid || isFetchingPurchases)) || (sdkFeeRequired && !sdkPaid) || !contentUnlocked)) ||
@@ -136,6 +139,7 @@ export default function FileRenderInitiator(props: Props) {
     isAnonymousFiatContent ||
     (isLivestreamClaim && !isCurrentClaimLive) ||
     renderUnsupported ||
+    disableShownScheduledContent ||
     (!fileInfo && insufficientCredits && !sdkPaid);
 
   const action: Action = getActionType();

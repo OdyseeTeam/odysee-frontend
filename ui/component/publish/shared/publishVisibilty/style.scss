@@ -2,6 +2,8 @@
 
 .publish-visibility {
   fieldset-section.radio {
+    display: block;
+
     margin-top: var(--spacing-s);
 
     > label {

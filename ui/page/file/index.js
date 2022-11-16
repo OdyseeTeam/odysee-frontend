@@ -13,6 +13,7 @@ import {
   selectUnlistedContentTag,
   selectPrivateContentTag,
   selectClaimIsMineForUri,
+  selectShouldHideHiddenScheduledContent,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
@@ -81,6 +82,7 @@ const select = (state, props) => {
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
     isPrivateContent: Boolean(selectPrivateContentTag(state, props.uri)),
+    isHiddenScheduledContent: selectShouldHideHiddenScheduledContent(state, props.uri),
   };
 };
 

@@ -9,6 +9,7 @@ import {
   selectProtectedContentTagForUri,
   selectIsFiatRequiredForUri,
   selectIsFiatPaidForUri,
+  selectShouldDisableShownScheduledContent,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doPrepareEdit } from 'redux/actions/publish';
@@ -46,6 +47,7 @@ const select = (state, props) => {
     isFiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFiatPaid: selectIsFiatPaidForUri(state, uri),
     isTierUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
+    shouldDisableShownScheduledContent: selectShouldDisableShownScheduledContent(state, uri),
   };
 };
 

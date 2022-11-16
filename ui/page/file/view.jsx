@@ -122,6 +122,7 @@ export default function FilePage(props: Props) {
     threadCommentId,
     uri,
     videoTheaterMode,
+    isHiddenScheduledContent,
   } = props;
 
   const { search } = location;
@@ -161,6 +162,10 @@ export default function FilePage(props: Props) {
   const [pendingUnlistedAuth, setPendingUnlistedAuth] = React.useState(isUnlistedContent && !claimIsMine);
 
   const [unauthedToViewUnlistedContent, setUnauthedToViewUnlistedContent] = React.useState(isUnlistedContent && !claimIsMine);
+
+  const unauthedToViewScheduledHidden = isHiddenScheduledContent && !claimIsMine;
+
+  const unauthedToViewContent = (unauthedToViewUnlistedContent || unauthedToViewScheduledHidden) && !claimIsMine;
 
   // add the signature and timestamp query params to url for unlisted if on own content
   React.useEffect(() => {
@@ -298,6 +303,13 @@ export default function FilePage(props: Props) {
         If you are the creator and it's not working as expected, please reach out to hello@odysee.com from the account that uploaded this.</h2></>;
     }
 
+    if(unauthedToViewScheduledHidden){
+      l('confirmed unauthed');
+      return <><h2>This content is scheduled hidden, you can see it when it is released.
+        If you are the creator and it's not working as expected, please reach out to hello@odysee.com from the account that uploaded this.</h2></>;
+
+    }
+
     if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
       l('rendering');
       return (
@@ -383,7 +395,8 @@ export default function FilePage(props: Props) {
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
         {renderFilePageLayout()}
 
-        {!isMarkdown && !unauthedToViewUnlistedContent && (
+        {/* TODO: clean up this conditional */}
+        {!isMarkdown && !unauthedToViewContent && (
           <div className="file-page__secondary-content">
             <section className="file-page__media-actions">
               <PreorderAndPurchaseContentButton uri={uri} />

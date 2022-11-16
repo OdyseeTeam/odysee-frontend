@@ -68,6 +68,7 @@ export default function FileActions(props: Props) {
     isFiatRequired,
     isFiatPaid,
     isTierUnlocked,
+    shouldDisableShownScheduledContent,
   } = props;
 
   const {
@@ -90,6 +91,8 @@ export default function FileActions(props: Props) {
   const unauthorizedToDownload = isFiatRequired || isProtectedContent;
   const showDownload = !isLivestreamClaim && !disableDownloadButton && !isMature && !unauthorizedToDownload;
   const showRepost = !hideRepost && !isLivestreamClaim;
+
+  const disableShownScheduledContent = shouldDisableShownScheduledContent && !claimIsMine;
 
   // We want to use the short form uri for editing
   // This is what the user is used to seeing, they don't care about the claim id
@@ -136,7 +139,7 @@ export default function FileActions(props: Props) {
 
   return (
     <div className="media__actions">
-      {ENABLE_FILE_REACTIONS && isAllowedToReact() && <FileReactions uri={uri} />}
+      {ENABLE_FILE_REACTIONS && isAllowedToReact() && <FileReactions uri={uri} disabled={disableShownScheduledContent} />}
 
       {!isAPreorder && !isFiatRequired && <ClaimSupportButton uri={uri} fileAction />}
 

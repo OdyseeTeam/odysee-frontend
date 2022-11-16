@@ -34,6 +34,7 @@ export default function FileReactions(props: Props) {
     doFetchReactions,
     doReactionLike,
     doReactionDislike,
+    disabled,
   } = props;
 
   React.useEffect(() => {
@@ -58,7 +59,9 @@ export default function FileReactions(props: Props) {
   }, [claimId, doFetchReactions, isLivestreamClaim]);
 
   return (
-    <div className="ratio-wrapper">
+    <div className={classnames('ratio-wrapper', {
+      disabled
+    })}>
       <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike(uri)} />
       <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike(uri)} />
       <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />

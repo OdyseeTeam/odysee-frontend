@@ -26,6 +26,7 @@ import {
   MEMBERS_ONLY_CONTENT_TAG,
   RESTRICTED_CHAT_COMMENTS_TAG,
   SCHEDULED_HIDDEN_TAG,
+  SCHEDULED_SHOWN_TAG
 } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
@@ -863,11 +864,22 @@ export const selectedRestrictedCommentsChatTagForUri = createSelector(
   (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has(RESTRICTED_CHAT_COMMENTS_TAG)
 );
 
+export const selectShouldDisableShownScheduledContent = createSelector(
+  selectMetadataForUri,
+  selectDateForUri,
+  (metadata: ?GenericMetadata, releaseTime) => {
+    const isScheduledHidden = metadata && new Set(metadata.tags).has(SCHEDULED_SHOWN_TAG);
+    const releaseTimeInFuture = releaseTime > new Date();
+    return isScheduledHidden && releaseTimeInFuture;
+  }
+);
+
 export const selectShouldHideHiddenScheduledContent = createSelector(
   selectMetadataForUri,
   selectDateForUri,
   (metadata: ?GenericMetadata, releaseTime) => {
     const isScheduledHidden = metadata && new Set(metadata.tags).has(SCHEDULED_HIDDEN_TAG);
+    // TODO: can add 5-15 minutes buffer here
     const releaseTimeInFuture = releaseTime > new Date();
     return isScheduledHidden && releaseTimeInFuture;
   }

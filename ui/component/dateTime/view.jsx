@@ -2,6 +2,7 @@
 import { getTimeAgoStr } from 'util/time';
 import moment from 'moment';
 import React from 'react';
+import I18nMessage from 'component/i18nMessage';
 
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
 
@@ -19,6 +20,7 @@ type Props = {
   type?: string,
   isUnlistedContent?: boolean,
   isPrivateContent?: boolean,
+  shouldDisableShownScheduledContent: boolean,
 };
 
 class DateTime extends React.Component<Props, State> {
@@ -62,7 +64,7 @@ class DateTime extends React.Component<Props, State> {
   }
 
   render() {
-    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, isUnlistedContent, isPrivateContent, creationDate } = this.props;
+    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, isUnlistedContent, isPrivateContent, creationDate, shouldDisableShownScheduledContent } = this.props;
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
 
@@ -79,13 +81,28 @@ class DateTime extends React.Component<Props, State> {
         }
       }
     }
+
+    // use creation date instead of release time for unlisted/private
     if (isUnlistedContent || isPrivateContent) {
       timeToUse = moment(creationDate).format('MMMM Do, YYYY');
     }
 
+    let textToShow = timeToUse;
+
+    // change frontend text to "Scheduled for $date"
+    if (shouldDisableShownScheduledContent) {
+      textToShow =  <I18nMessage
+        tokens={{
+          timeToUse,
+        }}
+      >
+        Scheduled for %timeToUse%
+      </I18nMessage>;
+    }
+
     return (
       <span className="date_time" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
-        {timeToUse}
+        {textToShow}
       </span>
     );
   }
