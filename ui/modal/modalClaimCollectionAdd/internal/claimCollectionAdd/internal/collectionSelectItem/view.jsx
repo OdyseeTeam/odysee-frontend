@@ -26,12 +26,16 @@ function CollectionSelectItem(props: Props) {
   const { icon, uri, collection, collectionHasClaim, collectionPending, doPlaylistAddAndAllowPlaying } = props;
   const { name, id } = collection || {};
 
+  const [checked, setChecked] = React.useState(collectionHasClaim);
+
   const {
     push,
     location: { search },
   } = useHistory();
 
   function handleChange() {
+    setChecked((prevChecked) => !prevChecked);
+
     const urlParams = new URLSearchParams(search);
     urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, COLLECTIONS_CONSTS.WATCH_LATER_ID);
 
@@ -55,7 +59,7 @@ function CollectionSelectItem(props: Props) {
   return (
     <li className="collection-select__item">
       <FormField
-        checked={collectionHasClaim}
+        checked={checked}
         disabled={collectionPending}
         icon={icon}
         type="checkbox"
