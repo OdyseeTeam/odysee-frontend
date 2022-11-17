@@ -2187,11 +2187,9 @@ img {
 }
 
 .comments .markdown-preview .claim-link {
-  width: 40%;
+  min-width: 500px;
+  max-width: 50%;
   margin-top: var(--spacing-xs);
-  @media (max-width: $breakpoint-small) {
-    width: 100%;
-  }
 }
 
 .hide-ribbon {

@@ -118,7 +118,9 @@ class ClaimLink extends React.Component<Props, State> {
               />
             </div>
 
-            <Button button="link" className="preview-link__url" label={uri} navigate={uri} />
+            <div className="preview-link__url">
+              <Button button="link" label={uri} navigate={uri} />
+            </div>
           </div>
         );
       }
@@ -127,7 +129,10 @@ class ClaimLink extends React.Component<Props, State> {
         <div className="claim-link">
           <FileViewerEmbeddedTitle uri={uri} />
           <ClaimPreviewTile uri={uri} onlyThumb />
-          <Button button="link" className="preview-link__url" label={uri} navigate={uri} />
+
+          <div className="preview-link__url">
+            <Button button="link" label={uri} navigate={uri} />
+          </div>
         </div>
       );
     }
