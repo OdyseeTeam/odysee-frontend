@@ -17,7 +17,7 @@ import { secondsToDhms } from 'util/time';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
 
-import { ModalContext } from 'modal/modalRouter/view';
+import { ModalContext } from 'contexts/modal';
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 

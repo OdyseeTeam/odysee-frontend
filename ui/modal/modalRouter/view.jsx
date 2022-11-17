@@ -6,6 +6,7 @@ import * as MODALS from 'constants/modal_types';
 import * as URL from 'constants/urlParams';
 import ModalError from 'modal/modalError';
 import { lazyImport } from 'util/lazyImport';
+import { ModalContext } from 'contexts/modal';
 
 // prettier-ignore
 const MAP = Object.freeze({
@@ -73,8 +74,6 @@ type Props = {
   doHideModal: () => void,
 };
 
-export const ModalContext = React.createContext<any>();
-
 function ModalRouter(props: Props) {
   const { modal, error, location, doOpenModal, doHideModal } = props;
 
@@ -102,15 +101,15 @@ function ModalRouter(props: Props) {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
-  }, [doOpenModal, search]);
+  }, [doOpenModal, search, modal]);
 
   React.useEffect(() => {
     if (!modalUrlId) {
       doHideModal();
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
-  }, [search, doHideModal]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on pathname
+  }, [pathname, doHideModal]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];

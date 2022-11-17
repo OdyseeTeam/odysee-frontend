@@ -6,6 +6,8 @@ import {
   selectMembersOnlyChatMembershipIdsForCreatorId,
   selectCheapestPlanForRestrictedIds,
   selectNoRestrictionOrUserIsMemberForContentClaimId,
+  selectMyPurchasedMembershipTierForCreatorUri,
+  selectMembershipMineData,
 } from 'redux/selectors/memberships';
 import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
@@ -40,16 +42,20 @@ const select = (state, props) => {
     ? channelId && selectMembersOnlyChatMembershipIdsForCreatorId(state, channelId)
     : fileClaimId && selectProtectedContentMembershipsForContentClaimId(state, fileClaimId);
 
+  const channelClaimId = selectChannelClaimIdForUri(state, uri);
+
   return {
     activeChannelClaim: selectActiveChannelClaim(state),
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
     channelName: selectChannelNameForUri(state, uri),
-    channelClaimId: selectChannelClaimIdForUri(state, uri),
+    channelClaimId,
     incognito: selectIncognito(state),
     unlockableTierIds,
     cheapestMembership: unlockableTierIds && selectCheapestPlanForRestrictedIds(state, unlockableTierIds),
     membersOnly,
     isLivestream,
+    purchasedChannelMembership: selectMyPurchasedMembershipTierForCreatorUri(state, channelClaimId),
+    membershipMine: selectMembershipMineData(state),
   };
 };
 

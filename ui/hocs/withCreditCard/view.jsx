@@ -5,7 +5,7 @@ import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 
-import { ModalContext } from 'modal/modalRouter/view';
+import { ModalContext } from 'contexts/modal';
 
 type Props = {
   modalState: any,
