@@ -11,6 +11,7 @@ type Props = {
   modalState: any,
   // -- redux --
   hasSavedCard: ?boolean,
+  isAuthenticated: ?boolean,
   doOpenModal: (modalId: string, modalProps: {}) => void,
   doGetCustomerStatus: () => void,
 };
@@ -25,16 +26,16 @@ type Props = {
 const withCreditCard = (Component: FunctionalComponentParam) => {
   const CreditCardPrompt = (props: Props) => {
     // eslint-disable-next-line react/prop-types
-    const { hasSavedCard, doOpenModal, doGetCustomerStatus, modalState, ...componentProps } = props;
-    const fetching = hasSavedCard === undefined;
+    const { hasSavedCard, isAuthenticated, doOpenModal, doGetCustomerStatus, modalState, ...componentProps } = props;
 
+    const fetchPending = isAuthenticated && hasSavedCard === undefined;
     const modal = React.useContext(ModalContext)?.modal;
 
     React.useEffect(() => {
-      if (hasSavedCard === undefined) {
+      if (fetchPending) {
         doGetCustomerStatus();
       }
-    }, [doGetCustomerStatus, hasSavedCard]);
+    }, [doGetCustomerStatus, fetchPending]);
 
     if (!hasSavedCard) {
       const handleOpenAddCardModal = () =>
@@ -44,10 +45,10 @@ const withCreditCard = (Component: FunctionalComponentParam) => {
 
       return (
         <Button
-          disabled={fetching}
+          disabled={fetchPending}
           requiresAuth
           button="primary"
-          label={fetching ? <Spinner type="small" /> : __('Add a Credit Card')}
+          label={fetchPending ? <Spinner type="small" /> : __('Add a Credit Card')}
           onClick={handleOpenAddCardModal}
         />
       );
