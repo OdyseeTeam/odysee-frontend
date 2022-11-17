@@ -282,8 +282,9 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleReportContent() {
+    const claimId = contentClaim && contentClaim.claim_id;
     // $FlowFixMe
-    push(`/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim && contentClaim.claim_id}`);
+    push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
   }
 
   return (
@@ -558,7 +559,8 @@ function ClaimMenuList(props: Props) {
           >
             <NavLink
               className="menu__link"
-              to={{ pathname: `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim && contentClaim.claim_id}` }}
+              // $FlowFixMe
+              to={{ pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '' }}
               target={isEmbed && '_blank'}
             >
               <Icon aria-hidden icon={ICONS.REPORT} />

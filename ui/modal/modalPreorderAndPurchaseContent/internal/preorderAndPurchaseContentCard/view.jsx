@@ -60,7 +60,7 @@ type Props = {
   doHideModal: () => void,
   doPurchaseClaimForUri: (params: { uri: string, type: string }) => void,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
-  doPlayUri: (params: { uri: string, collection: { collectionId: ?string } }) => void,
+  doPlayUri: (uri: string, skipCostCheck: boolean, saveFileOverride?: boolean, cb?: () => void) => void,
 };
 
 export default function PreorderAndPurchaseContentCard(props: Props) {
@@ -107,7 +107,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     tipAmount = tags.preorderTag;
   }
 
-  let transactionType;
+  let transactionType = '';
   if (tags.purchaseTag && tags.rentalTag) {
     transactionType = 'purchaseOrRent';
   } else if (tags.purchaseTag) {
@@ -138,6 +138,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
     setWaitingForBackend(true);
 
+    // $FlowFixMe
     doPurchaseClaimForUri({ uri, transactionType }).then(checkIfFinished);
   }
 

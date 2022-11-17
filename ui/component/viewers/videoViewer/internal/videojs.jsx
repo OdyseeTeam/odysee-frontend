@@ -107,7 +107,7 @@ type Props = {
   playPrevious: () => void,
   toggleVideoTheaterMode: () => void,
   claimRewards: () => void,
-  doAnalyticsViewForUri: (string, number) => void,
+  doAnalyticsViewForUri: (string) => void,
   doAnalyticsBuffer: (string, any) => void,
   uri: string,
   claimValues: any,

@@ -373,10 +373,10 @@ export function doPlaylistAddAndAllowPlaying({
 
 export function doPlayUri(
   uri: string,
-  skipCostCheck: boolean = false,
-  saveFileOverride: boolean = false,
+  skipCostCheck?: boolean = false,
+  saveFileOverride?: boolean = false,
   cb?: () => void,
-  hideFailModal: boolean = false
+  hideFailModal?: boolean = false
 ) {
   return async (dispatch: Dispatch, getState: () => any) => {
     const state = getState();
