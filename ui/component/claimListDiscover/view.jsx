@@ -698,13 +698,15 @@ function ClaimListDiscover(props: Props) {
 
       resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
+          // remove the pin from the resolved/searched uris
           uris.splice(uris.indexOf(pin), 1);
-        } else {
-          uris.pop();
         }
       });
 
-      return uris.splice(2, 0, ...resolvedPinUris);
+      // add the pins on uris starting from the 2nd index
+      uris.splice(2, 0, ...resolvedPinUris);
+
+      return uris;
     }
   }
 
