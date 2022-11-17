@@ -17,6 +17,8 @@ import {
 import { normalizeURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
+import { selectAutoplayNext } from 'redux/selectors/settings';
+import { selectNextRecommendedContentForUri } from 'redux/selectors/search';
 import {
   selectIsCollectionPlayingForId,
   selectCollectionForIdIsPlayingShuffle,
@@ -569,7 +571,9 @@ export const selectNextUriForUriInPlayingCollectionForId = createCachedSelector(
   selectIndexForUriInPlayingCollectionForId,
   selectCollectionForIdIsPlayingShuffle,
   selectCollectionForIdIsPlayingLoop,
-  (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
+  (state, collectionId, uri) => selectAutoplayNext(state, uri),
+  (state, collectionId, uri) => selectNextRecommendedContentForUri(state, uri),
+  (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped, autoplayNext, nextRecommendedUri) => {
     if (currentIndex === null) return null;
 
     const uris = playingCollectionShuffleUrls || collectionUrls;
@@ -578,6 +582,11 @@ export const selectNextUriForUriInPlayingCollectionForId = createCachedSelector(
       return uris[0];
     }
 
-    return uris[currentIndex + 1];
+    const nextListUri = uris[currentIndex + 1];
+    if (nextListUri) return nextListUri;
+
+    if (autoplayNext) return nextRecommendedUri;
+
+    return null;
   }
 )((state, url, id) => `${String(url)}:${String(id)}`);

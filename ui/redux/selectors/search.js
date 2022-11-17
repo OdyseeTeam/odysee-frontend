@@ -147,6 +147,11 @@ export const selectRecommendedContentForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
+export const selectNextRecommendedContentForUri = (state: State, uri: string) => {
+  const recommendedContent = selectRecommendedContentForUri(state, uri);
+  return recommendedContent && recommendedContent[0];
+};
+
 export const selectRecommendedMetaForClaimId = createCachedSelector(
   selectClaimForClaimId,
   selectShowMatureContent,
