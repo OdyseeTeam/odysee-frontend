@@ -5,7 +5,13 @@ import {
   selectPurchaseTagForUri,
   selectRentalTagForUri,
   selectCostInfoForUri,
+  selectClaimIsMine,
+  selectClaimWasPurchasedForUri,
+  selectIsFiatPaidForUri,
+  selectIsFiatRequiredForUri,
+  selectIsFetchingPurchases,
 } from 'redux/selectors/claims';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doPlayUri } from 'redux/actions/content';
 import { doHideModal } from 'redux/actions/app';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
@@ -28,6 +34,12 @@ const select = (state, props) => {
     purchaseTag: selectPurchaseTagForUri(state, uri),
     rentalTag: selectRentalTagForUri(state, uri),
     costInfo: selectCostInfoForUri(state, uri),
+    claimIsMine: selectClaimIsMine(state, claim),
+    sdkPaid: selectClaimWasPurchasedForUri(state, uri),
+    fiatPaid: selectIsFiatPaidForUri(state, uri),
+    fiatRequired: selectIsFiatRequiredForUri(state, uri),
+    isFetchingPurchases: selectIsFetchingPurchases(state),
+    isAuthenticated: selectUserVerifiedEmail(state),
   };
 };
 

@@ -78,25 +78,29 @@ export const ModalContext = React.createContext<any>();
 function ModalRouter(props: Props) {
   const { modal, error, location, doOpenModal, doHideModal } = props;
 
-  const modalUrlOpened = React.useRef();
-
   const { pathname, search } = location;
   const urlParams = new URLSearchParams(search);
   const modalUrlId = urlParams.get(URL.MODAL);
   const modalUrlParams = modalUrlId && JSON.parse(decodeURIComponent(urlParams.get(URL.MODAL_PARAMS)));
 
+  const modalUrlOpen = React.useRef(modalUrlId && modal?.id === modalUrlId);
+
   React.useEffect(() => {
-    if (modalUrlId && !modalUrlOpened.current && !modal?.id) {
+    if (modalUrlId && !modalUrlOpen.current) {
+      // -- Open the modal from the URL
       doOpenModal(modalUrlId, modalUrlParams);
-      modalUrlOpened.current = true;
+      modalUrlOpen.current = true;
     } else {
+      // -- Clear out the URL params
       const newUrlParams = new URLSearchParams(search);
       newUrlParams.delete(URL.MODAL);
       newUrlParams.delete(URL.MODAL_PARAMS);
       const newUrlParamsStr = newUrlParams.toString();
 
+      // -- Use history.replaceState so user won't be able to navigate back to the modal
       history.replaceState(history.state, '', `${pathname}${newUrlParamsStr ? `?${newUrlParamsStr}` : ''}`);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
   }, [doOpenModal, search]);
 
@@ -130,7 +134,7 @@ function ModalRouter(props: Props) {
 
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
-      <ModalContext.Provider value={{ modal }}>
+      <ModalContext.Provider value={{ modal, isUrlParamModal: modalUrlId === id }}>
         <SelectedModal {...modalProps} doHideModal={doHideModal} />
       </ModalContext.Provider>
     </React.Suspense>

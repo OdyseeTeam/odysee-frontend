@@ -1,6 +1,9 @@
 // @flow
 import React from 'react';
 
+// $FlowFixMe
+import { Global } from '@emotion/react';
+
 import './style.scss';
 import ClaimPreview from 'component/claimPreview';
 import BusyIndicator from 'component/common/busy-indicator';
@@ -13,6 +16,8 @@ import withCreditCard from 'hocs/withCreditCard';
 import { secondsToDhms } from 'util/time';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
+
+import { ModalContext } from 'modal/modalRouter/view';
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
@@ -46,6 +51,12 @@ type Props = {
   purchaseTag: ?number,
   rentalTag: RentalTagParams,
   costInfo: any,
+  claimIsMine: boolean,
+  sdkPaid: boolean,
+  fiatPaid: boolean,
+  fiatRequired: boolean,
+  isFetchingPurchases: boolean,
+  isAuthenticated: boolean,
   doHideModal: () => void,
   doPurchaseClaimForUri: (params: { uri: string, type: string }) => void,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
@@ -61,15 +72,26 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     purchaseTag,
     preorderTag,
     costInfo,
+    claimIsMine,
+    sdkPaid,
+    fiatPaid,
+    fiatRequired,
+    isFetchingPurchases,
+    isAuthenticated,
     doHideModal,
     doPurchaseClaimForUri,
     doCheckIfPurchasedClaimId,
     doPlayUri,
   } = props;
 
+  const isUrlParamModal = React.useContext(ModalContext).isUrlParamModal;
+
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
   const tags = { rentalTag, purchaseTag, preorderTag };
-  const sdkFeeRequired = costInfo && costInfo.cost > 0;
+
+  const pendingSdkPayment = !claimIsMine && costInfo && costInfo.cost > 0 && !sdkPaid;
+  const pendingFiatPayment = !claimIsMine && fiatRequired && !fiatPaid && isFetchingPurchases === false;
+  const pendingPurchase = pendingFiatPayment || pendingSdkPayment;
 
   let tipAmount = 0;
   let rentTipAmount = 0;
@@ -119,6 +141,25 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doPurchaseClaimForUri({ uri, transactionType }).then(checkIfFinished);
   }
 
+  React.useEffect(() => {
+    // -- fetch for modal url param --
+    if (isUrlParamModal && isAuthenticated && claimId && fiatRequired && isFetchingPurchases === undefined) {
+      doCheckIfPurchasedClaimId(claimId);
+    }
+  }, [claimId, doCheckIfPurchasedClaimId, fiatRequired, isAuthenticated, isFetchingPurchases, isUrlParamModal]);
+
+  React.useEffect(() => {
+    // -- close modal when already purchased --
+    if (isUrlParamModal && claimId && !pendingPurchase && (!fiatRequired || isFetchingPurchases === false)) {
+      doHideModal();
+    }
+  }, [claimId, doHideModal, fiatRequired, isFetchingPurchases, isUrlParamModal, pendingPurchase]);
+
+  if (isUrlParamModal && !pendingPurchase) {
+    // -- hide modal until a pendingPurchase condition is found to show it --
+    return <Global styles={{ '.ReactModalPortal': { display: 'none' } }} />;
+  }
+
   return (
     <Form onSubmit={handleSubmit}>
       <Card
@@ -130,7 +171,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
 
-            {sdkFeeRequired ? (
+            {pendingSdkPayment ? (
               <Button
                 button="primary"
                 requiresAuth
