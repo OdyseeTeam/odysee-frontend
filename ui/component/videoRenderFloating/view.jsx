@@ -73,7 +73,6 @@ type Props = {
   isCurrentClaimLive?: boolean,
   videoAspectRatio: number,
   socketConnection: { connected: ?boolean },
-  isLivestreamClaim: boolean,
   appDrawerOpen: boolean,
   playingCollection: Collection,
   hasClaimInQueue: boolean,
@@ -108,7 +107,6 @@ export default function VideoRenderFloating(props: Props) {
     nextListUri,
     previousListUri,
     socketConnection,
-    isLivestreamClaim,
     doFetchRecommendedContent,
     doUriInitiatePlay,
     isCurrentClaimLive,
@@ -355,8 +353,7 @@ export default function VideoRenderFloating(props: Props) {
     !streamingUrl ||
     ((!uri || !isPlayable) && !collectionSidebarId) ||
     (isFloating && noFloatingPlayer) ||
-    (collectionId && !isFloating && (!nextListUri || countdownCanceled)) ||
-    (isLivestreamClaim && !isCurrentClaimLive)
+    (collectionId && !isFloating && countdownCanceled)
   ) {
     return null;
   }

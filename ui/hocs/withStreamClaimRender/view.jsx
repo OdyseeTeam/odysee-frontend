@@ -44,6 +44,7 @@ type Props = {
   contentRestrictedFromUser: ?boolean,
   streamingUrl: any,
   isLivestreamClaim: ?boolean,
+  isCurrentClaimLive: ?boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFileGetForUri: (uri: string) => void,
   doMembershipMine: () => void,
@@ -87,6 +88,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       contentRestrictedFromUser,
       streamingUrl,
       isLivestreamClaim,
+      isCurrentClaimLive,
       doCheckIfPurchasedClaimId,
       doFileGetForUri,
       doMembershipMine,
@@ -210,6 +212,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Loading State -- return before component render
     if (!streamingUrl) {
+      if (streamStarted && !isCurrentClaimLive) {
+        return <ClaimCoverRender uri={uri} />;
+      }
+
       if (streamStarted || streamStartPending) {
         return <LoadingScreen transparent={!isPlayable} />;
       }

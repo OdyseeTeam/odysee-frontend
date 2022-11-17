@@ -24,7 +24,7 @@ import { withRouter } from 'react-router';
 import { selectHasAppDrawerOpen, selectMainPlayerDimensions } from 'redux/selectors/app';
 import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'redux/selectors/livestream';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
-import { isStreamPlaceholderClaim, getVideoClaimAspectRatio } from 'util/claim';
+import { getVideoClaimAspectRatio } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import VideoRenderFloating from './view';
@@ -69,7 +69,6 @@ const select = (state, props) => {
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
     videoAspectRatio: getVideoClaimAspectRatio(claim),
     socketConnection: selectSocketConnectionForId(state, claimId),
-    isLivestreamClaim: isStreamPlaceholderClaim(claim),
     appDrawerOpen: selectHasAppDrawerOpen(state),
     hasClaimInQueue:
       permanent_url && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanent_url),

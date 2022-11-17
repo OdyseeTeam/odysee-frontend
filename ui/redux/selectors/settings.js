@@ -143,3 +143,5 @@ export const selectPreferredCurrency = (state: State) => {
 
   return preferredCurrency;
 };
+
+export const selectAutoplayNext = (state: State) => Boolean(selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
