@@ -179,6 +179,8 @@ function ClaimTilesDiscover(props: Props) {
         if (uris.includes(pin)) {
           // remove the pin from the resolved/searched uris
           uris.splice(uris.indexOf(pin), 1);
+        } else {
+          uris.pop();
         }
       });
 
