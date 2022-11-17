@@ -41,7 +41,7 @@ async function getCostInfoForFee(fee: Fee) {
   }
 
   const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
-    cost: fee.amount / LBC_USD,
+    cost: Number(fee.amount) / LBC_USD,
     includesData: true,
   }));
 
@@ -155,6 +155,7 @@ export function doResolveUris(
                 resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
               }
 
+              // $FlowFixMe
               stream.costInfo = await getCostInfoForFee(stream.value ? stream.value.fee : undefined);
             }
 
@@ -737,6 +738,7 @@ export function doClaimSearch(
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           streamClaimIds.add(stream.claim_id);
+          // $FlowFixMe
           stream.costInfo = await getCostInfoForFee(stream.value ? stream.value.fee : undefined);
         }
 

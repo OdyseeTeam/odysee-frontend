@@ -80,14 +80,17 @@ function ModalRouter(props: Props) {
   const { pathname, search } = location;
   const urlParams = new URLSearchParams(search);
   const modalUrlId = urlParams.get(URL.MODAL);
-  const modalUrlParams = modalUrlId && JSON.parse(decodeURIComponent(urlParams.get(URL.MODAL_PARAMS)));
+  const modalUrlParams = modalUrlId && urlParams.get(URL.MODAL_PARAMS);
+  // $FlowFixMe
+  const modalUrlParamsObj = modalUrlParams && JSON.parse(decodeURIComponent(modalUrlParams));
 
   const modalUrlOpen = React.useRef(modalUrlId && modal?.id === modalUrlId);
 
   React.useEffect(() => {
     if (modalUrlId && !modalUrlOpen.current) {
       // -- Open the modal from the URL
-      doOpenModal(modalUrlId, modalUrlParams);
+      // $FlowFixMe
+      doOpenModal(modalUrlId, modalUrlParamsObj);
       modalUrlOpen.current = true;
     } else {
       // -- Clear out the URL params
