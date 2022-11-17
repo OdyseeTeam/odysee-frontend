@@ -167,7 +167,7 @@ function ClaimTilesDiscover(props: Props) {
 
   function injectPinUrls(uris, pins, resolvedPinUris) {
     if (!pins || !uris) {
-      return;
+      return uris;
     }
 
     if (resolvedPinUris) {
@@ -187,6 +187,8 @@ function ClaimTilesDiscover(props: Props) {
 
       return uris;
     }
+
+    return uris;
   }
 
   const getInjectedItem = (index) => {

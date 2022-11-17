@@ -688,7 +688,7 @@ function ClaimListDiscover(props: Props) {
 
   function injectPinUrls(uris, order, pins, resolvedPinUris) {
     if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
-      return;
+      return uris;
     }
 
     if (resolvedPinUris) {
@@ -708,6 +708,8 @@ function ClaimListDiscover(props: Props) {
 
       return uris;
     }
+
+    return uris;
   }
 
   function filterExcludedUris(uris, excludeUris) {
