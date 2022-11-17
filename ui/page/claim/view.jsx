@@ -1,9 +1,11 @@
 // @flow
 import React from 'react';
+import moment from 'moment';
 
 import { useHistory } from 'react-router';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import { parseURI } from 'util/lbryURI';
+import { LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
 
 import Page from 'component/page';
 import ClaimPageComponent from './internal/claimPageComponent';
@@ -13,10 +15,12 @@ type Props = {
   // -- redux --
   isMarkdownPost: ?boolean,
   isLivestreamClaim: ?boolean,
+  claimReleaseTime: ?number,
+  chatDisabled: ?boolean,
 };
 
 const ClaimPage = (props: Props) => {
-  const { uri, isMarkdownPost, isLivestreamClaim } = props;
+  const { uri, isMarkdownPost, isLivestreamClaim, claimReleaseTime, chatDisabled } = props;
 
   const { isChannel } = parseURI(uri);
 
@@ -33,6 +37,23 @@ const ClaimPage = (props: Props) => {
     [isMarkdownPost]
   );
 
+  const LivestreamPageWrapper = React.useMemo(() => {
+    const releaseTime: moment = moment.unix(claimReleaseTime || 0);
+
+    const claimReleaseInFuture = () => releaseTime.isAfter();
+    const claimReleaseStartingSoon = () =>
+      releaseTime.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'));
+
+    const checkCommentsDisabled = () => chatDisabled || (claimReleaseInFuture() && !claimReleaseStartingSoon());
+    const hideComments = checkCommentsDisabled();
+
+    return ({ children }: { children: any }) => (
+      <Page className="file-page scheduledLivestream-wrapper" noFooter livestream={!hideComments}>
+        {children}
+      </Page>
+    );
+  }, [chatDisabled, claimReleaseTime]);
+
   if (isChannel) {
     const urlParams = new URLSearchParams(search);
     const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
@@ -45,7 +66,7 @@ const ClaimPage = (props: Props) => {
   }
 
   if (isLivestreamClaim) {
-    return <ClaimPageComponent uri={uri} Wrapper={Page} />;
+    return <ClaimPageComponent uri={uri} ClaimRenderWrapper={LivestreamPageWrapper} Wrapper={Page} />;
   }
 
   return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ClaimRenderWrapper} Wrapper={Page} />;

@@ -14,6 +14,7 @@ import {
   selectPurchaseTagForUri,
   selectRentalTagForUri,
   selectCostInfoForUri,
+  selectIsStreamPlaceholderForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectClientSetting } from 'redux/selectors/settings';
@@ -24,6 +25,7 @@ import { doUriInitiatePlay } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
+import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 
 import FileRenderInitiator from './view';
 
@@ -52,6 +54,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     contentRestrictedFromUser: claimId && selectIsProtectedContentLockedFromUserForId(state, claimId),
     streamingUrl: selectStreamingUrlForUri(state, uri),
+    isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
   };
 };
 
@@ -61,6 +64,7 @@ const perform = {
   doMembershipMine,
   doUriInitiatePlay,
   doMembershipList,
+  doFetchChannelLiveStatus,
 };
 
 export default (Component) => withRouter(connect(select, perform)(FileRenderInitiator(Component)));

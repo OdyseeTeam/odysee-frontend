@@ -4,11 +4,10 @@
 // will use this component to properly position itself based on the ClaimCoverRender
 import React from 'react';
 
-import { LivestreamContext } from 'contexts/livestream';
 import { ExpandableContext } from 'component/common/expandable';
+import { LivestreamContext } from 'contexts/livestream';
 
 import Button from 'component/button';
-import useFetchLiveStatus from 'effects/use-fetch-live';
 import ClaimCoverRender from 'component/claimCoverRender';
 
 type Props = {
@@ -16,19 +15,14 @@ type Props = {
   children?: any,
   streamClaim: () => void,
   // -- redux --
-  channelClaimId: ?string,
-  isLivestreamClaim: boolean,
-  doFetchChannelLiveStatus: (string) => void,
+  doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
 };
 
 const VideoClaimInitiator = (props: Props) => {
-  const { uri, children, streamClaim, channelClaimId, isLivestreamClaim, doFetchChannelLiveStatus } = props;
+  const { uri, children, streamClaim, doSetMainPlayerDimension } = props;
 
   const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
-  const { livestreamPage } = React.useContext(LivestreamContext) || {};
-
-  // in case of a livestream outside of the livestream page component, like embed
-  useFetchLiveStatus(isLivestreamClaim && !livestreamPage ? channelClaimId : undefined, doFetchChannelLiveStatus);
+  const livestreamPage = React.useContext(LivestreamContext);
 
   function handleClick() {
     streamClaim();
@@ -39,8 +33,19 @@ const VideoClaimInitiator = (props: Props) => {
       disableExpanded(true);
     }
   }
+
+  const playerRef = React.useCallback(
+    (node) => {
+      if (node && (!livestreamPage || livestreamPage.layoutRendered)) {
+        const rect = node.getBoundingClientRect();
+        doSetMainPlayerDimension(rect);
+      }
+    },
+    [doSetMainPlayerDimension, livestreamPage]
+  );
+
   return (
-    <ClaimCoverRender uri={uri} onClick={handleClick}>
+    <ClaimCoverRender uri={uri} onClick={handleClick} passedRef={playerRef}>
       <Button className="button--icon button--play" onClick={handleClick} iconSize={30} title={__('Play')} />
 
       {children}

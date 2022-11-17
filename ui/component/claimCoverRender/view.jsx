@@ -9,6 +9,7 @@ import useGetPoster from 'effects/use-get-poster';
 
 type Props = {
   children: any,
+  passedRef: any,
   onClick?: () => void,
   // -- redux --
   claimThumbnail?: string,
@@ -20,6 +21,7 @@ type Props = {
 const ClaimCoverRender = (props: Props) => {
   const {
     children,
+    passedRef,
     onClick,
     // -- redux --
     claimThumbnail,
@@ -34,6 +36,7 @@ const ClaimCoverRender = (props: Props) => {
 
   return (
     <div
+      ref={passedRef}
       onClick={onClick}
       style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
       className={classnames('content__cover', {

@@ -18,7 +18,6 @@ import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelI
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import { clearPosition } from 'redux/actions/content';
-import { doSetMainPlayerDimension } from 'redux/actions/app';
 
 import VideoPlayersPage from './view';
 
@@ -50,7 +49,6 @@ const select = (state, props) => {
 
 const perform = {
   clearPosition,
-  doSetMainPlayerDimension,
 };
 
 export default withRouter(connect(select, perform)(VideoPlayersPage));

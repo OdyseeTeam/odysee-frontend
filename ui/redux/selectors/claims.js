@@ -514,6 +514,13 @@ export const selectTitleForUri = (state: State, uri: string) => {
   return metadata && metadata.title;
 };
 
+export const selectReleaseTimeForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim;
+
+  return claim?.value?.release_time;
+};
+
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {

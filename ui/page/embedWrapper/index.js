@@ -1,23 +1,13 @@
 import { connect } from 'react-redux';
 import EmbedWrapperPage from './view';
 import * as PAGES from 'constants/pages';
-import {
-  selectClaimForUri,
-  selectIsUriResolving,
-  selectLatestClaimForUri,
-  selectClaimIsNsfwForUri,
-} from 'redux/selectors/claims';
-import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectClaimForUri, selectIsUriResolving, selectLatestClaimForUri } from 'redux/selectors/claims';
 import { doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
-import { doFetchActiveLivestreams, doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import {
-  selectIsActiveLivestreamForUri,
-  selectActiveLivestreamInitialized,
-  selectActiveLiveClaimForChannel,
-} from 'redux/selectors/livestream';
-import { getThumbnailFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
+import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { selectActiveLiveClaimForChannel } from 'redux/selectors/livestream';
+import { isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
@@ -29,7 +19,6 @@ const select = (state, props) => {
 
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
-  const isNewestPath = featureParam === PAGES.LIVE_NOW || featureParam === PAGES.LATEST;
 
   const claim = selectClaimForUri(state, uri);
   const { canonical_url: canonicalUrl } = claim || {};
@@ -37,7 +26,6 @@ const select = (state, props) => {
 
   const channelClaim = getChannelFromClaim(claim);
   const { claim_id: channelClaimId, canonical_url: channelUri } = channelClaim || {};
-  const haveClaim = Boolean(claim);
 
   const latestContentClaim =
     featureParam === PAGES.LIVE_NOW
@@ -52,18 +40,12 @@ const select = (state, props) => {
   return {
     uri,
     claimId,
-    haveClaim,
     canonicalUrl,
     channelUri,
     channelClaimId,
     latestClaimUrl,
-    streamingUrl: selectStreamingUrlForUri(state, uri),
     isResolvingUri: uri && selectIsUriResolving(state, uri),
-    isCurrentClaimLive: selectIsActiveLivestreamForUri(state, isNewestPath ? latestClaimUrl : canonicalUrl),
     isLivestreamClaim: featureParam === PAGES.LIVE_NOW || isStreamPlaceholderClaim(claim),
-    isMature: selectClaimIsNsfwForUri(state, uri),
-    claimThumbnail: getThumbnailFromClaim(claim),
-    activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
   };
 };
@@ -72,7 +54,6 @@ const perform = {
   doFetchChannelLiveStatus,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
-  doFetchActiveLivestreams,
   doFetchLatestClaimForChannel,
 };
 
