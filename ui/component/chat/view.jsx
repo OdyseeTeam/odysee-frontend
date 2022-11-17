@@ -52,7 +52,7 @@ type Props = {
   doHyperChatList: (uri: string) => void,
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
   pinnedComments: Array<Comment>,
-  setLayountRendered: (boolean) => void,
+  setLayoutRendered: (boolean) => void,
   superChats: Array<Comment>,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   myChannelClaims: any,
@@ -81,7 +81,7 @@ export default function ChatLayout(props: Props) {
     isPopoutWindow,
     pinnedComments,
     setCustomViewMode,
-    setLayountRendered,
+    setLayoutRendered,
     superChats: hyperChatsByAmount,
     uri,
     myChannelClaims,
@@ -198,8 +198,8 @@ export default function ChatLayout(props: Props) {
   }
 
   React.useEffect(() => {
-    if (setLayountRendered) setLayountRendered(true);
-  }, [setLayountRendered]);
+    if (setLayoutRendered) setLayoutRendered(true);
+  }, [setLayoutRendered]);
 
   React.useEffect(() => {
     if (customViewMode && customViewMode !== viewMode) {

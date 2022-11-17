@@ -1,7 +1,12 @@
 import { connect } from 'react-redux';
 
 import { selectIsMarkdownPostForUri } from 'redux/selectors/content';
-import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import {
+  selectIsStreamPlaceholderForUri,
+  selectReleaseTimeForUri,
+  selectChannelClaimIdForUri,
+} from 'redux/selectors/claims';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 
 import ClaimPage from './view';
 
@@ -11,6 +16,8 @@ const select = (state, props) => {
   return {
     isMarkdownPost: selectIsMarkdownPostForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
+    claimReleaseTime: selectReleaseTimeForUri(state, uri),
+    chatDisabled: selectCommentsDisabledSettingForChannelId(state, selectChannelClaimIdForUri(state, uri)),
   };
 };
 

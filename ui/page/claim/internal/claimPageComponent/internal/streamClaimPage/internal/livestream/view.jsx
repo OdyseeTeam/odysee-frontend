@@ -5,18 +5,16 @@ import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } fro
 import analytics from 'analytics';
 import LivestreamLayout from 'component/livestreamLayout';
 import moment from 'moment';
-import Page from 'component/page';
 import React from 'react';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
-import useFetchLiveStatus from 'effects/use-fetch-live';
-import Spinner from 'component/spinner';
+
+import { LivestreamContext } from 'contexts/livestream';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
 type Props = {
   activeLivestreamForChannel: any,
   activeLivestreamInitialized: boolean,
-  channelClaimId: ?string,
   chatDisabled: boolean,
   claim: StreamClaim,
   uri: string,
@@ -24,18 +22,14 @@ type Props = {
   isStreamPlaying: boolean,
   doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: ?string) => void,
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
-  doFetchChannelLiveStatus: (string) => void,
   theaterMode?: Boolean,
   contentUnlocked: boolean,
 };
-
-export const LivestreamContext = React.createContext<any>();
 
 export default function LivestreamPage(props: Props) {
   const {
     activeLivestreamForChannel,
     activeLivestreamInitialized,
-    channelClaimId,
     chatDisabled,
     claim,
     uri,
@@ -43,7 +37,6 @@ export default function LivestreamPage(props: Props) {
     isStreamPlaying,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
-    doFetchChannelLiveStatus,
     theaterMode,
     contentUnlocked,
   } = props;
@@ -57,13 +50,12 @@ export default function LivestreamPage(props: Props) {
   const [showLivestream, setShowLivestream] = React.useState(false);
   const [showScheduledInfo, setShowScheduledInfo] = React.useState(false);
   const [hideComments, setHideComments] = React.useState(false);
-  const [layountRendered, setLayountRendered] = React.useState(chatDisabled || isMobile);
+  const [layoutRendered, setLayoutRendered] = React.useState(chatDisabled || isMobile);
 
   const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
   const claimId = claim && claim.claim_id;
   const isCurrentClaimLive = isChannelBroadcasting && activeLivestreamForChannel.claimId === claimId;
-  const livestreamChannelId = channelClaimId || '';
 
   const releaseTime: moment = moment.unix(claim?.value?.release_time || 0);
 
@@ -104,8 +96,6 @@ export default function LivestreamPage(props: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unmount -> leave page
   }, []);
-
-  useFetchLiveStatus(isStreamPlaying ? undefined : livestreamChannelId, doFetchChannelLiveStatus);
 
   React.useEffect(() => {
     setActiveStreamUri(!isCurrentClaimLive && isChannelBroadcasting ? activeLivestreamForChannel.claimUri : false);
@@ -153,36 +143,28 @@ export default function LivestreamPage(props: Props) {
   }, [chatDisabled, isChannelBroadcasting, releaseTime, isCurrentClaimLive, isInitialized]);
 
   return (
-    <Page className="file-page scheduledLivestream-wrapper" noFooter livestream={!hideComments}>
-      {isInitialized ? (
-        <LivestreamContext.Provider value={{ livestreamPage: true, layountRendered }}>
-          <LivestreamLayout
-            uri={uri}
-            hideComments={hideComments}
-            releaseTimeMs={releaseTime.unix() * 1000}
-            isCurrentClaimLive={isCurrentClaimLive}
-            showLivestream={showLivestream}
-            showScheduledInfo={showScheduledInfo}
-            activeStreamUri={activeStreamUri}
-            theaterMode={theaterMode}
-          />
+    <LivestreamContext.Provider value={{ livestreamPage: true, layoutRendered }}>
+      <LivestreamLayout
+        uri={uri}
+        hideComments={hideComments}
+        releaseTimeMs={releaseTime.unix() * 1000}
+        isCurrentClaimLive={isCurrentClaimLive}
+        showLivestream={showLivestream}
+        showScheduledInfo={showScheduledInfo}
+        activeStreamUri={activeStreamUri}
+        theaterMode={theaterMode}
+      />
 
-          {(!isMobile || isLandscapeRotated) && !theaterMode && !hideComments && contentUnlocked && (
-            <React.Suspense fallback={null}>
-              <ChatLayout
-                uri={uri}
-                hyperchatsHidden={hyperchatsHidden}
-                toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
-                setLayountRendered={setLayountRendered}
-              />
-            </React.Suspense>
-          )}
-        </LivestreamContext.Provider>
-      ) : (
-        <div className="main--empty">
-          <Spinner />
-        </div>
+      {(!isMobile || isLandscapeRotated) && !theaterMode && !hideComments && contentUnlocked && (
+        <React.Suspense fallback={null}>
+          <ChatLayout
+            uri={uri}
+            hyperchatsHidden={hyperchatsHidden}
+            toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
+            setLayoutRendered={setLayoutRendered}
+          />
+        </React.Suspense>
       )}
-    </Page>
+    </LivestreamContext.Provider>
   );
 }

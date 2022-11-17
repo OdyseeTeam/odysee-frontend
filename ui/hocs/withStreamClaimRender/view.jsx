@@ -5,6 +5,8 @@ import analytics from 'analytics';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
+import useFetchLiveStatus from 'effects/use-fetch-live';
+
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
@@ -41,11 +43,13 @@ type Props = {
   renderMode: string,
   contentRestrictedFromUser: ?boolean,
   streamingUrl: any,
+  isLivestreamClaim: ?boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFileGetForUri: (uri: string) => void,
   doMembershipMine: () => void,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doFetchChannelLiveStatus: (channelClaimId: string) => void,
 };
 
 /**
@@ -82,11 +86,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       renderMode,
       contentRestrictedFromUser,
       streamingUrl,
+      isLivestreamClaim,
       doCheckIfPurchasedClaimId,
       doFileGetForUri,
       doMembershipMine,
       doUriInitiatePlay,
       doMembershipList,
+      doFetchChannelLiveStatus,
     } = props;
 
     const [streamingUri, setStreamingUri] = React.useState();
@@ -186,6 +192,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         streamClaim();
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
+
+    useFetchLiveStatus(isLivestreamClaim ? channelClaimId : undefined, doFetchChannelLiveStatus);
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {

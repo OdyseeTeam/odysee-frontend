@@ -206,7 +206,7 @@ export default function VideoRenderFloating(props: Props) {
 
     // force re-calculate when sourceId changes (playing a new claimLink on the same page)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile, mainFilePlaying, videoAspectRatio, playingUri.sourceId]);
+  }, [isMobile, mainFilePlaying, videoAspectRatio, playingUri.sourceId, mainPlayerDimensions]);
 
   const restoreToRelativePosition = React.useCallback(() => {
     const SCROLL_BAR_PX = 12; // root: --body-scrollbar-width

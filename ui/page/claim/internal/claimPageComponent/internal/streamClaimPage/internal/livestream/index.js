@@ -10,7 +10,6 @@ import {
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
@@ -28,7 +27,6 @@ const select = (state, props) => {
     chatDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
-    channelClaimId,
     isStreamPlaying: selectIsUriCurrentlyPlaying(state, uri),
     socketConnection: selectSocketConnectionForId(state, claimId),
     theaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
@@ -40,7 +38,6 @@ const select = (state, props) => {
 const perform = {
   doCommentSocketConnect,
   doCommentSocketDisconnect,
-  doFetchChannelLiveStatus,
 };
 
 export default connect(select, perform)(LivestreamPage);

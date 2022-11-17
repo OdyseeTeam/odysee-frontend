@@ -37,7 +37,6 @@ type Props = {
   videoTheaterMode: boolean,
   contentUnlocked: boolean,
   clearPosition: (uri: string) => void,
-  doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
 };
 
 export default function VideoPlayersPage(props: Props) {
@@ -59,7 +58,6 @@ export default function VideoPlayersPage(props: Props) {
     position,
     contentUnlocked,
     clearPosition,
-    doSetMainPlayerDimension,
   } = props;
 
   const isMobile = useIsMobile();
@@ -106,16 +104,6 @@ export default function VideoPlayersPage(props: Props) {
     }
   }, [clearPosition, fileInfo, uri, videoPlayedEnoughToResetPosition]);
 
-  const playerRef = React.useCallback(
-    (node) => {
-      if (node) {
-        const rect = node.getBoundingClientRect();
-        doSetMainPlayerDimension({ height: rect.height, width: rect.width });
-      }
-    },
-    [doSetMainPlayerDimension]
-  );
-
   if (isMature) {
     return (
       <>
@@ -134,7 +122,7 @@ export default function VideoPlayersPage(props: Props) {
   return (
     <>
       <div className="section card-stack file-page__video">
-        <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
+        <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
           <VideoClaimInitiator uri={uri} />
         </div>
 
