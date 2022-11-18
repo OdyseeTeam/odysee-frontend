@@ -215,7 +215,7 @@ function ClaimListDiscover(props: Props) {
         const claim = claimsById[id];
         if (!claim) {
           resolvedPinUris = undefined;
-          return;
+          return true;
         }
 
         const uri = claim.canonical_url || claim.canonical_url;
