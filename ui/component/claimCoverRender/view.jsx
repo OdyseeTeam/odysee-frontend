@@ -6,10 +6,12 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 
 import { useIsMobile } from 'effects/use-screensize';
 import useGetPoster from 'effects/use-get-poster';
+import Button from 'component/button';
 
 type Props = {
   children: any,
   passedRef: any,
+  href?: string,
   onClick?: () => void,
   // -- redux --
   claimThumbnail?: string,
@@ -22,6 +24,7 @@ const ClaimCoverRender = (props: Props) => {
   const {
     children,
     passedRef,
+    href,
     onClick,
     // -- redux --
     claimThumbnail,
@@ -34,19 +37,24 @@ const ClaimCoverRender = (props: Props) => {
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
   const thumbnail = useGetPoster(claimThumbnail);
 
+  const isNavigateLink = href;
+  const Wrapper = isNavigateLink ? Button : 'div';
+
   return (
-    <div
+    <Wrapper
       ref={passedRef}
+      href={href}
       onClick={onClick}
       style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
       className={classnames('content__cover', {
-        'content__cover--disabled': !onClick,
+        'content__cover--disabled': !onClick && !href,
         'content__cover--theater-mode': theaterMode && !isMobile,
+        'content__cover--link': isNavigateLink,
         'card__media--nsfw': obscurePreview,
       })}
     >
       {children}
-    </div>
+    </Wrapper>
   );
 };
 
