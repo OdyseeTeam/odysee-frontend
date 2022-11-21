@@ -168,7 +168,7 @@ function claimHasNewData(original, fresh) {
 }
 
 /**
- * Adds the new value to the delta if the value is not present the original.
+ * Adds the new value to the delta if the value is not present in the original.
  *
  * @param original The original state object.
  * @param delta The delta state object containing a list of changes.
