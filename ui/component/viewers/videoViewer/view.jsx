@@ -1,4 +1,8 @@
 // @flow
+
+// $FlowFixMe
+import { Global } from '@emotion/react';
+
 import { ENABLE_PREROLL_ADS } from 'config';
 import { ERR_GRP } from 'constants/errors';
 import * as PAGES from 'constants/pages';
@@ -548,103 +552,115 @@ function VideoViewer(props: Props) {
   }, playerReadyDependencyList); // eslint-disable-line
 
   return (
-    <div
-      className={classnames('file-viewer', {
-        'file-viewer--is-playing': isPlaying,
-        'file-viewer--ended-embed': isEndedEmbed,
-      })}
-      onContextMenu={stopContextMenu}
-    >
-      {showAutoplayCountdown && (
-        <AutoplayCountdown
-          nextRecommendedUri={nextRecommendedUri}
-          doNavigate={() => setDoNavigate(true)}
-          doReplay={() => {
-            if (playerElem) {
-              if (playerEndedDuration.current) {
-                playerElem.play();
-              } else {
-                playerElem.currentTime(0);
-              }
-            }
-            playerEndedDuration.current = false;
-            setEnded(false);
-            setShowAutoplayCountdown(false);
-          }}
-          onCanceled={() => {
-            setEnded(false);
-            setShowAutoplayCountdown(false);
-          }}
-        />
-      )}
-      {isEndedEmbed && <FileViewerEmbeddedEnded uri={uri} />}
-      {embedded && !isEndedEmbed && <FileViewerEmbeddedTitle uri={uri} />}
-
-      {!isFetchingAd && adUrl && (
-        <>
-          <span className="ads__video-notify">
-            {__('Advertisement')}{' '}
-            <Button
-              className="ads__video-close"
-              icon={ICONS.REMOVE}
-              title={__('Close')}
-              onClick={() => setAdUrl(null)}
-            />
-          </span>
-          <span className="ads__video-nudge">
-            <I18nMessage
-              tokens={{
-                sign_up: (
-                  <Button
-                    button="secondary"
-                    className="ads__video-link"
-                    label={__('Sign Up')}
-                    navigate={`/$/${PAGES.AUTH}?redirect=${pathname}&src=video-ad`}
-                  />
-                ),
-              }}
-            >
-              %sign_up% to turn ads off.
-            </I18nMessage>
-          </span>
-        </>
-      )}
-
-      <VideoJs
-        adUrl={adUrl}
-        source={adUrl || source}
-        sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType}
-        isAudio={isAudio}
-        poster={isAudio ? thumbnail : ''}
-        onPlayerReady={onPlayerReady}
-        startMuted={autoplayIfEmbedded}
-        toggleVideoTheaterMode={toggleVideoTheaterMode}
-        claimId={claimId}
-        title={claim && ((claim.value && claim.value.title) || claim.name)}
-        channelTitle={channelTitle}
-        userId={userId}
-        allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
-        internalFeatureEnabled={internalFeature}
-        shareTelemetry={shareTelemetry}
-        playNext={doPlayNext}
-        playPrevious={doPlayPrevious}
-        embedded={embedded}
-        embeddedInternal={isMarkdownOrComment}
-        claimValues={claim.value}
-        doAnalyticsViewForUri={doAnalyticsViewForUri}
-        doAnalyticsBuffer={doAnalyticsBuffer}
-        claimRewards={claimRewards}
-        uri={uri}
-        userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
-        isLivestreamClaim={isLivestreamClaim}
-        activeLivestreamForChannel={activeLivestreamForChannel}
-        defaultQuality={defaultQuality}
-        doToast={doToast}
-        isPurchasableContent={isPurchasableContent}
-        isRentableContent={isRentableContent}
-        isProtectedContent={isProtectedContent}
+    <>
+      <Global
+        styles={{
+          '.embed__wrapper:not(:hover), .content__viewer--secondary:not(:hover)': {
+            '.file-viewer__embedded-header': {
+              display: isPlaying && 'none !important',
+            },
+          },
+        }}
       />
-    </div>
+
+      <div
+        className={classnames('file-viewer', {
+          'file-viewer--is-playing': isPlaying,
+          'file-viewer--ended-embed': isEndedEmbed,
+        })}
+        onContextMenu={stopContextMenu}
+      >
+        {showAutoplayCountdown && (
+          <AutoplayCountdown
+            nextRecommendedUri={nextRecommendedUri}
+            doNavigate={() => setDoNavigate(true)}
+            doReplay={() => {
+              if (playerElem) {
+                if (playerEndedDuration.current) {
+                  playerElem.play();
+                } else {
+                  playerElem.currentTime(0);
+                }
+              }
+              playerEndedDuration.current = false;
+              setEnded(false);
+              setShowAutoplayCountdown(false);
+            }}
+            onCanceled={() => {
+              setEnded(false);
+              setShowAutoplayCountdown(false);
+            }}
+          />
+        )}
+        {isEndedEmbed && <FileViewerEmbeddedEnded uri={uri} />}
+        {embedded && !isEndedEmbed && <FileViewerEmbeddedTitle uri={uri} />}
+
+        {!isFetchingAd && adUrl && (
+          <>
+            <span className="ads__video-notify">
+              {__('Advertisement')}{' '}
+              <Button
+                className="ads__video-close"
+                icon={ICONS.REMOVE}
+                title={__('Close')}
+                onClick={() => setAdUrl(null)}
+              />
+            </span>
+            <span className="ads__video-nudge">
+              <I18nMessage
+                tokens={{
+                  sign_up: (
+                    <Button
+                      button="secondary"
+                      className="ads__video-link"
+                      label={__('Sign Up')}
+                      navigate={`/$/${PAGES.AUTH}?redirect=${pathname}&src=video-ad`}
+                    />
+                  ),
+                }}
+              >
+                %sign_up% to turn ads off.
+              </I18nMessage>
+            </span>
+          </>
+        )}
+
+        <VideoJs
+          adUrl={adUrl}
+          source={adUrl || source}
+          sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType}
+          isAudio={isAudio}
+          poster={isAudio ? thumbnail : ''}
+          onPlayerReady={onPlayerReady}
+          startMuted={autoplayIfEmbedded}
+          toggleVideoTheaterMode={toggleVideoTheaterMode}
+          claimId={claimId}
+          title={claim && ((claim.value && claim.value.title) || claim.name)}
+          channelTitle={channelTitle}
+          userId={userId}
+          allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
+          internalFeatureEnabled={internalFeature}
+          shareTelemetry={shareTelemetry}
+          playNext={doPlayNext}
+          playPrevious={doPlayPrevious}
+          embedded={embedded}
+          embeddedInternal={isMarkdownOrComment}
+          claimValues={claim.value}
+          doAnalyticsViewForUri={doAnalyticsViewForUri}
+          doAnalyticsBuffer={doAnalyticsBuffer}
+          claimRewards={claimRewards}
+          uri={uri}
+          userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
+          isLivestreamClaim={isLivestreamClaim}
+          activeLivestreamForChannel={activeLivestreamForChannel}
+          defaultQuality={defaultQuality}
+          doToast={doToast}
+          isPurchasableContent={isPurchasableContent}
+          isRentableContent={isRentableContent}
+          isProtectedContent={isProtectedContent}
+        />
+      </div>
+    </>
   );
 }
 
