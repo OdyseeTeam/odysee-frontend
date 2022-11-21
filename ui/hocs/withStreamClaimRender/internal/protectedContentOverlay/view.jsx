@@ -20,6 +20,7 @@ type Props = {
   userIsAMember: boolean,
   myMembership: ?Membership,
   cheapestPlanPrice: ?Membership,
+  passClickPropsToParent?: (props: { href: ?string, onClick: ?() => void }) => void,
   doOpenModal: (string, {}) => void,
 };
 
@@ -32,6 +33,7 @@ const ProtectedContentOverlay = (props: Props) => {
     myMembership,
     userIsAMember,
     cheapestPlanPrice,
+    passClickPropsToParent,
     doOpenModal,
   } = props;
 
@@ -39,6 +41,20 @@ const ProtectedContentOverlay = (props: Props) => {
   const fileUri = props.fileUri || appFileUri;
   const isEmbed = React.useContext(EmbedContext);
   const membershipFetching = myMembership === undefined;
+
+  const clickProps = React.useMemo(
+    () => ({
+      href: isEmbed && `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}`,
+      onClick: !isEmbed && (() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })),
+    }),
+    [doOpenModal, fileUri, isEmbed, uri]
+  );
+
+  React.useEffect(() => {
+    if (passClickPropsToParent) {
+      passClickPropsToParent(clickProps);
+    }
+  }, [clickProps, passClickPropsToParent]);
 
   if (membershipFetching || !isProtected || userIsAMember || claimIsMine) return null;
 
@@ -61,8 +77,7 @@ const ProtectedContentOverlay = (props: Props) => {
             : __('Membership options')
         }
         title={__('Become a member')}
-        href={isEmbed && `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}`}
-        onClick={!isEmbed && (() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri }))}
+        {...clickProps}
       />
     </div>
   );

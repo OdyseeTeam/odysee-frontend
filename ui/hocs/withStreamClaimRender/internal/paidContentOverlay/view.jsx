@@ -16,6 +16,7 @@ type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
 type Props = {
   uri: string,
+  passClickPropsToParent?: (props: { href: ?string, onClick: ?() => void }) => void,
   // --- redux ---
   preferredCurrency: string,
   preorderContentClaim: Claim,
@@ -29,6 +30,7 @@ type Props = {
 export default function PaidContentOvelay(props: Props) {
   const {
     uri,
+    passClickPropsToParent,
     // --- redux ---
     preferredCurrency,
     preorderContentClaim, // populates after doResolveClaimIds
@@ -52,6 +54,14 @@ export default function PaidContentOvelay(props: Props) {
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds;
   }
 
+  const clickProps = React.useMemo(
+    () => ({
+      href: isEmbed && `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri })}`,
+      onClick: !isEmbed && (() => doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri })),
+    }),
+    [doOpenModal, isEmbed, uri]
+  );
+
   const ButtonPurchase = React.useMemo(
     () => ({ label }: { label: string }) => (
       <Button
@@ -59,14 +69,17 @@ export default function PaidContentOvelay(props: Props) {
         icon={fiatIconToUse}
         button="primary"
         label={label}
-        href={
-          isEmbed && `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri })}`
-        }
-        onClick={!isEmbed && (() => doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri }))}
+        {...clickProps}
       />
     ),
-    [doOpenModal, fiatIconToUse, isEmbed, sdkFeeRequired, uri]
+    [clickProps, fiatIconToUse, sdkFeeRequired]
   );
+
+  React.useEffect(() => {
+    if (passClickPropsToParent) {
+      passClickPropsToParent(clickProps);
+    }
+  }, [clickProps, passClickPropsToParent]);
 
   return (
     <div className="paid-content-overlay">

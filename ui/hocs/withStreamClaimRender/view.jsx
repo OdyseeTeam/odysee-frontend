@@ -98,6 +98,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     } = props;
 
     const [streamingUri, setStreamingUri] = React.useState();
+    const [clickProps, setClickProps] = React.useState();
 
     const { search, href, state: locationState, pathname } = location;
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
@@ -200,11 +201,11 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
       return (
-        <ClaimCoverRender uri={uri}>
+        <ClaimCoverRender uri={uri} {...clickProps}>
           {pendingFiatPayment || pendingSdkPayment ? (
-            <PaidContentOverlay uri={uri} />
+            <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
           ) : pendingUnlockedRestrictions ? (
-            <ProtectedContentOverlay uri={uri} fileUri={uri} />
+            <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
           ) : null}
         </ClaimCoverRender>
       );

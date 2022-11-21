@@ -402,6 +402,14 @@
   }
 }
 
+.content__cover--link > .button__content {
+  width: 100%;
+
+  .protected-content-overlay {
+    position: relative;
+  }
+}
+
 .content__cover--theater-mode {
   @extend .content__cover;
   border-radius: 0;
