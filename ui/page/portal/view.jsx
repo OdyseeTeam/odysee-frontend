@@ -8,7 +8,7 @@ import './style.scss';
 type Props = {
   // uri: string,
   portals: any,
-  homepageData: any,
+  // homepageData: any,
 };
 
 export const PortalContext = React.createContext<any>();

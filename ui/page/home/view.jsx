@@ -21,7 +21,7 @@ import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
 import Ads from 'web/component/ads';
-// import Meme from 'web/component/meme';
+import Meme from 'web/component/meme';
 import Portals from 'component/portals';
 import FeaturedBanner from 'component/featuredBanner';
 
@@ -35,7 +35,7 @@ type Props = {
   subscribedChannels: Array<Subscription>,
   showNsfw: boolean,
   homepageData: any,
-  // homepageMeme: ?{ text: string, url: string },
+  homepageMeme: ?{ text: string, url: string },
   homepageFetched: boolean,
   activeLivestreams: any,
   doFetchActiveLivestreams: () => void,
@@ -55,7 +55,7 @@ function HomePage(props: Props) {
     authenticated,
     showNsfw,
     homepageData,
-    // homepageMeme,
+    homepageMeme,
     homepageFetched,
     activeLivestreams,
     doFetchActiveLivestreams,
@@ -215,7 +215,7 @@ function HomePage(props: Props) {
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>
-      {/* <Meme meme={homepageMeme} /> */}
+      {topGrid === 0 && <Meme meme={homepageMeme} />}
 
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
