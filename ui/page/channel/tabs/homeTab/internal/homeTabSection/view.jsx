@@ -286,32 +286,37 @@ function HomeTabSection(props: Props) {
         (section.claim_id ||
           collectionUrls ||
           (claimSearchResults && claimSearchResults.length > 0) ||
-          section.type === 'featured') && (
+          section.type === 'featured') &&
+        (section.type !== 'featured' ? (
           <div className="section">
-            {section.type !== 'featured' ? (
-              <>
-                <label className="home-section-title">{collectionName || getTitle()}</label>
-                <ClaimListDiscover
-                  hideFilters
-                  hideAdvancedFilter
-                  hideLayoutButton
-                  tileLayout
-                  infiniteScroll={false}
-                  maxClaimRender={maxTilesPerRow * section.rows}
-                  useSkeletonScreen={false}
-                  uris={collectionUrls || claimSearchResults}
-                  claimIds={collectionClaimIds}
-                  fetchViewCount
-                />
-              </>
-            ) : (
-              <FeaturedSection
-                uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])}
-                claimId={section.claim_id}
-              />
-            )}
+            <label className="home-section-title">{collectionName || getTitle()}</label>
+            <ClaimListDiscover
+              hideFilters
+              hideAdvancedFilter
+              hideLayoutButton
+              tileLayout
+              infiniteScroll={false}
+              maxClaimRender={maxTilesPerRow * section.rows}
+              useSkeletonScreen={false}
+              uris={collectionUrls || claimSearchResults}
+              claimIds={collectionClaimIds}
+              fetchViewCount
+            />
           </div>
-        )}
+        ) : singleClaimUri || (claimSearchResults && claimSearchResults[0]) || section.claim_id ? (
+          <div className="section">
+            <FeaturedSection
+              uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])}
+              claimId={section.claim_id}
+            />
+          </div>
+        ) : claimSearchResults === undefined ? (
+          // Resolving State
+          <FeaturedSection />
+        ) : (
+          // Empty state
+          <div className="empty empty--centered">{__('No Content Found')}</div>
+        ))}
     </div>
   );
 }
