@@ -16,7 +16,7 @@ type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
 type Props = {
   uri: string,
-  passClickPropsToParent?: (props: { href: ?string, onClick: ?() => void }) => void,
+  passClickPropsToParent?: (props: { href?: string, onClick?: () => void }) => void,
   // --- redux ---
   preferredCurrency: string,
   preorderContentClaim: Claim,
@@ -55,10 +55,10 @@ export default function PaidContentOvelay(props: Props) {
   }
 
   const clickProps = React.useMemo(
-    () => ({
-      href: isEmbed && `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri })}`,
-      onClick: !isEmbed && (() => doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri })),
-    }),
+    () =>
+      isEmbed
+        ? { href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri })}` }
+        : { onClick: () => doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri }) },
     [doOpenModal, isEmbed, uri]
   );
 
