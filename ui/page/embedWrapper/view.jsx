@@ -6,6 +6,7 @@ import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import { formatLbryChannelName } from 'util/url';
 import { useHistory } from 'react-router';
 import { EmbedContext } from 'contexts/embed';
+import { parseURI } from 'util/lbryURI';
 import EmbedClaimComponent from './internal/embedClaimComponent';
 
 type Props = {
@@ -42,6 +43,8 @@ const EmbedWrapperPage = (props: Props) => {
   const {
     location: { search },
   } = useHistory();
+
+  const { isChannel } = parseURI(uri);
 
   const channelUrl = channelUri && formatLbryChannelName(channelUri);
   const urlParams = new URLSearchParams(search);
@@ -88,7 +91,12 @@ const EmbedWrapperPage = (props: Props) => {
   ]);
 
   return (
-    <div className={classnames('embed__wrapper', { 'embed__wrapper--light-background': embedLightBackground })}>
+    <div
+      className={classnames('embed__wrapper', {
+        'embed__wrapper--light-background': embedLightBackground,
+        'embed__wrapper--channel': isChannel,
+      })}
+    >
       <EmbedContext.Provider value>
         <EmbedClaimComponent uri={uri} />
         <FileViewerEmbeddedTitle uri={uri} />
