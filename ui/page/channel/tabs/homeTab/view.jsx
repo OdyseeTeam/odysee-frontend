@@ -162,8 +162,6 @@ function HomeTab(props: Props) {
                     altIndex={i}
                     altCollection={home}
                     altEditCollection={(e) => handleEditCollection(e)}
-                    // dragHandleProps={dragHandleProps}
-                    // doDisablePlayerDrag={doDisablePlayerDrag}
                   />
                 )}
               </div>
