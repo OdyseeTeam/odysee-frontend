@@ -15,7 +15,7 @@ const select = (state, props) => {
   const { collectionId } = props;
 
   return {
-    isPrivate: selectHasPrivateCollectionForId(state),
+    isPrivate: selectHasPrivateCollectionForId(state, collectionId),
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collectionIds: selectClaimIdsForCollectionId(state, collectionId),
   };
