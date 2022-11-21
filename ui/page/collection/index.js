@@ -6,6 +6,7 @@ import {
   selectBrokenUrlsForCollectionId,
   selectCollectionIsMine,
   selectHasPrivateCollectionForId,
+  selectIsCollectionPrivateForId,
 } from 'redux/selectors/collections';
 
 import { doResolveClaimId } from 'redux/actions/claims';
@@ -23,7 +24,8 @@ const select = (state, props) => {
     collection: selectCollectionForId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
     isCollectionMine: selectCollectionIsMine(state, collectionId),
-    isPrivate: selectHasPrivateCollectionForId(state, collectionId),
+    hasPrivate: selectHasPrivateCollectionForId(state, collectionId),
+    isPrivate: selectIsCollectionPrivateForId(state, collectionId),
   };
 };
 
