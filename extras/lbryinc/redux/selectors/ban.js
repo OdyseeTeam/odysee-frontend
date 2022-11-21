@@ -50,7 +50,7 @@ export const selectBanStateForUri = createCachedSelector(
 
     // block stream claims
     // block channel claims if we can't control for them in claim search
-    if (mutedChannelUris.length && channelClaim) {
+    if (mutedChannelUris?.length && channelClaim) {
       if (mutedChannelUris.some((blockedUri) => isURIEqual(blockedUri, channelClaim.permanent_url))) {
         banState['muted'] = true;
       }

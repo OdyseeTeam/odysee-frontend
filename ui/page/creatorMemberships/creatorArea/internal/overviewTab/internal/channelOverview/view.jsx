@@ -33,7 +33,6 @@ const ChannelOverview = (props: Props) => {
 
       <td>{supportersAmount}</td>
       <td>${(monthlyIncome / 100).toFixed(2)}</td>
-      <td>$0</td>
 
       <td>
         <ButtonNavigateChannelId

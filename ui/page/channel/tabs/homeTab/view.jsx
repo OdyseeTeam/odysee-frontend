@@ -12,6 +12,7 @@ import './style.scss';
 
 type Props = {
   uri: string,
+  preferEmbed: boolean,
   claim: any,
   editMode: boolean,
   activeLivestreamForChannel: any,
@@ -22,6 +23,7 @@ type Props = {
 
 function HomeTab(props: Props) {
   const {
+    preferEmbed,
     claim,
     editMode,
     activeLivestreamForChannel,
@@ -150,6 +152,7 @@ function HomeTab(props: Props) {
         </div>
       )}
       {home &&
+        !preferEmbed &&
         home.map((section, i) => {
           return (
             <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>

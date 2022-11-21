@@ -85,7 +85,7 @@ const WalletFiatAccountHistory = (props: Props) => {
             })}
         </tbody>
       </table>
-      {!accountTransactions && <p className="wallet__fiat-transactions">{__('No Transactions')}</p>}
+      {!accountTransactions && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
     </div>
   );
 };

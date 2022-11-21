@@ -79,7 +79,7 @@ const WalletFiatPaymentHistory = (props: Props) => {
           </table>
           {/* show some markup if there's no transactions */}
           {(!accountTransactions || accountTransactions.length === 0) && (
-            <p className="wallet__fiat-transactions">{__('No Transactions')}</p>
+            <p className="wallet__fiat-transactions">{__('No Tips')}</p>
           )}
         </div>
       </div>

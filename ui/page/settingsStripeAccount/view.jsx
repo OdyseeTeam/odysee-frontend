@@ -116,7 +116,7 @@ const StripeAccountConnection = (props: Props) => {
             <>
               <Button
                 button="secondary"
-                label={__('View Transactions')}
+                label={__('View Tips')}
                 icon={ICONS.SETTINGS}
                 navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
               />

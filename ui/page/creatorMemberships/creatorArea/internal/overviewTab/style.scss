@@ -54,7 +54,7 @@
 }
 
 .table-total {
-  margin-bottom: var(--spacing-l);
+  margin-bottom: var(--spacing-m);
   background-color: var(--color-header-background);
   border-radius: var(--border-radius);
 
@@ -78,5 +78,14 @@
     color: var(--color-primary);
     border: 2px solid var(--color-border);
     border-radius: var(--border-radius);
+  }
+}
+
+.link-to-bank-account {
+  margin-top: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+
+  a {
+    margin-top: 3px;
   }
 }

@@ -343,7 +343,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.airPlay();
 
       player.watchdog({
-        timeoutMs: 30000,
+        timeoutMs: 15000,
         livestreamsOnly: true,
         action: () => setReload(Date.now()),
       });
