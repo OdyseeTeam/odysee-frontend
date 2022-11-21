@@ -101,6 +101,8 @@ function HomePage(props: Props) {
     help?: string,
   };
 
+  const topGrid = sortedRowData.findIndex((row) => row.title);
+
   const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
     return (
       <h1 className="claim-grid__header">
@@ -167,7 +169,7 @@ function HomePage(props: Props) {
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {id === 'FOLLOWING' && <CustomizeHomepage />}
+              {index === topGrid && <CustomizeHomepage />}
             </div>
           )}
         </>
