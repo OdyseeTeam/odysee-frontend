@@ -13,12 +13,13 @@ type Props = {
   homepageData: any,
   homepageOrder: HomepageOrder,
   authenticated: boolean,
+  activePortal: number,
   // --- perform ---
   doSetClientSetting: (key: string, value: any, push: boolean) => void,
 };
 
 export default function Portals(props: Props) {
-  const { homepageData, homepageOrder, doSetClientSetting, authenticated } = props;
+  const { homepageData, homepageOrder, doSetClientSetting, authenticated, activePortal } = props;
   const { portals, categories } = homepageData;
   const [hover, setHover] = React.useState(undefined);
   const [kill, setKill] = React.useState(false);
@@ -91,12 +92,12 @@ export default function Portals(props: Props) {
       {portals.mainPortal.portals.map((portal, i) => {
         return (
           <div
-            className="portal-wrapper"
+            className={classnames('portal-wrapper', { disabled: portal.name === activePortal })}
             key={i}
             onMouseEnter={() => setHover(portal.name)}
             onMouseLeave={() => setHover(undefined)}
           >
-            <NavLink aria-hidden tabIndex={-1} to={{ pathname: '$/portal/' + portal.name, state: portal }}>
+            <NavLink aria-hidden tabIndex={-1} to={{ pathname: '/$/portal/' + portal.name, state: portal }}>
               <div
                 className="portal-thumbnail"
                 style={{

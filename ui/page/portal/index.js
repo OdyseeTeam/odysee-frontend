@@ -8,6 +8,7 @@ const select = (state) => {
   const { mainPortal } = portals || {};
 
   return {
+    homepageData,
     portals: mainPortal?.portals,
   };
 };

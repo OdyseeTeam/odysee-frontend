@@ -3,19 +3,21 @@ import React from 'react';
 import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
+import Portals from 'component/portals';
 import './style.scss';
 
 type Props = {
   // uri: string,
   portals: any,
-  // homepageData: any,
+  homepageData: any,
 };
 
 export const PortalContext = React.createContext<any>();
 
 function PortalPage(props: Props) {
-  const { portals } = props;
+  const { portals, homepageData } = props;
   const [portal, setIndex] = React.useState(undefined);
+  const [displayedTiles, setDisplayedTiles] = React.useState(0);
 
   let { portalName } = useParams();
 
@@ -59,8 +61,10 @@ function PortalPage(props: Props) {
             infiniteScroll
             tileLayout
             showHeader={false}
+            loadedCallback={setDisplayedTiles}
           />
         </div>
+        {homepageData && displayedTiles > 49 && <Portals homepageData={homepageData} activePortal={portal.name} />}
       </Page>
     </>
   ) : (
