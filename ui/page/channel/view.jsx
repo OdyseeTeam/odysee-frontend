@@ -44,7 +44,6 @@ type Props = {
   title: ?string,
   coverUrl: ?string,
   thumbnail: ?string,
-  page: number,
   match: { params: { attribute: ?string } },
   channelIsMine: boolean,
   isSubscribed: boolean,
@@ -63,6 +62,7 @@ type Props = {
   doMembershipMine: () => void,
   myMembershipsFetched: boolean,
   isOdyseeChannel: boolean,
+  preferEmbed: boolean,
 };
 
 export const ChannelPageContext = React.createContext<any>();
@@ -73,7 +73,6 @@ function ChannelPage(props: Props) {
     claim,
     title,
     coverUrl,
-    // page, ?page= may come back some day?
     channelIsMine,
     isSubscribed,
     blackListedOutpointMap,
@@ -90,16 +89,26 @@ function ChannelPage(props: Props) {
     doMembershipMine,
     myMembershipsFetched,
     isOdyseeChannel,
+    preferEmbed,
   } = props;
-
   const {
     push,
     goBack,
     location: { search },
   } = useHistory();
+  const { meta } = claim;
+  const { claims_in_channel } = meta;
+  const showClaims = Boolean(claims_in_channel) && !preferEmbed;
+  console.log('showClaims: ', showClaims);
+
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
   const urlParams = new URLSearchParams(search);
-  const currentView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || CHANNEL_PAGE.VIEWS.HOME;
+  const [currentView, setCurrentView] = React.useState(
+    urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || showClaims ? CHANNEL_PAGE.VIEWS.HOME : CHANNEL_PAGE.VIEWS.ABOUT
+  );
+  // const currentView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || showClaims ? CHANNEL_PAGE.VIEWS.HOME : CHANNEL_PAGE.VIEWS.ABOUT;
+  console.log('currentView: ', currentView);
+  console.log('urlParams: ', urlParams.get(CHANNEL_PAGE.QUERIES.VIEW));
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
@@ -194,16 +203,16 @@ function ChannelPage(props: Props) {
   let tabIndex;
   switch (currentView) {
     case CHANNEL_PAGE.VIEWS.HOME:
-      tabIndex = 0;
+      tabIndex = showClaims || channelIsMine ? 0 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.CONTENT:
-      tabIndex = 1;
+      tabIndex = showClaims || channelIsMine ? 1 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.PLAYLISTS:
-      tabIndex = 2;
+      tabIndex = showClaims || channelIsMine ? 2 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.CHANNELS:
-      tabIndex = 3;
+      tabIndex = showClaims || channelIsMine ? 3 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
       if (!isOdyseeChannel) tabIndex = 4;
@@ -229,27 +238,37 @@ function ChannelPage(props: Props) {
     switch (newTabIndex) {
       case 0:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.HOME);
         break;
       case 1:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.CONTENT);
         break;
       case 2:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.PLAYLISTS);
         break;
       case 3:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.CHANNELS);
         break;
       case 4:
-        if (!isOdyseeChannel) search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+        if (!isOdyseeChannel) {
+          search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+          setCurrentView(CHANNEL_PAGE.VIEWS.MEMBERSHIP);
+        }
         break;
       case 5:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.DISCUSSION);
         break;
       case 6:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.ABOUT);
         break;
       case 7:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.SETTINGS);
         break;
     }
 
@@ -385,16 +404,16 @@ function ChannelPage(props: Props) {
                 />
               </div>
               <TabList>
-                <Tab disabled={editing} aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
+                <Tab aria-selected={tabIndex === 0} disabled={editing || !showClaims} onClick={() => onTabChange(0)}>
                   {__('Home')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+                <Tab aria-selected={tabIndex === 1} disabled={editing || !showClaims} onClick={() => onTabChange(1)}>
                   {__('Content')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>
+                <Tab aria-selected={tabIndex === 2} disabled={editing || !showClaims} onClick={() => onTabChange(2)}>
                   {__('Playlists')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>
+                <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
                   {__('Channels')}
                 </Tab>
                 <Tab
@@ -405,7 +424,7 @@ function ChannelPage(props: Props) {
                 >
                   {__('Membership')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 5} onClick={() => onTabChange(5)}>
+                <Tab aria-selected={tabIndex === 5} disabled={editing} onClick={() => onTabChange(5)}>
                   {__('Community')}
                 </Tab>
                 <Tab aria-selected={tabIndex === 6} onClick={() => onTabChange(6)}>

@@ -59,6 +59,9 @@ $actions-z-index: 2;
           background-color: var(--color-link);
         }
       }
+      &:disabled {
+        display: none;
+      }
     }
 
     @media (max-width: $breakpoint-small) {
