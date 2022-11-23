@@ -11,7 +11,7 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
-  selectUrlsForCollectionId,
+  selectFirstItemUrlForCollection,
   selectAreCollectionItemsFetchingForId,
 } from 'redux/selectors/collections';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -27,6 +27,7 @@ import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { doFetchCreatorSettings } from 'redux/actions/comments';
 import { selectSettingsForChannelId } from 'redux/selectors/comments';
 import { PREFERENCE_EMBED } from 'constants/tags';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
 import ShowPage from './view';
 
 const select = (state, props) => {
@@ -64,7 +65,7 @@ const select = (state, props) => {
     isLivestream: isStreamPlaceholderClaim(claim),
     collection: selectCollectionForId(state, collectionId),
     collectionId,
-    collectionUrls: selectUrlsForCollectionId(state, collectionId),
+    collectionFirstItemUri: selectFirstItemUrlForCollection(state, collectionId),
     isResolvingCollection: selectAreCollectionItemsFetchingForId(state, collectionId),
     isAuthenticated: selectUserVerifiedEmail(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
@@ -81,6 +82,7 @@ const perform = {
   fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
   fetchChannelLiveStatus: doFetchChannelLiveStatus,
   doFetchCreatorSettings,
+  doFetchItemsInCollection,
 };
 
 export default withRouter(connect(select, perform)(ShowPage));
