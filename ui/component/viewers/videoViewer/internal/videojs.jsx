@@ -30,6 +30,7 @@ import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
+import { EmbedContext } from 'contexts/embed';
 import usePersistedState from 'effects/use-persisted-state';
 import Lbry from 'lbry';
 
@@ -186,6 +187,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isProtectedContent,
   } = props;
 
+  const isEmbed = React.useContext(EmbedContext);
+
   // used to notify about default quality setting
   // if already has a quality set, no need to notify
   const [initialQualityChange, setInitialQualityChange] = usePersistedState(
@@ -316,7 +319,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           originalHeight: claimValues?.video?.height,
           defaultQuality,
           initialQualityChange,
-          setInitialQualityChange,
+          setInitialQualityChange: !isEmbed && setInitialQualityChange,
           doToast,
         });
       }
