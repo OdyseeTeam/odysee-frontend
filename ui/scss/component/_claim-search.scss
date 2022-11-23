@@ -60,6 +60,10 @@
   @media (max-width: $breakpoint-small) {
     padding: unset;
   }
+
+  &:not(:first-child) {
+    margin-top: var(--spacing-s) !important;
+  }
 }
 
 .claim-search__dropdown {

@@ -31,6 +31,7 @@ type Props = {
   pageOfClaimsInChannel: Array<StreamClaim>,
   channelIsBlocked: boolean,
   channelIsMine: boolean,
+  filters: any,
   fetchClaims: (string, number) => void,
   channelIsBlackListed: boolean,
   defaultPageSize?: number,
@@ -56,6 +57,7 @@ function ContentTab(props: Props) {
     channelIsMine,
     channelIsBlocked,
     channelIsBlackListed,
+    filters,
     claim,
     defaultPageSize = CS.PAGE_SIZE,
     defaultInfiniteScroll = true,
@@ -176,7 +178,7 @@ function ContentTab(props: Props) {
             channelIds={[claimId]}
             claimType={claimType}
             feeAmount={undefined}
-            defaultOrderBy={CS.ORDER_BY_NEW}
+            defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
             injectedItem={
@@ -220,6 +222,7 @@ function ContentTab(props: Props) {
             empty={isSearching ? ' ' : empty}
             notTags={claimType === 'collection' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined}
             csOptionsHook={tagSearchCsOptionsHook}
+            contentType={filters && filters.file_type}
           />
         </ClaimSearchFilterContext.Provider>
       )}

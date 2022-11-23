@@ -66,6 +66,8 @@ type Props = {
   streamType?: string | Array<string>,
   defaultStreamType?: string | Array<string>,
 
+  contentType?: string | Array<string>,
+
   empty?: string,
   feeAmount?: string,
   releaseTime?: string,
@@ -90,6 +92,9 @@ type Props = {
 
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
+
+  expandFilters: boolean,
+  setFilters: any,
 
   // --- select ---
   followedTags?: Array<Tag>,
@@ -156,6 +161,7 @@ function ClaimListDiscover(props: Props) {
     defaultClaimType,
     streamType,
     defaultStreamType,
+    contentType,
     freshness,
     defaultFreshness = CS.FRESH_WEEK,
     renderProperties,
@@ -256,7 +262,7 @@ function ClaimListDiscover(props: Props) {
   let claimTypeParam = claimType || defaultClaimType || null;
   let streamTypeParam = streamType || defaultStreamType || null;
 
-  const contentTypeParam = urlParams.get(CS.CONTENT_KEY);
+  const contentTypeParam = contentType || urlParams.get(CS.CONTENT_KEY);
   if (contentTypeParam) {
     switch (contentTypeParam) {
       case CS.CLAIM_COLLECTION:
@@ -301,7 +307,7 @@ function ClaimListDiscover(props: Props) {
   const originalPageSize = 12;
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
   const orderParam = usePersistentUserParam(
-    [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
+    [defaultOrderBy, urlParams.get(CS.ORDER_BY_KEY), orderBy],
     'orderUser',
     CS.ORDER_BY_TRENDING
   );
@@ -755,9 +761,6 @@ function ClaimListDiscover(props: Props) {
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh]);
 
-  // console.log('searchOptions: ', optionsStringForEffect)
-  // console.log('claimSearchByQuery: ', claimSearchByQuery)
-
   const headerToUse = header || (
     <ClaimListHeader
       channelIds={channelIds}
@@ -779,6 +782,7 @@ function ClaimListDiscover(props: Props) {
       hideLayoutButton={hideLayoutButton}
       hideFilters={hideFilters}
       scrollAnchor={scrollAnchor}
+      contentType={contentType}
     />
   );
 

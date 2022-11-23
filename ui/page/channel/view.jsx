@@ -37,6 +37,7 @@ import MembershipTab from './tabs/membershipTab';
 import CommunityTab from './tabs/communityTab';
 import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
+import * as CS from 'constants/claim_search';
 
 type Props = {
   uri: string,
@@ -135,6 +136,7 @@ function ChannelPage(props: Props) {
   }, [discussionWasMounted, uri]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
+  const [filters, setFilters] = React.useState(undefined);
 
   const [legacyHeader, setLegacyHeader] = React.useState(false);
   React.useEffect(() => {
@@ -227,9 +229,11 @@ function ChannelPage(props: Props) {
       break;
   }
 
-  function onTabChange(newTabIndex) {
+  function onTabChange(newTabIndex, keepFilters) {
     const url = formatLbryUrlForWeb(uri);
     let search = '?';
+
+    if (!keepFilters) setFilters(undefined);
 
     switch (newTabIndex) {
       case 0:
@@ -302,19 +306,38 @@ function ChannelPage(props: Props) {
   }
 
   function handleViewMore(section) {
+    function getOrderBy() {
+      return section.order_by && section.order_by[0] === 'trending_group'
+        ? CS.ORDER_BY_TRENDING
+        : section.order_by[0] === 'effective_amount'
+        ? CS.ORDER_BY_TOP
+        : CS.ORDER_BY_NEW;
+    }
+    function getFileType() {
+      return section.file_type && section.file_type.length === 1 && section.file_type[0] === 'video'
+        ? CS.FILE_VIDEO
+        : section.file_type[0] === 'audio'
+        ? CS.FILE_AUDIO
+        : section.file_type[0] === 'document'
+        ? CS.FILE_DOCUMENT
+        : section.file_type[0] === 'image'
+        ? CS.FILE_IMAGE
+        : undefined;
+    }
+
     switch (section.type) {
       case 'content':
-        onTabChange(1);
+        setFilters({ order_by: getOrderBy(), file_type: getFileType() });
+        onTabChange(1, true);
         break;
       case 'playlist':
-        console.log('Go to playlist');
+        push(`/$/playlist/${section.claim_id}`);
         break;
       case 'playlists':
-        onTabChange(2);
+        setFilters({ order_by: getOrderBy(), file_type: getFileType() });
+        onTabChange(2, true);
         break;
     }
-    console.log('handleViewMore');
-    console.log('section: ', section);
   }
 
   return (
@@ -459,6 +482,7 @@ function ChannelPage(props: Props) {
                     viewHiddenChannels
                     claimType={['stream', 'repost']}
                     empty={<section className="main--empty">{__('No Content Found')}</section>}
+                    filters={filters}
                   />
                 )}
               </TabPanel>

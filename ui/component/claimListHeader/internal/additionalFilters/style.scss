@@ -5,6 +5,9 @@ $OPTIONS_MIN_WIDTH: 250px;
 .additional-filters {
   box-sizing: border-box;
   margin-right: var(--spacing-m);
+  @media (max-width: $breakpoint-small) {
+    margin-right: 0;
+  }
   // Additional 'fieldset' nesting is only needed to due to our current css
   // situation, and to avoid using !important. Can remove after we flatten things.
   fieldset {
@@ -13,12 +16,17 @@ $OPTIONS_MIN_WIDTH: 250px;
       flex-flow: column;
       background-color: var(--color-input-bg);
       border-radius: var(--border-radius);
+
+      div:last-of-type {
+        .checkbox {
+          margin-bottom: var(--spacing-xs);
+        }
+      }
     }
     .checkbox {
-      height: var(--height-input);
       justify-content: center;
       padding: 0 var(--spacing-s);
-      margin-top: 1px;
+      margin-top: var(--spacing-xs);
 
       @media (min-width: $breakpoint-small) {
         width: $OPTIONS_MIN_WIDTH;
@@ -34,6 +42,7 @@ $OPTIONS_MIN_WIDTH: 250px;
 
       label::before {
         top: 0; // override the "-1" default, which was clipping the top edge.
+        border: 2px solid var(--color-border);
       }
 
       label::after {

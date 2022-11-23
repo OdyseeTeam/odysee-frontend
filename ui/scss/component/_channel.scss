@@ -268,12 +268,9 @@ $actions-z-index: 2;
     .section__actions--no-margin {
       position: absolute;
       right: 0;
-      top: calc(var(--spacing-s) + var(--spacing-m));
 
       @media (max-width: $breakpoint-small) {
         position: relative;
-        // margin-top:calc(var(---spacing-m) * -1);
-        top: unset;
       }
     }
   }

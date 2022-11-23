@@ -37,6 +37,7 @@ type Props = {
   channelIds?: Array<string>,
   tileLayout: boolean,
   scrollAnchor?: string,
+  contentType: string,
   setPage: (number) => void,
   // --- redux ---
   doSetClientSetting: (string, boolean, ?boolean) => void,
@@ -63,6 +64,7 @@ function ClaimListHeader(props: Props) {
     channelIds,
     tileLayout,
     doSetClientSetting,
+    contentType,
     setPage,
     hideFilters,
     searchInLanguage,
@@ -76,7 +78,7 @@ function ClaimListHeader(props: Props) {
   const [expanded, setExpanded] = usePersistedState(`expanded-${location.pathname}`, false);
   const urlParams = new URLSearchParams(search);
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
-  const contentTypeParam = urlParams.get(CS.CONTENT_KEY);
+  const contentTypeParam = contentType || urlParams.get(CS.CONTENT_KEY);
   const streamTypeParam =
     streamType || (CS.FILE_TYPES.includes(contentTypeParam) && contentTypeParam) || defaultStreamType || null;
   const languageParam = urlParams.get(CS.LANGUAGE_KEY) || null;
@@ -96,7 +98,8 @@ function ClaimListHeader(props: Props) {
 
   const isFiltered = () =>
     Boolean(
-      urlParams.get(CS.FRESH_KEY) ||
+      contentType ||
+        urlParams.get(CS.FRESH_KEY) ||
         urlParams.get(CS.CONTENT_KEY) ||
         (!filterCtx?.liftUpTagSearch && urlParams.get(CS.TAGS_KEY)) ||
         urlParams.get(CS.DURATION_KEY) ||
