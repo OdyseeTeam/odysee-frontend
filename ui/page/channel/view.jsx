@@ -99,16 +99,12 @@ function ChannelPage(props: Props) {
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed;
-  console.log('showClaims: ', showClaims);
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
   const urlParams = new URLSearchParams(search);
   const [currentView, setCurrentView] = React.useState(
     urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || showClaims ? CHANNEL_PAGE.VIEWS.HOME : CHANNEL_PAGE.VIEWS.ABOUT
   );
-  // const currentView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || showClaims ? CHANNEL_PAGE.VIEWS.HOME : CHANNEL_PAGE.VIEWS.ABOUT;
-  console.log('currentView: ', currentView);
-  console.log('urlParams: ', urlParams.get(CHANNEL_PAGE.QUERIES.VIEW));
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
@@ -305,6 +301,22 @@ function ChannelPage(props: Props) {
     );
   }
 
+  function handleViewMore(section) {
+    switch (section.type) {
+      case 'content':
+        onTabChange(1);
+        break;
+      case 'playlist':
+        console.log('Go to playlist');
+        break;
+      case 'playlists':
+        onTabChange(2);
+        break;
+    }
+    console.log('handleViewMore');
+    console.log('section: ', section);
+  }
+
   return (
     <Page className="channelPage-wrapper" noFooter fullWidthPage>
       <ChannelPageContext.Provider value>
@@ -437,7 +449,7 @@ function ChannelPage(props: Props) {
             </div>
             <TabPanels>
               <TabPanel>
-                <HomeTab uri={uri} editMode={channelIsMine} />
+                <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
               </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (

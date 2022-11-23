@@ -792,7 +792,7 @@ function ClaimListDiscover(props: Props) {
         <div>
           {!repostedClaimId && showHeader && (
             <div className="section__header--actions">
-              <div className="section__actions">
+              <div className="section__actions section__actions-span">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
               </div>

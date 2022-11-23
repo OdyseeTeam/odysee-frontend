@@ -70,6 +70,23 @@
       padding-bottom: var(--spacing-m);
       margin-bottom: var(--spacing-m);
       border-bottom: 1px solid var(--color-border);
+
+      .show-more {
+        position: absolute;
+        right: 0;
+        color: var(--color-primary);
+        margin-top: 1px;
+        margin-bottom: var(--spacing-s);
+
+        .icon {
+          margin-bottom: -3px;
+        }
+
+        &:hover {
+          cursor: pointer;
+          color: var(--color-secondary);
+        }
+      }
     }
   }
 

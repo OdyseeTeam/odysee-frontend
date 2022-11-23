@@ -279,8 +279,13 @@ function ClaimListHeader(props: Props) {
             {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
           </div>
         </div>
-        {expanded && (
-          <>
+
+        <div
+          className={classnames('claim-search__filters-wrapper', {
+            'claim-search__filters-wrapper-expanded': expanded,
+          })}
+        >
+          <div className="claim-search__filters">
             <div className={classnames('claim-search__menus')}>
               {/* FRESHNESS FIELD */}
               {orderParam === CS.ORDER_BY_TOP && (
@@ -361,6 +366,61 @@ function ClaimListHeader(props: Props) {
                     })}
                   </FormField>
                 </div>
+              )}
+
+              {/* DURATIONS FIELD */}
+              {showDuration && (
+                <>
+                  <div className={'claim-search__input-container'}>
+                    <FormField
+                      className={classnames('claim-search__dropdown', {
+                        'claim-search__dropdown--selected': durationParam,
+                      })}
+                      label={__('Duration --[length of audio or video]--')}
+                      type="select"
+                      name="duration"
+                      disabled={
+                        !(
+                          contentTypeParam === null ||
+                          streamTypeParam === CS.FILE_AUDIO ||
+                          streamTypeParam === CS.FILE_VIDEO
+                        )
+                      }
+                      value={durationParam || CS.DURATION_ALL}
+                      onChange={(e) =>
+                        handleChange({
+                          key: CS.DURATION_KEY,
+                          value: e.target.value,
+                        })
+                      }
+                    >
+                      {CS.DURATION_TYPES.map((dur) => (
+                        <option key={dur} value={dur}>
+                          {/* i18fixme */}
+                          {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
+                          {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
+                          {dur === CS.DURATION_ALL && __('Any')}
+                          {dur === CS.DURATION_GT_EQ && __('Longer than')}
+                          {dur === CS.DURATION_LT_EQ && __('Shorter than')}
+                        </option>
+                      ))}
+                    </FormField>
+                  </div>
+                  {(durationParam === CS.DURATION_GT_EQ || durationParam === CS.DURATION_LT_EQ) && (
+                    <div className={'claim-search__input-container'}>
+                      <FormField
+                        label={__('Minutes')}
+                        type="number"
+                        name="duration__minutes"
+                        value={minutes}
+                        onChange={(e) => {
+                          setMinutes(e.target.value);
+                          setDurationMinutesDebounced(e.target.value);
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               {/* LANGUAGE FIELD - hidden for now */}
@@ -464,66 +524,11 @@ function ClaimListHeader(props: Props) {
               )}
             </div>
 
-            {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
-
-            {/* DURATIONS FIELD */}
-            {showDuration && (
-              <div className={classnames('claim-search__menus duration')}>
-                <div className={'claim-search__input-container'}>
-                  <FormField
-                    className={classnames('claim-search__dropdown', {
-                      'claim-search__dropdown--selected': durationParam,
-                    })}
-                    label={__('Duration --[length of audio or video]--')}
-                    type="select"
-                    name="duration"
-                    disabled={
-                      !(
-                        contentTypeParam === null ||
-                        streamTypeParam === CS.FILE_AUDIO ||
-                        streamTypeParam === CS.FILE_VIDEO
-                      )
-                    }
-                    value={durationParam || CS.DURATION_ALL}
-                    onChange={(e) =>
-                      handleChange({
-                        key: CS.DURATION_KEY,
-                        value: e.target.value,
-                      })
-                    }
-                  >
-                    {CS.DURATION_TYPES.map((dur) => (
-                      <option key={dur} value={dur}>
-                        {/* i18fixme */}
-                        {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
-                        {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
-                        {dur === CS.DURATION_ALL && __('Any')}
-                        {dur === CS.DURATION_GT_EQ && __('Longer than')}
-                        {dur === CS.DURATION_LT_EQ && __('Shorter than')}
-                      </option>
-                    ))}
-                  </FormField>
-                </div>
-                {(durationParam === CS.DURATION_GT_EQ || durationParam === CS.DURATION_LT_EQ) && (
-                  <div className={'claim-search__input-container'}>
-                    <FormField
-                      label={__('Minutes')}
-                      type="number"
-                      name="duration__minutes"
-                      value={minutes}
-                      onChange={(e) => {
-                        setMinutes(e.target.value);
-                        setDurationMinutesDebounced(e.target.value);
-                      }}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
             <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
-          </>
-        )}
+
+            {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
+          </div>
+        </div>
       </div>
 
       {hasMatureTags && hiddenNsfwMessage}

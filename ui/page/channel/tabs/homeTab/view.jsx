@@ -17,6 +17,7 @@ type Props = {
   editMode: boolean,
   activeLivestreamForChannel: any,
   settingsByChannelId: { [string]: PerChannelSettings },
+  handleViewMore: (any) => void,
   doFetchChannelLiveStatus: (string) => void,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
@@ -28,6 +29,7 @@ function HomeTab(props: Props) {
     editMode,
     activeLivestreamForChannel,
     settingsByChannelId,
+    handleViewMore,
     doFetchChannelLiveStatus,
     doUpdateCreatorSettings,
   } = props;
@@ -162,8 +164,6 @@ function HomeTab(props: Props) {
                     altIndex={i}
                     altCollection={home}
                     altEditCollection={(e) => handleEditCollection(e)}
-                    // dragHandleProps={dragHandleProps}
-                    // doDisablePlayerDrag={doDisablePlayerDrag}
                   />
                 )}
               </div>
@@ -174,6 +174,7 @@ function HomeTab(props: Props) {
                 index={i}
                 hasFeaturedContent={home.some((s) => s?.type === 'featured')}
                 handleEditCollection={(e) => handleEditCollection(e, i)}
+                handleViewMore={(e) => handleViewMore(e)}
               />
             </div>
           );
