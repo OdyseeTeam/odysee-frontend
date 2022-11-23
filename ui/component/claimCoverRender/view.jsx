@@ -5,6 +5,8 @@ import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
 
 import { useIsMobile } from 'effects/use-screensize';
+import { EmbedContext } from 'contexts/embed';
+
 import useGetPoster from 'effects/use-get-poster';
 import Button from 'component/button';
 
@@ -35,6 +37,8 @@ const ClaimCoverRender = (props: Props) => {
     videoTheaterMode,
   } = props;
 
+  const isEmbed = React.useContext(EmbedContext);
+
   const isMobile = useIsMobile();
   const theaterMode = RENDER_MODES.FLOATING_MODES.includes(renderMode) && videoTheaterMode;
   const thumbnail = useGetPoster(claimThumbnail);
@@ -49,6 +53,7 @@ const ClaimCoverRender = (props: Props) => {
       onClick={onClick}
       style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
       className={classnames('content__cover', {
+        'content__cover--embed': isEmbed,
         'content__cover--black-background': !transparent,
         'content__cover--disabled': !onClick && !href,
         'content__cover--theater-mode': theaterMode && !isMobile,
