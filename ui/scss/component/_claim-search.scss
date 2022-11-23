@@ -192,20 +192,25 @@
 }
 
 .claim-search__filters-wrapper-expanded {
-  max-height: 220px;
+  max-height: 300px;
+  @media (max-width: $breakpoint-small) {
+    max-height: 600px;
+  }
 }
 
 .claim-search__filters {
   width: 100%;
   background-color: rgba(var(--color-header-background-base), 0.4);
   border-radius: var(--border-radius);
-  padding: var(--spacing-s);
+  padding-top: var(--spacing-s);
+  padding-left: var(--spacing-m);
+  padding-right: var(--spacing-m);
+  padding-bottom: var(--spacing-m);
   margin-top: var(--spacing-s);
 
   .claim-search__menus {
     margin: 0;
     .claim-search__input-container {
-      // width:0;
       flex: 1 1 0;
       padding-right: 0;
 

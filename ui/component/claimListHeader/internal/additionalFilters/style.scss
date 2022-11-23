@@ -3,20 +3,16 @@
 $OPTIONS_MIN_WIDTH: 250px;
 
 .additional-filters {
-  // display:inline-block;
   box-sizing: border-box;
-  margin-right: var(--spacing-s);
+  margin-right: var(--spacing-m);
   // Additional 'fieldset' nesting is only needed to due to our current css
   // situation, and to avoid using !important. Can remove after we flatten things.
   fieldset {
     .filer-checkbox-wrapper {
-      // display:inline-block;
-      // max-width:100%;
       display: flex;
       flex-flow: column;
       background-color: var(--color-input-bg);
       border-radius: var(--border-radius);
-      margin-right: var(--spacing-s);
     }
     .checkbox {
       height: var(--height-input);
