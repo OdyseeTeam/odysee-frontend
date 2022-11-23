@@ -262,6 +262,15 @@ $actions-z-index: 2;
       background: var(--color-header-button);
     }
   }
+
+  .section__header--actions {
+    position: relative;
+    .section__actions--no-margin {
+      position: absolute;
+      right: 0;
+      top: calc(var(--spacing-s) + var(--spacing-m));
+    }
+  }
 }
 
 .channelPage-edit-wrapper {

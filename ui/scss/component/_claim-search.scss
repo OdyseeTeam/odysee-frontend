@@ -192,7 +192,7 @@
 }
 
 .claim-search__filters-wrapper-expanded {
-  max-height: 100px;
+  max-height: 220px;
 }
 
 .claim-search__filters {
@@ -223,7 +223,7 @@
 
   select,
   input[type='text'],
-  .checkbox {
+  .filer-checkbox-wrapper {
     box-shadow: 0 0 0 2px var(--color-border) inset;
   }
 }

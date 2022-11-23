@@ -286,7 +286,7 @@ function ClaimListHeader(props: Props) {
           })}
         >
           <div className="claim-search__filters">
-            <div className={classnames('claim-search__menus')}>
+            <div className="claim-search__menus">
               {/* FRESHNESS FIELD */}
               {orderParam === CS.ORDER_BY_TOP && (
                 <div className="claim-search__input-container">
@@ -523,10 +523,10 @@ function ClaimListHeader(props: Props) {
                 </div>
               )}
             </div>
-
-            <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
-
-            {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
+            <div className="claim-search__menus">
+              <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
+              {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
+            </div>
           </div>
         </div>
       </div>
