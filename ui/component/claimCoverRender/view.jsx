@@ -12,6 +12,7 @@ type Props = {
   children: any,
   passedRef: any,
   href?: string,
+  transparent?: boolean,
   onClick?: () => void,
   // -- redux --
   claimThumbnail?: string,
@@ -25,6 +26,7 @@ const ClaimCoverRender = (props: Props) => {
     children,
     passedRef,
     href,
+    transparent,
     onClick,
     // -- redux --
     claimThumbnail,
@@ -47,6 +49,7 @@ const ClaimCoverRender = (props: Props) => {
       onClick={onClick}
       style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
       className={classnames('content__cover', {
+        'content__cover--black-background': !transparent,
         'content__cover--disabled': !onClick && !href,
         'content__cover--theater-mode': theaterMode && !isMobile,
         'content__cover--link': isNavigateLink,

@@ -104,6 +104,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
     const urlParams = search && new URLSearchParams(search);
     const collectionId = urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+    const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
 
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
     const isAPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
@@ -201,7 +202,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
       return (
-        <ClaimCoverRender uri={uri} {...clickProps}>
+        <ClaimCoverRender uri={uri} transparent {...clickProps}>
           {pendingFiatPayment || pendingSdkPayment ? (
             <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
           ) : pendingUnlockedRestrictions ? (
@@ -213,7 +214,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Loading State -- return before component render
     if (!streamingUrl) {
-      if (streamStarted && !isCurrentClaimLive) {
+      if (streamStarted && livestreamUnplayable) {
+        // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri} />;
       }
 
