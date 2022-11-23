@@ -18,8 +18,7 @@ import classnames from 'classnames';
 import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
 import AutoplayCountdown from 'component/autoplayCountdown';
 import usePrevious from 'effects/use-previous';
-import FileViewerEmbeddedEnded from 'web/component/fileViewerEmbeddedEnded';
-import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
+import FileViewerEmbeddedEnded from './internal/fileViewerEmbeddedEnded';
 import useAutoplayNext from './internal/effects/use-autoplay-next';
 import useTheaterMode from './internal/effects/use-theater-mode';
 import { addPlayNextButton } from './internal/play-next';
@@ -192,10 +191,12 @@ function VideoViewer(props: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
   const [showAutoplayCountdown, setShowAutoplayCountdown] = useState(false);
-  const [isEndedEmbed, setIsEndedEmbed] = useState(false);
   const vjsCallbackDataRef: any = React.useRef();
   const previousUri = usePrevious(uri);
-  const embedded = useContext(EmbedContext);
+
+  const embedContext = useContext(EmbedContext);
+  const embedded = Boolean(embedContext);
+
   const approvedVideo = Boolean(channelClaimId) && adApprovedChannelIds.includes(channelClaimId);
   const adsEnabled = ENABLE_PREROLL_ADS && !authenticated && !embedded && approvedVideo;
   const [adUrl, setAdUrl, isFetchingAd] = useGetAds(approvedVideo, adsEnabled);
@@ -245,9 +246,9 @@ function VideoViewer(props: Props) {
   useEffect(() => {
     if (uri && previousUri && uri !== previousUri) {
       setShowAutoplayCountdown(false);
-      setIsEndedEmbed(false);
+      if (embedContext) embedContext.setVideoEnded(false);
     }
-  }, [uri, previousUri]);
+  }, [uri, previousUri, embedContext]);
 
   // Update vjsCallbackDataRef (ensures videojs callbacks are not using stale values):
   useEffect(() => {
@@ -346,8 +347,8 @@ function VideoViewer(props: Props) {
       return;
     }
 
-    if (embedded) {
-      setIsEndedEmbed(true);
+    if (embedContext) {
+      embedContext.setVideoEnded(true);
       // show autoplay countdown div if not playlist
     } else if ((!collectionId || (playNextUrl && !nextPlaylistUri && nextPlaylistItem)) && autoplayNext) {
       setShowAutoplayCountdown(true);
@@ -368,7 +369,7 @@ function VideoViewer(props: Props) {
     autoplayNext,
     clearPosition,
     collectionId,
-    embedded,
+    embedContext,
     ended,
     nextPlaylistItem,
     nextPlaylistUri,
@@ -382,7 +383,7 @@ function VideoViewer(props: Props) {
     setEnded(false);
     setIsPlaying(true);
     setShowAutoplayCountdown(false);
-    setIsEndedEmbed(false);
+    if (embedContext) embedContext.setVideoEnded(false);
     setDoNavigate(false);
     analytics.video.videoIsPlaying(true, player);
   }
@@ -566,7 +567,7 @@ function VideoViewer(props: Props) {
       <div
         className={classnames('file-viewer', {
           'file-viewer--is-playing': isPlaying,
-          'file-viewer--ended-embed': isEndedEmbed,
+          'file-viewer--ended-embed': embedContext && embedContext.videoEnded,
         })}
         onContextMenu={stopContextMenu}
       >
@@ -592,8 +593,7 @@ function VideoViewer(props: Props) {
             }}
           />
         )}
-        {isEndedEmbed && <FileViewerEmbeddedEnded uri={uri} />}
-        {embedded && !isEndedEmbed && <FileViewerEmbeddedTitle uri={uri} />}
+        {embedContext && embedContext.videoEnded && <FileViewerEmbeddedEnded uri={uri} />}
 
         {!isFetchingAd && adUrl && (
           <>

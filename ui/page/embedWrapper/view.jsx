@@ -46,6 +46,8 @@ const EmbedWrapperPage = (props: Props) => {
 
   const { isChannel } = parseURI(uri);
 
+  const [videoEnded, setVideoEnded] = React.useState(false);
+
   const channelUrl = channelUri && formatLbryChannelName(channelUri);
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
@@ -97,7 +99,7 @@ const EmbedWrapperPage = (props: Props) => {
         'embed__wrapper--channel': isChannel,
       })}
     >
-      <EmbedContext.Provider value>
+      <EmbedContext.Provider value={{ setVideoEnded, videoEnded }}>
         <EmbedClaimComponent uri={uri} />
         <FileViewerEmbeddedTitle uri={uri} />
       </EmbedContext.Provider>

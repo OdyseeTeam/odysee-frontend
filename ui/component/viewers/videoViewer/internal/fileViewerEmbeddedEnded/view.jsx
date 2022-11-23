@@ -16,18 +16,17 @@ const DEFAULT_PROMPTS = {
 
 type Props = {
   uri: string,
+  doReplay: () => void,
+  // -- redux --
   isAuthenticated: boolean,
   preferEmbed: boolean,
 };
 
 function FileViewerEmbeddedEnded(props: Props) {
-  const { uri, isAuthenticated, preferEmbed } = props;
+  const { uri, doReplay, isAuthenticated, preferEmbed } = props;
 
   const prompts = isAuthenticated
-    ? {
-        ...DEFAULT_PROMPTS,
-        tip_auth: 'Always tip your creators',
-      }
+    ? { ...DEFAULT_PROMPTS, tip_auth: 'Always tip your creators' }
     : {
         ...DEFAULT_PROMPTS,
         earn_unauth: `Join ${SITE_NAME} and earn to watch.`,
@@ -39,7 +38,6 @@ function FileViewerEmbeddedEnded(props: Props) {
   // $FlowFixMe
   const prompt = prompts[promptKey];
   const odyseeLink = `${URL}${formatLbryUrlForWeb(uri)}?src=${promptKey}`;
-  const showReplay = Boolean(window.player);
 
   return (
     <div className="file-viewer__overlay">
@@ -54,15 +52,13 @@ function FileViewerEmbeddedEnded(props: Props) {
       </div>
       <div className="file-viewer__overlay-actions">
         <>
-          {showReplay && (
+          {doReplay && (
             <Button
               title={__('Replay')}
               button="link"
               label={preferEmbed ? __('Replay') : undefined}
               iconRight={ICONS.REPLAY}
-              onClick={() => {
-                if (window.player) window.player.play();
-              }}
+              onClick={doReplay}
             />
           )}
           {!preferEmbed && (
