@@ -567,6 +567,11 @@
   }
 }
 
+.embed__wrapper .file-viewer__embedded-header {
+  border-radius: 0 !important;
+  width: 100vw;
+}
+
 .file-viewer__embedded-gradient {
   position: absolute;
   top: 0;
