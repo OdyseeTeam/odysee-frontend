@@ -1121,14 +1121,9 @@ $control-bar-icon-size: 30px;
 }
 
 .file-viewer--ended-embed {
-  .vjs-big-play-button {
-    display: none !important; // yes this is dumb, but this was broken and the above CSS was overriding
-  }
-
-  .file-viewer__overlay-actions {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    grid-gap: 1rem;
+  .vjs-control-bar {
+    position: absolute;
+    z-index: 3;
   }
 }
 
