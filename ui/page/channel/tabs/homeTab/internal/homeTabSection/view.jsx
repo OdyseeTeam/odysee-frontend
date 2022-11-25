@@ -4,6 +4,7 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
+import { default as ChannelSection } from 'component/channelSections/Section';
 import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
@@ -25,6 +26,7 @@ type Props = {
   fetchingClaimSearch: boolean,
   publishedCollections: CollectionGroup,
   singleClaimUri: string,
+  featuredChannels: any,
   // --- perform ---
   doClaimSearch: ({}) => void,
   doResolveClaimId: (claimId: string) => void,
@@ -46,6 +48,7 @@ function HomeTabSection(props: Props) {
     fetchingClaimSearch,
     publishedCollections,
     singleClaimUri,
+    featuredChannels,
     doClaimSearch,
     doResolveClaimId,
   } = props;
@@ -57,6 +60,7 @@ function HomeTabSection(props: Props) {
 
   const windowSize = useWindowSize();
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
+  const featuredChannel = featuredChannels && featuredChannels.find((list) => list.id === section.claim_id);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
@@ -192,7 +196,7 @@ function HomeTabSection(props: Props) {
               <option value="content">{__('Content')}</option>
               <option value="playlists">{__('Playlists')}</option>
               <option value="playlist">{__('Playlist')}</option>
-              {/* <option value="channels">{__('Channels')}</option> */}
+              <option value="channels">{__('Channels')}</option>
               {/* <option value="reposts">{__('Reposts')}</option> */}
             </select>
           </div>
@@ -226,6 +230,26 @@ function HomeTabSection(props: Props) {
                     return (
                       <option key={i} value={list}>
                         {publishedCollections[list].name}
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+          )}
+          {section.type === 'channels' && (
+            <div className="home-section-header-option">
+              <label>{__('Featured Channels')}</label>
+              <select
+                name="claim_id"
+                value={section.claimId || 'select'}
+                onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+              >
+                <option value="select">{__('Select a Collection')}</option>
+                {featuredChannels &&
+                  featuredChannels.map((list, i) => {
+                    return (
+                      <option key={i} value={list.id}>
+                        {list.value.title}
                       </option>
                     );
                   })}
@@ -297,18 +321,32 @@ function HomeTabSection(props: Props) {
                   {__('View More')}
                   <Icon icon={ICONS.ARROW_RIGHT} />
                 </label>
-                <ClaimListDiscover
-                  hideFilters
-                  hideAdvancedFilter
-                  hideLayoutButton
-                  tileLayout
-                  infiniteScroll={false}
-                  maxClaimRender={maxTilesPerRow * section.rows}
-                  useSkeletonScreen={false}
-                  uris={collectionUrls || claimSearchResults}
-                  claimIds={collectionClaimIds}
-                  fetchViewCount
-                />
+                {section.type !== 'channels' ? (
+                  <ClaimListDiscover
+                    hideFilters
+                    hideAdvancedFilter
+                    hideLayoutButton
+                    tileLayout
+                    infiniteScroll={false}
+                    maxClaimRender={maxTilesPerRow * section.rows}
+                    useSkeletonScreen={false}
+                    uris={collectionUrls || claimSearchResults}
+                    claimIds={collectionClaimIds}
+                    fetchViewCount
+                  />
+                ) : (
+                  <>
+                    <h1>Channels</h1>
+                    <ChannelSection
+                      key={'a'}
+                      // id={'a'}
+                      // title={fc.value.title}
+                      uris={featuredChannel.value.uris}
+                      channelId={channelClaimId}
+                      // showAllItems={featuredChannels.length === 1}
+                    />
+                  </>
+                )}
               </>
             ) : (
               <FeaturedSection

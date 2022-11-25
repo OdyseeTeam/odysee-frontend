@@ -70,6 +70,7 @@ function HomeTab(props: Props) {
   }, [settingsByChannelId]);
 
   function handleEditCollection(e, index) {
+    console.log('handleEditCollection: ', e);
     let newHome = [...home];
     if (e.order) {
       if (e.order.to >= newHome.length) {
@@ -133,6 +134,13 @@ function HomeTab(props: Props) {
   const isInitialized = true;
   const isChannelEmpty = false;
 
+  console.log('################################');
+  console.log('!editMode: ', !editMode);
+  console.log('!fetching: ', !fetching);
+  console.log('isInitialized: ', isInitialized);
+  console.log('isChannelBroadcasting: ', isChannelBroadcasting);
+  console.log('!isChannelEmpty: ', !isChannelEmpty);
+
   return (
     <div className="home-tab">
       {editMode && (
@@ -148,7 +156,7 @@ function HomeTab(props: Props) {
           />
         </div>
       )}
-      {!editMode && !fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
+      {!edit && !fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
         <div className="home-section-live">
           <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
         </div>

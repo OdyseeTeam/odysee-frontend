@@ -87,6 +87,27 @@
           color: var(--color-secondary);
         }
       }
+
+      .channel-section-card {
+        background: unset;
+        margin-top: 0;
+        padding-left: 0;
+        .channel-section-card__header {
+          display: none;
+        }
+        .channel-section-card__item {
+          background-color: rgba(var(--color-header-background-base), 0.6);
+          border-radius: var(--border-radius);
+          margin: 0;
+
+          &:hover {
+            background-color: rgba(var(--color-header-background-base), 0.9);
+          }
+        }
+        .channel-section-card__item-overflow {
+          display: none;
+        }
+      }
     }
   }
 
@@ -124,6 +145,10 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+
+      .show-more {
+        margin-right: var(--spacing-s);
+      }
 
       .claim-preview__wrapper {
         background-color: unset;
@@ -173,9 +198,12 @@
         display: block;
       }
       select {
-        border: 2px solid var(--color-border);
+        box-shadow: 0px 0px 0px 2px var(--color-border) inset;
         max-width: 204px;
         overflow: hidden;
+        &:focus-visible {
+          box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+        }
       }
       input {
         box-shadow: 0px 0px 0px 2px var(--color-border) inset;
