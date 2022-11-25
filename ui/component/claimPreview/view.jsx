@@ -108,7 +108,7 @@ type Props = {
   disableClickNavigation?: boolean,
   firstCollectionItemUrl: ?string,
   doClearContentHistoryUri: (uri: string) => void,
-  doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
+  doPlayNextUri: (params: { uri: string }) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
 };
 
@@ -183,7 +183,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     disableClickNavigation,
     firstCollectionItemUrl,
     doClearContentHistoryUri,
-    doUriInitiatePlay,
+    doPlayNextUri,
     doDisablePlayerDrag,
   } = props;
 
@@ -269,16 +269,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   const handleNavLinkClick = (e) => {
     if (playItemsOnClick && claim) {
-      doUriInitiatePlay(
-        {
-          uri: claim?.canonical_url || uri,
-          collection: { collectionId },
-          source: collectionId === 'queue' ? collectionId : undefined,
-        },
-        true,
-        disableClickNavigation
-      );
+      doPlayNextUri({ uri: claim?.canonical_url || uri });
     }
+
     if (onClick) {
       onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
     }
@@ -335,23 +328,15 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       onClick(e, claim, indexInContainer);
     }
 
+    if (playItemsOnClick && claim) {
+      return doPlayNextUri({ uri: claim?.canonical_url || uri });
+    }
+
     if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {
       history.push({
         pathname: navigateUrl,
         search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
       });
-    }
-
-    if (playItemsOnClick && claim) {
-      doUriInitiatePlay(
-        {
-          uri: claim?.canonical_url || uri,
-          collection: { collectionId },
-          source: collectionId === 'queue' ? collectionId : undefined,
-        },
-        true,
-        disableClickNavigation
-      );
     }
   }
 

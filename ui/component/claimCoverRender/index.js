@@ -8,9 +8,6 @@ import { selectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/clai
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 
-import { doUriInitiatePlay } from 'redux/actions/content';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-
 import ClaimCoverRender from './view';
 
 const select = (state, props) => {
@@ -26,9 +23,4 @@ const select = (state, props) => {
   };
 };
 
-const perform = {
-  doUriInitiatePlay,
-  doFetchChannelLiveStatus,
-};
-
-export default connect(select, perform)(ClaimCoverRender);
+export default connect(select)(ClaimCoverRender);

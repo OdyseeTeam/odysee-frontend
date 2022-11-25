@@ -11,6 +11,7 @@ declare type ContentState = {
   recommendationClicks: { [string]: Array<number> }, // "claimId": [clicked indices...]
   lastViewedAnnouncement: LastViewedAnnouncement, // undefined = not seen in wallet.
   recsysEntries: { [ClaimId]: RecsysEntry }, // Persistent shadow copy. The main one resides in RecSys.
+  autoplayCountdownUri: ?string,
 };
 
 declare type LastViewedAnnouncement = Array<string>;

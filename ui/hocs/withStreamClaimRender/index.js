@@ -15,14 +15,25 @@ import {
   selectRentalTagForUri,
   selectCostInfoForUri,
   selectIsStreamPlaceholderForUri,
+  selectPendingFiatPaymentForUri,
+  selectSdkFeePendingForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { selectIsProtectedContentLockedFromUserForId, selectMembershipMineFetched } from 'redux/selectors/memberships';
+import {
+  makeSelectFileRenderModeForUri,
+  selectPlayingUri,
+  selectPlayingCollectionId,
+  selectCanViewFileForUri,
+} from 'redux/selectors/content';
+import {
+  selectIsProtectedContentLockedFromUserForId,
+  selectMembershipMineFetched,
+  selectPendingUnlockedRestrictionsForUri,
+} from 'redux/selectors/memberships';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 
-import { doUriInitiatePlay } from 'redux/actions/content';
+import { doStartFloatingPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
@@ -57,6 +68,12 @@ const select = (state, props) => {
     streamingUrl: selectStreamingUrlForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
+    playingUri: selectPlayingUri(state),
+    playingCollectionId: selectPlayingCollectionId(state),
+    pendingFiatPayment: selectPendingFiatPaymentForUri(state, uri),
+    sdkFeePending: selectSdkFeePendingForUri(state, uri),
+    pendingUnlockedRestrictions: selectPendingUnlockedRestrictionsForUri(state, uri),
+    canViewFile: selectCanViewFileForUri(state, uri),
   };
 };
 
@@ -64,7 +81,7 @@ const perform = {
   doCheckIfPurchasedClaimId,
   doFileGetForUri,
   doMembershipMine,
-  doUriInitiatePlay,
+  doStartFloatingPlayingUri,
   doMembershipList,
   doFetchChannelLiveStatus,
 };

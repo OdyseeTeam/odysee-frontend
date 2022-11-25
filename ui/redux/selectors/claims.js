@@ -1072,6 +1072,26 @@ export const selectIsFiatRequiredForUri = (state: State, uri: string) => {
   return Boolean(selectPurchaseTagForUri(state, uri)) || Boolean(selectRentalTagForUri(state, uri));
 };
 
+export const selectPendingFiatPaymentForUri = (state: State, uri: string) => {
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  const fiatRequired = selectIsFiatRequiredForUri(state, uri);
+  const fiatPaid = selectIsFiatPaidForUri(state, uri);
+  const isFetchingPurchases = selectIsFetchingPurchases(state);
+
+  const pendingFiatPayment = !claimIsMine && fiatRequired && (!fiatPaid || isFetchingPurchases);
+
+  return pendingFiatPayment;
+};
+
+export const selectIsAnonymousFiatContentForUri = (state: State, uri: string) => {
+  const fiatRequired = selectIsFiatRequiredForUri(state, uri);
+  const channelClaimId = selectChannelClaimIdForUri(state, uri);
+
+  const isAnonymousFiatContent = fiatRequired && !channelClaimId;
+
+  return isAnonymousFiatContent;
+};
+
 export const selectIsFiatPaidForUri = (state: State, uri: string) => {
   const claimId = (selectClaimForUri(state, uri) || {}).claim_id;
   if (claimId) {
@@ -1100,4 +1120,22 @@ export const selectCostInfoForUri = (state: State, uri: string) => {
   if (!claim) return claim;
 
   return claim.costInfo;
+};
+
+export const selectSdkFeePendingForUri = (state: State, uri: string) => {
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  const costInfo = selectCostInfoForUri(state, uri);
+  const sdkFeePending = costInfo === undefined || (costInfo && costInfo.cost !== 0);
+  const sdkPaid = selectClaimWasPurchasedForUri(state, uri);
+
+  const pendingSdkPayment = !claimIsMine && sdkFeePending && !sdkPaid;
+
+  return pendingSdkPayment;
+};
+
+export const selectPendingPurchaseForUri = (state: State, uri: string) => {
+  const pendingFiatPayment = selectPendingFiatPaymentForUri(state, uri);
+  const pendingSdkPayment = selectSdkFeePendingForUri(state, uri);
+
+  return pendingFiatPayment || pendingSdkPayment;
 };

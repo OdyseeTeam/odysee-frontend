@@ -462,6 +462,15 @@
     background-color: transparent;
     color: var(--color-text);
   }
+
+  &.draggable {
+    cursor: grab;
+  }
+}
+
+.content__viewer .content__loading {
+  position: absolute;
+  z-index: 3;
 }
 
 .content__non-clickable {

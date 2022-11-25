@@ -13,6 +13,7 @@ import {
   selectContentPositionForUri,
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
+  selectIsAutoplayCountdownForUri,
 } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
@@ -44,6 +45,7 @@ const select = (state, props) => {
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelId),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    isAutoplayCountdownForUri: selectIsAutoplayCountdownForUri(state, uri),
   };
 };
 

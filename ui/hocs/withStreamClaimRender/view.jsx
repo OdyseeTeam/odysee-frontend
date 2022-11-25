@@ -45,10 +45,16 @@ type Props = {
   streamingUrl: any,
   isLivestreamClaim: ?boolean,
   isCurrentClaimLive: ?boolean,
+  playingUri: PlayingUri,
+  playingCollectionId: ?string,
+  pendingFiatPayment: ?boolean,
+  sdkFeePending: ?boolean,
+  pendingUnlockedRestrictions: ?boolean,
+  canViewFile: ?boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFileGetForUri: (uri: string) => void,
   doMembershipMine: () => void,
-  doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
+  doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
   doFetchChannelLiveStatus: (channelClaimId: string) => void,
 };
@@ -89,26 +95,35 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       streamingUrl,
       isLivestreamClaim,
       isCurrentClaimLive,
+      playingUri,
+      playingCollectionId,
+      pendingFiatPayment,
+      sdkFeePending,
+      pendingUnlockedRestrictions,
+      canViewFile,
       doCheckIfPurchasedClaimId,
       doFileGetForUri,
       doMembershipMine,
-      doUriInitiatePlay,
+      doStartFloatingPlayingUri,
       doMembershipList,
       doFetchChannelLiveStatus,
+      ...otherProps
     } = props;
 
-    const [streamingUri, setStreamingUri] = React.useState();
+    const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
+
+    const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
 
     const { search, href, state: locationState, pathname } = location;
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
     const urlParams = search && new URLSearchParams(search);
-    const collectionId = urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+    const collectionId =
+      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) || (playingUri.uri === uri && playingCollectionId);
     const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
 
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
     const isAPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
-    const isAnonymousFiatContent = fiatRequired && !channelClaimId;
 
     // check if there is a time or autoplay parameter, if so force autoplay
     const urlTimeParam = href && href.indexOf('t=') > -1;
@@ -116,24 +131,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       !forceDisableAutoplay &&
       (!embedded || (urlParams && urlParams.get('autoplay'))) &&
       (forceAutoplayParam || urlTimeParam || autoplay);
-    const videoOnPage = document.querySelector('.vjs-tech');
 
-    const autoplayVideo = autoplayEnabled && !videoOnPage && isPlayable;
+    const autoplayVideo =
+      (autoplayEnabled || collectionId) && (!alreadyPlaying.current || playingUri.uri === uri) && isPlayable;
     const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
     const shouldAutoplay = autoplayVideo || autoRenderClaim;
+    const shouldStartFloating = playingUri.uri !== uri;
 
-    const sdkFeePending = costInfo === undefined || (costInfo && costInfo.cost !== 0);
-    const pendingFiatPayment = !claimIsMine && fiatRequired && (!fiatPaid || isFetchingPurchases);
-    const pendingSdkPayment = !claimIsMine && sdkFeePending && !sdkPaid;
-    const pendingPurchase = pendingFiatPayment || pendingSdkPayment;
-
-    // false means no restrictions, undefined === fetching, true === restricted
-    const pendingUnlockedRestrictions = contentRestrictedFromUser !== false;
-
-    const cannotViewFile = pendingPurchase || pendingUnlockedRestrictions || isAnonymousFiatContent;
-    const canViewFile = !cannotViewFile;
-
-    const streamStarted = streamingUri === uri;
+    const streamStarted = currentStreamingUri === uri;
     const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
 
     React.useEffect(() => {
@@ -172,22 +177,22 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
 
       doFileGetForUri(uri);
-      doUriInitiatePlay(playingOptions, isPlayable);
+      if (shouldStartFloating) doStartFloatingPlayingUri(playingOptions);
       analytics.event.playerLoaded(renderMode, embedded);
 
-      setStreamingUri(uri);
+      setCurrentStreamingUri(uri);
     }, [
       claimLinkId,
       collectionId,
       doFileGetForUri,
-      doUriInitiatePlay,
+      doStartFloatingPlayingUri,
       embedded,
       isMarkdownPost,
-      isPlayable,
       parentCommentId,
       pathname,
       renderMode,
       search,
+      shouldStartFloating,
       uri,
     ]);
 
@@ -203,7 +208,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     if (!canViewFile) {
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
-          {pendingFiatPayment || pendingSdkPayment ? (
+          {pendingFiatPayment || sdkFeePending ? (
             <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
           ) : pendingUnlockedRestrictions ? (
             <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
@@ -231,7 +236,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Main Component Render -- return when already has the claim's contents
-    return <StreamClaimComponent uri={uri} streamClaim={streamClaim} />;
+    return <StreamClaimComponent uri={uri} streamClaim={streamClaim} {...otherProps} />;
   };
 
   return StreamClaimWrapper;

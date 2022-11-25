@@ -8,7 +8,6 @@ import { ERR_GRP } from 'constants/errors';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
-import { stopContextMenu } from 'util/context-menu';
 import * as Chapters from './internal/chapters';
 import type { Player } from './internal/videojs';
 import VideoJs from './internal/videojs';
@@ -16,8 +15,6 @@ import analytics from 'analytics';
 import { EmbedContext } from 'contexts/embed';
 import classnames from 'classnames';
 import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
-import AutoplayCountdown from 'component/autoplayCountdown';
-import usePrevious from 'effects/use-previous';
 import FileViewerEmbeddedEnded from './internal/fileViewerEmbeddedEnded';
 import useAutoplayNext from './internal/effects/use-autoplay-next';
 import useTheaterMode from './internal/effects/use-theater-mode';
@@ -30,7 +27,6 @@ import { useHistory } from 'react-router';
 import { getAllIds } from 'util/buildHomepage';
 import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
-import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { platform } from 'util/platform';
@@ -42,17 +38,21 @@ const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const IS_IOS = platform.isIOS();
 
 type Props = {
+  uri: string,
+  playNextUri: string,
+  playPreviousUri?: string,
+  source: string,
+  contentType: string,
+
+  // -- redux --
   position: number,
   changeVolume: (number) => void,
   changeMute: (boolean) => void,
-  source: string,
-  contentType: string,
   thumbnail: string,
   claim: StreamClaim,
   muted: boolean,
   videoPlaybackRate: number,
   volume: number,
-  uri: string,
   autoplayNext: boolean,
   autoplayIfEmbedded: boolean,
   doAnalyticsBuffer: (string, any) => void,
@@ -66,12 +66,9 @@ type Props = {
   internalFeature: boolean,
   homepageData?: { [string]: HomepageCat },
   shareTelemetry: boolean,
-  isFloating: boolean,
-  doPlayUri: (params: { uri: string, collection: { collectionId: ?string } }) => void,
+  doPlayNextUri: (params: { uri: string }) => void,
   collectionId: string,
-  nextRecommendedUri: string,
   nextPlaylistUri: string,
-  previousListUri: string,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
   doAnalyticsViewForUri: (string) => void,
@@ -82,11 +79,11 @@ type Props = {
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doClearContentHistoryUri: (uri: string) => void,
-  currentPlaylistItemIndex: ?number,
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   purchaseMadeForClaimId: boolean,
   isProtectedContent: boolean,
+  doSetShowAutoplayCountdownForUri: (show: boolean) => void,
 };
 
 /*
@@ -96,15 +93,19 @@ https://codesandbox.io/s/71z2lm4ko6
 
 function VideoViewer(props: Props) {
   const {
-    contentType,
+    uri,
+    playNextUri,
+    playPreviousUri,
     source,
+    contentType,
+
+    // -- redux --
     changeVolume,
     changeMute,
     videoPlaybackRate,
     thumbnail,
     position,
     claim,
-    uri,
     muted,
     volume,
     autoplayNext,
@@ -122,12 +123,9 @@ function VideoViewer(props: Props) {
     userId,
     internalFeature,
     shareTelemetry,
-    isFloating,
-    doPlayUri,
+    doPlayNextUri,
     collectionId,
-    nextRecommendedUri,
     nextPlaylistUri,
-    previousListUri,
     videoTheaterMode,
     isMarkdownOrComment,
     isLivestreamClaim,
@@ -135,44 +133,19 @@ function VideoViewer(props: Props) {
     defaultQuality,
     doToast,
     doSetContentHistoryItem,
-    currentPlaylistItemIndex,
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    doSetShowAutoplayCountdownForUri,
     // purchaseMadeForClaimId,
   } = props;
 
-  const playerEndedDuration = React.useRef();
+  const videoEnded = React.useRef(false);
 
-  // in case the current playing item is deleted, use the previous state
-  // for "play next"
-  const prevNextItem = React.useRef(nextPlaylistUri || (autoplayNext && nextRecommendedUri));
-  const nextPlaylistItem = React.useMemo(() => {
-    if (nextPlaylistUri) {
-      // handles current playing item is deleted case: stores the previous value for the next item
-      if (currentPlaylistItemIndex !== null) {
-        prevNextItem.current = nextPlaylistUri;
-        return nextPlaylistUri;
-      } else {
-        return prevNextItem.current;
-      }
-    } else {
-      return autoplayNext && !isLivestreamClaim ? nextRecommendedUri : undefined;
-    }
-  }, [autoplayNext, currentPlaylistItemIndex, isLivestreamClaim, nextPlaylistUri, nextRecommendedUri]);
+  const shouldPlayRecommended = !nextPlaylistUri && playNextUri && autoplayNext;
+  const canPlayNext = Boolean(playNextUri || shouldPlayRecommended);
+  const canPlayPrevious = Boolean(playPreviousUri);
 
-  // and "play previous" behaviours
-  const prevPreviousItem = React.useRef(previousListUri);
-  const previousPlaylistItem = React.useMemo(() => {
-    if (currentPlaylistItemIndex !== null) {
-      prevPreviousItem.current = previousListUri;
-      return previousListUri;
-    } else {
-      return prevPreviousItem.current;
-    }
-  }, [currentPlaylistItemIndex, previousListUri]);
-
-  const permanentUrl = claim && claim.permanent_url;
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;
   const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
@@ -181,21 +154,16 @@ function VideoViewer(props: Props) {
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
   const {
-    push,
     location: { pathname },
   } = useHistory();
   const [playerControlBar, setControlBar] = useState();
   const [playerElem, setPlayer] = useState();
-  const [doNavigate, setDoNavigate] = useState(false);
-  const [playNextUrl, setPlayNextUrl] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [ended, setEnded] = useState(false);
-  const [showAutoplayCountdown, setShowAutoplayCountdown] = useState(false);
   const vjsCallbackDataRef: any = React.useRef();
-  const previousUri = usePrevious(uri);
 
   const embedContext = useContext(EmbedContext);
   const embedded = Boolean(embedContext);
+  const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
 
   const approvedVideo = Boolean(channelClaimId) && adApprovedChannelIds.includes(channelClaimId);
   const adsEnabled = ENABLE_PREROLL_ADS && !authenticated && !embedded && approvedVideo;
@@ -242,14 +210,6 @@ function VideoViewer(props: Props) {
     []
   );
 
-  // force everything to recent when URI changes, can cause weird corner cases otherwise (e.g. navigate while autoplay is true)
-  useEffect(() => {
-    if (uri && previousUri && uri !== previousUri) {
-      setShowAutoplayCountdown(false);
-      if (embedContext) embedContext.setVideoEnded(false);
-    }
-  }, [uri, previousUri, embedContext]);
-
   // Update vjsCallbackDataRef (ensures videojs callbacks are not using stale values):
   useEffect(() => {
     vjsCallbackDataRef.current = {
@@ -258,103 +218,55 @@ function VideoViewer(props: Props) {
     };
   }, [embedded, videoPlaybackRate]);
 
-  const doPlay = useCallback(
-    (playUri, isNext) => {
-      if (!playUri) return;
-      setDoNavigate(false);
-      if (!isFloating) {
-        const navigateUrl = formatLbryUrlForWeb(playUri);
-        push({
-          pathname: navigateUrl,
-          search: isNext && !nextPlaylistUri ? undefined : collectionId && generateListSearchUrlParams(collectionId),
-          state: { collectionId: isNext && !nextPlaylistUri ? undefined : collectionId, forceAutoplay: true },
-        });
-      } else {
-        doPlayUri({
-          uri: playUri,
-          collection: { collectionId: isNext && !nextPlaylistUri ? undefined : collectionId },
-        });
-      }
-    },
-    [collectionId, doPlayUri, isFloating, nextPlaylistUri, push]
-  );
-
-  /** handle play next/play previous buttons **/
-  useEffect(() => {
-    if (!doNavigate) return;
-
-    // playNextUrl is set (either true or false) when the Next/Previous buttons are clicked
-    const shouldPlayNextUrl = playNextUrl && nextPlaylistItem && permanentUrl !== nextPlaylistItem;
-    const shouldPlayPreviousUrl = !playNextUrl && previousPlaylistItem && permanentUrl !== previousPlaylistItem;
-
-    // play next video if someone hits Next button
-    if (shouldPlayNextUrl) {
-      doPlay(nextPlaylistItem, true);
-      // rewind if video is over 5 seconds and they hit the back button
-    } else if (videoNode && videoNode.currentTime > 5) {
-      videoNode.currentTime = 0;
-      // move to previous video when they hit back button if behind 5 seconds
-    } else if (shouldPlayPreviousUrl) {
-      doPlay(previousPlaylistItem);
-    } else {
-      if (playerElem) playerElem.currentTime(0);
+  const handlePlayNextUri = React.useCallback(() => {
+    if (shouldPlayRecommended) {
+      doSetShowAutoplayCountdownForUri({ uri, show: true });
+      // if a playlist, navigate to next item
+    } else if (playNextUri) {
+      doPlayNextUri({ uri: playNextUri });
     }
+  }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
 
-    setDoNavigate(false);
-    setEnded(false);
-    setPlayNextUrl(true);
-  }, [
-    collectionId,
-    doNavigate,
-    doPlay,
-    ended,
-    nextPlaylistItem,
-    permanentUrl,
-    playNextUrl,
-    playerElem,
-    previousPlaylistItem,
-    videoNode,
-  ]);
+  const handlePlayPreviousUri = React.useCallback(() => {
+    if (videoNode && videoNode.currentTime > 5) {
+      videoNode.currentTime = 0;
+    } else if (playPreviousUri) {
+      doPlayNextUri({ uri: playPreviousUri });
+    }
+  }, [doPlayNextUri, playPreviousUri, videoNode]);
 
   React.useEffect(() => {
     if (!playerControlBar) return;
 
     const existingPlayPreviousButton = playerControlBar.getChild('PlayPreviousButton');
 
-    if (!previousListUri) {
-      if (existingPlayPreviousButton) playerControlBar.removeChild('PlayPreviousButton');
-    } else if (playerElem) {
-      if (!existingPlayPreviousButton) addPlayPreviousButton(playerElem, doPlayPrevious);
+    if (existingPlayPreviousButton) {
+      playerControlBar.removeChild('PlayPreviousButton');
+    }
+    if (playerElem && canPlayPrevious) {
+      addPlayPreviousButton(playerElem, handlePlayPreviousUri);
     }
 
     const existingPlayNextButton = playerControlBar.getChild('PlayNextButton');
 
-    if (!nextPlaylistItem) {
-      if (existingPlayNextButton) playerControlBar.removeChild('PlayNextButton');
-    } else if (playerElem) {
-      if (!existingPlayNextButton) addPlayNextButton(playerElem, doPlayNext);
+    if (existingPlayNextButton) {
+      playerControlBar.removeChild('PlayNextButton');
     }
-  }, [nextPlaylistItem, playerControlBar, playerElem, previousListUri]);
+    if (playerElem && canPlayNext) {
+      addPlayNextButton(playerElem, handlePlayNextUri);
+    }
+  }, [canPlayNext, canPlayPrevious, handlePlayNextUri, handlePlayPreviousUri, playerControlBar, playerElem]);
 
-  // functionality to run on video end
-  React.useEffect(() => {
-    if (!ended) return;
-
+  const onVideoEnded = React.useCallback(() => {
+    videoEnded.current = true;
     analytics.video.videoIsPlaying(false);
 
-    if (adUrl) {
-      setAdUrl(null);
-      return;
-    }
+    if (adUrl) return setAdUrl(null);
 
     if (embedContext) {
       embedContext.setVideoEnded(true);
-      // show autoplay countdown div if not playlist
-    } else if ((!collectionId || (playNextUrl && !nextPlaylistUri && nextPlaylistItem)) && autoplayNext) {
-      setShowAutoplayCountdown(true);
-      // if a playlist, navigate to next item
-    } else if (collectionId && nextPlaylistItem) {
-      setDoNavigate(true);
+    } else {
+      handlePlayNextUri();
     }
 
     clearPosition(uri);
@@ -364,27 +276,14 @@ function VideoViewer(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle'); // eslint-disable-line no-unused-expressions
     }
-  }, [
-    adUrl,
-    autoplayNext,
-    clearPosition,
-    collectionId,
-    embedContext,
-    ended,
-    nextPlaylistItem,
-    nextPlaylistUri,
-    playNextUrl,
-    setAdUrl,
-    uri,
-  ]);
+  }, [adUrl, autoplayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
 
   // MORE ON PLAY STUFF
   function onPlay(player) {
-    setEnded(false);
+    videoEnded.current = false;
     setIsPlaying(true);
-    setShowAutoplayCountdown(false);
+    doSetShowAutoplayCountdownForUri({ uri, show: false });
     if (embedContext) embedContext.setVideoEnded(false);
-    setDoNavigate(false);
     analytics.video.videoIsPlaying(true, player);
   }
 
@@ -411,18 +310,7 @@ function VideoViewer(props: Props) {
 
   const playerReadyDependencyList = [uri, adUrl, embedded, autoplayIfEmbedded];
 
-  const doPlayNext = () => {
-    setPlayNextUrl(true);
-    setEnded(true);
-  };
-
-  const doPlayPrevious = () => {
-    setPlayNextUrl(false);
-    setEnded(true);
-  };
-
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
-    playerEndedDuration.current = false;
     // add buttons and initialize some settings for the player
     setVideoNode(videoNode);
     player.muted(muted || autoplayIfEmbedded);
@@ -449,8 +337,8 @@ function VideoViewer(props: Props) {
       }
 
       if (collectionId) {
-        addPlayNextButton(player, doPlayNext);
-        addPlayPreviousButton(player, doPlayPrevious);
+        addPlayNextButton(player, handlePlayNextUri);
+        addPlayPreviousButton(player, handlePlayPreviousUri);
       }
 
       addAutoplayNextButton(player, () => setLocalAutoplayNext((e) => !e), autoplayNext);
@@ -478,10 +366,7 @@ function VideoViewer(props: Props) {
         updateVolumeState(player.volume(), player.muted());
       }
     };
-    const onPlayerEnded = () => {
-      setEnded(true);
-      playerEndedDuration.current = true;
-    };
+
     const onError = () => {
       // @if TARGET='DISABLE_FOR_NOW'
       const mediaError = player.error();
@@ -521,7 +406,7 @@ function VideoViewer(props: Props) {
     player.on('play', onPlay);
     player.on('pause', onPauseEvent);
     player.on('playerClosed', onPlayerClosedEvent);
-    player.on('ended', onPlayerEnded);
+    player.on('ended', onVideoEnded);
     player.on('error', onError);
     player.on('volumechange', onVolumeChange);
     player.on('ratechange', onRateChange);
@@ -533,7 +418,7 @@ function VideoViewer(props: Props) {
       player.off('play', onPlay);
       player.off('pause', onPauseEvent);
       player.off('playerClosed', onPlayerClosedEvent);
-      player.off('ended', onPlayerEnded);
+      player.off('ended', onVideoEnded);
       player.off('error', onError);
       player.off('volumechange', onVolumeChange);
       player.off('ratechange', onRateChange);
@@ -557,9 +442,7 @@ function VideoViewer(props: Props) {
       <Global
         styles={{
           '.embed__wrapper:not(:hover), .content__viewer--secondary:not(:hover)': {
-            '.file-viewer__embedded-header': {
-              display: isPlaying && 'none !important',
-            },
+            '.file-viewer__embedded-header': { display: isPlaying && 'none !important' },
           },
         }}
       />
@@ -567,33 +450,10 @@ function VideoViewer(props: Props) {
       <div
         className={classnames('file-viewer', {
           'file-viewer--is-playing': isPlaying,
-          'file-viewer--ended-embed': embedContext && embedContext.videoEnded,
+          'file-viewer--ended-embed': showEmbedEndOverlay,
         })}
-        onContextMenu={stopContextMenu}
       >
-        {showAutoplayCountdown && (
-          <AutoplayCountdown
-            nextRecommendedUri={nextRecommendedUri}
-            doNavigate={() => setDoNavigate(true)}
-            doReplay={() => {
-              if (playerElem) {
-                if (playerEndedDuration.current) {
-                  playerElem.play();
-                } else {
-                  playerElem.currentTime(0);
-                }
-              }
-              playerEndedDuration.current = false;
-              setEnded(false);
-              setShowAutoplayCountdown(false);
-            }}
-            onCanceled={() => {
-              setEnded(false);
-              setShowAutoplayCountdown(false);
-            }}
-          />
-        )}
-        {embedContext && embedContext.videoEnded && <FileViewerEmbeddedEnded uri={uri} />}
+        {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
 
         {!isFetchingAd && adUrl && (
           <>
@@ -641,8 +501,8 @@ function VideoViewer(props: Props) {
           allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
           internalFeatureEnabled={internalFeature}
           shareTelemetry={shareTelemetry}
-          playNext={doPlayNext}
-          playPrevious={doPlayPrevious}
+          playNext={handlePlayNextUri}
+          playPrevious={handlePlayPreviousUri}
           embedded={embedded}
           embeddedInternal={isMarkdownOrComment}
           claimValues={claim.value}

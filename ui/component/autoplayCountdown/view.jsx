@@ -11,48 +11,60 @@ import * as MODALS from 'constants/modal_types';
 const DEBOUNCE_SCROLL_HANDLER_MS = 150;
 const CLASSNAME_AUTOPLAY_COUNTDOWN = 'autoplay-countdown';
 
+/* this value is coupled with CSS timing variables on .autoplay-countdown__timer */
+const COUNTDOWN_TIME = 5;
+
 type Props = {
   uri?: string,
-  nextRecommendedClaim: ?StreamClaim,
-  nextRecommendedUri: string,
-  modal: { id: string, modalProps: {} },
-  skipPaid: boolean,
-  skipMature: boolean,
-  isMature: boolean,
-  doNavigate: () => void,
+  playNextUri: string,
+  playPreviousUri?: string,
   doReplay: () => void,
-  doPrevious: () => void,
-  onCanceled: () => void,
+  onCancel: () => void,
+  // -- redux --
+  playNextClaimTitle: ?string,
+  modal: { id: string, modalProps: {} },
+  isMature: boolean,
+  isFloating: boolean,
+  canPlayback: ?boolean,
   doOpenModal: (id: string, props: {}) => void,
+  doPlayNextUri: (params: { uri: string }) => void,
+  doSetShowAutoplayCountdownForUri: (params: { uri: string, show: boolean }) => void,
 };
 
 function AutoplayCountdown(props: Props) {
   const {
     uri,
-    nextRecommendedUri,
-    nextRecommendedClaim,
-    modal,
-    skipPaid,
-    skipMature,
-    isMature,
-    doNavigate,
+    playNextUri,
+    playPreviousUri,
     doReplay,
-    doPrevious,
-    onCanceled,
+    onCancel,
+    // -- redux --
+    playNextClaimTitle,
+    modal,
+    isMature,
+    isFloating,
+    canPlayback,
     doOpenModal,
+    doPlayNextUri,
+    doSetShowAutoplayCountdownForUri,
   } = props;
-  const nextTitle = nextRecommendedClaim && nextRecommendedClaim.value && nextRecommendedClaim.value.title;
 
-  /* this value is coupled with CSS timing variables on .autoplay-countdown__timer */
-  const countdownTime = 5;
-
-  const [timer, setTimer] = React.useState(countdownTime);
+  const [timer, setTimer] = React.useState(COUNTDOWN_TIME);
   const [timerCanceled, setTimerCanceled] = React.useState(false);
   const [timerPaused, setTimerPaused] = React.useState(false);
   const anyModalPresent = modal !== undefined && modal !== null;
   const isTimerPaused = timerPaused || anyModalPresent;
-  const shouldSkipMature = skipMature && isMature;
-  const skipCurrentVideo = skipPaid || shouldSkipMature;
+  const skipPaid = false;
+
+  const handleCloseCountdown = React.useCallback(() => setTimerCanceled(true), []);
+
+  const handlePlayNext = React.useCallback(
+    (uri: string) => {
+      handleCloseCountdown();
+      doPlayNextUri({ uri });
+    },
+    [doPlayNextUri, handleCloseCountdown]
+  );
 
   function isAnyInputFocused() {
     const activeElement = document.activeElement;
@@ -66,15 +78,9 @@ function AutoplayCountdown(props: Props) {
     return isAnyInputFocused() || (elm && elm.getBoundingClientRect().top < 0);
   }
 
-  function getMsgPlayingNext() {
-    if (shouldSkipMature) {
-      return __('Skipping mature content in %seconds_left% seconds...', { seconds_left: timer });
-    } else if (skipPaid) {
-      return __('Playing next free content in %seconds_left% seconds...', { seconds_left: timer });
-    } else {
-      return __('Playing in %seconds_left% seconds...', { seconds_left: timer });
-    }
-  }
+  React.useEffect(() => {
+    setTimerCanceled(false);
+  }, [uri]);
 
   // Update 'setTimerPaused'.
   React.useEffect(() => {
@@ -92,16 +98,16 @@ function AutoplayCountdown(props: Props) {
   // Update countdown timer.
   React.useEffect(() => {
     let interval;
-    if (!timerCanceled && nextRecommendedUri) {
+    if (!timerCanceled && playNextUri) {
       if (isTimerPaused || isAnyInputFocused()) {
         clearInterval(interval);
-        setTimer(countdownTime);
+        setTimer(COUNTDOWN_TIME);
       } else {
         interval = setInterval(() => {
           const newTime = timer - 1;
           if (newTime === 0) {
-            if (skipCurrentVideo) setTimer(countdownTime);
-            doNavigate();
+            if (isMature) setTimer(COUNTDOWN_TIME);
+            handlePlayNext(playNextUri);
           } else {
             setTimer(timer - 1);
           }
@@ -111,9 +117,9 @@ function AutoplayCountdown(props: Props) {
     return () => {
       clearInterval(interval);
     };
-  }, [doNavigate, isTimerPaused, nextRecommendedUri, skipCurrentVideo, timer, timerCanceled]);
+  }, [handlePlayNext, isTimerPaused, playNextUri, isMature, timer, timerCanceled]);
 
-  if (timerCanceled || !nextRecommendedUri) {
+  if (timerCanceled || !playNextUri) {
     return null;
   }
 
@@ -121,55 +127,69 @@ function AutoplayCountdown(props: Props) {
     <div className="file-viewer__overlay">
       <div className={CLASSNAME_AUTOPLAY_COUNTDOWN}>
         <div className="file-viewer__overlay-secondary">
-          <I18nMessage tokens={{ channel: <UriIndicator link uri={nextRecommendedUri} /> }}>
-            Up Next by %channel%
-          </I18nMessage>
+          <I18nMessage tokens={{ channel: <UriIndicator link uri={playNextUri} /> }}>Up Next by %channel%</I18nMessage>
         </div>
 
-        <div className="file-viewer__overlay-title">{nextTitle}</div>
+        <div className="file-viewer__overlay-title">{playNextClaimTitle}</div>
         <div className="autoplay-countdown__timer">
           <div className={'autoplay-countdown__button autoplay-countdown__button--' + (timer % 5)}>
-            <Button onClick={doNavigate} iconSize={30} title={__('Play')} className="button--icon button--play" />
+            <Button
+              onClick={() => handlePlayNext(playNextUri)}
+              iconSize={30}
+              title={__('Play')}
+              className="button--icon button--play"
+            />
           </div>
-          {isTimerPaused && (
+
+          {isTimerPaused ? (
             <div className="file-viewer__overlay-secondary autoplay-countdown__counter">
-              {__('Autoplay timer paused.')}{' '}
+              {__('Autoplay timer paused.')}
             </div>
-          )}
-          {!isTimerPaused && (
+          ) : (
             <div className="file-viewer__overlay-secondary autoplay-countdown__counter">
-              {getMsgPlayingNext()}{' '}
+              {__(
+                !canPlayback
+                  ? 'Skipping to next playable content in %seconds_left% seconds...'
+                  : 'Playing in %seconds_left% seconds...',
+                { seconds_left: timer }
+              ) + ' '}
+
               <Button
                 label={__('Cancel')}
                 button="link"
                 onClick={() => {
                   setTimerCanceled(true);
-                  if (onCanceled) onCanceled();
+                  handleCloseCountdown();
+                  if (!isFloating) {
+                    doSetShowAutoplayCountdownForUri({ uri, show: false });
+                  }
+                  if (onCancel) onCancel();
                 }}
               />
             </div>
           )}
-          {skipCurrentVideo && doPrevious && (
-            <div>
-              <Button
-                label={__('Play Previous')}
-                button="link"
-                icon={ICONS.PLAY_PREVIOUS}
-                onClick={() => doPrevious()}
-              />
-            </div>
+
+          {playPreviousUri && (
+            <Button
+              label={__('Play Previous')}
+              button="link"
+              icon={ICONS.PLAY_PREVIOUS}
+              onClick={() => handlePlayNext(playPreviousUri)}
+            />
           )}
+
           <div>
             <Button
-              label={shouldSkipMature ? undefined : skipPaid ? __('Purchase?') : __('Replay?')}
+              label={isMature ? undefined : skipPaid ? __('Purchase?') : __('Replay?')}
               button="link"
-              icon={shouldSkipMature ? undefined : skipPaid ? ICONS.WALLET : ICONS.REPLAY}
+              icon={isMature ? undefined : skipPaid ? ICONS.WALLET : ICONS.REPLAY}
               onClick={() => {
                 setTimerCanceled(true);
                 if (skipPaid) {
                   doOpenModal(MODALS.AFFIRM_PURCHASE, { uri, cancelCb: () => setTimerCanceled(false) });
                 } else {
                   doReplay();
+                  handleCloseCountdown();
                 }
               }}
             />

@@ -7,6 +7,7 @@ import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import FileTitleSection from 'component/fileTitleSection';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
+import ClaimCoverRender from 'component/claimCoverRender';
 import RecommendedContent from 'component/recommendedContent';
 import PlaylistCard from 'component/playlistCard';
 import Empty from 'component/common/empty';
@@ -36,6 +37,7 @@ type Props = {
   commentSettingDisabled: ?boolean,
   videoTheaterMode: boolean,
   contentUnlocked: boolean,
+  isAutoplayCountdownForUri: ?boolean,
   clearPosition: (uri: string) => void,
 };
 
@@ -57,6 +59,7 @@ export default function VideoPlayersPage(props: Props) {
     location,
     position,
     contentUnlocked,
+    isAutoplayCountdownForUri,
     clearPosition,
   } = props;
 
@@ -108,6 +111,12 @@ export default function VideoPlayersPage(props: Props) {
     return (
       <>
         <div className="section card-stack file-page__video">
+          {isAutoplayCountdownForUri && (
+            <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+              <ClaimCoverRender uri={uri} />
+            </div>
+          )}
+
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 

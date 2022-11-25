@@ -14,6 +14,7 @@ const defaultState: ContentState = {
   recommendationClicks: {},
   lastViewedAnnouncement: [],
   recsysEntries: {},
+  autoplayCountdownUri: null,
 };
 
 reducers[ACTIONS.SET_PRIMARY_URI] = (state, action) =>
@@ -112,6 +113,12 @@ reducers[ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT] = (state, action) => {
 };
 
 reducers[ACTIONS.SET_RECSYS_ENTRIES] = (state, action) => ({ ...state, recsysEntries: action.data });
+
+reducers[ACTIONS.SHOW_AUTOPLAY_COUNTDOWN] = (state, action) => {
+  const { uri, show } = action.data;
+
+  return { ...state, autoplayCountdownUri: show ? uri : null };
+};
 
 // reducers[LBRY_REDUX_ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
 //   return {
