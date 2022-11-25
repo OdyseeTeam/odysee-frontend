@@ -12,6 +12,7 @@ const LIVE_REACTION_FETCH_MS = 1000 * 45;
 
 type Props = {
   uri: string,
+  disabled: boolean,
   // redux
   claimId?: string,
   likeCount: number,
@@ -59,9 +60,11 @@ export default function FileReactions(props: Props) {
   }, [claimId, doFetchReactions, isLivestreamClaim]);
 
   return (
-    <div className={classnames('ratio-wrapper', {
-      disabled
-    })}>
+    <div
+      className={classnames('ratio-wrapper', {
+        disabled,
+      })}
+    >
       <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike(uri)} />
       <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike(uri)} />
       <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />

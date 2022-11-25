@@ -13,6 +13,7 @@ type State = {
 type Props = {
   clock24h?: boolean,
   date?: any,
+  creationDate?: any,
   genericSeconds?: boolean,
   minUpdateDeltaMs?: number,
   showFutureDate?: boolean,
@@ -20,7 +21,7 @@ type Props = {
   type?: string,
   isUnlistedContent?: boolean,
   isPrivateContent?: boolean,
-  shouldDisableShownScheduledContent: boolean,
+  scheduledContentReleasedInFuture: boolean,
 };
 
 class DateTime extends React.Component<Props, State> {
@@ -64,7 +65,20 @@ class DateTime extends React.Component<Props, State> {
   }
 
   render() {
-    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, isUnlistedContent, isPrivateContent, creationDate, shouldDisableShownScheduledContent } = this.props;
+    const {
+      // redux
+      clock24h,
+      creationDate,
+      date,
+      isPrivateContent,
+      isUnlistedContent,
+      scheduledContentReleasedInFuture,
+      // passed
+      genericSeconds,
+      showFutureDate,
+      timeAgo,
+      type,
+    } = this.props;
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
 
@@ -72,7 +86,11 @@ class DateTime extends React.Component<Props, State> {
     let timeToUse = '...';
     if (date) {
       if (timeAgo) {
-        timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds);
+        if (scheduledContentReleasedInFuture) {
+          timeToUse = moment(date).format('MMMM Do, YYYY');
+        } else {
+          timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds);
+        }
       } else {
         if (type === 'date') {
           timeToUse = moment(date).format('MMMM Do, YYYY');
@@ -90,14 +108,16 @@ class DateTime extends React.Component<Props, State> {
     let textToShow = timeToUse;
 
     // change frontend text to "Scheduled for $date"
-    if (shouldDisableShownScheduledContent) {
-      textToShow =  <I18nMessage
-        tokens={{
-          timeToUse,
-        }}
-      >
-        Scheduled for %timeToUse%
-      </I18nMessage>;
+    if (scheduledContentReleasedInFuture) {
+      textToShow = (
+        <I18nMessage
+          tokens={{
+            timeToUse,
+          }}
+        >
+          Scheduled for %timeToUse%
+        </I18nMessage>
+      );
     }
 
     return (

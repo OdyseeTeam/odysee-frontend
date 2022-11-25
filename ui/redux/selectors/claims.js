@@ -26,7 +26,7 @@ import {
   MEMBERS_ONLY_CONTENT_TAG,
   RESTRICTED_CHAT_COMMENTS_TAG,
   SCHEDULED_HIDDEN_TAG,
-  SCHEDULED_SHOWN_TAG
+  SCHEDULED_SHOWN_TAG,
 } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
@@ -874,6 +874,27 @@ export const selectShouldDisableShownScheduledContent = createSelector(
   }
 );
 
+export const selectScheduledContentReleasedInFuture = createSelector(
+  selectMetadataForUri,
+  selectDateForUri,
+  (metadata: ?GenericMetadata, releaseTime) => {
+    const isScheduledHidden = metadata && new Set(metadata.tags).has(SCHEDULED_SHOWN_TAG);
+    const isScheduledVisible = metadata && new Set(metadata.tags).has(SCHEDULED_HIDDEN_TAG);
+    const releaseTimeInFuture = releaseTime > new Date();
+    return (isScheduledHidden || isScheduledVisible) && releaseTimeInFuture;
+  }
+);
+
+export const selectIsVisibleScheduledContentInFuture = createSelector(
+  selectMetadataForUri,
+  selectDateForUri,
+  (metadata: ?GenericMetadata, releaseTime) => {
+    const isScheduledShown = metadata && new Set(metadata.tags).has(SCHEDULED_SHOWN_TAG);
+    const releaseTimeInFuture = releaseTime > new Date();
+    return isScheduledShown && releaseTimeInFuture;
+  }
+);
+
 export const selectShouldHideHiddenScheduledContent = createSelector(
   selectMetadataForUri,
   selectDateForUri,
@@ -895,13 +916,10 @@ export const selectPrivateContentTag = createSelector(
   (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:private')
 );
 
-export const selectScheduledContentTag = createSelector(
-  selectMetadataForUri,
-  (metadata: ?GenericMetadata) => {
-    const tags = new Set(metadata.tags);
-    return tags.has('c:scheduled:show') ||  tags.has('c:scheduled:hide');
-  }
-);
+export const selectScheduledContentTag = createSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
+  const tags = new Set(metadata.tags);
+  return tags.has('c:scheduled:show') || tags.has('c:scheduled:hide');
+});
 
 export const selectHiddenScheduledContentTag = createSelector(
   selectMetadataForUri,

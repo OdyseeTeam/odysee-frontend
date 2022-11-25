@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectShouldDisableShownScheduledContent } from 'redux/selectors/claims';
+import { selectClaimForUri, selectScheduledContentReleasedInFuture } from 'redux/selectors/claims';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import FileSubtitle from './view';
@@ -10,7 +10,7 @@ const select = (state, props) => {
 
   return {
     contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
-    shouldDisableShownScheduledContent: selectShouldDisableShownScheduledContent(state, props.uri),
+    scheduledContentReleasedInFuture: selectScheduledContentReleasedInFuture(state, props.uri),
   };
 };
 
