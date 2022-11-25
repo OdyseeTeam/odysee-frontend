@@ -123,6 +123,8 @@ function ClaimMenuList(props: Props) {
     isContentProtectedAndLocked,
   } = props;
 
+  console.log('props: ', props);
+
   const isChannelPage = React.useContext(ChannelPageContext);
 
   const {
@@ -506,7 +508,7 @@ function ClaimMenuList(props: Props) {
                         </div>
                       </MenuItem>
                     ) */}
-                    {!isChannelPage && !repostedClaim && (
+                    {!repostedClaim && (
                       <MenuItem className="comment__menu-option" onSelect={handleEdit}>
                         <div className="menu__link">
                           <Icon aria-hidden icon={ICONS.EDIT} />

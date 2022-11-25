@@ -134,13 +134,6 @@ function HomeTab(props: Props) {
   const isInitialized = true;
   const isChannelEmpty = false;
 
-  console.log('################################');
-  console.log('!editMode: ', !editMode);
-  console.log('!fetching: ', !fetching);
-  console.log('isInitialized: ', isInitialized);
-  console.log('isChannelBroadcasting: ', isChannelBroadcasting);
-  console.log('!isChannelEmpty: ', !isChannelEmpty);
-
   return (
     <div className="home-tab">
       {editMode && (
