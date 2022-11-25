@@ -2,13 +2,11 @@
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { COL_TYPES } from 'constants/collections';
 import * as PAGES from 'constants/pages';
-// @if TARGET='app'
-import { ipcRenderer } from 'electron';
-// @endif
+
+import { COL_TYPES } from 'constants/collections';
 import { push } from 'connected-react-router';
-import { doOpenModal, doAnalyticsViewForUri, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
+import { doOpenModal, doAnalyticsViewForUri } from 'redux/actions/app';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import {
   makeSelectClaimForUri,
@@ -22,6 +20,7 @@ import {
   selectClaimIdForUri,
   selectIsFiatRequiredForUri,
   selectCostInfoForUri,
+  selectIsStreamPlaceholderForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri, selectFileInfosByOutpoint } from 'redux/selectors/file_info';
 import {
@@ -30,24 +29,25 @@ import {
   selectFirstItemUrlForCollection,
 } from 'redux/selectors/collections';
 import { doCollectionEdit, doLocalCollectionCreate, doFetchItemsInCollection } from 'redux/actions/collections';
-import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
 import Lbry from 'lbry';
 import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
 import { Lbryio } from 'lbryinc';
-import { selectClientSetting, selectosNotificationsEnabled } from 'redux/selectors/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import {
   selectRecsysEntries,
   selectPlayingUri,
+  selectPlayingCollection,
   selectCollectionForIdIsPlayingShuffle,
   selectListIsLoopedForId,
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
-  makeSelectIsPlayerFloating,
+  selectIsPlayerFloating,
   selectIsCollectionPlayingForId,
+  selectIsPlayableForUri,
 } from 'redux/selectors/content';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
@@ -90,20 +90,6 @@ export function doUpdateLoadStatus(uri: string, outpoint: string) {
             fileInfo,
           },
         });
-
-        // If notifications are disabled(false) just return
-        if (!selectosNotificationsEnabled(getState()) || !fileInfo.written_bytes) return;
-
-        const notif = new window.Notification(__('LBRY Download Complete'), {
-          body: fileInfo.metadata.title,
-          silent: false,
-        });
-
-        // @if TARGET='app'
-        notif.onclick = () => {
-          ipcRenderer.send('focusWindow', 'main');
-        };
-        // @ENDIF
       } else {
         // ready to play
         const { total_bytes: totalBytes, written_bytes: writtenBytes } = fileInfo;
@@ -130,13 +116,13 @@ export const doSetPrimaryUri = (uri: ?string) => async (dispatch: Dispatch, getS
   dispatch({ type: ACTIONS.SET_PRIMARY_URI, data: { uri } });
 
 export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null, collection: {} }));
-export const doClearPlayingSource = () => (dispatch: Dispatch) => dispatch(doChangePlayingUriParam({ source: null }));
+export const doClearPlayingSource = () => (dispatch: Dispatch) => dispatch(doChangePlayingUri({ source: null }));
 export const doClearPlayingCollection = () => (dispatch: Dispatch) =>
-  dispatch(doChangePlayingUriParam({ collection: { collectionId: null } }));
+  dispatch(doChangePlayingUri({ collection: { collectionId: null } }));
 
 export const doPopOutInlinePlayer = ({ source }: { source: string }) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
-  const isFloating = makeSelectIsPlayerFloating(window.location)(state);
+  const isFloating = selectIsPlayerFloating(state);
   const playingUri = selectPlayingUri(state);
 
   if (playingUri.source === source && !isFloating) {
@@ -148,19 +134,15 @@ export const doPopOutInlinePlayer = ({ source }: { source: string }) => (dispatc
   }
 };
 
-export const doSetPlayingUri = ({ uri, source, sourceId, location, commentId, collection }: PlayingUri) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) => dispatch({ type: ACTIONS.SET_PLAYING_URI, data: { uri, source, sourceId, location, commentId, collection } });
+export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Dispatch, getState: GetState) =>
+  dispatch({ type: ACTIONS.SET_PLAYING_URI, data: playingUri });
 
-export function doChangePlayingUriParam(newParams: any) {
-  return (dispatch: Dispatch, getState: GetState) => {
-    const state = getState();
-    const playingUri = selectPlayingUri(state);
+export const doChangePlayingUri = (newPlayingUri: PlayingUri) => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const playingUri = selectPlayingUri(state);
 
-    return dispatch(doSetPlayingUri({ ...playingUri, ...newParams }));
-  };
-}
+  return dispatch(doSetPlayingUri({ ...playingUri, ...newPlayingUri }));
+};
 
 export function doPurchaseUriWrapper(uri: string, cost: number, cb: ?(GetResponse) => void) {
   return (dispatch: Dispatch, getState: () => any) => {
@@ -178,71 +160,97 @@ export function doDownloadUri(uri: string) {
   return (dispatch: Dispatch) => dispatch(doPlayUri(uri, false, true, () => dispatch(doAnalyticsViewForUri(uri))));
 }
 
-export function doUriInitiatePlay(
-  playingOptions: PlayingUri,
-  isPlayable?: boolean,
-  isFloating?: boolean,
-  cb?: (url: string) => void
-) {
-  return async (dispatch: Dispatch, getState: () => any) => {
-    const { uri, source, collection } = playingOptions;
+export const doStartFloatingPlayingUri = (playingOptions: PlayingUri) => async (
+  dispatch: Dispatch,
+  getState: () => any
+) => {
+  const { uri, collection } = playingOptions;
 
-    if (!uri) return;
+  if (!uri) return;
 
-    const state = getState();
-    const isMature = selectClaimIsNsfwForUri(state, uri);
+  const state = getState();
+  const isMature = selectClaimIsNsfwForUri(state, uri);
+  const isPlayable = selectIsPlayableForUri(state, uri);
+  const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
+  const isLive = selectIsActiveLivestreamForUri(state, uri);
+  const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
 
-    if (isMature) return;
+  if (!canStartloatingPlayer) return;
 
-    if (!isFloating && (!source || source === COLLECTIONS_CONSTS.QUEUE_ID)) dispatch(doSetPrimaryUri(uri));
+  const { collectionId } = collection || {};
 
-    const isLive = selectIsActiveLivestreamForUri(state, uri);
-    let willPlayCollection;
+  const playingCollection = selectPlayingCollection(state) || {};
+  const isCurrentlyPlayingQueue = playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID;
+  const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
 
-    if (isPlayable) {
-      const willPlayCollection = Boolean(collection.collectionId);
-      const playingUri = selectPlayingUri(state);
-      const playingCollection = playingUri.collection;
-      const playingOtherThanCurrentQueue =
-        collection.collectionId !== COLLECTIONS_CONSTS.QUEUE_ID &&
-        playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID;
+  const { search } = state.router.location;
+  const urlParams = search && new URLSearchParams(search);
+  const pageCollectionId = urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
-      if (playingOtherThanCurrentQueue) {
-        // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
-        // until the player is closed or the page is refreshed, and queue is cleared
-        const permanentUrl = selectPermanentUrlForUri(state, uri);
-        const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanentUrl);
-        const itemsToAdd = !willPlayCollection
-          ? hasClaimInQueue
-            ? undefined
-            : [permanentUrl]
-          : selectUrlsForCollectionId(state, collection.collectionId || '').filter(
-              (url) => !selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, url)
-            );
+  const playingOtherThanCurrentQueue = isCurrentlyPlayingQueue && !hasClaimInQueue;
 
-        if (itemsToAdd) {
-          dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: [...itemsToAdd], type: COL_TYPES.PLAYLIST }));
-        }
-        dispatch(doChangePlayingUriParam({ ...playingOptions, collection: { ...playingCollection } }));
-      } else {
-        if (collection.collectionId === playingCollection.collectionId) {
-          // keep current playingCollection data like loop or shuffle if plpaying the same
-          dispatch(doChangePlayingUriParam({ ...playingOptions, collection: { ...playingCollection, ...collection } }));
-        } else {
-          dispatch(doChangePlayingUriParam({ ...playingOptions, collection: willPlayCollection ? collection : {} }));
-        }
-      }
-    }
+  if (playingOtherThanCurrentQueue) {
+    // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
+    // until the player is closed or the page is refreshed, and queue is cleared
+    const permanentUrl = selectPermanentUrlForUri(state, uri);
+    const itemsToAdd = !pageCollectionId
+      ? [permanentUrl]
+      : selectUrlsForCollectionId(state, pageCollectionId).filter(
+          (url) => !selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, url)
+        );
 
-    if (!isLive) {
-      const isAuthenticated = selectUserVerifiedEmail(state);
-      const playCb = isAuthenticated ? (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo)) : undefined;
-      dispatch(doPlayUri(uri, false, true, playCb, willPlayCollection));
-    }
+    dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: itemsToAdd, type: COL_TYPES.PLAYLIST }));
 
-    if (cb) cb(uri);
-  };
-}
+    return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection }));
+  }
+
+  if (collectionId && playingCollection.collectionId && collectionId === playingCollection.collectionId) {
+    // keep current playingCollection data like loop or shuffle if playing the same but just changed uris
+    return dispatch(doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection } }));
+  }
+
+  return dispatch(doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {} }));
+};
+
+export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const isFloating = selectIsPlayerFloating(state);
+  const playingCollectionId = selectPlayingCollectionId(state);
+  const isNextUriInCollection = selectCollectionForIdHasClaimUrl(state, playingCollectionId, nextUri);
+
+  if (!isFloating) {
+    dispatch(
+      push({
+        pathname: formatLbryUrlForWeb(nextUri),
+        ...(isNextUriInCollection
+          ? { search: generateListSearchUrlParams(playingCollectionId), state: { collectionId: playingCollectionId } }
+          : {}),
+      })
+    );
+  }
+  const isMature = selectClaimIsNsfwForUri(state, nextUri);
+  const isPlayable = selectIsPlayableForUri(state, nextUri);
+  const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, nextUri);
+  const isLive = selectIsActiveLivestreamForUri(state, nextUri);
+  const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
+
+  if (!canStartloatingPlayer) {
+    dispatch(
+      doChangePlayingUri({
+        uri: null,
+        ...(playingCollectionId ? { collection: { collectionId: playingCollectionId } } : {}),
+      })
+    );
+    return dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: true }));
+  }
+
+  dispatch(
+    doStartFloatingPlayingUri({
+      uri: nextUri,
+      ...(playingCollectionId ? { collection: { collectionId: playingCollectionId } } : {}),
+    })
+  );
+};
 
 export function doPlaylistAddAndAllowPlaying({
   uri,
@@ -312,21 +320,14 @@ export function doPlaylistAddAndAllowPlaying({
 
     const isPlayingCollection = collectionPlayingId && collectionId && collectionPlayingId === collectionId;
     const hasItemPlaying = playingUri.uri && !isUriPlaying;
-    const floatingPlayerEnabled =
-      playingUri.collection.collectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
+    // const floatingPlayerEnabled =
+    //   playingUri.collection.collectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
 
     const startPlaying = () => {
       if (isUriPlaying) {
-        dispatch(doChangePlayingUriParam({ collection: { collectionId } }));
+        dispatch(doChangePlayingUri({ collection: { collectionId } }));
       } else {
-        dispatch(
-          doUriInitiatePlay(
-            { uri: firstItemUri || uri, collection: { collectionId } },
-            true,
-            true,
-            !floatingPlayerEnabled && pushPlay ? (url) => pushPlay(url) : undefined
-          )
-        );
+        dispatch(doStartFloatingPlayingUri({ uri: firstItemUri || uri, collection: { collectionId } }));
       }
     };
 
@@ -345,10 +346,10 @@ export function doPlaylistAddAndAllowPlaying({
 
         if (playingUrl) {
           // adds the queue collection id to the playingUri data so it can be used and updated by other components
-          if (!hasPlayingUriInQueue) dispatch(doChangePlayingUriParam({ ...paramsToAdd }));
+          if (!hasPlayingUriInQueue) dispatch(doChangePlayingUri({ ...paramsToAdd }));
         } else {
           // There is nothing playing and added a video to queue -> the first item will play on the floating player with the list open
-          dispatch(doUriInitiatePlay({ uri, ...paramsToAdd }, true, true));
+          dispatch(doStartFloatingPlayingUri({ uri, ...paramsToAdd }));
         }
       }
     } else {
@@ -528,7 +529,7 @@ export const doToggleLoopList = (params: { collectionId: string, hideToast?: boo
   const { collection: playingCollection } = playingUri;
   const loopOn = selectListIsLoopedForId(state, collectionId);
 
-  dispatch(doChangePlayingUriParam({ collection: { ...playingCollection, collectionId, loop: !loopOn } }));
+  dispatch(doChangePlayingUri({ collection: { ...playingCollection, collectionId, loop: !loopOn } }));
 
   if (!hideToast) {
     return dispatch(doToast({ message: !loopOn ? __('Loop is on.') : __('Loop is off.') }));
@@ -564,9 +565,9 @@ export const doEnableCollectionShuffle = ({
   const newPlayingCollectionObj = { collection: { collectionId, shuffle: { newUrls } } };
 
   if (collectionIsPlaying) {
-    dispatch(doChangePlayingUriParam(newPlayingCollectionObj));
+    dispatch(doChangePlayingUri(newPlayingCollectionObj));
   } else {
-    dispatch(doUriInitiatePlay({ uri: newUrls[0], ...newPlayingCollectionObj }, true, true));
+    dispatch(doStartFloatingPlayingUri({ uri: newUrls[0], ...newPlayingCollectionObj }));
   }
 
   const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
@@ -595,7 +596,7 @@ export const doToggleShuffleList = ({
   if (!listIsShuffledForId) {
     dispatch(doEnableCollectionShuffle({ collectionId, currentUri }));
   } else {
-    dispatch(doChangePlayingUriParam({ collection: { shuffle: undefined } }));
+    dispatch(doChangePlayingUri({ collection: { shuffle: undefined } }));
   }
 
   if (!hideToast) {
@@ -638,3 +639,7 @@ export function doSendPastRecsysEntries() {
     }
   };
 }
+
+export const doSetShowAutoplayCountdownForUri = ({ uri, show }: { uri: string, show: boolean }) => (
+  dispatch: Dispatch
+) => dispatch({ type: ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, data: { uri, show } });

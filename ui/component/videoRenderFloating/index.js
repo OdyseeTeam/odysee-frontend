@@ -1,24 +1,19 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectTitleForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
-import {
-  selectCollectionForId,
-  selectNextUriForUriInPlayingCollectionForId,
-  selectPreviousUriForUriInPlayingCollectionForId,
-  selectCollectionForIdHasClaimUrl,
-  selectFirstItemUrlForCollection,
-} from 'redux/selectors/collections';
+import { selectCollectionForId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import {
-  makeSelectIsPlayerFloating,
+  selectIsPlayerFloating,
   selectPrimaryUri,
   selectPlayingUri,
   makeSelectFileRenderModeForUri,
+  selectAutoplayCountdownUri,
 } from 'redux/selectors/content';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doClearQueueList } from 'redux/actions/collections';
-import { doUriInitiatePlay, doClearPlayingUri, doClearPlayingSource } from 'redux/actions/content';
+import { doClearPlayingUri, doClearPlayingSource, doSetShowAutoplayCountdownForUri } from 'redux/actions/content';
 import { doFetchRecommendedContent } from 'redux/actions/search';
 import { withRouter } from 'react-router';
 import { selectHasAppDrawerOpen, selectMainPlayerDimensions } from 'redux/selectors/app';
@@ -35,13 +30,17 @@ const select = (state, props) => {
   const urlParams = new URLSearchParams(search);
   const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
-  const isFloating = makeSelectIsPlayerFloating(location)(state);
+  const isFloating = selectIsPlayerFloating(state);
+  const autoplayCountdownUri = selectAutoplayCountdownUri(state);
 
   const playingUri = selectPlayingUri(state);
   const {
-    uri,
     collection: { collectionId },
   } = playingUri;
+
+  // -- The autoplayCountdownUri will only be used to render the floating player components
+  // i.e. display title, playlist, etc
+  const uri = playingUri.uri || autoplayCountdownUri;
 
   const claim = uri && selectClaimForUri(state, uri);
   const { claim_id: claimId, signing_channel: channelClaim, permanent_url } = claim || {};
@@ -61,8 +60,6 @@ const select = (state, props) => {
     floatingPlayerEnabled: playingFromQueue || isInlinePlayer || selectClientSetting(state, SETTINGS.FLOATING_PLAYER),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
-    nextListUri: collectionId && selectNextUriForUriInPlayingCollectionForId(state, collectionId, uri),
-    previousListUri: collectionId && selectPreviousUriForUriInPlayingCollectionForId(state, collectionId, uri),
     collectionId,
     collectionSidebarId,
     playingCollection: selectCollectionForId(state, collectionId),
@@ -73,15 +70,15 @@ const select = (state, props) => {
     hasClaimInQueue:
       permanent_url && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanent_url),
     mainPlayerDimensions: selectMainPlayerDimensions(state),
-    firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
-    isMature: selectClaimIsNsfwForUri(state, uri),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    isAutoplayCountdown: !playingUri.uri && autoplayCountdownUri,
+    autoplayCountdownUri,
   };
 };
 
 const perform = {
   doFetchRecommendedContent,
-  doUriInitiatePlay,
+  doSetShowAutoplayCountdownForUri,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doClearPlayingUri,

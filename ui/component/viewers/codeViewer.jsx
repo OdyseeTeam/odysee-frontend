@@ -1,7 +1,7 @@
 // @flow
 
 import * as React from 'react';
-import { openSnippetMenu, stopContextMenu } from 'util/context-menu';
+import { openSnippetMenu } from 'util/context-menu';
 
 // Addons
 import 'codemirror/addon/selection/mark-selection';
@@ -73,7 +73,7 @@ class CodeViewer extends React.PureComponent<Props> {
   render() {
     const { value } = this.props;
     return (
-      <div className="file-render__content" onContextMenu={stopContextMenu}>
+      <div className="file-render__content">
         <textarea ref={textarea => (this.textarea = textarea)} disabled value={value} />
       </div>
     );

@@ -11,6 +11,7 @@ import {
   selectProtectedContentTagForUri,
   selectClaimForId,
   selectClaimIsMineForId,
+  selectClaimIdForUri,
 } from 'redux/selectors/claims';
 import { getChannelIdFromClaim } from 'util/claim';
 import { ODYSEE_CHANNEL } from 'constants/channels';
@@ -424,6 +425,17 @@ export const selectIsProtectedContentLockedFromUserForId = (state: State, claimI
   const claimIsMine = selectClaimIsMineForId(state, claimId);
 
   return Boolean(!claimIsMine && protectedContentMemberships && !userHasAccess);
+};
+
+export const selectPendingUnlockedRestrictionsForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  const contentRestrictedFromUser = claimId && selectIsProtectedContentLockedFromUserForId(state, claimId);
+
+  // false means no restrictions, undefined === fetching, true === restricted
+  // so here, pending means it still doesn't have the "false" to call it unlocked
+  const pendingUnlockedRestrictions = contentRestrictedFromUser !== false;
+
+  return pendingUnlockedRestrictions;
 };
 
 export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(

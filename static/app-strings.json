@@ -2420,7 +2420,7 @@
   "This won't be able to be changed in the future.": "This won't be able to be changed in the future.",
   "Thumbnail (Optional)": "Thumbnail (Optional)",
   "Publish Updates": "Publish Updates",
-  "Skipping mature content in %seconds_left% seconds...": "Skipping mature content in %seconds_left% seconds...",
+  "Skipping to next playable content in %seconds_left% seconds...": "Skipping to next playable content in %seconds_left% seconds...",
   "Loop is on.": "Loop is on.",
   "Shuffle is on.": "Shuffle is on.",
   "You will be able to add content to this playlist using the Save button while viewing content.": "You will be able to add content to this playlist using the Save button while viewing content.",

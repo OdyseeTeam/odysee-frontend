@@ -22,7 +22,7 @@ import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import ClaimPreview from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
-import { doClearContentHistoryUri, doUriInitiatePlay } from 'redux/actions/content';
+import { doClearContentHistoryUri, doPlayNextUri } from 'redux/actions/content';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -62,8 +62,7 @@ const perform = (dispatch) => ({
   resolveUri: (uri) => dispatch(doResolveUri(uri)),
   getFile: (uri) => dispatch(doFileGetForUri(uri)),
   doClearContentHistoryUri: (uri) => dispatch(doClearContentHistoryUri(uri)),
-  doUriInitiatePlay: (playingOptions, isPlayable, isFloating) =>
-    dispatch(doUriInitiatePlay(playingOptions, isPlayable, isFloating)),
+  doPlayNextUri: (playingOptions) => dispatch(doPlayNextUri(playingOptions)),
 });
 
 export default connect(select, perform)(ClaimPreview);
