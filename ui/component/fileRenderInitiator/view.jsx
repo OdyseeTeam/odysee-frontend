@@ -64,6 +64,7 @@ type Props = {
   contentUnlocked: boolean,
   isUnlistedContent: boolean,
   isProtectedContent: boolean,
+  shouldDisableShownScheduledContent: boolean,
 };
 
 export default function FileRenderInitiator(props: Props) {
@@ -127,7 +128,8 @@ export default function FileRenderInitiator(props: Props) {
   const cannotViewFile =
     (!claimIsMine &&
       ((fiatRequired && (!fiatPaid || isFetchingPurchases)) || (sdkFeeRequired && !sdkPaid) || !contentUnlocked)) ||
-    (isLivestreamClaim && isCurrentClaimLive && !layountRendered && !isMobile);
+    (isLivestreamClaim && isCurrentClaimLive && !layountRendered && !isMobile) || disableShownScheduledContent;
+
   const canViewFile = !cannotViewFile;
 
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
