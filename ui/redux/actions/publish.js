@@ -67,38 +67,38 @@ export const NO_FILE = '---';
 
 function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) {
   const {
-    name,
-    bid,
-    filePath,
-    description,
-    language,
-    releaseTimeEdited,
-    releaseAnytime,
     // license,
-    licenseUrl,
-    useLBRYUploader,
-    licenseType,
-    otherLicenseDescription,
-    thumbnail,
-    channel,
-    title,
-    paywall,
-    fee,
-    fiatPurchaseFee,
-    fiatPurchaseEnabled,
-    fiatRentalFee,
-    fiatRentalExpiration,
-    fiatRentalEnabled,
-    // uri,
-    tags,
     // locations,
-    optimize,
+    // restrictCommentsAndChat,
+    // uri,
+    bid,
+    channel,
+    description,
+    fee,
+    fiatPurchaseEnabled,
+    fiatPurchaseFee,
+    fiatRentalEnabled,
+    fiatRentalExpiration,
+    fiatRentalFee,
+    filePath,
     isLivestreamPublish,
+    language,
+    licenseType,
+    licenseUrl,
+    name,
+    optimize,
+    otherLicenseDescription,
+    paywall,
+    releaseAnytime,
+    releaseTimeEdited,
     remoteFileUrl,
     restrictedToMemberships,
-    // restrictCommentsAndChat,
-    visibility,
     scheduledContent,
+    tags,
+    thumbnail,
+    title,
+    useLBRYUploader,
+    visibility,
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
@@ -282,8 +282,10 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
       tagSet.add('c:private');
     }
 
-    // for unlisted/private uploads, set release time to 2038
-    publishPayload.release_time = 2147483647;
+    if (!isLivestreamPublish) {
+      // for unlisted/private uploads, set release time to 2038
+      publishPayload.release_time = 2147483647;
+    }
   }
 
   // future scheduled content

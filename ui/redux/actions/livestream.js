@@ -29,6 +29,7 @@ export const doFetchNoSourceClaims = (channelId: string) => async (dispatch: Dis
         page: 1,
         include_is_my_output: true,
         order_by: ['release_time'],
+        not_tags: ['c:unlisted'],
       })
     );
 
@@ -57,6 +58,7 @@ const fetchUpcomingLivestreamClaims = (channelIds: Array<string>, lang: ?Array<s
       limit_claims_per_channel: 1,
       no_totals: true,
       ...(lang ? { any_languages: lang } : {}),
+      not_tags: ['c:unlisted'],
     },
     {
       useAutoPagination: true,
@@ -80,6 +82,7 @@ const fetchMostRecentLivestreamClaims = (
       limit_claims_per_channel: 2,
       no_totals: true,
       ...(lang ? { any_languages: lang } : {}),
+      not_tags: ['c:unlisted'],
     },
     {
       useAutoPagination: true,

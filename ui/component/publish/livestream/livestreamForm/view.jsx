@@ -36,6 +36,7 @@ import { SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
 import PublishProtectedContent from 'component/publishProtectedContent';
+import PublishVisibility from 'component/publish/shared/publishVisibilty';
 
 type Props = {
   tags: Array<Tag>,
@@ -531,6 +532,8 @@ function LivestreamForm(props: Props) {
         />
 
         <PublishDescription disabled={disabled} />
+
+        <PublishVisibility location="livestream" />
 
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>

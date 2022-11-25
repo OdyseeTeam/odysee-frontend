@@ -12,7 +12,7 @@ type Props = {
 };
 
 const PublishVisibility = (props: Props) => {
-  const { updatePublishForm, isUnlistedContent, isPrivateContent } = props;
+  const { updatePublishForm, isUnlistedContent, isPrivateContent, location } = props;
 
   const [selectedVisibility, setSelectedVisibility] = useState('public');
 
@@ -24,7 +24,7 @@ const PublishVisibility = (props: Props) => {
     });
 
     // when switching to public, set release time to current time
-    if (visibility === 'public') {
+    if (visibility === 'public' && location !== 'livestream') {
       updatePublishForm({
         releaseTime: Math.round(Date.now() / 1000),
       });
@@ -67,14 +67,14 @@ const PublishVisibility = (props: Props) => {
               label={__('Unlisted (only people with the special link can access)')}
               onChange={() => switchVisibility('unlisted')}
             />
-            <FormField
-              type="radio"
-              name="private-visibility"
-              checked={selectedVisibility === 'private'}
-              label={__('Private (only you can view the content)')}
-              // helper={__(HELP.ONLY_CONFIRM_OVER_AMOUNT)}
-              onChange={() => switchVisibility('private')}
-            />
+            {/*<FormField*/}
+            {/*  type="radio"*/}
+            {/*  name="private-visibility"*/}
+            {/*  checked={selectedVisibility === 'private'}*/}
+            {/*  label={__('Private (only you can view the content)')}*/}
+            {/*  // helper={__(HELP.ONLY_CONFIRM_OVER_AMOUNT)}*/}
+            {/*  onChange={() => switchVisibility('private')}*/}
+            {/*/>*/}
           </>
         }
       />
