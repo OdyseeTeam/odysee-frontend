@@ -239,7 +239,7 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
     dispatch(
       doChangePlayingUri({
         uri: null,
-        ...(playingCollectionId ? { collection: { collectionId: playingCollectionId } } : {}),
+        collection: playingCollectionId ? { collectionId: playingCollectionId } : null,
       })
     );
     return dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: true }));
