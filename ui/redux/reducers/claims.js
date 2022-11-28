@@ -168,6 +168,20 @@ function claimHasNewData(original, fresh) {
 }
 
 /**
+ * Adds the new value to the delta if the value is not present in the original.
+ *
+ * @param original The original state object.
+ * @param delta The delta state object containing a list of changes.
+ * @param key
+ * @param newValue
+ */
+function updateIfValueEmpty(original, delta, key, newValue) {
+  if (!original[key]) {
+    delta[key] = newValue;
+  }
+}
+
+/**
  * Adds the new value to the delta if the value is different from the original.
  *
  * @param original The original state object.
@@ -408,6 +422,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
     } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
       urlsForCurrentPage.push(permanentUri);
+      const includesMeta = Object.keys(claim.meta || {}).length > 0;
 
       if (claim.confirmations < 1) {
         pendingByIdDelta[claimId] = claim;
@@ -417,15 +432,23 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
         } else {
           byIdDelta[claimId] = claim;
         }
-      } else {
+      } else if (includesMeta) {
         updateIfClaimChanged(state.byId, byIdDelta, claimId, claim);
+      } else {
+        updateIfValueEmpty(state.byId, byIdDelta, claimId, claim);
       }
 
-      updateIfValueChanged(state.claimsByUri, byUriDelta, permanentUri, claimId);
-      updateIfValueChanged(state.claimsByUri, byUriDelta, canonicalUri, claimId);
+      if (includesMeta) {
+        updateIfValueChanged(state.claimsByUri, byUriDelta, permanentUri, claimId);
+        updateIfValueChanged(state.claimsByUri, byUriDelta, canonicalUri, claimId);
+      } else {
+        updateIfValueEmpty(state.claimsByUri, byUriDelta, permanentUri, claimId);
+        if (canonicalUri) updateIfValueEmpty(state.claimsByUri, byUriDelta, canonicalUri, claimId);
+      }
+
       myClaimIds.add(claimId);
 
-      if (valueType === 'collection') {
+      if (valueType === 'collection' && (!newMyCollectionClaimIds || !newMyCollectionClaimIds.has(claimId))) {
         // $FlowFixMe
         newResolvedCollectionsById[claimId] = claimToStoredCollection(claim);
 

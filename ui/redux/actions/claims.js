@@ -188,8 +188,8 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: 
 
       const claim = claimsById[claimId];
 
-      if (returnCachedClaims && claim) {
-        cachedClaims[claim.canonical_url || claim.permanent_url] = { stream: claim };
+      if (returnCachedClaims && claim && claim.canonical_url) {
+        cachedClaims[claim.canonical_url] = { stream: claim };
         return false;
       }
 
