@@ -78,6 +78,8 @@ export default function Portals(props: Props) {
       orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
       orderToSave.hidden = getInitialList('HIDDEN', homepageOrder, SECTIONS);
       orderToSave.hidden.push('PORTALS');
+    } else if (orderToSave.hidden && !orderToSave.hidden.includes('PORTALS')) {
+      orderToSave.hidden.push('PORTALS');
     }
     doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
     setKill(true);

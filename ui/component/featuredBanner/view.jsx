@@ -107,6 +107,8 @@ export default function FeaturedBanner(props: Props) {
       orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
       orderToSave.hidden = getInitialList('HIDDEN', homepageOrder, SECTIONS);
       orderToSave.hidden.push('BANNER');
+    } else if (orderToSave.hidden && !orderToSave.hidden.includes('BANNER')) {
+      orderToSave.hidden.push('BANNER');
     }
     doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
     setKill(true);
