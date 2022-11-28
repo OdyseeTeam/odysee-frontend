@@ -24,6 +24,7 @@ import Ads from 'web/component/ads';
 import Meme from 'web/component/meme';
 import Portals from 'component/portals';
 import FeaturedBanner from 'component/featuredBanner';
+import ABTest from 'component/experiment';
 
 const CATEGORY_LIVESTREAM_LIMIT = 3;
 
@@ -102,6 +103,7 @@ function HomePage(props: Props) {
   };
 
   const topGrid = sortedRowData.findIndex((row) => row.title);
+  const isInTestGroup = ABTest('BANNER');
 
   const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
     return (
@@ -129,9 +131,9 @@ function HomePage(props: Props) {
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     if (id === 'BANNER') {
-      return <FeaturedBanner homepageData={homepageData} authenticated={authenticated} />;
+      return isInTestGroup ? <FeaturedBanner homepageData={homepageData} authenticated={authenticated} /> : undefined;
     } else if (id === 'PORTALS') {
-      return <Portals homepageData={homepageData} authenticated={authenticated} />;
+      return isInTestGroup ? <Portals homepageData={homepageData} authenticated={authenticated} /> : undefined;
     }
 
     const tilePlaceholder = (
@@ -170,7 +172,7 @@ function HomePage(props: Props) {
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {index === topGrid && <CustomizeHomepage />}
+              {((!isInTestGroup && index === 0) || index === topGrid) && <CustomizeHomepage />}
             </div>
           )}
         </>
@@ -216,7 +218,7 @@ function HomePage(props: Props) {
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>
-      {topGrid === 0 && <Meme meme={homepageMeme} />}
+      {(!isInTestGroup || topGrid === 0) && <Meme meme={homepageMeme} />}
 
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
@@ -231,7 +233,7 @@ function HomePage(props: Props) {
       {homepageFetched &&
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-            if (id !== 'FOLLOWING') {
+            if (isInTestGroup && id !== 'FOLLOWING') {
               return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
             } else {
               return (

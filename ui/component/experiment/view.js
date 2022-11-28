@@ -1,4 +1,5 @@
 // @flow
+import { selectUser } from 'redux/selectors/user';
 import sha256 from 'crypto-js/sha256';
 
 function isInGroupA(userID, experimentID) {
@@ -37,14 +38,14 @@ function isInGroupA(userID, experimentID) {
 }
 
 type ABTestProps = {
-  experimentID: string,
-  userID: string,
-  childA: React$Node,
-  childB: React$Node,
+  experimentId: string,
 };
 
 export default function ABTest(props: ABTestProps) {
-  const { experimentID, userID, childA, childB } = props;
+  const { experimentId } = props;
+  const state = window.store.getState();
+  const user = selectUser(state);
+  const userId = user ? user.id : 0;
 
-  return isInGroupA(userID, experimentID) ? childA : childB;
+  return isInGroupA(userId, experimentId);
 }
