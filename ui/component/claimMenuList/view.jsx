@@ -123,8 +123,6 @@ function ClaimMenuList(props: Props) {
     isContentProtectedAndLocked,
   } = props;
 
-  console.log('props: ', props);
-
   const isChannelPage = React.useContext(ChannelPageContext);
 
   const {
