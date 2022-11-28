@@ -465,7 +465,7 @@ function VideoRenderFloating(props: Props) {
               />
             )}
 
-            {autoplayCountdownUri && !cancelledAutoPlayCountdown && (
+            {autoplayCountdownUri && (!cancelledAutoPlayCountdown || !isAutoplayCountdown) && (
               <div className={classnames('content__autoplay-countdown', { draggable, playing: !isAutoplayCountdown })}>
                 <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
               </div>
@@ -704,6 +704,14 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
         },
 
         [`.${CONTENT_VIEWER_CLASS}`]: {
+          height:
+            (!forceDefaults || isLandscapeRotated) && (!isMobile || isMobilePlayer)
+              ? `${heightResult} !important`
+              : undefined,
+          ...maxHeight,
+        },
+
+        '.content__autoplay-countdown': {
           height:
             (!forceDefaults || isLandscapeRotated) && (!isMobile || isMobilePlayer)
               ? `${heightResult} !important`
