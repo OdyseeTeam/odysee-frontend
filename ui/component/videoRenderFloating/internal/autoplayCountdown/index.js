@@ -2,9 +2,8 @@ import { connect } from 'react-redux';
 
 import { selectTitleForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
 import { selectModal } from 'redux/selectors/app';
-import { selectIsPlayerFloating, selectCanPlaybackFileForUri } from 'redux/selectors/content';
+import { selectIsPlayerFloating, selectCanPlaybackFileForUri, selectHasUriPlaying } from 'redux/selectors/content';
 
-import { doOpenModal } from 'redux/actions/app';
 import { doPlayNextUri, doSetShowAutoplayCountdownForUri } from 'redux/actions/content';
 
 import withPlaybackUris from 'hocs/withPlaybackUris';
@@ -24,11 +23,11 @@ const select = (state, props) => {
     isMature: selectClaimIsNsfwForUri(state, uri),
     isFloating: selectIsPlayerFloating(state),
     canPlayback: selectCanPlaybackFileForUri(state, uri),
+    hasUriPlaying: selectHasUriPlaying(state, uri),
   };
 };
 
 const perform = {
-  doOpenModal,
   doPlayNextUri,
   doSetShowAutoplayCountdownForUri,
 };

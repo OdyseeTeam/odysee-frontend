@@ -27,7 +27,7 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams, formatLbryChannelName
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
 import { isURIEqual } from 'util/lbryURI';
-import AutoplayCountdown from 'component/autoplayCountdown';
+import AutoplayCountdown from './internal/autoplayCountdown';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import {
   getRootEl,
@@ -135,7 +135,6 @@ function VideoRenderFloating(props: Props) {
   const initialMobileState = React.useRef(isMobile);
   const initialPlayerHeight = React.useRef();
   const resizedBetweenFloating = React.useRef();
-  const cancelledAutoPlayCountdown = React.useRef(false);
 
   const { source: playingUriSource, primaryUri: playingPrimaryUri } = playingUri;
 
@@ -143,6 +142,7 @@ function VideoRenderFloating(props: Props) {
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
   const noFloatingPlayer = !overrideFloating && (!isFloating || !floatingPlayerEnabled);
 
+  const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
   const [wasDragging, setWasDragging] = React.useState(false);
   const [forceDisable, setForceDisable] = React.useState(false);
@@ -269,11 +269,6 @@ function VideoRenderFloating(props: Props) {
       restoreToRelativePosition();
       resizedBetweenFloating.current = false;
     } else if (!resizedBetweenFloating.current) {
-      if (isAutoplayCountdown && cancelledAutoPlayCountdown.current) {
-        // -- Floating with autoplay countdown -> canceled -> back to main page,
-        // remove the countdown overlay
-        doSetShowAutoplayCountdownForUri({ uri, show: false });
-      }
       handleResize();
       resizedBetweenFloating.current = true;
     }
@@ -319,7 +314,7 @@ function VideoRenderFloating(props: Props) {
       if (uri) {
         // erase the playerHeight data so it can be re-calculated
         initialPlayerHeight.current = undefined;
-        cancelledAutoPlayCountdown.current = false;
+        setCancelledAutoPlayCountdown(false);
       }
     };
 
@@ -471,15 +466,20 @@ function VideoRenderFloating(props: Props) {
               />
             )}
 
-            {autoplayCountdownUri && (
-              <div className={classnames('content__loading', { draggable: isFloating })}>
-                <AutoplayCountdown uri={uri} onCancel={() => (cancelledAutoPlayCountdown.current = true)} />
+            {autoplayCountdownUri && !cancelledAutoPlayCountdown && (
+              <div
+                className={classnames('content__autoplay-countdown', {
+                  draggable: isFloating,
+                  playing: !isAutoplayCountdown,
+                })}
+              >
+                <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
               </div>
             )}
 
             {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
             {uri &&
-              !isAutoplayCountdown &&
+              (!isAutoplayCountdown || cancelledAutoPlayCountdown) &&
               (isFloating && !streamingUrl ? (
                 <FloatingRender uri={uri} isMobile={isMobile} />
               ) : (
