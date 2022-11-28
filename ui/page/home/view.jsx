@@ -133,7 +133,7 @@ function HomePage(props: Props) {
     if (id === 'BANNER') {
       return isInTestGroup ? <FeaturedBanner homepageData={homepageData} authenticated={authenticated} /> : undefined;
     } else if (id === 'PORTALS') {
-      return isInTestGroup ? <Portals homepageData={homepageData} authenticated={authenticated} /> : undefined;
+      return <Portals homepageData={homepageData} authenticated={authenticated} />;
     }
 
     const tilePlaceholder = (

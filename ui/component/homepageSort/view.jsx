@@ -69,9 +69,7 @@ function getInitialList(listId, savedOrder, homepageSections) {
             activeOrder.unshift(key);
           }
         } else if (key === 'PORTALS') {
-          if (isInTestGroup) {
-            activeOrder.splice(2, 0, key);
-          }
+          activeOrder.splice(2, 0, key);
         } else {
           activeOrder.push(key);
         }
