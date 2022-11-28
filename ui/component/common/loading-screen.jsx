@@ -14,10 +14,15 @@ type Props = {
 const LoadingScreen = (props: Props) => {
   const { status, spinner = true, transparent } = props;
 
-  const draggable = React.useContext(VideoRenderFloatingContext);
+  const floatingContext = React.useContext(VideoRenderFloatingContext);
 
   return (
-    <div className={classnames('content__loading', { 'content__loading--transparent': transparent, draggable })}>
+    <div
+      className={classnames('content__loading', {
+        'content__loading--transparent': transparent,
+        draggable: floatingContext?.draggable,
+      })}
+    >
       {spinner && <Spinner light={!transparent} delayed={!transparent} text={status} />}
     </div>
   );
