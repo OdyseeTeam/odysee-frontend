@@ -176,8 +176,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         playingOptions.source = 'markdown';
       }
 
-      doFileGetForUri(uri);
+      if (!isLivestreamClaim) doFileGetForUri(uri);
       if (shouldStartFloating) doStartFloatingPlayingUri(playingOptions);
+
       analytics.event.playerLoaded(renderMode, embedded);
 
       setCurrentStreamingUri(uri);
@@ -187,6 +188,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       doFileGetForUri,
       doStartFloatingPlayingUri,
       embedded,
+      isLivestreamClaim,
       isMarkdownPost,
       parentCommentId,
       pathname,
