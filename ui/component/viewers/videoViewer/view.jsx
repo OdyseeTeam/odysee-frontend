@@ -39,10 +39,12 @@ const IS_IOS = platform.isIOS();
 
 type Props = {
   uri: string,
-  playNextUri: string,
-  playPreviousUri?: string,
   source: string,
   contentType: string,
+
+  // -- withPlaybackUris HOC --
+  playNextUri: ?string,
+  playPreviousUri?: string,
 
   // -- redux --
   position: number,

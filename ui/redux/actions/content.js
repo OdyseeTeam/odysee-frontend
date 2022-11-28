@@ -48,6 +48,7 @@ import {
   selectIsPlayerFloating,
   selectIsCollectionPlayingForId,
   selectIsPlayableForUri,
+  selectCanPlaybackFileForUri,
 } from 'redux/selectors/content';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
@@ -228,11 +229,11 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
       })
     );
   }
-  const isMature = selectClaimIsNsfwForUri(state, nextUri);
-  const isPlayable = selectIsPlayableForUri(state, nextUri);
+
+  const canPlayback = selectCanPlaybackFileForUri(state, nextUri);
   const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, nextUri);
   const isLive = selectIsActiveLivestreamForUri(state, nextUri);
-  const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
+  const canStartloatingPlayer = canPlayback && (!isLivestreamClaim || isLive);
 
   if (!canStartloatingPlayer) {
     dispatch(

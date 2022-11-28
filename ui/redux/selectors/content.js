@@ -26,6 +26,7 @@ type State = { claims: any, content: ContentState, user: UserState };
 export const selectState = (state: State) => state.content || {};
 
 export const selectPlayingUri = (state: State) => selectState(state).playingUri;
+export const selectHasUriPlaying = (state: State) => Boolean(selectPlayingUri(state).uri);
 export const selectPlayingCollection = (state: State) => selectPlayingUri(state).collection;
 export const selectPlayingCollectionId = (state: State) => selectPlayingCollection(state).collectionId;
 export const selectPlayingCollectionLoop = (state: State) => selectPlayingCollection(state).loop;

@@ -468,9 +468,13 @@
   }
 }
 
-.content__viewer .content__loading {
-  position: absolute;
-  z-index: 3;
+.content__autoplay-countdown {
+  @extend .content__loading;
+
+  &.playing {
+    position: absolute !important;
+    z-index: 3;
+  }
 }
 
 .content__non-clickable {

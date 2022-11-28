@@ -3,10 +3,8 @@ import React from 'react';
 import Button from 'component/button';
 import UriIndicator from 'component/uriIndicator';
 import I18nMessage from 'component/i18nMessage';
-import { withRouter } from 'react-router';
 import debounce from 'util/debounce';
 import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 150;
 const CLASSNAME_AUTOPLAY_COUNTDOWN = 'autoplay-countdown';
@@ -16,17 +14,19 @@ const COUNTDOWN_TIME = 5;
 
 type Props = {
   uri?: string,
-  playNextUri: string,
-  playPreviousUri?: string,
-  doReplay: () => void,
   onCancel: () => void,
+
+  // -- withPlaybackUris HOC --
+  playNextUri: ?string,
+  playPreviousUri?: string,
+
   // -- redux --
   playNextClaimTitle: ?string,
   modal: { id: string, modalProps: {} },
   isMature: boolean,
   isFloating: boolean,
   canPlayback: ?boolean,
-  doOpenModal: (id: string, props: {}) => void,
+  hasUriPlaying: boolean,
   doPlayNextUri: (params: { uri: string }) => void,
   doSetShowAutoplayCountdownForUri: (params: { uri: string, show: boolean }) => void,
 };
@@ -34,17 +34,19 @@ type Props = {
 function AutoplayCountdown(props: Props) {
   const {
     uri,
+    onCancel,
+
+    // -- withPlaybackUris HOC --
     playNextUri,
     playPreviousUri,
-    doReplay,
-    onCancel,
+
     // -- redux --
     playNextClaimTitle,
     modal,
     isMature,
     isFloating,
     canPlayback,
-    doOpenModal,
+    hasUriPlaying,
     doPlayNextUri,
     doSetShowAutoplayCountdownForUri,
   } = props;
@@ -54,14 +56,21 @@ function AutoplayCountdown(props: Props) {
   const [timerPaused, setTimerPaused] = React.useState(false);
   const anyModalPresent = modal !== undefined && modal !== null;
   const isTimerPaused = timerPaused || anyModalPresent;
-  const skipPaid = false;
 
-  const handleCloseCountdown = React.useCallback(() => setTimerCanceled(true), []);
+  const handleStopCountdown = React.useCallback(() => {
+    setTimerCanceled(true);
+    onCancel();
+  }, [onCancel]);
+
+  const handleCloseCountdown = React.useCallback(() => {
+    handleStopCountdown();
+    doSetShowAutoplayCountdownForUri({ uri, show: false });
+  }, [doSetShowAutoplayCountdownForUri, handleStopCountdown, uri]);
 
   const handlePlayNext = React.useCallback(
     (uri: string) => {
-      handleCloseCountdown();
       doPlayNextUri({ uri });
+      handleCloseCountdown();
     },
     [doPlayNextUri, handleCloseCountdown]
   );
@@ -158,12 +167,13 @@ function AutoplayCountdown(props: Props) {
                 label={__('Cancel')}
                 button="link"
                 onClick={() => {
-                  setTimerCanceled(true);
-                  handleCloseCountdown();
-                  if (!isFloating) {
+                  handleStopCountdown();
+
+                  // Don't close the floating player when cancelling an auto-skip unplayable countdown
+                  // so that it can still be used for navigation
+                  if (!isFloating || canPlayback) {
                     doSetShowAutoplayCountdownForUri({ uri, show: false });
                   }
-                  if (onCancel) onCancel();
                 }}
               />
             </div>
@@ -178,26 +188,25 @@ function AutoplayCountdown(props: Props) {
             />
           )}
 
-          <div>
-            <Button
-              label={isMature ? undefined : skipPaid ? __('Purchase?') : __('Replay?')}
-              button="link"
-              icon={isMature ? undefined : skipPaid ? ICONS.WALLET : ICONS.REPLAY}
-              onClick={() => {
-                setTimerCanceled(true);
-                if (skipPaid) {
-                  doOpenModal(MODALS.AFFIRM_PURCHASE, { uri, cancelCb: () => setTimerCanceled(false) });
-                } else {
-                  doReplay();
+          {hasUriPlaying && window.player && (
+            <div>
+              <Button
+                label={__('Replay?')}
+                button="link"
+                icon={ICONS.REPLAY}
+                onClick={() => {
                   handleCloseCountdown();
-                }
-              }}
-            />
-          </div>
+
+                  window.player.currentTime(0);
+                  window.player.play();
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-export default withRouter(AutoplayCountdown);
+export default AutoplayCountdown;
