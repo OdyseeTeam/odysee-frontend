@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
-import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectCollectionForId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -56,7 +55,6 @@ const select = (state, props) => {
     primaryUri: selectPrimaryUri(state),
     title: selectTitleForUri(state, uri),
     isFloating,
-    streamingUrl: selectStreamingUrlForUri(state, uri),
     floatingPlayerEnabled: playingFromQueue || isInlinePlayer || selectClientSetting(state, SETTINGS.FLOATING_PLAYER),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),

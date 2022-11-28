@@ -59,7 +59,6 @@ type Props = {
   channelUrl: ?string,
   isFloating: boolean,
   uri: string,
-  streamingUrl?: string,
   title: ?string,
   floatingPlayerEnabled: boolean,
   renderMode: string,
@@ -94,7 +93,6 @@ function VideoRenderFloating(props: Props) {
     claimId,
     channelUrl,
     uri,
-    streamingUrl,
     title,
     isFloating,
     floatingPlayerEnabled,
@@ -149,6 +147,7 @@ function VideoRenderFloating(props: Props) {
   const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const noPlayerHeight = fileViewerRect?.height === 0;
+  const draggable = !isMobile && isFloating;
 
   const navigateUrl = uri
     ? formatLbryUrlForWeb(uri) + (collectionId ? generateListSearchUrlParams(collectionId) : '')
@@ -388,7 +387,7 @@ function VideoRenderFloating(props: Props) {
   }
 
   return (
-    <VideoRenderFloatingContext.Provider value>
+    <VideoRenderFloatingContext.Provider value={{ draggable }}>
       {!isAutoplayCountdown && ((uri && !videoAspectRatio) || collectionSidebarId) ? (
         <PlayerGlobalStyles
           videoAspectRatio={videoAspectRatio}
@@ -467,24 +466,15 @@ function VideoRenderFloating(props: Props) {
             )}
 
             {autoplayCountdownUri && !cancelledAutoPlayCountdown && (
-              <div
-                className={classnames('content__autoplay-countdown', {
-                  draggable: isFloating,
-                  playing: !isAutoplayCountdown,
-                })}
-              >
+              <div className={classnames('content__autoplay-countdown', { draggable, playing: !isAutoplayCountdown })}>
                 <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
               </div>
             )}
 
             {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
-            {uri &&
-              (!isAutoplayCountdown || cancelledAutoPlayCountdown) &&
-              (isFloating && !streamingUrl ? (
-                <FloatingRender uri={uri} isMobile={isMobile} />
-              ) : (
-                <VideoRender className={classnames({ draggable: !isMobile })} uri={uri} />
-              ))}
+            {uri && (!isAutoplayCountdown || cancelledAutoPlayCountdown) && (
+              <FloatingRender uri={uri} draggable={draggable} />
+            )}
 
             {isFloating && (
               <div className={classnames('content__info', { draggable: !isMobile })}>
@@ -736,8 +726,8 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   );
 };
 
-const FloatingRender = withStreamClaimRender(({ uri, isMobile }: { uri: string, isMobile: boolean }) => (
-  <VideoRender className={classnames({ draggable: !isMobile })} uri={uri} />
+const FloatingRender = withStreamClaimRender(({ uri, draggable }: { uri: string, draggable: boolean }) => (
+  <VideoRender className={classnames({ draggable })} uri={uri} />
 ));
 
 export default VideoRenderFloating;
