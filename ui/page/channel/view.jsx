@@ -101,7 +101,7 @@ function ChannelPage(props: Props) {
   } = useHistory();
   const { meta } = claim;
   const { claims_in_channel } = meta;
-  const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered;
+  const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
   const urlParams = new URLSearchParams(search);
