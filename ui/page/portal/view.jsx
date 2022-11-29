@@ -64,7 +64,9 @@ function PortalPage(props: Props) {
             loadedCallback={setDisplayedTiles}
           />
         </div>
-        {homepageData && displayedTiles > 49 && <Portals homepageData={homepageData} activePortal={portal.name} />}
+        {homepageData && displayedTiles > portal.claimIds.videos.length - 6 && (
+          <Portals homepageData={homepageData} activePortal={portal.name} />
+        )}
       </Page>
     </>
   ) : (
