@@ -6,7 +6,7 @@ import { doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
-import { selectActiveLiveClaimForChannel } from 'redux/selectors/livestream';
+import { selectActiveLiveClaimForChannel, selectActiveStreamUriForClaimUri } from 'redux/selectors/livestream';
 import { isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
@@ -31,7 +31,11 @@ const select = (state, props) => {
     featureParam === PAGES.LIVE_NOW
       ? selectActiveLiveClaimForChannel(state, channelClaimId)
       : selectLatestClaimForUri(state, canonicalUrl);
-  const latestClaimUrl = latestContentClaim && latestContentClaim.canonical_url;
+
+  const latestClaimUrl =
+    featureParam === PAGES.LIVE_NOW
+      ? selectActiveStreamUriForClaimUri(state, uri)
+      : latestContentClaim && latestContentClaim.canonical_url;
   const latestClaimId = latestContentClaim && latestContentClaim.claim_id;
 
   if (latestClaimUrl) uri = latestClaimUrl;

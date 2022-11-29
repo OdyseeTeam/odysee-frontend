@@ -19,6 +19,8 @@ const isDev = process.env.NODE_ENV !== 'production';
 
 type Props = {
   uri: string,
+  latestContentPath?: boolean,
+  liveContentPath?: boolean,
   // -- redux --
   claim: StreamClaim,
   channelClaimId: ?string,
@@ -26,8 +28,6 @@ type Props = {
   collectionId: string,
   collection: Collection,
   collectionFirstItemUri: ?string,
-  latestContentPath?: boolean,
-  liveContentPath?: boolean,
   latestClaimUrl: ?string,
   creatorSettings: { [string]: PerChannelSettings },
   doFetchCreatorSettings: (channelId: string) => Promise<any>,
@@ -39,6 +39,8 @@ type Props = {
 const ClaimPageComponent = (props: Props) => {
   const {
     uri,
+    latestContentPath,
+    liveContentPath,
     // -- redux --
     claim,
     channelClaimId,
@@ -46,8 +48,6 @@ const ClaimPageComponent = (props: Props) => {
     collectionId,
     collection,
     collectionFirstItemUri,
-    latestContentPath,
-    liveContentPath,
     latestClaimUrl,
     creatorSettings,
     doFetchCreatorSettings,

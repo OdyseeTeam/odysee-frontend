@@ -49,6 +49,8 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       doResolveUri,
       doBeginPublish,
       doOpenModal,
+
+      ...otherProps
     } = props;
 
     const { streamName, channelName, isChannel } = parseURI(uri);
@@ -171,7 +173,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     return (
       <React.Suspense fallback={<LoadingSpinner text={__('Loading...')} />}>
         <ClaimRenderWrapper>
-          <ClaimRenderComponent uri={uri} />
+          <ClaimRenderComponent uri={uri} {...otherProps} />
         </ClaimRenderWrapper>
       </React.Suspense>
     );

@@ -3,6 +3,7 @@ import React from 'react';
 
 import * as RENDER_MODES from 'constants/file_render_modes';
 
+import { useHistory } from 'react-router';
 import { parseURI } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
 
@@ -28,10 +29,26 @@ const EmbedClaimComponent = (props: Props) => {
     renderMode,
   } = props;
 
+  const {
+    location: { search },
+  } = useHistory();
+
+  const urlParams = new URLSearchParams(search);
+  const featureParam = urlParams.get('feature');
+
   const { isChannel } = parseURI(uri);
   const isVideo = RENDER_MODES.FLOATING_MODES.includes(renderMode);
 
   if (isChannel) {
+    if (featureParam) {
+      // -- Still loading the latest/livenow claims for the channel
+      return (
+        <div className="main--empty">
+          <Spinner />
+        </div>
+      );
+    }
+
     return (
       <React.Suspense
         fallback={
