@@ -27,6 +27,11 @@ export const selectActiveLivestreamsFetchingQueries = (state: State) =>
   selectState(state).activeLivestreamsFetchingQueries;
 export const selectActiveLivestreamInitialized = (state: State) => selectState(state).activeLivestreamInitialized;
 export const selectSocketConnectionById = (state: State) => selectState(state).socketConnectionById;
+
+export const selectIsLivePollingChannelIds = (state: State) => selectState(state).isLivePollingChannelIds;
+export const selectIsLivePollingForChannelId = (state: State, claimId: string) =>
+  selectIsLivePollingChannelIds(state).includes(claimId);
+
 export const selectActiveLivestreamsLastFetchedDate = (state: State) =>
   selectState(state).activeLivestreamsLastFetchedDate;
 export const selectActiveLivestreamsLastFetchedFailCount = (state: State) =>
@@ -38,11 +43,25 @@ export const selectIsFetchingActiveLivestreams = (state: State) =>
 export const selectActiveLivestreamsFetchingForQuery = (state: State, query: string) =>
   selectActiveLivestreamsFetchingQueries(state).includes(JSON.stringify(query));
 
-export const selectSocketConnectionForId = createSelector(
-  (state, claimId) => claimId,
-  selectSocketConnectionById,
-  (claimId, byId) => claimId && byId[claimId]
-);
+export const selectSocketConnectionForId = (state: State, claimId: string) =>
+  claimId && selectSocketConnectionById(state)[claimId];
+
+export const selectIsListeningForIsLiveForUri = (state: State, uri: string) => {
+  const channelId = selectChannelClaimIdForUri(state, uri);
+
+  const isLivePolling = selectIsLivePollingForChannelId(state, channelId);
+  if (isLivePolling) return true;
+
+  const activeLivestream = selectActiveLivestreamForChannel(state, channelId);
+  if (!activeLivestream) return false;
+
+  const activeLivestreamId = activeLivestream.claimId;
+
+  const socketConnection = selectSocketConnectionForId(state, activeLivestreamId);
+  if (socketConnection?.connected) return true;
+
+  return false;
+};
 
 // select non-pending claims without sources for given channel
 export const makeSelectLivestreamsForChannelId = (channelId: string) =>

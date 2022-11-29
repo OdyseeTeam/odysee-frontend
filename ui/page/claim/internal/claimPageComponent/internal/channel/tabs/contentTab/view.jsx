@@ -16,10 +16,11 @@ import { Form, FormField } from 'component/common/form';
 import ScheduledStreams from 'component/scheduledStreams';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
-import useFetchLiveStatus from 'effects/use-fetch-live';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { tagSearchCsOptionsHook } from 'util/search';
+
+import withLiveStatus from 'hocs/withLiveStatus';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -44,9 +45,7 @@ type Props = {
   doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
-  doFetchChannelIsLiveForId: (string) => void,
   activeLivestreamForChannel: any,
-  activeLivestreamInitialized: boolean,
   hasPremiumPlus: boolean,
 };
 
@@ -67,9 +66,7 @@ function ContentTab(props: Props) {
     doResolveUris,
     claimType,
     empty,
-    doFetchChannelIsLiveForId,
     activeLivestreamForChannel,
-    activeLivestreamInitialized,
     hasPremiumPlus,
   } = props;
 
@@ -92,7 +89,6 @@ function ContentTab(props: Props) {
 
   const url = `${pathname}${search}`;
   const claimId = claim && claim.claim_id;
-  const isChannelEmpty = !claim || !claim.meta;
   const showFilters =
     !claimType ||
     (Array.isArray(claimType)
@@ -101,7 +97,6 @@ function ContentTab(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
 
-  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
@@ -114,8 +109,6 @@ function ContentTab(props: Props) {
     setSearchQuery('');
   }, [url]);
 
-  useFetchLiveStatus(claimId, doFetchChannelIsLiveForId, true);
-
   return (
     <Fragment>
       <GeoRestrictionInfo uri={uri} />
@@ -124,9 +117,7 @@ function ContentTab(props: Props) {
         <HiddenNsfwClaims uri={uri} />
       )}
 
-      {!fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
-        <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
-      )}
+      <LivestreamLinkRender uri={uri} poll />
 
       {!fetching && showScheduledLiveStreams && (
         <ScheduledStreams
@@ -228,5 +219,7 @@ function ContentTab(props: Props) {
     </Fragment>
   );
 }
+
+const LivestreamLinkRender = withLiveStatus(({ uri }: { uri: string }) => <LivestreamLink claimUri={uri} />);
 
 export default ContentTab;

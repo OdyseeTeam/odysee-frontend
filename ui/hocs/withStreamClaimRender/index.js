@@ -1,37 +1,25 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
-import * as SETTINGS from 'constants/settings';
-
 import {
-  selectClaimWasPurchasedForUri,
   selectClaimForUri,
-  selectClaimIsMine,
-  selectIsFiatPaidForUri,
-  selectIsFiatRequiredForUri,
   selectIsFetchingPurchases,
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
   selectRentalTagForUri,
-  selectCostInfoForUri,
   selectIsStreamPlaceholderForUri,
   selectPendingFiatPaymentForUri,
   selectSdkFeePendingForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { selectClientSetting } from 'redux/selectors/settings';
 import {
   makeSelectFileRenderModeForUri,
   selectPlayingUri,
   selectPlayingCollectionId,
   selectCanViewFileForUri,
 } from 'redux/selectors/content';
-import {
-  selectIsProtectedContentLockedFromUserForId,
-  selectMembershipMineFetched,
-  selectPendingUnlockedRestrictionsForUri,
-} from 'redux/selectors/memberships';
-import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
+import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
+import { selectIsActiveLivestreamForUri, selectIsListeningForIsLiveForUri } from 'redux/selectors/livestream';
 
 import { doStartFloatingPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
@@ -56,15 +44,8 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, props.uri),
     purchaseTag: selectPurchaseTagForUri(state, props.uri),
     rentalTag: selectRentalTagForUri(state, props.uri),
-    autoplay: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
-    claimIsMine: selectClaimIsMine(state, claim),
-    sdkPaid: selectClaimWasPurchasedForUri(state, uri),
-    fiatPaid: selectIsFiatPaidForUri(state, uri),
-    fiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFetchingPurchases: selectIsFetchingPurchases(state),
-    costInfo: selectCostInfoForUri(state, uri),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
-    contentRestrictedFromUser: claimId && selectIsProtectedContentLockedFromUserForId(state, claimId),
     streamingUrl: selectStreamingUrlForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
@@ -74,6 +55,7 @@ const select = (state, props) => {
     sdkFeePending: selectSdkFeePendingForUri(state, uri),
     pendingUnlockedRestrictions: selectPendingUnlockedRestrictionsForUri(state, uri),
     canViewFile: selectCanViewFileForUri(state, uri),
+    alreadyListeningForIsLive: selectIsListeningForIsLiveForUri(state, uri),
   };
 };
 

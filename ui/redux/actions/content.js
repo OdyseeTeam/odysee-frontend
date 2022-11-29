@@ -233,6 +233,7 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
   const canPlayback = selectCanPlaybackFileForUri(state, nextUri);
   const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, nextUri);
   const isLive = selectIsActiveLivestreamForUri(state, nextUri);
+  // todo: fix
   const canStartloatingPlayer = canPlayback && (!isLivestreamClaim || isLive);
 
   if (!canStartloatingPlayer) {

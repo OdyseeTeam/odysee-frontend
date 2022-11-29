@@ -206,7 +206,4 @@ export const doCommentSocketDisconnectAsCommenter = (claimId, channelName) => (d
   dispatch(doCommentSocketDisconnect(claimId, channelName, COMMENT_WS_SUBCATEGORIES.COMMENTER));
 
 export const doSetSocketConnection = (connected, id, subCategory) => (dispatch) =>
-  dispatch({
-    type: ACTIONS.SOCKET_CONNECTED_BY_ID,
-    data: { connected, sub_category: subCategory, id },
-  });
+  dispatch({ type: ACTIONS.SOCKET_CONNECTED_BY_ID, data: { connected, sub_category: subCategory, id } });
