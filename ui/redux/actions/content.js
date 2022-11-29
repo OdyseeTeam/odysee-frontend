@@ -230,6 +230,7 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
     );
   }
 
+  const nextIsInPlayingCollection = selectCollectionForIdHasClaimUrl(state, playingCollectionId, nextUri);
   const canPlayback = selectCanPlaybackFileForUri(state, nextUri);
   const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, nextUri);
   const isLive = selectIsActiveLivestreamForUri(state, nextUri);
@@ -240,18 +241,21 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
     dispatch(
       doChangePlayingUri({
         uri: null,
-        collection: playingCollectionId ? { collectionId: playingCollectionId } : null,
+        collection: nextIsInPlayingCollection ? { collectionId: playingCollectionId } : null,
       })
     );
+
     return dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: true }));
   }
 
   dispatch(
     doStartFloatingPlayingUri({
       uri: nextUri,
-      ...(playingCollectionId ? { collection: { collectionId: playingCollectionId } } : {}),
+      ...(nextIsInPlayingCollection ? { collection: { collectionId: playingCollectionId } } : {}),
     })
   );
+
+  return dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: false }));
 };
 
 export function doPlaylistAddAndAllowPlaying({

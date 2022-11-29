@@ -423,9 +423,9 @@ export const selectUrlsForCollectionId = createCachedSelector(
       }
     });
 
-    if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.size)) {
-      return undefined;
-    }
+    // if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.size)) {
+    //   return undefined;
+    // }
 
     return Array.from(uris);
   }
