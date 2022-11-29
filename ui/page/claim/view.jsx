@@ -12,6 +12,8 @@ import ClaimPageComponent from './internal/claimPageComponent';
 
 type Props = {
   uri: string,
+  latestContentPath?: boolean,
+  liveContentPath?: boolean,
   // -- redux --
   isMarkdownPost: ?boolean,
   isLivestreamClaim: ?boolean,
@@ -20,7 +22,15 @@ type Props = {
 };
 
 const ClaimPage = (props: Props) => {
-  const { uri, isMarkdownPost, isLivestreamClaim, claimReleaseTime, chatDisabled } = props;
+  const {
+    uri,
+    latestContentPath,
+    liveContentPath,
+    isMarkdownPost,
+    isLivestreamClaim,
+    claimReleaseTime,
+    chatDisabled,
+  } = props;
 
   const { isChannel } = parseURI(uri);
 
@@ -62,14 +72,30 @@ const ClaimPage = (props: Props) => {
       return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ChannelPageEditingWrapper} Wrapper={Page} />;
     }
 
-    return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ChannelPageWrapper} Wrapper={Page} />;
+    return (
+      <ClaimPageComponent
+        uri={uri}
+        ClaimRenderWrapper={ChannelPageWrapper}
+        Wrapper={Page}
+        latestContentPath={latestContentPath}
+        liveContentPath={liveContentPath}
+      />
+    );
   }
 
   if (isLivestreamClaim) {
     return <ClaimPageComponent uri={uri} ClaimRenderWrapper={LivestreamPageWrapper} Wrapper={Page} />;
   }
 
-  return <ClaimPageComponent uri={uri} ClaimRenderWrapper={ClaimRenderWrapper} Wrapper={Page} />;
+  return (
+    <ClaimPageComponent
+      uri={uri}
+      ClaimRenderWrapper={ClaimRenderWrapper}
+      Wrapper={Page}
+      latestContentPath={latestContentPath}
+      liveContentPath={liveContentPath}
+    />
+  );
 };
 
 const ChannelPageWrapper = ({ children }: { children: any }) => (

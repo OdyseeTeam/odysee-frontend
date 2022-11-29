@@ -22,7 +22,7 @@ import { getChannelIdFromClaim } from 'util/claim';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
-import { selectActiveLiveClaimForChannel } from 'redux/selectors/livestream';
+import { selectActiveLiveClaimForChannel, selectActiveStreamUriForClaimUri } from 'redux/selectors/livestream';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { doFetchCreatorSettings } from 'redux/actions/comments';
 import { selectSettingsForChannelId } from 'redux/selectors/comments';
@@ -50,7 +50,9 @@ const select = (state, props) => {
   const latestContentClaim = liveContentPath
     ? selectActiveLiveClaimForChannel(state, claimId)
     : selectLatestClaimForUri(state, canonicalUrl);
-  const latestClaimUrl = latestContentClaim && latestContentClaim.canonical_url;
+  const latestClaimUrl = liveContentPath
+    ? selectActiveStreamUriForClaimUri(state, uri)
+    : latestContentClaim && latestContentClaim.canonical_url;
   const preferEmbed = makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state);
 
   return {
@@ -81,7 +83,7 @@ const perform = {
   doBeginPublish,
   doResolveClaimId,
   doOpenModal,
-  fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
+  doFetchLatestClaimForChannel,
   doFetchChannelIsLiveForId,
   doFetchCreatorSettings,
   doFetchItemsInCollection,
