@@ -1,15 +1,15 @@
 import LivestreamList from './view';
 import { connect } from 'react-redux';
-import { doFetchActiveLivestreams } from 'redux/actions/livestream';
-import { selectActiveLivestreams, selectFetchingActiveLivestreams } from 'redux/selectors/livestream';
+import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
+import { selectActiveLivestreams, selectIsFetchingActiveLivestreams } from 'redux/selectors/livestream';
 
 const select = (state) => ({
   activeLivestreams: selectActiveLivestreams(state),
-  fetchingActiveLivestreams: selectFetchingActiveLivestreams(state),
+  fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
 });
 
 const perform = {
-  doFetchActiveLivestreams,
+  doFetchAllActiveLivestreamsForQuery,
 };
 
 export default connect(select, perform)(LivestreamList);

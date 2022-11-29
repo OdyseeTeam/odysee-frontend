@@ -4,7 +4,7 @@ import { LIVESTREAM_STATUS_CHECK_INTERVAL_SOON, LIVESTREAM_STATUS_CHECK_INTERVAL
 
 export default function useFetchLiveStatus(
   channelClaimId: ?string,
-  doFetchChannelLiveStatus: (string) => void,
+  doFetchChannelIsLiveForId: (string) => void,
   poll?: boolean,
   fasterPoll?: boolean
 ) {
@@ -12,7 +12,7 @@ export default function useFetchLiveStatus(
   React.useEffect(() => {
     if (!channelClaimId) return;
 
-    const fetch = () => doFetchChannelLiveStatus(channelClaimId || '');
+    const fetch = () => doFetchChannelIsLiveForId(channelClaimId);
 
     fetch();
 
@@ -22,5 +22,5 @@ export default function useFetchLiveStatus(
 
       return () => clearInterval(intervalId);
     }
-  }, [channelClaimId, doFetchChannelLiveStatus, fasterPoll, poll]);
+  }, [channelClaimId, doFetchChannelIsLiveForId, fasterPoll, poll]);
 }

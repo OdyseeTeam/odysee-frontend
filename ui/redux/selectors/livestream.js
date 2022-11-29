@@ -1,7 +1,20 @@
 // @flow
+import moment from 'moment';
+
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { selectMyClaims, selectPendingClaims, selectClaimForUri } from 'redux/selectors/claims';
+import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
+
+import {
+  selectMyClaims,
+  selectPendingClaims,
+  selectClaimForUri,
+  selectChannelClaimIdForUri,
+  selectMomentReleaseTimeForUri,
+  selectClaimReleaseInFutureForUri,
+  selectClaimReleaseInPastForUri,
+} from 'redux/selectors/claims';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 
 type State = { livestream: any };
 
@@ -10,9 +23,20 @@ const selectState = (state: State) => state.livestream || {};
 export const selectFetchingLivestreams = (state: State) => selectState(state).fetchingById;
 export const selectViewersById = (state: State) => selectState(state).viewersById;
 export const selectActiveLivestreams = (state: State) => selectState(state).activeLivestreams;
-export const selectFetchingActiveLivestreams = (state: State) => selectState(state).fetchingActiveLivestreams;
+export const selectActiveLivestreamsFetchingQueries = (state: State) =>
+  selectState(state).activeLivestreamsFetchingQueries;
 export const selectActiveLivestreamInitialized = (state: State) => selectState(state).activeLivestreamInitialized;
 export const selectSocketConnectionById = (state: State) => selectState(state).socketConnectionById;
+export const selectActiveLivestreamsLastFetchedDate = (state: State) =>
+  selectState(state).activeLivestreamsLastFetchedDate;
+export const selectActiveLivestreamsLastFetchedFailCount = (state: State) =>
+  selectState(state).activeLivestreamsLastFetchedFailCount;
+
+export const selectIsFetchingActiveLivestreams = (state: State) =>
+  selectActiveLivestreamsFetchingQueries(state).length > 0;
+
+export const selectActiveLivestreamsFetchingForQuery = (state: State, query: string) =>
+  selectActiveLivestreamsFetchingQueries(state).includes(JSON.stringify(query));
 
 export const selectSocketConnectionForId = createSelector(
   (state, claimId) => claimId,
@@ -95,8 +119,80 @@ export const selectActiveLivestreamForChannel = createCachedSelector(
   }
 )((state, channelId) => String(channelId));
 
+export const selectActiveStreamUriForClaimUri = (state, uri) => {
+  const channelId = selectChannelClaimIdForUri(state, uri);
+  if (!channelId) return channelId;
+
+  const activeLivestream = selectActiveLivestreamForChannel(state, channelId);
+  if (!activeLivestream) return activeLivestream;
+
+  return activeLivestream.claimUri;
+};
+
+export const selectClaimIsActiveChannelLivestreamForUri = (state, uri) => {
+  const channelId = selectChannelClaimIdForUri(state, uri);
+  if (!channelId) return channelId;
+
+  const activeStreamUri = selectActiveStreamUriForClaimUri(state, channelId);
+  if (!activeStreamUri) return activeStreamUri;
+
+  if (activeStreamUri === uri) return true;
+
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim;
+
+  if ([claim.canonical_url, claim.permanent_url].includes(activeStreamUri)) return true;
+};
+
 export const selectActiveLiveClaimForChannel = createCachedSelector(
   (state) => state,
   selectActiveLivestreamForChannel,
   (state, activeLivestream) => activeLivestream && selectClaimForUri(state, activeLivestream.claimUri)
 )((state, channelId) => String(channelId));
+
+export const selectLiveClaimReleaseStartingSoonForUri = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
+  releaseTime.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'))
+);
+
+export const selectLiveClaimReleaseStartedRecently = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
+  releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())
+);
+
+export const selectShouldShowLivestreamForUri = (state, uri) => {
+  const isClaimActiveBroadcast = selectClaimIsActiveChannelLivestreamForUri(state, uri);
+  if (!isClaimActiveBroadcast) return isClaimActiveBroadcast;
+
+  const claimReleaseInPast = selectClaimReleaseInPastForUri(state, uri);
+  const claimReleaseInFuture = selectClaimReleaseInFutureForUri(state, uri);
+  const liveClaimStartingSoon = selectLiveClaimReleaseStartingSoonForUri(state, uri);
+
+  return claimReleaseInPast || liveClaimStartingSoon || claimReleaseInFuture;
+};
+
+export const selectShowScheduledLiveInfoForUri = (state, uri) => {
+  const isClaimActiveBroadcast = selectClaimIsActiveChannelLivestreamForUri(state, uri);
+  const claimReleaseInFuture = selectClaimReleaseInFutureForUri(state, uri);
+  const liveClaimStartedRecently = selectLiveClaimReleaseStartedRecently(state, uri);
+  const liveClaimStartingSoon = selectLiveClaimReleaseStartingSoonForUri(state, uri);
+
+  if (!isClaimActiveBroadcast && (claimReleaseInFuture || liveClaimStartedRecently)) {
+    return true;
+  }
+
+  if (isClaimActiveBroadcast && claimReleaseInFuture && !liveClaimStartingSoon) {
+    return true;
+  }
+
+  return false;
+};
+
+export const selectChatCommentsDisabledForUri = (state: State, uri: string) => {
+  const channelId = selectChannelClaimIdForUri(state, uri);
+  if (!channelId) return channelId;
+
+  const commentsDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
+  const claimReleaseInFuture = selectClaimReleaseInFutureForUri(state, uri);
+  const liveClaimStartingSoon = selectLiveClaimReleaseStartingSoonForUri(state, uri);
+
+  return commentsDisabled || (claimReleaseInFuture && !liveClaimStartingSoon);
+};

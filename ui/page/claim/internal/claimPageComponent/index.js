@@ -23,7 +23,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
 import { selectActiveLiveClaimForChannel } from 'redux/selectors/livestream';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { doFetchCreatorSettings } from 'redux/actions/comments';
 import { selectSettingsForChannelId } from 'redux/selectors/comments';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
@@ -82,7 +82,7 @@ const perform = {
   doResolveClaimId,
   doOpenModal,
   fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
-  fetchChannelLiveStatus: doFetchChannelLiveStatus,
+  doFetchChannelIsLiveForId,
   doFetchCreatorSettings,
   doFetchItemsInCollection,
 };

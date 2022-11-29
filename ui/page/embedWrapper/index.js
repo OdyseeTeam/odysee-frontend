@@ -5,7 +5,7 @@ import { selectClaimForUri, selectIsUriResolving, selectLatestClaimForUri } from
 import { doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectActiveLiveClaimForChannel } from 'redux/selectors/livestream';
 import { isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
@@ -51,7 +51,7 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doFetchChannelLiveStatus,
+  doFetchChannelIsLiveForId,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchLatestClaimForChannel,

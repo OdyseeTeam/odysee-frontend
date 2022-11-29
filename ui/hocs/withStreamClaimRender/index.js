@@ -37,7 +37,7 @@ import { doStartFloatingPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 
 import FileRenderInitiator from './view';
 
@@ -83,7 +83,7 @@ const perform = {
   doMembershipMine,
   doStartFloatingPlayingUri,
   doMembershipList,
-  doFetchChannelLiveStatus,
+  doFetchChannelIsLiveForId,
 };
 
 export default (Component) => withRouter(connect(select, perform)(FileRenderInitiator(Component)));

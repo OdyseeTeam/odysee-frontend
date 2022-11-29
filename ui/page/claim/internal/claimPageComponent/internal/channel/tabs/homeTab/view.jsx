@@ -18,7 +18,7 @@ type Props = {
   activeLivestreamForChannel: any,
   settingsByChannelId: { [string]: PerChannelSettings },
   handleViewMore: (any) => void,
-  doFetchChannelLiveStatus: (string) => void,
+  doFetchChannelIsLiveForId: (string) => void,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
@@ -30,7 +30,7 @@ function HomeTab(props: Props) {
     activeLivestreamForChannel,
     settingsByChannelId,
     handleViewMore,
-    doFetchChannelLiveStatus,
+    doFetchChannelIsLiveForId,
     doUpdateCreatorSettings,
   } = props;
 
@@ -60,7 +60,7 @@ function HomeTab(props: Props) {
   const [edit, setEdit] = React.useState(false);
   const topContentGridIndex = 1;
 
-  useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
+  useFetchLiveStatus(claimId, doFetchChannelIsLiveForId, true);
 
   React.useEffect(() => {
     if (settingsByChannelId && Object.keys(settingsByChannelId).length) {

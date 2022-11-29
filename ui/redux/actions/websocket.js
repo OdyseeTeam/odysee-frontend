@@ -1,7 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectClaimForId, selectChannelClaimIdForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { SOCKETY_SERVER_API } from 'config';
 
@@ -171,7 +171,7 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
         const { channel_id } = response.data;
 
         // update the live status for the stream
-        dispatch(doFetchChannelLiveStatus(channel_id));
+        dispatch(doFetchChannelIsLiveForId(channel_id));
       }
     },
     `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`

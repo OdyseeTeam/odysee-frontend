@@ -20,7 +20,7 @@ type Props = {
   subscribedChannels: Array<Subscription>,
   tileLayout: boolean,
   activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: () => void,
+  doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,
 };
@@ -30,7 +30,7 @@ function ChannelsFollowingPage(props: Props) {
     subscribedChannels,
     tileLayout,
     activeLivestreams,
-    doFetchActiveLivestreams,
+    doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
     hideScheduledLivestreams,
   } = props;
@@ -40,7 +40,7 @@ function ChannelsFollowingPage(props: Props) {
   const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
   React.useEffect(() => {
-    doFetchActiveLivestreams();
+    doFetchAllActiveLivestreamsForQuery();
   }, []);
 
   return !hasSubscribedChannels ? (
@@ -91,7 +91,7 @@ function ChannelsFollowingPage(props: Props) {
                 tileLayout={tileLayout}
                 channelIds={channelIds}
                 activeLivestreams={activeLivestreams}
-                doFetchActiveLivestreams={doFetchActiveLivestreams}
+                doFetchAllActiveLivestreamsForQuery={doFetchAllActiveLivestreamsForQuery}
               />
             }
             hasSource

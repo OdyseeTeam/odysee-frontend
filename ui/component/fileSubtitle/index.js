@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectShouldShowLivestreamForUri } from 'redux/selectors/livestream';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import FileSubtitle from './view';
@@ -10,6 +11,8 @@ const select = (state, props) => {
 
   return {
     contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
+    isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
+    isLive: selectShouldShowLivestreamForUri(state, uri),
   };
 };
 

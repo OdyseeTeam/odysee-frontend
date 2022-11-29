@@ -1029,3 +1029,22 @@ export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => 
     )
     .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
 };
+
+export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (dispatch: Dispatch, getState: GetState) => {
+  dispatch({ type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_STARTED, data: channelId });
+
+  return await dispatch(
+    doClaimSearch({
+      channel_ids: [channelId],
+      has_no_source: true,
+      claim_type: ['stream'],
+      no_totals: true,
+      page_size: 20,
+      page: 1,
+      include_is_my_output: true,
+      order_by: ['release_time'],
+    })
+  )
+    .then(() => dispatch({ type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_COMPLETED, data: channelId }))
+    .catch(() => dispatch({ type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_FAILED, data: channelId }));
+};

@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import { doOpenModal } from 'redux/actions/app';
-import { doFetchActiveLivestreams } from 'redux/actions/livestream';
-import { selectActiveLivestreams, selectFetchingActiveLivestreams } from 'redux/selectors/livestream';
+import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
+import { selectActiveLivestreams, selectIsFetchingActiveLivestreams } from 'redux/selectors/livestream';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUserHasValidOdyseeMembership, selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
@@ -25,7 +25,7 @@ const select = (state) => ({
   homepageMeme: selectHomepageMeme(state),
   homepageFetched: selectHomepageFetched(state),
   activeLivestreams: selectActiveLivestreams(state),
-  fetchingActiveLivestreams: selectFetchingActiveLivestreams(state),
+  fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   userHasOdyseeMembership: selectUserHasValidOdyseeMembership(state),
@@ -33,7 +33,7 @@ const select = (state) => ({
 });
 
 const perform = (dispatch) => ({
-  doFetchActiveLivestreams: () => dispatch(doFetchActiveLivestreams()),
+  doFetchAllActiveLivestreamsForQuery: () => dispatch(doFetchAllActiveLivestreamsForQuery()),
   doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
 });
 

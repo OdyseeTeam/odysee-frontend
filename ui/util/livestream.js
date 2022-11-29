@@ -1,21 +1,8 @@
 // @flow
-import { NEW_LIVESTREAM_LIVE_API, LIVESTREAM_KILL, LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
+import { LIVESTREAM_KILL, LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
 import { toHex } from 'util/hex';
 import Lbry from 'lbry';
 import moment from 'moment';
-
-export const LiveStatus = Object.freeze({
-  LIVE: 'LIVE',
-  NOT_LIVE: 'NOT_LIVE',
-  UNKNOWN: 'UNKNOWN',
-});
-
-type LiveStatusType = $Keys<typeof LiveStatus>;
-
-type LiveChannelStatus = {
-  channelStatus: LiveStatusType,
-  channelData?: LivestreamInfo,
-};
 
 type StreamData = {
   d: string,
@@ -85,8 +72,8 @@ export function getTipValues(hyperChatsByAmount: Array<Comment>) {
   return { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount };
 }
 
-const transformNewLivestreamData = (data: Array<any>): LivestreamInfo => {
-  return data.reduce((acc, curr) => {
+export const transformNewLivestreamData = (data: LivestreamAllResponse): LivestreamInfo =>
+  data.reduce((acc, curr) => {
     acc[curr.ChannelClaimID] = {
       url: curr.VideoURL,
       type: 'application/x-mpegurl',
@@ -94,43 +81,10 @@ const transformNewLivestreamData = (data: Array<any>): LivestreamInfo => {
       viewCount: curr.ViewerCount,
       creatorId: curr.ChannelClaimID,
       startedStreaming: moment(curr.Start),
+      ...(curr.ActiveClaim ? { claimId: curr.ActiveClaim.ClaimID, claimUri: curr.ActiveClaim.CanonicalURL } : {}),
     };
     return acc;
   }, {});
-};
-
-export const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
-  const newApiResponse = await fetch(`${NEW_LIVESTREAM_LIVE_API}/all`);
-  const newApiData = (await newApiResponse.json()).data;
-  if (!newApiData) throw new Error();
-
-  return transformNewLivestreamData(newApiData);
-};
-
-/**
- * Check whether or not the channel is used, used for long polling to display live status on claim viewing page
- * @param channelId
- * @returns {Promise<{channelStatus: string}|{channelData: LivestreamInfo, channelStatus: string}>}
- */
-export const fetchLiveChannel = async (channelId: string): Promise<LiveChannelStatus> => {
-  const newApiEndpoint = NEW_LIVESTREAM_LIVE_API;
-  const newApiResponse = await fetch(`${newApiEndpoint}/is_live?channel_claim_id=${channelId}`);
-  const newApiData = (await newApiResponse.json()).data;
-  const isLive = newApiData.Live;
-  const translatedData = transformNewLivestreamData([newApiData]);
-
-  try {
-    if (isLive === false) {
-      return { channelStatus: LiveStatus.NOT_LIVE };
-    }
-    return {
-      channelStatus: LiveStatus.LIVE,
-      channelData: translatedData,
-    };
-  } catch {
-    return { channelStatus: LiveStatus.UNKNOWN };
-  }
-};
 
 const getStreamData = async (channelId: string, channelName: string): Promise<StreamData> => {
   if (!channelId || !channelName) throw new Error('Invalid channel data provided.');
@@ -175,11 +129,12 @@ const distanceFromStreamStart = (claimA: any, claimB: any, channelStartedStreami
   ];
 };
 
-export const determineLiveClaim = (claims: any, activeLivestreams: any) => {
+export const determineLiveClaim = (claims: Array<StreamClaim>, activeLivestreams: ActiveLivestreamInfosById) => {
   const activeClaims = {};
 
   Object.values(claims).forEach((claim: any) => {
     const channelID = claim.stream.signing_channel.claim_id;
+
     if (activeClaims[channelID]) {
       const [distanceA, distanceB] = distanceFromStreamStart(
         claim,
@@ -194,6 +149,7 @@ export const determineLiveClaim = (claims: any, activeLivestreams: any) => {
       activeClaims[channelID] = claim;
     }
   });
+
   return activeClaims;
 };
 

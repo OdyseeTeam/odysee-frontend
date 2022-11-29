@@ -40,7 +40,7 @@ type Props = {
   homepageMeme: ?{ text: string, url: string },
   homepageFetched: boolean,
   activeLivestreams: any,
-  doFetchActiveLivestreams: () => void,
+  doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,
   homepageOrder: HomepageOrder,
@@ -60,7 +60,7 @@ function HomePage(props: Props) {
     homepageMeme,
     homepageFetched,
     activeLivestreams,
-    doFetchActiveLivestreams,
+    doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
     hideScheduledLivestreams,
     homepageOrder,
@@ -221,7 +221,7 @@ function HomePage(props: Props) {
   }
 
   React.useEffect(() => {
-    doFetchActiveLivestreams();
+    doFetchAllActiveLivestreamsForQuery();
   }, []);
 
   return (

@@ -18,7 +18,7 @@ type Props = {
   isLivestreamClaim: boolean,
   latestClaimUrl: ?string,
   doFetchLatestClaimForChannel: (uri: string, isEmbed: boolean) => void,
-  doFetchChannelLiveStatus: (string) => void,
+  doFetchChannelIsLiveForId: (string) => void,
   doCommentSocketConnect: (string, string, string, ?string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   contentUnlocked: boolean,
@@ -34,7 +34,7 @@ const EmbedWrapperPage = (props: Props) => {
     isLivestreamClaim,
     latestClaimUrl,
     doFetchLatestClaimForChannel,
-    doFetchChannelLiveStatus,
+    doFetchChannelIsLiveForId,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     contentUnlocked,
@@ -57,9 +57,9 @@ const EmbedWrapperPage = (props: Props) => {
 
   React.useEffect(() => {
     if (!latestClaimUrl && liveContentPath && channelClaimId) {
-      doFetchChannelLiveStatus(channelClaimId);
+      doFetchChannelIsLiveForId(channelClaimId);
     }
-  }, [channelClaimId, doFetchChannelLiveStatus, latestClaimUrl, liveContentPath]);
+  }, [channelClaimId, doFetchChannelIsLiveForId, latestClaimUrl, liveContentPath]);
 
   React.useEffect(() => {
     if (!latestClaimUrl && latestContentPath && canonicalUrl) {

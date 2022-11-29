@@ -6,10 +6,9 @@ import { handleActions } from 'util/redux-utils';
 const defaultState: LivestreamState = {
   fetchingById: {},
   viewersById: {},
-  fetchingActiveLivestreams: 'pending',
+  activeLivestreamsFetchingQueries: [],
   activeLivestreams: {},
   activeLivestreamsLastFetchedDate: 0,
-  activeLivestreamsLastFetchedOptions: {},
   activeLivestreamsLastFetchedFailCount: 0,
   activeLivestreamInitialized: false,
   socketConnectionById: {},
@@ -66,44 +65,55 @@ export default handleActions(
       newViewersById[claimId] = connected;
       return { ...state, viewersById: newViewersById };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED]: (state: LivestreamState) => {
-      return { ...state, fetchingActiveLivestreams: true };
+
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_START]: (state: LivestreamState, action: any) => {
+      const query = action.data;
+
+      const newActiveLivestreamsFetchingQueries = new Set(state.activeLivestreamsFetchingQueries);
+      newActiveLivestreamsFetchingQueries.add(query);
+
+      return { ...state, activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries) };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAILED]: (state: LivestreamState, action: any) => {
-      const { activeLivestreamsLastFetchedDate, activeLivestreamsLastFetchedOptions } = action.data;
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAIL]: (state: LivestreamState, action: any) => {
+      const { query, activeLivestreamsLastFetchedDate } = action.data;
+
+      const newActiveLivestreamsFetchingQueries = new Set(state.activeLivestreamsFetchingQueries);
+      newActiveLivestreamsFetchingQueries.delete(query);
+
       return {
         ...state,
-        fetchingActiveLivestreams: false,
+        activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries),
         activeLivestreamsLastFetchedDate,
-        activeLivestreamsLastFetchedOptions,
         activeLivestreamsLastFetchedFailCount: state.activeLivestreamsLastFetchedFailCount + 1,
       };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_COMPLETED]: (state: LivestreamState, action: any) => {
-      const { activeLivestreams, activeLivestreamsLastFetchedDate, activeLivestreamsLastFetchedOptions } = action.data;
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SUCCESS]: (state: LivestreamState, action: any) => {
+      const { query, activeLivestreams, activeLivestreamsLastFetchedDate } = action.data;
+
+      const newActiveLivestreamsFetchingQueries = new Set(state.activeLivestreamsFetchingQueries);
+      newActiveLivestreamsFetchingQueries.delete(query);
+
       return {
         ...state,
-        fetchingActiveLivestreams: false,
+        activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries),
         activeLivestreams,
         activeLivestreamsLastFetchedDate,
-        activeLivestreamsLastFetchedOptions,
         activeLivestreamsLastFetchedFailCount: 0,
         viewersById: updateViewersById(activeLivestreams, state.viewersById),
       };
     },
-    [ACTIONS.ADD_CHANNEL_TO_ACTIVE_LIVESTREAMS]: (state: LivestreamState, action: any) => {
-      const activeLivestreams = Object.assign({}, state.activeLivestreams || {}, action.data);
+
+    [ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE]: (state: LivestreamState, action: any) => {
+      const channelStatus: ActiveLivestreamInfosById = action.data;
+
+      const newActiveLivestreams = Object.assign({}, state.activeLivestreams, channelStatus);
+
       return {
         ...state,
-        activeLivestreams,
+        activeLivestreams: newActiveLivestreams,
         activeLivestreamInitialized: true,
-        viewersById: updateViewersById(activeLivestreams, state.viewersById),
+        viewersById: updateViewersById(newActiveLivestreams, state.viewersById),
       };
-    },
-    [ACTIONS.REMOVE_CHANNEL_FROM_ACTIVE_LIVESTREAMS]: (state: LivestreamState, action: any) => {
-      const activeLivestreams = Object.assign({}, state.activeLivestreams);
-      activeLivestreams[action.data.channelId] = null;
-      return { ...state, activeLivestreams, activeLivestreamInitialized: true };
     },
     [ACTIONS.SOCKET_CONNECTED_BY_ID]: (state: LivestreamState, action: any) => {
       const { connected, sub_category, id: claimId } = action.data;

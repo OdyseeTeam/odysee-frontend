@@ -14,7 +14,7 @@ import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { withRouter } from 'react-router';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectAdBlockerFound } from 'redux/selectors/app';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
 import { getChannelIdFromClaim } from 'util/claim';
 import ChannelContent from './view';
@@ -44,7 +44,7 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   doResolveUris: (uris, returnCachedUris) => dispatch(doResolveUris(uris, returnCachedUris)),
-  doFetchChannelLiveStatus: (channelID) => dispatch(doFetchChannelLiveStatus(channelID)),
+  doFetchChannelIsLiveForId: (channelID) => dispatch(doFetchChannelIsLiveForId(channelID)),
 });
 
 export default withRouter(connect(select, perform)(ChannelContent));
