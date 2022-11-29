@@ -196,7 +196,9 @@ function HomeTabSection(props: Props) {
               <option value="content">{__('Content')}</option>
               <option value="playlists">{__('Playlists')}</option>
               <option value="playlist">{__('Playlist')}</option>
-              <option value="channels">{__('Channels')}</option>
+              <option value="channels" disabled={!featuredChannels}>
+                {__('Channels')}
+              </option>
               {/* <option value="reposts">{__('Reposts')}</option> */}
             </select>
           </div>
@@ -221,7 +223,7 @@ function HomeTabSection(props: Props) {
               <label>{__('Playlist')}</label>
               <select
                 name="claim_id"
-                value={section.claimId || 'select'}
+                value={section.claim_id || 'select'}
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
                 <option value="select">{__('Select a Playlist')}</option>
@@ -241,7 +243,7 @@ function HomeTabSection(props: Props) {
               <label>{__('Featured Channels')}</label>
               <select
                 name="claim_id"
-                value={section.claimId || 'select'}
+                value={section.claim_id || 'select'}
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
                 <option value="select">{__('Select a Collection')}</option>
@@ -335,17 +337,19 @@ function HomeTabSection(props: Props) {
                     fetchViewCount
                   />
                 ) : (
-                  <>
-                    <h1>Channels</h1>
-                    <ChannelSection
-                      key={'a'}
-                      // id={'a'}
-                      // title={fc.value.title}
-                      uris={featuredChannel.value.uris}
-                      channelId={channelClaimId}
-                      // showAllItems={featuredChannels.length === 1}
-                    />
-                  </>
+                  featuredChannel && (
+                    <>
+                      <h1>Channels</h1>
+                      <ChannelSection
+                        key={'a'}
+                        // id={'a'}
+                        // title={fc.value.title}
+                        uris={featuredChannel && featuredChannel.value.uris}
+                        channelId={channelClaimId}
+                        // showAllItems={featuredChannels.length === 1}
+                      />
+                    </>
+                  )
                 )}
               </>
             ) : (

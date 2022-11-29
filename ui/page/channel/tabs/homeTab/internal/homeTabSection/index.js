@@ -71,8 +71,7 @@ const select = (state, props) => {
     publishedCollections: selectMyPublishedCollections(state),
     singleClaimUri:
       props.section.type === 'featured' && props.section.claim_id && selectClaimUriForId(state, props.section.claim_id),
-    featuredChannels:
-      props.section.type === 'channels' ? selectFeaturedChannelsForChannelId(state, props.channelClaimId) : undefined,
+    featuredChannels: selectFeaturedChannelsForChannelId(state, props.channelClaimId),
   };
 };
 

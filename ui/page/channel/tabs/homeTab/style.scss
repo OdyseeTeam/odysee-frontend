@@ -100,8 +100,15 @@
           border-radius: var(--border-radius);
           margin: 0;
 
+          .channel-thumbnail__custom {
+            margin: var(--spacing-xs);
+          }
+
           &:hover {
             background-color: rgba(var(--color-header-background-base), 0.9);
+            .claim-preview__title {
+              color: var(--color-primary);
+            }
           }
         }
         .channel-section-card__item-overflow {
