@@ -120,7 +120,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       (forceAutoplayParam || urlTimeParam || autoplay);
 
     const autoplayVideo =
-      isLivestreamClaim ||
+      isCurrentClaimLive ||
       ((autoplayEnabled || playingCollectionId) && (!alreadyPlaying.current || playingUri.uri === uri) && isPlayable);
     const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
     const shouldAutoplay = autoplayVideo || autoRenderClaim;
