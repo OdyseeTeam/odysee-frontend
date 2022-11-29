@@ -42,9 +42,6 @@ function PortalPage(props: Props) {
     }
   }, [portal]);
 
-  console.log('displayedTiles: ', displayedTiles);
-  if (portal) console.log('portal.claimIds.videos.length: ', portal.claimIds.videos.length);
-
   return portal ? (
     <>
       <Page className="portal-wrapper" fullWidthPage>
