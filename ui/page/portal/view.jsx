@@ -42,6 +42,9 @@ function PortalPage(props: Props) {
     }
   }, [portal]);
 
+  console.log('displayedTiles: ', displayedTiles);
+  if (portal) console.log('portal.claimIds.videos.length: ', portal.claimIds.videos.length);
+
   return portal ? (
     <>
       <Page className="portal-wrapper" fullWidthPage>
@@ -64,7 +67,7 @@ function PortalPage(props: Props) {
             loadedCallback={setDisplayedTiles}
           />
         </div>
-        {homepageData && displayedTiles === portal.claimIds.videos.length && (
+        {homepageData && displayedTiles >= portal.claimIds.videos.length - 3 && (
           <Portals homepageData={homepageData} activePortal={portal.name} />
         )}
       </Page>
