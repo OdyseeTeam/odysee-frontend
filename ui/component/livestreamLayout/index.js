@@ -1,10 +1,20 @@
 import { connect } from 'react-redux';
+
+import * as SETTINGS from 'constants/settings';
+
 import { selectClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
-import { selectHyperChatsForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { selectHyperChatsForUri } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { selectClientSetting } from 'redux/selectors/settings';
+import {
+  selectViewersForId,
+  selectChatCommentsDisabledForUri,
+  selectClaimIsActiveChannelLivestreamForUri,
+  selectShowScheduledLiveInfoForUri,
+  selectActiveStreamUriForClaimUri,
+} from 'redux/selectors/livestream';
+
 import LivestreamLayout from './view';
-import { selectViewersForId } from 'redux/selectors/livestream';
-import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -15,10 +25,14 @@ const select = (state, props) => {
   return {
     claim,
     thumbnail: selectThumbnailForUri(state, uri),
-    chatDisabled: selectCommentsDisabledSettingForChannelId(uri, getChannelIdFromClaim(claim)),
+    chatDisabled: selectChatCommentsDisabledForUri(state, uri),
     superChats: selectHyperChatsForUri(state, uri),
     activeViewers: claimId && selectViewersForId(state, claimId),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    isCurrentClaimLive: selectClaimIsActiveChannelLivestreamForUri(state, uri),
+    showScheduledInfo: selectShowScheduledLiveInfoForUri(state, uri),
+    activeStreamUri: selectActiveStreamUriForClaimUri(state, uri),
+    videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
   };
 };
 

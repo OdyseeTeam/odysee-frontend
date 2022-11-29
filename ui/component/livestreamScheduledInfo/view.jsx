@@ -9,6 +9,7 @@ import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
 
 type Props = {
+  // -- redux --
   releaseTimeMs: number,
 };
 

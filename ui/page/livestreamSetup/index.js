@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectHasChannels, selectFetchingMyChannels } from 'redux/selectors/claims';
 import { doClearPublish } from 'redux/actions/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { doFetchNoSourceClaims } from 'redux/actions/livestream';
+import { doFetchNoSourceClaimsForChannelId } from 'redux/actions/claims';
 import { selectUser } from 'redux/selectors/user';
 import {
   makeSelectPendingLivestreamsForChannelId,
@@ -35,6 +35,6 @@ const perform = (dispatch) => ({
   doNewLivestream: (path) => {
     dispatch(doClearPublish());
   },
-  fetchNoSourceClaims: (id) => dispatch(doFetchNoSourceClaims(id)),
+  fetchNoSourceClaims: (id) => dispatch(doFetchNoSourceClaimsForChannelId(id)),
 });
 export default connect(select, perform)(LivestreamSetupPage);

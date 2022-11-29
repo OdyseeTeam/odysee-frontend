@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { doResolveUri } from 'redux/actions/claims';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
-import { doFetchActiveLivestreams } from 'redux/actions/livestream';
+import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
 import { selectActiveLivestreams } from 'redux/selectors/livestream';
 import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
 import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
@@ -27,5 +27,5 @@ const select = (state, props) => {
 
 export default connect(select, {
   doResolveUri,
-  doFetchActiveLivestreams,
+  doFetchAllActiveLivestreamsForQuery,
 })(DiscoverPage);

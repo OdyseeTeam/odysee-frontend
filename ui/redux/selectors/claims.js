@@ -1,4 +1,6 @@
 // @flow
+import moment from 'moment';
+
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
@@ -520,6 +522,17 @@ export const selectReleaseTimeForUri = (state: State, uri: string) => {
 
   return claim?.value?.release_time;
 };
+
+export const selectMomentReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
+  const releaseTime: moment = moment.unix(claimReleaseTime || 0);
+  return releaseTime;
+});
+
+export const selectClaimReleaseInFutureForUri = (state: State, uri: string) =>
+  selectMomentReleaseTimeForUri(state, uri).isAfter();
+
+export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
+  selectMomentReleaseTimeForUri(state, uri).isBefore();
 
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)

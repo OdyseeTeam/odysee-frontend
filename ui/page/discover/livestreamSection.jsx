@@ -25,7 +25,7 @@ type Props = {
   channelIds?: Array<string>,
   excludedChannelIds?: Array<string>,
   activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
+  doFetchAllActiveLivestreamsForQuery: (query: { orderBy: ?Array<string>, lang: ?Array<string> }) => void,
   searchLanguages?: Array<string>,
   languageSetting?: string,
   searchInLanguage?: boolean,
@@ -39,7 +39,7 @@ export default function LivestreamSection(props: Props) {
     channelIds,
     excludedChannelIds,
     activeLivestreams,
-    doFetchActiveLivestreams,
+    doFetchAllActiveLivestreamsForQuery,
     searchLanguages,
     languageSetting,
     searchInLanguage,
@@ -74,7 +74,7 @@ export default function LivestreamSection(props: Props) {
     // Fetch active livestreams on mount
     const langCsv = resolveLangForClaimSearch(languageSetting, searchInLanguage, searchLanguages, langParam);
     const lang = langCsv ? langCsv.split(',') : null;
-    doFetchActiveLivestreams(CS.ORDER_BY_NEW_VALUE, lang);
+    doFetchAllActiveLivestreamsForQuery({ orderBy: CS.ORDER_BY_NEW_VALUE, lang });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount only
   }, []);
 
@@ -135,7 +135,7 @@ export default function LivestreamSection(props: Props) {
             iconRight={ICONS.DOWN}
             className="claim-grid__title--secondary"
             onClick={() => {
-              doFetchActiveLivestreams();
+              doFetchAllActiveLivestreamsForQuery();
               setExpandedYPos(window.scrollY);
               setLiveSection(SECTION.EXPANDED);
             }}

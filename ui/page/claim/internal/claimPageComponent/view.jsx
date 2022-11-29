@@ -32,7 +32,7 @@ type Props = {
   creatorSettings: { [string]: PerChannelSettings },
   doFetchCreatorSettings: (channelId: string) => Promise<any>,
   doFetchLatestClaimForChannel: (uri: string) => void,
-  doFetchChannelLiveStatus: (channelId: string) => void,
+  doFetchChannelIsLiveForId: (channelId: string) => void,
   doFetchItemsInCollection: (params: { collectionId: string }) => void,
 };
 
@@ -52,7 +52,7 @@ const ClaimPageComponent = (props: Props) => {
     creatorSettings,
     doFetchCreatorSettings,
     doFetchLatestClaimForChannel,
-    doFetchChannelLiveStatus,
+    doFetchChannelIsLiveForId,
     doFetchItemsInCollection,
   } = props;
 
@@ -71,9 +71,9 @@ const ClaimPageComponent = (props: Props) => {
 
   useEffect(() => {
     if (!latestClaimUrl && liveContentPath && claimId) {
-      doFetchChannelLiveStatus(claimId);
+      doFetchChannelIsLiveForId(claimId);
     }
-  }, [claimId, doFetchChannelLiveStatus, latestClaimUrl, liveContentPath]);
+  }, [claimId, doFetchChannelIsLiveForId, latestClaimUrl, liveContentPath]);
 
   useEffect(() => {
     if (!latestClaimUrl && latestContentPath && canonicalUrl) {

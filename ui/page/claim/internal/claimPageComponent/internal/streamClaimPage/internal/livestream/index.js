@@ -1,17 +1,14 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri } from 'redux/selectors/claims';
-import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
-import { getChannelIdFromClaim } from 'util/claim';
-import {
-  selectActiveLivestreamForChannel,
-  selectActiveLivestreamInitialized,
-  selectSocketConnectionForId,
-} from 'redux/selectors/livestream';
-import { selectClientSetting } from 'redux/selectors/settings';
+
 import * as SETTINGS from 'constants/settings';
+
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectSocketConnectionForId, selectChatCommentsDisabledForUri } from 'redux/selectors/livestream';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
-import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+
+import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 
 import LivestreamPage from './view';
 
@@ -20,13 +17,10 @@ const select = (state, props) => {
 
   const claim = selectClaimForUri(state, uri);
   const { claim_id: claimId, canonical_url } = claim || {};
-  const channelClaimId = getChannelIdFromClaim(claim);
 
   return {
     claim,
-    chatDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
-    activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
-    activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
+    chatDisabled: selectChatCommentsDisabledForUri(state, uri),
     isStreamPlaying: selectIsUriCurrentlyPlaying(state, uri),
     socketConnection: selectSocketConnectionForId(state, claimId),
     theaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),

@@ -1,105 +1,71 @@
 // @flow
-import * as ACTIONS from 'constants/action_types';
-import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
-import { doClaimSearch } from 'redux/actions/claims';
-import {
-  LiveStatus,
-  fetchLiveChannel,
-  fetchLiveChannels,
-  determineLiveClaim,
-  filterUpcomingLiveStreamClaims,
-} from 'util/livestream';
 import moment from 'moment';
+import Livestream from 'livestream';
+
+import * as ACTIONS from 'constants/action_types';
+
+import { transformNewLivestreamData, determineLiveClaim, filterUpcomingLiveStreamClaims } from 'util/livestream';
 import { isEmpty } from 'util/object';
+import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
+import { getChannelIdFromClaim } from 'util/claim';
 
-export const doFetchNoSourceClaims = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
-  dispatch({
-    type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_STARTED,
-    data: channelId,
-  });
+import {
+  selectActiveLivestreamsFetchingForQuery,
+  selectActiveLivestreamsLastFetchedDate,
+  selectActiveLivestreamsLastFetchedFailCount,
+} from 'redux/selectors/livestream';
 
-  try {
-    await dispatch(
-      doClaimSearch({
-        channel_ids: [channelId],
-        has_no_source: true,
-        claim_type: ['stream'],
-        no_totals: true,
-        page_size: 20,
-        page: 1,
-        include_is_my_output: true,
-        order_by: ['release_time'],
-      })
-    );
+import { doClaimSearch } from 'redux/actions/claims';
 
-    dispatch({
-      type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_COMPLETED,
-      data: channelId,
-    });
-  } catch (error) {
-    dispatch({
-      type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_FAILED,
-      data: channelId,
-    });
-  }
-};
-
-const fetchUpcomingLivestreamClaims = (channelIds: Array<string>, lang: ?Array<string> = null) =>
-  doClaimSearch(
-    {
-      page: 1,
-      page_size: 50,
-      has_no_source: true,
-      channel_ids: channelIds,
-      claim_type: ['stream'],
-      order_by: ['^release_time'],
-      release_time: `>${moment().subtract(5, 'minutes').unix()}`,
-      limit_claims_per_channel: 1,
-      no_totals: true,
-      ...(lang ? { any_languages: lang } : {}),
-    },
-    {
-      useAutoPagination: true,
-    }
-  );
-
-const fetchMostRecentLivestreamClaims = (
-  channelIds: Array<string>,
-  orderBy: Array<string> = ['release_time'],
-  lang: ?Array<string> = null
-) =>
-  doClaimSearch(
-    {
-      page: 1,
-      page_size: 50,
-      has_no_source: true,
-      channel_ids: channelIds,
-      claim_type: ['stream'],
-      order_by: orderBy,
-      release_time: `<${moment().unix()}`,
-      limit_claims_per_channel: 2,
-      no_totals: true,
-      ...(lang ? { any_languages: lang } : {}),
-    },
-    {
-      useAutoPagination: true,
-    }
-  );
-
-const findActiveStreams = async (
-  channelIDs: Array<string>,
+const findActiveStreams = (
+  activeLivestreams: ActiveLivestreamInfosById,
   orderBy: Array<string>,
-  liveChannels: any,
-  dispatch,
   lang: ?Array<string> = null
-) => {
-  // @Note: This can likely be simplified down to one query, but first we'll need to address the query limit / pagination issue.
+) => async (dispatch: Dispatch) => {
+  const livestreamsToSearch = lang ? activeLivestreams : {};
 
-  // Find the two most recent claims for the channels that are actively broadcasting a stream.
-  const mostRecentClaims = await dispatch(fetchMostRecentLivestreamClaims(channelIDs, orderBy, lang));
+  if (!lang) {
+    Object.values(activeLivestreams).forEach((activeLivestream) => {
+      if (!activeLivestream.claimId || !activeLivestream.claimUri) {
+        livestreamsToSearch[activeLivestream.creatorId] = activeLivestream;
+      }
+    });
+
+    if (isEmpty(livestreamsToSearch)) {
+      return activeLivestreams;
+    }
+  }
+
+  const liveChannelIds = Object.keys(livestreamsToSearch);
+
+  const claimSearchParams = {
+    page: 1,
+    page_size: 50,
+    has_no_source: true,
+    channel_ids: liveChannelIds,
+    claim_type: ['stream'],
+    limit_claims_per_channel: 1,
+    no_totals: true,
+    ...(lang ? { any_languages: lang } : {}),
+  };
+  const claimSearchSettings = { useAutoPagination: true };
+
+  // Find the most recent claims for the channels that are actively broadcasting a stream.
+  const mostRecentClaims = await dispatch(
+    doClaimSearch({ ...claimSearchParams, order_by: orderBy, release_time: `<${moment().unix()}` }, claimSearchSettings)
+  );
 
   // Find the first upcoming claim (if one exists) for each channel that's actively broadcasting a stream.
-  const upcomingClaims = await dispatch(fetchUpcomingLivestreamClaims(channelIDs, lang));
+  const upcomingClaims = await dispatch(
+    doClaimSearch(
+      {
+        ...claimSearchParams,
+        order_by: ['^release_time'],
+        release_time: `>${moment().subtract(5, 'minutes').unix()}`,
+      },
+      claimSearchSettings
+    )
+  );
 
   // Filter out any of those claims that aren't scheduled to start within the configured "soon" buffer time (ex. next 15 min).
   const startingSoonClaims = filterUpcomingLiveStreamClaims(upcomingClaims);
@@ -112,95 +78,77 @@ const findActiveStreams = async (
     !isEmpty(startingSoonClaims) ? startingSoonClaims : upcomingClaims
   );
 
-  return determineLiveClaim(allClaims, liveChannels);
+  const currentlyLiveClaims = determineLiveClaim(allClaims, livestreamsToSearch);
+  const allStreams = { ...activeLivestreams, ...currentlyLiveClaims };
+  const searchedLivestreams = {};
+
+  Object.values(currentlyLiveClaims).forEach((claim: any) => {
+    const { claim_id: claimId, canonical_url: claimUri } = claim.stream;
+
+    const channelId = getChannelIdFromClaim(claim.stream);
+
+    searchedLivestreams[channelId] = { ...allStreams[channelId], claimId, claimUri };
+  });
+
+  return searchedLivestreams;
 };
 
-export const doFetchChannelLiveStatus = (channelId: string) => async (dispatch: Dispatch) => {
-  try {
-    const { channelStatus, channelData } = await fetchLiveChannel(channelId);
+export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_START });
 
-    if (channelStatus === LiveStatus.NOT_LIVE) {
-      dispatch({ type: ACTIONS.REMOVE_CHANNEL_FROM_ACTIVE_LIVESTREAMS, data: { channelId } });
-      return;
-    }
+  return Livestream.call('livestream', 'is_live', { channel_claim_id: channelId })
+    .then(async (response: ActiveLivestreamResponse) => {
+      if (!response.Live) {
+        return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: { [channelId]: null } });
+      }
 
-    if (channelStatus === LiveStatus.UNKNOWN) {
-      return;
-    }
+      const activeLivestreamById = transformNewLivestreamData([response]);
+      const activeLivestream = await dispatch(findActiveStreams(activeLivestreamById, ['release_time']));
 
-    const currentlyLiveClaims = await findActiveStreams([channelId], ['release_time'], channelData, dispatch);
-    const liveClaim = currentlyLiveClaims[channelId];
-
-    if (channelData && liveClaim) {
-      channelData[channelId].claimId = liveClaim.stream.claim_id;
-      channelData[channelId].claimUri = liveClaim.stream.canonical_url;
-      dispatch({ type: ACTIONS.ADD_CHANNEL_TO_ACTIVE_LIVESTREAMS, data: { ...channelData } });
-    }
-  } catch (err) {
-    dispatch({ type: ACTIONS.REMOVE_CHANNEL_FROM_ACTIVE_LIVESTREAMS, data: { channelId } });
-  }
+      return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: activeLivestream });
+    })
+    .catch(() => dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: { [channelId]: null } }));
 };
 
-export const doFetchActiveLivestreams = (
-  orderBy: Array<string> = ['release_time'],
-  lang: ?Array<string> = null
+export const doFetchAllActiveLivestreamsForQuery = (
+  query?: { orderBy: Array<string>, lang: ?Array<string> } = { orderBy: ['release_time'], lang: null }
 ) => async (dispatch: Dispatch, getState: GetState) => {
+  const { orderBy, lang } = query;
+
+  const queryParams = { order_by: orderBy, ...(lang ? { any_languages: lang } : {}) };
   const state = getState();
+  const alreadyFetching = selectActiveLivestreamsFetchingForQuery(state, queryParams);
+
+  if (alreadyFetching) return;
+
   const now = Date.now();
-  const timeDelta = now - state.livestream.activeLivestreamsLastFetchedDate;
+  const activeLivestreamsLastFetchedDate = selectActiveLivestreamsLastFetchedDate(state);
+  const timeDelta = now - activeLivestreamsLastFetchedDate;
 
-  const prevOptions = state.livestream.activeLivestreamsLastFetchedOptions;
-  const nextOptions = { order_by: orderBy, ...(lang ? { any_languages: lang } : {}) };
-  const sameOptions = JSON.stringify(prevOptions) === JSON.stringify(nextOptions);
+  if (timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
+    const failCount = selectActiveLivestreamsLastFetchedFailCount(state);
 
-  if (sameOptions && timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
-    const failCount = state.livestream.activeLivestreamsLastFetchedFailCount;
     if (failCount === 0 || failCount > 3) {
       // Just fetched successfully, or failed 3 times. Skip for FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS.
-      dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SKIPPED });
       return;
     }
   }
 
-  // start fetching livestreams
-  dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED });
+  const queryStr = JSON.stringify(queryParams);
+  const completedParams = { query: queryStr, activeLivestreamsLastFetchedDate: now };
 
-  try {
-    const liveChannels = await fetchLiveChannels();
-    const liveChannelIds = Object.keys(liveChannels);
+  dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_START, data: queryStr });
 
-    const currentlyLiveClaims = await findActiveStreams(
-      liveChannelIds,
-      nextOptions.order_by,
-      liveChannels,
-      dispatch,
-      nextOptions.any_languages
-    );
-    Object.values(currentlyLiveClaims).forEach((claim: any) => {
-      const channelId = claim.stream.signing_channel.claim_id;
+  return Livestream.call('livestream', 'all')
+    .then(async (response: LivestreamAllResponse) => {
+      const activeLivestreams: LivestreamInfo = transformNewLivestreamData(response);
 
-      liveChannels[channelId] = {
-        ...liveChannels[channelId],
-        claimId: claim.stream.claim_id,
-        claimUri: claim.stream.canonical_url,
-      };
-    });
+      const activeStreams = await dispatch(findActiveStreams(activeLivestreams, orderBy, lang));
 
-    dispatch({
-      type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_COMPLETED,
-      data: {
-        activeLivestreams: liveChannels,
-        activeLivestreamsLastFetchedDate: now,
-        activeLivestreamsLastFetchedOptions: nextOptions,
-      },
-    });
-  } catch (err) {
-    dispatch({
-      type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAILED,
-      data: {
-        activeLivestreamsLastFetchedDate: now,
-        activeLivestreamsLastFetchedOptions: nextOptions,
-      },
-    });
-  }
+      dispatch({
+        type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SUCCESS,
+        data: { ...completedParams, activeLivestreams: activeStreams },
+      });
+    })
+    .catch(() => dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAIL, data: completedParams }));
 };

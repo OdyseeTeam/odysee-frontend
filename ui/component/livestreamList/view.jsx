@@ -8,34 +8,36 @@ import { getLivestreamUris } from 'util/livestream';
 type Props = {
   activeLivestreams: ?LivestreamInfo,
   fetchingActiveLivestreams: boolean,
-  doFetchActiveLivestreams: () => void,
+  doFetchAllActiveLivestreamsForQuery: () => void,
 };
 
 export default function LivestreamList(props: Props) {
-  const { activeLivestreams, fetchingActiveLivestreams, doFetchActiveLivestreams } = props;
+  const { activeLivestreams, fetchingActiveLivestreams, doFetchAllActiveLivestreamsForQuery } = props;
   const livestreamUris = getLivestreamUris(activeLivestreams, null);
 
   React.useEffect(() => {
-    doFetchActiveLivestreams();
+    doFetchAllActiveLivestreamsForQuery();
 
-    // doFetchActiveLivestreams is currently limited to 5 minutes per fetch as
+    // doFetchAllActiveLivestreamsForQuery is currently limited to 5 minutes per fetch as
     // a global default. If we want more frequent updates (say, to update the
     // view count), we can either change that limit, or add a 'force' parameter
-    // to doFetchActiveLivestreams to override selectively.
-    const fetchInterval = setInterval(doFetchActiveLivestreams, FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS + 50);
+    // to doFetchAllActiveLivestreamsForQuery to override selectively.
+    const fetchInterval = setInterval(
+      doFetchAllActiveLivestreamsForQuery,
+      FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS + 50
+    );
     return () => {
       clearInterval(fetchInterval);
     };
   }, []);
 
-  return (
-    <>
-      {fetchingActiveLivestreams && (
-        <div className="main--empty">
-          <Spinner delayed />
-        </div>
-      )}
-      {!fetchingActiveLivestreams && <ClaimList uris={livestreamUris} showNoSourceClaims tileLayout />}
-    </>
-  );
+  if (fetchingActiveLivestreams) {
+    return (
+      <div className="main--empty">
+        <Spinner delayed />
+      </div>
+    );
+  }
+
+  return <ClaimList uris={livestreamUris} showNoSourceClaims tileLayout />;
 }

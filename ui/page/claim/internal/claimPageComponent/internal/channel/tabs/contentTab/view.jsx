@@ -44,7 +44,7 @@ type Props = {
   doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
-  doFetchChannelLiveStatus: (string) => void,
+  doFetchChannelIsLiveForId: (string) => void,
   activeLivestreamForChannel: any,
   activeLivestreamInitialized: boolean,
   hasPremiumPlus: boolean,
@@ -67,7 +67,7 @@ function ContentTab(props: Props) {
     doResolveUris,
     claimType,
     empty,
-    doFetchChannelLiveStatus,
+    doFetchChannelIsLiveForId,
     activeLivestreamForChannel,
     activeLivestreamInitialized,
     hasPremiumPlus,
@@ -114,7 +114,8 @@ function ContentTab(props: Props) {
     setSearchQuery('');
   }, [url]);
 
-  useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
+  useFetchLiveStatus(claimId, doFetchChannelIsLiveForId, true);
+
   return (
     <Fragment>
       <GeoRestrictionInfo uri={uri} />

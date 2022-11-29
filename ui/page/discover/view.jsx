@@ -32,7 +32,7 @@ type Props = {
   doResolveUri: (string) => void,
   tileLayout: boolean,
   activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
+  doFetchAllActiveLivestreamsForQuery: (query: { orderBy: ?Array<string>, lang: ?Array<string> }) => void,
   hasPremiumPlus: boolean,
 };
 
@@ -46,7 +46,7 @@ function DiscoverPage(props: Props) {
     doResolveUri,
     tileLayout,
     activeLivestreams,
-    doFetchActiveLivestreams,
+    doFetchAllActiveLivestreamsForQuery,
     dynamicRouteProps,
     hasPremiumPlus,
   } = props;
@@ -105,7 +105,7 @@ function DiscoverPage(props: Props) {
           channelIds={channelIds}
           excludedChannelIds={excludedChannelIds}
           activeLivestreams={activeLivestreams}
-          doFetchActiveLivestreams={doFetchActiveLivestreams}
+          doFetchAllActiveLivestreamsForQuery={doFetchAllActiveLivestreamsForQuery}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
           languageSetting={languageSetting}
           searchInLanguage={searchInLanguage}

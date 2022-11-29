@@ -56,7 +56,7 @@ type Props = {
   doMembershipMine: () => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
-  doFetchChannelLiveStatus: (channelClaimId: string) => void,
+  doFetchChannelIsLiveForId: (channelClaimId: string) => void,
 };
 
 /**
@@ -106,7 +106,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       doMembershipMine,
       doStartFloatingPlayingUri,
       doMembershipList,
-      doFetchChannelLiveStatus,
+      doFetchChannelIsLiveForId,
+
       ...otherProps
     } = props;
 
@@ -204,7 +205,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
-    useFetchLiveStatus(isLivestreamClaim ? channelClaimId : undefined, doFetchChannelLiveStatus);
+    useFetchLiveStatus(isLivestreamClaim ? channelClaimId : undefined, doFetchChannelIsLiveForId);
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {

@@ -24,21 +24,51 @@ declare type LivestreamReplayData = Array<LivestreamReplayItem>;
 declare type LivestreamState = {
   fetchingById: {},
   viewersById: {},
-  fetchingActiveLivestreams: boolean | string,
+  activeLivestreamsFetchingQueries: boolean | string,
   activeLivestreams: ?LivestreamInfo,
   activeLivestreamsLastFetchedDate: number,
-  activeLivestreamsLastFetchedOptions: {},
   activeLivestreamsLastFetchedFailCount: number,
   activeLivestreamInitialized: boolean,
   socketConnectionById: { [id: string]: { connected: ?boolean, sub_category: ?string } },
 };
 
-declare type LivestreamInfo = {
-  [/* creatorId */ string]: {
-    live: boolean,
-    viewCount: number,
-    creatorId: string,
+declare type LivestreamActiveClaim = {
+  ClaimID: string,
+  CanonicalURL: string,
+  ReleaseTime: string,
+  Protected: boolean,
+};
+
+declare type ActiveLivestreamResponse = {
+  Live: boolean,
+  Start: string,
+  VideoURL: string,
+  ThumbnailURL: string,
+  ViewerCount: number,
+  ChannelClaimID: string,
+  ActiveClaim: LivestreamActiveClaim,
+  PastClaims: Array<LivestreamActiveClaim>,
+  FutureClaims: ?Array<LivestreamActiveClaim>,
+};
+
+declare type ActiveLivestreamInfo = {
+  url: string,
+  type: string,
+  live: boolean,
+  viewCount: number,
+  creatorId: string,
+  startedStreaming: any,
+};
+
+declare type ActiveLivestreamInfosById = {
+  [creatorId: string]: ActiveLivestreamInfo,
+};
+
+declare type ActiveLivestreamsById = {
+  [creatorId: string]: ActiveLivestreamInfo & {
     claimId: string,
     claimUri: string,
   },
 };
+
+declare type LivestreamAllResponse = Array<ActiveLivestreamResponse>;

@@ -28,33 +28,31 @@ const VIEW_MODES = {
 };
 
 type Props = {
+  uri: string,
+  // -- redux --
   activeStreamUri: boolean | string,
   claim: ?StreamClaim,
-  hideComments: boolean,
+  chatDisabled: boolean,
   isCurrentClaimLive: boolean,
-  releaseTimeMs: number,
-  showLivestream: boolean,
   showScheduledInfo: boolean,
-  uri: string,
   superChats: Array<Comment>,
   activeViewers?: number,
-  theaterMode: boolean,
+  videoTheaterMode: boolean,
   contentUnlocked: boolean,
 };
 
 export default function LivestreamLayout(props: Props) {
   const {
+    uri,
+    // -- redux --
     activeStreamUri,
     claim,
-    hideComments,
+    chatDisabled,
     isCurrentClaimLive,
-    releaseTimeMs,
-    showLivestream,
     showScheduledInfo,
-    uri,
     superChats,
     activeViewers,
-    theaterMode,
+    videoTheaterMode,
     contentUnlocked,
   } = props;
 
@@ -73,13 +71,13 @@ export default function LivestreamLayout(props: Props) {
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
         <VideoClaimInitiator uri={claim.canonical_url}>
-          {showScheduledInfo && <LivestreamScheduledInfo releaseTimeMs={releaseTimeMs} />}
+          {showScheduledInfo && <LivestreamScheduledInfo />}
         </VideoClaimInitiator>
       </div>
       <div className="file-page__secondary-content">
         <div className="file-page__media-actions">
           <div className="section card-stack">
-            {hideComments && !showScheduledInfo && (
+            {chatDisabled && !showScheduledInfo && (
               <div className="help--notice">
                 {channelName
                   ? __('%channel% has disabled chat for this stream. Enjoy the stream!', { channel: channelName })
@@ -104,7 +102,7 @@ export default function LivestreamLayout(props: Props) {
               />
             )}
 
-            {isMobile && !isLandscapeRotated && !hideComments && contentUnlocked && (
+            {isMobile && !isLandscapeRotated && !chatDisabled && contentUnlocked && (
               <React.Suspense fallback={null}>
                 <SwipeableDrawer
                   // startOpen
@@ -143,11 +141,11 @@ export default function LivestreamLayout(props: Props) {
               </React.Suspense>
             )}
 
-            <FileTitleSection uri={uri} livestream isLive={showLivestream} />
+            <FileTitleSection uri={uri} />
           </div>
         </div>
 
-        {theaterMode && isCurrentClaimLive && !isMobile && (
+        {videoTheaterMode && isCurrentClaimLive && !isMobile && (
           <React.Suspense fallback={null}>
             <ChatLayout
               uri={uri}
