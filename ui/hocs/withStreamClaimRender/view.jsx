@@ -117,18 +117,17 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const autoplayEnabled =
       !forceDisableAutoplay &&
       (!embedded || (urlParams && urlParams.get('autoplay'))) &&
-      (forceAutoplayParam || urlTimeParam || autoplay);
+      (forceAutoplayParam || urlTimeParam || (isLivestreamClaim ? isCurrentClaimLive : autoplay));
 
     const autoplayVideo =
-      ((isLivestreamClaim ? isCurrentClaimLive : autoplayEnabled) || playingCollectionId) &&
-      (!alreadyPlaying.current || playingUri.uri === uri) &&
-      isPlayable;
+      (autoplayEnabled || playingCollectionId) && (!alreadyPlaying.current || playingUri.uri === uri) && isPlayable;
     const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
     const shouldAutoplay = autoplayVideo || autoRenderClaim;
     const shouldStartFloating = playingUri.uri !== uri;
 
     const streamStarted = currentStreamingUri === uri;
     const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
+    const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
 
     React.useEffect(() => {
       if (channelClaimId && channelName) {
@@ -213,7 +212,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Loading State -- return before component render
-    if (!streamingUrl) {
+    if (!streamingUrl || embeddedLivestreamPendingStart) {
       if (streamStarted && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri} />;
