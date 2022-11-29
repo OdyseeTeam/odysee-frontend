@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 
+import * as SETTINGS from 'constants/settings';
+
 import {
   selectClaimForUri,
   selectIsFetchingPurchases,
@@ -20,6 +22,7 @@ import {
 } from 'redux/selectors/content';
 import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
 import { selectIsActiveLivestreamForUri, selectIsListeningForIsLiveForUri } from 'redux/selectors/livestream';
+import { selectClientSetting } from 'redux/selectors/settings';
 
 import { doStartFloatingPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
@@ -44,6 +47,7 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, props.uri),
     purchaseTag: selectPurchaseTagForUri(state, props.uri),
     rentalTag: selectRentalTagForUri(state, props.uri),
+    autoplay: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     isFetchingPurchases: selectIsFetchingPurchases(state),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     streamingUrl: selectStreamingUrlForUri(state, uri),
