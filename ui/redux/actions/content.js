@@ -117,7 +117,7 @@ export const doSetPrimaryUri = (uri: ?string) => async (dispatch: Dispatch, getS
   dispatch({ type: ACTIONS.SET_PRIMARY_URI, data: { uri } });
 
 export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null, collection: {} }));
-export const doClearPlayingSource = () => (dispatch: Dispatch) => dispatch(doChangePlayingUri({ source: null }));
+export const doClearPlayingSource = () => (dispatch: Dispatch) => dispatch(doChangePlayingUri({ source: null, collection: {} }));
 export const doClearPlayingCollection = () => (dispatch: Dispatch) =>
   dispatch(doChangePlayingUri({ collection: { collectionId: null } }));
 
@@ -217,7 +217,7 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
   const state = getState();
   const isFloating = selectIsPlayerFloating(state);
   const playingCollectionId = selectPlayingCollectionId(state);
-  const isNextUriInCollection = selectCollectionForIdHasClaimUrl(state, playingCollectionId, nextUri);
+  const isNextUriInCollection = playingCollectionId && selectCollectionForIdHasClaimUrl(state, playingCollectionId, nextUri);
 
   if (!isFloating) {
     dispatch(
@@ -230,18 +230,16 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
     );
   }
 
-  const nextIsInPlayingCollection = selectCollectionForIdHasClaimUrl(state, playingCollectionId, nextUri);
   const canPlayback = selectCanPlaybackFileForUri(state, nextUri);
   const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, nextUri);
   const isLive = selectIsActiveLivestreamForUri(state, nextUri);
-  // todo: fix
   const canStartloatingPlayer = canPlayback && (!isLivestreamClaim || isLive);
 
   if (!canStartloatingPlayer) {
     dispatch(
       doChangePlayingUri({
         uri: null,
-        collection: nextIsInPlayingCollection ? { collectionId: playingCollectionId } : null,
+        collection: { collectionId: isNextUriInCollection ? playingCollectionId : null },
       })
     );
 
@@ -251,7 +249,7 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
   dispatch(
     doStartFloatingPlayingUri({
       uri: nextUri,
-      ...(nextIsInPlayingCollection ? { collection: { collectionId: playingCollectionId } } : {}),
+      ...(isNextUriInCollection ? { collection: { collectionId: playingCollectionId } } : {}),
     })
   );
 
@@ -646,6 +644,6 @@ export function doSendPastRecsysEntries() {
   };
 }
 
-export const doSetShowAutoplayCountdownForUri = ({ uri, show }: { uri: string, show: boolean }) => (
+export const doSetShowAutoplayCountdownForUri = ({ uri, show }: { uri: ?string, show: ?boolean }) => (
   dispatch: Dispatch
-) => dispatch({ type: ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, data: { uri, show } });
+) => uri && dispatch({ type: ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, data: { uri, show } });

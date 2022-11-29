@@ -19,7 +19,7 @@ import usePersistedState from 'effects/use-persisted-state';
 type Props = {
   subscribedChannels: Array<Subscription>,
   tileLayout: boolean,
-  activeLivestreams: ?LivestreamInfo,
+  activeLivestreams: ?ActiveLivestreamInfosById,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,

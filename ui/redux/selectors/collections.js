@@ -25,7 +25,7 @@ import {
 import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
-type State = { claims: any, user: any, content: any, collections: CollectionState };
+type State = { claims: any, user: any, content: any, collections: CollectionState, memberships: any, router: any };
 
 const selectState = (state: State) => state.collections || {};
 
@@ -423,9 +423,9 @@ export const selectUrlsForCollectionId = createCachedSelector(
       }
     });
 
-    // if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.size)) {
-    //   return undefined;
-    // }
+    if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.size)) {
+      return undefined;
+    }
 
     return Array.from(uris);
   }

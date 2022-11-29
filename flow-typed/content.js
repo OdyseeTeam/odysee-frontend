@@ -27,7 +27,7 @@ declare type PlayingUri = {
   location?: { pathname: ?string, search: ?string },
   commentId?: string,
   collection: PlayingCollection,
-  source?: string,
+  source?: ?string,
   sourceId?: string,
 };
 

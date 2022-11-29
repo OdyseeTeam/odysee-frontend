@@ -20,7 +20,7 @@ import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
 type Dispatch = (action: any) => any;
-type GetState = () => { claims: any, file: FileState, content: any, user: UserState };
+type GetState = () => { claims: any, file: FileState, content: any, user: UserState, memberships: any, router: any };
 
 export function doOpenFileInFolder(path: string) {
   return () => {

@@ -26,7 +26,9 @@ const findActiveStreams = (
 
   if (!lang) {
     Object.values(activeLivestreams).forEach((activeLivestream) => {
+      // $FlowFixMe
       if (!activeLivestream.claimId || !activeLivestream.claimUri) {
+        // $FlowFixMe
         livestreamsToSearch[activeLivestream.creatorId] = activeLivestream;
       }
     });
@@ -87,7 +89,9 @@ const findActiveStreams = (
 
     const channelId = getChannelIdFromClaim(claim.stream);
 
-    searchedLivestreams[channelId] = { ...allStreams[channelId], claimId, claimUri };
+    if (channelId) {
+      searchedLivestreams[channelId] = { ...allStreams[channelId], claimId, claimUri };
+    }
   });
 
   return searchedLivestreams;
@@ -102,7 +106,7 @@ export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch:
         return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: { [channelId]: null } });
       }
 
-      const activeLivestreamById = transformNewLivestreamData([response]);
+      const activeLivestreamById: ActiveLivestreamInfosById = transformNewLivestreamData([response]);
       const activeLivestream = await dispatch(findActiveStreams(activeLivestreamById, ['release_time']));
 
       return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: activeLivestream });
@@ -115,9 +119,10 @@ export const doFetchAllActiveLivestreamsForQuery = (
 ) => async (dispatch: Dispatch, getState: GetState) => {
   const { orderBy, lang } = query;
 
-  const queryParams = { order_by: orderBy, ...(lang ? { any_languages: lang } : {}) };
   const state = getState();
-  const alreadyFetching = selectActiveLivestreamsFetchingForQuery(state, queryParams);
+  const queryParams = { order_by: orderBy, ...(lang ? { any_languages: lang } : {}) };
+  const queryStr = JSON.stringify(queryParams);
+  const alreadyFetching = selectActiveLivestreamsFetchingForQuery(state, queryStr);
 
   if (alreadyFetching) return;
 
@@ -134,14 +139,13 @@ export const doFetchAllActiveLivestreamsForQuery = (
     }
   }
 
-  const queryStr = JSON.stringify(queryParams);
   const completedParams = { query: queryStr, activeLivestreamsLastFetchedDate: now };
 
   dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_START, data: queryStr });
 
   return Livestream.call('livestream', 'all')
     .then(async (response: LivestreamAllResponse) => {
-      const activeLivestreams: LivestreamInfo = transformNewLivestreamData(response);
+      const activeLivestreams: ActiveLivestreamInfosById = transformNewLivestreamData(response);
 
       const activeStreams = await dispatch(findActiveStreams(activeLivestreams, orderBy, lang));
 

@@ -16,7 +16,7 @@ import {
 } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 
-type State = { livestream: any };
+type State = { livestream: any, claims: any, user: any, comments: any };
 
 const selectState = (state: State) => state.livestream || {};
 
@@ -41,7 +41,7 @@ export const selectIsFetchingActiveLivestreams = (state: State) =>
   selectActiveLivestreamsFetchingQueries(state).length > 0;
 
 export const selectActiveLivestreamsFetchingForQuery = (state: State, query: string) =>
-  selectActiveLivestreamsFetchingQueries(state).includes(JSON.stringify(query));
+  selectActiveLivestreamsFetchingQueries(state).includes(query);
 
 export const selectSocketConnectionForId = (state: State, claimId: string) =>
   claimId && selectSocketConnectionById(state)[claimId];
@@ -49,7 +49,7 @@ export const selectSocketConnectionForId = (state: State, claimId: string) =>
 export const selectIsListeningForIsLiveForUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
 
-  const isLivePolling = selectIsLivePollingForChannelId(state, channelId);
+  const isLivePolling = channelId && selectIsLivePollingForChannelId(state, channelId);
   if (isLivePolling) return true;
 
   const activeLivestream = selectActiveLivestreamForChannel(state, channelId);
@@ -58,6 +58,7 @@ export const selectIsListeningForIsLiveForUri = (state: State, uri: string) => {
   const activeLivestreamId = activeLivestream.claimId;
 
   const socketConnection = selectSocketConnectionForId(state, activeLivestreamId);
+  // $FlowFixMe
   if (socketConnection?.connected) return true;
 
   return false;
@@ -100,7 +101,7 @@ export const makeSelectPendingLivestreamsForChannelId = (channelId: string) =>
   });
 
 export const selectIsActiveLivestreamForUri = createCachedSelector(
-  (state, uri) => uri,
+  (state: State, uri: string) => uri,
   selectActiveLivestreams,
   (uri, activeLivestreams) => {
     if (!uri || !activeLivestreams) {
@@ -111,7 +112,7 @@ export const selectIsActiveLivestreamForUri = createCachedSelector(
     // $FlowFixMe - unable to resolve claimUri
     return activeLivestreamValues.some((v) => v?.claimUri === uri);
   }
-)((state, uri) => String(uri));
+)((state: State, uri: string) => String(uri));
 
 export const selectActiveLivestreamForClaimId = createCachedSelector(
   (state, claimId) => claimId,
@@ -138,7 +139,7 @@ export const selectActiveLivestreamForChannel = createCachedSelector(
   }
 )((state, channelId) => String(channelId));
 
-export const selectActiveStreamUriForClaimUri = (state, uri) => {
+export const selectActiveStreamUriForClaimUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
   if (!channelId) return channelId;
 
@@ -148,7 +149,7 @@ export const selectActiveStreamUriForClaimUri = (state, uri) => {
   return activeLivestream.claimUri;
 };
 
-export const selectClaimIsActiveChannelLivestreamForUri = (state, uri) => {
+export const selectClaimIsActiveChannelLivestreamForUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
   if (!channelId) return channelId;
 
@@ -177,7 +178,7 @@ export const selectLiveClaimReleaseStartedRecently = createSelector(selectMoment
   releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())
 );
 
-export const selectShouldShowLivestreamForUri = (state, uri) => {
+export const selectShouldShowLivestreamForUri = (state: State, uri: string) => {
   const isClaimActiveBroadcast = selectClaimIsActiveChannelLivestreamForUri(state, uri);
   if (!isClaimActiveBroadcast) return isClaimActiveBroadcast;
 
@@ -188,7 +189,7 @@ export const selectShouldShowLivestreamForUri = (state, uri) => {
   return claimReleaseInPast || liveClaimStartingSoon || claimReleaseInFuture;
 };
 
-export const selectShowScheduledLiveInfoForUri = (state, uri) => {
+export const selectShowScheduledLiveInfoForUri = (state: State, uri: string) => {
   const isClaimActiveBroadcast = selectClaimIsActiveChannelLivestreamForUri(state, uri);
   const claimReleaseInFuture = selectClaimReleaseInFutureForUri(state, uri);
   const liveClaimStartedRecently = selectLiveClaimReleaseStartedRecently(state, uri);

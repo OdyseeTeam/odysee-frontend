@@ -31,8 +31,8 @@ type Props = {
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   tileLayout: boolean,
-  activeLivestreams: ?LivestreamInfo,
-  doFetchAllActiveLivestreamsForQuery: (query: { orderBy: ?Array<string>, lang: ?Array<string> }) => void,
+  activeLivestreams: ?ActiveLivestreamInfosById,
+  doFetchAllActiveLivestreamsForQuery: () => void,
   hasPremiumPlus: boolean,
 };
 
