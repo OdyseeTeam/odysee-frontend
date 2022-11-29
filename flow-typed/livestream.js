@@ -28,7 +28,6 @@ declare type LivestreamState = {
   activeLivestreams: ?LivestreamInfo,
   activeLivestreamsLastFetchedDate: number,
   activeLivestreamsLastFetchedFailCount: number,
-  activeLivestreamInitialized: boolean,
   socketConnectionById: { [id: string]: { connected: ?boolean, sub_category: ?string } },
 };
 

@@ -7,35 +7,24 @@ import * as CS from 'constants/claim_search';
 import HomeTabSection from './internal/homeTabSection';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import LivestreamLink from 'component/livestreamLink';
-import useFetchLiveStatus from 'effects/use-fetch-live';
 import './style.scss';
+
+import withLiveStatus from 'hocs/withLiveStatus';
 
 type Props = {
   uri: string,
   preferEmbed: boolean,
   claim: any,
   editMode: boolean,
-  activeLivestreamForChannel: any,
   settingsByChannelId: { [string]: PerChannelSettings },
   handleViewMore: (any) => void,
-  doFetchChannelIsLiveForId: (string) => void,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 function HomeTab(props: Props) {
-  const {
-    preferEmbed,
-    claim,
-    editMode,
-    activeLivestreamForChannel,
-    settingsByChannelId,
-    handleViewMore,
-    doFetchChannelIsLiveForId,
-    doUpdateCreatorSettings,
-  } = props;
+  const { preferEmbed, claim, editMode, settingsByChannelId, handleViewMore, doUpdateCreatorSettings } = props;
 
   const claimId = claim && claim.claim_id;
-  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
   const homepage_settings =
     settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
 
@@ -59,8 +48,6 @@ function HomeTab(props: Props) {
   const [home, setHome] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
   const topContentGridIndex = 1;
-
-  useFetchLiveStatus(claimId, doFetchChannelIsLiveForId, true);
 
   React.useEffect(() => {
     if (settingsByChannelId && Object.keys(settingsByChannelId).length) {
@@ -136,9 +123,6 @@ function HomeTab(props: Props) {
     setEdit(false);
   }
 
-  const isInitialized = true;
-  const isChannelEmpty = false;
-
   return (
     settingsByChannelId && (
       <div className="home-tab">
@@ -155,11 +139,9 @@ function HomeTab(props: Props) {
             />
           </div>
         )}
-        {!edit && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
-          <div className="home-section-live">
-            <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
-          </div>
-        )}
+
+        {!editMode && <LivestreamLinkRender uri={props.uri} poll />}
+
         {home &&
           !preferEmbed &&
           home.map((section, i) => {
@@ -210,5 +192,11 @@ function HomeTab(props: Props) {
     )
   );
 }
+
+const LivestreamLinkRender = withLiveStatus(({ uri }: { uri: string }) => (
+  <div className="home-section-live">
+    <LivestreamLink claimUri={uri} />
+  </div>
+));
 
 export default HomeTab;

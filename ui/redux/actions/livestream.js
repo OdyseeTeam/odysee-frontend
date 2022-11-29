@@ -152,3 +152,6 @@ export const doFetchAllActiveLivestreamsForQuery = (
     })
     .catch(() => dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAIL, data: completedParams }));
 };
+
+export const doSetIsLivePollingForChannelId = (channelId: string, isPolling: boolean) => (dispatch: Dispatch) =>
+  dispatch({ type: ACTIONS.SET_IS_LIVE_POLLING_FOR_ID, data: { channelId, isPolling } });

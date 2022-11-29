@@ -10,8 +10,8 @@ const defaultState: LivestreamState = {
   activeLivestreams: {},
   activeLivestreamsLastFetchedDate: 0,
   activeLivestreamsLastFetchedFailCount: 0,
-  activeLivestreamInitialized: false,
   socketConnectionById: {},
+  isLivePollingChannelIds: [],
 };
 
 /**
@@ -111,7 +111,6 @@ export default handleActions(
       return {
         ...state,
         activeLivestreams: newActiveLivestreams,
-        activeLivestreamInitialized: true,
         viewersById: updateViewersById(newActiveLivestreams, state.viewersById),
       };
     },
@@ -122,6 +121,20 @@ export default handleActions(
       socketConnectionById[claimId] = { connected, sub_category };
 
       return { ...state, socketConnectionById };
+    },
+
+    [ACTIONS.SET_IS_LIVE_POLLING_FOR_ID]: (state: LivestreamState, action: any) => {
+      const { channelId, isPolling } = action.data;
+
+      const newIsLivePollingChannelIds = new Set(state.isLivePollingChannelIds);
+
+      if (isPolling) {
+        newIsLivePollingChannelIds.add(channelId);
+      } else {
+        newIsLivePollingChannelIds.delete(channelId);
+      }
+
+      return { ...state, isLivePollingChannelIds: Array.from(newIsLivePollingChannelIds) };
     },
   },
   defaultState
