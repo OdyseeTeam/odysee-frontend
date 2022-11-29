@@ -9,6 +9,7 @@ import {
   selectPlayingUri,
   makeSelectFileRenderModeForUri,
   selectAutoplayCountdownUri,
+  selectCanViewFileForUri,
 } from 'redux/selectors/content';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doClearQueueList } from 'redux/actions/collections';
@@ -71,6 +72,7 @@ const select = (state, props) => {
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isAutoplayCountdown: !playingUri.uri && autoplayCountdownUri,
     autoplayCountdownUri,
+    canViewFile: selectCanViewFileForUri(state, uri),
   };
 };
 

@@ -79,6 +79,7 @@ type Props = {
   contentUnlocked: boolean,
   isAutoplayCountdown: ?boolean,
   autoplayCountdownUri: ?string,
+  canViewFile: ?boolean,
   doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: ?string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doClearPlayingUri: () => void,
@@ -113,6 +114,7 @@ function VideoRenderFloating(props: Props) {
     location,
     isAutoplayCountdown,
     autoplayCountdownUri,
+    canViewFile,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doClearPlayingUri,
@@ -148,6 +150,8 @@ function VideoRenderFloating(props: Props) {
   const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const noPlayerHeight = fileViewerRect?.height === 0;
   const draggable = !isMobile && isFloating;
+  // allows displaying overlays like membership/paid/rental for restrictions even when floating
+  const showStreamPlaceholder = cancelledAutoPlayCountdown && !canViewFile;
 
   const navigateUrl = uri
     ? formatLbryUrlForWeb(uri) + (collectionId ? generateListSearchUrlParams(collectionId) : '')
@@ -268,6 +272,7 @@ function VideoRenderFloating(props: Props) {
       restoreToRelativePosition();
       resizedBetweenFloating.current = false;
     } else if (!resizedBetweenFloating.current) {
+      doSetShowAutoplayCountdownForUri({ uri, show: false });
       handleResize();
       resizedBetweenFloating.current = true;
     }
@@ -465,14 +470,14 @@ function VideoRenderFloating(props: Props) {
               />
             )}
 
-            {autoplayCountdownUri && (!cancelledAutoPlayCountdown || !isAutoplayCountdown) && (
+            {autoplayCountdownUri && !showStreamPlaceholder && (
               <div className={classnames('content__autoplay-countdown', { draggable, playing: !isAutoplayCountdown })}>
                 <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
               </div>
             )}
 
             {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
-            {uri && (!isAutoplayCountdown || cancelledAutoPlayCountdown) && (
+            {uri && (!isAutoplayCountdown || showStreamPlaceholder) && (
               <FloatingRender uri={uri} draggable={draggable} />
             )}
 

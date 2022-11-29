@@ -87,7 +87,9 @@ function ModalRouter(props: Props) {
   const modalUrlOpen = React.useRef(modalUrlId && modal?.id === modalUrlId);
 
   React.useEffect(() => {
-    if (modalUrlId && !modalUrlOpen.current) {
+    if (!modalUrlId) return;
+
+    if (!modalUrlOpen.current) {
       // -- Open the modal from the URL
       // $FlowFixMe
       doOpenModal(modalUrlId, modalUrlParamsObj);

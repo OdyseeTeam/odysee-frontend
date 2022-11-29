@@ -69,10 +69,10 @@ function AutoplayCountdown(props: Props) {
 
   const handlePlayNext = React.useCallback(
     (uri: string) => {
+      handleStopCountdown();
       doPlayNextUri({ uri });
-      handleCloseCountdown();
     },
-    [doPlayNextUri, handleCloseCountdown]
+    [doPlayNextUri, handleStopCountdown]
   );
 
   function isAnyInputFocused() {
