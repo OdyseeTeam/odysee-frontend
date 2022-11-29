@@ -280,6 +280,12 @@ function VideoViewer(props: Props) {
     }
   }, [adUrl, autoplayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
 
+  React.useEffect(() => {
+    if (playerElem) {
+      playerElem.on('ended', onVideoEnded);
+    }
+  }, [onVideoEnded, playerElem]);
+
   // MORE ON PLAY STUFF
   function onPlay(player) {
     videoEnded.current = false;
