@@ -86,7 +86,7 @@ type Props = {
   doClearQueueList: () => void,
   doOpenModal: (id: string, {}) => void,
   doClearPlayingSource: () => void,
-  doSetShowAutoplayCountdownForUri: (params: { uri: string, show: boolean }) => void,
+  doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
 };
 
 function VideoRenderFloating(props: Props) {

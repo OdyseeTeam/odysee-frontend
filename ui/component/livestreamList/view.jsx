@@ -6,7 +6,7 @@ import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
 import { getLivestreamUris } from 'util/livestream';
 
 type Props = {
-  activeLivestreams: ?LivestreamInfo,
+  activeLivestreams: ?ActiveLivestreamInfosById,
   fetchingActiveLivestreams: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
 };

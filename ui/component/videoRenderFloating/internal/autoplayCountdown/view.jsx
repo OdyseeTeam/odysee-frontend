@@ -28,7 +28,7 @@ type Props = {
   canPlayback: ?boolean,
   hasUriPlaying: boolean,
   doPlayNextUri: (params: { uri: string }) => void,
-  doSetShowAutoplayCountdownForUri: (params: { uri: string, show: boolean }) => void,
+  doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
 };
 
 function AutoplayCountdown(props: Props) {

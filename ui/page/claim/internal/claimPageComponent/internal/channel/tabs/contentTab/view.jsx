@@ -45,7 +45,7 @@ type Props = {
   doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
-  activeLivestreamForChannel: any,
+  activeLivestreamForChannel: ?ActiveLivestream,
   hasPremiumPlus: boolean,
 };
 
@@ -97,7 +97,6 @@ function ContentTab(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
 
-  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
   function handleInputChange(e) {
@@ -124,7 +123,9 @@ function ContentTab(props: Props) {
           channelIds={[claimId]}
           tileLayout={tileLayout}
           liveUris={
-            isChannelBroadcasting && activeLivestreamForChannel.claimUri ? [activeLivestreamForChannel.claimUri] : []
+            activeLivestreamForChannel && activeLivestreamForChannel.claimUri
+              ? [activeLivestreamForChannel.claimUri]
+              : []
           }
           showHideSetting={false}
         />

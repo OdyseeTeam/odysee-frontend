@@ -20,7 +20,7 @@ type StreamData = {
  * @returns {[]|Array<*>}
  */
 export function getLivestreamUris(
-  activeLivestreams: ?LivestreamInfo,
+  activeLivestreams: ?ActiveLivestreamInfosById,
   channelIds: ?Array<string>,
   excludedChannelIds?: Array<string>
 ) {
@@ -72,7 +72,7 @@ export function getTipValues(hyperChatsByAmount: Array<Comment>) {
   return { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount };
 }
 
-export const transformNewLivestreamData = (data: LivestreamAllResponse): LivestreamInfo =>
+export const transformNewLivestreamData = (data: LivestreamAllResponse): ActiveLivestreamInfosById =>
   data.reduce((acc, curr) => {
     acc[curr.ChannelClaimID] = {
       url: curr.VideoURL,

@@ -114,7 +114,7 @@ type Props = {
   claimValues: any,
   isLivestreamClaim: boolean,
   userClaimId: ?string,
-  activeLivestreamForChannel: any,
+  activeLivestreamForChannel: ?ActiveLivestream,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   isPurchasableContent: boolean,
   isRentableContent: boolean,
@@ -470,7 +470,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.addClass('livestreamPlayer');
 
         // get the protected url if needed
-        if (isProtectedContent) {
+        if (isProtectedContent && activeLivestreamForChannel) {
           const protectedLivestreamResponse = await Lbry.get({
             uri: activeLivestreamForChannel.claimUri,
             base_streaming_url: activeLivestreamForChannel.url,

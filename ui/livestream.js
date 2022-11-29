@@ -1,8 +1,6 @@
-// @flow
 import { LIVESTREAM_SERVER_API } from 'config';
 import querystring from 'querystring';
 
-// prettier-ignore
 const Livestream = {
   url: LIVESTREAM_SERVER_API,
   enabled: Boolean(LIVESTREAM_SERVER_API),

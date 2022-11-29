@@ -76,7 +76,7 @@ type Props = {
   doAnalyticsViewForUri: (string) => void,
   claimRewards: () => void,
   isLivestreamClaim: boolean,
-  activeLivestreamForChannel: any,
+  activeLivestreamForChannel: ?ActiveLivestream,
   defaultQuality: ?string,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   doSetContentHistoryItem: (uri: string) => void,
@@ -85,7 +85,7 @@ type Props = {
   isRentableContent: boolean,
   purchaseMadeForClaimId: boolean,
   isProtectedContent: boolean,
-  doSetShowAutoplayCountdownForUri: (show: boolean) => void,
+  doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
 };
 
 /*

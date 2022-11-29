@@ -106,7 +106,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
     const urlParams = search && new URLSearchParams(search);
     const collectionId =
-      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) || (playingUri.uri === uri && playingCollectionId);
+      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) || (playingUri.uri === uri && playingCollectionId) || undefined;
     const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
 
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);

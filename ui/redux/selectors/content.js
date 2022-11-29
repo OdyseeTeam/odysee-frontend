@@ -21,7 +21,7 @@ import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/c
 const RECENT_HISTORY_AMOUNT = 10;
 const HISTORY_ITEMS_PER_PAGE = 50;
 
-type State = { claims: any, content: ContentState, user: UserState };
+type State = { claims: any, content: ContentState, user: UserState, memberships: any, router: any };
 
 export const selectState = (state: State) => state.content || {};
 
@@ -105,6 +105,7 @@ export const selectIsPlayerFloating = (state: State) => {
   const { pathname, search } = state.router.location;
 
   const urlParams = new URLSearchParams(search);
+  // $FlowFixMe
   const playingUrlParams = new URLSearchParams(playingSearch);
   const viewParam = urlParams.get('view');
   const playingLocationTab = playingUrlParams.get('view');
