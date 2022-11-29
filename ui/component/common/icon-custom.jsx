@@ -1204,7 +1204,15 @@ export const icons = {
     </svg>
   ),
   [ICONS.FINANCE]: (props: CustomProps) => (
-    <svg {...props} width="21" height="20" viewBox="0 0 21 20" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      {...props}
+      width="21"
+      height="20"
+      viewBox="0 0 21 20"
+      fill="none"
+      stroke="currentColor"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path d="M12.5 7.5C12 7 11.3 6.5 10.5 6.5M10.5 6.5C8.50001 6.5 7.62294 8.18441 8.5 9.5C9.5 11 12.5 10 12.5 12C12.5 14.0615 10 14.5 8 13M10.5 6.5L10.5 5M10.5 14V15.5M19.5 10C19.5 14.9706 15.4706 19 10.5 19C5.52944 19 1.5 14.9706 1.5 10C1.5 5.02944 5.52944 1 10.5 1C15.4706 1 19.5 5.02944 19.5 10Z" />
     </svg>
   ),
