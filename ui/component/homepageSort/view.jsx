@@ -76,6 +76,17 @@ function getInitialList(listId, savedOrder, homepageSections) {
       }
     }
   });
+  // Fix portal position
+  if (!isInTestGroup) {
+    activeOrder.splice(
+      2,
+      0,
+      activeOrder.splice(
+        activeOrder.findIndex((entry) => entry === 'PORTALS'),
+        1
+      )[0]
+    );
+  }
 
   // Final check to exclude items that were previously moved to Hidden.
   activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
