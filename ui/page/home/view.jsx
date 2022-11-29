@@ -241,6 +241,7 @@ function HomePage(props: Props) {
                   {!fetchingActiveLivestreams &&
                     authenticated &&
                     subscriptionChannelIds.length > 0 &&
+                    id === 'FOLLOWING' &&
                     !hideScheduledLivestreams && (
                       <ScheduledStreams
                         channelIds={subscriptionChannelIds}
