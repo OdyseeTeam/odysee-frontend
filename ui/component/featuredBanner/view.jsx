@@ -61,6 +61,18 @@ export default function FeaturedBanner(props: Props) {
     };
   }
 
+  function handleAnchor(e, uri) {
+    if (uri.charAt(0) !== '#') {
+      return null;
+    }
+    e.preventDefault();
+    const anchor = document.getElementById(uri.substring(1));
+    window.scrollTo({
+      top: anchor && anchor.offsetTop,
+      behavior: 'smooth',
+    });
+  }
+
   const NON_CATEGORY = Object.freeze({
     BANNER: { label: 'Banner' },
     FOLLOWING: { label: 'Following' },
@@ -128,6 +140,7 @@ export default function FeaturedBanner(props: Props) {
             return (
               <NavLink
                 className="featured-banner-image"
+                onClick={(e) => handleAnchor(e, item.url)}
                 to={getUriTo(item.url)}
                 target={!item.url.includes('odysee.com') ? '_blank' : undefined}
                 title={item.label}

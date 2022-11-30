@@ -90,6 +90,7 @@ export default function Portals(props: Props) {
 
   return portals && portals.mainPortal ? (
     <div
+      id="portals"
       className={classnames('portals-wrapper', { kill: kill })}
       style={{
         backgroundImage:
