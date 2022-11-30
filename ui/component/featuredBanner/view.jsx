@@ -6,6 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
 import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import './style.scss';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
@@ -28,6 +29,7 @@ export default function FeaturedBanner(props: Props) {
   const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
+  const { push } = useHistory();
 
   React.useEffect(() => {
     if (featured && width) {
@@ -67,10 +69,14 @@ export default function FeaturedBanner(props: Props) {
     }
     e.preventDefault();
     const anchor = document.getElementById(uri.substring(1));
-    window.scrollTo({
-      top: anchor && anchor.offsetTop,
-      behavior: 'smooth',
-    });
+    if (anchor) {
+      window.scrollTo({
+        top: anchor && anchor.offsetTop,
+        behavior: 'smooth',
+      });
+    } else {
+      push('$/portal/adventureaddict');
+    }
   }
 
   const NON_CATEGORY = Object.freeze({
