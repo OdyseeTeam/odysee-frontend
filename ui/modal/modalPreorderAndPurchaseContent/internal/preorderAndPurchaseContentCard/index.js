@@ -7,9 +7,10 @@ import {
   selectCostInfoForUri,
   selectClaimIsMine,
   selectClaimWasPurchasedForUri,
-  selectIsFiatPaidForUri,
   selectIsFiatRequiredForUri,
   selectIsFetchingPurchases,
+  selectSdkFeePendingForUri,
+  selectPendingPurchaseForUri,
 } from 'redux/selectors/claims';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doPlayUri } from 'redux/actions/content';
@@ -36,10 +37,11 @@ const select = (state, props) => {
     costInfo: selectCostInfoForUri(state, uri),
     claimIsMine: selectClaimIsMine(state, claim),
     sdkPaid: selectClaimWasPurchasedForUri(state, uri),
-    fiatPaid: selectIsFiatPaidForUri(state, uri),
     fiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFetchingPurchases: selectIsFetchingPurchases(state),
     isAuthenticated: selectUserVerifiedEmail(state),
+    pendingSdkPayment: selectSdkFeePendingForUri(state, uri),
+    pendingPurchase: selectPendingPurchaseForUri(state, uri),
   };
 };
 
