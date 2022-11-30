@@ -66,7 +66,7 @@ const select = (state, props) => {
     videoPlaybackRate: selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE),
     thumbnail: selectThumbnailForUri(state, uri),
     claim,
-    homepageData: selectHomepageData(state),
+    homepageData: selectHomepageData(state) || {},
     authenticated: selectUserVerifiedEmail(state),
     shareTelemetry: IS_WEB || selectDaemonSettings(state).share_usage_data,
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),

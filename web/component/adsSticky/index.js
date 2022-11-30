@@ -14,7 +14,7 @@ const select = (state, props) => {
     isContentClaim: isStreamPlaceholderClaim(claim) || Boolean(claim?.value?.source?.media_type),
     isChannelClaim: isChannelClaim(claim),
     authenticated: selectUserVerifiedEmail(state),
-    homepageData: selectHomepageData(state),
+    homepageData: selectHomepageData(state) || {},
     locale: selectUserLocale(state),
     nagsShown: selectAnyNagsShown(state),
     shouldShowAds: selectShouldShowAds(state),

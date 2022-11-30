@@ -13,6 +13,7 @@ import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
 import * as CS from 'constants/claim_search';
 import { buildUnseenCountStr } from 'util/notifications';
+import Spinner from 'component/spinner';
 
 import HomePage from 'page/home';
 
@@ -233,6 +234,8 @@ function AppRouter(props: Props) {
   const ClaimPageLivenow = React.useMemo(() => () => <ClaimPage uri={uri} liveContentPath />, [uri]);
 
   const categoryPages = React.useMemo(() => {
+    if (!homepageData) return null;
+
     const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
       (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
     );
@@ -341,6 +344,7 @@ function AppRouter(props: Props) {
     return <Redirect to={decodedUrl} />;
   }
 
+  l(homepageData);
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
@@ -458,6 +462,23 @@ function AppRouter(props: Props) {
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
         <Route path={`/$/${PAGES.LATEST}/:channelName`} exact component={ClaimPageLatest} />
         <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact component={ClaimPageLivenow} />
+
+        {/* When fetching homepage data, display a loading state otherwise it will default to the claimPage component */}
+        {/* leave this at the bottom to prevent going above every other /$/ page */}
+        {homepageData === undefined ? (
+          <Route
+            path={`/$/:maybeCategoryPage`}
+            exact
+            component={() => (
+              <div className="main--empty">
+                <Spinner text={__('Loading category...')} />
+              </div>
+            )}
+          />
+        ) : (
+          <Route path="/$/:nonExistingPage" component={FourOhFourPage} />
+        )}
+
         <Route path="/:claimName" exact component={ClaimPageRender} />
         <Route path="/:claimName/:streamName" exact component={ClaimPageRender} />
         <Route path="/*" component={FourOhFourPage} />

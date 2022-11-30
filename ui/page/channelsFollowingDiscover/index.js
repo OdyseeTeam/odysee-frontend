@@ -5,7 +5,7 @@ import ChannelsFollowingDiscover from './view';
 
 const select = (state) => ({
   subscribedChannels: selectSubscriptions(state),
-  homepageData: selectHomepageData(state),
+  homepageData: selectHomepageData(state) || {},
   discoverData: selectHomepageDiscover(state),
 });
 
