@@ -77,7 +77,7 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
     }, []);
 
     if (claimUri && claimUri !== uri) {
-      return <Component claimUri={activeLivestreamForChannel.claimUri} {...otherProps} />;
+      return <Component claimUri={claimUri} {...otherProps} />;
     }
 
     return null;
