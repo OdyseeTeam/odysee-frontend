@@ -51,12 +51,11 @@ type Props = {
   purchaseTag: ?number,
   rentalTag: RentalTagParams,
   costInfo: any,
-  claimIsMine: boolean,
-  sdkPaid: boolean,
-  fiatPaid: boolean,
   fiatRequired: boolean,
   isFetchingPurchases: boolean,
   isAuthenticated: boolean,
+  pendingSdkPayment: boolean,
+  pendingPurchase: boolean,
   doHideModal: () => void,
   doPurchaseClaimForUri: (params: { uri: string, type: string }) => void,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
@@ -72,12 +71,11 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     purchaseTag,
     preorderTag,
     costInfo,
-    claimIsMine,
-    sdkPaid,
-    fiatPaid,
     fiatRequired,
     isFetchingPurchases,
     isAuthenticated,
+    pendingSdkPayment,
+    pendingPurchase,
     doHideModal,
     doPurchaseClaimForUri,
     doCheckIfPurchasedClaimId,
@@ -88,10 +86,6 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
   const tags = { rentalTag, purchaseTag, preorderTag };
-
-  const pendingSdkPayment = !claimIsMine && costInfo && costInfo.cost > 0 && !sdkPaid;
-  const pendingFiatPayment = !claimIsMine && fiatRequired && !fiatPaid && isFetchingPurchases === false;
-  const pendingPurchase = pendingFiatPayment || pendingSdkPayment;
 
   let tipAmount = 0;
   let rentTipAmount = 0;
@@ -156,7 +150,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     }
   }, [claimId, doHideModal, fiatRequired, isFetchingPurchases, isUrlParamModal, pendingPurchase]);
 
-  if (isUrlParamModal && !pendingPurchase) {
+  if (isUrlParamModal && (!pendingPurchase || (pendingSdkPayment && costInfo === undefined))) {
     // -- hide modal until a pendingPurchase condition is found to show it --
     return <Global styles={{ '.ReactModalPortal': { display: 'none' } }} />;
   }
