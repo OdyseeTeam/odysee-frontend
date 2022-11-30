@@ -63,7 +63,7 @@ export default function FeaturedBanner(props: Props) {
 
   function handleAnchor(e, uri) {
     if (uri.charAt(0) !== '#') {
-      return null;
+      return;
     }
     e.preventDefault();
     const anchor = document.getElementById(uri.substring(1));
