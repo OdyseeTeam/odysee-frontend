@@ -128,6 +128,12 @@ function AutoplayCountdown(props: Props) {
     };
   }, [handlePlayNext, isTimerPaused, playNextUri, isMature, timer, timerCanceled]);
 
+  React.useEffect(() => {
+    if (playNextUri === null) {
+      handleStopCountdown();
+    }
+  }, [handleStopCountdown, playNextUri]);
+
   if (timerCanceled || !playNextUri) {
     return null;
   }

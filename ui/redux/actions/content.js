@@ -27,6 +27,7 @@ import {
   selectUrlsForCollectionId,
   selectCollectionForIdHasClaimUrl,
   selectFirstItemUrlForCollection,
+  selectIsLastCollectionItemForIdAndUri,
 } from 'redux/selectors/collections';
 import { doCollectionEdit, doLocalCollectionCreate, doFetchItemsInCollection } from 'redux/actions/collections';
 import { doToast } from 'redux/actions/notifications';
@@ -242,6 +243,11 @@ export const doPlayNextUri = ({ uri: nextUri, collectionId }: { uri: string, col
   const isLive = selectIsActiveLivestreamForUri(state, nextUri);
   const canStartloatingPlayer = canPlayback && (!isLivestreamClaim || isLive);
 
+  const isLastCollectionItem =
+    nextCollectionId && selectIsLastCollectionItemForIdAndUri(state, nextCollectionId, nextUri);
+  const autoPlayNextEnabled = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
+  const shouldShowCountdown = !isLastCollectionItem || isFloating || autoPlayNextEnabled;
+
   if (!canStartloatingPlayer) {
     dispatch(
       doChangePlayingUri({
@@ -250,7 +256,11 @@ export const doPlayNextUri = ({ uri: nextUri, collectionId }: { uri: string, col
       })
     );
 
-    return dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: true }));
+    if (shouldShowCountdown) {
+      dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: true }));
+    }
+
+    return;
   }
 
   dispatch(
@@ -260,7 +270,7 @@ export const doPlayNextUri = ({ uri: nextUri, collectionId }: { uri: string, col
     })
   );
 
-  return dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: false }));
+  if (shouldShowCountdown) dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: false }));
 };
 
 export function doPlaylistAddAndAllowPlaying({
