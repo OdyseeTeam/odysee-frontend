@@ -18,6 +18,7 @@ const VideoRender = lazyImport(() => import('component/videoClaimRender' /* webp
 
 type Props = {
   uri: string,
+  latestClaimUrl: ?string,
   // -- redux --
   renderMode: string,
 };
@@ -25,6 +26,7 @@ type Props = {
 const EmbedClaimComponent = (props: Props) => {
   const {
     uri,
+    latestClaimUrl,
     // -- redux --
     renderMode,
   } = props;
@@ -40,7 +42,7 @@ const EmbedClaimComponent = (props: Props) => {
   const isVideo = RENDER_MODES.FLOATING_MODES.includes(renderMode);
 
   if (isChannel) {
-    if (featureParam) {
+    if (featureParam && latestClaimUrl !== null) {
       // -- Still loading the latest/livenow claims for the channel
       return (
         <div className="main--empty">
