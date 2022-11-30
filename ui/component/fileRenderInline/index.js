@@ -6,6 +6,7 @@ import {
   selectClaimIsMine,
   selectIsFiatRequiredForUri,
   selectIsFiatPaidForUri,
+  selectShouldDisableShownScheduledContent
 } from 'redux/selectors/claims';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { makeSelectFileRenderModeForUri, selectFileIsPlayingOnPage } from 'redux/selectors/content';
@@ -31,6 +32,7 @@ const select = (state, props) => {
     contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
     isFiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFiatPaid: selectIsFiatPaidForUri(state, uri),
+    shouldDisableShownScheduledContent: selectShouldDisableShownScheduledContent(state, props.uri),
   };
 };
 

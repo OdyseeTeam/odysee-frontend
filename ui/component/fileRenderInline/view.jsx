@@ -18,6 +18,7 @@ type Props = {
   contentRestrictedFromUser: boolean,
   isFiatRequired: boolean,
   isFiatPaid: ?boolean,
+  shouldDisableShownScheduledContent: ?boolean,
 };
 
 export default function FileRenderInline(props: Props) {
@@ -35,7 +36,10 @@ export default function FileRenderInline(props: Props) {
     contentRestrictedFromUser,
     isFiatRequired,
     isFiatPaid,
+    shouldDisableShownScheduledContent,
   } = props;
+
+  const disableShownScheduledContent = shouldDisableShownScheduledContent && !claimIsMine;
 
   const [playTime, setPlayTime] = useState();
 
@@ -46,7 +50,7 @@ export default function FileRenderInline(props: Props) {
   const isReadyToPlay = streamingUrl || isReadyToView;
 
   // Render if any source is ready
-  let renderContent = isReadyToPlay;
+  let renderContent = isReadyToPlay && !disableShownScheduledContent;
 
   // Force non-streaming content to wait for download
   if (NON_STREAM_MODES.includes(renderMode)) {
@@ -76,6 +80,8 @@ export default function FileRenderInline(props: Props) {
   if (!isPlaying || !isPaymentCleared || contentRestrictedFromUser) {
     return null;
   }
+
+  if (disableShownScheduledContent) return <></>;
 
   return renderContent ? <FileRender uri={uri} /> : <LoadingScreen isDocument />;
 }

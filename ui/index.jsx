@@ -56,6 +56,13 @@ analytics.init();
 
 window.l = console.log;
 
+window.lo = function logVariableAndName(unknownVariable) {
+  const variableName = Object.keys(unknownVariable)[0];
+  const value = unknownVariable[variableName];
+  l(variableName);
+  l(value);
+}
+
 Lbry.setDaemonConnectionString(PROXY_URL);
 
 Lbry.setOverride(
