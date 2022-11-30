@@ -169,6 +169,7 @@ function HomePage(props: Props) {
 
       return (
         <>
+          {index === topGrid && <Meme meme={homepageMeme} />}
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
@@ -218,8 +219,6 @@ function HomePage(props: Props) {
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>
-      {(!isInTestGroup || topGrid === 0) && <Meme meme={homepageMeme} />}
-
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
           <Yrbl
