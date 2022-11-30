@@ -7,8 +7,9 @@ const defaultState: LivestreamState = {
   fetchingById: {},
   viewersById: {},
   activeLivestreamsFetchingQueries: [],
+  activeLivestreamsByQuery: {},
   activeLivestreams: {},
-  activeLivestreamsLastFetchedDate: 0,
+  activeLivestreamsLastFetchedDateByQuery: 0,
   activeLivestreamsLastFetchedFailCount: 0,
   socketConnectionById: {},
   isLivePollingChannelIds: [],
@@ -75,29 +76,47 @@ export default handleActions(
       return { ...state, activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries) };
     },
     [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAIL]: (state: LivestreamState, action: any) => {
-      const { query, activeLivestreamsLastFetchedDate } = action.data;
+      const { query, date } = action.data;
 
       const newActiveLivestreamsFetchingQueries = new Set(state.activeLivestreamsFetchingQueries);
       newActiveLivestreamsFetchingQueries.delete(query);
 
+      const newActiveLivestreamsLastFetchedDateByQuery = Object.assign(
+        {},
+        state.activeLivestreamsLastFetchedDateByQuery
+      );
+      newActiveLivestreamsLastFetchedDateByQuery[query] = date;
+
       return {
         ...state,
         activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries),
-        activeLivestreamsLastFetchedDate,
+        activeLivestreamsLastFetchedDateByQuery: newActiveLivestreamsLastFetchedDateByQuery,
         activeLivestreamsLastFetchedFailCount: state.activeLivestreamsLastFetchedFailCount + 1,
       };
     },
     [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SUCCESS]: (state: LivestreamState, action: any) => {
-      const { query, activeLivestreams, activeLivestreamsLastFetchedDate } = action.data;
+      const { query, activeLivestreams, date } = action.data;
 
       const newActiveLivestreamsFetchingQueries = new Set(state.activeLivestreamsFetchingQueries);
-      newActiveLivestreamsFetchingQueries.delete(query);
+      if (newActiveLivestreamsFetchingQueries.has(query)) {
+        newActiveLivestreamsFetchingQueries.delete(query);
+      }
+
+      const newActiveLivestreamsByQuery = Object.assign({}, state.activeLivestreamsByQuery);
+      newActiveLivestreamsByQuery[query] = activeLivestreams;
+
+      const newActiveLivestreamsLastFetchedDateByQuery = Object.assign(
+        {},
+        state.activeLivestreamsLastFetchedDateByQuery
+      );
+      newActiveLivestreamsLastFetchedDateByQuery[query] = date;
 
       return {
         ...state,
         activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries),
+        activeLivestreamsByQuery: newActiveLivestreamsByQuery,
         activeLivestreams,
-        activeLivestreamsLastFetchedDate,
+        activeLivestreamsLastFetchedDateByQuery: newActiveLivestreamsLastFetchedDateByQuery,
         activeLivestreamsLastFetchedFailCount: 0,
         viewersById: updateViewersById(activeLivestreams, state.viewersById),
       };

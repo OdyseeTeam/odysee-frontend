@@ -5,7 +5,7 @@ import * as CS from 'constants/claim_search';
 import { SIMPLE_SITE } from 'config';
 import React from 'react';
 import ChannelsFollowingDiscoverPage from 'page/channelsFollowingDiscover';
-import LivestreamSection from 'page/discover/livestreamSection';
+import LivestreamSection from 'page/discover/internal/livestreamSection';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Page from 'component/page';
 import Button from 'component/button';
@@ -86,14 +86,7 @@ function ChannelsFollowingPage(props: Props) {
                 />
               </>
             }
-            subSection={
-              <LivestreamSection
-                tileLayout={tileLayout}
-                channelIds={channelIds}
-                activeLivestreams={activeLivestreams}
-                doFetchAllActiveLivestreamsForQuery={doFetchAllActiveLivestreamsForQuery}
-              />
-            }
+            subSection={<LivestreamSection tileLayout={tileLayout} channelIds={channelIds} />}
             hasSource
             csOptionsHook={tagSearchCsOptionsHook}
           />

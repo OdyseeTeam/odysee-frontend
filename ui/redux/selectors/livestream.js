@@ -22,9 +22,16 @@ const selectState = (state: State) => state.livestream || {};
 
 export const selectFetchingLivestreams = (state: State) => selectState(state).fetchingById;
 export const selectViewersById = (state: State) => selectState(state).viewersById;
+
+export const selectActiveLivestreamsByQuery = (state: State) => selectState(state).activeLivestreamsByQuery;
+export const selectActiveLivestreamsForQuery = (state: State, query: string) =>
+  selectActiveLivestreamsByQuery(state)[query];
+
 export const selectActiveLivestreams = (state: State) => selectState(state).activeLivestreams;
+
 export const selectActiveLivestreamsFetchingQueries = (state: State) =>
   selectState(state).activeLivestreamsFetchingQueries;
+
 export const selectActiveLivestreamInitialized = (state: State) => selectState(state).activeLivestreamInitialized;
 export const selectSocketConnectionById = (state: State) => selectState(state).socketConnectionById;
 
@@ -32,8 +39,11 @@ export const selectIsLivePollingChannelIds = (state: State) => selectState(state
 export const selectIsLivePollingForChannelId = (state: State, claimId: string) =>
   selectIsLivePollingChannelIds(state).includes(claimId);
 
-export const selectActiveLivestreamsLastFetchedDate = (state: State) =>
-  selectState(state).activeLivestreamsLastFetchedDate;
+export const selectActiveLivestreamsLastFetchedDateByQuery = (state: State) =>
+  selectState(state).activeLivestreamsLastFetchedDateByQuery;
+export const selectActiveLivestreamsLastFetchedDateForQuery = (state: State, query: string) =>
+  selectActiveLivestreamsLastFetchedDateByQuery(state)[query];
+
 export const selectActiveLivestreamsLastFetchedFailCount = (state: State) =>
   selectState(state).activeLivestreamsLastFetchedFailCount;
 
