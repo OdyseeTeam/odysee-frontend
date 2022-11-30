@@ -14,12 +14,7 @@ type Props = {
   closeForm: (newCollectionName?: string, newCollectionId?: string) => void,
   // -- redux --
   sourceCollectionName?: string,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri?: string,
-    collectionName: string,
-    createNew: boolean,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri?: string, collectionName: string, createNew: boolean }) => void,
 };
 
 function FormNewCollection(props: Props) {

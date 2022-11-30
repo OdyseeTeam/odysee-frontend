@@ -64,7 +64,7 @@ type State = {
   myPurchasedClaims: Array<any>, // bad naming; not a claim but a stripe response.
   fetchingMyPurchasedClaims: ?boolean,
   fetchingMyPurchasedClaimsError: ?string,
-  costInfosById: { [claimId: string]: CostInfo },
+  costInfosById: { [claimId: string]: { cost: number, includesData?: boolean } },
 };
 
 const reducers = {};

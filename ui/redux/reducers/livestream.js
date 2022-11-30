@@ -10,7 +10,7 @@ const defaultState: LivestreamState = {
   activeLivestreamsFetchingQueries: [],
   activeLivestreamsByQuery: {},
   activeLivestreams: {},
-  activeLivestreamsLastFetchedDateByQuery: 0,
+  activeLivestreamsLastFetchedDateByQuery: {},
   activeLivestreamsLastFetchedFailCount: 0,
   socketConnectionById: {},
   isLivePollingChannelIds: [],

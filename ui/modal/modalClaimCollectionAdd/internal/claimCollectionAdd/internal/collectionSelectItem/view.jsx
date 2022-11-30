@@ -11,12 +11,7 @@ type Props = {
   collection: Collection,
   collectionHasClaim: boolean,
   collectionPending: Collection,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string,
-    collectionName: string,
-    collectionId: string,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
 };
 
 function CollectionSelectItem(props: Props) {
