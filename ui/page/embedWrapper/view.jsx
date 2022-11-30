@@ -40,6 +40,8 @@ const EmbedWrapperPage = (props: Props) => {
     contentUnlocked,
   } = props;
 
+  const fetchedLiveStatus = React.useRef();
+
   const {
     location: { search },
   } = useHistory();
@@ -58,6 +60,7 @@ const EmbedWrapperPage = (props: Props) => {
   React.useEffect(() => {
     if (!latestClaimUrl && liveContentPath && channelClaimId) {
       doFetchChannelIsLiveForId(channelClaimId);
+      fetchedLiveStatus.current = true;
     }
   }, [channelClaimId, doFetchChannelIsLiveForId, latestClaimUrl, liveContentPath]);
 
@@ -99,7 +102,7 @@ const EmbedWrapperPage = (props: Props) => {
         'embed__wrapper--channel': isChannel,
       })}
     >
-      <EmbedContext.Provider value={{ setVideoEnded, videoEnded }}>
+      <EmbedContext.Provider value={{ setVideoEnded, videoEnded, fetchedLiveStatus: fetchedLiveStatus.current }}>
         <EmbedClaimComponent uri={uri} />
         <FileViewerEmbeddedTitle uri={uri} />
       </EmbedContext.Provider>

@@ -5,6 +5,8 @@ import analytics from 'analytics';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
+import { EmbedContext } from 'contexts/embed';
+
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
@@ -97,6 +99,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       ...otherProps
     } = props;
 
+    const embedContext = React.useContext(EmbedContext);
+
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
 
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
@@ -106,7 +110,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
     const urlParams = search && new URLSearchParams(search);
     const collectionId =
-      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) || (playingUri.uri === uri && playingCollectionId) || undefined;
+      (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) ||
+      (playingUri.uri === uri && playingCollectionId) ||
+      undefined;
     const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
 
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
@@ -193,10 +199,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
     React.useEffect(() => {
-      if (isLivestreamClaim && !alreadyListeningForIsLive) {
+      if (isLivestreamClaim && !alreadyListeningForIsLive && !embedContext?.fetchedLiveStatus) {
         doFetchChannelIsLiveForId(channelClaimId);
       }
-    }, [alreadyListeningForIsLive, channelClaimId, doFetchChannelIsLiveForId, isLivestreamClaim]);
+    }, [alreadyListeningForIsLive, channelClaimId, doFetchChannelIsLiveForId, embedContext, isLivestreamClaim]);
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
