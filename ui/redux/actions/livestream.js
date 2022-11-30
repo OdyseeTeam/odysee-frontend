@@ -121,7 +121,10 @@ export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch:
 };
 
 export const doFetchAllActiveLivestreamsForQuery = (
-  query?: { order_by: Array<string>, any_languages: ?Array<string> } = { orderBy: ['release_time'], lang: null }
+  query?: { order_by: Array<string>, any_languages: ?Array<string> } = {
+    order_by: ['release_time'],
+    any_languages: null,
+  }
 ) => async (dispatch: Dispatch, getState: GetState) => {
   const { order_by: orderBy, any_languages: lang } = query;
 

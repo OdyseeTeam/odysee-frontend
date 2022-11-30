@@ -69,12 +69,7 @@ type Props = {
   lastUsedCollectionIsNotBuiltin: boolean,
   doRemovePersonalRecommendation: (uri: string) => void,
   collectionEmpty: boolean,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string,
-    collectionName: string,
-    collectionId: string,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
   isContentProtectedAndLocked: boolean,
 };
 

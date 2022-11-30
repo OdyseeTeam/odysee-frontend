@@ -9,12 +9,7 @@ type Props = {
   uri: string,
   focusable: boolean,
   hasClaimInWatchLater: boolean,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string,
-    collectionName: string,
-    collectionId: string,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
 };
 
 function FileWatchLaterLink(props: Props) {

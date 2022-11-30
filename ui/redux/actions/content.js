@@ -336,8 +336,10 @@ export function doPlaylistAddAndAllowPlaying({
       } else {
         const uriToStartPlaying = firstItemUri || uri;
 
-        await dispatch(doResolveUri(uriToStartPlaying, true));
-        dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
+        if (uriToStartPlaying) {
+          await dispatch(doResolveUri(uriToStartPlaying, true));
+          dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
+        }
       }
     };
 
