@@ -4,7 +4,7 @@ import { selectUser } from 'redux/selectors/user';
 import PortalPage from './view';
 
 const select = (state) => {
-  const homepageData = selectHomepageData(state);
+  const homepageData = selectHomepageData(state) || {};
   const { portals } = homepageData;
   const { mainPortal } = portals || {};
   const user = selectUser(state);

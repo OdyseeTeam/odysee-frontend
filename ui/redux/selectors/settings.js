@@ -69,13 +69,15 @@ export const selectLanguage = (state) => {
 export const selectHomepageData = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = window.homepages;
+
   if (homepages && homepages[homepageCode] && !homepages[homepageCode].portals) {
     homepages[homepageCode].portals = homepages['en'].portals;
   }
   if (homepages && homepages[homepageCode] && !homepages[homepageCode].featured) {
     homepages[homepageCode].featured = homepages['en'].featured;
   }
-  return homepages ? homepages[homepageCode] || homepages['en'] || {} : {};
+
+  return homepages ? homepages[homepageCode] || homepages['en'] || {} : undefined;
 };
 
 export const selectHomepageMeme = (state) => {

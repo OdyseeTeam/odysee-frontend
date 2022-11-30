@@ -21,7 +21,7 @@ const select = (state) => ({
   subscribedChannels: selectSubscriptions(state),
   authenticated: selectUserVerifiedEmail(state),
   showNsfw: selectShowMatureContent(state),
-  homepageData: selectHomepageData(state),
+  homepageData: selectHomepageData(state) || {},
   homepageMeme: selectHomepageMeme(state),
   homepageFetched: selectHomepageFetched(state),
   activeLivestreams: selectActiveLivestreams(state),
