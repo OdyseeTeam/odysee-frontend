@@ -24,6 +24,9 @@ export default function Portals(props: Props) {
   const [hover, setHover] = React.useState(undefined);
   const [kill, setKill] = React.useState(false);
 
+  const width = window.innerWidth - 200;
+  const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
+
   if (portals && portals.mainPortal) {
     portals.mainPortal.portals = portals.mainPortal.portals.concat(portals.mainPortal.portals);
     portals.mainPortal.portals = portals.mainPortal.portals.splice(0, 6);
@@ -87,8 +90,16 @@ export default function Portals(props: Props) {
 
   return portals && portals.mainPortal ? (
     <div
+      id="portals"
       className={classnames('portals-wrapper', { kill: kill })}
-      style={{ backgroundImage: 'url(' + portals.mainPortal.background + ')' }}
+      style={{
+        backgroundImage:
+          'url(https://thumbnails.odycdn.com/optimize/s:' +
+          imageWidth +
+          ':0/quality:95/plain/' +
+          portals.mainPortal.background +
+          ')',
+      }}
     >
       <h1>{portals.mainPortal.description}</h1>
       {portals.mainPortal.portals.map((portal, i) => {
@@ -116,17 +127,6 @@ export default function Portals(props: Props) {
           </div>
         );
       })}
-      {/*
-        <div className="portal-browse left">‹</div>
-        <div className="portal-browse right">›</div>
-
-        <div className="portal-page-indicator">
-          <div />
-          <div />
-          <div />
-          <div />
-        </div>
-      */}
       {authenticated && (
         <div className="portals-remove" onClick={() => removePortals()}>
           <Icon icon={ICONS.REMOVE} />

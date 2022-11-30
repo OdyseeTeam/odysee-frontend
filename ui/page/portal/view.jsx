@@ -7,15 +7,15 @@ import Portals from 'component/portals';
 import './style.scss';
 
 type Props = {
-  // uri: string,
   portals: any,
   homepageData: any,
+  showViews: boolean,
 };
 
 export const PortalContext = React.createContext<any>();
 
 function PortalPage(props: Props) {
-  const { portals, homepageData } = props;
+  const { portals, homepageData, showViews } = props;
   const [portal, setIndex] = React.useState(undefined);
   const [displayedTiles, setDisplayedTiles] = React.useState(0);
 
@@ -62,6 +62,7 @@ function PortalPage(props: Props) {
             tileLayout
             showHeader={false}
             loadedCallback={setDisplayedTiles}
+            fetchViewCount={showViews}
           />
         </div>
         {homepageData && displayedTiles >= portal.claimIds.videos.length - 3 && (

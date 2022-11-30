@@ -6,6 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
 import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
+import { useHistory } from 'react-router';
 import './style.scss';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
@@ -27,6 +28,8 @@ export default function FeaturedBanner(props: Props) {
   const [pause, setPause] = React.useState(false);
   const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
+  const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
+  const { push } = useHistory();
 
   React.useEffect(() => {
     if (featured && width) {
@@ -58,6 +61,22 @@ export default function FeaturedBanner(props: Props) {
     return {
       pathname: uri,
     };
+  }
+
+  function handleAnchor(e, uri) {
+    if (uri.charAt(0) !== '#') {
+      return;
+    }
+    e.preventDefault();
+    const anchor = document.getElementById(uri.substring(1));
+    if (anchor) {
+      window.scrollTo({
+        top: anchor && anchor.offsetTop,
+        behavior: 'smooth',
+      });
+    } else {
+      push('$/portal/adventureaddict');
+    }
   }
 
   const NON_CATEGORY = Object.freeze({
@@ -127,6 +146,7 @@ export default function FeaturedBanner(props: Props) {
             return (
               <NavLink
                 className="featured-banner-image"
+                onClick={(e) => handleAnchor(e, item.url)}
                 to={getUriTo(item.url)}
                 target={!item.url.includes('odysee.com') ? '_blank' : undefined}
                 title={item.label}
@@ -134,7 +154,7 @@ export default function FeaturedBanner(props: Props) {
                 style={{ minWidth: width }}
               >
                 <img
-                  src={'https://thumbnails.odycdn.com/optimize/s:1735:0/quality:95/plain/' + item.image}
+                  src={'https://thumbnails.odycdn.com/optimize/s:' + imageWidth + ':0/quality:95/plain/' + item.image}
                   style={{ width: width }}
                 />
               </NavLink>
