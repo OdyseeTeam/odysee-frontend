@@ -50,6 +50,7 @@ export const selectRepostError = (state: State) => selectState(state).repostErro
 export const selectLatestByUri = (state: State) => selectState(state).latestByUri;
 export const selectResolvedCollectionsById = (state: State) => selectState(state).resolvedCollectionsById;
 export const selectMyCollectionClaimIds = (state: State) => selectState(state).myCollectionClaimIds;
+export const selectCostInfosById = (state: State) => selectState(state).costInfosById;
 
 export const selectMyCollectionClaimsById = createSelector(
   selectResolvedCollectionsById,
@@ -1129,10 +1130,13 @@ export const selectClaimHasSupportsForUri = (state: State, uri: string) => {
 };
 
 export const selectCostInfoForUri = (state: State, uri: string) => {
-  const claim = selectClaimForUri(state, uri);
-  if (!claim) return claim;
+  const claimId = selectClaimIdForUri(state, uri);
+  if (!claimId) return claimId;
 
-  return claim.costInfo;
+  const byId = selectCostInfosById(state);
+  const costInfo = byId[claimId];
+
+  return costInfo;
 };
 
 export const selectSdkFeePendingForUri = (state: State, uri: string) => {
