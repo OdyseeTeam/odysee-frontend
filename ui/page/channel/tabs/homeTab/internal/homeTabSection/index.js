@@ -49,11 +49,6 @@ const select = (state, props) => {
   const claimSearchResults =
     requiresSearch && !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined;
 
-  if (props.section.type === 'channels') {
-    // console.log('props: ', props)
-    // console.log('requiresSearch: ',requiresSearch)
-  }
-
   return {
     fetchingClaimSearch,
     claimSearchResults,

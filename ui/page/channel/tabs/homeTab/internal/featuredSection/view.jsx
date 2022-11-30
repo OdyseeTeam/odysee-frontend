@@ -20,13 +20,17 @@ type Props = {
   description: string,
   // --- select ---
   claim: ChannelClaim,
+  geoRestriction: boolean,
   // ---perform ---
   doResolveClaimId: (claimId: string) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
 };
 
 function FeaturedSection(props: Props) {
-  const { uri, claimId, claim, description, doResolveClaimId, doFetchViewCount } = props;
+  const { uri, claimId, claim, geoRestriction, description, doResolveClaimId, doFetchViewCount } = props;
+  if (geoRestriction) {
+    return null;
+  }
 
   const navigateUrl = formatLbryUrlForWeb(uri || '/');
   const navLinkProps = {
