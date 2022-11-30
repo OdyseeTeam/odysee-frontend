@@ -5,8 +5,6 @@ import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { FormField } from 'component/common/form';
-import { useHistory } from 'react-router';
-import { formatLbryUrlForWeb } from 'util/url';
 import Button from 'component/button';
 
 type Props = {
@@ -27,11 +25,6 @@ type Props = {
 function FormNewCollection(props: Props) {
   const { uri, sourceId, onlyCreate, closeForm, sourceCollectionName, doPlaylistAddAndAllowPlaying } = props;
 
-  const {
-    push,
-    location: { search },
-  } = useHistory();
-
   const buttonref: ElementRef<any> = React.useRef();
 
   const [newCollectionName, setCollectionName] = React.useState(
@@ -47,20 +40,11 @@ function FormNewCollection(props: Props) {
     const name = newCollectionName;
     let id;
 
-    const urlParams = new URLSearchParams(search);
-    urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, COLLECTIONS_CONSTS.WATCH_LATER_ID);
-
     doPlaylistAddAndAllowPlaying({
       uri,
       collectionName: name,
       sourceId,
       createNew: true,
-      push: (pushUri) =>
-        push({
-          pathname: formatLbryUrlForWeb(pushUri),
-          search: urlParams.toString(),
-          state: { collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID, forceAutoplay: true },
-        }),
       createCb: !sourceId
         ? undefined
         : (newId) => {
