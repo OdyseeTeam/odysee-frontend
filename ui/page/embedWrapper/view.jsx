@@ -103,7 +103,7 @@ const EmbedWrapperPage = (props: Props) => {
       })}
     >
       <EmbedContext.Provider value={{ setVideoEnded, videoEnded, fetchedLiveStatus: fetchedLiveStatus.current }}>
-        <EmbedClaimComponent uri={uri} />
+        <EmbedClaimComponent uri={uri} latestClaimUrl={latestClaimUrl} />
         <FileViewerEmbeddedTitle uri={uri} />
       </EmbedContext.Provider>
     </div>
