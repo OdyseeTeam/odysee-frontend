@@ -9,8 +9,6 @@ import CollectionEditButtons from 'component/collectionEditButtons';
 import LivestreamLink from 'component/livestreamLink';
 import './style.scss';
 
-import withLiveStatus from 'hocs/withLiveStatus';
-
 type Props = {
   uri: string,
   preferEmbed: boolean,
@@ -140,7 +138,7 @@ function HomeTab(props: Props) {
           </div>
         )}
 
-        {!editMode && <LivestreamLinkRender uri={props.uri} poll />}
+        {!editMode && <LivestreamLink uri={props.uri} poll />}
 
         {home &&
           !preferEmbed &&
@@ -192,11 +190,5 @@ function HomeTab(props: Props) {
     )
   );
 }
-
-const LivestreamLinkRender = withLiveStatus(({ uri }: { uri: string }) => (
-  <div className="home-section-live">
-    <LivestreamLink claimUri={uri} />
-  </div>
-));
 
 export default HomeTab;

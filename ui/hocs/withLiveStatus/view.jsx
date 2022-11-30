@@ -4,6 +4,7 @@ import React from 'react';
 import { LIVESTREAM_STATUS_CHECK_INTERVAL_SOON, LIVESTREAM_STATUS_CHECK_INTERVAL } from 'constants/livestream';
 
 type Props = {
+  uri?: string,
   poll?: boolean,
   fasterPoll?: boolean,
   // -- redux --
@@ -24,6 +25,7 @@ type Props = {
 const withLiveStatus = (Component: FunctionalComponentParam) => {
   const LiveStatusWrapper = (props: Props) => {
     const {
+      uri,
       poll,
       fasterPoll,
       // -- redux --
@@ -32,6 +34,8 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
       alreadyListeningForIsLive,
       doFetchChannelIsLiveForId,
       doSetIsLivePollingForChannelId,
+
+      ...otherProps
     } = props;
 
     const isPolling = React.useRef(false);
@@ -39,6 +43,7 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
     // if already polling, or listening for is_live, but not from this component. Don't poll/call again
     // otherwise keep polling in this component
     const outsitePolling = alreadyListeningForIsLive && !isPolling.current;
+    const claimUri = activeLivestreamForChannel && activeLivestreamForChannel.claimUri;
 
     // Find out current channels status + active live claim every 30 seconds
     React.useEffect(() => {
@@ -71,8 +76,8 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- only unmount
     }, []);
 
-    if (activeLivestreamForChannel) {
-      return <Component uri={activeLivestreamForChannel.claimUri} />;
+    if (claimUri && claimUri !== uri) {
+      return <Component claimUri={activeLivestreamForChannel.claimUri} {...otherProps} />;
     }
 
     return null;
