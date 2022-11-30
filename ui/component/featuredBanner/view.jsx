@@ -27,6 +27,7 @@ export default function FeaturedBanner(props: Props) {
   const [pause, setPause] = React.useState(false);
   const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
+  const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
 
   React.useEffect(() => {
     if (featured && width) {
@@ -134,7 +135,7 @@ export default function FeaturedBanner(props: Props) {
                 style={{ minWidth: width }}
               >
                 <img
-                  src={'https://thumbnails.odycdn.com/optimize/s:1735:0/quality:95/plain/' + item.image}
+                  src={'https://thumbnails.odycdn.com/optimize/s:' + imageWidth + ':0/quality:95/plain/' + item.image}
                   style={{ width: width }}
                 />
               </NavLink>
