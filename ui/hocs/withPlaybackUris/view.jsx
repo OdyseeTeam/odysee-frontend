@@ -43,7 +43,7 @@ const withPlaybackUris = (Component: FunctionalComponentParam) => {
         }
       }
 
-      return autoplayNext && !isLivestreamClaim ? nextRecommendedUri : undefined;
+      return autoplayNext && !isLivestreamClaim ? nextRecommendedUri : null;
     }, [autoplayNext, currentPlaylistItemIndex, isLivestreamClaim, nextPlaylistUri, nextRecommendedUri]);
 
     // and "play previous" behaviours

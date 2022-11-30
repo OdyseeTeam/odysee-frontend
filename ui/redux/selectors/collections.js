@@ -540,6 +540,13 @@ export const selectIndexForUriInPlayingCollectionForId = createSelector(
   }
 );
 
+export const selectIsLastCollectionItemForIdAndUri = (state: State, collectionId: string, uri: string) => {
+  const index = selectIndexForUrlInCollectionForId(state, collectionId, uri);
+  const length = selectCollectionLengthForId(state, collectionId);
+
+  return index === length - 1;
+};
+
 export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelector(
   selectUrlsForCollectionId,
   selectIndexForUriInPlayingCollectionForId,
