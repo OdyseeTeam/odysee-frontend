@@ -95,12 +95,7 @@ export default function LivestreamLayout(props: Props) {
               </div>
             )}
 
-            {activeStreamUri !== uri && (
-              <LivestreamLink
-                title={__("Click here to access the stream that's currently active")}
-                claimUri={activeStreamUri}
-              />
-            )}
+            <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} poll />
 
             {isMobile && !isLandscapeRotated && !chatDisabled && contentUnlocked && (
               <React.Suspense fallback={null}>

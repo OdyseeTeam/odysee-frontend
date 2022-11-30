@@ -20,8 +20,6 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { tagSearchCsOptionsHook } from 'util/search';
 
-import withLiveStatus from 'hocs/withLiveStatus';
-
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
 type Props = {
@@ -116,7 +114,7 @@ function ContentTab(props: Props) {
         <HiddenNsfwClaims uri={uri} />
       )}
 
-      <LivestreamLinkRender uri={uri} poll />
+      <LivestreamLink uri={uri} poll />
 
       {!fetching && showScheduledLiveStreams && (
         <ScheduledStreams
@@ -220,7 +218,5 @@ function ContentTab(props: Props) {
     </Fragment>
   );
 }
-
-const LivestreamLinkRender = withLiveStatus(({ uri }: { uri: string }) => <LivestreamLink claimUri={uri} />);
 
 export default ContentTab;
