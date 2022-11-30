@@ -11,7 +11,7 @@ import { getChannelIdFromClaim } from 'util/claim';
 
 import {
   selectActiveLivestreamsFetchingForQuery,
-  selectActiveLivestreamsLastFetchedDate,
+  selectActiveLivestreamsLastFetchedDateForQuery,
   selectActiveLivestreamsLastFetchedFailCount,
 } from 'redux/selectors/livestream';
 
@@ -115,19 +115,18 @@ export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch:
 };
 
 export const doFetchAllActiveLivestreamsForQuery = (
-  query?: { orderBy: Array<string>, lang: ?Array<string> } = { orderBy: ['release_time'], lang: null }
+  query?: { order_by: Array<string>, any_languages: ?Array<string> } = { orderBy: ['release_time'], lang: null }
 ) => async (dispatch: Dispatch, getState: GetState) => {
-  const { orderBy, lang } = query;
+  const { order_by: orderBy, any_languages: lang } = query;
 
   const state = getState();
-  const queryParams = { order_by: orderBy, ...(lang ? { any_languages: lang } : {}) };
-  const queryStr = JSON.stringify(queryParams);
+  const queryStr = JSON.stringify(query);
   const alreadyFetching = selectActiveLivestreamsFetchingForQuery(state, queryStr);
 
   if (alreadyFetching) return;
 
   const now = Date.now();
-  const activeLivestreamsLastFetchedDate = selectActiveLivestreamsLastFetchedDate(state);
+  const activeLivestreamsLastFetchedDate = selectActiveLivestreamsLastFetchedDateForQuery(state, queryStr);
   const timeDelta = now - activeLivestreamsLastFetchedDate;
 
   if (timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
@@ -139,7 +138,7 @@ export const doFetchAllActiveLivestreamsForQuery = (
     }
   }
 
-  const completedParams = { query: queryStr, activeLivestreamsLastFetchedDate: now };
+  const completedParams = { query: queryStr, date: now };
 
   dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_START, data: queryStr });
 

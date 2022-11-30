@@ -2,13 +2,11 @@
 import React from 'react';
 import Button from 'component/button';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import ClaimListDiscover from 'component/claimListDiscover';
 import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { getLivestreamUris } from 'util/livestream';
-import { resolveLangForClaimSearch } from 'util/default-languages';
 
 const DEFAULT_LIVESTREAM_TILE_LIMIT = 8;
 const SECTION = Object.freeze({ COLLAPSED: 1, EXPANDED: 2 });
@@ -24,13 +22,11 @@ type Props = {
   tileLayout: boolean,
   channelIds?: Array<string>,
   excludedChannelIds?: Array<string>,
+  hideMembersOnlyContent?: boolean,
+  // -- redux --
+  livestreamSectionQueryStr: string,
   activeLivestreams: ?ActiveLivestreamInfosById,
   doFetchAllActiveLivestreamsForQuery: (query?: { orderBy: ?Array<string>, lang: ?Array<string> }) => void,
-  searchLanguages?: Array<string>,
-  languageSetting?: string,
-  searchInLanguage?: boolean,
-  langParam?: string | null,
-  hideMembersOnlyContent?: boolean,
 };
 
 export default function LivestreamSection(props: Props) {
@@ -38,13 +34,11 @@ export default function LivestreamSection(props: Props) {
     tileLayout,
     channelIds,
     excludedChannelIds,
+    hideMembersOnlyContent,
+    // -- redux --
+    livestreamSectionQueryStr,
     activeLivestreams,
     doFetchAllActiveLivestreamsForQuery,
-    searchLanguages,
-    languageSetting,
-    searchInLanguage,
-    langParam,
-    hideMembersOnlyContent,
   } = props;
 
   const [liveSectionStore, setLiveSectionStore] = usePersistedState('discover:lsSection', SECTION.COLLAPSED);
@@ -71,12 +65,8 @@ export default function LivestreamSection(props: Props) {
   }, [liveSection, setLiveSectionStore, liveSectionStore]);
 
   React.useEffect(() => {
-    // Fetch active livestreams on mount
-    const langCsv = resolveLangForClaimSearch(languageSetting, searchInLanguage, searchLanguages, langParam);
-    const lang = langCsv ? langCsv.split(',') : null;
-    doFetchAllActiveLivestreamsForQuery({ orderBy: CS.ORDER_BY_NEW_VALUE, lang });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount only
-  }, []);
+    doFetchAllActiveLivestreamsForQuery(JSON.parse(livestreamSectionQueryStr));
+  }, [doFetchAllActiveLivestreamsForQuery, livestreamSectionQueryStr]);
 
   React.useEffect(() => {
     // Maintain y-position when expanding livestreams section:
