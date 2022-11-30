@@ -153,6 +153,11 @@ export const selectActiveLivestreamForChannel = createCachedSelector(
   }
 )((state, channelId) => String(channelId));
 
+export const selectChannelIsLiveFetchedForUri = (state: State, uri: string) => {
+  const channelId = selectChannelClaimIdForUri(state, uri);
+  return selectActiveLivestreamForChannel(state, channelId) !== undefined;
+};
+
 export const selectActiveStreamUriForClaimUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
   if (!channelId) return channelId;

@@ -45,6 +45,7 @@ type Props = {
   pendingUnlockedRestrictions: ?boolean,
   canViewFile: ?boolean,
   alreadyListeningForIsLive: boolean,
+  channelLiveFetched: boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFileGetForUri: (uri: string) => void,
   doMembershipMine: () => void,
@@ -89,6 +90,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       pendingUnlockedRestrictions,
       canViewFile,
       alreadyListeningForIsLive,
+      channelLiveFetched,
       doCheckIfPurchasedClaimId,
       doFileGetForUri,
       doMembershipMine,
@@ -218,13 +220,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Loading State -- return before component render
-    if (!streamingUrl || embeddedLivestreamPendingStart) {
-      if (streamStarted && livestreamUnplayable) {
+    if (!streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
+      if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri} />;
       }
 
-      if (streamStarted || streamStartPending) {
+      if (streamStarted || streamStartPending || livestreamUnplayable) {
         return <LoadingScreen transparent={!isPlayable} />;
       }
 
