@@ -50,6 +50,7 @@ import {
   selectIsPlayableForUri,
   selectCanPlaybackFileForUri,
 } from 'redux/selectors/content';
+import { doResolveUri } from 'redux/actions/claims';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
 
@@ -117,7 +118,8 @@ export const doSetPrimaryUri = (uri: ?string) => async (dispatch: Dispatch, getS
   dispatch({ type: ACTIONS.SET_PRIMARY_URI, data: { uri } });
 
 export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null, collection: {} }));
-export const doClearPlayingSource = () => (dispatch: Dispatch) => dispatch(doChangePlayingUri({ source: null, collection: {} }));
+export const doClearPlayingSource = () => (dispatch: Dispatch) =>
+  dispatch(doChangePlayingUri({ source: null, collection: {} }));
 export const doClearPlayingCollection = () => (dispatch: Dispatch) =>
   dispatch(doChangePlayingUri({ collection: { collectionId: null } }));
 
@@ -213,18 +215,23 @@ export const doStartFloatingPlayingUri = (playingOptions: PlayingUri) => async (
   return dispatch(doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {} }));
 };
 
-export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: Dispatch, getState: GetState) => {
+export const doPlayNextUri = ({ uri: nextUri, collectionId }: { uri: string, collectionId?: string }) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   const state = getState();
   const isFloating = selectIsPlayerFloating(state);
-  const playingCollectionId = selectPlayingCollectionId(state);
-  const isNextUriInCollection = playingCollectionId && selectCollectionForIdHasClaimUrl(state, playingCollectionId, nextUri);
 
-  if (!isFloating) {
+  const nextCollectionId = collectionId || selectPlayingCollectionId(state);
+  const isNextUriInCollection = nextCollectionId && selectCollectionForIdHasClaimUrl(state, nextCollectionId, nextUri);
+  const floatingPlayerEnabled = nextCollectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
+
+  if ((!collectionId && !isFloating) || !floatingPlayerEnabled) {
     dispatch(
       push({
         pathname: formatLbryUrlForWeb(nextUri),
         ...(isNextUriInCollection
-          ? { search: generateListSearchUrlParams(playingCollectionId), state: { collectionId: playingCollectionId } }
+          ? { search: generateListSearchUrlParams(nextCollectionId), state: { collectionId: nextCollectionId } }
           : {}),
       })
     );
@@ -239,7 +246,7 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
     dispatch(
       doChangePlayingUri({
         uri: null,
-        collection: { collectionId: isNextUriInCollection ? playingCollectionId : null },
+        collection: { collectionId: isNextUriInCollection ? nextCollectionId : null },
       })
     );
 
@@ -249,7 +256,7 @@ export const doPlayNextUri = ({ uri: nextUri }: { uri: string }) => (dispatch: D
   dispatch(
     doStartFloatingPlayingUri({
       uri: nextUri,
-      ...(isNextUriInCollection ? { collection: { collectionId: playingCollectionId } } : {}),
+      ...(isNextUriInCollection ? { collection: { collectionId: nextCollectionId } } : {}),
     })
   );
 
@@ -262,7 +269,6 @@ export function doPlaylistAddAndAllowPlaying({
   collectionId: id,
   sourceId,
   createNew,
-  push: pushPlay,
   createCb,
 }: {
   uri?: string,
@@ -270,7 +276,6 @@ export function doPlaylistAddAndAllowPlaying({
   collectionId?: string,
   sourceId?: string,
   createNew?: boolean,
-  push?: (uri: string) => void,
   createCb?: (id: string) => void,
 }) {
   return (dispatch: Dispatch, getState: () => any) => {
@@ -324,14 +329,15 @@ export function doPlaylistAddAndAllowPlaying({
 
     const isPlayingCollection = collectionPlayingId && collectionId && collectionPlayingId === collectionId;
     const hasItemPlaying = playingUri.uri && !isUriPlaying;
-    // const floatingPlayerEnabled =
-    //   playingUri.collection.collectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
 
-    const startPlaying = () => {
+    const startPlaying = async () => {
       if (isUriPlaying) {
         dispatch(doChangePlayingUri({ collection: { collectionId } }));
       } else {
-        dispatch(doStartFloatingPlayingUri({ uri: firstItemUri || uri, collection: { collectionId } }));
+        const uriToStartPlaying = firstItemUri || uri;
+
+        await dispatch(doResolveUri(uriToStartPlaying, true));
+        dispatch(doStartFloatingPlayingUri({ uri: uriToStartPlaying, collection: { collectionId } }));
       }
     };
 

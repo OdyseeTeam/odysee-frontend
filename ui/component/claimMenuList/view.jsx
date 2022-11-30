@@ -12,7 +12,7 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-import { generateShareUrl, generateRssUrl, generateLbryContentUrl, formatLbryUrlForWeb } from 'util/url';
+import { generateShareUrl, generateRssUrl, generateLbryContentUrl } from 'util/url';
 import { useHistory } from 'react-router';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { EmbedContext } from 'contexts/embed';
@@ -129,11 +129,7 @@ function ClaimMenuList(props: Props) {
 
   const isChannelPage = React.useContext(ChannelPageContext);
 
-  const {
-    push,
-    replace,
-    location: { search },
-  } = useHistory();
+  const { push, replace } = useHistory();
 
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
   const isChannel = !incognitoClaim && !contentSigningChannel;
@@ -171,20 +167,7 @@ function ClaimMenuList(props: Props) {
     const itemUrl = contentClaim?.permanent_url;
 
     if (itemUrl) {
-      const urlParams = new URLSearchParams(search);
-      urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
-
-      doPlaylistAddAndAllowPlaying({
-        uri: itemUrl,
-        collectionName: name,
-        collectionId,
-        push: (pushUri) =>
-          push({
-            pathname: formatLbryUrlForWeb(pushUri),
-            search: urlParams.toString(),
-            state: { collectionId, forceAutoplay: true },
-          }),
-      });
+      doPlaylistAddAndAllowPlaying({ uri: itemUrl, collectionName: name, collectionId });
     }
   }
 

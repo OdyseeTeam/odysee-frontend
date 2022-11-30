@@ -3,9 +3,7 @@ import * as ICONS from 'constants/icons';
 import React, { useRef } from 'react';
 import Button from 'component/button';
 import useHover from 'effects/use-hover';
-import { useHistory } from 'react-router';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { formatLbryUrlForWeb } from 'util/url';
 
 type Props = {
   uri: string,
@@ -22,30 +20,16 @@ type Props = {
 function FileWatchLaterLink(props: Props) {
   const { uri, hasClaimInWatchLater, focusable = true, doPlaylistAddAndAllowPlaying } = props;
 
-  const {
-    push,
-    location: { search },
-  } = useHistory();
-
   const buttonRef = useRef();
   let isHovering = useHover(buttonRef);
 
   function handleWatchLater(e) {
     if (e) e.preventDefault();
 
-    const urlParams = new URLSearchParams(search);
-    urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, COLLECTIONS_CONSTS.WATCH_LATER_ID);
-
     doPlaylistAddAndAllowPlaying({
       uri,
       collectionName: COLLECTIONS_CONSTS.WATCH_LATER_NAME,
       collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID,
-      push: (pushUri) =>
-        push({
-          pathname: formatLbryUrlForWeb(pushUri),
-          search: urlParams.toString(),
-          state: { collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID, forceAutoplay: true },
-        }),
     });
   }
 
