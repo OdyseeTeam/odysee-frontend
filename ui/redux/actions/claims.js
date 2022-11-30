@@ -31,16 +31,17 @@ import { PAGE_SIZE } from 'constants/claim';
 let onChannelConfirmCallback;
 let checkPendingInterval;
 
-async function getCostInfoForFee(fee: Fee) {
+async function getCostInfoForFee(claimId: string, fee: Fee) {
   if (fee === undefined) {
-    return Promise.resolve({ cost: 0, includesData: true });
+    return Promise.resolve({ claimId, cost: 0, includesData: true });
   }
 
   if (fee.currency === 'LBC') {
-    return Promise.resolve({ cost: fee.amount, includesData: true });
+    return Promise.resolve({ claimId, cost: fee.amount, includesData: true });
   }
 
   const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
+    claimId,
     cost: Number(fee.amount) / LBC_USD,
     includesData: true,
   }));
@@ -89,6 +90,7 @@ export function doResolveUris(
         const repostsToResolve = new Set([]);
         const streamClaimIds = new Set([]);
         const channelClaimIds = new Set([]);
+        const costInfos = new Set();
 
         const resolveInfo: {
           [uri: string]: {
@@ -156,7 +158,7 @@ export function doResolveUris(
               }
 
               // $FlowFixMe
-              stream.costInfo = await getCostInfoForFee(stream.value ? stream.value.fee : undefined);
+              costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
             }
 
             const channelId = getChannelIdFromClaim(uriResolveInfo);
@@ -167,6 +169,11 @@ export function doResolveUris(
         }
 
         dispatch({ type: ACTIONS.RESOLVE_URIS_SUCCESS, data: { resolveInfo } });
+
+        if (costInfos.size > 0) {
+          const settledCostInfosById = await Promise.all(Array.from(costInfos));
+          dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
+        }
 
         if (streamClaimIds.size > 0) {
           dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
@@ -723,23 +730,24 @@ export function doClaimSearch(
       data: { query: query },
     });
 
-    const success = (data: ClaimSearchResponse) => {
+    const success = async (data: ClaimSearchResponse) => {
       const resolveInfo = {};
       const urls = [];
       const streamClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
+      const costInfos = new Set();
       const fiatClaimIds = [];
       let collectionResolveInfo;
       const shouldFetchPurchases = settings.fetchStripeTransactions && !options.has_no_source;
 
-      data.items.forEach(async (stream: Claim) => {
+      data.items.some((stream: Claim, index: number) => {
         resolveInfo[stream.canonical_url] = { stream };
         urls.push(stream.canonical_url);
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           streamClaimIds.add(stream.claim_id);
           // $FlowFixMe
-          stream.costInfo = await getCostInfoForFee(stream.value ? stream.value.fee : undefined);
+          costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
         }
 
         if (stream.value_type === 'collection') {
@@ -765,6 +773,11 @@ export function doClaimSearch(
           pageSize: options.page_size,
         },
       });
+
+      if (costInfos.size > 0) {
+        const settledCostInfosById = await Promise.all(Array.from(costInfos));
+        dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
+      }
 
       if (collectionResolveInfo) {
         dispatch({ type: ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED, data: { resolveInfo: collectionResolveInfo } });
@@ -1025,7 +1038,10 @@ export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => 
     .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
 };
 
-export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (dispatch: Dispatch, getState: GetState) => {
+export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   dispatch({ type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_STARTED, data: channelId });
 
   return await dispatch(
