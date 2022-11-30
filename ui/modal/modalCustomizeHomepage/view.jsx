@@ -22,7 +22,6 @@ type Props = {
 
 export default function ModalCustomizeHomepage(props: Props) {
   const { homepageOrder, alsoApplyToSidebar, doSetClientSetting, doToast, doOpenModal, doHideModal } = props;
-
   const [applyToSidebar, setApplyToSidebar] = React.useState(alsoApplyToSidebar);
   const order = React.useRef();
 
