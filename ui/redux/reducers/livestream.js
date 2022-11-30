@@ -6,6 +6,7 @@ import { handleActions } from 'util/redux-utils';
 const defaultState: LivestreamState = {
   fetchingById: {},
   viewersById: {},
+  isLiveFetchingIds: [],
   activeLivestreamsFetchingQueries: [],
   activeLivestreamsByQuery: {},
   activeLivestreams: {},
@@ -122,13 +123,26 @@ export default handleActions(
       };
     },
 
+    [ACTIONS.LIVESTREAM_IS_LIVE_START]: (state: LivestreamState, action: any) => {
+      const channelId = action.data;
+
+      const newIsLiveFetchingIds = new Set(state.isLiveFetchingIds);
+      newIsLiveFetchingIds.add(channelId);
+
+      return { ...state, isLiveFetchingIds: Array.from(newIsLiveFetchingIds) };
+    },
     [ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE]: (state: LivestreamState, action: any) => {
       const channelStatus: ActiveLivestreamInfosById = action.data;
+      const channelId = Object.keys(channelStatus)[0];
+
+      const newIsLiveFetchingIds = new Set(state.isLiveFetchingIds);
+      if (newIsLiveFetchingIds.has(channelId)) newIsLiveFetchingIds.delete(channelId);
 
       const newActiveLivestreams = Object.assign({}, state.activeLivestreams, channelStatus);
 
       return {
         ...state,
+        isLiveFetchingIds: Array.from(newIsLiveFetchingIds),
         activeLivestreams: newActiveLivestreams,
         viewersById: updateViewersById(newActiveLivestreams, state.viewersById),
       };

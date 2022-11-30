@@ -10,6 +10,7 @@ import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
 import { getChannelIdFromClaim } from 'util/claim';
 
 import {
+  selectIsLiveFetchingForId,
   selectActiveLivestreamsFetchingForQuery,
   selectActiveLivestreamsLastFetchedDateForQuery,
   selectActiveLivestreamsLastFetchedFailCount,
@@ -97,8 +98,13 @@ const findActiveStreams = (
   return searchedLivestreams;
 };
 
-export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_START });
+export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const alreadyFetching = selectIsLiveFetchingForId(state, channelId);
+
+  if (alreadyFetching) return;
+
+  dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_START, data: channelId });
 
   return Livestream.call('livestream', 'is_live', { channel_claim_id: channelId })
     .then(async (response: ActiveLivestreamResponse) => {

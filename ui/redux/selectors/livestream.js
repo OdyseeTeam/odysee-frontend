@@ -23,6 +23,10 @@ const selectState = (state: State) => state.livestream || {};
 export const selectFetchingLivestreams = (state: State) => selectState(state).fetchingById;
 export const selectViewersById = (state: State) => selectState(state).viewersById;
 
+export const selectIsLiveFetchingIds = (state: State) => selectState(state).isLiveFetchingIds;
+export const selectIsLiveFetchingForId = (state: State, channelId: string) =>
+  selectIsLiveFetchingIds(state).includes(channelId);
+
 export const selectActiveLivestreamsByQuery = (state: State) => selectState(state).activeLivestreamsByQuery;
 export const selectActiveLivestreamsForQuery = (state: State, query: string) =>
   selectActiveLivestreamsByQuery(state)[query];

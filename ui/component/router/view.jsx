@@ -344,7 +344,6 @@ function AppRouter(props: Props) {
     return <Redirect to={decodedUrl} />;
   }
 
-  l(homepageData);
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
