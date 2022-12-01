@@ -26,7 +26,7 @@ function PortalPage(props: Props) {
       const index = portals.find((portal) => portal.name === portalName);
       setIndex(index);
     }
-  }, [portals]);
+  }, [portals, portalName]);
 
   React.useEffect(() => {
     if (portal) {
