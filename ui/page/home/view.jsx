@@ -25,6 +25,7 @@ import Meme from 'web/component/meme';
 import Portals from 'component/portals';
 import FeaturedBanner from 'component/featuredBanner';
 import ABTest from 'component/experiment';
+import { useHistory } from 'react-router-dom';
 
 const CATEGORY_LIVESTREAM_LIMIT = 3;
 
@@ -73,6 +74,7 @@ function HomePage(props: Props) {
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
   const subscriptionChannelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
+  const { push } = useHistory();
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
@@ -122,12 +124,17 @@ function HomePage(props: Props) {
       <Button
         button="link"
         iconRight={ICONS.SETTINGS}
-        onClick={() => doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)}
+        onClick={() => (authenticated ? doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE) : signupDriver())}
         title={__('Sort and customize your homepage')}
         label={__('Customize --[Short label for "Customize Homepage"]--')}
       />
     );
   };
+
+  function signupDriver() {
+    push(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
+    // doToast({ message: __('An account is required to customize your Homepage.') });
+  }
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     if (id === 'BANNER') {
