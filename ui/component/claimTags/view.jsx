@@ -48,7 +48,7 @@ export default function ClaimTags(props: Props) {
   }
 
   if (!tagsToDisplay.length) {
-    return null;
+    return ['¯\\_(ツ)_/¯'];
   }
 
   return (

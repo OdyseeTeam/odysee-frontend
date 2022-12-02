@@ -68,15 +68,16 @@ function AboutTab(props: Props) {
             <ClaimTags uri={uri} type="large" />
           </div>
 
-          <label>{__('Languages')}</label>
-          <div className="media__info-text">
-            {/* this could use some nice 'tags' styling */}
-            {languages && languages.length
-              ? languages.reduce((acc, lang, i) => {
+          {languages && languages.length && (
+            <>
+              <label>{__('Languages')}</label>
+              <div className="media__info-text">
+                {languages.reduce((acc, lang, i) => {
                   return acc + `${SUPPORTED_LANGUAGES[lang]}` + ' ';
-                }, '')
-              : null}
-          </div>
+                }, '')}
+              </div>
+            </>
+          )}
 
           <label>{__('Total Uploads')}</label>
           <div className="media__info-text">{claim.meta.claims_in_channel}</div>

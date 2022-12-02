@@ -20,13 +20,25 @@ type Props = {
   description: string,
   // --- select ---
   claim: ChannelClaim,
+  geoRestriction: boolean,
   // ---perform ---
   doResolveClaimId: (claimId: string) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
 };
 
 function FeaturedSection(props: Props) {
-  const { uri, claimId, claim, description, doResolveClaimId, doFetchViewCount } = props;
+  const { uri, claimId, claim, geoRestriction, description, doResolveClaimId, doFetchViewCount } = props;
+
+  React.useEffect(() => {
+    if (!uri) {
+      doResolveClaimId(claimId);
+      doFetchViewCount(claimId);
+    }
+  }, [uri]);
+
+  if (geoRestriction) {
+    return null;
+  }
 
   const navigateUrl = formatLbryUrlForWeb(uri || '/');
   const navLinkProps = {
@@ -37,13 +49,6 @@ function FeaturedSection(props: Props) {
       }
     },
   };
-
-  React.useEffect(() => {
-    if (!uri) {
-      doResolveClaimId(claimId);
-      doFetchViewCount(claimId);
-    }
-  }, [uri]);
 
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>

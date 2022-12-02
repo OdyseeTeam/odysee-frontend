@@ -17,6 +17,7 @@ type Props = {
   editMode: boolean,
   activeLivestreamForChannel: any,
   settingsByChannelId: { [string]: PerChannelSettings },
+  handleViewMore: (any) => void,
   doFetchChannelLiveStatus: (string) => void,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
@@ -28,6 +29,7 @@ function HomeTab(props: Props) {
     editMode,
     activeLivestreamForChannel,
     settingsByChannelId,
+    handleViewMore,
     doFetchChannelLiveStatus,
     doUpdateCreatorSettings,
   } = props;
@@ -123,69 +125,74 @@ function HomeTab(props: Props) {
   }
 
   function handleCancelChanges() {
-    setHome((settingsByChannelId && settingsByChannelId[claim.claim_id].homepage_settings) || homeTemplate);
+    setHome(
+      (settingsByChannelId && settingsByChannelId[claim.claim_id].homepage_settings) ||
+        (settingsByChannelId && homeTemplate)
+    );
     setEdit(false);
   }
 
-  const fetching = false;
   const isInitialized = true;
   const isChannelEmpty = false;
 
   return (
-    <div className="home-tab">
-      {editMode && (
-        <div className="channel_sections__actions">
-          <Button
-            label={__('Edit Home Tab')}
-            button="secondary"
-            icon={ICONS.EDIT}
-            disabled={edit}
-            onClick={() => {
-              setEdit(!edit);
-            }}
-          />
-        </div>
-      )}
-      {!editMode && !fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
-        <div className="home-section-live">
-          <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
-        </div>
-      )}
-      {home &&
-        !preferEmbed &&
-        home.map((section, i) => {
-          return (
-            <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
-              <div className="order">
-                {edit && (
-                  <CollectionEditButtons
-                    altIndex={i}
-                    altCollection={home}
-                    altEditCollection={(e) => handleEditCollection(e)}
-                  />
-                )}
+    settingsByChannelId && (
+      <div className="home-tab">
+        {editMode && (
+          <div className="channel_sections__actions">
+            <Button
+              label={__('Edit Home Tab')}
+              button="secondary"
+              icon={ICONS.EDIT}
+              disabled={edit}
+              onClick={() => {
+                setEdit(!edit);
+              }}
+            />
+          </div>
+        )}
+        {!edit && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
+          <div className="home-section-live">
+            <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
+          </div>
+        )}
+        {home &&
+          !preferEmbed &&
+          home.map((section, i) => {
+            return (
+              <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
+                <div className="order">
+                  {edit && (
+                    <CollectionEditButtons
+                      altIndex={i}
+                      altCollection={home}
+                      altEditCollection={(e) => handleEditCollection(e)}
+                    />
+                  )}
+                </div>
+                <HomeTabSection
+                  channelClaimId={claimId}
+                  section={section}
+                  editMode={edit}
+                  index={i}
+                  hasFeaturedContent={home.some((s) => s?.type === 'featured')}
+                  handleEditCollection={(e) => handleEditCollection(e, i)}
+                  handleViewMore={(e) => handleViewMore(e)}
+                />
               </div>
-              <HomeTabSection
-                channelClaimId={claimId}
-                section={section}
-                editMode={edit}
-                index={i}
-                hasFeaturedContent={home.some((s) => s?.type === 'featured')}
-                handleEditCollection={(e) => handleEditCollection(e, i)}
-              />
-            </div>
-          );
-        })}
-      {edit && (
-        <div className="home-tab-edit">
-          <Button label={__('Save')} button="primary" onClick={() => handleSaveHomeSection()} />
-          <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
-        </div>
-      )}
-      {edit && (
-        <Button label={__('Add New Section')} button="primary" icon={ICONS.ADD} onClick={handleAddHomeSection} />
-      )}
-    </div>
+            );
+          })}
+        {edit && (
+          <div className="home-tab-edit">
+            <Button label={__('Save')} button="primary" onClick={() => handleSaveHomeSection()} />
+            <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
+          </div>
+        )}
+        {edit && (
+          <Button label={__('Add New Section')} button="primary" icon={ICONS.ADD} onClick={handleAddHomeSection} />
+        )}
+      </div>
+    )
   );
 }
 

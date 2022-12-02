@@ -1,10 +1,10 @@
 // @flow
 
 import React from 'react';
+import Icon from 'component/common/icon';
 import * as CS from 'constants/claim_search';
 import moment from 'moment';
 import * as ICONS from 'constants/icons';
-import Icon from 'component/common/icon';
 import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
@@ -28,6 +28,7 @@ type Props = {
 const ScheduledStreams = (props: Props) => {
   const {
     channelIds,
+    tileLayout,
     liveUris = [],
     limitClaimsPerChannel,
     setClientSetting,
@@ -92,11 +93,7 @@ const ScheduledStreams = (props: Props) => {
         streamType={'all'}
         hasNoSource
         orderBy={CS.ORDER_BY_NEW_ASC}
-        // List-layout is not scrollable, and doesn't look good either. Force
-        // to tile-only until we can fix it. If we decide to always use
-        // tile-only, then remove the parameter for ScheduledStreams
-        // tileLayout={tileLayout}
-        tileLayout
+        tileLayout={tileLayout}
         tags={[SCHEDULED_LIVESTREAM_TAG]}
         claimType={[CS.CLAIM_STREAM]}
         releaseTime={`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`}

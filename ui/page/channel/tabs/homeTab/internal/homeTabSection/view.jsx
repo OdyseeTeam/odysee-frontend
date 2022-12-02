@@ -4,8 +4,12 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
+import ChannelSection from 'component/channelSections/Section';
+import ScheduledStreams from 'component/scheduledStreams';
 import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 
 type Props = {
   channelClaimId: any,
@@ -13,6 +17,7 @@ type Props = {
   editMode: boolean,
   hasFeaturedContent: boolean,
   handleEditCollection: (any) => void,
+  handleViewMore: (any) => void,
   // --- select ---
   claimSearchResults: Array<string>,
   collectionUrls: ?Array<string>,
@@ -22,6 +27,7 @@ type Props = {
   fetchingClaimSearch: boolean,
   publishedCollections: CollectionGroup,
   singleClaimUri: string,
+  featuredChannels: any,
   // --- perform ---
   doClaimSearch: ({}) => void,
   doResolveClaimId: (claimId: string) => void,
@@ -34,6 +40,7 @@ function HomeTabSection(props: Props) {
     editMode,
     hasFeaturedContent,
     handleEditCollection,
+    handleViewMore,
     claimSearchResults,
     collectionUrls,
     collectionClaimIds,
@@ -42,6 +49,7 @@ function HomeTabSection(props: Props) {
     fetchingClaimSearch,
     publishedCollections,
     singleClaimUri,
+    featuredChannels,
     doClaimSearch,
     doResolveClaimId,
   } = props;
@@ -49,12 +57,11 @@ function HomeTabSection(props: Props) {
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
     !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls && section;
-  // section.type !== 'playlist'
-  // section.type !== 'featured';
   const publishedList = (Object.keys(publishedCollections || {}): any);
 
   const windowSize = useWindowSize();
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
+  const featuredChannel = featuredChannels && featuredChannels.find((list) => list.id === section.claim_id);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
@@ -167,11 +174,18 @@ function HomeTabSection(props: Props) {
         break;
       case 'playlists':
         return __('Playlists');
+      case 'channels':
+        return (
+          featuredChannels &&
+          featuredChannels.find((list) => list.id === section.claim_id) &&
+          featuredChannels.find((list) => list.id === section.claim_id).value.title
+        );
     }
   }
 
   return (
     <div className="home-section-content">
+      <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />
       {editMode && (
         <div className="home-section-header-wrapper">
           <div className="home-section-header-option">
@@ -190,7 +204,9 @@ function HomeTabSection(props: Props) {
               <option value="content">{__('Content')}</option>
               <option value="playlists">{__('Playlists')}</option>
               <option value="playlist">{__('Playlist')}</option>
-              {/* <option value="channels">{__('Channels')}</option> */}
+              <option value="channels" disabled={!featuredChannels}>
+                {__('Channels')}
+              </option>
               {/* <option value="reposts">{__('Reposts')}</option> */}
             </select>
           </div>
@@ -215,7 +231,7 @@ function HomeTabSection(props: Props) {
               <label>{__('Playlist')}</label>
               <select
                 name="claim_id"
-                value={section.claimId || 'select'}
+                value={section.claim_id || 'select'}
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
                 <option value="select">{__('Select a Playlist')}</option>
@@ -224,6 +240,26 @@ function HomeTabSection(props: Props) {
                     return (
                       <option key={i} value={list}>
                         {publishedCollections[list].name}
+                      </option>
+                    );
+                  })}
+              </select>
+            </div>
+          )}
+          {section.type === 'channels' && (
+            <div className="home-section-header-option">
+              <label>{__('Featured Channels')}</label>
+              <select
+                name="claim_id"
+                value={section.claim_id || 'select'}
+                onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+              >
+                <option value="select">{__('Select a Collection')}</option>
+                {featuredChannels &&
+                  featuredChannels.map((list, i) => {
+                    return (
+                      <option key={i} value={list.id}>
+                        {list.value.title}
                       </option>
                     );
                   })}
@@ -286,37 +322,46 @@ function HomeTabSection(props: Props) {
         (section.claim_id ||
           collectionUrls ||
           (claimSearchResults && claimSearchResults.length > 0) ||
-          section.type === 'featured') &&
-        (section.type !== 'featured' ? (
+          section.type === 'featured') && (
           <div className="section">
-            <label className="home-section-title">{collectionName || getTitle()}</label>
-            <ClaimListDiscover
-              hideFilters
-              hideAdvancedFilter
-              hideLayoutButton
-              tileLayout
-              infiniteScroll={false}
-              maxClaimRender={maxTilesPerRow * section.rows}
-              useSkeletonScreen={false}
-              uris={collectionUrls || claimSearchResults}
-              claimIds={collectionClaimIds}
-              fetchViewCount
-            />
+            {section.type !== 'featured' ? (
+              <>
+                <label className="home-section-title">{collectionName || getTitle()}</label>
+                <label className="show-more" onClick={() => handleViewMore(section)}>
+                  {__('View More')}
+                  <Icon icon={ICONS.ARROW_RIGHT} />
+                </label>
+                {section.type !== 'channels' ? (
+                  <ClaimListDiscover
+                    hideFilters
+                    hideAdvancedFilter
+                    hideLayoutButton
+                    tileLayout
+                    infiniteScroll={false}
+                    maxClaimRender={maxTilesPerRow * section.rows}
+                    useSkeletonScreen={false}
+                    uris={collectionUrls || claimSearchResults}
+                    claimIds={collectionClaimIds}
+                    fetchViewCount
+                  />
+                ) : (
+                  featuredChannel && (
+                    <ChannelSection
+                      key={'a'}
+                      uris={featuredChannel && featuredChannel.value.uris}
+                      channelId={channelClaimId}
+                    />
+                  )
+                )}
+              </>
+            ) : (
+              <FeaturedSection
+                uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])}
+                claimId={section.claim_id}
+              />
+            )}
           </div>
-        ) : singleClaimUri || (claimSearchResults && claimSearchResults[0]) || section.claim_id ? (
-          <div className="section">
-            <FeaturedSection
-              uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])}
-              claimId={section.claim_id}
-            />
-          </div>
-        ) : claimSearchResults === undefined ? (
-          // Resolving State
-          <FeaturedSection />
-        ) : (
-          // Empty state
-          <div className="empty empty--centered">{__('No Content Found')}</div>
-        ))}
+        )}
     </div>
   );
 }

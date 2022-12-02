@@ -66,6 +66,8 @@ type Props = {
   streamType?: string | Array<string>,
   defaultStreamType?: string | Array<string>,
 
+  contentType?: string | Array<string>,
+
   empty?: string,
   feeAmount?: string,
   releaseTime?: string,
@@ -90,6 +92,9 @@ type Props = {
 
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
+
+  expandFilters: boolean,
+  setFilters: any,
 
   // --- select ---
   followedTags?: Array<Tag>,
@@ -156,6 +161,7 @@ function ClaimListDiscover(props: Props) {
     defaultClaimType,
     streamType,
     defaultStreamType,
+    contentType,
     freshness,
     defaultFreshness = CS.FRESH_WEEK,
     renderProperties,
@@ -256,7 +262,7 @@ function ClaimListDiscover(props: Props) {
   let claimTypeParam = claimType || defaultClaimType || null;
   let streamTypeParam = streamType || defaultStreamType || null;
 
-  const contentTypeParam = urlParams.get(CS.CONTENT_KEY);
+  const contentTypeParam = contentType || urlParams.get(CS.CONTENT_KEY);
   if (contentTypeParam) {
     switch (contentTypeParam) {
       case CS.CLAIM_COLLECTION:
@@ -776,6 +782,7 @@ function ClaimListDiscover(props: Props) {
       hideLayoutButton={hideLayoutButton}
       hideFilters={hideFilters}
       scrollAnchor={scrollAnchor}
+      contentType={contentType}
     />
   );
 
@@ -789,7 +796,7 @@ function ClaimListDiscover(props: Props) {
         <div>
           {!repostedClaimId && showHeader && (
             <div className="section__header--actions">
-              <div className="section__actions">
+              <div className="section__actions section__actions-span">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
               </div>

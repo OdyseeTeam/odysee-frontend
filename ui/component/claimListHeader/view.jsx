@@ -37,6 +37,7 @@ type Props = {
   channelIds?: Array<string>,
   tileLayout: boolean,
   scrollAnchor?: string,
+  contentType: string,
   setPage: (number) => void,
   // --- redux ---
   doSetClientSetting: (string, boolean, ?boolean) => void,
@@ -63,6 +64,7 @@ function ClaimListHeader(props: Props) {
     channelIds,
     tileLayout,
     doSetClientSetting,
+    contentType,
     setPage,
     hideFilters,
     searchInLanguage,
@@ -76,7 +78,7 @@ function ClaimListHeader(props: Props) {
   const [expanded, setExpanded] = usePersistedState(`expanded-${location.pathname}`, false);
   const urlParams = new URLSearchParams(search);
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
-  const contentTypeParam = urlParams.get(CS.CONTENT_KEY);
+  const contentTypeParam = contentType || urlParams.get(CS.CONTENT_KEY);
   const streamTypeParam =
     streamType || (CS.FILE_TYPES.includes(contentTypeParam) && contentTypeParam) || defaultStreamType || null;
   const languageParam = urlParams.get(CS.LANGUAGE_KEY) || null;
@@ -96,7 +98,8 @@ function ClaimListHeader(props: Props) {
 
   const isFiltered = () =>
     Boolean(
-      urlParams.get(CS.FRESH_KEY) ||
+      contentType ||
+        urlParams.get(CS.FRESH_KEY) ||
         urlParams.get(CS.CONTENT_KEY) ||
         (!filterCtx?.liftUpTagSearch && urlParams.get(CS.TAGS_KEY)) ||
         urlParams.get(CS.DURATION_KEY) ||
@@ -279,9 +282,14 @@ function ClaimListHeader(props: Props) {
             {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
           </div>
         </div>
-        {expanded && (
-          <>
-            <div className={classnames('claim-search__menus')}>
+
+        <div
+          className={classnames('claim-search__filters-wrapper', {
+            'claim-search__filters-wrapper-expanded': expanded,
+          })}
+        >
+          <div className="claim-search__filters">
+            <div className="claim-search__menus">
               {/* FRESHNESS FIELD */}
               {orderParam === CS.ORDER_BY_TOP && (
                 <div className="claim-search__input-container">
@@ -361,6 +369,61 @@ function ClaimListHeader(props: Props) {
                     })}
                   </FormField>
                 </div>
+              )}
+
+              {/* DURATIONS FIELD */}
+              {showDuration && (
+                <>
+                  <div className={'claim-search__input-container'}>
+                    <FormField
+                      className={classnames('claim-search__dropdown', {
+                        'claim-search__dropdown--selected': durationParam,
+                      })}
+                      label={__('Duration --[length of audio or video]--')}
+                      type="select"
+                      name="duration"
+                      disabled={
+                        !(
+                          contentTypeParam === null ||
+                          streamTypeParam === CS.FILE_AUDIO ||
+                          streamTypeParam === CS.FILE_VIDEO
+                        )
+                      }
+                      value={durationParam || CS.DURATION_ALL}
+                      onChange={(e) =>
+                        handleChange({
+                          key: CS.DURATION_KEY,
+                          value: e.target.value,
+                        })
+                      }
+                    >
+                      {CS.DURATION_TYPES.map((dur) => (
+                        <option key={dur} value={dur}>
+                          {/* i18fixme */}
+                          {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
+                          {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
+                          {dur === CS.DURATION_ALL && __('Any')}
+                          {dur === CS.DURATION_GT_EQ && __('Longer than')}
+                          {dur === CS.DURATION_LT_EQ && __('Shorter than')}
+                        </option>
+                      ))}
+                    </FormField>
+                  </div>
+                  {(durationParam === CS.DURATION_GT_EQ || durationParam === CS.DURATION_LT_EQ) && (
+                    <div className={'claim-search__input-container'}>
+                      <FormField
+                        label={__('Minutes')}
+                        type="number"
+                        name="duration__minutes"
+                        value={minutes}
+                        onChange={(e) => {
+                          setMinutes(e.target.value);
+                          setDurationMinutesDebounced(e.target.value);
+                        }}
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               {/* LANGUAGE FIELD - hidden for now */}
@@ -463,67 +526,16 @@ function ClaimListHeader(props: Props) {
                 </div>
               )}
             </div>
-
-            {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
-
-            {/* DURATIONS FIELD */}
-            {showDuration && (
-              <div className={classnames('claim-search__menus duration')}>
-                <div className={'claim-search__input-container'}>
-                  <FormField
-                    className={classnames('claim-search__dropdown', {
-                      'claim-search__dropdown--selected': durationParam,
-                    })}
-                    label={__('Duration --[length of audio or video]--')}
-                    type="select"
-                    name="duration"
-                    disabled={
-                      !(
-                        contentTypeParam === null ||
-                        streamTypeParam === CS.FILE_AUDIO ||
-                        streamTypeParam === CS.FILE_VIDEO
-                      )
-                    }
-                    value={durationParam || CS.DURATION_ALL}
-                    onChange={(e) =>
-                      handleChange({
-                        key: CS.DURATION_KEY,
-                        value: e.target.value,
-                      })
-                    }
-                  >
-                    {CS.DURATION_TYPES.map((dur) => (
-                      <option key={dur} value={dur}>
-                        {/* i18fixme */}
-                        {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
-                        {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
-                        {dur === CS.DURATION_ALL && __('Any')}
-                        {dur === CS.DURATION_GT_EQ && __('Longer than')}
-                        {dur === CS.DURATION_LT_EQ && __('Shorter than')}
-                      </option>
-                    ))}
-                  </FormField>
-                </div>
-                {(durationParam === CS.DURATION_GT_EQ || durationParam === CS.DURATION_LT_EQ) && (
-                  <div className={'claim-search__input-container'}>
-                    <FormField
-                      label={__('Minutes')}
-                      type="number"
-                      name="duration__minutes"
-                      value={minutes}
-                      onChange={(e) => {
-                        setMinutes(e.target.value);
-                        setDurationMinutesDebounced(e.target.value);
-                      }}
-                    />
-                  </div>
-                )}
+            <div className="claim-search__menus">
+              <div className="claim-search__input-container">
+                <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
               </div>
-            )}
-
-            <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
-          </>
-        )}
+              <div className="claim-search__input-container">
+                {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {hasMatureTags && hiddenNsfwMessage}
