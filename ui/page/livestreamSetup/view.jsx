@@ -103,7 +103,7 @@ export default function LivestreamSetupPage(props: Props) {
         <li>{__(`Tune: Zerolatency`)}</li>
       </ul>
       <p>
-        {__(`If using other streaming software, make sure the bitrate is below 4500 kbps or the stream will not work.`)}
+        {__(`If using other streaming software, make sure the bitrate is below 7000 kbps or the stream will not work.`)}
       </p>
       <p>{__(`For streaming from your mobile device, we recommend PRISM Live Studio from the app store.`)}</p>
       <p>

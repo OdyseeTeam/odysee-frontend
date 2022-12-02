@@ -129,6 +129,10 @@
       .section__header--actions {
         display: flex;
         margin-bottom: 0;
+
+        .section__actions {
+          margin-bottom: 0;
+        }
       }
     }
   }

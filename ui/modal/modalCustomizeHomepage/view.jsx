@@ -5,7 +5,6 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import HomepageSort from 'component/homepageSort';
-import MembershipSplash from 'component/membershipSplash';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import { Modal } from 'modal/modal';
@@ -13,7 +12,6 @@ import { Modal } from 'modal/modal';
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
 type Props = {
-  userHasOdyseeMembership: ?boolean,
   homepageOrder: HomepageOrder,
   alsoApplyToSidebar: boolean,
   doSetClientSetting: (key: string, value: any, push: boolean) => void,
@@ -23,16 +21,7 @@ type Props = {
 };
 
 export default function ModalCustomizeHomepage(props: Props) {
-  const {
-    userHasOdyseeMembership,
-    homepageOrder,
-    alsoApplyToSidebar,
-    doSetClientSetting,
-    doToast,
-    doOpenModal,
-    doHideModal,
-  } = props;
-
+  const { homepageOrder, alsoApplyToSidebar, doSetClientSetting, doToast, doOpenModal, doHideModal } = props;
   const [applyToSidebar, setApplyToSidebar] = React.useState(alsoApplyToSidebar);
   const order = React.useRef();
 
@@ -92,49 +81,29 @@ export default function ModalCustomizeHomepage(props: Props) {
   }
 
   return (
-    <Modal
-      className="modal-customize-homepage"
-      isOpen
-      type={userHasOdyseeMembership ? 'custom' : 'card'}
-      width={userHasOdyseeMembership ? 'wide-fixed' : 'wide'}
-      onAborted={userHasOdyseeMembership ? undefined : doHideModal}
-    >
-      {!userHasOdyseeMembership && (
-        <Card
-          title={__('Customize Homepage')}
-          subtitle={__('This is currently an early-access feature for Premium members.')}
-          body={
-            <div className="card__main-actions">
-              <MembershipSplash pageLocation={'confirmPage'} currencyToUse={'usd'} />
-            </div>
-          }
-        />
-      )}
-
-      {userHasOdyseeMembership && (
-        <Card
-          title={__('Customize Homepage')}
-          body={
-            <div className="modal-customize-homepage__body">
-              <HomepageSort onUpdate={handleNewOrder} />
-              <Button button="link" label={__('Reset')} onClick={handleReset} />
-              <FormField
-                type="checkbox"
-                name="apply_to_sidebar"
-                label={__('Also apply to sidebar')}
-                checked={applyToSidebar}
-                onChange={() => setApplyToSidebar((prev) => !prev)}
-              />
-            </div>
-          }
-          actions={
-            <div className="modal-customize-homepage__actions section__actions">
-              <Button button="primary" label={__('Save')} onClick={handleSave} />
-              <Button button="link" label={__('Cancel')} onClick={doHideModal} />
-            </div>
-          }
-        />
-      )}
+    <Modal className="modal-customize-homepage" isOpen type="custom" width="wide-fixed" onAborted={undefined}>
+      <Card
+        title={__('Customize Homepage')}
+        body={
+          <div className="modal-customize-homepage__body">
+            <HomepageSort onUpdate={handleNewOrder} />
+            <Button button="link" label={__('Reset')} onClick={handleReset} />
+            <FormField
+              type="checkbox"
+              name="apply_to_sidebar"
+              label={__('Also apply to sidebar')}
+              checked={applyToSidebar}
+              onChange={() => setApplyToSidebar((prev) => !prev)}
+            />
+          </div>
+        }
+        actions={
+          <div className="modal-customize-homepage__actions section__actions">
+            <Button button="primary" label={__('Save')} onClick={handleSave} />
+            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+          </div>
+        }
+      />
     </Modal>
   );
 }
