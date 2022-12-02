@@ -79,12 +79,8 @@ function AboutTab(props: Props) {
             </>
           )}
 
-          {claim.meta.claims_in_channel && (
-            <>
-              <label>{__('Total Uploads')}</label>
-              <div className="media__info-text">{claim.meta.claims_in_channel}</div>
-            </>
-          )}
+          <label>{__('Total Uploads')}</label>
+          <div className="media__info-text">{claim.meta.claims_in_channel}</div>
 
           <label>{__('Last Updated')}</label>
           <div className="media__info-text">
