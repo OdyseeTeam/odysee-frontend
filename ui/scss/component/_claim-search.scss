@@ -220,6 +220,9 @@
 
       label {
         font-weight: var(--font-weight-bold);
+        margin-top: var(--spacing-s);
+        margin-bottom: 0.1rem;
+        font-size: var(--font-medium);
       }
 
       &:last-child {
