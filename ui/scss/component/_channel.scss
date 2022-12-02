@@ -274,6 +274,14 @@ $actions-z-index: 2;
       }
     }
   }
+
+  .dmca-info {
+    background: rgba(255, 0, 0, 0.06);
+    padding: var(--spacing-s);
+    border-radius: var(--border-radius);
+    border: 2px solid rgba(255, 0, 0, 0.6);
+    margin-bottom: var(--spacing-l);
+  }
 }
 
 .channelPage-edit-wrapper {

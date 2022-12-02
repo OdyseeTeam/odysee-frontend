@@ -514,7 +514,11 @@ function ChannelPage(props: Props) {
               <TabPanel>
                 {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
               </TabPanel>
-              <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <AboutTab uri={uri} />}</TabPanel>
+              <TabPanel>
+                {currentView === CHANNEL_PAGE.VIEWS.ABOUT && (
+                  <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
+                )}
+              </TabPanel>
               <TabPanel>{channelIsMine && <CreatorSettingsTab activeChannelClaim={claim} />}</TabPanel>
             </TabPanels>
           </Tabs>
