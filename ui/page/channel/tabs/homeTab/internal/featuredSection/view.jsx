@@ -28,6 +28,14 @@ type Props = {
 
 function FeaturedSection(props: Props) {
   const { uri, claimId, claim, geoRestriction, description, doResolveClaimId, doFetchViewCount } = props;
+
+  React.useEffect(() => {
+    if (!uri) {
+      doResolveClaimId(claimId);
+      doFetchViewCount(claimId);
+    }
+  }, [uri]);
+
   if (geoRestriction) {
     return null;
   }
@@ -41,13 +49,6 @@ function FeaturedSection(props: Props) {
       }
     },
   };
-
-  React.useEffect(() => {
-    if (!uri) {
-      doResolveClaimId(claimId);
-      doFetchViewCount(claimId);
-    }
-  }, [uri]);
 
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
