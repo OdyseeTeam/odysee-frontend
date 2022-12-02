@@ -5,6 +5,7 @@ import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
 import { default as ChannelSection } from 'component/channelSections/Section';
+import ScheduledStreams from 'component/scheduledStreams';
 import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
@@ -173,11 +174,18 @@ function HomeTabSection(props: Props) {
         break;
       case 'playlists':
         return __('Playlists');
+      case 'channels':
+        return (
+          featuredChannels &&
+          featuredChannels.find((list) => list.id === section.claim_id) &&
+          featuredChannels.find((list) => list.id === section.claim_id).value.title
+        );
     }
   }
 
   return (
     <div className="home-section-content">
+      <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />
       {editMode && (
         <div className="home-section-header-wrapper">
           <div className="home-section-header-option">
@@ -338,17 +346,11 @@ function HomeTabSection(props: Props) {
                   />
                 ) : (
                   featuredChannel && (
-                    <>
-                      <h1>Channels</h1>
-                      <ChannelSection
-                        key={'a'}
-                        // id={'a'}
-                        // title={fc.value.title}
-                        uris={featuredChannel && featuredChannel.value.uris}
-                        channelId={channelClaimId}
-                        // showAllItems={featuredChannels.length === 1}
-                      />
-                    </>
+                    <ChannelSection
+                      key={'a'}
+                      uris={featuredChannel && featuredChannel.value.uris}
+                      channelId={channelClaimId}
+                    />
                   )
                 )}
               </>

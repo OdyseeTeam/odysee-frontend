@@ -97,7 +97,11 @@ export default function Section(props: Props) {
             })}
           >
             {items.map((uri) => (
-              <div key={uri} className="channel-section-card__item" onClick={() => push(formatLbryUrlForWeb(uri))}>
+              <div
+                key={uri}
+                className="channel-section-card__item"
+                onClick={() => push(formatLbryUrlForWeb(uri) + '?view=home')}
+              >
                 <ChannelThumbnail uri={uri} />
                 <ChannelTitle uri={uri} />
               </div>

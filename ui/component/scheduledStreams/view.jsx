@@ -26,6 +26,7 @@ type Props = {
 const ScheduledStreams = (props: Props) => {
   const {
     channelIds,
+    tileLayout,
     liveUris = [],
     limitClaimsPerChannel,
     setClientSetting,
@@ -72,7 +73,10 @@ const ScheduledStreams = (props: Props) => {
   };
 
   return (
-    <div className={'mb-m mt-m md:mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
+    <div
+      className={'mb-m mt-m md:mb-xl upücoming-livestreams'}
+      style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}
+    >
       <ClaimListDiscover
         swipeLayout={useSwipeLayout}
         useSkeletonScreen={false}
@@ -82,11 +86,7 @@ const ScheduledStreams = (props: Props) => {
         streamType={'all'}
         hasNoSource
         orderBy={CS.ORDER_BY_NEW_ASC}
-        // List-layout is not scrollable, and doesn't look good either. Force
-        // to tile-only until we can fix it. If we decide to always use
-        // tile-only, then remove the parameter for ScheduledStreams
-        // tileLayout={tileLayout}
-        tileLayout
+        tileLayout={tileLayout}
         tags={[SCHEDULED_LIVESTREAM_TAG]}
         claimType={[CS.CLAIM_STREAM]}
         releaseTime={`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`}
@@ -95,7 +95,6 @@ const ScheduledStreams = (props: Props) => {
         infiniteScroll={false}
         showNoSourceClaims
         hideLayoutButton
-        // header={__('🔴 Upcoming Livestreams')}
         header={<Header />}
         maxClaimRender={upcomingMax}
         excludeUris={liveUris}

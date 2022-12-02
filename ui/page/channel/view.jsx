@@ -140,6 +140,10 @@ function ChannelPage(props: Props) {
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);
 
+  React.useEffect(() => {
+    setCurrentView(urlParams.get(CHANNEL_PAGE.QUERIES.VIEW));
+  }, [urlParams.get(CHANNEL_PAGE.QUERIES.VIEW)]);
+
   const [legacyHeader, setLegacyHeader] = React.useState(false);
   React.useEffect(() => {
     const image = new Image();
@@ -338,6 +342,9 @@ function ChannelPage(props: Props) {
       case 'playlists':
         setFilters({ order_by: getOrderBy(), file_type: getFileType() });
         onTabChange(2, true);
+        break;
+      case 'channels':
+        onTabChange(3, true);
         break;
     }
   }

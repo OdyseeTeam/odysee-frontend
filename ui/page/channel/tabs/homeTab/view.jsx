@@ -34,6 +34,11 @@ function HomeTab(props: Props) {
     doUpdateCreatorSettings,
   } = props;
 
+  React.useEffect(() => {
+    // make smoother
+    console.log('claim: ', claim);
+  }, [claim]);
+
   const claimId = claim && claim.claim_id;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
   const homepage_settings =
