@@ -4,7 +4,7 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
-import { default as ChannelSection } from 'component/channelSections/Section';
+import ChannelSection from 'component/channelSections/Section';
 import ScheduledStreams from 'component/scheduledStreams';
 import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
