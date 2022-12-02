@@ -115,7 +115,6 @@ function ContentTab(props: Props) {
   }, [url]);
 
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
-
   return (
     <Fragment>
       <GeoRestrictionInfo uri={uri} />
@@ -159,7 +158,6 @@ function ContentTab(props: Props) {
       )}
 
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
-
       {!fetching && (
         <ClaimSearchFilterContext.Provider value={claimSearchFilterCtx}>
           <ClaimListDiscover

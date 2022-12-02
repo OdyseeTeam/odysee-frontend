@@ -307,7 +307,7 @@ function ClaimListDiscover(props: Props) {
   const originalPageSize = 12;
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
   const orderParam = usePersistentUserParam(
-    [defaultOrderBy, urlParams.get(CS.ORDER_BY_KEY), orderBy],
+    [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
     'orderUser',
     CS.ORDER_BY_TRENDING
   );

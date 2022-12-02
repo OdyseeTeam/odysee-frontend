@@ -99,9 +99,12 @@
           background-color: rgba(var(--color-header-background-base), 0.6);
           border-radius: var(--border-radius);
           margin: 0;
+          margin-right: var(--spacing-s);
 
           .channel-thumbnail__custom {
             margin: var(--spacing-xs);
+            width: 4rem;
+            height: 4rem;
           }
 
           .claim-preview__title {

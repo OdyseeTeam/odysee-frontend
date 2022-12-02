@@ -70,7 +70,6 @@ function HomeTab(props: Props) {
   }, [settingsByChannelId]);
 
   function handleEditCollection(e, index) {
-    console.log('handleEditCollection: ', e);
     let newHome = [...home];
     if (e.order) {
       if (e.order.to >= newHome.length) {

@@ -231,7 +231,7 @@ function ChannelPage(props: Props) {
       tabIndex = 7;
       break;
     default:
-      tabIndex = 0;
+      tabIndex = showClaims || channelIsMine ? 0 : onTabChange(6);
       break;
   }
 
@@ -277,7 +277,6 @@ function ChannelPage(props: Props) {
         setCurrentView(CHANNEL_PAGE.VIEWS.SETTINGS);
         break;
     }
-
     push(`${url}${search}`);
   }
 
