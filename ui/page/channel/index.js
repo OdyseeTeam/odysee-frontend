@@ -3,13 +3,13 @@ import {
   selectClaimIsMine,
   selectTitleForUri,
   makeSelectCoverForUri,
-  selectCurrentChannelPage,
   selectClaimForUri,
   selectIsClaimOdyseeChannelForUri,
   makeSelectClaimIsPending,
+  makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
-import { selectBlacklistedOutpointMap, doFetchSubCount, selectSubCountForUri } from 'lbryinc';
+import { selectBlacklistedOutpointMap, doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
 import { selectYoutubeChannels } from 'redux/selectors/user';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
@@ -19,6 +19,7 @@ import { selectLanguage } from 'redux/selectors/settings';
 import { selectOdyseeMembershipForChannelId, selectMembershipMineFetched } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim } from 'util/claim';
 import { doGetMembershipTiersForChannelClaimId, doMembershipMine } from 'redux/actions/memberships';
+import { PREFERENCE_EMBED } from 'constants/tags';
 import ChannelPage from './view';
 
 const select = (state, props) => {
@@ -29,7 +30,6 @@ const select = (state, props) => {
     thumbnail: getThumbnailFromClaim(claim),
     coverUrl: makeSelectCoverForUri(props.uri)(state),
     channelIsMine: selectClaimIsMine(state, claim),
-    page: selectCurrentChannelPage(state),
     claim,
     isSubscribed: selectIsSubscribedForUri(state, props.uri),
     blackListedOutpointMap: selectBlacklistedOutpointMap(state),
@@ -43,6 +43,8 @@ const select = (state, props) => {
     odyseeMembership: selectOdyseeMembershipForChannelId(state, claim.claim_id),
     myMembershipsFetched: selectMembershipMineFetched(state),
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, props.uri),
+    preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
+    banState: selectBanStateForUri(state, props.uri),
   };
 };
 

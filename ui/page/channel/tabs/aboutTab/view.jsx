@@ -18,6 +18,7 @@ type Props = {
   website: ?string,
   languages: Array<string>,
   user: ?User,
+  channelIsBlackListed: boolean,
 };
 
 const formatEmail = (email: string) => {
@@ -30,12 +31,24 @@ const formatEmail = (email: string) => {
 };
 
 function AboutTab(props: Props) {
-  const { claim, uri, description, email, website, languages, user } = props;
+  const { claim, uri, description, email, website, languages, user, channelIsBlackListed } = props;
   const claimId = claim && claim.claim_id;
   const canView = user && user.global_mod;
 
   return (
     <div className="card">
+      {channelIsBlackListed && (
+        <section className="card--section dmca-info">
+          <p>
+            {__(
+              'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this channel from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
+            )}
+          </p>
+          <div className="section__actions">
+            <Button button="link" href="https://help.odysee.tv/copyright/" label={__('Read More')} />
+          </div>
+        </section>
+      )}
       <section className="section card--section">
         <Fragment>
           {description && (
@@ -68,15 +81,16 @@ function AboutTab(props: Props) {
             <ClaimTags uri={uri} type="large" />
           </div>
 
-          <label>{__('Languages')}</label>
-          <div className="media__info-text">
-            {/* this could use some nice 'tags' styling */}
-            {languages && languages.length
-              ? languages.reduce((acc, lang, i) => {
+          {languages && languages.length && (
+            <>
+              <label>{__('Languages')}</label>
+              <div className="media__info-text">
+                {languages.reduce((acc, lang, i) => {
                   return acc + `${SUPPORTED_LANGUAGES[lang]}` + ' ';
-                }, '')
-              : null}
-          </div>
+                }, '')}
+              </div>
+            </>
+          )}
 
           <label>{__('Total Uploads')}</label>
           <div className="media__info-text">{claim.meta.claims_in_channel}</div>

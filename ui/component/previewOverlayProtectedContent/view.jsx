@@ -5,16 +5,25 @@ import Icon from 'component/common/icon';
 import './style.scss';
 
 type Props = {
-  protectedMembershipIds: Array<number>,
-  claimIsMine: boolean,
-  userIsAMember: boolean,
-  cheapestPlanPrice: ?number,
   channel: ?ChannelClaim,
+  cheapestPlanPrice: ?number,
+  claimIsMine: boolean,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  hasProtectedContentTag: boolean,
+  protectedMembershipIds: Array<number>,
+  userIsAMember: boolean,
 };
 
 const PreviewOverlayProtectedContent = (props: Props) => {
-  const { protectedMembershipIds, claimIsMine, userIsAMember, cheapestPlanPrice, channel, doMembershipList } = props;
+  const {
+    protectedMembershipIds,
+    claimIsMine,
+    userIsAMember,
+    cheapestPlanPrice,
+    channel,
+    doMembershipList,
+    hasProtectedContentTag,
+  } = props;
 
   React.useEffect(() => {
     if (channel && protectedMembershipIds && cheapestPlanPrice === undefined) {
@@ -30,7 +39,7 @@ const PreviewOverlayProtectedContent = (props: Props) => {
     );
   }
 
-  if (protectedMembershipIds && userIsAMember !== undefined && cheapestPlanPrice) {
+  if (protectedMembershipIds && userIsAMember !== undefined && cheapestPlanPrice && hasProtectedContentTag) {
     return (
       <div className="protected-content-holder">
         <div className="protected-content-holder-lock">

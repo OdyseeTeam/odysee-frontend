@@ -37,6 +37,7 @@ import MembershipTab from './tabs/membershipTab';
 import CommunityTab from './tabs/communityTab';
 import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
+import * as CS from 'constants/claim_search';
 
 type Props = {
   uri: string,
@@ -44,7 +45,6 @@ type Props = {
   title: ?string,
   coverUrl: ?string,
   thumbnail: ?string,
-  page: number,
   match: { params: { attribute: ?string } },
   channelIsMine: boolean,
   isSubscribed: boolean,
@@ -63,6 +63,8 @@ type Props = {
   doMembershipMine: () => void,
   myMembershipsFetched: boolean,
   isOdyseeChannel: boolean,
+  preferEmbed: boolean,
+  banState: any,
 };
 
 export const ChannelPageContext = React.createContext<any>();
@@ -73,7 +75,6 @@ function ChannelPage(props: Props) {
     claim,
     title,
     coverUrl,
-    // page, ?page= may come back some day?
     channelIsMine,
     isSubscribed,
     blackListedOutpointMap,
@@ -90,16 +91,23 @@ function ChannelPage(props: Props) {
     doMembershipMine,
     myMembershipsFetched,
     isOdyseeChannel,
+    preferEmbed,
+    banState,
   } = props;
-
   const {
     push,
     goBack,
     location: { search },
   } = useHistory();
+  const { meta } = claim;
+  const { claims_in_channel } = meta;
+  const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
+
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
   const urlParams = new URLSearchParams(search);
-  const currentView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || CHANNEL_PAGE.VIEWS.HOME;
+  const [currentView, setCurrentView] = React.useState(
+    urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || showClaims ? CHANNEL_PAGE.VIEWS.HOME : CHANNEL_PAGE.VIEWS.ABOUT
+  );
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
@@ -130,6 +138,11 @@ function ChannelPage(props: Props) {
   }, [discussionWasMounted, uri]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
+  const [filters, setFilters] = React.useState(undefined);
+
+  React.useEffect(() => {
+    setCurrentView(urlParams.get(CHANNEL_PAGE.QUERIES.VIEW));
+  }, [urlParams.get(CHANNEL_PAGE.QUERIES.VIEW)]);
 
   const [legacyHeader, setLegacyHeader] = React.useState(false);
   React.useEffect(() => {
@@ -194,16 +207,16 @@ function ChannelPage(props: Props) {
   let tabIndex;
   switch (currentView) {
     case CHANNEL_PAGE.VIEWS.HOME:
-      tabIndex = 0;
+      tabIndex = showClaims || channelIsMine ? 0 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.CONTENT:
-      tabIndex = 1;
+      tabIndex = showClaims || channelIsMine ? 1 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.PLAYLISTS:
-      tabIndex = 2;
+      tabIndex = showClaims || channelIsMine ? 2 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.CHANNELS:
-      tabIndex = 3;
+      tabIndex = showClaims || channelIsMine ? 3 : onTabChange(6);
       break;
     case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
       if (!isOdyseeChannel) tabIndex = 4;
@@ -218,41 +231,52 @@ function ChannelPage(props: Props) {
       tabIndex = 7;
       break;
     default:
-      tabIndex = 0;
+      tabIndex = showClaims || channelIsMine ? 0 : onTabChange(6);
       break;
   }
 
-  function onTabChange(newTabIndex) {
+  function onTabChange(newTabIndex, keepFilters) {
     const url = formatLbryUrlForWeb(uri);
     let search = '?';
+
+    if (!keepFilters) setFilters(undefined);
 
     switch (newTabIndex) {
       case 0:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.HOME);
         break;
       case 1:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.CONTENT);
         break;
       case 2:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.PLAYLISTS);
         break;
       case 3:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.CHANNELS);
         break;
       case 4:
-        if (!isOdyseeChannel) search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+        if (!isOdyseeChannel) {
+          search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+          setCurrentView(CHANNEL_PAGE.VIEWS.MEMBERSHIP);
+        }
         break;
       case 5:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.DISCUSSION);
         break;
       case 6:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.ABOUT);
         break;
       case 7:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
+        setCurrentView(CHANNEL_PAGE.VIEWS.SETTINGS);
         break;
     }
-
     push(`${url}${search}`);
   }
 
@@ -284,6 +308,44 @@ function ChannelPage(props: Props) {
         <ChannelEdit uri={uri} onDone={() => goBack()} />
       </Page>
     );
+  }
+
+  function handleViewMore(section) {
+    function getOrderBy() {
+      return section.order_by && section.order_by[0] === 'trending_group'
+        ? CS.ORDER_BY_TRENDING
+        : section.order_by[0] === 'effective_amount'
+        ? CS.ORDER_BY_TOP
+        : CS.ORDER_BY_NEW;
+    }
+    function getFileType() {
+      return section.file_type && section.file_type.length === 1 && section.file_type[0] === 'video'
+        ? CS.FILE_VIDEO
+        : section.file_type[0] === 'audio'
+        ? CS.FILE_AUDIO
+        : section.file_type[0] === 'document'
+        ? CS.FILE_DOCUMENT
+        : section.file_type[0] === 'image'
+        ? CS.FILE_IMAGE
+        : undefined;
+    }
+
+    switch (section.type) {
+      case 'content':
+        setFilters({ order_by: getOrderBy(), file_type: getFileType() });
+        onTabChange(1, true);
+        break;
+      case 'playlist':
+        push(`/$/playlist/${section.claim_id}`);
+        break;
+      case 'playlists':
+        setFilters({ order_by: getOrderBy(), file_type: getFileType() });
+        onTabChange(2, true);
+        break;
+      case 'channels':
+        onTabChange(3, true);
+        break;
+    }
   }
 
   return (
@@ -385,16 +447,16 @@ function ChannelPage(props: Props) {
                 />
               </div>
               <TabList>
-                <Tab disabled={editing} aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
+                <Tab aria-selected={tabIndex === 0} disabled={editing || !showClaims} onClick={() => onTabChange(0)}>
                   {__('Home')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+                <Tab aria-selected={tabIndex === 1} disabled={editing || !showClaims} onClick={() => onTabChange(1)}>
                   {__('Content')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>
+                <Tab aria-selected={tabIndex === 2} disabled={editing || !showClaims} onClick={() => onTabChange(2)}>
                   {__('Playlists')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>
+                <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
                   {__('Channels')}
                 </Tab>
                 <Tab
@@ -405,7 +467,7 @@ function ChannelPage(props: Props) {
                 >
                   {__('Membership')}
                 </Tab>
-                <Tab disabled={editing} aria-selected={tabIndex === 5} onClick={() => onTabChange(5)}>
+                <Tab aria-selected={tabIndex === 5} disabled={editing} onClick={() => onTabChange(5)}>
                   {__('Community')}
                 </Tab>
                 <Tab aria-selected={tabIndex === 6} onClick={() => onTabChange(6)}>
@@ -418,7 +480,7 @@ function ChannelPage(props: Props) {
             </div>
             <TabPanels>
               <TabPanel>
-                <HomeTab uri={uri} editMode={channelIsMine} />
+                <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
               </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
@@ -428,6 +490,7 @@ function ChannelPage(props: Props) {
                     viewHiddenChannels
                     claimType={['stream', 'repost']}
                     empty={<section className="main--empty">{__('No Content Found')}</section>}
+                    filters={filters}
                   />
                 )}
               </TabPanel>
@@ -451,7 +514,11 @@ function ChannelPage(props: Props) {
               <TabPanel>
                 {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
               </TabPanel>
-              <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <AboutTab uri={uri} />}</TabPanel>
+              <TabPanel>
+                {currentView === CHANNEL_PAGE.VIEWS.ABOUT && (
+                  <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
+                )}
+              </TabPanel>
               <TabPanel>{channelIsMine && <CreatorSettingsTab activeChannelClaim={claim} />}</TabPanel>
             </TabPanels>
           </Tabs>

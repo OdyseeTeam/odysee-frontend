@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { doClaimSearch, doResolveClaimId } from 'redux/actions/claims';
-
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import {
   selectClaimSearchByQuery,
@@ -14,6 +13,7 @@ import {
   selectMyPublishedCollections,
 } from 'redux/selectors/collections';
 import { SECTION_TAGS } from 'constants/collections';
+import { selectFeaturedChannelsForChannelId } from 'redux/selectors/comments';
 import { CsOptions } from 'util/claim-search';
 import HomeTabSection from './view';
 
@@ -36,6 +36,7 @@ const select = (state, props) => {
     any_tags: props.section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
     no_totals: true,
     index: props.index,
+    has_source: true,
   };
 
   const searchKey = createNormalizedClaimSearchKey(options);
@@ -65,6 +66,7 @@ const select = (state, props) => {
     publishedCollections: selectMyPublishedCollections(state),
     singleClaimUri:
       props.section.type === 'featured' && props.section.claim_id && selectClaimUriForId(state, props.section.claim_id),
+    featuredChannels: selectFeaturedChannelsForChannelId(state, props.channelClaimId),
   };
 };
 

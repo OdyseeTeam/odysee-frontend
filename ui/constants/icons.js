@@ -222,3 +222,9 @@ export const COMEDY = 'Comedy';
 export const LIFESTYLE = 'Lifestyle';
 export const MEMBERSHIP = 'Membership';
 export const GOLIVE = 'GOLIVE';
+export const GHOST = 'Ghost';
+export const SPIRITUALITY = 'Spirituality';
+export const HORROR = 'Horror';
+
+// -- Temporary --
+export const HOLIDAY = 'Holiday';

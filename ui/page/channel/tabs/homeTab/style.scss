@@ -70,6 +70,73 @@
       padding-bottom: var(--spacing-m);
       margin-bottom: var(--spacing-m);
       border-bottom: 1px solid var(--color-border);
+
+      .show-more {
+        position: absolute;
+        right: 0;
+        color: var(--color-primary);
+        margin-top: 1px;
+        margin-bottom: var(--spacing-s);
+
+        .icon {
+          margin-bottom: -3px;
+        }
+
+        &:hover {
+          cursor: pointer;
+          color: var(--color-secondary);
+        }
+      }
+
+      .channel-section-card {
+        background: unset;
+        margin-top: 0;
+        padding-left: 0;
+        .channel-section-card__header {
+          display: none;
+        }
+        .channel-section-card__item {
+          background-color: rgba(var(--color-header-background-base), 0.6);
+          border-radius: var(--border-radius);
+          margin: 0;
+          margin-right: var(--spacing-s);
+
+          .channel-thumbnail__custom {
+            margin: var(--spacing-xs);
+            width: 4rem;
+            height: 4rem;
+          }
+
+          .claim-preview__title {
+            color: rgba(var(--color-text-base), 0.9);
+          }
+
+          &:hover {
+            background-color: rgba(var(--color-header-background-base), 0.9);
+            .claim-preview__title {
+              color: rgba(var(--color-text-base), 1);
+            }
+          }
+        }
+        .channel-section-card__item-overflow {
+          display: none;
+        }
+      }
+    }
+    .mb-m {
+      margin-top: 0;
+      padding-bottom: var(--spacing-m);
+      margin-bottom: var(--spacing-m);
+      border-bottom: 1px solid var(--color-border);
+
+      .section__header--actions {
+        display: flex;
+        margin-bottom: 0;
+
+        .section__actions {
+          margin-bottom: 0;
+        }
+      }
     }
   }
 
@@ -107,6 +174,10 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+
+      .show-more {
+        margin-right: var(--spacing-s);
+      }
 
       .claim-preview__wrapper {
         background-color: unset;
@@ -156,14 +227,21 @@
         display: block;
       }
       select {
-        border: 2px solid var(--color-border);
+        box-shadow: 0px 0px 0px 2px var(--color-border) inset;
         max-width: 204px;
         overflow: hidden;
+        &:focus-visible {
+          box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+        }
       }
       input {
         box-shadow: 0px 0px 0px 2px var(--color-border) inset;
       }
     }
+  }
+
+  .claim-preview--tile {
+    margin-bottom: var(--spacing-l);
   }
 }
 

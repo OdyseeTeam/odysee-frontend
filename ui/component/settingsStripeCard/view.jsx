@@ -170,7 +170,7 @@ const SettingsStripeCard = (props: Props) => {
               <Button
                 className="view-transactions__button"
                 button="secondary"
-                label={__('View Transactions')}
+                label={__('View Tips')}
                 icon={ICONS.SETTINGS}
                 navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`}
                 style={{ marginLeft: '10px' }}

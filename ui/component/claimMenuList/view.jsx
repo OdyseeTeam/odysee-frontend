@@ -537,7 +537,7 @@ function ClaimMenuList(props: Props) {
                         </div>
                       </MenuItem>
                     ) */}
-                    {!isChannelPage && !repostedClaim && (
+                    {!repostedClaim && (
                       <MenuItem className="comment__menu-option" onSelect={handleEdit}>
                         <div className="menu__link">
                           <Icon aria-hidden icon={ICONS.EDIT} />

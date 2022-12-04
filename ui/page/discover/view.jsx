@@ -66,7 +66,8 @@ function DiscoverPage(props: Props) {
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
   const tag = (tags && tags[0]) || null;
-  const channelIds = dynamicRouteProps?.options?.channelIds || undefined;
+  const routedChannelIds = dynamicRouteProps?.options?.channelIds;
+  const channelIds = routedChannelIds && routedChannelIds.length > 0 ? routedChannelIds : undefined;
   const excludedChannelIds = dynamicRouteProps?.options?.excludedChannelIds || undefined;
 
   const claimSearchFilters = {
@@ -95,7 +96,7 @@ function DiscoverPage(props: Props) {
 
   function getSubSection() {
     const includeLivestreams = !tagsQuery;
-    if (includeLivestreams) {
+    if (includeLivestreams && (isWildWest || (channelIds && channelIds.length > 0))) {
       return (
         <LivestreamSection
           tileLayout={repostedUri ? false : tileLayout}

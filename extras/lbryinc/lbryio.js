@@ -218,7 +218,7 @@ Lbryio.getStripeToken = () =>
 Lbryio.getExchangeRates = () => {
   if (!Lbryio.exchangeLastFetched || Date.now() - Lbryio.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
     Lbryio.exchangePromise = new Promise((resolve, reject) => {
-      Lbryio.call('lbc', 'exchange_rate', {}, 'get', true)
+      Lbryio.call('lbc', 'exchange_rate', {}, 'post', true)
         .then(({ lbc_usd: LBC_USD, lbc_btc: LBC_BTC, btc_usd: BTC_USD }) => {
           const rates = { LBC_USD, LBC_BTC, BTC_USD };
           resolve(rates);

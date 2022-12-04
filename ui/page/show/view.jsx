@@ -38,7 +38,7 @@ type Props = {
   isLivestream: boolean,
   collectionId: string,
   collection: Collection,
-  collectionUrls: Array<string>,
+  collectionFirstItemUri: ?string,
   isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
   homepageFetched: boolean,
@@ -53,6 +53,7 @@ type Props = {
   doBeginPublish: (name: ?string) => void,
   doResolveClaimId: (claimId: string) => void,
   doOpenModal: (string, {}) => void,
+  doFetchItemsInCollection: (params: { collectionId: string }) => void,
   preferEmbed: boolean,
 };
 
@@ -71,7 +72,7 @@ export default function ShowPage(props: Props) {
     isLivestream,
     collectionId,
     collection,
-    collectionUrls,
+    collectionFirstItemUri,
     isAuthenticated,
     geoRestriction,
     homepageFetched,
@@ -86,6 +87,7 @@ export default function ShowPage(props: Props) {
     doResolveClaimId,
     doBeginPublish,
     doOpenModal,
+    doFetchItemsInCollection,
     preferEmbed,
   } = props;
 
@@ -195,6 +197,13 @@ export default function ShowPage(props: Props) {
     }
   }, [channelClaimId, creatorSettings, doFetchCreatorSettings]);
 
+  React.useEffect(() => {
+    if (claim && isCollection && collectionFirstItemUri === undefined) {
+      // -- We're only interested in the first item to redirect to, and start playing
+      doFetchItemsInCollection({ collectionId, itemCount: 1 });
+    }
+  }, [claim, collectionFirstItemUri, collectionId, doFetchItemsInCollection, isCollection]);
+
   // Wait for latest claim fetch
   if (isNewestPath && latestClaimUrl === undefined) {
     return (
@@ -217,13 +226,11 @@ export default function ShowPage(props: Props) {
     return <Redirect to={newUrl} />;
   }
 
-  let urlForCollectionZero;
-  if (claim && isCollection && collectionUrls && collectionUrls.length) {
+  if (claim && isCollection && collectionFirstItemUri) {
     switch (collection?.type) {
       case COL_TYPES.PLAYLIST:
-        urlForCollectionZero = collectionUrls && collectionUrls[0];
         urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
-        const newUrl = formatLbryUrlForWeb(`${urlForCollectionZero}?${urlParams.toString()}`);
+        const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
         return <Redirect to={newUrl} />;
 
       case COL_TYPES.FEATURED_CHANNELS:

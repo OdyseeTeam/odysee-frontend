@@ -685,6 +685,24 @@ img {
   background-image: var(--background-shade);
 }
 
+.stars {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  div {
+    display: none;
+  }
+}
+
+.stars-active {
+  #stars,
+  #stars2 {
+    display: block;
+  }
+}
+
 .homePage-wrapper {
   padding: 0 var(--spacing-xs);
   .mb-xl {

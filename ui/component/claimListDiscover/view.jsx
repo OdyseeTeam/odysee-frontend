@@ -19,7 +19,6 @@ import I18nMessage from 'component/i18nMessage';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
-import useResolvePins from 'effects/use-resolve-pins';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
@@ -67,6 +66,8 @@ type Props = {
   streamType?: string | Array<string>,
   defaultStreamType?: string | Array<string>,
 
+  contentType?: string | Array<string>,
+
   empty?: string,
   feeAmount?: string,
   releaseTime?: string,
@@ -91,6 +92,9 @@ type Props = {
 
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
+
+  expandFilters: boolean,
+  setFilters: any,
 
   // --- select ---
   followedTags?: Array<Tag>,
@@ -157,6 +161,7 @@ function ClaimListDiscover(props: Props) {
     defaultClaimType,
     streamType,
     defaultStreamType,
+    contentType,
     freshness,
     defaultFreshness = CS.FRESH_WEEK,
     renderProperties,
@@ -205,7 +210,29 @@ function ClaimListDiscover(props: Props) {
     doResolveClaimIds,
   } = props;
 
-  const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
+  const hasPins = pins && (pins.claimIds || pins.urls);
+  const resolvedPinUris = React.useMemo(() => {
+    if (!hasPins) return undefined;
+
+    let resolvedPinUris = [];
+
+    if (pins && pins.claimIds) {
+      pins.claimIds.some((id) => {
+        const claim = claimsById[id];
+        if (!claim) {
+          resolvedPinUris = undefined;
+          return true;
+        }
+
+        const uri = claim.canonical_url || claim.canonical_url;
+        // $FlowFixMe
+        resolvedPinUris.push(uri);
+      });
+    }
+
+    return resolvedPinUris;
+  }, [claimsById, hasPins, pins]);
+
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;
   const prevUris = React.useRef();
@@ -226,6 +253,8 @@ function ClaimListDiscover(props: Props) {
   const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
 
+  const [finalUris, setFinalUris] = React.useState();
+
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
   const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLang, searchLanguages, langParam);
@@ -233,7 +262,7 @@ function ClaimListDiscover(props: Props) {
   let claimTypeParam = claimType || defaultClaimType || null;
   let streamTypeParam = streamType || defaultStreamType || null;
 
-  const contentTypeParam = urlParams.get(CS.CONTENT_KEY);
+  const contentTypeParam = contentType || urlParams.get(CS.CONTENT_KEY);
   if (contentTypeParam) {
     switch (contentTypeParam) {
       case CS.CLAIM_COLLECTION:
@@ -480,16 +509,19 @@ function ClaimListDiscover(props: Props) {
   }
 
   const shouldPerformSearch =
-    !uris &&
-    (claimSearchResult === undefined ||
-      didNavigateForward ||
-      (!loading &&
-        !claimSearchResultLastPageReached &&
-        claimSearchResult &&
-        claimSearchResult.length &&
-        // $FlowIgnore: page is always defined in this component
-        claimSearchResult.length < dynamicPageSize * options.page &&
-        claimSearchResult.length % dynamicPageSize === 0));
+    // -- pins alone will be resolved by the doResolveUris/doResolveClaimIds call
+    hasPins && !channelIdsParam
+      ? false
+      : !uris &&
+        (claimSearchResult === undefined ||
+          didNavigateForward ||
+          (!loading &&
+            !claimSearchResultLastPageReached &&
+            claimSearchResult &&
+            claimSearchResult.length &&
+            // $FlowIgnore: page is always defined in this component
+            claimSearchResult.length < dynamicPageSize * options.page &&
+            claimSearchResult.length % dynamicPageSize === 0));
 
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
   const optionsStringForEffect = JSON.stringify(options);
@@ -526,24 +558,59 @@ function ClaimListDiscover(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  let finalUris;
+  React.useEffect(() => {
+    if (!hasPins) return;
 
-  if (uris) {
-    // --- direct uris
-    finalUris = uris;
-    injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
-    finalUris = filterExcludedUris(finalUris, excludeUris);
-  } else {
-    // --- searched uris
-    if (isUnfetchedClaimSearch && prevUris.current) {
-      finalUris = prevUris.current;
-    } else {
-      finalUris = claimSearchResult;
-      injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
-      finalUris = filterExcludedUris(finalUris, excludeUris);
-      prevUris.current = finalUris;
+    // $FlowFixMe
+    if (pins.claimIds) {
+      doResolveClaimIds(pins.claimIds);
+      // $FlowFixMe
+    } else if (pins.urls) {
+      doResolveUris(pins.urls, true);
     }
-  }
+  }, [pins, doResolveUris, doResolveClaimIds, hasPins]);
+
+  const excludeUrisStr = JSON.stringify(excludeUris);
+
+  React.useEffect(() => {
+    const excludeUris = JSON.parse(excludeUrisStr);
+
+    if (uris) {
+      // --- direct uris
+      const newUris = uris && Array.from(new Set(uris));
+      injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+      const newFinalUris = filterExcludedUris(newUris, excludeUris);
+
+      setFinalUris(newFinalUris);
+    } else if (claimSearchResult) {
+      // --- searched uris
+      if (isUnfetchedClaimSearch && prevUris.current) {
+        setFinalUris(prevUris.current);
+      } else if (!hasPins) {
+        setFinalUris(claimSearchResult);
+        prevUris.current = claimSearchResult;
+      } else {
+        const newUris = Array.from(new Set(claimSearchResult));
+        const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+        const newFinalUris = filterExcludedUris(injected, excludeUris);
+
+        setFinalUris(newFinalUris);
+        prevUris.current = newFinalUris;
+      }
+    } else if (resolvedPinUris && !channelIdsParam) {
+      setFinalUris(resolvedPinUris);
+    }
+  }, [
+    channelIdsParam,
+    claimSearchResult,
+    excludeUrisStr,
+    hasPins,
+    isUnfetchedClaimSearch,
+    orderParam,
+    pins,
+    resolvedPinUris,
+    uris,
+  ]);
 
   // **************************************************************************
   // Helpers
@@ -626,21 +693,29 @@ function ClaimListDiscover(props: Props) {
   }
 
   function injectPinUrls(uris, order, pins, resolvedPinUris) {
-    if (!pins || !uris || uris.length <= 2 || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
-      return;
+    if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
+      return uris;
     }
 
     if (resolvedPinUris) {
+      if (uris.length < resolvedPinUris.length) {
+        return uris.concat(resolvedPinUris);
+      }
+
       resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
+          // remove the pin from the resolved/searched uris
           uris.splice(uris.indexOf(pin), 1);
-        } else {
-          uris.pop();
         }
       });
 
+      // add the pins on uris starting from the 2nd index
       uris.splice(2, 0, ...resolvedPinUris);
+
+      return uris;
     }
+
+    return uris;
   }
 
   function filterExcludedUris(uris, excludeUris) {
@@ -686,9 +761,6 @@ function ClaimListDiscover(props: Props) {
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh]);
 
-  // console.log('searchOptions: ', optionsStringForEffect)
-  // console.log('claimSearchByQuery: ', claimSearchByQuery)
-
   const headerToUse = header || (
     <ClaimListHeader
       channelIds={channelIds}
@@ -710,8 +782,12 @@ function ClaimListDiscover(props: Props) {
       hideLayoutButton={hideLayoutButton}
       hideFilters={hideFilters}
       scrollAnchor={scrollAnchor}
+      contentType={contentType}
     />
   );
+
+  const claimListLoading =
+    loading || (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
 
   return (
     <React.Fragment>
@@ -720,7 +796,7 @@ function ClaimListDiscover(props: Props) {
         <div>
           {!repostedClaimId && showHeader && (
             <div className="section__header--actions">
-              <div className="section__actions">
+              <div className="section__actions section__actions-span">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
               </div>
@@ -730,7 +806,7 @@ function ClaimListDiscover(props: Props) {
           {subSection && <div>{subSection}</div>}
           <ClaimList
             tileLayout
-            loading={loading}
+            loading={claimListLoading}
             uris={finalUris}
             prefixUris={prefixUris}
             onScrollBottom={handleScrollBottom}
@@ -749,7 +825,8 @@ function ClaimListDiscover(props: Props) {
             swipeLayout={swipeLayout}
             onHidden={onHidden}
           />
-          {loading && useSkeletonScreen && (
+
+          {claimListLoading && useSkeletonScreen && (
             <div className="claim-grid">
               {new Array(dynamicPageSize).fill(1).map((x, i) => (
                 <ClaimPreviewTile key={i} placeholder="loading" pulse />
@@ -771,7 +848,7 @@ function ClaimListDiscover(props: Props) {
           {subSection && <div>{subSection}</div>}
           <ClaimList
             type={type}
-            loading={loading}
+            loading={claimListLoading}
             uris={finalUris}
             prefixUris={prefixUris}
             onScrollBottom={handleScrollBottom}
@@ -790,7 +867,8 @@ function ClaimListDiscover(props: Props) {
             swipeLayout={swipeLayout}
             onHidden={onHidden}
           />
-          {loading &&
+
+          {claimListLoading &&
             useSkeletonScreen &&
             new Array(dynamicPageSize)
               .fill(1)

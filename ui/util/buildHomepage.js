@@ -346,7 +346,8 @@ export function GetLinksData(
   // @endif
   // **************************************************************************
 
-  const entries = Object.entries(all);
+  const { categories } = all;
+  const entries = Object.entries(categories || []);
   for (let i = 0; i < entries.length; ++i) {
     const key = entries[i][0];
     const val = entries[i][1];

@@ -19,6 +19,7 @@ type Props = {
   brokenUrls: ?Array<any>,
   isCollectionMine: boolean,
   isPrivate: boolean,
+  hasPrivate: boolean,
   doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void,
 };
 
@@ -34,6 +35,7 @@ const CollectionPage = (props: Props) => {
     brokenUrls,
     isCollectionMine,
     isPrivate,
+    hasPrivate,
     doResolveClaimId,
   } = props;
 
@@ -73,7 +75,7 @@ const CollectionPage = (props: Props) => {
     }
   }, [collectionId, doResolveClaimId, isPrivate]);
 
-  if (!isPrivate && isResolvingCollection) {
+  if (!hasPrivate && isResolvingCollection) {
     return (
       <div className="main--empty">
         <Spinner />

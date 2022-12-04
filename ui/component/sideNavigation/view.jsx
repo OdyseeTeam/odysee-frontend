@@ -312,8 +312,14 @@ function SideNavigation(props: Props) {
     let categories = rowData;
 
     if (homepageOrderApplyToSidebar) {
-      const sortedRowData: Array<RowDataItem> = getSortedRowData(Boolean(email), hasMembership, homepageOrder, rowData);
-      categories = sortedRowData.filter((x) => x.id !== 'FYP');
+      const sortedRowData: Array<RowDataItem> = getSortedRowData(
+        Boolean(email),
+        hasMembership,
+        homepageOrder,
+        homepageData,
+        rowData
+      );
+      categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
     }
 
     return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, ...theRest }) => theRest);
@@ -504,8 +510,10 @@ function SideNavigation(props: Props) {
   }, [hideMenuFromView, menuInitialized]);
 
   React.useEffect(() => {
-    doFetchLastActiveSubs();
-  }, []);
+    if (sidebarOpen) {
+      doFetchLastActiveSubs();
+    }
+  }, [doFetchLastActiveSubs, sidebarOpen]);
 
   // **************************************************************************
   // **************************************************************************
