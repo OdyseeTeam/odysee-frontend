@@ -293,7 +293,7 @@ function SideNavigation(props: Props) {
 
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
   const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
-  const showOverlay = isAbsolute && sidebarOpen;
+  const showOverlay = sidebarOpen;
 
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
 
