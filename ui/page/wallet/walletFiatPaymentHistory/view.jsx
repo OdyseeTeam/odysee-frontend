@@ -3,19 +3,36 @@ import React from 'react';
 import Button from 'component/button';
 import moment from 'moment';
 import * as STRIPE from 'constants/stripe';
+import { toCapitalCase } from 'util/string';
 
 type Props = {
   transactions: StripeTransactions,
   lastFour: ?any,
   doGetCustomerStatus: () => void,
+  transactionType: string,
 };
 
 const WalletFiatPaymentHistory = (props: Props) => {
   // receive transactions from parent component
-  const { transactions: accountTransactions, lastFour, doGetCustomerStatus } = props;
+  let { transactions: accountTransactions, lastFour, doGetCustomerStatus, transactionType } = props;
 
-  l('transactions');
-  l(accountTransactions);
+  const tipsBranch = transactionType === 'tips';
+  const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
+
+  function getMatch(transactionType) {
+    switch (transactionType) {
+      case 'tip':
+        return tipsBranch;
+      case 'rental':
+        return rentalsAndPurchasesBranch;
+      case 'purchase':
+        return rentalsAndPurchasesBranch;
+    }
+  }
+
+  accountTransactions = accountTransactions && accountTransactions.filter(transaction => {
+    return getMatch(transaction.type);
+  });
 
   React.useEffect(() => {
     doGetCustomerStatus();
@@ -30,8 +47,9 @@ const WalletFiatPaymentHistory = (props: Props) => {
             <thead>
               <tr>
                 <th className="date-header">{__('Date')}</th>
-                <th className="channelName-header">{<>{__('Receiving Channel Name')}</>}</th>
-                <th className="location-header">{__('Tip Location')}</th>
+                <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th>
+                <th className="transactionType-header">{<>{__('Type')}</>}</th>
+                <th className="location-header">{__('Location')}</th>
                 <th className="amount-header">{__('Amount')} </th>
                 <th className="card-header">{__('Card Last 4')}</th>
                 <th className="anonymous-header">{__('Anonymous')}</th>
@@ -53,6 +71,9 @@ const WalletFiatPaymentHistory = (props: Props) => {
                         button="link"
                       />
                     </td>
+                    <td>
+                      {toCapitalCase(transaction.type)}
+                    </td>
                     {/* link to content or channel */}
                     <td>
                       <Button
@@ -60,8 +81,8 @@ const WalletFiatPaymentHistory = (props: Props) => {
                         navigate={'/' + transaction.channel_name + ':' + transaction.source_claim_id}
                         label={
                           transaction.channel_claim_id === transaction.source_claim_id
-                            ? __('Channel Page')
-                            : __('Content Page')
+                            ? __('Channel')
+                            : __('Content')
                         }
                         button="link"
                       />

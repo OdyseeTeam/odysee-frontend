@@ -15,8 +15,6 @@ import FileExporter from 'component/common/file-exporter';
 import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
 import WalletFiatAccountHistory from '../walletFiatAccountHistory';
 
-console.log('hello');
-
 // constants to be used in query params
 const QUERY_NAME_CURRENCY = 'currency';
 const QUERY_NAME_TAB = 'tab';
@@ -87,6 +85,9 @@ function TxoList(props: Props) {
   // tab used in the wallet section
   // TODO: need to change this eventually
   const tab = urlParams.get(QUERY_NAME_TAB) || DEFAULT_TAB_PARAM;
+  const transactionType = urlParams.get('transactionType');
+
+  l('transactionType', transactionType);
 
   const currentUrlParams = {
     page,
@@ -97,6 +98,7 @@ function TxoList(props: Props) {
     currency,
     fiatType,
     tab,
+    transactionType,
   };
 
   const hideStatus =
@@ -229,7 +231,9 @@ function TxoList(props: Props) {
         if (delta.value === 'credits') {
           newUrlParams.delete(QUERY_NAME_FIAT_TYPE);
         } else {
+          // fiat conditional
           newUrlParams.set(QUERY_NAME_FIAT_TYPE, currentUrlParams.fiatType);
+          newUrlParams.set('transactionType', currentUrlParams.transactionType);
         }
         break;
       // toggling the fiat type (incoming/outgoing)
@@ -237,6 +241,7 @@ function TxoList(props: Props) {
         newUrlParams.set(QUERY_NAME_FIAT_TYPE, delta.value);
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);
         newUrlParams.set(QUERY_NAME_CURRENCY, currentUrlParams.currency);
+        newUrlParams.set('transactionType', currentUrlParams.transactionType);
         break;
     }
 
@@ -407,8 +412,8 @@ function TxoList(props: Props) {
                 </div>
               </div>
               {/* listing of the transactions */}
-              {fiatType === 'incoming' && <WalletFiatAccountHistory transactions={accountTransactions} />}
-              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactions={accountPaymentHistory} />}
+              {fiatType === 'incoming' && <WalletFiatAccountHistory transactionType={transactionType} transactions={accountTransactions} />}
+              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactionType={transactionType} transactions={accountPaymentHistory} />}
               {/* TODO: have to finish pagination */}
               {/* <Paginate totalPages={Math.ceil(txoItemCount / Number(pageSize))} /> */}
             </div>

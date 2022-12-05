@@ -4,20 +4,46 @@ import Button from 'component/button';
 import moment from 'moment';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
+import { toCapitalCase } from 'util/string';
 
 type Props = {
   transactions: StripeTransactions,
+  transactionType: string,
 };
 
 const WalletFiatAccountHistory = (props: Props) => {
   // receive transactions from parent component
-  const { transactions: accountTransactions } = props;
+  let { transactions: accountTransactions, transactionType } = props;
+
+  const tipsBranch = transactionType === 'tips';
+  const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
+
+  function getMatch(transactionType) {
+    switch (transactionType) {
+      case 'tip':
+        return tipsBranch;
+      case 'rental':
+        return rentalsAndPurchasesBranch;
+      case 'purchase':
+        return rentalsAndPurchasesBranch;
+    }
+  }
 
   if (accountTransactions?.length) {
     for (const transaction of accountTransactions) {
       console.log(transaction.type);
     }
   }
+
+  // l('transactionType');
+  // l(transactionType);
+
+  accountTransactions = accountTransactions && accountTransactions.filter(transaction => {
+    return getMatch(transaction.type);
+  });
+
+
+
 
   // l('accountTransactions')
   // l(accountTransactions)
@@ -34,8 +60,9 @@ const WalletFiatAccountHistory = (props: Props) => {
         <thead>
           <tr>
             <th className="date-header">{__('Date')}</th>
-            <th className="channelName-header">{<>{__('Receiving Channel Name')}</>}</th>
-            <th className="location-header">{__('Tip Location')}</th>
+            <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th>
+            <th className="transactionType-header">{<>{__('Type')}</>}</th>
+            <th className="location-header">{__('Location')}</th>
             <th className="amount-header">{__('Amount')} </th>
             <th className="processingFee-header">{__('Processing Fee')}</th>
             <th className="odyseeFee-header">{__('Odysee Fee')}</th>
@@ -60,12 +87,15 @@ const WalletFiatAccountHistory = (props: Props) => {
                     />
                   </td>
                   <td>
+                    {toCapitalCase(transaction.type)}
+                  </td>
+                  <td>
                     <Button
                       navigate={targetClaimId ? `/$/${PAGES.SEARCH}?q=${targetClaimId}` : undefined}
                       label={
                         transaction.channel_claim_id === transaction.source_claim_id
-                          ? __('Channel Page')
-                          : __('Content Page')
+                          ? __('Channel')
+                          : __('Content')
                       }
                       button="link"
                       target="_blank"
