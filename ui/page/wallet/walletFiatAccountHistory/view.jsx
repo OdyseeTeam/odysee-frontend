@@ -11,9 +11,16 @@ type Props = {
 
 const WalletFiatAccountHistory = (props: Props) => {
   // receive transactions from parent component
-  const { transactions } = props;
+  const { transactions: accountTransactions } = props;
 
-  let accountTransactions = transactions;
+  if (accountTransactions?.length) {
+    for (const transaction of accountTransactions) {
+      console.log(transaction.type);
+    }
+  }
+
+  // l('accountTransactions')
+  // l(accountTransactions)
 
   // TODO: should add pagination here
   // if there are more than 10 transactions, limit it to 10 for the frontend

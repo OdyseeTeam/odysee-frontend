@@ -2,7 +2,7 @@
 import React from 'react';
 import { useHistory } from 'react-router';
 import WalletBalance from 'component/walletBalance';
-import TxoList from 'component/txoList';
+import TxoList from './txoList';
 import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import Spinner from 'component/spinner';

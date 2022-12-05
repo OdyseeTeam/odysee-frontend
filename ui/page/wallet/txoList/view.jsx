@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import React, { useEffect } from 'react';
 import { withRouter } from 'react-router';
 import * as TXO from 'constants/txo_list';
-import TransactionListTable from 'component/transactionListTable';
+import TransactionListTable from '../transactionListTable';
 import Paginate from 'component/common/paginate';
 import { FormField } from 'component/common/form-components/form-field';
 import Button from 'component/button';
@@ -12,8 +12,10 @@ import { toCapitalCase } from 'util/string';
 import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import FileExporter from 'component/common/file-exporter';
-import WalletFiatPaymentHistory from 'component/walletFiatPaymentHistory';
-import WalletFiatAccountHistory from 'component/walletFiatAccountHistory';
+import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
+import WalletFiatAccountHistory from '../walletFiatAccountHistory';
+
+console.log('hello');
 
 // constants to be used in query params
 const QUERY_NAME_CURRENCY = 'currency';

@@ -14,6 +14,9 @@ const WalletFiatPaymentHistory = (props: Props) => {
   // receive transactions from parent component
   const { transactions: accountTransactions, lastFour, doGetCustomerStatus } = props;
 
+  l('transactions');
+  l(accountTransactions);
+
   React.useEffect(() => {
     doGetCustomerStatus();
   }, [doGetCustomerStatus]);
