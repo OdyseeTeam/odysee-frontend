@@ -321,11 +321,20 @@ function ChannelPage(props: Props) {
     function getFileType() {
       return section.file_type && section.file_type.length === 1 && section.file_type[0] === 'video'
         ? CS.FILE_VIDEO
-        : section.file_type[0] === 'audio'
+        : section.file_type &&
+          section.file_type.length === 1 &&
+          section.file_type[0] &&
+          section.file_type[0] === 'audio'
         ? CS.FILE_AUDIO
-        : section.file_type[0] === 'document'
+        : section.file_type &&
+          section.file_type.length === 1 &&
+          section.file_type[0] &&
+          section.file_type[0] === 'document'
         ? CS.FILE_DOCUMENT
-        : section.file_type[0] === 'image'
+        : section.file_type &&
+          section.file_type.length === 1 &&
+          section.file_type[0] &&
+          section.file_type[0] === 'image'
         ? CS.FILE_IMAGE
         : undefined;
     }
