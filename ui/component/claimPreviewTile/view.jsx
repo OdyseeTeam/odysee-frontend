@@ -6,7 +6,6 @@ import { ChannelPageContext } from 'contexts/channel';
 import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
-import Icon from 'component/common/icon';
 import TruncatedText from 'component/common/truncated-text';
 import DateTime from 'component/dateTime';
 import LivestreamDateTime from 'component/livestreamDateTime';
@@ -16,7 +15,6 @@ import FileViewCountInline from 'component/fileViewCountInline';
 import useGetThumbnail from 'effects/use-get-thumbnail';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
-import { parseURI } from 'util/lbryURI';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
@@ -24,7 +22,6 @@ import ButtonAddToQueue from 'component/buttonAddToQueue';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
-import * as ICONS from 'constants/icons';
 import { FYP_ID } from 'constants/urlParams';
 import { EmbedContext } from 'contexts/embed';
 // $FlowFixMe cannot resolve ...
@@ -35,7 +32,6 @@ type Props = {
   date?: any,
   claim: ?Claim,
   mediaDuration?: string,
-  resolveUri: (string) => void,
   isResolvingUri: boolean,
   claimIsMine: boolean,
   history: { push: (string) => void },
@@ -56,7 +52,6 @@ type Props = {
   isLivestream: boolean,
   viewCount: ?string,
   isLivestreamActive: boolean,
-  livestreamViewerCount: ?number,
   swipeLayout: boolean,
   onHidden?: (string) => void,
   pulse?: boolean,
@@ -73,7 +68,6 @@ function ClaimPreviewTile(props: Props) {
     isResolvingUri,
     claimIsMine,
     title,
-    resolveUri,
     claim,
     placeholder,
     banState,
@@ -88,7 +82,6 @@ function ClaimPreviewTile(props: Props) {
     showUnresolvedClaims,
     isLivestream,
     isLivestreamActive,
-    livestreamViewerCount,
     collectionId,
     fypId,
     mediaDuration,
@@ -116,7 +109,6 @@ function ClaimPreviewTile(props: Props) {
     // $FlowFixMe
     (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
   const collectionClaimId = isCollection && claim && claim.claim_id;
-  const shouldFetch = claim === undefined;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
@@ -129,16 +121,6 @@ function ClaimPreviewTile(props: Props) {
     to: navigateUrl,
     onClick: (e) => e.stopPropagation(),
   };
-
-  let isValid = false;
-  if (uri) {
-    try {
-      parseURI(uri);
-      isValid = true;
-    } catch (e) {
-      isValid = false;
-    }
-  }
 
   const signingChannel = claim && claim.signing_channel;
   const isChannel = claim && claim.value_type === 'channel';
@@ -187,12 +169,6 @@ function ClaimPreviewTile(props: Props) {
   // **************************************************************************
 
   React.useEffect(() => {
-    if (isValid && !isResolvingUri && shouldFetch && uri) {
-      resolveUri(uri);
-    }
-  }, [isValid, isResolvingUri, uri, resolveUri, shouldFetch]);
-
-  React.useEffect(() => {
     if (onHidden && shouldHide) {
       onHidden(props.uri);
     }
@@ -201,11 +177,11 @@ function ClaimPreviewTile(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  if (shouldHide) {
+  if (claim && shouldHide) {
     return null;
   }
 
-  if (placeholder || (!claim && isResolvingUri)) {
+  if (placeholder || claim === undefined || isResolvingUri) {
     return (
       <li
         className={classnames('placeholder claim-preview--tile', {
@@ -233,19 +209,6 @@ function ClaimPreviewTile(props: Props) {
         </div>
       </li>
     );
-  }
-
-  let liveProperty = null;
-  if (isLivestream) {
-    if (isLivestreamActive === true && livestreamViewerCount) {
-      liveProperty = (claim) => (
-        <span className="livestream__viewer-count">
-          {livestreamViewerCount} <Icon icon={ICONS.EYE} />
-        </span>
-      );
-    } else {
-      liveProperty = (claim) => <>LIVE</>;
-    }
   }
 
   return (
@@ -279,7 +242,7 @@ function ClaimPreviewTile(props: Props) {
               )}
 
               <div className="claim-preview__file-property-overlay">
-                <PreviewOverlayProperties uri={uri} properties={liveProperty || properties} />
+                <PreviewOverlayProperties uri={uri} properties={properties} />
               </div>
               <ClaimPreviewProgress uri={uri} />
             </React.Fragment>
@@ -323,7 +286,7 @@ function ClaimPreviewTile(props: Props) {
                   <div className="claim-tile__about">
                     <UriIndicator uri={uri} link external={isEmbed} />
                     <div className="claim-tile__about--counts">
-                      <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                      <FileViewCountInline uri={uri} />
                       {isLivestream && <LivestreamDateTime uri={uri} />}
                       {!isLivestream && <DateTime timeAgo uri={uri} />}
                     </div>

@@ -6,7 +6,6 @@ import * as ICONS from 'constants/icons';
 import ClaimListDiscover from 'component/claimListDiscover';
 import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
-import { getLivestreamUris } from 'util/livestream';
 
 const DEFAULT_LIVESTREAM_TILE_LIMIT = 8;
 const SECTION = Object.freeze({ COLLAPSED: 1, EXPANDED: 2 });
@@ -20,24 +19,20 @@ function getTileLimit(isLargeScreen, originalSize) {
 
 type Props = {
   tileLayout: boolean,
-  channelIds?: Array<string>,
-  excludedChannelIds?: Array<string>,
   hideMembersOnlyContent?: boolean,
   // -- redux --
   livestreamSectionQueryStr: string,
-  activeLivestreams: ?ActiveLivestreamInfosById,
+  activeLivestreamUris: ?Array<string>,
   doFetchAllActiveLivestreamsForQuery: (query?: { orderBy: ?Array<string>, lang: ?Array<string> }) => void,
 };
 
 export default function LivestreamSection(props: Props) {
   const {
     tileLayout,
-    channelIds,
-    excludedChannelIds,
     hideMembersOnlyContent,
     // -- redux --
     livestreamSectionQueryStr,
-    activeLivestreams,
+    activeLivestreamUris,
     doFetchAllActiveLivestreamsForQuery,
   } = props;
 
@@ -49,8 +44,7 @@ export default function LivestreamSection(props: Props) {
 
   const initialLiveTileLimit = getTileLimit(isLargeScreen, DEFAULT_LIVESTREAM_TILE_LIMIT);
   const [liveSection, setLiveSection] = React.useState(liveSectionStore || SECTION.COLLAPSED);
-  const livestreamUris = getLivestreamUris(activeLivestreams, channelIds, excludedChannelIds);
-  const liveTilesOverLimit = livestreamUris && livestreamUris.length > initialLiveTileLimit;
+  const liveTilesOverLimit = activeLivestreamUris && activeLivestreamUris.length > initialLiveTileLimit;
 
   function collapseSection() {
     window.scrollTo(0, 0);
@@ -76,7 +70,7 @@ export default function LivestreamSection(props: Props) {
     }
   }, [liveSection, expandedYPos]);
 
-  if (!livestreamUris || livestreamUris.length === 0) {
+  if (!activeLivestreamUris || activeLivestreamUris.length === 0) {
     return null;
   }
 
@@ -84,9 +78,9 @@ export default function LivestreamSection(props: Props) {
     return (
       <div className="livestream-list">
         <ClaimListDiscover
-          uris={livestreamUris}
-          tileLayout={livestreamUris.length > 1 ? true : tileLayout}
-          swipeLayout={livestreamUris.length > 1}
+          uris={activeLivestreamUris}
+          tileLayout={activeLivestreamUris.length > 1 ? true : tileLayout}
+          swipeLayout={activeLivestreamUris.length > 1}
           headerLabel={<div className="section__title">{__('Livestreams')}</div>}
           useSkeletonScreen={false}
           showHeader={false}
@@ -104,9 +98,7 @@ export default function LivestreamSection(props: Props) {
     <div className="livestream-list">
       <ClaimListDiscover
         uris={
-          liveSection === SECTION.COLLAPSED
-            ? livestreamUris.slice(0, initialLiveTileLimit)
-            : livestreamUris.slice(0, initialLiveTileLimit * 2)
+          liveSection === SECTION.COLLAPSED ? activeLivestreamUris.slice(0, initialLiveTileLimit) : activeLivestreamUris
         }
         tileLayout={tileLayout}
         showHeader={false}

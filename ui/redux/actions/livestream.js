@@ -1,11 +1,9 @@
 // @flow
-import moment from 'moment';
 import Livestream from 'livestream';
 
 import * as ACTIONS from 'constants/action_types';
 
-import { transformNewLivestreamData, determineLiveClaim, filterUpcomingLiveStreamClaims } from 'util/livestream';
-import { isEmpty } from 'util/object';
+import { transformNewLivestreamData } from 'util/livestream';
 import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
 import { getChannelIdFromClaim } from 'util/claim';
 
@@ -13,89 +11,54 @@ import {
   selectIsLiveFetchingForId,
   selectActiveLivestreamsFetchingForQuery,
   selectActiveLivestreamsLastFetchedDateForQuery,
-  selectActiveLivestreamsLastFetchedFailCount,
+  selectActiveLivestreamsLastFetchedFailCountForQuery,
 } from 'redux/selectors/livestream';
 
 import { doClaimSearch } from 'redux/actions/claims';
 
-const findActiveStreams = (
-  activeLivestreams: ActiveLivestreamInfosById,
-  orderBy: Array<string>,
-  lang: ?Array<string> = null
+// -- Fetches the claims for the returned active livestreams, and filter based on the query (language, etc)
+// -- Since currently it only uses the lang param, it would be better if the backend could return us the appropriate
+// -- active livestreams with a given language param
+const doFetchActiveLivestreamsForQuery = (
+  activeLivestreamByCreatorIds: ActiveLivestreamByCreatorIds,
+  query?: { any_languages: ?Array<string> } = { any_languages: null }
 ) => async (dispatch: Dispatch) => {
-  const livestreamsToSearch = lang ? activeLivestreams : {};
+  const { any_languages: lang } = query;
 
-  if (!lang) {
-    Object.values(activeLivestreams).forEach((activeLivestream) => {
-      // $FlowFixMe
-      if (!activeLivestream.claimId || !activeLivestream.claimUri) {
-        // $FlowFixMe
-        livestreamsToSearch[activeLivestream.creatorId] = activeLivestream;
-      }
-    });
+  const activeLivestreamIds = [];
 
-    if (isEmpty(livestreamsToSearch)) {
-      return activeLivestreams;
-    }
+  for (const creatorId in activeLivestreamByCreatorIds) {
+    const { claimId }: ActiveLivestream = activeLivestreamByCreatorIds[creatorId];
+    activeLivestreamIds.push(claimId);
   }
 
-  const liveChannelIds = Object.keys(livestreamsToSearch);
-
-  const claimSearchParams = {
-    page: 1,
-    page_size: 50,
-    has_no_source: true,
-    channel_ids: liveChannelIds,
-    claim_type: ['stream'],
-    limit_claims_per_channel: 1,
-    no_totals: true,
-    ...(lang ? { any_languages: lang } : {}),
-  };
-  const claimSearchSettings = { useAutoPagination: true };
-
-  // Find the most recent claims for the channels that are actively broadcasting a stream.
-  const mostRecentClaims = await dispatch(
-    doClaimSearch({ ...claimSearchParams, order_by: orderBy, release_time: `<${moment().unix()}` }, claimSearchSettings)
-  );
-
-  // Find the first upcoming claim (if one exists) for each channel that's actively broadcasting a stream.
-  const upcomingClaims = await dispatch(
+  const activeLivestreamClaims = await dispatch(
     doClaimSearch(
       {
-        ...claimSearchParams,
-        order_by: ['^release_time'],
-        release_time: `>${moment().subtract(5, 'minutes').unix()}`,
+        page: 1,
+        page_size: 50,
+        has_no_source: true,
+        claim_ids: activeLivestreamIds,
+        claim_type: ['stream'],
+        no_totals: true,
+        ...(lang ? { any_languages: lang } : {}),
       },
-      claimSearchSettings
+      { useAutoPagination: true }
     )
   );
 
-  // Filter out any of those claims that aren't scheduled to start within the configured "soon" buffer time (ex. next 15 min).
-  const startingSoonClaims = filterUpcomingLiveStreamClaims(upcomingClaims);
+  const searchedActiveLivestreams = {};
 
-  // Reduce the claim list to one "live" claim per channel, based on how close each claim's
-  // release time is to the time the channels stream started.
-  const allClaims = Object.assign(
-    {},
-    mostRecentClaims,
-    !isEmpty(startingSoonClaims) ? startingSoonClaims : upcomingClaims
-  );
-
-  const currentlyLiveClaims = determineLiveClaim(allClaims, livestreamsToSearch);
-  const allStreams = { ...activeLivestreams, ...currentlyLiveClaims };
-  const searchedLivestreams = {};
-
-  Object.values(currentlyLiveClaims).forEach((claim: any) => {
-    const { claim_id: claimId, canonical_url: claimUri } = claim.stream;
-
-    const channelId = getChannelIdFromClaim(claim.stream);
+  for (const uri in activeLivestreamClaims) {
+    const claim = activeLivestreamClaims[uri].stream;
+    const channelId = getChannelIdFromClaim(claim);
 
     if (channelId) {
-      searchedLivestreams[channelId] = { ...allStreams[channelId], claimId, claimUri };
+      searchedActiveLivestreams[channelId] = activeLivestreamByCreatorIds[channelId];
     }
-  });
+  }
 
-  return searchedLivestreams;
+  return searchedActiveLivestreams;
 };
 
 export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
@@ -112,22 +75,16 @@ export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch:
         return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: { [channelId]: null } });
       }
 
-      const activeLivestreamById: ActiveLivestreamInfosById = transformNewLivestreamData([response]);
-      const activeLivestream = await dispatch(findActiveStreams(activeLivestreamById, ['release_time']));
+      const activeLivestreamByCreatorId: ActiveLivestreamByCreatorIds = transformNewLivestreamData([response]);
 
-      return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: activeLivestream });
+      return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: activeLivestreamByCreatorId });
     })
     .catch(() => dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: { [channelId]: null } }));
 };
 
 export const doFetchAllActiveLivestreamsForQuery = (
-  query?: { order_by: Array<string>, any_languages: ?Array<string> } = {
-    order_by: ['release_time'],
-    any_languages: null,
-  }
+  query?: { any_languages: ?Array<string> } = { any_languages: null }
 ) => async (dispatch: Dispatch, getState: GetState) => {
-  const { order_by: orderBy, any_languages: lang } = query;
-
   const state = getState();
   const queryStr = JSON.stringify(query);
   const alreadyFetching = selectActiveLivestreamsFetchingForQuery(state, queryStr);
@@ -136,12 +93,12 @@ export const doFetchAllActiveLivestreamsForQuery = (
 
   const now = Date.now();
   const activeLivestreamsLastFetchedDate = selectActiveLivestreamsLastFetchedDateForQuery(state, queryStr);
-  const timeDelta = now - activeLivestreamsLastFetchedDate;
+  const timeDelta = Number.isInteger(activeLivestreamsLastFetchedDate) && now - activeLivestreamsLastFetchedDate;
 
-  if (timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
-    const failCount = selectActiveLivestreamsLastFetchedFailCount(state);
+  if (Number.isInteger(timeDelta) && timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
+    const failCount = selectActiveLivestreamsLastFetchedFailCountForQuery(state, queryStr);
 
-    if (failCount === 0 || failCount > 3) {
+    if (failCount === 0 || failCount >= 3) {
       // Just fetched successfully, or failed 3 times. Skip for FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS.
       return;
     }
@@ -153,13 +110,15 @@ export const doFetchAllActiveLivestreamsForQuery = (
 
   return Livestream.call('livestream', 'all')
     .then(async (response: LivestreamAllResponse) => {
-      const activeLivestreams: ActiveLivestreamInfosById = transformNewLivestreamData(response);
+      const activeLivestreamByCreatorId: ActiveLivestreamByCreatorIds = transformNewLivestreamData(response);
 
-      const activeStreams = await dispatch(findActiveStreams(activeLivestreams, orderBy, lang));
+      const activeLivestreamResolvedByCreatorId = await dispatch(
+        doFetchActiveLivestreamsForQuery(activeLivestreamByCreatorId, query)
+      );
 
       dispatch({
         type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SUCCESS,
-        data: { ...completedParams, activeLivestreams: activeStreams },
+        data: { ...completedParams, activeLivestreamByCreatorId: activeLivestreamResolvedByCreatorId },
       });
     })
     .catch(() => dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAIL, data: completedParams }));

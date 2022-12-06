@@ -3,17 +3,15 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import Spinner from 'component/spinner';
 import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
-import { getLivestreamUris } from 'util/livestream';
 
 type Props = {
-  activeLivestreams: ?ActiveLivestreamInfosById,
+  activeLivestreamUris: ?Array<string>,
   fetchingActiveLivestreams: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
 };
 
 export default function LivestreamList(props: Props) {
-  const { activeLivestreams, fetchingActiveLivestreams, doFetchAllActiveLivestreamsForQuery } = props;
-  const livestreamUris = getLivestreamUris(activeLivestreams, null);
+  const { activeLivestreamUris, fetchingActiveLivestreams, doFetchAllActiveLivestreamsForQuery } = props;
 
   React.useEffect(() => {
     doFetchAllActiveLivestreamsForQuery();
@@ -39,5 +37,5 @@ export default function LivestreamList(props: Props) {
     );
   }
 
-  return <ClaimList uris={livestreamUris} showNoSourceClaims tileLayout />;
+  return <ClaimList uris={activeLivestreamUris} showNoSourceClaims tileLayout />;
 }

@@ -1,11 +1,10 @@
 // @flow
 import type { Node } from 'react';
-import React, { useEffect, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import { isEmpty } from 'util/object';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
-import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { isChannelClaim } from 'util/claim';
 import { formatLbryUrlForWeb } from 'util/url';
@@ -56,7 +55,6 @@ type Props = {
   claimIsMine: boolean,
   pending?: boolean,
   reflectingProgress?: any, // fxme
-  resolveUri: (string) => void,
   isResolvingUri: boolean,
   history: { push: (string | any) => void, location: { pathname: string, search: string } },
   title: string,
@@ -88,7 +86,6 @@ type Props = {
   hideMenu?: boolean,
   isLivestream?: boolean,
   isLivestreamActive: boolean,
-  livestreamViewerCount: ?number,
   collectionId?: string,
   isCollectionMine: boolean,
   disableNavigation?: boolean, // DEPRECATED - use 'nonClickable'. Remove this when channel-finder is consolidated (#810)
@@ -120,7 +117,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     isResolvingUri,
     // core actions
     getFile,
-    resolveUri,
     // claim properties
     // is the claim consider nsfw?
     nsfw,
@@ -165,7 +161,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     // repostUrl,
     isLivestream,
     isLivestreamActive,
-    livestreamViewerCount,
     collectionId,
     isCollectionMine,
     disableNavigation,
@@ -223,7 +218,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       </div>
     );
   }, [channelSubCount]);
-  const isValid = uri && isURIValid(uri, false);
 
   // $FlowFixMe
   const isPlayable =
@@ -345,12 +339,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doClearContentHistoryUri(uri);
   }
 
-  useEffect(() => {
-    if (isValid && !isResolvingUri && shouldFetch && uri) {
-      resolveUri(uri);
-    }
-  }, [isValid, uri, isResolvingUri, shouldFetch, resolveUri]);
-
   const JoinButton = React.useMemo(
     () => () =>
       isChannelUri &&
@@ -367,15 +355,19 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   // **************************************************************************
   // **************************************************************************
 
-  if (!playlistPreviewItem && ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS))) {
+  if (
+    claim &&
+    !playlistPreviewItem &&
+    ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS))
+  ) {
     return null;
   }
 
-  if (geoRestriction && !claimIsMine) {
+  if (claim && geoRestriction && !claimIsMine) {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  if (placeholder === 'loading' || (uri && !claim && isResolvingUri)) {
+  if (placeholder === 'loading' || (uri && (claim === undefined || isResolvingUri))) {
     return (
       <ClaimPreviewLoading
         isChannel={isChannelUri}
@@ -422,19 +414,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   if (isPublishSuggestion) {
     return null; // Ignore 'showNullPlaceholder'
-  }
-
-  let liveProperty = null;
-  if (isLivestreamActive === true) {
-    if (livestreamViewerCount) {
-      liveProperty = (claim) => (
-        <span className="livestream__viewer-count">
-          {livestreamViewerCount} <Icon icon={ICONS.EYE} />
-        </span>
-      );
-    } else {
-      liveProperty = (claim) => <>LIVE</>;
-    }
   }
 
   return (
@@ -504,12 +483,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     )}
                     {(!isLivestream || isLivestreamActive) && (
                       <div className="claim-preview__file-property-overlay">
-                        <PreviewOverlayProperties
-                          uri={uri}
-                          small={type === 'small'}
-                          xsmall={smallThumbnail}
-                          properties={liveProperty}
-                        />
+                        <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} />
                       </div>
                     )}
                     {isCollection && <CollectionPreviewOverlay collectionId={listId} />}

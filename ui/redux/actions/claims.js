@@ -1046,10 +1046,8 @@ export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => 
 export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (
   dispatch: Dispatch,
   getState: GetState
-) => {
-  dispatch({ type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_STARTED, data: channelId });
-
-  return await dispatch(
+) =>
+  await dispatch(
     doClaimSearch({
       channel_ids: [channelId],
       has_no_source: true,
@@ -1060,7 +1058,4 @@ export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (
       include_is_my_output: true,
       order_by: ['release_time'],
     })
-  )
-    .then(() => dispatch({ type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_COMPLETED, data: channelId }))
-    .catch(() => dispatch({ type: ACTIONS.FETCH_NO_SOURCE_CLAIMS_FAILED, data: channelId }));
-};
+  );

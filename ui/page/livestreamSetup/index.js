@@ -7,7 +7,6 @@ import { selectUser } from 'redux/selectors/user';
 import {
   makeSelectPendingLivestreamsForChannelId,
   makeSelectLivestreamsForChannelId,
-  makeSelectIsFetchingLivestreams,
 } from 'redux/selectors/livestream';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
@@ -25,7 +24,6 @@ const select = (state) => {
     activeChannelClaim,
     myLivestreamClaims: makeSelectLivestreamsForChannelId(channelId)(state),
     pendingClaims: makeSelectPendingLivestreamsForChannelId(channelId)(state),
-    fetchingLivestreams: makeSelectIsFetchingLivestreams(channelId)(state),
     user: selectUser(state),
     balance: selectBalance(state),
   };

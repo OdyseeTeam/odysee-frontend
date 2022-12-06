@@ -17,7 +17,6 @@ import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
-import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
 import Ads from 'web/component/ads';
@@ -26,8 +25,6 @@ import Portals from 'component/portals';
 import FeaturedBanner from 'component/featuredBanner';
 import ABTest from 'component/experiment';
 import { useHistory } from 'react-router-dom';
-
-const CATEGORY_LIVESTREAM_LIMIT = 3;
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
@@ -39,7 +36,6 @@ type Props = {
   homepageData: any,
   homepageMeme: ?{ text: string, url: string },
   homepageFetched: boolean,
-  activeLivestreams: any,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,
@@ -48,6 +44,7 @@ type Props = {
   userHasOdyseeMembership: ?boolean,
   hasPremiumPlus: boolean,
   currentTheme: string,
+  getActiveLivestreamUrisForIds: (Array<string>) => Array<string>,
 };
 
 function HomePage(props: Props) {
@@ -59,7 +56,6 @@ function HomePage(props: Props) {
     homepageData,
     homepageMeme,
     homepageFetched,
-    activeLivestreams,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
     hideScheduledLivestreams,
@@ -67,6 +63,7 @@ function HomePage(props: Props) {
     doOpenModal,
     userHasOdyseeMembership,
     hasPremiumPlus,
+    getActiveLivestreamUrisForIds,
   } = props;
 
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
@@ -158,10 +155,7 @@ function HomePage(props: Props) {
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
         hideMembersOnly={id !== 'FOLLOWING'}
         hasSource
-        prefixUris={getLivestreamUris(activeLivestreams, options.channelIds).slice(
-          0,
-          id === 'FOLLOWING' ? undefined : CATEGORY_LIVESTREAM_LIMIT
-        )}
+        prefixUris={getActiveLivestreamUrisForIds(options.channelIds)}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         injectedItem={index === topGrid && !hasPremiumPlus && { node: <Ads small type="video" tileLayout /> }}
         forceShowReposts={id !== 'FOLLOWING'}
@@ -252,7 +246,7 @@ function HomePage(props: Props) {
                       <ScheduledStreams
                         channelIds={subscriptionChannelIds}
                         tileLayout
-                        liveUris={getLivestreamUris(activeLivestreams, subscriptionChannelIds)}
+                        liveUris={getActiveLivestreamUrisForIds(subscriptionChannelIds)}
                         limitClaimsPerChannel={2}
                       />
                     )}

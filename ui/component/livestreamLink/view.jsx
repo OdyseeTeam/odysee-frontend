@@ -11,11 +11,18 @@ import withLiveStatus from 'hocs/withLiveStatus';
 type Props = {
   title?: string,
   claimUri: string,
+  doResolveUri: (uri: string) => void,
 };
 
 function LivestreamLink(props: Props) {
-  const { claimUri, title = null } = props;
+  const { claimUri, title = null, doResolveUri } = props;
   const { push } = useHistory();
+
+  React.useEffect(() => {
+    if (claimUri) {
+      doResolveUri(claimUri);
+    }
+  }, [claimUri, doResolveUri]);
 
   if (!claimUri) return null;
 
