@@ -1,7 +1,8 @@
 // @flow
 import React from 'react';
-import { useHistory } from 'react-router-dom';
-import analytics from 'analytics';
+// import { useHistory } from 'react-router-dom';
+// import analytics from 'analytics';
+import './style.scss';
 
 // ****************************************************************************
 // AdsSticky
@@ -33,6 +34,7 @@ export default function AdsSticky(props: Props) {
     nagsShown,
   } = props;
 
+  /*
   const { location } = useHistory();
   const [refresh, setRefresh] = React.useState(0);
 
@@ -73,6 +75,60 @@ export default function AdsSticky(props: Props) {
     const ad = document.getElementsByClassName('OUTBRAIN')[0];
     if (ad && locale && !locale.gdpr_required && !nagsShown) ad.classList.add('VISIBLE');
   }, [inAllowedPath, refresh]);
+  */
+
+
+
+
+
+
+  const AD_CONFIGS = Object.freeze({
+    REVCONTENT: {
+      url: '//labs-cdn.revcontent.com/build/revshifter.min.js',
+    },
+  });
+  
+
+  React.useEffect(() => {
+    if (shouldShowAds) {
+      let script;
+      try {
+        script = document.createElement('script');
+        script.src = AD_CONFIGS.REVCONTENT.url;
+        // $FlowIgnore
+        document.body.appendChild(script);
+
+        new RevShifter({
+          api_key : 'eb84aa29c0184b36009acb485dd8c48dad694e7b',
+          pub_id : 176372,
+          widget_id : 273433,
+          domain : 'odysee.com',
+          show_on_touch: false,
+          show_on_scroll: false,
+          show_on_load: true,
+          text_right: true,
+          per_row: {
+              xxs: 1,
+              xs: 2,
+              sm: 2,
+              md: 3,
+              lg: 4,
+              xl: 5,
+              xxl: 5,
+          },
+          max_headline: false,
+          devices: ['phone', 'tablet', 'desktop']
+        })
+        return () => {
+          // $FlowIgnore
+          document.body.removeChild(script);
+        };
+      } catch (e) {}
+    }
+  }, [shouldShowAds, AD_CONFIGS]);
+
+  console.log('')
+
 
   return null; // Nothing for us to mount; the ad script will handle everything.
 }
