@@ -1,0 +1,40 @@
+@import '~ui/scss/init/breakpoints';
+
+.rc_tile {
+  background-color: rgba(var(--color-header-background-base), 0.6);
+  margin-top: var(--spacing-m);
+  border-radius: var(--border-radius);
+  padding: 0 var(--spacing-s);
+
+  @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-s);
+  }
+
+  .rc-photo {
+    border-radius: var(--border-radius);
+  }
+
+  .rc-item {
+    .rc-headline {
+      color: var(--color-text) !important;
+    }
+    .rc-provider {
+      color: rgba(var(--color-text-base), 0.6) !important;
+      &:hover {
+        color: rgba(var(--color-text-base), 1) !important;
+      }
+    }
+    &:hover {
+      .rc-headline {
+        color: var(--color-primary) !important;
+      }
+    }
+  }
+
+  .jndTuo {
+    transition: unset;
+    &:hover {
+      background-color: var(--color-primary);
+    }
+  }
+}
