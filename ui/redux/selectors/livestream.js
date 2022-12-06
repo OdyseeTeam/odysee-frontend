@@ -25,6 +25,7 @@ const selectState = (state: State) => state.livestream || {};
 export const selectLivestreamInfoByCreatorId = (state: State) => selectState(state).livestreamInfoByCreatorId;
 export const selectActiveLivestreamByCreatorId = (state: State) => selectState(state).activeLivestreamByCreatorId;
 export const selectFutureLivestreamsByCreatorId = (state: State) => selectState(state).futureLivestreamsByCreatorId;
+export const selectPastLivestreamsByCreatorId = (state: State) => selectState(state).pastLivestreamsByCreatorId;
 export const selectViewersById = (state: State) => selectState(state).viewersById;
 export const selectIsLiveFetchingIds = (state: State) => selectState(state).isLiveFetchingIds;
 export const selectActiveLivestreamsFetchingQueries = (state: State) =>
@@ -40,6 +41,9 @@ export const selectViewersForId = (state: State, claimId: string) => selectViewe
 
 export const selectFutureLivestreamsForCreatorId = (state: State, creatorId: string) =>
   selectFutureLivestreamsByCreatorId(state)[creatorId];
+
+export const selectPastLivestreamsForCreatorId = (state: State, creatorId: string) =>
+  selectPastLivestreamsByCreatorId(state)[creatorId];
 
 export const selectFilteredActiveLivestreamUris = createCachedSelector(
   (state, channelIds, excludedChannelIds, query) =>
@@ -250,6 +254,9 @@ export const selectLatestLiveUriForChannel = (state: State, channelId: string) =
 
   const futureCreatorLivestreams = selectFutureLivestreamsForCreatorId(state, channelId);
   if (futureCreatorLivestreams && futureCreatorLivestreams.length > 0) return futureCreatorLivestreams[0].uri;
+
+  const pastCreatorLivestreams = selectPastLivestreamsForCreatorId(state, channelId);
+  if (pastCreatorLivestreams && pastCreatorLivestreams.length > 0) return pastCreatorLivestreams[0].uri;
 
   return activeCreatorLivestream;
 };

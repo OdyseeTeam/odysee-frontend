@@ -368,6 +368,17 @@ img {
   }
 }
 
+.help--notice-embed-livestream {
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  background-color: rgba(var(--color-primary-dynamic), 0.43) !important;
+}
+
+.help--notice-short {
+  width: 50%;
+}
+
 .help--inline {
   @extend .help;
   margin-top: 0;

@@ -1,16 +1,20 @@
 // @flow
 import React from 'react';
+import classnames from 'classnames';
 
 import * as RENDER_MODES from 'constants/file_render_modes';
 
 import { useHistory } from 'react-router';
 import { parseURI } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
+import { formatLbryUrlForWeb } from 'util/url';
 
 import withLiveStatus from 'hocs/withLiveStatus';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import Spinner from 'component/spinner';
+import I18nMessage from 'component/i18nMessage';
+import Button from 'component/button';
 
 const ClaimPreviewTile = lazyImport(() =>
   import('component/claimPreviewTile' /* webpackChunkName: "claimPreviewTile" */)
@@ -25,6 +29,7 @@ type Props = {
   renderMode: string,
   isLivestreamClaim: ?boolean,
   showScheduledInfo: ?boolean,
+  liveClaimStartingSoon: ?boolean,
 };
 
 const EmbedClaimComponent = (props: Props) => {
@@ -35,6 +40,7 @@ const EmbedClaimComponent = (props: Props) => {
     renderMode,
     isLivestreamClaim,
     showScheduledInfo,
+    liveClaimStartingSoon,
   } = props;
 
   const {
@@ -44,8 +50,13 @@ const EmbedClaimComponent = (props: Props) => {
   const urlParams = new URLSearchParams(search);
   const featureParam = urlParams.get('feature');
 
-  const { isChannel } = parseURI(uri);
+  const { isChannel, channelName } = parseURI(uri);
   const isVideo = RENDER_MODES.FLOATING_MODES.includes(renderMode);
+
+  const ClickHereButton = React.useMemo(
+    () => () => <Button button="link" label={__('Click Here')} href={formatLbryUrlForWeb(uri)} />,
+    [uri]
+  );
 
   if (isChannel) {
     if (featureParam && latestClaimUrl !== null) {
@@ -66,6 +77,12 @@ const EmbedClaimComponent = (props: Props) => {
         }
       >
         <ClaimPreview uri={uri} />
+
+        {latestClaimUrl === null && (
+          <div className="help--notice" style={{ marginTop: '20px' }}>
+            {__("%channelName% isn't live right now, check back later to watch the stream.", { channelName })}
+          </div>
+        )}
       </React.Suspense>
     );
   }
@@ -74,7 +91,29 @@ const EmbedClaimComponent = (props: Props) => {
     const VideoComponent = isLivestreamClaim ? EmbeddedLivestreamClaim : EmbeddedVideoClaim;
     return (
       <VideoComponent uri={uri} embedded forceRender={isLivestreamClaim}>
-        {isLivestreamClaim && showScheduledInfo && <LivestreamScheduledInfo uri={uri} />}
+        {isLivestreamClaim && (
+          <>
+            {showScheduledInfo && <LivestreamScheduledInfo uri={uri} />}
+
+            <div
+              className={classnames('help--notice help--notice-embed-livestream', {
+                'help--notice-short': showScheduledInfo,
+              })}
+              style={{ marginTop: '20px' }}
+            >
+              {liveClaimStartingSoon ? (
+                <I18nMessage tokens={{ click_here: <ClickHereButton /> }}>
+                  %click_here% if you want to join the chat for this stream.
+                </I18nMessage>
+              ) : (
+                <I18nMessage tokens={{ channel_name: channelName, click_here: <ClickHereButton /> }}>
+                  %channel_name% isn't live right now, but the chat is! Check back later to watch the stream, or
+                  %click_here% to start chatting.
+                </I18nMessage>
+              )}
+            </div>
+          </>
+        )}
       </VideoComponent>
     );
   }
