@@ -7,7 +7,9 @@ import { useHistory } from 'react-router';
 import { parseURI } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
 
+import withLiveStatus from 'hocs/withLiveStatus';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
+import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import Spinner from 'component/spinner';
 
 const ClaimPreviewTile = lazyImport(() =>
@@ -21,6 +23,8 @@ type Props = {
   latestClaimUrl: ?string,
   // -- redux --
   renderMode: string,
+  isLivestreamClaim: ?boolean,
+  showScheduledInfo: ?boolean,
 };
 
 const EmbedClaimComponent = (props: Props) => {
@@ -29,6 +33,8 @@ const EmbedClaimComponent = (props: Props) => {
     latestClaimUrl,
     // -- redux --
     renderMode,
+    isLivestreamClaim,
+    showScheduledInfo,
   } = props;
 
   const {
@@ -65,7 +71,12 @@ const EmbedClaimComponent = (props: Props) => {
   }
 
   if (isVideo) {
-    return <EmbeddedVideoClaim uri={uri} embedded />;
+    const VideoComponent = isLivestreamClaim ? EmbeddedLivestreamClaim : EmbeddedVideoClaim;
+    return (
+      <VideoComponent uri={uri} embedded forceRender={isLivestreamClaim}>
+        {isLivestreamClaim && showScheduledInfo && <LivestreamScheduledInfo uri={uri} />}
+      </VideoComponent>
+    );
   }
 
   return <EmbeddedClaim uri={uri} />;
@@ -75,6 +86,7 @@ const EmbeddedVideoClaimComponent = ({ uri, streamClaim }: { uri: string, stream
   <VideoRender uri={uri} embedded streamClaim={streamClaim} />
 );
 const EmbeddedVideoClaim = withStreamClaimRender(EmbeddedVideoClaimComponent);
+const EmbeddedLivestreamClaim = withLiveStatus(withStreamClaimRender(EmbeddedVideoClaimComponent));
 
 const EmbeddedClaimComponent = ({ uri }: { uri: string }) => <ClaimPreviewTile uri={uri} onlyThumb />;
 // -- this allows rendering the appropriate restricted overlays linking to join from the embed --

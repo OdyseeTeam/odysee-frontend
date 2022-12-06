@@ -537,6 +537,11 @@ body {
 .main--livestream {
   @extend .main--file-page;
 
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-s);
+    padding-top: 0;
+  }
+
   @media (min-width: 1750px) {
     padding: 0;
     width: 100%;

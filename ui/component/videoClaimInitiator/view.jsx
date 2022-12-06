@@ -5,7 +5,6 @@
 import React from 'react';
 
 import { ExpandableContext } from 'component/common/expandable';
-import { LivestreamContext } from 'contexts/livestream';
 
 import Button from 'component/button';
 import ClaimCoverRender from 'component/claimCoverRender';
@@ -22,7 +21,6 @@ const VideoClaimInitiator = (props: Props) => {
   const { uri, children, streamClaim, doSetMainPlayerDimension } = props;
 
   const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
-  const livestreamPage = React.useContext(LivestreamContext);
 
   function handleClick() {
     streamClaim();
@@ -36,12 +34,12 @@ const VideoClaimInitiator = (props: Props) => {
 
   const playerRef = React.useCallback(
     (node) => {
-      if (node && (!livestreamPage || livestreamPage.layoutRendered)) {
+      if (node) {
         const rect = node.getBoundingClientRect();
         doSetMainPlayerDimension(rect);
       }
     },
-    [doSetMainPlayerDimension, livestreamPage]
+    [doSetMainPlayerDimension]
   );
 
   return (

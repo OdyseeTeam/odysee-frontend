@@ -1,7 +1,11 @@
 import { connect } from 'react-redux';
 
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
-import { selectActiveLivestreamForChannel, selectIsListeningForIsLiveForUri } from 'redux/selectors/livestream';
+import {
+  selectActiveLivestreamForChannel,
+  selectIsListeningForIsLiveForUri,
+  selectLiveClaimReleaseStartingSoonForUri,
+} from 'redux/selectors/livestream';
 
 import { doFetchChannelIsLiveForId, doSetIsLivePollingForChannelId } from 'redux/actions/livestream';
 
@@ -16,6 +20,7 @@ const select = (state, props) => {
     channelClaimId,
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     alreadyListeningForIsLive: selectIsListeningForIsLiveForUri(state, uri),
+    fasterPoll: selectLiveClaimReleaseStartingSoonForUri(state, uri),
   };
 };
 

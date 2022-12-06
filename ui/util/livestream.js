@@ -31,16 +31,23 @@ export function getTipValues(hyperChatsByAmount: Array<Comment>) {
   return { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount };
 }
 
-export const transformNewLivestreamData = (data: LivestreamAllResponse): ActiveLivestreamByCreatorIds =>
+const transformLivestreamClaimData = (data: LivestreamClaimResponse): LivestreamActiveClaim => ({
+  uri: data.CanonicalURL,
+  claimId: data.ClaimID,
+  releaseTime: data.ReleaseTime,
+});
+
+export const transformNewLivestreamData = (data: LivestreamAllResponse): LivestreamInfoByCreatorIds =>
   data.reduce((acc, curr) => {
     acc[curr.ChannelClaimID] = {
-      url: curr.VideoURL,
       type: 'application/x-mpegurl',
-      live: curr.Live,
+      isLive: curr.Live,
       viewCount: curr.ViewerCount,
       creatorId: curr.ChannelClaimID,
       startedStreaming: moment(curr.Start),
-      ...(curr.ActiveClaim ? { claimId: curr.ActiveClaim.ClaimID, claimUri: curr.ActiveClaim.CanonicalURL } : {}),
+      activeClaim: { ...transformLivestreamClaimData(curr.ActiveClaim), videoUrl: curr.VideoURL },
+      ...(curr.PastClaims ? { pastClaims: curr.PastClaims.map(transformLivestreamClaimData) } : {}),
+      ...(curr.FutureClaims ? { futureClaims: curr.FutureClaims.map(transformLivestreamClaimData) } : {}),
     };
     return acc;
   }, {});

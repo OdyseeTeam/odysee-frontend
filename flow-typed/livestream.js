@@ -21,38 +21,46 @@ declare type LivestreamReplayItem = {
 };
 declare type LivestreamReplayData = Array<LivestreamReplayItem>;
 
-declare type LivestreamActiveClaim = {
+declare type LivestreamClaimResponse = {
   ClaimID: string,
   CanonicalURL: string,
   ReleaseTime: string,
   Protected: boolean,
 };
 
-declare type ActiveLivestreamResponse = {
+declare type LivestreamIsLiveResponse = {
   Live: boolean,
   Start: string,
   VideoURL: string,
   ThumbnailURL: string,
   ViewerCount: number,
   ChannelClaimID: string,
-  ActiveClaim: LivestreamActiveClaim,
-  PastClaims: Array<LivestreamActiveClaim>,
-  FutureClaims: ?Array<LivestreamActiveClaim>,
+  ActiveClaim: LivestreamClaimResponse,
+  PastClaims: Array<LivestreamClaimResponse>,
+  FutureClaims: ?Array<LivestreamClaimResponse>,
 };
 
-declare type ActiveLivestream = {
+declare type LivestreamAllResponse = Array<LivestreamIsLiveResponse>;
+
+declare type LivestreamActiveClaim = {
+  uri: string,
+  claimId: string,
+  videoUrl?: string,
+  releaseTime: string,
+};
+
+declare type LivestreamInfo = {
   url: string,
   type: string,
-  live: boolean,
+  isLive: boolean,
   viewCount: number,
   creatorId: string,
   startedStreaming: any,
-  claimId: string,
-  claimUri: string,
+  activeClaim: LivestreamActiveClaim,
+  pastClaims: ?Array<LivestreamActiveClaim>,
+  futureClaims: ?Array<LivestreamActiveClaim>,
 };
 
-declare type ActiveLivestreamByCreatorIds = {
-  [creatorId: string]: ActiveLivestream,
+declare type LivestreamInfoByCreatorIds = {
+  [creatorId: string]: LivestreamInfo,
 };
-
-declare type LivestreamAllResponse = Array<ActiveLivestreamResponse>;

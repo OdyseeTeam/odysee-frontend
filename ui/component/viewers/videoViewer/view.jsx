@@ -76,7 +76,7 @@ type Props = {
   doAnalyticsViewForUri: (string) => void,
   claimRewards: () => void,
   isLivestreamClaim: boolean,
-  activeLivestreamForChannel: ?ActiveLivestream,
+  activeLivestreamForChannel: ?LivestreamActiveClaim,
   defaultQuality: ?string,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   doSetContentHistoryItem: (uri: string) => void,

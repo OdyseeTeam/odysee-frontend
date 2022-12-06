@@ -14,7 +14,7 @@ type Props = {
   channelName: string,
   claimIsMine: boolean,
   doToast: ({ message: string, isError?: boolean }) => void,
-  activeLivestreamForChannel: ?ActiveLivestream,
+  activeLivestreamForChannel: ?LivestreamActiveClaim,
 };
 
 const ClaimPreviewReset = (props: Props) => {
