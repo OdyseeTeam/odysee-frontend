@@ -22,6 +22,7 @@ import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
 import ProtectedContentOverlay from 'component/protectedContentOverlay';
+import AdsRCAboveComments from 'web/component/adsRCAboveComments';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -331,6 +332,7 @@ export default function FilePage(props: Props) {
                     <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
                   ) : isMobile && !isLandscapeRotated ? (
                     <React.Fragment>
+                      <AdsRCAboveComments />
                       <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
                         <CommentsList {...commentsListProps} />
                       </SwipeableDrawer>
@@ -339,6 +341,7 @@ export default function FilePage(props: Props) {
                     </React.Fragment>
                   ) : (
                     <>
+                      <AdsRCAboveComments />
                       {/* normal comments list */}
                       {contentUnlocked && <CommentsList {...commentsListProps} notInDrawer />}
                     </>
