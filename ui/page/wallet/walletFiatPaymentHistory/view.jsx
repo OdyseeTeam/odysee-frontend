@@ -30,9 +30,11 @@ const WalletFiatPaymentHistory = (props: Props) => {
     }
   }
 
-  accountTransactions = accountTransactions && accountTransactions.filter(transaction => {
-    return getMatch(transaction.type);
-  });
+  accountTransactions =
+    accountTransactions &&
+    accountTransactions.filter((transaction) => {
+      return getMatch(transaction.type);
+    });
 
   React.useEffect(() => {
     doGetCustomerStatus();
@@ -65,24 +67,18 @@ const WalletFiatPaymentHistory = (props: Props) => {
                     {/* receiving channel name */}
                     <td>
                       <Button
-                        className=""
                         navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
                         label={transaction.channel_name}
                         button="link"
                       />
                     </td>
-                    <td>
-                      {toCapitalCase(transaction.type)}
-                    </td>
+                    <td>{toCapitalCase(transaction.type)}</td>
                     {/* link to content or channel */}
                     <td>
                       <Button
-                        className=""
                         navigate={'/' + transaction.channel_name + ':' + transaction.source_claim_id}
                         label={
-                          transaction.channel_claim_id === transaction.source_claim_id
-                            ? __('Channel')
-                            : __('Content')
+                          transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')
                         }
                         button="link"
                       />

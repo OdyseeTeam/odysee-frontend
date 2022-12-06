@@ -18,6 +18,7 @@ const WalletFiatAccountHistory = (props: Props) => {
   const tipsBranch = transactionType === 'tips';
   const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
 
+  // filter transactions by type
   function getMatch(transactionType) {
     switch (transactionType) {
       case 'tip':
@@ -29,24 +30,11 @@ const WalletFiatAccountHistory = (props: Props) => {
     }
   }
 
-  if (accountTransactions?.length) {
-    for (const transaction of accountTransactions) {
-      console.log(transaction.type);
-    }
-  }
-
-  // l('transactionType');
-  // l(transactionType);
-
-  accountTransactions = accountTransactions && accountTransactions.filter(transaction => {
-    return getMatch(transaction.type);
-  });
-
-
-
-
-  // l('accountTransactions')
-  // l(accountTransactions)
+  accountTransactions =
+    accountTransactions &&
+    accountTransactions.filter((transaction) => {
+      return getMatch(transaction.type);
+    });
 
   // TODO: should add pagination here
   // if there are more than 10 transactions, limit it to 10 for the frontend
@@ -61,11 +49,11 @@ const WalletFiatAccountHistory = (props: Props) => {
           <tr>
             <th className="date-header">{__('Date')}</th>
             <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th>
+            <th className="channelName-header">{<>{__('Sending Channel')}</>}</th>
             <th className="transactionType-header">{<>{__('Type')}</>}</th>
             <th className="location-header">{__('Location')}</th>
             <th className="amount-header">{__('Amount')} </th>
             <th className="processingFee-header">{__('Processing Fee')}</th>
-            <th className="odyseeFee-header">{__('Odysee Fee')}</th>
             <th className="receivedAmount-header">{__('Received Amount')}</th>
           </tr>
         </thead>
@@ -80,22 +68,24 @@ const WalletFiatAccountHistory = (props: Props) => {
                   <td>{moment(transaction.created_at).format('LLL')}</td>
                   <td>
                     <Button
-                      className=""
                       navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
                       label={transaction.channel_name}
                       button="link"
                     />
                   </td>
                   <td>
-                    {toCapitalCase(transaction.type)}
+                    <Button
+                      navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
+                      label={transaction.tipper_channel_name}
+                      button="link"
+                    />
                   </td>
+                  <td>{toCapitalCase(transaction.type)}</td>
                   <td>
                     <Button
                       navigate={targetClaimId ? `/$/${PAGES.SEARCH}?q=${targetClaimId}` : undefined}
                       label={
-                        transaction.channel_claim_id === transaction.source_claim_id
-                          ? __('Channel')
-                          : __('Content')
+                        transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')
                       }
                       button="link"
                       target="_blank"
@@ -107,11 +97,7 @@ const WalletFiatAccountHistory = (props: Props) => {
                   </td>
                   <td>
                     {currencySymbol}
-                    {transaction.transaction_fee / 100}
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {transaction.application_fee / 100}
+                    {(transaction.transaction_fee + transaction.application_fee) / 100}
                   </td>
                   <td>
                     {currencySymbol}
