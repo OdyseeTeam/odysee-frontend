@@ -44,8 +44,11 @@ export const transformNewLivestreamData = (data: LivestreamAllResponse): Livestr
       isLive: curr.Live,
       viewCount: curr.ViewerCount,
       creatorId: curr.ChannelClaimID,
-      startedStreaming: moment(curr.Start),
-      activeClaim: { ...transformLivestreamClaimData(curr.ActiveClaim), videoUrl: curr.VideoURL },
+      activeClaim: {
+        ...transformLivestreamClaimData(curr.ActiveClaim),
+        videoUrl: curr.VideoURL,
+        startedStreaming: moment(curr.Start),
+      },
       ...(curr.PastClaims ? { pastClaims: curr.PastClaims.map(transformLivestreamClaimData) } : {}),
       ...(curr.FutureClaims ? { futureClaims: curr.FutureClaims.map(transformLivestreamClaimData) } : {}),
     };

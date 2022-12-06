@@ -24,7 +24,7 @@
 }
 
 .livestream__channel-link {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-s) !important;
   box-shadow: 0 0 0 rgba(246, 72, 83, 0.4);
   animation: livePulse 2s infinite;
   padding: var(--spacing-m);

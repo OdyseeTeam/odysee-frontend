@@ -1,5 +1,4 @@
 // @flow
-import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import React from 'react';
 import UriIndicator from 'component/uriIndicator';
 import DateTime from 'component/dateTime';
@@ -68,7 +67,7 @@ function ClaimPreviewSubtitle(props: Props) {
               )}
 
               {!isChannel &&
-                (isLivestream && ENABLE_NO_SOURCE_CLAIMS ? (
+                (isLivestream ? (
                   <LivestreamDateTime uri={uri} />
                 ) : (
                   <span className="claim-extra-info">

@@ -194,26 +194,9 @@ export const selectIsActiveLivestreamForUri = createCachedSelector(
   }
 )((state: State, uri: string) => String(uri));
 
-export const selectActiveLivestreamForClaimId = createSelector(
-  (state, claimId) => claimId,
-  selectActiveLivestreamByCreatorId,
-  (claimId, activeLivestreams) => {
-    if (!claimId || !activeLivestreams) {
-      return null;
-    }
-
-    const activeLivestreamValues = Object.values(activeLivestreams);
-    return (
-      activeLivestreamValues.find(
-        (activeLivestream?: LivestreamActiveClaim) => activeLivestream && activeLivestream.claimId === claimId
-      ) || null
-    );
-  }
-);
-
 export const selectActiveLivestreamForChannel = (state: State, channelId: string) => {
   const activeLivestreams = selectActiveLivestreamByCreatorId(state);
-  if (!channelId || !activeLivestreams) return null;
+  if (!channelId || !activeLivestreams) return channelId || activeLivestreams;
 
   return activeLivestreams[channelId];
 };
@@ -234,10 +217,7 @@ export const selectActiveStreamUriForClaimUri = (state: State, uri: string) => {
 };
 
 export const selectClaimIsActiveChannelLivestreamForUri = (state: State, uri: string) => {
-  const channelId = selectChannelClaimIdForUri(state, uri);
-  if (!channelId) return channelId;
-
-  const activeStreamUri = selectActiveStreamUriForClaimUri(state, channelId);
+  const activeStreamUri = selectActiveStreamUriForClaimUri(state, uri);
   if (!activeStreamUri) return activeStreamUri;
 
   if (activeStreamUri === uri) return true;
@@ -253,10 +233,18 @@ export const selectLatestLiveUriForChannel = (state: State, channelId: string) =
   if (activeCreatorLivestream) return activeCreatorLivestream.uri;
 
   const futureCreatorLivestreams = selectFutureLivestreamsForCreatorId(state, channelId);
-  if (futureCreatorLivestreams && futureCreatorLivestreams.length > 0) return futureCreatorLivestreams[0].uri;
-
   const pastCreatorLivestreams = selectPastLivestreamsForCreatorId(state, channelId);
-  if (pastCreatorLivestreams && pastCreatorLivestreams.length > 0) return pastCreatorLivestreams[0].uri;
+  const hasPastLivestreams = pastCreatorLivestreams && pastCreatorLivestreams.length > 0;
+
+  if (futureCreatorLivestreams && futureCreatorLivestreams.length > 0) {
+    const alreadyStarted = selectLiveClaimReleaseStartedRecently(state, futureCreatorLivestreams[0].uri);
+
+    // -- Only return future/scheduled claims when they have already started, in the case the creator has a
+    // ~ anytime stream ~
+    if (!hasPastLivestreams || alreadyStarted) return futureCreatorLivestreams[0].uri;
+  }
+
+  if (hasPastLivestreams) return pastCreatorLivestreams[0].uri;
 
   return activeCreatorLivestream;
 };
@@ -267,7 +255,7 @@ export const selectLatestLiveClaimForChannel = (state: State, channelId: string)
 };
 
 export const selectLiveClaimReleaseStartingSoonForUri = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
-  releaseTime.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'))
+  releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'), moment())
 );
 
 export const selectLiveClaimReleaseStartedRecently = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>

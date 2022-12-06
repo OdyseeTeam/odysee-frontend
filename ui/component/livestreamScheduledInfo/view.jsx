@@ -13,11 +13,10 @@ const CALC_TIME_INTERVAL_MS = 1000;
 type Props = {
   // -- redux --
   releaseTimeMs: number,
-  liveClaimStartingSoon: ?boolean,
 };
 
 export default function LivestreamScheduledInfo(props: Props) {
-  const { releaseTimeMs, liveClaimStartingSoon } = props;
+  const { releaseTimeMs } = props;
 
   const [startDateFromNow, setStartDateFromNow] = React.useState();
   const [inPast, setInPast] = React.useState();
@@ -52,7 +51,7 @@ export default function LivestreamScheduledInfo(props: Props) {
       <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
       <p className="livestream-scheduled__time">
         <span>
-          {!inPast && !liveClaimStartingSoon ? (
+          {!inPast ? (
             <>
               <I18nMessage tokens={{ time_date: startDateFromNow }}>Live %time_date%</I18nMessage>
               <br />
