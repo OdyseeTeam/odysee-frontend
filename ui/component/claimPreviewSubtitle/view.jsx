@@ -72,7 +72,7 @@ function ClaimPreviewSubtitle(props: Props) {
                   <LivestreamDateTime uri={uri} />
                 ) : (
                   <span className="claim-extra-info">
-                    <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                    <FileViewCountInline uri={uri} />
                     <DateTime timeAgo uri={uri} />
                   </span>
                 ))}

@@ -7,10 +7,10 @@ import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 
 type Props = {
-  livestream?: boolean,
-  isLive?: boolean,
   // --- redux ---
   claimId: ?string,
+  isLivestreamClaim?: boolean,
+  isLivestreamActive: ?boolean,
   fetchViewCount: (string) => void,
   uri: string,
   viewCount: ?number,
@@ -19,8 +19,9 @@ type Props = {
 };
 
 function FileViewCount(props: Props) {
-  const { claimId, fetchViewCount, viewCount, livestream, activeViewers, isLive = false, lang } = props;
-  const count = livestream ? activeViewers || 0 : viewCount;
+  const { claimId, isLivestreamClaim, isLivestreamActive, fetchViewCount, viewCount, activeViewers, lang } = props;
+
+  const count = isLivestreamClaim ? activeViewers || 0 : viewCount;
   // $FlowIgnore: Number.isInteger covers null case
   const countCompact = Number.isInteger(count) ? toCompactNotation(count, lang, 10000) : null;
   const countFullResolution = Number(count).toLocaleString();
@@ -41,7 +42,7 @@ function FileViewCount(props: Props) {
     } else {
       return __('%viewer_count% currently %viewer_state%', {
         viewer_count: countCompact,
-        viewer_state: isLive ? __('watching') : __('waiting'),
+        viewer_state: isLivestreamActive ? __('watching') : __('waiting'),
       });
     }
   }
@@ -55,8 +56,8 @@ function FileViewCount(props: Props) {
   return (
     <Tooltip title={countFullResolution} followCursor placement="top">
       <span className="media__subtitle--centered">
-        {livestream && getLivestreamViewCountElem()}
-        {!livestream && activeViewers === undefined && getRegularViewCountElem()}
+        {isLivestreamClaim && getLivestreamViewCountElem()}
+        {!isLivestreamClaim && activeViewers === undefined && getRegularViewCountElem()}
         {!SIMPLE_SITE && <HelpLink href="https://help.odysee.tv/category-basics/" />}
       </span>
     </Tooltip>

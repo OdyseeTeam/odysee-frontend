@@ -1,5 +1,5 @@
 // @flow
-import { LIVESTREAM_KILL, LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
+import { LIVESTREAM_KILL } from 'constants/livestream';
 import { toHex } from 'util/hex';
 import Lbry from 'lbry';
 import moment from 'moment';
@@ -9,47 +9,6 @@ type StreamData = {
   s: string,
   t: string,
 };
-
-/**
- * Helper to extract livestream claim uris from the output of
- * `selectActiveLivestreams`.
- *
- * @param activeLivestreams Object obtained from `selectActiveLivestreams`.
- * @param channelIds List of channel IDs to filter the results with.
- * @param excludedChannelIds
- * @returns {[]|Array<*>}
- */
-export function getLivestreamUris(
-  activeLivestreams: ?ActiveLivestreamInfosById,
-  channelIds: ?Array<string>,
-  excludedChannelIds?: Array<string>
-) {
-  let values = (activeLivestreams && Object.values(activeLivestreams)) || [];
-
-  if (channelIds && channelIds.length > 0) {
-    // $FlowFixMe
-    values = values.filter((v) => channelIds.includes(v?.creatorId) && Boolean(v?.claimUri));
-  } else {
-    // $FlowFixMe
-    values = values.filter((v) => Boolean(v?.claimUri));
-  }
-
-  if (excludedChannelIds) {
-    // $FlowFixMe
-    values = values.filter((v) => !excludedChannelIds.includes(v.creatorId));
-  }
-
-  values = values.sort((a, b) => {
-    // $FlowFixMe
-    if (a.viewCount < b.viewCount) return 1;
-    // $FlowFixMe
-    else if (a.viewCount > b.viewCount) return -1;
-    else return 0;
-  });
-
-  // $FlowFixMe
-  return values.map((v) => v.claimUri);
-}
 
 export function getTipValues(hyperChatsByAmount: Array<Comment>) {
   let superChatsChannelUrls = [];
@@ -72,7 +31,7 @@ export function getTipValues(hyperChatsByAmount: Array<Comment>) {
   return { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount };
 }
 
-export const transformNewLivestreamData = (data: LivestreamAllResponse): ActiveLivestreamInfosById =>
+export const transformNewLivestreamData = (data: LivestreamAllResponse): ActiveLivestreamByCreatorIds =>
   data.reduce((acc, curr) => {
     acc[curr.ChannelClaimID] = {
       url: curr.VideoURL,
@@ -120,48 +79,4 @@ export const killStream = async (channelId: string, channelName: string) => {
   } catch (e) {
     throw e;
   }
-};
-
-const distanceFromStreamStart = (claimA: any, claimB: any, channelStartedStreaming) => {
-  return [
-    Math.abs(moment.unix(claimA.stream.value.release_time).diff(channelStartedStreaming, 'minutes')),
-    Math.abs(moment.unix(claimB.stream.value.release_time).diff(channelStartedStreaming, 'minutes')),
-  ];
-};
-
-export const determineLiveClaim = (claims: Array<StreamClaim>, activeLivestreams: ActiveLivestreamInfosById) => {
-  const activeClaims = {};
-
-  Object.values(claims).forEach((claim: any) => {
-    const channelID = claim.stream.signing_channel.claim_id;
-
-    if (activeClaims[channelID]) {
-      const [distanceA, distanceB] = distanceFromStreamStart(
-        claim,
-        activeClaims[channelID],
-        activeLivestreams[channelID].startedStreaming
-      );
-
-      if (distanceA < distanceB) {
-        activeClaims[channelID] = claim;
-      }
-    } else {
-      activeClaims[channelID] = claim;
-    }
-  });
-
-  return activeClaims;
-};
-
-export const filterUpcomingLiveStreamClaims = (upcomingClaims: any) => {
-  const startsSoonMoment = moment().startOf('minute').add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes');
-  const startingSoonClaims = {};
-
-  Object.keys(upcomingClaims).forEach((key) => {
-    if (moment.unix(upcomingClaims[key].stream.value.release_time).isSameOrBefore(startsSoonMoment)) {
-      startingSoonClaims[key] = upcomingClaims[key];
-    }
-  });
-
-  return startingSoonClaims;
 };
