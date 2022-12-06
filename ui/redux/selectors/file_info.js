@@ -200,7 +200,7 @@ export const selectStreamingUrlForUri = (state, uri) => {
     if (!channel) return channel;
 
     const activeLivestreamForChannel = selectActiveLivestreamForChannel(state, channel.claim_id);
-    const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
+    const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
 
     return livestreamVideoUrl;
   }

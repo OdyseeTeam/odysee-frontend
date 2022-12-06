@@ -20,16 +20,19 @@ import { doClaimSearch } from 'redux/actions/claims';
 // -- Since currently it only uses the lang param, it would be better if the backend could return us the appropriate
 // -- active livestreams with a given language param
 const doFetchActiveLivestreamsForQuery = (
-  activeLivestreamByCreatorIds: ActiveLivestreamByCreatorIds,
+  livestreamInfoByCreatorId: LivestreamInfoByCreatorIds,
   query?: { any_languages: ?Array<string> } = { any_languages: null }
 ) => async (dispatch: Dispatch) => {
   const { any_languages: lang } = query;
 
   const activeLivestreamIds = [];
 
-  for (const creatorId in activeLivestreamByCreatorIds) {
-    const { claimId }: ActiveLivestream = activeLivestreamByCreatorIds[creatorId];
-    activeLivestreamIds.push(claimId);
+  for (const creatorId in livestreamInfoByCreatorId) {
+    const {
+      activeClaim: { claimId },
+    }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
+
+    if (claimId) activeLivestreamIds.push(claimId);
   }
 
   const activeLivestreamClaims = await dispatch(
@@ -54,7 +57,7 @@ const doFetchActiveLivestreamsForQuery = (
     const channelId = getChannelIdFromClaim(claim);
 
     if (channelId) {
-      searchedActiveLivestreams[channelId] = activeLivestreamByCreatorIds[channelId];
+      searchedActiveLivestreams[channelId] = livestreamInfoByCreatorId[channelId];
     }
   }
 
@@ -70,14 +73,9 @@ export const doFetchChannelIsLiveForId = (channelId: string) => async (dispatch:
   dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_START, data: channelId });
 
   return Livestream.call('livestream', 'is_live', { channel_claim_id: channelId })
-    .then(async (response: ActiveLivestreamResponse) => {
-      if (!response.Live) {
-        return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: { [channelId]: null } });
-      }
-
-      const activeLivestreamByCreatorId: ActiveLivestreamByCreatorIds = transformNewLivestreamData([response]);
-
-      return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: activeLivestreamByCreatorId });
+    .then(async (response: LivestreamIsLiveResponse) => {
+      const livestreamInfoByCreatorId: LivestreamInfoByCreatorIds = transformNewLivestreamData([response]);
+      return dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: livestreamInfoByCreatorId });
     })
     .catch(() => dispatch({ type: ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE, data: { [channelId]: null } }));
 };
@@ -110,15 +108,15 @@ export const doFetchAllActiveLivestreamsForQuery = (
 
   return Livestream.call('livestream', 'all')
     .then(async (response: LivestreamAllResponse) => {
-      const activeLivestreamByCreatorId: ActiveLivestreamByCreatorIds = transformNewLivestreamData(response);
+      const livestreamInfoByCreatorId: LivestreamInfoByCreatorIds = transformNewLivestreamData(response);
 
       const activeLivestreamResolvedByCreatorId = await dispatch(
-        doFetchActiveLivestreamsForQuery(activeLivestreamByCreatorId, query)
+        doFetchActiveLivestreamsForQuery(livestreamInfoByCreatorId, query)
       );
 
       dispatch({
         type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SUCCESS,
-        data: { ...completedParams, activeLivestreamByCreatorId: activeLivestreamResolvedByCreatorId },
+        data: { ...completedParams, livestreamInfoByCreatorId: activeLivestreamResolvedByCreatorId },
       });
     })
     .catch(() => dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAIL, data: completedParams }));

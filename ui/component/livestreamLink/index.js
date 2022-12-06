@@ -4,8 +4,10 @@ import { doResolveUri } from 'redux/actions/claims';
 
 import LivestreamLink from './view';
 
+import withLiveStatus from 'hocs/withLiveStatus';
+
 const perform = {
   doResolveUri,
 };
 
-export default connect(null, perform)(LivestreamLink);
+export default withLiveStatus(connect(null, perform)(LivestreamLink));

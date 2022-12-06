@@ -15,6 +15,7 @@ import Button from 'component/button';
 
 type Props = {
   uri: string,
+  children?: any,
   embedded?: boolean,
   claimLinkId?: string,
   isMarkdownPost?: boolean,
@@ -65,6 +66,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
   const StreamClaimWrapper = (props: Props) => {
     const {
       uri,
+      children,
       embedded,
       claimLinkId,
       isMarkdownPost,
@@ -223,7 +225,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     if (!streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
-        return <ClaimCoverRender uri={uri} />;
+        return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
       }
 
       if (streamStarted || streamStartPending || livestreamUnplayable) {

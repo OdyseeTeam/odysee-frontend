@@ -6,15 +6,13 @@ import ClaimPreview from 'component/claimPreview';
 import { useHistory } from 'react-router';
 import { formatLbryUrlForWeb } from 'util/url';
 
-import withLiveStatus from 'hocs/withLiveStatus';
-
 type Props = {
   title?: string,
   claimUri: string,
   doResolveUri: (uri: string) => void,
 };
 
-function LivestreamLink(props: Props) {
+const LivestreamLink = (props: Props) => {
   const { claimUri, title = null, doResolveUri } = props;
   const { push } = useHistory();
 
@@ -35,6 +33,6 @@ function LivestreamLink(props: Props) {
       <ClaimPreview uri={claimUri} type="inline" hideMenu />
     </Card>
   );
-}
+};
 
-export default withLiveStatus(LivestreamLink);
+export default LivestreamLink;

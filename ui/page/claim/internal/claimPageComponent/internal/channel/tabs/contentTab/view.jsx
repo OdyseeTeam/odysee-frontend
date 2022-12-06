@@ -43,7 +43,7 @@ type Props = {
   doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
-  activeLivestreamForChannel: ?ActiveLivestream,
+  activeLivestreamForChannel: ?LivestreamActiveClaim,
   hasPremiumPlus: boolean,
 };
 
@@ -114,16 +114,14 @@ function ContentTab(props: Props) {
         <HiddenNsfwClaims uri={uri} />
       )}
 
-      <LivestreamLink uri={uri} poll />
+      <LivestreamLink uri={uri} />
 
       {!fetching && showScheduledLiveStreams && (
         <ScheduledStreams
           channelIds={[claimId]}
           tileLayout={tileLayout}
           liveUris={
-            activeLivestreamForChannel && activeLivestreamForChannel.claimUri
-              ? [activeLivestreamForChannel.claimUri]
-              : []
+            activeLivestreamForChannel && activeLivestreamForChannel.uri ? [activeLivestreamForChannel.uri] : []
           }
           showHideSetting={false}
         />

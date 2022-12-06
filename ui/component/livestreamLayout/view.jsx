@@ -63,6 +63,8 @@ export default function LivestreamLayout(props: Props) {
   const [chatViewMode, setChatViewMode] = React.useState(VIEW_MODES.CHAT);
   const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
 
+  const liveStatusFetching = activeStreamUri === undefined;
+
   if (!claim || !claim.signing_channel) return null;
 
   const { name: channelName } = claim.signing_channel;
@@ -71,21 +73,13 @@ export default function LivestreamLayout(props: Props) {
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
         <VideoClaimInitiator uri={claim.canonical_url}>
-          {showScheduledInfo && <LivestreamScheduledInfo />}
+          {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
         </VideoClaimInitiator>
       </div>
       <div className="file-page__secondary-content">
         <div className="file-page__media-actions">
           <div className="section card-stack">
-            {chatDisabled && !showScheduledInfo && (
-              <div className="help--notice">
-                {channelName
-                  ? __('%channel% has disabled chat for this stream. Enjoy the stream!', { channel: channelName })
-                  : __('This channel has disabled chat for this stream. Enjoy the stream!')}
-              </div>
-            )}
-
-            {!activeStreamUri && !showScheduledInfo && !isCurrentClaimLive && (
+            {!liveStatusFetching && !activeStreamUri && !showScheduledInfo && !isCurrentClaimLive ? (
               <div className="help--notice" style={{ marginTop: '20px' }}>
                 {channelName
                   ? __("%channelName% isn't live right now, but the chat is! Check back later to watch the stream.", {
@@ -93,9 +87,17 @@ export default function LivestreamLayout(props: Props) {
                     })
                   : __("This channel isn't live right now, but the chat is! Check back later to watch the stream.")}
               </div>
+            ) : (
+              chatDisabled && (
+                <div className="help--notice">
+                  {channelName
+                    ? __('%channel% has disabled chat for this stream. Enjoy the stream!', { channel: channelName })
+                    : __('This channel has disabled chat for this stream. Enjoy the stream!')}
+                </div>
+              )
             )}
 
-            <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} poll />
+            <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
 
             {isMobile && !isLandscapeRotated && !chatDisabled && contentUnlocked && (
               <React.Suspense fallback={null}>
@@ -136,7 +138,9 @@ export default function LivestreamLayout(props: Props) {
               </React.Suspense>
             )}
 
-            <FileTitleSection uri={uri} />
+            {/* -- Prevent layout shift: only render when already knows the live status, or the help--notice
+            message will "pop up" disrupting the layout */}
+            {!liveStatusFetching && <FileTitleSection uri={uri} />}
           </div>
         </div>
 

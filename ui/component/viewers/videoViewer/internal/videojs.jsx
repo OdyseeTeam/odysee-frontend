@@ -114,7 +114,7 @@ type Props = {
   claimValues: any,
   isLivestreamClaim: boolean,
   userClaimId: ?string,
-  activeLivestreamForChannel: ?ActiveLivestream,
+  activeLivestreamForChannel: ?LivestreamActiveClaim,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   isPurchasableContent: boolean,
   isRentableContent: boolean,
@@ -209,7 +209,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const videoScrollHandlerRef = useRef();
   const volumePanelScrollHandlerRef = useRef();
 
-  const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
+  const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIPhone();
   const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
@@ -472,8 +472,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // get the protected url if needed
         if (isProtectedContent && activeLivestreamForChannel) {
           const protectedLivestreamResponse = await Lbry.get({
-            uri: activeLivestreamForChannel.claimUri,
-            base_streaming_url: activeLivestreamForChannel.url,
+            uri: activeLivestreamForChannel.uri,
+            base_streaming_url: activeLivestreamForChannel.videoUrl,
             environment: stripeEnvironment,
           });
 
