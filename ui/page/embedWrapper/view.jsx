@@ -98,6 +98,7 @@ const EmbedWrapperPage = (props: Props) => {
       className={classnames('embed__wrapper', {
         'embed__wrapper--light-background': embedLightBackground,
         'embed__wrapper--channel': isChannel,
+        'embed__wrapper--channel-notice': isChannel && latestClaimUrl === null,
       })}
     >
       <EmbedContext.Provider value={{ setVideoEnded, videoEnded, fetchedLiveStatus: fetchedLiveStatus.current }}>

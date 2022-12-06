@@ -7,6 +7,7 @@ type LivestreamState = {
   livestreamInfoByCreatorId: LivestreamInfoByCreatorIds,
   activeLivestreamByCreatorId: { [creatorId: string]: ?LivestreamActiveClaim },
   futureLivestreamsByCreatorId: { [creatorId: string]: ?Array<LivestreamActiveClaim> },
+  pastLivestreamsByCreatorId: { [creatorId: string]: ?Array<LivestreamActiveClaim> },
   viewersById: { [claimId: string]: number },
   isLiveFetchingIds: Array<string>,
   activeLivestreamsFetchingQueries: Array<string>,
@@ -21,6 +22,7 @@ const defaultState: LivestreamState = {
   livestreamInfoByCreatorId: {},
   activeLivestreamByCreatorId: {},
   futureLivestreamsByCreatorId: [],
+  pastLivestreamsByCreatorId: [],
   viewersById: {},
   isLiveFetchingIds: [],
   activeLivestreamsFetchingQueries: [],
@@ -32,20 +34,26 @@ const defaultState: LivestreamState = {
 function updateActiveLivestreams(state: LivestreamState, livestreamInfoByCreatorId: LivestreamInfoByCreatorIds) {
   const newActiveLivestreamByCreatorId = Object.assign({}, state.activeLivestreamByCreatorId);
   const newFutureLivestreamsByCreatorId = Object.assign({}, state.futureLivestreamsByCreatorId);
+  const newPastLivestreamsByCreatorId = Object.assign({}, state.pastLivestreamsByCreatorId);
 
   for (const creatorId in livestreamInfoByCreatorId) {
-    const { isLive, activeClaim, futureClaims }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
+    const { isLive, activeClaim, futureClaims, pastClaims }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
 
     newActiveLivestreamByCreatorId[creatorId] = isLive ? activeClaim : null;
 
     if (futureClaims) {
       newFutureLivestreamsByCreatorId[creatorId] = futureClaims;
     }
+
+    if (pastClaims) {
+      newPastLivestreamsByCreatorId[creatorId] = pastClaims;
+    }
   }
 
   return {
     activeLivestreamByCreatorId: newActiveLivestreamByCreatorId,
     futureLivestreamsByCreatorId: newFutureLivestreamsByCreatorId,
+    pastLivestreamsByCreatorId: newPastLivestreamsByCreatorId,
   };
 }
 
