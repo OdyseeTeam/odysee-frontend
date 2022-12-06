@@ -29,7 +29,6 @@ type Props = {
   renderMode: string,
   isLivestreamClaim: ?boolean,
   showScheduledInfo: ?boolean,
-  liveClaimStartingSoon: ?boolean,
 };
 
 const EmbedClaimComponent = (props: Props) => {
@@ -40,7 +39,6 @@ const EmbedClaimComponent = (props: Props) => {
     renderMode,
     isLivestreamClaim,
     showScheduledInfo,
-    liveClaimStartingSoon,
   } = props;
 
   const {
@@ -89,6 +87,7 @@ const EmbedClaimComponent = (props: Props) => {
 
   if (isVideo) {
     const VideoComponent = isLivestreamClaim ? EmbeddedLivestreamClaim : EmbeddedVideoClaim;
+
     return (
       <VideoComponent uri={uri} embedded forceRender={isLivestreamClaim}>
         {isLivestreamClaim && (
@@ -101,7 +100,7 @@ const EmbedClaimComponent = (props: Props) => {
               })}
               style={{ marginTop: '20px' }}
             >
-              {liveClaimStartingSoon ? (
+              {showScheduledInfo ? (
                 <I18nMessage tokens={{ click_here: <ClickHereButton /> }}>
                   %click_here% if you want to join the chat for this stream.
                 </I18nMessage>

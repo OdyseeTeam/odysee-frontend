@@ -46,6 +46,7 @@ declare type LivestreamActiveClaim = {
   uri: string,
   claimId: string,
   videoUrl?: string,
+  startedStreaming?: any,
   releaseTime: string,
 };
 
@@ -55,7 +56,6 @@ declare type LivestreamInfo = {
   isLive: boolean,
   viewCount: number,
   creatorId: string,
-  startedStreaming: any,
   activeClaim: LivestreamActiveClaim,
   pastClaims: ?Array<LivestreamActiveClaim>,
   futureClaims: ?Array<LivestreamActiveClaim>,

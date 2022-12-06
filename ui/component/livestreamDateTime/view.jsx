@@ -7,32 +7,41 @@ import I18nMessage from 'component/i18nMessage';
 
 type Props = {
   uri: string,
-  claim: any,
+  // -- redux --
+  releaseTime: any,
   activeLivestream: any,
+  isCurrentClaimLive: ?boolean,
 };
 
 const LivestreamDateTime = (props: Props) => {
-  const { uri, claim, activeLivestream } = props;
+  const { uri, releaseTime, activeLivestream, isCurrentClaimLive } = props;
 
-  if (activeLivestream) {
+  if (activeLivestream && isCurrentClaimLive) {
     return (
       <span>
-        <I18nMessage tokens={{ time_date: <DateTime timeAgo date={activeLivestream.startedStreaming && activeLivestream.startedStreaming.toDate()} /> }}>
+        <I18nMessage
+          tokens={{
+            time_date: (
+              <DateTime
+                timeAgo
+                date={activeLivestream.startedStreaming && activeLivestream.startedStreaming.toDate()}
+              />
+            ),
+          }}
+        >
           Started %time_date%
         </I18nMessage>
       </span>
     );
   }
-  if (
-    moment
-      .unix(claim.value.release_time)
-      .isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())
-  ) {
+
+  if (moment.unix(releaseTime).isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment())) {
     return __('Starting Soon');
   }
+
   return (
     <span>
-      <I18nMessage tokens={{ time_date: <DateTime timeAgo uri={uri} showFutureDate /> }}>Live %time_date%</I18nMessage>
+      <I18nMessage tokens={{ time_date: <DateTime timeAgo uri={uri} showFutureDate /> }}>Released %time_date%</I18nMessage>
     </span>
   );
 };

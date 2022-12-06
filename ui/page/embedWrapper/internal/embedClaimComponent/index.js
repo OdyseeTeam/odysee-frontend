@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { selectShowScheduledLiveInfoForUri, selectLiveClaimReleaseStartingSoonForUri } from 'redux/selectors/livestream';
+import { selectShowScheduledLiveInfoForUri } from 'redux/selectors/livestream';
 
 import withResolvedClaimRender from 'hocs/withResolvedClaimRender';
 
@@ -15,7 +15,6 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     showScheduledInfo: selectShowScheduledLiveInfoForUri(state, uri),
-    liveClaimStartingSoon: selectLiveClaimReleaseStartingSoonForUri(state, uri),
   };
 };
 
