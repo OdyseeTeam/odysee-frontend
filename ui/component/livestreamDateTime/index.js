@@ -6,8 +6,6 @@ import {
   selectClaimIsActiveChannelLivestreamForUri,
 } from 'redux/selectors/livestream';
 
-import withLiveStatus from 'hocs/withLiveStatus';
-
 import LivestreamDateTime from './view';
 
 const select = (state, props) => {
@@ -17,7 +15,10 @@ const select = (state, props) => {
     releaseTime: selectMomentReleaseTimeForUri(state, uri),
     activeLivestream: selectActiveLivestreamForChannel(state, selectChannelClaimIdForUri(state, uri)),
     isCurrentClaimLive: selectClaimIsActiveChannelLivestreamForUri(state, uri),
+    // -- for withLiveStatus --
+    forceRender: true,
+    disablePoll: true,
   };
 };
 
-export default withLiveStatus(connect(select)(LivestreamDateTime));
+export default connect(select)(LivestreamDateTime);

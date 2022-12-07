@@ -37,6 +37,12 @@ export const selectIsLivePollingChannelIds = (state: State) => selectState(state
 
 // -- General Selectors --
 
+export const selectLivestreamInfoForCreatorId = (state: State, creatorId: string) =>
+  selectLivestreamInfoByCreatorId(state)[creatorId];
+
+export const selectLivestreamInfoAlreadyFetchedForCreatorId = (state: State, creatorId: string) =>
+  selectLivestreamInfoForCreatorId(state, creatorId) !== undefined;
+
 export const selectViewersForId = (state: State, claimId: string) => selectViewersById(state)[claimId];
 
 export const selectFutureLivestreamsForCreatorId = (state: State, creatorId: string) =>
@@ -133,20 +139,20 @@ export const selectActiveLivestreamsFetchingForQuery = (state: State, query: str
 export const selectSocketConnectionForId = (state: State, claimId: string) =>
   claimId && selectSocketConnectionById(state)[claimId];
 
-export const selectIsListeningForIsLiveForUri = (state: State, uri: string) => {
+export const selectSocketConnectedForUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
-
-  const isLivePolling = channelId && selectIsLivePollingForChannelId(state, channelId);
-  if (isLivePolling) return true;
-
   const activeLivestream = selectActiveLivestreamForChannel(state, channelId);
   if (!activeLivestream) return false;
 
   const activeLivestreamId = activeLivestream.claimId;
+  return !!selectSocketConnectionForId(state, activeLivestreamId)?.connected;
+};
 
-  const socketConnection = selectSocketConnectionForId(state, activeLivestreamId);
-  // $FlowFixMe
-  if (socketConnection?.connected) return true;
+export const selectIsLivePollingForUri = (state: State, uri: string) => {
+  const channelId = selectChannelClaimIdForUri(state, uri);
+
+  const isLivePolling = channelId && selectIsLivePollingForChannelId(state, channelId);
+  if (isLivePolling) return true;
 
   return false;
 };

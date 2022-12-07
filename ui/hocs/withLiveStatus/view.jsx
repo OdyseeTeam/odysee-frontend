@@ -6,11 +6,14 @@ import { LIVESTREAM_STATUS_CHECK_INTERVAL_SOON, LIVESTREAM_STATUS_CHECK_INTERVAL
 type Props = {
   uri?: string,
   forceRender?: boolean, // -- renders the wrapped component even if there is no active livestream for the channel
+  disablePoll?: boolean,
   // -- redux --
   fasterPoll?: boolean,
   channelClaimId: string,
   activeLivestreamForChannel: ?LivestreamActiveClaim,
-  alreadyListeningForIsLive: boolean,
+  alreadyLivePolling: boolean,
+  socketConnected: boolean,
+  alreadyDidInitialFetch: boolean,
   doFetchChannelIsLiveForId: (channelClaimId: string) => void,
   doSetIsLivePollingForChannelId: (channelId: string, isPolling: boolean) => void,
 };
@@ -27,11 +30,14 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
     const {
       uri,
       forceRender,
+      disablePoll,
       // -- redux --
       fasterPoll,
       channelClaimId,
       activeLivestreamForChannel,
-      alreadyListeningForIsLive,
+      alreadyLivePolling,
+      socketConnected,
+      alreadyDidInitialFetch,
       doFetchChannelIsLiveForId,
       doSetIsLivePollingForChannelId,
     } = props;
@@ -40,29 +46,42 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
 
     // if already polling, or listening for is_live, but not from this component. Don't poll/call again
     // otherwise keep polling in this component
-    const outsitePolling = alreadyListeningForIsLive && !isPolling.current;
+    const outsitePolling = alreadyLivePolling && !isPolling.current;
     const claimUri = activeLivestreamForChannel && activeLivestreamForChannel.uri;
 
     // Find out current channels status + active live claim every 30 seconds
     React.useEffect(() => {
+      if (socketConnected) return;
+
       let intervalId;
 
       if (channelClaimId && !outsitePolling) {
         const fetch = () => doFetchChannelIsLiveForId(channelClaimId);
 
-        fetch();
+        if (!alreadyDidInitialFetch) fetch();
 
-        const interval = fasterPoll ? LIVESTREAM_STATUS_CHECK_INTERVAL_SOON : LIVESTREAM_STATUS_CHECK_INTERVAL;
-        intervalId = setInterval(fetch, interval);
+        if (!disablePoll) {
+          const interval = fasterPoll ? LIVESTREAM_STATUS_CHECK_INTERVAL_SOON : LIVESTREAM_STATUS_CHECK_INTERVAL;
+          intervalId = setInterval(fetch, interval);
 
-        doSetIsLivePollingForChannelId(channelClaimId, true);
-        isPolling.current = true;
+          doSetIsLivePollingForChannelId(channelClaimId, true);
+          isPolling.current = true;
+        }
       }
 
       return () => {
         if (intervalId) clearInterval(intervalId);
       };
-    }, [outsitePolling, channelClaimId, doFetchChannelIsLiveForId, doSetIsLivePollingForChannelId, fasterPoll]);
+    }, [
+      outsitePolling,
+      channelClaimId,
+      doFetchChannelIsLiveForId,
+      doSetIsLivePollingForChannelId,
+      fasterPoll,
+      alreadyDidInitialFetch,
+      socketConnected,
+      disablePoll,
+    ]);
 
     React.useEffect(() => {
       return () => {
