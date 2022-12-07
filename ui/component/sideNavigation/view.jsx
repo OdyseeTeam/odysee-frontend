@@ -488,9 +488,9 @@ function SideNavigation(props: Props) {
     const ad = document.getElementsByClassName('rev-shifter')[0];
     if (ad) {
       if (!sidebarOpen || isMobile) {
-        ad.classList.add('LEFT');
-      } else {
         ad.classList.remove('LEFT');
+      } else {
+        ad.classList.add('LEFT');
       }
     }
   }, [sidebarOpen, isMobile]);

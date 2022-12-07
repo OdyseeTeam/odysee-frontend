@@ -9,7 +9,7 @@ import './style.scss';
 // ****************************************************************************
 
 const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
-let gScript;
+// let gScript;
 
 type Props = {
   uri: ?string,

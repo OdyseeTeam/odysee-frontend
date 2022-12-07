@@ -8,7 +8,7 @@
   height: 110px !important;
 
   bottom: var(--spacing-m) !important;
-  left: calc(var(--side-nav-width) + var(--spacing-m)) !important;
+  left: calc(var(--spacing-m) + 93px) !important;
 
   transform: unset !important;
   transition: left var(--resizing-animation-timing) !important;
@@ -18,7 +18,7 @@
   }
   &.LEFT {
     @media (min-width: $breakpoint-small) {
-      left: calc(var(--spacing-m) + 93px) !important;
+      left: calc(var(--side-nav-width) + var(--spacing-m)) !important;      
     }
   }
 
