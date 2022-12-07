@@ -22,6 +22,7 @@ type Props = {
   isUnlistedContent?: boolean,
   isPrivateContent?: boolean,
   scheduledContentReleasedInFuture: boolean,
+  location: string,
 };
 
 class DateTime extends React.Component<Props, State> {
@@ -75,6 +76,7 @@ class DateTime extends React.Component<Props, State> {
       scheduledContentReleasedInFuture,
       // passed
       genericSeconds,
+      location,
       showFutureDate,
       timeAgo,
       type,
@@ -86,11 +88,7 @@ class DateTime extends React.Component<Props, State> {
     let timeToUse = '...';
     if (date) {
       if (timeAgo) {
-        if (scheduledContentReleasedInFuture) {
-          timeToUse = moment(date).format('MMMM Do, YYYY');
-        } else {
-          timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds);
-        }
+        timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds);
       } else {
         if (type === 'date') {
           timeToUse = moment(date).format('MMMM Do, YYYY');
@@ -100,29 +98,67 @@ class DateTime extends React.Component<Props, State> {
       }
     }
 
+    function getMomentDateString({ onContentPage, sameYear }){
+      if (onContentPage && sameYear) {
+        return 'MMMM Do, hh:mm A';
+      }
+      if (onContentPage && !sameYear) {
+        return 'MMMM Do YYYY, hh:mm A';
+      }
+
+      if (!onContentPage && sameYear) {
+        return 'MMMM Do';
+      }
+
+      if (!onContentPage && !sameYear) {
+        return 'MMMM Do, YYYY';
+      }
+
+      throw Error('no format string');
+    }
+
+    if (scheduledContentReleasedInFuture) {
+      const now = moment(date); // release date
+      const end = moment(new Date()); // today's date
+      const duration = moment.duration(now.diff(end));
+      const howManyHoursUntilUpload = Math.ceil(duration.asHours());
+
+      // show as 'Available in x hours'
+      if (howManyHoursUntilUpload < 24) {
+        let hoursText = 'hours';
+        if (howManyHoursUntilUpload === 1) {
+          hoursText = 'hour';
+        }
+        timeToUse = `Available in ${howManyHoursUntilUpload} ${hoursText}`;
+      } else {
+        // Test if the two dates are in the same calendar year
+        let sameYear = now.isSame(end, 'year');
+
+        const onContentPage = location === 'contentPage';
+
+        const formatString = getMomentDateString({ onContentPage, sameYear});
+
+        timeToUse = moment(date).format(formatString);
+        timeToUse = (
+          <I18nMessage
+            tokens={{
+              timeToUse,
+            }}
+          >
+            Scheduled for %timeToUse%
+          </I18nMessage>
+        );
+      }
+    }
+
     // use creation date instead of release time for unlisted/private
     if (isUnlistedContent || isPrivateContent) {
       timeToUse = moment(creationDate).format('MMMM Do, YYYY');
     }
 
-    let textToShow = timeToUse;
-
-    // change frontend text to "Scheduled for $date"
-    if (scheduledContentReleasedInFuture) {
-      textToShow = (
-        <I18nMessage
-          tokens={{
-            timeToUse,
-          }}
-        >
-          Scheduled for %timeToUse%
-        </I18nMessage>
-      );
-    }
-
     return (
       <span className="date_time" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
-        {textToShow}
+        {timeToUse}
       </span>
     );
   }

@@ -24,6 +24,7 @@ type Props = {
   isUnlistedContent?: boolean,
   isPrivateContent?: boolean,
   isScheduledContent?: boolean,
+  scheduledContentReleasedInFuture?: boolean,
 };
 
 export default function PreviewOverlayProperties(props: Props) {
@@ -38,8 +39,8 @@ export default function PreviewOverlayProperties(props: Props) {
     hasEdits,
     xsmall,
     isUnlistedContent,
-    isPrivateContent,
-    isScheduledContent,
+    // isPrivateContent,
+    scheduledContentReleasedInFuture,
   } = props;
 
   const isCollection = claim && claim.value_type === 'collection';
@@ -81,8 +82,9 @@ export default function PreviewOverlayProperties(props: Props) {
           {isUnlistedContent && (
             <Icon size={size} tooltip icon={ICONS.EYE_OFF} customTooltipText={__('Unlisted Content')} />
           )}
-          {isPrivateContent && <Icon size={size} tooltip icon={ICONS.LOCK} customTooltipText={__('Private Content')} />}
-          {isScheduledContent && <Icon size={15} tooltip icon={ICONS.SCHEDULED} style={{ marginBottom: '-2px' }} />}
+          {/*{isPrivateContent && <Icon size={size} tooltip icon={ICONS.LOCK} customTooltipText={__('Private Content')} />}*/}
+          {scheduledContentReleasedInFuture &&
+            <Icon size={15} tooltip icon={ICONS.SCHEDULED} customTooltipText={__('Scheduled Content')} style={{ marginBottom: '-2px' }} />}
         </>
       )}
     </div>

@@ -21,7 +21,7 @@ function FileSubtitle(props: Props) {
       <div className="media__subtitle--between">
         <div className="file__viewdate">
           {livestream && isLive && <LivestreamDateTime uri={uri} />}
-          {!livestream && <DateTime uri={uri} type="date" />}
+          {!livestream && <DateTime uri={uri} type="date" location={'contentPage'} />}
           {!scheduledContentReleasedInFuture && contentUnlocked && (
             <FileViewCount uri={uri} livestream={livestream} isLive={isLive} />
           )}

@@ -1,4 +1,5 @@
 // @flow
+import moment from 'moment';
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
@@ -869,8 +870,12 @@ export const selectShouldDisableShownScheduledContent = createSelector(
   selectDateForUri,
   (metadata: ?GenericMetadata, releaseTime) => {
     const isScheduledHidden = metadata && new Set(metadata.tags).has(SCHEDULED_SHOWN_TAG);
-    const releaseTimeInFuture = releaseTime > new Date();
-    return isScheduledHidden && releaseTimeInFuture;
+
+    const releaseDateWith30MinutesRemoved = moment(new Date(releaseTime)).subtract(30, 'm').toDate();
+
+    const releaseTimeNotWithin30MinuteBuffer = releaseDateWith30MinutesRemoved > new Date();
+
+    return isScheduledHidden && releaseTimeNotWithin30MinuteBuffer;
   }
 );
 
@@ -900,7 +905,6 @@ export const selectShouldHideHiddenScheduledContent = createSelector(
   selectDateForUri,
   (metadata: ?GenericMetadata, releaseTime) => {
     const isScheduledHidden = metadata && new Set(metadata.tags).has(SCHEDULED_HIDDEN_TAG);
-    // TODO: can add 5-15 minutes buffer here
     const releaseTimeInFuture = releaseTime > new Date();
     return isScheduledHidden && releaseTimeInFuture;
   }
