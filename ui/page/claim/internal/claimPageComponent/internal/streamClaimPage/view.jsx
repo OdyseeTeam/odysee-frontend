@@ -137,7 +137,7 @@ const StreamClaimPage = (props: Props) => {
     );
   }
 
-  const commentsListProps = { uri, linkedCommentId, threadCommentId };
+  const commentsListProps = { uri };
   const emptyMsgProps = { padded: !isMobile };
 
   return (

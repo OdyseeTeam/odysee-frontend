@@ -1,6 +1,5 @@
 // @flow
 import { DOMAIN } from 'config';
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import React, { useEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { Redirect } from 'react-router-dom';
@@ -58,8 +57,6 @@ const ClaimPageComponent = (props: Props) => {
 
   const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
-  const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
-  const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
 
   const canonicalUrl = claim && claim.canonical_url;
   const claimId = claim && claim.claim_id;
@@ -177,8 +174,6 @@ const ClaimPageComponent = (props: Props) => {
     <StreamClaimPage
       uri={uri}
       collectionId={collectionId}
-      linkedCommentId={linkedCommentId}
-      threadCommentId={threadCommentId}
     />
   );
 };

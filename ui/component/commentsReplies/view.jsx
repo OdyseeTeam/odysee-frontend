@@ -6,8 +6,6 @@ import Spinner from 'component/spinner';
 
 type Props = {
   uri: string,
-  linkedCommentId?: string,
-  threadCommentId?: string,
   numDirectReplies: number, // Total replies for parentId as reported by 'comment[replies]'. Includes blocked items.
   hasMore: boolean,
   supportDisabled: boolean,
@@ -25,8 +23,6 @@ export default function CommentsReplies(props: Props) {
     uri,
     fetchedReplies,
     claimIsMine,
-    linkedCommentId,
-    threadCommentId,
     numDirectReplies,
     hasMore,
     supportDisabled,
@@ -45,8 +41,6 @@ export default function CommentsReplies(props: Props) {
             uri={uri}
             comment={comment}
             claimIsMine={claimIsMine}
-            linkedCommentId={linkedCommentId}
-            threadCommentId={threadCommentId}
             supportDisabled={supportDisabled}
             threadLevel={threadLevel + 1}
             threadDepthLevel={threadDepthLevel}

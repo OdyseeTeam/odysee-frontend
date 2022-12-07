@@ -7,13 +7,11 @@ const CommentsList = lazyImport(() => import('component/commentsList' /* webpack
 
 type Props = {
   uri: string,
-  linkedCommentId?: string,
-  threadCommentId?: string,
   commentSettingDisabled: ?boolean,
 };
 
 function ChannelDiscussion(props: Props) {
-  const { uri, linkedCommentId, threadCommentId, commentSettingDisabled } = props;
+  const { uri, commentSettingDisabled } = props;
 
   if (commentSettingDisabled) {
     return <Empty text={__('The creator of this content has disabled comments.')} />;
@@ -24,8 +22,6 @@ function ChannelDiscussion(props: Props) {
       <React.Suspense fallback={null}>
         <CommentsList
           uri={uri}
-          linkedCommentId={linkedCommentId}
-          threadCommentId={threadCommentId}
           commentsAreExpanded
           notInDrawer
         />

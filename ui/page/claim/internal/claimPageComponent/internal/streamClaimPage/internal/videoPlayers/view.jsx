@@ -29,8 +29,6 @@ type Props = {
   fileInfo: FileListItem,
   isMature: boolean,
   isUriPlaying: boolean,
-  linkedCommentId?: string,
-  threadCommentId?: string,
   location: { search: string },
   playingCollectionId: ?string,
   position: number,
@@ -49,8 +47,6 @@ export default function VideoPlayersPage(props: Props) {
     playingCollectionId,
     fileInfo,
     isMature,
-    linkedCommentId,
-    threadCommentId,
     videoTheaterMode,
     commentSettingDisabled,
     audioVideoDuration,
@@ -126,7 +122,7 @@ export default function VideoPlayersPage(props: Props) {
     );
   }
 
-  const commentsListProps = { uri, linkedCommentId, threadCommentId };
+  const commentsListProps = { uri };
 
   return (
     <>

@@ -11,8 +11,6 @@ type Props = {
   accessStatus: ?string,
   // -- redux --
   isMature: boolean,
-  linkedCommentId?: string,
-  threadCommentId?: string,
   commentSettingDisabled: ?boolean,
   contentUnlocked: boolean,
 };
@@ -23,8 +21,6 @@ export default function MarkdownPostPage(props: Props) {
     accessStatus,
     // -- redux --
     isMature,
-    linkedCommentId,
-    threadCommentId,
     commentSettingDisabled,
     contentUnlocked,
   } = props;
@@ -50,8 +46,6 @@ export default function MarkdownPostPage(props: Props) {
           <React.Suspense fallback={null}>
             <CommentsList
               uri={uri}
-              linkedCommentId={linkedCommentId}
-              threadCommentId={threadCommentId}
               commentsAreExpanded
               notInDrawer
             />

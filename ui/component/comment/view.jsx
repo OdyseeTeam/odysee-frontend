@@ -267,7 +267,6 @@ function CommentView(props: Props) {
   }
 
   function handleOpenNewThread() {
-    urlParams.set(LINKED_COMMENT_QUERY_PARAM, commentId);
     urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
     push({ pathname, search: urlParams.toString() });
   }

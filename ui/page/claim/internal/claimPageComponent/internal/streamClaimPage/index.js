@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { doSetContentHistoryItem, doSetPrimaryUri } from 'redux/actions/content';
-import { withRouter } from 'react-router-dom';
 import {
   selectClaimIsNsfwForUri,
   selectClaimForUri,
@@ -8,7 +7,6 @@ import {
   selectIsStreamPlaceholderForUri,
   selectCostInfoForUri,
 } from 'redux/selectors/claims';
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { doToggleAppDrawer } from 'redux/actions/app';
@@ -20,9 +18,7 @@ import StreamClaimPage from './view';
 
 const select = (state, props) => {
   const { uri } = props;
-  const { search } = location;
 
-  const urlParams = new URLSearchParams(search);
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
 
@@ -32,10 +28,8 @@ const select = (state, props) => {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     costInfo: selectCostInfoForUri(state, uri),
     isMature: selectClaimIsNsfwForUri(state, uri),
-    linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelId),
-    threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
@@ -48,4 +42,4 @@ const perform = {
   doToggleAppDrawer,
 };
 
-export default withRouter(connect(select, perform)(StreamClaimPage));
+export default connect(select, perform)(StreamClaimPage);
