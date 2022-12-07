@@ -30,7 +30,7 @@ const LivestreamDateTime = (props: Props) => {
   } = props;
 
   React.useEffect(() => {
-    if (!alreadyFetched) {
+    if (!alreadyFetched && channelClaimId) {
       doFetchChannelIsLiveForId(channelClaimId);
     }
   }, [alreadyFetched, channelClaimId, doFetchChannelIsLiveForId]);
