@@ -13,6 +13,7 @@ import {
   selectMomentReleaseTimeForUri,
   selectClaimReleaseInFutureForUri,
   selectClaimReleaseInPastForUri,
+  selectClaimIdForUri,
 } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 
@@ -140,12 +141,8 @@ export const selectSocketConnectionForId = (state: State, claimId: string) =>
   claimId && selectSocketConnectionById(state)[claimId];
 
 export const selectSocketConnectedForUri = (state: State, uri: string) => {
-  const channelId = selectChannelClaimIdForUri(state, uri);
-  const activeLivestream = selectActiveLivestreamForChannel(state, channelId);
-  if (!activeLivestream) return false;
-
-  const activeLivestreamId = activeLivestream.claimId;
-  return !!selectSocketConnectionForId(state, activeLivestreamId)?.connected;
+  const claimId = selectClaimIdForUri(state, uri);
+  return !!selectSocketConnectionForId(state, claimId)?.connected;
 };
 
 export const selectIsLivePollingForUri = (state: State, uri: string) => {
@@ -209,7 +206,8 @@ export const selectActiveLivestreamForChannel = (state: State, channelId: string
 
 export const selectChannelIsLiveFetchedForUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
-  return selectActiveLivestreamForChannel(state, channelId) !== undefined;
+  const socketConnected = selectSocketConnectedForUri(state, uri);
+  return socketConnected || selectActiveLivestreamForChannel(state, channelId) !== undefined;
 };
 
 export const selectActiveStreamUriForClaimUri = (state: State, uri: string) => {

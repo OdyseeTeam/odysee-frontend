@@ -9,7 +9,6 @@ import { parseURI } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
 import { formatLbryUrlForWeb } from 'util/url';
 
-import withLiveStatus from 'hocs/withLiveStatus';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import Spinner from 'component/spinner';
@@ -86,10 +85,8 @@ const EmbedClaimComponent = (props: Props) => {
   }
 
   if (isVideo) {
-    const VideoComponent = isLivestreamClaim ? EmbeddedLivestreamClaim : EmbeddedVideoClaim;
-
     return (
-      <VideoComponent uri={uri} embedded forceRender={isLivestreamClaim}>
+      <EmbeddedVideoClaim uri={uri} embedded>
         {isLivestreamClaim && (
           <>
             {showScheduledInfo && <LivestreamScheduledInfo uri={uri} />}
@@ -113,7 +110,7 @@ const EmbedClaimComponent = (props: Props) => {
             </div>
           </>
         )}
-      </VideoComponent>
+      </EmbeddedVideoClaim>
     );
   }
 
@@ -124,7 +121,6 @@ const EmbeddedVideoClaimComponent = ({ uri, streamClaim }: { uri: string, stream
   <VideoRender uri={uri} embedded streamClaim={streamClaim} />
 );
 const EmbeddedVideoClaim = withStreamClaimRender(EmbeddedVideoClaimComponent);
-const EmbeddedLivestreamClaim = withLiveStatus(EmbeddedVideoClaim);
 
 const EmbeddedClaimComponent = ({ uri }: { uri: string }) => <ClaimPreviewTile uri={uri} onlyThumb />;
 // -- this allows rendering the appropriate restricted overlays linking to join from the embed --

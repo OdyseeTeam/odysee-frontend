@@ -7,7 +7,6 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 
 import { ExpandableContext } from 'contexts/expandable';
 
-import withLiveStatus from 'hocs/withLiveStatus';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
@@ -211,15 +210,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
-    // *** Render ***
-
-    const LivestreamComponent = React.useMemo(() => withLiveStatus(StreamClaimComponent), []);
-    const RenderedComponent = React.useMemo(
-      () => (props: any) =>
-        isLivestreamClaim ? <LivestreamComponent {...props} forceRender /> : <StreamClaimComponent {...props} />,
-      [isLivestreamClaim]
-    );
-
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
       return (
@@ -252,7 +242,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Main Component Render -- return when already has the claim's contents
-    return <RenderedComponent uri={uri} streamClaim={streamClaim} {...otherProps} />;
+    return <StreamClaimComponent uri={uri} streamClaim={streamClaim} {...otherProps} />;
   };
 
   return StreamClaimWrapper;
