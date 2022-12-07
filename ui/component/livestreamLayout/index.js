@@ -4,7 +4,6 @@ import * as SETTINGS from 'constants/settings';
 
 import { selectClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
 import { selectHyperChatsForUri } from 'redux/selectors/comments';
-import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { selectClientSetting } from 'redux/selectors/settings';
 import {
   selectViewersForId,
@@ -28,7 +27,6 @@ const select = (state, props) => {
     chatDisabled: selectChatCommentsDisabledForUri(state, uri),
     superChats: selectHyperChatsForUri(state, uri),
     activeViewers: claimId && selectViewersForId(state, claimId),
-    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isCurrentClaimLive: selectClaimIsActiveChannelLivestreamForUri(state, uri),
     showScheduledInfo: selectShowScheduledLiveInfoForUri(state, uri),
     activeStreamUri: selectActiveStreamUriForClaimUri(state, uri),
