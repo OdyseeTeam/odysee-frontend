@@ -4,12 +4,11 @@
 // will use this component to properly position itself based on the ClaimCoverRender
 import React from 'react';
 
-import { ExpandableContext } from 'component/common/expandable';
-
 import Button from 'component/button';
 import ClaimCoverRender from 'component/claimCoverRender';
 
 type Props = {
+  // -- withStreamClaimRender --
   uri: string,
   children?: any,
   streamClaim: () => void,
@@ -19,18 +18,6 @@ type Props = {
 
 const VideoClaimInitiator = (props: Props) => {
   const { uri, children, streamClaim, doSetMainPlayerDimension } = props;
-
-  const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
-
-  function handleClick() {
-    streamClaim();
-
-    // In case of inline player where play button is reachable -> set is expanded
-    if (setExpanded && disableExpanded) {
-      setExpanded(true);
-      disableExpanded(true);
-    }
-  }
 
   const playerRef = React.useCallback(
     (node) => {
@@ -43,8 +30,8 @@ const VideoClaimInitiator = (props: Props) => {
   );
 
   return (
-    <ClaimCoverRender uri={uri} onClick={handleClick} passedRef={playerRef}>
-      <Button className="button--icon button--play" onClick={handleClick} iconSize={30} title={__('Play')} />
+    <ClaimCoverRender uri={uri} onClick={streamClaim} passedRef={playerRef}>
+      <Button className="button--icon button--play" onClick={streamClaim} iconSize={30} title={__('Play')} />
 
       {children}
     </ClaimCoverRender>

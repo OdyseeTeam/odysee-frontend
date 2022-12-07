@@ -1092,7 +1092,7 @@ export const selectPendingFiatPaymentForUri = (state: State, uri: string) => {
   const fiatPaid = selectIsFiatPaidForUri(state, uri);
   const isFetchingPurchases = selectIsFetchingPurchases(state);
 
-  const pendingFiatPayment = !claimIsMine && fiatRequired && (!fiatPaid || isFetchingPurchases);
+  const pendingFiatPayment = !claimIsMine && fiatRequired && !fiatPaid && isFetchingPurchases === false;
 
   return pendingFiatPayment;
 };

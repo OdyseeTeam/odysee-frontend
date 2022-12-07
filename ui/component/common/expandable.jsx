@@ -2,6 +2,8 @@
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+
+import { ExpandableContext } from 'contexts/expandable';
 import { useOnResize } from 'effects/use-on-resize';
 
 const COLLAPSED_HEIGHT = 120;
@@ -9,8 +11,6 @@ const COLLAPSED_HEIGHT = 120;
 type Props = {
   children: React$Node | Array<React$Node>,
 };
-
-export const ExpandableContext = React.createContext<any>();
 
 export default function Expandable(props: Props) {
   const { children } = props;

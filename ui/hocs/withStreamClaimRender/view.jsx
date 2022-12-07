@@ -5,6 +5,8 @@ import analytics from 'analytics';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
+import { ExpandableContext } from 'contexts/expandable';
+
 import withLiveStatus from 'hocs/withLiveStatus';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
@@ -34,6 +36,7 @@ type Props = {
   purchaseTag: number,
   rentalTag: string,
   autoplay: boolean,
+  isFetchingPurchases: ?boolean,
   renderMode: string,
   streamingUrl: any,
   isLivestreamClaim: ?boolean,
@@ -78,6 +81,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       purchaseTag,
       rentalTag,
       autoplay,
+      isFetchingPurchases,
       renderMode,
       streamingUrl,
       isLivestreamClaim,
@@ -97,6 +101,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
       ...otherProps
     } = props;
+
+    const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
 
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
 
@@ -132,6 +138,16 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
     const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
 
+    function handleClick() {
+      streamClaim();
+
+      // In case of inline player where play button is reachable -> set is expanded
+      if (setExpanded && disableExpanded) {
+        setExpanded(true);
+        disableExpanded(true);
+      }
+    }
+
     React.useEffect(() => {
       if (channelClaimId && channelName) {
         doMembershipList({ channel_name: channelName, channel_id: channelClaimId });
@@ -145,10 +161,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [doMembershipMine, myMembershipsFetched]);
 
     React.useEffect(() => {
-      if (isAPurchaseOrPreorder) {
+      if (isAPurchaseOrPreorder && isFetchingPurchases === undefined) {
         doCheckIfPurchasedClaimId(claimId);
       }
-    }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder]);
+    }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
     const streamClaim = React.useCallback(() => {
       const playingOptions: PlayingUri = {
@@ -229,8 +245,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
 
       return (
-        <ClaimCoverRender uri={uri} onClick={streamClaim}>
-          <Button onClick={streamClaim} iconSize={30} title={__('Play')} className="button--icon button--play" />
+        <ClaimCoverRender uri={uri} onClick={handleClick}>
+          <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
         </ClaimCoverRender>
       );
     }

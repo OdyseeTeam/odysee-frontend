@@ -393,7 +393,7 @@ function VideoRenderFloating(props: Props) {
 
   return (
     <VideoRenderFloatingContext.Provider value={{ draggable }}>
-      {!isAutoplayCountdown && ((uri && !videoAspectRatio) || collectionSidebarId) ? (
+      {!isAutoplayCountdown && ((uri && videoAspectRatio) || collectionSidebarId) ? (
         <PlayerGlobalStyles
           videoAspectRatio={videoAspectRatio}
           theaterMode={theaterMode}
