@@ -5,8 +5,7 @@ import analytics from 'analytics';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
-import { EmbedContext } from 'contexts/embed';
-
+import withLiveStatus from 'hocs/withLiveStatus';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
@@ -45,14 +44,12 @@ type Props = {
   sdkFeePending: ?boolean,
   pendingUnlockedRestrictions: ?boolean,
   canViewFile: ?boolean,
-  alreadyListeningForIsLive: boolean,
   channelLiveFetched: boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFileGetForUri: (uri: string) => void,
   doMembershipMine: () => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
-  doFetchChannelIsLiveForId: (channelClaimId: string) => void,
 };
 
 /**
@@ -91,19 +88,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       sdkFeePending,
       pendingUnlockedRestrictions,
       canViewFile,
-      alreadyListeningForIsLive,
       channelLiveFetched,
       doCheckIfPurchasedClaimId,
       doFileGetForUri,
       doMembershipMine,
       doStartFloatingPlayingUri,
       doMembershipList,
-      doFetchChannelIsLiveForId,
 
       ...otherProps
     } = props;
-
-    const embedContext = React.useContext(EmbedContext);
 
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
 
@@ -202,11 +195,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
-    React.useEffect(() => {
-      if (isLivestreamClaim && !alreadyListeningForIsLive && !embedContext?.fetchedLiveStatus) {
-        doFetchChannelIsLiveForId(channelClaimId);
-      }
-    }, [alreadyListeningForIsLive, channelClaimId, doFetchChannelIsLiveForId, embedContext, isLivestreamClaim]);
+    // *** Render ***
+
+    const LivestreamComponent = React.useMemo(() => withLiveStatus(StreamClaimComponent), []);
+    const RenderedComponent = React.useMemo(
+      () => (props: any) =>
+        isLivestreamClaim ? <LivestreamComponent {...props} forceRender /> : <StreamClaimComponent {...props} />,
+      [isLivestreamClaim]
+    );
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
@@ -240,7 +236,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Main Component Render -- return when already has the claim's contents
-    return <StreamClaimComponent uri={uri} streamClaim={streamClaim} {...otherProps} />;
+    return <RenderedComponent uri={uri} streamClaim={streamClaim} {...otherProps} />;
   };
 
   return StreamClaimWrapper;

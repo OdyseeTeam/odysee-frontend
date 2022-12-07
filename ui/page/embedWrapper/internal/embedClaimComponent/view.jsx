@@ -124,7 +124,7 @@ const EmbeddedVideoClaimComponent = ({ uri, streamClaim }: { uri: string, stream
   <VideoRender uri={uri} embedded streamClaim={streamClaim} />
 );
 const EmbeddedVideoClaim = withStreamClaimRender(EmbeddedVideoClaimComponent);
-const EmbeddedLivestreamClaim = withLiveStatus(withStreamClaimRender(EmbeddedVideoClaimComponent));
+const EmbeddedLivestreamClaim = withLiveStatus(EmbeddedVideoClaim);
 
 const EmbeddedClaimComponent = ({ uri }: { uri: string }) => <ClaimPreviewTile uri={uri} onlyThumb />;
 // -- this allows rendering the appropriate restricted overlays linking to join from the embed --

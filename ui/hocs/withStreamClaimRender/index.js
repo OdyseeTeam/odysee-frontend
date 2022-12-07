@@ -21,18 +21,13 @@ import {
   selectCanViewFileForUri,
 } from 'redux/selectors/content';
 import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
-import {
-  selectIsActiveLivestreamForUri,
-  selectIsListeningForIsLiveForUri,
-  selectChannelIsLiveFetchedForUri,
-} from 'redux/selectors/livestream';
+import { selectIsActiveLivestreamForUri, selectChannelIsLiveFetchedForUri } from 'redux/selectors/livestream';
 import { selectClientSetting } from 'redux/selectors/settings';
 
 import { doStartFloatingPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
-import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 
 import FileRenderInitiator from './view';
 
@@ -63,7 +58,6 @@ const select = (state, props) => {
     sdkFeePending: selectSdkFeePendingForUri(state, uri),
     pendingUnlockedRestrictions: selectPendingUnlockedRestrictionsForUri(state, uri),
     canViewFile: selectCanViewFileForUri(state, uri),
-    alreadyListeningForIsLive: selectIsListeningForIsLiveForUri(state, uri),
     channelLiveFetched: selectChannelIsLiveFetchedForUri(state, uri),
   };
 };
@@ -74,7 +68,6 @@ const perform = {
   doMembershipMine,
   doStartFloatingPlayingUri,
   doMembershipList,
-  doFetchChannelIsLiveForId,
 };
 
 export default (Component) => withRouter(connect(select, perform)(FileRenderInitiator(Component)));
