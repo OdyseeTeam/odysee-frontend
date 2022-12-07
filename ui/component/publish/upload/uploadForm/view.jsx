@@ -24,6 +24,7 @@ import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishFile from 'component/publish/upload/publishFile';
 import PublishProtectedContent from 'component/publishProtectedContent';
 import PublishVisibility from 'component/publish/shared/publishVisibilty';
+import PublishReleaseDate from 'component/publish/shared/publishReleaseDate';
 
 import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
@@ -173,6 +174,7 @@ function UploadForm(props: Props) {
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
   const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
+  // const formDisabled = false;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   // Editing content info
@@ -481,7 +483,13 @@ function UploadForm(props: Props) {
         <div className={classnames({ 'card--disabled': formDisabled })}>
           <PublishVisibility />
 
-          {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
+          <h2 className="card__title">Custom Release Date</h2>
+          <Card className="card--restrictions" actions={
+            <>
+              <h4 style={{ fontSize: '13px', marginBottom: '10px' }}>{__('Set a future time to use automatic upload scheduling')}</h4>
+              <PublishReleaseDate uri={'uri'} />
+            </>
+          } />
 
           <Card actions={<SelectThumbnail />} />
 

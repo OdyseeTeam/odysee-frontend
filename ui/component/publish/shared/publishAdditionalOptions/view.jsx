@@ -71,10 +71,6 @@ function PublishAdditionalOptions(props: Props) {
                 <div className={classnames({ 'card--disabled': !name })}>
                   <div className="section">
                     {/* we are hardcoding a future date for release time, so don't show the option */}
-                    {visibility !== 'unlisted' && visibility !== 'private' && (
-                      <div className="publish-row">{!showSchedulingOptions && <PublishReleaseDate uri={uri} />}</div>
-                    )}
-
                     <div className="publish-row">
                       <FormField
                         label={__('Language')}
