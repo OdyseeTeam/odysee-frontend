@@ -11,6 +11,7 @@ import EmbedClaimComponent from './internal/embedClaimComponent';
 
 type Props = {
   uri: string,
+  claimId: string,
   canonicalUrl: ?string,
   channelUri: ?string,
   channelClaimId: ?string,
@@ -26,6 +27,7 @@ type Props = {
 const EmbedWrapperPage = (props: Props) => {
   const {
     uri,
+    claimId,
     canonicalUrl,
     channelUri,
     channelClaimId,
@@ -70,27 +72,36 @@ const EmbedWrapperPage = (props: Props) => {
 
   // Establish web socket connection for viewer count.
   React.useEffect(() => {
-    if (!isLivestreamClaim || !channelClaimId || !channelUrl || !canonicalUrl) return;
+    if (
+      !isLivestreamClaim ||
+      (liveContentPath ? !latestClaimUrl && !claimId : !claimId) ||
+      !channelUrl ||
+      !canonicalUrl
+    ) {
+      return;
+    }
 
     const channelName = formatLbryChannelName(channelUrl);
 
     if (contentUnlocked) {
-      doCommentSocketConnect(canonicalUrl, channelName, channelClaimId, undefined);
+      doCommentSocketConnect(canonicalUrl, channelName, claimId, undefined);
     }
 
     return () => {
-      if (channelClaimId) {
-        doCommentSocketDisconnect(channelClaimId, channelName);
+      if (claimId) {
+        doCommentSocketDisconnect(claimId, channelName);
       }
     };
   }, [
     canonicalUrl,
-    channelClaimId,
     channelUrl,
+    claimId,
     contentUnlocked,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     isLivestreamClaim,
+    latestClaimUrl,
+    liveContentPath,
   ]);
 
   return (

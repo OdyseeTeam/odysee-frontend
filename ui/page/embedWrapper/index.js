@@ -22,6 +22,7 @@ const select = (state, props) => {
 
   const claim = selectClaimForUri(state, uri);
   const { canonical_url: canonicalUrl } = claim || {};
+  let claimId = claim?.claim_id;
 
   const channelClaim = getChannelFromClaim(claim);
   const { claim_id: channelClaimId, canonical_url: channelUri } = channelClaim || {};
@@ -35,11 +36,14 @@ const select = (state, props) => {
     featureParam === PAGES.LIVE_NOW
       ? selectLatestLiveUriForChannel(state, channelClaimId)
       : latestContentClaim && latestContentClaim.canonical_url;
+  const latestClaimId = latestContentClaim && latestContentClaim.claim_id;
 
   if (latestClaimUrl) uri = latestClaimUrl;
+  if (latestClaimId && (featureParam === PAGES.LIVE_NOW)) claimId = latestClaimId;
 
   return {
     uri,
+    claimId,
     canonicalUrl,
     channelUri,
     channelClaimId,

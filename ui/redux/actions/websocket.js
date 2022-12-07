@@ -2,6 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import { selectLivestreamInfoAlreadyFetchedForCreatorId } from 'redux/selectors/livestream';
 import { selectClaimForId, selectChannelClaimIdForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { SOCKETY_SERVER_API } from 'config';
 
@@ -124,6 +125,10 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
   doSocketConnect(
     url,
     (response) => {
+      const state = getState();
+      const creatorId = selectChannelClaimIdForUri(state, uri);
+      const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
+
       if (response.type === 'delta') {
         const newComment = response.data.comment;
 
@@ -159,19 +164,15 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
       }
 
       if (response.type === 'setting') {
-        const state = getState();
-        const creatorId = selectChannelClaimIdForUri(state, uri);
         dispatch({
           type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
           data: { responseData: response.data, creatorId },
         });
       }
 
-      if (response.type === 'livestream') {
-        const { channel_id } = response.data;
-
+      if (response.type === 'livestream' || isLiveFetchPending) {
         // update the live status for the stream
-        dispatch(doFetchChannelIsLiveForId(channel_id));
+        dispatch(doFetchChannelIsLiveForId(creatorId));
       }
     },
     `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
