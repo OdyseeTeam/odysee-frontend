@@ -17,6 +17,8 @@ import { InputSelect } from './input-select';
 import { CountInfo, QuickAction, Label } from './common';
 import { TextareaWrapper } from './slim-input-field';
 
+import MarkdownEditor from './markdownEditor';
+
 // prettier-ignore
 const TextareaWithSuggestions = lazyImport(() => import('component/textareaWithSuggestions' /* webpackChunkName: "suggestions" */));
 
@@ -258,32 +260,7 @@ export class FormField extends React.PureComponent<Props, State> {
                   <QuickAction {...quickActionProps} />
                 </div>
 
-                <SimpleMDE
-                  {...inputProps}
-                  id={name}
-                  type="textarea"
-                  events={handleEvents}
-                  getMdeInstance={getInstance}
-                  options={{
-                    spellChecker: false,
-                    hideIcons: ['heading', 'image', 'fullscreen', 'side-by-side'],
-                    status: [
-                      {
-                        className: 'editor-statusbar__upload-hint',
-                        defaultValue: (el) => {
-                          el.innerHTML = __('Attach images by pasting or drag-and-drop.');
-                        },
-                      },
-                      'lines',
-                      'words',
-                      'cursor',
-                    ],
-                    previewRender(plainText) {
-                      const preview = <MarkdownPreview content={plainText} noDataStore />;
-                      return ReactDOMServer.renderToString(preview);
-                    },
-                  }}
-                />
+                <MarkdownEditor />
 
                 <CountInfo {...countInfoProps} />
               </fieldset-section>
