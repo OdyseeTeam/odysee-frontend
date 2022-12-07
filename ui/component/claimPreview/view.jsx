@@ -367,7 +367,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  if (placeholder === 'loading' || (uri && (claim === undefined || isResolvingUri))) {
+  if (placeholder === 'loading' || (uri && claim === undefined)) {
     return (
       <ClaimPreviewLoading
         isChannel={isChannelUri}
