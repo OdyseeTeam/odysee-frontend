@@ -5,18 +5,35 @@ import { LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
 import moment from 'moment';
 import I18nMessage from 'component/i18nMessage';
 
-import withLiveStatus from 'hocs/withLiveStatus';
-
 type Props = {
   uri: string,
   // -- redux --
+  channelClaimId: ?string,
   releaseTime: any,
   activeLivestream: any,
   isCurrentClaimLive: ?boolean,
+  releaseInFuture: ?boolean,
+  alreadyFetched: ?boolean,
+  doFetchChannelIsLiveForId: (channelClaimId: string) => void,
 };
 
 const LivestreamDateTime = (props: Props) => {
-  const { uri, releaseTime, activeLivestream, isCurrentClaimLive } = props;
+  const {
+    uri,
+    channelClaimId,
+    releaseTime,
+    activeLivestream,
+    isCurrentClaimLive,
+    releaseInFuture,
+    alreadyFetched,
+    doFetchChannelIsLiveForId,
+  } = props;
+
+  React.useEffect(() => {
+    if (!alreadyFetched) {
+      doFetchChannelIsLiveForId(channelClaimId);
+    }
+  }, [alreadyFetched, channelClaimId, doFetchChannelIsLiveForId]);
 
   if (activeLivestream && isCurrentClaimLive) {
     return (
@@ -44,10 +61,10 @@ const LivestreamDateTime = (props: Props) => {
   return (
     <span>
       <I18nMessage tokens={{ time_date: <DateTime timeAgo uri={uri} showFutureDate /> }}>
-        Released %time_date%
+        {releaseInFuture ? 'Live %time_date%' : 'Released %time_date%'}
       </I18nMessage>
     </span>
   );
 };
 
-export default withLiveStatus(LivestreamDateTime);
+export default LivestreamDateTime;

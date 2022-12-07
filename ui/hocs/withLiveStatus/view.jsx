@@ -5,8 +5,6 @@ import { LIVESTREAM_STATUS_CHECK_INTERVAL_SOON, LIVESTREAM_STATUS_CHECK_INTERVAL
 
 type Props = {
   uri?: string,
-  forceRender?: boolean, // -- renders the wrapped component even if there is no active livestream for the channel
-  disablePoll?: boolean,
   // -- redux --
   fasterPoll?: boolean,
   channelClaimId: string,
@@ -29,8 +27,6 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
   const LiveStatusWrapper = (props: Props) => {
     const {
       uri,
-      forceRender,
-      disablePoll,
       // -- redux --
       fasterPoll,
       channelClaimId,
@@ -60,13 +56,11 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
 
         if (!alreadyDidInitialFetch) fetch();
 
-        if (!disablePoll) {
-          const interval = fasterPoll ? LIVESTREAM_STATUS_CHECK_INTERVAL_SOON : LIVESTREAM_STATUS_CHECK_INTERVAL;
-          intervalId = setInterval(fetch, interval);
+        const interval = fasterPoll ? LIVESTREAM_STATUS_CHECK_INTERVAL_SOON : LIVESTREAM_STATUS_CHECK_INTERVAL;
+        intervalId = setInterval(fetch, interval);
 
-          doSetIsLivePollingForChannelId(channelClaimId, true);
-          isPolling.current = true;
-        }
+        doSetIsLivePollingForChannelId(channelClaimId, true);
+        isPolling.current = true;
       }
 
       return () => {
@@ -80,7 +74,6 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
       fasterPoll,
       alreadyDidInitialFetch,
       socketConnected,
-      disablePoll,
     ]);
 
     React.useEffect(() => {
@@ -91,7 +84,7 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- only unmount
     }, []);
 
-    if (forceRender || (claimUri && claimUri !== uri)) {
+    if (claimUri && claimUri !== uri) {
       return <Component {...props} claimUri={claimUri || uri} />;
     }
 
