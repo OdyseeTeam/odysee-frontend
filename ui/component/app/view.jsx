@@ -405,7 +405,7 @@ function App(props: Props) {
     }
 
     if (inIframe() || !locale || !locale.gdpr_required) {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      const ad = document.getElementsByClassName('rev-shifter')[0];
       if (ad) {
         if (!nagsShown) ad.classList.add('VISIBLE');
         if (!sidebarOpen || isMobile) ad.classList.add('LEFT');
@@ -432,7 +432,7 @@ function App(props: Props) {
     window.gdprCallback = () => {
       doSetGdprConsentList(window.OnetrustActiveGroups);
       if (window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
-        const ad = document.getElementsByClassName('OUTBRAIN')[0];
+        const ad = document.getElementsByClassName('rev-shifter')[0];
         if (ad && !window.nagsShown) ad.classList.add('VISIBLE');
       }
     };
@@ -462,7 +462,7 @@ function App(props: Props) {
       const ad = document.getElementsByClassName('VISIBLE')[0];
       if (ad) ad.classList.remove('VISIBLE');
     } else {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      const ad = document.getElementsByClassName('rev-shifter')[0];
       if (ad) ad.classList.add('VISIBLE');
     }
   }, [nagsShown]);

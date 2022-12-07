@@ -1,7 +1,27 @@
+@import '~ui/scss/init/breakpoints';
+
 .rev-shifter {
   // background-color: transparent !important;
   padding-bottom: 0 !important;
   box-shadow: 0 4px 6px 5px var(--color-text-inverse) !important;
+  width: 270px !important;
+  height: 110px !important;
+
+  bottom: var(--spacing-m) !important;
+  left: calc(var(--side-nav-width) + var(--spacing-m)) !important;
+
+  transform: unset !important;
+  transition: left var(--resizing-animation-timing) !important;
+  // display: none;
+  &.VISIBLE {
+    display: block;
+  }
+  &.LEFT {
+    @media (min-width: $breakpoint-small) {
+      left: calc(var(--spacing-m) + 93px) !important;
+    }
+  }
+
   #rev-slider-container {
     background-color: var(--color-header-background) !important;
 
@@ -42,4 +62,5 @@
 #rev-shifter.rev-shifter.bottom .rev-foot {
   top: unset !important;
   bottom: 0;
+  right: 70px;
 }
