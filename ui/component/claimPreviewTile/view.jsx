@@ -181,7 +181,7 @@ function ClaimPreviewTile(props: Props) {
     return null;
   }
 
-  if (placeholder || claim === undefined || isResolvingUri) {
+  if (placeholder || claim === undefined) {
     return (
       <li
         className={classnames('placeholder claim-preview--tile', {
