@@ -1,8 +1,10 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
+import { URL } from 'config';
 import { formatLbryUrlForWeb } from 'util/url';
 import { withRouter } from 'react-router';
+import { EmbedContext } from 'contexts/embed';
 import Logo from 'component/logo';
 
 type Props = {
@@ -16,21 +18,18 @@ type Props = {
 function FileViewerEmbeddedTitle(props: Props) {
   const { uri, isLivestreamClaim, title, preferEmbed, contentPosition } = props;
 
-  // $FlowFixMe
-  const isInIframe = document.location.ancestorOrigins.length > 0;
+  const isEmbed = React.useContext(EmbedContext);
+
   const urlParams = new URLSearchParams();
 
-  if (isInIframe) {
+  if (isEmbed) {
     urlParams.set('src', 'embed');
   }
   if (contentPosition && !isLivestreamClaim) {
     urlParams.set('t', String(contentPosition));
   }
 
-  const contentLink = formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');
-
-  const contentLinkProps = !isInIframe ? { navigate: contentLink } : { href: contentLink };
-  const odyseeLinkProps = !isInIframe ? { navigate: '/' } : { href: '/' };
+  const contentLink = URL + formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');
 
   return (
     <div className="file-viewer__embedded-header">
@@ -45,7 +44,8 @@ function FileViewerEmbeddedTitle(props: Props) {
           aria-label={title}
           button="link"
           className="file-viewer__embedded-title"
-          {...contentLinkProps}
+          navigate={contentLink}
+          navigateTarget={isEmbed && '_blank'}
         />
       )}
 
@@ -54,7 +54,8 @@ function FileViewerEmbeddedTitle(props: Props) {
           className="file-viewer__overlay-logo"
           disabled={preferEmbed}
           aria-label={__('Home')}
-          {...odyseeLinkProps}
+          navigate={URL}
+          navigateTarget={isEmbed && '_blank'}
         >
           <Logo type={'embed'} />
         </Button>
