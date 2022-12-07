@@ -239,7 +239,7 @@ function ChannelPage(props: Props) {
       tabIndex = 7;
       break;
     default:
-      tabIndex = showClaims || channelIsMine ? 0 : CHANNEL_PAGE.VIEWS.ABOUT;
+      tabIndex = 0;
       break;
   }
 
