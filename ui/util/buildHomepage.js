@@ -39,7 +39,7 @@ function getLimitPerChannel(size, isChannel) {
 export function getAllIds(all: any) {
   const idsSet: Set<string> = new Set();
   (Object.values(all): any).forEach((cat) => {
-    if (cat.channelIds) {
+    if (cat?.channelIds) {
       cat.channelIds.forEach((id) => idsSet.add(id));
     }
   });

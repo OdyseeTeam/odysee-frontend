@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import React, { useEffect } from 'react';
 import { withRouter } from 'react-router';
 import * as TXO from 'constants/txo_list';
-import TransactionListTable from 'component/transactionListTable';
+import TransactionListTable from '../transactionListTable';
 import Paginate from 'component/common/paginate';
 import { FormField } from 'component/common/form-components/form-field';
 import Button from 'component/button';
@@ -12,17 +12,19 @@ import { toCapitalCase } from 'util/string';
 import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import FileExporter from 'component/common/file-exporter';
-import WalletFiatPaymentHistory from 'component/walletFiatPaymentHistory';
-import WalletFiatAccountHistory from 'component/walletFiatAccountHistory';
+import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
+import WalletFiatAccountHistory from '../walletFiatAccountHistory';
 
 // constants to be used in query params
 const QUERY_NAME_CURRENCY = 'currency';
 const QUERY_NAME_TAB = 'tab';
 const QUERY_NAME_FIAT_TYPE = 'fiatType';
-// TODO: this tab will be renamed
+const QUERY_NAME_TRANSACTION_TYPE = 'transactionType';
+
 const DEFAULT_CURRENCY_PARAM = 'credits';
 const DEFAULT_TAB_PARAM = 'fiat-payment-history';
 const DEFAULT_FIAT_TYPE_PARAM = 'incoming';
+const DEFAULT_TRANSACTION_TYPE_PARAM = 'tip';
 
 type Props = {
   search: string,
@@ -83,8 +85,8 @@ function TxoList(props: Props) {
   const currency = urlParams.get(QUERY_NAME_CURRENCY) || DEFAULT_CURRENCY_PARAM;
   const fiatType = urlParams.get(QUERY_NAME_FIAT_TYPE) || DEFAULT_FIAT_TYPE_PARAM;
   // tab used in the wallet section
-  // TODO: need to change this eventually
   const tab = urlParams.get(QUERY_NAME_TAB) || DEFAULT_TAB_PARAM;
+  const transactionType = urlParams.get(QUERY_NAME_TRANSACTION_TYPE) || DEFAULT_TRANSACTION_TYPE_PARAM;
 
   const currentUrlParams = {
     page,
@@ -95,6 +97,7 @@ function TxoList(props: Props) {
     currency,
     fiatType,
     tab,
+    transactionType,
   };
 
   const hideStatus =
@@ -227,7 +230,9 @@ function TxoList(props: Props) {
         if (delta.value === 'credits') {
           newUrlParams.delete(QUERY_NAME_FIAT_TYPE);
         } else {
+          // fiat conditional
           newUrlParams.set(QUERY_NAME_FIAT_TYPE, currentUrlParams.fiatType);
+          newUrlParams.set(QUERY_NAME_TRANSACTION_TYPE, currentUrlParams.transactionType);
         }
         break;
       // toggling the fiat type (incoming/outgoing)
@@ -235,6 +240,7 @@ function TxoList(props: Props) {
         newUrlParams.set(QUERY_NAME_FIAT_TYPE, delta.value);
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);
         newUrlParams.set(QUERY_NAME_CURRENCY, currentUrlParams.currency);
+        newUrlParams.set(QUERY_NAME_TRANSACTION_TYPE, currentUrlParams.transactionType);
         break;
     }
 
@@ -405,8 +411,12 @@ function TxoList(props: Props) {
                 </div>
               </div>
               {/* listing of the transactions */}
-              {fiatType === 'incoming' && <WalletFiatAccountHistory transactions={accountTransactions} />}
-              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactions={accountPaymentHistory} />}
+              {fiatType === 'incoming' && (
+                <WalletFiatAccountHistory transactionType={transactionType} transactions={accountTransactions} />
+              )}
+              {fiatType === 'outgoing' && (
+                <WalletFiatPaymentHistory transactionType={transactionType} transactions={accountPaymentHistory} />
+              )}
               {/* TODO: have to finish pagination */}
               {/* <Paginate totalPages={Math.ceil(txoItemCount / Number(pageSize))} /> */}
             </div>

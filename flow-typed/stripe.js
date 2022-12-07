@@ -215,6 +215,9 @@ declare type StripeTransaction = {
   received_amount: number,
   created_at: number,
   private_tip: string,
+  type: string, // rental, purchase, tip
+  tipper_channel_claim_id: string,
+  tipper_channel_name: string,
 };
 declare type StripeTransactions = Array<StripeTransaction>;
 

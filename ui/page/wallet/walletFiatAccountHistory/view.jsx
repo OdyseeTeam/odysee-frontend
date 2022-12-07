@@ -4,16 +4,37 @@ import Button from 'component/button';
 import moment from 'moment';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
+import { toCapitalCase } from 'util/string';
 
 type Props = {
   transactions: StripeTransactions,
+  transactionType: string,
 };
 
 const WalletFiatAccountHistory = (props: Props) => {
   // receive transactions from parent component
-  const { transactions } = props;
+  let { transactions: accountTransactions, transactionType } = props;
 
-  let accountTransactions = transactions;
+  const tipsBranch = transactionType === 'tips';
+  const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
+
+  // filter transactions by type
+  function getMatch(transactionType) {
+    switch (transactionType) {
+      case 'tip':
+        return tipsBranch;
+      case 'rental':
+        return rentalsAndPurchasesBranch;
+      case 'purchase':
+        return rentalsAndPurchasesBranch;
+    }
+  }
+
+  accountTransactions =
+    accountTransactions &&
+    accountTransactions.filter((transaction) => {
+      return getMatch(transaction.type);
+    });
 
   // TODO: should add pagination here
   // if there are more than 10 transactions, limit it to 10 for the frontend
@@ -27,11 +48,12 @@ const WalletFiatAccountHistory = (props: Props) => {
         <thead>
           <tr>
             <th className="date-header">{__('Date')}</th>
-            <th className="channelName-header">{<>{__('Receiving Channel Name')}</>}</th>
-            <th className="location-header">{__('Tip Location')}</th>
+            <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th>
+            <th className="channelName-header">{<>{__('Sending Channel')}</>}</th>
+            <th className="transactionType-header">{<>{__('Type')}</>}</th>
+            <th className="location-header">{__('Location')}</th>
             <th className="amount-header">{__('Amount')} </th>
             <th className="processingFee-header">{__('Processing Fee')}</th>
-            <th className="odyseeFee-header">{__('Odysee Fee')}</th>
             <th className="receivedAmount-header">{__('Received Amount')}</th>
           </tr>
         </thead>
@@ -46,7 +68,6 @@ const WalletFiatAccountHistory = (props: Props) => {
                   <td>{moment(transaction.created_at).format('LLL')}</td>
                   <td>
                     <Button
-                      className=""
                       navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
                       label={transaction.channel_name}
                       button="link"
@@ -54,11 +75,17 @@ const WalletFiatAccountHistory = (props: Props) => {
                   </td>
                   <td>
                     <Button
+                      navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
+                      label={transaction.tipper_channel_name}
+                      button="link"
+                    />
+                  </td>
+                  <td>{toCapitalCase(transaction.type)}</td>
+                  <td>
+                    <Button
                       navigate={targetClaimId ? `/$/${PAGES.SEARCH}?q=${targetClaimId}` : undefined}
                       label={
-                        transaction.channel_claim_id === transaction.source_claim_id
-                          ? __('Channel Page')
-                          : __('Content Page')
+                        transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')
                       }
                       button="link"
                       target="_blank"
@@ -70,11 +97,7 @@ const WalletFiatAccountHistory = (props: Props) => {
                   </td>
                   <td>
                     {currencySymbol}
-                    {transaction.transaction_fee / 100}
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {transaction.application_fee / 100}
+                    {(transaction.transaction_fee + transaction.application_fee) / 100}
                   </td>
                   <td>
                     {currencySymbol}
