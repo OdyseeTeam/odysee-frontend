@@ -13,6 +13,7 @@ import * as ICONS from 'constants/icons';
 
 type Props = {
   channelClaimId: any,
+  index: number,
   section: any,
   editMode: boolean,
   hasFeaturedContent: boolean,
@@ -36,6 +37,7 @@ type Props = {
 function HomeTabSection(props: Props) {
   const {
     channelClaimId,
+    index,
     section,
     editMode,
     hasFeaturedContent,
@@ -185,7 +187,7 @@ function HomeTabSection(props: Props) {
 
   return (
     <div className="home-section-content">
-      <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />
+      {index === 0 && <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />}
       {editMode && (
         <div className="home-section-header-wrapper">
           <div className="home-section-header-option">
