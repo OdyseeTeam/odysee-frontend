@@ -47,7 +47,8 @@ export default function LivestreamPage(props: Props) {
   const [layoutRendered, setLayoutRendered] = React.useState(chatDisabled || isMobile);
   const [hyperchatsHidden, setHyperchatsHidden] = React.useState(false);
 
-  const showLivestreamChat = (!isMobile || isLandscapeRotated) && !theaterMode && !chatDisabled && contentUnlocked;
+  const livestreamChatEnabled = !chatDisabled && contentUnlocked;
+  const showLivestreamChat = (!isMobile || isLandscapeRotated) && !theaterMode && livestreamChatEnabled;
 
   React.useEffect(() => {
     // TODO: This should not be needed once we unify the livestream player (?)
@@ -89,7 +90,9 @@ export default function LivestreamPage(props: Props) {
     <LivestreamContext.Provider value={{ livestreamPage: true }}>
       {/* -- Prevent layout shift: only render when ChatLayout is already imported otherwise
       the chat will appear and push everything on the page */}
-      {(!showLivestreamChat || layoutRendered) && <LivestreamLayout uri={uri} />}
+      {(!showLivestreamChat || layoutRendered) && (
+        <LivestreamLayout uri={uri} livestreamChatEnabled={livestreamChatEnabled} />
+      )}
 
       {showLivestreamChat && (
         <React.Suspense fallback={<LoadingBarOneOff />}>

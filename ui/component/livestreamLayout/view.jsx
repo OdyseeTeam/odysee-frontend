@@ -29,6 +29,7 @@ const VIEW_MODES = {
 
 type Props = {
   uri: string,
+  livestreamChatEnabled: boolean,
   // -- redux --
   activeStreamUri: boolean | string,
   claim: ?StreamClaim,
@@ -38,12 +39,12 @@ type Props = {
   superChats: Array<Comment>,
   activeViewers?: number,
   videoTheaterMode: boolean,
-  contentUnlocked: boolean,
 };
 
 export default function LivestreamLayout(props: Props) {
   const {
     uri,
+    livestreamChatEnabled,
     // -- redux --
     activeStreamUri,
     claim,
@@ -53,7 +54,6 @@ export default function LivestreamLayout(props: Props) {
     superChats,
     activeViewers,
     videoTheaterMode,
-    contentUnlocked,
   } = props;
 
   const isMobile = useIsMobile();
@@ -99,7 +99,7 @@ export default function LivestreamLayout(props: Props) {
 
             <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
 
-            {isMobile && !isLandscapeRotated && !chatDisabled && contentUnlocked && (
+            {isMobile && !isLandscapeRotated && !videoTheaterMode && livestreamChatEnabled && (
               <React.Suspense fallback={null}>
                 <SwipeableDrawer
                   // startOpen
@@ -144,7 +144,7 @@ export default function LivestreamLayout(props: Props) {
           </div>
         </div>
 
-        {videoTheaterMode && isCurrentClaimLive && !isMobile && (
+        {(!isMobile || isLandscapeRotated) && videoTheaterMode && livestreamChatEnabled && (
           <React.Suspense fallback={null}>
             <ChatLayout
               uri={uri}
