@@ -16,6 +16,7 @@ type Props = {
 function FileViewerEmbeddedTitle(props: Props) {
   const { uri, isLivestreamClaim, title, preferEmbed, contentPosition } = props;
 
+  // $FlowFixMe
   const isInIframe = document.location.ancestorOrigins.length > 0;
   const urlParams = new URLSearchParams();
 
@@ -23,7 +24,7 @@ function FileViewerEmbeddedTitle(props: Props) {
     urlParams.set('src', 'embed');
   }
   if (contentPosition && !isLivestreamClaim) {
-    urlParams.set('t', contentPosition);
+    urlParams.set('t', String(contentPosition));
   }
 
   const contentLink = formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');

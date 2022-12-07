@@ -409,8 +409,8 @@ function VideoViewer(props: Props) {
 
     const moveToPosition = () => {
       // update current time based on previous position
-      if (timeParam) {
-        player.currentTime(timeParam);
+      if (timeParam && !Number.isNaN(timeParam)) {
+        player.currentTime(Number(timeParam));
       } else if (position && !isLivestreamClaim) {
         const avDuration = claim?.value?.video?.duration || claim?.value?.audio?.duration;
         player.currentTime(avDuration && position >= avDuration - 100 ? 0 : position);

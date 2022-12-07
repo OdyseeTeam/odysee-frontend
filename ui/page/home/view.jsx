@@ -155,7 +155,7 @@ function HomePage(props: Props) {
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
         hideMembersOnly={id !== 'FOLLOWING'}
         hasSource
-        prefixUris={getActiveLivestreamUrisForIds(options.channelIds)}
+        prefixUris={options.channelIds && getActiveLivestreamUrisForIds(options.channelIds)}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         injectedItem={index === topGrid && !hasPremiumPlus && { node: <Ads small type="video" tileLayout /> }}
         forceShowReposts={id !== 'FOLLOWING'}

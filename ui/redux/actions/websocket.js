@@ -109,6 +109,9 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
 
 export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) => (dispatch, getState) => {
   const state = getState();
+  const creatorId = selectChannelClaimIdForUri(state, uri);
+  const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
+
   const claim = selectClaimForId(state, claimId);
   const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
   // have to reverse here if protected, because the comments list expects the claim id to be proper
@@ -125,10 +128,6 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
   doSocketConnect(
     url,
     (response) => {
-      const state = getState();
-      const creatorId = selectChannelClaimIdForUri(state, uri);
-      const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
-
       if (response.type === 'delta') {
         const newComment = response.data.comment;
 
@@ -164,19 +163,26 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
       }
 
       if (response.type === 'setting') {
+        const state = getState();
+        const creatorId = selectChannelClaimIdForUri(state, uri);
         dispatch({
           type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
           data: { responseData: response.data, creatorId },
         });
       }
 
-      if (response.type === 'livestream' || isLiveFetchPending) {
+      if (response.type === 'livestream') {
         // update the live status for the stream
         dispatch(doFetchChannelIsLiveForId(creatorId));
       }
     },
     `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
   );
+
+  if (isLiveFetchPending) {
+    // update the live status for the stream
+    dispatch(doFetchChannelIsLiveForId(creatorId));
+  }
 
   dispatch(doSetSocketConnection(true, claimId, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
 };
