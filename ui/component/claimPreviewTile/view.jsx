@@ -251,6 +251,8 @@ function ClaimPreviewTile(props: Props) {
         </FileThumbnail>
       </NavLink>
 
+      {/* TODO: change this after ClaimPreview/ClaimPreviewTile refactor
+      onlyThumb used for the preview tile functionality, without the bottom part (channel, menu, etc) */}
       {!onlyThumb && (
         <>
           <div className="claim-tile__header">

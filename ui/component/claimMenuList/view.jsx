@@ -260,7 +260,7 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleReportContent() {
-    const claimId = contentClaim && contentClaim.claim_id;
+    const claimId = contentClaim?.claim_id;
     // $FlowFixMe
     push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
   }
