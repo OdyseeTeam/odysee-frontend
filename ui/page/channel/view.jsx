@@ -39,6 +39,13 @@ import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import * as CS from 'constants/claim_search';
 
+const TABS_FOR_CHANNELS_WITH_CONTENT = [
+  CHANNEL_PAGE.VIEWS.HOME,
+  CHANNEL_PAGE.VIEWS.CONTENT,
+  CHANNEL_PAGE.VIEWS.PLAYLISTS,
+  CHANNEL_PAGE.VIEWS.CHANNELS,
+];
+
 type Props = {
   uri: string,
   claim: ChannelClaim,
@@ -104,12 +111,17 @@ function ChannelPage(props: Props) {
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
+
   const urlParams = new URLSearchParams(search);
-  const [currentView, setCurrentView] = React.useState(
-    urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || showClaims ? CHANNEL_PAGE.VIEWS.HOME : CHANNEL_PAGE.VIEWS.ABOUT
-  );
+  const viewParam = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW);
+  const isHomeTab = !viewParam;
+  const currentView =
+    !showClaims && !channelIsMine && (isHomeTab || TABS_FOR_CHANNELS_WITH_CONTENT.includes(viewParam))
+      ? CHANNEL_PAGE.VIEWS.ABOUT
+      : viewParam;
+
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
-  const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
+  const editing = currentView === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
   const { permanent_url: permanentUrl } = claim;
   const claimId = claim.claim_id;
@@ -139,10 +151,6 @@ function ChannelPage(props: Props) {
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);
-
-  React.useEffect(() => {
-    setCurrentView(urlParams.get(CHANNEL_PAGE.QUERIES.VIEW));
-  }, [urlParams.get(CHANNEL_PAGE.QUERIES.VIEW)]);
 
   const [legacyHeader, setLegacyHeader] = React.useState(false);
   React.useEffect(() => {
@@ -207,16 +215,16 @@ function ChannelPage(props: Props) {
   let tabIndex;
   switch (currentView) {
     case CHANNEL_PAGE.VIEWS.HOME:
-      tabIndex = showClaims || channelIsMine ? 0 : onTabChange(6);
+      tabIndex = 0;
       break;
     case CHANNEL_PAGE.VIEWS.CONTENT:
-      tabIndex = showClaims || channelIsMine ? 1 : onTabChange(6);
+      tabIndex = 1;
       break;
     case CHANNEL_PAGE.VIEWS.PLAYLISTS:
-      tabIndex = showClaims || channelIsMine ? 2 : onTabChange(6);
+      tabIndex = 2;
       break;
     case CHANNEL_PAGE.VIEWS.CHANNELS:
-      tabIndex = showClaims || channelIsMine ? 3 : onTabChange(6);
+      tabIndex = 3;
       break;
     case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
       if (!isOdyseeChannel) tabIndex = 4;
@@ -231,50 +239,42 @@ function ChannelPage(props: Props) {
       tabIndex = 7;
       break;
     default:
-      tabIndex = showClaims || channelIsMine ? 0 : onTabChange(6);
+      tabIndex = showClaims || channelIsMine ? 0 : CHANNEL_PAGE.VIEWS.ABOUT;
       break;
   }
 
   function onTabChange(newTabIndex, keepFilters) {
     const url = formatLbryUrlForWeb(uri);
-    let search = '?';
+    let search = '';
 
     if (!keepFilters) setFilters(undefined);
 
     switch (newTabIndex) {
       case 0:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
-        setCurrentView(CHANNEL_PAGE.VIEWS.HOME);
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
         break;
       case 1:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
-        setCurrentView(CHANNEL_PAGE.VIEWS.CONTENT);
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
         break;
       case 2:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
-        setCurrentView(CHANNEL_PAGE.VIEWS.PLAYLISTS);
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
         break;
       case 3:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
-        setCurrentView(CHANNEL_PAGE.VIEWS.CHANNELS);
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
         break;
       case 4:
         if (!isOdyseeChannel) {
-          search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
-          setCurrentView(CHANNEL_PAGE.VIEWS.MEMBERSHIP);
+          search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
         }
         break;
       case 5:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
-        setCurrentView(CHANNEL_PAGE.VIEWS.DISCUSSION);
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
         break;
       case 6:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
-        setCurrentView(CHANNEL_PAGE.VIEWS.ABOUT);
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
         break;
       case 7:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
-        setCurrentView(CHANNEL_PAGE.VIEWS.SETTINGS);
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
         break;
     }
     push(`${url}${search}`);
