@@ -21,8 +21,8 @@ type LivestreamState = {
 const defaultState: LivestreamState = {
   livestreamInfoByCreatorId: {},
   activeLivestreamByCreatorId: {},
-  futureLivestreamsByCreatorId: [],
-  pastLivestreamsByCreatorId: [],
+  futureLivestreamsByCreatorId: {},
+  pastLivestreamsByCreatorId: {},
   viewersById: {},
   isLiveFetchingIds: [],
   activeLivestreamsFetchingQueries: [],
