@@ -369,13 +369,17 @@ img {
 }
 
 .help--notice-embed-livestream {
-  bottom: 0;
-  right: 0;
   position: absolute;
-  background-color: rgba(var(--color-primary-dynamic), 0.43) !important;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  box-shadow: 0px 0px 0px 1px var(--color-black) inset !important;
+  color: var(--color-white) !important;
+  border: 0 !important;
+  margin: var(--spacing-s);
 }
 
 .help--notice-short {
+  right: 0;
   width: 50%;
 }
 

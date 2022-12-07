@@ -95,7 +95,6 @@ const EmbedClaimComponent = (props: Props) => {
               className={classnames('help--notice help--notice-embed-livestream', {
                 'help--notice-short': showScheduledInfo,
               })}
-              style={{ marginTop: '20px' }}
             >
               {showScheduledInfo ? (
                 <I18nMessage tokens={{ click_here: <ClickHereButton /> }}>

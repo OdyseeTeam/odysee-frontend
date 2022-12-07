@@ -12,6 +12,7 @@ import EmbedClaimComponent from './internal/embedClaimComponent';
 type Props = {
   uri: string,
   claimId: string,
+  latestClaimId: ?string,
   canonicalUrl: ?string,
   channelUri: ?string,
   channelClaimId: ?string,
@@ -28,6 +29,7 @@ const EmbedWrapperPage = (props: Props) => {
   const {
     uri,
     claimId,
+    latestClaimId,
     canonicalUrl,
     channelUri,
     channelClaimId,
@@ -56,6 +58,7 @@ const EmbedWrapperPage = (props: Props) => {
   const latestContentPath = featureParam === PAGES.LATEST;
   const liveContentPath = featureParam === PAGES.LIVE_NOW;
   const embedLightBackground = urlParams.get('embedBackgroundLight');
+  const socketClaimId = liveContentPath ? latestClaimId : claimId;
 
   React.useEffect(() => {
     if (!latestClaimUrl && liveContentPath && channelClaimId) {
@@ -72,36 +75,29 @@ const EmbedWrapperPage = (props: Props) => {
 
   // Establish web socket connection for viewer count.
   React.useEffect(() => {
-    if (
-      !isLivestreamClaim ||
-      (liveContentPath ? !latestClaimUrl && !claimId : !claimId) ||
-      !channelUrl ||
-      !canonicalUrl
-    ) {
+    if (!isLivestreamClaim || !socketClaimId || !channelUrl || !canonicalUrl) {
       return;
     }
 
     const channelName = formatLbryChannelName(channelUrl);
 
     if (contentUnlocked) {
-      doCommentSocketConnect(canonicalUrl, channelName, claimId, undefined);
+      doCommentSocketConnect(canonicalUrl, channelName, socketClaimId, undefined);
     }
 
     return () => {
-      if (claimId) {
-        doCommentSocketDisconnect(claimId, channelName);
+      if (socketClaimId) {
+        doCommentSocketDisconnect(socketClaimId, channelName);
       }
     };
   }, [
     canonicalUrl,
     channelUrl,
-    claimId,
     contentUnlocked,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     isLivestreamClaim,
-    latestClaimUrl,
-    liveContentPath,
+    socketClaimId,
   ]);
 
   return (
