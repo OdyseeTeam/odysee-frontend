@@ -1,29 +1,35 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import FilePrice from 'component/filePrice';
 import { formatLbryUrlForWeb } from 'util/url';
 import { withRouter } from 'react-router';
 import Logo from 'component/logo';
 
 type Props = {
   uri: string,
+  isLivestreamClaim: boolean,
   title: ?string,
-  isInApp: boolean,
   preferEmbed: boolean,
+  contentPosition: number,
 };
 
 function FileViewerEmbeddedTitle(props: Props) {
-  const { uri, title, isInApp, preferEmbed } = props;
+  const { uri, isLivestreamClaim, title, preferEmbed, contentPosition } = props;
 
-  let contentLink = `${formatLbryUrlForWeb(uri)}`;
+  const isInIframe = document.location.ancestorOrigins.length > 0;
+  const urlParams = new URLSearchParams();
 
-  if (!isInApp) {
-    contentLink = `${contentLink}?src=embed`;
+  if (isInIframe) {
+    urlParams.set('src', 'embed');
+  }
+  if (contentPosition && !isLivestreamClaim) {
+    urlParams.set('t', contentPosition);
   }
 
-  const contentLinkProps = isInApp ? { navigate: contentLink } : { href: contentLink };
-  const odyseeLinkProps = isInApp ? { navigate: '/' } : { href: '/' };
+  const contentLink = formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');
+
+  const contentLinkProps = !isInIframe ? { navigate: contentLink } : { href: contentLink };
+  const odyseeLinkProps = !isInIframe ? { navigate: '/' } : { href: '/' };
 
   return (
     <div className="file-viewer__embedded-header">
@@ -51,7 +57,6 @@ function FileViewerEmbeddedTitle(props: Props) {
         >
           <Logo type={'embed'} />
         </Button>
-        {isInApp && <FilePrice uri={uri} />}
       </div>
     </div>
   );
