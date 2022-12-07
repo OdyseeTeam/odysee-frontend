@@ -1,11 +1,25 @@
 import { connect } from 'react-redux';
-import fileViewerEmbeddedTitle from './view';
-import { makeSelectTagInClaimOrChannelForUri, selectTitleForUri } from 'redux/selectors/claims';
+
 import { PREFERENCE_EMBED } from 'constants/tags';
 
-export default connect((state, props) => {
+import {
+  makeSelectTagInClaimOrChannelForUri,
+  selectTitleForUri,
+  selectIsStreamPlaceholderForUri,
+} from 'redux/selectors/claims';
+import { selectContentPositionForUri } from 'redux/selectors/content';
+
+import fileViewerEmbeddedTitle from './view';
+
+const select = (state, props) => {
+  const { uri } = props;
+
   return {
-    title: selectTitleForUri(state, props.uri),
-    preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
+    title: selectTitleForUri(state, uri),
+    isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
+    contentPosition: selectContentPositionForUri(state, uri),
+    preferEmbed: makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state),
   };
-})(fileViewerEmbeddedTitle);
+};
+
+export default connect(select)(fileViewerEmbeddedTitle);

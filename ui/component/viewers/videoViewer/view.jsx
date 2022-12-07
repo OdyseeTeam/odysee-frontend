@@ -155,9 +155,14 @@ function VideoViewer(props: Props) {
     (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
+
   const {
-    location: { pathname },
+    location: { pathname, search },
   } = useHistory();
+
+  const urlParams = new URLSearchParams(search);
+  const timeParam = urlParams.get('t');
+
   const [playerControlBar, setControlBar] = useState();
   const [playerElem, setPlayer] = useState();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -404,7 +409,9 @@ function VideoViewer(props: Props) {
 
     const moveToPosition = () => {
       // update current time based on previous position
-      if (position && !isLivestreamClaim) {
+      if (timeParam) {
+        player.currentTime(timeParam);
+      } else if (position && !isLivestreamClaim) {
         const avDuration = claim?.value?.video?.duration || claim?.value?.audio?.duration;
         player.currentTime(avDuration && position >= avDuration - 100 ? 0 : position);
       }
