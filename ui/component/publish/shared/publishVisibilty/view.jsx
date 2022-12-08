@@ -4,15 +4,21 @@ import React, { useEffect, useState } from 'react';
 import { FormField } from 'component/common/form';
 import './style.scss';
 import Card from 'component/common/card';
+import classnames from 'classnames';
 
 type Props = {
   updatePublishForm: (any) => void,
   isUnlistedContent: boolean,
   isPrivateContent: boolean,
+  location: string,
+  editedReleaseTime: number,
+  releaseTime: number,
 };
 
 const PublishVisibility = (props: Props) => {
-  const { updatePublishForm, isUnlistedContent, isPrivateContent, location } = props;
+  const { updatePublishForm, isUnlistedContent, isPrivateContent, location, editedReleaseTime, releaseTime } = props;
+
+  const hasAReleaseTime = editedReleaseTime || releaseTime;
 
   const [selectedVisibility, setSelectedVisibility] = useState('public');
 
@@ -60,13 +66,18 @@ const PublishVisibility = (props: Props) => {
               label={__('Public (anyone can view it)')}
               onChange={() => switchVisibility('public')}
             />
-            <FormField
-              type="radio"
-              name="unlisted-visibility"
-              checked={selectedVisibility === 'unlisted'}
-              label={__('Unlisted (only people with the special link can access)')}
-              onChange={() => switchVisibility('unlisted')}
-            />
+            <div className={classnames('', {
+              'disabledUnlistedUpload': hasAReleaseTime,
+            })}>
+              <FormField
+                type="radio"
+                name="unlisted-visibility"
+                checked={selectedVisibility === 'unlisted'}
+                label={__('Unlisted (only people with the special link can access)')}
+                onChange={() => switchVisibility('unlisted')}
+              />
+            </div>
+
             {/*<FormField*/}
             {/*  type="radio"*/}
             {/*  name="private-visibility"*/}

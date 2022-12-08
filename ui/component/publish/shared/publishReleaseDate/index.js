@@ -12,6 +12,7 @@ const select = (state, props) => ({
   clock24h: selectClientSetting(state, SETTINGS.CLOCK_24H),
   isHiddenScheduledContent: Boolean(selectHiddenScheduledContentTag(state, props.uri)),
   isVisibleScheduledContent: Boolean(selectVisibleScheduledContentTag(state, props.uri)),
+  publishVisibility: selectPublishFormValue(state, 'visibility'),
 });
 
 const perform = (dispatch) => ({

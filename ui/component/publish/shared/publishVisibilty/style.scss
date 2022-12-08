@@ -15,3 +15,8 @@
 .publish-visibility {
   margin-bottom: var(--spacing-xl);
 }
+
+.disabledUnlistedUpload {
+  opacity: 0.5;
+  pointer-events: none;
+}
