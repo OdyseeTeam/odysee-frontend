@@ -446,6 +446,7 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestream-comments__scroll-to-recent {
+  z-index: 6;
   margin-top: -$recent-msg-button__height;
   align-self: center;
   font-size: var(--font-xsmall);

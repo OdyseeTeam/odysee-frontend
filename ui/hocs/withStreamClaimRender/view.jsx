@@ -52,6 +52,7 @@ type Props = {
   doMembershipMine: () => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doClearPlayingUri: () => void,
 };
 
 /**
@@ -97,8 +98,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       doMembershipMine,
       doStartFloatingPlayingUri,
       doMembershipList,
-
-      ...otherProps
+      doClearPlayingUri,
     } = props;
 
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
@@ -110,10 +110,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const { search, href, state: locationState, pathname } = location;
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
+
+    const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
+
     const urlParams = search && new URLSearchParams(search);
     const collectionId =
       (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) ||
-      (playingUri.uri === uri && playingCollectionId) ||
+      (currentUriPlaying && playingCollectionId) ||
       undefined;
     const livestreamUnplayable = isLivestreamClaim && !isCurrentClaimLive;
 
@@ -128,10 +131,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       (forceAutoplayParam || urlTimeParam || (isLivestreamClaim ? isCurrentClaimLive : autoplay));
 
     const autoplayVideo =
-      (autoplayEnabled || playingCollectionId) && (!alreadyPlaying.current || playingUri.uri === uri) && isPlayable;
+      !claimLinkId &&
+      (autoplayEnabled || playingCollectionId) &&
+      (!alreadyPlaying.current || currentUriPlaying) &&
+      isPlayable;
     const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
     const shouldAutoplay = autoplayVideo || autoRenderClaim;
-    const shouldStartFloating = playingUri.uri !== uri;
+    const shouldStartFloating = !currentUriPlaying || claimLinkId !== playingUri.sourceId;
 
     const streamStarted = currentStreamingUri === uri;
     const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
@@ -210,6 +216,20 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
+    React.useEffect(() => {
+      // -- This is made so a claim-link component (embed in comments/posts) turn off for every
+      // new video that is played, we could allow multiple videos playing at once though
+      if (claimLinkId && !currentUriPlaying) {
+        setCurrentStreamingUri(undefined);
+      }
+    }, [claimLinkId, currentUriPlaying]);
+
+    React.useEffect(() => {
+      return () => {
+        if (claimLinkId) doClearPlayingUri();
+      };
+    }, [claimLinkId, doClearPlayingUri]);
+
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
       return (
@@ -224,7 +244,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Loading State -- return before component render
-    if (!streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
+    if (!streamStarted || !streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
@@ -242,7 +262,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Main Component Render -- return when already has the claim's contents
-    return <StreamClaimComponent uri={uri} streamClaim={streamClaim} {...otherProps} />;
+    return <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />;
   };
 
   return StreamClaimWrapper;

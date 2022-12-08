@@ -24,12 +24,12 @@ import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } 
 import { selectIsActiveLivestreamForUri, selectChannelIsLiveFetchedForUri } from 'redux/selectors/livestream';
 import { selectClientSetting } from 'redux/selectors/settings';
 
-import { doStartFloatingPlayingUri } from 'redux/actions/content';
+import { doStartFloatingPlayingUri, doClearPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
 
-import FileRenderInitiator from './view';
+import withStreamClaimRender from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -68,6 +68,7 @@ const perform = {
   doMembershipMine,
   doStartFloatingPlayingUri,
   doMembershipList,
+  doClearPlayingUri,
 };
 
-export default (Component) => withRouter(connect(select, perform)(FileRenderInitiator(Component)));
+export default (Component) => withRouter(connect(select, perform)(withStreamClaimRender(Component)));

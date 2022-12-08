@@ -1,9 +1,10 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims';
-import { doResolveUri } from 'redux/actions/claims';
-import { doSetPlayingUri } from 'redux/actions/content';
 import { punctuationMarks } from 'util/remark-lbry';
-import { selectPlayingUri, makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+
+import { selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims';
+
+import { doResolveUri } from 'redux/actions/claims';
+
 import ClaimLink from './view';
 
 const select = (state, props) => {
@@ -31,9 +32,11 @@ const select = (state, props) => {
     claim,
     fullUri: props.uri,
     isResolvingUri: selectIsUriResolving(state, uri),
-    playingUri: selectPlayingUri(state),
-    renderMode: makeSelectFileRenderModeForUri(uri)(state),
   };
 };
 
-export default connect(select, { doResolveUri, doSetPlayingUri })(ClaimLink);
+const perform = {
+  doResolveUri,
+};
+
+export default connect(select, perform)(ClaimLink);

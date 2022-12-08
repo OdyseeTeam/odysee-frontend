@@ -371,6 +371,13 @@
   max-height: none;
 }
 
+.claim-link {
+  .file-render--embed,
+  .vjs-tech {
+    position: relative !important;
+  }
+}
+
 .file-render__img-container {
   width: 100%;
   aspect-ratio: 16 / 9;

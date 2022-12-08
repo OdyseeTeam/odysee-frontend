@@ -44,6 +44,9 @@ export const selectLivestreamInfoForCreatorId = (state: State, creatorId: string
 export const selectLivestreamInfoAlreadyFetchedForCreatorId = (state: State, creatorId: string) =>
   selectLivestreamInfoForCreatorId(state, creatorId) !== undefined;
 
+export const selectLivestreamInfoNotFetchedForCreatorId = (state: State, creatorId: string) =>
+  !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
+
 export const selectViewersForId = (state: State, claimId: string) => selectViewersById(state)[claimId];
 
 export const selectFutureLivestreamsForCreatorId = (state: State, creatorId: string) =>

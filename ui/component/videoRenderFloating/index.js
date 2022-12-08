@@ -40,7 +40,7 @@ const select = (state, props) => {
 
   // -- The autoplayCountdownUri will only be used to render the floating player components
   // i.e. display title, playlist, etc
-  const uri = playingUri.uri || autoplayCountdownUri;
+  const uri = (!playingUri.sourceId && playingUri.uri) || autoplayCountdownUri;
 
   const claim = uri && selectClaimForUri(state, uri);
   const { claim_id: claimId, signing_channel: channelClaim, permanent_url } = claim || {};

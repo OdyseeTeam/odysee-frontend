@@ -5,6 +5,7 @@ import { LIVESTREAM_STATUS_CHECK_INTERVAL_SOON, LIVESTREAM_STATUS_CHECK_INTERVAL
 
 type Props = {
   uri?: string,
+  forceRender?: string, // -- when the component is used to render anyway but just for re-using the polling logic
   // -- redux --
   fasterPoll?: boolean,
   channelClaimId: string,
@@ -27,6 +28,7 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
   const LiveStatusWrapper = (props: Props) => {
     const {
       uri,
+      forceRender,
       // -- redux --
       fasterPoll,
       channelClaimId,
@@ -84,7 +86,7 @@ const withLiveStatus = (Component: FunctionalComponentParam) => {
       // eslint-disable-next-line react-hooks/exhaustive-deps -- only unmount
     }, []);
 
-    if (claimUri && claimUri !== uri) {
+    if (forceRender || (claimUri && claimUri !== uri)) {
       return <Component {...props} claimUri={claimUri || uri} />;
     }
 

@@ -10,7 +10,6 @@ import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import {
   PRIMARY_PLAYER_WRAPPER_CLASS,
-  INLINE_PLAYER_WRAPPER_CLASS,
   FLOATING_PLAYER_CLASS,
   DEFAULT_INITIAL_FLOATING_POS,
   HEADER_HEIGHT_MOBILE,
@@ -164,13 +163,7 @@ function VideoRenderFloating(props: Props) {
   // ****************************************************************************
 
   const handleResize = React.useCallback(() => {
-    const filePageElement = document.querySelector(`.${PRIMARY_PLAYER_WRAPPER_CLASS}`);
-
-    const playingElement = mainFilePlaying
-      ? filePageElement
-      : document.querySelector(`.${INLINE_PLAYER_WRAPPER_CLASS}`);
-
-    const element = playingElement || filePageElement;
+    const element = document.querySelector(`.${PRIMARY_PLAYER_WRAPPER_CLASS}`);
 
     if (!element) return;
 
