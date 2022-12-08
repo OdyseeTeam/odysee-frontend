@@ -560,12 +560,18 @@ function reconnect() {
 */
 
 export function doPrepareMigrateCordovaToNative() {
+  console.log('OdyseeAP: Calling doPrepareMigrateCordovaToNative...');
+
   return (dispatch, getState) => {
+    console.log('OdyseeAP: Starting prepare to Migrate to Native...');
+
     const state = getState();
     const isReadyToMigrate = selectIsReadyToMigrateCordovaToNative(state) || false;
+    console.log('OdyseeAP isReadyToMigrate: ' + isReadyToMigrate);
 
     if (window.cordova && !isReadyToMigrate) {
       const user = selectUser(state);
+      console.log('OdyseeAP foundUserInState: ' + (user ? user.primary_email : 'No user'));
 
       Lbryio.getAuthToken().then((authToken) => {
         if (
@@ -582,8 +588,10 @@ export function doPrepareMigrateCordovaToNative() {
         }
 
         // call the plugin with the auth token and the primary email
+        console.log('Calling OdyseeAccount plugin with user details.');
         window.cordova.exec(
           () => {
+            console.log('OdyseeAP: OdyseeAccount plugin call successful.');
             dispatch({
               type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_READY,
             });
