@@ -29,7 +29,8 @@ function FileViewerEmbeddedTitle(props: Props) {
     urlParams.set('t', String(contentPosition));
   }
 
-  const contentLink = URL + formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');
+  const contentLink =
+    (isEmbed ? URL : '') + formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');
 
   return (
     <div className="file-viewer__embedded-header">
@@ -54,7 +55,7 @@ function FileViewerEmbeddedTitle(props: Props) {
           className="file-viewer__overlay-logo"
           disabled={preferEmbed}
           aria-label={__('Home')}
-          navigate={URL}
+          navigate={isEmbed ? URL : '/'}
           navigateTarget={isEmbed && '_blank'}
         >
           <Logo type={'embed'} />

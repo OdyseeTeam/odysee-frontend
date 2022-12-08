@@ -104,6 +104,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
 
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
+    const shouldClearPlayingUri = React.useRef(false);
 
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
@@ -217,6 +218,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
     React.useEffect(() => {
+      shouldClearPlayingUri.current = claimLinkId && currentUriPlaying;
+
       // -- This is made so a claim-link component (embed in comments/posts) turn off for every
       // new video that is played, we could allow multiple videos playing at once though
       if (claimLinkId && !currentUriPlaying) {
@@ -226,9 +229,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       return () => {
-        if (claimLinkId) doClearPlayingUri();
+        if (shouldClearPlayingUri.current) {
+          doClearPlayingUri();
+        }
       };
-    }, [claimLinkId, doClearPlayingUri]);
+      // -- only on unmount
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
