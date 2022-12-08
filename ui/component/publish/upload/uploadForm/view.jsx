@@ -173,8 +173,8 @@ function UploadForm(props: Props) {
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
-  const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
-  // const formDisabled = false;
+  // const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
+  const formDisabled = false;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   // Editing content info
@@ -483,13 +483,9 @@ function UploadForm(props: Props) {
         <div className={classnames({ 'card--disabled': formDisabled })}>
           <PublishVisibility />
 
-          <h2 className="card__title">Custom Release Date</h2>
-          <Card className="card--restrictions" actions={
-            <>
-              <h4 style={{ fontSize: '13px', marginBottom: '10px' }}>{__('Set a future time to use automatic upload scheduling')}</h4>
-              <PublishReleaseDate uri={'uri'} />
-            </>
-          } />
+          {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
+
+          <PublishReleaseDate uri={'uri'} />
 
           <Card actions={<SelectThumbnail />} />
 

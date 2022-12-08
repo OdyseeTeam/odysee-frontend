@@ -1,0 +1,28 @@
+@import '~ui/scss/init/breakpoints';
+
+.date_time_shortened svg {
+  width: 13px;
+  margin-bottom: -4px;
+  margin-right: 1px;
+}
+
+.date_time {
+  @media (min-width: $breakpoint-large) {
+    display: none;
+  }
+
+  @media (max-width: $breakpoint-large) {
+    display: inline;
+  }
+}
+
+.date_time_shortened {
+  @media (max-width: $breakpoint-large) {
+     display: none;
+  }
+
+  @media (min-width: $breakpoint-large) {
+    display: inline;
+  }
+}
+

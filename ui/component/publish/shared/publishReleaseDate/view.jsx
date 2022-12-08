@@ -1,6 +1,7 @@
 // @flow
 import React, { useEffect } from 'react';
 import Button from 'component/button';
+import Card from 'component/common/card';
 import DateTimePicker from 'react-datetime-picker';
 import { FormField } from 'component/common/form';
 import './style.scss';
@@ -196,83 +197,90 @@ const PublishReleaseDate = (props: Props) => {
   }, [error]);
 
   return (
-    <div className="form-field-date-picker">
-      <label>{__('Release date')}</label>
-      <div className="form-field-date-picker__controls">
-        {showDatePicker && (
-          <DateTimePicker
-            className="date-picker-input"
-            calendarClassName="form-field-calendar"
-            onBlur={handleBlur}
-            onChange={onDateTimePickerChanged}
-            value={date}
-            format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
-            disableClock
-            clearIcon={null}
-          />
-        )}
-        {showEditBtn && (
-          <Button
-            button="link"
-            label={__('Edit')}
-            aria-label={__('Set custom release date')}
-            onClick={() => newDate(NOW)}
-          />
-        )}
-        {showDatePicker && isEdit && releaseTime && (
-          <Button
-            button="link"
-            label={__('Reset')}
-            aria-label={__('Reset to original (previous) publish date')}
-            onClick={() => newDate(RESET_TO_ORIGINAL)}
-          />
-        )}
-        {showDatePicker && showNowBtn && (
-          <Button
-            button="link"
-            label={__('Now')}
-            aria-label={__('Set to current date and time')}
-            onClick={() => newDate(NOW)}
-          />
-        )}
-        {showDefaultBtn && (
-          <Button
-            button="link"
-            label={__('Default')}
-            aria-label={__('Remove custom release date')}
-            onClick={() => newDate(DEFAULT)}
-          />
-        )}
-        {error.length > 0 && (
-          <span className="form-field-date-picker__error">
-            {error.includes(FUTURE_DATE_ERROR) && <span>{__(FUTURE_DATE_ERROR)}</span>}
-            {(!error.includes(FUTURE_DATE_ERROR) || error.length > 1) && <span>{__('Invalid date/time.')}</span>}
-          </span>
-        )}
-      </div>
-      {releaseDateIsInFuture && (
+    <>
+      <h2 className="card__title">Custom Release Date</h2>
+      <Card className="card--restrictions" actions={
         <>
-          <div className="whether-to-show-scheduled-picker">
-            <h2>Do you want to show on your channel page before publish?</h2>
-            <FormField
-              type="radio"
-              name="show-on-channel-page"
-              checked={showScheduledOnChannelPage}
-              label={__('Show as scheduled upload')}
-              onChange={() => setWhetherToShowScheduledContentOnChannelPage(true)}
-            />
-            <FormField
-              type="radio"
-              name="hide-on-channel-page"
-              checked={!showScheduledOnChannelPage}
-              label={__('Hide until publish date')}
-              // helper={__(HELP.ONLY_CONFIRM_OVER_AMOUNT)}
-              onChange={() => setWhetherToShowScheduledContentOnChannelPage(false)}
-            />
+          <h4 style={{ fontSize: '13px', marginBottom: '10px' }}>{__('You can set a future time to use automatic upload scheduling')}</h4>
+          <div className="form-field-date-picker">
+            <div className="form-field-date-picker__controls">
+              {showDatePicker && (
+                <DateTimePicker
+                  className="date-picker-input"
+                  calendarClassName="form-field-calendar"
+                  onBlur={handleBlur}
+                  onChange={onDateTimePickerChanged}
+                  value={date}
+                  format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
+                  disableClock
+                  clearIcon={null}
+                />
+              )}
+              {showEditBtn && (
+                <Button
+                  button="link"
+                  label={__('Edit')}
+                  aria-label={__('Set custom release date')}
+                  onClick={() => newDate(NOW)}
+                />
+              )}
+              {showDatePicker && isEdit && releaseTime && (
+                <Button
+                  button="link"
+                  label={__('Reset')}
+                  aria-label={__('Reset to original (previous) publish date')}
+                  onClick={() => newDate(RESET_TO_ORIGINAL)}
+                />
+              )}
+              {showDatePicker && showNowBtn && (
+                <Button
+                  button="link"
+                  label={__('Now')}
+                  aria-label={__('Set to current date and time')}
+                  onClick={() => newDate(NOW)}
+                />
+              )}
+              {showDefaultBtn && (
+                <Button
+                  button="link"
+                  label={__('Default')}
+                  aria-label={__('Remove custom release date')}
+                  onClick={() => newDate(DEFAULT)}
+                />
+              )}
+              {error.length > 0 && (
+                <span className="form-field-date-picker__error">
+              {error.includes(FUTURE_DATE_ERROR) && <span>{__(FUTURE_DATE_ERROR)}</span>}
+                  {(!error.includes(FUTURE_DATE_ERROR) || error.length > 1) && <span>{__('Invalid date/time.')}</span>}
+            </span>
+              )}
+            </div>
+            {releaseDateIsInFuture && (
+              <>
+                <div className="whether-to-show-scheduled-picker">
+                  <h2>Do you want to show on your channel page before release?</h2>
+                  <FormField
+                    type="radio"
+                    name="show-on-channel-page"
+                    checked={showScheduledOnChannelPage}
+                    label={__('Show as scheduled upload')}
+                    onChange={() => setWhetherToShowScheduledContentOnChannelPage(true)}
+                  />
+                  <FormField
+                    type="radio"
+                    name="hide-on-channel-page"
+                    checked={!showScheduledOnChannelPage}
+                    label={__('Hide until publish date')}
+                    // helper={__(HELP.ONLY_CONFIRM_OVER_AMOUNT)}
+                    onChange={() => setWhetherToShowScheduledContentOnChannelPage(false)}
+                  />
+                </div>
+              </>
+            )}
           </div>
         </>
-      )}
-    </div>
+      } />
+    </>
   );
 };
 

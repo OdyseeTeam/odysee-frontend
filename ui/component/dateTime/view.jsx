@@ -3,6 +3,9 @@ import { getTimeAgoStr } from 'util/time';
 import moment from 'moment';
 import React from 'react';
 import I18nMessage from 'component/i18nMessage';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import './style.scss';
 
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
 
@@ -86,6 +89,7 @@ class DateTime extends React.Component<Props, State> {
 
     // TODO: turn this into a function
     let timeToUse = '...';
+    let scheduleTimeShortened, fullScheduledTime;
     if (date) {
       if (timeAgo) {
         timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds);
@@ -139,13 +143,25 @@ class DateTime extends React.Component<Props, State> {
         const formatString = getMomentDateString({ onContentPage, sameYear});
 
         timeToUse = moment(date).format(formatString);
-        timeToUse = (
+        fullScheduledTime = (
           <I18nMessage
+            className="scheduled_time--long"
             tokens={{
               timeToUse,
             }}
           >
             Scheduled for %timeToUse%
+          </I18nMessage>
+        );
+        scheduleTimeShortened = (
+          <I18nMessage
+            className="scheduled_time--short"
+            tokens={{
+              timeToUse,
+              clockIcon: <Icon icon={ICONS.TIME} />,
+            }}
+          >
+            %clockIcon% %timeToUse%
           </I18nMessage>
         );
       }
@@ -157,9 +173,14 @@ class DateTime extends React.Component<Props, State> {
     }
 
     return (
-      <span className="date_time" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
-        {timeToUse}
-      </span>
+      <>
+        <span className="date_time" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
+          {fullScheduledTime || timeToUse}
+        </span>
+        <span className="date_time_shortened" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
+          {scheduleTimeShortened || timeToUse}
+        </span>
+      </>
     );
   }
 }
