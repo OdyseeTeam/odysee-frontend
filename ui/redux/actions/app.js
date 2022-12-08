@@ -573,35 +573,41 @@ export function doPrepareMigrateCordovaToNative() {
       const user = selectUser(state);
       console.log('OdyseeAP foundUserInState: ' + (user ? user.primary_email : 'No user'));
 
-      Lbryio.getAuthToken().then((authToken) => {
-        if (
-          !authToken ||
-          !user ||
-          String(authToken).trim().length === 0 ||
-          !user.primary_email ||
-          String(user.primary_email).trim().length === 0
-        ) {
-          // auth token and primary email have to be available to be able to set the values in the AccountManager
-          return dispatch({
-            type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_NOT_READY,
-          });
-        }
-
-        // call the plugin with the auth token and the primary email
-        console.log('Calling OdyseeAccount plugin with user details.');
-        window.cordova.exec(
-          () => {
-            console.log('OdyseeAP: OdyseeAccount plugin call successful.');
-            dispatch({
-              type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_READY,
+      Lbryio.getAuthToken()
+        .then((authToken) => {
+          console.log('OdyseeAP Obtained auth token for user.');
+          if (
+            !authToken ||
+            !user ||
+            String(authToken).trim().length === 0 ||
+            !user.primary_email ||
+            String(user.primary_email).trim().length === 0
+          ) {
+            // auth token and primary email have to be available to be able to set the values in the AccountManager
+            return dispatch({
+              type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_NOT_READY,
             });
-          },
-          null,
-          'OdyseeAccount',
-          'addAccount',
-          [user.primary_email, authToken]
-        );
-      });
+          }
+
+          // call the plugin with the auth token and the primary email
+          console.log('Calling OdyseeAccount plugin with user details.');
+          window.cordova.exec(
+            () => {
+              console.log('OdyseeAP: OdyseeAccount plugin call successful.');
+              dispatch({
+                type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_READY,
+              });
+            },
+            null,
+            'OdyseeAccount',
+            'addAccount',
+            [user.primary_email, authToken]
+          );
+        })
+        .catch((err) => {
+          console.log('OdyseeAP Lbryio.getAuthToken failed');
+          console.log(err);
+        });
     }
   };
 }
