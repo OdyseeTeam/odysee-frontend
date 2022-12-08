@@ -6,6 +6,7 @@ import PublishStreamReleaseDate from './view';
 const select = (state) => ({
   isScheduled: selectIsScheduled(state),
   releaseTime: selectPublishFormValue(state, 'releaseTime'),
+  publishVisibility: selectPublishFormValue(state, 'visibility'),
 });
 
 const perform = (dispatch) => ({

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { FormField } from 'component/common/form';
 import DateTimePicker from 'react-datetime-picker';
 import moment from 'moment';
+import classnames from 'classnames';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -18,7 +19,7 @@ type Props = {
   updatePublishForm: ({}) => void,
 };
 const PublishStreamReleaseDate = (props: Props) => {
-  const { isScheduled, releaseTime, updatePublishForm } = props;
+  const { isScheduled, releaseTime, updatePublishForm, publishVisibility } = props;
 
   const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : 'DEFAULT');
   const [publishLater, setPublishLater] = React.useState(isScheduled);
@@ -70,7 +71,10 @@ const PublishStreamReleaseDate = (props: Props) => {
             label={__('Anytime')}
           />
 
-          <div className={'md:ml-m mt-s md:mt-0'}>
+          <div className={classnames('md:ml-m mt-s md:mt-0', {
+                 'disabledReleaseDate': publishVisibility === 'unlisted',
+               })}
+          >
             <FormField
               type="radio"
               name="scheduled_time"
