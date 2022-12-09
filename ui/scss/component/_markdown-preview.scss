@@ -147,7 +147,7 @@
     margin-bottom: var(--spacing-m);
     padding-top: var(--spacing-m);
     max-height: var(--inline-player-max-height);
-    object-position: left;
+    // object-position: left;
 
     @media (max-width: $breakpoint-small) {
       font-size: 0.8em;
