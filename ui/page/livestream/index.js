@@ -3,6 +3,9 @@ import {
   selectClaimForUri,
   selectUnlistedContentTag,
   selectClaimIsMineForUri,
+  selectPreorderTagForUri,
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
 } from 'redux/selectors/claims';
 import { doSetPrimaryUri } from 'redux/actions/content';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
@@ -19,6 +22,7 @@ import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 
 import LivestreamPage from './view';
 
@@ -44,6 +48,9 @@ const select = (state, props) => {
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
     claimIsMine: selectClaimIsMineForUri(state, uri),
+    rentalTag: selectRentalTagForUri(state, props.uri),
+    purchaseTag: selectPurchaseTagForUri(state, props.uri),
+    preorderTag: selectPreorderTagForUri(state, props.uri),
   };
 };
 
@@ -53,6 +60,7 @@ const perform = {
   doCommentSocketDisconnect,
   doFetchChannelLiveStatus,
   doMembershipContentforStreamClaimId,
+  doCheckIfPurchasedClaimId,
 };
 
 export default connect(select, perform)(LivestreamPage);

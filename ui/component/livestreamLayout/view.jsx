@@ -20,6 +20,7 @@ import CreditAmount from 'component/common/credit-amount';
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
 import ProtectedContentOverlay from 'component/protectedContentOverlay';
+import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
@@ -82,6 +83,7 @@ export default function LivestreamLayout(props: Props) {
       </div>
       <div className="file-page__secondary-content">
         <div className="file-page__media-actions">
+          <PreorderAndPurchaseContentButton uri={uri} />
           <div className="section card-stack">
             {hideComments && !showScheduledInfo && (
               <div className="help--notice">
@@ -92,7 +94,7 @@ export default function LivestreamLayout(props: Props) {
             )}
 
             {!activeStreamUri && !showScheduledInfo && !isCurrentClaimLive && (
-              <div className="help--notice" style={{ marginTop: '20px' }}>
+              <div className="help--notice">
                 {channelName
                   ? __("%channelName% isn't live right now, but the chat is! Check back later to watch the stream.", {
                       channelName,

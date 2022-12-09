@@ -55,6 +55,10 @@ export default function LivestreamPage(props: Props) {
     isUnlistedContent,
     claimIsMine,
     channelId,
+    purchaseTag,
+    preorderTag,
+    rentalTag,
+    doCheckIfPurchasedClaimId,
   } = props;
 
   const isMobile = useIsMobile();
@@ -81,6 +85,14 @@ export default function LivestreamPage(props: Props) {
     // TODO: This should not be needed once we unify the livestream player (?)
     analytics.event.playerLoaded('livestream', false);
   }, []);
+
+  React.useEffect(() => {
+    const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
+
+    if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [purchaseTag, preorderTag, rentalTag, claimId]);
 
   const { signing_channel: channelClaim } = claim || {};
   const { canonical_url: channelUrl } = channelClaim || {};

@@ -62,6 +62,8 @@ export default function PreorderAndPurchaseButton(props: Props) {
   const myUpload = claimIsMine;
   const isOverlay = type === 'overlay';
 
+  const shouldShowThankYouTag = purchaseTag && !validRentalPurchase && purchaseMadeForClaimId && !myUpload && !preorderContentClaim
+
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
     rentalExpirationTimeInSeconds = 0;
@@ -153,6 +155,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
                     amount: rentalPrice,
                   })}
                 </div>
+
                 <Button
                   iconColor="red"
                   className={'preorder-button'}
@@ -231,7 +234,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </>
           )}
           {/* purchasable content, already purchased or preordered */}
-          {purchaseTag && !validRentalPurchase && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
+          {shouldShowThankYouTag && (
             // Unnecessary to thank the user every render? Maybe change this to just an unlocked icon.
             <div className="paid-content-prompt__notice">{__('Thanks for purchasing, enjoy your content!')}</div>
           )}

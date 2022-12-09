@@ -237,6 +237,7 @@ export default function FilePage(props: Props) {
 
   React.useEffect(() => {
     const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
+
     if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

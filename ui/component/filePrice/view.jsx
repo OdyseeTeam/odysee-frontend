@@ -75,8 +75,10 @@ class FilePrice extends React.PureComponent<Props> {
       'filePrice--skewedBg': true,
     });
 
+    const noNeedToShowPrice = isFetchingPurchases || (fiatPaid && type !== 'thumbnail');
+
     if (fiatRequired) {
-      if (isFetchingPurchases || (fiatPaid && type !== 'thumbnail')) {
+      if (noNeedToShowPrice) {
         return null;
       }
 
