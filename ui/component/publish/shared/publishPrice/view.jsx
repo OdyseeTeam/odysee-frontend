@@ -313,6 +313,8 @@ function PublishPrice(props: Props) {
 
   React.useEffect(() => {
     function isFiatWhitelistedFileType() {
+      l('fileMime');
+      l(fileMime);
       if (fileMime) {
         // fileMime: the current browsed/selected file (it's empty on edit, but can be changed)
         return fileMime.startsWith('audio') || fileMime.startsWith('video');
@@ -323,7 +325,8 @@ function PublishPrice(props: Props) {
       return false;
     }
 
-    const isFiatAllowed = isMarkdownPost || isFiatWhitelistedFileType();
+    // const isFiatAllowed = isMarkdownPost || isFiatWhitelistedFileType();
+    const isFiatAllowed = isMarkdownPost || true;
     setFiatAllowed(isFiatAllowed);
 
     if (paywall === PAYWALL.FIAT && !isFiatAllowed) {
