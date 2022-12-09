@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import { useOnResize } from 'effects/use-on-resize';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
@@ -21,16 +22,47 @@ type Props = {
 export default function Portals(props: Props) {
   const { homepageData, homepageOrder, doSetClientSetting, authenticated, activePortal } = props;
   const { portals, categories } = homepageData;
-  const [hover, setHover] = React.useState(undefined);
-  const [kill, setKill] = React.useState(false);
 
-  const width = window.innerWidth - 200;
+  const [width, setWidth] = React.useState(0);
+  const [tileWidth, setTileWidth] = React.useState(0);
+  const [tileNum, setTileNum] = React.useState(0);
+  const [marginLeft, setMarginLeft] = React.useState(0);
+  const [index, setIndex] = React.useState(1);
+  const [pause, setPause] = React.useState(false);
+  const [hover, setHover] = React.useState(undefined);
+
+  const [kill, setKill] = React.useState(false);
+  const wrapper = React.useRef(null);
+
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
 
-  if (portals && portals.mainPortal) {
-    portals.mainPortal.portals = portals.mainPortal.portals.concat(portals.mainPortal.portals);
-    portals.mainPortal.portals = portals.mainPortal.portals.splice(0, 6);
-  }
+  React.useEffect(() => {
+    if (portals && width) {
+      const interval = setInterval(() => {
+        if (!pause) {
+          setIndex(index + 1 <= portals.mainPortal.portals.length - (tileNum - 1) ? index + 1 : 1);
+        }
+      }, 5000 + 1000);
+      return () => clearInterval(interval);
+    }
+  }, [portals, marginLeft, width, pause, index]);
+
+  React.useEffect(() => {
+    if (portals && width) {
+      setMarginLeft((index - 1) * (tileWidth * -1));
+    }
+  }, [portals, index, width]);
+
+  useOnResize(() => {
+    if (wrapper.current) {
+      let wrapperWidth = wrapper.current.offsetWidth + 12;
+      let tileWidth = wrapperWidth > 954 ? 6 : wrapperWidth > 870 ? 5 : wrapperWidth > 470 ? 3 : 2;
+
+      setWidth(wrapperWidth);
+      setTileNum(tileWidth);
+      setTileWidth(wrapperWidth / tileWidth);
+    }
+  });
 
   const NON_CATEGORY = Object.freeze({
     BANNER: { label: 'Banner' },
@@ -100,33 +132,68 @@ export default function Portals(props: Props) {
           portals.mainPortal.background +
           ')',
       }}
+      onMouseEnter={() => setPause(true)}
+      onMouseLeave={() => setPause(false)}
     >
       <h1>{portals.mainPortal.description}</h1>
-      {portals.mainPortal.portals.map((portal, i) => {
-        return (
+      <div className="portal-rotator" style={{ marginLeft: marginLeft }} ref={wrapper}>
+        {portals.mainPortal.portals.map((portal, i) => {
+          return (
+            <div
+              className={classnames('portal-wrapper', { disabled: portal.name === activePortal })}
+              style={{ width: tileWidth - 12, minWidth: tileWidth - 12 }}
+              key={i}
+              onMouseEnter={() => setHover(portal.name)}
+              onMouseLeave={() => setHover(undefined)}
+            >
+              <NavLink aria-hidden tabIndex={-1} to={{ pathname: '/$/portal/' + portal.name, state: portal }}>
+                <div
+                  className="portal-thumbnail"
+                  style={{
+                    background: `rgba(` + portal.css.rgb + `,` + (hover === portal.name ? 1 : 0.8) + `)`,
+                    border: `2px solid rgba(` + portal.css.rgb + `,1)`,
+                  }}
+                >
+                  <img src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image} />
+                </div>
+                <div className="portal-title" style={{ border: `2px solid rgba(` + portal.css.rgb + `,1)` }}>
+                  <label>{portal.label}</label>
+                </div>
+              </NavLink>
+            </div>
+          );
+        })}
+      </div>
+      {portals.mainPortal.portals.length > tileNum && (
+        <>
           <div
-            className={classnames('portal-wrapper', { disabled: portal.name === activePortal })}
-            key={i}
-            onMouseEnter={() => setHover(portal.name)}
-            onMouseLeave={() => setHover(undefined)}
+            className="portal-browse left"
+            onClick={() => setIndex(index > 1 ? index - 1 : portals.mainPortal.portals.length - (tileNum - 1))}
           >
-            <NavLink aria-hidden tabIndex={-1} to={{ pathname: '/$/portal/' + portal.name, state: portal }}>
-              <div
-                className="portal-thumbnail"
-                style={{
-                  background: `rgba(` + portal.css.rgb + `,` + (hover === portal.name ? 1 : 0.8) + `)`,
-                  border: `2px solid rgba(` + portal.css.rgb + `,1)`,
-                }}
-              >
-                <img src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image} />
-              </div>
-              <div className="portal-title" style={{ border: `2px solid rgba(` + portal.css.rgb + `,1)` }}>
-                <label>{portal.label}</label>
-              </div>
-            </NavLink>
+            ‹
           </div>
-        );
-      })}
+          <div
+            className="portal-browse right"
+            onClick={() => setIndex(index + (tileNum - 1) < portals.mainPortal.portals.length ? index + 1 : 1)}
+          >
+            ›
+          </div>
+          <div className="portal-active-indicator">
+            {portals &&
+              portals.mainPortal.portals.map((item, i) => {
+                return (
+                  i < portals.mainPortal.portals.length - (tileNum - 1) && (
+                    <div
+                      key={i}
+                      className={i + 1 === index ? 'portal-active-indicator-active' : ''}
+                      onClick={() => setIndex(i + 1)}
+                    />
+                  )
+                );
+              })}
+          </div>
+        </>
+      )}
       {authenticated && (
         <div className="portals-remove" onClick={() => removePortals()}>
           <Icon icon={ICONS.REMOVE} />
