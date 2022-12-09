@@ -1,16 +1,13 @@
 @import '~ui/scss/init/breakpoints';
 
 .portals-wrapper {
+  position: relative;
   width: 100%;
   background-size: cover;
   border-radius: var(--border-radius);
-  padding: var(--spacing-l) var(--spacing-xxl);
-  padding-top: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  position: relative;
+  padding: var(--spacing-l) 12px;
   margin-bottom: var(--spacing-l);
+  overflow: hidden;
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -20,17 +17,31 @@
   user-select: none;
 
   h1 {
+    position: absolute;
     width: 100%;
     text-align: center;
     font-size: var(--font-large);
     font-weight: var(--font-weight-bold);
-    padding: var(--spacing-l) 0;
     color: rgba(255, 255, 255, 0.9);
     background: radial-gradient(rgba(101, 15, 124, 0.7) 0%, transparent 60%);
   }
 
+  .portal-rotator {
+    position: relative;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 60px;
+    margin-bottom: var(--spacing-m);
+    transition: all 1s;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-grow: 1 0 auto;
+    height: 100%;
+  }
+
   .portal-wrapper {
-    width: calc((100% - var(--spacing-l) * 5) / 6);
+    display: inline-block;
+    margin-right: 12px;
     .portal-thumbnail {
       width: 100%;
       border-radius: var(--border-radius) var(--border-radius) 0 0;
@@ -55,37 +66,44 @@
     }
   }
 
-  @media (max-width: $breakpoint-medium) {
-    padding: var(--spacing-s) var(--spacing-xxl);
-    .portal-wrapper {
-      width: calc((100% - var(--spacing-xxl) * 2) / 3);
-      margin-bottom: var(--spacing-l);
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s) var(--spacing-m);
-    .portal-wrapper {
-      width: calc((100% - var(--spacing-m) * 1) / 2);
-      margin-bottom: var(--spacing-s);
-    }
-
-    h1 {
-      padding: var(--spacing-s) var(--spacing-m);
-    }
-  }
-
-  .portal-page-indicator {
+  .portal-active-indicator {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     text-align: center;
-    margin-top: var(--spacing-m);
+    bottom: var(--spacing-m);
     div {
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: gray;
+      background: rgba(150, 150, 150, 0.6);
       display: inline-block;
       margin: 0 var(--spacing-xxs);
+      transition: all 1s;
+      &:hover {
+        cursor: pointer;
+        background: white !important;
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      // bottom: 3px;
+      div {
+        width: 6px;
+        height: 6px;
+      }
+    }
+  }
+
+  .portal-active-indicator-active {
+    width: 12px !important;
+    height: 12px !important;
+    background: white !important;
+    @media (max-width: $breakpoint-small) {
+      width: 8px !important;
+      height: 8px !important;
     }
   }
 
