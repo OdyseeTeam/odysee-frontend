@@ -16,9 +16,13 @@ type Props = {
 };
 
 const PublishVisibility = (props: Props) => {
-  const { updatePublishForm, isUnlistedContent, isPrivateContent, location, editedReleaseTime, releaseTime } = props;
+  const { updatePublishForm, isUnlistedContent, isPrivateContent, location, editedReleaseTime, releaseTime, paywall } = props;
 
   const hasAReleaseTime = editedReleaseTime || releaseTime;
+
+  const isPaywalled = paywall && paywall !== 'free';
+
+  const shouldDisableInput = isPaywalled || hasAReleaseTime;
 
   const [selectedVisibility, setSelectedVisibility] = useState('public');
 
@@ -31,17 +35,20 @@ const PublishVisibility = (props: Props) => {
 
     // when switching to public, set release time to current time
     if (visibility === 'public' && location !== 'livestream') {
+      // updatePublishForm({
+      //   releaseTime: Math.round(Date.now() / 1000),
+      // });
       updatePublishForm({
-        releaseTime: Math.round(Date.now() / 1000),
+        releaseTime: undefined,
       });
     }
   }
 
   useEffect(() => {
-    return () => {
+    if (updatePublishForm) {
       updatePublishForm({ visibility: undefined });
-    };
-  }, []);
+    }
+  }, [updatePublishForm]);
 
   useEffect(() => {
     if (isUnlistedContent) {
@@ -67,7 +74,7 @@ const PublishVisibility = (props: Props) => {
               onChange={() => switchVisibility('public')}
             />
             <div className={classnames('', {
-              'disabledUnlistedUpload': hasAReleaseTime,
+              'disabledUnlistedUpload': shouldDisableInput,
             })}>
               <FormField
                 type="radio"
@@ -76,6 +83,12 @@ const PublishVisibility = (props: Props) => {
                 label={__('Unlisted (only people with the special link can access)')}
                 onChange={() => switchVisibility('unlisted')}
               />
+              <p
+                className={classnames('unlistedBlockchainWarning', {
+                  hidden: selectedVisibility !== 'unlisted',
+                })}>
+                The title and description are still visible on the
+                blockchain but the content can't be viewed without the special link</p>
             </div>
 
             {/*<FormField*/}

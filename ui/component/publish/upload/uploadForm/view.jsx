@@ -481,13 +481,13 @@ function UploadForm(props: Props) {
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
+          <Card actions={<SelectThumbnail />} />
+
           <PublishVisibility />
 
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
           <PublishReleaseDate uri={'uri'} />
-
-          <Card actions={<SelectThumbnail />} />
 
           <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
 

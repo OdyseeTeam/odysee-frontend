@@ -13,6 +13,7 @@ const select = (state, props) => ({
   isHiddenScheduledContent: Boolean(selectHiddenScheduledContentTag(state, props.uri)),
   isVisibleScheduledContent: Boolean(selectVisibleScheduledContentTag(state, props.uri)),
   publishVisibility: selectPublishFormValue(state, 'visibility'),
+  paywall: selectPublishFormValue(state, 'paywall'),
 });
 
 const perform = (dispatch) => ({

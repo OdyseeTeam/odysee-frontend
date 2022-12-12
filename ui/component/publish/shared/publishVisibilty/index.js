@@ -9,6 +9,7 @@ const select = (state, props) => ({
   isPrivateContent: Boolean(selectPrivateContentTag(state, props.uri)),
   editedReleaseTime: selectPublishFormValue(state, 'releaseTimeEdited'),
   releaseTime: selectPublishFormValue(state, 'releaseTime'),
+  paywall: selectPublishFormValue(state, 'paywall'),
 });
 
 const perform = (dispatch) => ({

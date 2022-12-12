@@ -207,6 +207,7 @@ function LivestreamForm(props: Props) {
   const [previewing, setPreviewing] = React.useState(false);
 
   const disabled = !title || !name || (publishMode === 'Replay' && !remoteFileUrl);
+
   const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
@@ -533,15 +534,15 @@ function LivestreamForm(props: Props) {
 
         <PublishDescription disabled={disabled} />
 
-        <PublishVisibility location="livestream" />
-
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
+            <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+
             {(publishMode === 'New' || (publishMode === 'Edit' && replaySource === 'keep')) && (
               <Card body={<PublishStreamReleaseDate />} />
             )}
 
-            <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+            <PublishVisibility location="livestream" />
 
             <PublishProtectedContent claim={myClaimForUri} location={channelRestrictionToUse} />
 

@@ -20,3 +20,11 @@
   opacity: 0.5;
   pointer-events: none;
 }
+
+.unlistedBlockchainWarning {
+  margin-left: 34px;
+  font-size: var(--font-xsmall);
+  margin-top: 7px;
+  color: var(--color-text);
+  opacity: 0.8;
+}

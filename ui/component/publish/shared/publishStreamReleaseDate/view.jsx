@@ -17,7 +17,9 @@ type Props = {
   isScheduled: boolean,
   releaseTime: ?number,
   updatePublishForm: ({}) => void,
+  publishVisibility: string,
 };
+
 const PublishStreamReleaseDate = (props: Props) => {
   const { isScheduled, releaseTime, updatePublishForm, publishVisibility } = props;
 

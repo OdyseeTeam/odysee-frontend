@@ -21,20 +21,21 @@ type Props = {
   disabled: boolean,
   isMarkdownPost: boolean,
   // --- redux ---
-  fileMime: ?string,
-  streamType: ?string,
+  chargesEnabled: ?boolean,
+  doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
+  doTipAccountStatus: () => Promise<StripeAccountStatus>,
+  fee: Fee,
   fiatPurchaseEnabled: boolean,
   fiatPurchaseFee: Price,
   fiatRentalEnabled: boolean,
-  fiatRentalFee: Price,
   fiatRentalExpiration: Duration,
+  fiatRentalFee: Price,
+  fileMime: ?string,
   paywall: Paywall,
-  fee: Fee,
   restrictedToMemberships: ?string,
-  chargesEnabled: ?boolean,
+  streamType: ?string,
   updatePublishForm: ({}) => void,
-  doTipAccountStatus: () => Promise<StripeAccountStatus>,
-  doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
+  isUnlistedContent: boolean,
 };
 
 function PublishPrice(props: Props) {
@@ -58,7 +59,20 @@ function PublishPrice(props: Props) {
     doTipAccountStatus,
     doCustomerPurchaseCost,
     disabled,
+    isUnlistedContent,
+    editedReleaseTime,
+    releaseTime
   } = props;
+
+  const releaseTimeInFuture = (editedReleaseTime || releaseTime) > (new Date().getTime() / 1000);
+
+  const hasAReleaseTime = editedReleaseTime || releaseTime;
+
+
+  l('hasAReleaseTime', hasAReleaseTime);
+  l('releaseTimeInFuture', releaseTimeInFuture);
+
+  const disableForms = isUnlistedContent || hasAReleaseTime;
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [fiatAllowed, setFiatAllowed] = React.useState(true);
@@ -118,7 +132,7 @@ function PublishPrice(props: Props) {
   function getRestrictionWarningRow() {
     return (
       <div className={classnames('publish-price__row', {})}>
-        <div className="error__text">
+        <div className="error__text already-have-content-restrictions">
           {__('You already have content restrictions enabled, disable them first in order to set a price.')}
         </div>
       </div>
@@ -148,7 +162,7 @@ function PublishPrice(props: Props) {
                 name="content_fiat"
                 label={`${__('Purchase / Rent')} \u{0024}`}
                 checked={paywall === PAYWALL.FIAT}
-                disabled={disabled || noBankAccount || !fiatAllowed}
+                disabled={disabled || noBankAccount || !fiatAllowed || disableForms}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
               />
               {noBankAccount && getBankAccountDriver()}
@@ -157,7 +171,7 @@ function PublishPrice(props: Props) {
                 name="content_sdk"
                 label={<LbcSymbol prefix={__('Purchase with Credits')} />}
                 checked={paywall === PAYWALL.SDK}
-                disabled={disabled}
+                disabled={disabled || disableForms}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
               />
             </React.Fragment>

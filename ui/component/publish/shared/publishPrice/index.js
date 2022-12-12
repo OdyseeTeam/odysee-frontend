@@ -6,18 +6,21 @@ import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
 import PublishPrice from './view';
 
 const select = (state) => ({
-  fileMime: selectPublishFormValue(state, 'fileMime'),
-  streamType: selectPublishFormValue(state, 'streamType'),
-  isMarkdownPost: selectPublishFormValue(state, 'isMarkdownPost'),
-  paywall: selectPublishFormValue(state, 'paywall'),
+  chargesEnabled: selectAccountChargesEnabled(state),
+  fee: selectPublishFormValue(state, 'fee'),
   fiatPurchaseEnabled: selectPublishFormValue(state, 'fiatPurchaseEnabled'),
   fiatPurchaseFee: selectPublishFormValue(state, 'fiatPurchaseFee'),
   fiatRentalEnabled: selectPublishFormValue(state, 'fiatRentalEnabled'),
-  fiatRentalFee: selectPublishFormValue(state, 'fiatRentalFee'),
   fiatRentalExpiration: selectPublishFormValue(state, 'fiatRentalExpiration'),
-  fee: selectPublishFormValue(state, 'fee'),
-  chargesEnabled: selectAccountChargesEnabled(state),
+  fiatRentalFee: selectPublishFormValue(state, 'fiatRentalFee'),
+  fileMime: selectPublishFormValue(state, 'fileMime'),
+  isMarkdownPost: selectPublishFormValue(state, 'isMarkdownPost'),
+  isUnlistedContent: selectPublishFormValue(state, 'visibility') === 'unlisted',
+  paywall: selectPublishFormValue(state, 'paywall'),
   restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
+  streamType: selectPublishFormValue(state, 'streamType'),
+  editedReleaseTime: selectPublishFormValue(state, 'releaseTimeEdited'),
+  releaseTime: selectPublishFormValue(state, 'releaseTime'),
 });
 
 const perform = {

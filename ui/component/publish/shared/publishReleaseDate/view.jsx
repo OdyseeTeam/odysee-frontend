@@ -46,6 +46,7 @@ const PublishReleaseDate = (props: Props) => {
     isHiddenScheduledContent,
     isVisibleScheduledContent,
     publishVisibility,
+    paywall,
   } = props;
 
   const maxDate = useMaxDate ? new Date() : undefined;
@@ -64,6 +65,12 @@ const PublishReleaseDate = (props: Props) => {
   const showDatePicker = true;
 
   const [previousDate, setPreviousDate] = React.useState(undefined);
+
+  const isPaywalled = paywall && paywall !== 'free';
+
+  const contentIsUnlisted = publishVisibility === 'unlisted';
+
+  const shouldDisableInput = contentIsUnlisted || isPaywalled;
 
   const updateError = (action, error) => {
     switch (action) {
@@ -211,7 +218,7 @@ const PublishReleaseDate = (props: Props) => {
       <h2 className="card__title">Custom Release Date</h2>
       <Card
         className={classnames('card--restrictions', {
-          'disabledReleaseDate': publishVisibility === 'unlisted',
+          'disabledReleaseDate': shouldDisableInput,
         })}
         actions={
           <>
