@@ -162,7 +162,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               type="small"
               loading={isSearching}
               uris={recommendedContentUris}
-              hideMenu={isMobile}
+              // hideMenu={isMobile}
               injectedItem={InjectedAd}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
@@ -181,7 +181,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               hideFilters
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
-              hideMenu={isMobile}
+              // hideMenu={isMobile}
               injectedItem={InjectedAd}
               empty={__('No related content found')}
             />

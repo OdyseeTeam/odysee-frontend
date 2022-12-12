@@ -11,6 +11,7 @@ import { buildURI } from 'util/lbryURI';
 import Spinner from 'component/spinner';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
+import './style.scss';
 
 type Props = {
   youtubeChannels: Array<any>,
@@ -149,7 +150,7 @@ export default function YoutubeTransferStatus(props: Props) {
               const isNotEligible = syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED;
 
               return (
-                <div key={url} className="card--inline">
+                <div key={url} className="card--inline sync-state">
                   {claimId ? (
                     <ClaimPreview
                       uri={url}
