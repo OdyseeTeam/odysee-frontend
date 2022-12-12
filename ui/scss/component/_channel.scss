@@ -12,10 +12,18 @@ $actions-z-index: 2;
 
   .tags--remove {
     .tag {
-      color: var(--color-text-inverse) !important;
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+      &:hover {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
     }
   }
-
+  .tag--add {
+    margin-bottom: 0 !important;
+  }
+  .tag--mature {
+    box-shadow: unset !important;
+  }
   .tab__wrapper {
     transition: background-color 0.2s;
     background-color: var(--color-header-background);
@@ -85,6 +93,13 @@ $actions-z-index: 2;
     @media (max-width: $breakpoint-small) {
       width: 100%;
       padding: 0 var(--spacing-xs);
+    }
+  }
+
+  .tabs-comment {
+    .tab__panel {
+      width: unset;
+      max-width: unset;
     }
   }
 
@@ -260,6 +275,7 @@ $actions-z-index: 2;
   .channelpage-edit-tags {
     .tag {
       background: var(--color-header-button);
+      box-shadow: 0 0 0 2px var(--color-border) inset;
     }
   }
 

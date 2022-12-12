@@ -137,6 +137,13 @@
         }
       }
     }
+
+    @media (max-width: $breakpoint-small) {
+      .claim__menu-button {
+        margin-top: -6px;
+        right: 0;
+      }
+    }
   }
 
   .file-page__video-container + .card,
@@ -771,9 +778,9 @@ $control-bar-icon-size: 30px;
             font-weight: var(--font-weight-bold);
             border-radius: 4px;
             margin-top: -1px;
-            //padding-top: 1px;
             padding-top: 0;
             line-height: 13px;
+            white-space: nowrap;
           }
         }
       }
