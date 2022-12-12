@@ -226,5 +226,25 @@ export const GHOST = 'Ghost';
 export const SPIRITUALITY = 'Spirituality';
 export const HORROR = 'Horror';
 
+// *** Markdown Editor Icons ***
+export const BOLD = 'BOLD';
+export const ITALIC = 'ITALIC';
+export const STRIKE_THROUGH = 'STRIKE_THROUGH';
+export const CODE = 'CODE';
+export const HEADING_1 = 'HEADING_1';
+export const HEADING_2 = 'HEADING_2';
+export const HEADING_3 = 'HEADING_3';
+export const HEADING_4 = 'HEADING_4';
+export const HEADING_5 = 'HEADING_5';
+export const HEADING_6 = 'HEADING_6';
+export const BULLET_LIST = 'BULLET_LIST';
+export const ORDERED_LIST = 'ORDERED_LIST';
+export const CODE_BLOCK = 'CODE_BLOCK';
+export const BLOCKQUOTE = 'BLOCKQUOTE';
+export const HORIZONTAL_RULE = 'HORIZONTAL_RULE';
+export const UNDO = 'UNDO';
+export const REDO = 'REDO';
+// *** End Markdown Editor Icons ***
+
 // -- Temporary --
 export const HOLIDAY = 'Holiday';

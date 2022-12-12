@@ -70,13 +70,15 @@ hr {
   height: 1px;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-size: 1rem;
+:not(.ProseMirror) > {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
+  }
 }
 
 p,
@@ -1450,7 +1452,7 @@ img {
   }
 
   .EasyMDEContainer {
-    .editor-toolbar,
+    .toolbar-editor,
     .CodeMirror-wrap {
       border-width: 2px !important;
     }
@@ -2234,7 +2236,7 @@ a {
 }
 
 // Temporary fix for focus-visible
-*:focus-visible:not(.modal):not(.card):not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(.button--secondary):not(.button-like):not(.button-dislike):not(select):not(input):not(textarea):not(video):not([data-reach-tab-panels]):not([data-reach-tabs]):not([data-reach-tab-panel]):not(.CodeMirror-code):not(.MuiModal-root):not(.MuiPaper-root):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay) {
+*:focus-visible:not(.modal):not(.card):not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(.button--secondary):not(.button-like):not(.button-dislike):not(select):not(input):not(textarea):not(video):not([data-reach-tab-panels]):not([data-reach-tabs]):not([data-reach-tab-panel]):not(.CodeMirror-code):not(.MuiModal-root):not(.MuiPaper-root):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay):not(.ProseMirror) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
   box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
@@ -2433,4 +2435,40 @@ video {
 
 .padding-small {
   padding: var(--spacing-s);
+}
+
+.tiptap-editor__actions {
+  display: block;
+  background-color: rgba(var(--color-header-background-base), 1);
+  font-size: 12px;
+  text-align: right;
+  height: 28px;
+  padding-right: 10px;
+  border-radius: 0 0 3px 3px;
+
+  .button {
+    // border-top: 0 !important !important;
+    // border-top-right-radius: 0 !important !important;
+    // border-top-left-radius: 0 !important !important;
+    display: inline-block !important;
+    width: 96px !important;
+    height: 24px !important;
+    line-height: 24px !important;
+    text-align: center !important;
+    background: #f7f9fc !important;
+    color: #969aa5 !important;
+    margin-top: -1px !important;
+    margin-right: -1px !important;
+    cursor: pointer !important;
+    border: 1px solid #dadde6 !important;
+    border-radius: 0 0 4px 4px !important;
+    font-weight: 500 !important;
+    box-sizing: border-box !important;
+
+    &.is-active {
+      border-top: 1px solid #fff !important;
+      background-color: #fff !important;
+      color: #555 !important;
+    }
+  }
 }
