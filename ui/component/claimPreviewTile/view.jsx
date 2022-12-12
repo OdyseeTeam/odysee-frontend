@@ -212,7 +212,7 @@ function ClaimPreviewTile(props: Props) {
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
           {!isChannel && (
-            <React.Fragment>
+            <>
               {((fypId && isStream) || isPlayable) && (
                 <div className="claim-preview__hover-actions-grid">
                   {fypId && isStream && (
@@ -234,7 +234,7 @@ function ClaimPreviewTile(props: Props) {
                 <PreviewOverlayProperties uri={uri} properties={properties} />
               </div>
               <ClaimPreviewProgress uri={uri} />
-            </React.Fragment>
+            </>
           )}
           {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
         </FileThumbnail>
@@ -269,7 +269,7 @@ function ClaimPreviewTile(props: Props) {
                 //  </div>
                 <></>
               ) : (
-                <React.Fragment>
+                <>
                   <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
                     <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
                   </UriIndicator>
@@ -282,7 +282,7 @@ function ClaimPreviewTile(props: Props) {
                       {!isLivestream && <DateTime timeAgo uri={uri} />}
                     </div>
                   </div>
-                </React.Fragment>
+                </>
               )}
             </div>
             {isRepost && (

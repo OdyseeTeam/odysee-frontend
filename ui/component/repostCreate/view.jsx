@@ -335,7 +335,7 @@ function RepostCreate(props: Props) {
               </fieldset-section>
             )}
 
-            <React.Fragment>
+            <>
               <fieldset-section>
                 <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
                   <fieldset-section>
@@ -385,7 +385,7 @@ function RepostCreate(props: Props) {
                 onChange={(event) => setRepostBid(event.target.value)}
                 onWheel={(e) => e.stopPropagation()}
               />
-            </React.Fragment>
+            </>
 
             <div className="section__actions">
               <Button

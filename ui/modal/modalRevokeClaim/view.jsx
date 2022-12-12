@@ -46,7 +46,7 @@ export default function ModalRevokeClaim(props: Props) {
   function getMsgBody(type: string, isSupport: boolean, name: string) {
     if (isSupport && type === txnTypes.SUPPORT) {
       return (
-        <React.Fragment>
+        <>
           <p>{__('Are you sure you want to remove this boost?')}</p>
           <p>
             <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
@@ -54,22 +54,22 @@ export default function ModalRevokeClaim(props: Props) {
               reduce discoverability and return %lbc% to your spendable balance.
             </I18nMessage>
           </p>
-        </React.Fragment>
+        </>
       );
     } else if (type === txnTypes.SUPPORT) {
       return (
-        <React.Fragment>
+        <>
           <p>{__('Are you sure you want to unlock these Credits?')}</p>
           <p>
             {__(
               'These Credits are permanently yours and can be unlocked at any time. Unlocking them allows you to spend them, but reduces discoverability of your content in lookups and search results. It is recommended you leave Credits locked until you need or want to spend them.'
             )}
           </p>
-        </React.Fragment>
+        </>
       );
     } else if (shouldConfirmChannel) {
       return (
-        <React.Fragment>
+        <>
           <p>
             {__('This will permanently remove your channel. Content published under this channel will be orphaned.')}
           </p>
@@ -81,12 +81,12 @@ export default function ModalRevokeClaim(props: Props) {
           </p>
           <p>{__('Are you sure? Type %name% to confirm that you wish to remove the channel.', { name })}</p>
           <FormField type={'text'} onChange={(e) => setChannelName(e.target.value)} />
-        </React.Fragment>
+        </>
       );
     }
 
     return (
-      <React.Fragment>
+      <>
         <p>{__('Are you sure you want to remove this?')}</p>
         <p>
           <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
@@ -95,7 +95,7 @@ export default function ModalRevokeClaim(props: Props) {
           </I18nMessage>
         </p>
         <p className="help error__text"> {__('FINAL WARNING: This action is permanent and cannot be undone.')}</p>
-      </React.Fragment>
+      </>
     );
   }
 

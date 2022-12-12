@@ -558,13 +558,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!type && <JoinButton />}
 
                 {claim && (
-                  <React.Fragment>
+                  <>
                     {typeof properties === 'function'
                       ? properties(claim)
                       : properties !== undefined
                       ? properties
                       : !isMobile && <ClaimTags uri={uri} type={type} />}
-                  </React.Fragment>
+                  </>
                 )}
               </div>
             )}

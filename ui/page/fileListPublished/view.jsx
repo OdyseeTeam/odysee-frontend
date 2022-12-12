@@ -129,7 +129,7 @@ function FileListPublished(props: Props) {
         )}
       </div>
       {!(urls && urls.length) && (
-        <React.Fragment>
+        <>
           {!fetching ? (
             <section className="main--empty">
               <Yrbl
@@ -158,7 +158,7 @@ function FileListPublished(props: Props) {
               <Spinner delayed />
             </section>
           )}
-        </React.Fragment>
+        </>
       )}
     </Page>
   );

@@ -132,10 +132,10 @@ function UserFirstChannel(props: Props) {
       <Card
         title={__('Create a Channel')}
         subtitle={
-          <React.Fragment>
+          <>
             <p>{__('Your channel will be used for publishing and commenting.')}</p>
             <p>{__('You can have more than one or remove it later.')}</p>
-          </React.Fragment>
+          </>
         }
         actions={
           <Form onSubmit={handleCreateChannel}>

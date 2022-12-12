@@ -21,7 +21,7 @@ function UserTagFollowIntro(props: Props) {
       title={__('Tag selection')}
       subtitle={__('Select some tags to help us show you interesting things.')}
       actions={
-        <React.Fragment>
+        <>
           <Form onSubmit={onContinue}>
             <div className="section__actions--between">
               <span />
@@ -47,7 +47,7 @@ function UserTagFollowIntro(props: Props) {
               />
             )}
           </div>
-        </React.Fragment>
+        </>
       }
     />
   );

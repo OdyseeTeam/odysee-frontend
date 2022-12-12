@@ -97,12 +97,12 @@ function UserPasswordReset(props: Props) {
           </div>
         }
         nag={
-          <React.Fragment>
+          <>
             {passwordResetError && <Nag type="error" relative message={<ErrorText>{passwordResetError}</ErrorText>} />}
             {passwordResetSuccess && (
               <Nag type="helpful" relative message={__('Check your email for a link to reset your password.')} />
             )}
-          </React.Fragment>
+          </>
         }
       />
     </section>

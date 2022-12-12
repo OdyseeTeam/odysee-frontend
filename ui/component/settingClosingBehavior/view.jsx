@@ -13,7 +13,7 @@ function SettingClosingBehavior(props: Props) {
   const { toTrayWhenClosed, setToTrayWhenClosed, noLabels } = props;
 
   return (
-    <React.Fragment>
+    <>
       <FormField
         type="checkbox"
         name="totraywhenclosed"
@@ -23,7 +23,7 @@ function SettingClosingBehavior(props: Props) {
         checked={toTrayWhenClosed}
         label={noLabels ? '' : __('Leave app running in notification area when the window is closed')}
       />
-    </React.Fragment>
+    </>
   );
 }
 

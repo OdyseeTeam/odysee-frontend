@@ -1,6 +1,6 @@
 // @flow
 import { SIMPLE_SITE } from 'config';
-import React, { Fragment } from 'react';
+import React from 'react';
 import MarkdownPreview from 'component/common/markdown-preview';
 import ClaimTags from 'component/claimTags';
 import CreditAmount from 'component/common/credit-amount';
@@ -37,7 +37,7 @@ function ChannelAbout(props: Props) {
   return (
     <div className="card">
       <section className="section card--section">
-        <Fragment>
+        <>
           {description && (
             <>
               <label>{__('Description')}</label>
@@ -47,20 +47,20 @@ function ChannelAbout(props: Props) {
             </>
           )}
           {email && (
-            <Fragment>
+            <>
               <label>{__('Contact')}</label>
               <div className="media__info-text">
                 <MarkdownPreview content={formatEmail(email)} simpleLinks />
               </div>
-            </Fragment>
+            </>
           )}
           {website && (
-            <Fragment>
+            <>
               <label>{__('Site')}</label>
               <div className="media__info-text">
                 <MarkdownPreview content={website} simpleLinks />
               </div>
-            </Fragment>
+            </>
           )}
 
           <label>{__('Tags')}</label>
@@ -119,7 +119,7 @@ function ChannelAbout(props: Props) {
             )}
           </div>
           {canView && <YoutubeBadge channelClaimId={claimId} />}
-        </Fragment>
+        </>
       </section>
     </div>
   );

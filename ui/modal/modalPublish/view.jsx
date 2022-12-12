@@ -58,21 +58,21 @@ class ModalPublishSuccess extends React.PureComponent<Props> {
           title={livestream ? __('Livestream Created') : __('Success')}
           subtitle={publishMessage}
           body={
-            <React.Fragment>
+            <>
               <div className="card--inline">
                 <ClaimPreview type="small" uri={uri} />
               </div>
               {filePath && !IS_WEB && (
                 <p className="help">
-                  <React.Fragment>
+                  <>
                     {__(
                       `Upload will continue in the background, please do not shut down immediately. Leaving the app running helps the network, thank you!`
                     )}{' '}
                     <Button button="link" href="https://lbry.com/faq/host-content" label={__('Learn More')} />
-                  </React.Fragment>
+                  </>
                 </p>
               )}
-            </React.Fragment>
+            </>
           }
           actions={
             <div className="section__actions">

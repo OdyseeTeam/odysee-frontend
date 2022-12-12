@@ -113,7 +113,7 @@ const SupportsLiquidate = (props: Props) => {
         </>
       }
       actions={
-        <React.Fragment>
+        <>
           {abandonClaimError ? (
             <div className="error__wrapper--no-overflow">
               <ErrorText>{abandonClaimError}</ErrorText>
@@ -172,7 +172,7 @@ const SupportsLiquidate = (props: Props) => {
               label={abandonClaimError ? __('Done') : __('Unlock')}
             />
           </div>
-        </React.Fragment>
+        </>
       }
     />
   );

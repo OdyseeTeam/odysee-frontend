@@ -76,10 +76,10 @@ class InviteList extends React.PureComponent<Props> {
                     </td>
                     <td>
                       {invitee.invite_reward_claimed && (
-                        <React.Fragment>
+                        <>
                           <span>{__('Claimed')}</span>
                           <Icon icon={ICONS.COMPLETE} />
-                        </React.Fragment>
+                        </>
                       )}
 
                       {!invitee.invite_reward_claimed &&

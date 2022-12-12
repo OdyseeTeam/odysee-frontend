@@ -61,6 +61,7 @@
     "standard/object-curly-even-spacing": 0,
     "standard/no-callback-literal": 0,
     "react/display-name": 0,
+    "react/jsx-fragments": 2,
     "semi": [
       "error",
       "always",

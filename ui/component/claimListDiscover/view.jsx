@@ -783,7 +783,7 @@ function ClaimListDiscover(props: Props) {
     loading || (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
 
   return (
-    <React.Fragment>
+    <>
       {headerLabel && <label className="claim-list__header-label">{headerLabel}</label>}
       {tileLayout ? (
         <div>
@@ -873,7 +873,7 @@ function ClaimListDiscover(props: Props) {
               ))}
         </div>
       )}
-    </React.Fragment>
+    </>
   );
 }
 

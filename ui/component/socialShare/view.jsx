@@ -161,7 +161,7 @@ function SocialShare(props: Props) {
   }
 
   return (
-    <React.Fragment>
+    <>
       <CopyableText copyable={shareUrl} />
       {showStartAt && (
         <div className="section__checkbox">
@@ -300,7 +300,7 @@ function SocialShare(props: Props) {
           </>
         ))}
       {showClaimLinks && <div className="section">{claimLinkElements}</div>}
-    </React.Fragment>
+    </>
   );
 }
 

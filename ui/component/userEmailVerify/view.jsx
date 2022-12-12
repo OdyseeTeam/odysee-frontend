@@ -90,7 +90,7 @@ class UserEmailVerify extends React.PureComponent<Props, State> {
             </p>
           }
           actions={
-            <React.Fragment>
+            <>
               <div className="section__actions">
                 <Button
                   button="primary"
@@ -110,7 +110,7 @@ class UserEmailVerify extends React.PureComponent<Props, State> {
                   Email %help_link% or join our %chat_link% if you encounter any trouble verifying.
                 </I18nMessage>
               </p>
-            </React.Fragment>
+            </>
           }
         />
       </div>

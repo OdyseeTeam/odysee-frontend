@@ -30,7 +30,7 @@ function SettingLanguage(props: Props) {
   }
 
   return (
-    <React.Fragment>
+    <>
       {!changingLanguage && (
         <FormField
           name="language_select"
@@ -47,7 +47,7 @@ function SettingLanguage(props: Props) {
       )}
 
       {changingLanguage && <Spinner type="small" />}
-    </React.Fragment>
+    </>
   );
 }
 

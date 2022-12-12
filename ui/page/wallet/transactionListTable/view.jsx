@@ -21,7 +21,7 @@ function TransactionListTable(props: Props) {
   }
 
   return (
-    <React.Fragment>
+    <>
       {!loading && !txos.length && <h2 className="main--empty empty">{emptyMessage || __('No transactions.')}</h2>}
       {loading && (
         <h2 className="main--empty empty">
@@ -57,7 +57,7 @@ function TransactionListTable(props: Props) {
           </table>
         </div>
       )}
-    </React.Fragment>
+    </>
   );
 }
 

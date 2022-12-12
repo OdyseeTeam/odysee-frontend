@@ -1,7 +1,7 @@
 // @flow
 import { SITE_NAME } from 'config';
 import * as ICONS from 'constants/icons';
-import React, { Fragment } from 'react';
+import React from 'react';
 import Button from 'component/button';
 import CardVerify from 'component/cardVerify';
 import { Lbryio } from 'lbryinc';
@@ -79,7 +79,7 @@ class UserVerify extends React.PureComponent<Props> {
             title={__('Verify via credit card')}
             subtitle={__('Your card information will not be stored or charged, now or in the future.')}
             actions={
-              <Fragment>
+              <>
                 {errorMessage && <p className="error__text">{errorMessage}</p>}
                 <CardVerify
                   label={__('Verify Card')}
@@ -96,7 +96,7 @@ class UserVerify extends React.PureComponent<Props> {
                   />
                   .
                 </p>
-              </Fragment>
+              </>
             }
           />
 
@@ -139,7 +139,7 @@ class UserVerify extends React.PureComponent<Props> {
             subtitle={__('Service currently unavailable')}
             className="disabled"
             actions={
-              <Fragment>
+              <>
                 <Button
                   onClick={() => {
                     verifyPhone();
@@ -156,7 +156,7 @@ class UserVerify extends React.PureComponent<Props> {
                   />
                   .
                 </p>
-              </Fragment>
+              </>
             }
           />
 
@@ -172,9 +172,9 @@ class UserVerify extends React.PureComponent<Props> {
               "Verifying is optional. If you skip this, it just means you can't earn LBRY Credits from our rewards system."
             )}
             actions={
-              <Fragment>
+              <>
                 <Button {...skipButtonProps} button="primary" label={__('Continue Without Verifying')} />
-              </Fragment>
+              </>
             }
           />
         </div>

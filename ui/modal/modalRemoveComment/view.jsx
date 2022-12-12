@@ -44,7 +44,7 @@ function ModalRemoveComment(props: Props) {
       <Card
         title={__('Remove Comment')}
         body={
-          <React.Fragment>
+          <>
             <p>{__('Are you sure you want to remove this comment?')}</p>
             {Boolean(supportAmount) && (
               <p className="help error__text">
@@ -52,7 +52,7 @@ function ModalRemoveComment(props: Props) {
               </p>
             )}
             <div>{getCommentPreview(comment)}</div>
-          </React.Fragment>
+          </>
         }
         actions={
           <>

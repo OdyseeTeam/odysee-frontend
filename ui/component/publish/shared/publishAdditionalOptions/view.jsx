@@ -63,7 +63,7 @@ function PublishAdditionalOptions(props: Props) {
       <Card
         className="card--enable-overflow card--publish-section card--additional-options"
         actions={
-          <React.Fragment>
+          <>
             {!hideSection && !disabled && (
               <>
                 <div className={classnames({ 'card--disabled': !name })}>
@@ -116,7 +116,7 @@ function PublishAdditionalOptions(props: Props) {
             <div className="section__actions">
               <Button label={hideSection ? __('Show') : __('Hide')} button="link" onClick={toggleHideSection} />
             </div>
-          </React.Fragment>
+          </>
         }
       />
     </>

@@ -14,7 +14,7 @@ function SettingAutoLaunch(props: Props) {
   const { autoLaunch, setAutoLaunch, noLabels } = props;
 
   return (
-    <React.Fragment>
+    <>
       <FormField
         type="checkbox"
         name="autolaunch"
@@ -29,7 +29,7 @@ function SettingAutoLaunch(props: Props) {
             : __('Improve view speed and help the LBRY network by allowing the app to cuddle up in your system tray.')
         }
       />
-    </React.Fragment>
+    </>
   );
 }
 

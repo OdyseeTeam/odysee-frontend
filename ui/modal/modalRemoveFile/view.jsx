@@ -44,7 +44,7 @@ function ModalRemoveFile(props: Props) {
           </I18nMessage>
         }
         body={
-          <React.Fragment>
+          <>
             {/* @if TARGET='app' */}
             <FormField
               name="file_delete"
@@ -56,7 +56,7 @@ function ModalRemoveFile(props: Props) {
             {/* @endif */}
 
             {claimIsMine && (
-              <React.Fragment>
+              <>
                 <FormField
                   name="claim_abandon"
                   label={
@@ -82,9 +82,9 @@ function ModalRemoveFile(props: Props) {
                   </p>
                 )}
                 {/* @endif */}
-              </React.Fragment>
+              </>
             )}
-          </React.Fragment>
+          </>
         }
         actions={
           <>

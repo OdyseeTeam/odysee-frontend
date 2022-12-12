@@ -83,16 +83,16 @@ export default function TagsSelect(props: Props) {
         // icon={ICONS.TAG}
         title={
           hideHeader ? null : (
-            <React.Fragment>
+            <>
               {title}
               {showClose && tagsToDisplay.length > 0 && !hasClosed && (
                 <Button button="close" icon={ICONS.REMOVE} onClick={handleClose} />
               )}
-            </React.Fragment>
+            </>
           )
         }
         actions={
-          <React.Fragment>
+          <>
             <TagsSearch
               label={label}
               onRemove={handleTagClick}
@@ -117,7 +117,7 @@ export default function TagsSelect(props: Props) {
                 )
               }
             />
-          </React.Fragment>
+          </>
         }
       />
     )

@@ -101,10 +101,10 @@ function UserEmailReturning(props: Props) {
                   type="checkbox"
                   name="sync_checkbox"
                   label={
-                    <React.Fragment>
+                    <>
                       {__('Backup your account and wallet data.')}{' '}
                       <Button button="link" href="https://lbry.com/faq/account-sync" label={__('Learn More')} />
-                    </React.Fragment>
+                    </>
                   }
                   checked={syncEnabled}
                   onChange={() => setSyncEnabled(!syncEnabled)}

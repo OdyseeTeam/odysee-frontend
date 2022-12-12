@@ -419,7 +419,7 @@ function PublishFile(props: Props) {
       actions={
         <>
           <div className="card--file">
-            <React.Fragment>
+            <>
               <>
                 <FileSelector
                   disabled={disabled}
@@ -455,7 +455,7 @@ function PublishFile(props: Props) {
                 />
               </div>
               <PublishName uri={uri} />
-            </React.Fragment>
+            </>
           </div>
         </>
       }

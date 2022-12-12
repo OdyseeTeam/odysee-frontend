@@ -52,7 +52,7 @@ function ClaimPreviewSubtitle(props: Props) {
   return (
     <div className="media__subtitle">
       {claim ? (
-        <React.Fragment>
+        <>
           <UriIndicator uri={uri} showAtSign={showAtSign} link external={isEmbed} />
           {!pending && claim && (
             <>
@@ -77,14 +77,14 @@ function ClaimPreviewSubtitle(props: Props) {
                 ))}
             </>
           )}
-        </React.Fragment>
+        </>
       ) : (
-        <React.Fragment>
+        <>
           <div>{__('Upload something and claim this spot!')}</div>
           <div className="card__actions">
             <Button onClick={() => beginPublish(name)} button="primary" label={__('Publish to %uri%', { uri })} />
           </div>
-        </React.Fragment>
+        </>
       )}
     </div>
   );

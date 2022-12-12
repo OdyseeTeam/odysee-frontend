@@ -14,7 +14,7 @@ export default function NagDegradedPerformance(props: Props) {
   const isMobile = useIsMobile();
 
   return (
-    <React.Fragment>
+    <>
       {isMobile ? (
         <Nag
           message={
@@ -57,6 +57,6 @@ export default function NagDegradedPerformance(props: Props) {
           onClose={onClose}
         />
       )}
-    </React.Fragment>
+    </>
   );
 }

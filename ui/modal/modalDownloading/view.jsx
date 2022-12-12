@@ -21,7 +21,7 @@ class ModalDownloading extends React.PureComponent<Props> {
         {downloadProgress ? `${downloadProgress}% ${__('complete')}` : null}
         <Line percent={downloadProgress || 0} strokeWidth="4" />
         {downloadComplete ? (
-          <React.Fragment>
+          <>
             <p>{__('Click "Begin Upgrade" to start the upgrade process.')}</p>
             <p>
               {__(
@@ -37,7 +37,7 @@ class ModalDownloading extends React.PureComponent<Props> {
               {__('Note: You can also install the AppImage version for streamlined updates.')}{' '}
               <Button button="link" label={__('Download here.')} href="https://lbry.com/get/lbry.AppImage" />
             </p>
-          </React.Fragment>
+          </>
         ) : null}
 
         <div className="card__actions">

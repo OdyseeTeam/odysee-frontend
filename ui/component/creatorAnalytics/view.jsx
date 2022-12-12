@@ -72,7 +72,7 @@ export default function CreatorAnalytics(props: Props) {
   }, [claimId, channelForEffect, channelHasClaims, setFetchingStats, setStats]);
 
   return (
-    <React.Fragment>
+    <>
       {!stats && (
         <div className="main--empty">
           {fetchingStats ? (
@@ -175,7 +175,7 @@ export default function CreatorAnalytics(props: Props) {
               className="section"
               title={__('Most viewed recent content')}
               body={
-                <React.Fragment>
+                <>
                   <div className="card--inline">
                     <ClaimPreview uri={stats.VideoURITopNew} />
                   </div>
@@ -190,7 +190,7 @@ export default function CreatorAnalytics(props: Props) {
                     </span>
                     {stats.VideoViewChangeTopNew > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
                   </div>
-                </React.Fragment>
+                </>
               }
             />
           ) : (
@@ -219,7 +219,7 @@ export default function CreatorAnalytics(props: Props) {
               className="section"
               title={__('Most commented recent content')}
               body={
-                <React.Fragment>
+                <>
                   <div className="card--inline">
                     <ClaimPreview uri={stats.VideoURITopCommentNew} />
                   </div>
@@ -236,7 +236,7 @@ export default function CreatorAnalytics(props: Props) {
                       <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />
                     )}
                   </div>
-                </React.Fragment>
+                </>
               }
             />
           )}
@@ -246,7 +246,7 @@ export default function CreatorAnalytics(props: Props) {
               className="section"
               title={__('Most viewed content all time')}
               body={
-                <React.Fragment>
+                <>
                   <div className="card--inline">
                     <ClaimPreview uri={stats.VideoURITopAllTime} />
                   </div>
@@ -259,12 +259,12 @@ export default function CreatorAnalytics(props: Props) {
                     </span>
                     {stats.VideoViewChangeTopAllTime > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
                   </div>
-                </React.Fragment>
+                </>
               }
             />
           )}
         </div>
       )}
-    </React.Fragment>
+    </>
   );
 }

@@ -23,7 +23,7 @@ export default function I18nMessage(props: Props) {
     tokens = props.tokens;
 
   return (
-    <React.Fragment>
+    <>
       {/* loop through substrings, interpolate tokens in between them */}
       {messageSubstrings.map((substring, index) => {
         // the algorithm is such that, there will always be a variable in between a message substring
@@ -43,6 +43,6 @@ export default function I18nMessage(props: Props) {
           </React.Fragment>
         );
       })}
-    </React.Fragment>
+    </>
   );
 }

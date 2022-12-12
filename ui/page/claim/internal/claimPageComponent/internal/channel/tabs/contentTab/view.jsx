@@ -3,7 +3,7 @@ import { SIMPLE_SITE } from 'config';
 import { SECTION_TAGS } from 'constants/collections';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
-import React, { Fragment } from 'react';
+import React from 'react';
 import GeoRestrictionInfo from 'component/geoRestictionInfo';
 import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
@@ -107,7 +107,7 @@ function ContentTab(props: Props) {
   }, [url]);
 
   return (
-    <Fragment>
+    <>
       <GeoRestrictionInfo uri={uri} />
 
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
@@ -213,7 +213,7 @@ function ContentTab(props: Props) {
           />
         </ClaimSearchFilterContext.Provider>
       )}
-    </Fragment>
+    </>
   );
 }
 

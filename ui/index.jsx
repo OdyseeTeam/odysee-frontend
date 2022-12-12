@@ -9,7 +9,7 @@ import * as ACTIONS from 'constants/action_types';
 import { ipcRenderer, remote, shell } from 'electron';
 import moment from 'moment';
 import * as MODALS from 'constants/modal_types';
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import {
@@ -267,7 +267,7 @@ function AppWrapper() {
         onBeforeLift={() => setPersistDone(true)}
         loading={<div className="main--launching" />}
       >
-        <Fragment>
+        <>
           {readyToLaunch ? (
             <ConnectedRouter history={history}>
               <ErrorBoundary>
@@ -276,12 +276,12 @@ function AppWrapper() {
               </ErrorBoundary>
             </ConnectedRouter>
           ) : (
-            <Fragment>
+            <>
               <SplashScreen onReadyToLaunch={() => setReadyToLaunch(true)} />
               <SnackBar />
-            </Fragment>
+            </>
           )}
-        </Fragment>
+        </>
       </PersistGate>
     </Provider>
   );

@@ -178,7 +178,7 @@ export default function TagsSearch(props: Props) {
     }
   }
   return (
-    <React.Fragment>
+    <>
       <Form className="tags__input-wrapper" onSubmit={handleSubmit}>
         <fieldset-section>
           <label>
@@ -273,6 +273,6 @@ export default function TagsSearch(props: Props) {
             </fieldset-section>
           )}
       </Form>
-    </React.Fragment>
+    </>
   );
 }

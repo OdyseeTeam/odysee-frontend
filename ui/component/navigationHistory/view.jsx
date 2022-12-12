@@ -12,7 +12,7 @@ type HistoryItem = {
 type Props = {
   historyItems: Array<HistoryItem>,
   pageCount: number,
-  clearHistoryUri: string => void,
+  clearHistoryUri: (string) => void,
 };
 
 type State = {
@@ -64,7 +64,7 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
     const { clearHistoryUri } = this.props;
     const { itemsSelected } = this.state;
 
-    Object.keys(itemsSelected).forEach(uri => clearHistoryUri(uri));
+    Object.keys(itemsSelected).forEach((uri) => clearHistoryUri(uri));
     this.setState({
       itemsSelected: {},
     });
@@ -77,7 +77,7 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
     const selectHandler = allSelected ? this.unselectAll : this.selectAll;
 
     return historyItems.length ? (
-      <React.Fragment>
+      <>
         <div className="card__actions">
           {Object.keys(itemsSelected).length ? (
             <Button button="link" label={__('Delete')} onClick={this.removeSelected} />
@@ -88,7 +88,7 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
         </div>
         {!!historyItems.length && (
           <section className="card  item-list">
-            {historyItems.map(item => (
+            {historyItems.map((item) => (
               <NavigationHistoryItem
                 key={item.uri}
                 uri={item.uri}
@@ -102,7 +102,7 @@ class UserHistoryPage extends React.PureComponent<Props, State> {
           </section>
         )}
         <Paginate totalPages={pageCount} />
-      </React.Fragment>
+      </>
     ) : (
       <div className="main--empty">
         <section className="card card--section">

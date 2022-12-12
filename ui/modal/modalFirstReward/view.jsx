@@ -18,7 +18,7 @@ class ModalFirstReward extends React.PureComponent<Props> {
           title={__('Your first reward')}
           subtitle={__('You just earned your first reward!')}
           body={
-            <React.Fragment>
+            <>
               <p>{__("This reward will show in your Wallet in the top right momentarily (if it hasn't already).")}</p>
               <p>
                 {__(
@@ -26,7 +26,7 @@ class ModalFirstReward extends React.PureComponent<Props> {
                 )}
               </p>
               <p>{__('No need to understand it all just yet! Try watching or publishing something next.')}</p>
-            </React.Fragment>
+            </>
           }
           actions={<Button button="primary" onClick={closeModal} label={__('You Got It Dude')} />}
         />

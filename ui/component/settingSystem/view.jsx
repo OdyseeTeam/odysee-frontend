@@ -158,10 +158,10 @@ export default function SettingSystem(props: Props) {
             <SettingsRow
               title={__('Save hosting data to help the LBRY network')}
               subtitle={
-                <React.Fragment>
+                <>
                   {__("If disabled, LBRY will be very sad and you won't be helping improve the network.")}{' '}
                   <Button button="link" label={__('Learn more')} href="https://lbry.com/faq/host-content" />.
-                </React.Fragment>
+                </>
               }
             >
               <FormField
@@ -177,12 +177,12 @@ export default function SettingSystem(props: Props) {
             <SettingsRow
               title={__('Share usage and diagnostic data')}
               subtitle={
-                <React.Fragment>
+                <>
                   {__(
                     `This is information like error logging, performance tracking, and usage statistics. It includes your IP address and basic system details, but no other identifying information (unless you sign in to lbry.tv)`
                   )}{' '}
                   <Button button="link" label={__('Learn more')} href="https://odysee.com/$/privacypolicy" />
-                </React.Fragment>
+                </>
               }
               multirow
             >
@@ -191,7 +191,7 @@ export default function SettingSystem(props: Props) {
                 name="share_internal"
                 onChange={() => setDaemonSetting('share_usage_data', !daemonSettings.share_usage_data)}
                 checked={daemonSettings.share_usage_data}
-                label={<React.Fragment>{__('Allow the app to share data to LBRY.inc')}</React.Fragment>}
+                label={<>{__('Allow the app to share data to LBRY.inc')}</>}
                 helper={
                   isAuthenticated
                     ? __('Internal sharing is required while signed in.')
@@ -297,7 +297,7 @@ export default function SettingSystem(props: Props) {
             <SettingsRow
               title={__('Encrypt my wallet with a custom password')}
               subtitle={
-                <React.Fragment>
+                <>
                   <I18nMessage
                     tokens={{
                       learn_more: (
@@ -311,7 +311,7 @@ export default function SettingSystem(props: Props) {
                   {/* {__('Secure your local wallet data with a custom password.')}{' '}
                    <strong>{__('Lost passwords cannot be recovered.')} </strong>
                    <Button button="link" label={__('Learn more')} href="https://lbry.com/faq/wallet-encryption" />. */}
-                </React.Fragment>
+                </>
               }
             >
               <FormField

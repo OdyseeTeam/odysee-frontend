@@ -1,5 +1,5 @@
 // @flow
-import React, { Fragment, useState, useRef, useContext, useLayoutEffect, createContext } from 'react';
+import React, { useState, useRef, useContext, useLayoutEffect, createContext } from 'react';
 import {
   Tabs as ReachTabs,
   Tab as ReachTab,
@@ -128,10 +128,10 @@ type TabPanelsProps = {
 function TabPanels(props: TabPanelsProps) {
   const { header, ...rest } = props;
   return (
-    <Fragment>
+    <>
       {header}
       <ReachTabPanels {...rest} />
-    </Fragment>
+    </>
   );
 }
 

@@ -47,7 +47,7 @@ class FileSelector extends React.PureComponent<Props> {
   };
 
   handleDirectoryInputSelection = () => {
-    remote.dialog.showOpenDialog({ properties: ['openDirectory'] }).then(result => {
+    remote.dialog.showOpenDialog({ properties: ['openDirectory'] }).then((result) => {
       const path = result && result.filePaths[0];
       if (path) {
         // $FlowFixMe
@@ -67,7 +67,7 @@ class FileSelector extends React.PureComponent<Props> {
     const placeHolder = currentPath || placeholder;
 
     return (
-      <React.Fragment>
+      <>
         <FormField
           label={label}
           webkitdirectory="true"
@@ -95,7 +95,7 @@ class FileSelector extends React.PureComponent<Props> {
           onChange={() => (type === 'openDirectory' ? () => {} : this.handleFileInputSelection())}
           webkitdirectory={type === 'openDirectory' ? 'True' : null}
         />
-      </React.Fragment>
+      </>
     );
   }
 }

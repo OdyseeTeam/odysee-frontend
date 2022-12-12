@@ -38,10 +38,10 @@ export default function CreatorDashboardPage(props: Props) {
       )}
 
       {!fetchingChannels && activeChannelClaim && (
-        <React.Fragment>
+        <>
           <ChannelSelector hideAnon />
           <CreatorAnalytics uri={activeChannelClaim.canonical_url} />
-        </React.Fragment>
+        </>
       )}
     </Page>
   );

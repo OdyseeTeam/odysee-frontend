@@ -113,7 +113,7 @@ class WalletBackup extends React.PureComponent<Props, State> {
           </ul>
         }
         actions={
-          <React.Fragment>
+          <>
             <CopyableText copyable={lbryumWalletDir} snackMessage={__('Path copied.')} />
             <p className="help">
               <I18nMessage
@@ -146,7 +146,7 @@ class WalletBackup extends React.PureComponent<Props, State> {
               />
               <Button button="link" label={__('Open Folder')} onClick={() => shell.openPath(lbryumWalletDir)} />
             </div>
-          </React.Fragment>
+          </>
         }
       />
     );

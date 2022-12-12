@@ -108,7 +108,7 @@ function SettingWalletServer(props: Props) {
   }
 
   return (
-    <React.Fragment>
+    <>
       <fieldset-section>
         <FormField
           type="radio"
@@ -179,7 +179,7 @@ function SettingWalletServer(props: Props) {
           </div>
         )}
       </fieldset-section>
-    </React.Fragment>
+    </>
   );
 }
 

@@ -138,10 +138,10 @@ function UserEmailNew(props: Props) {
                 type="checkbox"
                 name="sync_checkbox"
                 label={
-                  <React.Fragment>
+                  <>
                     {__('Backup your account and wallet data.')}{' '}
                     <Button button="link" href="https://lbry.com/faq/account-sync" label={__('Learn More')} />
-                  </React.Fragment>
+                  </>
                 }
                 checked={formSyncEnabled}
                 onChange={() => setFormSyncEnabled(!formSyncEnabled)}
@@ -155,11 +155,11 @@ function UserEmailNew(props: Props) {
                   checked={localShareUsageData}
                   onChange={handleUsageDataChange}
                   label={
-                    <React.Fragment>
+                    <>
                       {__('Share usage data with LBRY inc.')}{' '}
                       <Button button="link" href="https://odysee.com/$/privacypolicy" label={__('Learn More')} />
                       {!localShareUsageData && <span className="error__text"> ({__('Required')})</span>}
-                    </React.Fragment>
+                    </>
                   }
                 />
               )}

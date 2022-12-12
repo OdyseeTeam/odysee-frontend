@@ -40,7 +40,7 @@ class LicenseType extends React.PureComponent<Props> {
     } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         <FormField
           name="license"
           label={__('License (Optional)')}
@@ -100,7 +100,7 @@ class LicenseType extends React.PureComponent<Props> {
             </fieldset-group>
           </fieldset>
         )}
-      </React.Fragment>
+      </>
     );
   }
 }

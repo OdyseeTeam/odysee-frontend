@@ -13,7 +13,7 @@ function ImageViewer(props: Props) {
   const [loadingError, setLoadingError] = React.useState(false);
 
   return (
-    <React.Fragment>
+    <>
       {loadingError && (
         <Card
           title={__('Error displaying image')}
@@ -25,7 +25,7 @@ function ImageViewer(props: Props) {
           <ZoomableImage src={source} onError={() => setLoadingError(true)} />
         </div>
       )}
-    </React.Fragment>
+    </>
   );
 }
 

@@ -36,16 +36,16 @@ class InvitePage extends React.PureComponent<Props> {
             title={__('Log in to %SITE_NAME% to earn rewards From Inviting Your Friends', { SITE_NAME })}
           />
         ) : (
-          <React.Fragment>
+          <>
             {isPending && <BusyIndicator message={__('Checking your invite status')} />}
             {!isPending && isFailed && <span className="empty">{__('Failed to retrieve invite status.')}</span>}
             {!isPending && !isFailed && (
-              <React.Fragment>
+              <>
                 <InviteNew />
                 <InviteList />
-              </React.Fragment>
+              </>
             )}
-          </React.Fragment>
+          </>
         )}
       </Page>
     );

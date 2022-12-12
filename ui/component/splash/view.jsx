@@ -172,10 +172,10 @@ export default class SplashScreen extends React.PureComponent<Props, State> {
         this.setState({
           message: __('Loading Wallet'),
           details: (
-            <React.Fragment>
+            <>
               <div>{__('Large account history')}</div>
               <div>{__('Please wait...')}</div>
-            </React.Fragment>
+            </>
           ),
         });
       }
@@ -292,7 +292,7 @@ export default class SplashScreen extends React.PureComponent<Props, State> {
           <Card
             title={__('Error starting up')}
             subtitle={
-              <React.Fragment>
+              <>
                 <p>
                   {__(
                     'You can try refreshing to fix it. If you still have issues, your anti-virus software or firewall may be preventing startup.'
@@ -313,7 +313,7 @@ export default class SplashScreen extends React.PureComponent<Props, State> {
                     Reach out to hello@lbry.com for help, or check out %help_link%.
                   </I18nMessage>
                 </p>
-              </React.Fragment>
+              </>
             }
             actions={
               <Button

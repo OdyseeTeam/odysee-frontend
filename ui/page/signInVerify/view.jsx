@@ -101,7 +101,7 @@ function SignInVerifyPage(props: Props) {
         <Card
           title={successful ? __('Log in success!') : __('Log in')}
           subtitle={
-            <React.Fragment>
+            <>
               <p>
                 {successful
                   ? __('You can now close this tab.')
@@ -122,7 +122,7 @@ function SignInVerifyPage(props: Props) {
                   </I18nMessage>
                 </p>
               )}
-            </React.Fragment>
+            </>
           }
           actions={
             !successful &&

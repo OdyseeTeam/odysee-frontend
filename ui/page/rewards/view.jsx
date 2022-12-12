@@ -60,7 +60,7 @@ class RewardsPage extends PureComponent<Props> {
           className="section"
           title={__('Reward validation pending')}
           body={
-            <React.Fragment>
+            <>
               <p>
                 {__(
                   'This account must undergo review before you can participate in the rewards program. Not all users and regions may qualify.'
@@ -92,7 +92,7 @@ class RewardsPage extends PureComponent<Props> {
                 </I18nMessage>
                 {`${__('Enjoy all the awesome free content in the meantime!')}`}
               </p>
-            </React.Fragment>
+            </>
           }
           actions={
             <div className="section__actions">

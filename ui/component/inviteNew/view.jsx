@@ -83,7 +83,7 @@ function InviteNew(props: Props) {
             </I18nMessage>
           }
           actions={
-            <React.Fragment>
+            <>
               <CopyableText label={__('Your invite link')} copyable={referral} />
               {channels && channels.length > 0 && (
                 <FormField
@@ -100,7 +100,7 @@ function InviteNew(props: Props) {
                   <option value={referralCode}>{referralCode}</option>
                 </FormField>
               )}
-            </React.Fragment>
+            </>
           }
         />
       </div>
@@ -113,7 +113,7 @@ function InviteNew(props: Props) {
             </I18nMessage>
           }
           actions={
-            <React.Fragment>
+            <>
               <Form onSubmit={handleSubmit}>
                 <FormField
                   type="text"
@@ -142,7 +142,7 @@ function InviteNew(props: Props) {
                   </I18nMessage>
                 </p>
               </Form>
-            </React.Fragment>
+            </>
           }
         />
       </div>

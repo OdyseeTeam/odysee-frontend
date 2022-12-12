@@ -335,7 +335,7 @@ export default function ClaimList(props: Props) {
   ) : (
     <section className={classnames('claim-list', { 'claim-list--no-margin': showIndexes })}>
       {header !== false && (
-        <React.Fragment>
+        <>
           {header && (
             <div className={classnames('claim-list__header', { 'section__title--small': type === 'small' })}>
               {header}
@@ -359,7 +359,7 @@ export default function ClaimList(props: Props) {
               )}
             </div>
           )}
-        </React.Fragment>
+        </>
       )}
 
       {/* the droppable element needs to be rendered even if empty otherwise logs error on console */}

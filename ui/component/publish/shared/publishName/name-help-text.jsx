@@ -47,7 +47,7 @@ function NameHelpText(props: Props) {
     });
 
     nameHelpText = (
-      <React.Fragment>
+      <>
         <div className="error__text">
           <I18nMessage
             tokens={{
@@ -66,13 +66,13 @@ function NameHelpText(props: Props) {
           label={__('Edit existing claim instead')}
           onClick={() => onEditMyClaim(myClaimForUri, editUri)}
         />
-      </React.Fragment>
+      </>
     );
   } else if (uri && myClaimForUriCaseInsensitive) {
     nameHelpText = <div className="error__text">{__('You already have a claim with this name.')}</div>;
   }
 
-  return <React.Fragment>{nameHelpText && nameHelpText}</React.Fragment>;
+  return <>{nameHelpText && nameHelpText}</>;
 }
 
 export default NameHelpText;

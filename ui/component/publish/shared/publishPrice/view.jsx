@@ -134,7 +134,7 @@ function PublishPrice(props: Props) {
       >
         <div className="publish-price__grp-1">
           <fieldset-section>
-            <React.Fragment>
+            <>
               <FormField
                 type="radio"
                 name="content_free"
@@ -160,7 +160,7 @@ function PublishPrice(props: Props) {
                 disabled={disabled}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
               />
-            </React.Fragment>
+            </>
           </fieldset-section>
         </div>
       </div>

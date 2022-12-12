@@ -51,7 +51,7 @@ class WalletAddress extends React.PureComponent<Props, State> {
         title={__('Receive Credits')}
         subtitle={__('Use this address to receive LBRY Credits.')}
         actions={
-          <React.Fragment>
+          <>
             <CopyableText
               primaryButton
               label={__('Your Address')}
@@ -76,7 +76,7 @@ class WalletAddress extends React.PureComponent<Props, State> {
             </p>
 
             {showQR && <QRCode value={receiveAddress} paddingTop />}
-          </React.Fragment>
+          </>
         }
       />
     );

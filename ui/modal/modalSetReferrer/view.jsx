@@ -65,13 +65,13 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
         <Card
           title={__('Enter inviter')}
           subtitle={
-            <React.Fragment>
+            <>
               {__('Did someone invite you to use Odysee? Tell us who and you both get a reward!')}
               <HelpLink href="https://help.odysee.tv/category-monetization/category-rewards/" />
-            </React.Fragment>
+            </>
           }
           actions={
-            <React.Fragment>
+            <>
               <Form onSubmit={this.handleSubmit}>
                 <FormField
                   autoFocus
@@ -90,7 +90,7 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
               <div className="card__actions">
                 <Button button="primary" label={__('Done')} onClick={this.handleClose} />
               </div>
-            </React.Fragment>
+            </>
           }
         />
       </Modal>

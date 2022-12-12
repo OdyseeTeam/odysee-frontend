@@ -337,7 +337,7 @@ function PublishLivestream(props: Props) {
       actions={
         <>
           <div className="card--file">
-            <React.Fragment>
+            <>
               {/* Decide whether to show file upload or replay selector */}
               {/* @if TARGET='web' */}
               <FormField
@@ -538,7 +538,7 @@ function PublishLivestream(props: Props) {
                 )}
               </>
               {/* @endif */}
-            </React.Fragment>
+            </>
           </div>
         </>
       }

@@ -39,7 +39,7 @@ function PublishPost(props: Props) {
       })}
       actions={
         <div className="card--file">
-          <React.Fragment>
+          <>
             <FormField
               type="text"
               name="content_title"
@@ -61,7 +61,7 @@ function PublishPost(props: Props) {
               fileMimeType={fileMimeType}
               setPrevFileText={setPrevFileText}
             />
-          </React.Fragment>
+          </>
         </div>
       }
     />

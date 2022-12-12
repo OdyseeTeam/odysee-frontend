@@ -18,7 +18,7 @@ class RewardSummary extends React.Component<Props> {
       <Card
         title={__('Available rewards')}
         subtitle={
-          <React.Fragment>
+          <>
             {fetching && __('You have...')}
             {!fetching && hasRewards ? (
               <I18nMessage
@@ -32,10 +32,10 @@ class RewardSummary extends React.Component<Props> {
             ) : (
               __('You have no rewards available.')
             )}
-          </React.Fragment>
+          </>
         }
         actions={
-          <React.Fragment>
+          <>
             <Button
               button="primary"
               navigate="/$/rewards"
@@ -46,7 +46,7 @@ class RewardSummary extends React.Component<Props> {
               label={__('Learn more')}
               href="https://help.odysee.tv/category-monetization/category-rewards/verification/"
             />
-          </React.Fragment>
+          </>
         }
       />
     );

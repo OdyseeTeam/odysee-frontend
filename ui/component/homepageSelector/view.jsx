@@ -24,7 +24,7 @@ function SelectHomepage(props: Props) {
   }
 
   return (
-    <React.Fragment>
+    <>
       <FormField
         name="homepage_select"
         type="select"
@@ -37,7 +37,7 @@ function SelectHomepage(props: Props) {
           </option>
         ))}
       </FormField>
-    </React.Fragment>
+    </>
   );
 }
 
