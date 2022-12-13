@@ -125,10 +125,11 @@ export default function FileRenderInitiator(props: Props) {
 
   const disableShownScheduledContent = shouldDisableShownScheduledContent && !claimIsMine;
 
-  const cannotViewFile =
-    (!claimIsMine &&
-      ((fiatRequired && (!fiatPaid || isFetchingPurchases)) || (sdkFeeRequired && !sdkPaid) || !contentUnlocked)) ||
-    (isLivestreamClaim && isCurrentClaimLive && !layountRendered && !isMobile) || disableShownScheduledContent;
+  const unpaidFiat = fiatRequired && (!fiatPaid || isFetchingPurchases);
+  const unpaidSdk = sdkFeeRequired && !sdkPaid;
+  const livestreamNotStarted = isLivestreamClaim && isCurrentClaimLive && !layountRendered && !isMobile;
+
+  const cannotViewFile = !claimIsMine && (unpaidFiat || unpaidSdk || !contentUnlocked || livestreamNotStarted || disableShownScheduledContent);
 
   const canViewFile = !cannotViewFile;
 

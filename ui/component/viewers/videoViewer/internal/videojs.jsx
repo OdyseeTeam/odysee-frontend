@@ -560,7 +560,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // disable right-click (context-menu) for purchased content
-      if (isPurchasableContent || isRentableContent || isProtectedContent) {
+      if (isPurchasableContent || isRentableContent || isProtectedContent || hasPrice) {
         const player = document.querySelector('video.vjs-tech');
         if (player) player.setAttribute('oncontextmenu', 'return false;');
       }
