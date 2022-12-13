@@ -1345,6 +1345,7 @@ img {
 
     .tier-list {
       padding: var(--spacing-s);
+      padding-bottom: 0;
       margin-top: var(--spacing-s);
       margin-bottom: var(--spacing-m);
       border-radius: var(--border-radius);
@@ -1353,6 +1354,7 @@ img {
 
       .checkbox {
         @include tier-restriction-checkbox;
+        margin-bottom: var(--spacing-s);
       }
     }
   }
