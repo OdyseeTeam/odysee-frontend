@@ -34,6 +34,7 @@ const select = (state, props) => {
     ),
     isStillEditing: selectIsStillEditing(state),
     paywall: selectPublishFormValue(state, 'paywall'),
+    isUnlistedContent: selectPublishFormValue(state, 'visibility') === 'unlisted',
   };
 };
 

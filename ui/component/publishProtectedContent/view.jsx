@@ -25,6 +25,7 @@ type Props = {
   location: string,
   isStillEditing: boolean,
   paywall: Paywall,
+  isUnlistedContent: boolean,
 };
 
 function PublishProtectedContent(props: Props) {
@@ -42,7 +43,10 @@ function PublishProtectedContent(props: Props) {
     location,
     isStillEditing,
     paywall,
+    isUnlistedContent,
   } = props;
+
+  const contentIsPaywalled = paywall && paywall !== PAYWALL.FREE;
 
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
 
@@ -182,7 +186,7 @@ function PublishProtectedContent(props: Props) {
             <>
               <FormField
                 type="checkbox"
-                disabled={paywall !== PAYWALL.FREE}
+                disabled={contentIsPaywalled || isUnlistedContent}
                 defaultChecked={isRestrictingContent}
                 label={__('Restrict content to only allow subscribers to certain memberships to view it')}
                 name={'toggleRestrictedContent'}
@@ -194,7 +198,7 @@ function PublishProtectedContent(props: Props) {
                 <div className="tier-list">
                   {myMembershipTiers.map((membership) => (
                     <FormField
-                      disabled={paywall !== PAYWALL.FREE}
+                      disabled={contentIsPaywalled || isUnlistedContent}
                       key={membership.Membership.id}
                       type="checkbox"
                       // $FlowIssue
@@ -210,7 +214,7 @@ function PublishProtectedContent(props: Props) {
                 </div>
               )}
 
-              {paywall !== PAYWALL.FREE && (
+              {contentIsPaywalled && (
                 <div className="error__text attached_price_warning">
                   {__('This file has an attached price, disable it in order to add content restrictions.')}
                 </div>
