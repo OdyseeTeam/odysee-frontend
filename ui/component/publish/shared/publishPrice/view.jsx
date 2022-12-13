@@ -61,18 +61,24 @@ function PublishPrice(props: Props) {
     disabled,
     isUnlistedContent,
     editedReleaseTime,
-    releaseTime
+    releaseTime,
+    isLivestreamClaim
   } = props;
 
   const releaseTimeInFuture = (editedReleaseTime || releaseTime) > (new Date().getTime() / 1000);
 
-  const hasAReleaseTime = editedReleaseTime || releaseTime;
+  const hasAReleaseTime = (editedReleaseTime || releaseTime) && !isLivestreamClaim;
 
 
+  l('isLivestreamClaim', isLivestreamClaim);
   l('hasAReleaseTime', hasAReleaseTime);
   l('releaseTimeInFuture', releaseTimeInFuture);
 
   const disableForms = isUnlistedContent || hasAReleaseTime;
+
+
+
+  l('disableForms', disableForms);
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [fiatAllowed, setFiatAllowed] = React.useState(true);

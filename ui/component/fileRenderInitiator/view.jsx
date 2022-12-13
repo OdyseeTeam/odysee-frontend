@@ -136,16 +136,20 @@ export default function FileRenderInitiator(props: Props) {
 
   const renderUnsupported = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
 
-  const stillNeedToPurchase = fiatRequired && !fiatPaid;
+  const stillNeedToPurchase = fiatRequired && !fiatPaid && !claimIsMine;
+
+  const livestreamAlreadyPurchased = isLivestreamClaim && !isCurrentClaimLive && !stillNeedToPurchase;
 
   const disabled =
     !contentUnlocked ||
     isAnonymousFiatContent ||
     // we can't disable if it's purchaseable livestream otherwise user can't click purchase button
-    (isLivestreamClaim && !isCurrentClaimLive && !stillNeedToPurchase) ||
+    livestreamAlreadyPurchased ||
     renderUnsupported ||
     disableShownScheduledContent ||
     (!fileInfo && insufficientCredits && !sdkPaid);
+
+  l('is disabled', disabled);
 
   const action: Action = getActionType();
 
