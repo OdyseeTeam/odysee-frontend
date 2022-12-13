@@ -62,7 +62,8 @@ function PublishPrice(props: Props) {
     isUnlistedContent,
     editedReleaseTime,
     releaseTime,
-    isLivestreamClaim
+    isLivestreamClaim,
+    location,
   } = props;
 
   const releaseTimeInFuture = (editedReleaseTime || releaseTime) > (new Date().getTime() / 1000);
@@ -172,14 +173,14 @@ function PublishPrice(props: Props) {
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
               />
               {noBankAccount && getBankAccountDriver()}
-              <FormField
+              {location !== 'livestream' && <FormField
                 type="radio"
                 name="content_sdk"
                 label={<LbcSymbol prefix={__('Purchase with Credits')} />}
                 checked={paywall === PAYWALL.SDK}
                 disabled={disabled || disableForms}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
-              />
+              />}
             </React.Fragment>
           </fieldset-section>
         </div>

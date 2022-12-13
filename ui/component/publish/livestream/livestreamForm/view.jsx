@@ -546,7 +546,7 @@ function LivestreamForm(props: Props) {
 
             <PublishProtectedContent claim={myClaimForUri} location={channelRestrictionToUse} />
 
-            <PublishPrice disabled={disabled} claim={myClaimForUri} />
+            <PublishPrice disabled={disabled} claim={myClaimForUri} location={'livestream'} />
 
             <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
               {__('Tags')}
