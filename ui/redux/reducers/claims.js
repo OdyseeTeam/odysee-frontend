@@ -237,7 +237,8 @@ function selectClaimIsMine(state: State, claim: Claim) {
 // ****************************************************************************
 
 function handleClaimAction(state: State, action: any): State {
-  const { resolveInfo }: ClaimActionResolveInfo = action.data;
+  const { resolveInfo, query }: { resolveInfo: ClaimActionResolveInfo, query?: string } = action.data;
+  const { claim_ids: queryClaimIds } = query ? JSON.parse(query) : {};
 
   const byUriDelta = {};
   const byIdDelta = {};
@@ -347,8 +348,18 @@ function handleClaimAction(state: State, action: any): State {
     }
   });
 
+  const byId = resolveDelta(state.byId, byIdDelta);
+
+  if (queryClaimIds) {
+    queryClaimIds.forEach((claimId) => {
+      if (!byId[claimId]) {
+        Object.assign(byId, { [claimId]: null });
+      }
+    });
+  }
+
   return Object.assign({}, state, {
-    byId: resolveDelta(state.byId, byIdDelta),
+    byId,
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     channelClaimCounts,
     resolvingUris: Array.from(newResolvingUrls),

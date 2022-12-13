@@ -390,7 +390,7 @@ export const selectUrlsForCollectionId = createCachedSelector(
   selectClaimsById,
   (itemCount, items, claimsById) => {
     if (!items) return items;
-    // console.log(items)
+
     const uris = new Set([]);
 
     let notFetched;
@@ -399,15 +399,12 @@ export const selectUrlsForCollectionId = createCachedSelector(
       if (isPermanentUrl(item) || isCanonicalUrl(item)) {
         uris.add(item);
       } else {
-        let uri;
-        try {
-          const claim = claimsById[item];
-          uri = claim.permanent_url;
-        } catch (e) {}
+        const claim = claimsById[item];
 
-        if (uri) {
+        if (claim) {
+          const uri = claim.permanent_url;
           uris.add(uri);
-        } else {
+        } else if (claim === undefined) {
           notFetched = true;
         }
       }
