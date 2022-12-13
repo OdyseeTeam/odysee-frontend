@@ -13,12 +13,12 @@ const select = (state, props) => {
   const claimId = claim && claim.claim_id;
 
   return {
-    claim,
-    thumbnail: selectThumbnailForUri(state, uri),
-    chatDisabled: selectCommentsDisabledSettingForChannelId(uri, getChannelIdFromClaim(claim)),
-    superChats: selectHyperChatsForUri(state, uri),
     activeViewers: claimId && selectViewersForId(state, claimId),
+    chatDisabled: selectCommentsDisabledSettingForChannelId(uri, getChannelIdFromClaim(claim)),
+    claim,
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    superChats: selectHyperChatsForUri(state, uri),
+    thumbnail: selectThumbnailForUri(state, uri),
   };
 };
 

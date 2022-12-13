@@ -46,18 +46,20 @@ type Props = {
 
 export default function LivestreamLayout(props: Props) {
   const {
-    activeStreamUri,
+    // redux
+    activeViewers,
     claim,
+    contentUnlocked,
+    superChats,
+    // passed
+    activeStreamUri,
     hideComments,
     isCurrentClaimLive,
     releaseTimeMs,
     showLivestream,
     showScheduledInfo,
-    uri,
-    superChats,
-    activeViewers,
     theaterMode,
-    contentUnlocked,
+    uri,
   } = props;
 
   const isMobile = useIsMobile();

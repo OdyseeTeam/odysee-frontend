@@ -180,11 +180,13 @@ export default function LivestreamPage(props: Props) {
       isCurrentClaimLive &&
       (claimReleaseInPast() || claimReleaseStartingSoon() || claimReleaseInFuture());
 
-    const checkShowScheduledInfo = () =>
-      (!isChannelBroadcasting && (claimReleaseInFuture() || claimReleaseStartedRecently())) ||
-      (isChannelBroadcasting &&
-        ((!isCurrentClaimLive && (claimReleaseInFuture() || claimReleaseStartedRecently())) ||
-          (isCurrentClaimLive && claimReleaseInFuture() && !claimReleaseStartingSoon())));
+    const checkShowScheduledInfo = () => {
+      const channelNotBroadcasting = !isChannelBroadcasting && (claimReleaseInFuture() || claimReleaseStartedRecently());
+      const goingLiveSoon = !isCurrentClaimLive && (claimReleaseInFuture() || claimReleaseStartedRecently());
+      const liveAndStartingSoon = isCurrentClaimLive && claimReleaseInFuture() && !claimReleaseStartingSoon();
+      const currentlyBroadcasting =  isChannelBroadcasting && (goingLiveSoon || liveAndStartingSoon);
+      return channelNotBroadcasting || currentlyBroadcasting;
+    };
 
     const checkCommentsDisabled = () => chatDisabled || (claimReleaseInFuture() && !claimReleaseStartingSoon());
 
