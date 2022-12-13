@@ -4,18 +4,20 @@ import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Portals from 'component/portals';
+import Ads from 'web/component/ads';
 import './style.scss';
 
 type Props = {
   portals: any,
   homepageData: any,
   showViews: boolean,
+  hasPremiumPlus: boolean,
 };
 
 export const PortalContext = React.createContext<any>();
 
 function PortalPage(props: Props) {
-  const { portals, homepageData, showViews } = props;
+  const { portals, homepageData, showViews, hasPremiumPlus } = props;
   const [portal, setIndex] = React.useState(undefined);
   const [displayedTiles, setDisplayedTiles] = React.useState(0);
 
@@ -63,6 +65,7 @@ function PortalPage(props: Props) {
             showHeader={false}
             loadedCallback={setDisplayedTiles}
             fetchViewCount={showViews}
+            injectedItem={!hasPremiumPlus && { node: <Ads small type="video" tileLayout /> }}
           />
         </div>
         {homepageData && displayedTiles >= portal.claimIds.videos.length - 3 && (

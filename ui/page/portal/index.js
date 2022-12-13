@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { selectHomepageData } from 'redux/selectors/settings';
 import { selectUser } from 'redux/selectors/user';
+import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import PortalPage from './view';
 
 const select = (state) => {
@@ -15,6 +16,7 @@ const select = (state) => {
     homepageData,
     portals: mainPortal?.portals,
     showViews,
+    hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 
