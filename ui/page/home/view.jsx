@@ -163,7 +163,7 @@ function HomePage(props: Props) {
           id === 'FOLLOWING' ? undefined : CATEGORY_LIVESTREAM_LIMIT
         )}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        injectedItem={index === 0 && !hasPremiumPlus && { node: <Ads small type="video" tileLayout /> }}
+        injectedItem={index === topGrid && !hasPremiumPlus && { node: <Ads small type="video" tileLayout /> }}
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />
