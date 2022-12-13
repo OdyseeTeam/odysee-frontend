@@ -29,6 +29,7 @@ import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from '
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { parseURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
+import { selectCostInfoForUri } from 'lbryinc';
 
 const select = (state, props) => {
   const { search, pathname, hash } = props.location;
@@ -59,35 +60,38 @@ const select = (state, props) => {
   const nextRecommendedUri = recomendedContent && recomendedContent[0];
 
   return {
-    position,
-    userId,
-    internalFeature,
-    collectionId,
-    nextPlaylistUri,
-    nextRecommendedUri,
-    previousListUri: previousPlaylistUri,
-    isMarkdownOrComment,
+    activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
+    authenticated: selectUserVerifiedEmail(state),
     autoplayIfEmbedded: Boolean(autoplay),
     autoplayNext: !isMarkdownOrComment && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT),
-    volume: selectVolume(state),
-    muted: selectMute(state),
-    videoPlaybackRate: selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE),
-    thumbnail: selectThumbnailForUri(state, uri),
     claim,
-    homepageData: selectHomepageData(state),
-    authenticated: selectUserVerifiedEmail(state),
-    shareTelemetry: IS_WEB || selectDaemonSettings(state).share_usage_data,
-    isFloating: makeSelectIsPlayerFloating(props.location)(state),
-    videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
-    activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
-    isLivestreamClaim: isStreamPlaceholderClaim(claim),
-    defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
+    collectionId,
     currentPlaylistItemIndex: selectIndexForUriInPlayingCollectionForId(state, collectionId, uri),
+    defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
+    homepageData: selectHomepageData(state),
+    internalFeature,
+    isFloating: makeSelectIsPlayerFloating(props.location)(state),
+    isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    isMarkdownOrComment,
+    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isPurchasableContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
-    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
-    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
+    muted: selectMute(state),
+    nextPlaylistUri,
+    nextRecommendedUri,
+    position,
+    previousListUri: previousPlaylistUri,
+    purchaseInfo: selectPurchaseTagForUri(state, props.uri),
+    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
+    rentalInfo: selectRentalTagForUri(state, props.uri),
+    shareTelemetry: IS_WEB || selectDaemonSettings(state).share_usage_data,
+    thumbnail: selectThumbnailForUri(state, uri),
+    userId,
+    videoPlaybackRate: selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE),
+    videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
+    volume: selectVolume(state),
+    costInfo: selectCostInfoForUri(state, props.uri),
   };
 };
 

@@ -138,6 +138,9 @@ function VideoViewer(props: Props) {
     isRentableContent,
     isProtectedContent,
     isUnlistedContent,
+    purchaseInfo,
+    rentalInfo,
+    costInfo,
     // purchaseMadeForClaimId,
   } = props;
 
@@ -206,6 +209,9 @@ function VideoViewer(props: Props) {
 
   const addAutoplayNextButton = useAutoplayNext(playerRef, autoplayNext, isMarkdownOrComment);
   const addTheaterModeButton = useTheaterMode(playerRef, videoTheaterMode);
+
+  const fiatRequired = Boolean(purchaseInfo) || Boolean(rentalInfo);
+  const hasPrice = fiatRequired || costInfo?.cost;
 
   React.useEffect(() => {
     if (isPlaying) {
@@ -648,6 +654,7 @@ function VideoViewer(props: Props) {
         isRentableContent={isRentableContent}
         isProtectedContent={isProtectedContent}
         isUnlistedContent={isUnlistedContent}
+        hasPrice={hasPrice}
       />
     </div>
   );

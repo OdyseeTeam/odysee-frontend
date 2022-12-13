@@ -120,6 +120,7 @@ type Props = {
   isRentableContent: boolean,
   isProtectedContent: boolean,
   isUnlistedContent: boolean,
+  hasPrice: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -188,6 +189,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isRentableContent,
     isProtectedContent,
     isUnlistedContent,
+    hasPrice,
   } = props;
 
   const unlistedLivestream = isLivestreamClaim && isUnlistedContent;
@@ -483,7 +485,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         });
 
         // get the protected url if needed
-        if (isProtectedContent || unlistedLivestream) {
+        if (isProtectedContent || unlistedLivestream || hasPrice) {
           const protectedLivestreamResponse = await Lbry.get({
             uri: activeLivestreamForChannel.claimUri,
             base_streaming_url: activeLivestreamForChannel.url,
