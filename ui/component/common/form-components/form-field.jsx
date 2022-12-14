@@ -3,19 +3,16 @@ import 'easymde/dist/easymde.min.css';
 
 import './plugins/inline-attachment/inline-attachment';
 import './plugins/inline-attachment/codemirror-4.inline-attachment';
-import { IMG_CDN_PUBLISH_URL, JSON_RESPONSE_KEYS, UPLOAD_CONFIG } from 'constants/cdn_urls';
 import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
-import { openEditorMenu, stopContextMenu } from 'util/context-menu';
 import { lazyImport } from 'util/lazyImport';
-import MarkdownPreview from 'component/common/markdown-preview';
 import React from 'react';
-import ReactDOMServer from 'react-dom/server';
-import SimpleMDE from 'react-simplemde-editor';
 import type { ElementRef } from 'react';
 import { InputSimple, BlockWrapWrapper } from './input-simple';
 import { InputSelect } from './input-select';
 import { CountInfo, QuickAction, Label } from './common';
 import { TextareaWrapper } from './slim-input-field';
+
+import Tiptap from './markdownEditor';
 
 // prettier-ignore
 const TextareaWithSuggestions = lazyImport(() => import('component/textareaWithSuggestions' /* webpackChunkName: "suggestions" */));
@@ -179,76 +176,10 @@ export class FormField extends React.PureComponent<Props, State> {
           </FormFieldWrapper>
         );
       case 'markdown':
-        const handleEvents = { contextmenu: openEditorMenu };
-
-        const getInstance = (editor) => {
-          // SimpleMDE max char check
-          editor.codemirror.on('beforeChange', (instance, changes) => {
-            if (textAreaMaxLength && changes.update) {
-              let str = changes.text.join('\n');
-              let delta = str.length - (instance.indexFromPos(changes.to) - instance.indexFromPos(changes.from));
-
-              if (delta <= 0) return;
-
-              delta = instance.getValue().length + delta - textAreaMaxLength;
-              if (delta > 0) {
-                str = str.substr(0, str.length - delta);
-                changes.update(changes.from, changes.to, str.split('\n'));
-              }
-            }
-          });
-
-          // "Create Link (Ctrl-K)": highlight URL instead of label:
-          editor.codemirror.on('changes', (instance, changes) => {
-            try {
-              // Grab the last change from the buffered list. I assume the
-              // buffered one ('changes', instead of 'change') is more efficient,
-              // and that "Create Link" will always end up last in the list.
-              const lastChange = changes[changes.length - 1];
-              if (lastChange.origin === '+input') {
-                // https://github.com/Ionaru/easy-markdown-editor/blob/8fa54c496f98621d5f45f57577ce630bee8c41ee/src/js/easymde.js#L765
-                const EASYMDE_URL_PLACEHOLDER = '(https://)';
-
-                // The URL placeholder is always placed last, so just look at the
-                // last text in the array to also cover the multi-line case:
-                const urlLineText = lastChange.text[lastChange.text.length - 1];
-
-                if (urlLineText.endsWith(EASYMDE_URL_PLACEHOLDER) && urlLineText !== '[]' + EASYMDE_URL_PLACEHOLDER) {
-                  const from = lastChange.from;
-                  const to = lastChange.to;
-                  const isSelectionMultiline = lastChange.text.length > 1;
-                  const baseIndex = isSelectionMultiline ? 0 : from.ch;
-
-                  // Everything works fine for the [Ctrl-K] case, but for the
-                  // [Button] case, this handler happens before the original
-                  // code, thus our change got wiped out.
-                  // Add a small delay to handle that case.
-                  setTimeout(() => {
-                    instance.setSelection(
-                      { line: to.line, ch: baseIndex + urlLineText.lastIndexOf('(') + 1 },
-                      { line: to.line, ch: baseIndex + urlLineText.lastIndexOf(')') }
-                    );
-                  }, 25);
-                }
-              }
-            } catch (e) {} // Do nothing (revert to original behavior)
-          });
-
-          // Add ability to upload pasted/dragged image (https://github.com/sparksuite/simplemde-markdown-editor/issues/328#issuecomment-227075500)
-          window.inlineAttachment.editors.codemirror4.attach(editor.codemirror, {
-            uploadUrl: IMG_CDN_PUBLISH_URL,
-            uploadFieldName: UPLOAD_CONFIG.BLOB_KEY,
-            extraParams: { [UPLOAD_CONFIG.ACTION_KEY]: UPLOAD_CONFIG.ACTION_VAL },
-            filenameTag: '{filename}',
-            urlText: '![image]({filename})',
-            jsonFieldName: JSON_RESPONSE_KEYS.UPLOADED_URL,
-            errorText: '![image]("failed to upload file")',
-          });
-        };
 
         return (
           <FormFieldWrapper {...wrapperProps}>
-            <div className="form-field--SimpleMDE" onContextMenu={stopContextMenu}>
+            <div className="form-field--SimpleMDE">
               <fieldset-section>
                 <div className="form-field__two-column">
                   <div>
@@ -258,32 +189,7 @@ export class FormField extends React.PureComponent<Props, State> {
                   <QuickAction {...quickActionProps} />
                 </div>
 
-                <SimpleMDE
-                  {...inputProps}
-                  id={name}
-                  type="textarea"
-                  events={handleEvents}
-                  getMdeInstance={getInstance}
-                  options={{
-                    spellChecker: false,
-                    hideIcons: ['heading', 'image', 'fullscreen', 'side-by-side'],
-                    status: [
-                      {
-                        className: 'editor-statusbar__upload-hint',
-                        defaultValue: (el) => {
-                          el.innerHTML = __('Attach images by pasting or drag-and-drop.');
-                        },
-                      },
-                      'lines',
-                      'words',
-                      'cursor',
-                    ],
-                    previewRender(plainText) {
-                      const preview = <MarkdownPreview content={plainText} noDataStore />;
-                      return ReactDOMServer.renderToString(preview);
-                    },
-                  }}
-                />
+                <Tiptap {...inputProps} textAreaMaxLength={textAreaMaxLength} />
 
                 <CountInfo {...countInfoProps} />
               </fieldset-section>

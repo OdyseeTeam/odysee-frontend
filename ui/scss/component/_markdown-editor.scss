@@ -10,11 +10,21 @@
   }
 }
 
-.CodeMirror-wrap {
-  overflow: hidden;
+.ProseMirror {
+  min-height: 12em;
 }
 
-.editor-toolbar {
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+.toolbar-editor {
+  padding: var(--spacing-xxs);
   background-color: var(--color-header-background);
   border: none;
   border-top-left-radius: var(--border-radius);
@@ -22,12 +32,6 @@
   border-right: 1px solid var(--color-input-border);
   border-top: 1px solid var(--color-input-border);
   border-left: 1px solid var(--color-input-border);
-
-  opacity: 1; // ?
-
-  &:hover {
-    opacity: 1; // ?
-  }
 
   &.disabled-for-preview a:not(.no-disable) {
     border-color: transparent;
@@ -39,12 +43,6 @@
     &::after {
       display: none;
     }
-  }
-
-  button {
-    color: var(--color-header-link);
-    border-color: transparent;
-    transition: opacity 0.3s ease;
   }
 
   i.separator {
@@ -108,19 +106,5 @@
   .cm-s-easymde .cm-quote {
     color: var(--color-editor-quote);
     font-style: italic;
-  }
-
-  // Overriding the lbry/components form styling
-  .editor-toolbar {
-    button:not(.button) {
-      padding-right: 0;
-      padding-left: 0;
-      background-color: transparent !important;
-      border: transparent;
-
-      &:hover {
-        color: var(--color-header-link-active);
-      }
-    }
   }
 }
