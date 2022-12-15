@@ -19,6 +19,22 @@ declare type Collection = {
 
 declare type CollectionType = 'playlist' | 'channelList' | 'featuredChannels' | 'collection'; // Must match COL_TYPES
 
+declare type CollectionState = {
+  // -- sync --
+  unpublished: CollectionGroup,
+  edited: CollectionGroup,
+  updated: UpdatedCollectionGroup,
+  builtin: CollectionGroup,
+  savedIds: Array<string>,
+  resolvedIds: ?Array<string>,
+  // -- local --
+  collectionItemsFetchingIds: Array<string>,
+  queue: Collection,
+  lastUsedCollection: ?string,
+  isFetchingMyCollections: ?boolean,
+  thumbnailClaimsFetchingCollectionIds: Array<string>,
+};
+
 declare type CollectionGroup = {
   [id: string]: Collection,
 };

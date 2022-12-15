@@ -5,22 +5,6 @@ import { defaultCollectionState } from 'util/collections';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
 
-type CollectionState = {
-  // -- sync --
-  unpublished: CollectionGroup,
-  edited: CollectionGroup,
-  updated: UpdatedCollectionGroup,
-  builtin: CollectionGroup,
-  savedIds: Array<string>,
-  resolvedIds: ?Array<string>,
-  // -- local --
-  collectionItemsFetchingIds: Array<string>,
-  queue: Collection,
-  lastUsedCollection: ?string,
-  isFetchingMyCollections: ?boolean,
-  thumbnailClaimsFetchingCollectionIds: Array<string>,
-};
-
 const defaultState: CollectionState = {
   // -- sync --
   builtin: {
