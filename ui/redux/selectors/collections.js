@@ -39,6 +39,11 @@ export const selectQueueCollection = (state: State) => selectState(state).queue;
 export const selectLastUsedCollection = (state: State) => selectState(state).lastUsedCollection;
 export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
+export const selectThumbnailClaimsFetchingCollectionIds = (state: State) =>
+  selectState(state).thumbnailClaimsFetchingCollectionIds;
+
+export const selectAreThumbnailClaimsFetchingForCollectionIds = (state: State, ids: string) =>
+  selectThumbnailClaimsFetchingCollectionIds(state).includes(ids);
 
 export const selectCollectionHasItemsResolvedForId = (state: State, id: string) =>
   new Set(selectCollectionIdsWithItemsResolved(state)).has(id);
@@ -271,7 +276,9 @@ export const selectFirstItemUrlForCollection = (state: State, id: string) => {
   const collectionItemUrls = selectUrlsForCollectionId(state, id, 1);
   if (!collectionItemUrls) return collectionItemUrls;
 
-  return collectionItemUrls.length > 0 ? collectionItemUrls[0] : null;
+  return collectionItemUrls.length > 0
+    ? collectionItemUrls.find((collectionItemUrl) => collectionItemUrl !== null)
+    : null;
 };
 
 export const selectCollectionLengthForId = (state: State, id: string) => {
@@ -409,7 +416,7 @@ export const selectUrlsForCollectionId = createCachedSelector(
         }
       }
 
-      if (Number.isInteger(itemCount) ? index === itemCount - 1 : notFetched) {
+      if (Number.isInteger(itemCount) ? uris.size === itemCount : notFetched) {
         return true;
       }
     });

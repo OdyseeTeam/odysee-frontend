@@ -30,7 +30,7 @@ function FeaturedSection(props: Props) {
   const { uri, claimId, claim, geoRestriction, description, doResolveClaimId, doFetchViewCount } = props;
 
   React.useEffect(() => {
-    if (!uri) {
+    if (!uri && claimId) {
       doResolveClaimId(claimId);
       doFetchViewCount(claimId);
     }

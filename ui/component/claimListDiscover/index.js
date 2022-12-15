@@ -7,7 +7,7 @@ import {
   selectFetchingClaimSearch,
 } from 'redux/selectors/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
-import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { doFetchThumbnailClaimsForCollectionIds } from 'redux/actions/collections';
 import * as SETTINGS from 'constants/settings';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectMutedChannels } from 'redux/selectors/blocked';
@@ -44,7 +44,7 @@ const perform = {
   doFetchOdyseeMembershipForChannelIds,
   doResolveClaimIds,
   doResolveUris,
-  doFetchItemsInCollection,
+  doFetchThumbnailClaimsForCollectionIds,
 };
 
 export default connect(select, perform)(ClaimListDiscover);

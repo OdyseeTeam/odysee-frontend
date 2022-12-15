@@ -197,8 +197,7 @@ export default function ShowPage(props: Props) {
 
   React.useEffect(() => {
     if (claim && isCollection && collectionFirstItemUri === undefined) {
-      // -- We're only interested in the first item to redirect to, and start playing
-      doFetchItemsInCollection({ collectionId, itemCount: 1 });
+      doFetchItemsInCollection({ collectionId });
     }
   }, [claim, collectionFirstItemUri, collectionId, doFetchItemsInCollection, isCollection]);
 
@@ -226,6 +225,7 @@ export default function ShowPage(props: Props) {
 
   if (claim && isCollection && collectionFirstItemUri) {
     switch (collection?.type) {
+      case COL_TYPES.COLLECTION:
       case COL_TYPES.PLAYLIST:
         urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
         const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);

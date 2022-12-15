@@ -23,7 +23,7 @@ import { doFetchTxoPage } from 'redux/actions/wallet';
 import { doMembershipContentForStreamClaimIds, doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
-import { createNormalizedClaimSearchKey, getChannelIdFromClaim } from 'util/claim';
+import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
 import { hasFiatTags } from 'util/tags';
 import { PAGE_SIZE } from 'constants/claim';
 
@@ -69,7 +69,7 @@ export function doResolveUris(
       .then((response: ResolveResponse) => {
         const collectionIds = new Set([]);
         const repostsToResolve = new Set([]);
-        const streamClaimIds = new Set([]);
+        const membersOnlyClaimIds = new Set([]);
         const channelClaimIds = new Set([]);
 
         const resolveInfo: {
@@ -104,7 +104,8 @@ export function doResolveUris(
                 }
 
                 if (repostedClaim.value_type !== 'channel' && repostedClaim.value_type !== 'collection') {
-                  streamClaimIds.add(repostedClaim.claim_id);
+                  const isProtected = isClaimProtected(repostedClaim);
+                  if (isProtected) membersOnlyClaimIds.add(repostedClaim.claim_id);
                 }
               }
             }
@@ -127,7 +128,9 @@ export function doResolveUris(
               const stream: StreamClaim = uriResolveInfo;
 
               resultResponse.stream = stream;
-              streamClaimIds.add(stream.claim_id);
+
+              const isProtected = isClaimProtected(stream);
+              if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
               if (stream.signing_channel) {
                 // $FlowFixMe
@@ -147,8 +150,8 @@ export function doResolveUris(
 
         dispatch({ type: ACTIONS.RESOLVE_URIS_SUCCESS, data: { resolveInfo } });
 
-        if (streamClaimIds.size > 0) {
-          dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+        if (membersOnlyClaimIds.size > 0) {
+          dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
         }
 
         if (channelClaimIds.size > 0) {
@@ -275,20 +278,21 @@ export function doFetchClaimListMine(
         },
       });
 
-      const streamClaimIds = new Set([]);
+      const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
 
       result.items.forEach((item) => {
         if (item.value_type !== 'channel' && item.value_type !== 'collection') {
-          streamClaimIds.add(item.claim_id);
+          const isProtected = isClaimProtected(item);
+          if (isProtected) membersOnlyClaimIds.add(item.claim_id);
         }
 
         const channelId = getChannelIdFromClaim(item);
         if (channelId) channelClaimIds.add(channelId);
       });
 
-      if (streamClaimIds.size > 0) {
-        dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+      if (membersOnlyClaimIds.size > 0) {
+        dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
       }
 
       if (channelClaimIds.size > 0) {
@@ -720,7 +724,7 @@ export function doClaimSearch(
     const success = (data: ClaimSearchResponse) => {
       const resolveInfo = {};
       const urls = [];
-      const streamClaimIds = new Set([]);
+      const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
       const fiatClaimIds = [];
       let collectionResolveInfo;
@@ -731,7 +735,8 @@ export function doClaimSearch(
         urls.push(stream.canonical_url);
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
-          streamClaimIds.add(stream.claim_id);
+          const isProtected = isClaimProtected(stream);
+          if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
         }
 
         if (stream.value_type === 'collection') {
@@ -762,8 +767,8 @@ export function doClaimSearch(
         dispatch({ type: ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED, data: { resolveInfo: collectionResolveInfo } });
       }
 
-      if (streamClaimIds.size > 0) {
-        dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+      if (membersOnlyClaimIds.size > 0) {
+        dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
       }
 
       if (channelClaimIds.size > 0) {

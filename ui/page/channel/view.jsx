@@ -118,7 +118,7 @@ function ChannelPage(props: Props) {
   const currentView =
     !showClaims && !channelIsMine && (isHomeTab || TABS_FOR_CHANNELS_WITH_CONTENT.includes(viewParam))
       ? CHANNEL_PAGE.VIEWS.ABOUT
-      : viewParam;
+      : viewParam || CHANNEL_PAGE.VIEWS.HOME;
 
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = currentView === CHANNEL_PAGE.VIEWS.EDIT;
@@ -487,9 +487,12 @@ function ChannelPage(props: Props) {
                 </Tab>
               </TabList>
             </div>
+
             <TabPanels>
               <TabPanel>
-                <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
+                {currentView === CHANNEL_PAGE.VIEWS.HOME && (
+                  <HomeTab uri={uri} editMode={channelIsMine} handleViewMore={(e) => handleViewMore(e)} />
+                )}
               </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
@@ -528,7 +531,11 @@ function ChannelPage(props: Props) {
                   <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
                 )}
               </TabPanel>
-              <TabPanel>{channelIsMine && <CreatorSettingsTab activeChannelClaim={claim} />}</TabPanel>
+              <TabPanel>
+                {channelIsMine && currentView === CHANNEL_PAGE.VIEWS.SETTINGS && (
+                  <CreatorSettingsTab activeChannelClaim={claim} />
+                )}
+              </TabPanel>
             </TabPanels>
           </Tabs>
         )}
