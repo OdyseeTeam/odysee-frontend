@@ -58,3 +58,13 @@ export function creditsToString(amount) {
   const creditString = parseFloat(amount).toFixed(8);
   return creditString;
 }
+
+// @flow
+
+export function getFormattedCreditsAmount(amount: string, precision?: number = 2) {
+  const minimumRenderableAmount = 10 ** (-1 * precision);
+
+  if (amount > 0 && amount < minimumRenderableAmount) return `<${minimumRenderableAmount}`;
+
+  return formatCredits(amount, precision, true);
+}
