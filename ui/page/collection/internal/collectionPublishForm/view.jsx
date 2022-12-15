@@ -18,6 +18,7 @@ import BusyIndicator from 'component/common/busy-indicator';
 import Tooltip from 'component/common/tooltip';
 import CollectionGeneralTab from './internal/collectionGeneralTab';
 import withCollectionItems from 'hocs/withCollectionItems';
+import ErrorBubble from 'component/common/error-bubble';
 
 export const PAGE_TAB_QUERY = `tab`;
 
@@ -36,6 +37,7 @@ type Props = {
   isClaimPending: boolean,
   activeChannelClaim: ?ChannelClaim,
   collectionHasEdits: boolean,
+  hasUnavailableClaims: boolean,
   doCollectionPublish: (CollectionPublishCreateParams, string) => Promise<any>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
   doClearEditsForCollectionId: (id: string) => void,
@@ -55,6 +57,7 @@ const CollectionPublishForm = (props: Props) => {
     isClaimPending,
     activeChannelClaim,
     collectionHasEdits,
+    hasUnavailableClaims,
     doCollectionPublish,
     doCollectionEdit,
     doClearEditsForCollectionId,
@@ -93,16 +96,7 @@ const CollectionPublishForm = (props: Props) => {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
   }
 
-  function handleSubmitForm() {
-    if (!hasChanges) return goBack();
-
-    if (editing) {
-      // $FlowFixMe
-      doCollectionEdit(collectionId, formParams);
-
-      return onDoneForId(collectionId);
-    }
-
+  function handlePublish() {
     setPublishPending(true);
 
     const successCb = (pendingClaim) => {
@@ -119,6 +113,32 @@ const CollectionPublishForm = (props: Props) => {
     doCollectionPublish(formParams, collectionId)
       .then(successCb)
       .catch(() => setPublishPending(false));
+  }
+
+  function handleSubmitForm() {
+    if (!hasChanges) return goBack();
+
+    if (editing) {
+      // $FlowFixMe
+      doCollectionEdit(collectionId, formParams);
+
+      return onDoneForId(collectionId);
+    }
+
+    if (hasUnavailableClaims) {
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Confirm Publish'),
+        subtitle: __(
+          'You are about to publish this playlist with unavailable items that will be removed (all other items will be unaffected). This action is permanent and cannot be undone.'
+        ),
+        onConfirm: (closeModal) => {
+          handlePublish();
+          closeModal();
+        },
+      });
+    } else {
+      handlePublish();
+    }
   }
 
   function onTabChange(newTabIndex) {
@@ -194,6 +214,14 @@ const CollectionPublishForm = (props: Props) => {
             </TabPanel>
           </TabPanels>
         </Tabs>
+
+        {hasUnavailableClaims && publishing && (
+          <ErrorBubble>
+            {__(
+              'This playlist has unavailable items and they will not be published. Make sure you want to continue before uploading.'
+            )}
+          </ErrorBubble>
+        )}
 
         <div className="section__actions">
           <Submit
