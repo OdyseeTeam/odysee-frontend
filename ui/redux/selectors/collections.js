@@ -276,7 +276,9 @@ export const selectFirstItemUrlForCollection = (state: State, id: string) => {
   const collectionItemUrls = selectUrlsForCollectionId(state, id, 1);
   if (!collectionItemUrls) return collectionItemUrls;
 
-  return collectionItemUrls.length > 0 ? collectionItemUrls[0] : null;
+  return collectionItemUrls.length > 0
+    ? collectionItemUrls.find((collectionItemUrl) => collectionItemUrl !== null)
+    : null;
 };
 
 export const selectCollectionLengthForId = (state: State, id: string) => {
@@ -414,7 +416,7 @@ export const selectUrlsForCollectionId = createCachedSelector(
         }
       }
 
-      if (Number.isInteger(itemCount) ? index === itemCount - 1 : notFetched) {
+      if (Number.isInteger(itemCount) ? uris.size === itemCount : notFetched) {
         return true;
       }
     });

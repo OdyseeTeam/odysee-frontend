@@ -319,13 +319,12 @@ const doFetchCollectionItems = (items: Array<string>, pageSize?: number) => asyn
   }
 };
 
-export const doFetchItemsInCollection = (params: {
-  collectionId: string,
-  pageSize?: number,
-  itemCount?: number,
-}) => async (dispatch: Dispatch, getState: GetState) => {
+export const doFetchItemsInCollection = (params: { collectionId: string, pageSize?: number }) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   let state = getState();
-  const { collectionId, pageSize, itemCount } = params;
+  const { collectionId, pageSize } = params;
 
   const isAlreadyFetching = selectAreCollectionItemsFetchingForId(state, collectionId);
 
@@ -354,8 +353,7 @@ export const doFetchItemsInCollection = (params: {
     const collection = selectCollectionForId(state, collectionId);
 
     if (collection.items.length > 0) {
-      const items = itemCount ? collection.items.slice(0, itemCount) : collection.items;
-      promisedCollectionItemsFetch = items && dispatch(doFetchCollectionItems(items, pageSize));
+      promisedCollectionItemsFetch = collection.items && dispatch(doFetchCollectionItems(collection.items, pageSize));
     } else {
       return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
@@ -363,8 +361,7 @@ export const doFetchItemsInCollection = (params: {
     const claim = selectClaimForClaimId(state, collectionId);
 
     const claimIds = getClaimIdsInCollectionClaim(claim);
-    const items = claimIds && (itemCount ? claimIds.slice(0, itemCount) : claimIds);
-    promisedCollectionItemsFetch = items && dispatch(doFetchCollectionItems(items, pageSize));
+    promisedCollectionItemsFetch = claimIds && dispatch(doFetchCollectionItems(claimIds, pageSize));
   }
 
   // -- Await results:
