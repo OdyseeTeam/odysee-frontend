@@ -5,12 +5,13 @@ import {
   selectUrlsForCollectionId,
   selectCollectionTitleForId,
   selectCollectionIsMine,
-  selectHasPrivateCollectionForId,
+  selectIsCollectionPrivateForId,
   selectIndexForUrlInCollectionForId,
   selectCollectionLengthForId,
   selectCollectionIsEmptyForId,
   selectCollectionForId,
   selectCollectionSavedForId,
+  selectCollectionHasEditsForId,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doCollectionEdit, doClearQueueList, doToggleCollectionSavedForId } from 'redux/actions/collections';
@@ -34,7 +35,8 @@ const select = (state, props) => {
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collectionName: selectCollectionTitleForId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
-    isPrivateCollection: selectHasPrivateCollectionForId(state, collectionId),
+    isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
+    hasEdits: selectCollectionHasEditsForId(state, collectionId),
     publishedCollectionName: selectChannelNameForId(state, collectionId),
     playingItemIndex: selectIndexForUrlInCollectionForId(state, playingCollectionId, playingItemUrl),
     collectionLength: selectCollectionLengthForId(state, collectionId),
