@@ -355,7 +355,7 @@ export const doFetchItemsInCollection = (params: {
 
     if (collection.items.length > 0) {
       const items = itemCount ? collection.items.slice(0, itemCount) : collection.items;
-      promisedCollectionItemsFetch = items && doFetchCollectionItems(items, pageSize);
+      promisedCollectionItemsFetch = items && dispatch(doFetchCollectionItems(items, pageSize));
     } else {
       return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
@@ -364,7 +364,7 @@ export const doFetchItemsInCollection = (params: {
 
     const claimIds = getClaimIdsInCollectionClaim(claim);
     const items = claimIds && (itemCount ? claimIds.slice(0, itemCount) : claimIds);
-    promisedCollectionItemsFetch = items && doFetchCollectionItems(items, pageSize);
+    promisedCollectionItemsFetch = items && dispatch(doFetchCollectionItems(items, pageSize));
   }
 
   // -- Await results:
