@@ -54,9 +54,9 @@ const CollectionHeader = (props: Props) => {
       titleActions={
         unavailableUris.length > 0 ? (
           <Button
-            button="close"
+            button="secondary"
             icon={ICONS.DELETE}
-            label={__('Remove all unavailable claims')}
+            label={__('Remove all unavailable items')}
             onClick={() => {
               doCollectionEdit(collectionId, { uris: unavailableUris, remove: true });
               setUnavailable([]);
