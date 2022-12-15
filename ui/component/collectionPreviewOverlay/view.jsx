@@ -12,14 +12,17 @@ type Props = {
 function CollectionPreviewOverlay(props: Props) {
   const { collectionItemUrls, collectionThumbnail } = props;
 
-  if (!collectionItemUrls || collectionItemUrls.length === 0) {
+  if (
+    !collectionItemUrls ||
+    collectionItemUrls.length === 0 ||
+    (collectionItemUrls.length === 1 && !collectionThumbnail)
+  ) {
     return null;
   }
 
   // if the playlist's thumbnail is the first item of the list, then don't show it again
   // on the preview overlay (show the second and third instead)
-  const isThumbnailFirstItem = collectionItemUrls.length > 2 && !collectionThumbnail;
-  const displayedItems = isThumbnailFirstItem ? collectionItemUrls.slice(1, 3) : collectionItemUrls.slice(0, 2);
+  const displayedItems = !collectionThumbnail ? collectionItemUrls.slice(1, 3) : collectionItemUrls.slice(0, 2);
 
   return (
     <div className="claim-preview__collection-wrapper">

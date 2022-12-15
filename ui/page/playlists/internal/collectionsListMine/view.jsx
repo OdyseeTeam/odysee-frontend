@@ -26,6 +26,7 @@ type Props = {
   savedCollectionIds: ClaimIds,
   collectionsById: { [collectionId: string]: Collection },
   doResolveClaimIds: (collectionIds: ClaimIds) => void,
+  doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void,
 };
 
 // Avoid prop drilling
@@ -42,6 +43,7 @@ export default function CollectionsListMine(props: Props) {
     savedCollectionIds,
     collectionsById,
     doResolveClaimIds,
+    doFetchThumbnailClaimsForCollectionIds,
   } = props;
 
   const isMobile = useIsMobile();
@@ -186,16 +188,26 @@ export default function CollectionsListMine(props: Props) {
   const totalLength = collectionsToShow.length;
   const filteredCollectionsLength = filteredCollections.length;
   const totalPages = Math.ceil(filteredCollectionsLength / playlistShowCount);
-  const paginatedCollections = filteredCollections.slice(
-    totalPages >= page ? firstItemIndexForPage : 0,
-    lastItemIndexForPage
+  const paginatedCollections = React.useMemo(
+    () => filteredCollections.slice(totalPages >= page ? firstItemIndexForPage : 0, lastItemIndexForPage),
+    [filteredCollections, firstItemIndexForPage, lastItemIndexForPage, page, totalPages]
   );
+  const paginatedCollectionsStr = JSON.stringify(paginatedCollections);
 
   React.useEffect(() => {
     if (savedCollectionIds.length > 0) {
       doResolveClaimIds(savedCollectionIds);
     }
   }, [doResolveClaimIds, savedCollectionIds]);
+
+  React.useEffect(() => {
+    const paginatedCollections = JSON.parse(paginatedCollectionsStr);
+    if (paginatedCollections.length > 0) {
+      doFetchThumbnailClaimsForCollectionIds({
+        collectionIds: [...COLS.BUILTIN_PLAYLISTS_NO_QUEUE, ...paginatedCollections],
+      });
+    }
+  }, [doFetchThumbnailClaimsForCollectionIds, paginatedCollectionsStr]);
 
   return (
     <>

@@ -39,6 +39,11 @@ export const selectQueueCollection = (state: State) => selectState(state).queue;
 export const selectLastUsedCollection = (state: State) => selectState(state).lastUsedCollection;
 export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
+export const selectThumbnailClaimsFetchingCollectionIds = (state: State) =>
+  selectState(state).thumbnailClaimsFetchingCollectionIds;
+
+export const selectAreThumbnailClaimsFetchingForCollectionIds = (state: State, ids: string) =>
+  selectThumbnailClaimsFetchingCollectionIds(state).includes(ids);
 
 export const selectCollectionHasItemsResolvedForId = (state: State, id: string) =>
   new Set(selectCollectionIdsWithItemsResolved(state)).has(id);

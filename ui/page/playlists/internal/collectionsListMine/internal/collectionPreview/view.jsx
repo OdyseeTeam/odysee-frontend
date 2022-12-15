@@ -41,7 +41,6 @@ type Props = {
   isBuiltin: boolean,
   thumbnail: ?string,
   isEmpty: boolean,
-  doFetchItemsInCollection: (options: CollectionFetchItemsParams) => void,
 };
 
 function CollectionPreview(props: Props) {
@@ -63,14 +62,9 @@ function CollectionPreview(props: Props) {
     isBuiltin,
     thumbnail,
     isEmpty,
-    doFetchItemsInCollection,
   } = props;
 
   const { push } = useHistory();
-
-  React.useEffect(() => {
-    doFetchItemsInCollection({ collectionId, itemCount: COLLECTIONS_CONSTS.THUMBNAIL_PREVIEW_AMOUNT });
-  }, [collectionId, doFetchItemsInCollection]);
 
   if (isFetchingItems || isResolvingCollection || collectionItemUrls === undefined) {
     return <ClaimPreviewLoading />;

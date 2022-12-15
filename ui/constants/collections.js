@@ -26,7 +26,8 @@ export const FAVORITES_NAME = 'Favorites';
 export const QUEUE_ID = 'queue';
 export const QUEUE_NAME = 'Queue';
 
-export const BUILTIN_PLAYLISTS = [WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID];
+export const BUILTIN_PLAYLISTS_NO_QUEUE = [WATCH_LATER_ID, FAVORITES_ID];
+export const BUILTIN_PLAYLISTS = [...BUILTIN_PLAYLISTS_NO_QUEUE, QUEUE_ID];
 // export const FAVORITE_CHANNELS_ID = 'favoriteChannels';
 // export const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID, FAVORITE_CHANNELS_ID];
 

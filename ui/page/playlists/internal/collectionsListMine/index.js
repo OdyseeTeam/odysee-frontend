@@ -10,7 +10,7 @@ import {
   selectCollectionsById,
 } from 'redux/selectors/collections';
 import { doResolveClaimIds } from 'redux/actions/claims';
-import { doFetchCollectionListMine } from 'redux/actions/collections';
+import { doFetchThumbnailClaimsForCollectionIds } from 'redux/actions/collections';
 
 import CollectionsListMine from './view';
 
@@ -27,7 +27,7 @@ const select = (state) => ({
 
 const perform = {
   doResolveClaimIds,
-  doFetchCollectionListMine,
+  doFetchThumbnailClaimsForCollectionIds,
 };
 
 export default connect(select, perform)(CollectionsListMine);

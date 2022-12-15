@@ -5,6 +5,22 @@ import { defaultCollectionState } from 'util/collections';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
 
+type CollectionState = {
+  // -- sync --
+  unpublished: CollectionGroup,
+  edited: CollectionGroup,
+  updated: UpdatedCollectionGroup,
+  builtin: CollectionGroup,
+  savedIds: Array<string>,
+  resolvedIds: ?Array<string>,
+  // -- local --
+  collectionItemsFetchingIds: Array<string>,
+  queue: Collection,
+  lastUsedCollection: ?string,
+  isFetchingMyCollections: ?boolean,
+  thumbnailClaimsFetchingCollectionIds: Array<string>,
+};
+
 const defaultState: CollectionState = {
   // -- sync --
   builtin: {
@@ -36,6 +52,7 @@ const defaultState: CollectionState = {
     type: COLS.COL_TYPES.PLAYLIST,
   },
   resolvedIds: undefined,
+  thumbnailClaimsFetchingCollectionIds: [],
 };
 
 const collectionsReducer = handleActions(
@@ -207,6 +224,23 @@ const collectionsReducer = handleActions(
       }
 
       return { ...state, collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds) };
+    },
+
+    [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_START]: (state, action) => {
+      const collectionIds = action.data;
+
+      const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
+      newThumbnailClaimsFetchingCollectionIds.add(collectionIds);
+
+      return { ...state, thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds) };
+    },
+    [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_COMPLETE]: (state, action) => {
+      const collectionIds = action.data;
+
+      const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
+      newThumbnailClaimsFetchingCollectionIds.delete(collectionIds);
+
+      return { ...state, thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds) };
     },
   },
   defaultState
