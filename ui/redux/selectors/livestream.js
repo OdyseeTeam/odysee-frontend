@@ -253,11 +253,7 @@ export const selectLatestLiveUriForChannel = (state: State, channelId: string) =
   const hasPastLivestreams = pastCreatorLivestreams && pastCreatorLivestreams.length > 0;
 
   if (futureCreatorLivestreams && futureCreatorLivestreams.length > 0) {
-    const alreadyStarted = selectLiveClaimReleaseStartedRecently(state, futureCreatorLivestreams[0].uri);
-
-    // -- Only return future/scheduled claims when they have already started, in the case the creator has a
-    // ~ anytime stream ~
-    if (!hasPastLivestreams || alreadyStarted) return futureCreatorLivestreams[0].uri;
+    return futureCreatorLivestreams[0].uri;
   }
 
   if (hasPastLivestreams) return pastCreatorLivestreams[0].uri;
