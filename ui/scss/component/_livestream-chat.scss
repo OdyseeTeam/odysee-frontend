@@ -457,6 +457,10 @@ $recent-msg-button__height: 2rem;
   backdrop-filter: blur(4px);
   border: 1px solid var(--color-text);
 
+  span {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
   &:hover {
     opacity: 1;
   }
