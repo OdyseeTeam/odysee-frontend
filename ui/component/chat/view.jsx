@@ -156,7 +156,6 @@ export default function ChatLayout(props: Props) {
     (viewMode !== VIEW_MODES.SUPERCHAT || !resolvingSuperChats) &&
       (!isMobile ? scrollPos < 0 : scrollPos < minScrollHeight)
   );
-
   const restoreScrollPos = React.useCallback(() => {
     if (discussionElement) {
       discussionElement.scrollTop = !isMobile ? 0 : discussionElement.scrollHeight;
