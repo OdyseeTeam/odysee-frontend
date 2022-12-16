@@ -357,6 +357,7 @@ pre {
 
     @media (max-width: $breakpoint-small) {
       display: block;
+      padding: var(--spacing-s) !important;
 
       .card-wrapper {
         transform: unset;
