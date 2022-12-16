@@ -373,22 +373,24 @@ export const selectClaimIdsForCollectionId = createSelector(
     const ids = new Set([]);
 
     const notFetched = items.some((item) => {
-      let claimId;
-      try {
-        claimId = byUri[normalizeURI(item)];
-      } catch (e) {}
+      const claimId = byUri[normalizeURI(item)];
 
-      if (claimId) {
-        ids.add(claimId);
-      } else {
+      if (claimId === undefined) {
         return true;
       }
+
+      ids.add(claimId);
     });
 
     if (notFetched) return undefined;
 
     return Array.from(ids);
   }
+);
+
+export const selectHasUnavailableClaimIdsForCollectionId = createSelector(
+  selectClaimIdsForCollectionId,
+  (claimIds) => claimIds && claimIds.includes(null)
 );
 
 export const selectUrlsForCollectionId = createCachedSelector(
