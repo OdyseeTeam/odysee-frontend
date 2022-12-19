@@ -58,6 +58,7 @@ function HomeTab(props: Props) {
 
   const [home, setHome] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
+  const topContentGridIndex = 1;
 
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
@@ -92,6 +93,7 @@ function HomeTab(props: Props) {
             file_type: e.change.value === 'content' ? CS.FILE_TYPES : undefined,
             order_by: CS.ORDER_BY_NEW_VALUE,
             claim_id: undefined,
+            rows: e.change.value === 'content' ? 2 : 1,
           };
         } else if (e.change.field === 'file_type') {
           // $FlowIgnore
@@ -177,6 +179,7 @@ function HomeTab(props: Props) {
                   section={section}
                   editMode={edit}
                   index={i}
+                  topContentGridIndex={topContentGridIndex}
                   hasFeaturedContent={home.some((s) => s?.type === 'featured')}
                   handleEditCollection={(e) => handleEditCollection(e, i)}
                   handleViewMore={(e) => handleViewMore(e)}

@@ -10,10 +10,12 @@ import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import Ads from 'web/component/ads';
 
 type Props = {
   channelClaimId: any,
   index: number,
+  topContentGridIndex: number,
   section: any,
   editMode: boolean,
   hasFeaturedContent: boolean,
@@ -29,6 +31,7 @@ type Props = {
   publishedCollections: CollectionGroup,
   singleClaimUri: string,
   featuredChannels: any,
+  hasPremiumPlus: boolean,
   // --- perform ---
   doClaimSearch: ({}) => void,
   doResolveClaimId: (claimId: string) => void,
@@ -38,6 +41,7 @@ function HomeTabSection(props: Props) {
   const {
     channelClaimId,
     index,
+    topContentGridIndex,
     section,
     editMode,
     hasFeaturedContent,
@@ -51,6 +55,7 @@ function HomeTabSection(props: Props) {
     fetchingClaimSearch,
     publishedCollections,
     singleClaimUri,
+    hasPremiumPlus,
     featuredChannels,
     doClaimSearch,
     doResolveClaimId,
@@ -340,11 +345,19 @@ function HomeTabSection(props: Props) {
                     hideLayoutButton
                     tileLayout
                     infiniteScroll={false}
-                    maxClaimRender={maxTilesPerRow * section.rows}
+                    // maxClaimRender={maxTilesPerRow * section.rows}
                     useSkeletonScreen={false}
                     uris={collectionUrls || claimSearchResults}
                     claimIds={collectionClaimIds}
                     fetchViewCount
+                    injectedItem={
+                      !hasPremiumPlus &&
+                      index === topContentGridIndex && {
+                        node: (index) => {
+                          return index === maxTilesPerRow ? <Ads type="video" tileLayout small /> : null;
+                        },
+                      }
+                    }
                   />
                 ) : (
                   featuredChannel && (
