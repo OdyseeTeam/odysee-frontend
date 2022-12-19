@@ -68,6 +68,11 @@ const copyWebpackCommands = [
     force: true,
   },
   {
+    from: `${STATIC_ROOT}/tosdr.txt`,
+    to: `${output.PATH}/tosdr.txt`,
+    force: true,
+  },
+  {
     from: `${STATIC_ROOT}/img/favicon.png`,
     to: `${output.PATH}/public/favicon.png`,
     force: true,
