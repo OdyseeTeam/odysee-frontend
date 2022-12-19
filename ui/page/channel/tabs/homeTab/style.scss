@@ -58,7 +58,8 @@
       }
     }
     .home-section-content {
-      width: 100%;
+      // width: 100%;
+      min-width: 84%;
     }
 
     .section {
@@ -148,9 +149,10 @@
     border-radius: var(--border-radius);
     margin-bottom: var(--spacing-xs);
     width: 100%;
+
     .order {
       display: inline-block;
-      width: 160px;
+      min-width: 160px;
       margin: var(--spacing-s);
       border-radius: var(--border-radius);
     }
@@ -159,11 +161,12 @@
       margin-left: auto;
       background: var(--color-header-background);
       padding: var(--spacing-xs) var(--spacing-m);
-      transform: scale(0.8);
+      transform: scale(0.8) translateY(-13%);
       margin: 0;
       border: 2px solid var(--color-border);
       border-radius: var(--border-radius);
-      margin-top: calc(var(--spacing-s) * -1);
+      // margin-top: calc(var(--spacing-s) * -1);
+      margin-top: var(--spacing-s);
       min-height: 203px;
 
       align-self: flex-end;
@@ -209,6 +212,42 @@
         transform: scale(1);
         box-sizing: border-box;
       }
+    }
+  }
+
+  .home-section-wrapper--edit-featured {
+    @media (min-width: $breakpoint-small) {
+      max-height: 308px;
+    }
+  }
+  .home-section-wrapper--edit-content {
+    @media (min-width: $breakpoint-small) {
+      max-height: 960px;
+    }
+    @media (min-width: $breakpoint-medium) {
+      max-height: 758px;
+    }
+    @media (min-width: $breakpoint-large) {
+      max-height: 520px;
+    }
+  }
+  .home-section-wrapper--edit-playlist {
+    @media (min-width: $breakpoint-small) {
+      max-height: 576px;
+    }
+    @media (min-width: $breakpoint-medium) {
+      max-height: 574px;
+    }
+    @media (min-width: $breakpoint-large) {
+      max-height: 350px;
+    }
+  }
+  .home-section-wrapper--edit-onerow {
+    @media (min-width: $breakpoint-small) {
+      max-height: 360px;
+    }
+    @media (min-width: $breakpoint-large) {
+      max-height: 336px;
     }
   }
 

@@ -164,7 +164,17 @@ function HomeTab(props: Props) {
           !preferEmbed &&
           home.map((section, i) => {
             return (
-              <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
+              <div
+                key={i}
+                className={classnames('home-section-wrapper', {
+                  'home-section-wrapper--edit': edit,
+                  'home-section-wrapper--edit-featured': edit && section?.type === 'featured',
+                  'home-section-wrapper--edit-content': edit && section?.type === 'content',
+                  'home-section-wrapper--edit-playlist': edit && section?.type === 'playlist',
+                  'home-section-wrapper--edit-onerow':
+                    edit && section?.type !== 'content' && section?.type !== 'featured' && section?.type !== 'playlist',
+                })}
+              >
                 <div className="order">
                   {edit && (
                     <CollectionEditButtons
