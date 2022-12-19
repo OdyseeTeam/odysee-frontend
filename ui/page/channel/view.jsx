@@ -158,7 +158,7 @@ function ChannelPage(props: Props) {
     if (coverUrl) {
       image.src = coverUrl;
       image.onload = function () {
-        if (image.naturalWidth / image.naturalHeight < 2) {
+        if (image.naturalWidth / image.naturalHeight < 2.2) {
           setLegacyHeader(true);
         }
       };
