@@ -62,10 +62,12 @@ function HomeTab(props: Props) {
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
   React.useEffect(() => {
-    if (homepage_settings) {
-      setHome(homepage_settings);
-    } else {
-      setHome(homeTemplate);
+    if (settingsByChannelId && Object.keys(settingsByChannelId).length) {
+      if (homepage_settings) {
+        setHome(homepage_settings);
+      } else {
+        setHome(homeTemplate);
+      }
     }
   }, [settingsByChannelId]);
 
