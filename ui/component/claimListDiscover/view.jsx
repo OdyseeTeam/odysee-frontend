@@ -783,11 +783,8 @@ function ClaimListDiscover(props: Props) {
     />
   );
 
-  /*
   const claimListLoading =
     loading || (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
-    */
-  const claimListLoading = true;
 
   return (
     <React.Fragment>
