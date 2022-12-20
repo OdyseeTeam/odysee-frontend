@@ -1831,7 +1831,9 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
         dispatch(doFetchCreatorSettings(channelClaim.claim_id));
       })
       .catch((err) => {
-        dispatch(doToast({ message: err.message, isError: true }));
+        try {
+          dispatch(doToast({ message: err.message, isError: true }));
+        } catch (error) {}
       });
   };
 };
