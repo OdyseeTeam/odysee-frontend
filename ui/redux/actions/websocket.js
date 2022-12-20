@@ -37,7 +37,7 @@ export const doSocketConnect = (url, cb, type) => {
       sockets[url] = new WebSocket(url);
       sockets[url].onopen = (e) => {
         retryCount = 0;
-        console.log(`\nConnected to ${type} WS \n\n`); // eslint-disable-line
+        console.log(`Connected to ${type} WS`); // eslint-disable-line
       };
 
       sockets[url].onmessage = (e) => {
@@ -51,7 +51,7 @@ export const doSocketConnect = (url, cb, type) => {
       };
 
       sockets[url].onclose = () => {
-        console.log(`\n Disconnected from ${type} WS \n\n`); // eslint-disable-line
+        console.log(`Disconnected from ${type} WS`); // eslint-disable-line
         if (!closingSockets[url]) {
           retryCount += 1;
           connectToSocket();
