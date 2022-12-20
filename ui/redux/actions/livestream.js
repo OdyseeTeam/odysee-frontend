@@ -28,11 +28,15 @@ const doFetchActiveLivestreamsForQuery = (
   const activeLivestreamIds = [];
 
   for (const creatorId in livestreamInfoByCreatorId) {
-    const {
-      activeClaim: { claimId },
-    }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
+    const livestreamInfo: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
 
-    if (claimId) activeLivestreamIds.push(claimId);
+    if (livestreamInfo) {
+      const {
+        activeClaim: { claimId },
+      }: LivestreamInfo = livestreamInfo;
+
+      if (claimId) activeLivestreamIds.push(claimId);
+    }
   }
 
   const activeLivestreamClaims = await dispatch(

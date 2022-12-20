@@ -37,16 +37,20 @@ function updateActiveLivestreams(state: LivestreamState, livestreamInfoByCreator
   const newPastLivestreamsByCreatorId = Object.assign({}, state.pastLivestreamsByCreatorId);
 
   for (const creatorId in livestreamInfoByCreatorId) {
-    const { isLive, activeClaim, futureClaims, pastClaims }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
+    const livestreamInfo: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
 
-    newActiveLivestreamByCreatorId[creatorId] = isLive ? activeClaim : null;
+    if (livestreamInfo) {
+      const { isLive, activeClaim, futureClaims, pastClaims }: LivestreamInfo = livestreamInfo;
 
-    if (futureClaims) {
-      newFutureLivestreamsByCreatorId[creatorId] = futureClaims;
-    }
+      newActiveLivestreamByCreatorId[creatorId] = isLive ? activeClaim : null;
 
-    if (pastClaims) {
-      newPastLivestreamsByCreatorId[creatorId] = pastClaims;
+      if (futureClaims) {
+        newFutureLivestreamsByCreatorId[creatorId] = futureClaims;
+      }
+
+      if (pastClaims) {
+        newPastLivestreamsByCreatorId[creatorId] = pastClaims;
+      }
     }
   }
 
@@ -76,10 +80,14 @@ function updateViewersById(state: LivestreamState, livestreamInfoByCreatorId: ?L
   const newViewersById = Object.assign({}, state.viewersById);
 
   for (const creatorId in livestreamInfoByCreatorId) {
-    const { activeClaim, viewCount }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
+    const livestreamInfo: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
 
-    if (activeClaim.claimId && Number.isInteger(viewCount)) {
-      newViewersById[activeClaim.claimId] = viewCount;
+    if (livestreamInfo) {
+      const { activeClaim, viewCount }: LivestreamInfo = livestreamInfo;
+
+      if (activeClaim.claimId && Number.isInteger(viewCount)) {
+        newViewersById[activeClaim.claimId] = viewCount;
+      }
     }
   }
 
