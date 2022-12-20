@@ -312,7 +312,9 @@ function VideoViewer(props: Props) {
   }
 
   function handlePosition(player) {
-    if (!isLivestreamClaim) savePosition(uri, player.currentTime());
+    if (!isLivestreamClaim && uri && savePosition && player) {
+      savePosition(uri, player.currentTime());
+    }
   }
 
   function restorePlaybackRate(player) {
