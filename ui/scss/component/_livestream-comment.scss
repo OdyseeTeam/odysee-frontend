@@ -44,8 +44,8 @@
     }
   }
 
-  .embed__inline-wrapper {
-    margin-top: calc(var(--font-small) + var(--spacing-m));
+  .inline-player__wrapper {
+    margin-top: var(--spacing-xxs);
   }
 
   @media (min-width: $breakpoint-small) {

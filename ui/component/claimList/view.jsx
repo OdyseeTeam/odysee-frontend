@@ -389,7 +389,7 @@ export default function ClaimList(props: Props) {
                         transform = transform.replace(/\(.+,/, '(0,');
                       }
 
-                      // doDisablePlayerDrag is a function brought by fileRenderFloating if is floating
+                      // doDisablePlayerDrag is a function brought by videoRenderFloating if is floating
                       const isDraggingFromFloatingPlayer = draggableSnapshot.isDragging && doDisablePlayerDrag;
                       const isDraggingFromMobile = draggableSnapshot.isDragging && isMobile;
                       const topForDrawer = Number(

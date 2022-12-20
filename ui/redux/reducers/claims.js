@@ -64,6 +64,7 @@ type State = {
   myPurchasedClaims: Array<any>, // bad naming; not a claim but a stripe response.
   fetchingMyPurchasedClaims: ?boolean,
   fetchingMyPurchasedClaimsError: ?string,
+  costInfosById: { [claimId: string]: { cost: number, includesData?: boolean } },
 };
 
 const reducers = {};
@@ -113,6 +114,7 @@ const defaultState = {
   myPurchasedClaims: [],
   fetchingMyPurchasedClaims: undefined,
   fetchingMyPurchasedClaimsError: undefined,
+  costInfosById: {},
 };
 
 // ****************************************************************************
@@ -388,6 +390,18 @@ reducers[ACTIONS.RESOLVE_URIS_START] = (state: State, action: any): State => {
   return Object.assign({}, state, {
     resolvingUris: newResolving,
   });
+};
+
+reducers[ACTIONS.SET_COST_INFOS_BY_ID] = (state: State, action: any): State => {
+  const costInfos = action.data;
+  const newCostInfosById = Object.assign({}, state.costInfosById);
+
+  costInfos.forEach((costInfo) => {
+    const { claimId, ...costData } = costInfo;
+    newCostInfosById[claimId] = costData;
+  });
+
+  return { ...state, costInfosById: newCostInfosById };
 };
 
 reducers[ACTIONS.RESOLVE_URIS_SUCCESS] = (state: State, action: any): State => {

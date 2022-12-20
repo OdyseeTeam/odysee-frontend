@@ -1,4 +1,6 @@
 import { createSelector } from 'reselect';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { getChannelFromClaim } from 'util/claim';
 
 export const selectState = (state) => state.filtered || {};
 
@@ -13,3 +15,14 @@ export const selectFilteredOutpointMap = createSelector(selectFilteredOutpoints,
       }, {})
     : {}
 );
+
+export const selectIsClaimFilteredForUri = (state, uri) => {
+  const claim = selectClaimForUri(state, uri);
+  const channelClaim = getChannelFromClaim(claim);
+
+  const filteredOutpointMap = selectFilteredOutpointMap(state);
+  const claimOutpoint = claim ? `${claim.txid}:${claim.nout}` : '';
+  const channelOutpoint = channelClaim ? `${channelClaim.txid}:${channelClaim.nout}` : '';
+
+  return filteredOutpointMap[channelOutpoint] || filteredOutpointMap[claimOutpoint];
+};

@@ -1,11 +1,10 @@
 // @flow
 import type { Node } from 'react';
-import React, { useEffect, forwardRef } from 'react';
+import React, { forwardRef } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import { isEmpty } from 'util/object';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
-import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { isChannelClaim } from 'util/claim';
 import { formatLbryUrlForWeb } from 'util/url';
@@ -39,6 +38,7 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
+import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 
 const AbandonedChannelPreview = lazyImport(() =>
@@ -55,7 +55,6 @@ type Props = {
   claimIsMine: boolean,
   pending?: boolean,
   reflectingProgress?: any, // fxme
-  resolveUri: (string) => void,
   isResolvingUri: boolean,
   history: { push: (string | any) => void, location: { pathname: string, search: string } },
   title: string,
@@ -87,7 +86,6 @@ type Props = {
   hideMenu?: boolean,
   isLivestream?: boolean,
   isLivestreamActive: boolean,
-  livestreamViewerCount: ?number,
   collectionId?: string,
   isCollectionMine: boolean,
   disableNavigation?: boolean, // DEPRECATED - use 'nonClickable'. Remove this when channel-finder is consolidated (#810)
@@ -107,7 +105,7 @@ type Props = {
   disableClickNavigation?: boolean,
   firstCollectionItemUrl: ?string,
   doClearContentHistoryUri: (uri: string) => void,
-  doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
+  doPlayNextUri: (params: { uri: string }) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
 };
 
@@ -119,7 +117,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     isResolvingUri,
     // core actions
     getFile,
-    resolveUri,
     // claim properties
     // is the claim consider nsfw?
     nsfw,
@@ -164,7 +161,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     // repostUrl,
     isLivestream,
     isLivestreamActive,
-    livestreamViewerCount,
     collectionId,
     isCollectionMine,
     disableNavigation,
@@ -182,9 +178,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     disableClickNavigation,
     firstCollectionItemUrl,
     doClearContentHistoryUri,
-    doUriInitiatePlay,
+    doPlayNextUri,
     doDisablePlayerDrag,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
 
   const isMobile = useIsMobile();
 
@@ -220,7 +218,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       </div>
     );
   }, [channelSubCount]);
-  const isValid = uri && isURIValid(uri, false);
 
   // $FlowFixMe
   const isPlayable =
@@ -266,16 +263,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   const handleNavLinkClick = (e) => {
     if (playItemsOnClick && claim) {
-      doUriInitiatePlay(
-        {
-          uri: claim?.canonical_url || uri,
-          collection: { collectionId },
-          source: collectionId === 'queue' ? collectionId : undefined,
-        },
-        true,
-        disableClickNavigation
-      );
+      doPlayNextUri({ uri: claim?.canonical_url || uri });
     }
+
     if (onClick) {
       onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
     }
@@ -332,23 +322,15 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       onClick(e, claim, indexInContainer);
     }
 
-    if (claim && !pending && !disableNavigation && !disableClickNavigation) {
+    if (playItemsOnClick && claim) {
+      return doPlayNextUri({ uri: claim?.canonical_url || uri });
+    }
+
+    if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {
       history.push({
         pathname: navigateUrl,
         search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
       });
-    }
-
-    if (playItemsOnClick && claim) {
-      doUriInitiatePlay(
-        {
-          uri: claim?.canonical_url || uri,
-          collection: { collectionId },
-          source: collectionId === 'queue' ? collectionId : undefined,
-        },
-        true,
-        disableClickNavigation
-      );
     }
   }
 
@@ -356,12 +338,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     e.stopPropagation();
     doClearContentHistoryUri(uri);
   }
-
-  useEffect(() => {
-    if (isValid && !isResolvingUri && shouldFetch && uri) {
-      resolveUri(uri);
-    }
-  }, [isValid, uri, isResolvingUri, shouldFetch, resolveUri]);
 
   const JoinButton = React.useMemo(
     () => () =>
@@ -379,15 +355,19 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   // **************************************************************************
   // **************************************************************************
 
-  if (!playlistPreviewItem && ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS))) {
+  if (
+    claim &&
+    !playlistPreviewItem &&
+    ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS))
+  ) {
     return null;
   }
 
-  if (geoRestriction && !claimIsMine) {
+  if (claim && geoRestriction && !claimIsMine) {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  if (placeholder === 'loading' || (uri && !claim && isResolvingUri)) {
+  if (placeholder === 'loading' || (uri && claim === undefined)) {
     return (
       <ClaimPreviewLoading
         isChannel={isChannelUri}
@@ -436,19 +416,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  let liveProperty = null;
-  if (isLivestreamActive === true) {
-    if (livestreamViewerCount) {
-      liveProperty = (claim) => (
-        <span className="livestream__viewer-count">
-          {livestreamViewerCount} <Icon icon={ICONS.EYE} />
-        </span>
-      );
-    } else {
-      liveProperty = (claim) => <>LIVE</>;
-    }
-  }
-
   return (
     <WrapperElement
       ref={ref}
@@ -495,13 +462,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           )}
 
           {isChannelUri && claim ? (
-            <UriIndicator focusable={false} uri={uri} link>
+            <UriIndicator focusable={false} uri={uri} link external={isEmbed}>
               <ChannelThumbnail uri={uri} small={type === 'inline'} checkMembership={false} />
             </UriIndicator>
           ) : (
             <>
               {!pending ? (
-                <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
+                <NavLink aria-hidden tabIndex={-1} {...navLinkProps} target={isEmbed && '_blank'}>
                   <FileThumbnail
                     thumbnail={thumbnailUrl}
                     small={smallThumbnail}
@@ -516,12 +483,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     )}
                     {(!isLivestream || isLivestreamActive) && (
                       <div className="claim-preview__file-property-overlay">
-                        <PreviewOverlayProperties
-                          uri={uri}
-                          small={type === 'small'}
-                          xsmall={smallThumbnail}
-                          properties={liveProperty}
-                        />
+                        <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} />
                       </div>
                     )}
                     {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
@@ -540,15 +502,20 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {pending ? (
                   <ClaimPreviewTitle uri={uri} />
                 ) : (
-                  <NavLink aria-label={ariaLabelData} aria-current={active ? 'page' : null} {...navLinkProps}>
+                  <NavLink
+                    aria-label={ariaLabelData}
+                    aria-current={active ? 'page' : null}
+                    {...navLinkProps}
+                    target={isEmbed && '_blank'}
+                  >
                     <ClaimPreviewTitle uri={uri} />
                   </NavLink>
                 )}
               </div>
-              <div className="claim-tile__info" uri={uri}>
+              <div className="claim-tile__info">
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
-                    <UriIndicator focusable={false} uri={uri} link hideAnonymous>
+                    <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
                       <ChannelThumbnail uri={signingChannel.permanent_url} xsmall checkMembership={false} />
                     </UriIndicator>
                   </div>

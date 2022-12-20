@@ -1,7 +1,8 @@
 import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
-import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import { selectLivestreamInfoAlreadyFetchedForCreatorId } from 'redux/selectors/livestream';
 import { selectClaimForId, selectChannelClaimIdForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { SOCKETY_SERVER_API } from 'config';
 
@@ -108,6 +109,9 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
 
 export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) => (dispatch, getState) => {
   const state = getState();
+  const creatorId = selectChannelClaimIdForUri(state, uri);
+  const isLiveFetchPending = !selectLivestreamInfoAlreadyFetchedForCreatorId(state, creatorId);
+
   const claim = selectClaimForId(state, claimId);
   const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
   // have to reverse here if protected, because the comments list expects the claim id to be proper
@@ -168,14 +172,17 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
       }
 
       if (response.type === 'livestream') {
-        const { channel_id } = response.data;
-
         // update the live status for the stream
-        dispatch(doFetchChannelLiveStatus(channel_id));
+        dispatch(doFetchChannelIsLiveForId(creatorId));
       }
     },
     `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
   );
+
+  if (isLiveFetchPending) {
+    // update the live status for the stream
+    dispatch(doFetchChannelIsLiveForId(creatorId));
+  }
 
   dispatch(doSetSocketConnection(true, claimId, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
 };
@@ -206,7 +213,4 @@ export const doCommentSocketDisconnectAsCommenter = (claimId, channelName) => (d
   dispatch(doCommentSocketDisconnect(claimId, channelName, COMMENT_WS_SUBCATEGORIES.COMMENTER));
 
 export const doSetSocketConnection = (connected, id, subCategory) => (dispatch) =>
-  dispatch({
-    type: ACTIONS.SOCKET_CONNECTED_BY_ID,
-    data: { connected, sub_category: subCategory, id },
-  });
+  dispatch({ type: ACTIONS.SOCKET_CONNECTED_BY_ID, data: { connected, sub_category: subCategory, id } });

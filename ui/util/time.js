@@ -101,7 +101,7 @@ export function getTimeAgoStr(
 
   // negative duration === it's a future date from now
   if (duration < 0 && showFutureDate) {
-    str = suffix === 'seconds' ? 'in a few seconds' : 'in %duration% ' + suffix;
+    str = suffix === 'second' || suffix === 'seconds' ? 'in a few seconds' : 'in %duration% ' + suffix;
     duration = duration * -1;
   } else if (duration <= 0) {
     str = zeroDurationStr;

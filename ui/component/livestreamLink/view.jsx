@@ -9,25 +9,30 @@ import { formatLbryUrlForWeb } from 'util/url';
 type Props = {
   title?: string,
   claimUri: string,
+  doResolveUri: (uri: string) => void,
 };
 
-export default function LivestreamLink(props: Props) {
-  const { claimUri, title = null } = props;
+const LivestreamLink = (props: Props) => {
+  const { claimUri, title = null, doResolveUri } = props;
   const { push } = useHistory();
 
-  if (!claimUri) {
-    return null;
-  }
+  React.useEffect(() => {
+    if (claimUri) {
+      doResolveUri(claimUri);
+    }
+  }, [claimUri, doResolveUri]);
+
+  if (!claimUri) return null;
 
   return (
     <Card
       className="livestream__channel-link claim-preview__live"
       title={title || __('Live stream in progress')}
-      onClick={() => {
-        push(formatLbryUrlForWeb(claimUri));
-      }}
+      onClick={() => push(formatLbryUrlForWeb(claimUri))}
     >
       <ClaimPreview uri={claimUri} type="inline" hideMenu />
     </Card>
   );
-}
+};
+
+export default LivestreamLink;

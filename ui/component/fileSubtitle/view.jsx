@@ -8,25 +8,25 @@ import LivestreamDateTime from 'component/livestreamDateTime';
 
 type Props = {
   uri: string,
-  livestream?: boolean,
+  isLivestreamClaim?: boolean,
   isLive?: boolean,
   contentUnlocked: boolean,
 };
 
 function FileSubtitle(props: Props) {
-  const { uri, livestream = false, isLive = false, contentUnlocked } = props;
+  const { uri, isLivestreamClaim = false, isLive = false, contentUnlocked } = props;
   return (
     <>
       <div className="media__subtitle--between">
         <div className="file__viewdate">
-          {livestream && isLive && <LivestreamDateTime uri={uri} />}
-          {!livestream && <DateTime uri={uri} type="date" />}
-          {contentUnlocked && <FileViewCount uri={uri} livestream={livestream} isLive={isLive} />}
+          {isLivestreamClaim ? <LivestreamDateTime uri={uri} /> : <DateTime uri={uri} type="date" />}
+          {contentUnlocked && <FileViewCount uri={uri} />}
         </div>
 
-        <FileActions uri={uri} hideRepost={livestream} livestream={livestream} />
+        <FileActions uri={uri} hideRepost={isLivestreamClaim} livestream={isLivestreamClaim} />
       </div>
-      {livestream && isLive && <ClaimPreviewReset uri={uri} />}
+
+      {isLivestreamClaim && isLive && <ClaimPreviewReset uri={uri} />}
     </>
   );
 }

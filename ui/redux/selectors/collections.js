@@ -25,7 +25,7 @@ import {
 import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
-type State = { claims: any, user: any, content: any, collections: CollectionState };
+type State = { claims: any, user: any, content: any, collections: CollectionState, memberships: any, router: any };
 
 const selectState = (state: State) => state.collections || {};
 
@@ -546,6 +546,13 @@ export const selectIndexForUriInPlayingCollectionForId = createSelector(
   }
 );
 
+export const selectIsLastCollectionItemForIdAndUri = (state: State, collectionId: string, uri: string) => {
+  const index = selectIndexForUrlInCollectionForId(state, collectionId, uri);
+  const length = selectCollectionLengthForId(state, collectionId);
+
+  return index === length - 1;
+};
+
 export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelector(
   selectUrlsForCollectionId,
   selectIndexForUriInPlayingCollectionForId,
@@ -578,6 +585,9 @@ export const selectNextUriForUriInPlayingCollectionForId = createCachedSelector(
       return uris[0];
     }
 
-    return uris[currentIndex + 1];
+    const nextListUri = uris[currentIndex + 1];
+    if (nextListUri) return nextListUri;
+
+    return null;
   }
 )((state, url, id) => `${String(url)}:${String(id)}`);

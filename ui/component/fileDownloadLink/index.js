@@ -1,12 +1,15 @@
 import { connect } from 'react-redux';
-import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import {
+  selectClaimIsMine,
+  selectClaimForUri,
+  selectProtectedContentTagForUri,
+} from 'redux/selectors/claims';
 import {
   makeSelectFileInfoForUri,
   makeSelectDownloadingForUri,
   makeSelectLoadingForUri,
   selectStreamingUrlForUri,
 } from 'redux/selectors/file_info';
-import { selectCostInfoForUri } from 'lbryinc';
 import { doOpenModal } from 'redux/actions/app';
 import { doClearPlayingUri, doDownloadUri } from 'redux/actions/content';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
@@ -18,7 +21,6 @@ const select = (state, props) => {
   return {
     claim,
     claimIsMine: selectClaimIsMine(state, claim),
-    costInfo: selectCostInfoForUri(state, props.uri),
     downloading: makeSelectDownloadingForUri(props.uri)(state),
     fileInfo: makeSelectFileInfoForUri(props.uri)(state),
     loading: makeSelectLoadingForUri(props.uri)(state),

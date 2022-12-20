@@ -495,7 +495,7 @@ export function doToggleSearchExpanded() {
   };
 }
 
-export function doAnalyticsView(uri, timeToStart) {
+export function doAnalyticsViewForUri(uri) {
   return (dispatch, getState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
@@ -507,7 +507,7 @@ export function doAnalyticsView(uri, timeToStart) {
       return Promise.resolve();
     }
 
-    return analytics.apiLog.view(uri, outpoint, claimId, timeToStart);
+    return analytics.apiLog.view(uri, outpoint, claimId);
   };
 }
 

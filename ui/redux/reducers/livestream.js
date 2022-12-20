@@ -3,108 +3,182 @@
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
-const defaultState: LivestreamState = {
-  fetchingById: {},
-  viewersById: {},
-  fetchingActiveLivestreams: 'pending',
-  activeLivestreams: {},
-  activeLivestreamsLastFetchedDate: 0,
-  activeLivestreamsLastFetchedOptions: {},
-  activeLivestreamsLastFetchedFailCount: 0,
-  activeLivestreamInitialized: false,
-  socketConnectionById: {},
+type LivestreamState = {
+  livestreamInfoByCreatorId: LivestreamInfoByCreatorIds,
+  activeLivestreamByCreatorId: { [creatorId: string]: ?LivestreamActiveClaim },
+  futureLivestreamsByCreatorId: { [creatorId: string]: ?Array<LivestreamActiveClaim> },
+  pastLivestreamsByCreatorId: { [creatorId: string]: ?Array<LivestreamActiveClaim> },
+  viewersById: { [claimId: string]: number },
+  isLiveFetchingIds: Array<string>,
+  activeLivestreamsFetchingQueries: Array<string>,
+  activeCreatorLivestreamsByQuery: {
+    [query: string]: { creatorIds: ?Array<string>, lastFetchedDate: number, lastFetchedFailCount: number },
+  },
+  socketConnectionById: { [id: string]: { connected: ?boolean, sub_category: ?string } },
+  isLivePollingChannelIds: Array<string>,
 };
+
+const defaultState: LivestreamState = {
+  livestreamInfoByCreatorId: {},
+  activeLivestreamByCreatorId: {},
+  futureLivestreamsByCreatorId: {},
+  pastLivestreamsByCreatorId: {},
+  viewersById: {},
+  isLiveFetchingIds: [],
+  activeLivestreamsFetchingQueries: [],
+  activeCreatorLivestreamsByQuery: {},
+  socketConnectionById: {},
+  isLivePollingChannelIds: [],
+};
+
+function updateActiveLivestreams(state: LivestreamState, livestreamInfoByCreatorId: LivestreamInfoByCreatorIds) {
+  const newActiveLivestreamByCreatorId = Object.assign({}, state.activeLivestreamByCreatorId);
+  const newFutureLivestreamsByCreatorId = Object.assign({}, state.futureLivestreamsByCreatorId);
+  const newPastLivestreamsByCreatorId = Object.assign({}, state.pastLivestreamsByCreatorId);
+
+  for (const creatorId in livestreamInfoByCreatorId) {
+    const { isLive, activeClaim, futureClaims, pastClaims }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
+
+    newActiveLivestreamByCreatorId[creatorId] = isLive ? activeClaim : null;
+
+    if (futureClaims) {
+      newFutureLivestreamsByCreatorId[creatorId] = futureClaims;
+    }
+
+    if (pastClaims) {
+      newPastLivestreamsByCreatorId[creatorId] = pastClaims;
+    }
+  }
+
+  return {
+    activeLivestreamByCreatorId: newActiveLivestreamByCreatorId,
+    futureLivestreamsByCreatorId: newFutureLivestreamsByCreatorId,
+    pastLivestreamsByCreatorId: newPastLivestreamsByCreatorId,
+  };
+}
+
+function handleFetchActiveLivestreamsComplete(state: LivestreamState, query: string) {
+  const newActiveLivestreamsFetchingQueries = new Set(state.activeLivestreamsFetchingQueries);
+  if (newActiveLivestreamsFetchingQueries.has(query)) newActiveLivestreamsFetchingQueries.delete(query);
+
+  return { activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries) };
+}
 
 /**
  * Update state.viewersById with the latest data
- * @param {object} activeLivestreams - streams with fetched data
- * @param {object} originalState - streams with only their view counts
+ * @param {object} state - LivestreamState
+ * @param {object} livestreamInfoByCreatorId - streams with fetched data
  * @returns {*} - updated viewersById object if active streams passed, otherwise return old data
  */
-function updateViewersById(activeLivestreams, originalState) {
-  if (activeLivestreams) {
-    const viewersById = Object.assign({}, originalState);
-    Object.values(activeLivestreams).forEach((data) => {
-      // $FlowFixMe: mixed
-      if (data && data.claimId && data.viewCount) {
-        // $FlowFixMe: mixed
-        viewersById[data.claimId] = data.viewCount;
-      }
-    });
-    return viewersById;
+function updateViewersById(state: LivestreamState, livestreamInfoByCreatorId: ?LivestreamInfoByCreatorIds) {
+  if (!livestreamInfoByCreatorId) return {};
+
+  const newViewersById = Object.assign({}, state.viewersById);
+
+  for (const creatorId in livestreamInfoByCreatorId) {
+    const { activeClaim, viewCount }: LivestreamInfo = livestreamInfoByCreatorId[creatorId];
+
+    if (activeClaim.claimId && Number.isInteger(viewCount)) {
+      newViewersById[activeClaim.claimId] = viewCount;
+    }
   }
 
-  return originalState;
+  return { viewersById: newViewersById };
 }
 
 export default handleActions(
   {
-    [ACTIONS.FETCH_NO_SOURCE_CLAIMS_STARTED]: (state: LivestreamState, action: any): LivestreamState => {
-      const claimId = action.data;
-      const newIdsFetching = Object.assign({}, state.fetchingById);
-      newIdsFetching[claimId] = true;
-
-      return { ...state, fetchingById: newIdsFetching };
-    },
-    [ACTIONS.FETCH_NO_SOURCE_CLAIMS_COMPLETED]: (state: LivestreamState, action: any): LivestreamState => {
-      const claimId = action.data;
-      const newIdsFetching = Object.assign({}, state.fetchingById);
-      newIdsFetching[claimId] = false;
-
-      return { ...state, fetchingById: newIdsFetching };
-    },
-    [ACTIONS.FETCH_NO_SOURCE_CLAIMS_FAILED]: (state: LivestreamState, action: any) => {
-      const claimId = action.data;
-      const newIdsFetching = Object.assign({}, state.fetchingById);
-      newIdsFetching[claimId] = false;
-
-      return { ...state, fetchingById: newIdsFetching };
-    },
     [ACTIONS.VIEWERS_RECEIVED]: (state: LivestreamState, action: any) => {
       const { connected, claimId } = action.data;
       const newViewersById = Object.assign({}, state.viewersById);
       newViewersById[claimId] = connected;
       return { ...state, viewersById: newViewersById };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED]: (state: LivestreamState) => {
-      return { ...state, fetchingActiveLivestreams: true };
+
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_START]: (state: LivestreamState, action: any) => {
+      const query = action.data;
+
+      const newActiveLivestreamsFetchingQueries = new Set(state.activeLivestreamsFetchingQueries);
+      newActiveLivestreamsFetchingQueries.add(query);
+
+      return { ...state, activeLivestreamsFetchingQueries: Array.from(newActiveLivestreamsFetchingQueries) };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAILED]: (state: LivestreamState, action: any) => {
-      const { activeLivestreamsLastFetchedDate, activeLivestreamsLastFetchedOptions } = action.data;
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAIL]: (state: LivestreamState, action: any) => {
+      const { query, date } = action.data;
+
+      const newActiveCreatorLivestreamsByQuery = Object.assign({}, state.activeCreatorLivestreamsByQuery);
+
+      const { lastFetchedFailCount: previousLastFetchedFailCount } = newActiveCreatorLivestreamsByQuery[query] || {};
+      const newLastFetchedFailCount = (previousLastFetchedFailCount || 0) + 1;
+
+      newActiveCreatorLivestreamsByQuery[query] = {
+        creatorIds: null,
+        lastFetchedDate: date,
+        lastFetchedFailCount: newLastFetchedFailCount,
+      };
+
       return {
         ...state,
-        fetchingActiveLivestreams: false,
-        activeLivestreamsLastFetchedDate,
-        activeLivestreamsLastFetchedOptions,
-        activeLivestreamsLastFetchedFailCount: state.activeLivestreamsLastFetchedFailCount + 1,
+        activeCreatorLivestreamsByQuery: newActiveCreatorLivestreamsByQuery,
+        ...handleFetchActiveLivestreamsComplete(state, query),
       };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_COMPLETED]: (state: LivestreamState, action: any) => {
-      const { activeLivestreams, activeLivestreamsLastFetchedDate, activeLivestreamsLastFetchedOptions } = action.data;
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SUCCESS]: (state: LivestreamState, action: any) => {
+      const { query, livestreamInfoByCreatorId, date } = action.data;
+
+      const newLivestreamInfoByCreatorId = Object.assign(
+        {},
+        state.livestreamInfoByCreatorId,
+        livestreamInfoByCreatorId
+      );
+
+      const newActiveCreatorLivestreamsByQuery = Object.assign({}, state.activeCreatorLivestreamsByQuery);
+      newActiveCreatorLivestreamsByQuery[query] = {
+        creatorIds: Object.keys(livestreamInfoByCreatorId),
+        lastFetchedDate: date,
+        lastFetchedFailCount: 0,
+      };
+
       return {
         ...state,
-        fetchingActiveLivestreams: false,
-        activeLivestreams,
-        activeLivestreamsLastFetchedDate,
-        activeLivestreamsLastFetchedOptions,
-        activeLivestreamsLastFetchedFailCount: 0,
-        viewersById: updateViewersById(activeLivestreams, state.viewersById),
+        activeCreatorLivestreamsByQuery: newActiveCreatorLivestreamsByQuery,
+        livestreamInfoByCreatorId: newLivestreamInfoByCreatorId,
+        ...updateViewersById(state, newLivestreamInfoByCreatorId),
+        ...handleFetchActiveLivestreamsComplete(state, query),
+        ...updateActiveLivestreams(state, livestreamInfoByCreatorId),
       };
     },
-    [ACTIONS.ADD_CHANNEL_TO_ACTIVE_LIVESTREAMS]: (state: LivestreamState, action: any) => {
-      const activeLivestreams = Object.assign({}, state.activeLivestreams || {}, action.data);
+
+    [ACTIONS.LIVESTREAM_IS_LIVE_START]: (state: LivestreamState, action: any) => {
+      const channelId = action.data;
+
+      const newIsLiveFetchingIds = new Set(state.isLiveFetchingIds);
+      newIsLiveFetchingIds.add(channelId);
+
+      return { ...state, isLiveFetchingIds: Array.from(newIsLiveFetchingIds) };
+    },
+    [ACTIONS.LIVESTREAM_IS_LIVE_COMPLETE]: (state: LivestreamState, action: any) => {
+      const livestreamInfoByCreatorId: LivestreamInfoByCreatorIds = action.data;
+      const channelId = Object.keys(livestreamInfoByCreatorId)[0];
+
+      const newIsLiveFetchingIds = new Set(state.isLiveFetchingIds);
+      if (newIsLiveFetchingIds.has(channelId)) newIsLiveFetchingIds.delete(channelId);
+
+      const newLivestreamInfoByCreatorId = Object.assign(
+        {},
+        state.livestreamInfoByCreatorId,
+        livestreamInfoByCreatorId
+      );
+
       return {
         ...state,
-        activeLivestreams,
-        activeLivestreamInitialized: true,
-        viewersById: updateViewersById(activeLivestreams, state.viewersById),
+        isLiveFetchingIds: Array.from(newIsLiveFetchingIds),
+        livestreamInfoByCreatorId: newLivestreamInfoByCreatorId,
+        ...updateViewersById(state, newLivestreamInfoByCreatorId),
+        ...updateActiveLivestreams(state, livestreamInfoByCreatorId),
       };
     },
-    [ACTIONS.REMOVE_CHANNEL_FROM_ACTIVE_LIVESTREAMS]: (state: LivestreamState, action: any) => {
-      const activeLivestreams = Object.assign({}, state.activeLivestreams);
-      activeLivestreams[action.data.channelId] = null;
-      return { ...state, activeLivestreams, activeLivestreamInitialized: true };
-    },
+
     [ACTIONS.SOCKET_CONNECTED_BY_ID]: (state: LivestreamState, action: any) => {
       const { connected, sub_category, id: claimId } = action.data;
 
@@ -112,6 +186,20 @@ export default handleActions(
       socketConnectionById[claimId] = { connected, sub_category };
 
       return { ...state, socketConnectionById };
+    },
+
+    [ACTIONS.SET_IS_LIVE_POLLING_FOR_ID]: (state: LivestreamState, action: any) => {
+      const { channelId, isPolling } = action.data;
+
+      const newIsLivePollingChannelIds = new Set(state.isLivePollingChannelIds);
+
+      if (isPolling) {
+        newIsLivePollingChannelIds.add(channelId);
+      } else {
+        newIsLivePollingChannelIds.delete(channelId);
+      }
+
+      return { ...state, isLivePollingChannelIds: Array.from(newIsLivePollingChannelIds) };
     },
   },
   defaultState

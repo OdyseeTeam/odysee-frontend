@@ -1,4 +1,6 @@
 // @flow
+import moment from 'moment';
+
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
@@ -48,6 +50,7 @@ export const selectRepostError = (state: State) => selectState(state).repostErro
 export const selectLatestByUri = (state: State) => selectState(state).latestByUri;
 export const selectResolvedCollectionsById = (state: State) => selectState(state).resolvedCollectionsById;
 export const selectMyCollectionClaimIds = (state: State) => selectState(state).myCollectionClaimIds;
+export const selectCostInfosById = (state: State) => selectState(state).costInfosById;
 
 export const selectMyCollectionClaimsById = createSelector(
   selectResolvedCollectionsById,
@@ -211,9 +214,16 @@ export const selectChannelNameForUri = (state: State, uri: string) =>
 
 export const selectHasClaimForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim; // null/undefined here
+
   return Boolean(claim);
 };
-export const selectHasClaimForId = (state: State, id: ClaimId) => selectClaimForId(state, id);
+export const selectHasClaimForId = (state: State, id: ClaimId) => {
+  const claim = selectClaimForId(state, id);
+  if (!claim) return claim; // null/undefined here
+
+  return Boolean(claim);
+};
 
 export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
   // This selector assumes that `uri` is never null and is valid. It
@@ -506,6 +516,24 @@ export const selectTitleForUri = (state: State, uri: string) => {
   const metadata = selectMetadataForUri(state, uri);
   return metadata && metadata.title;
 };
+
+export const selectReleaseTimeForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim;
+
+  return claim?.value?.release_time;
+};
+
+export const selectMomentReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
+  const releaseTime: moment = moment.unix(claimReleaseTime || 0);
+  return releaseTime;
+});
+
+export const selectClaimReleaseInFutureForUri = (state: State, uri: string) =>
+  selectMomentReleaseTimeForUri(state, uri).isAfter();
+
+export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
+  selectMomentReleaseTimeForUri(state, uri).isBefore();
 
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
@@ -1058,6 +1086,26 @@ export const selectIsFiatRequiredForUri = (state: State, uri: string) => {
   return Boolean(selectPurchaseTagForUri(state, uri)) || Boolean(selectRentalTagForUri(state, uri));
 };
 
+export const selectPendingFiatPaymentForUri = (state: State, uri: string) => {
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  const fiatRequired = selectIsFiatRequiredForUri(state, uri);
+  const fiatPaid = selectIsFiatPaidForUri(state, uri);
+  const isFetchingPurchases = selectIsFetchingPurchases(state);
+
+  const pendingFiatPayment = !claimIsMine && fiatRequired && (!fiatPaid || isFetchingPurchases);
+
+  return pendingFiatPayment;
+};
+
+export const selectIsAnonymousFiatContentForUri = (state: State, uri: string) => {
+  const fiatRequired = selectIsFiatRequiredForUri(state, uri);
+  const channelClaimId = selectChannelClaimIdForUri(state, uri);
+
+  const isAnonymousFiatContent = fiatRequired && !channelClaimId;
+
+  return isAnonymousFiatContent;
+};
+
 export const selectIsFiatPaidForUri = (state: State, uri: string) => {
   const claimId = (selectClaimForUri(state, uri) || {}).claim_id;
   if (claimId) {
@@ -1079,4 +1127,32 @@ export const selectClaimHasSupportsForUri = (state: State, uri: string) => {
   const hasSupport = claim && claim.meta && claim.meta.support_amount && Number(claim.meta.support_amount) > 0;
 
   return hasSupport;
+};
+
+export const selectCostInfoForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  if (!claimId) return claimId;
+
+  const byId = selectCostInfosById(state);
+  const costInfo = byId[claimId];
+
+  return costInfo;
+};
+
+export const selectSdkFeePendingForUri = (state: State, uri: string) => {
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  const costInfo = selectCostInfoForUri(state, uri);
+  const sdkFeePending = costInfo === undefined || (costInfo && costInfo.cost !== 0);
+  const sdkPaid = selectClaimWasPurchasedForUri(state, uri);
+
+  const pendingSdkPayment = !claimIsMine && sdkFeePending && !sdkPaid;
+
+  return pendingSdkPayment;
+};
+
+export const selectPendingPurchaseForUri = (state: State, uri: string) => {
+  const pendingFiatPayment = selectPendingFiatPaymentForUri(state, uri);
+  const pendingSdkPayment = selectSdkFeePendingForUri(state, uri);
+
+  return pendingFiatPayment || pendingSdkPayment;
 };

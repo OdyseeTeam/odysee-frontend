@@ -15,7 +15,7 @@ import Ads from 'web/component/ads';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
-import LivestreamSection from './livestreamSection';
+import LivestreamSection from './internal/livestreamSection';
 import { tagSearchCsOptionsHook } from 'util/search';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
@@ -26,13 +26,9 @@ type Props = {
   followedTags: Array<Tag>,
   repostedUri: string,
   repostedClaim: ?GenericClaim,
-  languageSetting: string,
-  searchInLanguage: boolean,
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   tileLayout: boolean,
-  activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
   hasPremiumPlus: boolean,
 };
 
@@ -41,12 +37,8 @@ function DiscoverPage(props: Props) {
     location: { search },
     repostedClaim,
     repostedUri,
-    languageSetting,
-    searchInLanguage,
     doResolveUri,
     tileLayout,
-    activeLivestreams,
-    doFetchActiveLivestreams,
     dynamicRouteProps,
     hasPremiumPlus,
   } = props;
@@ -104,11 +96,7 @@ function DiscoverPage(props: Props) {
           tileLayout={repostedUri ? false : tileLayout}
           channelIds={channelIds}
           excludedChannelIds={excludedChannelIds}
-          activeLivestreams={activeLivestreams}
-          doFetchActiveLivestreams={doFetchActiveLivestreams}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
-          languageSetting={languageSetting}
-          searchInLanguage={searchInLanguage}
           langParam={langParam}
           hideMembersOnlyContent={hideMembersOnlyContent}
         />

@@ -5,7 +5,7 @@ import { selectClientSetting, selectHomepageData } from 'redux/selectors/setting
 import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
 
 const select = (state) => ({
-  homepageData: selectHomepageData(state),
+  homepageData: selectHomepageData(state) || {},
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   userHasOdyseeMembership: selectUserHasValidOdyseeMembership(state),
 });

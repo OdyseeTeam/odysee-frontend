@@ -1,14 +1,37 @@
 import { connect } from 'react-redux';
-import { makeSelectClaimForUri } from 'redux/selectors/claims';
-import { selectActiveLivestreamForClaimId } from 'redux/selectors/livestream';
+
+import {
+  selectMomentReleaseTimeForUri,
+  selectChannelClaimIdForUri,
+  selectClaimReleaseInFutureForUri,
+} from 'redux/selectors/claims';
+import {
+  selectActiveLivestreamForChannel,
+  selectClaimIsActiveChannelLivestreamForUri,
+  selectLivestreamInfoAlreadyFetchedForCreatorId,
+} from 'redux/selectors/livestream';
+
+import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+
 import LivestreamDateTime from './view';
 
 const select = (state, props) => {
-  const claim = props.uri && makeSelectClaimForUri(props.uri)(state);
+  const { uri } = props;
+
+  const channelClaimId = selectChannelClaimIdForUri(state, uri);
+
   return {
-    claim,
-    activeLivestream: selectActiveLivestreamForClaimId(state, claim?.claim_id),
+    channelClaimId,
+    releaseTime: selectMomentReleaseTimeForUri(state, uri),
+    activeLivestream: selectActiveLivestreamForChannel(state, channelClaimId),
+    isCurrentClaimLive: selectClaimIsActiveChannelLivestreamForUri(state, uri),
+    releaseInFuture: selectClaimReleaseInFutureForUri(state, uri),
+    alreadyFetched: selectLivestreamInfoAlreadyFetchedForCreatorId(state, channelClaimId),
   };
 };
 
-export default connect(select)(LivestreamDateTime);
+const perform = {
+  doFetchChannelIsLiveForId,
+};
+
+export default connect(select, perform)(LivestreamDateTime);
