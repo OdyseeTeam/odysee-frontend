@@ -294,7 +294,9 @@ function VideoViewer(props: Props) {
   // MORE ON PLAY STUFF
   function onPlay(player) {
     videoEnded.current = false;
-    setIsPlaying(true);
+    try {
+      setIsPlaying(true);
+    } catch (error) {}
     doSetShowAutoplayCountdownForUri({ uri, show: false });
     if (embedContext) embedContext.setVideoEnded(false);
     analytics.video.videoIsPlaying(true, player);
@@ -312,9 +314,11 @@ function VideoViewer(props: Props) {
   }
 
   function handlePosition(player) {
-    if (!isLivestreamClaim && uri && savePosition && player) {
-      savePosition(uri, player.currentTime());
-    }
+    try {
+      if (!isLivestreamClaim && uri && savePosition && player) {
+        savePosition(uri, player.currentTime());
+      }
+    } catch (error) {}
   }
 
   function restorePlaybackRate(player) {
