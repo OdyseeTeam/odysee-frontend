@@ -14,14 +14,18 @@ import ShareButton from './view';
 const select = (state, props) => {
   const { uri } = props;
   const permanentUrl = selectPermanentUrlForUri(state, uri);
-  const { channelClaimId } = parseURI(permanentUrl || '');
+
+  let channelClaimId;
+  try {
+    ({ channelClaimId } = parseURI(permanentUrl));
+  } catch (error) {}
 
   return {
     permanentUrl,
     validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri),
     creatorHasMemberships: selectCreatorHasMembershipsByUri(state, uri),
     creatorMembershipsFetched: selectCreatorMembershipsFetchedByUri(state, uri),
-    creatorTiers: selectMembershipTiersForCreatorId(state, channelClaimId),
+    creatorTiers: channelClaimId && selectMembershipTiersForCreatorId(state, channelClaimId),
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, uri),
   };
 };
