@@ -108,7 +108,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
     const shouldClearPlayingUri = React.useRef(false);
 
-    const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
 
     const { search, href, state: locationState, pathname } = location;
@@ -142,7 +141,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const shouldAutoplay = autoplayVideo || autoRenderClaim;
     const shouldStartFloating = !currentUriPlaying || claimLinkId !== playingUri.sourceId;
 
-    const streamStarted = claimLinkId ? playingUri.uri === uri : currentStreamingUri === uri;
+    const streamStarted = playingUri.uri === uri;
     const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
     const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
 
@@ -195,8 +194,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (shouldStartFloating) doStartFloatingPlayingUri(playingOptions);
 
       analytics.event.playerLoaded(renderMode, embedded);
-
-      setCurrentStreamingUri(uri);
     }, [
       claimLinkId,
       collectionId,
@@ -214,19 +211,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      if (canViewFile && shouldAutoplay && !streamStarted) {
+      if (canViewFile && shouldAutoplay) {
         streamClaim();
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
     React.useEffect(() => {
       shouldClearPlayingUri.current = claimLinkId && currentUriPlaying;
-
-      // -- This is made so a claim-link component (embed in comments/posts) turn off for every
-      // new video that is played, we could allow multiple videos playing at once though
-      if (claimLinkId && !currentUriPlaying) {
-        setCurrentStreamingUri(undefined);
-      }
     }, [claimLinkId, currentUriPlaying]);
 
     React.useEffect(() => {
