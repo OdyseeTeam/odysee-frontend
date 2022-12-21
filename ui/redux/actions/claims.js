@@ -782,6 +782,14 @@ export function doClaimSearch(
       if (costInfos.size > 0) {
         const settledCostInfosById = await Promise.all(Array.from(costInfos));
         dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
+
+        const sdkPaidClaimIds = settledCostInfosById
+          .filter((costInfo) => costInfo.cost > 0)
+          .map((costInfo) => costInfo.claimId);
+
+        if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {
+          dispatch(doResolveClaimIds(sdkPaidClaimIds, false, { include_purchase_receipt: true }));
+        }
       }
 
       if (collectionResolveInfo) {
