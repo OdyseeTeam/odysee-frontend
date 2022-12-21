@@ -69,7 +69,7 @@ export const selectFilteredActiveLivestreamUris = createCachedSelector(
       const activeCreatorLivestream = activeLivestreamByCreatorId[creatorId];
 
       if (activeCreatorLivestream) {
-        const channelShouldFilter = channelIds && channelIds.includes(creatorId);
+        const channelShouldFilter = !channelIds || channelIds.includes(creatorId);
         const channelShouldExclude = excludedChannelIds && !excludedChannelIds.includes(creatorId);
 
         if (channelShouldFilter || channelShouldExclude) {
