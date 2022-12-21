@@ -135,6 +135,7 @@ declare type ClaimSearchOptions = {
   no_totals?: boolean, // do not calculate the total number of pages and items in result set (significant performance boost)
   has_source?: boolean, // find claims containing a source field
   has_no_source?: boolean, // find claims not containing a source field
+  include_purchase_receipt?: boolean, // include purchase receipt in response
 };
 
 declare type ClaimSearchResponse = {

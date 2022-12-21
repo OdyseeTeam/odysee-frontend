@@ -784,7 +784,7 @@ export function doClaimSearch(
         dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
 
         const sdkPaidClaimIds = settledCostInfosById
-          .filter((costInfo) => costInfo.cost > 0)
+          .filter((costInfo) => Number.isInteger(Number(costInfo.cost)) && Number(costInfo.cost) > 0)
           .map((costInfo) => costInfo.claimId);
 
         if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {
