@@ -50,7 +50,7 @@ const JoinMembershipButton = (props: Props) => {
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
-      doMembershipList({ channel_name: channelName, channel_id: channelClaimId }).catch((e) => {});
+      doMembershipList({ channel_name: `@${channelName}`, channel_id: channelClaimId }).catch((e) => {});
     }
   }, [channelClaimId, channelName, creatorMembershipsFetched, doMembershipList]);
 
