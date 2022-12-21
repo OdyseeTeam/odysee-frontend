@@ -14,7 +14,7 @@ import {
   selectMyCollectionClaimsById,
   selectClaimIsMineForId,
 } from 'redux/selectors/claims';
-import { normalizeURI } from 'util/lbryURI';
+import { normalizeURI, parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import {
@@ -434,21 +434,26 @@ export const selectUrlsForCollectionId = createCachedSelector(
 export const selectCollectionForIdClaimForUriItem = createSelector(
   (state: State, id: string, uri: string) => uri,
   (state: State, id: string, uri: string) => selectClaimForUri(state, uri),
-  selectUrlsForCollectionId,
-  (uri, claim, collectionUrls) => {
-    if (!collectionUrls) return collectionUrls;
+  selectItemsForCollectionId,
+  (uri, claim, collectionItems) => {
+    if (!collectionItems) return collectionItems;
 
-    if (collectionUrls.includes(uri)) return uri;
+    if (collectionItems.includes(uri)) return uri;
 
     if (!claim) return false;
 
     const permanentUri = claim.permanent_url;
 
-    if (collectionUrls.includes(permanentUri)) return permanentUri;
+    if (collectionItems.includes(permanentUri)) return permanentUri;
 
     const canonicalUri = claim.canonical_url;
 
-    if (collectionUrls.includes(canonicalUri)) return canonicalUri;
+    if (collectionItems.includes(canonicalUri)) return canonicalUri;
+
+    try {
+      const { claim_id: claimId } = parseURI(uri);
+      if (collectionItems.includes(claimId)) return claimId;
+    } catch (error) {}
 
     return false;
   }
