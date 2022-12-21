@@ -451,7 +451,7 @@ export const selectCollectionForIdClaimForUriItem = createSelector(
     if (collectionItems.includes(canonicalUri)) return canonicalUri;
 
     try {
-      const { claim_id: claimId } = parseURI(uri);
+      const { streamClaimId: claimId } = parseURI(uri);
       if (collectionItems.includes(claimId)) return claimId;
     } catch (error) {}
 
