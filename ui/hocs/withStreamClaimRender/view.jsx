@@ -47,6 +47,7 @@ type Props = {
   pendingUnlockedRestrictions: ?boolean,
   canViewFile: ?boolean,
   channelLiveFetched: boolean,
+  sourceLoaded: boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFileGetForUri: (uri: string) => void,
   doMembershipMine: () => void,
@@ -93,6 +94,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       pendingUnlockedRestrictions,
       canViewFile,
       channelLiveFetched,
+      sourceLoaded,
       doCheckIfPurchasedClaimId,
       doFileGetForUri,
       doMembershipMine,
@@ -260,7 +262,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Main Component Render -- return when already has the claim's contents
-    return <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />;
+    return (
+      <>
+        {claimLinkId && !sourceLoaded && <LoadingScreen />}
+
+        <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+      </>
+    );
   };
 
   return StreamClaimWrapper;

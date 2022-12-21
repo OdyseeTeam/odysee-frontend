@@ -86,6 +86,7 @@ type Props = {
   purchaseMadeForClaimId: boolean,
   isProtectedContent: boolean,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
+  doSetVideoSourceLoaded: (uri: string) => void,
 };
 
 /*
@@ -139,7 +140,7 @@ function VideoViewer(props: Props) {
     isRentableContent,
     isProtectedContent,
     doSetShowAutoplayCountdownForUri,
-    // purchaseMadeForClaimId,
+    doSetVideoSourceLoaded,
   } = props;
 
   const videoEnded = React.useRef(false);
@@ -539,6 +540,7 @@ function VideoViewer(props: Props) {
           isPurchasableContent={isPurchasableContent}
           isRentableContent={isRentableContent}
           isProtectedContent={isProtectedContent}
+          doSetVideoSourceLoaded={doSetVideoSourceLoaded}
         />
       </div>
     </>

@@ -23,6 +23,7 @@ import {
 import { selectMembershipMineFetched, selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
 import { selectIsActiveLivestreamForUri, selectChannelIsLiveFetchedForUri } from 'redux/selectors/livestream';
 import { selectClientSetting } from 'redux/selectors/settings';
+import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
 
 import { doStartFloatingPlayingUri, doClearPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
@@ -59,6 +60,7 @@ const select = (state, props) => {
     pendingUnlockedRestrictions: selectPendingUnlockedRestrictionsForUri(state, uri),
     canViewFile: selectCanViewFileForUri(state, uri),
     channelLiveFetched: selectChannelIsLiveFetchedForUri(state, uri),
+    sourceLoaded: selectVideoSourceLoadedForUri(state, uri),
   };
 };
 

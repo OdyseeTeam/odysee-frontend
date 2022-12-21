@@ -803,3 +803,6 @@ export function doToggleAppDrawer(type) {
 
 export const doSetMainPlayerDimension = (dimensions) => (dispatch) =>
   dispatch({ type: ACTIONS.SET_MAIN_PLAYER_DIMENSIONS, data: dimensions });
+
+export const doSetVideoSourceLoaded = (uri) => (dispatch) =>
+  dispatch({ type: ACTIONS.SET_VIDEO_SOURCE_LOADED, data: uri });

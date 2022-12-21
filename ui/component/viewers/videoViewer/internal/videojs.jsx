@@ -119,6 +119,7 @@ type Props = {
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   isProtectedContent: boolean,
+  doSetVideoSourceLoaded: (uri: string) => void,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -185,6 +186,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    doSetVideoSourceLoaded,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -387,6 +389,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // Add reference to player to global scope
         window.player = vjsPlayer;
+        doSetVideoSourceLoaded(uri);
       } else {
         vjsPlayer = window.player;
       }
@@ -505,6 +508,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
       }
+
+      doSetVideoSourceLoaded(uri);
 
       // bugfix thumbnails showing up if new video doesn't have them
       if (typeof vjsPlayer.vttThumbnails.detach === 'function') {

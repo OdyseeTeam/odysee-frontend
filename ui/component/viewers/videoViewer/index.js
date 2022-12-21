@@ -11,9 +11,21 @@ import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { selectNextUriForUriInPlayingCollectionForId } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
-import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsViewForUri } from 'redux/actions/app';
+import {
+  doChangeVolume,
+  doChangeMute,
+  doAnalyticsBuffer,
+  doAnalyticsViewForUri,
+  doSetVideoSourceLoaded,
+} from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
-import { savePosition, clearPosition, doPlayNextUri, doSetContentHistoryItem, doSetShowAutoplayCountdownForUri } from 'redux/actions/content';
+import {
+  savePosition,
+  clearPosition,
+  doPlayNextUri,
+  doSetContentHistoryItem,
+  doSetShowAutoplayCountdownForUri,
+} from 'redux/actions/content';
 import { selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
 import VideoViewer from './view';
 import { withRouter } from 'react-router';
@@ -95,6 +107,7 @@ const perform = (dispatch) => ({
   doToast: (props) => dispatch(doToast(props)),
   doSetContentHistoryItem: (uri) => dispatch(doSetContentHistoryItem(uri)),
   doSetShowAutoplayCountdownForUri: (params) => dispatch(doSetShowAutoplayCountdownForUri(params)),
+  doSetVideoSourceLoaded: (uri) => dispatch(doSetVideoSourceLoaded(uri)),
 });
 
 export default withPlaybackUris(withRouter(connect(select, perform)(VideoViewer)));
