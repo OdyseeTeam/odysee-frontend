@@ -434,25 +434,27 @@ export const selectUrlsForCollectionId = createCachedSelector(
 export const selectCollectionForIdClaimForUriItem = createSelector(
   (state: State, id: string, uri: string) => uri,
   (state: State, id: string, uri: string) => selectClaimForUri(state, uri),
+  selectUrlsForCollectionId,
   selectItemsForCollectionId,
-  (uri, claim, collectionItems) => {
-    if (!collectionItems) return collectionItems;
+  (uri, claim, collectionUrls, collectionItems) => {
+    const items = collectionUrls || collectionItems;
+    if (!items) return items;
 
-    if (collectionItems.includes(uri)) return uri;
+    if (items.includes(uri)) return uri;
 
     if (!claim) return false;
 
     const permanentUri = claim.permanent_url;
 
-    if (collectionItems.includes(permanentUri)) return permanentUri;
+    if (items.includes(permanentUri)) return permanentUri;
 
     const canonicalUri = claim.canonical_url;
 
-    if (collectionItems.includes(canonicalUri)) return canonicalUri;
+    if (items.includes(canonicalUri)) return canonicalUri;
 
     try {
       const { streamClaimId: claimId } = parseURI(uri);
-      if (collectionItems.includes(claimId)) return claimId;
+      if (items.includes(claimId)) return claimId;
     } catch (error) {}
 
     return false;

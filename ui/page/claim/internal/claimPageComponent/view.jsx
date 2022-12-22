@@ -125,7 +125,7 @@ const ClaimPageComponent = (props: Props) => {
   }, [channelClaimId, creatorSettings, doFetchCreatorSettings]);
 
   React.useEffect(() => {
-    if (claim && isCollection && collectionFirstItemUri === undefined) {
+    if (claim && collectionId) {
       doFetchItemsInCollection({ collectionId });
     }
   }, [claim, collectionFirstItemUri, collectionId, doFetchItemsInCollection, isCollection]);
