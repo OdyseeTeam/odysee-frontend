@@ -6,7 +6,7 @@ import { selectSubscriptions } from 'redux/selectors/subscriptions';
 import UserChannelFollowIntro from './view';
 
 const select = (state) => ({
-  homepageData: selectHomepageData(state),
+  homepageData: selectHomepageData(state) || {},
   discoverData: selectHomepageDiscover(state),
   language: selectLanguage(state),
   prefsReady: selectPrefsReady(state),

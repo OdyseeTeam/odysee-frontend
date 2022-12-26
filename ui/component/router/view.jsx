@@ -13,6 +13,7 @@ import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
 import * as CS from 'constants/claim_search';
 import { buildUnseenCountStr } from 'util/notifications';
+import Spinner from 'component/spinner';
 
 import HomePage from 'page/home';
 
@@ -128,7 +129,7 @@ const SettingsNotificationsPage = lazyImport(() =>
   import('page/settingsNotifications' /* webpackChunkName: "settingsNotifications" */)
 );
 const SettingsPage = lazyImport(() => import('page/settings' /* webpackChunkName: "settings" */));
-const ShowPage = lazyImport(() => import('page/show' /* webpackChunkName: "show" */));
+const ClaimPage = lazyImport(() => import('page/claim' /* webpackChunkName: "claimPage" */));
 const TagsFollowingManagePage = lazyImport(() =>
   import('page/tagsFollowingManage' /* webpackChunkName: "tagsFollowingManage" */)
 );
@@ -228,7 +229,13 @@ function AppRouter(props: Props) {
   const tagParams = urlParams.get(CS.TAGS_KEY);
   const isLargeScreen = useIsLargeScreen();
 
+  const ClaimPageRender = React.useMemo(() => () => <ClaimPage uri={uri} />, [uri]);
+  const ClaimPageLatest = React.useMemo(() => () => <ClaimPage uri={uri} latestContentPath />, [uri]);
+  const ClaimPageLivenow = React.useMemo(() => () => <ClaimPage uri={uri} liveContentPath />, [uri]);
+
   const categoryPages = React.useMemo(() => {
+    if (!homepageData) return null;
+
     const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
       (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
     );
@@ -452,10 +459,27 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
-        <Route path={`/$/${PAGES.LATEST}/:channelName`} exact render={() => <ShowPage uri={uri} latestContentPath />} />
-        <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact render={() => <ShowPage uri={uri} liveContentPath />} />
-        <Route path="/:claimName" exact render={() => <ShowPage uri={uri} />} />
-        <Route path="/:claimName/:streamName" exact render={() => <ShowPage uri={uri} />} />
+        <Route path={`/$/${PAGES.LATEST}/:channelName`} exact component={ClaimPageLatest} />
+        <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact component={ClaimPageLivenow} />
+
+        {/* When fetching homepage data, display a loading state otherwise it will default to the claimPage component */}
+        {/* leave this at the bottom to prevent going above every other /$/ page */}
+        {homepageData === undefined ? (
+          <Route
+            path={`/$/:maybeCategoryPage`}
+            exact
+            component={() => (
+              <div className="main--empty">
+                <Spinner text={__('Loading category...')} />
+              </div>
+            )}
+          />
+        ) : (
+          <Route path="/$/:nonExistingPage" component={FourOhFourPage} />
+        )}
+
+        <Route path="/:claimName" exact component={ClaimPageRender} />
+        <Route path="/:claimName/:streamName" exact component={ClaimPageRender} />
         <Route path="/*" component={FourOhFourPage} />
       </Switch>
     </React.Suspense>

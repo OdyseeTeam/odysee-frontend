@@ -45,7 +45,7 @@ export default function CommentSelectors(props: Props) {
   }, [mount, isOpen]);
 
   return (
-    <Tabs index={openTab} className={isOpen ? 'tabs tabs--open' : 'tabs'} onChange={() => {}}>
+    <Tabs index={openTab} className={isOpen ? 'tabs tabs-comment tabs--open' : 'tabs'} onChange={() => {}}>
       <TabList className="tabs__list--comment-selector">
         <Tab>{__('Emojis')}</Tab>
         <Tab>{__('Stickers')}</Tab>

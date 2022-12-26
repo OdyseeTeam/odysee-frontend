@@ -32,6 +32,7 @@ declare type CollectionState = {
   queue: Collection,
   lastUsedCollection: ?string,
   isFetchingMyCollections: ?boolean,
+  thumbnailClaimsFetchingCollectionIds: Array<string>,
 };
 
 declare type CollectionGroup = {

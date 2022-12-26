@@ -18,7 +18,6 @@ import {
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
 } from 'redux/selectors/collections';
-import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
 
@@ -60,8 +59,4 @@ const select = (state, props) => {
   };
 };
 
-const perform = {
-  doFetchItemsInCollection,
-};
-
-export default connect(select, perform)(CollectionPreview);
+export default connect(select)(CollectionPreview);

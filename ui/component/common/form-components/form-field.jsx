@@ -5,7 +5,7 @@ import './plugins/inline-attachment/inline-attachment';
 import './plugins/inline-attachment/codemirror-4.inline-attachment';
 import { IMG_CDN_PUBLISH_URL, JSON_RESPONSE_KEYS, UPLOAD_CONFIG } from 'constants/cdn_urls';
 import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
-import { openEditorMenu, stopContextMenu } from 'util/context-menu';
+import { openEditorMenu } from 'util/context-menu';
 import { lazyImport } from 'util/lazyImport';
 import MarkdownPreview from 'component/common/markdown-preview';
 import React from 'react';
@@ -248,7 +248,7 @@ export class FormField extends React.PureComponent<Props, State> {
 
         return (
           <FormFieldWrapper {...wrapperProps}>
-            <div className="form-field--SimpleMDE" onContextMenu={stopContextMenu}>
+            <div className="form-field--SimpleMDE">
               <fieldset-section>
                 <div className="form-field__two-column">
                   <div>

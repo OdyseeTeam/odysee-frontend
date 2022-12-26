@@ -87,12 +87,21 @@ type SearchOptions = {
 let lighthouse = {
   CONNECTION_STRING: SEARCH_SERVER_API,
   user_id: '',
+  uid: '',
 
-  search: (queryString: string) => fetch(`${lighthouse.CONNECTION_STRING}?${queryString}`).then(handleFetchResponse),
+  search: (queryString: string) => {
+    if (lighthouse.uid) {
+      return fetch(`${lighthouse.CONNECTION_STRING}?${queryString}${lighthouse.uid}`).then(handleFetchResponse);
+    } else {
+      return fetch(`${lighthouse.CONNECTION_STRING}?${queryString}`).then(handleFetchResponse);
+    }
+  },
 
   searchRecommendations: (queryString: string) => {
     if (lighthouse.user_id) {
-      return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}`).then(handleFetchResponse);
+      return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}${lighthouse.uid}`).then(
+        handleFetchResponse
+      );
     } else {
       return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}`).then(handleFetchResponse);
     }
@@ -105,6 +114,7 @@ export const setSearchApi = (endpoint: string) => {
 
 export const setSearchUserId = (userId: ?string) => {
   lighthouse.user_id = userId ? `&user_id=${userId}` : '';
+  lighthouse.uid = userId ? `&uid=${userId}` : '';
 };
 
 /**

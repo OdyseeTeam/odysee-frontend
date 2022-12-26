@@ -1,5 +1,5 @@
 // @flow
-import { MATURE_TAGS } from 'constants/tags';
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
 import { parseURI } from 'util/lbryURI';
 
 const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
@@ -148,6 +148,16 @@ export function getChannelPermanentUrlFromClaim(claim: ?Claim) {
 export function getClaimMetadata(claim: ?Claim) {
   const metadata = claim && claim.value;
   return metadata || (claim === undefined ? undefined : null);
+}
+
+export function getClaimTags(claim: ?Claim) {
+  const metadata = getClaimMetadata(claim);
+  return metadata && metadata.tags;
+}
+
+export function isClaimProtected(claim: ?Claim) {
+  const tags = getClaimTags(claim);
+  return tags && tags.includes(MEMBERS_ONLY_CONTENT_TAG);
 }
 
 export function getClaimTitle(claim: ?Claim) {

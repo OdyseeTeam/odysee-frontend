@@ -12,10 +12,18 @@ $actions-z-index: 2;
 
   .tags--remove {
     .tag {
-      color: var(--color-text-inverse) !important;
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+      &:hover {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
     }
   }
-
+  .tag--add {
+    margin-bottom: 0 !important;
+  }
+  .tag--mature {
+    box-shadow: unset !important;
+  }
   .tab__wrapper {
     transition: background-color 0.2s;
     background-color: var(--color-header-background);
@@ -85,6 +93,13 @@ $actions-z-index: 2;
     @media (max-width: $breakpoint-small) {
       width: 100%;
       padding: 0 var(--spacing-xs);
+    }
+  }
+
+  .tabs-comment {
+    .tab__panel {
+      width: unset;
+      max-width: unset;
     }
   }
 
@@ -260,6 +275,7 @@ $actions-z-index: 2;
   .channelpage-edit-tags {
     .tag {
       background: var(--color-header-button);
+      box-shadow: 0 0 0 2px var(--color-border) inset;
     }
   }
 
@@ -926,6 +942,7 @@ $actions-z-index: 2;
   background: transparent;
   max-height: 15rem;
   overflow-y: auto;
+  max-width: 100%;
 
   [role='menuitem'] {
     margin: 0;
@@ -1011,17 +1028,20 @@ $actions-z-index: 2;
     height: 1.4rem;
     .channel-thumbnail__custom {
       width: 1.4rem;
+      min-width: 1.4rem;
       height: 1.4rem;
     }
     .ff-container {
       margin-right: unset !important;
       canvas {
         width: 1.4rem !important;
+        min-width: 1.4rem !important;
         height: 1.4rem !important;
         border-radius: 50%;
       }
       .freezeframe-img {
         width: 1.4rem !important;
+        min-width: 1.4rem !important;
         height: 1.4rem !important;
         border-radius: 50%;
       }
@@ -1036,6 +1056,7 @@ $actions-z-index: 2;
     padding: 0;
     height: 1.4rem;
     width: 1.4rem;
+    min-width: 1.4rem;
     margin-right: var(--spacing-xs);
     border-radius: var(--border-radius);
   }

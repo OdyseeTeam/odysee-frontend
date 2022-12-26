@@ -42,39 +42,32 @@ function Ads(props: Props) {
   // const isMobile = useIsMobile();
   // const adConfig = AD_CONFIGS.ADNIMATION;
   const adConfig = AD_CONFIGS.REVCONTENT;
+  const [isActive, setIsActive] = React.useState(false);
 
   React.useEffect(() => {
-    if (shouldShowAds && !DISABLE_VIDEO_AD) {
+    // let test = Boolean(document.getElementsByClassName('rc_tile')[0])
+    if (shouldShowAds && !DISABLE_VIDEO_AD && !isActive) {
       let script;
       try {
+        /*
+        const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex(
+          (e) => e.src.indexOf('trends.revcontent.com') !== -1
+        ) !== -1 ? true : false;
+        */
+
         script = document.createElement('script');
         script.src = adConfig.url;
         // $FlowIgnore
         document.body.appendChild(script);
-
-        return () => {
-          // $FlowIgnore
-          document.body.removeChild(script);
-        };
+        // setIsActive(true)
       } catch (e) {}
-    }
-  }, [shouldShowAds, adConfig]);
 
-  /*
-  const adsSignInDriver = !isMobile ? (
-    <I18nMessage
-      tokens={{
-        sign_up_for_premium: (
-          <Button button="link" label={__('Get Odysee Premium+')} navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} />
-        ),
-      }}
-    >
-      %sign_up_for_premium% for an ad free experience.
-    </I18nMessage>
-  ) : (
-    <Button button="link" label={__('Get Odysee Premium+')} navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} />
-  );
-  */
+      return () => {
+        // $FlowIgnore
+        if (script) document.body.removeChild(script);
+      };
+    }
+  }, [shouldShowAds, adConfig, isActive]);
 
   if (type === 'video') {
     if (shouldShowAds) {
@@ -88,34 +81,6 @@ function Ads(props: Props) {
           data-widget-id="273434"
         />
       );
-      /*
-      return (
-        <div
-          className={classnames('ads ads__claim-item', className, {
-            'ads__claim-item--tile': tileLayout,
-          })}
-        >
-          <div className="ad__container">
-            <div id={adConfig.tag} />
-          </div>
-          <div
-            className={classnames('ads__claim-text', {
-              'ads__claim-text--small': small,
-            })}
-          >
-            <div className="ads__title">
-              {__('Ad')}
-              <br />
-              {__('Hate these?')}
-            </div>
-            <div className="ads__subtitle">
-              <Icon icon={ICONS.UPGRADE} />
-              {adsSignInDriver}
-            </div>
-          </div>
-        </div>
-      );
-      */
     } else if (!noFallback) {
       return <PremiumPlusTile tileLayout={tileLayout} />;
     }

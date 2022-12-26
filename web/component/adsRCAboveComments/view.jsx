@@ -21,15 +21,27 @@ type Props = {
 function AdsRCAboveComments(props: Props) {
   const { shouldShowAds } = props;
   const adConfig = AD_CONFIGS.REVCONTENT;
+  const [isActive, setIsActive] = React.useState(false);
 
   React.useEffect(() => {
-    if (shouldShowAds) {
+    if (shouldShowAds && !isActive) {
       let script;
       try {
-        script = document.createElement('script');
-        script.src = adConfig.url;
-        // $FlowIgnore
-        document.body.appendChild(script);
+        const checkExisting =
+          Array.from(document.getElementsByTagName('script')).findIndex(
+            (e) => e.src.indexOf('trends.revcontent.com') !== -1
+          ) !== -1
+            ? true
+            : false;
+
+        if (!checkExisting) {
+          script = document.createElement('script');
+          script.src = adConfig.url;
+          // $FlowIgnore
+          document.body.appendChild(script);
+        } else {
+          setIsActive(true);
+        }
 
         return () => {
           // $FlowIgnore
@@ -37,7 +49,7 @@ function AdsRCAboveComments(props: Props) {
         };
       } catch (e) {}
     }
-  }, [shouldShowAds, adConfig]);
+  }, [shouldShowAds, adConfig, isActive]);
 
   return (
     <div

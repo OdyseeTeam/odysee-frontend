@@ -30,8 +30,12 @@
     }
 
     @media (min-width: $breakpoint-small) {
-      margin-bottom: var(--spacing-m);
+      margin-bottom: var(--spacing-s);
     }
+  }
+
+  #comment__signup-prompt {
+    background-color: var(--color-header-button);
   }
 }
 

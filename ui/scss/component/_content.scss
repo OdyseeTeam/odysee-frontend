@@ -370,20 +370,36 @@
   }
 }
 
+.file-page__video-container .content__cover {
+  max-height: var(--inline-player-max-height);
+}
+
 .content__cover {
   @include thumbnail;
   position: relative;
   display: flex;
   align-items: center;
-  border-radius: var(--border-radius);
   justify-content: center;
   background-position: 50% 50%;
   background-repeat: no-repeat;
   background-size: 100%;
-  max-height: var(--inline-player-max-height);
-  margin: auto;
 
-  &:not(.card__media--nsfw) {
+  &:not(.content__cover--embed) {
+    border-radius: var(--border-radius);
+    margin: auto;
+
+    @media (max-width: $breakpoint-small) {
+      border-radius: 0;
+      border: none;
+      margin: 0;
+    }
+  }
+
+  &.content__cover--embed {
+    height: 100%;
+  }
+
+  &.content__cover--black-background:not(.card__media--nsfw) {
     background-color: #000; // solid black to blend nicely when the video starts (if it doesn't take the full width)
   }
 
@@ -395,11 +411,13 @@
     width: 100%;
     height: 100%;
   }
+}
 
-  @media (max-width: $breakpoint-small) {
-    border-radius: 0;
-    border: none;
-    margin: 0;
+.content__cover--link > .button__content {
+  width: 100%;
+
+  .protected-content-overlay {
+    position: relative;
   }
 }
 
@@ -426,44 +444,38 @@
   }
 }
 
-.content__cover--disabled {
-  pointer-events: none;
-  .nag {
-    /* boo fire Jeremy */
-    pointer-events: auto;
-  }
-  &:after {
-    content: '';
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    position: absolute;
-  }
+.content__cover--disabled:hover {
+  cursor: default;
 }
 
 .content__loading {
+  @extend .embed__inline-button;
   height: 100%;
   display: flex;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
-  padding: 0 var(--spacing-l);
+  color: var(--color-white);
   background-color: #000;
+  cursor: default;
 
-  &.content__loading--document {
-    // background-color: var(--color-background);
+  &.content__loading--transparent {
     background-color: transparent;
-    padding: calc(var(--spacing-xl) * 5) 0;
+    color: var(--color-text);
+  }
 
-    .content__loading-text {
-      color: var(--color-text);
-    }
+  &.draggable {
+    cursor: grab;
   }
 }
 
-.content__loading-text {
-  color: var(--color-white);
+.content__autoplay-countdown {
+  @extend .content__loading;
+
+  &.playing {
+    position: absolute !important;
+    z-index: 3;
+  }
 }
 
 .content__non-clickable {

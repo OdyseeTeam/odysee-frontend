@@ -1,29 +1,36 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import FilePrice from 'component/filePrice';
+import { URL } from 'config';
 import { formatLbryUrlForWeb } from 'util/url';
 import { withRouter } from 'react-router';
+import { EmbedContext } from 'contexts/embed';
 import Logo from 'component/logo';
 
 type Props = {
   uri: string,
+  isLivestreamClaim: boolean,
   title: ?string,
-  isInApp: boolean,
   preferEmbed: boolean,
+  contentPosition: number,
 };
 
 function FileViewerEmbeddedTitle(props: Props) {
-  const { uri, title, isInApp, preferEmbed } = props;
+  const { uri, isLivestreamClaim, title, preferEmbed, contentPosition } = props;
 
-  let contentLink = `${formatLbryUrlForWeb(uri)}`;
+  const isEmbed = React.useContext(EmbedContext);
 
-  if (!isInApp) {
-    contentLink = `${contentLink}?src=embed`;
+  const urlParams = new URLSearchParams();
+
+  if (isEmbed) {
+    urlParams.set('src', 'embed');
+  }
+  if (contentPosition && !isLivestreamClaim) {
+    urlParams.set('t', String(contentPosition));
   }
 
-  const contentLinkProps = isInApp ? { navigate: contentLink } : { href: contentLink };
-  const odyseeLinkProps = isInApp ? { navigate: '/' } : { href: '/' };
+  const contentLink =
+    (isEmbed ? URL : '') + formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');
 
   return (
     <div className="file-viewer__embedded-header">
@@ -38,7 +45,8 @@ function FileViewerEmbeddedTitle(props: Props) {
           aria-label={title}
           button="link"
           className="file-viewer__embedded-title"
-          {...contentLinkProps}
+          navigate={contentLink}
+          navigateTarget={isEmbed && '_blank'}
         />
       )}
 
@@ -47,11 +55,11 @@ function FileViewerEmbeddedTitle(props: Props) {
           className="file-viewer__overlay-logo"
           disabled={preferEmbed}
           aria-label={__('Home')}
-          {...odyseeLinkProps}
+          navigate={isEmbed ? URL : '/'}
+          navigateTarget={isEmbed && '_blank'}
         >
           <Logo type={'embed'} />
         </Button>
-        {isInApp && <FilePrice uri={uri} />}
       </div>
     </div>
   );

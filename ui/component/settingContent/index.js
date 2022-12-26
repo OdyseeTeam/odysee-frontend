@@ -5,8 +5,7 @@ import { doClearPlayingUri } from 'redux/actions/content';
 import { doSetClientSetting } from 'redux/actions/settings';
 import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
-import { makeSelectIsPlayerFloating } from 'redux/selectors/content';
-import { withRouter } from 'react-router';
+import { selectIsPlayerFloating } from 'redux/selectors/content';
 
 import SettingContent from './view';
 
@@ -22,7 +21,7 @@ const select = (state, props) => ({
   instantPurchaseEnabled: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED),
   instantPurchaseMax: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX),
   enablePublishPreview: selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW),
-  isFloating: makeSelectIsPlayerFloating(props.location)(state),
+  isFloating: selectIsPlayerFloating(state),
 });
 
 const perform = (dispatch) => ({
@@ -31,4 +30,4 @@ const perform = (dispatch) => ({
   openModal: (id, params) => dispatch(doOpenModal(id, params)),
 });
 
-export default withRouter(connect(select, perform)(SettingContent));
+export default connect(select, perform)(SettingContent);

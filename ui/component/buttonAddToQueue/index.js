@@ -5,7 +5,7 @@ import { selectClaimForUri } from 'redux/selectors/claims';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import ButtonAddToQueue from './view';
 import { doToast } from 'redux/actions/notifications';
-import { doUriInitiatePlay, doSetPlayingUri } from 'redux/actions/content';
+import { doStartFloatingPlayingUri, doSetPlayingUri } from 'redux/actions/content';
 import { selectPlayingUri } from 'redux/selectors/content';
 
 const select = (state, props) => {
@@ -30,7 +30,7 @@ const select = (state, props) => {
 const perform = {
   doToast,
   doCollectionEdit,
-  doUriInitiatePlay,
+  doStartFloatingPlayingUri,
   doSetPlayingUri,
 };
 

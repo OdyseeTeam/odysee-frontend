@@ -1114,6 +1114,20 @@
   }
 }
 
+.embed__wrapper .claim-preview--tile {
+  margin-bottom: 0px !important;
+  width: unset !important;
+  margin: 0px !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+
+  .media__thumb {
+    border-radius: 0 !important;
+  }
+}
+
 .claim-preview--horizontal-tile {
   &:not(:first-child) {
     margin-top: 0;

@@ -26,26 +26,9 @@ type Props = {
   comment?: boolean,
   showHiddenAsAnonymous?: boolean,
   odyseeMembership: ?string,
-  resolveUri: (string) => void,
 };
 
 class UriIndicator extends React.PureComponent<Props> {
-  componentDidMount() {
-    this.resolveClaim(this.props);
-  }
-
-  componentDidUpdate() {
-    this.resolveClaim(this.props);
-  }
-
-  resolveClaim = (props: Props) => {
-    const { isResolvingUri, resolveUri, claim, uri, channelInfo } = props;
-
-    if (!channelInfo && !isResolvingUri && claim === undefined && uri) {
-      resolveUri(uri);
-    }
-  };
-
   resolveState = (channelInfo: ?ChannelInfo, claim: ?Claim, isLinkType: ?boolean) => {
     if (channelInfo) {
       return {

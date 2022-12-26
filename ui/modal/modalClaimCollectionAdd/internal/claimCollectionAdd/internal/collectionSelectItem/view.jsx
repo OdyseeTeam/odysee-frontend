@@ -1,9 +1,6 @@
 // @flow
 import React from 'react';
 import { FormField } from 'component/common/form';
-import { useHistory } from 'react-router';
-import { formatLbryUrlForWeb } from 'util/url';
-import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
 import Icon from 'component/common/icon';
 
@@ -14,12 +11,7 @@ type Props = {
   collection: Collection,
   collectionHasClaim: boolean,
   collectionPending: Collection,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string,
-    collectionName: string,
-    collectionId: string,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
 };
 
 function CollectionSelectItem(props: Props) {
@@ -28,28 +20,10 @@ function CollectionSelectItem(props: Props) {
 
   const [checked, setChecked] = React.useState(collectionHasClaim);
 
-  const {
-    push,
-    location: { search },
-  } = useHistory();
-
   function handleChange() {
     setChecked((prevChecked) => !prevChecked);
 
-    const urlParams = new URLSearchParams(search);
-    urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, COLLECTIONS_CONSTS.WATCH_LATER_ID);
-
-    doPlaylistAddAndAllowPlaying({
-      uri,
-      collectionId: id,
-      collectionName: name,
-      push: (pushUri) =>
-        push({
-          pathname: formatLbryUrlForWeb(pushUri),
-          search: urlParams.toString(),
-          state: { collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID, forceAutoplay: true },
-        }),
-    });
+    doPlaylistAddAndAllowPlaying({ uri, collectionId: id, collectionName: name });
   }
 
   if (collection?.type === COL_TYPES.FEATURED_CHANNELS) {

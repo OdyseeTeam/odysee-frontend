@@ -151,9 +151,12 @@ export const selectShouldShowAds = (state) => {
 
 export const selectAppDrawerOpen = (state) => selectState(state).appDrawerOpen;
 export const selectMainPlayerDimensions = (state) => selectState(state).mainPlayerDimensions;
+export const selectVideoSourceLoaded = (state) => selectState(state).videoSourceLoaded;
 export const selectHasAppDrawerOpen = (state) => Boolean(selectAppDrawerOpen(state));
 
 export const selectIsDrawerOpenForType = (state, type) => {
   const appDrawerOpen = selectAppDrawerOpen(state);
   return appDrawerOpen === type;
 };
+
+export const selectVideoSourceLoadedForUri = (state, uri) => selectVideoSourceLoaded(state) === uri;

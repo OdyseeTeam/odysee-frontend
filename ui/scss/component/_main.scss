@@ -537,22 +537,13 @@ body {
 .main--livestream {
   @extend .main--file-page;
 
-  @media (min-width: 1750px) {
-    padding: 0;
-    width: 100%;
-    max-width: var(--page-max-width--filepage);
-    position: relative;
-    display: grid;
-
-    $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
-    grid-template-columns: minmax($file-min-width, 0) 1fr;
-
-    justify-content: space-between;
-    justify-items: end;
-    gap: var(--spacing-m);
-
-    .livestream__chat {
-      margin: 0 !important;
+  .claim-preview__live {
+    .claim-tile__info {
+      display: flex;
+      .media__subtitle {
+        display: flex;
+        flex-flow: column;
+      }
     }
   }
 
@@ -578,12 +569,32 @@ body {
     }
   }
 
+  @media (min-width: 1750px) {
+    padding: 0;
+    width: 100%;
+    max-width: var(--page-max-width--filepage);
+    position: relative;
+    display: grid;
+
+    $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
+    grid-template-columns: minmax($file-min-width, 0) 1fr;
+
+    justify-content: space-between;
+    justify-items: end;
+    gap: var(--spacing-m);
+
+    .livestream__chat {
+      margin: 0 !important;
+    }
+  }
+
   @media (max-width: $breakpoint-medium) {
     padding: 0 var(--spacing-s);
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: 0;
+    padding: var(--spacing-s);
+    padding-top: 0;
 
     .card {
       margin: 0;

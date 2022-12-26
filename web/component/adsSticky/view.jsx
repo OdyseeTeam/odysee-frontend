@@ -34,51 +34,9 @@ export default function AdsSticky(props: Props) {
     nagsShown,
   } = props;
 
-  /*
-  const { location } = useHistory();
-  const [refresh, setRefresh] = React.useState(0);
-
-  // Global conditions aside, should the Sticky be shown for this path:
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
-  // Final answer:
-  const shouldLoadSticky = shouldShowAds && !gScript && inAllowedPath && !inIFrame();
-
-  function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
-    // $FlowIssue: mixed type
-    const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
-    return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
-  }
-
-  React.useEffect(() => {
-    if (shouldLoadSticky) {
-      window.googletag = window.googletag || { cmd: [] };
-
-      gScript = document.createElement('script');
-      gScript.src = 'https://adncdnend.azureedge.net/adtags/odyseeKp.js';
-      gScript.async = true;
-      gScript.addEventListener('load', () => setRefresh(Date.now()));
-
-      try {
-        const head = document.head || document.getElementsByTagName('head')[0];
-        head.appendChild(gScript); // Vendor's desired location, although I don't think location matters.
-      } catch (e) {
-        analytics.log(e, { fingerprint: ['adsSticky::scriptAppendFailed'] }, 'adsSticky::scriptAppendFailed');
-      }
-    }
-  }, [shouldLoadSticky]);
-
-  React.useEffect(() => {
-    const container = window[OUTBRAIN_CONTAINER_KEY];
-    if (container) {
-      container.style.display = inAllowedPath ? '' : 'none';
-    }
-    const ad = document.getElementsByClassName('OUTBRAIN')[0];
-    if (ad && locale && !locale.gdpr_required && !nagsShown) ad.classList.add('VISIBLE');
-  }, [inAllowedPath, refresh]);
-  */
-
-  const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
-  const [refresh, setRefresh] = React.useState(0);
+  const [isActive, setIsActive] = React.useState(false);
+  // const [refresh, setRefresh] = React.useState(0);
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
@@ -93,7 +51,7 @@ export default function AdsSticky(props: Props) {
     }
     const ad = document.getElementsByClassName('rev-shifter')[0];
     if (ad && locale && !locale.gdpr_required && !nagsShown) ad.classList.add('VISIBLE');
-  }, [inAllowedPath, refresh]);
+  }, [inAllowedPath]);
 
   const AD_CONFIGS = Object.freeze({
     REVCONTENT: {
@@ -102,19 +60,23 @@ export default function AdsSticky(props: Props) {
   });
 
   React.useEffect(() => {
-    if (shouldShowAds) {
+    if (shouldShowAds && !isActive) {
       let script;
       try {
-        const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex(
-          (e) => e.src.indexOf('revshifter.min.js') !== -1
-        );
-        console.log('checkExisting: ', checkExisting);
+        const checkExisting =
+          Array.from(document.getElementsByTagName('script')).findIndex(
+            (e) => e.src.indexOf('revshifter.min.js') !== -1
+          ) !== -1
+            ? true
+            : false;
 
-        if (checkExisting === -1) {
+        if (!checkExisting) {
           script = document.createElement('script');
           script.src = AD_CONFIGS.REVCONTENT.url;
           // $FlowIgnore
           document.body.appendChild(script);
+        } else {
+          setIsActive(true);
         }
 
         const ad = document.getElementsByClassName('rev-shifter');
@@ -148,7 +110,7 @@ export default function AdsSticky(props: Props) {
         };
       } catch (e) {}
     }
-  }, [shouldShowAds, AD_CONFIGS]);
+  }, [shouldShowAds, AD_CONFIGS, isActive]);
 
   return null; // Nothing for us to mount; the ad script will handle everything.
 }

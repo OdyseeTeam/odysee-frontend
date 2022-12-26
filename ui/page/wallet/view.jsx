@@ -2,7 +2,7 @@
 import React from 'react';
 import { useHistory } from 'react-router';
 import WalletBalance from 'component/walletBalance';
-import TxoList from 'component/txoList';
+import TxoList from './txoList';
 import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import Spinner from 'component/spinner';
@@ -38,6 +38,7 @@ const WalletPage = (props: Props) => {
 
   const currentView = urlParams.get(TAB_QUERY) || TABS.LBRY_CREDITS_TAB;
   const currencyValue = urlParams.get(CURRENCY_QUERY_PARAM);
+  const transactionType = urlParams.get('transactionType');
 
   let tabIndex;
   switch (currentView) {
@@ -48,7 +49,11 @@ const WalletPage = (props: Props) => {
       if (currencyValue === CREDITS_QUERY_PARAM_VALUE) {
         tabIndex = 1;
       } else if (currencyValue === FIAT_QUERY_PARAM_VALUE) {
-        tabIndex = 2;
+        if (transactionType === 'tips') {
+          tabIndex = 2;
+        } else {
+          tabIndex = 3;
+        }
       }
       break;
     default:
@@ -64,7 +69,9 @@ const WalletPage = (props: Props) => {
     } else if (newTabIndex === 1) {
       url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${CREDITS_QUERY_PARAM_VALUE}`;
     } else if (newTabIndex === 2) {
-      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}`;
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}&transactionType=tips`;
+    } else if (newTabIndex === 3) {
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}&transactionType=rentals-purchases`;
     } else {
       url += `${TAB_QUERY}=${TABS.LBRY_CREDITS_TAB}`;
     }
@@ -85,13 +92,14 @@ const WalletPage = (props: Props) => {
             <Tab>{__('Balance')}</Tab>
             <Tab>{__('Credits')}</Tab>
             <Tab>{__('Tips')}</Tab>
+            <Tab>{__('Rentals/Purchases')}</Tab>
           </TabList>
           <TabPanels>
             {/* balances for lbc and fiat */}
             <TabPanel>
               <WalletBalance />
             </TabPanel>
-            {/* transactions panel */}
+            {/* credits tab */}
             <TabPanel>
               <div className="section card-stack">
                 <div className="lbc-transactions">
@@ -111,6 +119,26 @@ const WalletPage = (props: Props) => {
                 </div>
               </div>
             </TabPanel>
+            {/* tips tab */}
+            <TabPanel>
+              <div className="section card-stack">
+                <div className="lbc-transactions">
+                  {loading && (
+                    <div className="main--empty">
+                      <Spinner delayed />
+                    </div>
+                  )}
+                  {!loading && (
+                    <>
+                      <div className="card-stack">
+                        <TxoList search={search} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </TabPanel>
+            {/* rentals/purchases tab */}
             <TabPanel>
               <div className="section card-stack">
                 <div className="lbc-transactions">

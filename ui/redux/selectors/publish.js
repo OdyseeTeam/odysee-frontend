@@ -159,13 +159,14 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   const collection = selectCollectionForId(state, collectionId);
   const collectionTitle = selectCollectionTitleForId(state, collectionId);
   const collectionClaimIds = selectClaimIdsForCollectionId(state, collectionId);
+  const claims = collectionClaimIds && collectionClaimIds.filter(Boolean);
   const activeChannelId = selectActiveChannelClaimId(state);
 
   const privateCollectionParams = {
     title: collectionTitle,
     description: collection.description,
     thumbnail_url: collection.thumbnail?.url,
-    claims: collectionClaimIds,
+    claims,
   };
 
   if (isPrivate) {

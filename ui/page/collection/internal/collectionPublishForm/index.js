@@ -8,7 +8,10 @@ import {
 } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
-import { selectCollectionHasEditsForId } from 'redux/selectors/collections';
+import {
+  selectCollectionHasEditsForId,
+  selectHasUnavailableClaimIdsForCollectionId,
+} from 'redux/selectors/collections';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 
 import { doCollectionPublish, doCollectionEdit, doClearEditsForCollectionId } from 'redux/actions/collections';
@@ -28,6 +31,7 @@ const select = (state, props) => {
     collectionParams: selectCollectionClaimUploadParamsForId(state, collectionId),
     activeChannelClaim: selectActiveChannelClaim(state),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
+    hasUnavailableClaims: selectHasUnavailableClaimIdsForCollectionId(state, collectionId),
   };
 };
 

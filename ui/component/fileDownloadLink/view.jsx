@@ -17,7 +17,6 @@ type Props = {
   openModal: (id: string, { path: string }) => void,
   pause: () => void,
   download: (string) => void,
-  costInfo: ?{ cost: string },
   buttonType: ?string,
   showLabel: ?boolean,
   hideOpenButton: boolean,

@@ -1,6 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
+import { Lbryio } from 'lbryinc';
 import Lbry from 'lbry';
 import { normalizeURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
@@ -23,12 +24,30 @@ import { doFetchTxoPage } from 'redux/actions/wallet';
 import { doMembershipContentForStreamClaimIds, doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
-import { createNormalizedClaimSearchKey, getChannelIdFromClaim } from 'util/claim';
+import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
 import { hasFiatTags } from 'util/tags';
 import { PAGE_SIZE } from 'constants/claim';
 
 let onChannelConfirmCallback;
 let checkPendingInterval;
+
+async function getCostInfoForFee(claimId: string, fee: Fee) {
+  if (fee === undefined) {
+    return Promise.resolve({ claimId, cost: 0, includesData: true });
+  }
+
+  if (fee.currency === 'LBC') {
+    return Promise.resolve({ claimId, cost: fee.amount, includesData: true });
+  }
+
+  const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
+    claimId,
+    cost: Number(fee.amount) / LBC_USD,
+    includesData: true,
+  }));
+
+  return Promise.resolve(exchangeRate);
+}
 
 export function doResolveUris(
   uris: Array<string>,
@@ -66,11 +85,12 @@ export function doResolveUris(
     dispatch({ type: ACTIONS.RESOLVE_URIS_START, data: { uris: normalizedUris } });
 
     return Lbry.resolve({ urls: urisToResolve, ...additionalOptions })
-      .then((response: ResolveResponse) => {
+      .then(async (response: ResolveResponse) => {
         const collectionIds = new Set([]);
         const repostsToResolve = new Set([]);
-        const streamClaimIds = new Set([]);
+        const membersOnlyClaimIds = new Set([]);
         const channelClaimIds = new Set([]);
+        const costInfos = new Set();
 
         const resolveInfo: {
           [uri: string]: {
@@ -104,7 +124,8 @@ export function doResolveUris(
                 }
 
                 if (repostedClaim.value_type !== 'channel' && repostedClaim.value_type !== 'collection') {
-                  streamClaimIds.add(repostedClaim.claim_id);
+                  const isProtected = isClaimProtected(repostedClaim);
+                  if (isProtected) membersOnlyClaimIds.add(repostedClaim.claim_id);
                 }
               }
             }
@@ -127,7 +148,9 @@ export function doResolveUris(
               const stream: StreamClaim = uriResolveInfo;
 
               resultResponse.stream = stream;
-              streamClaimIds.add(stream.claim_id);
+
+              const isProtected = isClaimProtected(stream);
+              if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
               if (stream.signing_channel) {
                 // $FlowFixMe
@@ -136,6 +159,9 @@ export function doResolveUris(
                 resultResponse.channel = channel;
                 resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
               }
+
+              // $FlowFixMe
+              costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
             }
 
             const channelId = getChannelIdFromClaim(uriResolveInfo);
@@ -147,8 +173,13 @@ export function doResolveUris(
 
         dispatch({ type: ACTIONS.RESOLVE_URIS_SUCCESS, data: { resolveInfo } });
 
-        if (streamClaimIds.size > 0) {
-          dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+        if (costInfos.size > 0) {
+          const settledCostInfosById = await Promise.all(Array.from(costInfos));
+          dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
+        }
+
+        if (membersOnlyClaimIds.size > 0) {
+          dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
         }
 
         if (channelClaimIds.size > 0) {
@@ -228,21 +259,6 @@ export function doResolveUri(
   return doResolveUris([uri], returnCachedClaims, resolveReposts, additionalOptions);
 }
 
-export function doGetClaimFromUriResolve(uri: string) {
-  return async (dispatch: Dispatch) => {
-    let claim;
-    await dispatch(doResolveUri(uri, true))
-      .then((response) =>
-        Object.values(response).forEach((resposne) => {
-          claim = resposne;
-        })
-      )
-      .catch((e) => {});
-
-    return claim;
-  };
-}
-
 export function doFetchClaimListMine(
   page: number = 1,
   pageSize: number = 99999,
@@ -275,20 +291,21 @@ export function doFetchClaimListMine(
         },
       });
 
-      const streamClaimIds = new Set([]);
+      const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
 
       result.items.forEach((item) => {
         if (item.value_type !== 'channel' && item.value_type !== 'collection') {
-          streamClaimIds.add(item.claim_id);
+          const isProtected = isClaimProtected(item);
+          if (isProtected) membersOnlyClaimIds.add(item.claim_id);
         }
 
         const channelId = getChannelIdFromClaim(item);
         if (channelId) channelClaimIds.add(channelId);
       });
 
-      if (streamClaimIds.size > 0) {
-        dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+      if (membersOnlyClaimIds.size > 0) {
+        dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
       }
 
       if (channelClaimIds.size > 0) {
@@ -717,21 +734,25 @@ export function doClaimSearch(
       data: { query: query },
     });
 
-    const success = (data: ClaimSearchResponse) => {
+    const success = async (data: ClaimSearchResponse) => {
       const resolveInfo = {};
       const urls = [];
-      const streamClaimIds = new Set([]);
+      const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
+      const costInfos = new Set();
       const fiatClaimIds = [];
       let collectionResolveInfo;
       const shouldFetchPurchases = settings.fetchStripeTransactions && !options.has_no_source;
 
-      data.items.forEach((stream: Claim) => {
+      data.items.some((stream: Claim, index: number) => {
         resolveInfo[stream.canonical_url] = { stream };
         urls.push(stream.canonical_url);
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
-          streamClaimIds.add(stream.claim_id);
+          const isProtected = isClaimProtected(stream);
+          if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
+          // $FlowFixMe
+          costInfos.add(getCostInfoForFee(stream.claim_id, stream.value ? stream.value.fee : undefined));
         }
 
         if (stream.value_type === 'collection') {
@@ -758,12 +779,25 @@ export function doClaimSearch(
         },
       });
 
+      if (costInfos.size > 0) {
+        const settledCostInfosById = await Promise.all(Array.from(costInfos));
+        dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
+
+        const sdkPaidClaimIds = settledCostInfosById
+          .filter((costInfo) => Number.isInteger(Number(costInfo.cost)) && Number(costInfo.cost) > 0)
+          .map((costInfo) => costInfo.claimId);
+
+        if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {
+          dispatch(doResolveClaimIds(sdkPaidClaimIds, false, { include_purchase_receipt: true }));
+        }
+      }
+
       if (collectionResolveInfo) {
         dispatch({ type: ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED, data: { resolveInfo: collectionResolveInfo } });
       }
 
-      if (streamClaimIds.size > 0) {
-        dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+      if (membersOnlyClaimIds.size > 0) {
+        dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
       }
 
       if (channelClaimIds.size > 0) {
@@ -1016,3 +1050,20 @@ export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => 
     )
     .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
 };
+
+export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) =>
+  await dispatch(
+    doClaimSearch({
+      channel_ids: [channelId],
+      has_no_source: true,
+      claim_type: ['stream'],
+      no_totals: true,
+      page_size: 20,
+      page: 1,
+      include_is_my_output: true,
+      order_by: ['release_time'],
+    })
+  );

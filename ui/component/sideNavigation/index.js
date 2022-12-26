@@ -22,7 +22,7 @@ const select = (state) => ({
   purchaseSuccess: selectPurchaseUriSuccess(state),
   unseenCount: selectUnseenNotificationCount(state),
   user: selectUser(state),
-  homepageData: selectHomepageData(state),
+  homepageData: selectHomepageData(state) || {},
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   homepageOrderApplyToSidebar: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR),
   hasMembership: selectUserHasValidOdyseeMembership(state),

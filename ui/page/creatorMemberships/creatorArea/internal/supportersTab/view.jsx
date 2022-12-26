@@ -16,6 +16,7 @@ type Props = {
   // -- redux --
   supportersList: ?SupportersList,
   channelMembershipTiers: ?CreatorMemberships,
+  doResolveClaimIds: (claimIds: Array<string>) => void,
 };
 
 const SupportersTab = (props: Props) => {
@@ -25,6 +26,7 @@ const SupportersTab = (props: Props) => {
     // -- redux --
     supportersList,
     channelMembershipTiers,
+    doResolveClaimIds,
   } = props;
 
   const hasAnySupporters = React.useMemo(() => {
@@ -40,6 +42,13 @@ const SupportersTab = (props: Props) => {
   }, [channelsToList, supportersList]);
 
   const isViewingSingleChannel = channelsToList && channelsToList.length === 1;
+
+  React.useEffect(() => {
+    if (supportersList) {
+      const supportersClaimIds = supportersList.map((channel) => channel.ChannelID);
+      doResolveClaimIds(supportersClaimIds);
+    }
+  }, [supportersList, doResolveClaimIds]);
 
   if (isViewingSingleChannel && !channelMembershipTiers) {
     return (

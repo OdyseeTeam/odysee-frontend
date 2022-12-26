@@ -137,6 +137,13 @@
         }
       }
     }
+
+    @media (max-width: $breakpoint-small) {
+      .claim__menu-button {
+        margin-top: -6px;
+        right: 0;
+      }
+    }
   }
 
   .file-page__video-container + .card,
@@ -364,6 +371,13 @@
   max-height: none;
 }
 
+.claim-link {
+  .file-render--embed,
+  .vjs-tech {
+    position: relative !important;
+  }
+}
+
 .file-render__img-container {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -530,10 +544,6 @@
   }
 }
 
-.file-viewer--is-playing:not(:hover) .file-viewer__embedded-header {
-  display: none;
-}
-
 .file-viewer__embedded-header {
   position: absolute;
   display: grid;
@@ -541,7 +551,7 @@
   width: 100%;
   top: 0;
   opacity: 1;
-  z-index: 2;
+  z-index: 6;
   font-size: var(--font-large);
   overflow-x: hidden;
   overflow-y: hidden;
@@ -549,6 +559,7 @@
   white-space: nowrap;
   border-top-left-radius: var(--border-radius);
   border-top-right-radius: var(--border-radius);
+  padding: var(--spacing-xxs);
 
   .button {
     padding: var(--spacing-xxs);
@@ -568,10 +579,11 @@
   .icon--Key {
     margin-right: var(--spacing-m);
   }
+}
 
-  @media (min-width: $breakpoint-small) {
-    padding: 0 var(--spacing-l);
-  }
+.embed__wrapper .file-viewer__embedded-header {
+  border-radius: 0 !important;
+  width: 100vw;
 }
 
 .file-viewer__embedded-gradient {
@@ -771,9 +783,9 @@ $control-bar-icon-size: 30px;
             font-weight: var(--font-weight-bold);
             border-radius: 4px;
             margin-top: -1px;
-            //padding-top: 1px;
             padding-top: 0;
             line-height: 13px;
+            white-space: nowrap;
           }
         }
       }
@@ -1123,14 +1135,9 @@ $control-bar-icon-size: 30px;
 }
 
 .file-viewer--ended-embed {
-  .vjs-big-play-button {
-    display: none !important; // yes this is dumb, but this was broken and the above CSS was overriding
-  }
-
-  .file-viewer__overlay-actions {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    grid-gap: 1rem;
+  .vjs-control-bar {
+    position: absolute;
+    z-index: 3;
   }
 }
 

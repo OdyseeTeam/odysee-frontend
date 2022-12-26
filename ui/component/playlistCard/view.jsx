@@ -22,7 +22,7 @@ import LoopButton from './internal/loopButton';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import usePersistedState from 'effects/use-persisted-state';
-import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
+import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 
@@ -34,6 +34,7 @@ type Props = {
   collectionUrls: Array<Claim>,
   collectionName: string,
   isPrivateCollection: boolean,
+  hasEdits: boolean,
   publishedCollectionName: string | boolean,
   playingItemIndex: ?number,
   collectionLength: number,
@@ -116,6 +117,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     id,
     playingItemUrl,
     isPrivateCollection,
+    hasEdits,
     publishedCollectionName,
     doCollectionEdit,
     playingItemIndex,
@@ -359,6 +361,15 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                   <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
                   <span className="text-ellipsis">{collectionName}</span>
                 </>
+              )}
+
+              {hasEdits && (
+                <Icon
+                  title={__('Pending edits')}
+                  icon={ICONS.PUBLISH}
+                  color="red"
+                  style={{ marginLeft: 'var(--spacing-xxs)' }}
+                />
               )}
             </NavLink>
           )

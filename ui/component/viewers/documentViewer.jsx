@@ -11,15 +11,12 @@ type Props = {
   theme: string,
   renderMode: string,
   source: {
-    file: (?string) => any,
     stream: string,
     contentType: string,
   },
 };
 
 type State = {
-  error: boolean,
-  loading: boolean,
   content: ?string,
 };
 
@@ -27,34 +24,13 @@ class DocumentViewer extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      error: false,
-      loading: true,
-      content: null,
+      content: undefined,
     };
   }
 
   componentDidMount() {
     const { source } = this.props;
-    // @if TARGET='app'
-    if (source && source.file) {
-      const stream = source.file('utf8');
 
-      let data = '';
-
-      stream.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      stream.on('end', () => {
-        this.setState({ content: data, loading: false });
-      });
-
-      stream.on('error', () => {
-        this.setState({ error: true, loading: false });
-      });
-    }
-    // @endif
-    // @if TARGET='web'
     if (source && source.stream) {
       https.get(source.stream, (response) => {
         if (response.statusCode === 200) {
@@ -63,14 +39,13 @@ class DocumentViewer extends React.PureComponent<Props, State> {
             data += chunk;
           });
           response.on('end', () => {
-            this.setState({ content: data, loading: false });
+            this.setState({ content: data });
           });
         } else {
-          this.setState({ error: true, loading: false });
+          this.setState({ content: null });
         }
       });
     }
-    // @endif
   }
 
   renderDocument() {
@@ -86,15 +61,16 @@ class DocumentViewer extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { error, loading, content } = this.state;
-    const isReady = content && !error;
-    const errorMessage = __("Sorry, looks like we can't load the document.");
+    const { content } = this.state;
+
+    if (content === undefined) {
+      return <LoadingScreen transparent />;
+    }
 
     return (
       <div className="file-viewer file-viewer--document">
-        {loading && <LoadingScreen status={__('Loading')} />}
-        {error && <LoadingScreen status={errorMessage} spinner={!error} />}
-        {isReady && this.renderDocument()}
+        {content === null && <LoadingScreen transparent status={__("Sorry, looks like we can't load the document.")} />}
+        {content && this.renderDocument()}
       </div>
     );
   }

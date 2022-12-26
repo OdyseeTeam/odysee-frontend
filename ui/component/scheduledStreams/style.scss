@@ -2,4 +2,21 @@
   .section__header--actions {
     margin-bottom: 0;
   }
+  .section__header--actions {
+    margin-top: 0;
+    padding-top: 0;
+    .claim-grid__header {
+      margin-top: 0;
+      margin-bottom: 0;
+      .icon__wrapper {
+        display: none;
+      }
+
+      .claim-grid__title {
+        font-size: var(--font-medium);
+        font-weight: var(--font-weight-bold);
+        margin-bottom: var(--spacing-s);
+      }
+    }
+  }
 }

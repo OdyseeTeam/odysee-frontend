@@ -12,7 +12,7 @@ import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
-import FileRenderFloating from 'component/fileRenderFloating';
+import VideoRenderFloating from 'component/videoRenderFloating';
 import { withRouter } from 'react-router';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/nag';
@@ -562,7 +562,7 @@ function App(props: Props) {
 
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
 
-          <FileRenderFloating />
+          {!embedPath && <VideoRenderFloating />}
 
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}

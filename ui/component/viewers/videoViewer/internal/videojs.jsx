@@ -30,6 +30,7 @@ import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
+import { EmbedContext } from 'contexts/embed';
 import usePersistedState from 'effects/use-persisted-state';
 import Lbry from 'lbry';
 
@@ -88,7 +89,6 @@ export type Player = {
 type Props = {
   adUrl: ?string,
   allowPreRoll: ?boolean,
-  autoplay: boolean,
   claimId: ?string,
   title: ?string,
   channelTitle: string,
@@ -108,17 +108,18 @@ type Props = {
   playPrevious: () => void,
   toggleVideoTheaterMode: () => void,
   claimRewards: () => void,
-  doAnalyticsView: (string, number) => void,
+  doAnalyticsViewForUri: (string) => void,
   doAnalyticsBuffer: (string, any) => void,
   uri: string,
   claimValues: any,
   isLivestreamClaim: boolean,
   userClaimId: ?string,
-  activeLivestreamForChannel: any,
+  activeLivestreamForChannel: ?LivestreamActiveClaim,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   isProtectedContent: boolean,
+  doSetVideoSourceLoaded: (uri: string) => void,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -155,7 +156,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const {
     // adUrl, // TODO: this ad functionality isn't used, can be pulled out
     // allowPreRoll,
-    autoplay,
     claimId,
     title,
     channelTitle,
@@ -175,7 +175,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playPrevious,
     toggleVideoTheaterMode,
     claimValues,
-    doAnalyticsView,
+    doAnalyticsViewForUri,
     doAnalyticsBuffer,
     claimRewards,
     uri,
@@ -186,7 +186,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    doSetVideoSourceLoaded,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
 
   // used to notify about default quality setting
   // if already has a quality set, no need to notify
@@ -208,7 +211,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const videoScrollHandlerRef = useRef();
   const volumePanelScrollHandlerRef = useRef();
 
-  const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
+  const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIPhone();
   const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
@@ -238,7 +241,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     userId,
     claimId,
     embedded,
-    doAnalyticsView,
+    doAnalyticsViewForUri,
     doAnalyticsBuffer,
     claimRewards,
     uri,
@@ -276,7 +279,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     techOrder: ['chromecast', 'html5'],
     ...Chromecast.getOptions(),
-    bigPlayButton: embedded, // only show big play button if embedded
     suppressNotSupportedError: true,
     liveui: true,
   };
@@ -319,7 +321,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           originalHeight: claimValues?.video?.height,
           defaultQuality,
           initialQualityChange,
-          setInitialQualityChange,
+          setInitialQualityChange: !isEmbed && setInitialQualityChange,
           doToast,
         });
       }
@@ -387,6 +389,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // Add reference to player to global scope
         window.player = vjsPlayer;
+        doSetVideoSourceLoaded(uri);
       } else {
         vjsPlayer = window.player;
       }
@@ -426,12 +429,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.recsys.watchedDuration = { total: 0, lastTimestamp: -1 };
       }
 
-      if (!embedded) {
-        vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
-      } else {
-        // $FlowIssue
-        vjsPlayer.bigPlayButton?.show();
-      }
+      vjsPlayer.bigPlayButton && vjsPlayer.bigPlayButton.hide();
 
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
@@ -475,10 +473,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.addClass('livestreamPlayer');
 
         // get the protected url if needed
-        if (isProtectedContent) {
+        if (isProtectedContent && activeLivestreamForChannel) {
           const protectedLivestreamResponse = await Lbry.get({
-            uri: activeLivestreamForChannel.claimUri,
-            base_streaming_url: activeLivestreamForChannel.url,
+            uri: activeLivestreamForChannel.uri,
+            base_streaming_url: activeLivestreamForChannel.videoUrl,
             environment: stripeEnvironment,
           });
 
@@ -510,6 +508,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
       }
+
+      doSetVideoSourceLoaded(uri);
 
       // bugfix thumbnails showing up if new video doesn't have them
       if (typeof vjsPlayer.vttThumbnails.detach === 'function') {
@@ -554,56 +554,54 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // allow tap to unmute if no perms on iOS
-      if (autoplay) {
-        const promise = vjsPlayer.play();
+      const promise = vjsPlayer.play();
 
-        window.player.userActive(true);
+      window.player.userActive(true);
 
-        if (promise !== undefined) {
-          promise
-            .then((_) => {
-              // $FlowIssue
-              vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
-            })
-            .catch((error) => {
-              const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+      if (promise !== undefined) {
+        promise
+          .then((_) => {
+            // $FlowIssue
+            vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
+          })
+          .catch((error) => {
+            const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
-              if (noPermissionError) {
-                if (IS_IOS) {
-                  // autoplay not allowed, mute video, play and show 'tap to unmute' button
-                  // $FlowIssue
-                  vjsPlayer?.muted(true);
-                  // $FlowIssue
-                  const mutedPlayPromise = vjsPlayer?.play();
-                  if (mutedPlayPromise !== undefined) {
-                    mutedPlayPromise
-                      .then(() => {
-                        const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
+            if (noPermissionError) {
+              if (IS_IOS) {
+                // autoplay not allowed, mute video, play and show 'tap to unmute' button
+                // $FlowIssue
+                vjsPlayer?.muted(true);
+                // $FlowIssue
+                const mutedPlayPromise = vjsPlayer?.play();
+                if (mutedPlayPromise !== undefined) {
+                  mutedPlayPromise
+                    .then(() => {
+                      const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
 
-                        // $FlowIssue
-                        tapToUnmuteButton?.style.setProperty('visibility', 'visible');
-                        // $FlowIssue
-                        tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
-                      })
-                      .catch((error) => {
-                        // $FlowFixMe
-                        vjsPlayer?.addClass('vjs-paused');
-                        // $FlowFixMe
-                        vjsPlayer?.addClass('vjs-has-started');
+                      // $FlowIssue
+                      tapToUnmuteButton?.style.setProperty('visibility', 'visible');
+                      // $FlowIssue
+                      tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
+                    })
+                    .catch((error) => {
+                      // $FlowFixMe
+                      vjsPlayer?.addClass('vjs-paused');
+                      // $FlowFixMe
+                      vjsPlayer?.addClass('vjs-has-started');
 
-                        // $FlowFixMe
-                        document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
-                        // $FlowFixMe
-                        document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
-                      });
-                  }
-                } else {
-                  // $FlowIssue
-                  vjsPlayer?.bigPlayButton?.show();
+                      // $FlowFixMe
+                      document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
+                      // $FlowFixMe
+                      document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
+                    });
                 }
+              } else {
+                // $FlowIssue
+                vjsPlayer?.bigPlayButton?.show();
               }
-            });
-        }
+            }
+          });
       }
     })();
 
