@@ -3,11 +3,22 @@
 .rc_tile {
   border-radius: var(--border-radius);
   padding: 0 !important;
-  width: calc((100% - var(--spacing-m) * 3) / 4) !important;
   margin-left: var(--spacing-m);
 
   .rc-widget-header {
     display: none !important;
+  }
+
+  @media (min-width: $breakpoint-small) {
+    width: calc((100% - var(--spacing-m) * 3) / 3) !important;
+  }
+
+  @media (min-width: $breakpoint-medium) {
+    width: calc((100% - var(--spacing-m) * 4) / 4) !important;
+  }
+
+  @media (min-width: $breakpoint-large) {
+    width: calc((100% - var(--spacing-m) * 5) / 6) !important;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -28,8 +39,9 @@
       padding: 0;
       margin: 0;
       width: unset !important;
-      height: 108px !important;
+      // height: 108px !important;
       overflow: unset !important;
+      height: auto !important;
 
       .rc-headline {
         color: var(--color-text) !important;
@@ -64,14 +76,13 @@
     }
 
     .rc-photo-container {
-      // width:var(--file-list-thumbnail-width) !important;
       width: 100% !important;
-      // height:108px !important;
       flex-shrink: 0;
       display: inline-block !important;
       margin-right: var(--spacing-s);
       aspect-ratio: 16/9;
       height: unset !important;
+
       .rc-photo {
         border-radius: var(--border-radius);
         width: 100% !important;
@@ -144,7 +155,7 @@
         padding: 0;
         margin: 0;
         width: unset !important;
-        height: 108px !important;
+        // height: 108px !important;
         overflow: unset !important;
 
         .rc-headline {
@@ -179,12 +190,15 @@
 
       .rc-photo-container {
         width: var(--file-list-thumbnail-width) !important;
-        // height:108px !important;
         flex-shrink: 0;
         display: inline-block !important;
         margin-right: var(--spacing-s);
         .rc-photo {
           border-radius: var(--border-radius);
+        }
+
+        @media (max-width: $breakpoint-small) {
+          width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
         }
       }
 
@@ -192,6 +206,10 @@
         top: unset !important;
         margin-left: 0 !important;
         display: inline-block;
+
+        @media (max-width: $breakpoint-small) {
+          padding: 0 !important;
+        }
       }
     }
   }
