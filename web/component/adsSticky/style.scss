@@ -6,6 +6,7 @@
   box-shadow: 0 4px 6px 5px var(--color-text-inverse) !important;
   width: 270px !important;
   height: 110px !important;
+  border-radius:var(--border-radius);           
 
   bottom: var(--spacing-m) !important;
   left: calc(var(--spacing-m) + 93px) !important;
@@ -23,7 +24,7 @@
   }
 
   #rev-slider-container {
-    background-color: var(--color-header-background) !important;
+    background-color: var(--color-header-background) !important;    
 
     .rev-content {
       border-right: 1px solid var(--color-border);

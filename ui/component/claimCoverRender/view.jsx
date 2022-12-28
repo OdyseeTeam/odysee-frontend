@@ -35,7 +35,7 @@ const ClaimCoverRender = (props: Props) => {
     obscurePreview,
     renderMode,
     videoTheaterMode,
-  } = props;
+  } = props;  
 
   const isEmbed = React.useContext(EmbedContext);
 
