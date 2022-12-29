@@ -35,6 +35,7 @@ type Props = {
   fetchModAmIList: () => void,
   delegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
   myChannelClaimIds: ?Array<string>,
+  doResolveUris: (uris: Array<string>) => void,
 };
 
 function ListBlocked(props: Props) {
@@ -52,6 +53,7 @@ function ListBlocked(props: Props) {
     fetchModAmIList,
     delegatorsById,
     myChannelClaimIds,
+    doResolveUris,
   } = props;
   const [viewMode, setViewMode] = usePersistedState('blocked-muted:display', VIEW.BLOCKED);
 
@@ -67,6 +69,10 @@ function ListBlocked(props: Props) {
     myChannelClaimIds.some((id) => delegatorsById[id] && Object.keys(delegatorsById[id].delegators).length > 0);
 
   // **************************************************************************
+
+  React.useEffect(() => {
+    doResolveUris(getList(viewMode) || []);
+  }, [getList(viewMode)]);
 
   function getList(view) {
     switch (view) {
