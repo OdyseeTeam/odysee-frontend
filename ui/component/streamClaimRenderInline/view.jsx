@@ -35,6 +35,8 @@ type Props = {
   renderMode: string,
   thumbnail: string,
   className?: string,
+  doAnalyticsViewForUri: (string) => any,
+  claimRewards: () => void,
 };
 
 class StreamClaimRenderInline extends React.PureComponent<Props> {
@@ -72,8 +74,19 @@ class StreamClaimRenderInline extends React.PureComponent<Props> {
   }
 
   renderViewer() {
-    const { currentTheme, contentType, downloadPath, fileExtension, streamingUrl, uri, renderMode } = this.props;
+    const {
+      currentTheme,
+      contentType,
+      downloadPath,
+      fileExtension,
+      streamingUrl,
+      uri,
+      renderMode,
+      doAnalyticsViewForUri,
+      claimRewards,
+    } = this.props;
     const source = streamingUrl;
+    doAnalyticsViewForUri(uri).then(claimRewards);
 
     switch (renderMode) {
       case RENDER_MODES.IMAGE:

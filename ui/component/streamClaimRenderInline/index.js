@@ -4,7 +4,8 @@ import { makeSelectClaimForUri, selectThumbnailForUri, makeSelectContentTypeForU
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri, makeSelectFileExtensionForUri } from 'redux/selectors/content';
-
+import { doAnalyticsViewForUri } from 'redux/actions/app';
+import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 
 import StreamClaimRenderInline from './view';
@@ -24,4 +25,9 @@ const select = (state, props) => {
   };
 };
 
-export default withStreamClaimRender(connect(select)(StreamClaimRenderInline));
+const perform = (dispatch) => ({
+  doAnalyticsViewForUri: (uri) => dispatch(doAnalyticsViewForUri(uri)),
+  claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
+});
+
+export default withStreamClaimRender(connect(select, perform)(StreamClaimRenderInline));
