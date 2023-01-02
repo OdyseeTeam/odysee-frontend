@@ -9,6 +9,7 @@ import {
   selectDateForUri,
   selectGeoRestrictionForUri,
 } from 'redux/selectors/claims';
+
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectCollectionIsMine, selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 

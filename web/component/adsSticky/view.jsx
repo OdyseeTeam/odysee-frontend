@@ -9,7 +9,12 @@ import './style.scss';
 // ****************************************************************************
 
 const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
-// let gScript;
+
+// prettier-ignore
+const AD_CONFIG = Object.freeze({
+  url: 'https://assets.revcontent.com/master/delivery.js',
+  sticky: 'https://x.revcontent.com/rc_sticky_all.js'
+});
 
 type Props = {
   uri: ?string,
@@ -44,6 +49,7 @@ export default function AdsSticky(props: Props) {
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
 
+  /*
   React.useEffect(() => {
     const container = window[OUTBRAIN_CONTAINER_KEY];
     if (container) {
@@ -111,8 +117,49 @@ export default function AdsSticky(props: Props) {
       } catch (e) {}
     }
   }, [shouldShowAds, AD_CONFIGS, isActive]);
+*/
 
-  return null; // Nothing for us to mount; the ad script will handle everything.
+  React.useEffect(() => {
+    let script, scriptSticky;
+    try {
+      script = document.createElement('script');
+      script.src = AD_CONFIG.url;
+      // $FlowIgnore
+      document.body.appendChild(script);
+
+      scriptSticky = document.createElement('script');
+      scriptSticky.src = 'https://x.revcontent.com/rc_sticky_all.js';
+      // $FlowIgnore
+      document.body.appendChild(scriptSticky);
+      console.log();
+      const ad = document.getElementsByClassName('sticky-d-rc');
+      console.log('ad: ', ad);
+    } catch (e) {}
+
+    return () => {
+      // $FlowIgnore
+      if (script) document.body.removeChild(script);
+    };
+  }, [shouldShowAds, AD_CONFIG, isActive]);
+
+  return (
+    <>
+      <div id="sticky-d-rc" className="hidden-rc-sticky">
+        <div className="sticky-d-rc">
+          <div className="sticky-d-rc-close">
+            Sponsored<button id="rcStickyClose">X</button>
+          </div>
+          <div className="sticky-d-rc-content">
+            <div id="rc-widget-sticky-d"></div>
+            {/* <script type="text/javascript" src="https://assets.revcontent.com/master/delivery.js" defer="defer"></script> */}
+            <script>let rcStickyWidgetId = 274420;</script>
+            {/* <script type="text/javascript" src="https://x.revcontent.com/rc_sticky_all.js" defer="defer"></script> */}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+  //return null; // Nothing for us to mount; the ad script will handle everything.
 }
 
 // ****************************************************************************

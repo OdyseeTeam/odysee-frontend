@@ -1,5 +1,30 @@
 @import '~ui/scss/init/breakpoints';
 
+.main-wrapper {
+  #sticky-d-rc {
+    bottom: var(--spacing-m) !important;
+    left: calc(var(--spacing-m) + 93px) !important;
+    width: calc(100% - (var(--spacing-m) * 2) - 93px) !important;
+    // transition:all 0.4s;
+
+    .sticky-d-rc {
+      background-color: var(--color-header-background);
+      border-radius: var(--border-radius);
+
+      .sticky-d-rc-close {
+        background-color: var(--color-header-background);
+
+        #rcStickyClose {
+          background-color: var(--color-primary);
+          color: var(--color-text);
+          margin-left: var(--spacing-s);
+        }
+      }
+    }
+  }
+}
+
+/*
 .rev-shifter {
   // background-color: transparent !important;
   padding-bottom: 0 !important;
@@ -65,3 +90,4 @@
   bottom: 0;
   right: 70px;
 }
+*/
