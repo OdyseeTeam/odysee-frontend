@@ -471,6 +471,7 @@
 
 .content__autoplay-countdown {
   @extend .content__loading;
+  height: 100% !important;
 
   &.playing {
     position: absolute !important;
