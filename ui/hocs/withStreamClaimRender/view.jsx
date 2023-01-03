@@ -247,7 +247,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Loading State -- return before component render
-    if (!streamStarted || !streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
+    if (
+      !currentUriPlaying &&
+      ((!playingUri && !streamStarted) || !streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable)
+    ) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
@@ -267,7 +270,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // -- Main Component Render -- return when already has the claim's contents
     return (
       <>
-        {claimLinkId && !sourceLoaded && <LoadingScreen />}
+        {!currentUriPlaying || (claimLinkId && !sourceLoaded && <LoadingScreen />)}
 
         <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
       </>
