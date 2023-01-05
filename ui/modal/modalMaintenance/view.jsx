@@ -13,7 +13,10 @@ class ModalMaintenance extends React.PureComponent<Props> {
 
     return (
       <Modal type="card" isOpen onAborted={doHideModal}>
-        <Card className="announcement" />
+        <Card
+          title={__('Maintenance')}
+          subtitle={__('Uploads and Posts are disabled at the moment. Please check back later.')}
+        />
       </Modal>
     );
   }

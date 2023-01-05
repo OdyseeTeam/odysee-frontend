@@ -24,7 +24,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const { authenticated, user, authRedirect, clearPublish, doOpenModal } = props;
 
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
-  const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
+  // const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
 
   const uploadProps = { requiresAuth: !authenticated };
   const { push } = useHistory();
@@ -34,7 +34,10 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
       {/* <Tooltip title={__('Upload')}> **/}
       <Tooltip title={__('Maintenance')}>
         {/* <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.UPLOAD}`}> */}
-        <Button className="header__navigationItem--icon disabled" onClick={() => doOpenModal(MODALS.MAINTENANCE, {})}>
+        <Button
+          className="header__navigationItem--icon maintenance"
+          onClick={() => doOpenModal(MODALS.MAINTENANCE, {})}
+        >
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
         </Button>
       </Tooltip>
@@ -53,17 +56,22 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
       {/* <Tooltip title={__('Post an article')}> */}
       <Tooltip title={__('Maintenance')}>
         {/* <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.POST}`}> */}
-        <Button className="header__navigationItem--icon disabled" onClick={() => doOpenModal(MODALS.MAINTENANCE, {})}>
+        <Button
+          className="header__navigationItem--icon maintenance"
+          onClick={() => doOpenModal(MODALS.MAINTENANCE, {})}
+        >
           <Icon size={18} icon={ICONS.POST} aria-hidden />
         </Button>
       </Tooltip>
     </div>
   ) : (
     <>
-      <Tooltip title={__('Upload')}>
+      {/* <Tooltip title={__('Upload')}> */}
+      <Tooltip title={__('Maintenance')}>
+        {/* <Button className="header__navigationItem--icon disabled" onClick={() => push(`/$/${PAGES.AUTH}${authRedirectParam}`)} > */}
         <Button
-          className="header__navigationItem--icon disabled"
-          onClick={() => push(`/$/${PAGES.AUTH}${authRedirectParam}`)}
+          className="header__navigationItem--icon maintenance"
+          onClick={() => doOpenModal(MODALS.MAINTENANCE, {})}
         >
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
         </Button>

@@ -54,6 +54,7 @@ export const COLLECTION_DELETE = 'collection_delete';
 export const CONFIRM_REMOVE_COMMENT = 'CONFIRM_REMOVE_COMMENT';
 export const HIDE_RECOMMENDATION = 'HIDE_RECOMMENDATION';
 export const ANNOUNCEMENTS = 'ANNOUNCEMENTS';
+export const MAINTENANCE = 'MAINTENANCE';
 export const ADD_CARD = 'ADD_CARD';
 
 // Memberships

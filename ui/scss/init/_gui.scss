@@ -265,6 +265,11 @@ img {
   pointer-events: none;
 }
 
+.maintenance {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
 .column {
   display: flex;
 
