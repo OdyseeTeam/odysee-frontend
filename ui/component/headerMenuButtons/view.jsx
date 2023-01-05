@@ -5,6 +5,7 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import React from 'react';
@@ -16,10 +17,11 @@ type HeaderMenuButtonProps = {
   user: ?User,
   authRedirect?: string,
   clearPublish: () => void,
+  doOpenModal: (id: string, ?{}) => void,
 };
 
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
-  const { authenticated, user, authRedirect, clearPublish } = props;
+  const { authenticated, user, authRedirect, clearPublish, doOpenModal } = props;
 
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
@@ -29,8 +31,10 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
 
   return authenticated ? (
     <div className="header__buttons">
-      <Tooltip title={__('Upload')}>
-        <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.UPLOAD}`}>
+      {/* <Tooltip title={__('Upload')}> **/}
+      <Tooltip title={__('Maintenance')}>
+        {/* <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.UPLOAD}`}> */}
+        <Button className="header__navigationItem--icon disabled" onClick={() => doOpenModal(MODALS.MAINTENANCE, {})}>
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
         </Button>
       </Tooltip>
@@ -46,8 +50,10 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           </Button>
         </Tooltip>
       )}
-      <Tooltip title={__('Post an article')}>
-        <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.POST}`}>
+      {/* <Tooltip title={__('Post an article')}> */}
+      <Tooltip title={__('Maintenance')}>
+        {/* <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.POST}`}> */}
+        <Button className="header__navigationItem--icon disabled" onClick={() => doOpenModal(MODALS.MAINTENANCE, {})}>
           <Icon size={18} icon={ICONS.POST} aria-hidden />
         </Button>
       </Tooltip>
@@ -55,7 +61,10 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   ) : (
     <>
       <Tooltip title={__('Upload')}>
-        <Button className="header__navigationItem--icon" onClick={() => push(`/$/${PAGES.AUTH}${authRedirectParam}`)}>
+        <Button
+          className="header__navigationItem--icon disabled"
+          onClick={() => push(`/$/${PAGES.AUTH}${authRedirectParam}`)}
+        >
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
         </Button>
       </Tooltip>
