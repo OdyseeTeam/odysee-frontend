@@ -270,6 +270,24 @@ img {
   cursor: not-allowed !important;
 }
 
+.footer-maintenance {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: var(--spacing-m) 0;
+  background-color: var(--color-header-background);
+
+  text-align: center;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border-top: 2px solid var(--color-text-inverse);
+
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-s) 0;
+  }
+}
+
 .column {
   display: flex;
 

@@ -24,7 +24,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const { authenticated, user, authRedirect, clearPublish, doOpenModal } = props;
 
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
-  // const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
+  const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
 
   const uploadProps = { requiresAuth: !authenticated };
   const { push } = useHistory();

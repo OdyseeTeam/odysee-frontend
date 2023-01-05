@@ -154,6 +154,9 @@ function Page(props: Props) {
           )}
         </div>
       </div>
+      <div className="footer-maintenance">
+        <p>{__('Message')}</p>
+      </div>
     </>
   );
 }
