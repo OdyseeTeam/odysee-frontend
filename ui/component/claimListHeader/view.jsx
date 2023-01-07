@@ -414,9 +414,9 @@ function ClaimListHeader(props: Props) {
                       ))}
                     </FormField>
                   </div>
-                  {(durationParam === CS.DURATION_CUSTOM) && (
-                    <div className={'claim-search__duration-inputs-container'}>
-                      <div className={'claim-search__input-container'}>
+                  {durationParam === CS.DURATION_CUSTOM && (
+                    <div className="claim-search__duration-inputs-container">
+                      <div className="claim-search__input-container">
                         <FormField
                           label={__('Min Minutes')}
                           type="number"
@@ -428,7 +428,7 @@ function ClaimListHeader(props: Props) {
                           }}
                         />
                       </div>
-                      <div className={'claim-search__input-container'}>
+                      <div className="claim-search__input-container">
                         <FormField
                           label={__('Max Minutes')}
                           type="number"
