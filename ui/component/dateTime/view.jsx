@@ -61,7 +61,7 @@ class DateTime extends React.Component<Props, State> {
   }
 
   render() {
-    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, language, } = this.props;
+    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, language } = this.props;
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
     return (
