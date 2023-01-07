@@ -3,7 +3,6 @@ import { getTimeAgoStr } from 'util/time';
 import moment from 'moment/min/moment-with-locales';
 import React from 'react';
 
-
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
 
 type State = {
@@ -62,7 +61,7 @@ class DateTime extends React.Component<Props, State> {
   }
 
   render() {
-    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, language } = this.props;
+    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, language, } = this.props;
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
     return (
