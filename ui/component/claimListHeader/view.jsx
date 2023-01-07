@@ -89,10 +89,16 @@ function ClaimListHeader(props: Props) {
   const showDuration = !(claimType && claimType === CS.CLAIM_CHANNEL && claimType === CS.CLAIM_COLLECTION);
 
   const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
-  const [durationMinutes, setDurationMinutes] = usePersistedState(`durUserMinutes-${location.pathname}`, 5);
-  const [minutes, setMinutes] = React.useState(durationMinutes);
-  const setDurationMinutesDebounced = React.useCallback(
-    debounce((m) => setDurationMinutes(m), 750),
+  const [minDurationMinutes, setMinDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
+  const [maxDurationMinutes, setMaxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
+  const [minMinutes, setMinMinutes] = React.useState(minDurationMinutes);
+  const [maxMinutes, setMaxMinutes] = React.useState(maxDurationMinutes);
+  const setMinDurationMinutesDebounced = React.useCallback(
+    debounce((m) => setMinDurationMinutes(m), 750),
+    []
+  );
+  const setMaxDurationMinutesDebounced = React.useCallback(
+    debounce((m) => setMaxDurationMinutes(m), 750),
     []
   );
 
@@ -403,24 +409,37 @@ function ClaimListHeader(props: Props) {
                           {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
                           {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
                           {dur === CS.DURATION_ALL && __('Any')}
-                          {dur === CS.DURATION_GT_EQ && __('Longer than')}
-                          {dur === CS.DURATION_LT_EQ && __('Shorter than')}
+                          {dur === CS.DURATION_CUSTOM && __('Custom')}
                         </option>
                       ))}
                     </FormField>
                   </div>
-                  {(durationParam === CS.DURATION_GT_EQ || durationParam === CS.DURATION_LT_EQ) && (
-                    <div className={'claim-search__input-container'}>
-                      <FormField
-                        label={__('Minutes')}
-                        type="number"
-                        name="duration__minutes"
-                        value={minutes}
-                        onChange={(e) => {
-                          setMinutes(e.target.value);
-                          setDurationMinutesDebounced(e.target.value);
-                        }}
-                      />
+                  {(durationParam === CS.DURATION_CUSTOM) && (
+                    <div className={'claim-search__duration-inputs-container'}>
+                      <div className={'claim-search__input-container'}>
+                        <FormField
+                          label={__('Min Minutes')}
+                          type="number"
+                          name="min_duration__minutes"
+                          value={minMinutes}
+                          onChange={(e) => {
+                            setMinMinutes(e.target.value);
+                            setMinDurationMinutesDebounced(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className={'claim-search__input-container'}>
+                        <FormField
+                          label={__('Max Minutes')}
+                          type="number"
+                          name="max_duration__minutes"
+                          value={maxMinutes}
+                          onChange={(e) => {
+                            setMaxMinutes(e.target.value);
+                            setMaxDurationMinutesDebounced(e.target.value);
+                          }}
+                        />
+                      </div>
                     </div>
                   )}
                 </>

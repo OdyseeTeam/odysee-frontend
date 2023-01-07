@@ -108,6 +108,13 @@
   }
 }
 
+.claim-search__duration-inputs-container {
+  display: flex;
+  column-gap: var(--spacing-xxs);
+  padding-right: var(--spacing-xl);
+  align-content: flex-start;
+}
+
 .claim-search__filter-button {
   display: flex;
   justify-content: center;
