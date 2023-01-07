@@ -28,4 +28,12 @@
       width: 100% !important;
     }
   }
+
+  .card__subtitle {
+    .section {
+      button:first-of-type {
+        bottom: -2px;
+      }
+    }
+  }
 }
