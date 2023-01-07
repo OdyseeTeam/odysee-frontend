@@ -348,7 +348,7 @@ export default function WunderBarSuggestions(props: Props) {
                     </ComboboxOption>
                     <ComboboxOption value={`${TAG_SEARCH_PREFIX}${term}`} className="wunderbar__more-results">
                       <Button ref={exploreTagRef} className="wunderbar__tag-search" button="link">
-                        {__('Explore')}
+                        {__('Search tag')}
                         <div className="tag">{term.split(' ').join('')}</div>
                       </Button>
                     </ComboboxOption>
