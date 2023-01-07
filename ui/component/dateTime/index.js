@@ -7,6 +7,6 @@ import DateTime from './view';
 const select = (state, props) => ({
   date: props.date || selectDateForUri(state, props.uri),
   clock24h: selectClientSetting(state, SETTINGS.CLOCK_24H),
-  language: selectLanguage(state)
+  language: selectLanguage(state),
 });
 export default connect(select)(DateTime);
