@@ -30,6 +30,7 @@ const select = (state, props) => {
   const { permanent_url: playingItemUrl } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
 
   return {
+    id: collectionId,
     playingItemUrl,
     playingCurrentPlaylist,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
