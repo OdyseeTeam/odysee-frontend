@@ -2,7 +2,7 @@
 import React from 'react';
 import { FormField } from 'component/common/form';
 import { COL_TYPES } from 'constants/collections';
-import { getLocalisedVersionForCollectionName } from 'util/collections'
+import { getLocalisedVersionForCollectionName } from 'util/collections';
 import Icon from 'component/common/icon';
 
 type Props = {

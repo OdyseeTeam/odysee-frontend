@@ -4,7 +4,7 @@ import React, { useRef } from 'react';
 import Button from 'component/button';
 import useHover from 'effects/use-hover';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { getLocalisedVersionForCollectionName } from 'util/collections'
+import { getLocalisedVersionForCollectionName } from 'util/collections';
 
 type Props = {
   uri: string,

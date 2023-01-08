@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import {
   selectCollectionForId,
   selectCollectionForIdHasClaimUrl,
-  selectIsCollectionBuiltInForId
+  selectIsCollectionBuiltInForId,
 } from 'redux/selectors/collections';
 import { makeSelectClaimIsPending } from 'redux/selectors/claims';
 import { doPlaylistAddAndAllowPlaying } from 'redux/actions/content';

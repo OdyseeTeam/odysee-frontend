@@ -113,9 +113,9 @@ export function getTitleForCollection(collection: ?Collection) {
 
 export function getLocalisedVersionForCollectionName(collectionName: ?string) {
   switch (collectionName) {
-    case "Watch Later":
+    case 'Watch Later':
       return __('Watch Later');
-    case "Favorites":
+    case 'Favorites':
       return __('Favorites');
     default:
       return collectionName;
