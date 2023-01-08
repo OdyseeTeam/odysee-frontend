@@ -4,7 +4,7 @@ import {
   SECTION_TAGS,
   WATCH_LATER_ID,
   FAVORITES_ID,
-  QUEUE_ID
+  QUEUE_ID,
 } from 'constants/collections';
 import { getCurrentTimeInSec } from 'util/time';
 
