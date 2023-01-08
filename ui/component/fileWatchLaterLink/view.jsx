@@ -25,7 +25,7 @@ function FileWatchLaterLink(props: Props) {
     const collectionId = COLLECTIONS_CONSTS.WATCH_LATER_ID;
     doPlaylistAddAndAllowPlaying({
       uri,
-      collectionName: getLocalizedNameForCollectionId(collectionId),
+      collectionName: getLocalizedNameForCollectionId(collectionId) || COLLECTIONS_CONSTS.WATCH_LATER_NAME,
       collectionId,
     });
   }
