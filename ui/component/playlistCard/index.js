@@ -12,6 +12,7 @@ import {
   selectCollectionForId,
   selectCollectionSavedForId,
   selectCollectionHasEditsForId,
+  selectIsCollectionBuiltInForId,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doCollectionEdit, doClearQueueList, doToggleCollectionSavedForId } from 'redux/actions/collections';
@@ -44,6 +45,7 @@ const select = (state, props) => {
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),
     playingCollectionId,
     collectionSavedForId: selectCollectionSavedForId(state, collectionId),
+    isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
   };
 };
 

@@ -25,6 +25,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { getLocalisedVersionForCollectionName } from 'util/collections';
 
 type Props = {
   id: ?string,
@@ -45,6 +46,7 @@ type Props = {
   isFloating?: boolean,
   playingCollectionId: ?string,
   collectionSavedForId: boolean,
+  isBuiltin: boolean,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
@@ -55,7 +57,7 @@ type Props = {
 };
 
 export default function PlaylistCard(props: Props) {
-  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty } = props;
+  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, isBuiltin } = props;
 
   const [showEdit, setShowEdit] = React.useState(false);
 
@@ -64,6 +66,8 @@ export default function PlaylistCard(props: Props) {
   const currentIndexLabel = ` - ${Number.isInteger(playingItemIndex) ? playingItemIndex + 1 : 0}/${collectionLength} `;
   const playlistCardProps = { showEdit, setShowEdit, currentIndexLabel, ...props };
 
+  const usedCollectionName = isBuiltin ? getLocalisedVersionForCollectionName(collectionName) : collectionName;
+
   if (useDrawer) {
     return (
       <>
@@ -71,7 +75,7 @@ export default function PlaylistCard(props: Props) {
           fixed
           icon={ICONS.PLAYLIST_PLAYBACK}
           label={
-            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName + currentIndexLabel
+            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName + currentIndexLabel
           }
           type={DRAWERS.PLAYLIST}
         />
@@ -133,6 +137,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     playingCurrentPlaylist,
     isFloating,
     playingCollectionId,
+    isBuiltin,
     doClearPlayingCollection,
     doOpenModal,
     doClearQueueList,
@@ -155,6 +160,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
+
+  const usedCollectionName = isBuiltin ? getLocalisedVersionForCollectionName(collectionName) : collectionName;
 
   function closePlaylist() {
     if (collectionEmpty) {
@@ -353,13 +360,13 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 <>
                   <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
                   <span className="text-ellipsis">
-                    {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName}
+                    {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
                   </span>
                 </>
               ) : (
                 <>
                   <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
-                  <span className="text-ellipsis">{collectionName}</span>
+                  <span className="text-ellipsis">{usedCollectionName}</span>
                 </>
               )}
 

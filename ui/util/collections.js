@@ -110,3 +110,14 @@ export function getTitleForCollection(collection: ?Collection) {
 
   return collection.title || collection.name;
 }
+
+export function getLocalisedVersionForCollectionName(collectionName: ?string) {
+  switch (collectionName) {
+    case "Watch Later":
+      return __('Watch Later');
+    case "Favorites":
+      return __('Favorites');
+    default:
+      return collectionName;
+  }
+}

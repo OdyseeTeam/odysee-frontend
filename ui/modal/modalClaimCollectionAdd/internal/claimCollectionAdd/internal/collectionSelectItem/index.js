@@ -1,5 +1,9 @@
 import { connect } from 'react-redux';
-import { selectCollectionForId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
+import {
+  selectCollectionForId,
+  selectCollectionForIdHasClaimUrl,
+  selectIsCollectionBuiltInForId
+} from 'redux/selectors/collections';
 import { makeSelectClaimIsPending } from 'redux/selectors/claims';
 import { doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 import CollectionSelectItem from './view';
@@ -11,6 +15,7 @@ const select = (state, props) => {
     collection: selectCollectionForId(state, collectionId),
     collectionHasClaim: selectCollectionForIdHasClaimUrl(state, collectionId, uri),
     collectionPending: makeSelectClaimIsPending(collectionId)(state),
+    isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
   };
 };
 

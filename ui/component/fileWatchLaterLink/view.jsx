@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import Button from 'component/button';
 import useHover from 'effects/use-hover';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { getLocalisedVersionForCollectionName } from 'util/collections'
 
 type Props = {
   uri: string,
@@ -23,7 +24,7 @@ function FileWatchLaterLink(props: Props) {
 
     doPlaylistAddAndAllowPlaying({
       uri,
-      collectionName: COLLECTIONS_CONSTS.WATCH_LATER_NAME,
+      collectionName: getLocalisedVersionForCollectionName(COLLECTIONS_CONSTS.WATCH_LATER_NAME),
       collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID,
     });
   }
