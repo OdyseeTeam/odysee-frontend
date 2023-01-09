@@ -7,6 +7,7 @@ $transition-duration: 300ms;
 // Classnames must line up with classes in classes.js
 .ff-container {
   position: absolute;
+  transition: transform 0.2s ease;
 
   .ff-image {
     z-index: $base-zindex;
@@ -33,6 +34,7 @@ $transition-duration: 300ms;
 
   &.ff-active {
     .ff-image {
+      transition: opacity $transition-duration;
       opacity: 1;
     }
     .ff-canvas.ff-canvas-ready {
@@ -68,5 +70,9 @@ $transition-duration: 300ms;
       height: 100%;
       border-radius: 50%;
     }
+  }
+
+  &:hover {
+    transform: scale(1.05);
   }
 }
