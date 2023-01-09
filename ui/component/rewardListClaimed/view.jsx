@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import ButtonTransaction from 'component/common/transaction-link';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import LbcSymbol from 'component/common/lbc-symbol';
 import Card from 'component/common/card';
 
@@ -15,10 +15,11 @@ type Reward = {
 
 type Props = {
   rewards: Array<Reward>,
+  appLanguage: string,
 };
 
 const RewardListClaimed = (props: Props) => {
-  const { rewards } = props;
+  const { rewards, appLanguage } = props;
 
   if (!rewards || !rewards.length) {
     return null;
@@ -54,7 +55,7 @@ const RewardListClaimed = (props: Props) => {
                   <td>{reward.reward_title}</td>
                   <td>{reward.reward_amount}</td>
                   <td>{reward.transaction_id && <ButtonTransaction id={reward.transaction_id} />}</td>
-                  <td>{moment(reward.created_at).format('LLL')}</td>
+                  <td>{moment(reward.created_at).locale(appLanguage).format('LLL')}</td>
                 </tr>
               ))}
             </tbody>
