@@ -463,7 +463,8 @@
 
     flex-shrink: 0;
     margin-right: var(--spacing-s);
-    box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0.1) inset;
+    // box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0.1) inset;
+    box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0) inset;
   }
 
   .media__thumb-placeholder-text {
