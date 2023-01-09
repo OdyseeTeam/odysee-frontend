@@ -916,6 +916,7 @@
 
     .icon {
       stroke: var(--color-text);
+      stroke-width: 2px;
     }
 
     @media (min-width: $breakpoint-small) {

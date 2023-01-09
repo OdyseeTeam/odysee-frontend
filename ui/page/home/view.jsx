@@ -108,7 +108,7 @@ function HomePage(props: Props) {
     return (
       <h1 className="claim-grid__header">
         <Button navigate={navigate} button="link">
-          <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />
+          <Icon sectionIcon icon={icon} size={20} />
           <span className="claim-grid__title">{title}</span>
           {help}
         </Button>
