@@ -111,7 +111,7 @@
   transform: translateX(0);
 
   @media (min-width: $breakpoint-medium) {
-    transition: width 0.1s;
+    // transition: width 0.1s;
     &:hover {
       overflow-y: auto;
       width: calc(var(--side-nav-width) + 6px);
