@@ -298,7 +298,8 @@ function ClaimListDiscover(props: Props) {
   }
 
   const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
-  const [durationMinutes] = usePersistedState(`durUserMinutes-${location.pathname}`, 5);
+  const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
+  const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const excludedIdsParam = excludedChannelIds;
@@ -407,11 +408,14 @@ function ClaimListDiscover(props: Props) {
       case CS.DURATION_LONG:
         options.duration = '>=1200';
         break;
-      case CS.DURATION_GT_EQ:
-        options.duration = `>=${(durationMinutes || 0) * 60}`;
-        break;
-      case CS.DURATION_LT_EQ:
-        options.duration = `<=${(durationMinutes || 0) * 60}`;
+      case CS.DURATION_CUSTOM:
+        options.duration = [];
+        if (minDurationMinutes) {
+          options.duration.push(`>=${minDurationMinutes * 60}`);
+        }
+        if (maxDurationMinutes) {
+          options.duration.push(`<=${maxDurationMinutes * 60}`);
+        }
         break;
       default:
         console.error('Unhandled duration: ' + durationParam);
