@@ -27,7 +27,8 @@
   // Structure
   --color-border-base: 0, 0, 0;
   --color-border: rgba(var(--color-border-base), 0.2);
-  --color-background-base: 231, 231, 231;
+  // --color-background-base: 231, 231, 231;
+  --color-background-base: 255, 255, 255;
   --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: rgba(18, 18, 18, 0.9);
   --color-card-background: var(--color-header-background);
@@ -50,9 +51,9 @@
   --color-tooltip-text: var(--color-text);
 
   // Header
-  --color-header-button-base: 220, 220, 220;
+  --color-header-button-base: 255, 255, 255;
   --color-header-button: rgba(var(--color-header-button-base), 0.75);
-  --color-header-background-base: 255, 255, 255;
+  --color-header-background-base: 241, 241, 241;
   --color-header-background: rgba(var(--color-header-background-base), 0.92);
   --color-header-background-transparent: rgba(240, 240, 240, 0.95);
 

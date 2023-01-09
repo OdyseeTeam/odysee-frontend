@@ -940,11 +940,12 @@
 }
 
 .claim-grid__title {
-  font-weight: 300;
+  // font-weight: 300;
   font-size: var(--font-large);
   margin-right: var(--spacing-m);
   display: flex;
   color: var(--color-text);
+  margin-bottom: -4px;
 }
 
 .claim-grid__title-span {
