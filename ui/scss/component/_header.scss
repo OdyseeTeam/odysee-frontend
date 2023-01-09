@@ -59,7 +59,10 @@
     }
 
     .channel-thumbnail {
-      // border-bottom: 1px solid #c35321;
+      .channel-thumbnail__custom {
+        width: var(--height-button);
+        height: var(--height-button);
+      }
       .comment__badge {
         left: 20%;
         .icon {
