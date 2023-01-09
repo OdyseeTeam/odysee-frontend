@@ -1768,7 +1768,7 @@ $claim-preview-progress-bar-height: 5px;
   transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.freezeframe-wrapper {
+.media__thumb.freezeframe-wrapper {
   canvas.ff-canvas {
     border-radius: var(--border-radius) !important;
     border: 1px solid transparent;

@@ -275,7 +275,6 @@
 
     .icon {
       stroke: var(--color-navigation-active-text);
-      // stroke-width:2px;
     }
   }
 
@@ -342,7 +341,7 @@
 
   li {
     margin-bottom: 0px;
-    padding: 2px var(--spacing-xs) !important;
+    padding: 3px var(--spacing-xs) !important;
   }
 
   .button__content {
@@ -352,7 +351,6 @@
     border-radius: var(--border-radius);
 
     .icon {
-      // margin-top: 2px;
       height: 1.1rem;
       width: 1.1rem;
       stroke-width: 2px !important;
@@ -362,7 +360,6 @@
       font-size: var(--font-xxsmall);
       font-weight: var(--font-weight-base);
       margin-left: 0;
-      // margin-top: 2px;
     }
   }
 
