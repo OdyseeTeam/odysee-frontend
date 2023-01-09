@@ -108,6 +108,6 @@ config.URL_DEV = `http://localhost:${config.WEBPACK_WEB_PORT}`;
 config.URL_LOCAL = `http://localhost:${config.WEB_SERVER_PORT}`;
 // config.FAVICON = `/public/favicon-spaceman.png`;
 config.FAVICON = `https://thumbnails.odycdn.com/optimize/s:69:69/quality:85/plain/https://spee.ch/odysee-logo-png:3.png`;
-config.FAVICON_NOTIFICATION = `https://static.odycdn.com/emoticons/twemoji/nature/herb.png`;
+config.FAVICON_NOTIFICATION = `https://thumbnails.odycdn.com/optimize/s:69:69/quality:85/plain/https://thumbs.odycdn.com/35ff83a27ce3b5f8bd61bf4dc9c02604.webp`;
 
 module.exports = config;
