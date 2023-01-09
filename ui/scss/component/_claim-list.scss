@@ -1777,18 +1777,12 @@ $claim-preview-progress-bar-height: 5px;
     border-radius: var(--border-radius) !important;
     border: 1px solid transparent;
     opacity: 0;
+    width: 100%;
+    height: auto;
   }
   img.ff-image {
     border-radius: var(--border-radius) !important;
     border: 1px solid transparent;
     opacity: 1 !important;
   }
-  /*
-  img {
-    transition: all 0.2s ease;
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
-  */
 }
