@@ -5,7 +5,7 @@ import RewardListClaimed from './view';
 
 const select = state => ({
   rewards: selectClaimedRewards(state),
-  appLanguage: selectLanguage(state)
+  appLanguage: selectLanguage(state),
 });
 
 export default connect(select, null)(RewardListClaimed);
