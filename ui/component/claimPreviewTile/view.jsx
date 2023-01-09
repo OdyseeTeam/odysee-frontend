@@ -221,7 +221,7 @@ function ClaimPreviewTile(props: Props) {
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>
-        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
+        <FileThumbnail thumbnail={thumbnailUrl} tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
           {!isChannel && (
             <React.Fragment>
               {((fypId && isStream) || isPlayable) && (

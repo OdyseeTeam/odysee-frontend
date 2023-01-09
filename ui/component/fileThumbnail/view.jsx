@@ -62,7 +62,7 @@ function FileThumbnail(props: Props) {
     (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
   // thumbnailFromClaim returned null and passedThumbnail is still being set by useGetThumbnail hook
   const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
-  const isGif = thumbnail && thumbnail.endsWith('gif');
+  const isGif = thumbnail && (thumbnail.endsWith('gif') || thumbnail.endsWith('webp'));
 
   // React.useEffect(() => {
   //   if (hasResolvedClaim === false && uri && !passedThumbnail) {

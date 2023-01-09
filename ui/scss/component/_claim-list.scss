@@ -940,7 +940,6 @@
 }
 
 .claim-grid__title {
-  // font-weight: 300;
   font-size: var(--font-large);
   margin-right: var(--spacing-m);
   display: flex;
@@ -950,7 +949,6 @@
 
 .claim-grid__title-span {
   display: flex;
-  // margin-top:var(--spacing-m);
 
   &:hover {
     color: var(--color-primary);
@@ -1767,4 +1765,27 @@ $claim-preview-progress-bar-height: 5px;
   border: 1px solid var(--color-text);
 
   transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.freezeframe-wrapper {
+  canvas.ff-canvas {
+    border-radius: var(--border-radius) !important;
+    border: 1px solid transparent;
+  }
+  img.freezeframe-img {
+    border-radius: var(--border-radius) !important;
+    border: 1px solid transparent;
+    opacity: 0;
+  }
+  img.ff-image {
+    border-radius: var(--border-radius) !important;
+    border: 1px solid transparent;
+    opacity: 1 !important;
+  }
+  img {
+    transition: all 0.2s ease;
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
 }
