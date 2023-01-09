@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import { ENABLE_UI_NOTIFICATIONS } from 'config';
+import { ENABLE_UI_NOTIFICATIONS, FAVICON, FAVICON_NOTIFICATION } from 'config';
 import { buildUnseenCountStr } from 'util/notifications';
 
 type Props = {
@@ -16,6 +16,17 @@ export default function NotificationBubble(props: Props) {
 
   if (!notificationsEnabled) {
     return null;
+  }
+
+  var favicon = document.querySelector('link[rel="icon"]');
+  if (favicon) {
+    if (unseenCount > 0) {
+      // $FlowIgnore
+      favicon.href = FAVICON_NOTIFICATION;
+    } else {
+      // $FlowIgnore
+      favicon.href = FAVICON;
+    }
   }
 
   return (
