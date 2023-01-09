@@ -693,7 +693,8 @@ $actions-z-index: 2;
 }
 
 .channel-thumbnail__custom {
-  // width: 100%;
+  width: 2.1rem;
+  height: 2.1rem;
   object-fit: cover;
   font-size: 1px; // To hide the alt text on firefox;
 }
