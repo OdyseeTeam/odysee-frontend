@@ -76,7 +76,6 @@
 
     &:hover {
       overflow-y: auto;
-      // width: calc(var(--side-nav-width) + 6px);
     }
   }
 
@@ -111,7 +110,6 @@
   transform: translateX(0);
 
   @media (min-width: $breakpoint-medium) {
-    // transition: width 0.1s;
     &:hover {
       overflow-y: auto;
       width: calc(var(--side-nav-width) + 6px);
@@ -479,6 +477,8 @@
   opacity: 0;
   animation-timing-function: var(--resizing-animation-function);
   transition: visibility var(--resizing-animation-timing), opacity var(--resizing-animation-timing);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
 
   &.navigation__overlay--mac {
     top: calc(var(--header-height) + var(--mac-titlebar-height));
