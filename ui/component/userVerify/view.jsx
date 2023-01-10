@@ -168,7 +168,9 @@ class UserVerify extends React.PureComponent<Props> {
           <Card
             icon={ICONS.REMOVE}
             title={__('Skip')}
-            subtitle={__("Verifying is optional. If you skip this, it just means you can't earn LBRY Credits.")}
+            subtitle={__(
+              "Verifying is optional. If you skip this, it just means you can't earn LBRY Credits from our rewards system."
+            )}
             actions={
               <Fragment>
                 <Button {...skipButtonProps} button="primary" label={__('Continue Without Verifying')} />

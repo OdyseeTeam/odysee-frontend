@@ -108,6 +108,36 @@
   }
 }
 
+.claim-search__duration-inputs-container {
+  display: flex;
+  align-content: flex-start;
+
+  input {
+    margin-right: var(--spacing-m);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    width: 100%;
+
+    .claim-search__input-container {
+      margin-top: 0;
+
+      label {
+        margin-top: var(--spacing-m) !important;
+      }
+      input {
+        width: 100%;
+      }
+
+      &:first-of-type {
+        input {
+          width: calc(100% - var(--spacing-m));
+        }
+      }
+    }
+  }
+}
+
 .claim-search__filter-button {
   display: flex;
   justify-content: center;
@@ -198,7 +228,7 @@
 .claim-search__filters-wrapper-expanded {
   max-height: 300px;
   @media (max-width: $breakpoint-small) {
-    max-height: 600px;
+    max-height: 700px;
   }
 }
 
@@ -235,7 +265,16 @@
 
   select,
   input[type='text'],
+  input[type='number'],
   .filer-checkbox-wrapper {
     box-shadow: 0 0 0 2px var(--color-border) inset;
+  }
+
+  .filer-checkbox-wrapper {
+    padding-top: var(--spacing-xxxs);
+
+    label {
+      margin-top: 0 !important;
+    }
   }
 }
