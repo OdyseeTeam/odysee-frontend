@@ -56,14 +56,13 @@ export default function Portals(props: Props) {
   useOnResize(() => {
     if (wrapper.current) {
       let wrapperWidth = wrapper.current.offsetWidth + 12;
-      let tileWidth = wrapperWidth > 954 ? 6 : wrapperWidth > 870 ? 5 : wrapperWidth > 470 ? 3 : 2;
-      if (tileWidth === 6 && portals.mainPortal.portals.length < 9) {
-        tileWidth = portals.mainPortal.portals.lengthssss;
+      let tileNum = wrapperWidth > 954 ? 6 : wrapperWidth > 870 ? 5 : wrapperWidth > 470 ? 3 : 2;
+      if (tileNum === 6 && portals.mainPortal.portals.length < 9) {
+        tileNum = portals.mainPortal.portals.length;
       }
-
       setWidth(wrapperWidth);
-      setTileNum(tileWidth);
-      setTileWidth(wrapperWidth / tileWidth);
+      setTileNum(tileNum);
+      setTileWidth(wrapperWidth / tileNum);
     }
   });
 
@@ -157,7 +156,10 @@ export default function Portals(props: Props) {
                     border: `2px solid rgba(` + portal.css.rgb + `,1)`,
                   }}
                 >
-                  <img src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image} />
+                  <img
+                    style={{ width: tileWidth - 12, height: tileWidth - 12 }}
+                    src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image}
+                  />
                 </div>
                 <div className="portal-title" style={{ border: `2px solid rgba(` + portal.css.rgb + `,1)` }}>
                   <label>{portal.label}</label>
