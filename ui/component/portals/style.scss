@@ -6,7 +6,7 @@
   background-size: cover;
   border-radius: var(--border-radius);
   padding: var(--spacing-l) 12px;
-  margin-bottom: var(--spacing-l);
+  margin-bottom: var(--spacing-xxl);
   overflow: hidden;
 
   -webkit-touch-callout: none;
@@ -48,7 +48,6 @@
       border-bottom: none !important;
       transition: background 0.6s;
       img {
-        width: 100%;
         border-radius: var(--border-radius) var(--border-radius) 0 0;
       }
     }
