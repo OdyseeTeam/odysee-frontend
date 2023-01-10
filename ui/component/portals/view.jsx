@@ -57,6 +57,9 @@ export default function Portals(props: Props) {
     if (wrapper.current) {
       let wrapperWidth = wrapper.current.offsetWidth + 12;
       let tileWidth = wrapperWidth > 954 ? 6 : wrapperWidth > 870 ? 5 : wrapperWidth > 470 ? 3 : 2;
+      if (tileWidth === 6 && portals.mainPortal.portals.length < 9) {
+        tileWidth = portals.mainPortal.portals.lengthssss;
+      }
 
       setWidth(wrapperWidth);
       setTileNum(tileWidth);
