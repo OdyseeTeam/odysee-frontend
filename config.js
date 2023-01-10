@@ -106,7 +106,6 @@ config.PROXY_URL = `${config.SDK_API_PATH}/proxy`;
 
 config.URL_DEV = `http://localhost:${config.WEBPACK_WEB_PORT}`;
 config.URL_LOCAL = `http://localhost:${config.WEB_SERVER_PORT}`;
-// config.FAVICON = `/public/favicon-spaceman.png`;
 config.FAVICON = `https://thumbnails.odycdn.com/optimize/s:69:69/quality:85/plain/https://spee.ch/odysee-logo-png:3.png`;
 config.FAVICON_NOTIFICATION = `https://thumbnails.odycdn.com/optimize/s:69:69/quality:85/plain/https://thumbs.odycdn.com/f97d6348475c72b0e0278c0d627baf95.webp`;
 
