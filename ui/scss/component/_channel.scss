@@ -31,6 +31,12 @@ $actions-z-index: 2;
     top: var(--header-height);
     z-index: 10;
     margin-bottom: var(--spacing-l);
+
+    .channel-thumbnail__custom {
+      width: 100%;
+      height: 100%;
+    }
+
     @media (max-width: $breakpoint-small) {
       top: var(--header-height-mobile);
       margin-bottom: var(--spacing-s);
