@@ -7,7 +7,6 @@ import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
 
-import AstronautAndFriends from './internal/assets/astronaut_n_friends.png';
 import BadgePremium from './internal/assets/badge_premium.png';
 import BadgePremiumPlus from './internal/assets/badge_premium-plus.png';
 import OdyseePremium from './internal/assets/odysee_premium.png';
@@ -25,7 +24,13 @@ const MembershipSplash = (props: Props) => {
   return (
     <div className="membership-splash">
       <div className="membership-splash__banner">
-        <img width="1000" height="740" src={AstronautAndFriends} />
+        <img
+          width="1000"
+          height="740"
+          src={
+            'https://thumbnails.odycdn.com/optimize/s:1000:740/quality:85/plain/https://thumbs.odycdn.com/1ae335f3acdc8c0cb9325c3767deff3d.webp'
+          }
+        />
 
         <section className="membership-splash__title">
           <section>

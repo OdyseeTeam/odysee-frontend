@@ -130,7 +130,7 @@ export default function Portals(props: Props) {
         backgroundImage:
           'url(https://thumbnails.odycdn.com/optimize/s:' +
           imageWidth +
-          ':0/quality:95/plain/' +
+          ':0/quality:85/plain/' +
           portals.mainPortal.background +
           ')',
       }}

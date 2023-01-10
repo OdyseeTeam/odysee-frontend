@@ -520,7 +520,7 @@
 .claim-preview--premium-plus {
   .media__thumb {
     background-color: #283263;
-    background-image: url('~ui/component/membershipSplash/internal/assets/astronaut_n_friends.png');
+    background-image: url('https://thumbnails.odycdn.com/optimize/s:275:0/quality:85/plain/https://thumbs.odycdn.com/1ae335f3acdc8c0cb9325c3767deff3d.webp');
     background-size: 100%;
   }
 
@@ -1781,7 +1781,7 @@ $claim-preview-progress-bar-height: 5px;
     border: 1px solid transparent;
     opacity: 0;
     width: 100%;
-    height: auto;
+    aspect-ratio: 16 / 9;
   }
   img.ff-image {
     border-radius: var(--border-radius) !important;
