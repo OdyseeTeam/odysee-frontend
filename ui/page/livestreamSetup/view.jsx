@@ -212,7 +212,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Button
           key={'Publish'}
           iconSize={18}
-          label={'Publish'}
+          label={__('Publish')}
           button="alt"
           onClick={() => {
             setTab('Publish');
@@ -223,7 +223,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Button
           key={'Setup'}
           iconSize={18}
-          label={'Local Setup'}
+          label={__('Local Setup')}
           button="alt"
           onClick={() => {
             setTab('Setup');
