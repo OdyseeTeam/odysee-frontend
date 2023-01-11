@@ -247,7 +247,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Icon icon={ICONS.VIDEO} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />}
         </label>
       </h1>
       <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />
