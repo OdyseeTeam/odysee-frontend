@@ -8,7 +8,7 @@ import './style.scss';
 // AdsSticky
 // ****************************************************************************
 
-const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
+// const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
 
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
@@ -117,47 +117,60 @@ export default function AdsSticky(props: Props) {
       } catch (e) {}
     }
   }, [shouldShowAds, AD_CONFIGS, isActive]);
-*/
+  */
 
   React.useEffect(() => {
-    let script, scriptSticky;
+    let script, scriptId, scriptSticky;
     try {
       script = document.createElement('script');
       script.src = AD_CONFIG.url;
       // $FlowIgnore
       document.body.appendChild(script);
 
+      scriptId = document.createElement('script');
+      scriptId.innerHTML = 'let rcStickyWidgetId = 274420;';
+      document.body.appendChild(scriptId);
+
       scriptSticky = document.createElement('script');
       scriptSticky.src = 'https://x.revcontent.com/rc_sticky_all.js';
       // $FlowIgnore
       document.body.appendChild(scriptSticky);
-      console.log();
-      const ad = document.getElementsByClassName('sticky-d-rc');
-      console.log('ad: ', ad);
+
+      /*
+      const ad = document.getElementsByClassName('sticky-d-rc-content');
+      if(ad){
+        console.log('ad: ', ad);
+        // ad.appendChild(script);
+        // ad.appendChild(scriptSticky);
+      }else{
+        console.log('aaaaaaaaaaaaaaaaaaaaaaaaaa');
+      }
+      */
     } catch (e) {}
 
+    /*
     return () => {
       // $FlowIgnore
       if (script) document.body.removeChild(script);
+      if (scriptSticky) document.body.removeChild(scriptSticky);
     };
+    */
   }, [shouldShowAds, AD_CONFIG, isActive]);
 
   return (
-    <>
-      <div id="sticky-d-rc" className="hidden-rc-sticky">
-        <div className="sticky-d-rc">
-          <div className="sticky-d-rc-close">
-            Sponsored<button id="rcStickyClose">X</button>
-          </div>
-          <div className="sticky-d-rc-content">
-            <div id="rc-widget-sticky-d"></div>
-            {/* <script type="text/javascript" src="https://assets.revcontent.com/master/delivery.js" defer="defer"></script> */}
-            <script>let rcStickyWidgetId = 274420;</script>
-            {/* <script type="text/javascript" src="https://x.revcontent.com/rc_sticky_all.js" defer="defer"></script> */}
-          </div>
+    <div id="sticky-d-rc" className="hidden-rc-sticky">
+      <div className="sticky-d-rc">
+        <div className="sticky-d-rc-close">
+          Sponsored<button id="rcStickyClose">X</button>
+        </div>
+        <div className="sticky-d-rc-content">
+          <div id="rc-widget-sticky-d"></div>
+          {/* <script type="text/javascript" src="https://assets.revcontent.com/master/delivery.js" defer="defer"></script> */}
+          {/* <script>let rcStickyWidgetId = 274420;</script> */}
+          {/* <script type="text/javascript" src="https://x.revcontent.com/rc_sticky_all.js" defer="defer"></script> */}
         </div>
       </div>
-    </>
+    </div>
   );
   //return null; // Nothing for us to mount; the ad script will handle everything.
 }
@@ -165,7 +178,7 @@ export default function AdsSticky(props: Props) {
 // ****************************************************************************
 // Helpers
 // ****************************************************************************
-
+/*
 function inIFrame() {
   try {
     return window.self !== window.top;
@@ -173,3 +186,4 @@ function inIFrame() {
     return true;
   }
 }
+*/

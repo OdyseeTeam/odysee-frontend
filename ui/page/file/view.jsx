@@ -332,8 +332,8 @@ export default function FilePage(props: Props) {
                     <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
                   ) : isMobile && !isLandscapeRotated ? (
                     <React.Fragment>
-                      <AdsRCAboveComments />
                       <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
+                        <AdsRCAboveComments />
                         <CommentsList {...commentsListProps} />
                       </SwipeableDrawer>
 
@@ -341,8 +341,8 @@ export default function FilePage(props: Props) {
                     </React.Fragment>
                   ) : (
                     <>
-                      <AdsRCAboveComments />
                       {/* normal comments list */}
+                      <AdsRCAboveComments />
                       {contentUnlocked && <CommentsList {...commentsListProps} notInDrawer />}
                     </>
                   )}
@@ -360,6 +360,7 @@ export default function FilePage(props: Props) {
         : !commentSettingDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>
+                <AdsRCAboveComments />
                 <>{contentUnlocked && <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />}</>
               </React.Suspense>
             </div>

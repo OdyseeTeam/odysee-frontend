@@ -50,14 +50,16 @@ function Ads(props: Props) {
   if (type === 'video') {
     if (shouldShowAds) {
       return (
-        <div
-          className="rc_tile"
-          id="rc-widget-fceddd"
-          data-rc-widget
-          data-widget-host="habitat"
-          data-endpoint="//trends.revcontent.com"
-          data-widget-id="273434"
-        />
+        <li className="claim-preview--tile">
+          <div
+            className="rc_tile"
+            id="rc-widget-fceddd"
+            data-rc-widget
+            data-widget-host="habitat"
+            data-endpoint="//trends.revcontent.com"
+            data-widget-id="273434"
+          />
+        </li>
       );
     } else if (!noFallback) {
       return <PremiumPlusTile tileLayout={tileLayout} />;

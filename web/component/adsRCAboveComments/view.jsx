@@ -45,7 +45,7 @@ function AdsRCAboveComments(props: Props) {
 
         return () => {
           // $FlowIgnore
-          document.body.removeChild(script);
+          if (script) document.body.removeChild(script);
         };
       } catch (e) {}
     }

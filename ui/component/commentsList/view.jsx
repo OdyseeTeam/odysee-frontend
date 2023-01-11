@@ -22,6 +22,7 @@ import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
 import { useHistory } from 'react-router-dom';
 import CommentListMenu from './internal/commentListMenu';
+import AdsRCAboveComments from 'web/component/adsRCAboveComments';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
 

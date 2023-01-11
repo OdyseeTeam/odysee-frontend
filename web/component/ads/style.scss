@@ -3,12 +3,13 @@
 .rc_tile {
   border-radius: var(--border-radius);
   padding: 0 !important;
-  margin-left: var(--spacing-m);
+  // margin-left: var(--spacing-m);
 
   .rc-widget-header {
     display: none !important;
   }
 
+  /*
   @media (min-width: $breakpoint-small) {
     width: calc((100% - var(--spacing-m) * 3) / 3) !important;
   }
@@ -24,6 +25,8 @@
   @media (max-width: $breakpoint-small) {
     margin-bottom: var(--spacing-s);
   }
+  */
+  width: 100%;
 
   .css-widget-item-wrap {
     // padding-top:var(--spacing-m);
