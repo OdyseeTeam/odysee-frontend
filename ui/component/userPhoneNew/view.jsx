@@ -111,7 +111,7 @@ class UserPhoneNew extends React.PureComponent<Props, State> {
               />
             </fieldset-group>
             <div className="card__actions">
-              <Submit label="Submit" disabled={isPending} />
+              <Submit label={__('Submit')} disabled={isPending} />
               {cancelButton}
             </div>
           </Form>
