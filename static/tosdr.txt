@@ -4,12 +4,12 @@ Domains: odysee.com
 
 Document-Name: Terms and Conditions
 Url: https://odysee.com/$/tos
-Path: //body
+Path: /html/body/div[1]/div/div[5]/div[2]/main/section/div/div[2]/div
 
 Document-Name: Privacy Policy
 Url: https://odysee.com/$/privacypolicy
-Path: //body
+Path: /html/body/div[1]/div/div[5]/div[2]/main/section/div/div[2]/div
 
 Document-Name: Community Guidelines
 Url: https://help.odysee.tv/communityguidelines/
-Path: //body
+Path: /html/body/div[1]/div[2]/div/main/div/div/div[1]/div/article/div[2]
