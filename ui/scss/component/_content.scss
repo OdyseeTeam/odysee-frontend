@@ -424,6 +424,7 @@
 .content__cover--theater-mode {
   @extend .content__cover;
   border-radius: 0;
+  height: 100%;
 }
 
 .content__cover--none {
