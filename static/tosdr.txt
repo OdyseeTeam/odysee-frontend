@@ -2,7 +2,7 @@ ID: 6751 # Phoenix Service ID
 
 Domains: odysee.com
 
-Document-Name: Terms and Conditions
+Document-Name: Terms of Service
 Url: https://odysee.com/$/tos
 Path: /html/body/div[1]/div/div[5]/div[2]/main/section/div/div[2]/div
 
