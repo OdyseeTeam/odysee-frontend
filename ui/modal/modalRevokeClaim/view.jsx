@@ -78,7 +78,7 @@ export default function ModalRevokeClaim(props: Props) {
           </p>
           <p>
             {__(
-              'If something went wrong with the sync, please don\'t try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it.'
+              "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it."
             )}
 
           <p>{__('Are you sure? Type %name% to confirm that you wish to remove the channel.', { name })}</p>
