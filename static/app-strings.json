@@ -2663,6 +2663,9 @@
   "Enjoy!": "Enjoy!",
   "Collection does not exist.": "Collection does not exist.",
   "LIVE": "LIVE",
+  "YOUTUBE SYNCED CHANNELS!": "YOUTUBE SYNCED CHANNELS!",
+  "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it.": "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it.",
+
 
   "--end--": "--end--"
 }
