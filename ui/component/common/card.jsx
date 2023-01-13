@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import twemoji from 'twemoji';
+// import twemoji from 'twemoji';
 import Tooltip from 'component/common/tooltip';
 
 type Props = {
@@ -180,6 +180,7 @@ type TitleProps = {
 const TitleWrapper = (props: TitleProps) => {
   const { isPageTitle, smallTitle, children, accessStatus } = props;
 
+  /*
   const Twemoji = ({ emoji }) => (
     <span
       dangerouslySetInnerHTML={{
@@ -190,6 +191,7 @@ const TitleWrapper = (props: TitleProps) => {
       }}
     />
   );
+  */
 
   const AccessIndicator = (par: any) => {
     return (
@@ -207,6 +209,7 @@ const TitleWrapper = (props: TitleProps) => {
     );
   };
 
+  /*
   function transformer(children) {
     for (let child in children?.props?.children) {
       if (typeof children?.props?.children[child] === 'string') {
@@ -215,11 +218,20 @@ const TitleWrapper = (props: TitleProps) => {
     }
     return children;
   }
+  */
+  function transformer(children) {
+    for (let child in children?.props?.children) {
+      if (typeof children?.props?.children[child] === 'string') {
+        return children?.props?.children[child];
+      }
+    }
+    return children;
+  }
 
   return isPageTitle ? (
-    <h1 className="card__title">
+    <h1 className="card__title" dangerouslySetInnerHTML={{ __html: transformer(children) }}>
       {accessStatus && <AccessIndicator status={accessStatus} />}
-      {transformer(children)}
+      {/* transformer(children) */}
     </h1>
   ) : (
     <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{children}</h2>

@@ -574,6 +574,7 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
+          <AdBlockTester />
         </AppContext.Provider>
       )}
     </div>

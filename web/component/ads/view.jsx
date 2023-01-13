@@ -22,15 +22,17 @@ type Props = {
   noFallback?: boolean,
   // --- redux ---
   shouldShowAds: boolean,
+  doSetAdBlockerFound: (boolean) => void,
 };
 
 function Ads(props: Props) {
-  const { type = 'video', tileLayout, shouldShowAds, noFallback } = props;
+  const { type = 'video', tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
   // const isMobile = useIsMobile();
-  const [isActive, setIsActive] = React.useState(false);
+  // const [isActive, setIsActive] = React.useState(false);
+  const ref = React.useRef();
 
   React.useEffect(() => {
-    if (shouldShowAds && !DISABLE_VIDEO_AD && !isActive) {
+    if (shouldShowAds && !DISABLE_VIDEO_AD) {
       let script;
       try {
         script = document.createElement('script');
@@ -45,7 +47,14 @@ function Ads(props: Props) {
         if (script) document.body.removeChild(script);
       };
     }
-  }, [shouldShowAds, AD_CONFIG, isActive]);
+  }, [shouldShowAds, AD_CONFIG]);
+
+  React.useEffect(() => {
+    if (ref.current) {
+      const mountedStyle = getComputedStyle(ref.current);
+      doSetAdBlockerFound(mountedStyle?.display === 'none');
+    }
+  }, []);
 
   if (type === 'video') {
     if (shouldShowAds) {
@@ -54,6 +63,7 @@ function Ads(props: Props) {
           <div
             className="rc_tile"
             id="rc-widget-fceddd"
+            ref={ref}
             data-rc-widget
             data-widget-host="habitat"
             data-endpoint="//trends.revcontent.com"

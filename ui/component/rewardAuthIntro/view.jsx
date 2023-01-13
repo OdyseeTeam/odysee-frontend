@@ -19,7 +19,7 @@ function RewardAuthIntro(props: Props) {
 
   return (
     <Card
-      title={title || __('Log in to %SITE_NAME% to earn rewards', { SITE_NAME })}
+      title={title || __('Unlock %SITE_NAME% rewards to earn Credits', { SITE_NAME })}
       subtitle={
         <I18nMessage
           tokens={{
@@ -27,8 +27,7 @@ function RewardAuthIntro(props: Props) {
             site_name: SITE_NAME,
           }}
         >
-          A %site_name% account allows you to earn more than %credit_amount% in rewards, backup your data, and get
-          content and security updates.
+          Unlocking %site_name% rewards allows you to earn more than %credit_amount% in rewards.
         </I18nMessage>
       }
       actions={

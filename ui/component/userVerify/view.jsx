@@ -75,39 +75,6 @@ class UserVerify extends React.PureComponent<Props> {
 
         <div className="section">
           <Card
-            icon={ICONS.PHONE}
-            title={__('Verify phone number')}
-            subtitle={__(
-              'You will receive an SMS text message confirming your phone number is valid. May not be available in all regions.'
-            )}
-            actions={
-              <Fragment>
-                <Button
-                  onClick={() => {
-                    verifyPhone();
-                  }}
-                  button="primary"
-                  label={__('Verify Via Text')}
-                />
-                <p className="help">
-                  {__('Standard messaging rates apply. Having trouble?')}{' '}
-                  <Button
-                    button="link"
-                    href="https://help.odysee.tv/category-monetization/category-rewards/"
-                    label={__('Read more')}
-                  />
-                  .
-                </p>
-              </Fragment>
-            }
-          />
-
-          <div className="section__divider">
-            <hr />
-            <p>{__('OR')}</p>
-          </div>
-
-          <Card
             icon={ICONS.WALLET}
             title={__('Verify via credit card')}
             subtitle={__('Your card information will not be stored or charged, now or in the future.')}
@@ -166,9 +133,44 @@ class UserVerify extends React.PureComponent<Props> {
           </div>
 
           <Card
+            icon={ICONS.PHONE}
+            title={__('Verify phone number')}
+            // subtitle={__('You will receive an SMS text message confirming your phone number is valid. May not be available in all regions.')}
+            subtitle={__('Service currently unavailable')}
+            className="disabled"
+            actions={
+              <Fragment>
+                <Button
+                  onClick={() => {
+                    verifyPhone();
+                  }}
+                  button="primary"
+                  label={__('Verify Via Text')}
+                />
+                <p className="help">
+                  {__('Standard messaging rates apply. Having trouble?')}{' '}
+                  <Button
+                    button="link"
+                    href="https://help.odysee.tv/category-monetization/category-rewards/"
+                    label={__('Read more')}
+                  />
+                  .
+                </p>
+              </Fragment>
+            }
+          />
+
+          <div className="section__divider">
+            <hr />
+            <p>{__('OR')}</p>
+          </div>
+
+          <Card
             icon={ICONS.REMOVE}
             title={__('Skip')}
-            subtitle={__("Verifying is optional. If you skip this, it just means you can't earn LBRY Credits.")}
+            subtitle={__(
+              "Verifying is optional. If you skip this, it just means you can't earn LBRY Credits from our rewards system."
+            )}
             actions={
               <Fragment>
                 <Button {...skipButtonProps} button="primary" label={__('Continue Without Verifying')} />
