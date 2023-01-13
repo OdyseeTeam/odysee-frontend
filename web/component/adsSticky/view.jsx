@@ -51,9 +51,9 @@ export default function AdsSticky(props: Props) {
     let script, scriptId, scriptSticky;
     if (!isActive && inAllowedPath && locale && !locale.gdpr_required && !nagsShown) {
       try {
-        const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex(
-          (e) => e.src.indexOf('rc_sticky_all') !== -1
-        );
+        const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.src.indexOf('rc_sticky_all') && e.src.indexOf('delivery'));
+        });
 
         if (!checkExisting) {
           script = document.createElement('script');

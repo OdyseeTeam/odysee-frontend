@@ -21,6 +21,8 @@
         width: unset;
         height: unset;
         top: -40px;
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
 
         #rcStickyClose {
           background-color: var(--color-primary);
