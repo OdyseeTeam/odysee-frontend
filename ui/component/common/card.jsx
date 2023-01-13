@@ -229,9 +229,9 @@ const TitleWrapper = (props: TitleProps) => {
   }
 
   return isPageTitle ? (
-    <h1 className="card__title" dangerouslySetInnerHTML={{ __html: transformer(children) }}>
+    <h1 className="card__title">
       {accessStatus && <AccessIndicator status={accessStatus} />}
-      {/* transformer(children) */}
+      <font dangerouslySetInnerHTML={{ __html: transformer(children) }} />
     </h1>
   ) : (
     <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{children}</h2>
