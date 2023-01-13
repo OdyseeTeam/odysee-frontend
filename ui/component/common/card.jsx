@@ -219,12 +219,19 @@ const TitleWrapper = (props: TitleProps) => {
     return children;
   }
   */
+  function transformer(children) {
+    for (let child in children?.props?.children) {
+      if (typeof children?.props?.children[child] === 'string') {
+        return children?.props?.children[child];
+      }
+    }
+    return children;
+  }
 
   return isPageTitle ? (
-    <h1 className="card__title">
+    <h1 className="card__title" dangerouslySetInnerHTML={{ __html: transformer(children) }}>
       {accessStatus && <AccessIndicator status={accessStatus} />}
       {/* transformer(children) */}
-      {children}
     </h1>
   ) : (
     <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{children}</h2>
