@@ -537,7 +537,8 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   const isMobile = useIsMobile();
   const isMobilePlayer = isMobile && !isFloating; // to avoid miniplayer -> file page only
 
-  const heightForViewer = getPossiblePlayerHeight(videoAspectRatio * fileViewerRect.width, isMobile);
+  const minRatio = videoAspectRatio >= 9 / 16 ? videoAspectRatio : 9 / 16;
+  const heightForViewer = getPossiblePlayerHeight(minRatio * fileViewerRect.width, isMobile);
   const widthForViewer = heightForViewer / videoAspectRatio;
   const maxLandscapeHeight = getMaxLandscapeHeight(isMobile ? undefined : widthForViewer);
   const heightResult = appDrawerOpen ? `${maxLandscapeHeight}px` : `${heightForViewer}px`;
@@ -664,7 +665,11 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
       styles={{
         [`.${PRIMARY_PLAYER_WRAPPER_CLASS}`]: {
           height:
-            !theaterMode && mainFilePlaying && fileViewerRect?.height > 0 ? `${heightResult} !important` : undefined,
+            !theaterMode && mainFilePlaying && fileViewerRect?.height > 0
+              ? `${heightResult} !important`
+              : isMobile && !isLandscapeRotated && mainFilePlaying
+              ? `${heightResult}`
+              : undefined,
           opacity: !theaterMode && mainFilePlaying ? '0 !important' : undefined,
         },
 
