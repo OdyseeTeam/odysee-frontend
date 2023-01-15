@@ -295,9 +295,11 @@ function VideoViewer(props: Props) {
   // MORE ON PLAY STUFF
   function onPlay(player) {
     videoEnded.current = false;
+    /*
     try {
       setIsPlaying(true);
     } catch (error) {}
+    */
     doSetShowAutoplayCountdownForUri({ uri, show: false });
     if (embedContext) embedContext.setVideoEnded(false);
     analytics.video.videoIsPlaying(true, player);
