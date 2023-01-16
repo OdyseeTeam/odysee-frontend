@@ -194,7 +194,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      updateClaim();
+      if (!currentUriPlaying && autoRenderClaim) updateClaim();
     }, [
       claimLinkId,
       collectionId,
@@ -221,7 +221,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         commentId: undefined,
       };
 
+      // const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
       let check = playingOptions.uri === currentStreamingUri;
+      // console.log('sourceId: ', playingOptions.sourceId)
 
       if (parentCommentId) {
         playingOptions.source = 'comment';

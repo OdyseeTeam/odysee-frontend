@@ -1083,6 +1083,10 @@ body {
     }
   }
 
+  .content__loading {
+    display: none !important;
+  }
+
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
     .claim-preview__wrapper {

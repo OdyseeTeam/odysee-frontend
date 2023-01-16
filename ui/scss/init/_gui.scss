@@ -2182,6 +2182,10 @@ img {
     margin-bottom: -1px !important;
     // margin-left:2px !important;
   }
+
+  .content__loading {
+    display: none !important;
+  }
 }
 
 .comments .markdown-preview .claim-link,
