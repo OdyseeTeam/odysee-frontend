@@ -45,7 +45,7 @@ router.get(`/$/api/content/v2/get`, async (ctx) => getHomepage(ctx, 2));
 router.get(`/$/download/:claimName/:claimId`, async (ctx) => {
   const streamUrl = await getStreamUrl(ctx);
   if (streamUrl) {
-    const downloadUrl = `${streamUrl}?download=true`;
+    const downloadUrl = `${streamUrl}?download=true&magic=${Number(Math.round(Date.now() / 1000))}`;
     ctx.append('odysee-download', 'true');
     ctx.redirect(downloadUrl);
   }
