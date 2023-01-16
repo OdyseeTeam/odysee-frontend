@@ -469,6 +469,10 @@
   &.draggable {
     cursor: grab;
   }
+
+  &::before {
+    padding-top: unset !important;
+  }
 }
 
 .content__autoplay-countdown {

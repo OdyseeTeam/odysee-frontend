@@ -194,7 +194,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      if (!currentUriPlaying && autoRenderClaim) updateClaim();
+      if (autoRenderClaim || (alreadyPlaying && !embedded)) updateClaim();
     }, [
       claimLinkId,
       collectionId,
