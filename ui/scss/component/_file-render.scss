@@ -307,8 +307,8 @@
 
 .file-page__video-container {
   position: relative;
-  height: var(--desktop-portrait-player-max-height);
   max-height: var(--desktop-portrait-player-max-height);
+  aspect-ratio: 16 / 9;
 }
 
 .file-page__pdf-wrapper {
