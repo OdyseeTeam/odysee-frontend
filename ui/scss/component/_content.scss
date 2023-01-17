@@ -16,6 +16,7 @@
 .content__viewer--mobile {
   border-radius: 0;
   position: fixed;
+  max-width: 100%;
   top: var(--header-height-mobile);
 }
 
