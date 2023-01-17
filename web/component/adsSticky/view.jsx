@@ -38,6 +38,7 @@ export default function AdsSticky(props: Props) {
     nagsShown,
   } = props;
 
+  // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
 
