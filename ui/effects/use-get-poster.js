@@ -7,7 +7,7 @@ import FileRenderPlaceholder from 'static/img/fileRenderPlaceholder.png';
 
 export default function useGetPoster(claimThumbnail: ?string) {
   const [thumbnail, setThumbnail] = React.useState(FileRenderPlaceholder);
-  
+
   React.useEffect(() => {
     if (!claimThumbnail) {
       setThumbnail(FileRenderPlaceholder);
