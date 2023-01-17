@@ -53,7 +53,9 @@ export default function AdsSticky(props: Props) {
     if (!isActive && inAllowedPath && locale && !locale.gdpr_required && !nagsShown) {
       try {
         const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-          return Boolean(e.src.indexOf('rc_sticky_all') && e.src.indexOf('delivery'));
+          return Boolean(
+            e.src.indexOf('rc_sticky_all') && e.src.indexOf('delivery') && e.innerHTML.indexOf('rcStickyWidgetId')
+          );
         });
 
         if (!checkExisting) {
