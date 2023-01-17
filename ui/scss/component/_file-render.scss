@@ -307,8 +307,8 @@
 
 .file-page__video-container {
   position: relative;
-  height: var(--desktop-portrait-player-max-height);
   max-height: var(--desktop-portrait-player-max-height);
+  aspect-ratio: 16 / 9;
 }
 
 .file-page__pdf-wrapper {
@@ -1169,6 +1169,10 @@ $control-bar-icon-size: 30px;
       margin-right: -6px !important;
     }
   }
+
+  &.file-render--video {
+    aspect-ratio: 16 / 9;
+  }
 }
 
 .file-viewer--ended-embed {
@@ -1266,4 +1270,8 @@ $control-bar-icon-size: 30px;
   img {
     cursor: pointer;
   }
+}
+
+.inline-player__wrapper {
+  aspect-ratio: 16 / 9;
 }
