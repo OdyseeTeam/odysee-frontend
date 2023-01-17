@@ -1169,6 +1169,10 @@ $control-bar-icon-size: 30px;
       margin-right: -6px !important;
     }
   }
+
+  &.file-render--video {
+    aspect-ratio: 16 / 9;
+  }
 }
 
 .file-viewer--ended-embed {
@@ -1266,4 +1270,8 @@ $control-bar-icon-size: 30px;
   img {
     cursor: pointer;
   }
+}
+
+.inline-player__wrapper {
+  aspect-ratio: 16 / 9;
 }
