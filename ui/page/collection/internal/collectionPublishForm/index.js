@@ -8,7 +8,10 @@ import {
 } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
-import { selectCollectionHasEditsForId, selectHasUnavailableClaimIdsForCollectionId } from 'redux/selectors/collections';
+import {
+  selectCollectionHasEditsForId,
+  selectHasUnavailableClaimIdsForCollectionId,
+} from 'redux/selectors/collections';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 
 import { doCollectionPublish, doCollectionEdit, doClearEditsForCollectionId } from 'redux/actions/collections';

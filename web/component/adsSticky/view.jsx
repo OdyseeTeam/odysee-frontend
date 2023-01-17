@@ -1,14 +1,19 @@
 // @flow
 import React from 'react';
-import { useHistory } from 'react-router-dom';
-import analytics from 'analytics';
+import './style.scss';
 
 // ****************************************************************************
 // AdsSticky
 // ****************************************************************************
 
-const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
-let gScript;
+// const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
+
+// prettier-ignore
+const AD_CONFIG = Object.freeze({
+  url: 'https://assets.revcontent.com/master/delivery.js',
+  sticky: 'https://x.revcontent.com/rc_sticky_all.js',
+  id: '274420',
+});
 
 type Props = {
   uri: ?string,
@@ -33,13 +38,9 @@ export default function AdsSticky(props: Props) {
     nagsShown,
   } = props;
 
-  const { location } = useHistory();
-  const [refresh, setRefresh] = React.useState(0);
-
-  // Global conditions aside, should the Sticky be shown for this path:
+  // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
-  // Final answer:
-  const shouldLoadSticky = shouldShowAds && !gScript && inAllowedPath && !inIFrame();
+  const [isActive, setIsActive] = React.useState(false);
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
@@ -48,43 +49,46 @@ export default function AdsSticky(props: Props) {
   }
 
   React.useEffect(() => {
-    if (shouldLoadSticky) {
-      window.googletag = window.googletag || { cmd: [] };
-
-      gScript = document.createElement('script');
-      gScript.src = 'https://adncdnend.azureedge.net/adtags/odyseeKp.js';
-      gScript.async = true;
-      gScript.addEventListener('load', () => setRefresh(Date.now()));
-
+    let script, scriptId, scriptSticky;
+    if (!isActive && inAllowedPath && locale && !locale.gdpr_required && !nagsShown) {
       try {
-        const head = document.head || document.getElementsByTagName('head')[0];
-        head.appendChild(gScript); // Vendor's desired location, although I don't think location matters.
-      } catch (e) {
-        analytics.log(e, { fingerprint: ['adsSticky::scriptAppendFailed'] }, 'adsSticky::scriptAppendFailed');
-      }
+        const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.src.indexOf('rc_sticky_all') && e.src.indexOf('delivery'));
+        });
+
+        if (!checkExisting) {
+          script = document.createElement('script');
+          script.src = AD_CONFIG.url;
+
+          scriptId = document.createElement('script');
+          scriptId.innerHTML = 'let rcStickyWidgetId = ' + AD_CONFIG.id + ';';
+
+          scriptSticky = document.createElement('script');
+          scriptSticky.src = 'https://x.revcontent.com/rc_sticky_all.js';
+
+          // $FlowIgnore
+          document.body.appendChild(script);
+          // $FlowIgnore
+          document.body.appendChild(scriptId);
+          // $FlowIgnore
+          document.body.appendChild(scriptSticky);
+
+          setIsActive(true);
+        }
+      } catch (e) {}
     }
-  }, [shouldLoadSticky]);
+  }, [shouldShowAds, AD_CONFIG, isActive]);
 
-  React.useEffect(() => {
-    const container = window[OUTBRAIN_CONTAINER_KEY];
-    if (container) {
-      container.style.display = inAllowedPath ? '' : 'none';
-    }
-    const ad = document.getElementsByClassName('OUTBRAIN')[0];
-    if (ad && locale && !locale.gdpr_required && !nagsShown) ad.classList.add('VISIBLE');
-  }, [inAllowedPath, refresh]);
-
-  return null; // Nothing for us to mount; the ad script will handle everything.
-}
-
-// ****************************************************************************
-// Helpers
-// ****************************************************************************
-
-function inIFrame() {
-  try {
-    return window.self !== window.top;
-  } catch (e) {
-    return true;
-  }
+  return (
+    <div id="sticky-d-rc" className="hidden-rc-sticky">
+      <div className="sticky-d-rc">
+        <div className="sticky-d-rc-close">
+          Sponsored<button id="rcStickyClose">X</button>
+        </div>
+        <div className="sticky-d-rc-content">
+          <div id="rc-widget-sticky-d" />
+        </div>
+      </div>
+    </div>
+  );
 }

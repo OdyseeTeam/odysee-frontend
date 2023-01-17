@@ -1,9 +1,5 @@
 import { connect } from 'react-redux';
-import {
-  selectClaimIsMine,
-  selectClaimForUri,
-  selectProtectedContentTagForUri,
-} from 'redux/selectors/claims';
+import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import {
   makeSelectFileInfoForUri,
   makeSelectDownloadingForUri,

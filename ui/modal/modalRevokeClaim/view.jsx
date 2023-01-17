@@ -73,9 +73,7 @@ export default function ModalRevokeClaim(props: Props) {
           <p>
             {__('This will permanently remove your channel. Content published under this channel will be orphaned.')}
           </p>
-          <p>
-            {__('YOUTUBE SYNCED CHANNELS!')}
-          </p>
+          <p>{__('YOUTUBE SYNCED CHANNELS!')}</p>
           <p>
             {__(
               "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it."

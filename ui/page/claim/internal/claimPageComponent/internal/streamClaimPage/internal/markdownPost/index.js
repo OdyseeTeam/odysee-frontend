@@ -24,4 +24,4 @@ const select = (state, props) => {
   };
 };
 
-export default (connect(select)(MarkdownPostPage));
+export default connect(select)(MarkdownPostPage);

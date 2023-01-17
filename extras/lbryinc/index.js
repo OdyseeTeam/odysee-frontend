@@ -37,8 +37,16 @@ export { syncReducer } from './redux/reducers/sync';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from './redux/selectors/auth';
-export { selectBlackListedOutpoints, selectBlacklistedOutpointMap, selectIsClaimBlackListedForUri } from './redux/selectors/blacklist';
-export { selectFilteredOutpoints, selectFilteredOutpointMap, selectIsClaimFilteredForUri } from './redux/selectors/filtered';
+export {
+  selectBlackListedOutpoints,
+  selectBlacklistedOutpointMap,
+  selectIsClaimBlackListedForUri,
+} from './redux/selectors/blacklist';
+export {
+  selectFilteredOutpoints,
+  selectFilteredOutpointMap,
+  selectIsClaimFilteredForUri,
+} from './redux/selectors/filtered';
 // export {
 //   selectFeaturedUris,
 //   selectFetchingFeaturedUris,

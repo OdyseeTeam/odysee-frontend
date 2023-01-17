@@ -19,14 +19,7 @@ type Props = {
 };
 
 const ClaimPage = (props: Props) => {
-  const {
-    uri,
-    latestContentPath,
-    liveContentPath,
-    isMarkdownPost,
-    isLivestreamClaim,
-    chatDisabled,
-  } = props;
+  const { uri, latestContentPath, liveContentPath, isMarkdownPost, isLivestreamClaim, chatDisabled } = props;
 
   const { isChannel } = parseURI(uri);
 
