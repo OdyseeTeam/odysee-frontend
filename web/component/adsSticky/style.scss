@@ -1,6 +1,10 @@
 @import '~ui/scss/init/breakpoints';
 
 .main-wrapper {
+  .hidden-rc-sticky {
+    display: none !important;
+  }
+
   #sticky-d-rc {
     bottom: var(--spacing-m) !important;
     left: calc(var(--spacing-m) + 93px) !important;
