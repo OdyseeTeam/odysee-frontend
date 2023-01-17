@@ -169,7 +169,7 @@ function VideoRenderFloating(props: Props) {
 
     const rect = element.getBoundingClientRect();
     // $FlowIgnore
-    if (!isMobile) rect.height = 'unset';
+    // if (!isMobile) rect.height = 'unset';
 
     // getBoundingClientRect returns a DomRect, not an object
     const objectRect = {
