@@ -27,12 +27,9 @@ function AdsRCAboveComments(props: Props) {
     if (shouldShowAds && !isActive) {
       let script;
       try {
-        const checkExisting =
-          Array.from(document.getElementsByTagName('script')).findIndex(
-            (e) => e.src.indexOf('trends.revcontent.com') !== -1
-          ) !== -1
-            ? true
-            : false;
+        const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.src.indexOf('trends.revcontent.com'));
+        });
 
         if (!checkExisting) {
           script = document.createElement('script');
