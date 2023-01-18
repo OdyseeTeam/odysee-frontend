@@ -133,7 +133,7 @@ function App(props: Props) {
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetGdprConsentList,
-    hasPremiumPlus,
+    hasPremiumPlus = true,
   } = props;
 
   const isMobile = useIsMobile();
