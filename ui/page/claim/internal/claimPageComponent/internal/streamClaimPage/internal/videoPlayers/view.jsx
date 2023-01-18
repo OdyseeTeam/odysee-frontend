@@ -40,6 +40,7 @@ type Props = {
   contentUnlocked: boolean,
   isAutoplayCountdownForUri: ?boolean,
   clearPosition: (uri: string) => void,
+  hasPremiumPlus: boolean,
 };
 
 export default function VideoPlayersPage(props: Props) {
@@ -62,6 +63,7 @@ export default function VideoPlayersPage(props: Props) {
     contentUnlocked,
     isAutoplayCountdownForUri,
     clearPosition,
+    hasPremiumPlus,
   } = props;
 
   const isMobile = useIsMobile();
@@ -147,7 +149,6 @@ export default function VideoPlayersPage(props: Props) {
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>
-                  <AdsRCAboveComments />
                   <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
                     <React.Suspense fallback={null}>
                       <CommentsList {...commentsListProps} />
@@ -158,7 +159,7 @@ export default function VideoPlayersPage(props: Props) {
                 </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
-                  <AdsRCAboveComments />
+                  {!hasPremiumPlus && <AdsRCAboveComments />}
                   <CommentsList {...commentsListProps} notInDrawer />
                 </React.Suspense>
               ))}

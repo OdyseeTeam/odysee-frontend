@@ -16,6 +16,7 @@ type Props = {
   threadCommentId?: string,
   commentSettingDisabled: ?boolean,
   contentUnlocked: boolean,
+  hasPremiumPlus: boolean,
 };
 
 export default function MarkdownPostPage(props: Props) {
@@ -28,6 +29,7 @@ export default function MarkdownPostPage(props: Props) {
     threadCommentId,
     commentSettingDisabled,
     contentUnlocked,
+    hasPremiumPlus,
   } = props;
 
   if (isMature) {
@@ -49,7 +51,7 @@ export default function MarkdownPostPage(props: Props) {
       {!commentSettingDisabled && contentUnlocked && (
         <div className="file-page__post-comments">
           <React.Suspense fallback={null}>
-            <AdsRCAboveComments />
+            {!hasPremiumPlus && <AdsRCAboveComments />}
             <CommentsList
               uri={uri}
               linkedCommentId={linkedCommentId}

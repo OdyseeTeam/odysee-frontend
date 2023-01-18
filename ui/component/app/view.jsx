@@ -93,6 +93,7 @@ type Props = {
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetGdprConsentList: (csv: string) => void,
+  hasPremiumPlus: boolean,
 };
 
 export const AppContext = React.createContext<any>();
@@ -132,6 +133,7 @@ function App(props: Props) {
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetGdprConsentList,
+    hasPremiumPlus,
   } = props;
 
   const isMobile = useIsMobile();
@@ -556,7 +558,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <AdBlockTester />
-          <AdsSticky uri={uri} />
+          {!hasPremiumPlus && <AdsSticky uri={uri} />}
           <Router uri={uri} />
           <ModalRouter />
 
