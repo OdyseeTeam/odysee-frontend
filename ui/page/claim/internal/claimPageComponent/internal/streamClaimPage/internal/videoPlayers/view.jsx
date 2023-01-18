@@ -149,6 +149,7 @@ export default function VideoPlayersPage(props: Props) {
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>
+                  {!hasPremiumPlus && <AdsRCAboveComments />}
                   <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
                     <React.Suspense fallback={null}>
                       <CommentsList {...commentsListProps} />
