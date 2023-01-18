@@ -310,14 +310,10 @@
   max-height: var(--desktop-portrait-player-max-height);
   aspect-ratio: 16 / 9;
 
-  .content__cover {
-    display: flex;
-    width: 100%;
-  }
-}
+  display: flex;
+  width: 100%;
 
-.main--theater-mode {
-  .file-page__video-container {
+  .content__cover {
     display: flex;
     width: 100%;
   }

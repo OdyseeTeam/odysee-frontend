@@ -426,7 +426,8 @@
   @extend .content__cover;
   border-radius: 0 !important;
   height: 100%;
-  max-height: var(--desktop-portrait-player-max-height) !important;
+  // max-height: var(--desktop-portrait-player-max-height) !important;
+  aspect-ratio: 16 / 9;
 }
 
 .content__cover--none {
