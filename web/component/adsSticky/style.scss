@@ -92,12 +92,10 @@
       width: calc(100% - (var(--spacing-m) * 2) - var(--side-nav-width)) !important;
     }
 
-    /*
-    &.FULL{
+    &.FILE:not(.LEFT) {
       left: var(--spacing-m) !important;
       width: calc(100% - (var(--spacing-m) * 2)) !important;
     }
-    */
   }
 
   @media (max-width: $breakpoint-small) {
@@ -109,12 +107,20 @@
       .sticky-d-rc-content {
         margin: var(--spacing-s);
         height: 164px;
+        .rc-headline {
+          line-clamp: 2;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+          word-break: break-all;
+          text-overflow: ellipsis;
+        }
       }
 
       .sticky-d-rc {
-        height: 164px;
-
+        height: 150px;
+        padding-top: var(--spacing-l);
         .sticky-d-rc-close {
+          top: -30px;
           #rcStickyClose {
             background-color: var(--color-primary);
             color: var(--color-text);

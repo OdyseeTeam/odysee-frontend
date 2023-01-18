@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import FileTitleSection from 'component/fileTitleSection';
+import AdsRCAboveComments from 'web/component/adsRCAboveComments';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -48,6 +49,7 @@ export default function MarkdownPostPage(props: Props) {
       {!commentSettingDisabled && contentUnlocked && (
         <div className="file-page__post-comments">
           <React.Suspense fallback={null}>
+            <AdsRCAboveComments />
             <CommentsList
               uri={uri}
               linkedCommentId={linkedCommentId}

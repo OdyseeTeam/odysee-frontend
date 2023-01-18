@@ -58,3 +58,26 @@
     }
   }
 }
+
+.main--markdown {
+  .file-page__post-comments {
+    .rc_aboveComments {
+      width: 43rem;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: var(--spacing-xs);
+
+      @media (min-width: $breakpoint-large) {
+        width: 52rem;
+      }
+      @media (max-width: $breakpoint-small) {
+        width: 100%;
+      }
+
+      .rc-image-container {
+        min-height: unset;
+        aspect-ratio: 16 / 9;
+      }
+    }
+  }
+}
