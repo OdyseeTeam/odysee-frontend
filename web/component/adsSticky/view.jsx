@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import { useIsMobile } from 'effects/use-screensize';
+// import { useIsMobile } from 'effects/use-screensize';
 import './style.scss';
 
 // ****************************************************************************
@@ -43,7 +43,7 @@ export default function AdsSticky(props: Props) {
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
-  const isMobile = useIsMobile();
+  // const isMobile = useIsMobile();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
@@ -104,7 +104,7 @@ export default function AdsSticky(props: Props) {
     <div
       id="sticky-d-rc"
       className={classnames({
-        'hidden-rc-sticky': !isActive && isMobile,
+        'hidden-rc-sticky': !isActive,
         FILE: isContentClaim,
       })}
     >
