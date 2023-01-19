@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
+import { useIsMobile } from 'effects/use-screensize';
 import './style.scss';
 
 // ****************************************************************************
@@ -42,6 +43,7 @@ export default function AdsSticky(props: Props) {
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
+  const isMobile = useIsMobile();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
@@ -55,33 +57,30 @@ export default function AdsSticky(props: Props) {
     let script, scriptId, scriptSticky;
     if (!isActive && inAllowedPath && locale && !locale.gdpr_required && !nagsShown) {
       try {
-        if (
-          Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-            return !e.src.indexOf('rc_sticky_all');
-          })
-        ) {
-          script = document.createElement('script');
-          script.src = AD_CONFIG.url;
-          // $FlowIgnore
-          document.body.appendChild(script);
-        }
-
-        if (
-          Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-            return !e.innerHTML.indexOf('rcStickyWidgetId');
-          })
-        ) {
+        const stickyIdCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.innerHTML.indexOf('rcStickyWidgetId'));
+        });
+        if (!stickyIdCheck) {
           scriptId = document.createElement('script');
           scriptId.innerHTML = 'let rcStickyWidgetId = ' + AD_CONFIG.id + ';';
           // $FlowIgnore
           document.body.appendChild(scriptId);
         }
 
-        if (
-          Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-            return !e.src.indexOf('delivery');
-          })
-        ) {
+        const stickyAllCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.src.indexOf('rc_sticky_all'));
+        });
+        if (!stickyAllCheck) {
+          script = document.createElement('script');
+          script.src = AD_CONFIG.url;
+          // $FlowIgnore
+          document.body.appendChild(script);
+        }
+
+        const stickyWidgetCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.src.indexOf('delivery'));
+        });
+        if (!stickyWidgetCheck) {
           scriptSticky = document.createElement('script');
           scriptSticky.src = 'https://x.revcontent.com/rc_sticky_all.js';
           // $FlowIgnore
@@ -99,12 +98,13 @@ export default function AdsSticky(props: Props) {
         };
       } catch (e) {}
     }
-  }, [shouldShowAds, inAllowedPath, AD_CONFIG, isActive]);
+  }, [shouldShowAds, inAllowedPath, AD_CONFIG, isActive, location.pathname]);
 
   return (
     <div
       id="sticky-d-rc"
-      className={classnames('hidden-rc-sticky', {
+      className={classnames({
+        'hidden-rc-sticky': !isActive && isMobile,
         FILE: isContentClaim,
       })}
     >
