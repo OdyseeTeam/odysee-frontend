@@ -43,11 +43,11 @@ export default function AdsSticky(props: Props) {
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
-  // const isMobile = useIsMobile();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIgnore
     const pathIsCategory = Object.values(homepageData.categories || {}).some((x) =>
+      // $FlowIgnore
       pathname.startsWith(`/$/${x?.name}`)
     );
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
