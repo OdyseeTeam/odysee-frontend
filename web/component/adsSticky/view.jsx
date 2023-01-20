@@ -46,7 +46,7 @@ export default function AdsSticky(props: Props) {
   // const isMobile = useIsMobile();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
-    // $FlowIssue: mixed type
+    // $FlowIgnore
     const pathIsCategory = Object.values(homepageData.categories || {}).some((x) =>
       pathname.startsWith(`/$/${x?.name}`)
     );
