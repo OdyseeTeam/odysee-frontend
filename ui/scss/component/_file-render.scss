@@ -308,6 +308,15 @@
 .file-page__video-container {
   position: relative;
   max-height: var(--desktop-portrait-player-max-height);
+  aspect-ratio: 16 / 9;
+
+  display: flex;
+  width: 100%;
+
+  .content__cover {
+    display: flex;
+    width: 100%;
+  }
 }
 
 .file-page__pdf-wrapper {
@@ -523,6 +532,10 @@
 .file-viewer__overlay-secondary {
   color: var(--color-text-subtitle);
   margin-bottom: var(--spacing-m);
+
+  @media (max-width: $breakpoint-small) {
+    margin-bottom: 0;
+  }
 }
 .file-viewer__overlay-actions {
   .button + .button {
@@ -1121,7 +1134,9 @@ $control-bar-icon-size: 30px;
     margin-left: var(--spacing-s);
 
     @media (min-width: $breakpoint-small) {
-      margin-left: calc(var(--spacing-m) + var(--spacing-s));
+      // margin-left: calc(var(--spacing-m) + var(--spacing-s));
+      margin-top: calc(var(--spacing-l) + var(--spacing-s));
+      margin-left: var(--spacing-xxxs);
     }
   }
 
@@ -1131,6 +1146,40 @@ $control-bar-icon-size: 30px;
     img {
       max-height: none;
     }
+  }
+
+  .vjs-control-bar {
+    .vjs-control:not(.vjs-progress-control):not(.vjs-button--autoplay-next):not(.vjs-volume-horizontal) {
+      width: 3em;
+    }
+    .vjs-button {
+      margin-left: 2px !important;
+      margin-right: 2px !important;
+    }
+    .vjs-snapshot-button,
+    .vjs-button--theater-mode {
+      display: none;
+    }
+    .vjs-quality-selector {
+      text-align: center;
+      .vjs-icon-placeholder {
+        text-align: center;
+        span {
+          span {
+            margin-left: 4%;
+            margin-right: 4%;
+          }
+        }
+      }
+    }
+
+    .vjs-playback-rate {
+      margin-right: -6px !important;
+    }
+  }
+
+  &.file-render--video {
+    aspect-ratio: 16 / 9;
   }
 }
 
@@ -1229,4 +1278,8 @@ $control-bar-icon-size: 30px;
   img {
     cursor: pointer;
   }
+}
+
+.inline-player__wrapper {
+  aspect-ratio: 16 / 9;
 }

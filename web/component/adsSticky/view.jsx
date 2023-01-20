@@ -1,14 +1,21 @@
 // @flow
 import React from 'react';
-import { useHistory } from 'react-router-dom';
-import analytics from 'analytics';
+import classnames from 'classnames';
+// import { useIsMobile } from 'effects/use-screensize';
+import './style.scss';
 
 // ****************************************************************************
 // AdsSticky
 // ****************************************************************************
 
-const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
-let gScript;
+// const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
+
+// prettier-ignore
+const AD_CONFIG = Object.freeze({
+  url: 'https://assets.revcontent.com/master/delivery.js',
+  sticky: 'https://x.revcontent.com/rc_sticky_all.js',
+  id: '274420',
+});
 
 type Props = {
   uri: ?string,
@@ -33,58 +40,82 @@ export default function AdsSticky(props: Props) {
     nagsShown,
   } = props;
 
-  const { location } = useHistory();
-  const [refresh, setRefresh] = React.useState(0);
-
-  // Global conditions aside, should the Sticky be shown for this path:
+  // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
-  // Final answer:
-  const shouldLoadSticky = shouldShowAds && !gScript && inAllowedPath && !inIFrame();
+  const [isActive, setIsActive] = React.useState(false);
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
-    // $FlowIssue: mixed type
-    const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
+    // $FlowIgnore
+    const pathIsCategory = Object.values(homepageData.categories || {}).some((x) =>
+      // $FlowIgnore
+      pathname.startsWith(`/$/${x?.name}`)
+    );
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
 
   React.useEffect(() => {
-    if (shouldLoadSticky) {
-      window.googletag = window.googletag || { cmd: [] };
-
-      gScript = document.createElement('script');
-      gScript.src = 'https://adncdnend.azureedge.net/adtags/odyseeKp.js';
-      gScript.async = true;
-      gScript.addEventListener('load', () => setRefresh(Date.now()));
-
+    let script, scriptId, scriptSticky;
+    if (!isActive && inAllowedPath && locale && !locale.gdpr_required && !nagsShown) {
       try {
-        const head = document.head || document.getElementsByTagName('head')[0];
-        head.appendChild(gScript); // Vendor's desired location, although I don't think location matters.
-      } catch (e) {
-        analytics.log(e, { fingerprint: ['adsSticky::scriptAppendFailed'] }, 'adsSticky::scriptAppendFailed');
-      }
+        const stickyIdCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.innerHTML.indexOf('rcStickyWidgetId'));
+        });
+        if (!stickyIdCheck) {
+          scriptId = document.createElement('script');
+          scriptId.innerHTML = 'let rcStickyWidgetId = ' + AD_CONFIG.id + ';';
+          // $FlowIgnore
+          document.body.appendChild(scriptId);
+        }
+
+        const stickyAllCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.src.indexOf('rc_sticky_all'));
+        });
+        if (!stickyAllCheck) {
+          script = document.createElement('script');
+          script.src = AD_CONFIG.url;
+          // $FlowIgnore
+          document.body.appendChild(script);
+        }
+
+        const stickyWidgetCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          return Boolean(e.src.indexOf('delivery'));
+        });
+        if (!stickyWidgetCheck) {
+          scriptSticky = document.createElement('script');
+          scriptSticky.src = 'https://x.revcontent.com/rc_sticky_all.js';
+          // $FlowIgnore
+          document.body.appendChild(scriptSticky);
+          setIsActive(true);
+        }
+
+        return () => {
+          // $FlowIgnore
+          if (script) document.body.removeChild(script);
+          // $FlowIgnore
+          if (scriptId) document.body.removeChild(scriptId);
+          // $FlowIgnore
+          if (scriptSticky) document.body.removeChild(scriptSticky);
+        };
+      } catch (e) {}
     }
-  }, [shouldLoadSticky]);
+  }, [shouldShowAds, inAllowedPath, AD_CONFIG, isActive, location]);
 
-  React.useEffect(() => {
-    const container = window[OUTBRAIN_CONTAINER_KEY];
-    if (container) {
-      container.style.display = inAllowedPath ? '' : 'none';
-    }
-    const ad = document.getElementsByClassName('OUTBRAIN')[0];
-    if (ad && locale && !locale.gdpr_required && !nagsShown) ad.classList.add('VISIBLE');
-  }, [inAllowedPath, refresh]);
-
-  return null; // Nothing for us to mount; the ad script will handle everything.
-}
-
-// ****************************************************************************
-// Helpers
-// ****************************************************************************
-
-function inIFrame() {
-  try {
-    return window.self !== window.top;
-  } catch (e) {
-    return true;
-  }
+  return (
+    <div
+      id="sticky-d-rc"
+      className={classnames({
+        'hidden-rc-sticky': !isActive,
+        FILE: isContentClaim,
+      })}
+    >
+      <div className="sticky-d-rc">
+        <div className="sticky-d-rc-close">
+          Sponsored<button id="rcStickyClose">X</button>
+        </div>
+        <div className="sticky-d-rc-content">
+          <div id="rc-widget-sticky-d" />
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -47,7 +47,7 @@ class CodeViewer extends React.PureComponent<Props> {
     import(
       /* webpackChunkName: "codemirror" */
       'codemirror/lib/codemirror'
-    ).then(CodeMirror => {
+    ).then((CodeMirror) => {
       me.codeMirror = CodeMirror.fromTextArea(me.textarea, {
         // Auto detect syntax with file contentType
         mode: contentType,
@@ -74,7 +74,7 @@ class CodeViewer extends React.PureComponent<Props> {
     const { value } = this.props;
     return (
       <div className="file-render__content">
-        <textarea ref={textarea => (this.textarea = textarea)} disabled value={value} />
+        <textarea ref={(textarea) => (this.textarea = textarea)} disabled value={value} />
       </div>
     );
   }

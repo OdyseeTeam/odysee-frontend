@@ -110,6 +110,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
+    // const [sourceIsReady, setSourceIsReady] = React.useState(false);
 
     const { search, href, state: locationState, pathname } = location;
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
@@ -175,28 +176,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
     const streamClaim = React.useCallback(() => {
-      const playingOptions: PlayingUri = {
-        uri,
-        collection: { collectionId },
-        location: { pathname, search },
-        source: undefined,
-        sourceId: claimLinkId,
-        commentId: undefined,
-      };
-
-      if (parentCommentId) {
-        playingOptions.source = 'comment';
-        playingOptions.commentId = parentCommentId;
-      } else if (isMarkdownPost) {
-        playingOptions.source = 'markdown';
-      }
-
-      if (!isLivestreamClaim) doFileGetForUri(uri);
-      if (shouldStartFloating) doStartFloatingPlayingUri(playingOptions);
-
-      analytics.event.playerLoaded(renderMode, embedded);
-
-      setCurrentStreamingUri(uri);
+      updateClaim();
     }, [
       claimLinkId,
       collectionId,
@@ -212,6 +192,53 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       shouldStartFloating,
       uri,
     ]);
+
+    React.useEffect(() => {
+      if (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded)) updateClaim();
+    }, [
+      claimLinkId,
+      collectionId,
+      doFileGetForUri,
+      doStartFloatingPlayingUri,
+      embedded,
+      isLivestreamClaim,
+      isMarkdownPost,
+      parentCommentId,
+      pathname,
+      renderMode,
+      search,
+      shouldStartFloating,
+      uri,
+    ]);
+
+    function updateClaim() {
+      const playingOptions: PlayingUri = {
+        uri,
+        collection: { collectionId },
+        location: { pathname, search },
+        source: undefined,
+        sourceId: claimLinkId,
+        commentId: undefined,
+      };
+
+      let check = playingOptions.uri === currentStreamingUri;
+
+      if (parentCommentId) {
+        playingOptions.source = 'comment';
+        playingOptions.commentId = parentCommentId;
+      } else if (isMarkdownPost) {
+        playingOptions.source = 'markdown';
+      }
+
+      if (!isLivestreamClaim) doFileGetForUri(uri);
+      if (shouldStartFloating || !check) doStartFloatingPlayingUri(playingOptions);
+
+      analytics.event.playerLoaded(renderMode, embedded);
+
+      if (!shouldStartFloating && check) {
+        setCurrentStreamingUri(uri);
+      }
+    }
 
     React.useEffect(() => {
       if (canViewFile && shouldAutoplay) {
@@ -247,7 +274,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Loading State -- return before component render
-    if (!streamStarted || !streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
+    if ((!playingUri && !streamStarted) || !streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;

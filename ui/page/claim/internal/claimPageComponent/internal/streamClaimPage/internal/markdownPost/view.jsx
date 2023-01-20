@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import FileTitleSection from 'component/fileTitleSection';
+import AdsRCAboveComments from 'web/component/adsRCAboveComments';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -15,6 +16,7 @@ type Props = {
   threadCommentId?: string,
   commentSettingDisabled: ?boolean,
   contentUnlocked: boolean,
+  hasPremiumPlus: boolean,
 };
 
 export default function MarkdownPostPage(props: Props) {
@@ -27,6 +29,7 @@ export default function MarkdownPostPage(props: Props) {
     threadCommentId,
     commentSettingDisabled,
     contentUnlocked,
+    hasPremiumPlus,
   } = props;
 
   if (isMature) {
@@ -48,6 +51,7 @@ export default function MarkdownPostPage(props: Props) {
       {!commentSettingDisabled && contentUnlocked && (
         <div className="file-page__post-comments">
           <React.Suspense fallback={null}>
+            {!hasPremiumPlus && <AdsRCAboveComments />}
             <CommentsList
               uri={uri}
               linkedCommentId={linkedCommentId}

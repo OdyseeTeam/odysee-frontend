@@ -22,6 +22,7 @@ type Props = {
   videosImported: ?Array<number>, // [currentAmountImported, totalAmountToImport]
   alwaysShow: boolean,
   addNewChannel?: boolean,
+  doResolveUris: (uris: Array<string>) => void,
 };
 
 export default function YoutubeTransferStatus(props: Props) {
@@ -34,6 +35,7 @@ export default function YoutubeTransferStatus(props: Props) {
     updateUser,
     alwaysShow = false,
     addNewChannel,
+    doResolveUris,
   } = props;
   const hasChannels = youtubeChannels && youtubeChannels.length > 0;
   const transferEnabled = youtubeChannels.some((status) => status.transferable);
@@ -139,6 +141,7 @@ export default function YoutubeTransferStatus(props: Props) {
                 total_videos: totalVideos,
               } = channel;
               const url = buildURI({ channelName, channelClaimId: claimId });
+              doResolveUris([url]);
               const transferState = getMessage(channel);
               const isWaitingForSync =
                 syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_QUEUED ||

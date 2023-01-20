@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
 import { selectClaimIsNsfwForUri, selectClaimForUri } from 'redux/selectors/claims';
-import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+import {
+  selectUserHasOdyseePremiumPlus,
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
+} from 'redux/selectors/memberships';
 
 import MarkdownPostPage from './view';
 
@@ -21,7 +24,8 @@ const select = (state, props) => {
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 
-export default (connect(select)(MarkdownPostPage));
+export default connect(select)(MarkdownPostPage);

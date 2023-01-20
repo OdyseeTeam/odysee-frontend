@@ -1,22 +1,13 @@
 // @flow
-import * as PAGES from 'constants/pages';
 import React from 'react';
-import I18nMessage from 'component/i18nMessage';
-import Button from 'component/button';
 import PremiumPlusTile from 'component/premiumPlusTile';
-import classnames from 'classnames';
-import Icon from 'component/common/icon';
-import * as ICONS from 'constants/icons';
-import { useIsMobile } from 'effects/use-screensize';
+import './style.scss';
 
 const DISABLE_VIDEO_AD = false;
 
 // prettier-ignore
-const AD_CONFIGS = Object.freeze({
-  ADNIMATION: {
-    url: 'https://tg1.aniview.com/api/adserver/spt?AV_TAGID=6252bb6f28951333ec10a7a6&AV_PUBLISHERID=601d9a7f2e688a79e17c1265',
-    tag: 'AV6252bb6f28951333ec10a7a6',
-  },
+const AD_CONFIG = Object.freeze({
+  url: 'https://assets.revcontent.com/master/delivery.js',
 });
 
 // ****************************************************************************
@@ -31,71 +22,54 @@ type Props = {
   noFallback?: boolean,
   // --- redux ---
   shouldShowAds: boolean,
+  doSetAdBlockerFound: (boolean) => void,
 };
 
 function Ads(props: Props) {
-  const { type = 'video', tileLayout, small, shouldShowAds, className, noFallback } = props;
-  const isMobile = useIsMobile();
-  const adConfig = AD_CONFIGS.ADNIMATION;
+  const { type = 'video', tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
+  // const isMobile = useIsMobile();
+  // const [isActive, setIsActive] = React.useState(false);
+  const ref = React.useRef();
 
   React.useEffect(() => {
     if (shouldShowAds && !DISABLE_VIDEO_AD) {
       let script;
       try {
         script = document.createElement('script');
-        script.src = adConfig.url;
+        script.src = AD_CONFIG.url;
         // $FlowIgnore
         document.body.appendChild(script);
-
-        return () => {
-          // $FlowIgnore
-          document.body.removeChild(script);
-        };
+        // setIsActive(true)
       } catch (e) {}
-    }
-  }, [shouldShowAds, adConfig]);
 
-  const adsSignInDriver = !isMobile ? (
-    <I18nMessage
-      tokens={{
-        sign_up_for_premium: (
-          <Button button="link" label={__('Get Odysee Premium+')} navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} />
-        ),
-      }}
-    >
-      %sign_up_for_premium% for an ad free experience.
-    </I18nMessage>
-  ) : (
-    <Button button="link" label={__('Get Odysee Premium+')} navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} />
-  );
+      return () => {
+        // $FlowIgnore
+        if (script) document.body.removeChild(script);
+      };
+    }
+  }, [shouldShowAds, AD_CONFIG]);
+
+  React.useEffect(() => {
+    if (ref.current) {
+      const mountedStyle = getComputedStyle(ref.current);
+      doSetAdBlockerFound(mountedStyle?.display === 'none');
+    }
+  }, []);
 
   if (type === 'video') {
     if (shouldShowAds) {
       return (
-        <div
-          className={classnames('ads ads__claim-item', className, {
-            'ads__claim-item--tile': tileLayout,
-          })}
-        >
-          <div className="ad__container">
-            <div id={adConfig.tag} />
-          </div>
+        <li className="claim-preview--tile">
           <div
-            className={classnames('ads__claim-text', {
-              'ads__claim-text--small': small,
-            })}
-          >
-            <div className="ads__title">
-              {__('Ad')}
-              <br />
-              {__('Hate these?')}
-            </div>
-            <div className="ads__subtitle">
-              <Icon icon={ICONS.UPGRADE} />
-              {adsSignInDriver}
-            </div>
-          </div>
-        </div>
+            className="rc_tile"
+            id="rc-widget-fceddd"
+            ref={ref}
+            data-rc-widget
+            data-widget-host="habitat"
+            data-endpoint="//trends.revcontent.com"
+            data-widget-id="273434"
+          />
+        </li>
       );
     } else if (!noFallback) {
       return <PremiumPlusTile tileLayout={tileLayout} />;

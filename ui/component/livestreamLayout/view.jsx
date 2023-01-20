@@ -138,9 +138,7 @@ export default function LivestreamLayout(props: Props) {
               </React.Suspense>
             )}
 
-            {/* -- Prevent layout shift: only render when already knows the live status, or the help--notice
-            message will "pop up" disrupting the layout */}
-            {!liveStatusFetching && <FileTitleSection uri={uri} />}
+            <FileTitleSection uri={uri} />
           </div>
         </div>
 

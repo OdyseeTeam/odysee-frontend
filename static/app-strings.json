@@ -638,8 +638,8 @@
   "Invite A Friend": "Invite A Friend",
   "Navigation": "Navigation",
   "Unlock Rewards": "Unlock Rewards",
-  "Log in to %SITE_NAME% to earn rewards": "Log in to %SITE_NAME% to earn rewards",
-  "A %site_name% account allows you to earn more than %credit_amount% in rewards, backup your data, and get content and security updates.": "A %site_name% account allows you to earn more than %credit_amount% in rewards, backup your data, and get content and security updates.",
+  "Unlock %SITE_NAME% rewards to earn Credits": "Unlock %SITE_NAME% rewards to earn Credits",
+  "Unlocking %site_name% rewards allows you to earn more than %credit_amount% in rewards.": "Unlocking %site_name% rewards allows you to earn more than %credit_amount% in rewards.",
   "Deposit cannot be higher than your available balance": "Deposit cannot be higher than your available balance",
   "Your deposit must be higher": "Your deposit must be higher",
   "1 view": "1 view",
@@ -2408,6 +2408,7 @@
   "Share this content": "Share this content",
   "Meta": "Meta",
   "Created at": "Created at",
+  "Created At": "Created At",
   "Current page items: from %initial_page_item% to %last_page_item% of %total% total": "Current page items: from %initial_page_item% to %last_page_item% of %total% total",
   "Arrange": "Arrange",
   "Close Playlist": "Close Playlist",
@@ -2502,6 +2503,7 @@
   "Do you want to proceed with signing out?": "Do you want to proceed with signing out?",
   "Multiple tags can be added by separating them with a comma.\nExample: sports,news,tv": "Multiple tags can be added by separating them with a comma.\nExample: sports,news,tv",
   "Search tags": "Search tags",
+  "Search tag": "Search tag",
   "Memberships": "Memberships",
   "Donor Portal": "Donor Portal",
   "Find creators you like and support them.": "Find creators you like and support them.",
@@ -2941,6 +2943,8 @@
   "New Livestream": "New Livestream",
   "Cash Balance": "Cash Balance",
   "Local Setup": "Local Setup",
-  
+  "YOUTUBE SYNCED CHANNELS!": "YOUTUBE SYNCED CHANNELS!",
+  "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it.": "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it.",
+
   "--end--": "--end--"
 }

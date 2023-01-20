@@ -93,6 +93,7 @@ type Props = {
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetGdprConsentList: (csv: string) => void,
+  hasPremiumPlus: boolean,
 };
 
 export const AppContext = React.createContext<any>();
@@ -132,6 +133,7 @@ function App(props: Props) {
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetGdprConsentList,
+    hasPremiumPlus = true,
   } = props;
 
   const isMobile = useIsMobile();
@@ -405,10 +407,10 @@ function App(props: Props) {
     }
 
     if (inIframe() || !locale || !locale.gdpr_required) {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      const ad = document.getElementById('sticky-d-rc');
       if (ad) {
         if (!nagsShown) ad.classList.add('VISIBLE');
-        if (!sidebarOpen || isMobile) ad.classList.add('LEFT');
+        if (!sidebarOpen || isMobile) ad.classList.remove('LEFT');
       }
       return;
     }
@@ -432,7 +434,7 @@ function App(props: Props) {
     window.gdprCallback = () => {
       doSetGdprConsentList(window.OnetrustActiveGroups);
       if (window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
-        const ad = document.getElementsByClassName('OUTBRAIN')[0];
+        const ad = document.getElementsByClassName('rev-shifter')[0];
         if (ad && !window.nagsShown) ad.classList.add('VISIBLE');
       }
     };
@@ -462,7 +464,7 @@ function App(props: Props) {
       const ad = document.getElementsByClassName('VISIBLE')[0];
       if (ad) ad.classList.remove('VISIBLE');
     } else {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      const ad = document.getElementsByClassName('rev-shifter')[0];
       if (ad) ad.classList.add('VISIBLE');
     }
   }, [nagsShown]);
@@ -556,7 +558,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <AdBlockTester />
-          <AdsSticky uri={uri} />
+          {!hasPremiumPlus && !embedPath && <AdsSticky uri={uri} />}
           <Router uri={uri} />
           <ModalRouter />
 
@@ -574,6 +576,7 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
+          <AdBlockTester />
         </AppContext.Provider>
       )}
     </div>

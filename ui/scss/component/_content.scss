@@ -16,6 +16,7 @@
 .content__viewer--mobile {
   border-radius: 0;
   position: fixed;
+  max-width: 100%;
   top: var(--header-height-mobile);
 }
 
@@ -423,7 +424,10 @@
 
 .content__cover--theater-mode {
   @extend .content__cover;
-  border-radius: 0;
+  border-radius: 0 !important;
+  height: 100%;
+  // max-height: var(--desktop-portrait-player-max-height) !important;
+  aspect-ratio: 16 / 9;
 }
 
 .content__cover--none {
@@ -450,7 +454,7 @@
 
 .content__loading {
   @extend .embed__inline-button;
-  height: 100%;
+  height: 100% !important;
   display: flex;
   align-items: center;
   flex-direction: row;
@@ -466,6 +470,10 @@
 
   &.draggable {
     cursor: grab;
+  }
+
+  &::before {
+    padding-top: unset !important;
   }
 }
 
