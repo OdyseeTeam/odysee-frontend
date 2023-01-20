@@ -98,7 +98,7 @@ export default function AdsSticky(props: Props) {
         };
       } catch (e) {}
     }
-  }, [shouldShowAds, inAllowedPath, AD_CONFIG, isActive, location.pathname]);
+  }, [shouldShowAds, inAllowedPath, AD_CONFIG, isActive, location]);
 
   return (
     <div
