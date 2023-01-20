@@ -462,7 +462,7 @@ function LivestreamForm(props: Props) {
               key={'New'}
               icon={ICONS.LIVESTREAM}
               iconSize={18}
-              label={'New Livestream'}
+              label={__('New Livestream')}
               button="alt"
               onClick={() => {
                 setPublishMode('New');
@@ -475,7 +475,7 @@ function LivestreamForm(props: Props) {
                 key={'Replay'}
                 icon={ICONS.MENU}
                 iconSize={18}
-                label={'Choose Replay'}
+                label={__('Choose Replay')}
                 button="alt"
                 onClick={() => {
                   setPublishMode('Replay');
@@ -489,7 +489,7 @@ function LivestreamForm(props: Props) {
                 key={'Edit'}
                 icon={ICONS.EDIT}
                 iconSize={18}
-                label={'Edit / Update'}
+                label={__('Edit / Update')}
                 button="alt"
                 onClick={() => {
                   setPublishMode('Edit');
