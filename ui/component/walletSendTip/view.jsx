@@ -109,15 +109,16 @@ export default function WalletSendTip(props: Props) {
   const [disableSubmitButton, setDisableSubmitButton] = React.useState();
 
   /** CONSTS **/
-  const claimTypeText = getClaimTypeText();
+  const boostThisContentText = getBoostThisContentText();
+  const boostYourContentText = getBoostYourContentText();
   const isSupport = claimIsMine || activeTab === TAB_BOOST;
 
   const { icon: fiatIconToUse, symbol: fiatSymbolToUse } = STRIPE.CURRENCY[preferredCurrency];
 
   // text for modal header
   const titleText = isSupport
-    ? __(claimIsMine ? 'Boost Your %claimTypeText%' : 'Boost This %claimTypeText%', { claimTypeText })
-    : __('Tip This %claimTypeText%', { claimTypeText });
+    ? __(claimIsMine ? boostYourContentText : boostThisContentText)
+    : __('Leave a tip for the creator');
 
   let channelName;
   try {
@@ -128,31 +129,58 @@ export default function WalletSendTip(props: Props) {
   let explainerText = '';
   switch (activeTab) {
     case TAB_BOOST:
-      explainerText = __(
-        'This refundable boost will improve the discoverability of this %claimTypeText% while active.',
-        { claimTypeText }
-      );
+      explainerText = getBoostExplainerText();
       break;
     case TAB_FIAT:
     case TAB_LBC:
-      explainerText = __('Show this channel your appreciation by sending a donation.');
+      explainerText = __('Show this creator your appreciation by sending a donation.');
       break;
   }
 
   /** FUNCTIONS **/
 
-  function getClaimTypeText() {
+  function getBoostExplainerText() {
     switch (claimType) {
       case 'stream':
-        return __('Content');
+        return __('This refundable boost will improve the discoverability of this content while active.');
       case 'channel':
-        return __('Channel');
+        return __('This refundable boost will improve the discoverability of this channel while active.');
       case 'repost':
-        return __('Repost');
+        return __('This refundable boost will improve the discoverability of this repost while active.');
       case 'collection':
-        return __('List');
+        return __('This refundable boost will improve the discoverability of this playlist while active.');
       default:
-        return __('Claim');
+        return __('This refundable boost will improve the discoverability of this claim while active.');
+    }
+  }
+
+  function getBoostThisContentText() {
+    switch (claimType) {
+      case 'stream':
+        return __('Boost this content');
+      case 'channel':
+        return __('Boost this channel');
+      case 'repost':
+        return __('Boost this repost');
+      case 'collection':
+        return __('Boost this playlist');
+      default:
+        return __('Boost this claim');
+    }
+  }
+
+  function getBoostYourContentText() {
+    switch (claimType) {
+      case 'stream':
+        return __('Boost your content');
+      case 'channel':
+        return __('Boost your channel');
+      case 'repost':
+        return __('Boost your repost');
+      case 'collection':
+        return __('Boost your playlist');
+      default:
+        return __('Boost your claim');
     }
   }
 
