@@ -117,7 +117,7 @@ export default function WalletSendTip(props: Props) {
 
   // text for modal header
   const titleText = isSupport
-    ? __(claimIsMine ? boostYourContentText : boostThisContentText)
+    ? (claimIsMine ? boostYourContentText : boostThisContentText)
     : __('Leave a tip for the creator');
 
   let channelName;
