@@ -27,6 +27,7 @@ type Props = {
   homepageData: any,
   locale: ?LocaleInfo,
   nagsShown: boolean,
+  adBlockerFound: ?boolean,
 };
 
 export default function AdsSticky(props: Props) {
@@ -38,6 +39,7 @@ export default function AdsSticky(props: Props) {
     homepageData,
     locale,
     nagsShown,
+    adBlockerFound,
   } = props;
 
   // $FlowIgnore
@@ -104,7 +106,7 @@ export default function AdsSticky(props: Props) {
     <div
       id="sticky-d-rc"
       className={classnames({
-        'hidden-rc-sticky': !isActive,
+        'hidden-rc-sticky': !isActive || adBlockerFound,
         FILE: isContentClaim,
       })}
     >
