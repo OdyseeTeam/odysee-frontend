@@ -308,13 +308,13 @@
 .file-page__video-container {
   position: relative;
   max-height: var(--desktop-portrait-player-max-height);
-  aspect-ratio: 16 / 9;
 
   display: flex;
   width: 100%;
 
   .content__cover {
     display: flex;
+    max-height: var(--desktop-portrait-player-max-height);
     width: 100%;
   }
 }
