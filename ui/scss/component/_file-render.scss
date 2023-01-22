@@ -322,6 +322,10 @@
   @media (max-width: $breakpoint-small) {
     height: 100%;
   }
+
+  @media (orientation: portrait) {
+    height: 100%;
+  }
 }
 
 .file-page__pdf-wrapper {
