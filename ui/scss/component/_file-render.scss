@@ -308,7 +308,6 @@
 .file-page__video-container {
   position: relative;
   display: flex;
-  // height:100%;
   width: 100%;
   height: var(--desktop-portrait-player-max-height);
   max-height: var(--desktop-portrait-player-max-height);
@@ -318,6 +317,10 @@
     height: 100%;
     width: 100%;
     max-height: var(--desktop-portrait-player-max-height);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    height: 100%;
   }
 }
 
