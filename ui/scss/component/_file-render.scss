@@ -307,15 +307,17 @@
 
 .file-page__video-container {
   position: relative;
-  max-height: var(--desktop-portrait-player-max-height);
-
   display: flex;
+  // height:100%;
   width: 100%;
+  height: var(--desktop-portrait-player-max-height);
+  max-height: var(--desktop-portrait-player-max-height);
 
   .content__cover {
     display: flex;
-    max-height: var(--desktop-portrait-player-max-height);
+    height: 100%;
     width: 100%;
+    max-height: var(--desktop-portrait-player-max-height);
   }
 }
 
