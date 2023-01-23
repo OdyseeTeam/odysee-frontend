@@ -106,7 +106,6 @@ export default function AdsSticky(props: Props) {
     }
   }, [shouldShowAds, inAllowedPath, AD_CONFIG, isActive, location]);
 
-  console.log('isActive: ', isActive);
   return (
     <div
       id="sticky-d-rc"
