@@ -111,7 +111,7 @@ export default function AdsSticky(props: Props) {
     <div
       id="sticky-d-rc"
       className={classnames({
-        'hidden-rc-sticky': (!isActive || adBlockerFound) && !isMobile,
+        'hidden-rc-sticky': (!isActive || adBlockerFound) && (!isMobile || adBlockerFound),
         FILE: isContentClaim,
       })}
     >
