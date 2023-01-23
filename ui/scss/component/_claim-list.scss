@@ -1736,15 +1736,23 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .web-upload-item.claim-preview {
+  padding: var(--spacing-m);
+  background-color: rgba(var(--color-header-background-base), 0.6);
+
   @media (max-width: $breakpoint-small) {
     display: block;
 
     .media__thumb {
+      width: 100%;
       margin-bottom: var(--spacing-s);
     }
 
     .claim-preview-metadata {
       display: block;
+    }
+
+    .claim-upload__progress--outer {
+      margin-top: var(--spacing-s);
     }
   }
 }
