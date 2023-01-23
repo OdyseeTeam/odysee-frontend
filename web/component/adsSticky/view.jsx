@@ -67,8 +67,8 @@ export default function AdsSticky(props: Props) {
         if (!stickyIdCheck) {
           scriptId = document.createElement('script');
           scriptId.innerHTML = 'let rcStickyWidgetId = ' + AD_CONFIG.id + ';';
-          // $FlowIgnore
           try {
+            // $FlowIgnore
             document.body.appendChild(scriptId);
           } catch (e) {}
         }
