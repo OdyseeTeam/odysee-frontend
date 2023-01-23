@@ -116,7 +116,6 @@ ol {
     padding-bottom: var(--spacing-m);
 
     .claim__menu-button {
-      // right: -8px;
       right: 2px;
     }
   }
@@ -124,6 +123,13 @@ ol {
 
 .li--no-style {
   margin-bottom: 0px !important;
+}
+
+.claim__menu-button {
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-m);
+    margin: calc(var(--spacing-m) * -1);
+  }
 }
 
 dl {
