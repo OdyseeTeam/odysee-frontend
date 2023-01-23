@@ -122,6 +122,17 @@ ol {
   }
 }
 
+.claim__menu-button {
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-s);
+    margin: calc(var(--spacing-s) * -1);
+    &[aria-expanded='true'] {
+      padding: 0;
+      margin: 0;
+    }
+  }
+}
+
 .li--no-style {
   margin-bottom: 0px !important;
 }
