@@ -1083,10 +1083,6 @@ body {
     }
   }
 
-  .content__loading {
-    display: none !important;
-  }
-
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
     .claim-preview__wrapper {
@@ -1366,6 +1362,9 @@ body {
         width: unset; // It was being set to '100%' at the base level.
       }
     }
+  }
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
   }
 }
 
