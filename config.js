@@ -106,6 +106,7 @@ config.PROXY_URL = `${config.SDK_API_PATH}/proxy`;
 
 config.URL_DEV = `http://localhost:${config.WEBPACK_WEB_PORT}`;
 config.URL_LOCAL = `http://localhost:${config.WEB_SERVER_PORT}`;
-config.FAVICON = `/public/favicon-spaceman.png`;
+config.FAVICON = `/public/favicon_128.png`;
+config.FAVICON_NOTIFICATION = `/public/favicon_notification_128.png`;
 
 module.exports = config;
