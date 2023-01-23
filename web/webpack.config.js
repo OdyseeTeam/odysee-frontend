@@ -78,8 +78,13 @@ const copyWebpackCommands = [
     force: true,
   },
   {
-    from: `${STATIC_ROOT}/img/favicon-spaceman.png`,
-    to: `${output.PATH}/public/favicon-spaceman.png`,
+    from: `${STATIC_ROOT}/img/favicon_128.png`,
+    to: `${output.PATH}/public/favicon_128.png`,
+    force: true,
+  },
+  {
+    from: `${STATIC_ROOT}/img/favicon_notification_128.png`,
+    to: `${output.PATH}/public/favicon_notification_128.png`,
     force: true,
   },
   {

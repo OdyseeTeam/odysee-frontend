@@ -9,7 +9,7 @@ const STATIC_ASSET_PATHS = [
   '/public/font/v1/700.woff',
   '/public/font/v1/700i.woff',
   '/public/favicon.png', // LBRY icon
-  '/public/favicon-spaceman.png',
+  '/public/favicon-favicon_128.png',
   '/public/img/astronaut_n_friends.png',
   '/public/img/busy.gif',
   '/public/img/fileRenderPlaceholder.png',
