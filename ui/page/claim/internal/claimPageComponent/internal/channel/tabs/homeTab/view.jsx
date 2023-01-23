@@ -55,7 +55,7 @@ function HomeTab(props: Props) {
         setHome(homeTemplate);
       }
     }
-  }, [settingsByChannelId]);
+  }, [homepage_settings]);
 
   function handleEditCollection(e, index) {
     let newHome = [...home];
