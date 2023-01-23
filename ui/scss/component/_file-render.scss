@@ -309,22 +309,16 @@
   position: relative;
   display: flex;
   width: 100%;
-  height: var(--desktop-portrait-player-max-height);
+  height: 100%;
   max-height: var(--desktop-portrait-player-max-height);
+  aspect-ratio: auto;
 
-  .content__cover {
+  .content__cover,
+  .content__loading {
     display: flex;
     height: 100%;
     width: 100%;
     max-height: var(--desktop-portrait-player-max-height);
-  }
-
-  @media (max-width: $breakpoint-small) {
-    height: 100%;
-  }
-
-  @media (orientation: portrait) {
-    height: 100%;
   }
 }
 
