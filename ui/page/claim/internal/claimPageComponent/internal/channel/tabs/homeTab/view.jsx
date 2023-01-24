@@ -138,7 +138,7 @@ function HomeTab(props: Props) {
           </div>
         )}
 
-        {!editMode && <LivestreamLink uri={props.uri} />}
+        {!edit && <LivestreamLink uri={props.uri} />}
 
         {home &&
           !preferEmbed &&

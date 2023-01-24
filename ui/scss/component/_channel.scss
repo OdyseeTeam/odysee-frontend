@@ -10,6 +10,10 @@ $actions-z-index: 2;
     margin-top: calc(var(--spacing-xs) * -1);
   }
 
+  .upcoming-livestreams {
+    margin-bottom: var(--spacing-m);
+  }
+
   .tags--remove {
     .tag {
       box-shadow: 0 0 0 2px var(--color-border) inset;

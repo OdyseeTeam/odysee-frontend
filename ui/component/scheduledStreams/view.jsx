@@ -72,7 +72,7 @@ const ScheduledStreams = (props: Props) => {
           </span>
           <span className="claim-grid__title">{__('Upcoming Livestreams')}</span>
           {showHideSetting && (
-            <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'ml-s text-s'} />
+            <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'hide-livestreams'} />
           )}
         </div>
       </div>

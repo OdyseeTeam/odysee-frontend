@@ -282,6 +282,12 @@
   .claim-preview--tile {
     margin-bottom: var(--spacing-l);
   }
+
+  .livestream__channel-link {
+    padding-bottom: var(--spacing-m);
+    margin-bottom: var(--spacing-l) !important;
+    border-bottom: unset;
+  }
 }
 
 .home-tab-edit {

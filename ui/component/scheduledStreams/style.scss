@@ -19,4 +19,18 @@
       }
     }
   }
+
+  .hide-livestreams {
+    background-color: var(--color-primary);
+    border-radius: var(--border-radius);
+    color: white;
+    font-size: var(--font-base);
+    padding: 0 var(--spacing-xxxs);
+    margin-top: 2px;
+    align-self: flex-start;
+    &:hover {
+      background-color: var(--color-text-inverse);
+      color: var(--color-primary);
+    }
+  }
 }

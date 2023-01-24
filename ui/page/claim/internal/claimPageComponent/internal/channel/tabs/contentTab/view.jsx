@@ -119,7 +119,7 @@ function ContentTab(props: Props) {
       {!fetching && showScheduledLiveStreams && (
         <ScheduledStreams
           channelIds={[claimId]}
-          tileLayout={tileLayout}
+          tileLayout={false}
           liveUris={
             activeLivestreamForChannel && activeLivestreamForChannel.uri ? [activeLivestreamForChannel.uri] : []
           }
