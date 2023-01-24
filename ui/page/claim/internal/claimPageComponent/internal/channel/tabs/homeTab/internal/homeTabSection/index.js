@@ -51,6 +51,7 @@ const select = (state, props) => {
     requiresSearch && !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined;
 
   return {
+    requiresSearch,
     fetchingClaimSearch,
     claimSearchResults,
     optionsStringified: JSON.stringify(options),

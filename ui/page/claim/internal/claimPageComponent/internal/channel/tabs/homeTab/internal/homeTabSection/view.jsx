@@ -28,6 +28,7 @@ type Props = {
   collectionClaimIds: ?Array<string>,
   collectionName: string,
   optionsStringified: string,
+  requiresSearch: boolean,
   fetchingClaimSearch: boolean,
   publishedCollections: CollectionGroup,
   singleClaimUri: string,
@@ -53,6 +54,7 @@ function HomeTabSection(props: Props) {
     collectionClaimIds,
     collectionName,
     optionsStringified,
+    requiresSearch,
     fetchingClaimSearch,
     publishedCollections,
     singleClaimUri,
@@ -191,11 +193,6 @@ function HomeTabSection(props: Props) {
     }
   }
 
-  const claimCount =
-    (collectionUrls && collectionUrls.length) ||
-    (claimSearchResults && claimSearchResults.length) ||
-    (collectionClaimIds && collectionClaimIds.length);
-
   return (
     <div className="home-section-content">
       {index === 0 && <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />}
@@ -331,6 +328,22 @@ function HomeTabSection(props: Props) {
           )}
         </div>
       )}
+      {(fetchingClaimSearch || !requiresSearch) &&
+        section.type &&
+        section.type !== 'featured' &&
+        !claimSearchResults &&
+        !collectionClaimIds && (
+          <div className="home-section-content">
+            <div className="section">
+              <label className="home-section-title">{__('Loading...')}</label>
+              <section className="claim-grid">
+                {new Array(12).fill(0).map((x, i) => (
+                  <ClaimPreviewTile key={i} placeholder="loading" pulse />
+                ))}
+              </section>
+            </div>
+          </div>
+        )}
       {section.type &&
         (section.claim_id ||
           collectionUrls ||
@@ -345,33 +358,25 @@ function HomeTabSection(props: Props) {
                   <Icon icon={ICONS.ARROW_RIGHT} />
                 </label>
                 {section.type !== 'channels' ? (
-                  claimCount ? (
-                    <ClaimListDiscover
-                      hideFilters
-                      hideAdvancedFilter
-                      hideLayoutButton
-                      tileLayout
-                      infiniteScroll={false}
-                      useSkeletonScreen={false}
-                      uris={collectionUrls || claimSearchResults}
-                      claimIds={collectionClaimIds}
-                      fetchViewCount
-                      injectedItem={
-                        !hasPremiumPlus &&
-                        index === topContentGridIndex && {
-                          node: (index) => {
-                            return index === maxTilesPerRow ? <Ads type="video" tileLayout small /> : null;
-                          },
-                        }
+                  <ClaimListDiscover
+                    hideFilters
+                    hideAdvancedFilter
+                    hideLayoutButton
+                    tileLayout
+                    infiniteScroll={false}
+                    useSkeletonScreen={false}
+                    uris={collectionUrls || claimSearchResults}
+                    claimIds={collectionClaimIds}
+                    fetchViewCount
+                    injectedItem={
+                      !hasPremiumPlus &&
+                      index === topContentGridIndex && {
+                        node: (index) => {
+                          return index === maxTilesPerRow ? <Ads type="video" tileLayout small /> : null;
+                        },
                       }
-                    />
-                  ) : (
-                    <section className="claim-grid">
-                      {new Array(6).fill(6).map((x, i) => (
-                        <ClaimPreviewTile key={i} placeholder="loading" pulse />
-                      ))}
-                    </section>
-                  )
+                    }
+                  />
                 ) : (
                   featuredChannel && (
                     <ChannelSection
