@@ -243,12 +243,16 @@
     &:not(.content-info__playlist) {
       margin-top: -68px;
       z-index: -1;
+      position: relative;
+      transition: 0.2s margin;
     }
-    position: relative;
-    transition: 0.2s margin;
     .content-info__text {
       padding: var(--spacing-s) var(--spacing-xxs);
       padding-bottom: var(--spacing-xxs);
+
+      .content__floating-link {
+        display: unset;
+      }
 
       .channel-thumbnail {
         display: inline-block;
