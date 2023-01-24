@@ -236,12 +236,27 @@
   height: var(--floating-viewer-height);
   width: var(--floating-viewer-width);
 
+  .file-render--video {
+    z-index: 1;
+  }
   .content__info {
+    &:not(.content-info__playlist) {
+      margin-top: -68px;
+      z-index: -1;
+    }
+    position: relative;
+    transition: 0.2s margin;
     .content-info__text {
-      width: 100%;
-
       padding: var(--spacing-s) var(--spacing-xxs);
-      padding-bottom: 0px;
+      padding-bottom: var(--spacing-xxs);
+
+      .channel-thumbnail {
+        display: inline-block;
+        margin-right: var(--spacing-xxs);
+        img {
+          margin-bottom: -1px;
+        }
+      }
     }
     .card__header--grid {
       padding: var(--spacing-s) var(--spacing-xxs) !important;
@@ -298,6 +313,20 @@
 
   .vjs-snapshot-button {
     display: none;
+  }
+
+  &:hover {
+    .content__info {
+      margin-top: 0;
+    }
+  }
+}
+
+.react-draggable-dragging {
+  .content__wrapper--floating {
+    .content__info {
+      margin-top: 0;
+    }
   }
 }
 
@@ -362,7 +391,7 @@
   .content-info__text {
     max-width: 100%;
     padding: var(--spacing-s);
-    padding-bottom: 0px;
+    // padding-bottom: 0px;
   }
 
   .card__header {

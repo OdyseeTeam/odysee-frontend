@@ -28,6 +28,7 @@ import debounce from 'util/debounce';
 import { isURIEqual } from 'util/lbryURI';
 import AutoplayCountdown from './internal/autoplayCountdown';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
+import ChannelThumbnail from 'component/channelThumbnail';
 import {
   getRootEl,
   getScreenWidth,
@@ -475,7 +476,12 @@ function VideoRenderFloating(props: Props) {
             )}
 
             {isFloating && (
-              <div className={classnames('content__info', { draggable: !isMobile })}>
+              <div
+                className={classnames('content__info', {
+                  draggable: !isMobile,
+                  'content-info__playlist': playingCollection,
+                })}
+              >
                 <div className="content-info__text">
                   <div className="claim-preview__title" title={title || uri}>
                     <Button
@@ -485,7 +491,7 @@ function VideoRenderFloating(props: Props) {
                       className="content__floating-link"
                     />
                   </div>
-
+                  <ChannelThumbnail xxsmall uri={channelUrl} />
                   <UriIndicator link uri={uri} />
                 </div>
 
