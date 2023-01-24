@@ -5,8 +5,13 @@
 .claim-search__wrapper {
   width: 100%;
 
-  @media (min-width: $breakpoint-small) {
-    // width: auto;
+  .claim-search__header {
+    display: flex;
+    align-items: stretch;
+
+    .claim-search__top {
+      flex-grow: 1;
+    }
   }
 }
 
@@ -276,5 +281,9 @@
     label {
       margin-top: 0 !important;
     }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-m);
   }
 }

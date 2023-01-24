@@ -784,6 +784,7 @@ function ClaimListDiscover(props: Props) {
       hideFilters={hideFilters}
       scrollAnchor={scrollAnchor}
       contentType={contentType}
+      meta={meta}
     />
   );
 
@@ -797,11 +798,11 @@ function ClaimListDiscover(props: Props) {
         <div>
           {!repostedClaimId && showHeader && (
             <div className="section__header--actions">
-              <div className="section__actions">
+              <div className="section__actions section__actions-span">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
+                {/* meta && <div className="section__actions--no-margin">{meta}</div> */}
               </div>
-              {meta && <div className="section__actions--no-margin">{meta}</div>}
             </div>
           )}
           {subSection && <div>{subSection}</div>}

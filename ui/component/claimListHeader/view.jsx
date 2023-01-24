@@ -16,6 +16,7 @@ import Button from 'component/button';
 import { toCapitalCase } from 'util/string';
 import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
+import { useIsMobile } from 'effects/use-screensize';
 import debounce from 'util/debounce';
 
 type Props = {
@@ -38,6 +39,7 @@ type Props = {
   tileLayout: boolean,
   scrollAnchor?: string,
   contentType: string,
+  meta?: Node,
   setPage: (number) => void,
   // --- redux ---
   doSetClientSetting: (string, boolean, ?boolean) => void,
@@ -65,6 +67,7 @@ function ClaimListHeader(props: Props) {
     tileLayout,
     doSetClientSetting,
     contentType,
+    meta,
     setPage,
     hideFilters,
     searchInLanguage,
@@ -72,6 +75,7 @@ function ClaimListHeader(props: Props) {
     scrollAnchor,
   } = props;
 
+  const isMobile = useIsMobile();
   const filterCtx = React.useContext(ClaimSearchFilterContext);
   const { push, location } = useHistory();
   const { search } = location;
@@ -235,58 +239,61 @@ function ClaimListHeader(props: Props) {
   return (
     <>
       <div className="claim-search__wrapper clh__wrapper">
-        <div className="claim-search__top">
-          {!hideFilters && (
+        <div className="claim-search__header">
+          <div className="claim-search__top">
+            {!hideFilters && (
+              <div className="claim-search__menu-group">
+                {CS.ORDER_BY_TYPES.map((type) => (
+                  <Button
+                    key={type}
+                    button="alt"
+                    onClick={(e) =>
+                      handleChange({
+                        key: CS.ORDER_BY_KEY,
+                        value: type,
+                      })
+                    }
+                    className={classnames(`button-toggle button-toggle--${type}`, {
+                      'button-toggle--active': orderParam === type,
+                    })}
+                    disabled={orderBy}
+                    icon={toCapitalCase(type)}
+                    iconSize={toCapitalCase(type) === ICONS.NEW ? 20 : undefined}
+                    label={__(toCapitalCase(type))}
+                  />
+                ))}
+              </div>
+            )}
             <div className="claim-search__menu-group">
-              {CS.ORDER_BY_TYPES.map((type) => (
+              {!hideAdvancedFilter && (
                 <Button
-                  key={type}
                   button="alt"
-                  onClick={(e) =>
-                    handleChange({
-                      key: CS.ORDER_BY_KEY,
-                      value: type,
-                    })
-                  }
-                  className={classnames(`button-toggle button-toggle--${type}`, {
-                    'button-toggle--active': orderParam === type,
+                  aria-label={__('More')}
+                  className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
+                    'button-toggle--custom': isFiltered(),
+                    'button-toggle--active': expanded,
                   })}
-                  disabled={orderBy}
-                  icon={toCapitalCase(type)}
-                  iconSize={toCapitalCase(type) === ICONS.NEW ? 20 : undefined}
-                  label={__(toCapitalCase(type))}
+                  icon={ICONS.SLIDERS}
+                  onClick={() => setExpanded(!expanded)}
                 />
-              ))}
+              )}
+
+              {tileLayout !== undefined && !hideLayoutButton && (
+                <Button
+                  onClick={() => {
+                    doSetClientSetting(SETTINGS.TILE_LAYOUT, !tileLayout);
+                  }}
+                  button="alt"
+                  className="button-toggle"
+                  aria-label={tileLayout ? __('Change to list layout') : __('Change to tile layout')}
+                  icon={ICONS.LAYOUT}
+                />
+              )}
+
+              {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
             </div>
-          )}
-          <div className="claim-search__menu-group">
-            {!hideAdvancedFilter && (
-              <Button
-                button="alt"
-                aria-label={__('More')}
-                className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
-                  'button-toggle--custom': isFiltered(),
-                  'button-toggle--active': expanded,
-                })}
-                icon={ICONS.SLIDERS}
-                onClick={() => setExpanded(!expanded)}
-              />
-            )}
-
-            {tileLayout !== undefined && !hideLayoutButton && (
-              <Button
-                onClick={() => {
-                  doSetClientSetting(SETTINGS.TILE_LAYOUT, !tileLayout);
-                }}
-                button="alt"
-                className="button-toggle"
-                aria-label={tileLayout ? __('Change to list layout') : __('Change to tile layout')}
-                icon={ICONS.LAYOUT}
-              />
-            )}
-
-            {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
           </div>
+          {meta && !isMobile && <div className="section__actions--no-margin">{meta}</div>}
         </div>
 
         <div
@@ -555,6 +562,7 @@ function ClaimListHeader(props: Props) {
             </div>
           </div>
         </div>
+        {meta && isMobile && <div className="section__actions--no-margin">{meta}</div>}
       </div>
 
       {hasMatureTags && hiddenNsfwMessage}
