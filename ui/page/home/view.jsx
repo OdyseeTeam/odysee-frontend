@@ -23,7 +23,6 @@ import Ads from 'web/component/ads';
 import Meme from 'web/component/meme';
 import Portals from 'component/portals';
 import FeaturedBanner from 'component/featuredBanner';
-import ABTest from 'component/experiment';
 import { useHistory } from 'react-router-dom';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
@@ -102,7 +101,6 @@ function HomePage(props: Props) {
   };
 
   const topGrid = sortedRowData.findIndex((row) => row.title);
-  const isInTestGroup = ABTest('BANNER');
 
   const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
     return (
@@ -135,7 +133,7 @@ function HomePage(props: Props) {
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     if (id === 'BANNER') {
-      return isInTestGroup ? <FeaturedBanner homepageData={homepageData} authenticated={authenticated} /> : undefined;
+      return <FeaturedBanner homepageData={homepageData} authenticated={authenticated} />;
     } else if (id === 'PORTALS') {
       return <Portals homepageData={homepageData} authenticated={authenticated} />;
     }
@@ -174,7 +172,7 @@ function HomePage(props: Props) {
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {((!isInTestGroup && index === 0) || index === topGrid) && <CustomizeHomepage />}
+              {index === topGrid && <CustomizeHomepage />}
             </div>
           )}
         </>
@@ -233,7 +231,7 @@ function HomePage(props: Props) {
       {homepageFetched &&
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-            if (isInTestGroup && id !== 'FOLLOWING') {
+            if (id !== 'FOLLOWING') {
               return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
             } else {
               return (

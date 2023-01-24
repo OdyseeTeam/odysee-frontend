@@ -4,7 +4,6 @@ import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import 'scss/component/homepage-sort.scss';
-import ABTest from 'component/experiment';
 
 // prettier-ignore
 const Lazy = {
@@ -22,8 +21,6 @@ const NON_CATEGORY = Object.freeze({
   PORTALS: { label: 'Portals' },
   FYP: { label: 'Recommended' },
 });
-
-const isInTestGroup = ABTest('BANNER');
 
 // ****************************************************************************
 // Helpers
@@ -65,9 +62,7 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
         hiddenOrder.push(key);
       } else {
         if (key === 'BANNER') {
-          if (isInTestGroup) {
-            activeOrder.unshift(key);
-          }
+          activeOrder.unshift(key);
         } else if (key === 'PORTALS') {
           activeOrder.splice(2, 0, key);
         } else {
@@ -76,17 +71,6 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
       }
     }
   });
-  // Fix portal position
-  if (!isInTestGroup) {
-    activeOrder.splice(
-      2,
-      0,
-      activeOrder.splice(
-        activeOrder.findIndex((entry) => entry === 'PORTALS'),
-        1
-      )[0]
-    );
-  }
 
   // Final check to exclude items that were previously moved to Hidden.
   activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
