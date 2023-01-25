@@ -447,12 +447,26 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    // margin-right: var(--spacing-m);
     margin: 0;
 
     .button__label {
       display: none;
     }
+  }
+}
+
+.header__navigationItem--channel {
+  color: var(--color-text);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xs) var(--spacing-s) var(--spacing-xs) var(--spacing-s);
+  span {
+    padding-left: 2.5px;
+    padding-right: 2px;
+    margin-right: var(--spacing-s);
+  }
+
+  &:hover {
+    background-color: var(--color-primary);
   }
 }
 
