@@ -162,7 +162,7 @@ function ChannelSelector(props: Props) {
           </MenuList>
         </Menu>
       </div>
-      {isHeaderMenu && (
+      {isHeaderMenu && activeChannelUrl && (
         <NavLink to={formatLbryUrlForWeb(activeChannelUrl)}>
           <div className="header__navigationItem--channel">
             <span>↳</span>
