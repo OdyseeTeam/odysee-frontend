@@ -311,7 +311,6 @@
   width: 100%;
   height: 100%;
   max-height: var(--desktop-portrait-player-max-height);
-  // aspect-ratio: auto;
 
   .content__cover,
   .content__loading {
@@ -319,6 +318,9 @@
     height: 100%;
     width: 100%;
     max-height: var(--desktop-portrait-player-max-height);
+  }
+  .content__loading {
+    aspect-ratio: 16 / 9;
   }
 }
 .main--theater-mode {
