@@ -1077,6 +1077,11 @@ $actions-z-index: 2;
     }
   }
 
+  .claim-preview__title,
+  .channel__list-text {
+    font-size: var(--font-small) !important;
+  }
+
   &:hover {
     background-color: var(--color-primary);
 
