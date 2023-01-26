@@ -8,6 +8,9 @@
   .show-rc-sticky {
     opacity: 1 !important;
     bottom: var(--spacing-m) !important;
+    @media (max-width: $breakpoint-small) {
+      bottom: 0 !important;
+    }
   }
 
   #sticky-d-rc {
@@ -108,7 +111,6 @@
     @media (max-width: $breakpoint-small) {
       left: 0 !important;
       width: 100% !important;
-      bottom: 0 !important;
 
       .sticky-d-rc-content {
         margin: var(--spacing-s);
