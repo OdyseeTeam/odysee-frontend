@@ -205,6 +205,7 @@ function SocialShare(props: Props) {
           iconSize={24}
           icon={ICONS.FACEBOOK}
           title={__('Share on Facebook')}
+          target="_blank"
           href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
         />
         <Button
@@ -212,6 +213,7 @@ function SocialShare(props: Props) {
           iconSize={24}
           icon={ICONS.REDDIT}
           title={__('Share on Reddit')}
+          target="_blank"
           href={`https://reddit.com/submit?url=${encodedLbryURL}`}
         />
         {!isMobile ? (
@@ -220,6 +222,7 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.WHATSAPP}
             title={__('Share on WhatsApp')}
+            target="_blank"
             href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
           />
         ) : (
@@ -237,6 +240,7 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.TELEGRAM}
             title={__('Share on Telegram')}
+            target="_blank"
             href={`https://t.me/share/url?url=${encodedLbryURL}`}
           />
         ) : (
