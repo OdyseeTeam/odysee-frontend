@@ -50,6 +50,7 @@ export default function AdsSticky(props: Props) {
   function callback(mutationList) {
     mutationList.forEach(function (mutation) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        // $FlowIgnore
         if (mutation.target && mutation.target.classList && mutation.target.classList.contains('hidden-rc-sticky')) {
           setIsHidden(true);
         }
@@ -67,7 +68,7 @@ export default function AdsSticky(props: Props) {
   }
 
   React.useEffect(() => {
-    observer.observe(stickyContainer.current, { attributes: true });
+    if (stickyContainer && stickyContainer.current) observer.observe(stickyContainer.current, { attributes: true });
   }, []);
 
   React.useEffect(() => {
