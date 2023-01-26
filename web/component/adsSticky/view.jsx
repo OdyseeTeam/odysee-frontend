@@ -43,7 +43,7 @@ export default function AdsSticky(props: Props) {
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
   const [isHidden, setIsHidden] = React.useState(false);
-  const stickyContainer = React.useRef<?HTMLFormElement>(null);
+  const stickyContainer = React.useRef<?HTMLDivElement>(null);
 
   const observer = new MutationObserver(callback);
 
