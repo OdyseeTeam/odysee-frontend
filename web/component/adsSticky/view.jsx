@@ -43,6 +43,7 @@ export default function AdsSticky(props: Props) {
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
   const [isHidden, setIsHidden] = React.useState(false);
+  const [loads, setLoads] = React.useState(1);
   const stickyContainer = React.useRef<?HTMLDivElement>(null);
 
   const observer = new MutationObserver(callback);
@@ -66,6 +67,14 @@ export default function AdsSticky(props: Props) {
     );
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
+
+  React.useEffect(() => {
+    if (isHidden) setLoads(loads + 1);
+    if (loads >= 2) {
+      setIsHidden(false);
+      setLoads(0);
+    }
+  }, [location.href]);
 
   React.useEffect(() => {
     if (stickyContainer && stickyContainer.current) observer.observe(stickyContainer.current, { attributes: true });
