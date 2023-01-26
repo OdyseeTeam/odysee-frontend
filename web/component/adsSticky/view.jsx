@@ -43,13 +43,14 @@ export default function AdsSticky(props: Props) {
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
   const [isHidden, setIsHidden] = React.useState(false);
-  const stickyContainer = React.useRef();
+  const stickyContainer = React.useRef<?HTMLFormElement>(null);
+
   const observer = new MutationObserver(callback);
 
   function callback(mutationList) {
     mutationList.forEach(function (mutation) {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        if (mutation.target.classList.contains('hidden-rc-sticky')) {
+        if (mutation.target && mutation.target.classList && mutation.target.classList.contains('hidden-rc-sticky')) {
           setIsHidden(true);
         }
       }
