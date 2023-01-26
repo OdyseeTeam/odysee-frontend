@@ -18,7 +18,7 @@ const select = (state, props) => {
     locale: selectUserLocale(state),
     nagsShown: selectAnyNagsShown(state),
     shouldShowAds: selectShouldShowAds(state),
-    adBlockerFound: selectAdBlockerFound(state) || true,
+    adBlockerFound: selectAdBlockerFound(state),
   };
 };
 

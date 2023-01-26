@@ -5,11 +5,19 @@
     display: none !important;
   }
 
-  #sticky-d-rc {
+  .show-rc-sticky {
+    opacity: 1 !important;
     bottom: var(--spacing-m) !important;
+  }
+
+  #sticky-d-rc {
+    opacity: 0;
+    position: fixed;
+
+    bottom: -500px;
     left: calc(var(--spacing-m) + 93px) !important;
     width: calc(100% - (var(--spacing-m) * 2) - 93px) !important;
-    transition: all 0.4s;
+    transition: width 0.2s, left 0.2s, bottom 1s, opacity 1s !important;
 
     .sticky-d-rc {
       background-color: var(--color-header-background);

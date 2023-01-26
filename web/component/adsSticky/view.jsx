@@ -1,14 +1,11 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import { useIsMobile } from 'effects/use-screensize';
 import './style.scss';
 
 // ****************************************************************************
 // AdsSticky
 // ****************************************************************************
-
-// const OUTBRAIN_CONTAINER_KEY = 'outbrainSizeDiv';
 
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
@@ -35,18 +32,29 @@ export default function AdsSticky(props: Props) {
     isContentClaim,
     isChannelClaim,
     authenticated,
-    shouldShowAds, // Global condition on whether ads should be activated
+    shouldShowAds,
     homepageData,
     locale,
     nagsShown,
     adBlockerFound,
   } = props;
 
-  const isMobile = useIsMobile();
-
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   const [isActive, setIsActive] = React.useState(false);
+  const [isHidden, setIsHidden] = React.useState(false);
+  const stickyContainer = React.useRef();
+  const observer = new MutationObserver(callback);
+
+  function callback(mutationList) {
+    mutationList.forEach(function (mutation) {
+      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+        if (mutation.target.classList.contains('hidden-rc-sticky')) {
+          setIsHidden(true);
+        }
+      }
+    });
+  }
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIgnore
@@ -56,6 +64,10 @@ export default function AdsSticky(props: Props) {
     );
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
+
+  React.useEffect(() => {
+    observer.observe(stickyContainer.current, { attributes: true });
+  }, []);
 
   React.useEffect(() => {
     let script, scriptId, scriptSticky;
@@ -109,8 +121,9 @@ export default function AdsSticky(props: Props) {
   return (
     <div
       id="sticky-d-rc"
+      ref={stickyContainer}
       className={classnames({
-        'hidden-rc-sticky': (!isActive || adBlockerFound) && (!isMobile || adBlockerFound),
+        'show-rc-sticky': isActive && !adBlockerFound && !isHidden,
         FILE: isContentClaim,
       })}
     >
