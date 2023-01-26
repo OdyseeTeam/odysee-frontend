@@ -74,6 +74,7 @@ export default function AdsSticky(props: Props) {
       setIsHidden(false);
       setLoads(0);
     }
+    // $FlowIgnore
   }, [location.href]);
 
   React.useEffect(() => {
