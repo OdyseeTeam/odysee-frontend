@@ -36,7 +36,7 @@ function AdTileB(props: Props) {
       try {
         script = document.createElement('script');
         script.src = AD_CONFIG.url;
-        script.defer = 'defer';
+        script.defer = true;
         // $FlowIgnore
         document.body.appendChild(script);
         // setIsActive(true)
