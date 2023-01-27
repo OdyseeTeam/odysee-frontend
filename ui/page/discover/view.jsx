@@ -11,7 +11,7 @@ import Button from 'component/button';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
-import Ads from 'web/component/ads';
+import AdTileA from 'web/component/ads/adTileA';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
@@ -150,9 +150,9 @@ function DiscoverPage(props: Props) {
       !hasPremiumPlus && {
         node: (index, lastVisibleIndex, pageSize) => {
           if (pageSize && index < pageSize) {
-            return index === lastVisibleIndex ? <Ads small type="video" tileLayout={tileLayout} /> : null;
+            return index === lastVisibleIndex ? <AdTileA small type="video" tileLayout={tileLayout} /> : null;
           } else {
-            return index % (pageSize * 2) === 0 ? <Ads small type="video" tileLayout={tileLayout} /> : null;
+            return index % (pageSize * 2) === 0 ? <AdTileA small type="video" tileLayout={tileLayout} /> : null;
           }
         },
       }

@@ -1,22 +1,9 @@
 @import '~ui/scss/init/breakpoints';
 
-.rc_tileB {
+.rc_tile {
   border-radius: var(--border-radius);
   padding: 0 !important;
   width: 100%;
-  min-height: 124px;
-
-  @media (max-width: $breakpoint-small) {
-    min-height: 108px;
-  }
-
-  &.show-rc_tile {
-    .css-widget-item-wrap {
-      img {
-        opacity: 1 !important;
-      }
-    }
-  }
 
   .rc-widget-header {
     display: none !important;
@@ -76,15 +63,12 @@
       margin-right: var(--spacing-s);
       aspect-ratio: 16/9;
       height: unset !important;
-      background-color: var(--color-header-background);
-      border-radius: var(--border-radius);
 
       .rc-photo {
+        border-radius: var(--border-radius);
         width: 100% !important;
         aspect-ratio: 16/9;
         height: unset !important;
-        opacity: 0;
-        transition: all 0.2s ease;
       }
     }
 
@@ -133,19 +117,10 @@
       }
     }
   }
-
-  &:hover {
-    .rc-photo-container {
-      border: 1px solid rgba(var(--color-primary-dynamic));
-      img {
-        transform: scale(1.05);
-      }
-    }
-  }
 }
 
 .file-page__recommended {
-  .rc_tileB {
+  .rc_tile {
     margin-left: 0;
     .css-widget-item-wrap {
       padding-top: var(--spacing-m);

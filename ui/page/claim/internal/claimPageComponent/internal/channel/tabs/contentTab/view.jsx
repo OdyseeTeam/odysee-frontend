@@ -9,7 +9,7 @@ import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
-import Ads from 'web/component/ads';
+import AdTileA from 'web/component/ads/adTileA';
 import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
@@ -172,9 +172,9 @@ function ContentTab(props: Props) {
               !hasPremiumPlus && {
                 node: (index, lastVisibleIndex, pageSize) => {
                   if (pageSize && index < pageSize) {
-                    return index === lastVisibleIndex ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                    return index === lastVisibleIndex ? <AdTileA type="video" tileLayout={tileLayout} small /> : null;
                   } else {
-                    return index % (pageSize * 2) === 0 ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                    return index % (pageSize * 2) === 0 ? <AdTileA type="video" tileLayout={tileLayout} small /> : null;
                   }
                 },
               }
