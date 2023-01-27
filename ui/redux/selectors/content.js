@@ -86,6 +86,12 @@ export const selectIsUriCurrentlyPlaying = (state: State, uri: string) => {
   if (playingUri === uri) return true;
 
   const claim = selectClaimForUri(state, uri);
+  if (uri && !uri.includes('lbry://@')) {
+    if (claim) {
+      const { canonical_url: uri } = claim;
+      if (playingUri === uri) return true;
+    }
+  }
   if (!claim) return false;
 
   return (claim.canonical_url, claim.permanent_url).includes(playingUri);
@@ -119,6 +125,12 @@ export const selectIsPlayerFloating = (state: State) => {
 
   if ((isQueue && primaryUri !== mainFileUri) || (isInlineSecondaryPlayer && isOnDifferentTab)) {
     return true;
+  }
+
+  const { primaryUri: primaryPlayingUri } = playingUri;
+  if (primaryPlayingUri) {
+    const isAlreadyPlaying = selectIsUriCurrentlyPlaying(state, primaryPlayingUri);
+    if (isAlreadyPlaying) return false;
   }
 
   if (

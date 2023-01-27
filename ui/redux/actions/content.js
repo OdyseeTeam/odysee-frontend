@@ -144,7 +144,6 @@ export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Disp
 export const doChangePlayingUri = (newPlayingUri: PlayingUri) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const playingUri = selectPlayingUri(state);
-
   return dispatch(doSetPlayingUri({ ...playingUri, ...newPlayingUri }));
 };
 
