@@ -225,7 +225,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         commentId: undefined,
       };
 
-      let checkA = playingOptions.uri === currentStreamingUri;
+      let check = playingOptions.uri === currentStreamingUri;
 
       if (parentCommentId) {
         playingOptions.source = 'comment';
@@ -238,13 +238,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (!isLivestreamClaim) {
         doFileGetForUri(uri);
       }
-      if (shouldStartFloating || !checkA) {
+      if (shouldStartFloating || !check) {
         doStartFloatingPlayingUri(playingOptions);
       }
 
       analytics.event.playerLoaded(renderMode, embedded);
 
-      if (!shouldStartFloating && checkA) {
+      if (!shouldStartFloating && check) {
         setCurrentStreamingUri(uri);
       }
       setSourceIsReady(true);
