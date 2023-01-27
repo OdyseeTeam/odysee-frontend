@@ -154,8 +154,9 @@
     }
 
     .vjs-control-bar {
-      display: inline-block !important;
-      opacity: 1 !important;
+      // display: inline-block !important;
+      // opacity: 1 !important;
+      display: none !important;
 
       .vjs-progress-control.vjs-control {
         top: 40px;
@@ -200,6 +201,7 @@
 
     .content__info {
       margin-top: -50px;
+      background: red;
       opacity: 0;
       .button--uri-indicator {
         display: none;
@@ -236,15 +238,19 @@
   height: var(--floating-viewer-height);
   width: var(--floating-viewer-width);
 
-  .file-render--video {
-    z-index: 1;
+  @media (min-width: $breakpoint-small) {
+    .file-render--video {
+      z-index: 1;
+    }
   }
   .content__info {
     &:not(.content-info__playlist) {
-      margin-top: -68px;
-      z-index: -1;
-      position: relative;
-      transition: 0.2s margin;
+      @media (min-width: $breakpoint-small) {
+        margin-top: -68px;
+        z-index: -1;
+        position: relative;
+        transition: 0.2s margin;
+      }
     }
     .content-info__text {
       padding: var(--spacing-s) var(--spacing-xxs);
@@ -319,9 +325,11 @@
     display: none;
   }
 
-  &:hover {
-    .content__info {
-      margin-top: 0;
+  @media (min-width: $breakpoint-small) {
+    &:hover {
+      .content__info {
+        margin-top: 0;
+      }
     }
   }
 }
