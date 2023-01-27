@@ -176,7 +176,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
     const streamClaim = React.useCallback(() => {
-      if (sourceIsReady) updateClaim('callback');
+      if (sourceIsReady) updateClaim();
     }, [
       claimLinkId,
       collectionId,
@@ -196,7 +196,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     React.useEffect(() => {
       if (sourceIsReady) {
         if (canViewFile && (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded))) {
-          updateClaim('effect');
+          updateClaim();
         }
       }
     }, [
@@ -215,7 +215,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       uri,
     ]);
 
-    function updateClaim(trigger: string) {
+    function updateClaim() {
       const playingOptions: PlayingUri = {
         uri,
         collection: { collectionId },
@@ -263,7 +263,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     React.useEffect(() => {
       return () => {
         if (shouldClearPlayingUri.current) {
-          console.log('CLEAR');
           doClearPlayingUri();
         }
       };
