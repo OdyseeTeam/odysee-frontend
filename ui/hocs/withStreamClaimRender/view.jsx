@@ -110,7 +110,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
-    // const [sourceIsReady, setSourceIsReady] = React.useState(false);
+    const [sourceIsReady, setSourceIsReady] = React.useState(true);
 
     const { search, href, state: locationState, pathname } = location;
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
@@ -141,7 +141,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       isPlayable;
     const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
     const shouldAutoplay = autoplayVideo || autoRenderClaim;
-    const shouldStartFloating = !currentUriPlaying || claimLinkId !== playingUri.sourceId;
+    const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
 
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
     const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
@@ -176,7 +176,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
     const streamClaim = React.useCallback(() => {
-      updateClaim();
+      if (sourceIsReady) updateClaim();
     }, [
       claimLinkId,
       collectionId,
@@ -194,7 +194,11 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      if (canViewFile && (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded))) updateClaim();
+      if (sourceIsReady) {
+        if (canViewFile && (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded))) {
+          updateClaim();
+        }
+      }
     }, [
       claimLinkId,
       collectionId,
@@ -230,14 +234,20 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         playingOptions.source = 'markdown';
       }
 
-      if (!isLivestreamClaim) doFileGetForUri(uri);
-      if (shouldStartFloating || !check) doStartFloatingPlayingUri(playingOptions);
+      setSourceIsReady(false);
+      if (!isLivestreamClaim) {
+        doFileGetForUri(uri);
+      }
+      if (shouldStartFloating || !check) {
+        doStartFloatingPlayingUri(playingOptions);
+      }
 
       analytics.event.playerLoaded(renderMode, embedded);
 
       if (!shouldStartFloating && check) {
         setCurrentStreamingUri(uri);
       }
+      setSourceIsReady(true);
     }
 
     React.useEffect(() => {
@@ -295,7 +305,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     return (
       <>
         {claimLinkId && !sourceLoaded && <LoadingScreen />}
-
         <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
       </>
     );
