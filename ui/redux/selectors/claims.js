@@ -1042,7 +1042,7 @@ export const selectGeoRestrictionForUri = createCachedSelector(
 )((state, uri) => String(uri));
 
 export const selectClaimRepostedAmountForUri = (state: State, uri: string) => {
-  const claim = selectClaimForUri(state);
+  const claim = selectClaimForUri(state, uri);
   return getClaimRepostedAmount(claim);
 };
 
