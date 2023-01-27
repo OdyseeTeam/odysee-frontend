@@ -5,8 +5,8 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Spinner from 'component/spinner';
-import Ads from 'web/component/ads';
-// import AdTileB from 'web/component/ads/adTileB';
+// import AdTileA from 'web/component/ads/adTileA';
+import AdTileB from 'web/component/ads/adTileB';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';
@@ -83,8 +83,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const InjectedAd =
     injectAds && !blacklistTriggered && !hasPremiumPlus
       ? {
-          node: <Ads small type="video" className="ads__claim-item--recommended" noFallback />,
-          // node: <AdTileB className="ads__claim-item--recommended" />,
+          // node: <Ads small type="video" className="ads__claim-item--recommended" noFallback />,
+          node: <AdTileB className="ads__claim-item--recommended" />,
           index: isMobile ? 0 : 3,
         }
       : null;

@@ -25,7 +25,7 @@ type Props = {
   doSetAdBlockerFound: (boolean) => void,
 };
 
-function Ads(props: Props) {
+function AdTileA(props: Props) {
   const { type = 'video', tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
   // const isMobile = useIsMobile();
   // const [isActive, setIsActive] = React.useState(false);
@@ -79,4 +79,4 @@ function Ads(props: Props) {
   return null;
 }
 
-export default Ads;
+export default AdTileA;

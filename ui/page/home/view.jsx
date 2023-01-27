@@ -19,7 +19,7 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
-import Ads from 'web/component/ads';
+import AdTileA from 'web/component/ads/adTileA';
 import Meme from 'web/component/meme';
 import Portals from 'component/portals';
 import FeaturedBanner from 'component/featuredBanner';
@@ -155,7 +155,7 @@ function HomePage(props: Props) {
         hasSource
         prefixUris={options.channelIds && getActiveLivestreamUrisForIds(options.channelIds)}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        injectedItem={index === topGrid && !hasPremiumPlus && { node: <Ads small type="video" tileLayout /> }}
+        injectedItem={index === topGrid && !hasPremiumPlus && { node: <AdTileA small type="video" tileLayout /> }}
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />

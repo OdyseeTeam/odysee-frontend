@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
-// import PremiumPlusTile from 'component/premiumPlusTile';
-import classnames from 'classnames';
+import PremiumPlusTile from 'component/premiumPlusTile';
 import './style.scss';
 
 const DISABLE_VIDEO_AD = false;
@@ -26,23 +25,20 @@ type Props = {
   doSetAdBlockerFound: (boolean) => void,
 };
 
-function AdTileB(props: Props) {
-  const { shouldShowAds } = props;
-  // const isMobile = useIsMobile();
-  const [isActive, setIsActive] = React.useState(false);
-  // const ref = React.useRef();
+function AdTileRotation(props: Props) {
+  const { type = 'video', tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
+
+  const ref = React.useRef();
+
   React.useEffect(() => {
     if (shouldShowAds && !DISABLE_VIDEO_AD) {
       let script;
       try {
         script = document.createElement('script');
         script.src = AD_CONFIG.url;
-        script.defer = true;
         // $FlowIgnore
         document.body.appendChild(script);
-        setInterval(() => {
-          setIsActive(true);
-        }, 1000);
+        // setIsActive(true)
       } catch (e) {}
 
       return () => {
@@ -52,18 +48,34 @@ function AdTileB(props: Props) {
     }
   }, [shouldShowAds, AD_CONFIG]);
 
-  return (
-    <div
-      className={classnames('rc_tileB', {
-        'show-rc_tile': isActive,
-      })}
-      id="rc-widget-952c79"
-      data-rc-widget
-      data-widget-host="habitat"
-      data-endpoint="//trends.revcontent.com"
-      data-widget-id="274791"
-    />
-  );
+  React.useEffect(() => {
+    if (ref.current) {
+      const mountedStyle = getComputedStyle(ref.current);
+      doSetAdBlockerFound(mountedStyle?.display === 'none');
+    }
+  }, []);
+
+  if (type === 'video') {
+    if (shouldShowAds) {
+      return (
+        <li className="claim-preview--tile">
+          <div
+            className="rc_tile"
+            id="rc-widget-fceddd"
+            ref={ref}
+            data-rc-widget
+            data-widget-host="habitat"
+            data-endpoint="//trends.revcontent.com"
+            data-widget-id="273434"
+          />
+        </li>
+      );
+    } else if (!noFallback) {
+      return <PremiumPlusTile tileLayout={tileLayout} />;
+    }
+  }
+
+  return null;
 }
 
-export default AdTileB;
+export default AdTileRotation;
