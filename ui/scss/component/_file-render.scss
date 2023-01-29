@@ -326,7 +326,13 @@
 .main--theater-mode {
   .file-page__video-container {
     aspect-ratio: 16 / 9;
-    max-height: calc(var(--desktop-portrait-player-max-height) - 8vh);
+    max-height: var(--desktop-portrait-player-max-height);
+  }
+}
+
+.content__viewer--theater-mode {
+  &.content__viewer--inline {
+    max-height: unset !important;
   }
 }
 
