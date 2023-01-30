@@ -541,7 +541,7 @@ export const doClearEditsForCollectionId = (id: String) => (dispatch: Dispatch) 
   dispatch({ type: ACTIONS.COLLECTION_EDIT, data: { collectionKey: COLS.KEYS.UPDATED, collection: { id } } });
 };
 
-export const doRemoveFromUpdatedCollectionsForCollectionId = (id: String) => (dispatch: Dispatch) => {
+export const doRemoveFromUpdatedCollectionsForCollectionId = (id: string) => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'updated' } });
 };
 
