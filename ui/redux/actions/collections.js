@@ -512,7 +512,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     currentUrls.splice(order.to, 0, movedItem);
   }
 
-  await dispatch(doRemoveFromUpdatedCollectionsForCollectionId(collectionId))
+  await dispatch(doRemoveFromUpdatedCollectionsForCollectionId(collectionId));
 
   const isQueue = collectionId === COLS.QUEUE_ID;
   const title = params.title || params.name;
