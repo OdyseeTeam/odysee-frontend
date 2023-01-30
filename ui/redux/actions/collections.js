@@ -512,6 +512,8 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     currentUrls.splice(order.to, 0, movedItem);
   }
 
+  await dispatch(doRemoveFromeUpdatedCollectionsForCollectionId(collectionId))
+
   const isQueue = collectionId === COLS.QUEUE_ID;
   const title = params.title || params.name;
 
@@ -537,6 +539,10 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 export const doClearEditsForCollectionId = (id: String) => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'edited' } });
   dispatch({ type: ACTIONS.COLLECTION_EDIT, data: { collectionKey: COLS.KEYS.UPDATED, collection: { id } } });
+};
+
+export const doRemoveFromeUpdatedCollectionsForCollectionId = (id: String) => (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'updated' } });
 };
 
 export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) =>
