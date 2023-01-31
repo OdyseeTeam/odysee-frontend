@@ -90,7 +90,7 @@ async function generateEnclosureForClaimContent(claim, streamUrl) {
     case 'video':
       return {
         url:
-          streamUrl.replace('/v4/', '/v3/') + (fileExt || '.mp4') + `&magic=${Number(Math.round(Date.now() / 1000))}`, // v3 = mp4 always, v4 may redirect to m3u8
+          streamUrl.replace('/v4/', '/v3/') + (fileExt || '.mp4') + `?magic=${Number(Math.round(Date.now() / 1000))}`, // v3 = mp4 always, v4 may redirect to m3u8
         type: (value.source && value.source.media_type) || 'video/mp4',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
