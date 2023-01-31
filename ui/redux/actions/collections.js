@@ -36,7 +36,7 @@ import { doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
 
-export const doFetchCollectionListMine = (options: CollectionListOptions = { page: 1, page_size: 50 }) => async (
+export const doFetchCollectionListMine = (options: CollectionListOptions = { resolve: true, page: 1, page_size: 50 }) => async (
   dispatch: Dispatch
 ) => {
   dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_STARTED });
