@@ -36,7 +36,7 @@ import { doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
 
-export const doFetchCollectionListMine = (options: CollectionListOptions = { page: 1, page_size: 50 }) => async (
+export const doFetchCollectionListMine = (options: CollectionListOptions = { resolve: true, page: 1, page_size: 50 }) => async (
   dispatch: Dispatch
 ) => {
   dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_STARTED });
@@ -512,6 +512,8 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     currentUrls.splice(order.to, 0, movedItem);
   }
 
+  await dispatch(doRemoveFromUpdatedCollectionsForCollectionId(collectionId));
+
   const isQueue = collectionId === COLS.QUEUE_ID;
   const title = params.title || params.name;
 
@@ -537,6 +539,10 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 export const doClearEditsForCollectionId = (id: String) => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'edited' } });
   dispatch({ type: ACTIONS.COLLECTION_EDIT, data: { collectionKey: COLS.KEYS.UPDATED, collection: { id } } });
+};
+
+export const doRemoveFromUpdatedCollectionsForCollectionId = (id: string) => (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'updated' } });
 };
 
 export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) =>
