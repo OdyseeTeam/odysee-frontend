@@ -37,6 +37,10 @@
         pointer-events: none;
       }
 
+      a {
+        pointer-events: none;
+      }
+
       .claim-tile__title {
         min-height: unset;
       }
@@ -113,6 +117,7 @@
 
     .recommendation-overlay-grid {
       .claim-preview--tile {
+        pointer-events: none;
         &:hover {
           .claim-tile__info,
           .claim-tile__header,
