@@ -629,7 +629,7 @@ export function doUpdateChannel(params: any, cb: any) {
     // Remove params with null values
     for (const [k, v] of Object.entries(updateParams)) {
       if (v == null) {
-        delete updateParams[k]
+        delete updateParams[k];
       }
     }
 
