@@ -10,7 +10,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
 import Empty from 'component/common/empty';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
 import FileSelector from 'component/common/file-selector';
@@ -39,6 +39,7 @@ type Props = {
   size: number,
   duration: number,
   isVid: boolean,
+  appLanguage: string,
   doUpdatePublishForm: ({}) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
@@ -57,6 +58,7 @@ function PublishLivestream(props: Props) {
     size,
     duration,
     isVid,
+    appLanguage,
     disabled,
     livestreamData,
     isCheckingLivestreams,
@@ -431,7 +433,7 @@ function PublishLivestream(props: Props) {
                                                 : __('minutes')
                                             }`}
                                         <div className="table__item-label">
-                                          {`${moment(item.data.uploadedAt).from(moment())}`}
+                                          {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
                                         </div>
                                       </td>
                                       <td>

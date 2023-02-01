@@ -1,20 +1,21 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
 type Props = {
   transactions: StripeTransactions,
   lastFour: ?any,
+  appLanguage: string,
   doGetCustomerStatus: () => void,
   transactionType: string,
 };
 
 const WalletFiatPaymentHistory = (props: Props) => {
   // receive transactions from parent component
-  let { transactions: accountTransactions, lastFour, doGetCustomerStatus, transactionType } = props;
+  let { transactions: accountTransactions, lastFour, appLanguage, doGetCustomerStatus, transactionType } = props;
 
   const tipsBranch = transactionType === 'tips';
   const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
@@ -63,7 +64,7 @@ const WalletFiatPaymentHistory = (props: Props) => {
                 accountTransactions.map((transaction) => (
                   <tr key={transaction.name + transaction.created_at}>
                     {/* date */}
-                    <td>{moment(transaction.created_at).format('LLL')}</td>
+                    <td>{moment(transaction.created_at).locale(appLanguage).format('LLL')}</td>
                     {/* receiving channel name */}
                     <td>
                       <Button

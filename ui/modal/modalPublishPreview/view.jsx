@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import classnames from 'classnames';
 
 import './style.scss';
@@ -305,7 +305,7 @@ const ModalPublishPreview = (props: Props) => {
       try {
         return new Date(time * 1000).toLocaleString(appLanguage);
       } catch {
-        return moment(new Date(time * 1000)).format('MMMM Do, YYYY - h:mm a');
+        return moment(new Date(time * 1000)).locale(appLanguage).format('LLL');
       }
     } else {
       return '';
