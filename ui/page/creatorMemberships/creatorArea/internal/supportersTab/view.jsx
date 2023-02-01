@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 
 import { buildURI } from 'util/lbryURI';
 
@@ -16,6 +16,7 @@ type Props = {
   // -- redux --
   supportersList: ?SupportersList,
   channelMembershipTiers: ?CreatorMemberships,
+  appLanguage: string,
   doResolveClaimIds: (claimIds: Array<string>) => void,
 };
 
@@ -26,6 +27,7 @@ const SupportersTab = (props: Props) => {
     // -- redux --
     supportersList,
     channelMembershipTiers,
+    appLanguage,
     doResolveClaimIds,
   } = props;
 
@@ -136,7 +138,7 @@ const SupportersTab = (props: Props) => {
                               </td>
                               <td>{supporter.MembershipName}</td>
                               <td>${supporter.Price / 100} USD / Month</td>
-                              <td>{moment(new Date(supporter.JoinedAtTime)).format('MMMM Do YYYY')}</td>
+                              <td>{moment(new Date(supporter.JoinedAtTime)).locale(appLanguage).format('LL')}</td>
                               <td>
                                 {Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}
                               </td>

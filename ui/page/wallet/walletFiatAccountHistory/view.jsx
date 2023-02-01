@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
@@ -9,9 +9,11 @@ import { toCapitalCase } from 'util/string';
 type Props = {
   transactions: StripeTransactions,
   transactionType: string,
+  appLanguage: string,
 };
 
 const WalletFiatAccountHistory = (props: Props) => {
+  const { appLanguage } = props;
   // receive transactions from parent component
   let { transactions: accountTransactions, transactionType } = props;
 
@@ -65,7 +67,7 @@ const WalletFiatAccountHistory = (props: Props) => {
 
               return (
                 <tr key={transaction.name + transaction.created_at}>
-                  <td>{moment(transaction.created_at).format('LLL')}</td>
+                  <td>{moment(transaction.created_at).locale(appLanguage).format('LLL')}</td>
                   <td>
                     <Button
                       navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
