@@ -99,7 +99,7 @@ const collectionsReducer = handleActions(
       const { id, collectionKey } = action.data;
 
       const collectionsByIdForKey = Object.assign({}, state[collectionKey]);
-      delete collectionsByIdForKey[id];
+      if (collectionsByIdForKey[id]) delete collectionsByIdForKey[id];
 
       return {
         ...state,
