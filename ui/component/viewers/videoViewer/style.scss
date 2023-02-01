@@ -22,7 +22,6 @@
 
   .recommendation-overlay-grid {
     width: 100%;
-    // left:20%;
     height: 100%;
     display: grid;
     gap: var(--spacing-xxs);
@@ -100,6 +99,12 @@
 .content__viewer--theater-mode {
   .recommendation-overlay-wrapper {
     padding: 4% 24% 6% 24%;
+
+    @media (orientation: portrait) {
+      padding: 5% 10% !important;
+      padding-bottom: 7% !important;
+      background: red;
+    }
   }
 }
 
