@@ -2,6 +2,7 @@
 import React from 'react';
 import { FormField } from 'component/common/form';
 import { COL_TYPES } from 'constants/collections';
+import { getLocalizedNameForCollectionId } from 'util/collections';
 import Icon from 'component/common/icon';
 
 type Props = {
@@ -16,7 +17,8 @@ type Props = {
 
 function CollectionSelectItem(props: Props) {
   const { icon, uri, collection, collectionHasClaim, collectionPending, doPlaylistAddAndAllowPlaying } = props;
-  const { name, id } = collection || {};
+  const id = collection.id;
+  const name = getLocalizedNameForCollectionId(id) || collection.name;
 
   const [checked, setChecked] = React.useState(collectionHasClaim);
 

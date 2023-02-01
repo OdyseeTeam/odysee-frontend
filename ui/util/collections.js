@@ -1,5 +1,11 @@
 // @flow
-import { COL_TYPES, SECTION_TAGS } from 'constants/collections';
+import {
+  COL_TYPES,
+  SECTION_TAGS,
+  WATCH_LATER_ID,
+  FAVORITES_ID,
+  QUEUE_ID,
+} from 'constants/collections';
 import { getCurrentTimeInSec } from 'util/time';
 
 export const defaultCollectionState: Collection = {
@@ -109,4 +115,17 @@ export function getTitleForCollection(collection: ?Collection) {
   if (!collection) return collection;
 
   return collection.title || collection.name;
+}
+
+export function getLocalizedNameForCollectionId(collectionId: string) {
+  switch (collectionId) {
+    case WATCH_LATER_ID:
+      return __('Watch Later');
+    case FAVORITES_ID:
+      return __('Favorites');
+    case QUEUE_ID:
+      return __('Queue');
+    default:
+      return null;
+  }
 }

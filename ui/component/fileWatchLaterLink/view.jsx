@@ -4,6 +4,7 @@ import React, { useRef } from 'react';
 import Button from 'component/button';
 import useHover from 'effects/use-hover';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { getLocalizedNameForCollectionId } from 'util/collections';
 
 type Props = {
   uri: string,
@@ -21,10 +22,11 @@ function FileWatchLaterLink(props: Props) {
   function handleWatchLater(e) {
     if (e) e.preventDefault();
 
+    const collectionId = COLLECTIONS_CONSTS.WATCH_LATER_ID;
     doPlaylistAddAndAllowPlaying({
       uri,
-      collectionName: COLLECTIONS_CONSTS.WATCH_LATER_NAME,
-      collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID,
+      collectionName: getLocalizedNameForCollectionId(collectionId) || COLLECTIONS_CONSTS.WATCH_LATER_NAME,
+      collectionId,
     });
   }
 

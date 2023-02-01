@@ -15,6 +15,7 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import UriIndicator from 'component/uriIndicator';
 import DateTime from 'component/dateTime';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
+import { getLocalizedNameForCollectionId } from 'util/collections';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import Button from 'component/button';
 import ClaimPreviewLoading from 'component/common/claim-preview-loading';
@@ -73,6 +74,7 @@ function CollectionPreview(props: Props) {
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
   const firstItemPath = collectionItemUrls && formatLbryUrlForWeb(collectionItemUrls[0] || '/');
   const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
+  const usedCollectionName = getLocalizedNameForCollectionId(collectionId) || collectionName;
 
   function handleClick(e) {
     if (navigateUrl) {
@@ -110,7 +112,7 @@ function CollectionPreview(props: Props) {
         <NavLink {...navLinkProps}>
           <h2>
             {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
-            <TruncatedText text={collectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
+            <TruncatedText text={usedCollectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
           </h2>
         </NavLink>
         {hasClaim && (

@@ -25,9 +25,10 @@ import usePersistedState from 'effects/use-persisted-state';
 import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { getLocalizedNameForCollectionId } from 'util/collections';
 
 type Props = {
-  id: ?string,
+  id: string,
   playingItemUrl: string,
   playingCurrentPlaylist: boolean,
   isMyCollection: boolean,
@@ -55,8 +56,9 @@ type Props = {
 };
 
 export default function PlaylistCard(props: Props) {
-  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty } = props;
+  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, id } = props;
 
+  const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
   const [showEdit, setShowEdit] = React.useState(false);
 
   if (!hasCollectionById) return null;
@@ -71,7 +73,7 @@ export default function PlaylistCard(props: Props) {
           fixed
           icon={ICONS.PLAYLIST_PLAYBACK}
           label={
-            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName + currentIndexLabel
+            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName + currentIndexLabel
           }
           type={DRAWERS.PLAYLIST}
         />
@@ -143,6 +145,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen() && !isMobile;
+
+  const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
 
   const activeItemRef = React.useRef();
   const scrollRestorePending = React.useRef();
@@ -353,13 +357,13 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 <>
                   <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
                   <span className="text-ellipsis">
-                    {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName}
+                    {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
                   </span>
                 </>
               ) : (
                 <>
                   <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
-                  <span className="text-ellipsis">{collectionName}</span>
+                  <span className="text-ellipsis">{usedCollectionName}</span>
                 </>
               )}
 
