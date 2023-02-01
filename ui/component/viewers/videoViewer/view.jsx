@@ -442,7 +442,7 @@ function VideoViewer(props: Props) {
       setShowRecommendationOverlay(false);
     }
 
-    // load events onto player
+    // load events onto playerplayerRef
     player.on('play', onPlay);
     player.on('pause', onPauseEvent);
     player.on('playerClosed', onPlayerClosedEvent);
@@ -480,8 +480,10 @@ function VideoViewer(props: Props) {
   }, playerReadyDependencyList); // eslint-disable-line
 
   function replay() {
-    console.log('replay');
-    console.log('playerRef: ', playerRef);
+    // $FlowIgnore
+    playerRef.current.currentTime(0);
+    // $FlowIgnore
+    playerRef.current.play();
   }
 
   return (

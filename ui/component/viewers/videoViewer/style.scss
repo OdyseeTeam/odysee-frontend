@@ -97,11 +97,6 @@
   }
 }
 
-.vjs-control-bar {
-  z-index: 2;
-  display: flex !important;
-}
-
 .content__viewer--theater-mode {
   .recommendation-overlay-wrapper {
     padding: 4% 24% 6% 24%;
@@ -127,22 +122,6 @@
 }
 
 .content__viewer--mobile {
-  /*
-    .vjs-button.vjs-ended{      
-      opacity:1;
-      z-index:10;
-      .vjs-icon-placeholder{
-        position:fixed !important;
-        top:100px;
-        left:50%;
-        z-index:1000;
-        &::before{
-          // z-index:1000;
-          background-size: 40%;
-        }
-      }
-    }
-    */
   .recommendation-overlay-grid {
     div:nth-child(5) {
       .claim-preview--tile {
@@ -160,6 +139,11 @@
       display: none;
     }
   }
+}
+
+.vjs-control-bar {
+  z-index: 2;
+  display: flex !important;
 }
 
 @keyframes blendin {
