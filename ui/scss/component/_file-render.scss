@@ -355,6 +355,10 @@
   background-color: black;
   border-radius: var(--border-radius);
 
+  .file-viewer {
+    position: relative;
+  }
+
   &:after {
     content: '';
     position: absolute;

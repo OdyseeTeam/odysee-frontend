@@ -23,6 +23,7 @@ import { addPlayPreviousButton } from './internal/play-previous';
 import { useGetAds } from 'effects/use-get-ads';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
+import ClaimPreviewTile from 'component/claimPreviewTile';
 import { useHistory } from 'react-router';
 import { getAllIds } from 'util/buildHomepage';
 import type { HomepageCat } from 'util/buildHomepage';
@@ -30,6 +31,8 @@ import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { platform } from 'util/platform';
+import { useIsMobile } from 'effects/use-screensize';
+import './style.scss';
 
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
@@ -70,6 +73,7 @@ type Props = {
   shareTelemetry: boolean,
   doPlayNextUri: (params: { uri: string }) => void,
   collectionId: string,
+  recomendedContent: any,
   nextPlaylistUri: string,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
@@ -128,6 +132,7 @@ function VideoViewer(props: Props) {
     shareTelemetry,
     doPlayNextUri,
     collectionId,
+    recomendedContent,
     nextPlaylistUri,
     videoTheaterMode,
     isMarkdownOrComment,
@@ -144,8 +149,11 @@ function VideoViewer(props: Props) {
   } = props;
 
   const videoEnded = React.useRef(false);
+  const isMobile = useIsMobile();
 
   const shouldPlayRecommended = !nextPlaylistUri && playNextUri && autoplayNext;
+  const [showRecommendationOverlay, setShowRecommendationOverlay] = useState(false);
+
   const canPlayNext = Boolean(playNextUri || shouldPlayRecommended);
   const canPlayPrevious = Boolean(playPreviousUri);
 
@@ -232,6 +240,8 @@ function VideoViewer(props: Props) {
       // if a playlist, navigate to next item
     } else if (playNextUri) {
       doPlayNextUri({ uri: playNextUri });
+    } else {
+      setShowRecommendationOverlay(true);
     }
   }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
 
@@ -294,6 +304,7 @@ function VideoViewer(props: Props) {
 
   // MORE ON PLAY STUFF
   function onPlay(player) {
+    setShowRecommendationOverlay(false);
     videoEnded.current = false;
     if (embedded) {
       try {
@@ -426,7 +437,11 @@ function VideoViewer(props: Props) {
       }
     };
 
-    // load events onto player
+    function onSeeking() {
+      setShowRecommendationOverlay(false);
+    }
+
+    // load events onto playerplayerRef
     player.on('play', onPlay);
     player.on('pause', onPauseEvent);
     player.on('playerClosed', onPlayerClosedEvent);
@@ -436,6 +451,7 @@ function VideoViewer(props: Props) {
     player.on('ratechange', onRateChange);
     player.on('loadedmetadata', overrideAutoAlgorithm);
     player.on('loadedmetadata', restorePlaybackRateEvent);
+    player.on('seeking', onSeeking);
     player.one('loadedmetadata', moveToPosition);
 
     const cancelOldEvents = () => {
@@ -450,6 +466,7 @@ function VideoViewer(props: Props) {
       player.off('loadedmetadata', restorePlaybackRateEvent);
       player.off('playerClosed', cancelOldEvents);
       player.off('loadedmetadata', moveToPosition);
+      player.off('seeking', onSeeking);
     };
 
     // turn off old events to prevent duplicate runs
@@ -460,6 +477,13 @@ function VideoViewer(props: Props) {
 
     playerRef.current = player;
   }, playerReadyDependencyList); // eslint-disable-line
+
+  function replay() {
+    // $FlowIgnore
+    playerRef.current.currentTime(0);
+    // $FlowIgnore
+    playerRef.current.play();
+  }
 
   return (
     <>
@@ -478,6 +502,18 @@ function VideoViewer(props: Props) {
         })}
       >
         {showEmbedEndOverlay && <FileViewerEmbeddedEnded uri={uri} />}
+        {showRecommendationOverlay && (
+          <div className="recommendation-overlay-wrapper">
+            <div className="recommendation-overlay-grid">
+              {recomendedContent &&
+                recomendedContent.slice(0, 9).map((url, i) => (
+                  <div key={url} onClick={() => (i === 4 && isMobile ? replay() : doPlayNextUri({ uri: url }))}>
+                    <ClaimPreviewTile uri={url} />
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
 
         {!isFetchingAd && adUrl && (
           <>

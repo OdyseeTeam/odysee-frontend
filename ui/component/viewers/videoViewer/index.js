@@ -33,6 +33,7 @@ import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import { parseURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 
@@ -44,7 +45,6 @@ const select = (state, props) => {
   const urlParams = new URLSearchParams(search);
   const autoplay = urlParams.get('autoplay');
   const uri = props.uri;
-
   const urlPath = `lbry://${(pathname + hash).slice(1)}`;
   let startTime;
   try {
@@ -89,6 +89,7 @@ const select = (state, props) => {
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    recomendedContent: selectRecommendedContentForUri(state, props.uri),
   };
 };
 
