@@ -241,7 +241,6 @@ function VideoViewer(props: Props) {
     } else if (playNextUri) {
       doPlayNextUri({ uri: playNextUri });
     } else {
-      console.log('Show overlay');
       setShowRecommendationOverlay(true);
     }
   }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
