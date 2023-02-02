@@ -28,7 +28,6 @@ type Props = {
   // -- redux --
   collectionCount: number,
   collectionName: string,
-  collectionItemUrls: ?Array<string>,
   collectionType: ?string,
   isFetchingItems: boolean,
   isResolvingCollection: boolean,
@@ -52,7 +51,6 @@ function CollectionPreview(props: Props) {
     collectionCount,
     isFetchingItems,
     isResolvingCollection,
-    collectionItemUrls,
     collectionType,
     hasClaim,
     firstCollectionItemUrl,
@@ -67,12 +65,12 @@ function CollectionPreview(props: Props) {
 
   const { push } = useHistory();
 
-  if (isFetchingItems || isResolvingCollection || collectionItemUrls === undefined) {
+  if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;
   }
 
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-  const firstItemPath = collectionItemUrls && formatLbryUrlForWeb(collectionItemUrls[0] || '/');
+  const firstItemPath = formatLbryUrlForWeb(firstCollectionItemUrl) || '/';
   const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
   const usedCollectionName = getLocalizedNameForCollectionId(collectionId) || collectionName;
 

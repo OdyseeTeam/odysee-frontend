@@ -6,7 +6,6 @@ import {
   selectClaimForClaimId,
 } from 'redux/selectors/claims';
 import {
-  selectThumbnailClaimUrisForCollectionId,
   selectCollectionTitleForId,
   selectCountForCollectionId,
   selectAreCollectionItemsFetchingForId,
@@ -42,7 +41,6 @@ const select = (state, props) => {
     uri: collectionUri,
     collectionCount: selectCountForCollectionId(state, collectionId),
     collectionName: selectCollectionTitleForId(state, collectionId),
-    collectionItemUrls: selectThumbnailClaimUrisForCollectionId(state, collectionId), // ForId || ForUri
     collectionType: selectCollectionTypeForId(state, collectionId),
     isFetchingItems: selectAreCollectionItemsFetchingForId(state, collectionId),
     isResolvingCollection: selectIsResolvingForId(state, collectionId),
