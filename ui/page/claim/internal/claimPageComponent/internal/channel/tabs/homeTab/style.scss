@@ -233,13 +233,24 @@
   }
   .home-section-wrapper--edit-playlist {
     @media (min-width: $breakpoint-small) {
-      max-height: 576px;
+      max-height: 960px;
     }
     @media (min-width: $breakpoint-medium) {
-      max-height: 574px;
+      max-height: 758px;
     }
     @media (min-width: $breakpoint-large) {
-      max-height: 350px;
+      max-height: 520px;
+    }
+  }
+  .home-section-wrapper--edit-playlists {
+    @media (min-width: $breakpoint-small) {
+      max-height: 960px;
+    }
+    @media (min-width: $breakpoint-medium) {
+      max-height: 758px;
+    }
+    @media (min-width: $breakpoint-large) {
+      max-height: 520px;
     }
   }
   .home-section-wrapper--edit-onerow {
