@@ -37,7 +37,7 @@ export default function CollectionButtons(props: Props) {
     : !altCollection
     ? 0
     : altCollection.length - 1;
-  const collectionIndex = Number(foundIndex) || Number(altIndex);
+  const collectionIndex = Number(altIndex) || Number(foundIndex);
 
   function handleOnClick(change) {
     if (!altCollection) {
