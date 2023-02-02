@@ -281,6 +281,21 @@
     }
   }
 
+  .claim-link {
+    .claim-preview--tile {
+      width: 100%;
+      margin-left: unset;
+
+      a {
+        display: unset;
+      }
+
+      &::after {
+        display: none;
+      }
+    }
+  }
+
   .claim-preview-metadata {
     padding: var(--spacing-s) 0;
   }
