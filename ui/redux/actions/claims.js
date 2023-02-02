@@ -626,6 +626,13 @@ export function doUpdateChannel(params: any, cb: any) {
       featured: params.featured || [],
     };
 
+    // Remove params with null values
+    for (const [k, v] of Object.entries(updateParams)) {
+      if (v == null) {
+        delete updateParams[k];
+      }
+    }
+
     if (params.tags) {
       updateParams.tags = params.tags.map((tag) => tag.name);
     }
