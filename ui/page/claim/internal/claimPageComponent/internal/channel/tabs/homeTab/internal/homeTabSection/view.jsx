@@ -68,6 +68,7 @@ function HomeTabSection(props: Props) {
   const shouldPerformSearch =
     !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls && section;
   const publishedList = (Object.keys(publishedCollections || {}): any);
+  const maxClaimsInSection = 12;
 
   const windowSize = useWindowSize();
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
@@ -370,6 +371,7 @@ function HomeTabSection(props: Props) {
                     infiniteScroll={false}
                     useSkeletonScreen={false}
                     uris={collectionUrls || claimSearchResults}
+                    maxClaimRender={maxClaimsInSection}
                     claimIds={collectionClaimIds}
                     fetchViewCount
                     injectedItem={
