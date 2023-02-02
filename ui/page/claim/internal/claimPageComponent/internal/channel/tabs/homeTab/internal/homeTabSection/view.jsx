@@ -193,6 +193,14 @@ function HomeTabSection(props: Props) {
     }
   }
 
+  const isLoading =
+    (fetchingClaimSearch || !requiresSearch) &&
+    section.type &&
+    section.type !== 'featured' &&
+    !claimSearchResults &&
+    !collectionClaimIds &&
+    !featuredChannels;
+
   return (
     <div className="home-section-content">
       {index === 0 && <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />}
@@ -328,22 +336,18 @@ function HomeTabSection(props: Props) {
           )}
         </div>
       )}
-      {(fetchingClaimSearch || !requiresSearch) &&
-        section.type &&
-        section.type !== 'featured' &&
-        !claimSearchResults &&
-        !collectionClaimIds && (
-          <div className="home-section-content">
-            <div className="section">
-              <label className="home-section-title">{__('Loading...')}</label>
-              <section className="claim-grid">
-                {new Array(12).fill(0).map((x, i) => (
-                  <ClaimPreviewTile key={i} placeholder="loading" pulse />
-                ))}
-              </section>
-            </div>
+      {isLoading && (
+        <div className="home-section-content">
+          <div className="section">
+            <label className="home-section-title">{__('Loading...')}</label>
+            <section className="claim-grid">
+              {new Array(12).fill(0).map((x, i) => (
+                <ClaimPreviewTile key={i} placeholder="loading" pulse />
+              ))}
+            </section>
           </div>
-        )}
+        </div>
+      )}
       {section.type &&
         (section.claim_id ||
           collectionUrls ||
