@@ -59,10 +59,12 @@ function getUrlParams(notification, notificationTarget) {
 export function getNotificationLink(notification: WebNotification, target: ?string) {
   const notificationTarget = target || getNotificationTarget(notification);
   const urlParams = getUrlParams(notification, notificationTarget).toString();
-  const channelUri = formatLbryUrlForWeb(notification?.notification_parameters?.dynamic?.channel_url);
-  const canonicalUri = channelUri
-    ? channelUri + formatLbryUrlForWeb(notificationTarget)
-    : formatLbryUrlForWeb(notificationTarget);
+  const prefix = formatLbryUrlForWeb(notification?.notification_parameters?.dynamic?.channel_url);
+  const channelUri = prefix.substr(0, prefix.indexOf(':') + 4);
+  const canonicalUri =
+    prefix && channelUri
+      ? channelUri + formatLbryUrlForWeb(notificationTarget)
+      : formatLbryUrlForWeb(notificationTarget);
 
   return `${canonicalUri}${urlParams ? `?${urlParams}` : ''}`;
   // return `${formatLbryUrlForWeb(notificationTarget)}${urlParams ? `?${urlParams}` : ''}`;
