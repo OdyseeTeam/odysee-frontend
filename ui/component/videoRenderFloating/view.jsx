@@ -158,6 +158,8 @@ function VideoRenderFloating(props: Props) {
     : '';
 
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
+  // const [isPortraitVideo, setIsPortraitVideo] = React.useState(false);
+  const isPortraitVideo = React.useRef(false);
 
   // ****************************************************************************
   // FUNCTIONS
@@ -181,6 +183,8 @@ function VideoRenderFloating(props: Props) {
       // $FlowFixMe
       x: rect.x,
     };
+
+    isPortraitVideo.current = rect.height > rect.width;
 
     // replace the initial value every time the window is resized if isMobile is true,
     // since it could be a portrait -> landscape rotation switch, or if it was a mobile - desktop
@@ -420,6 +424,7 @@ function VideoRenderFloating(props: Props) {
             'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
             'content__viewer--disable-click': wasDragging,
             'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
+            'content__viewer--portrait': isPortraitVideo.current,
           })}
           style={
             !isFloating && fileViewerRect

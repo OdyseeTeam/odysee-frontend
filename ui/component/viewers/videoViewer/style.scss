@@ -153,6 +153,12 @@
   }
 }
 
+.content__viewer--portrait {
+  .recommendation-overlay-wrapper {
+    padding: 52% 4% 52% 4%;
+  }
+}
+
 .vjs-control-bar {
   z-index: 2;
   display: flex !important;
