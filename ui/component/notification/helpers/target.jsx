@@ -59,7 +59,13 @@ function getUrlParams(notification, notificationTarget) {
 export function getNotificationLink(notification: WebNotification, target: ?string) {
   const notificationTarget = target || getNotificationTarget(notification);
   const urlParams = getUrlParams(notification, notificationTarget).toString();
-  return `${formatLbryUrlForWeb(notificationTarget)}${urlParams ? `?${urlParams}` : ''}`;
+  const channelUri = formatLbryUrlForWeb(notification?.notification_parameters?.dynamic?.channel_url);
+  const canonicalUri = channelUri
+    ? channelUri + formatLbryUrlForWeb(notificationTarget)
+    : formatLbryUrlForWeb(notificationTarget);
+
+  return `${canonicalUri}${urlParams ? `?${urlParams}` : ''}`;
+  // return `${formatLbryUrlForWeb(notificationTarget)}${urlParams ? `?${urlParams}` : ''}`;
 }
 
 export function getNotificationLocation(notification: WebNotification, target: ?string) {
