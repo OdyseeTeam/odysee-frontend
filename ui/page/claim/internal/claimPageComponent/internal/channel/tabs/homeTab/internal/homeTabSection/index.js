@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { doClaimSearch, doResolveClaimId } from 'redux/actions/claims';
+import { doClaimSearch, doResolveClaimId, doResolveUris } from 'redux/actions/claims';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import {
   selectClaimSearchByQuery,
@@ -8,9 +8,9 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
-  selectItemsForCollectionId,
   selectCollectionTitleForId,
   selectMyPublishedCollections,
+  selectClaimIdsForCollectionId,
 } from 'redux/selectors/collections';
 import { SECTION_TAGS } from 'constants/collections';
 import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
@@ -61,7 +61,7 @@ const select = (state, props) => {
         : undefined,
     collectionClaimIds:
       props.section.type === 'playlist' && props.section.claim_id
-        ? selectItemsForCollectionId(state, props.section.claim_id)
+        ? selectClaimIdsForCollectionId(state, props.section.claim_id)
         : undefined,
     collectionName:
       props.section.type === 'playlist' ? selectCollectionTitleForId(state, props.section.claim_id) : undefined,
@@ -76,6 +76,7 @@ const select = (state, props) => {
 const perform = {
   doClaimSearch,
   doResolveClaimId,
+  doResolveUris,
 };
 
 export default connect(select, perform)(HomeTabSection);
