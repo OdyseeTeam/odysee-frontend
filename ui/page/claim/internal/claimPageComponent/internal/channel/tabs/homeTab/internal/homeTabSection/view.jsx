@@ -24,7 +24,7 @@ type Props = {
   handleViewMore: (any) => void,
   // --- select ---
   claimSearchResults: Array<string>,
-  collectionUrls: ?Array<string>,
+  collectionUrls: Array<string>,
   collectionClaimIds: ?Array<string>,
   collectionName: string,
   optionsStringified: string,
