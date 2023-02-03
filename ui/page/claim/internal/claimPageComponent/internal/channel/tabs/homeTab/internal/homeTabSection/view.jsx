@@ -37,7 +37,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doResolveClaimId: (claimId: string) => void,
-  doResolveUris: (Array<string>, boolean) => Promise<any>,
+  doResolveUris: (Array<string>) => Promise<any>,
 };
 
 function HomeTabSection(props: Props) {
