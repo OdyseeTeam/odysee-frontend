@@ -153,7 +153,11 @@ function HomeTab(props: Props) {
                   'home-section-wrapper--edit-playlist': edit && section?.type === 'playlist',
                   'home-section-wrapper--edit-playlists': edit && section?.type === 'playlists',
                   'home-section-wrapper--edit-onerow':
-                    edit && section?.type !== 'content' && section?.type !== 'featured' && section?.type !== 'playlist' && section?.type !== 'playlists',
+                    edit &&
+                    section?.type !== 'content' &&
+                    section?.type !== 'featured' &&
+                    section?.type !== 'playlist' &&
+                    section?.type !== 'playlists',
                 })}
               >
                 <div className="order">

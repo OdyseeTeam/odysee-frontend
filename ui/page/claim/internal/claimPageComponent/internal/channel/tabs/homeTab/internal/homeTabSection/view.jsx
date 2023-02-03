@@ -73,6 +73,7 @@ function HomeTabSection(props: Props) {
   const windowSize = useWindowSize();
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
   const featuredChannel = featuredChannels && featuredChannels.find((list) => list.id === section.claim_id);
+  const hasFeaturedClaim = singleClaimUri || (claimSearchResults && claimSearchResults[0]) || section.claim_id;
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
@@ -353,7 +354,7 @@ function HomeTabSection(props: Props) {
         (section.claim_id ||
           collectionUrls ||
           (claimSearchResults && claimSearchResults.length > 0) ||
-          section.type === 'featured') && (
+          (section.type === 'featured' && hasFeaturedClaim)) && (
           <div className="section">
             {section.type !== 'featured' ? (
               <>
