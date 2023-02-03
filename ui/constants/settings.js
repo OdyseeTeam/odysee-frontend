@@ -52,5 +52,6 @@ export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',
   ACCOUNT: 'account',
   CONTENT: 'content',
+  PLAYER: 'player',
   SYSTEM: 'system',
 };
