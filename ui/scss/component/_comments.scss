@@ -129,6 +129,7 @@ $thumbnailWidthSmall: 2rem;
   flex-direction: column;
   width: 100%;
   overflow: hidden;
+  border-radius: var(--border-radius);
 
   &:hover {
     .ff-canvas {
@@ -233,8 +234,8 @@ $thumbnailWidthSmall: 2rem;
 
 .comment--highlighted {
   background: var(--color-comment-highlighted);
-  box-shadow: 0 0 0 5px var(--color-comment-highlighted);
-  border-radius: 2px;
+  padding: var(--spacing-xxs);
+  border-radius: var(--border-radius);
 }
 
 .comment__body-container {
