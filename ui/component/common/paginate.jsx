@@ -9,6 +9,7 @@ const PAGINATE_PARAM = 'page';
 
 type Props = {
   totalPages: number,
+  shouldResetPageNumber?: Boolean,
   location: { search: string },
   history: { push: (string) => void },
   onPageChange?: (number) => void,
@@ -16,7 +17,7 @@ type Props = {
 };
 
 function Paginate(props: Props) {
-  const { totalPages = 1, location, history, onPageChange, disableHistory } = props;
+  const { totalPages = 1, shouldResetPageNumber, location, history, onPageChange, disableHistory } = props;
   const { search } = location;
   const [textValue, setTextValue] = React.useState('');
   const urlParams = new URLSearchParams(search);
@@ -24,6 +25,7 @@ function Paginate(props: Props) {
   const initialPage = disableHistory ? 1 : urlParamPage || 1;
   const [currentPage, setCurrentPage] = React.useState(initialPage);
   const isMobile = useIsMobile();
+  const firstPage = 1;
 
   function handleChangePage(newPageNumber: number) {
     if (onPageChange) {
@@ -47,6 +49,10 @@ function Paginate(props: Props) {
       handleChangePage(newPage);
     }
     setTextValue('');
+  }
+
+  if (shouldResetPageNumber && currentPage != firstPage) {
+    handleChangePage(firstPage);
   }
 
   React.useEffect(() => {
