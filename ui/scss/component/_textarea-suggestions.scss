@@ -20,7 +20,12 @@
 .MuiAutocomplete-root {
   background-color: var(--color-input-bg);
   border-radius: var(--border-radius);
-  // border: 2px solid var(--color-border) !important;
+}
+
+.comment__content {
+  .MuiAutocomplete-root {
+    margin: var(--spacing-xxs) 0 var(--spacing-s) 0;
+  }
 }
 
 .comment-create__auth {
@@ -58,6 +63,7 @@
 
 .MuiOutlinedInput-root.Mui-focused {
   outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
 }
 
 .MuiOutlinedInput-notchedOutline {
@@ -166,6 +172,7 @@
   padding-left: var(--spacing-s);
   padding-right: var(--spacing-s);
   min-height: 22px !important;
+  padding-right: 20px !important;
 
   &::placeholder {
     color: var(--color-text) !important;
@@ -182,13 +189,10 @@
 
 .MuiFormControl-root {
   border-radius: var(--border-radius);
-  // box-shadow: 0 0 0 2px var(--color-border) inset;
 }
 
 .MuiAutocomplete-paper {
   @extend .card;
-  // background-color: var(--color-card-background);
-  // background-color: var(--color-header-button);
   background-color: rgba(var(--color-header-button-base), 1) !important;
   border-left: var(--spacing-xs) solid var(--color-header-background);
   margin-left: calc(var(--spacing-xs) * -1);
