@@ -51,7 +51,7 @@ function Paginate(props: Props) {
     setTextValue('');
   }
 
-  if (shouldResetPageNumber && currentPage != firstPage) {
+  if (shouldResetPageNumber && currentPage !== firstPage) {
     handleChangePage(firstPage);
   }
 

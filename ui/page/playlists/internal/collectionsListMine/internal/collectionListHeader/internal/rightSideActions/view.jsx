@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { FormField, Form } from 'component/common/form';
-import { useHistory } from 'react-router'
+import { useHistory } from 'react-router';
 import { CollectionsListContext } from 'page/playlists/internal/collectionsListMine/view';
 import * as COLS from 'constants/collections';
 import * as MODALS from 'constants/modal_types';
@@ -22,7 +22,7 @@ const RightSideActions = (props: Props) => {
 
   const history = useHistory();
   const {
-    location: { search }
+    location: { search },
   } = history;
   const urlParams = new URLSearchParams(search);
 

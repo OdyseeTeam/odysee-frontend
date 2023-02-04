@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import * as COLS from 'constants/collections';
 
 import { useIsMobile } from 'effects/use-screensize';
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router';
 import { getTitleForCollection } from 'util/collections';
 
 import CollectionPreview from './internal/collectionPreview';

@@ -32,7 +32,7 @@ export default function CollectionsListMine(props: Props) {
 
   const history = useHistory();
   const {
-    location: { search, pathname }
+    location: { search, pathname },
   } = history;
 
   const [expanded, setExpanded] = React.useState(false);
