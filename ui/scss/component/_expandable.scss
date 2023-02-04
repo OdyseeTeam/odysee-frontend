@@ -1,7 +1,7 @@
-$COLLAPSED_HEIGHT: 120px;
+$COLLAPSED_HEIGHT: 220px;
 
 .expandable {
-  max-height: 120px;
+  max-height: 220px;
   position: relative;
   overflow-y: hidden;
 }
@@ -12,7 +12,10 @@ $COLLAPSED_HEIGHT: 120px;
 }
 
 .expandable--closed-fade {
-  -webkit-mask-image: -webkit-gradient(linear, left 30%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
+  -webkit-mask-image: -webkit-gradient(linear, left 70%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
+  .img__zoomable {
+    height: 50px;
+  }
 }
 
 .expandable--open {

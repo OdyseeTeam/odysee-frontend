@@ -425,6 +425,14 @@ $thumbnailWidthSmall: 2rem;
     }
   }
 
+  .markdown-preview {
+    .img__zoomable {
+      margin-bottom: var(--spacing-xs) !important;
+      padding-top: 0 !important;
+      border-radius: var(--border-radius);
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     padding-right: var(--spacing-l);
   }

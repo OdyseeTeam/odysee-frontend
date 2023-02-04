@@ -6,7 +6,7 @@ import Button from 'component/button';
 import { ExpandableContext } from 'contexts/expandable';
 import { useOnResize } from 'effects/use-on-resize';
 
-const COLLAPSED_HEIGHT = 120;
+const COLLAPSED_HEIGHT = 220;
 
 type Props = {
   children: React$Node | Array<React$Node>,
@@ -14,6 +14,9 @@ type Props = {
 
 export default function Expandable(props: Props) {
   const { children } = props;
+  // $FlowIgnore
+  const { props: childProps } = children;
+  const containsImage = childProps && childProps.content && childProps.content.includes('![');
 
   const ref = React.useRef();
 
@@ -53,14 +56,14 @@ export default function Expandable(props: Props) {
       <div
         className={classnames('expandable', {
           'expandable--open': expanded,
-          'expandable--closed-fade': !expanded && childOverflows,
+          'expandable--closed-fade': !expanded && (childOverflows || containsImage),
         })}
         ref={expandableRef}
       >
         {children}
       </div>
 
-      {childOverflows && !disabled && (
+      {(childOverflows || containsImage) && !disabled && (
         <Button
           button="link"
           className="expandable__button"
