@@ -6,6 +6,7 @@ import { isEmpty } from 'util/object';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COLLECTION_PAGE } from 'constants/urlParams';
 import { isChannelClaim } from 'util/claim';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
@@ -190,8 +191,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     location: { pathname, search },
   } = history;
 
+  const urlParams = new URLSearchParams(search);
   const playlistPreviewItem = unavailableUris !== undefined || showIndexes;
   const isCollection = claim && claim.value_type === 'collection';
+  const isCollectionOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const listId = collectionId || collectionClaimId;
   const WrapperElement = wrapperElement || 'li';
@@ -452,7 +455,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             </span>
           )}
 
-          {isMyCollection && showEdit && (
+          {isMyCollection && showEdit && !isCollectionOnPublicView && (
             <CollectionEditButtons
               uri={uri}
               collectionId={listId}
