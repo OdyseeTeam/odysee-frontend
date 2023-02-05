@@ -1,7 +1,7 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
-import { COL_TYPES } from 'constants/collections';
+import { COL_TYPES, SORT_ORDER } from 'constants/collections';
 import React from 'react';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
@@ -32,6 +32,7 @@ type Props = {
   collectionType: string,
   doOpenModal: (id: string, props: {}) => void,
   doToggleCollectionSavedForId: (id: string) => void,
+  doSortCollectionByReleaseTime: (collectionId: string, sortOrder: string) => void,
 };
 
 function CollectionActions(props: Props) {
@@ -48,6 +49,7 @@ function CollectionActions(props: Props) {
     collectionType,
     doOpenModal,
     doToggleCollectionSavedForId,
+    doSortCollectionByReleaseTime,
   } = props;
 
   const {
@@ -91,6 +93,22 @@ function CollectionActions(props: Props) {
 
       {!isOnPublicView && (
         <div className="section">
+          {showEdit && (
+          <>
+            <Button
+              title={__('Sort by date: Ascending')}
+              className="button-toggle"
+              onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC)}}
+              icon={ICONS.UP}
+            />
+            <Button
+              title={__('Sort by date: Descending')}
+              className="button-toggle"
+              onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC)}}
+              icon={ICONS.DOWN}
+            />
+          </>
+          )}
           <Button
             requiresAuth
             title={__('Copy')}

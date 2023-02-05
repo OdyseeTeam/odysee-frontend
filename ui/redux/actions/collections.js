@@ -463,7 +463,62 @@ export const doCollectionEdit =
 
     const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
 
+<<<<<<< HEAD
     const { uris, remove, replace, order, type } = params;
+=======
+export const doSortCollectionByReleaseTime = (collectionId: string, sortOrder: string) => async (
+    dispatch: Dispatch,
+    getState: GetState
+) => {
+  let state = getState();
+  const collection: Collection = selectCollectionForId(state, collectionId);
+  const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
+
+  // Get claims or return the uri/claimId if not resolved
+  const claims = collection.items.map((item) => {
+    // Item should be either claim_id or permanent url
+    const claim_id = item.match(/[a-f|0-9]{40}$/)[0];
+    return selectClaimForClaimId(state, claim_id) || item;
+  });
+
+  // Save unresolved uris
+  const resolvedClaims = claims.filter(claim => typeof(claim) !== 'string');
+  const unresolvedItems = claims.filter(claim => typeof(claim) === 'string');
+
+  const sortedClaims = resolvedClaims.sort((a, b) => {
+    const keyA = a.value?.release_time || a.meta?.creation_timestamp;
+    const keyB = b.value?.release_time || b.meta?.creation_timestamp;
+
+    if (sortOrder == COLS.SORT_ORDER.ASC) {
+      return keyB - keyA;
+    } else if (sortOrder == COLS.SORT_ORDER.DESC) {
+      return keyA - keyB;
+    }
+  });
+
+  let sortedUris = sortedClaims.map(claim => claim?.permanent_url);
+  sortedUris = sortedUris.concat(unresolvedItems);
+
+  return dispatch({
+    type: ACTIONS.COLLECTION_EDIT,
+    data: {
+      collectionKey: isPublic ? COLS.KEYS.EDITED : selectCollectionKeyForId(state, collectionId),
+      collection: {
+        ...collection,
+        items: sortedUris,
+        itemCount: sortedUris.length,
+      },
+  },
+  });
+};
+
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  let state = getState();
+  const collection: Collection = selectCollectionForId(state, collectionId);
+>>>>>>> 9f66f1fb5 (Allows sorting claims in collection asc/desc in arrange mode)
 
     let collectionUrls = selectUrlsForCollectionId(state, collectionId);
     if (collectionUrls === undefined) {
