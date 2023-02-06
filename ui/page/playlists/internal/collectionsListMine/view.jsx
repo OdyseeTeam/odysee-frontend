@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import * as COLS from 'constants/collections';
 
 import { useIsMobile } from 'effects/use-screensize';
-import { useHistory } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { getTitleForCollection } from 'util/collections';
 
 import CollectionPreview from './internal/collectionPreview';
@@ -48,18 +48,19 @@ export default function CollectionsListMine(props: Props) {
 
   const isMobile = useIsMobile();
 
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
 
   const urlParams = new URLSearchParams(search);
   const sortByParam = Object.keys(COLS.SORT_VALUES).find((key) => urlParams.get(key));
-  const defaultSortOption = sortByParam ? { key: sortByParam, value: urlParams.get(sortByParam) } : COLS.DEFAULT_SORT;
+  const [persistedOption, setPersistedOption] = usePersistedState('playlist-sort', COLS.DEFAULT_SORT);
+  const defaultSortOption = sortByParam ? { key: sortByParam, value: urlParams.get(sortByParam) } : persistedOption;
+  const defaultFilterType = urlParams.get(COLS.FILTER_TYPE_KEY) || 'All';
+  const defaultSearchTerm = urlParams.get(COLS.SEARCH_TERM_KEY) || '';
 
-  const [filterType, setFilterType] = React.useState(COLS.LIST_TYPE.ALL);
-  const [searchText, setSearchText] = React.useState('');
-  const [sortOption, setSortOption] = usePersistedState('playlists-sort', defaultSortOption);
-  const [persistedOption, setPersistedOption] = React.useState(sortOption);
+  const [filterType, setFilterType] = React.useState(defaultFilterType);
+  const [searchText, setSearchText] = React.useState(defaultSearchTerm);
+  const [sortOption, setSortOption] = React.useState(defaultSortOption);
+  const [filterParamsChanged, setFilterParamsChanged] = React.useState(false);
 
   const unpublishedCollectionsList = (Object.keys(unpublishedCollections || {}): any);
   const publishedList = (Object.keys(publishedCollections || {}): any);
@@ -209,6 +210,21 @@ export default function CollectionsListMine(props: Props) {
     }
   }, [doFetchThumbnailClaimsForCollectionIds, paginatedCollectionsStr]);
 
+  const firstUpdate = React.useRef(true);
+  React.useLayoutEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
+    setFilterParamsChanged(true);
+  }, [searchText, filterType, sortOption]);
+
+  React.useEffect(() => {
+    if (filterParamsChanged) {
+      setFilterParamsChanged(false);
+    }
+  }, [filterParamsChanged]);
+
   return (
     <>
       <SectionLabel label={__('Your Playlists')} />
@@ -250,7 +266,7 @@ export default function CollectionsListMine(props: Props) {
             />
           )}
 
-          <Paginate totalPages={totalPages} />
+          <Paginate totalPages={totalPages} shouldResetPageNumber={filterParamsChanged} />
         </ul>
       ) : (
         <div className="empty main--empty">{__('No matching playlists')}</div>

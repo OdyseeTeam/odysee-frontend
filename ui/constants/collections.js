@@ -10,6 +10,10 @@ export const THUMBNAIL_PREVIEW_AMOUNT = 3;
 export const COLLECTION_ID = 'lid';
 export const COLLECTION_INDEX = 'linx';
 
+export const FILTER_TYPE_KEY = 'filterType';
+
+export const SEARCH_TERM_KEY = 'search';
+
 export const COL_TYPES = Object.freeze({
   PLAYLIST: 'playlist',
   CHANNELS: 'channelList',
