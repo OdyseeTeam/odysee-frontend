@@ -69,7 +69,6 @@ type Props = {
   disableClickNavigation?: boolean,
   setActiveListItemRef?: any,
   setListRef?: any,
-  onHidden: (string) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
@@ -120,7 +119,6 @@ export default function ClaimList(props: Props) {
     disableClickNavigation,
     setActiveListItemRef,
     setListRef,
-    onHidden,
     doDisablePlayerDrag,
     restoreScrollPos,
     setHasActive,
@@ -317,7 +315,6 @@ export default function ClaimList(props: Props) {
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
                       swipeLayout={swipeLayout}
-                      onHidden={onHidden}
                     />
                   )}
                 </React.Fragment>
