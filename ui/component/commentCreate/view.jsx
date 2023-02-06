@@ -100,6 +100,7 @@ type Props = {
   userHasMembersOnlyChatPerk: boolean,
   isLivestreamChatMembersOnly: ?boolean,
   areCommentsMembersOnly: ?boolean,
+  hasPremiumPlus: boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -147,6 +148,7 @@ export function CommentCreate(props: Props) {
     userHasMembersOnlyChatPerk,
     isLivestreamChatMembersOnly,
     areCommentsMembersOnly,
+    hasPremiumPlus,
   } = props;
 
   const fileUri = React.useContext(AppContext)?.uri;
@@ -323,6 +325,19 @@ export function CommentCreate(props: Props) {
     setSelectedSticker(null);
     setShowSelectors({ tab: undefined, open: false });
     if (onSlimInputClose) onSlimInputClose();
+  }
+
+  function handleImageUpload() {
+    doOpenModal(MODALS.IMAGE_UPLOAD, {
+      onUpdate: (imageUrl, imageTitle) => updateComment(imageUrl, imageTitle),
+      assetName: __('Image'),
+    });
+  }
+
+  function updateComment(imageUrl, imageTitle) {
+    if (!imageTitle) imageTitle = '';
+    let markdown = `![${imageTitle}](${imageUrl})`;
+    setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${markdown} ` : `${markdown} `));
   }
 
   function handleCancelSupport() {
@@ -830,6 +845,16 @@ export function CommentCreate(props: Props) {
                   onChange={() => {}}
                   disabled={notAuthedToLiveChat}
                 />
+
+                {hasPremiumPlus && !isLivestream && (
+                  <Button
+                    button="alt"
+                    icon={ICONS.IMAGE}
+                    title={__('Upload Image')}
+                    onClick={handleImageUpload}
+                    onChange={() => {}}
+                  />
+                )}
 
                 {!supportDisabled && !claimIsMine && (
                   <>
