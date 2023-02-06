@@ -651,13 +651,13 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
   pendingClaims.forEach((claim: Claim) => {
     let newClaim;
     const { permanent_url: uri, claim_id: claimId, type, value_type: valueType } = claim;
-    pendingById[claimId] = claim; // make sure we don't need to merge?
     const oldClaim = state.byId[claimId];
     if (oldClaim && oldClaim.canonical_url) {
       newClaim = mergeClaim(oldClaim, claim);
     } else {
       newClaim = claim;
     }
+    pendingById[claimId] = newClaim;
     if (valueType === 'channel') {
       // $FlowFixMe
       const channelClaim: ChannelClaim = claim;
