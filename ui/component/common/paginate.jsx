@@ -9,7 +9,7 @@ const PAGINATE_PARAM = 'page';
 
 type Props = {
   totalPages: number,
-  shouldResetPageNumber?: Boolean,
+  shouldResetPageNumber?: boolean,
   location: { search: string },
   history: { push: (string) => void },
   onPageChange?: (number) => void,
