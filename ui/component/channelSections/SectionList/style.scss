@@ -1,13 +1,19 @@
 .channel_sections {
   .channel-section-card__item {
+    .channel-thumbnail__custom {
+      transition: transform 0.2s;
+    }
     &:hover {
+      .channel-thumbnail__custom {
+        transform: scale(1.08);
+      }
       .claim-preview__title {
-        color: var(--color-text);
+        color: var(--color-primary);
       }
     }
   }
   .channel-thumbnail {
-    margin-bottom: var(--spacing-xxxs);
+    margin-bottom: var(--spacing-xs);
   }
   .channel-section-card__menu {
     padding: unset;
