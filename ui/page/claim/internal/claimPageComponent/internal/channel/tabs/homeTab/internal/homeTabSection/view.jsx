@@ -24,7 +24,7 @@ type Props = {
   handleViewMore: (any) => void,
   // --- select ---
   claimSearchResults: Array<string>,
-  collectionUrls: ?Array<string>,
+  collectionUrls: Array<string>,
   collectionClaimIds: ?Array<string>,
   collectionName: string,
   optionsStringified: string,
@@ -37,6 +37,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doResolveClaimId: (claimId: string) => void,
+  doResolveUris: (Array<string>) => Promise<any>,
 };
 
 function HomeTabSection(props: Props) {
@@ -62,11 +63,13 @@ function HomeTabSection(props: Props) {
     featuredChannels,
     doClaimSearch,
     doResolveClaimId,
+    doResolveUris,
   } = props;
 
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
     !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls && section;
+  const shouldResolveCollectionClaims = Boolean(!collectionClaimIds && collectionUrls);
   const publishedList = (Object.keys(publishedCollections || {}): any);
   const maxClaimsInSection = 12;
 
@@ -87,6 +90,12 @@ function HomeTabSection(props: Props) {
       doResolveClaimId(section.claim_id);
     }
   }, [section]);
+
+  React.useEffect(() => {
+    if (shouldResolveCollectionClaims) {
+      doResolveUris(collectionUrls);
+    }
+  }, [shouldResolveCollectionClaims]);
 
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearching, setIsSearching] = React.useState(false);
