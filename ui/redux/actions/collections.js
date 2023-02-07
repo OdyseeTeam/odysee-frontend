@@ -479,7 +479,7 @@ export const doSortCollectionByReleaseTime = (collectionId: string, sortOrder: s
     // Item should be either claim_id or permanent url
     const claimIdMatch = item.match(/[a-f|0-9]{40}$/);
     const claimId = claimIdMatch ? claimIdMatch[0] : null;
-    return selectClaimForClaimId(state, claimId) || item;
+    return claimId ? selectClaimForClaimId(state, claimId) : item;
   });
 
   // Save unresolved uris
