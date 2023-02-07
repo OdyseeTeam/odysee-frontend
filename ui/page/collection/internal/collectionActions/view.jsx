@@ -129,13 +129,13 @@ function CollectionActions(props: Props) {
           <Button
             title={__('Sort by release time: Ascending')}
             className="button-toggle"
-            onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC)}}
+            onClick={ () => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC)} }
             icon={ICONS.UP}
           />
           <Button
             title={__('Sort by release time: Descending')}
             className="button-toggle"
-            onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC)}}
+            onClick={ () => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC)} }
             icon={ICONS.DOWN}
           />
         </div>

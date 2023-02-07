@@ -482,16 +482,16 @@ export const doSortCollectionByReleaseTime = (collectionId: string, sortOrder: s
   });
 
   // Save unresolved uris
-  const resolvedClaims = claims.filter(claim => typeof(claim) !== 'string');
-  const unresolvedItems = claims.filter(claim => typeof(claim) === 'string');
+  const resolvedClaims = claims.filter(claim => typeof claim !== 'string');
+  const unresolvedItems = claims.filter(claim => typeof claim === 'string');
 
   const sortedClaims = resolvedClaims.sort((a, b) => {
     const keyA = a.value?.release_time || a.meta?.creation_timestamp || 0;
     const keyB = b.value?.release_time || b.meta?.creation_timestamp || 0;
 
-    if (sortOrder == COLS.SORT_ORDER.ASC) {
+    if (sortOrder === COLS.SORT_ORDER.ASC) {
       return keyB - keyA;
-    } else if (sortOrder == COLS.SORT_ORDER.DESC) {
+    } else if (sortOrder === COLS.SORT_ORDER.DESC) {
       return keyA - keyB;
     }
   });
