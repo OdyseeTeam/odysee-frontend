@@ -461,39 +461,6 @@ export const selectCollectionForIdClaimForUriItem = createSelector(
   }
 );
 
-export const selectThumbnailClaimUrisForCollectionId = createSelector(
-  selectHasPrivateCollectionForId,
-  selectItemsForCollectionId,
-  selectClaimsById,
-  (isPrivate, items, claimsById) => {
-    if (!items || isPrivate) return items;
-
-    const uris = new Set([]);
-
-    let thumbnailUrisNotFetched;
-
-    items.some((item, index) => {
-      let uri;
-      try {
-        const claim = claimsById[item];
-        uri = claim.permanent_url;
-      } catch (e) {}
-
-      if (uri) {
-        uris.add(uri);
-      } else {
-        thumbnailUrisNotFetched = true;
-      }
-
-      if (index === 2) return true;
-    });
-
-    if (thumbnailUrisNotFetched) return undefined;
-
-    return Array.from(uris);
-  }
-);
-
 export const selectCollectionTypeForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   return collection?.type;
