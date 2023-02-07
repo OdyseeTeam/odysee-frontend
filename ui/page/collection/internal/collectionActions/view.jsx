@@ -62,6 +62,7 @@ function CollectionActions(props: Props) {
   const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
   return (
+    <>
     <div className={classnames('media__actions justify-space-between', { stretch: isMobile })}>
       <SectionElement>
         {showPlaybackButtons && <PlayButton collectionId={collectionId} />}
@@ -92,23 +93,7 @@ function CollectionActions(props: Props) {
       </SectionElement>
 
       {!isOnPublicView && (
-        <div className="section">
-          {showEdit && (
-          <>
-            <Button
-              title={__('Sort by date: Ascending')}
-              className="button-toggle"
-              onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC)}}
-              icon={ICONS.UP}
-            />
-            <Button
-              title={__('Sort by date: Descending')}
-              className="button-toggle"
-              onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC)}}
-              icon={ICONS.DOWN}
-            />
-          </>
-          )}
+        <div>
           <Button
             requiresAuth
             title={__('Copy')}
@@ -138,6 +123,25 @@ function CollectionActions(props: Props) {
         </div>
       )}
     </div>
+      {showEdit && (
+      <div className="sort__actions">
+        <div>
+          <Button
+            title={__('Sort by release time: Ascending')}
+            className="button-toggle"
+            onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC)}}
+            icon={ICONS.UP}
+          />
+          <Button
+            title={__('Sort by release time: Descending')}
+            className="button-toggle"
+            onClick={() => {doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC)}}
+            icon={ICONS.DOWN}
+          />
+        </div>
+      </div>
+      )}
+    </>
   );
 }
 

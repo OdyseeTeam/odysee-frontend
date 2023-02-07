@@ -486,8 +486,8 @@ export const doSortCollectionByReleaseTime = (collectionId: string, sortOrder: s
   const unresolvedItems = claims.filter(claim => typeof(claim) === 'string');
 
   const sortedClaims = resolvedClaims.sort((a, b) => {
-    const keyA = a.value?.release_time || a.meta?.creation_timestamp;
-    const keyB = b.value?.release_time || b.meta?.creation_timestamp;
+    const keyA = a.value?.release_time || a.meta?.creation_timestamp || 0;
+    const keyB = b.value?.release_time || b.meta?.creation_timestamp || 0;
 
     if (sortOrder == COLS.SORT_ORDER.ASC) {
       return keyB - keyA;
