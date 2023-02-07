@@ -477,8 +477,9 @@ export const doSortCollectionByReleaseTime = (collectionId: string, sortOrder: s
   // Get claims or return the uri/claimId if not resolved
   const claims = collection.items.map((item) => {
     // Item should be either claim_id or permanent url
-    const claim_id = item.match(/[a-f|0-9]{40}$/)[0];
-    return selectClaimForClaimId(state, claim_id) || item;
+    const claimIdMatch = item.match(/[a-f|0-9]{40}$/);
+    const claimId = claimIdMatch ? claimIdMatch[0] : null;
+    return selectClaimForClaimId(state, claimId) || item;
   });
 
   // Save unresolved uris
