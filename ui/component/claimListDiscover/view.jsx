@@ -249,7 +249,6 @@ function ClaimListDiscover(props: Props) {
   const mutedAndBlockedChannelIds = Array.from(
     new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1]))
   );
-  const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
 
   const [finalUris, setFinalUris] = React.useState();
@@ -728,14 +727,6 @@ function ClaimListDiscover(props: Props) {
     return uris;
   }
 
-  function onHidden(uri) {
-    if (hiddenBuffer.indexOf(uri) === -1) {
-      let newBuffer = hiddenBuffer;
-      newBuffer.push(uri);
-      setHiddenBuffer(newBuffer);
-    }
-  }
-
   // **************************************************************************
   // **************************************************************************
 
@@ -825,7 +816,6 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             swipeLayout={swipeLayout}
-            onHidden={onHidden}
           />
 
           {claimListLoading && useSkeletonScreen && (
@@ -867,7 +857,6 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             swipeLayout={swipeLayout}
-            onHidden={onHidden}
           />
 
           {claimListLoading &&
