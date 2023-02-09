@@ -70,6 +70,21 @@
     }
   }
 
+  @media (hover: none) and (pointer: coarse) {
+    border-top-right-radius: 0 !important;
+    .content__floating-close {
+      visibility: visible;
+      z-index: 9999;
+      padding: 4px;
+      width: 32px;
+      height: 32px;
+      top: -32px;
+      right: -2px;
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      border: 2px solid #000;
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     height: 50px;
     width: 80px;
@@ -330,6 +345,12 @@
       .content__info {
         margin-top: 0;
       }
+    }
+  }
+
+  @media (hover: none) and (pointer: coarse) and (min-width: $breakpoint-small) {
+    .content__info {
+      margin-top: 0 !important;
     }
   }
 }
