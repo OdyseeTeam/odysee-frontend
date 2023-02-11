@@ -6,7 +6,7 @@ const Rss = require('rss');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
-const NUM_ENTRIES = 500;
+const NUM_ENTRIES = 50;
 
 // ****************************************************************************
 // Fetch claim info
@@ -40,16 +40,29 @@ async function getChannelClaim(name, claimId) {
 }
 
 async function getClaimsFromChannel(claimId, count) {
+  const maxPages = 5;
+  let page = 1;
   const options = {
     channel_ids: [claimId],
     page_size: count,
+    page: page,
     has_source: true,
     claim_type: 'stream',
     order_by: ['release_time'],
     no_totals: true,
   };
-
-  return await doClaimSearch(options);
+  // continue to fetch pages up to maxPages if each page has the same number of results as requested in page_size
+  let claims = [];
+  let results;
+  do {
+    results = await doClaimSearch(options);
+    if (results && results.length > 0) {
+      claims = claims.concat(results);
+    }
+    page++;
+    options.page = page;
+  } while (results && results.length === count && page <= maxPages);
+  return claims;
 }
 
 // ****************************************************************************
@@ -89,8 +102,7 @@ async function generateEnclosureForClaimContent(claim, streamUrl) {
   switch (value.stream_type) {
     case 'video':
       return {
-        url:
-          streamUrl.replace('/v4/', '/v3/') + (fileExt || '.mp4'), // v3 = mp4 always, v4 may redirect to m3u8
+        url: streamUrl.replace('/v4/', '/v3/') + (fileExt || '.mp4'), // v3 = mp4 always, v4 may redirect to m3u8
         type: (value.source && value.source.media_type) || 'video/mp4',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
