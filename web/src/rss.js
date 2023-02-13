@@ -40,7 +40,7 @@ async function getChannelClaim(name, claimId) {
 }
 
 async function getClaimsFromChannel(claimId, count) {
-  const maxPages = 5;
+  const maxPages = 3;
   let page = 1;
   const options = {
     channel_ids: [claimId],
@@ -109,20 +109,20 @@ async function generateEnclosureForClaimContent(claim, streamUrl) {
 
     case 'audio':
       return {
-        url: streamUrl + ((fileExt === '.mpga' ? '.mp3' : fileExt) || '.mp3'),
+        url: streamUrl.replace('/v4/', '/v3/') + ((fileExt === '.mpga' ? '.mp3' : fileExt) || '.mp3'),
         type: (value.source && value.source.media_type) || 'audio/mpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
     case 'image':
       return {
-        url: streamUrl + (fileExt || '.jpeg'),
+        url: streamUrl.replace('/v4/', '/v3/') + (fileExt || '.jpeg'),
         type: (value.source && value.source.media_type) || 'image/jpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
     case 'document':
     case 'software':
       return {
-        url: streamUrl,
+        url: streamUrl.replace('/v4/', '/v3/'),
         type: (value.source && value.source.media_type) || undefined,
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
