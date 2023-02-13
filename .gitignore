@@ -39,3 +39,4 @@ package-lock.json
 .env.desktop
 .env.lbrytv
 analyzeResults*.html
+.yarnrc.yml
