@@ -39,6 +39,7 @@ type Props = {
   superChats: Array<Comment>,
   activeViewers?: number,
   videoTheaterMode: boolean,
+  doClearPlayingUri: () => void,
 };
 
 export default function LivestreamLayout(props: Props) {
@@ -54,6 +55,7 @@ export default function LivestreamLayout(props: Props) {
     superChats,
     activeViewers,
     videoTheaterMode,
+    doClearPlayingUri,
   } = props;
 
   const isMobile = useIsMobile();
@@ -64,6 +66,10 @@ export default function LivestreamLayout(props: Props) {
   const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
 
   const liveStatusFetching = activeStreamUri === undefined;
+
+  React.useEffect(() => {
+    if (!isCurrentClaimLive) doClearPlayingUri();
+  }, [isCurrentClaimLive]);
 
   if (!claim || !claim.signing_channel) return null;
 
