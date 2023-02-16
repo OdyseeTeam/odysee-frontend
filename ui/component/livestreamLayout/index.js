@@ -12,6 +12,7 @@ import {
   selectShowScheduledLiveInfoForUri,
   selectActiveStreamUriForClaimUri,
 } from 'redux/selectors/livestream';
+import { doClearPlayingUri } from 'redux/actions/content';
 
 import LivestreamLayout from './view';
 
@@ -34,4 +35,8 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select)(LivestreamLayout);
+const perform = {
+  doClearPlayingUri,
+};
+
+export default connect(select, perform)(LivestreamLayout);
