@@ -291,6 +291,8 @@ function SideNavigation(props: Props) {
 
   const shouldRenderLargeMenu = (menuCanCloseCompletely && !isAbsolute) || sidebarOpen;
 
+  const sideNavigationRef = React.useRef(null);
+
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
   const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
   const showOverlay = sidebarOpen;
@@ -472,9 +474,19 @@ function SideNavigation(props: Props) {
       }
     }
 
-    window.addEventListener('keydown', handleKeydown);
+    function handleOutsideClick(e) {
+      if (sideNavigationRef.current === null || !sideNavigationRef.current.contains(e.target)) {
+        setSidebarOpen(false);
+      }
+    }
 
-    return () => window.removeEventListener('keydown', handleKeydown);
+    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('mouseup', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('mouseup', handleOutsideClick);
+    };
   }, [sidebarOpen, setSidebarOpen, isAbsolute]);
 
   React.useEffect(() => {
@@ -586,6 +598,7 @@ function SideNavigation(props: Props) {
         'navigation__wrapper--micro': showMicroMenu,
         'navigation__wrapper--absolute': isAbsolute,
       })}
+      ref={sideNavigationRef}
     >
       <nav
         aria-label={'Sidebar'}
