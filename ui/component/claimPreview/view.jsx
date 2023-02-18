@@ -97,6 +97,7 @@ type Props = {
   swipeLayout: boolean,
   lang: string,
   showEdit?: boolean,
+  isEditPreview?: boolean,
   dragHandleProps?: any,
   unavailableUris?: Array<string>,
   inWatchHistory?: boolean,
@@ -170,6 +171,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     swipeLayout = false,
     lang,
     showEdit,
+    isEditPreview,
     dragHandleProps,
     unavailableUris,
     inWatchHistory,
@@ -459,6 +461,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             <CollectionEditButtons
               uri={uri}
               collectionId={listId}
+              isEditPreview={isEditPreview}
               dragHandleProps={dragHandleProps}
               doDisablePlayerDrag={doDisablePlayerDrag}
             />

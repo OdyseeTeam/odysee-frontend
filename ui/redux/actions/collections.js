@@ -503,7 +503,7 @@ export const doSortCollectionByReleaseTime = (collectionId: string, sortOrder: s
   return dispatch({
     type: ACTIONS.COLLECTION_EDIT,
     data: {
-      collectionKey: isPublic ? COLS.KEYS.EDITED : selectCollectionKeyForId(state, collectionId),
+      collectionKey: COLS.KEYS.UNSAVED_CHANGES,
       collection: {
         ...collection,
         items: sortedUris,
@@ -521,23 +521,65 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const collection: Collection = selectCollectionForId(state, collectionId);
 >>>>>>> 9f66f1fb5 (Allows sorting claims in collection asc/desc in arrange mode)
 
+<<<<<<< HEAD
     let collectionUrls = selectUrlsForCollectionId(state, collectionId);
     if (collectionUrls === undefined) {
       await dispatch(doFetchItemsInCollection({ collectionId }));
       state = getState();
       collectionUrls = selectUrlsForCollectionId(state, collectionId);
+=======
+  if (!collection) {
+    return dispatch(doToast({ message: __('Collection does not exist.'), isError: true }));
+  }
+
+  const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
+
+  const { uris, remove, replace, order, type, isPreview } = params;
+
+  let collectionUrls = selectUrlsForCollectionId(state, collectionId);
+  if (collectionUrls === undefined) {
+    await dispatch(doFetchItemsInCollection({ collectionId }));
+    state = getState();
+    collectionUrls = selectUrlsForCollectionId(state, collectionId);
+  }
+
+  const currentUrls = collectionUrls ? collectionUrls.concat() : [];
+  const currentUrlsSet = new Set(currentUrls);
+  let newItems = currentUrls;
+
+  // Passed uris to add/remove:
+  if (uris) {
+    if (replace) {
+      newItems = uris;
+    } else if (remove) {
+      const urisToFilter = uris.map((uri) => selectCollectionForIdClaimForUriItem(state, collectionId, uri));
+
+      // Filters (removes) the passed uris from the current list items
+      newItems = currentUrls.filter((uri) => uri && (!uris || !urisToFilter.includes(uri)));
+    } else {
+      // Pushes (adds to the end) the passed uris to the current list items
+      // (only if item not already in currentUrls, avoid duplicates)
+      uris.forEach((url) => !currentUrlsSet.has(url) && newItems.push(url));
+>>>>>>> 57f66b1cb (Don't instantly save changes in order, in arrange mode)
     }
 
     const currentUrls = collectionUrls ? collectionUrls.concat() : [];
     const currentUrlsSet = new Set(currentUrls);
     let newItems = currentUrls;
 
+<<<<<<< HEAD
     // Passed uris to add/remove:
     if (uris) {
       if (replace) {
         newItems = uris;
       } else if (remove) {
         const urisToFilter = uris.map((uri) => selectCollectionForIdClaimForUriItem(state, collectionId, uri));
+=======
+  await dispatch(doRemoveFromUpdatedCollectionsForCollectionId(collectionId));
+  if (!isPreview) {
+    await dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
+  }
+>>>>>>> 57f66b1cb (Don't instantly save changes in order, in arrange mode)
 
         // Filters (removes) the passed uris from the current list items
         newItems = currentUrls.filter((uri) => uri && (!uris || !urisToFilter.includes(uri)));
@@ -551,6 +593,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       newItems = [];
     }
 
+<<<<<<< HEAD
     // Passed an ordering to change: (doesn't need the uris here since
     // the items are already on the list)
     if (order) {
@@ -578,6 +621,24 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
           ...(type ? { type } : {}),
           ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
         },
+=======
+  return dispatch({
+    // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
+    type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
+    data: {
+      collectionKey: isPreview ? COLS.KEYS.UNSAVED_CHANGES
+                      : isPublic ?  COLS.KEYS.EDITED
+                      : selectCollectionKeyForId(state, collectionId),
+      collection: {
+        ...collection,
+        items: newItems,
+        itemCount: newItems.length,
+        // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
+        ...('description' in params ? { description: params.description } : {}),
+        ...(title ? { name: title, title } : {}),
+        ...(type ? { type } : {}),
+        ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
+>>>>>>> 57f66b1cb (Don't instantly save changes in order, in arrange mode)
       },
     });
   };
@@ -589,6 +650,10 @@ export const doClearEditsForCollectionId = (id: String) => (dispatch: Dispatch) 
 
 export const doRemoveFromUpdatedCollectionsForCollectionId = (id: string) => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'updated' } });
+};
+
+export const doRemoveFromUnsavedChangesCollectionsForCollectionId = (id: string) => (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'unsavedChanges' } });
 };
 
 export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) =>

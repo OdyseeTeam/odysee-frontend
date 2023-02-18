@@ -33,6 +33,7 @@ export const selectSavedCollectionIds = (state: State) => selectState(state).sav
 export const selectBuiltinCollections = (state: State) => selectState(state).builtin;
 export const selectMyUnpublishedCollections = (state: State) => selectState(state).unpublished;
 export const selectMyEditedCollections = (state: State) => selectState(state).edited;
+export const selectMyCollectionsWithUnSavedChanges = (state: State) => selectState(state).unsavedChanges;
 export const selectMyUpdatedCollections = (state: State) => selectState(state).updated;
 export const selectCollectionItemsFetchingIds = (state: State) => selectState(state).collectionItemsFetchingIds;
 export const selectQueueCollection = (state: State) => selectState(state).queue;
@@ -209,8 +210,9 @@ export const selectCollectionsById = (state: State) => {
   const unpublished = selectMyUnpublishedCollections(state);
   const edited = selectMyEditedCollections(state);
   const queue = { queue: selectQueueCollection(state) };
+  const unsaved = selectMyCollectionsWithUnSavedChanges(state);
 
-  return { ...queue, ...resolved, ...edited, ...unpublished, ...builtin };
+  return { ...queue, ...resolved, ...edited, ...unpublished, ...builtin, ...unsaved };
 };
 
 export const selectCollectionForId = createSelector(
