@@ -96,6 +96,13 @@ export const selectEditedCollectionForId = (state: State, id: string) => selectM
 export const selectCollectionHasEditsForId = (state: State, id: string) =>
   Boolean(selectEditedCollectionForId(state, id));
 
+export const selectUnsavedChangesCollectionForId = (state: State, id: string) => {
+  const unSavedCollections = selectMyCollectionsWithUnSavedChanges(state);
+  return unSavedCollections ? unSavedCollections[id] : null;
+};
+export const selectCollectionHasUnsavedEditsForId = (state: State, id: string) =>
+  Boolean(selectUnsavedChangesCollectionForId(state, id));
+
 export const selectUpdatedCollectionForId = (state: State, id: string) => {
   const editedCollections = selectMyEditedCollections(state);
   if (editedCollections[id]) return editedCollections[id];

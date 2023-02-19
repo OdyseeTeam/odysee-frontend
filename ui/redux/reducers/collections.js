@@ -89,11 +89,19 @@ const collectionsReducer = handleActions(
       const newEditList = Object.assign({}, state.edited);
       const newUnpublishedList = Object.assign({}, state.unpublished);
       const newUpdatedList = Object.assign({}, state.updated);
+      const newUnsavedChangesList = Object.assign({}, state.unsavedChanges);
       if (newEditList[collectionId]) delete newEditList[collectionId];
       if (newUnpublishedList[collectionId]) delete newUnpublishedList[collectionId];
       if (newUpdatedList[collectionId]) delete newUpdatedList[collectionId];
+      if (newUnsavedChangesList[collectionId]) delete newUnsavedChangesList[collectionId];
 
-      return { ...state, edited: newEditList, unpublished: newUnpublishedList, updated: newUpdatedList };
+      return {
+        ...state,
+        edited: newEditList,
+        unpublished: newUnpublishedList,
+        updated: newUpdatedList,
+        unsavedChanges: newUnsavedChangesList
+      };
     },
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {
       const { id, collectionKey } = action.data;

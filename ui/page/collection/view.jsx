@@ -76,7 +76,8 @@ const CollectionPage = (props: Props) => {
   }
 
   function saveChanges() {
-    doCollectionEdit(collectionId, {});
+    doCollectionEdit(collectionId, {})
+    .then(() => doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
     setShowEdit(false);
   }
 
