@@ -46,6 +46,7 @@ type Props = {
   user: ?User,
   prefsReady: boolean,
   doClearClaimSearch: () => void,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
   clearEmailEntry: () => void,
   clearPasswordEntry: () => void,
   openChangelog: ({}) => void,
@@ -72,6 +73,7 @@ const Header = (props: Props) => {
     user,
     prefsReady,
     doClearClaimSearch,
+    doRemoveFromUnsavedChangesCollectionsForCollectionId,
     clearEmailEntry,
     clearPasswordEntry,
     openChangelog,
@@ -93,6 +95,7 @@ const Header = (props: Props) => {
   const isSignInPage = pathname.includes(PAGES.AUTH_SIGNIN);
   const isPwdResetPage = pathname.includes(PAGES.AUTH_PASSWORD_RESET);
   const iYTSyncPage = pathname.includes(PAGES.YOUTUBE_SYNC);
+  const isPlaylistPage = pathname.includes(PAGES.PLAYLIST);
 
   const urlParams = new URLSearchParams(search);
   const returnPath = urlParams.get('redirect');
@@ -114,9 +117,18 @@ const Header = (props: Props) => {
 
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
 
+  function  handleCollectionEditPageCleanUp() {
+    const collectionId = pathname.split('/').pop();
+    doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
+  };
+
   const onBackout = React.useCallback(
     (e: any) => {
       window.removeEventListener('popstate', onBackout);
+
+      if (isPlaylistPage) {
+        handleCollectionEditPageCleanUp();
+      }
 
       if (e.type !== 'popstate') {
         if (returnPath) {
