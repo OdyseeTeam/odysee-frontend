@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import { doHideModal } from 'redux/actions/app';
 import ModalPublishSuccess from './view';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
-import { doClearPublish } from 'redux/actions/publish';
 import { push } from 'connected-react-router';
 
 const select = (state, props) => ({
