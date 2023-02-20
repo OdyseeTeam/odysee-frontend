@@ -11,7 +11,6 @@ const select = (state, props) => ({
 
 const perform = (dispatch) => ({
   closeModal: () => dispatch(doHideModal()),
-  clearPublish: () => dispatch(doClearPublish()),
   navigate: (path) => dispatch(push(path)),
 });
 
