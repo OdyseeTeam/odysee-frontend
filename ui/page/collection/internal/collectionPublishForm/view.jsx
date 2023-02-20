@@ -167,6 +167,9 @@ const CollectionPublishForm = (props: Props) => {
 
       initialParams.current = collectionParams;
       collectionResetPending.current = false;
+    } else if (collectionParams) {
+      // Keep claims in formParams up to date
+      updateFormParams({claims: collectionParams.claims});
     }
   }, [collectionParams]);
 
