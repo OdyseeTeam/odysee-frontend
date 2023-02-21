@@ -379,7 +379,6 @@ function SideNavigation(props: Props) {
               displayedSubscriptions.push(subscription);
             }
           });
-        // displayedSubscriptions = subscriptions.filter((sub) => sub.channelName.toLowerCase().includes(filter));
       } else {
         displayedSubscriptions =
           lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
