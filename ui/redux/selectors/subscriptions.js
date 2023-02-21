@@ -14,7 +14,6 @@ import { getChannelFromClaim, isChannelClaim } from 'util/claim';
 
 // Returns the entire subscriptions state
 const selectState = (state) => state.subscriptions || {};
-if (selectState) console.log('state.subscriptions: ', selectState);
 
 // Returns the list of channel uris a user is subscribed to
 export const selectSubscriptions = createSelector(
