@@ -31,7 +31,7 @@ const select = (state) => ({
 export default connect(select, {
   doClearClaimSearch,
   doSignOut,
-  doClearPurchasedUriSuccess,
   doFetchLastActiveSubs,
+  doClearPurchasedUriSuccess,
   doOpenModal,
 })(SideNavigation);

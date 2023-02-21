@@ -96,6 +96,18 @@ export function doChannelUnsubscribe(subscription: SubscriptionArgs, followToast
   };
 }
 
+/*
+export function doFetchSubscriptionTitles(){
+  return (dispatch: Dispatch) => {
+    if (subscriptions.length) {
+      actions.push(doResolveUris(subscriptions));
+    }
+
+    dispatch(batchActions(...actions));
+  }
+}
+*/
+
 export function doFetchLastActiveSubs(forceFetch: boolean = false, count: number = SIDEBAR_SUBS_DISPLAYED) {
   function parseIdFromUri(uri) {
     try {

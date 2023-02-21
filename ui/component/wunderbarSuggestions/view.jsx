@@ -40,23 +40,28 @@ type Props = {
   channelsOnly?: boolean,
   noTopSuggestion?: boolean,
   noBottomLinks?: boolean,
+  subscriptions: Array<Subscription>,
   customSelectAction?: (string) => void,
   // --- redux ---
   searchInLanguage: boolean,
   languageSetting: string,
   showMature: boolean,
+  claimsByUri: { [string]: Claim },
+  subscriptionUris: Array<string>,
   doResolveUris: (string) => void,
   navigateToSearchPage: (string) => void,
   doShowSnackBar: (string) => void,
   doCloseMobileSearch: () => void,
+  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
 };
 
 export default function WunderBarSuggestions(props: Props) {
   const {
     navigateToSearchPage,
     doShowSnackBar,
-    doResolveUris,
     showMature,
+    claimsByUri,
+    subscriptionUris,
     isMobile,
     doCloseMobileSearch,
     channelsOnly,
@@ -65,7 +70,9 @@ export default function WunderBarSuggestions(props: Props) {
     customSelectAction,
     searchInLanguage,
     languageSetting,
+    doResolveUris,
   } = props;
+
   const inputRef: ElementRef<any> = React.useRef();
   const viewResultsRef: ElementRef<any> = React.useRef();
   const exploreTagRef: ElementRef<any> = React.useRef();
@@ -314,10 +321,34 @@ export default function WunderBarSuggestions(props: Props) {
     if (stringifiedResults) {
       const arrayResults = JSON.parse(stringifiedResults);
       if (arrayResults && arrayResults.length > 0) {
-        doResolveUris(arrayResults);
+        doResolveUris(arrayResults, true);
       }
     }
   }, [doResolveUris, stringifiedResults]);
+
+  // --- Resolve subscriptions
+  React.useEffect(() => {
+    doResolveUris(subscriptionUris, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+  }, []);
+
+  const [subscriptionResults, setSubscriptionResults] = React.useState([]);
+  React.useEffect(() => {
+    if (subscriptionUris && term && term.length > 1) {
+      let subscriptionResults = [];
+      subscriptionUris.map((uri) => {
+        if (
+          subscriptionResults.indexOf(claimsByUri[uri].permanent_url) === -1 &&
+          (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) ||
+            // $FlowIgnore
+            claimsByUri[uri].value?.title?.toLowerCase().includes(term.toLowerCase()))
+        ) {
+          subscriptionResults.push(claimsByUri[uri].permanent_url);
+        }
+      });
+      setSubscriptionResults(subscriptionResults.slice(0, isMobile ? 5 : 10));
+    }
+  }, [term]);
 
   return (
     <>
@@ -361,10 +392,15 @@ export default function WunderBarSuggestions(props: Props) {
 
                 <div className="wunderbar__label">{__('Search Results')}</div>
 
+                {subscriptionResults.length &&
+                  subscriptionResults.map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)}
+
                 {showPlaceholder && term.length > LIGHTHOUSE_MIN_CHARACTERS ? <Spinner type="small" /> : null}
 
                 {!showPlaceholder && results
-                  ? results.slice(0, isMobile ? 20 : 5).map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)
+                  ? results
+                      .slice(0, isMobile ? 20 - subscriptionResults.length : 10 - subscriptionResults.length)
+                      .map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)
                   : null}
               </ComboboxList>
             </ComboboxPopover>
