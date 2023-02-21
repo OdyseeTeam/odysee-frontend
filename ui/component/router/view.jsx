@@ -309,7 +309,7 @@ function AppRouter(props: Props) {
           window.scrollTo(0, element.offsetTop);
         }
       } else {
-        setTimeout( () => {
+        setTimeout(() => {
           window.scrollTo(0, currentScroll);
         }, 0);
       }
