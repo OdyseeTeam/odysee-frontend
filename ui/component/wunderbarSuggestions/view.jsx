@@ -52,7 +52,7 @@ type Props = {
   navigateToSearchPage: (string) => void,
   doShowSnackBar: (string) => void,
   doCloseMobileSearch: () => void,
-  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
+  doResolveUris: (uris: Array<string>) => Promise<any>,
 };
 
 export default function WunderBarSuggestions(props: Props) {
@@ -321,16 +321,10 @@ export default function WunderBarSuggestions(props: Props) {
     if (stringifiedResults) {
       const arrayResults = JSON.parse(stringifiedResults);
       if (arrayResults && arrayResults.length > 0) {
-        doResolveUris(arrayResults, true);
+        doResolveUris(arrayResults);
       }
     }
   }, [doResolveUris, stringifiedResults]);
-
-  // --- Resolve subscriptions
-  React.useEffect(() => {
-    doResolveUris(subscriptionUris, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
-  }, []);
 
   const [subscriptionResults, setSubscriptionResults] = React.useState([]);
   React.useEffect(() => {

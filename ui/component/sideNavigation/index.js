@@ -1,15 +1,19 @@
 import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
-import { selectLastActiveSubscriptions, selectSubscriptions } from 'redux/selectors/subscriptions';
-import { doClearClaimSearch } from 'redux/actions/claims';
+import {
+  selectLastActiveSubscriptions,
+  selectSubscriptionUris,
+  selectSubscriptions,
+} from 'redux/selectors/subscriptions';
+import { doClearClaimSearch, doResolveUris } from 'redux/actions/claims';
 import { doClearPurchasedUriSuccess } from 'redux/actions/file';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { doOpenModal, doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
-import { selectPurchaseUriSuccess } from 'redux/selectors/claims';
+import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
 import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
 
 import SideNavigation from './view';
@@ -26,6 +30,8 @@ const select = (state) => ({
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   homepageOrderApplyToSidebar: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR),
   hasMembership: selectUserHasValidOdyseeMembership(state),
+  subscriptionUris: selectSubscriptionUris(state) || [],
+  claimsByUri: selectClaimsByUri(state),
 });
 
 export default connect(select, {
@@ -34,4 +40,5 @@ export default connect(select, {
   doFetchLastActiveSubs,
   doClearPurchasedUriSuccess,
   doOpenModal,
+  doResolveUris,
 })(SideNavigation);
