@@ -344,6 +344,14 @@ export default function WunderBarSuggestions(props: Props) {
     }
   }, [term]);
 
+  React.useEffect(() => {
+    if (results && subscriptionResults) {
+      subscriptionResults.map((subscription) => {
+        if (results.indexOf(subscription) !== -1) results.splice(results.indexOf(subscription), 1);
+      });
+    }
+  }, [subscriptionResults, results]);
+
   return (
     <>
       <Form
