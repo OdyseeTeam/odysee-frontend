@@ -2799,7 +2799,7 @@ export const icons = {
     </g>
   ),
   [ICONS.EDUCATION]: (props: CustomProps) => (
-    <svg {...props} wwidth="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg {...props} width="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M3 5.99999L3 12M3 12L4 14H2L3 12ZM16 6.99999V10.85L10.5 14L5 10.85V6.99999M10.4583 1.00317L2.68056 5.77776L10.4583 9.9658L18.2361 5.77776L10.4583 1.00317Z" />
     </svg>
   ),
