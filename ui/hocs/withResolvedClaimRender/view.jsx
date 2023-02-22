@@ -59,13 +59,15 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       !claimIsMine && (geoRestriction || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
 
     const LoadingSpinner = React.useMemo(
-      () => ({ text }: { text: string }) => (
-        <Wrapper>
-          <div className="main--empty">
-            <Spinner delayed={delayed} text={text} />
-          </div>
-        </Wrapper>
-      ),
+      () =>
+        ({ text }: { text: string }) =>
+          (
+            <Wrapper>
+              <div className="main--empty">
+                <Spinner delayed={delayed} text={text} />
+              </div>
+            </Wrapper>
+          ),
       [delayed]
     );
 
@@ -117,6 +119,23 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
           </div>
         </Wrapper>
       );
+    }
+
+    if (claimIsRestricted && isChannel) {
+      if (geoRestriction) {
+        return (
+          <Wrapper>
+            <div className="main--empty">
+              <Yrbl
+                title={__(isChannel ? 'Channel unavailable' : 'Content unavailable')}
+                subtitle={geoRestriction.message ? __(geoRestriction.message) : ''}
+                type="sad"
+                alwaysShow
+              />
+            </div>
+          </Wrapper>
+        );
+      }
     }
 
     // -- Channels are handled differently than content
