@@ -131,51 +131,59 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
 type Props = {
+  uploadCount: number,
+  sidebarOpen: boolean,
+  isMediumScreen: boolean,
+  isOnFilePage: boolean,
+  setSidebarOpen: (boolean) => void,
+  // --- select ---
   subscriptions: Array<Subscription>,
   lastActiveSubs: ?Array<Subscription>,
   followedTags: Array<Tag>,
   email: ?string,
-  uploadCount: number,
-  doSignOut: () => void,
-  sidebarOpen: boolean,
-  setSidebarOpen: (boolean) => void,
-  isMediumScreen: boolean,
-  isOnFilePage: boolean,
-  unseenCount: number,
   purchaseSuccess: boolean,
-  doClearPurchasedUriSuccess: () => void,
+  unseenCount: number,
   user: ?User,
   homepageData: any,
   homepageOrder: HomepageOrder,
   homepageOrderApplyToSidebar: boolean,
-  doClearClaimSearch: () => void,
   hasMembership: ?boolean,
+  subscriptionUris: Array<string>,
+  claimsByUri: { [string]: Claim },
+  // --- perform ---
+  doClearClaimSearch: () => void,
+  doSignOut: () => void,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
+  doClearPurchasedUriSuccess: () => void,
   doOpenModal: (id: string, ?{}) => void,
+  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
 };
 
 function SideNavigation(props: Props) {
   const {
-    subscriptions,
-    lastActiveSubs,
-    doSignOut,
-    email,
-    purchaseSuccess,
-    doClearPurchasedUriSuccess,
     sidebarOpen,
     setSidebarOpen,
     isMediumScreen,
     isOnFilePage,
+    subscriptions,
+    lastActiveSubs,
+    followedTags,
+    email,
+    purchaseSuccess,
     unseenCount,
+    user,
     homepageData,
     homepageOrder,
     homepageOrderApplyToSidebar,
-    user,
-    followedTags,
-    doClearClaimSearch,
     hasMembership,
+    subscriptionUris,
+    claimsByUri,
+    doClearClaimSearch,
+    doSignOut,
     doFetchLastActiveSubs,
+    doClearPurchasedUriSuccess,
     doOpenModal,
+    doResolveUris,
   } = props;
 
   const isLargeScreen = useIsLargeScreen();
@@ -357,10 +365,20 @@ function SideNavigation(props: Props) {
   function getSubscriptionSection() {
     const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptions && subscriptions.length > 0;
     if (showSubsSection) {
-      let displayedSubscriptions;
+      let displayedSubscriptions = [];
       if (subscriptionFilter) {
         const filter = subscriptionFilter.toLowerCase();
-        displayedSubscriptions = subscriptions.filter((sub) => sub.channelName.toLowerCase().includes(filter));
+
+        subscriptions &&
+          subscriptions.map((subscription) => {
+            if (
+              claimsByUri[subscription.uri].name.toLowerCase().includes(filter) ||
+              // $FlowIgnore
+              claimsByUri[subscription.uri].value?.title?.toLowerCase().includes(filter)
+            ) {
+              displayedSubscriptions.push(subscription);
+            }
+          });
       } else {
         displayedSubscriptions =
           lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
@@ -534,6 +552,12 @@ function SideNavigation(props: Props) {
       doFetchLastActiveSubs();
     }
   }, [doFetchLastActiveSubs, sidebarOpen]);
+
+  // --- Resolve subscriptions
+  React.useEffect(() => {
+    doResolveUris(subscriptionUris, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+  }, []);
 
   // **************************************************************************
   // **************************************************************************

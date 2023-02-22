@@ -4,15 +4,22 @@ import { doToast } from 'redux/actions/notifications';
 import { doHideModal } from 'redux/actions/app';
 import { withRouter } from 'react-router';
 import { doResolveUris } from 'redux/actions/claims';
+import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
+import { selectClaimsByUri } from 'redux/selectors/claims';
+
 import analytics from 'analytics';
 import Wunderbar from './view';
 import * as SETTINGS from 'constants/settings';
 
-const select = (state, props) => ({
-  languageSetting: selectLanguage(state),
-  searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
-  showMature: selectShowMatureContent(state),
-});
+const select = (state, props) => {
+  return {
+    languageSetting: selectLanguage(state),
+    searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
+    showMature: selectShowMatureContent(state),
+    claimsByUri: selectClaimsByUri(state),
+    subscriptionUris: selectSubscriptionUris(state) || [],
+  };
+};
 
 const perform = (dispatch, ownProps) => ({
   doResolveUris: (uris) => dispatch(doResolveUris(uris)),
