@@ -23,7 +23,7 @@ import Icon from 'component/common/icon';
 import './style.scss';
 
 type Props = {
-  uri?: string,
+  uri: string,
   collectionId: string,
   // -- redux --
   collectionCount: number,
@@ -123,12 +123,12 @@ function CollectionPreview(props: Props) {
         )}
       </div>
 
-      <div className="table-column__meta" uri={uri}>
+      <div className="table-column__meta">
         <div className="table-column__visibility">
           <div className="claim-preview-info">{hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}</div>
         </div>
 
-        <div className="table-column__create-at" uri={uri}>
+        <div className="table-column__create-at">
           {collectionCreatedAt && (
             <>
               <Icon icon={ICONS.TIME} />
@@ -137,7 +137,7 @@ function CollectionPreview(props: Props) {
           )}
         </div>
 
-        <div className="table-column__update-at" uri={uri}>
+        <div className="table-column__update-at">
           <Icon icon={ICONS.EDIT} />
           <DateTime timeAgo date={collectionUpdatedAt} />
         </div>
