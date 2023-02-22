@@ -119,6 +119,23 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       );
     }
 
+    if (claimIsRestricted && isChannel) {
+      if (geoRestriction) {
+        return (
+          <Wrapper>
+            <div className="main--empty">
+              <Yrbl
+                title={__(isChannel ? 'Channel unavailable' : 'Content unavailable')}
+                subtitle={geoRestriction.message ? __(geoRestriction.message) : ''}
+                type="sad"
+                alwaysShow
+              />
+            </div>
+          </Wrapper>
+        );
+      }
+    }
+
     // -- Channels are handled differently than content
     if (claimIsRestricted && !isChannel) {
       if (geoRestriction) {
