@@ -28,6 +28,7 @@ type Props = {
   disableRemove?: boolean,
   supportAmount?: any,
   isLiveComment: boolean,
+  isUserLabel: boolean,
   // --- select ---
   claim: ?Claim,
   claimIsMine: boolean,
@@ -74,6 +75,7 @@ function CommentMenuList(props: Props) {
     disableRemove,
     supportAmount,
     isLiveComment,
+    isUserLabel,
     doToast,
     handleEditComment,
     openModal,
@@ -203,11 +205,11 @@ function CommentMenuList(props: Props) {
   return (
     <MenuList
       className={classnames('menu__list', {
-        'menu__chat-comment': isLiveComment,
+        'menu__chat-comment': isLiveComment || isUserLabel,
       })}
       onClick={(e) => e.stopPropagation()}
     >
-      {isLiveComment && (
+      {(isLiveComment || isUserLabel) && (
         <div className="comment__menu-target">
           <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
           <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>

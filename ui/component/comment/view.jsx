@@ -41,7 +41,6 @@ import CommentsReplies from 'component/commentsReplies';
 import { useHistory } from 'react-router';
 import CommentCreate from 'component/commentCreate';
 import CommentMenuList from 'component/commentMenuList';
-import UriIndicator from 'component/uriIndicator';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
 import { getChannelFromClaim } from 'util/claim';
@@ -90,6 +89,7 @@ type Props = {
   repliesFetching: boolean,
   threadLevel?: number,
   threadDepthLevel?: number,
+  authorTitle: string,
   channelAge?: any,
   disabled?: boolean,
   doClearPlayingSource: () => void,
@@ -128,6 +128,7 @@ function CommentView(props: Props) {
     threadLevel = 0,
     threadDepthLevel = 0,
     doClearPlayingSource,
+    authorTitle,
     channelAge,
     disabled,
   } = props;
@@ -148,6 +149,7 @@ function CommentView(props: Props) {
     replies: numDirectReplies,
     timestamp,
   } = comment;
+  const claimName = authorTitle || author;
 
   const timePosted = timestamp * 1000;
   const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
@@ -334,15 +336,36 @@ function CommentView(props: Props) {
               {!author ? (
                 <span className="comment__author">{__('Anonymous')}</span>
               ) : (
-                <UriIndicator
-                  className={classnames('comment__author', {
-                    'comment__author--creator': commentByOwnerOfContent,
-                  })}
-                  link
-                  uri={authorUri}
-                  comment
-                  showAtSign
-                />
+                <Menu>
+                  <MenuButton
+                    className={classnames('button--uri-indicator comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {claimName}
+                  </MenuButton>
+
+                  <CommentMenuList
+                    uri={uri}
+                    commentId={commentId}
+                    authorUri={authorUri}
+                    authorName={claimName}
+                    commentIsMine={commentIsMine}
+                    isPinned={isPinned}
+                    isTopLevel={isTopLevel}
+                    // disableEdit
+                    // disableRemove
+                    isUserLabel
+                    // isLiveComment
+                    // handleDismissPin={handleDismissPin}
+                    handleEditComment={() => handleEditComment(true)}
+                    setQuickReply={setQuickReply}
+                    className={classnames('comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                  />
+                </Menu>
               )}
               {isSprout && <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={14} />}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}

@@ -475,15 +475,17 @@ function SideNavigation(props: Props) {
     }
 
     function handleOutsideClick(e) {
-      const isNavigationButton =
-        e.target.classList.contains('icon--Menu') ||
-        (e.target.hasChildNodes() && e.target.firstChild.classList.contains('icon--Menu')) ||
-        e.target.classList.contains('button-rotate');
-      if (
-        (sideNavigationRef.current === null || !sideNavigationRef.current.contains(e.target)) &&
-        !isNavigationButton
-      ) {
-        setSidebarOpen(false);
+      if (sidebarOpen) {
+        const isNavigationButton =
+          e.target.classList.contains('icon--Menu') ||
+          (e.target.hasChildNodes() && e.target.firstChild.classList.contains('icon--Menu')) ||
+          e.target.classList.contains('button-rotate');
+        if (
+          (sideNavigationRef.current === null || !sideNavigationRef.current.contains(e.target)) &&
+          !isNavigationButton
+        ) {
+          setSidebarOpen(false);
+        }
       }
     }
 
