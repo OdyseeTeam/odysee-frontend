@@ -190,6 +190,13 @@ function CommentView(props: Props) {
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
   const stickerFromMessage = parseSticker(message);
 
+  React.useEffect(() => {
+    if (threadLevel === 0 && comment.replies) {
+      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
+      setShowReplies(true);
+    }
+  }, []);
+
   const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
 
   let channelOwnerOfContent;
@@ -518,7 +525,7 @@ function CommentView(props: Props) {
               threadCommentId={threadCommentId}
               numDirectReplies={numDirectReplies}
               onShowMore={() => setPage(page + 1)}
-              hasMore={page < totalReplyPages}
+              hasMore={page < totalReplyPages && threadLevel > 0}
               threadDepthLevel={threadDepthLevel}
             />
           ))}
