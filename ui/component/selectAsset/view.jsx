@@ -123,7 +123,7 @@ function SelectAsset(props: Props) {
         <div className="channel-preview-grid">
           {Array.from(Array(6), (e, i) => {
             return (
-              <div className="channel-preview-grid-tile">
+              <div className="channel-preview-grid-tile" key={i}>
                 <div />
                 <div />
                 <div />
