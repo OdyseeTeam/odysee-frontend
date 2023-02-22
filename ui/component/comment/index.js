@@ -5,6 +5,7 @@ import {
   selectThumbnailForUri,
   selectHasChannels,
   selectMyClaimIdsRaw,
+  selectTitleForUri,
   selectDateForUri,
 } from 'redux/selectors/claims';
 import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
@@ -55,6 +56,7 @@ const select = (state, props) => {
     creatorMembership: selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId, channel_id),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
+    authorTitle: selectTitleForUri(state, channel_url),
     channelAge,
   };
 };
