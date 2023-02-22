@@ -332,6 +332,7 @@ export default function WunderBarSuggestions(props: Props) {
       let subscriptionResults = [];
       subscriptionUris.map((uri) => {
         if (
+          claimsByUri[uri] &&
           subscriptionResults.indexOf(claimsByUri[uri].permanent_url) === -1 &&
           (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) ||
             // $FlowIgnore

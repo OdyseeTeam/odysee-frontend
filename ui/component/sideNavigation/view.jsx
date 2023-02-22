@@ -372,9 +372,10 @@ function SideNavigation(props: Props) {
         subscriptions &&
           subscriptions.map((subscription) => {
             if (
-              claimsByUri[subscription.uri].name.toLowerCase().includes(filter) ||
-              // $FlowIgnore
-              claimsByUri[subscription.uri].value?.title?.toLowerCase().includes(filter)
+              claimsByUri[subscription?.uri] &&
+              (claimsByUri[subscription?.uri].name.toLowerCase().includes(filter) ||
+                // $FlowIgnore
+                claimsByUri[subscription?.uri].value?.title?.toLowerCase().includes(filter))
             ) {
               displayedSubscriptions.push(subscription);
             }
