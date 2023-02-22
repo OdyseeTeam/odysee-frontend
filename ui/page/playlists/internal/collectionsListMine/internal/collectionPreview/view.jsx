@@ -23,7 +23,7 @@ import Icon from 'component/common/icon';
 import './style.scss';
 
 type Props = {
-  uri: string,
+  uri?: string,
   collectionId: string,
   // -- redux --
   collectionCount: number,
