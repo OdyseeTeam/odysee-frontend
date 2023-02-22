@@ -354,11 +354,7 @@ function CommentView(props: Props) {
                     commentIsMine={commentIsMine}
                     isPinned={isPinned}
                     isTopLevel={isTopLevel}
-                    // disableEdit
-                    // disableRemove
                     isUserLabel
-                    // isLiveComment
-                    // handleDismissPin={handleDismissPin}
                     handleEditComment={() => handleEditComment(true)}
                     setQuickReply={setQuickReply}
                     className={classnames('comment__author', {
