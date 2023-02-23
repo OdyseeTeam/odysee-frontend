@@ -1,0 +1,15 @@
+ID: 6751 # Phoenix Service ID
+
+Domains: odysee.com
+
+Document-Name: Terms of Service
+Url: https://odysee.com/$/tos
+Path: /html/body/div[1]/div/div[5]/div[2]/main/section/div/div[2]/div
+
+Document-Name: Privacy Policy
+Url: https://odysee.com/$/privacypolicy
+Path: /html/body/div[1]/div/div[5]/div[2]/main/section/div/div[2]/div
+
+Document-Name: Community Guidelines
+Url: https://help.odysee.tv/communityguidelines/
+Path: /html/body/div[1]/div[2]/div/main/div/div/div[1]/div/article/div[2]
