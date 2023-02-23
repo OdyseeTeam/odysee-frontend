@@ -556,24 +556,31 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const isQueue = collectionId === COLS.QUEUE_ID;
   const title = params.title || params.name;
 
-  return dispatch({
-    // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
-    type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
-    data: {
-      collectionKey: isPreview ? COLS.KEYS.UNSAVED_CHANGES
-                      : isPublic ?  COLS.KEYS.EDITED
-                      : selectCollectionKeyForId(state, collectionId),
-      collection: {
-        ...collection,
-        items: newItems,
-        itemCount: newItems.length,
-        // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
-        ...('description' in params ? { description: params.description } : {}),
-        ...(title ? { name: title, title } : {}),
-        ...(type ? { type } : {}),
-        ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
+  return new Promise((success) => {
+    dispatch({
+      // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
+      type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
+      data: {
+        collectionKey: isPreview ? COLS.KEYS.UNSAVED_CHANGES
+                        : isPublic ?  COLS.KEYS.EDITED
+                        : selectCollectionKeyForId(state, collectionId),
+        collection: {
+          ...collection,
+          items: newItems,
+          itemCount: newItems.length,
+          // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
+          ...('description' in params ? { description: params.description } : {}),
+          ...(title ? { name: title, title } : {}),
+          ...(type ? { type } : {}),
+          ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
+        },
       },
+    });
+    // Needs to be run after collection_edit is dispatched, or saving changes doesn't work from edit page
+    if (!isPreview) {
+        dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
     }
+    success();
   });
 };
 

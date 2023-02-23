@@ -126,7 +126,6 @@ const CollectionPublishForm = (props: Props) => {
     if (editing) {
       // $FlowFixMe
       doCollectionEdit(collectionId, formParams)
-      .then(() => doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
 
       return onDoneForId(collectionId);
     }
