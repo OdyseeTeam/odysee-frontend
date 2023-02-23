@@ -6,44 +6,27 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import { FormField } from 'component/common/form';
-import { COL_TYPES } from 'constants/collections';
 
 type Props = {
   collectionId: string,
   simplify?: boolean,
   // --- redux ---
-  claim: Claim,
+  hasClaim: boolean,
   collectionName: string,
-  uri: ?string,
   redirect: ?string,
-  collectionParams: CollectionPublishParams,
-  collectionUrls: Array<string>,
+  collectionKey: ?string,
   doHideModal: () => void,
-  doCollectionDelete: (string, ?string) => void,
-  doLocalCollectionCreate: (params: CollectionCreateParams) => void,
+  doCollectionDelete: (id: string, collectionKey: ?string, keepPrivate: boolean) => void,
 };
 
 function ModalRemoveCollection(props: Props) {
-  const {
-    simplify,
-    claim,
-    collectionId,
-    collectionName,
-    uri,
-    redirect,
-    collectionParams,
-    collectionUrls,
-    doHideModal,
-    doCollectionDelete,
-    doLocalCollectionCreate,
-  } = props;
+  const { simplify, hasClaim, collectionId, collectionName, redirect, collectionKey, doHideModal, doCollectionDelete } =
+    props;
 
   const { replace } = useHistory();
 
   const [confirmName, setConfirmName] = useState('');
-  const [keepPrivate, setKeepPrivate] = useState('');
-
-  const title = claim && claim.value && claim.value.title;
+  const [keepPrivate, setKeepPrivate] = useState(false);
 
   function getBody() {
     if (simplify) {
@@ -54,7 +37,7 @@ function ModalRemoveCollection(props: Props) {
         </>
       );
     } else {
-      return uri ? (
+      return hasClaim ? (
         <>
           <p>{__('This will permanently delete the list.')}</p>
           <p>{__('Type "%list_name%" to confirm.', { list_name: collectionName })}</p>
@@ -64,12 +47,12 @@ function ModalRemoveCollection(props: Props) {
             type="checkbox"
             label={__('Delete publish but keep private playlist')}
             checked={keepPrivate}
-            onChange={() => setKeepPrivate(!keepPrivate)}
+            onChange={() => setKeepPrivate((prev) => !prev)}
           />
         </>
       ) : (
-        <I18nMessage tokens={{ title: <cite>{uri && title ? `"${title}"` : `"${collectionName}"`}</cite> }}>
-          Are you sure you'd like to remove %title%?
+        <I18nMessage tokens={{ title: <cite>{`"${collectionName}"`}</cite> }}>
+          Are you sure you'd like to delete %title%?
         </I18nMessage>
       );
     }
@@ -79,34 +62,26 @@ function ModalRemoveCollection(props: Props) {
     <Modal isOpen contentLabel={__('Confirm Playlist Unpublish')} type="card" onAborted={doHideModal}>
       <Card
         title={__('Delete Playlist')}
-        body={getBody()}
-        actions={
+        body={
           <>
-            <div className="section__actions">
-              <Button
-                button="primary"
-                label={__('Delete')}
-                disabled={!simplify && uri && collectionName !== confirmName}
-                onClick={() => {
-                  if (redirect) replace(redirect);
-                  doCollectionDelete(collectionId, uri ? (keepPrivate ? 'resolved' : 'all') : undefined);
-                  if (uri && keepPrivate) {
-                    const { name, description, thumbnail_url } = collectionParams;
-                    const createParams = {
-                      name,
-                      description,
-                      items: collectionUrls,
-                      thumbnail: { url: thumbnail_url },
-                      type: COL_TYPES.PLAYLIST,
-                    };
-                    doLocalCollectionCreate(createParams);
-                  }
-                  doHideModal();
-                }}
-              />
-              <Button button="link" label={__('Cancel')} onClick={doHideModal} />
-            </div>
+            {getBody()}
+            <p className="help error__text">{__('This action is permanent and cannot be undone')}</p>
           </>
+        }
+        actions={
+          <div className="section__actions">
+            <Button
+              button="primary"
+              label={__('Delete')}
+              disabled={!simplify && hasClaim && collectionName !== confirmName}
+              onClick={() => {
+                if (redirect) replace(redirect);
+                doCollectionDelete(collectionId, hasClaim ? undefined : collectionKey, keepPrivate);
+                doHideModal();
+              }}
+            />
+            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+          </div>
         }
       />
     </Modal>

@@ -15,10 +15,12 @@ function dateToLinuxTimestamp(date: Date) {
 type Props = {
   isScheduled: boolean,
   releaseTime: ?number,
+  clock24h: boolean,
+  appLanguage: ?string,
   updatePublishForm: ({}) => void,
 };
 const PublishStreamReleaseDate = (props: Props) => {
-  const { isScheduled, releaseTime, updatePublishForm } = props;
+  const { isScheduled, releaseTime, clock24h, appLanguage, updatePublishForm } = props;
 
   const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : 'DEFAULT');
   const [publishLater, setPublishLater] = React.useState(isScheduled);
@@ -83,11 +85,12 @@ const PublishStreamReleaseDate = (props: Props) => {
           {publishLater && (
             <div className="form-field-date-picker mb-0 controls md:ml-m">
               <DateTimePicker
+                locale={appLanguage}
                 className="date-picker-input w-full md:w-auto mt-s md:mt-0"
                 calendarClassName="form-field-calendar"
                 onChange={onDateTimePickerChanged}
                 value={date}
-                format="y-MM-dd h:mm a"
+                format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
                 disableClock
                 clearIcon={null}
                 minDate={moment().add('30', 'minutes').toDate()}

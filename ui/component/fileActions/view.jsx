@@ -39,8 +39,10 @@ type Props = {
   doDownloadUri: (uri: string) => void,
   isMature: boolean,
   isAPreorder: boolean,
-  isPurchasableContent: boolean,
-  isRentableContent: boolean,
+  isProtectedContent: boolean,
+  isFiatRequired: boolean,
+  isFiatPaid: ?boolean,
+  isTierUnlocked: boolean,
 };
 
 export default function FileActions(props: Props) {
@@ -62,8 +64,10 @@ export default function FileActions(props: Props) {
     doDownloadUri,
     isMature,
     isAPreorder,
-    isPurchasableContent,
-    isRentableContent,
+    isProtectedContent,
+    isFiatRequired,
+    isFiatPaid,
+    isTierUnlocked,
   } = props;
 
   const {
@@ -83,6 +87,10 @@ export default function FileActions(props: Props) {
   const urlParams = new URLSearchParams(search);
   const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
+  const unauthorizedToDownload = isFiatRequired || isProtectedContent;
+  const showDownload = !isLivestreamClaim && !disableDownloadButton && !isMature && !unauthorizedToDownload;
+  const showRepost = !hideRepost && !isLivestreamClaim;
+
   // We want to use the short form uri for editing
   // This is what the user is used to seeing, they don't care about the claim id
   // We will select the claim id before they publish
@@ -97,6 +105,11 @@ export default function FileActions(props: Props) {
     }
 
     editUri = buildURI(uriObject);
+  }
+
+  function isAllowedToReact() {
+    const restrictionsCleared = (!isFiatRequired || isFiatPaid) && isTierUnlocked; // should it be OR instead?
+    return claimIsMine || restrictionsCleared;
   }
 
   function handleWebDownload() {
@@ -123,9 +136,9 @@ export default function FileActions(props: Props) {
 
   return (
     <div className="media__actions">
-      {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
+      {ENABLE_FILE_REACTIONS && isAllowedToReact() && <FileReactions uri={uri} />}
 
-      {!isAPreorder && !isPurchasableContent && !isRentableContent && <ClaimSupportButton uri={uri} fileAction />}
+      {!isAPreorder && !isFiatRequired && <ClaimSupportButton uri={uri} fileAction />}
 
       <ClaimCollectionAddButton uri={uri} />
 
@@ -140,7 +153,7 @@ export default function FileActions(props: Props) {
         </>
       )}
 
-      {(!isLivestreamClaim || !claimIsMine || isMobile) && (
+      {((isMobile && (showRepost || claimIsMine)) || showDownload || !claimIsMine) && (
         <Menu>
           <MenuButton
             className="button--file-action--menu"
@@ -155,7 +168,7 @@ export default function FileActions(props: Props) {
           <MenuList className="menu__list">
             {isMobile && (
               <>
-                {!hideRepost && !isLivestreamClaim && (
+                {showRepost && (
                   <MenuItem className="comment__menu-option" onSelect={handleRepostClick}>
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.REPOST} />
@@ -195,7 +208,7 @@ export default function FileActions(props: Props) {
               </>
             )}
 
-            {!isLivestreamClaim && !disableDownloadButton && !isMature && !isPurchasableContent && !isRentableContent && (
+            {showDownload && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />

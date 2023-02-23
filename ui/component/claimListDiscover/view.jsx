@@ -7,6 +7,7 @@ import { withRouter } from 'react-router';
 import { MATURE_TAGS } from 'constants/tags';
 import { resolveLangForClaimSearch } from 'util/default-languages';
 import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptions } from 'util/claim-search';
 import { splitBySeparator } from 'util/lbryURI';
 import Button from 'component/button';
 import moment from 'moment';
@@ -17,9 +18,7 @@ import I18nMessage from 'component/i18nMessage';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
-import useResolvePins from 'effects/use-resolve-pins';
 import { useIsLargeScreen } from 'effects/use-screensize';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
 
@@ -30,9 +29,11 @@ type Props = {
   name?: string,
   type: string,
   pageSize?: number,
+  duration?: string,
 
   fetchViewCount?: boolean,
-  hideRepostsOverride?: boolean, // undefined = use SETTINGS.HIDE_REPOSTS; true/false: use this.
+  hideMembersOnly?: boolean, // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
+  hideRepostsOverride?: boolean, // undefined = use SETTINGS.HIDE_REPOSTS; true/false: use this override.
   hasNoSource?: boolean,
   hasSource?: boolean,
   hideAdvancedFilter?: boolean,
@@ -64,6 +65,8 @@ type Props = {
   streamType?: string | Array<string>,
   defaultStreamType?: string | Array<string>,
 
+  contentType?: string | Array<string>,
+
   empty?: string,
   feeAmount?: string,
   releaseTime?: string,
@@ -89,6 +92,9 @@ type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
 
+  expandFilters: boolean,
+  setFilters: any,
+
   // --- select ---
   followedTags?: Array<Tag>,
   claimSearchByQuery: { [string]: Array<string> },
@@ -104,9 +110,10 @@ type Props = {
   searchInLanguage: boolean,
 
   // --- perform ---
+  doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void,
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
 
@@ -125,6 +132,7 @@ function ClaimListDiscover(props: Props) {
     claimSearchByQuery,
     showHeader = true,
     type,
+    duration,
     claimSearchByQueryLastPageReached,
     tags,
     notTags,
@@ -152,6 +160,7 @@ function ClaimListDiscover(props: Props) {
     defaultClaimType,
     streamType,
     defaultStreamType,
+    contentType,
     freshness,
     defaultFreshness = CS.FRESH_WEEK,
     renderProperties,
@@ -159,6 +168,7 @@ function ClaimListDiscover(props: Props) {
     includeSupportAction,
     repostedClaimId,
     hideAdvancedFilter,
+    hideMembersOnly,
     infiniteScroll = true,
     followedTags,
     injectedItem,
@@ -192,13 +202,36 @@ function ClaimListDiscover(props: Props) {
     maxClaimRender,
     useSkeletonScreen = true,
     excludeUris = [],
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
+    doFetchThumbnailClaimsForCollectionIds,
     swipeLayout = false,
     doResolveUris,
     doResolveClaimIds,
   } = props;
 
-  const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
+  const hasPins = pins && (pins.claimIds || pins.urls);
+  const resolvedPinUris = React.useMemo(() => {
+    if (!hasPins) return undefined;
+
+    let resolvedPinUris = [];
+
+    if (pins && pins.claimIds) {
+      pins.claimIds.some((id) => {
+        const claim = claimsById[id];
+        if (!claim) {
+          resolvedPinUris = undefined;
+          return true;
+        }
+
+        const uri = claim.canonical_url || claim.canonical_url;
+        // $FlowFixMe
+        resolvedPinUris.push(uri);
+      });
+    }
+
+    return resolvedPinUris;
+  }, [claimsById, hasPins, pins]);
+
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;
   const prevUris = React.useRef();
@@ -216,8 +249,9 @@ function ClaimListDiscover(props: Props) {
   const mutedAndBlockedChannelIds = Array.from(
     new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1]))
   );
-  const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
+
+  const [finalUris, setFinalUris] = React.useState();
 
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
@@ -226,7 +260,7 @@ function ClaimListDiscover(props: Props) {
   let claimTypeParam = claimType || defaultClaimType || null;
   let streamTypeParam = streamType || defaultStreamType || null;
 
-  const contentTypeParam = urlParams.get(CS.CONTENT_KEY);
+  const contentTypeParam = contentType || urlParams.get(CS.CONTENT_KEY);
   if (contentTypeParam) {
     switch (contentTypeParam) {
       case CS.CLAIM_COLLECTION:
@@ -263,7 +297,8 @@ function ClaimListDiscover(props: Props) {
   }
 
   const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
-  const [durationMinutes] = usePersistedState(`durUserMinutes-${location.pathname}`, 5);
+  const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
+  const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const excludedIdsParam = excludedChannelIds;
@@ -276,29 +311,7 @@ function ClaimListDiscover(props: Props) {
     CS.ORDER_BY_TRENDING
   );
 
-  let options: {
-    page_size: number,
-    page: number,
-    no_totals: boolean,
-    any_tags?: Array<string>,
-    any_languages?: Array<string>,
-    not_tags: Array<string>,
-    channel_ids?: Array<string>,
-    claim_ids?: Array<string>,
-    not_channel_ids?: Array<string>,
-    order_by: Array<string>,
-    release_time?: string,
-    claim_type?: string | Array<string>,
-    name?: string,
-    duration?: string,
-    reposted_claim_id?: string,
-    stream_types?: any,
-    fee_amount?: string,
-    has_source?: boolean,
-    has_no_source?: boolean,
-    limit_claims_per_channel?: number,
-    remove_duplicates?: boolean,
-  } = {
+  let options: ClaimSearchOptions = {
     page_size: dynamicPageSize,
     page,
     name,
@@ -307,7 +320,7 @@ function ClaimListDiscover(props: Props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     not_channel_ids: isChannel ? undefined : mutedAndBlockedChannelIds,
-    not_tags: !showNsfw ? MATURE_TAGS : [],
+    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnly),
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
   };
@@ -350,10 +363,6 @@ function ClaimListDiscover(props: Props) {
     }
   }
 
-  if (notTags) {
-    options.not_tags = options.not_tags.concat(notTags);
-  }
-
   if (repostedClaimId) {
     // SDK chokes on reposted_claim_id of null or false, needs to not be present if no value
     options.reposted_claim_id = repostedClaimId;
@@ -390,7 +399,7 @@ function ClaimListDiscover(props: Props) {
   if (durationParam) {
     switch (durationParam) {
       case CS.DURATION_ALL:
-        // Do nothing (no options needed)
+        options.duration = duration || undefined;
         break;
       case CS.DURATION_SHORT:
         options.duration = '<=240';
@@ -398,11 +407,14 @@ function ClaimListDiscover(props: Props) {
       case CS.DURATION_LONG:
         options.duration = '>=1200';
         break;
-      case CS.DURATION_GT_EQ:
-        options.duration = `>=${(durationMinutes || 0) * 60}`;
-        break;
-      case CS.DURATION_LT_EQ:
-        options.duration = `<=${(durationMinutes || 0) * 60}`;
+      case CS.DURATION_CUSTOM:
+        options.duration = [];
+        if (minDurationMinutes) {
+          options.duration.push(`>=${minDurationMinutes * 60}`);
+        }
+        if (maxDurationMinutes) {
+          options.duration.push(`<=${maxDurationMinutes * 60}`);
+        }
         break;
       default:
         console.error('Unhandled duration: ' + durationParam);
@@ -499,15 +511,19 @@ function ClaimListDiscover(props: Props) {
   }
 
   const shouldPerformSearch =
-    !uris &&
-    (claimSearchResult === undefined ||
-      didNavigateForward ||
-      (!loading &&
-        !claimSearchResultLastPageReached &&
-        claimSearchResult &&
-        claimSearchResult.length &&
-        claimSearchResult.length < dynamicPageSize * options.page &&
-        claimSearchResult.length % dynamicPageSize === 0));
+    // -- pins alone will be resolved by the doResolveUris/doResolveClaimIds call
+    hasPins && !channelIdsParam
+      ? false
+      : !uris &&
+        (claimSearchResult === undefined ||
+          didNavigateForward ||
+          (!loading &&
+            !claimSearchResultLastPageReached &&
+            claimSearchResult &&
+            claimSearchResult.length &&
+            // $FlowIgnore: page is always defined in this component
+            claimSearchResult.length < dynamicPageSize * options.page &&
+            claimSearchResult.length % dynamicPageSize === 0));
 
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
   const optionsStringForEffect = JSON.stringify(options);
@@ -532,9 +548,7 @@ function ClaimListDiscover(props: Props) {
       <p>
         <I18nMessage
           tokens={{
-            contact_support: (
-              <Button button="link" label={__('contact support')} href="https://odysee.com/@OdyseeHelp:b?view=about" />
-            ),
+            contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />,
           }}
         >
           If you continue to have issues, please %contact_support%.
@@ -546,24 +560,59 @@ function ClaimListDiscover(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  let finalUris;
+  React.useEffect(() => {
+    if (!hasPins) return;
 
-  if (uris) {
-    // --- direct uris
-    finalUris = uris;
-    injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
-    finalUris = filterExcludedUris(finalUris, excludeUris);
-  } else {
-    // --- searched uris
-    if (isUnfetchedClaimSearch && prevUris.current) {
-      finalUris = prevUris.current;
-    } else {
-      finalUris = claimSearchResult;
-      injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
-      finalUris = filterExcludedUris(finalUris, excludeUris);
-      prevUris.current = finalUris;
+    // $FlowFixMe
+    if (pins.claimIds) {
+      doResolveClaimIds(pins.claimIds);
+      // $FlowFixMe
+    } else if (pins.urls) {
+      doResolveUris(pins.urls, true);
     }
-  }
+  }, [pins, doResolveUris, doResolveClaimIds, hasPins]);
+
+  const excludeUrisStr = JSON.stringify(excludeUris);
+
+  React.useEffect(() => {
+    const excludeUris = JSON.parse(excludeUrisStr);
+
+    if (uris) {
+      // --- direct uris
+      const newUris = uris && Array.from(new Set(uris));
+      injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+      const newFinalUris = filterExcludedUris(newUris, excludeUris);
+
+      setFinalUris(newFinalUris);
+    } else if (claimSearchResult) {
+      // --- searched uris
+      if (isUnfetchedClaimSearch && prevUris.current) {
+        setFinalUris(prevUris.current);
+      } else if (!hasPins) {
+        setFinalUris(claimSearchResult);
+        prevUris.current = claimSearchResult;
+      } else {
+        const newUris = Array.from(new Set(claimSearchResult));
+        const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+        const newFinalUris = filterExcludedUris(injected, excludeUris);
+
+        setFinalUris(newFinalUris);
+        prevUris.current = newFinalUris;
+      }
+    } else if (resolvedPinUris && !channelIdsParam) {
+      setFinalUris(resolvedPinUris);
+    }
+  }, [
+    channelIdsParam,
+    claimSearchResult,
+    excludeUrisStr,
+    hasPins,
+    isUnfetchedClaimSearch,
+    orderParam,
+    pins,
+    resolvedPinUris,
+    uris,
+  ]);
 
   // **************************************************************************
   // Helpers
@@ -646,21 +695,29 @@ function ClaimListDiscover(props: Props) {
   }
 
   function injectPinUrls(uris, order, pins, resolvedPinUris) {
-    if (!pins || !uris || uris.length <= 2 || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
-      return;
+    if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
+      return uris;
     }
 
     if (resolvedPinUris) {
+      if (uris.length < resolvedPinUris.length) {
+        return uris.concat(resolvedPinUris);
+      }
+
       resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
+          // remove the pin from the resolved/searched uris
           uris.splice(uris.indexOf(pin), 1);
-        } else {
-          uris.pop();
         }
       });
 
+      // add the pins on uris starting from the 2nd index
       uris.splice(2, 0, ...resolvedPinUris);
+
+      return uris;
     }
+
+    return uris;
   }
 
   function filterExcludedUris(uris, excludeUris) {
@@ -670,20 +727,24 @@ function ClaimListDiscover(props: Props) {
     return uris;
   }
 
-  function onHidden(uri) {
-    if (hiddenBuffer.indexOf(uri) === -1) {
-      let newBuffer = hiddenBuffer;
-      newBuffer.push(uri);
-      setHiddenBuffer(newBuffer);
-    }
-  }
-
   // **************************************************************************
   // **************************************************************************
 
   useFetchViewCount(fetchViewCount, finalUris, claimsByUri, doFetchViewCount);
 
-  useGetUserMemberships(true, finalUris, claimsByUri, doFetchUserMemberships);
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    }
+  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
+
+  React.useEffect(() => {
+    if (claimSearchResult && claimType && claimType.includes('collection')) {
+      const claimIds = claimSearchResult.map((uri) => claimsByUri[uri]?.claim_id);
+      doFetchThumbnailClaimsForCollectionIds({ collectionIds: claimIds });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimSearchResult, claimType, doFetchThumbnailClaimsForCollectionIds]);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
@@ -713,8 +774,13 @@ function ClaimListDiscover(props: Props) {
       hideLayoutButton={hideLayoutButton}
       hideFilters={hideFilters}
       scrollAnchor={scrollAnchor}
+      contentType={contentType}
+      meta={claimType !== 'channel' && meta}
     />
   );
+
+  const claimListLoading =
+    loading || (channelIdsParam && channelIdsParam.length > 0 && claimSearchResult === undefined);
 
   return (
     <React.Fragment>
@@ -723,17 +789,17 @@ function ClaimListDiscover(props: Props) {
         <div>
           {!repostedClaimId && showHeader && (
             <div className="section__header--actions">
-              <div className="section__actions">
+              <div className="section__actions section__actions-span">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
+                {/* meta && <div className="section__actions--no-margin">{meta}</div> */}
               </div>
-              {meta && <div className="section__actions--no-margin">{meta}</div>}
             </div>
           )}
           {subSection && <div>{subSection}</div>}
           <ClaimList
             tileLayout
-            loading={loading}
+            loading={claimListLoading}
             uris={finalUris}
             prefixUris={prefixUris}
             onScrollBottom={handleScrollBottom}
@@ -750,9 +816,9 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             swipeLayout={swipeLayout}
-            onHidden={onHidden}
           />
-          {loading && useSkeletonScreen && (
+
+          {claimListLoading && useSkeletonScreen && (
             <div className="claim-grid">
               {new Array(dynamicPageSize).fill(1).map((x, i) => (
                 <ClaimPreviewTile key={i} placeholder="loading" pulse />
@@ -774,7 +840,7 @@ function ClaimListDiscover(props: Props) {
           {subSection && <div>{subSection}</div>}
           <ClaimList
             type={type}
-            loading={loading}
+            loading={claimListLoading}
             uris={finalUris}
             prefixUris={prefixUris}
             onScrollBottom={handleScrollBottom}
@@ -791,9 +857,9 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             swipeLayout={swipeLayout}
-            onHidden={onHidden}
           />
-          {loading &&
+
+          {claimListLoading &&
             useSkeletonScreen &&
             new Array(dynamicPageSize)
               .fill(1)

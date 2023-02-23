@@ -1,3 +1,16 @@
+.membership-button-wrapper.inline {
+  margin: var(--spacing-s);
+  margin-bottom: 0;
+  margin-left: 0;
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-xxs);
+    margin-bottom: var(--spacing-s);
+    margin-right: var(--spacing-s);
+    margin-left: 0;
+  }
+}
+
 .file-page {
   .card-stack {
     .claim-preview {
@@ -13,6 +26,10 @@
       }
     }
 
+    .claim-preview__primary-actions {
+      margin-right: 0;
+    }
+
     @media (max-width: $breakpoint-small) {
       .card {
         .card__first-pane {
@@ -26,14 +43,62 @@
                 margin-bottom: 0;
               }
             }
-            .filePrice__key {
-              .icon {
-                margin-left: 0;
-                margin-right: var(--spacing-m);
+          }
+          .card__main-actions {
+            .claim-preview--channel {
+              a.button {
+                align-self: baseline;
+              }
+              .claim-preview__text {
+                flex-direction: column;
+                overflow: visible;
+              }
+              .claim-preview__actions {
+                width: calc(100% + calc(2.5rem + var(--spacing-m)));
+                flex-direction: row;
+                margin-left: calc(-2.5rem + calc(var(--spacing-m) * -1));
+
+                .membership-button-wrapper {
+                  width: 50%;
+                  margin-top: var(--spacing-xxs);
+                  margin-bottom: 0;
+                  margin-right: var(--spacing-xxs);
+                  .button--membership,
+                  .button--membership-active {
+                    width: 100%;
+                  }
+                }
+                .claim-preview__primary-actions {
+                  width: 50%;
+                  margin-right: 0;
+                  .button-group {
+                    width: 100%;
+                    .button {
+                      &:first-of-type {
+                        width: 100%;
+                      }
+                    }
+                  }
+                }
+
+                @media (max-width: $breakpoint-small) {
+                  width: calc(100% + calc(2.7rem + var(--spacing-s)));
+                  margin-left: calc(-2.7rem + calc(var(--spacing-s) * -1));
+                }
+
+                @media (max-width: $breakpoint-xsmall) {
+                  width: calc(100% + calc(2.75rem + var(--spacing-s)));
+                  margin-left: calc(-2.75rem + calc(var(--spacing-s) * -1));
+                }
               }
             }
           }
         }
+      }
+    }
+    @media (max-width: $breakpoint-small) {
+      .membership-button-wrapper {
+        margin-left: var(--spacing-xs) !important;
       }
     }
   }
@@ -70,6 +135,13 @@
         .media__subtitle_b {
           width: 46%;
         }
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      .claim__menu-button {
+        margin-top: -6px;
+        right: 0;
       }
     }
   }
@@ -234,7 +306,38 @@
 }
 
 .file-page__video-container {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
   max-height: var(--desktop-portrait-player-max-height);
+
+  .content__cover,
+  .content__loading {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    max-height: var(--desktop-portrait-player-max-height);
+  }
+  .content__loading {
+    aspect-ratio: 16 / 9;
+  }
+}
+.main--theater-mode {
+  .file-page__video-container {
+    aspect-ratio: 16 / 9;
+    max-height: var(--desktop-portrait-player-max-height);
+  }
+}
+
+.content__viewer--theater-mode {
+  &.content__viewer--inline {
+    max-height: unset !important;
+  }
+}
+
+.file-page__pdf-wrapper {
+  position: relative;
 }
 
 .file-render {
@@ -251,6 +354,10 @@
 .file-render--video {
   background-color: black;
   border-radius: var(--border-radius);
+
+  .file-viewer {
+    position: relative;
+  }
 
   &:after {
     content: '';
@@ -294,21 +401,33 @@
   max-height: none;
 }
 
+.claim-link {
+  .file-render--embed,
+  .vjs-tech {
+    position: relative !important;
+  }
+}
+
 .file-render__img-container {
   width: 100%;
   aspect-ratio: 16 / 9;
   background-color: var(--color-placeholder-background);
-  // background-color: rgba(25,25,25,0.4);
   border-radius: var(--border-radius);
+  position: relative;
 }
 
 .file-render--post-container {
   min-height: 30vh;
   margin: var(--spacing-s) 0;
+  width: 100%;
+  position: relative;
 
   .button--uri-indicator {
     .channel-name {
       display: unset;
+      p {
+        display: unset;
+      }
     }
   }
 }
@@ -434,6 +553,10 @@
 .file-viewer__overlay-secondary {
   color: var(--color-text-subtitle);
   margin-bottom: var(--spacing-m);
+
+  @media (max-width: $breakpoint-small) {
+    margin-bottom: 0;
+  }
 }
 .file-viewer__overlay-actions {
   .button + .button {
@@ -455,10 +578,6 @@
   }
 }
 
-.file-viewer--is-playing:not(:hover) .file-viewer__embedded-header {
-  display: none;
-}
-
 .file-viewer__embedded-header {
   position: absolute;
   display: grid;
@@ -466,7 +585,7 @@
   width: 100%;
   top: 0;
   opacity: 1;
-  z-index: 2;
+  z-index: 6;
   font-size: var(--font-large);
   overflow-x: hidden;
   overflow-y: hidden;
@@ -474,6 +593,7 @@
   white-space: nowrap;
   border-top-left-radius: var(--border-radius);
   border-top-right-radius: var(--border-radius);
+  padding: var(--spacing-xxs);
 
   .button {
     padding: var(--spacing-xxs);
@@ -493,10 +613,11 @@
   .icon--Key {
     margin-right: var(--spacing-m);
   }
+}
 
-  @media (min-width: $breakpoint-small) {
-    padding: 0 var(--spacing-l);
-  }
+.embed__wrapper .file-viewer__embedded-header {
+  border-radius: 0 !important;
+  width: 100vw;
 }
 
 .file-viewer__embedded-gradient {
@@ -696,9 +817,9 @@ $control-bar-icon-size: 30px;
             font-weight: var(--font-weight-bold);
             border-radius: 4px;
             margin-top: -1px;
-            //padding-top: 1px;
             padding-top: 0;
             line-height: 13px;
+            white-space: nowrap;
           }
         }
       }
@@ -767,6 +888,18 @@ $control-bar-icon-size: 30px;
     button.vjs-chapters-button {
       display: block;
       margin-top: -0px;
+    }
+
+    .vjs-snapshot-button {
+      margin-right: 8px;
+      svg {
+        height: 19px;
+        margin-top: 3px;
+        fill: transparent;
+        stroke-width: 50px;
+        stroke: white;
+        opacity: 0.9;
+      }
     }
 
     .vjs-chromecast-button,
@@ -1022,7 +1155,9 @@ $control-bar-icon-size: 30px;
     margin-left: var(--spacing-s);
 
     @media (min-width: $breakpoint-small) {
-      margin-left: calc(var(--spacing-m) + var(--spacing-s));
+      // margin-left: calc(var(--spacing-m) + var(--spacing-s));
+      margin-top: calc(var(--spacing-l) + var(--spacing-s));
+      margin-left: var(--spacing-xxxs);
     }
   }
 
@@ -1033,17 +1168,46 @@ $control-bar-icon-size: 30px;
       max-height: none;
     }
   }
+
+  .vjs-control-bar {
+    .vjs-control:not(.vjs-progress-control):not(.vjs-button--autoplay-next):not(.vjs-volume-horizontal) {
+      width: 3em;
+    }
+    .vjs-button {
+      margin-left: 2px !important;
+      margin-right: 2px !important;
+    }
+    .vjs-snapshot-button,
+    .vjs-button--theater-mode {
+      display: none;
+    }
+    .vjs-quality-selector {
+      text-align: center;
+      .vjs-icon-placeholder {
+        text-align: center;
+        span {
+          span {
+            margin-left: 4%;
+            margin-right: 4%;
+          }
+        }
+      }
+    }
+
+    .vjs-playback-rate {
+      margin-right: -6px !important;
+    }
+  }
+
+  &.file-render--video {
+    aspect-ratio: 16 / 9;
+  }
 }
 
 .file-viewer--ended-embed {
-  .vjs-big-play-button {
-    display: none !important; // yes this is dumb, but this was broken and the above CSS was overriding
-  }
-
-  .file-viewer__overlay-actions {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    grid-gap: 1rem;
+  .vjs-control-bar {
+    position: absolute;
+    z-index: 3;
   }
 }
 
@@ -1135,4 +1299,8 @@ $control-bar-icon-size: 30px;
   img {
     cursor: pointer;
   }
+}
+
+.inline-player__wrapper {
+  aspect-ratio: 16 / 9;
 }

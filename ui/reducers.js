@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 import { connectRouter } from 'connected-react-router';
-import { costInfoReducer, blacklistReducer, filteredReducer, statsReducer } from 'lbryinc';
+import { blacklistReducer, filteredReducer, statsReducer } from 'lbryinc';
 import { claimsReducer } from 'redux/reducers/claims';
 import { fileInfoReducer } from 'redux/reducers/file_info';
 import { walletReducer } from 'redux/reducers/wallet';
@@ -14,6 +14,7 @@ import subscriptionsReducer from 'redux/reducers/subscriptions';
 import notificationsReducer from 'redux/reducers/notifications';
 import rewardsReducer from 'redux/reducers/rewards';
 import userReducer from 'redux/reducers/user';
+import membershipsReducer from 'redux/reducers/memberships';
 import stripeReducer from 'redux/reducers/stripe';
 import commentsReducer from 'redux/reducers/comments';
 import blockedReducer from 'redux/reducers/blocked';
@@ -33,7 +34,6 @@ export default (history) =>
     claims: claimsReducer,
     comments: commentsReducer,
     content: contentReducer,
-    costInfo: costInfoReducer,
     fileInfo: fileInfoReducer,
     livestream: livestreamReducer,
     notifications: notificationsReducer,
@@ -49,6 +49,7 @@ export default (history) =>
     blocked: blockedReducer,
     coinSwap: coinSwapReducer,
     user: userReducer,
+    memberships: membershipsReducer,
     stripe: stripeReducer,
     wallet: walletReducer,
     sync: syncReducer,

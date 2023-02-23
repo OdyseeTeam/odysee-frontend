@@ -6,6 +6,7 @@ import {
   selectFetchingMyChannels,
   makeSelectTagInClaimOrChannelForUri,
   selectMyChannelClaimIds,
+  selectedRestrictedCommentsChatTagForUri,
 } from 'redux/selectors/claims';
 import { CommentCreate } from './view';
 import { DISABLE_SUPPORT_TAG } from 'constants/tags';
@@ -22,12 +23,18 @@ import {
   selectMyCommentedChannelIdsForId,
   selectSettingsByChannelId,
   selectCommentsDisabledSettingForChannelId,
+  selectLivestreamChatMembersOnlyForChannelId,
+  selectMembersOnlyCommentsForChannelId,
 } from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import {
+  selectUserHasOdyseePremiumPlus,
+  selectUserIsMemberOfMembersOnlyChatForCreatorId,
+} from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -40,26 +47,34 @@ const select = (state, props) => {
   const tipChannelName = channel ? channel.name : name;
 
   const activeChannelClaim = selectActiveChannelClaim(state);
-  const { claim_id: activeChannelClaimId, name: activeChannelName, canonical_url: activeChannelUrl } =
-    activeChannelClaim || {};
+  const {
+    claim_id: activeChannelClaimId,
+    name: activeChannelName,
+    canonical_url: activeChannelUrl,
+  } = activeChannelClaim || {};
 
   return {
     activeChannelClaimId,
     activeChannelName,
     activeChannelUrl,
-    hasChannels: selectHasChannels(state),
-    claimId,
+    canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     channelClaimId,
-    tipChannelName,
+    chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
+    claimId,
     claimIsMine: selectClaimIsMine(state, claim),
+    hasChannels: selectHasChannels(state),
     isFetchingChannels: selectFetchingMyChannels(state),
-    settingsByChannelId: selectSettingsByChannelId(state),
-    supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
-    preferredCurrency: selectPreferredCurrency(state),
     myChannelClaimIds: selectMyChannelClaimIds(state),
     myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
-    canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
+    preferredCurrency: selectPreferredCurrency(state),
+    settingsByChannelId: selectSettingsByChannelId(state),
+    supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
+    tipChannelName,
+    userHasMembersOnlyChatPerk: selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId),
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
+    isLivestreamChatMembersOnly: channelClaimId && selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId),
+    areCommentsMembersOnly: channelClaimId && selectMembersOnlyCommentsForChannelId(state, channelClaimId),
+    hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 

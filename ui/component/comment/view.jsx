@@ -41,13 +41,12 @@ import CommentsReplies from 'component/commentsReplies';
 import { useHistory } from 'react-router';
 import CommentCreate from 'component/commentCreate';
 import CommentMenuList from 'component/commentMenuList';
-import UriIndicator from 'component/uriIndicator';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
 import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
-import PremiumBadge from 'component/premiumBadge';
+import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
@@ -84,11 +83,15 @@ type Props = {
   supportDisabled: boolean,
   setQuickReply: (any) => void,
   quickReply: any,
-  commenterMembership: ?string,
+  odyseeMembership: ?string,
+  creatorMembership: ?string,
   fetchedReplies: Array<Comment>,
   repliesFetching: boolean,
   threadLevel?: number,
   threadDepthLevel?: number,
+  authorTitle: string,
+  channelAge?: any,
+  disabled?: boolean,
   doClearPlayingSource: () => void,
 };
 
@@ -118,12 +121,16 @@ function CommentView(props: Props) {
     supportDisabled,
     setQuickReply,
     quickReply,
-    commenterMembership,
+    odyseeMembership,
+    creatorMembership,
     fetchedReplies,
     repliesFetching,
     threadLevel = 0,
     threadDepthLevel = 0,
     doClearPlayingSource,
+    authorTitle,
+    channelAge,
+    disabled,
   } = props;
 
   const commentElemRef = React.useRef();
@@ -142,6 +149,7 @@ function CommentView(props: Props) {
     replies: numDirectReplies,
     timestamp,
   } = comment;
+  const claimName = authorTitle || author;
 
   const timePosted = timestamp * 1000;
   const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
@@ -183,6 +191,15 @@ function CommentView(props: Props) {
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
   const stickerFromMessage = parseSticker(message);
+
+  React.useEffect(() => {
+    if (threadLevel === 0 && comment.replies) {
+      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
+      setShowReplies(true);
+    }
+  }, []);
+
+  const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
 
   let channelOwnerOfContent;
   try {
@@ -319,19 +336,38 @@ function CommentView(props: Props) {
               {!author ? (
                 <span className="comment__author">{__('Anonymous')}</span>
               ) : (
-                <UriIndicator
-                  className={classnames('comment__author', {
-                    'comment__author--creator': commentByOwnerOfContent,
-                  })}
-                  link
-                  uri={authorUri}
-                  comment
-                  showAtSign
-                />
+                <Menu>
+                  <MenuButton
+                    className={classnames('button--uri-indicator comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {claimName}
+                  </MenuButton>
+
+                  <CommentMenuList
+                    uri={uri}
+                    commentId={commentId}
+                    authorUri={authorUri}
+                    authorName={claimName}
+                    commentIsMine={commentIsMine}
+                    isPinned={isPinned}
+                    isTopLevel={isTopLevel}
+                    isUserLabel
+                    handleEditComment={() => handleEditComment(true)}
+                    setQuickReply={setQuickReply}
+                    className={classnames('comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                  />
+                </Menu>
               )}
+              {isSprout && <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={14} />}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={commenterMembership} linkPage />
+              {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} linkPage />}
+              {creatorMembership && <MembershipBadge membershipName={creatorMembership} linkPage uri={uri} />}
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}
@@ -412,14 +448,14 @@ function CommentView(props: Props) {
                         promptLinks
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
-                        hasMembership={Boolean(commenterMembership)}
+                        hasMembership={Boolean(odyseeMembership)}
                       />
                     </Expandable>
                   )}
                 </div>
 
                 {!hideActions && (
-                  <div className="comment__actions">
+                  <div className={classnames('comment__actions', { 'comment__actions--disabled': disabled })}>
                     <Button
                       requiresAuth={IS_WEB}
                       label={commentingEnabled ? __('Reply') : __('Log in to reply')}
@@ -433,7 +469,7 @@ function CommentView(props: Props) {
                 )}
 
                 {numDirectReplies > 0 && !hideActions && (
-                  <div className="comment__actions">
+                  <div className={classnames('comment__actions', { 'comment__actions--disabled': disabled })}>
                     {!showReplies ? (
                       openNewThread ? (
                         <Button
@@ -508,7 +544,7 @@ function CommentView(props: Props) {
               threadCommentId={threadCommentId}
               numDirectReplies={numDirectReplies}
               onShowMore={() => setPage(page + 1)}
-              hasMore={page < totalReplyPages}
+              hasMore={page < totalReplyPages && threadLevel > 0}
               threadDepthLevel={threadDepthLevel}
             />
           ))}

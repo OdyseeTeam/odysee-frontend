@@ -5,8 +5,12 @@ import {
   selectMyClaims,
   makeSelectContentTypeForUri,
   makeSelectClaimForUri,
+  selectIsStreamPlaceholderForUri,
+  selectClaimForUri,
 } from 'redux/selectors/claims';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { buildURI } from 'util/lbryURI';
+import { getChannelFromClaim } from 'util/claim';
 import Lbry from 'lbry';
 import { PAGE_SIZE } from 'constants/claim';
 
@@ -188,6 +192,19 @@ export const makeSelectSearchDownloadUrlsCount = (query) =>
   });
 
 export const selectStreamingUrlForUri = (state, uri) => {
+  const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
+
+  if (isLivestreamClaim) {
+    const claim = selectClaimForUri(state, uri);
+    const channel = getChannelFromClaim(claim);
+    if (!channel) return channel;
+
+    const activeLivestreamForChannel = selectActiveLivestreamForChannel(state, channel.claim_id);
+    const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
+
+    return livestreamVideoUrl;
+  }
+
   const fileInfo = selectFileInfoForUri(state, uri);
   if (!fileInfo) return fileInfo;
 

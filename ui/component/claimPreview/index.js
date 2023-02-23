@@ -9,20 +9,20 @@ import {
   selectDateForUri,
   selectGeoRestrictionForUri,
 } from 'redux/selectors/claims';
-import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { selectCollectionIsMine } from 'redux/selectors/collections';
 
-import { doResolveUri } from 'redux/actions/claims';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectCollectionIsMine, selectFirstItemUrlForCollection } from 'redux/selectors/collections';
+
 import { doFileGetForUri } from 'redux/actions/file';
 import { selectBanStateForUri } from 'lbryinc';
-import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
+import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
 import { makeSelectHasVisitedUri } from 'redux/selectors/content';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import ClaimPreview from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
-import { doClearContentHistoryUri, doUriInitiatePlay } from 'redux/actions/content';
+import { doClearContentHistoryUri, doPlayNextUri } from 'redux/actions/content';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -30,38 +30,37 @@ const select = (state, props) => {
   const mediaDuration = media && media.duration && formatMediaDuration(media.duration, { screenReader: true });
   const isLivestream = isStreamPlaceholderClaim(claim);
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
+  const isCollection = claim && claim.value_type === 'collection';
 
   return {
-    claim,
-    mediaDuration,
-    date: props.uri && selectDateForUri(state, props.uri),
-    title: props.uri && selectTitleForUri(state, props.uri),
-    pending: props.uri && makeSelectClaimIsPending(props.uri)(state),
-    reflectingProgress: props.uri && makeSelectReflectingClaimForUri(props.uri)(state),
-    obscureNsfw: selectShowMatureContent(state) === false,
-    claimIsMine: props.uri && selectClaimIsMine(state, claim),
-    isResolvingUri: props.uri && selectIsUriResolving(state, props.uri),
-    isResolvingRepost: props.uri && selectIsUriResolving(state, props.repostUrl),
-    nsfw: claim ? isClaimNsfw(claim) : false,
     banState: selectBanStateForUri(state, props.uri),
+    claim,
+    claimIsMine: props.uri && selectClaimIsMine(state, claim),
+    date: props.uri && selectDateForUri(state, props.uri),
     geoRestriction: selectGeoRestrictionForUri(state, props.uri),
     hasVisitedUri: props.uri && makeSelectHasVisitedUri(props.uri)(state),
-    isSubscribed: props.uri && selectIsSubscribedForUri(state, props.uri),
-    streamingUrl: (repostSrcUri || props.uri) && selectStreamingUrlForUri(state, repostSrcUri || props.uri),
+    isCollectionMine: selectCollectionIsMine(state, props.collectionId),
     isLivestream,
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
-    livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
-    isCollectionMine: selectCollectionIsMine(state, props.collectionId),
+    isResolvingRepost: props.uri && selectIsUriResolving(state, props.repostUrl),
+    isResolvingUri: props.uri && selectIsUriResolving(state, props.uri),
+    isSubscribed: props.uri && selectIsSubscribedForUri(state, props.uri),
     lang: selectLanguage(state),
+    mediaDuration,
+    nsfw: claim ? isClaimNsfw(claim) : false,
+    obscureNsfw: selectShowMatureContent(state) === false,
+    pending: props.uri && makeSelectClaimIsPending(props.uri)(state),
+    reflectingProgress: props.uri && makeSelectReflectingClaimForUri(props.uri)(state),
+    streamingUrl: (repostSrcUri || props.uri) && selectStreamingUrlForUri(state, repostSrcUri || props.uri),
+    title: props.uri && selectTitleForUri(state, props.uri),
+    firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
   };
 };
 
 const perform = (dispatch) => ({
-  resolveUri: (uri) => dispatch(doResolveUri(uri)),
   getFile: (uri) => dispatch(doFileGetForUri(uri)),
   doClearContentHistoryUri: (uri) => dispatch(doClearContentHistoryUri(uri)),
-  doUriInitiatePlay: (playingOptions, isPlayable, isFloating) =>
-    dispatch(doUriInitiatePlay(playingOptions, isPlayable, isFloating)),
+  doPlayNextUri: (playingOptions) => dispatch(doPlayNextUri(playingOptions)),
 });
 
 export default connect(select, perform)(ClaimPreview);

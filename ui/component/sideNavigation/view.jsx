@@ -20,7 +20,7 @@ import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
-import PremiumBadge from 'component/premiumBadge';
+import MembershipBadge from 'component/membershipBadge';
 
 // TODO: move to selector for memoization
 import { getSortedRowData } from 'page/home/helper';
@@ -131,51 +131,59 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
 type Props = {
+  uploadCount: number,
+  sidebarOpen: boolean,
+  isMediumScreen: boolean,
+  isOnFilePage: boolean,
+  setSidebarOpen: (boolean) => void,
+  // --- select ---
   subscriptions: Array<Subscription>,
   lastActiveSubs: ?Array<Subscription>,
   followedTags: Array<Tag>,
   email: ?string,
-  uploadCount: number,
-  doSignOut: () => void,
-  sidebarOpen: boolean,
-  setSidebarOpen: (boolean) => void,
-  isMediumScreen: boolean,
-  isOnFilePage: boolean,
-  unseenCount: number,
   purchaseSuccess: boolean,
-  doClearPurchasedUriSuccess: () => void,
+  unseenCount: number,
   user: ?User,
   homepageData: any,
   homepageOrder: HomepageOrder,
   homepageOrderApplyToSidebar: boolean,
-  doClearClaimSearch: () => void,
   hasMembership: ?boolean,
+  subscriptionUris: Array<string>,
+  claimsByUri: { [string]: Claim },
+  // --- perform ---
+  doClearClaimSearch: () => void,
+  doSignOut: () => void,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
+  doClearPurchasedUriSuccess: () => void,
   doOpenModal: (id: string, ?{}) => void,
+  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
 };
 
 function SideNavigation(props: Props) {
   const {
-    subscriptions,
-    lastActiveSubs,
-    doSignOut,
-    email,
-    purchaseSuccess,
-    doClearPurchasedUriSuccess,
     sidebarOpen,
     setSidebarOpen,
     isMediumScreen,
     isOnFilePage,
+    subscriptions,
+    lastActiveSubs,
+    followedTags,
+    email,
+    purchaseSuccess,
     unseenCount,
+    user,
     homepageData,
     homepageOrder,
     homepageOrderApplyToSidebar,
-    user,
-    followedTags,
-    doClearClaimSearch,
     hasMembership,
+    subscriptionUris,
+    claimsByUri,
+    doClearClaimSearch,
+    doSignOut,
     doFetchLastActiveSubs,
+    doClearPurchasedUriSuccess,
     doOpenModal,
+    doResolveUris,
   } = props;
 
   const isLargeScreen = useIsLargeScreen();
@@ -291,9 +299,11 @@ function SideNavigation(props: Props) {
 
   const shouldRenderLargeMenu = (menuCanCloseCompletely && !isAbsolute) || sidebarOpen;
 
+  const sideNavigationRef = React.useRef(null);
+
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
   const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
-  const showOverlay = isAbsolute && sidebarOpen;
+  const showOverlay = sidebarOpen;
 
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
 
@@ -312,8 +322,14 @@ function SideNavigation(props: Props) {
     let categories = rowData;
 
     if (homepageOrderApplyToSidebar) {
-      const sortedRowData: Array<RowDataItem> = getSortedRowData(Boolean(email), hasMembership, homepageOrder, rowData);
-      categories = sortedRowData.filter((x) => x.id !== 'FYP');
+      const sortedRowData: Array<RowDataItem> = getSortedRowData(
+        Boolean(email),
+        hasMembership,
+        homepageOrder,
+        homepageData,
+        rowData
+      );
+      categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
     }
 
     return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, ...theRest }) => theRest);
@@ -349,10 +365,21 @@ function SideNavigation(props: Props) {
   function getSubscriptionSection() {
     const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptions && subscriptions.length > 0;
     if (showSubsSection) {
-      let displayedSubscriptions;
+      let displayedSubscriptions = [];
       if (subscriptionFilter) {
         const filter = subscriptionFilter.toLowerCase();
-        displayedSubscriptions = subscriptions.filter((sub) => sub.channelName.toLowerCase().includes(filter));
+
+        subscriptions &&
+          subscriptions.map((subscription) => {
+            if (
+              claimsByUri[subscription?.uri] &&
+              (claimsByUri[subscription?.uri].name.toLowerCase().includes(filter) ||
+                // $FlowIgnore
+                claimsByUri[subscription?.uri].value?.title?.toLowerCase().includes(filter))
+            ) {
+              displayedSubscriptions.push(subscription);
+            }
+          });
       } else {
         displayedSubscriptions =
           lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
@@ -466,9 +493,28 @@ function SideNavigation(props: Props) {
       }
     }
 
-    window.addEventListener('keydown', handleKeydown);
+    function handleOutsideClick(e) {
+      if (sidebarOpen) {
+        const isNavigationButton =
+          e.target.classList.contains('icon--Menu') ||
+          (e.target.hasChildNodes() && e.target.firstChild.classList.contains('icon--Menu')) ||
+          e.target.classList.contains('button-rotate');
+        if (
+          (sideNavigationRef.current === null || !sideNavigationRef.current.contains(e.target)) &&
+          !isNavigationButton
+        ) {
+          setSidebarOpen(false);
+        }
+      }
+    }
 
-    return () => window.removeEventListener('keydown', handleKeydown);
+    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('mouseup', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('mouseup', handleOutsideClick);
+    };
   }, [sidebarOpen, setSidebarOpen, isAbsolute]);
 
   React.useEffect(() => {
@@ -479,12 +525,13 @@ function SideNavigation(props: Props) {
       }
     }
 
-    const ad = document.getElementsByClassName('OUTBRAIN')[0];
+    // const ad = document.getElementsByClassName('rev-shifter')[0];
+    const ad = document.getElementById('sticky-d-rc');
     if (ad) {
       if (!sidebarOpen || isMobile) {
-        ad.classList.add('LEFT');
-      } else {
         ad.classList.remove('LEFT');
+      } else {
+        ad.classList.add('LEFT');
       }
     }
   }, [sidebarOpen, isMobile]);
@@ -504,7 +551,15 @@ function SideNavigation(props: Props) {
   }, [hideMenuFromView, menuInitialized]);
 
   React.useEffect(() => {
-    doFetchLastActiveSubs();
+    if (sidebarOpen) {
+      doFetchLastActiveSubs();
+    }
+  }, [doFetchLastActiveSubs, sidebarOpen]);
+
+  // --- Resolve subscriptions
+  React.useEffect(() => {
+    doResolveUris(subscriptionUris, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
 
   // **************************************************************************
@@ -551,7 +606,7 @@ function SideNavigation(props: Props) {
         <Button label={__('FAQ and Support')} href="https://help.odysee.tv/" target="_blank" />
       </li>
       <li className="navigation-link">
-        <Button label={__('Community Guidelines')} href="https://help.odysee.tv/communityguidelines" target="_blank" />
+        <Button label={__('Community Guidelines')} href="https://help.odysee.tv/communityguidelines/" target="_blank" />
       </li>
       <li className="navigation-link">
         <Button label={__('Careers')} navigate={`/$/${PAGES.CAREERS}`} />
@@ -577,6 +632,7 @@ function SideNavigation(props: Props) {
         'navigation__wrapper--micro': showMicroMenu,
         'navigation__wrapper--absolute': isAbsolute,
       })}
+      ref={sideNavigationRef}
     >
       <nav
         aria-label={'Sidebar'}
@@ -685,7 +741,7 @@ function SubscriptionListItem(props: SubItemProps) {
           <ClaimPreviewTitle uri={uri} />
           <span dir="auto" className="channel-name">
             {channelName}
-            <PremiumBadge uri={uri} />
+            <MembershipBadge uri={uri} />
           </span>
         </div>
       </Button>

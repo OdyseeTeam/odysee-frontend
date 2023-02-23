@@ -42,7 +42,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
             onClick={() => clearPublish()}
             navigate={`/$/${PAGES.LIVESTREAM}`}
           >
-            <Icon size={18} icon={ICONS.VIDEO} aria-hidden />
+            <Icon size={18} icon={ICONS.GOLIVE} aria-hidden />
           </Button>
         </Tooltip>
       )}
@@ -54,7 +54,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
     </div>
   ) : (
     <>
-      <Tooltip title={__('Publish')}>
+      <Tooltip title={__('Upload')}>
         <Button className="header__navigationItem--icon" onClick={() => push(`/$/${PAGES.AUTH}${authRedirectParam}`)}>
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
         </Button>

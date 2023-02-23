@@ -69,7 +69,15 @@ export const selectLanguage = (state) => {
 export const selectHomepageData = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = window.homepages;
-  return homepages ? homepages[homepageCode].categories || homepages['en'].categories || {} : {};
+
+  if (homepages && homepages[homepageCode] && !homepages[homepageCode].portals) {
+    homepages[homepageCode].portals = homepages['en'].portals;
+  }
+  if (homepages && homepages[homepageCode] && !homepages[homepageCode].featured) {
+    homepages[homepageCode].featured = homepages['en'].featured;
+  }
+
+  return homepages ? homepages[homepageCode] || homepages['en'] || {} : undefined;
 };
 
 export const selectHomepageMeme = (state) => {
@@ -121,8 +129,9 @@ export const selectWildWestDisabled = (state) => {
 
 export const selectosNotificationsEnabled = (state) => selectClientSetting(state, SETTINGS.OS_NOTIFICATIONS_ENABLED);
 
+export const selectDefaultChannelId = (state) => selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM);
 export const selectDefaultChannelClaim = createSelector(
-  (state) => selectClaimForId(state, selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM)),
+  (state) => selectClaimForId(state, selectDefaultChannelId(state)),
   (defaultChannelClaim) => defaultChannelClaim
 );
 
@@ -136,3 +145,5 @@ export const selectPreferredCurrency = (state: State) => {
 
   return preferredCurrency;
 };
+
+export const selectAutoplayNext = (state: State) => Boolean(selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));

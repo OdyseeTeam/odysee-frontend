@@ -14,7 +14,8 @@ const UPLOAD_CHUNK_SIZE_BYTE = 25 * 1024 * 1024;
 
 const RETRY_INDEFINITELY = -1;
 const SDK_STATUS_RETRY_COUNT = RETRY_INDEFINITELY;
-const SDK_STATUS_RETRY_INTERVAL = 10000;
+const NOTFOUND_STATUS_RETRY_COUNT = 5;
+const SDK_STATUS_RETRY_INTERVAL = 30000;
 
 const STATUS_FILE_NOT_FOUND = 404;
 const STATUS_CONFLICT = 409;
@@ -64,7 +65,7 @@ function sendStatusRequest(url, guid, token, params, jsonPayload, retryCount, re
         break;
 
       case 202:
-        // Upload is currently being processed.
+        // Upload is currently being processed, always retry
         if (retryCount) {
           window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify_ok' }));
           setTimeout(() => {
@@ -85,11 +86,17 @@ function sendStatusRequest(url, guid, token, params, jsonPayload, retryCount, re
       case 403:
       case 404:
         // Upload not found or does not belong to the user.
-        analytics.log(new Error('The upload does not exist.'), { extra: { params, xhr } });
-        window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-        reject(generateError('The upload does not exist.', params, xhr));
+        if (retryCount >= 0) {
+          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify_ok' }));
+          setTimeout(() => {
+            sendStatusRequest(url, guid, token, params, jsonPayload, retryCount - 1, resolve, reject);
+          }, SDK_STATUS_RETRY_INTERVAL);
+        } else {
+          analytics.log(new Error('The upload does not exist.'), { extra: { params, xhr } });
+          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
+          reject(generateError('The upload does not exist.', params, xhr));
+        }
         break;
-
       case 409:
         // SDK returned an error and upload cannot be processed. Error details in the body.
         const sdkError = xhr.response?.error?.message || '';
@@ -154,7 +161,16 @@ export function makeResumableUploadRequest(
     }
 
     if (params.sdkRan) {
-      sendStatusRequest(params.uploadUrl, guid, token, params, jsonPayload, SDK_STATUS_RETRY_COUNT, resolve, reject);
+      sendStatusRequest(
+        params.uploadUrl,
+        guid,
+        token,
+        params,
+        jsonPayload,
+        NOTFOUND_STATUS_RETRY_COUNT,
+        resolve,
+        reject
+      );
       return;
     }
 

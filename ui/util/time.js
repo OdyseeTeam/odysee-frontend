@@ -101,7 +101,7 @@ export function getTimeAgoStr(
 
   // negative duration === it's a future date from now
   if (duration < 0 && showFutureDate) {
-    str = suffix === 'seconds' ? 'in a few seconds' : 'in %duration% ' + suffix;
+    str = suffix === 'second' || suffix === 'seconds' ? 'in a few seconds' : 'in %duration% ' + suffix;
     duration = duration * -1;
   } else if (duration <= 0) {
     str = zeroDurationStr;
@@ -113,3 +113,6 @@ export function getTimeAgoStr(
 }
 
 export const getCurrentTimeInSec = () => Math.floor(Date.now() / 1000);
+
+export const formatDateToMonthAndDay = (date: any) => moment(new Date(date)).format('MMMM DD');
+export const formatDateToMonthDayAndYear = (date: any) => moment(new Date(date)).format('MMMM DD YYYY');

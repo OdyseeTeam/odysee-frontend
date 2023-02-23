@@ -4,6 +4,7 @@ export const CONFIRM_EXTERNAL_RESOURCE = 'confirm_external_resource';
 export const CUSTOMIZE_HOMEPAGE = 'customize_homepage';
 export const INCOMPATIBLE_DAEMON = 'incompatible_daemon';
 export const FEATURED_CHANNELS_EDIT = 'featured_channels_edit';
+export const FEATURED_CHANNELS_SORT = 'featured_channels_sort';
 export const FILE_TIMEOUT = 'file_timeout';
 export const FILE_SELECTION = 'file_selection';
 export const DOWNLOADING = 'downloading';
@@ -51,8 +52,14 @@ export const COLLECTION_ADD = 'collection_add';
 export const COLLECTION_CREATE = 'collection_create';
 export const COLLECTION_DELETE = 'collection_delete';
 export const CONFIRM_REMOVE_COMMENT = 'CONFIRM_REMOVE_COMMENT';
-export const CONFIRM_ODYSEE_MEMBERSHIP = 'CONFIRM_ODYSEE_MEMBERSHIP';
-export const MEMBERSHIP_SPLASH = 'MEMBERSHIP_SPLASH';
 export const HIDE_RECOMMENDATION = 'HIDE_RECOMMENDATION';
 export const ANNOUNCEMENTS = 'ANNOUNCEMENTS';
 export const ADD_CARD = 'ADD_CARD';
+
+// Memberships
+
+export const MEMBERSHIP_SPLASH = 'MEMBERSHIP_SPLASH';
+export const JOIN_MEMBERSHIP = 'JOIN_MEMBERSHIP';
+export const CONFIRM_ODYSEE_MEMBERSHIP = 'CONFIRM_ODYSEE_MEMBERSHIP';
+export const CANCEL_MEMBERSHIP = 'CANCEL_MEMBERSHIP';
+export const ACTIVATE_CREATOR_MEMBERSHIPS = 'ACTIVATE_CREATOR_MEMBERSHIPS';

@@ -10,7 +10,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
 import Empty from 'component/common/empty';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
 import FileSelector from 'component/common/file-selector';
@@ -39,6 +39,7 @@ type Props = {
   size: number,
   duration: number,
   isVid: boolean,
+  appLanguage: string,
   doUpdatePublishForm: ({}) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
@@ -57,6 +58,7 @@ function PublishLivestream(props: Props) {
     size,
     duration,
     isVid,
+    appLanguage,
     disabled,
     livestreamData,
     isCheckingLivestreams,
@@ -270,7 +272,7 @@ function PublishLivestream(props: Props) {
       return (
         <p className="help--error">
           {UPLOAD_SIZE_MESSAGE}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
+          <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>
       );
     }
@@ -286,11 +288,7 @@ function PublishLivestream(props: Props) {
             : __(
                 'Your video has a bitrate over 8 Mbps. We suggest transcoding to provide viewers the best experience.'
               )}{' '}
-          <Button
-            button="link"
-            label={__('Upload Guide')}
-            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
-          />
+          <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>
       );
     }
@@ -301,11 +299,7 @@ function PublishLivestream(props: Props) {
           {__(
             'Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming.'
           )}{' '}
-          <Button
-            button="link"
-            label={__('Upload Guide')}
-            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
-          />
+          <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>
       );
     }
@@ -318,11 +312,7 @@ function PublishLivestream(props: Props) {
             'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
             { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }
           )}{' '}
-          <Button
-            button="link"
-            label={__('Upload Guide')}
-            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
-          />
+          <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>
       );
     }
@@ -443,7 +433,7 @@ function PublishLivestream(props: Props) {
                                                 : __('minutes')
                                             }`}
                                         <div className="table__item-label">
-                                          {`${moment(item.data.uploadedAt).from(moment())}`}
+                                          {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
                                         </div>
                                       </td>
                                       <td>

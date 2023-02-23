@@ -1,46 +1,24 @@
 // @flow
 import React from 'react';
 import { Modal } from 'modal/modal';
-import PreorderAndPurchaseContentCard from 'component/preorderAndPurchaseContentCard';
+import PreorderAndPurchaseContentCard from './internal/preorderAndPurchaseContentCard';
 
 type Props = {
   uri: string,
-  checkIfAlreadyPurchasedOrPreordered: () => void,
+  // -- redux --
   doHideModal: () => void,
-  checkIfAlreadyPurchased: () => void,
-  claimId: string,
-  doCheckIfPurchasedClaimId: (string) => void,
-  hasCardSaved: boolean,
-  tags: any,
-  humanReadableTime: ?string,
 };
 
-class ModalPreorderContent extends React.PureComponent<Props> {
+class ModalPreorderAndPurchaseContent extends React.PureComponent<Props> {
   render() {
-    const {
-      uri,
-      doHideModal,
-      doCheckIfPurchasedClaimId,
-      claimId,
-      hasCardSaved,
-      tags,
-      humanReadableTime,
-    } = this.props;
+    const { uri, doHideModal } = this.props;
 
     return (
-      <Modal onAborted={doHideModal} ariaHideApp={false} isOpen type="card">
-        <PreorderAndPurchaseContentCard
-          uri={uri}
-          onCancel={doHideModal}
-          doCheckIfPurchasedClaimId={doCheckIfPurchasedClaimId}
-          claimId={claimId}
-          hasCardSaved={hasCardSaved}
-          tags={tags}
-          humanReadableTime={humanReadableTime}
-        />
+      <Modal onAborted={doHideModal} ariaHideApp={false} isOpen type="card" width="wide">
+        <PreorderAndPurchaseContentCard uri={uri} onCancel={doHideModal} />
       </Modal>
     );
   }
 }
 
-export default ModalPreorderContent;
+export default ModalPreorderAndPurchaseContent;

@@ -1,13 +1,20 @@
 // @flow
 
+declare type Paywall = 'free' | 'fiat' | 'sdk';
+
 declare type UpdatePublishFormData = {
   claim_id?: string,
   filePath?: string,
-  contentIsFree?: boolean,
+  paywall?: Paywall,
   fee?: {
     amount: string,
     currency: string,
   },
+  fiatPurchaseFee?: Price,
+  fiatPurchaseEnabled?: boolean,
+  fiatRentalFee?: Price,
+  fiatRentalExpiration?: Duration,
+  fiatRentalEnabled?: boolean,
   title?: string,
   thumbnail_url?: string,
   uploadThumbnailStatus?: string,
@@ -28,8 +35,10 @@ declare type UpdatePublishFormData = {
   licenseUrl?: string,
   licenseType?: string,
   uri?: string,
-  nsfw: boolean,
+  nsfw?: boolean,
   isMarkdownPost?: boolean,
+  tags?: Array<Tag>,
+  restrictedToMemberships?: Array<string>,
 };
 
 declare type PublishParams = {
@@ -44,7 +53,7 @@ declare type PublishParams = {
   channel: string,
   channelId?: string,
   title: string,
-  contentIsFree: boolean,
+  paywall: Paywall,
   uri?: string,
   license: ?string,
   licenseUrl: ?string,
@@ -72,6 +81,7 @@ declare type FileUploadSdkParams = {
   uploadUrl?: string,
   sdkRan?: boolean,
   isMarkdown: boolean,
+  channel_id: ?string,
 };
 
 declare type UploadStatus = 'error' | 'retry' | 'notify_ok' | 'notify_failed' | 'conflict';

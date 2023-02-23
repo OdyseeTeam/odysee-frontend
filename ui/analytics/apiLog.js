@@ -15,7 +15,7 @@ export type ApiLog = {
   setState: (enable: boolean) => void,
   view: (string, string, string, ?number, ?() => void) => Promise<any>,
   search: () => void,
-  publish: (ChannelClaim | StreamClaim) => void,
+  publish: (ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => void,
 };
 
 let gApiLogOn = false;
@@ -25,7 +25,7 @@ export const apiLog: ApiLog = {
     gApiLogOn = enable;
   },
 
-  view: (uri, outpoint, claimId, timeToStart) => {
+  view: (uri, outpoint, claimId) => {
     return new Promise((resolve, reject) => {
       if (gApiLogOn && (isProduction || devInternalApis)) {
         const params: {
@@ -38,10 +38,6 @@ export const apiLog: ApiLog = {
           outpoint,
           claim_id: claimId,
         };
-
-        if (timeToStart && !IS_WEB) {
-          params.time_to_start = timeToStart;
-        }
 
         resolve(Lbryio.call('file', 'view', params));
       } else {
@@ -56,7 +52,7 @@ export const apiLog: ApiLog = {
     }
   },
 
-  publish: (claimResult: ChannelClaim | StreamClaim) => {
+  publish: (claimResult: ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => {
     // Don't check if this is production so channels created on localhost are still linked to user
     if (gApiLogOn) {
       const { permanent_url: uri, claim_id: claimId, txid, nout, signing_channel: signingChannel } = claimResult;
@@ -70,7 +66,9 @@ export const apiLog: ApiLog = {
         params['channel_claim_id'] = channelClaimId;
       }
 
-      Lbryio.call('event', 'publish', params);
+      Lbryio.call('event', 'publish', params).then(() => {
+        if (successCb) successCb(claimResult);
+      });
     }
   },
 };

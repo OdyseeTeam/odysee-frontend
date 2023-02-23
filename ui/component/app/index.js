@@ -10,7 +10,6 @@ import { doUserSetReferrerForUri } from 'redux/actions/user';
 import { doSetLastViewedAnnouncement } from 'redux/actions/content';
 import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
-import { doFetchChannelListMine, doFetchCollectionListMine } from 'redux/actions/claims';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import {
   selectLanguage,
@@ -26,6 +25,7 @@ import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguag
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetGdprConsentList } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
+import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import App from './view';
 
 const select = (state) => ({
@@ -48,11 +48,10 @@ const select = (state) => ({
   defaultChannelClaim: selectDefaultChannelClaim(state),
   nagsShown: selectAnyNagsShown(state),
   announcement: selectHomepageAnnouncement(state),
+  hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
 });
 
 const perform = {
-  fetchChannelListMine: doFetchChannelListMine,
-  fetchCollectionListMine: doFetchCollectionListMine,
   setLanguage: doSetLanguage,
   fetchLanguage: doFetchLanguage,
   signIn: doSignIn,

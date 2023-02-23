@@ -52,18 +52,23 @@ body {
 
 .sidebar--pusher {
   animation-timing-function: var(--resizing-animation-function);
-  transition: transform var(--resizing-animation-timing);
-  transform-origin: top center;
+  // transition: transform var(--resizing-animation-timing);
+  // transform-origin: top center;
+  // will-change: transform;
+  padding-left: var(--side-nav-width--micro);
   position: absolute;
+  width: 100%;
 
   @media (max-width: $breakpoint-small) {
-    transform: translateX(0);
-    width: calc(100% - var(--spacing-m));
+    // transform: translateX(0);
+    // width: calc(100% - var(--spacing-m));
+    padding-left: 0;
+    margin-left: calc(var(--spacing-xs) * -1);
   }
 
   @media (min-width: $breakpoint-small) {
-    transform: translateX(var(--side-nav-width--micro));
-    width: calc(100% - ((var(--side-nav-width--micro))));
+    // transform: translateX(var(--side-nav-width--micro));
+    // width: calc(100% - ((var(--side-nav-width--micro))));
   }
 }
 
@@ -72,9 +77,11 @@ body {
 }
 
 .sidebar--pusher--open {
+  /*
   @media (min-width: $breakpoint-medium) {
     transform: scaleX(0.9) translateX(calc(5.4 * var(--spacing-l))) scaleY(0.9);
   }
+  */
 }
 
 .main-wrapper__inner--auth {
@@ -503,9 +510,11 @@ body {
     margin-right: auto;
   }
 
+  /*
   .file-page__video-container {
     max-height: unset;
   }
+  */
 
   .file-page__recommended {
     @media (max-width: $breakpoint-medium) {
@@ -530,22 +539,13 @@ body {
 .main--livestream {
   @extend .main--file-page;
 
-  @media (min-width: 1750px) {
-    padding: 0;
-    width: 100%;
-    max-width: var(--page-max-width--filepage);
-    position: relative;
-    display: grid;
-
-    $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
-    grid-template-columns: minmax($file-min-width, 0) 1fr;
-
-    justify-content: space-between;
-    justify-items: end;
-    gap: var(--spacing-m);
-
-    .livestream__chat {
-      margin: 0 !important;
+  .claim-preview__live {
+    .claim-tile__info {
+      display: flex;
+      .media__subtitle {
+        display: flex;
+        flex-flow: column;
+      }
     }
   }
 
@@ -571,12 +571,32 @@ body {
     }
   }
 
+  @media (min-width: 1750px) {
+    padding: 0;
+    width: 100%;
+    max-width: var(--page-max-width--filepage);
+    position: relative;
+    display: grid;
+
+    $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
+    grid-template-columns: minmax($file-min-width, 0) 1fr;
+
+    justify-content: space-between;
+    justify-items: end;
+    gap: var(--spacing-m);
+
+    .livestream__chat {
+      margin: 0 !important;
+    }
+  }
+
   @media (max-width: $breakpoint-medium) {
     padding: 0 var(--spacing-s);
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: 0;
+    padding: var(--spacing-s);
+    padding-top: 0;
 
     .card {
       margin: 0;
@@ -657,9 +677,11 @@ body {
     margin-right: auto;
   }
 
+  /*
   .file-page__video-container {
     max-height: unset;
   }
+  */
 
   .file-page__recommended {
     @media (max-width: $breakpoint-medium) {
@@ -976,6 +998,48 @@ body {
         margin-top: -8px;
       }
     }
+    .claim-preview__actions {
+      .claim-preview__primary-actions {
+        margin: 0;
+      }
+      .membership-button-wrapper {
+        margin: 0;
+        margin-right: var(--spacing-s);
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      a.button {
+        align-self: start;
+      }
+      .claim-preview__text {
+        overflow: visible !important;
+        flex-direction: column;
+        .claim-preview__actions {
+          overflow: visible;
+          margin-left: calc((2rem + (2 * var(--spacing-s))) * -1);
+          margin-top: var(--spacing-s);
+          width: calc(100% + (2rem + (2 * var(--spacing-s))));
+          .membership-button-wrapper {
+            margin-right: var(--spacing-xxs);
+            margin-bottom: 0;
+            width: 50%;
+            .button {
+              width: 100%;
+            }
+          }
+          .claim-preview__primary-actions {
+            width: 50%;
+            .button-group {
+              width: 100%;
+              .button:first-of-type {
+                width: 100%;
+              }
+            }
+          }
+        }
+      }
+    }
   }
   .post__info--grouped {
     .button__content {
@@ -1021,7 +1085,6 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
-
     .claim-preview__wrapper {
       .claim-tile__info {
         margin-top: var(--spacing-xxxs) !important;
@@ -1116,29 +1179,6 @@ body {
     }
     .section__actions {
       margin-top: var(--spacing-m);
-    }
-    .MuiAutocomplete-root {
-      background-color: var(--color-input-bg);
-      border-radius: var(--border-radius);
-      .MuiOutlinedInput-input {
-        font-size: var(--font-body);
-        padding-left: var(--spacing-s);
-        padding-right: var(--spacing-s);
-        height: 22px !important;
-        &::placeholder {
-          color: #ffffff !important;
-          font-size: var(--font-body);
-        }
-        &:focus-visible {
-          box-shadow: unset;
-        }
-      }
-      .Mui-focused {
-        outline: 2px solid var(--color-primary);
-      }
-      .MuiOutlinedInput-notchedOutline {
-        border: none;
-      }
     }
   }
 }
@@ -1307,6 +1347,10 @@ body {
       }
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.
@@ -1318,6 +1362,9 @@ body {
         width: unset; // It was being set to '100%' at the base level.
       }
     }
+  }
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
   }
 }
 

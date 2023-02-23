@@ -44,8 +44,8 @@
     }
   }
 
-  .embed__inline-wrapper {
-    margin-top: calc(var(--font-small) + var(--spacing-m));
+  .inline-player__wrapper {
+    margin-top: var(--spacing-xxs);
   }
 
   @media (min-width: $breakpoint-small) {
@@ -74,6 +74,10 @@
       right: 0;
     }
   }
+  .livestreamComment__meta-information {
+    width: 100%;
+    min-width: 0;
+  }
   .livestreamComment__menu {
     position: relative;
     right: 0;
@@ -97,6 +101,42 @@
   background-color: rgba(var(--color-header-background-base), 0.6);
 }
 
+.livestreamComment__meta-information {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding-top: 1px;
+  transition: width 0.2s;
+
+  .comment__pin {
+    background: var(--color-header-background);
+    padding: 0 3px 0 2px;
+    font-weight: var(--font-weight-bold);
+    border-radius: 10px var(--border-radius) var(--border-radius) 10px;
+    margin-left: 0;
+    border: 2px solid var(--color-border);
+    margin-top: -1px;
+    flex: 1;
+    white-space: nowrap;
+    svg {
+      margin-bottom: -1px;
+      background: var(--color-border);
+      border-radius: 50%;
+      padding: 1px;
+      padding-left: 2px;
+      margin-right: var(--spacing-xxs);
+    }
+  }
+
+  .date_time {
+    flex: 1;
+    white-space: nowrap;
+    margin-bottom: -5px;
+  }
+}
+
 .livestreamComment__info {
   overflow: hidden;
   width: 100%;
@@ -116,6 +156,26 @@
     .icon--BadgeStreamer {
       height: calc(var(--font-body) + 2px);
       width: calc(var(--font-body) + 2px);
+      margin-bottom: -7px;
+    }
+    .icon--BadgeMod {
+      height: calc(var(--font-body) - 3px);
+      width: calc(var(--font-body) - 3px);
+      margin-bottom: -4px;
+    }
+    .icon--Premium,
+    .icon--PremiumPlus {
+      margin-bottom: -5px;
+    }
+    .icon--Membership {
+      color: var(--color-text);
+      height: calc(var(--font-body) - 3px);
+      width: calc(var(--font-body) - 3px);
+      margin-bottom: -4.5px;
+    }
+    .icon--BadgeSprout {
+      height: 1rem;
+      width: 1rem;
       margin-bottom: -4px;
     }
   }
@@ -144,10 +204,6 @@
     .channel-thumbnail--xsmall {
       margin-left: var(--spacing-xs);
     }
-  }
-
-  .livestreamComment__info {
-    margin-top: calc(var(--spacing-xxs) / 2);
   }
 
   .button__content {
@@ -349,5 +405,35 @@
       max-width: 1.25rem;
       max-height: 1.25rem;
     }
+  }
+}
+
+.livestream__members-only-message {
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xxxs) var(--spacing-xs);
+  background-image: linear-gradient(147deg, rgba(var(--color-primary-static), 0.2), rgba(242, 121, 55, 0.6));
+  border: 2px solid var(--color-primary);
+  border: width 2px;
+
+  .icon--Membership {
+    margin-right: var(--spacing-xs);
+    margin-bottom: -6px;
+    background-image: linear-gradient(147deg, rgba(var(--color-primary-static), 1), rgba(242, 121, 55, 1));
+    border-radius: 50%;
+    padding: 3px;
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .icon--Unlock {
+    display: inline;
+    float: right;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--color-header-background);
+    color: #91f92d;
+    padding: 4px;
+    overflow: visible;
   }
 }

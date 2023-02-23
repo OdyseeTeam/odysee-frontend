@@ -312,7 +312,7 @@ class HlsQualitySelectorPlugin {
     const qualityList = this.player.qualityLevels();
     const { initialQualityChange, setInitialQualityChange, doToast } = this.config;
 
-    if (!initialQualityChange) {
+    if (!initialQualityChange && setInitialQualityChange) {
       doToast({
         message: __('You can also change your default quality on settings.'),
         linkText: __('Settings'),

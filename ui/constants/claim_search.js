@@ -48,9 +48,8 @@ export const ORDER_BY_TYPES = [ORDER_BY_NEW, ORDER_BY_TRENDING, ORDER_BY_TOP];
 export const DURATION_SHORT = 'short';
 export const DURATION_LONG = 'long';
 export const DURATION_ALL = 'all';
-export const DURATION_GT_EQ = 'longer_than';
-export const DURATION_LT_EQ = 'shorter_than';
-export const DURATION_TYPES = [DURATION_ALL, DURATION_SHORT, DURATION_LONG, DURATION_GT_EQ, DURATION_LT_EQ];
+export const DURATION_CUSTOM = 'custom';
+export const DURATION_TYPES = [DURATION_ALL, DURATION_SHORT, DURATION_LONG, DURATION_CUSTOM];
 
 export const SORT_BY = {
   // key: Enumeration; can be anything as long as unique. Also used as URLParam.
@@ -76,5 +75,16 @@ export const CLAIM_COLLECTION = 'collection';
 export const CLAIM_TYPES = [CLAIM_CHANNEL, CLAIM_REPOST, CLAIM_STREAM, CLAIM_COLLECTION];
 
 export const CONTENT_ALL = 'all';
-export const CONTENT_TYPES = [CONTENT_ALL, CLAIM_CHANNEL, CLAIM_REPOST, CLAIM_COLLECTION, ...FILE_TYPES];
+export const CONTENT_TYPES = [
+  CONTENT_ALL,
+  FILE_VIDEO,
+  FILE_AUDIO,
+  FILE_IMAGE,
+  FILE_DOCUMENT,
+  CLAIM_COLLECTION,
+  CLAIM_CHANNEL,
+  FILE_MODEL,
+  CLAIM_REPOST,
+  FILE_BINARY,
+];
 export const KEYS = [ORDER_BY_KEY, TAGS_KEY, FRESH_KEY, CONTENT_KEY, DURATION_KEY];

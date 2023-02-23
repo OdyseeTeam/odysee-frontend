@@ -12,7 +12,6 @@ import Card from 'component/common/card';
 import { FormField, FormFieldPrice } from 'component/common/form';
 import MaxPurchasePrice from 'component/maxPurchasePrice';
 import SettingsRow from 'component/settingsRow';
-import SettingDefaultQuality from 'component/settingDefaultQuality';
 
 type Price = {
   currency: string,
@@ -22,39 +21,29 @@ type Price = {
 type Props = {
   // --- select ---
   isAuthenticated: boolean,
-  floatingPlayer: boolean,
-  autoplayMedia: boolean,
-  autoplayNext: boolean,
+  hideMembersOnlyContent: boolean,
   hideReposts: ?boolean,
   showNsfw: boolean,
   hideScheduledLivestreams: boolean,
-  myChannelUrls: ?Array<string>,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
-  isFloating: boolean,
   // --- perform ---
   setClientSetting: (string, boolean | string | number) => void,
-  clearPlayingUri: () => void,
   openModal: (string) => void,
 };
 
 export default function SettingContent(props: Props) {
   const {
     isAuthenticated,
-    floatingPlayer,
-    autoplayMedia,
-    autoplayNext,
+    hideMembersOnlyContent,
     hideReposts,
     showNsfw,
     hideScheduledLivestreams,
-    myChannelUrls,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
-    isFloating,
     setClientSetting,
-    clearPlayingUri,
     openModal,
   } = props;
 
@@ -68,33 +57,12 @@ export default function SettingContent(props: Props) {
         isBodyList
         body={
           <>
-            <SettingsRow title={__('Floating video player')} subtitle={__(HELP.FLOATING_PLAYER)}>
+            <SettingsRow title={__('Hide members-only content')} subtitle={__(HELP.HIDE_MEMBERS_ONLY_CONTENT)}>
               <FormField
                 type="checkbox"
-                name="floating_player"
-                onChange={() => {
-                  setClientSetting(SETTINGS.FLOATING_PLAYER, !floatingPlayer);
-                  if (isFloating && !floatingPlayer === false) clearPlayingUri();
-                }}
-                checked={floatingPlayer}
-              />
-            </SettingsRow>
-
-            <SettingsRow title={__('Autoplay media files')} subtitle={__(HELP.AUTOPLAY_MEDIA)}>
-              <FormField
-                type="checkbox"
-                name="autoplay media"
-                onChange={() => setClientSetting(SETTINGS.AUTOPLAY_MEDIA, !autoplayMedia)}
-                checked={autoplayMedia}
-              />
-            </SettingsRow>
-
-            <SettingsRow title={__('Autoplay next recommended content')} subtitle={__(HELP.AUTOPLAY_NEXT)}>
-              <FormField
-                type="checkbox"
-                name="autoplay next"
-                onChange={() => setClientSetting(SETTINGS.AUTOPLAY_NEXT, !autoplayNext)}
-                checked={autoplayNext}
+                name="hide_members_only_content"
+                checked={hideMembersOnlyContent}
+                onChange={(e) => setClientSetting(SETTINGS.HIDE_MEMBERS_ONLY_CONTENT, !hideMembersOnlyContent)}
               />
             </SettingsRow>
 
@@ -122,23 +90,8 @@ export default function SettingContent(props: Props) {
               />
             </SettingsRow>
 
-            <SettingsRow title={__('Default Video Quality')} subtitle={__(HELP.DEFAULT_VIDEO_QUALITY)}>
-              <SettingDefaultQuality />
-            </SettingsRow>
-
             {!SIMPLE_SITE && (
               <>
-                {/*
-              <SettingsRow title={__('Show anonymous content')} subtitle={__('Anonymous content is published without a channel.')} >
-                <FormField
-                  type="checkbox"
-                  name="show_anonymous"
-                  onChange={() => setClientSetting(SETTINGS.SHOW_ANONYMOUS, !showAnonymous)}
-                  checked={showAnonymous}
-                />
-              </SettingsRow>
-              */}
-
                 <SettingsRow title={__('Show mature content')} subtitle={__(HELP.SHOW_MATURE)}>
                   <FormField
                     type="checkbox"
@@ -173,17 +126,6 @@ export default function SettingContent(props: Props) {
                     navigate={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`}
                   />
                 </SettingsRow>
-
-                {myChannelUrls && myChannelUrls.length > 0 && (
-                  <SettingsRow title={__('Creator settings')}>
-                    <Button
-                      button="inverse"
-                      label={__('Manage')}
-                      icon={ICONS.ARROW_RIGHT}
-                      navigate={`/$/${PAGES.SETTINGS_CREATOR}`}
-                    />
-                  </SettingsRow>
-                )}
               </>
             )}
 
@@ -237,9 +179,7 @@ export default function SettingContent(props: Props) {
 
 // prettier-ignore
 const HELP = {
-  FLOATING_PLAYER: 'Keep content playing in the corner when navigating to a different page.',
-  AUTOPLAY_MEDIA: 'Autoplay video and audio files when navigating to a file.',
-  AUTOPLAY_NEXT: 'Autoplay the next related item when a file (video or audio) finishes playing.',
+  HIDE_MEMBERS_ONLY_CONTENT: 'You will not see content that requires a membership subscription.',
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
   HIDE_SCHEDULED_LIVESTREAMS: 'You will not see scheduled livestreams by people you follow on the home or following page.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
@@ -247,5 +187,4 @@ const HELP = {
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
   ONLY_CONFIRM_OVER_AMOUNT: '', // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
   PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',
-  DEFAULT_VIDEO_QUALITY: 'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts.',
 };

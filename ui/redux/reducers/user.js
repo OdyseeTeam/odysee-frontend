@@ -320,6 +320,7 @@ reducers[ACTIONS.USER_SET_REFERRER_FAIL] = (state, action) =>
   Object.assign({}, state, {
     referrerSetIsPending: false,
     referrerSetError: action.data.error.message,
+    referrerSet: null,
   });
 
 reducers[ACTIONS.USER_SET_REFERRER_RESET] = (state) =>
@@ -374,28 +375,6 @@ reducers[ACTIONS.USER_FETCH_LOCALE_DONE] = (state, action) =>
   Object.assign({}, state, {
     locale: action.data,
   });
-
-reducers[ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA] = (state, action) => {
-  return Object.assign({}, state, {
-    odyseeMembershipName: action.data.odyseeMembershipName,
-  });
-};
-
-reducers[ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA] = (state, action) => {
-  let latestData = {};
-
-  // add additional user membership value
-  if (state.odyseeMembershipsPerClaimIds) {
-    latestData = Object.assign({}, state.odyseeMembershipsPerClaimIds, action.data.response);
-  } else {
-    // otherwise just send the current data because nothing is saved yet
-    latestData = action.data.response;
-  }
-
-  return Object.assign({}, state, {
-    odyseeMembershipsPerClaimIds: latestData,
-  });
-};
 
 reducers[ACTIONS.FETCH_HOMEPAGES_DONE] = (state) =>
   Object.assign({}, state, {

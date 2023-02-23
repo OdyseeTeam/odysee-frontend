@@ -1,6 +1,6 @@
 import AdsSticky from './view';
 import { connect } from 'react-redux';
-import { selectShouldShowAds } from 'redux/selectors/app';
+import { selectShouldShowAds, selectAdBlockerFound } from 'redux/selectors/app';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectAnyNagsShown } from 'redux/selectors/notifications';
 import { selectHomepageData } from 'redux/selectors/settings';
@@ -14,10 +14,11 @@ const select = (state, props) => {
     isContentClaim: isStreamPlaceholderClaim(claim) || Boolean(claim?.value?.source?.media_type),
     isChannelClaim: isChannelClaim(claim),
     authenticated: selectUserVerifiedEmail(state),
-    homepageData: selectHomepageData(state),
+    homepageData: selectHomepageData(state) || {},
     locale: selectUserLocale(state),
     nagsShown: selectAnyNagsShown(state),
     shouldShowAds: selectShouldShowAds(state),
+    adBlockerFound: selectAdBlockerFound(state),
   };
 };
 

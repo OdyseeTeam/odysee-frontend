@@ -3,8 +3,10 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import * as MODALS from 'constants/modal_types';
+import * as URL from 'constants/urlParams';
 import ModalError from 'modal/modalError';
 import { lazyImport } from 'util/lazyImport';
+import { ModalContext } from 'contexts/modal';
 
 // prettier-ignore
 const MAP = Object.freeze({
@@ -23,6 +25,8 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_EXTERNAL_RESOURCE]: lazyImport(() => import('modal/modalOpenExternalResource' /* webpackChunkName: "modalOpenExternalResource" */)),
   [MODALS.CONFIRM_FILE_REMOVE]: lazyImport(() => import('modal/modalRemoveFile' /* webpackChunkName: "modalRemoveFile" */)),
   [MODALS.CONFIRM_ODYSEE_MEMBERSHIP]: lazyImport(() => import('modal/modalConfirmOdyseeMembership' /* webpackChunkName: "modalConfirmOdyseeMembership" */)),
+  [MODALS.JOIN_MEMBERSHIP]: lazyImport(() => import('modal/modalJoinMembership' /* webpackChunkName: "modalJoinMembership" */)),
+  [MODALS.ACTIVATE_CREATOR_MEMBERSHIPS]: lazyImport(() => import('modal/modalActivateCreatorMemberships' /* webpackChunkName: "modalActiveCreatorMemberships" */)),
   [MODALS.CONFIRM_REMOVE_COMMENT]: lazyImport(() => import('modal/modalRemoveComment' /* webpackChunkName: "modalRemoveComment" */)),
   [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: lazyImport(() => import('modal/modalConfirmThumbnailUpload' /* webpackChunkName: "modalConfirmThumbnailUpload" */)),
   [MODALS.CONFIRM_TRANSACTION]: lazyImport(() => import('modal/modalConfirmTransaction' /* webpackChunkName: "modalConfirmTransaction" */)),
@@ -30,6 +34,7 @@ const MAP = Object.freeze({
   [MODALS.DOWNLOADING]: lazyImport(() => import('modal/modalDownloading' /* webpackChunkName: "modalDownloading" */)),
   [MODALS.ERROR]: ModalError,
   [MODALS.FEATURED_CHANNELS_EDIT]: lazyImport(() => import('modal/modalFeaturedChannelsEdit' /* webpackChunkName: "modalFeaturedChannelsEdit" */)),
+  [MODALS.FEATURED_CHANNELS_SORT]: lazyImport(() => import('modal/modalFeaturedChannelsSort' /* webpackChunkName: "modalFeaturedChannelsSort" */)),
   [MODALS.FILE_SELECTION]: lazyImport(() => import('modal/modalFileSelection' /* webpackChunkName: "modalFileSelection" */)),
   [MODALS.FILE_TIMEOUT]: lazyImport(() => import('modal/modalFileTimeout' /* webpackChunkName: "modalFileTimeout" */)),
   [MODALS.FIRST_REWARD]: lazyImport(() => import('modal/modalFirstReward' /* webpackChunkName: "modalFirstReward" */)),
@@ -64,11 +69,52 @@ const MAP = Object.freeze({
 type Props = {
   modal: { id: string, modalProps: {} },
   error: { message: string },
+  location: { pathname: string, search: string },
+  doOpenModal: (modalId: string, modalProps: {}) => void,
   doHideModal: () => void,
 };
 
 function ModalRouter(props: Props) {
-  const { modal, error, doHideModal } = props;
+  const { modal, error, location, doOpenModal, doHideModal } = props;
+
+  const { pathname, search } = location;
+  const urlParams = new URLSearchParams(search);
+  const modalUrlId = urlParams.get(URL.MODAL);
+  const modalUrlParams = modalUrlId && urlParams.get(URL.MODAL_PARAMS);
+  // $FlowFixMe
+  const modalUrlParamsObj = modalUrlParams && JSON.parse(decodeURIComponent(modalUrlParams));
+
+  const modalUrlOpen = React.useRef(modalUrlId && modal?.id === modalUrlId);
+
+  React.useEffect(() => {
+    if (!modalUrlId) return;
+
+    if (!modalUrlOpen.current) {
+      // -- Open the modal from the URL
+      // $FlowFixMe
+      doOpenModal(modalUrlId, modalUrlParamsObj);
+      modalUrlOpen.current = true;
+    } else {
+      // -- Clear out the URL params
+      const newUrlParams = new URLSearchParams(search);
+      newUrlParams.delete(URL.MODAL);
+      newUrlParams.delete(URL.MODAL_PARAMS);
+      const newUrlParamsStr = newUrlParams.toString();
+
+      // -- Use history.replaceState so user won't be able to navigate back to the modal
+      history.replaceState(history.state, '', `${pathname}${newUrlParamsStr ? `?${newUrlParamsStr}` : ''}`);
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on search
+  }, [doOpenModal, search, modal]);
+
+  React.useEffect(() => {
+    if (!modalUrlId) {
+      doHideModal();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only needed on pathname
+  }, [pathname, doHideModal]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];
@@ -92,7 +138,9 @@ function ModalRouter(props: Props) {
 
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
-      <SelectedModal {...modalProps} doHideModal={doHideModal} />
+      <ModalContext.Provider value={{ modal, isUrlParamModal: modalUrlId === id }}>
+        <SelectedModal {...modalProps} doHideModal={doHideModal} />
+      </ModalContext.Provider>
     </React.Suspense>
   );
 }

@@ -1,16 +1,3 @@
-.ReactModal__Body--open {
-  #app {
-    @media (max-width: $breakpoint-small) {
-      height: 100vh;
-      overflow-y: hidden;
-    }
-  }
-
-  [data-reach-menu] {
-    z-index: 10000;
-  }
-}
-
 .modal-overlay {
   top: 0;
   left: 0;
@@ -138,6 +125,7 @@
     min-width: auto;
     margin-bottom: 0;
     border-radius: 0;
+    padding: 0;
 
     .card {
       box-shadow: none;
@@ -191,6 +179,22 @@
   }
 }
 
+.modal--wide {
+  max-width: var(--modal-width-wide);
+}
+
+.modal--wide-fixed {
+  width: var(--modal-width-wide);
+  min-width: var(--modal-width-wide);
+  max-width: var(--modal-width-wide);
+
+  @media (max-width: $breakpoint-small) {
+    width: 100%;
+    max-width: 100%;
+    min-width: auto;
+  }
+}
+
 .modal--card-internal {
   padding: 0;
   border: none;
@@ -205,9 +209,11 @@
 
     .form-field--copyable {
       background: rgba(var(--color-primary-dynamic), 0.1);
-      border-top: 1px solid var(--color-border);
-      border-bottom: 1px solid var(--color-border);
-      border-left: 1px solid var(--color-border);
+      /*
+      border-top: 2px solid var(--color-border);
+      border-bottom: 2px solid var(--color-border);
+      border-left: 2px solid var(--color-border);
+      */
     }
 
     button.button-toggle {

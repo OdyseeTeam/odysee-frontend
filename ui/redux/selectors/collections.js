@@ -1,70 +1,99 @@
 // @flow
-import fromEntries from '@ungap/from-entries';
-import { createSelector } from 'reselect';
-import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { COL_TYPES } from 'constants/collections';
 import moment from 'moment';
+
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+
+import { createSelector } from 'reselect';
+import { COLLECTION_PAGE } from 'constants/urlParams';
 import {
-  selectMyCollectionIds,
   selectClaimForUri,
-  selectClaimForClaimId,
-  selectChannelNameForId,
-  selectPermanentUrlForUri,
   selectClaimsById,
+  selectClaimIdsByUri,
+  selectMyCollectionClaimIds,
+  selectResolvedCollectionsById,
+  selectMyCollectionClaimsById,
+  selectClaimIsMineForId,
 } from 'redux/selectors/claims';
-import { parseURI } from 'util/lbryURI';
+import { normalizeURI, parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
-import { selectPlayingCollection } from 'redux/selectors/content';
-import { selectCountForCollection } from 'util/collections';
-import { getChannelIdFromClaim, isPermanentUrl } from 'util/claim';
+import {
+  selectIsCollectionPlayingForId,
+  selectCollectionForIdIsPlayingShuffle,
+  selectCollectionForIdIsPlayingLoop,
+} from 'redux/selectors/content';
+import { getItemCountForCollection } from 'util/collections';
+import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
-type State = { collections: CollectionState };
+type State = { claims: any, user: any, content: any, collections: CollectionState, memberships: any, router: any };
 
 const selectState = (state: State) => state.collections || {};
 
 export const selectSavedCollectionIds = (state: State) => selectState(state).savedIds;
 export const selectBuiltinCollections = (state: State) => selectState(state).builtin;
-export const selectResolvedCollections = (state: State) => selectState(state).resolved;
 export const selectMyUnpublishedCollections = (state: State) => selectState(state).unpublished;
 export const selectMyEditedCollections = (state: State) => selectState(state).edited;
 export const selectMyUpdatedCollections = (state: State) => selectState(state).updated;
-export const selectPendingCollections = (state: State) => selectState(state).pending;
-export const selectIsResolvingCollectionById = (state: State) => selectState(state).resolvingById;
+export const selectCollectionItemsFetchingIds = (state: State) => selectState(state).collectionItemsFetchingIds;
 export const selectQueueCollection = (state: State) => selectState(state).queue;
-export const selectFeaturedChannelsPublishing = (state: State) => selectState(state).featuredChannelsPublishing;
+export const selectLastUsedCollection = (state: State) => selectState(state).lastUsedCollection;
+export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
+export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
+export const selectThumbnailClaimsFetchingCollectionIds = (state: State) =>
+  selectState(state).thumbnailClaimsFetchingCollectionIds;
 
-export const selectCurrentQueueList = createSelector(selectQueueCollection, (queue) => ({ queue }));
-export const selectHasItemsInQueue = createSelector(selectQueueCollection, (queue) => queue.items.length > 0);
+export const selectAreThumbnailClaimsFetchingForCollectionIds = (state: State, ids: string) =>
+  selectThumbnailClaimsFetchingCollectionIds(state).includes(ids);
 
-export const selectLastUsedCollection = createSelector(selectState, (state) => state.lastUsedCollection);
+export const selectCollectionHasItemsResolvedForId = (state: State, id: string) =>
+  new Set(selectCollectionIdsWithItemsResolved(state)).has(id);
 
 export const selectUnpublishedCollectionsList = createSelector(
   selectMyUnpublishedCollections,
-  (unpublishedCollections) => Object.keys(unpublishedCollections || {})
+  (unpublishedCollections) => Object.keys(unpublishedCollections)
 );
 
-export const selectCollectionSavedForId = (state: State, id: string) => {
-  const savedIds = selectSavedCollectionIds(state);
-  return savedIds.includes(id);
-};
+export const selectCollectionSavedForId = (state: State, id: string) =>
+  new Set(selectSavedCollectionIds(state)).has(id);
 
 export const selectSavedCollections = createSelector(
-  selectResolvedCollections,
+  selectResolvedCollectionsById,
   selectSavedCollectionIds,
-  (resolved, savedIds) => fromEntries(Object.entries(resolved).filter(([key, val]) => savedIds.includes(key)))
+  (resolvedCollectionsById, savedIds) => {
+    const savedCollections = {};
+
+    savedIds.forEach((savedId) => {
+      const savedCollectionClaim = resolvedCollectionsById[savedId];
+      if (savedCollectionClaim) savedCollections[savedId] = savedCollectionClaim;
+    });
+
+    return savedCollections;
+  }
 );
 
-export const selectHasCollections = createSelector(
-  selectUnpublishedCollectionsList,
-  selectMyCollectionIds,
-  (unpublished, publishedIds) => Boolean(unpublished.length > 0 || publishedIds.length > 0)
+export const selectHasLocalSyncCollections = createSelector(
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectSavedCollections,
+  (unpublished, edited, saved) => {
+    const unpublishedCollectionsList = (Object.keys(unpublished || {}): any);
+    const editedList = (Object.keys(edited || {}): any);
+    const savedList = (Object.keys(saved || {}): any);
+
+    return unpublishedCollectionsList.length > 0 || editedList.length > 0 || savedList.length > 0;
+  }
 );
 
-export const selectEditedCollectionForId = (state: State, id: string) => {
-  const editedCollections = selectMyEditedCollections(state);
-  return editedCollections[id];
+export const selectHasCollections = (state: State) => {
+  const hasLocalSyncCollections = selectHasLocalSyncCollections(state);
+  const publishedCollectionIds = selectMyCollectionClaimIds(state);
+
+  return hasLocalSyncCollections || (publishedCollectionIds && publishedCollectionIds.length > 0);
 };
+
+export const selectEditedCollectionForId = (state: State, id: string) => selectMyEditedCollections(state)[id];
+export const selectCollectionHasEditsForId = (state: State, id: string) =>
+  Boolean(selectEditedCollectionForId(state, id));
 
 export const selectUpdatedCollectionForId = (state: State, id: string) => {
   const editedCollections = selectMyEditedCollections(state);
@@ -74,9 +103,9 @@ export const selectUpdatedCollectionForId = (state: State, id: string) => {
   return updatedCollections[id];
 };
 
-export const selectCollectionNameForId = (state: State, id: string) => {
+export const selectCollectionTitleForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
-  return collection?.name;
+  return (collection && (collection.title || collection.name)) || '';
 };
 
 export const selectCollectionDescriptionForId = (state: State, id: string) => {
@@ -84,76 +113,27 @@ export const selectCollectionDescriptionForId = (state: State, id: string) => {
   return collection?.description;
 };
 
-export const selectCollectionHasEditsForId = (state: State, id: string) => {
-  const editedCollections = selectMyEditedCollections(state);
-  return Boolean(editedCollections[id]);
+export const selectResolvedCollectionForId = (state: State, id: string) => selectResolvedCollectionsById(state)[id];
+
+export const selectUnpublishedCollectionForId = (state: State, id: string) => selectMyUnpublishedCollections(state)[id];
+
+export const selectCollectionIsMine = (state: State, id: string) => {
+  const isPrivate = selectHasPrivateCollectionForId(state, id);
+  if (isPrivate) return true;
+
+  const publicIds = selectMyCollectionClaimIds(state);
+  if (publicIds && publicIds.includes(id)) return true;
+
+  return selectClaimIsMineForId(state, id);
 };
-
-export const selectPendingCollectionForId = (state: State, id: string) => {
-  const pendingCollections = selectPendingCollections(state);
-  return pendingCollections[id];
-};
-
-export const selectPublishedCollectionForId = (state: State, id: string) => {
-  const publishedCollections = selectResolvedCollections(state);
-  return publishedCollections[id];
-};
-
-export const selectPublishedCollectionClaimForId = (state: any, id: string) => {
-  const publishedCollection = selectPublishedCollectionForId(state, id);
-
-  if (publishedCollection) {
-    const claim = selectClaimForClaimId(state, id);
-    return claim;
-  }
-
-  return null;
-};
-
-export const selectPublishedCollectionChannelNameForId = (state: any, id: string) => {
-  const collectionClaim = selectPublishedCollectionClaimForId(state, id);
-
-  if (collectionClaim) {
-    const name = selectChannelNameForId(state, id);
-    return name;
-  }
-
-  return null;
-};
-
-export const selectUnpublishedCollectionForId = (state: State, id: string) => {
-  const unpublishedCollections = selectMyUnpublishedCollections(state);
-  return unpublishedCollections[id];
-};
-
-export const selectCollectionIsMine = createSelector(
-  (state, id) => id,
-  selectMyCollectionIds,
-  selectMyUnpublishedCollections,
-  selectBuiltinCollections,
-  selectCurrentQueueList,
-  (id, publicIds, privateIds, builtinIds, queue) =>
-    Boolean(publicIds.includes(id) || privateIds[id] || builtinIds[id] || queue[id])
-);
 
 export const selectMyPublishedCollections = createSelector(
-  selectResolvedCollections,
-  selectPendingCollections,
+  selectMyCollectionClaimsById,
   selectMyEditedCollections,
   selectMyUpdatedCollections,
-  selectMyCollectionIds,
-  (resolved, pending, edited, updated, myIds) => {
-    // all resolved in myIds, plus those in pending and edited
-    const myPublishedCollections = fromEntries(
-      Object.entries(pending).concat(
-        Object.entries(resolved).filter(
-          ([key, val]) =>
-            myIds.includes(key) &&
-            // $FlowFixMe
-            !pending[key]
-        )
-      )
-    );
+  (myCollections, edited, updated) => {
+    const myPublishedCollections = Object.assign({}, myCollections);
+
     // now add in edited:
     Object.entries(edited).forEach(([id, item]) => {
       // $FlowFixMe
@@ -164,50 +144,46 @@ export const selectMyPublishedCollections = createSelector(
         myPublishedCollections[id] = { ...myPublishedCollections[id], updatedAt: item.updatedAt };
       }
     });
+
     return myPublishedCollections;
   }
 );
 
-export const selectMyPublishedOnlyCollections = createSelector(
-  selectResolvedCollections,
-  selectPendingCollections,
-  selectMyCollectionIds,
-  (resolved, pending, myIds) => {
-    // all resolved in myIds, plus those in pending and edited
-    const myPublishedCollections = fromEntries(
-      Object.entries(pending).concat(
-        Object.entries(resolved).filter(
-          ([key, val]) =>
-            myIds.includes(key) &&
-            // $FlowFixMe
-            !pending[key]
-        )
-      )
-    );
-    return myPublishedCollections;
-  }
-);
-
-export const selectCollectionValuesListForKey = createSelector(
-  (state, key) => key,
-  selectBuiltinCollections,
-  selectCurrentQueueList,
+// returns published collections + local edits or update timestamps
+export const selectMyPublicLocalCollections = createSelector(
   selectMyPublishedCollections,
-  selectMyUnpublishedCollections,
-  (key, builtin, queue, published, unpublished) => {
-    const myCollections = { builtin, queue, published, unpublished };
-    const collectionsForKey = myCollections[key];
-    // this is needed so Flow doesn't error saying it is mixed when this list is looped
-    const collectionValues: CollectionList = (Object.values(collectionsForKey): any);
+  selectMyEditedCollections,
+  selectMyUpdatedCollections,
+  (myCollectionsById, edited, updated) => {
+    if (!myCollectionsById) return myCollectionsById;
 
-    return collectionValues;
+    const myPublicLocalCollections = {};
+
+    for (const id in myCollectionsById) {
+      const collection = myCollectionsById[id];
+      const updatedCollection = updated[id];
+      const editedCollection = edited[id];
+
+      myPublicLocalCollections[id] = Object.assign({}, collection);
+
+      if (updatedCollection) {
+        Object.assign(myPublicLocalCollections[id], updatedCollection);
+      } else if (editedCollection) {
+        Object.assign(myPublicLocalCollections[id], editedCollection);
+      }
+    }
+
+    return myPublicLocalCollections;
   }
 );
 
-export const selectIsMyCollectionPublishedForId = (state: State, id: string) => {
-  const publishedCollection = selectMyPublishedCollections(state);
-  return Boolean(publishedCollection[id]);
+export const selectMyPublicCollectionForId = (state: State, id: string) => {
+  const myCollectionClaimsById = selectMyPublishedCollections(state);
+  return myCollectionClaimsById && myCollectionClaimsById[id];
 };
+
+export const selectIsMyCollectionPublishedForId = (state: State, id: string) =>
+  Boolean(selectMyPublicCollectionForId(state, id));
 
 export const selectPublishedCollectionNotEditedForId = createSelector(
   selectIsMyCollectionPublishedForId,
@@ -215,70 +191,62 @@ export const selectPublishedCollectionNotEditedForId = createSelector(
   (isPublished, hasEdits) => isPublished && !hasEdits
 );
 
-export const selectMyPublishedMixedCollections = createSelector(selectMyPublishedCollections, (published) => {
-  const myCollections = fromEntries(
-    // $FlowFixMe
-    Object.entries(published).filter(([key, collection]) => {
-      // $FlowFixMe
-      return collection.type === COLLECTIONS_CONSTS.COL_TYPES.COLLECTION;
-    })
-  );
-  return myCollections;
-});
+export const selectIsMyPublicCollectionNotEditedForId = (state: State, id: string) => {
+  const publicCollection = selectMyPublicCollectionForId(state, id);
+  if (!publicCollection) return publicCollection;
 
-export const selectMyPublishedCollectionForId = (state: State, id: string) => {
-  const myPublishedCollections = selectMyPublishedCollections(state);
-  return myPublishedCollections[id];
+  const hasEdits = selectCollectionHasEditsForId(state, id);
+
+  return Boolean(publicCollection && !hasEdits);
 };
 
-export const selectMyPublishedOnlyCollectionForId = (state: State, id: string) => {
-  const myPublishedCollections = selectMyPublishedOnlyCollections(state);
-  return myPublishedCollections[id];
-};
+export const selectAreCollectionItemsFetchingForId = (state: State, id: string) =>
+  new Set(selectCollectionItemsFetchingIds(state)).has(id);
 
-export const selectMyPublishedCollectionCountForId = (state: State, id: string) => {
-  const publishedCollection = selectMyPublishedOnlyCollectionForId(state, id);
-  const count = selectCountForCollection(publishedCollection);
-  return count;
-};
+export const selectCollectionsById = (state: State) => {
+  const builtin = selectBuiltinCollections(state);
+  const resolved = selectResolvedCollectionsById(state);
+  const unpublished = selectMyUnpublishedCollections(state);
+  const edited = selectMyEditedCollections(state);
+  const queue = { queue: selectQueueCollection(state) };
 
-export const selectIsResolvingCollectionForId = (state: State, id: string) => {
-  const resolvingById = selectIsResolvingCollectionById(state);
-  return resolvingById[id];
+  return { ...queue, ...resolved, ...edited, ...unpublished, ...builtin };
 };
 
 export const selectCollectionForId = createSelector(
   (state, id) => id,
-  selectBuiltinCollections,
-  selectResolvedCollections,
-  selectMyUnpublishedCollections,
-  selectMyEditedCollections,
-  selectPendingCollections,
-  selectCurrentQueueList,
-  (id, bLists, rLists, uLists, eLists, pLists, queue) => {
-    const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id] || queue[id];
+  selectCollectionsById,
+  selectResolvedCollectionsById,
+  (id, collectionsById, resolved) => {
+    if (!id) return id;
+
+    const collection = collectionsById[id];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
+
+    if (isOnPublicView) return resolved[id] || collection;
+
     return collection;
   }
 );
 
-export const selectIsCollectionBuiltInForId = (state: State, id: string) => {
-  const builtin = selectBuiltinCollections(state);
-  return builtin[id];
-};
+export const selectIsCollectionBuiltInForId = (state: State, id: string) => selectBuiltinCollections(state)[id];
 
-export const selectClaimSavedForUrl = (state: State, url: string) => {
-  const [bLists, myRLists, uLists, eLists, pLists] = [
-    selectBuiltinCollections(state),
-    selectMyPublishedCollections(state),
-    selectMyUnpublishedCollections(state),
-    selectMyEditedCollections(state),
-    selectPendingCollections(state),
-  ];
-  const collections = [bLists, uLists, eLists, myRLists, pLists];
+export const selectClaimSavedForUrl = createSelector(
+  (state, url) => url,
+  selectBuiltinCollections,
+  selectMyPublicLocalCollections,
+  selectMyPublicLocalCollections,
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  (url, bLists, myRLists, uLists, eLists) => {
+    const collections = [bLists, uLists, eLists, myRLists];
 
-  // $FlowFixMe
-  return collections.some((list) => Object.values(list).some(({ items }) => items?.some((item) => item === url)));
-};
+    // $FlowFixMe
+    return collections.some((list) => Object.values(list).some(({ items }) => items?.some((item) => item === url)));
+  }
+);
 
 export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
   const queue = selectQueueCollection(state);
@@ -288,34 +256,33 @@ export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
   return claimSaved && claimInQueue;
 };
 
-export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) => {
-  // $FlowFixMe
-  const url = isPermanentUrl(uri) ? uri : selectPermanentUrlForUri(state, uri);
-  const collection = selectCollectionForId(state, id);
+export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) =>
+  Boolean(selectCollectionForIdClaimForUriItem(state, id, uri));
 
-  return collection && collection.items.includes(url);
-};
-
-export const selectUrlsForCollectionId = (state: State, id: string) => {
+export const selectItemsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   // -- sanitize -- > in case non-urls got added into a collection: only select string types
   // to avoid general app errors trying to use its uri
-  return collection && collection.items.filter((item) => typeof item === 'string');
+  return collection && collection.items && collection.items.filter((item) => typeof item === 'string');
 };
 
 export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   // Allows removing non-standard uris from a collection
-  return collection && collection.items.filter((item) => typeof item !== 'string');
+  return collection && collection.items && collection.items.filter((item) => typeof item !== 'string');
 };
 
-export const selectFirstItemUrlForCollection = createSelector(
-  selectUrlsForCollectionId,
-  (collectionItemUrls) => collectionItemUrls?.length > 0 && collectionItemUrls[0]
-);
+export const selectFirstItemUrlForCollection = (state: State, id: string) => {
+  const collectionItemUrls = selectUrlsForCollectionId(state, id, 1);
+  if (!collectionItemUrls) return collectionItemUrls;
+
+  return collectionItemUrls.length > 0
+    ? collectionItemUrls.find((collectionItemUrl) => collectionItemUrl !== null)
+    : null;
+};
 
 export const selectCollectionLengthForId = (state: State, id: string) => {
-  const urls = selectUrlsForCollectionId(state, id);
+  const urls = selectItemsForCollectionId(state, id);
   return urls?.length || 0;
 };
 
@@ -334,98 +301,6 @@ export const selectAreBuiltinCollectionsEmpty = (state: State) => {
 
   return !notEmpty;
 };
-
-export const selectClaimIdsForCollectionId = createSelector(selectCollectionForId, (collection) => {
-  const items = (collection && collection.items) || [];
-
-  const ids = items.map((item) => {
-    const { claimId } = parseURI(item);
-    return claimId;
-  });
-
-  return ids;
-});
-
-export const selectIndexForUrlInCollection = createSelector(
-  (state, url, id, ignoreShuffle) => ignoreShuffle,
-  (state, url, id) => id,
-  (state, url, id) => selectUrlsForCollectionId(state, id),
-  (state, url) => url,
-  (state) => selectPlayingCollection(state),
-  selectClaimForUri,
-  (ignoreShuffle, id, urls, url, playingCollection, claim) => {
-    const { collectionId: playingCollectionId, shuffle } = playingCollection;
-
-    const shuffleUrls = !ignoreShuffle && shuffle && playingCollectionId === id && shuffle.newUrls;
-    const listUrls = shuffleUrls || urls;
-
-    const index = listUrls && listUrls.findIndex((u) => u === url);
-    if (index > -1) {
-      return index;
-    } else if (claim) {
-      const index = listUrls && listUrls.findIndex((u) => u === claim.permanent_url);
-      if (index > -1) return index;
-    }
-    return null;
-  }
-);
-
-export const selectPreviousUrlForCollectionAndUrl = createCachedSelector(
-  (state, url, id) => id,
-  (state) => selectPlayingCollection(state),
-  (state, url, id) => selectIndexForUrlInCollection(state, url, id),
-  (state, url, id) => selectUrlsForCollectionId(state, id),
-  (id, playingCollection, index, urls) => {
-    const { collectionId: playingCollectionId, shuffle, loop } = playingCollection;
-
-    const loopList = loop && playingCollectionId === id;
-    const shuffleUrls = shuffle && playingCollectionId === id && shuffle.newUrls;
-    const listUrls = shuffleUrls || urls;
-
-    if (index > -1 && listUrls) {
-      let nextUrl;
-      if (index === 0 && loopList) {
-        nextUrl = listUrls[listUrls.length - 1];
-      } else {
-        nextUrl = listUrls[index - 1];
-      }
-      return nextUrl || null;
-    } else {
-      return null;
-    }
-  }
-)((state, url, id) => `${String(url)}:${String(id)}`);
-
-export const selectNextUrlForCollectionAndUrl = createCachedSelector(
-  (state, url, id) => id,
-  (state) => selectPlayingCollection(state),
-  (state, url, id) => selectIndexForUrlInCollection(state, url, id),
-  (state, url, id) => selectUrlsForCollectionId(state, id),
-  (id, playingCollection, index, urls) => {
-    const { collectionId: playingCollectionId, shuffle, loop } = playingCollection;
-
-    const loopList = loop && playingCollectionId === id;
-    const shuffleUrls = shuffle && playingCollectionId === id && shuffle.newUrls;
-    const listUrls = shuffleUrls || urls;
-
-    if (index > -1 && listUrls) {
-      // We'll get the next playble url
-      let remainingUrls = listUrls.slice(index + 1);
-      if (!remainingUrls.length && loopList) {
-        remainingUrls = listUrls.slice(0);
-      }
-      const nextUrl = remainingUrls && remainingUrls[0];
-      return nextUrl || null;
-    } else {
-      return null;
-    }
-  }
-)((state, url, id) => `${String(url)}:${String(id)}`);
-
-export const selectNameForCollectionId = createSelector(
-  selectCollectionForId,
-  (collection) => (collection && collection.name) || ''
-);
 
 export const selectThumbnailForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
@@ -462,85 +337,231 @@ export const selectCreatedAtForCollectionId = (state: State, id: string) => {
 
   if (collection?.createdAt) return collection.createdAt * 1000;
 
-  const publishedClaim = selectPublishedCollectionClaimForId(state, id);
-  if (publishedClaim) return publishedClaim.meta?.creation_timestamp * 1000;
-
   return null;
 };
 
-export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) =>
-  selectCountForCollection(collection)
+export const selectCountForCollectionId = (state: State, id: string) =>
+  getItemCountForCollection(selectCollectionForId(state, id));
+
+// Has private === either is private or is public with private edits
+export const selectHasPrivateCollectionForId = (state: State, id: string) => {
+  const unpublishedCollection = selectUnpublishedCollectionForId(state, id);
+  if (unpublishedCollection) return true;
+
+  if (COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id)) return true;
+
+  if (selectCollectionHasEditsForId(state, id)) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
+    if (!isOnPublicView) return true;
+  }
+
+  return false;
+};
+
+// Is private === only private (doesn't include public with private edits)
+export const selectIsCollectionPrivateForId = (state: State, id: string) =>
+  Boolean(selectHasPrivateCollectionForId(state, id) && !selectCollectionHasEditsForId(state, id));
+
+export const selectClaimIdsForCollectionId = createSelector(
+  selectHasPrivateCollectionForId,
+  selectItemsForCollectionId,
+  selectClaimIdsByUri,
+  (isPrivate, items, byUri) => {
+    if (!items || !isPrivate) return items;
+
+    const ids = new Set([]);
+
+    const notFetched = items.some((item) => {
+      const claimId = byUri[normalizeURI(item)];
+
+      if (claimId === undefined) {
+        return true;
+      }
+
+      ids.add(claimId);
+    });
+
+    if (notFetched) return undefined;
+
+    return Array.from(ids);
+  }
 );
 
-export const selectIsCollectionPrivateForId = createSelector(
-  (state, id) => id,
-  selectBuiltinCollections,
-  selectMyUnpublishedCollections,
-  selectCurrentQueueList,
-  (id, builtinById, unpublishedById, queue) => Boolean(builtinById[id] || unpublishedById[id] || queue[id])
+export const selectHasUnavailableClaimIdsForCollectionId = createSelector(
+  selectClaimIdsForCollectionId,
+  (claimIds) => claimIds && claimIds.includes(null)
 );
 
-export const selectFeaturedChannelsByChannelId = createSelector(
-  selectMyUnpublishedCollections,
-  selectResolvedCollections,
+export const selectUrlsForCollectionId = createCachedSelector(
+  (state, collectionId, itemCount) => itemCount,
+  selectItemsForCollectionId,
   selectClaimsById,
-  (privateLists, publicLists, claimsById) => {
-    let results: { [ChannelId]: Array<CollectionId> } = {};
+  (itemCount, items, claimsById) => {
+    if (!items) return items;
 
-    function addToResults(channelId, collectionId) {
-      if (results[channelId]) {
-        const ids = results[channelId];
-        // $FlowIgnore
-        if (!ids.some((id) => id === collectionId)) {
-          ids.push(collectionId);
-        }
+    const uris = new Set([]);
+
+    let notFetched;
+
+    items.some((item, index) => {
+      if (isPermanentUrl(item) || isCanonicalUrl(item)) {
+        uris.add(item);
       } else {
-        results[channelId] = [collectionId];
+        const claim = claimsById[item];
+
+        if (claim) {
+          const uri = claim.permanent_url;
+          uris.add(uri);
+        } else if (claim === undefined) {
+          notFetched = true;
+        }
       }
+
+      if (Number.isInteger(itemCount) ? uris.size === itemCount : notFetched) {
+        return true;
+      }
+    });
+
+    if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.size)) {
+      return undefined;
     }
 
-    Object.values(privateLists).forEach((col) => {
-      // $FlowIgnore
-      const { type, featuredChannelsParams, id } = col;
-      if (type === COL_TYPES.FEATURED_CHANNELS && featuredChannelsParams?.channelId) {
-        addToResults(featuredChannelsParams.channelId, id);
-      }
-    });
+    return Array.from(uris);
+  }
+)((state, url, itemCount) => `${String(url)}:${String(itemCount)}`);
 
-    Object.values(publicLists).forEach((col) => {
-      // $FlowIgnore
-      const { type, id } = col;
-      if (type === COL_TYPES.FEATURED_CHANNELS) {
-        const channelId = getChannelIdFromClaim(claimsById[id]);
-        if (channelId) {
-          addToResults(channelId, id);
-        }
-      }
-    });
+export const selectCollectionForIdClaimForUriItem = createSelector(
+  (state: State, id: string, uri: string) => uri,
+  (state: State, id: string, uri: string) => selectClaimForUri(state, uri),
+  selectUrlsForCollectionId,
+  selectItemsForCollectionId,
+  (uri, claim, collectionUrls, collectionItems) => {
+    const items = collectionUrls || collectionItems;
+    if (!items) return items;
 
-    return results;
+    if (items.includes(uri)) return uri;
+
+    if (!claim) return false;
+
+    const permanentUri = claim.permanent_url;
+
+    if (items.includes(permanentUri)) return permanentUri;
+
+    const canonicalUri = claim.canonical_url;
+
+    if (items.includes(canonicalUri)) return canonicalUri;
+
+    try {
+      const { streamClaimId: claimId } = parseURI(uri);
+      if (items.includes(claimId)) return claimId;
+    } catch (error) {}
+
+    return false;
   }
 );
-
-function flatten(ary, ret = []) {
-  // Array.flat() support not available in obscure browsers.
-  for (const entry of ary) {
-    if (Array.isArray(entry)) {
-      flatten(entry, ret);
-    } else {
-      ret.push(entry);
-    }
-  }
-  return ret;
-}
-
-export const selectFeaturedChannelsIds = createSelector(selectFeaturedChannelsByChannelId, (byChannelId) => {
-  // $FlowIgnore mixed
-  const values: Array<Array<CollectionId>> = Object.values(byChannelId);
-  return flatten(values);
-});
 
 export const selectCollectionTypeForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   return collection?.type;
 };
+
+export const selectSourceIdForCollectionId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  return collection && collection.sourceId;
+};
+
+export const selectCollectionKeyForId = (state: State, id: string) => {
+  if (id === COLLECTIONS_CONSTS.QUEUE_ID) return COLLECTIONS_CONSTS.QUEUE_ID;
+  if (selectUnpublishedCollectionForId(state, id)) return COLLECTIONS_CONSTS.KEYS.UNPUBLISHED;
+  if (selectEditedCollectionForId(state, id)) return COLLECTIONS_CONSTS.KEYS.EDITED;
+  if (COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id)) return COLLECTIONS_CONSTS.KEYS.BUILTIN;
+  if (selectUpdatedCollectionForId(state, id)) return COLLECTIONS_CONSTS.KEYS.UPDATED;
+
+  return undefined;
+};
+
+export const selectFirstPlayingCollectionIndexForId = (state: State, collectionId: string) => {
+  const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
+  if (!collectionIsPlaying) return collectionIsPlaying;
+
+  const playingCollectionShuffleUrls = selectCollectionForIdIsPlayingShuffle(state, collectionId);
+  const collectionUrls = selectUrlsForCollectionId(state, collectionId);
+
+  const urls = playingCollectionShuffleUrls || collectionUrls;
+
+  return urls && urls[0];
+};
+
+export const selectIndexForUrlInCollectionForId = createSelector(
+  selectCollectionForIdClaimForUriItem,
+  selectUrlsForCollectionId,
+  (uriItem, collectionUrls) => {
+    const index = collectionUrls && collectionUrls.findIndex((uri) => uri === uriItem);
+
+    if (index > -1) return index;
+
+    return null;
+  }
+);
+
+export const selectIndexForUriInPlayingCollectionForId = createSelector(
+  selectCollectionForIdClaimForUriItem,
+  selectUrlsForCollectionId,
+  selectCollectionForIdIsPlayingShuffle,
+  (uriItem, collectionUrls, playingCollectionShuffleUrls) => {
+    const uris = playingCollectionShuffleUrls || collectionUrls;
+
+    const index = uris && uris.findIndex((uri) => uri === uriItem);
+
+    if (index > -1) return index;
+
+    return null;
+  }
+);
+
+export const selectIsLastCollectionItemForIdAndUri = (state: State, collectionId: string, uri: string) => {
+  const index = selectIndexForUrlInCollectionForId(state, collectionId, uri);
+  const length = selectCollectionLengthForId(state, collectionId);
+
+  return index === length - 1;
+};
+
+export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelector(
+  selectUrlsForCollectionId,
+  selectIndexForUriInPlayingCollectionForId,
+  selectCollectionForIdIsPlayingShuffle,
+  selectCollectionForIdIsPlayingLoop,
+  (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
+    if (currentIndex === null) return null;
+
+    const uris = playingCollectionShuffleUrls || collectionUrls;
+
+    if (currentIndex === 0 && isLooped) {
+      return uris[uris.length - 1];
+    }
+
+    return uris[currentIndex - 1];
+  }
+)((state, url, id) => `${String(url)}:${String(id)}`);
+
+export const selectNextUriForUriInPlayingCollectionForId = createCachedSelector(
+  selectUrlsForCollectionId,
+  selectIndexForUriInPlayingCollectionForId,
+  selectCollectionForIdIsPlayingShuffle,
+  selectCollectionForIdIsPlayingLoop,
+  (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
+    if (currentIndex === null) return null;
+
+    const uris = playingCollectionShuffleUrls || collectionUrls;
+
+    if (currentIndex === uris.length - 1 && isLooped) {
+      return uris[0];
+    }
+
+    const nextListUri = uris[currentIndex + 1];
+    if (nextListUri) return nextListUri;
+
+    return null;
+  }
+)((state, url, id) => `${String(url)}:${String(id)}`);

@@ -74,13 +74,23 @@ const copyWebpackCommands = [
     force: true,
   },
   {
+    from: `${STATIC_ROOT}/tosdr.txt`,
+    to: `${output.PATH}/tosdr.txt`,
+    force: true,
+  },
+  {
     from: `${STATIC_ROOT}/img/favicon.png`,
     to: `${output.PATH}/public/favicon.png`,
     force: true,
   },
   {
-    from: `${STATIC_ROOT}/img/favicon-spaceman.png`,
-    to: `${output.PATH}/public/favicon-spaceman.png`,
+    from: `${STATIC_ROOT}/img/favicon_128.png`,
+    to: `${output.PATH}/public/favicon_128.png`,
+    force: true,
+  },
+  {
+    from: `${STATIC_ROOT}/img/favicon_notification_128.png`,
+    to: `${output.PATH}/public/favicon_notification_128.png`,
     force: true,
   },
   {
@@ -106,6 +116,10 @@ const copyWebpackCommands = [
   {
     from: `${STATIC_ROOT}/../custom/homepages/v2/announcement`,
     to: `${output.PATH}/announcement`,
+  },
+  {
+    from: `${STATIC_ROOT}/img/spaceman_pattern.png`,
+    to: `${output.PATH}/public/img/spaceman_pattern.png`,
   },
 ].filter((f) => fs.existsSync(f.from));
 

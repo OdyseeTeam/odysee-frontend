@@ -3,32 +3,29 @@ import React from 'react';
 import classnames from 'classnames';
 import Spinner from 'component/spinner';
 
+import { VideoRenderFloatingContext } from 'contexts/videoRenderFloating';
+
 type Props = {
   status?: string,
-  spinner: boolean,
-  isDocument: boolean,
+  spinner?: boolean,
+  transparent?: boolean,
 };
 
-class LoadingScreen extends React.PureComponent<Props> {
-  static defaultProps = {
-    spinner: true,
-    isDocument: false,
-  };
+const LoadingScreen = (props: Props) => {
+  const { status, spinner = true, transparent } = props;
 
-  render() {
-    const { status, spinner, isDocument } = this.props;
-    return (
-      <div className={classnames('content__loading', { 'content__loading--document': isDocument })}>
-        {spinner && (
-          <Spinner
-            light={!isDocument}
-            delayed
-            text={status && <span className={classnames('content__loading-text')}>{status}</span>}
-          />
-        )}
-      </div>
-    );
-  }
-}
+  const floatingContext = React.useContext(VideoRenderFloatingContext);
+
+  return (
+    <div
+      className={classnames('content__loading', {
+        'content__loading--transparent': transparent,
+        draggable: floatingContext?.draggable,
+      })}
+    >
+      {spinner && <Spinner light={!transparent} delayed={!transparent} text={status} />}
+    </div>
+  );
+};
 
 export default LoadingScreen;

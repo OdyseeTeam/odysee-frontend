@@ -14,8 +14,8 @@
     margin-bottom: -5px;
   }
 
-  .add-a-card-help-message {
-    font-size: 16px;
+  .help--no-card {
+    font-size: var(--font-base);
   }
 
   .confirm__wrapper {
@@ -26,6 +26,14 @@
     }
     .claim-preview__wrapper--channel {
       width: 100% !important;
+    }
+  }
+
+  .card__subtitle {
+    .section {
+      button:first-of-type {
+        bottom: -2px;
+      }
     }
   }
 }

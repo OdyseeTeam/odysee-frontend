@@ -103,7 +103,7 @@ export default function LivestreamSetupPage(props: Props) {
         <li>{__(`Tune: Zerolatency`)}</li>
       </ul>
       <p>
-        {__(`If using other streaming software, make sure the bitrate is below 4500 kbps or the stream will not work.`)}
+        {__(`If using other streaming software, make sure the bitrate is below 7000 kbps or the stream will not work.`)}
       </p>
       <p>{__(`For streaming from your mobile device, we recommend PRISM Live Studio from the app store.`)}</p>
       <p>
@@ -212,7 +212,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Button
           key={'Publish'}
           iconSize={18}
-          label={'Publish'}
+          label={__('Publish')}
           button="alt"
           onClick={() => {
             setTab('Publish');
@@ -223,7 +223,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Button
           key={'Setup'}
           iconSize={18}
-          label={'Local Setup'}
+          label={__('Local Setup')}
           button="alt"
           onClick={() => {
             setTab('Setup');
@@ -247,7 +247,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Icon icon={ICONS.VIDEO} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />}
         </label>
       </h1>
       <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />

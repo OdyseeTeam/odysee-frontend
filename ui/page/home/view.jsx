@@ -17,13 +17,13 @@ import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
-import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
-import Ads from 'web/component/ads';
+import AdTileA from 'web/component/ads/adTileA';
 import Meme from 'web/component/meme';
-
-const CATEGORY_LIVESTREAM_LIMIT = 3;
+import Portals from 'component/portals';
+import FeaturedBanner from 'component/featuredBanner';
+import { useHistory } from 'react-router-dom';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
@@ -35,15 +35,15 @@ type Props = {
   homepageData: any,
   homepageMeme: ?{ text: string, url: string },
   homepageFetched: boolean,
-  activeLivestreams: any,
-  doFetchActiveLivestreams: () => void,
+  doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
-  hasMembership: ?boolean,
+  userHasOdyseeMembership: ?boolean,
   hasPremiumPlus: boolean,
   currentTheme: string,
+  getActiveLivestreamUrisForIds: (Array<string>) => Array<string>,
 };
 
 function HomePage(props: Props) {
@@ -55,14 +55,14 @@ function HomePage(props: Props) {
     homepageData,
     homepageMeme,
     homepageFetched,
-    activeLivestreams,
-    doFetchActiveLivestreams,
+    doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
     hideScheduledLivestreams,
     homepageOrder,
     doOpenModal,
-    hasMembership,
+    userHasOdyseeMembership,
     hasPremiumPlus,
+    getActiveLivestreamUrisForIds,
   } = props;
 
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
@@ -70,6 +70,7 @@ function HomePage(props: Props) {
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
   const subscriptionChannelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
+  const { push } = useHistory();
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
@@ -84,7 +85,13 @@ function HomePage(props: Props) {
     showNsfw
   );
 
-  const sortedRowData: Array<RowDataItem> = getSortedRowData(authenticated, hasMembership, homepageOrder, rowData);
+  const sortedRowData: Array<RowDataItem> = getSortedRowData(
+    authenticated,
+    userHasOdyseeMembership,
+    homepageOrder,
+    homepageData,
+    rowData
+  );
 
   type SectionHeaderProps = {
     title: string,
@@ -92,6 +99,8 @@ function HomePage(props: Props) {
     icon?: string,
     help?: string,
   };
+
+  const topGrid = sortedRowData.findIndex((row) => row.title);
 
   const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
     return (
@@ -110,14 +119,25 @@ function HomePage(props: Props) {
       <Button
         button="link"
         iconRight={ICONS.SETTINGS}
-        onClick={() => doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)}
+        onClick={() => (authenticated ? doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE) : signupDriver())}
         title={__('Sort and customize your homepage')}
         label={__('Customize --[Short label for "Customize Homepage"]--')}
       />
     );
   };
 
+  function signupDriver() {
+    push(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
+    // doToast({ message: __('An account is required to customize your Homepage.') });
+  }
+
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
+    if (id === 'BANNER') {
+      return <FeaturedBanner homepageData={homepageData} authenticated={authenticated} />;
+    } else if (id === 'PORTALS') {
+      return <Portals homepageData={homepageData} authenticated={authenticated} />;
+    }
+
     const tilePlaceholder = (
       <ul className="claim-grid">
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
@@ -129,14 +149,13 @@ function HomePage(props: Props) {
     const claimTiles = (
       <ClaimTilesDiscover
         {...options}
+        channelIdsParam={(options.channelIds && options.channelIds.length > 0 && options.channelIds) || undefined}
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+        hideMembersOnly={id !== 'FOLLOWING'}
         hasSource
-        prefixUris={getLivestreamUris(activeLivestreams, options.channelIds).slice(
-          0,
-          id === 'FOLLOWING' ? undefined : CATEGORY_LIVESTREAM_LIMIT
-        )}
+        prefixUris={options.channelIds && getActiveLivestreamUrisForIds(options.channelIds)}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        injectedItem={index === 0 && !hasPremiumPlus && { node: <Ads small type="video" tileLayout /> }}
+        injectedItem={index === topGrid && !hasPremiumPlus && { node: <AdTileA small type="video" tileLayout /> }}
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />
@@ -149,10 +168,11 @@ function HomePage(props: Props) {
 
       return (
         <>
+          {index === topGrid && <Meme meme={homepageMeme} />}
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {index === 0 && <CustomizeHomepage />}
+              {index === topGrid && <CustomizeHomepage />}
             </div>
           )}
         </>
@@ -167,7 +187,7 @@ function HomePage(props: Props) {
         })}
       >
         {id === 'FYP' ? (
-          <RecommendedPersonal header={<HeaderArea />} />
+          userHasOdyseeMembership && <RecommendedPersonal header={<HeaderArea />} />
         ) : (
           <>
             <HeaderArea />
@@ -193,26 +213,11 @@ function HomePage(props: Props) {
   }
 
   React.useEffect(() => {
-    doFetchActiveLivestreams();
+    doFetchAllActiveLivestreamsForQuery();
   }, []);
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>
-      <Meme meme={homepageMeme} />
-
-      {!fetchingActiveLivestreams && (
-        <>
-          {authenticated && subscriptionChannelIds.length > 0 && !hideScheduledLivestreams && (
-            <ScheduledStreams
-              channelIds={subscriptionChannelIds}
-              tileLayout
-              liveUris={getLivestreamUris(activeLivestreams, subscriptionChannelIds)}
-              limitClaimsPerChannel={2}
-            />
-          )}
-        </>
-      )}
-
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
         <div className="empty--centered">
           <Yrbl
@@ -223,11 +228,32 @@ function HomePage(props: Props) {
         </div>
       )}
 
-      {sortedRowData.map(
-        ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-          return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
-        }
-      )}
+      {homepageFetched &&
+        sortedRowData.map(
+          ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
+            if (id !== 'FOLLOWING') {
+              return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
+            } else {
+              return (
+                <>
+                  {!fetchingActiveLivestreams &&
+                    authenticated &&
+                    subscriptionChannelIds.length > 0 &&
+                    id === 'FOLLOWING' &&
+                    !hideScheduledLivestreams && (
+                      <ScheduledStreams
+                        channelIds={subscriptionChannelIds}
+                        tileLayout
+                        liveUris={getActiveLivestreamUrisForIds(subscriptionChannelIds)}
+                        limitClaimsPerChannel={2}
+                      />
+                    )}
+                  {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
+                </>
+              );
+            }
+          }
+        )}
     </Page>
   );
 }

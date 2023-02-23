@@ -102,6 +102,7 @@ export const EYE_OFF = 'EyeOff';
 export const SIGN_OUT = 'SignOut';
 export const SIGN_IN = 'SignIn';
 export const SIGN_UP = 'Key';
+export const BACK = 'Back';
 export const TRENDING = 'Trending';
 export const TOP = 'Top';
 export const NEW = 'New';
@@ -219,3 +220,11 @@ export const PLAYLIST_FILLED = 'PlaylistFilled';
 export const ARRANGE = 'Arrange';
 export const COMEDY = 'Comedy';
 export const LIFESTYLE = 'Lifestyle';
+export const MEMBERSHIP = 'Membership';
+export const GOLIVE = 'GOLIVE';
+export const GHOST = 'Ghost';
+export const SPIRITUALITY = 'Spirituality';
+export const HORROR = 'Horror';
+
+// -- Temporary --
+export const HOLIDAY = 'Holiday';

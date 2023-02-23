@@ -29,7 +29,39 @@ declare type CommentSubmitParams = {
   payment_intent_id?: ?string,
   environment?: ?string,
   sticker: boolean,
+  is_protected?: boolean,
 };
+
+// ****************************************************************************
+// Sections
+// ****************************************************************************
+
+declare type Sections = {
+  version: '0.1' | '1.0',
+  entries: Array<FeaturedChannelsSection | ShortsSection>,
+};
+
+declare type SectionValueTypes = 'featured_channels' | 'shorts';
+
+declare type FeaturedChannelsSection = {
+  id: string,
+  value_type: 'featured_channels',
+  value: {
+    title?: string,
+    description?: string,
+    uris: Array<string>,
+  },
+};
+
+declare type ShortsSection = {
+  // Just a dummy example to start a pattern.
+  id: string,
+  value_type: 'shorts',
+  value: { uris: Array<string> },
+};
+
+// ****************************************************************************
+// ****************************************************************************
 
 declare type PerChannelSettings = {
   words?: Array<string>,
@@ -38,6 +70,10 @@ declare type PerChannelSettings = {
   min_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
   time_since_first_comment?: number,
+  livestream_chat_members_only?: boolean,
+  comments_members_only?: boolean,
+  homepage_settings?: any,
+  channel_sections?: Sections,
 };
 
 // todo: relate individual comments to their commentId
@@ -309,6 +345,8 @@ declare type SettingsResponse = {
   slow_mode_min_gap: number,
   curse_jar_amount: number,
   filters_enabled?: boolean,
+  livestream_chat_members_only?: boolean,
+  comments_members_only?: boolean,
 };
 
 declare type UpdateSettingsParams = {
@@ -321,6 +359,8 @@ declare type UpdateSettingsParams = {
   min_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
   time_since_first_comment?: number,
+  livestream_chat_members_only?: boolean,
+  comments_members_only?: boolean,
 };
 
 declare type BlockWordParams = {
@@ -329,4 +369,9 @@ declare type BlockWordParams = {
   signature: string,
   signing_ts: string,
   words: string, // CSV list of containing words to block comment on content
+};
+
+declare type WebsocketSettingDataResponse = {
+  LivestreamChatMembersOnly?: boolean,
+  CommentsMembersOnly?: boolean,
 };

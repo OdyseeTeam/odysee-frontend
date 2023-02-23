@@ -17,8 +17,22 @@ import {
 import { resolveApiMessage } from 'util/api-message';
 import { creditsToString } from 'util/format-credits';
 import { dispatchToast } from 'util/toast-wrappers';
-import { selectMyClaimsRaw, selectClaimsById } from 'redux/selectors/claims';
+import {
+  selectMyClaimsRaw,
+  selectClaimsById,
+  selectClaimForUri,
+  selectPreorderTagForUri,
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
+} from 'redux/selectors/claims';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { getChannelFromClaim } from 'util/claim';
 import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
+
+import { getStripeEnvironment } from 'util/stripe';
+const stripeEnvironment = getStripeEnvironment();
+
 const FIFTEEN_SECONDS = 15000;
 let walletBalancePromise = null;
 
@@ -330,8 +344,7 @@ export function doSendDraftTransaction(address, amount) {
         dispatch(
           doOpenModal(MODALS.CONFIRM, {
             title: __('Transaction failed'),
-            body:
-              'The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry.',
+            body: 'The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry.',
             onConfirm: (closeModal) => closeModal(),
             hideCancel: true,
           })
@@ -754,124 +767,134 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
   }, 30000);
 };
 
-export const doSendCashTip = (
-  tipParams,
-  anonymous,
-  userParams,
-  claimId,
-  stripeEnvironment,
-  preferredCurrency,
-  successCallback
-) => (dispatch) => {
-  Lbryio.call(
-    'customer',
-    'tip',
-    {
-      // round to fix issues with floating point numbers
-      amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
-      creator_channel_name: tipParams.tipChannelName, // creator_channel_name
-      creator_channel_claim_id: tipParams.channelClaimId,
-      tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
-      tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
-      currency: preferredCurrency || 'USD',
-      anonymous: anonymous,
-      source_claim_id: claimId,
-      environment: stripeEnvironment,
-    },
-    'post'
-  )
-    .then((customerTipResponse) => {
-      const fiatSymbol = preferredCurrency === 'USD' ? '$' : '€';
+export const doSendCashTip =
+  (tipParams, anonymous, userParams, claimId, stripeEnvironment, preferredCurrency, successCallback) => (dispatch) => {
+    Lbryio.call(
+      'customer',
+      'tip',
+      {
+        // round to fix issues with floating point numbers
+        amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
+        creator_channel_name: tipParams.tipChannelName, // creator_channel_name
+        creator_channel_claim_id: tipParams.channelClaimId,
+        tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
+        tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
+        currency: preferredCurrency || 'USD',
+        anonymous: anonymous,
+        source_claim_id: claimId,
+        environment: stripeEnvironment,
+      },
+      'post'
+    )
+      .then((customerTipResponse) => {
+        const fiatSymbol = preferredCurrency === 'USD' ? '$' : '€';
 
-      dispatch(
-        doToast({
-          message: __('Tip successfully sent.'),
-          subMessage: __("I'm sure they appreciate it!"),
-          linkText: `${fiatSymbol}${tipParams.tipAmount} ⇒ ${tipParams.tipChannelName}`,
-          linkTarget: '/wallet',
-        })
-      );
+        dispatch(
+          doToast({
+            message: __('Tip successfully sent.'),
+            subMessage: __("I'm sure they appreciate it!"),
+            linkText: `${fiatSymbol}${tipParams.tipAmount} ⇒ ${tipParams.tipChannelName}`,
+            linkTarget: '/wallet',
+          })
+        );
 
-      if (successCallback) successCallback(customerTipResponse);
-    })
-    .catch((error) => {
-      // show error message from Stripe if one exists (being passed from backend by Beamer's API currently)
-      dispatch(
-        doToast({
-          message: error.message || __('Sorry, there was an error in processing your payment!'),
-          isError: true,
-        })
-      );
-    });
-};
+        if (successCallback) successCallback(customerTipResponse);
+      })
+      .catch((error) => {
+        // show error message from Stripe if one exists (being passed from backend by Beamer's API currently)
+        dispatch(
+          doToast({
+            message: error.message || __('Sorry, there was an error in processing your payment!'),
+            isError: true,
+          })
+        );
+      });
+  };
 
-export const preOrderPurchase = (
-  tipParams,
-  anonymous,
-  userParams,
-  claimId,
-  stripeEnvironment,
-  preferredCurrency,
-  type,
-  expirationTime,
-  successCallback,
-  failureCallback
-) => (dispatch) => {
-  Lbryio.call(
-    'customer',
-    'new_transaction',
-    {
-      // round to fix issues with floating point numbers
-      amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
-      creator_channel_name: tipParams.tipChannelName, // creator_channel_name
-      creator_channel_claim_id: tipParams.channelClaimId,
-      tipper_channel_name: userParams.activeChannelName,
-      tipper_channel_claim_id: userParams.activeChannelId,
-      currency: preferredCurrency || 'USD',
-      anonymous: anonymous,
-      source_claim_id: claimId,
-      environment: stripeEnvironment,
-      target_claim_id: claimId,
-      type,
-      validity_seconds: expirationTime,
-    },
-    'post'
-  )
-    .then((customerTipResponse) => {
-      const STRINGS = {
-        purchase: {
-          title: 'Purchase completed successfully',
-        },
-        preorder: {
-          title: 'Preorder completed successfully',
-          subtitle: "You will be able to see the content as soon as it's available!",
-        },
-        rental: {
-          title: 'Renting content completed successfully',
-          subtitle: 'Enjoy your content!',
-        },
-      };
+export const doPurchaseClaimForUri =
+  ({ uri, transactionType }) =>
+  (dispatch, getState) => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    const channelClaim = getChannelFromClaim(claim);
 
-      const stringsToUse = STRINGS[type];
+    if (!channelClaim) return Promise.resolve();
 
-      dispatch(
-        doToast({
-          message: __(stringsToUse.title),
-          subMessage: __(stringsToUse.subtitle),
-        })
-      );
+    const { claim_id: channelClaimId, name: tipChannelName } = channelClaim;
 
-      if (successCallback) successCallback(customerTipResponse);
-    })
-    .catch((error) => {
-      // show error message from Stripe if one exists (being passed from backend by Beamer's API currently)
-      dispatch(
-        doToast({
-          message: error.message || __('Sorry, there was an error in processing your payment!'),
-          isError: true,
-        })
-      );
+    const activeChannelClaim = selectActiveChannelClaim(state);
+    const preferredCurrency = selectPreferredCurrency(state);
 
-      if (failureCallback) failureCallback(error);
-    });
-};
+    const preorderTag = selectPreorderTagForUri(state, uri);
+    const purchaseTag = selectPurchaseTagForUri(state, uri);
+    const rentalTag = selectRentalTagForUri(state, uri);
+    const tags = { rentalTag, purchaseTag, preorderTag };
+
+    const itsARental = transactionType === 'rental';
+
+    let tipAmount = 0;
+    let rentTipAmount = 0;
+
+    if (tags.purchaseTag && tags.rentalTag) {
+      tipAmount = tags.purchaseTag;
+      rentTipAmount = tags.rentalTag.price;
+    } else if (tags.purchaseTag) {
+      tipAmount = tags.purchaseTag;
+    } else if (tags.rentalTag) {
+      tipAmount = tags.rentalTag.price;
+    } else if (tags.preorderTag) {
+      tipAmount = tags.preorderTag;
+    }
+
+    const amount = itsARental ? rentTipAmount : tipAmount;
+    const expirationTime = itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
+
+    return Lbryio.call(
+      'customer',
+      'new_transaction',
+      {
+        // round to fix issues with floating point numbers
+        amount: Math.round(100 * amount), // convert from dollars to cents
+        creator_channel_name: tipChannelName,
+        creator_channel_claim_id: channelClaimId,
+        ...(activeChannelClaim
+          ? { tipper_channel_name: activeChannelClaim.name, tipper_channel_claim_id: activeChannelClaim.claim_id }
+          : { anonymous: true }),
+        currency: preferredCurrency || 'USD',
+        environment: stripeEnvironment,
+        source_claim_id: claim.claim_id,
+        target_claim_id: claim.claim_id,
+        type: transactionType,
+        validity_seconds: expirationTime,
+      },
+      'post'
+    )
+      .then((customerTipResponse) => {
+        const STRINGS = {
+          purchase: {
+            title: 'Purchase completed successfully',
+            subtitle: 'Enjoy!',
+          },
+          preorder: {
+            title: 'Preorder completed successfully',
+            subtitle: "You will be able to see the content as soon as it's available!",
+          },
+          rental: {
+            title: 'Rental completed successfully',
+            subtitle: 'Enjoy!',
+          },
+        };
+
+        const stringsToUse = STRINGS[transactionType];
+
+        dispatch(doToast({ message: __(stringsToUse.title), subMessage: __(stringsToUse.subtitle) }));
+      })
+      .catch((error) => {
+        dispatch(
+          doToast({
+            message: error.message || __('Sorry, there was an error in processing your payment!'),
+            isError: true,
+          })
+        );
+      });
+  };

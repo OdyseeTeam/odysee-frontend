@@ -2,10 +2,9 @@ import { connect } from 'react-redux';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import WalletTipAmountSelector from './view';
-import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectCanReceiveFiatTipsForUri, selectHasSavedCard } from 'redux/selectors/stripe';
-import { doTipAccountCheckForUri, doGetCustomerStatus } from 'redux/actions/stripe';
+import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -15,14 +14,11 @@ const select = (state, props) => {
     claim: selectClaimForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
-    hasSavedCard: selectHasSavedCard(state),
   };
 };
 
 const perform = {
   doTipAccountCheckForUri,
-  doGetCustomerStatus,
-  doOpenModal,
 };
 
 export default connect(select, perform)(WalletTipAmountSelector);

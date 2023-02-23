@@ -39,6 +39,11 @@ const SIDE_LINKS: Array<SideNavLink> = [
     icon: ICONS.CONTENT,
   },
   {
+    title: 'Player settings',
+    section: SETTINGS_GRP.PLAYER,
+    icon: ICONS.PLAY,
+  },
+  {
     title: 'System',
     section: SETTINGS_GRP.SYSTEM,
     icon: ICONS.SETTINGS,

@@ -41,7 +41,7 @@
 .homepage-sort__entry {
   display: flex;
   width: 100%;
-  border: 1px solid grey;
+  border: 1px solid var(--color-border);
   margin-bottom: var(--spacing-m);
   background-color: var(--color-card-background);
   padding: var(--spacing-xs) var(--spacing-m) var(--spacing-xs) var(--spacing-m);
@@ -58,4 +58,8 @@
 
 .homepage-sort__entry:last-child {
   margin-bottom: 0;
+}
+
+.homepage-sort__entry-special {
+  background-color: rgba(var(--color-primary-dynamic), 0.1);
 }

@@ -11,7 +11,7 @@ import * as SETTINGS from 'constants/settings';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import Lbry from 'lbry';
-import { doFetchChannelListMine, doFetchCollectionListMine, doCheckPendingClaims } from 'redux/actions/claims';
+import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
 import { doFetchFileInfos } from 'redux/actions/file_info';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
@@ -46,6 +46,7 @@ import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from 'redux/actions/sync';
 import { doAuthenticate } from 'redux/actions/user';
 import p from 'package.json';
+import { doMembershipMine } from 'redux/actions/memberships';
 import analytics from 'analytics';
 import { doSignOutCleanup } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
@@ -496,7 +497,7 @@ export function doToggleSearchExpanded() {
   };
 }
 
-export function doAnalyticsView(uri, timeToStart) {
+export function doAnalyticsViewForUri(uri) {
   return (dispatch, getState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
@@ -508,7 +509,7 @@ export function doAnalyticsView(uri, timeToStart) {
       return Promise.resolve();
     }
 
-    return analytics.apiLog.view(uri, outpoint, claimId, timeToStart);
+    return analytics.apiLog.view(uri, outpoint, claimId);
   };
 }
 
@@ -569,7 +570,7 @@ export function doSignIn() {
     dispatch(doCheckPendingClaims());
     dispatch(doBalanceSubscribe());
     dispatch(doFetchChannelListMine());
-    dispatch(doFetchCollectionListMine());
+    dispatch(doMembershipMine());
   };
 }
 
@@ -804,3 +805,6 @@ export function doToggleAppDrawer(type) {
 
 export const doSetMainPlayerDimension = (dimensions) => (dispatch) =>
   dispatch({ type: ACTIONS.SET_MAIN_PLAYER_DIMENSIONS, data: dimensions });
+
+export const doSetVideoSourceLoaded = (uri) => (dispatch) =>
+  dispatch({ type: ACTIONS.SET_VIDEO_SOURCE_LOADED, data: uri });

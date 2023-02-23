@@ -14,15 +14,24 @@ type Props = {
   includeStartTime: boolean,
   startTime: number,
   referralCode: ?string,
-  newestType?: boolean,
+  newestType?: string,
 };
 
 export default function EmbedTextArea(props: Props) {
   const { doToast, snackMessage, label, claim, includeStartTime, startTime, referralCode, newestType } = props;
+
+  const [embedAutoplay, setEmbedAutoplay] = React.useState(false);
+
   const { canonical_url: canonicalUri } = claim;
   const input = useRef();
 
-  const streamUrl = generateEmbedUrl(canonicalUri, includeStartTime && startTime, referralCode, newestType);
+  const streamUrl = generateEmbedUrl(
+    canonicalUri,
+    includeStartTime && startTime,
+    referralCode,
+    newestType,
+    embedAutoplay
+  );
   const { html: embedText } = generateEmbedIframeData(streamUrl);
 
   function copyToClipboard() {
@@ -54,10 +63,20 @@ export default function EmbedTextArea(props: Props) {
         readOnly
       />
 
+      <div className="margin-vertical-medium">
+        <FormField
+          name={'embed-autoplay' + (newestType ? ' ' + newestType : '')}
+          type="checkbox"
+          label={__('Enable Autoplay')}
+          checked={embedAutoplay}
+          onChange={() => setEmbedAutoplay((prev) => !prev)}
+        />
+      </div>
+
       <div className="section__actions">
         <Button
           icon={ICONS.COPY}
-          button="secondary"
+          button="primary"
           label={__('Copy')}
           onClick={() => {
             copyToClipboard();

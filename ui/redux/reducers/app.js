@@ -50,6 +50,7 @@ export type AppState = {
   adBlockerFound: ?boolean, // undefined = unknown; true/false = yes/no;
   appDrawerOpen: boolean | string,
   mainPlayerDimensions: { height: ?number, width: ?number },
+  videoSourceLoaded: ?string,
 };
 
 const defaultState: AppState = {
@@ -93,6 +94,7 @@ const defaultState: AppState = {
   adBlockerFound: undefined,
   appDrawerOpen: false,
   mainPlayerDimensions: { height: undefined, width: undefined },
+  videoSourceLoaded: undefined,
 };
 
 // @@router comes from react-router
@@ -345,6 +347,10 @@ reducers[ACTIONS.SET_AD_BLOCKER_FOUND] = (state, action) => {
 
 reducers[ACTIONS.SET_MAIN_PLAYER_DIMENSIONS] = (state, action) => {
   return { ...state, mainPlayerDimensions: action.data };
+};
+
+reducers[ACTIONS.SET_VIDEO_SOURCE_LOADED] = (state, action) => {
+  return { ...state, videoSourceLoaded: action.data };
 };
 
 reducers[ACTIONS.DRAWER_OPENED] = (state, action) => {

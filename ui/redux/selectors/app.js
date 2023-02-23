@@ -1,7 +1,8 @@
 import { createSelector } from 'reselect';
 import { SHOW_ADS } from 'config';
 import { selectClaimForId, selectMyChannelClaims, selectStakedLevelForChannelUri } from 'redux/selectors/claims';
-import { selectOdyseeMembershipIsPremiumPlus, selectUserEmail, selectUserLocale } from 'redux/selectors/user';
+import { selectUserEmail, selectUserLocale } from 'redux/selectors/user';
+import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import { selectDefaultChannelClaim } from 'redux/selectors/settings';
 
 export const selectState = (state) => state.app || {};
@@ -102,7 +103,7 @@ export const selectActiveChannelClaim = createSelector(
 
 export const selectActiveChannelClaimId = (state) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
-  return activeChannelClaim?.claim_id;
+  return activeChannelClaim && activeChannelClaim.claim_id;
 };
 
 export const selectActiveChannelStakedLevel = (state) => {
@@ -143,16 +144,19 @@ export const selectShouldShowAds = (state) => {
   return (
     SHOW_ADS &&
     selectAdBlockerFound(state) === false &&
-    selectOdyseeMembershipIsPremiumPlus(state) === false &&
+    selectUserHasOdyseePremiumPlus(state) === false &&
     selectIsAdAllowedPerGdpr(state)
   );
 };
 
 export const selectAppDrawerOpen = (state) => selectState(state).appDrawerOpen;
 export const selectMainPlayerDimensions = (state) => selectState(state).mainPlayerDimensions;
+export const selectVideoSourceLoaded = (state) => selectState(state).videoSourceLoaded;
 export const selectHasAppDrawerOpen = (state) => Boolean(selectAppDrawerOpen(state));
 
 export const selectIsDrawerOpenForType = (state, type) => {
   const appDrawerOpen = selectAppDrawerOpen(state);
   return appDrawerOpen === type;
 };
+
+export const selectVideoSourceLoadedForUri = (state, uri) => selectVideoSourceLoaded(state) === uri;

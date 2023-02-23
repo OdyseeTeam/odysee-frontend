@@ -1,7 +1,9 @@
 // @flow
 import React from 'react';
 import { FormField, Form } from 'component/common/form';
+import { useHistory } from 'react-router';
 import { CollectionsListContext } from 'page/playlists/internal/collectionsListMine/view';
+import * as COLS from 'constants/collections';
 import * as MODALS from 'constants/modal_types';
 import * as KEYCODES from 'constants/keycodes';
 import * as ICONS from 'constants/icons';
@@ -18,8 +20,27 @@ const RightSideActions = (props: Props) => {
 
   const { searchText, setSearchText } = React.useContext(CollectionsListContext);
 
+  const history = useHistory();
+  const {
+    location: { search },
+  } = history;
+  const urlParams = new URLSearchParams(search);
+
   function handleCreatePlaylist() {
     doOpenModal(MODALS.COLLECTION_CREATE);
+  }
+
+  function handleSearchTextChange(value) {
+    setSearchText(value);
+
+    if (value === '') {
+      urlParams.get(COLS.SEARCH_TERM_KEY) && urlParams.delete(COLS.SEARCH_TERM_KEY);
+    } else {
+      urlParams.set(COLS.SEARCH_TERM_KEY, value);
+    }
+
+    const url = `?${urlParams.toString()}`;
+    history.push(url);
   }
 
   function escapeListener(e: SyntheticKeyboardEvent<*>) {
@@ -49,7 +70,7 @@ const RightSideActions = (props: Props) => {
             onBlur={onTextareaBlur}
             className="wunderbar__input--inline"
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e) => handleSearchTextChange(e.target.value)}
             type="text"
             placeholder={__('Search')}
           />

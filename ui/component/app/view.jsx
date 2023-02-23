@@ -12,7 +12,7 @@ import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
-import FileRenderFloating from 'component/fileRenderFloating';
+import VideoRenderFloating from 'component/videoRenderFloating';
 import { withRouter } from 'react-router';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/nag';
@@ -65,8 +65,6 @@ type Props = {
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string, hostname: string, reload: () => void },
   history: { push: (string) => void, location: { pathname: string }, replace: (string) => void },
-  fetchChannelListMine: () => void,
-  fetchCollectionListMine: () => void,
   signIn: () => void,
   setLanguage: (string) => void,
   fetchLanguage: (string) => void,
@@ -95,7 +93,10 @@ type Props = {
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetGdprConsentList: (csv: string) => void,
+  hasPremiumPlus: boolean,
 };
+
+export const AppContext = React.createContext<any>();
 
 function App(props: Props) {
   const {
@@ -103,8 +104,6 @@ function App(props: Props) {
     user,
     locale,
     location,
-    fetchChannelListMine,
-    fetchCollectionListMine,
     signIn,
     isReloadRequired,
     uploadCount,
@@ -134,6 +133,7 @@ function App(props: Props) {
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetGdprConsentList,
+    hasPremiumPlus = true,
   } = props;
 
   const isMobile = useIsMobile();
@@ -317,13 +317,6 @@ function App(props: Props) {
   }, [sanitizedReferrerParam, referredRewardAvailable]);
 
   useEffect(() => {
-    // @if TARGET='app'
-    fetchChannelListMine(); // This is fetched after a user is signed in on web
-    fetchCollectionListMine();
-    // @endif
-  }, [fetchChannelListMine, fetchCollectionListMine]);
-
-  useEffect(() => {
     // $FlowFixMe
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
@@ -414,10 +407,10 @@ function App(props: Props) {
     }
 
     if (inIframe() || !locale || !locale.gdpr_required) {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      const ad = document.getElementById('sticky-d-rc');
       if (ad) {
         if (!nagsShown) ad.classList.add('VISIBLE');
-        if (!sidebarOpen || isMobile) ad.classList.add('LEFT');
+        if (!sidebarOpen || isMobile) ad.classList.remove('LEFT');
       }
       return;
     }
@@ -441,7 +434,7 @@ function App(props: Props) {
     window.gdprCallback = () => {
       doSetGdprConsentList(window.OnetrustActiveGroups);
       if (window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
-        const ad = document.getElementsByClassName('OUTBRAIN')[0];
+        const ad = document.getElementsByClassName('rev-shifter')[0];
         if (ad && !window.nagsShown) ad.classList.add('VISIBLE');
       }
     };
@@ -471,7 +464,7 @@ function App(props: Props) {
       const ad = document.getElementsByClassName('VISIBLE')[0];
       if (ad) ad.classList.remove('VISIBLE');
     } else {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      const ad = document.getElementsByClassName('rev-shifter')[0];
       if (ad) ad.classList.add('VISIBLE');
     }
   }, [nagsShown]);
@@ -563,15 +556,15 @@ function App(props: Props) {
           subtitle={__('My wheel broke, but the good news is that someone from LBRY is working on it.')}
         />
       ) : (
-        <React.Fragment>
+        <AppContext.Provider value={{ uri }}>
           <AdBlockTester />
-          <AdsSticky uri={uri} />
+          {!hasPremiumPlus && !embedPath && <AdsSticky uri={uri} />}
           <Router uri={uri} />
           <ModalRouter />
 
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
 
-          <FileRenderFloating />
+          {!embedPath && <VideoRenderFloating />}
 
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
@@ -583,7 +576,8 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
-        </React.Fragment>
+          <AdBlockTester />
+        </AppContext.Provider>
       )}
     </div>
   );

@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import { BLOCK_LEVEL } from 'constants/comment';
 import React from 'react';
 import classnames from 'classnames';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import humanizeDuration from 'humanize-duration';
 import BlockList from 'component/blockList';
 import ClaimPreview from 'component/claimPreview';
@@ -31,10 +31,12 @@ type Props = {
   moderatorTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
   moderatorBlockListDelegatorsMap: { [string]: Array<string> },
   fetchingModerationBlockList: boolean,
+  appLanguage: string,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
   delegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
   myChannelClaimIds: ?Array<string>,
+  doResolveUris: (uris: Array<string>) => void,
 };
 
 function ListBlocked(props: Props) {
@@ -48,10 +50,12 @@ function ListBlocked(props: Props) {
     moderatorTimeoutMap,
     moderatorBlockListDelegatorsMap: delegatorsMap,
     fetchingModerationBlockList,
+    appLanguage,
     fetchModBlockedList,
     fetchModAmIList,
     delegatorsById,
     myChannelClaimIds,
+    doResolveUris,
   } = props;
   const [viewMode, setViewMode] = usePersistedState('blocked-muted:display', VIEW.BLOCKED);
 
@@ -67,6 +71,10 @@ function ListBlocked(props: Props) {
     myChannelClaimIds.some((id) => delegatorsById[id] && Object.keys(delegatorsById[id].delegators).length > 0);
 
   // **************************************************************************
+
+  React.useEffect(() => {
+    doResolveUris(getList(viewMode) || []);
+  }, [getList(viewMode)]);
 
   function getList(view) {
     switch (view) {
@@ -92,7 +100,7 @@ function ListBlocked(props: Props) {
         <div>
           <div className="help">
             <blockquote>
-              {moment(timeoutInfo.blockedAt).format('MMMM Do, YYYY @ HH:mm')}
+              {moment(timeoutInfo.blockedAt).locale(appLanguage).format('LLL')}
               <br />
               {getDurationStr(timeoutInfo.bannedFor)}{' '}
               {__('(Remaining: %duration%) --[timeout ban duration]--', {
@@ -133,7 +141,7 @@ function ListBlocked(props: Props) {
                   <label>{__('Blocked on behalf of:')}</label>
                   <ul className="section">
                     <div>
-                      <ClaimPreview uri={delegatorUri} hideMenu hideActions type="inline" properties={false} />
+                      <ClaimPreview uri={delegatorUri} hideMenu hideActions hideJoin type="inline" properties={false} />
                       {moderatorTimeoutMap[uri] && getBanInfoElem(moderatorTimeoutMap[uri])}
                     </div>
                     <ChannelBlockButton uri={uri} blockLevel={BLOCK_LEVEL.MODERATOR} creatorUri={delegatorUri} />

@@ -1,6 +1,6 @@
 @import '~ui/scss/init/breakpoints';
 
-$OPTIONS_MIN_WIDTH: 250px;
+// $OPTIONS_MIN_WIDTH: 250px;
 
 .clh-tag-search {
   .button-toggle {
@@ -34,10 +34,15 @@ $OPTIONS_MIN_WIDTH: 250px;
 
 .clh-tag-search__input_group {
   display: flex;
+  width: 100%;
+  fieldset-section {
+    width: 100%;
+  }
 }
 
 .clh-tag-search__input {
-  width: $OPTIONS_MIN_WIDTH;
+  // width: $OPTIONS_MIN_WIDTH;
+  width: 100%;
 }
 
 .clh-tag-search__input--standalone {

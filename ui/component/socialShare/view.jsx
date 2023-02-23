@@ -38,6 +38,8 @@ type Props = {
   doFetchInviteStatus: (boolean) => void,
   disableDownloadButton: boolean,
   isMature: boolean,
+  isMembershipProtected: boolean,
+  isFiatRequired: boolean,
 };
 
 function SocialShare(props: Props) {
@@ -53,6 +55,8 @@ function SocialShare(props: Props) {
     doFetchInviteStatus,
     disableDownloadButton,
     isMature,
+    isMembershipProtected,
+    isFiatRequired,
   } = props;
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
@@ -107,6 +111,7 @@ function SocialShare(props: Props) {
     includedCollectionId
   );
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
+  const claimLinkElements = getClaimLinkElements();
 
   // Tweet params
   let tweetIntentParams = {
@@ -130,6 +135,29 @@ function SocialShare(props: Props) {
         url: window.location.href,
       });
     }
+  }
+
+  function getClaimLinkElements() {
+    const elements = [];
+
+    if (Boolean(isStream) && !disableDownloadButton && !isMature && !isMembershipProtected && !isFiatRequired) {
+      elements.push(<CopyableText label={__('Download Link')} copyable={downloadUrl} />);
+    }
+
+    if (rssUrl) {
+      elements.push(<CopyableText label={__('RSS Url')} copyable={rssUrl} />);
+    }
+
+    if (isChannel) {
+      elements.push(
+        <>
+          <CopyableText label={__('Latest Content Link')} copyable={generateNewestUrl(name, PAGES.LATEST)} />
+          <CopyableText label={__('Current Livestream Link')} copyable={generateNewestUrl(name, PAGES.LIVE_NOW)} />
+        </>
+      );
+    }
+
+    return elements;
   }
 
   return (
@@ -177,6 +205,7 @@ function SocialShare(props: Props) {
           iconSize={24}
           icon={ICONS.FACEBOOK}
           title={__('Share on Facebook')}
+          target="_blank"
           href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
         />
         <Button
@@ -184,6 +213,7 @@ function SocialShare(props: Props) {
           iconSize={24}
           icon={ICONS.REDDIT}
           title={__('Share on Reddit')}
+          target="_blank"
           href={`https://reddit.com/submit?url=${encodedLbryURL}`}
         />
         {!isMobile ? (
@@ -192,6 +222,7 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.WHATSAPP}
             title={__('Share on WhatsApp')}
+            target="_blank"
             href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
           />
         ) : (
@@ -209,6 +240,7 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.TELEGRAM}
             title={__('Share on Telegram')}
+            target="_blank"
             href={`https://t.me/share/url?url=${encodedLbryURL}`}
           />
         ) : (
@@ -233,16 +265,18 @@ function SocialShare(props: Props) {
             }}
           />
         )}
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.SHARE_LINK}
-          title={__('Links')}
-          onClick={() => {
-            setShowClaimLinks(!showClaimLinks);
-            setShowEmbed(false);
-          }}
-        />
+        {claimLinkElements.length > 0 && (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.SHARE_LINK}
+            title={__('Links')}
+            onClick={() => {
+              setShowClaimLinks(!showClaimLinks);
+              setShowEmbed(false);
+            }}
+          />
+        )}
       </div>
 
       {SUPPORTS_SHARE_API && isMobile && (
@@ -265,20 +299,7 @@ function SocialShare(props: Props) {
             <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
           </>
         ))}
-      {showClaimLinks && (
-        <div className="section">
-          {Boolean(isStream) && !disableDownloadButton && !isMature && (
-            <CopyableText label={__('Download Link')} copyable={downloadUrl} />
-          )}
-          {Boolean(rssUrl) && <CopyableText label={__('RSS Url')} copyable={rssUrl} />}
-          {Boolean(isChannel) && (
-            <>
-              <CopyableText label={__('Latest Content Link')} copyable={generateNewestUrl(name, PAGES.LATEST)} />
-              <CopyableText label={__('Current Livestream Link')} copyable={generateNewestUrl(name, PAGES.LIVE_NOW)} />
-            </>
-          )}
-        </div>
-      )}
+      {showClaimLinks && <div className="section">{claimLinkElements}</div>}
     </React.Fragment>
   );
 }

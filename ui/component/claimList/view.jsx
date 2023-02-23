@@ -48,6 +48,7 @@ type Props = {
   tileLayout?: boolean,
   searchInLanguage: boolean,
   hideMenu?: boolean,
+  hideJoin?: boolean,
   claimSearchByQuery: { [string]: Array<string> },
   claimsByUri: { [string]: any },
   collectionId?: string,
@@ -61,7 +62,6 @@ type Props = {
   showEdit?: boolean,
   droppableProvided?: any,
   unavailableUris?: Array<string>,
-  showMemberBadge?: boolean,
   inWatchHistory?: boolean,
   smallThumbnail?: boolean,
   showIndexes?: boolean,
@@ -69,7 +69,6 @@ type Props = {
   disableClickNavigation?: boolean,
   setActiveListItemRef?: any,
   setListRef?: any,
-  onHidden: (string) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
@@ -101,6 +100,7 @@ export default function ClaimList(props: Props) {
     renderProperties,
     searchInLanguage,
     hideMenu,
+    hideJoin,
     collectionId,
     fypId,
     showNoSourceClaims,
@@ -112,7 +112,6 @@ export default function ClaimList(props: Props) {
     showEdit,
     droppableProvided,
     unavailableUris,
-    showMemberBadge,
     inWatchHistory,
     smallThumbnail,
     showIndexes,
@@ -120,7 +119,6 @@ export default function ClaimList(props: Props) {
     disableClickNavigation,
     setActiveListItemRef,
     setListRef,
-    onHidden,
     doDisablePlayerDrag,
     restoreScrollPos,
     setHasActive,
@@ -211,6 +209,7 @@ export default function ClaimList(props: Props) {
       type={type}
       active={activeUri && uri === activeUri}
       hideMenu={hideMenu}
+      hideJoin={hideJoin}
       includeSupportAction={includeSupportAction}
       showUnresolvedClaim={showUnresolvedClaims}
       properties={renderProperties || (type !== 'small' ? undefined : false)}
@@ -226,7 +225,6 @@ export default function ClaimList(props: Props) {
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
       wrapperElement={draggableProvided ? 'div' : undefined}
       unavailableUris={unavailableUris}
-      showMemberBadge={showMemberBadge}
       inWatchHistory={inWatchHistory}
       smallThumbnail={smallThumbnail}
       showIndexes={showIndexes}
@@ -277,9 +275,13 @@ export default function ClaimList(props: Props) {
         // currentActiveItem.current !== node prevents re-scrolling during the same render
         // so it should only auto scroll when the active item switches, the button to scroll is clicked
         // or the list itself changes (switch between floating player vs file page)
-        if (isActive && setActiveListItemRef && currentActiveItem.current !== node) {
+        if (
+          isActive &&
+          setActiveListItemRef &&
+          currentActiveItem.current !== node.getAttribute('data-rbd-draggable-id')
+        ) {
           setActiveListItemRef(node);
-          currentActiveItem.current = node;
+          currentActiveItem.current = node.getAttribute('data-rbd-draggable-id');
         }
       }
     },
@@ -313,7 +315,6 @@ export default function ClaimList(props: Props) {
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
                       swipeLayout={swipeLayout}
-                      onHidden={onHidden}
                     />
                   )}
                 </React.Fragment>
@@ -385,7 +386,7 @@ export default function ClaimList(props: Props) {
                         transform = transform.replace(/\(.+,/, '(0,');
                       }
 
-                      // doDisablePlayerDrag is a function brought by fileRenderFloating if is floating
+                      // doDisablePlayerDrag is a function brought by videoRenderFloating if is floating
                       const isDraggingFromFloatingPlayer = draggableSnapshot.isDragging && doDisablePlayerDrag;
                       const isDraggingFromMobile = draggableSnapshot.isDragging && isMobile;
                       const topForDrawer = Number(
@@ -400,9 +401,6 @@ export default function ClaimList(props: Props) {
                         Number(
                           playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
                         );
-                      if (playerElem && navigator.userAgent.toLowerCase().includes('firefox')) {
-                        playerTop -= playerElem.offsetHeight;
-                      }
 
                       const style = {
                         ...draggableProvided.draggableProps.style,

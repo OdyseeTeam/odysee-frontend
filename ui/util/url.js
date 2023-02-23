@@ -1,6 +1,7 @@
 // Can't use aliases here because we're doing exports/require
 
 import { DOMAIN } from 'config';
+import * as URL from 'constants/urlParams';
 const PAGES = require('../constants/pages');
 const { parseURI, buildURI } = require('../util/lbryURI');
 const COLLECTIONS_CONSTS = require('../constants/collections');
@@ -12,6 +13,8 @@ function encodeWithSpecialCharEncode(string) {
 }
 
 export const formatLbryUrlForWeb = (uri) => {
+  if (!uri) return uri;
+
   let newUrl = uri.replace('lbry://', '/').replace(/#/g, ':');
   if (newUrl.startsWith('/?')) {
     // This is a lbry link to an internal page ex: lbry://?rewards
@@ -202,3 +205,13 @@ export function parseClaimIdFromPermanentUrl(url, failureId = '0') {
 }
 
 export const getPathForPage = (page) => `/$/${page}/`;
+
+export const getModalUrlParam = (modal, modalParams = {}) => {
+  const urlParams = new URLSearchParams();
+  urlParams.set(URL.MODAL, modal);
+  urlParams.set(URL.MODAL_PARAMS, encodeURIComponent(JSON.stringify(modalParams)));
+
+  const embedUrlParams = urlParams.toString();
+
+  return embedUrlParams;
+};

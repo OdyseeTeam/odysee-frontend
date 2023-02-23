@@ -21,13 +21,16 @@ declare type RowDataItem = {
   pinnedUrls?: Array<string>,
   pinnedClaimIds?: Array<string>, // takes precedence over pinnedUrls
   hideByDefault?: boolean,
+  hideSort?: boolean,
   options?: {
     channelIds?: Array<string>,
     excludedChannelIds?: Array<string>,
+    orderBy?: string,
     limitClaimsPerChannel?: number,
     pageSize?: number,
     releaseTime?: string,
     searchLanguages?: Array<string>,
+    duration?: string,
   },
   route?: string,
   hideForUnauth?: boolean,

@@ -15,16 +15,19 @@ import { getPathForPage } from 'util/url';
 const PLAYLIST_PATH = getPathForPage(PAGES.PLAYLIST);
 
 const select = (state, props) => {
-  let { uri } = props;
+  const { uri: passedUri } = props;
   const { pathname } = state.router.location;
 
+  // selects the proper claim uri for playlist given its page collectionId
+  let uri = passedUri;
   if (pathname.startsWith(PLAYLIST_PATH)) {
     const collectionId = pathname.replace(PLAYLIST_PATH, '');
     uri = selectClaimUriForId(state, collectionId);
   }
 
   return {
-    uri,
+    // passes down the same uri as passed in
+    uri: passedUri,
     channelClaimPermanentUri: selectChannelPermanentUriForUri(state, uri),
     title: selectTitleForUri(state, uri),
     currentScroll: selectScrollStartingPosition(state),

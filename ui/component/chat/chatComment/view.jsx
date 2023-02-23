@@ -16,7 +16,7 @@ import Icon from 'component/common/icon';
 import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
-import PremiumBadge from 'component/premiumBadge';
+import MembershipBadge from 'component/membershipBadge';
 import usePersistedState from 'effects/use-persisted-state';
 import { Lbryio } from 'lbryinc';
 
@@ -33,7 +33,8 @@ type Props = {
   claim: StreamClaim,
   stakedLevel: number,
   claimsByUri: { [string]: any },
-  odyseeMembership: string,
+  odyseeMembership: ?string,
+  creatorMembership: ?string,
   activeChannelClaim?: any,
   authorTitle: string,
   channelAge?: any,
@@ -54,6 +55,7 @@ export default function ChatComment(props: Props) {
     restoreScrollPos,
     handleCommentClick,
     odyseeMembership,
+    creatorMembership,
     authorTitle,
     activeChannelClaim,
     channelAge,
@@ -138,49 +140,52 @@ export default function ChatComment(props: Props) {
             <ChannelThumbnail uri={authorUri} xsmall />
 
             <div className="livestreamComment__info">
-              <Menu>
-                <MenuButton
-                  className={classnames('button--uri-indicator comment__author', {
-                    'comment__author--creator': isStreamer,
-                  })}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {claimName}
-                </MenuButton>
+              <div className="livestreamComment__meta-information">
+                <Menu>
+                  <MenuButton
+                    className={classnames('button--uri-indicator comment__author', {
+                      'comment__author--creator': isStreamer,
+                    })}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {claimName}
+                  </MenuButton>
 
-                <CommentMenuList
-                  uri={uri}
-                  commentId={commentId}
-                  authorUri={authorUri}
-                  authorName={comment && comment.channel_name}
-                  commentIsMine={commentIsMine}
-                  isPinned={isPinned}
-                  isTopLevel
-                  disableEdit
-                  disableRemove={comment.removed}
-                  isLiveComment
-                  handleDismissPin={handleDismissPin}
-                  setQuickReply={handleCommentClick}
-                />
-              </Menu>
+                  <CommentMenuList
+                    uri={uri}
+                    commentId={commentId}
+                    authorUri={authorUri}
+                    authorName={comment && comment.channel_name}
+                    commentIsMine={commentIsMine}
+                    isPinned={isPinned}
+                    isTopLevel
+                    disableEdit
+                    disableRemove={comment.removed}
+                    isLiveComment
+                    handleDismissPin={handleDismissPin}
+                    setQuickReply={handleCommentClick}
+                  />
+                </Menu>
 
-              {isPinned && (
-                <span className="comment__pin">
-                  <Icon icon={ICONS.PIN} size={14} />
-                  {__('Pinned')}
-                </span>
-              )}
+                {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} size={16} />}
+                {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
+                {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
+                {!isStreamer && !isModerator && !isGlobalMod && !odyseeMembership && isSprout && (
+                  <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
+                )}
+                {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} linkPage />}
+                {creatorMembership && <MembershipBadge membershipName={creatorMembership} linkPage uri={uri} />}
 
-              {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} size={16} />}
-              {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
-              {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
-              {!isStreamer && !isModerator && !isGlobalMod && !odyseeMembership && isSprout && (
-                <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
-              )}
-              <PremiumBadge membership={odyseeMembership} linkPage />
+                {isPinned && (
+                  <span className="comment__pin">
+                    <Icon icon={ICONS.PIN} size={14} />
+                    {__('Pinned')}
+                  </span>
+                )}
 
-              {/* Use key to force timestamp update */}
-              <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />
+                {/* Use key to force timestamp update */}
+                <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />
+              </div>
 
               {isSticker ? (
                 <div className="sticker__comment">
@@ -219,7 +224,8 @@ export default function ChatComment(props: Props) {
             {!isStreamer && !isModerator && !isGlobalMod && isSprout && (
               <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
             )}
-            <PremiumBadge membership={odyseeMembership} linkPage />
+            {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} linkPage />}
+            {creatorMembership && <MembershipBadge membershipName={creatorMembership} linkPage uri={uri} />}
             <Menu>
               <MenuButton
                 className={classnames('button--uri-indicator comment__author', {

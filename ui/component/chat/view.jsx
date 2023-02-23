@@ -8,16 +8,17 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import CommentCreate from 'component/commentCreate';
 import CreditAmount from 'component/common/credit-amount';
+import Icon from 'component/common/icon';
 import ChatComment from 'component/chat/chatComment';
 import ChatComments from 'component/chat/chatComments';
 import LivestreamHyperchats from './livestream-hyperchats';
-import LivestreamMenu from './livestream-menu';
+import LivestreamMenu from 'component/livestreamMenu';
 import React from 'react';
 import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistedState from 'effects/use-persisted-state';
+import Tooltip from 'component/common/tooltip';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -26,18 +27,18 @@ export const VIEW_MODES = {
 const COMMENT_SCROLL_TIMEOUT = 25;
 
 type Props = {
+  customViewMode?: string,
   embed?: boolean,
-  isPopoutWindow?: boolean,
-  uri: string,
   hideHeader?: boolean,
   hyperchatsHidden?: boolean,
-  customViewMode?: string,
+  isPopoutWindow?: boolean,
   setCustomViewMode?: (any) => void,
+  uri: string,
   // redux
+  channelId: string,
+  channelTitle: string,
   claimId?: string,
   comments: Array<Comment>,
-  pinnedComments: Array<Comment>,
-  superChats: Array<Comment>,
   doCommentList: (
     uri: string,
     parentId: ?string,
@@ -46,32 +47,49 @@ type Props = {
     sortBy: ?number,
     isLivestream: boolean
   ) => void,
-  doResolveUris: (uris: Array<string>, cache: boolean) => void,
+  doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: ClaimIds) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doHyperChatList: (uri: string) => void,
-  claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
-  setLayountRendered: (boolean) => void,
+  doResolveUris: (uris: Array<string>, cache: boolean) => void,
+  pinnedComments: Array<Comment>,
+  setLayoutRendered: (boolean) => void,
+  superChats: Array<Comment>,
+  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
+  myChannelClaims: any,
+  doListAllMyMembershipTiers: any,
+  contentUnlocked: boolean,
+  isLivestreamChatMembersOnly: ?boolean,
+  userHasMembersOnlyChatPerk: boolean,
+  chatUnlocked: boolean,
 };
 
 export default function ChatLayout(props: Props) {
   const {
+    channelId,
+    channelTitle,
     claimId,
     comments: commentsByChronologicalOrder,
+    customViewMode,
+    doCommentList,
+    doFetchChannelMembershipsForChannelIds,
+    doFetchOdyseeMembershipForChannelIds,
+    doHyperChatList,
+    doResolveUris,
     embed,
-    isPopoutWindow,
-    pinnedComments,
-    superChats: hyperChatsByAmount,
-    uri,
     hideHeader,
     hyperchatsHidden,
-    customViewMode,
+    isPopoutWindow,
+    pinnedComments,
     setCustomViewMode,
-    doCommentList,
-    doResolveUris,
-    doHyperChatList,
-    doFetchUserMemberships,
-    claimsByUri,
-    setLayountRendered,
+    setLayoutRendered,
+    superChats: hyperChatsByAmount,
+    uri,
+    myChannelClaims,
+    doListAllMyMembershipTiers,
+    contentUnlocked,
+    isLivestreamChatMembersOnly,
+    userHasMembersOnlyChatPerk,
+    chatUnlocked,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -105,33 +123,38 @@ export default function ChatLayout(props: Props) {
   }
 
   // get commenter claim ids for checking premium status
-  const commenterClaimIds = commentsByChronologicalOrder.map((comment) => {
-    return comment.channel_id;
-  });
+  const commenterClaimIds =
+    commentsByChronologicalOrder && commentsByChronologicalOrder.map(({ channel_id }) => channel_id);
 
-  // update premium status
-  const shouldFetchUserMemberships = true;
-  useGetUserMemberships(
-    shouldFetchUserMemberships,
-    commenterClaimIds,
-    claimsByUri,
-    doFetchUserMemberships,
-    [commentsByChronologicalOrder],
-    true
-  );
+  React.useEffect(() => {
+    if (commenterClaimIds?.length > 0 && channelId) {
+      doFetchOdyseeMembershipForChannelIds(commenterClaimIds);
+      doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    channelId,
+    commenterClaimIds.length,
+    doFetchChannelMembershipsForChannelIds,
+    doFetchOdyseeMembershipForChannelIds,
+  ]);
+
+  React.useEffect(() => {
+    if (myChannelClaims !== undefined) {
+      doListAllMyMembershipTiers();
+    }
+  }, [doListAllMyMembershipTiers, myChannelClaims]);
 
   const commentsToDisplay =
     viewMode === VIEW_MODES.CHAT ? commentsByChronologicalOrder : superChatsByChronologicalOrder;
   const commentsLength = commentsToDisplay && commentsToDisplay.length;
   const pinnedComment = pinnedComments.length > 0 ? pinnedComments[0] : null;
-  const { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount } = getTipValues(
-    superChatsByChronologicalOrder
-  );
+  const { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount } =
+    getTipValues(superChatsByChronologicalOrder);
   const scrolledPastRecent = Boolean(
     (viewMode !== VIEW_MODES.SUPERCHAT || !resolvingSuperChats) &&
       (!isMobile ? scrollPos < 0 : scrollPos < minScrollHeight)
   );
-
   const restoreScrollPos = React.useCallback(() => {
     if (discussionElement) {
       discussionElement.scrollTop = !isMobile ? 0 : discussionElement.scrollHeight;
@@ -145,6 +168,8 @@ export default function ChatLayout(props: Props) {
       }
     }
   }, [discussionElement, isMobile, lastCommentElem, minScrollHeight]);
+
+  const notAuthedToLiveChat = Boolean(isLivestreamChatMembersOnly && !userHasMembersOnlyChatPerk);
 
   function toggleClick(toggleMode: string) {
     if (toggleMode === VIEW_MODES.SUPERCHAT) {
@@ -172,8 +197,8 @@ export default function ChatLayout(props: Props) {
   }
 
   React.useEffect(() => {
-    if (setLayountRendered) setLayountRendered(true);
-  }, [setLayountRendered]);
+    if (setLayoutRendered) setLayoutRendered(true);
+  }, [setLayoutRendered]);
 
   React.useEffect(() => {
     if (customViewMode && customViewMode !== viewMode) {
@@ -182,11 +207,11 @@ export default function ChatLayout(props: Props) {
   }, [customViewMode, viewMode]);
 
   React.useEffect(() => {
-    if (claimId) {
+    if (claimId && contentUnlocked) {
       doCommentList(uri, undefined, 1, 75, undefined, true);
       doHyperChatList(uri);
     }
-  }, [claimId, uri, doCommentList, doHyperChatList]);
+  }, [claimId, contentUnlocked, doCommentList, doHyperChatList, uri]);
 
   React.useEffect(() => {
     if (isMobile && !didInitialScroll) {
@@ -255,6 +280,28 @@ export default function ChatLayout(props: Props) {
   React.useEffect(() => {
     if (textInjection && textInjection.length) setTextInjection('');
   }, [textInjection]);
+
+  const membersOnlyMessage = React.useMemo(() => {
+    return (
+      !notAuthedToLiveChat &&
+      isLivestreamChatMembersOnly &&
+      chatUnlocked && (
+        <div className="livestream__members-only-message">
+          <Tooltip
+            title={__('Only "%channel_name%" members are able to chat right now. Enjoy!', {
+              channel_name: channelTitle,
+            })}
+          >
+            <div style={{ display: 'inline' }}>
+              <Icon icon={ICONS.MEMBERSHIP} />
+            </div>
+          </Tooltip>
+          {__('Members Only')}
+          <Icon icon={ICONS.UNLOCK} />
+        </div>
+      )
+    );
+  }, [channelTitle, chatUnlocked, isLivestreamChatMembersOnly]);
 
   if (!claimId) return null;
 
@@ -332,6 +379,7 @@ export default function ChatLayout(props: Props) {
           </div>
 
           <LivestreamMenu
+            uri={uri}
             isPopoutWindow={isPopoutWindow}
             hideChat={() => setChatHidden(true)}
             setPopoutWindow={(v) => setPopoutWindow(v)}
@@ -417,7 +465,10 @@ export default function ChatLayout(props: Props) {
           />
         )}
 
+        {!isMobile && membersOnlyMessage}
         <div className="livestream__comment-create">
+          {isMobile && membersOnlyMessage}
+
           <CommentCreate
             isLivestream
             bottom

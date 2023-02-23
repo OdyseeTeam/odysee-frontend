@@ -9,6 +9,9 @@ import Icon from 'component/common/icon';
 import { useHistory } from 'react-router';
 import IncognitoSelector from './internal/incognito-selector';
 import ChannelListItem from './internal/channelListItem';
+import { NavLink } from 'react-router-dom';
+import { formatLbryUrlForWeb } from 'util/url';
+import AllSelector from './internal/all-selector';
 
 type Props = {
   selectedChannelUrl: string, // currently selected channel
@@ -27,6 +30,8 @@ type Props = {
   autoSet?: boolean,
   channelToSet?: string,
   disabled?: boolean,
+  allOptionProps?: { onSelectAll: () => void, isSelected: boolean },
+  doFetchOdyseeMembershipForChannelIds: (channelIds: ClaimIds) => void,
 };
 
 function ChannelSelector(props: Props) {
@@ -45,9 +50,12 @@ function ChannelSelector(props: Props) {
     autoSet,
     channelToSet,
     disabled,
+    allOptionProps,
+    doFetchOdyseeMembershipForChannelIds,
   } = props;
 
   const hideAnon = Boolean(props.hideAnon || storeSelection);
+  const showAllOption = Boolean(allOptionProps && channelIds && channelIds.length > 1);
 
   const {
     push,
@@ -60,11 +68,20 @@ function ChannelSelector(props: Props) {
   function handleChannelSelect(channelId) {
     doSetIncognito(false);
     doSetActiveChannel(channelId);
-    if (onChannelSelect) onChannelSelect(channelId);
 
     if (storeSelection) {
       doSetDefaultChannel(channelId);
     }
+  }
+
+  function handleSelectOption(channelId) {
+    if (channelId) {
+      handleChannelSelect(channelId);
+    } else {
+      doSetIncognito(true);
+    }
+
+    if (onChannelSelect) onChannelSelect(channelId);
   }
 
   React.useEffect(() => {
@@ -80,59 +97,80 @@ function ChannelSelector(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount if we get to autoSet a channel, set it.
   }, []);
 
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    }
+  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
+
   return (
-    <div
-      className={classnames('channel__selector', {
-        'channel__selector--publish': isPublishMenu,
-        'channel__selector--tabHeader': isTabHeader,
-        disabled: disabled,
-      })}
-    >
-      <Menu>
-        {isHeaderMenu ? (
-          <MenuButton className="menu__link">
-            <ChannelThumbnail uri={activeChannelUrl} hideStakedIndicator xxsmall noLazyLoad />
-            {__('Change Default Channel')}
-            <Icon icon={ICONS.DOWN} />
-          </MenuButton>
-        ) : (
-          <MenuButton>
-            {(incognito && !hideAnon) || !activeChannelUrl ? (
-              <IncognitoSelector isSelected />
-            ) : (
-              <ChannelListItem channelId={activeChannelId} isSelected />
-            )}
-          </MenuButton>
-        )}
-
-        <MenuList className="menu__list channel__list">
-          {channelIds &&
-            channelIds.map((channelId) => (
-              <MenuItem key={channelId} onSelect={() => handleChannelSelect(channelId)}>
-                <ChannelListItem channelId={channelId} />
-              </MenuItem>
-            ))}
-
-          {!hideAnon && (
-            <MenuItem
-              onSelect={() => {
-                doSetIncognito(true);
-                if (onChannelSelect) onChannelSelect(undefined);
-              }}
-            >
-              <IncognitoSelector />
-            </MenuItem>
+    <>
+      <div
+        className={classnames('channel__selector', {
+          'channel__selector--publish': isPublishMenu,
+          'channel__selector--tabHeader': isTabHeader,
+          disabled: disabled,
+        })}
+      >
+        <Menu>
+          {isHeaderMenu && channelIds && channelIds.length > 1 ? (
+            <>
+              <MenuButton className="menu__link">
+                <ChannelThumbnail uri={activeChannelUrl} hideStakedIndicator xxsmall noLazyLoad />
+                {__('Change Default Channel')}
+                <Icon icon={ICONS.DOWN} />
+              </MenuButton>
+            </>
+          ) : (
+            <MenuButton>
+              {showAllOption && allOptionProps?.isSelected ? (
+                <AllSelector isSelected />
+              ) : (incognito && !hideAnon) || !activeChannelUrl ? (
+                <IncognitoSelector isSelected />
+              ) : (
+                <ChannelListItem channelId={activeChannelId} isSelected />
+              )}
+            </MenuButton>
           )}
 
-          <MenuItem onSelect={() => push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
-            <div className="channel__list-item">
-              <Icon sectionIcon icon={ICONS.CHANNEL} />
-              <h2 className="channel__list-text">{__('Create a new channel')}</h2>
-            </div>
-          </MenuItem>
-        </MenuList>
-      </Menu>
-    </div>
+          <MenuList className="menu__list channel__list">
+            {showAllOption && (
+              <MenuItem onSelect={allOptionProps?.onSelectAll}>
+                <AllSelector />
+              </MenuItem>
+            )}
+
+            {channelIds &&
+              channelIds.map((channelId) => (
+                <MenuItem key={channelId} onSelect={() => handleSelectOption(channelId)}>
+                  <ChannelListItem channelId={channelId} />
+                </MenuItem>
+              ))}
+
+            {!hideAnon && (
+              <MenuItem onSelect={() => handleSelectOption(null)}>
+                <IncognitoSelector />
+              </MenuItem>
+            )}
+
+            <MenuItem onSelect={() => push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
+              <div className="channel__list-item">
+                <Icon sectionIcon icon={ICONS.CHANNEL} />
+                <h2 className="channel__list-text">{__('Create a new channel')}</h2>
+              </div>
+            </MenuItem>
+          </MenuList>
+        </Menu>
+      </div>
+      {isHeaderMenu && activeChannelUrl && (
+        <NavLink to={formatLbryUrlForWeb(activeChannelUrl)}>
+          <div className="header__navigationItem--channel">
+            <span>↳</span>
+            {__('My Channel Page')}
+          </div>
+        </NavLink>
+      )}
+    </>
   );
 }
 

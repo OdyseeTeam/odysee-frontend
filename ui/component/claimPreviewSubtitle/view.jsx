@@ -1,5 +1,4 @@
 // @flow
-import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import React from 'react';
 import UriIndicator from 'component/uriIndicator';
 import DateTime from 'component/dateTime';
@@ -9,6 +8,7 @@ import FileViewCountInline from 'component/fileViewCountInline';
 import { getChannelSubCountStr, getChannelViewCountStr } from 'util/formatMediaDuration';
 import { toCompactNotation } from 'util/string';
 import { parseURI } from 'util/lbryURI';
+import { EmbedContext } from 'contexts/embed';
 
 const SPACED_BULLET = '\u00A0\u2022\u00A0';
 
@@ -24,24 +24,14 @@ type Props = {
   lang: string,
   fetchSubCount: (string) => void,
   subCount: ?number,
-  showMemberBadge?: boolean,
 };
 
 // previews used in channel overview and homepage (and other places?)
 function ClaimPreviewSubtitle(props: Props) {
-  const {
-    pending,
-    uri,
-    claim,
-    type,
-    beginPublish,
-    isLivestream,
-    fetchSubCount,
-    subCount,
-    showAtSign,
-    lang,
-    showMemberBadge,
-  } = props;
+  const { pending, uri, claim, type, beginPublish, isLivestream, fetchSubCount, subCount, showAtSign, lang } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
+
   const isChannel = claim && claim.value_type === 'channel';
   const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
@@ -63,7 +53,7 @@ function ClaimPreviewSubtitle(props: Props) {
     <div className="media__subtitle">
       {claim ? (
         <React.Fragment>
-          <UriIndicator uri={uri} showAtSign={showAtSign} showMemberBadge={showMemberBadge} link />{' '}
+          <UriIndicator uri={uri} showAtSign={showAtSign} link external={isEmbed} />
           {!pending && claim && (
             <>
               {isChannel && type !== 'inline' && (
@@ -77,11 +67,11 @@ function ClaimPreviewSubtitle(props: Props) {
               )}
 
               {!isChannel &&
-                (isLivestream && ENABLE_NO_SOURCE_CLAIMS ? (
+                (isLivestream ? (
                   <LivestreamDateTime uri={uri} />
                 ) : (
                   <span className="claim-extra-info">
-                    <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                    <FileViewCountInline uri={uri} />
                     <DateTime timeAgo uri={uri} />
                   </span>
                 ))}

@@ -1,5 +1,7 @@
 // @flow
 import { URL, SHARE_DOMAIN_URL } from 'config';
+import { NavLink } from 'react-router-dom';
+import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
@@ -10,15 +12,10 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-import {
-  generateShareUrl,
-  generateRssUrl,
-  generateLbryContentUrl,
-  formatLbryUrlForWeb,
-  generateListSearchUrlParams,
-} from 'util/url';
+import { generateShareUrl, generateRssUrl, generateLbryContentUrl } from 'util/url';
 import { useHistory } from 'react-router';
 import { buildURI, parseURI } from 'util/lbryURI';
+import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
@@ -58,29 +55,22 @@ type Props = {
   fypId?: string,
   doToast: ({ message: string, isError?: boolean, linkText?: string, linkTarget?: string }) => void,
   claimIsMine: boolean,
+  // settingsByChannelId: boolean,
   fileInfo: FileListItem,
   prepareEdit: ({}, string, string) => void,
   isSubscribed: boolean,
   doChannelSubscribe: (SubscriptionArgs) => void,
   doChannelUnsubscribe: (SubscriptionArgs) => void,
-  isChannelPage: boolean,
   hasEdits: Collection,
   isAuthenticated: boolean,
-  playNextUri: string,
-  resolvedList: boolean,
-  fetchCollectionItems: (string) => void,
-  doToggleShuffleList: (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => void,
+  doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   lastUsedCollection: ?Collection,
   hasClaimInLastUsedCollection: boolean,
   lastUsedCollectionIsNotBuiltin: boolean,
   doRemovePersonalRecommendation: (uri: string) => void,
   collectionEmpty: boolean,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string,
-    collectionName: string,
-    collectionId: string,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
+  isContentProtectedAndLocked: boolean,
 };
 
 function ClaimMenuList(props: Props) {
@@ -112,33 +102,30 @@ function ClaimMenuList(props: Props) {
     fypId,
     doToast,
     claimIsMine,
+    // settingsByChannelId,
     fileInfo,
     prepareEdit,
     isSubscribed,
     doChannelSubscribe,
     doChannelUnsubscribe,
-    isChannelPage = false,
     hasEdits,
     isAuthenticated,
-    playNextUri,
-    resolvedList,
-    fetchCollectionItems,
-    doToggleShuffleList,
+    doEnableCollectionShuffle,
     lastUsedCollection,
     hasClaimInLastUsedCollection,
     lastUsedCollectionIsNotBuiltin,
     doRemovePersonalRecommendation,
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
+    isContentProtectedAndLocked,
   } = props;
 
-  const {
-    push,
-    replace,
-    location: { search },
-  } = useHistory();
+  const isEmbed = React.useContext(EmbedContext);
 
-  const [doShuffle, setDoShuffle] = React.useState(false);
+  const isChannelPage = React.useContext(ChannelPageContext);
+
+  const { push, replace } = useHistory();
+
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
   const isChannel = !incognitoClaim && !contentSigningChannel;
   const { channelName } = parseURI(contentChannelUri);
@@ -152,26 +139,6 @@ function ClaimMenuList(props: Props) {
     : __('Follow');
 
   const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
-
-  const fetchItems = React.useCallback(() => {
-    if (collectionId) {
-      fetchCollectionItems(collectionId);
-    }
-  }, [collectionId, fetchCollectionItems]);
-
-  React.useEffect(() => {
-    if (doShuffle && resolvedList) {
-      doToggleShuffleList({ collectionId });
-      if (playNextUri) {
-        const navigateUrl = formatLbryUrlForWeb(playNextUri);
-        push({
-          pathname: navigateUrl,
-          search: generateListSearchUrlParams(collectionId),
-          state: { collectionId, forceAutoplay: true },
-        });
-      }
-    }
-  }, [collectionId, doShuffle, doToggleShuffleList, playNextUri, push, resolvedList]);
 
   if (!claim) {
     return null;
@@ -192,23 +159,10 @@ function ClaimMenuList(props: Props) {
     (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
-    const itemUrl = contentClaim?.canonical_url;
+    const itemUrl = contentClaim?.permanent_url;
 
     if (itemUrl) {
-      const urlParams = new URLSearchParams(search);
-      urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
-
-      doPlaylistAddAndAllowPlaying({
-        uri: itemUrl,
-        collectionName: name,
-        collectionId,
-        push: (pushUri) =>
-          push({
-            pathname: formatLbryUrlForWeb(pushUri),
-            search: urlParams.toString(),
-            state: { collectionId, forceAutoplay: true },
-          }),
-      });
+      doPlaylistAddAndAllowPlaying({ uri: itemUrl, collectionName: name, collectionId });
     }
   }
 
@@ -259,6 +213,13 @@ function ClaimMenuList(props: Props) {
     }
   }
 
+  /*
+  function handleFeature(){
+    const { homepage_settings } = settingsByChannelId[Object.keys(settingsByChannelId)[0]];
+    console.log('homepage_settings: ', homepage_settings)
+  }
+  */
+
   function handleDelete() {
     if (!repostedClaim && !isChannel) {
       openModal(MODALS.CONFIRM_FILE_REMOVE, { uri, doGoBack: false });
@@ -299,8 +260,9 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleReportContent() {
+    const claimId = contentClaim?.claim_id;
     // $FlowFixMe
-    push(`/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim && contentClaim.claim_id}`);
+    push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
   }
 
   return (
@@ -339,13 +301,7 @@ function ClaimMenuList(props: Props) {
                 </a>
               </MenuItem>
               {!collectionEmpty && (
-                <MenuItem
-                  className="comment__menu-option"
-                  onSelect={() => {
-                    if (!resolvedList) fetchItems();
-                    setDoShuffle(true);
-                  }}
-                >
+                <MenuItem className="comment__menu-option" onSelect={() => doEnableCollectionShuffle({ collectionId })}>
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.SHUFFLE} />
                     {__('Shuffle Play')}
@@ -421,7 +377,9 @@ function ClaimMenuList(props: Props) {
                     {/* CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES */}
                     <MenuItem
                       className="comment__menu-option"
-                      onSelect={() => openModal(MODALS.COLLECTION_ADD, { uri, type: COL_TYPES.PLAYLIST })}
+                      onSelect={() =>
+                        openModal(MODALS.COLLECTION_ADD, { uri: contentClaim?.permanent_url, type: COL_TYPES.PLAYLIST })
+                      }
                     >
                       <div className="menu__link">
                         <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
@@ -452,6 +410,20 @@ function ClaimMenuList(props: Props) {
             )
           )}
         </>
+
+        {contentClaim && isContentProtectedAndLocked && !claimIsMine && (
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={() =>
+              openModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri: contentClaim.permanent_url, shouldNavigate: true })
+            }
+          >
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
+              {__('Join')}
+            </div>
+          </MenuItem>
+        )}
 
         {isAuthenticated && (
           <>
@@ -509,7 +481,15 @@ function ClaimMenuList(props: Props) {
                   )
                 ) : (
                   <>
-                    {!isChannelPage && !repostedClaim && (
+                    {/* claimIsMine && (
+                      <MenuItem className="comment__menu-option" onSelect={handleFeature}>
+                        <div className="menu__link">
+                          <Icon aria-hidden icon={ICONS.HOME} />
+                          {__('Feature')}
+                        </div>
+                      </MenuItem>
+                    ) */}
+                    {!repostedClaim && (
                       <MenuItem className="comment__menu-option" onSelect={handleEdit}>
                         <div className="menu__link">
                           <Icon aria-hidden icon={ICONS.EDIT} />
@@ -551,11 +531,19 @@ function ClaimMenuList(props: Props) {
         )}
 
         {!claimIsMine && !isMyCollection && (
-          <MenuItem className="comment__menu-option" onSelect={handleReportContent}>
-            <div className="menu__link">
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={isEmbed ? (e) => e.preventDefault() : handleReportContent}
+          >
+            <NavLink
+              className="menu__link"
+              // $FlowFixMe
+              to={{ pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '' }}
+              target={isEmbed && '_blank'}
+            >
               <Icon aria-hidden icon={ICONS.REPORT} />
               {__('Report Content')}
-            </div>
+            </NavLink>
           </MenuItem>
         )}
       </MenuList>

@@ -7,14 +7,14 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import FileTitleSection from 'component/fileTitleSection';
 import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
-import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'page/file/view';
-import FileRenderInitiator from 'component/fileRenderInitiator';
+import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'constants/player';
+import VideoClaimInitiator from 'component/videoClaimInitiator';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import LivestreamMenu from 'component/chat/livestream-menu';
+import LivestreamMenu from 'component/livestreamMenu';
 import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import usePersistedState from 'effects/use-persisted-state';
@@ -28,32 +28,34 @@ const VIEW_MODES = {
 };
 
 type Props = {
+  uri: string,
+  livestreamChatEnabled: boolean,
+  // -- redux --
   activeStreamUri: boolean | string,
   claim: ?StreamClaim,
-  hideComments: boolean,
+  chatDisabled: boolean,
   isCurrentClaimLive: boolean,
-  releaseTimeMs: number,
-  showLivestream: boolean,
   showScheduledInfo: boolean,
-  uri: string,
   superChats: Array<Comment>,
   activeViewers?: number,
-  theaterMode: boolean,
+  videoTheaterMode: boolean,
+  doClearPlayingUri: () => void,
 };
 
 export default function LivestreamLayout(props: Props) {
   const {
+    uri,
+    livestreamChatEnabled,
+    // -- redux --
     activeStreamUri,
     claim,
-    hideComments,
+    chatDisabled,
     isCurrentClaimLive,
-    releaseTimeMs,
-    showLivestream,
     showScheduledInfo,
-    uri,
     superChats,
     activeViewers,
-    theaterMode,
+    videoTheaterMode,
+    doClearPlayingUri,
   } = props;
 
   const isMobile = useIsMobile();
@@ -63,6 +65,12 @@ export default function LivestreamLayout(props: Props) {
   const [chatViewMode, setChatViewMode] = React.useState(VIEW_MODES.CHAT);
   const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
 
+  const liveStatusFetching = activeStreamUri === undefined;
+
+  React.useEffect(() => {
+    if (!isCurrentClaimLive) doClearPlayingUri();
+  }, [isCurrentClaimLive]);
+
   if (!claim || !claim.signing_channel) return null;
 
   const { name: channelName } = claim.signing_channel;
@@ -70,24 +78,14 @@ export default function LivestreamLayout(props: Props) {
   return (
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-        <FileRenderInitiator
-          videoTheaterMode={theaterMode}
-          uri={claim.canonical_url}
-          customAction={showScheduledInfo && <LivestreamScheduledInfo releaseTimeMs={releaseTimeMs} />}
-        />
+        <VideoClaimInitiator uri={claim.canonical_url}>
+          {showScheduledInfo && <LivestreamScheduledInfo uri={claim.canonical_url} />}
+        </VideoClaimInitiator>
       </div>
       <div className="file-page__secondary-content">
         <div className="file-page__media-actions">
           <div className="section card-stack">
-            {hideComments && !showScheduledInfo && (
-              <div className="help--notice">
-                {channelName
-                  ? __('%channel% has disabled chat for this stream. Enjoy the stream!', { channel: channelName })
-                  : __('This channel has disabled chat for this stream. Enjoy the stream!')}
-              </div>
-            )}
-
-            {!activeStreamUri && !showScheduledInfo && !isCurrentClaimLive && (
+            {!liveStatusFetching && !activeStreamUri && !showScheduledInfo && !isCurrentClaimLive ? (
               <div className="help--notice" style={{ marginTop: '20px' }}>
                 {channelName
                   ? __("%channelName% isn't live right now, but the chat is! Check back later to watch the stream.", {
@@ -95,16 +93,19 @@ export default function LivestreamLayout(props: Props) {
                     })
                   : __("This channel isn't live right now, but the chat is! Check back later to watch the stream.")}
               </div>
+            ) : (
+              chatDisabled && (
+                <div className="help--notice">
+                  {channelName
+                    ? __('%channel% has disabled chat for this stream. Enjoy the stream!', { channel: channelName })
+                    : __('This channel has disabled chat for this stream. Enjoy the stream!')}
+                </div>
+              )
             )}
 
-            {activeStreamUri !== uri && (
-              <LivestreamLink
-                title={__("Click here to access the stream that's currently active")}
-                claimUri={activeStreamUri}
-              />
-            )}
+            <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
 
-            {isMobile && !isLandscapeRotated && !hideComments && (
+            {isMobile && !isLandscapeRotated && !videoTheaterMode && livestreamChatEnabled && (
               <React.Suspense fallback={null}>
                 <SwipeableDrawer
                   // startOpen
@@ -120,6 +121,7 @@ export default function LivestreamLayout(props: Props) {
                   hasSubtitle={activeViewers}
                   actions={
                     <LivestreamMenu
+                      uri={uri}
                       noHyperchats={!superChats || superChats.length === 0}
                       hyperchatsHidden={hyperchatsHidden}
                       toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
@@ -142,11 +144,11 @@ export default function LivestreamLayout(props: Props) {
               </React.Suspense>
             )}
 
-            <FileTitleSection uri={uri} livestream isLive={showLivestream} />
+            <FileTitleSection uri={uri} />
           </div>
         </div>
 
-        {theaterMode && isCurrentClaimLive && !isMobile && (
+        {(!isMobile || isLandscapeRotated) && videoTheaterMode && livestreamChatEnabled && (
           <React.Suspense fallback={null}>
             <ChatLayout
               uri={uri}

@@ -1,17 +1,17 @@
 import { connect } from 'react-redux';
 import PlaylistCard from './view';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectChannelNameForId } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
-  selectNameForCollectionId,
+  selectCollectionTitleForId,
   selectCollectionIsMine,
   selectIsCollectionPrivateForId,
-  selectPublishedCollectionChannelNameForId,
-  selectIndexForUrlInCollection,
+  selectIndexForUrlInCollectionForId,
   selectCollectionLengthForId,
   selectCollectionIsEmptyForId,
   selectCollectionForId,
   selectCollectionSavedForId,
+  selectCollectionHasEditsForId,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doCollectionEdit, doClearQueueList, doToggleCollectionSavedForId } from 'redux/actions/collections';
@@ -28,17 +28,18 @@ const select = (state, props) => {
 
   const playingCurrentPlaylist = collectionId === playingCollectionId;
   const { permanent_url: playingItemUrl } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
-  const playingItemIndex = selectIndexForUrlInCollection(state, playingItemUrl, playingCollectionId, true);
 
   return {
+    id: collectionId,
     playingItemUrl,
     playingCurrentPlaylist,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectCollectionTitleForId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
     isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
-    publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
-    playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,
+    hasEdits: selectCollectionHasEditsForId(state, collectionId),
+    publishedCollectionName: selectChannelNameForId(state, collectionId),
+    playingItemIndex: selectIndexForUrlInCollectionForId(state, playingCollectionId, playingItemUrl),
     collectionLength: selectCollectionLengthForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),

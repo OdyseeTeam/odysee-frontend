@@ -1,24 +1,49 @@
 // @flow
-import { COL_TYPES, SECTION_TAGS } from 'constants/collections';
+import { COL_TYPES, SECTION_TAGS, WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID } from 'constants/collections';
+import { getCurrentTimeInSec } from 'util/time';
 
-export const selectCountForCollection = (collection: Collection) => {
-  if (collection) {
-    if (collection.itemCount !== undefined) {
-      return collection.itemCount;
-    }
+export const defaultCollectionState: Collection = {
+  id: '',
+  name: '',
+  title: '',
+  items: [],
+  itemCount: 0,
+  createdAt: getCurrentTimeInSec(),
+  updatedAt: getCurrentTimeInSec(),
+  type: 'collection',
+};
 
-    let itemCount = 0;
-    if (collection.items) {
-      collection.items.forEach((item) => {
-        if (item) {
-          itemCount += 1;
-        }
-      });
-    }
-    return itemCount;
-  }
+export function getClaimIdsInCollectionClaim(claim: ?CollectionClaim) {
+  if (!claim) return claim;
+  // $FlowFixMe
+  return claim.value.claims || (claim.claims && claim.claims.map((claim) => claim.claim_id)) || [];
+}
 
-  return null;
+export function claimToStoredCollection(claim: CollectionClaim) {
+  const storedCollection: Collection = Object.assign({}, defaultCollectionState);
+
+  const claimIds = getClaimIdsInCollectionClaim(claim);
+
+  Object.assign(storedCollection, {
+    id: claim.claim_id,
+    name: claim.value.title,
+    title: claim.value.title,
+    items: claimIds || [],
+    itemCount: claimIds ? claimIds.length : 0,
+    description: claim.value.description,
+    thumbnail: claim.value.thumbnail,
+    createdAt: claim.meta.creation_timestamp,
+    updatedAt: claim.timestamp,
+    type: resolveCollectionType(claim.value.tags),
+  });
+
+  return storedCollection;
+}
+
+export const getItemCountForCollection = (collection: Collection) => {
+  if (!collection) return collection;
+
+  return collection.items && collection.items.length;
 };
 
 /**
@@ -36,8 +61,8 @@ export const selectCountForCollection = (collection: Collection) => {
  */
 export function resolveCollectionType(
   tags: ?Array<string>,
-  valueTypes: Set<string>,
-  streamTypes: Set<string>
+  valueTypes: Set<string> = new Set(),
+  streamTypes: Set<string> = new Set()
 ): CollectionType {
   if (
     valueTypes.size === 1 &&
@@ -78,4 +103,23 @@ export function resolveAuxParams(collectionType: ?string, collectionClaim: Claim
   }
 
   return auxParams;
+}
+
+export function getTitleForCollection(collection: ?Collection) {
+  if (!collection) return collection;
+
+  return collection.title || collection.name;
+}
+
+export function getLocalizedNameForCollectionId(collectionId: string) {
+  switch (collectionId) {
+    case WATCH_LATER_ID:
+      return __('Watch Later');
+    case FAVORITES_ID:
+      return __('Favorites');
+    case QUEUE_ID:
+      return __('Queue');
+    default:
+      return null;
+  }
 }

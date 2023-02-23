@@ -19,7 +19,7 @@ import ChannelSelect from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publish/shared/publishDescription';
-// import PublishPrice from 'component/publish/shared/publishPrice';
+import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
@@ -35,6 +35,7 @@ import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 type Props = {
   tags: Array<Tag>,
@@ -52,7 +53,6 @@ type Props = {
   description: ?string,
   language: string,
   nsfw: boolean,
-  contentIsFree: boolean,
   fee: {
     amount: string,
     currency: string,
@@ -92,6 +92,7 @@ type Props = {
   // disabled?: boolean,
   remoteFileUrl?: string,
   urlSource?: string,
+  restrictedToMemberships: ?string,
 };
 
 function LivestreamForm(props: Props) {
@@ -134,6 +135,7 @@ function LivestreamForm(props: Props) {
     setClearStatus,
     remoteFileUrl,
     urlSource,
+    restrictedToMemberships,
   } = props;
 
   const isMobile = useIsMobile();
@@ -181,6 +183,7 @@ function LivestreamForm(props: Props) {
   const waitingForFile = waitForFile && !remoteUrl && !filePath;
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
+    restrictedToMemberships !== null &&
     name &&
     isNameValid(name) &&
     title &&
@@ -446,6 +449,9 @@ function LivestreamForm(props: Props) {
     ytSignupPending ||
     previewing;
 
+  // replays use 'exclusive content' perk, livestreams use 'exclusive livestreams'
+  const channelRestrictionToUse = publishMode === 'Replay' ? 'upload' : 'livestream';
+
   // Editing claim uri
   return (
     <div className={balance < 0.01 ? 'disabled' : ''}>
@@ -456,7 +462,7 @@ function LivestreamForm(props: Props) {
               key={'New'}
               icon={ICONS.LIVESTREAM}
               iconSize={18}
-              label={'New Livestream'}
+              label={__('New Livestream')}
               button="alt"
               onClick={() => {
                 setPublishMode('New');
@@ -469,7 +475,7 @@ function LivestreamForm(props: Props) {
                 key={'Replay'}
                 icon={ICONS.MENU}
                 iconSize={18}
-                label={'Choose Replay'}
+                label={__('Choose Replay')}
                 button="alt"
                 onClick={() => {
                   setPublishMode('Replay');
@@ -483,7 +489,7 @@ function LivestreamForm(props: Props) {
                 key={'Edit'}
                 icon={ICONS.EDIT}
                 iconSize={18}
-                label={'Edit / Update'}
+                label={__('Edit / Update')}
                 button="alt"
                 onClick={() => {
                   setPublishMode('Edit');
@@ -533,6 +539,10 @@ function LivestreamForm(props: Props) {
             )}
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+
+            <PublishProtectedContent claim={myClaimForUri} location={channelRestrictionToUse} />
+
+            {publishMode === 'Replay' && <PublishPrice disabled={disabled} />}
 
             <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
               {__('Tags')}
@@ -597,7 +607,7 @@ function LivestreamForm(props: Props) {
                   odysee_community_guidelines: (
                     <Button
                       button="link"
-                      href="https://help.odysee.tv/communityguidelines"
+                      href="https://help.odysee.tv/communityguidelines/"
                       target="_blank"
                       label={__('Community Guidelines')}
                     />

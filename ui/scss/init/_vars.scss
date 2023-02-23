@@ -69,7 +69,7 @@
 
   // Header
   // This is tied to the floating player so it knows where to attach to
-  // ui/component/fileRenderFloating/view.jsx
+  // ui/component/videoRenderFloating/view.jsx
   --header-height: 60px;
   --header-height-mobile: 56px;
 
@@ -84,7 +84,8 @@
   --card-box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
   // Modal
-  --modal-width: 750px;
+  --modal-width: 550px;
+  --modal-width-wide: 750px;
 
   // Animation :)
   --animation-duration: 0.2s;
@@ -113,6 +114,17 @@
   --scrollbar-radius: 0.5rem;
 
   --floating-player-z-index: 9999;
+
+  // Colors
+  --color-membership-1: 0, 208, 217;
+  --color-membership-2: 247, 125, 53;
+  --color-membership-3: 100, 68, 154;
+  // --color-membership-4: 35, 190, 97;
+  --color-membership-4: 207, 164, 86;
+  // --color-membership-5: 212, 105, 77;
+  --color-membership-5: 184, 55, 105;
+  // --color-membership-6: 184, 55, 105;
+  --color-membership-6: 66, 143, 207;
 }
 
 @media (max-width: $breakpoint-small) {

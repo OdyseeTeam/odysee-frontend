@@ -1,8 +1,17 @@
+.section__actions-span {
+  width: 100%;
+}
+
 .claim-search__wrapper {
   width: 100%;
 
-  @media (min-width: $breakpoint-small) {
-    width: auto;
+  .claim-search__header {
+    display: flex;
+    align-items: stretch;
+
+    .claim-search__top {
+      flex-grow: 1;
+    }
   }
 }
 
@@ -56,6 +65,10 @@
   @media (max-width: $breakpoint-small) {
     padding: unset;
   }
+
+  &:not(:first-child) {
+    margin-top: var(--spacing-s) !important;
+  }
 }
 
 .claim-search__dropdown {
@@ -97,6 +110,36 @@
   padding-right: var(--spacing-m);
   @media (max-width: $breakpoint-small) {
     padding-right: 0;
+  }
+}
+
+.claim-search__duration-inputs-container {
+  display: flex;
+  align-content: flex-start;
+
+  input {
+    margin-right: var(--spacing-m);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    width: 100%;
+
+    .claim-search__input-container {
+      margin-top: 0;
+
+      label {
+        margin-top: var(--spacing-m) !important;
+      }
+      input {
+        width: 100%;
+      }
+
+      &:first-of-type {
+        input {
+          width: calc(100% - var(--spacing-m));
+        }
+      }
+    }
   }
 }
 
@@ -179,4 +222,68 @@
 
 .claim-search__tags-link {
   margin-left: var(--spacing-s);
+}
+
+.claim-search__filters-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s;
+}
+
+.claim-search__filters-wrapper-expanded {
+  max-height: 300px;
+  @media (max-width: $breakpoint-small) {
+    max-height: 700px;
+  }
+}
+
+.claim-search__filters {
+  width: 100%;
+  background-color: rgba(var(--color-header-background-base), 0.4);
+  border-radius: var(--border-radius);
+  padding-top: var(--spacing-s);
+  padding-left: var(--spacing-m);
+  padding-right: var(--spacing-m);
+  padding-bottom: var(--spacing-m);
+  margin-top: var(--spacing-s);
+
+  .claim-search__menus {
+    margin: 0;
+    .claim-search__input-container {
+      flex: 1 1 0;
+      padding-right: 0;
+
+      label {
+        font-weight: var(--font-weight-bold);
+        margin-top: var(--spacing-s);
+        margin-bottom: 0.1rem;
+        font-size: var(--font-medium);
+      }
+
+      &:last-child {
+        .claim-search__dropdown {
+          padding-right: 0;
+        }
+      }
+    }
+  }
+
+  select,
+  input[type='text'],
+  input[type='number'],
+  .filer-checkbox-wrapper {
+    box-shadow: 0 0 0 2px var(--color-border) inset;
+  }
+
+  .filer-checkbox-wrapper {
+    padding-top: var(--spacing-xxxs);
+
+    label {
+      margin-top: 0 !important;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-m);
+  }
 }

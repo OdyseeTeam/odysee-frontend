@@ -2,37 +2,45 @@
 import React from 'react';
 import CollectionItemsList from 'component/collectionItemsList';
 import Page from 'component/page';
-import { SECTION_TAGS } from 'constants/collections';
 import * as PAGES from 'constants/pages';
-import { COLLECTION_PAGE as CP } from 'constants/urlParams';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
-import CollectionPublish from './internal/collectionPublish';
-import CollectionPrivateEdit from './internal/collectionPrivateEdit';
+import CollectionPublishForm from './internal/collectionPublishForm';
 import CollectionHeader from './internal/collectionHeader';
+import Spinner from 'component/spinner';
 
 type Props = {
+  // -- path match --
   collectionId: string,
-  uri: string,
+  // -- redux --
+  hasClaim: ?boolean,
   collection: Collection,
-  collectionUrls: Array<string>,
   brokenUrls: ?Array<any>,
-  isResolvingCollection: boolean,
-  doFetchItemsInCollection: (params: { collectionId: string }, cb?: () => void) => void,
+  isCollectionMine: boolean,
+  isPrivate: boolean,
+  hasPrivate: boolean,
+  doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void,
 };
 
-export default function CollectionPage(props: Props) {
+export const CollectionPageContext = React.createContext<any>();
+
+const CollectionPage = (props: Props) => {
   const {
+    // -- path match --
     collectionId,
-    uri,
+    // -- redux --
+    hasClaim,
     collection,
-    collectionUrls,
     brokenUrls,
-    isResolvingCollection,
-    doFetchItemsInCollection,
+    isCollectionMine,
+    isPrivate,
+    hasPrivate,
+    doResolveClaimId,
   } = props;
 
   const {
-    replace,
+    push,
     location: { search, state },
   } = useHistory();
   const { showEdit: pageShowEdit } = state || {};
@@ -40,69 +48,60 @@ export default function CollectionPage(props: Props) {
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
   const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
-  const { name, totalItems } = collection || {};
+  const { name } = collection || {};
 
   const urlParams = new URLSearchParams(search);
-  const publishing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.PUBLISH;
-  const editing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.EDIT;
-  const returnPath = urlParams.get('redirect');
+  const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
+  const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
+  const publishPage = editing || publishing;
+  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
+  const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
-  const editPage = editing || publishing;
-  const urlsReady =
-    collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
+  const isResolvingCollection = hasClaim === undefined;
 
-  function handlePreSubmit(params) {
-    if (urlParams.get(CP.QUERIES.TYPE) === CP.TYPES.FEATURED) {
-      const channelId = collection.featuredChannelsParams?.channelId;
-      console.assert(channelId, 'Featured-channels without a parent channel ID'); // eslint-disable-line no-console
-
-      return {
-        ...params,
-        // Inject SECTION_TAGS.FEATURED_CHANNELS as the first tag:
-        tags: [{ name: SECTION_TAGS.FEATURED_CHANNELS }, ...params.tags],
-        // The channel must not be changed:
-        channel_id: channelId,
-      };
+  function togglePublicCollection() {
+    if (isOnPublicView) {
+      return push(`/$/${PAGES.PLAYLIST}/${collectionId}`);
     }
-    return params;
+
+    const newUrlParams = new URLSearchParams();
+    newUrlParams.append(COLLECTION_PAGE.QUERIES.VIEW, COLLECTION_PAGE.VIEWS.PUBLIC);
+    push(`/$/${PAGES.PLAYLIST}/${collectionId}?${newUrlParams.toString()}`);
   }
 
   React.useEffect(() => {
-    if (collectionId && !urlsReady && !collection) {
-      doFetchItemsInCollection({ collectionId });
+    if (!isPrivate) {
+      doResolveClaimId(collectionId, true, { include_is_my_output: true });
     }
-  }, [collectionId, urlsReady, doFetchItemsInCollection, collection]);
+  }, [collectionId, doResolveClaimId, isPrivate]);
+
+  if (!hasPrivate && isResolvingCollection) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
+  }
 
   if (!collection && !isResolvingCollection) {
     return (
       <Page>
-        <h2 className="main--empty empty">{__('Nothing here')}</h2>
+        <div className="main--empty empty">{__('Nothing here')}</div>
       </Page>
     );
   }
 
-  if (editPage) {
-    const getReturnPath = (id) => returnPath || `/$/${PAGES.PLAYLIST}/${id || collectionId}`;
-    const onDone = (id) => replace(getReturnPath(id));
+  if (publishPage && !isBuiltin && isCollectionMine) {
+    const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
+    const doReturnForId = (id) => push(getPagePath(id));
 
     return (
       <Page
         noFooter
-        noSideNavigation={editPage}
-        backout={{
-          title: __('%action% %collection%', {
-            collection: name,
-            action: uri || editing ? __('Editing') : __('Publishing'),
-          }),
-          simpleTitle: uri || editing ? __('Editing') : __('Publishing'),
-          backNavDefault: getReturnPath(collectionId),
-        }}
+        noSideNavigation
+        backout={{ title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name }}
       >
-        {editing ? (
-          <CollectionPrivateEdit collectionId={collectionId} />
-        ) : (
-          <CollectionPublish uri={uri} collectionId={collectionId} onPreSubmit={handlePreSubmit} onDone={onDone} />
-        )}
+        <CollectionPublishForm collectionId={collectionId} onDoneForId={doReturnForId} useIds />
       </Page>
     );
   }
@@ -110,21 +109,25 @@ export default function CollectionPage(props: Props) {
   return (
     <Page className="playlists-page-wrapper">
       <div className="section card-stack">
-        <CollectionHeader
-          collectionId={collectionId}
-          showEdit={showEdit}
-          setShowEdit={setShowEdit}
-          unavailableUris={unavailableUris}
-          setUnavailable={setUnavailable}
-        />
+        <CollectionPageContext.Provider value={{ togglePublicCollection }}>
+          <CollectionHeader
+            collectionId={collectionId}
+            showEdit={showEdit}
+            setShowEdit={setShowEdit}
+            unavailableUris={unavailableUris}
+            setUnavailable={setUnavailable}
+          />
 
-        <CollectionItemsList
-          collectionId={collectionId}
-          showEdit={showEdit}
-          unavailableUris={unavailableUris}
-          showNullPlaceholder
-        />
+          <CollectionItemsList
+            collectionId={collectionId}
+            showEdit={showEdit}
+            unavailableUris={unavailableUris}
+            showNullPlaceholder
+          />
+        </CollectionPageContext.Provider>
       </div>
     </Page>
   );
-}
+};
+
+export default CollectionPage;

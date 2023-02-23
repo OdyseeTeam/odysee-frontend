@@ -1,11 +1,14 @@
 // @flow
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import React, { useRef } from 'react';
 import { parseURI } from 'util/lbryURI';
 import Button from 'component/button';
 import useHover from 'effects/use-hover';
 import { useIsMobile } from 'effects/use-screensize';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
+import { EmbedContext } from 'contexts/embed';
+import { formatLbryUrlForWeb } from 'util/url';
 import useBrowserNotifications from '$web/component/browserNotificationSettings/use-browser-notifications';
 
 type SubscriptionArgs = {
@@ -40,6 +43,8 @@ export default function SubscribeButton(props: Props) {
     uri,
     preferEmbed,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
 
   const buttonRef = useRef();
   const isMobile = useIsMobile();
@@ -85,18 +90,22 @@ export default function SubscribeButton(props: Props) {
           requiresAuth={IS_WEB}
           label={label}
           title={titlePrefix}
-          onClick={(e) => {
-            e.stopPropagation();
+          href={isEmbed && `${PAGES.AUTH_SIGNIN}?redirect=${encodeURIComponent(formatLbryUrlForWeb(uri))}`}
+          onClick={
+            !isEmbed &&
+            ((e) => {
+              e.stopPropagation();
 
-            subscriptionHandler(
-              {
-                channelName: '@' + rawChannelName,
-                uri: uri,
-                notificationsDisabled: true,
-              },
-              true
-            );
-          }}
+              subscriptionHandler(
+                {
+                  channelName: '@' + rawChannelName,
+                  uri: uri,
+                  notificationsDisabled: true,
+                },
+                true
+              );
+            })
+          }
         />
       </div>
     );
@@ -114,18 +123,22 @@ export default function SubscribeButton(props: Props) {
         requiresAuth={IS_WEB}
         label={label}
         title={titlePrefix}
-        onClick={(e) => {
-          e.stopPropagation();
+        href={isEmbed && `/$/${PAGES.AUTH_SIGNIN}?redirect=${encodeURIComponent(formatLbryUrlForWeb(uri))}`}
+        onClick={
+          !isEmbed &&
+          ((e) => {
+            e.stopPropagation();
 
-          subscriptionHandler(
-            {
-              channelName: claimName,
-              uri: permanentUrl,
-              notificationsDisabled: true,
-            },
-            true
-          );
-        }}
+            subscriptionHandler(
+              {
+                channelName: claimName,
+                uri: permanentUrl,
+                notificationsDisabled: true,
+              },
+              true
+            );
+          })
+        }
       />
       {isSubscribed && uiNotificationsEnabled && (
         <>

@@ -6,21 +6,29 @@ import {
   selectFetchingClaimSearchByQuery,
   selectClaimsByUri,
   selectById,
+  selectClaimSearchByQueryLastPageReached,
 } from 'redux/selectors/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import * as SETTINGS from 'constants/settings';
-import { MATURE_TAGS } from 'constants/tags';
 import { doFetchViewCount } from 'lbryinc';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptions } from 'util/claim-search';
+import * as CS from 'constants/claim_search';
 
 import ClaimListDiscover from './view';
 
+function resolveHideMembersOnly(global, override) {
+  return override === undefined || override === null ? global : override;
+}
+
 const select = (state, props) => {
   const showNsfw = selectShowMatureContent(state);
+  const hmocSetting = selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT);
+  const hideMembersOnly = resolveHideMembersOnly(hmocSetting, props.hideMembersOnly);
   const hideReposts = selectClientSetting(state, SETTINGS.HIDE_REPOSTS);
   const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = selectMutedAndBlockedChannelIds(state);
@@ -28,6 +36,7 @@ const select = (state, props) => {
   // TODO: memoize these 2 function calls. Lots of params, though; might not be feasible.
   const options = resolveSearchOptions({
     showNsfw,
+    hideMembersOnly,
     hideReposts,
     forceShowReposts,
     mutedAndBlockedChannelIds,
@@ -38,6 +47,7 @@ const select = (state, props) => {
 
   return {
     claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
+    claimSearchLastPageReached: selectClaimSearchByQueryLastPageReached(state)[searchKey],
     claimsByUri: selectClaimsByUri(state),
     claimsById: selectById(state),
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
@@ -51,7 +61,7 @@ const select = (state, props) => {
 const perform = {
   doClaimSearch,
   doFetchViewCount,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipForChannelIds,
   doResolveClaimIds,
   doResolveUris,
 };
@@ -61,37 +71,18 @@ export default withRouter(connect(select, perform)(ClaimListDiscover));
 // ****************************************************************************
 // ****************************************************************************
 
-type SearchOptions = {
-  page_size: number,
-  page: number,
-  no_totals: boolean,
-  any_tags: Array<string>,
-  channel_ids: Array<string>,
-  claim_ids?: Array<string>,
-  not_channel_ids: Array<string>,
-  not_tags: Array<string>,
-  order_by: Array<string>,
-  languages?: Array<string>,
-  release_time?: string,
-  claim_type?: string | Array<string>,
-  timestamp?: string,
-  fee_amount?: string,
-  limit_claims_per_channel?: number,
-  stream_types?: Array<string>,
-  has_source?: boolean,
-  has_no_source?: boolean,
-};
-
 function resolveSearchOptions(props) {
   const {
     showNsfw,
     hideReposts,
     forceShowReposts,
+    hideMembersOnly,
     mutedAndBlockedChannelIds,
     location,
     pageSize,
     claimType,
     tags,
+    notTags,
     languages,
     channelIds,
     orderBy,
@@ -103,6 +94,7 @@ function resolveSearchOptions(props) {
     limitClaimsPerChannel,
     timestamp,
     claimIds,
+    duration,
   } = props;
 
   const urlParams = new URLSearchParams(location.search);
@@ -116,7 +108,7 @@ function resolveSearchOptions(props) {
     streamTypesParam = undefined;
   }
 
-  const options: SearchOptions = {
+  const options: ClaimSearchOptions = {
     page: 1,
     page_size: pageSize,
     claim_type: claimType || ['stream', 'repost', 'channel'],
@@ -124,14 +116,36 @@ function resolveSearchOptions(props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     any_tags: tags || [],
-    not_tags: !showNsfw ? MATURE_TAGS : [],
+    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnly),
     any_languages: languages,
     channel_ids: channelIds || [],
     not_channel_ids: mutedAndBlockedChannelIds,
-    order_by: orderBy || ['trending_group', 'trending_mixed'],
+    order_by: resolveOrderByOption(orderBy),
     stream_types: streamTypesParam,
     remove_duplicates: true,
   };
+
+  function resolveOrderByOption(orderBy: string | Array<string>) {
+    let order_by;
+
+    switch (orderBy) {
+      case CS.ORDER_BY_TRENDING:
+        order_by = CS.ORDER_BY_TRENDING_VALUE;
+        break;
+      case CS.ORDER_BY_NEW:
+        order_by = CS.ORDER_BY_NEW_VALUE;
+        break;
+      case CS.ORDER_BY_NEW_ASC:
+        order_by = CS.ORDER_BY_NEW_ASC_VALUE;
+        break;
+      case CS.ORDER_BY_NAME_ASC:
+        order_by = CS.ORDER_BY_NAME_ASC_VALUE;
+        break;
+      default:
+        order_by = CS.ORDER_BY_TRENDING_VALUE;
+    }
+    return order_by;
+  }
 
   if (ENABLE_NO_SOURCE_CLAIMS && hasNoSource) {
     options.has_no_source = true;
@@ -170,6 +184,10 @@ function resolveSearchOptions(props) {
 
   if (claimIds) {
     options.claim_ids = claimIds;
+  }
+
+  if (duration) {
+    options.duration = duration;
   }
 
   return options;

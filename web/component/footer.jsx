@@ -33,7 +33,7 @@ export default function Footer() {
         <li className="footer__link">
           <Button
             label={__('Community Guidelines')}
-            href="https://help.odysee.tv/communityguidelines"
+            href="https://help.odysee.tv/communityguidelines/"
             target="_blank"
           />
         </li>
@@ -41,10 +41,7 @@ export default function Footer() {
           <Button label={__('FAQ')} href="https://help.odysee.tv/" target="_blank" />
         </li>
         <li className="footer__link">
-          <Button
-            label={__('Support --[used in footer; general help/support]--')}
-            href="https://odysee.com/@OdyseeHelp:b"
-          />
+          <Button label={__('Support --[used in footer; general help/support]--')} href="https://help.odysee.tv/" />
         </li>
         <li className="footer__link">
           <Button label={__('Careers')} navigate={`/$/${PAGES.CAREERS}`} />

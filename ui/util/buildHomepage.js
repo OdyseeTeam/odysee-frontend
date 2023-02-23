@@ -20,8 +20,10 @@ export type HomepageCat = {
   tags?: Array<string>,
   pinnedUrls?: Array<string>,
   pinnedClaimIds?: Array<string>, // takes precedence over pinnedUrls
+  hideSort?: boolean,
   excludedChannelIds?: Array<string>,
   searchLanguages?: Array<string>,
+  duration?: string,
   mixIn?: Array<string>,
   hideByDefault?: boolean,
 };
@@ -37,7 +39,7 @@ function getLimitPerChannel(size, isChannel) {
 export function getAllIds(all: any) {
   const idsSet: Set<string> = new Set();
   (Object.values(all): any).forEach((cat) => {
-    if (cat.channelIds) {
+    if (cat?.channelIds) {
       cat.channelIds.forEach((id) => idsSet.add(id));
     }
   });
@@ -49,16 +51,16 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
   let orderValue;
   switch (cat.order) {
     case 'trending':
-      orderValue = CS.ORDER_BY_TRENDING_VALUE;
+      orderValue = CS.ORDER_BY_TRENDING;
       break;
     case 'top':
-      orderValue = CS.ORDER_BY_TOP_VALUE;
+      orderValue = CS.ORDER_BY_TOP;
       break;
     case 'new':
-      orderValue = CS.ORDER_BY_NEW_VALUE;
+      orderValue = CS.ORDER_BY_NEW;
       break;
     default:
-      orderValue = CS.ORDER_BY_TRENDING_VALUE;
+      orderValue = CS.ORDER_BY_TRENDING;
   }
 
   let urlParams = new URLSearchParams();
@@ -95,6 +97,7 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
     pinnedUrls: cat.pinnedUrls,
     pinnedClaimIds: cat.pinnedClaimIds,
     hideByDefault: cat.hideByDefault,
+    hideSort: cat.hideSort,
     options: {
       claimType: cat.claimType || ['stream', 'repost'],
       channelIds: cat.channelIds,
@@ -103,6 +106,7 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
       pageSize: cat.pageSize || undefined,
       limitClaimsPerChannel: limitClaims,
       searchLanguages: cat.searchLanguages,
+      duration: cat.duration || undefined,
       releaseTime: `>${Math.floor(
         moment()
           .subtract(cat.daysOfContent || 30, 'days')
@@ -139,8 +143,9 @@ export function GetLinksData(
       title: __('Recent From Following'),
       link: `/$/${PAGES.CHANNELS_FOLLOWING}`,
       icon: ICONS.SUBSCRIBE,
+      hideSort: false,
       options: {
-        orderBy: CS.ORDER_BY_NEW_VALUE,
+        orderBy: CS.ORDER_BY_NEW,
         releaseTime:
           subscribedChannels.length > 20
             ? `>${Math.floor(moment().subtract(9, 'months').startOf('week').unix())}`
@@ -249,9 +254,10 @@ export function GetLinksData(
     link: `/$/${PAGES.DISCOVER}?${CS.CLAIM_TYPE}=${CS.CLAIM_STREAM}&${CS.CHANNEL_IDS_KEY}=${YOUTUBER_CHANNEL_IDS.join(
       ','
     )}`,
+    hideSort: false,
     options: {
       claimType: ['stream'],
-      orderBy: ['release_time'],
+      orderBy: CS.ORDER_BY_NEW,
       pageSize: getPageSize(12),
       channelIds: YOUTUBER_CHANNEL_IDS,
       limitClaimsPerChannel: 1,
@@ -262,9 +268,10 @@ export function GetLinksData(
   const TOP_CONTENT_TODAY = {
     title: __('Top Content from Today'),
     link: `/$/${PAGES.DISCOVER}?${CS.ORDER_BY_KEY}=${CS.ORDER_BY_TOP}&${CS.FRESH_KEY}=${CS.FRESH_DAY}`,
+    hideSort: false,
     options: {
       pageSize: getPageSize(showPersonalizedChannels || showPersonalizedTags ? 4 : 8),
-      orderBy: ['effective_amount'],
+      orderBy: CS.ORDER_BY_TOP,
       claimType: ['stream'],
       limitClaimsPerChannel: 2,
       releaseTime: `>${Math.floor(moment().subtract(1, 'day').startOf('day').unix())}`,
@@ -275,7 +282,7 @@ export function GetLinksData(
     title: __('Top Channels On LBRY'),
     link: `/$/${PAGES.DISCOVER}?claim_type=channel&${CS.ORDER_BY_KEY}=${CS.ORDER_BY_TOP}&${CS.FRESH_KEY}=${CS.FRESH_ALL}`,
     options: {
-      orderBy: ['effective_amount'],
+      orderBy: CS.ORDER_BY_TOP,
       claimType: ['channel'],
     },
   };
@@ -284,7 +291,7 @@ export function GetLinksData(
     title: __('Latest From @lbry'),
     link: `/@lbry:3f`,
     options: {
-      orderBy: ['release_time'],
+      orderBy: CS.ORDER_BY_NEW,
       pageSize: getPageSize(4),
       channelIds: ['3fda836a92faaceedfe398225fb9b2ee2ed1f01a'],
     },
@@ -296,9 +303,10 @@ export function GetLinksData(
         title: __('Trending For Your Tags'),
         link: `/$/${PAGES.TAGS_FOLLOWING}`,
         icon: ICONS.TAG,
-
+        hideSort: false,
         options: {
           pageSize: getPageSize(4),
+          orderBy: CS.ORDER_BY_NEW,
           tags: followedTags.map((tag) => tag.name),
           claimType: ['stream'],
           limitClaimsPerChannel: 2,
@@ -338,7 +346,8 @@ export function GetLinksData(
   // @endif
   // **************************************************************************
 
-  const entries = Object.entries(all);
+  const { categories } = all;
+  const entries = Object.entries(categories || []);
   for (let i = 0; i < entries.length; ++i) {
     const key = entries[i][0];
     const val = entries[i][1];

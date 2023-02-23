@@ -6,6 +6,7 @@
 .*/node_modules/react-beautiful-dnd/.*
 .*/node_modules/@emotion/.*
 .*/malformed_package_json/.*
+.*/node_modules/resolve/test/resolver/malformed_package_json/package.json
 
 [include]
 
@@ -23,6 +24,7 @@ module.name_mapper='^util\(.*\)$' -> '<PROJECT_ROOT>/ui/util\1'
 module.name_mapper='^redux\(.*\)$' -> '<PROJECT_ROOT>/ui/redux\1'
 module.name_mapper='^types\(.*\)$' -> '<PROJECT_ROOT>/ui/types\1'
 module.name_mapper='^component\(.*\)$' -> '<PROJECT_ROOT>/ui/component\1'
+module.name_mapper='^hocs\(.*\)$' -> '<PROJECT_ROOT>/ui/hocs\1'
 module.name_mapper='^page\(.*\)$' -> '<PROJECT_ROOT>/ui/page\1'
 module.name_mapper='^lbry\(.*\)$' -> '<PROJECT_ROOT>/ui/lbry\1'
 module.name_mapper='^modal\(.*\)$' -> '<PROJECT_ROOT>/ui/modal\1'
@@ -34,6 +36,7 @@ module.name_mapper='^rewards\(.*\)$' -> '<PROJECT_ROOT>/ui/rewards\1'
 module.name_mapper='^i18n\(.*\)$' -> '<PROJECT_ROOT>/ui/i18n\1'
 module.name_mapper='^effects\(.*\)$' -> '<PROJECT_ROOT>/ui/effects\1'
 module.name_mapper='^comments\(.*\)$' -> '<PROJECT_ROOT>/ui/comments\1'
+module.name_mapper='^livestream\(.*\)$' -> '<PROJECT_ROOT>/ui/livestream\1'
 module.name_mapper='^locale\(.*\)$' -> '<PROJECT_ROOT>/ui/locale\1'
 module.name_mapper='^config\(.*\)$' -> '<PROJECT_ROOT>/config\1'
 module.name_mapper='^web\/component\(.*\)$' -> '<PROJECT_ROOT>/web/component\1'

@@ -5,21 +5,21 @@ import * as CS from 'constants/claim_search';
 import { SIMPLE_SITE } from 'config';
 import React from 'react';
 import ChannelsFollowingDiscoverPage from 'page/channelsFollowingDiscover';
-import LivestreamSection from 'page/discover/livestreamSection';
+import LivestreamSection from 'page/discover/internal/livestreamSection';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Page from 'component/page';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
-import { splitBySeparator } from 'util/lbryURI';
-import { getLivestreamUris } from 'util/livestream';
 import { tagSearchCsOptionsHook } from 'util/search';
 import ScheduledStreams from 'component/scheduledStreams';
+import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
   subscribedChannels: Array<Subscription>,
+  channelIds: Array<string>,
   tileLayout: boolean,
-  activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: () => void,
+  activeLivestreamUris: ?Array<string>,
+  doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,
 };
@@ -27,18 +27,19 @@ type Props = {
 function ChannelsFollowingPage(props: Props) {
   const {
     subscribedChannels,
+    channelIds,
     tileLayout,
-    activeLivestreams,
-    doFetchActiveLivestreams,
+    activeLivestreamUris,
+    doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
     hideScheduledLivestreams,
   } = props;
 
   const hasSubscribedChannels = subscribedChannels.length > 0;
-  const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
+  const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
   React.useEffect(() => {
-    doFetchActiveLivestreams();
+    doFetchAllActiveLivestreamsForQuery();
   }, []);
 
   return !hasSubscribedChannels ? (
@@ -51,7 +52,7 @@ function ChannelsFollowingPage(props: Props) {
             <ScheduledStreams
               channelIds={channelIds}
               tileLayout={tileLayout}
-              liveUris={getLivestreamUris(activeLivestreams, channelIds)}
+              liveUris={activeLivestreamUris}
               limitClaimsPerChannel={2}
             />
           )}
@@ -65,6 +66,7 @@ function ChannelsFollowingPage(props: Props) {
                 {__('Following')}
               </span>
             }
+            hideMembersOnly={hideMembersOnly}
             defaultOrderBy={CS.ORDER_BY_NEW}
             channelIds={channelIds}
             meta={
@@ -83,14 +85,7 @@ function ChannelsFollowingPage(props: Props) {
                 />
               </>
             }
-            subSection={
-              <LivestreamSection
-                tileLayout={tileLayout}
-                channelIds={channelIds}
-                activeLivestreams={activeLivestreams}
-                doFetchActiveLivestreams={doFetchActiveLivestreams}
-              />
-            }
+            subSection={<LivestreamSection tileLayout={tileLayout} channelIds={channelIds} />}
             hasSource
             csOptionsHook={tagSearchCsOptionsHook}
           />

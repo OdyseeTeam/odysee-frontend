@@ -6,7 +6,6 @@ import classnames from 'classnames';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import TagsSearch from 'component/tagsSearch';
-import ColorPicker from 'component/colorPicker';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import ErrorText from 'component/common/error-text';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -26,8 +25,8 @@ import { SIMPLE_SITE, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { sortLanguageMap } from 'util/default-languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import Gerbil from 'component/channelThumbnail/gerbil.png';
+import Icon from 'component/common/icon';
 
-const NEKODEV = false; // Temporary flag to hide unfinished progress
 const MAX_TAG_SELECT = 5;
 
 type Props = {
@@ -97,7 +96,6 @@ function ChannelForm(props: Props) {
   const [isUpload, setIsUpload] = React.useState({ cover: false, thumbnail: false });
   const [coverError, setCoverError] = React.useState(false);
   const [thumbError, setThumbError] = React.useState(false);
-  const [overrideColor, toggleColorOverride] = React.useState(false);
 
   const { claim_id: claimId } = claim || {};
   const [params, setParams]: [any, (any) => void] = React.useState(getChannelParams());
@@ -114,7 +112,7 @@ function ChannelForm(props: Props) {
     if (isClaimingInitialRewards) {
       return __('Claiming credits...');
     }
-    return creatingChannel || updatingChannel ? __('Submitting...') : __('Submit');
+    return creatingChannel || updatingChannel ? __('Saving...') : __('Save');
   }, [isClaimingInitialRewards, creatingChannel, updatingChannel]);
 
   const submitDisabled = React.useMemo(() => {
@@ -131,6 +129,21 @@ function ChannelForm(props: Props) {
   const errorMsg = resolveErrorMsg();
   const coverSrc = coverError ? ThumbnailBrokenImage : params.coverUrl;
   const thumbnailPreview = resolveThumbnailPreview();
+
+  const [scrollPast, setScrollPast] = React.useState(0);
+  const onScroll = () => {
+    if (window.pageYOffset > 240) {
+      setScrollPast(true);
+    } else {
+      setScrollPast(false);
+    }
+  };
+  React.useEffect(() => {
+    window.addEventListener('scroll', onScroll, {
+      passive: true,
+    });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   function getChannelParams() {
     // fill this in with sdk data
@@ -284,82 +297,95 @@ function ChannelForm(props: Props) {
     }
   }, [hasClaimedInitialRewards, claimInitialRewards]);
 
+  const [tabIndex, setTabIndex] = React.useState(0);
+  function onTabChange(index) {
+    setTabIndex(index);
+  }
+
   // TODO clear and bail after submit
   return (
     <>
       <div className={classnames({ 'card--disabled': disabled })}>
-        <header className="channel-cover">
-          <div className="channel__quick-actions">
-            <Button
-              button="alt"
-              title={__('Cover')}
-              onClick={() =>
-                openModal(MODALS.IMAGE_UPLOAD, {
-                  onUpdate: (coverUrl, isUpload) => handleCoverChange(coverUrl, isUpload),
-                  title: __('Edit Cover Image'),
-                  helpText: __('(6.25:1 ratio, %max_size%MB max)', {
-                    max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                  }),
-                  assetName: __('Cover Image'),
-                  currentValue: params.coverUrl,
-                })
-              }
-              icon={ICONS.CAMERA}
-              iconSize={18}
-            />
-          </div>
-          {params.coverUrl &&
-            (coverError && isUpload.cover ? (
-              <div className="channel-cover__custom--waiting">
-                <p>{__('Uploaded image will be visible in a few minutes after you submit this form.')}</p>
-              </div>
-            ) : (
-              <img className="channel-cover__custom" src={coverSrc} onError={() => setCoverError(true)} />
-            ))}
-          <div className="channel__primary-info">
-            <div className="channel__edit-thumb">
+        <header className="channel-cover" style={{ backgroundImage: 'url(' + coverSrc + ')' }}>
+          <div className="channel-header-content">
+            <div className="channel__quick-actions">
               <Button
                 button="alt"
-                title={__('Edit')}
+                title={__('Cover')}
                 onClick={() =>
                   openModal(MODALS.IMAGE_UPLOAD, {
-                    onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
-                    title: __('Edit Thumbnail Image'),
-                    helpText: __('(1:1 ratio, %max_size%MB max)', {
-                      max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                    }),
-                    assetName: __('Thumbnail'),
-                    currentValue: params.thumbnailUrl,
+                    onUpdate: (coverUrl, isUpload) => handleCoverChange(coverUrl, isUpload),
+                    title: __('Edit Cover Image'),
+                    helpText: __('(Recommmended: 2048x320 px)'),
+                    assetName: __('Cover Image'),
+                    currentValue: params.coverUrl,
+                    otherValue: params.thumbnailUrl,
                   })
                 }
                 icon={ICONS.CAMERA}
                 iconSize={18}
               />
             </div>
-            <ChannelThumbnail
-              className="channel__thumbnail--channel-page"
-              uri={uri}
-              thumbnailPreview={thumbnailPreview}
-              allowGifs
-              setThumbUploadError={setThumbError}
-              thumbUploadError={thumbError}
-            />
-            <h1 className="channel__title">
-              {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
-            </h1>
+            {params.coverUrl && coverError && isUpload.cover && (
+              <div className="channel-cover__custom--waiting">
+                <p>{__('Uploaded image will be visible in a few minutes after you submit this form.')}</p>
+              </div>
+            )}
+            <div className="channel__primary-info">
+              <h1 className="channel__title">
+                {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
+              </h1>
+            </div>
           </div>
-          <div className="channel-cover__gradient" />
         </header>
 
-        <Tabs className="channelPage-wrapper">
-          <TabList className="tabs__list--channel-page">
-            <Tab>{__('General')}</Tab>
-            <Tab>{__('Credit Details')}</Tab>
-            <Tab>{__('Tags')}</Tab>
-            <Tab>{__('Other')}</Tab>
-          </TabList>
+        <Tabs index={tabIndex}>
+          <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+            <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+              <ChannelThumbnail
+                className={classnames('channel__thumbnail--channel-page', {
+                  'channel__thumbnail--channel-page-fixed': scrollPast,
+                })}
+                uri={uri}
+                thumbnailPreview={thumbnailPreview}
+                allowGifs
+                setThumbUploadError={setThumbError}
+                thumbUploadError={thumbError}
+              />
+              <div className="channel__edit-thumb">
+                <Button
+                  button="alt"
+                  title={__('Edit')}
+                  onClick={() =>
+                    openModal(MODALS.IMAGE_UPLOAD, {
+                      onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
+                      title: __('Edit Thumbnail Image'),
+                      helpText: __('(1:1 ratio)', {
+                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                      }),
+                      assetName: __('Thumbnail'),
+                      currentValue: params.thumbnailUrl,
+                      otherValue: params.coverUrl,
+                    })
+                  }
+                  icon={ICONS.CAMERA}
+                  iconSize={18}
+                />
+              </div>
+            </div>
+
+            <TabList className="tabs__list--channel-page">
+              <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
+                {__('About')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+                {!isNewChannel && __('Other')}
+              </Tab>
+            </TabList>
+          </div>
           <TabPanels>
             <TabPanel>
+              <h2 className="card__title">{__('General')}</h2>
               <Card
                 body={
                   <>
@@ -372,24 +398,25 @@ function ChannelForm(props: Props) {
                       />
                     )}
 
-                    <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
-                      <fieldset-section>
-                        <label htmlFor="channel_name">{__('Name')}</label>
-                        <div className="form-field__prefix">@</div>
-                      </fieldset-section>
+                    {isNewChannel && (
+                      <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
+                        <fieldset-section>
+                          <label htmlFor="channel_name">{__('Name')}</label>
+                          <div className="form-field__prefix">@</div>
+                        </fieldset-section>
 
-                      <FormField
-                        autoFocus={isNewChannel}
-                        type="text"
-                        name="channel_name"
-                        placeholder={__('MyAwesomeChannel')}
-                        value={params.name || channelName}
-                        error={nameError}
-                        disabled={!isNewChannel}
-                        onChange={(e) => setParams({ ...params, name: e.target.value })}
-                      />
-                    </fieldset-group>
-                    {!isNewChannel && <span className="form-field__help">{__('This field cannot be changed.')}</span>}
+                        <FormField
+                          autoFocus={isNewChannel}
+                          type="text"
+                          name="channel_name"
+                          placeholder={__('MyAwesomeChannel')}
+                          value={params.name || channelName}
+                          error={nameError}
+                          disabled={!isNewChannel}
+                          onChange={(e) => setParams({ ...params, name: e.target.value })}
+                        />
+                      </fieldset-group>
+                    )}
 
                     <FormField
                       type="text"
@@ -411,34 +438,35 @@ function ChannelForm(props: Props) {
                   </>
                 }
               />
-            </TabPanel>
-            <TabPanel>
+
+              <h2 className="card__title">{__('Contact')}</h2>
               <Card
                 body={
-                  <FormField
-                    className="form-field--price-amount"
-                    type="number"
-                    name="content_bid2"
-                    step="any"
-                    label={<LbcSymbol postfix={__('Deposit')} size={14} />}
-                    value={params.amount}
-                    error={bidError}
-                    min="0.0"
-                    disabled={false}
-                    onChange={(event) => handleBidChange(parseFloat(event.target.value))}
-                    placeholder={0.1}
-                    helper={
-                      <>
-                        {__('Increasing your deposit can help your channel be discovered more easily.')}
-                        <WalletSpendableBalanceHelp inline />
-                      </>
-                    }
-                  />
+                  <>
+                    <FormField
+                      type="text"
+                      name="content_email2"
+                      label={__('Email')}
+                      placeholder={__('yourstruly@example.com')}
+                      disabled={false}
+                      value={params.email}
+                      onChange={(e) => setParams({ ...params, email: e.target.value })}
+                    />
+                    <FormField
+                      type="text"
+                      name="channel_website2"
+                      label={__('Website')}
+                      placeholder={__('aprettygoodsite.com')}
+                      disabled={false}
+                      value={params.website}
+                      onChange={(e) => setParams({ ...params, website: e.target.value })}
+                    />
+                  </>
                 }
               />
-            </TabPanel>
-            <TabPanel>
+              <h2 className="card__title">{__('Tags')}</h2>
               <Card
+                className="channelpage-edit-tags"
                 body={
                   <TagsSearch
                     suggestMature={!SIMPLE_SITE}
@@ -464,42 +492,11 @@ function ChannelForm(props: Props) {
                   />
                 }
               />
-            </TabPanel>
-            <TabPanel>
+
+              <h2 className="card__title">{__('Languages')}</h2>
               <Card
                 body={
                   <>
-                    {NEKODEV && (
-                      <fieldset-section class>
-                        <label htmlFor="channel-color">{__('Channel color')}</label>
-                        <FormField
-                          name="manual-channel-color"
-                          type="checkbox"
-                          label="Pick color manually"
-                          checked={overrideColor}
-                          onChange={() => toggleColorOverride(!overrideColor)}
-                        />
-                        <ColorPicker disabled={!overrideColor} />
-                      </fieldset-section>
-                    )}
-                    <FormField
-                      type="text"
-                      name="channel_website2"
-                      label={__('Website')}
-                      placeholder={__('aprettygoodsite.com')}
-                      disabled={false}
-                      value={params.website}
-                      onChange={(e) => setParams({ ...params, website: e.target.value })}
-                    />
-                    <FormField
-                      type="text"
-                      name="content_email2"
-                      label={__('Email')}
-                      placeholder={__('yourstruly@example.com')}
-                      disabled={false}
-                      value={params.email}
-                      onChange={(e) => setParams({ ...params, email: e.target.value })}
-                    />
                     <FormField
                       name="language_select"
                       type="select"
@@ -539,32 +536,66 @@ function ChannelForm(props: Props) {
                 }
               />
             </TabPanel>
+            <TabPanel>
+              <h2 className="card__title">{__('Credit Details')}</h2>
+              <Card
+                body={
+                  <FormField
+                    className="form-field--price-amount"
+                    type="number"
+                    name="content_bid2"
+                    step="any"
+                    label={<LbcSymbol postfix={__('Deposit')} size={14} />}
+                    value={params.amount}
+                    error={bidError}
+                    min="0.0"
+                    disabled={false}
+                    onChange={(event) => handleBidChange(parseFloat(event.target.value))}
+                    placeholder={0.1}
+                    helper={
+                      <>
+                        {__('Increasing your deposit can help your channel be discovered more easily.')}
+                        <WalletSpendableBalanceHelp inline />
+                      </>
+                    }
+                  />
+                }
+              />
+              {!isNewChannel && (
+                <>
+                  <h2 className="card__title">{__('Delete Channel')}</h2>
+                  <Card
+                    body={
+                      <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                    }
+                  />
+                </>
+              )}
+            </TabPanel>
           </TabPanels>
         </Tabs>
 
-        <Card
-          className="card--after-tabs"
-          actions={
-            <>
-              <div className="section__actions">
-                <Button button="primary" disabled={submitDisabled} label={submitLabel} onClick={handleSubmit} />
-                <Button button="link" label={__('Cancel')} onClick={onDone} />
-              </div>
-              {errorMsg ? (
-                <ErrorText>{errorMsg}</ErrorText>
-              ) : (
-                <p className="help">
-                  {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
-                </p>
-              )}
-              {!isNewChannel && (
+        <div className="card-fixed-bottom">
+          <Card
+            className="card--after-tabs tab__panel"
+            actions={
+              <>
                 <div className="section__actions">
-                  <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                  <Button button="primary" disabled={submitDisabled} label={submitLabel} onClick={handleSubmit} />
+                  <Button button="link" label={__('Cancel')} onClick={onDone} />
+                  {errorMsg ? (
+                    <ErrorText>{errorMsg}</ErrorText>
+                  ) : (
+                    <p className="help">
+                      <Icon icon={ICONS.INFO} />
+                      {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
+                    </p>
+                  )}
                 </div>
-              )}
-            </>
-          }
-        />
+              </>
+            }
+          />
+        </div>
       </div>
     </>
   );

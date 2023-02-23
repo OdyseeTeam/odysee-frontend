@@ -3,7 +3,7 @@ import * as CONFIGS from 'config';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { RULE } from 'constants/notifications';
 import * as PAGES from 'constants/pages';
-import { DISCUSSION_PAGE, PAGE_VIEW_QUERY } from 'page/channel/view'; // TODO: move into const to avoid lazy-load problems
+import { CHANNEL_PAGE } from 'constants/urlParams';
 import { parseURI } from 'util/lbryURI';
 import { formatLbryUrlForWeb } from 'util/url';
 
@@ -20,6 +20,8 @@ export function getNotificationTarget(notification: WebNotification) {
       return `/$/${PAGES.REWARDS_VERIFY}?redirect=/$/${PAGES.REWARDS}`;
     case RULE.FIAT_TIP:
       return `/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`;
+    case RULE.NEW_MEMBER:
+      return `/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=supporters`;
     default:
       return notification_parameters.device.target;
   }
@@ -41,7 +43,7 @@ function getUrlParams(notification, notificationTarget) {
 
   try {
     const { isChannel } = parseURI(notificationTarget);
-    if (isChannel) urlParams.append(PAGE_VIEW_QUERY, DISCUSSION_PAGE);
+    if (isChannel) urlParams.append(CHANNEL_PAGE.QUERIES.VIEW, CHANNEL_PAGE.VIEWS.DISCUSSION);
   } catch (e) {}
 
   return urlParams;
@@ -57,6 +59,16 @@ function getUrlParams(notification, notificationTarget) {
 export function getNotificationLink(notification: WebNotification, target: ?string) {
   const notificationTarget = target || getNotificationTarget(notification);
   const urlParams = getUrlParams(notification, notificationTarget).toString();
+  /*
+  const prefix = formatLbryUrlForWeb(notification?.notification_parameters?.dynamic?.channel_url);
+  const channelUri = prefix.substr(0, prefix.indexOf(':') + 4);
+  const canonicalUri =
+    prefix && channelUri
+      ? channelUri + formatLbryUrlForWeb(notificationTarget)
+      : formatLbryUrlForWeb(notificationTarget);
+
+  return `${canonicalUri}${urlParams ? `?${urlParams}` : ''}`;
+  */
   return `${formatLbryUrlForWeb(notificationTarget)}${urlParams ? `?${urlParams}` : ''}`;
 }
 

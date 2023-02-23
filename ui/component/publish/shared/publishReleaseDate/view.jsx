@@ -24,6 +24,7 @@ type Props = {
   releaseTime: ?number,
   releaseTimeEdited: ?number,
   clock24h: boolean,
+  appLanguage: ?string,
   updatePublishForm: ({}) => void,
 };
 
@@ -32,6 +33,7 @@ const PublishReleaseDate = (props: Props) => {
     releaseTime,
     releaseTimeEdited,
     clock24h,
+    appLanguage,
     updatePublishForm,
     allowDefault = true,
     showNowBtn = true,
@@ -153,6 +155,7 @@ const PublishReleaseDate = (props: Props) => {
       <div className="form-field-date-picker__controls">
         {showDatePicker && (
           <DateTimePicker
+            locale={appLanguage}
             className="date-picker-input"
             calendarClassName="form-field-calendar"
             onBlur={handleBlur}

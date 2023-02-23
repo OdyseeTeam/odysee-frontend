@@ -8,8 +8,7 @@ import GeoRestictionInfo from 'component/geoRestictionInfo';
 import ClaimAuthor from 'component/claimAuthor';
 import FileTitle from 'component/fileTitle';
 import FileActions from 'component/fileActions';
-import FileRenderInitiator from 'component/fileRenderInitiator';
-import FileRenderInline from 'component/fileRenderInline';
+import StreamClaimRenderInline from 'component/streamClaimRenderInline';
 import FileValues from 'component/fileValues';
 import FileViewCount from 'component/fileViewCount';
 import ClaimTags from 'component/claimTags';
@@ -28,11 +27,12 @@ type Props = {
   uri: string,
   claim: ?StreamClaim,
   claimIsMine: boolean,
+  contentUnlocked: boolean,
   doOpenModal: (id: string, {}) => void,
 };
 
 function PostViewer(props: Props) {
-  const { uri, claim, claimIsMine, doOpenModal } = props;
+  const { uri, claim, claimIsMine, contentUnlocked, doOpenModal } = props;
   const [expand, setExpand] = React.useState(EXPAND.NONE);
 
   if (!claim) {
@@ -62,7 +62,7 @@ function PostViewer(props: Props) {
       >
         <span className="post__date">
           <DateTime uri={uri} type="date" />
-          <FileViewCount uri={uri} />
+          {contentUnlocked && <FileViewCount uri={uri} />}
         </span>
         <div className="post__info--grouped">
           <Button
@@ -105,8 +105,7 @@ function PostViewer(props: Props) {
       <ClaimAuthor uri={uri} />
 
       <div className="file-render--post-container">
-        <FileRenderInitiator uri={uri} />
-        <FileRenderInline uri={uri} />
+        <StreamClaimRenderInline uri={uri} />
       </div>
       <FileActions uri={uri} />
     </div>

@@ -95,9 +95,7 @@ export default function BuyPage(props: Props) {
   }, [url, setUrl, receiveAddress, email]);
 
   const title = __('Buy Credits');
-  const subtitle = (
-    <Button button="link" label={__('Learn more')} href="https://odysee.com/@OdyseeHelp:b/BuyingSellingLBRYCredits:b" />
-  );
+  const subtitle = <Button button="link" label={__('Learn more')} href="https://lbry.com/faq/buy-sell-bittrex" />;
 
   if (MOONPAY_DOWN) {
     return (

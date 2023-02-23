@@ -1,52 +1,31 @@
 // @flow
 import React from 'react';
 import { FormField } from 'component/common/form';
-import { useHistory } from 'react-router';
-import { formatLbryUrlForWeb } from 'util/url';
-import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
+import { getLocalizedNameForCollectionId } from 'util/collections';
 import Icon from 'component/common/icon';
 
 type Props = {
   icon: string,
   uri: string,
-  key: string,
   // -- redux --
   collection: Collection,
   collectionHasClaim: boolean,
   collectionPending: Collection,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string,
-    collectionName: string,
-    collectionId: string,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
 };
 
 function CollectionSelectItem(props: Props) {
-  const { icon, uri, key, collection, collectionHasClaim, collectionPending, doPlaylistAddAndAllowPlaying } = props;
-  const { name, id } = collection || {};
+  const { icon, uri, collection, collectionHasClaim, collectionPending, doPlaylistAddAndAllowPlaying } = props;
+  const id = collection.id;
+  const name = getLocalizedNameForCollectionId(id) || collection.name;
 
-  const {
-    push,
-    location: { search },
-  } = useHistory();
+  const [checked, setChecked] = React.useState(collectionHasClaim);
 
   function handleChange() {
-    const urlParams = new URLSearchParams(search);
-    urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, COLLECTIONS_CONSTS.WATCH_LATER_ID);
+    setChecked((prevChecked) => !prevChecked);
 
-    doPlaylistAddAndAllowPlaying({
-      uri,
-      collectionId: id,
-      collectionName: name,
-      push: (pushUri) =>
-        push({
-          pathname: formatLbryUrlForWeb(pushUri),
-          search: urlParams.toString(),
-          state: { collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID, forceAutoplay: true },
-        }),
-    });
+    doPlaylistAddAndAllowPlaying({ uri, collectionId: id, collectionName: name });
   }
 
   if (collection?.type === COL_TYPES.FEATURED_CHANNELS) {
@@ -54,9 +33,9 @@ function CollectionSelectItem(props: Props) {
   }
 
   return (
-    <li key={key} className="collection-select__item">
+    <li className="collection-select__item">
       <FormField
-        checked={collectionHasClaim}
+        checked={checked}
         disabled={collectionPending}
         icon={icon}
         type="checkbox"

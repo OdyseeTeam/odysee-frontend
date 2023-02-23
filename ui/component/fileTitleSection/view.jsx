@@ -22,12 +22,12 @@ type Props = {
   nsfw: boolean,
   isNsfwBlocked: boolean,
   livestream?: boolean,
-  isLive?: boolean,
   // redux
   channelClaimId?: string,
   title?: string,
   subCount: number,
   doFetchSubCount: (claimId: string) => void,
+  accessStatus?: string,
 };
 
 export default function FileTitleSection(props: Props) {
@@ -36,11 +36,11 @@ export default function FileTitleSection(props: Props) {
     nsfw,
     isNsfwBlocked,
     livestream = false,
-    isLive = false,
     subCount,
     channelClaimId,
     title,
     doFetchSubCount,
+    accessStatus,
   } = props;
 
   const isMobile = useIsMobile();
@@ -64,11 +64,11 @@ export default function FileTitleSection(props: Props) {
           <GeoRestrictionInfo uri={uri} />
         </>
       }
-      titleActions={<FilePrice uri={normalizeURI(uri)} type="filepage" />}
+      titleActions={<FilePrice uri={normalizeURI(uri)} type="filepage" hideFree />}
       body={
         <>
           <ClaimInsufficientCredits uri={uri} />
-          <FileSubtitle uri={uri} isLive={isLive} livestream={livestream} />
+          <FileSubtitle uri={uri} />
         </>
       }
       actions={
@@ -110,6 +110,7 @@ export default function FileTitleSection(props: Props) {
           </>
         )
       }
+      accessStatus={accessStatus}
     />
   );
 }

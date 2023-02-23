@@ -28,6 +28,7 @@ type Props = {
   disableRemove?: boolean,
   supportAmount?: any,
   isLiveComment: boolean,
+  isUserLabel: boolean,
   // --- select ---
   claim: ?Claim,
   claimIsMine: boolean,
@@ -74,6 +75,7 @@ function CommentMenuList(props: Props) {
     disableRemove,
     supportAmount,
     isLiveComment,
+    isUserLabel,
     doToast,
     handleEditComment,
     openModal,
@@ -187,8 +189,13 @@ function CommentMenuList(props: Props) {
       .then(() => doToast({ message: __('Link copied.') }));
   }
 
-  function reduceUriToChannelName(uri: ?string) {
+  function reduceUriToChannelName(uri: ?string, fallback: ?string) {
     try {
+      if (!uri && fallback) {
+        let fallbackUri = fallback.substring('lbry://'.length);
+        fallbackUri = fallbackUri.substring(0, fallbackUri.indexOf('#') + 4);
+        uri = fallbackUri;
+      }
       return uri && uri.substring(uri.indexOf('@'), uri.length).replace('#', ':');
     } catch {
       return uri;
@@ -198,11 +205,11 @@ function CommentMenuList(props: Props) {
   return (
     <MenuList
       className={classnames('menu__list', {
-        'menu__chat-comment': isLiveComment,
+        'menu__chat-comment': isLiveComment || isUserLabel,
       })}
       onClick={(e) => e.stopPropagation()}
     >
-      {isLiveComment && (
+      {(isLiveComment || isUserLabel) && (
         <div className="comment__menu-target">
           <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
           <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>
@@ -215,7 +222,7 @@ function CommentMenuList(props: Props) {
         <>
           <MenuItem
             className="comment__menu-option menu__link"
-            onSelect={() => setQuickReply(reduceUriToChannelName(authorCanonicalUri))}
+            onSelect={() => setQuickReply(reduceUriToChannelName(authorCanonicalUri, authorUri))}
           >
             <span className={'button__content'}>
               <Icon aria-hidden icon={ICONS.REPLY} className={'icon'} />

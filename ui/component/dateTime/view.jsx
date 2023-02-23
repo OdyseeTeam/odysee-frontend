@@ -1,6 +1,6 @@
 // @flow
 import { getTimeAgoStr } from 'util/time';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import React from 'react';
 
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
@@ -12,6 +12,7 @@ type State = {
 type Props = {
   clock24h?: boolean,
   date?: any,
+  appLanguage?: string,
   genericSeconds?: boolean,
   minUpdateDeltaMs?: number,
   showFutureDate?: boolean,
@@ -60,15 +61,17 @@ class DateTime extends React.Component<Props, State> {
   }
 
   render() {
-    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type } = this.props;
+    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, appLanguage } = this.props;
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
     return (
-      <span className="date_time" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
+      <span className="date_time" title={timeAgo && moment(date).locale(appLanguage).format(`LL ${clockFormat}`)}>
         {date
           ? timeAgo
             ? getTimeAgoStr(date, showFutureDate, genericSeconds)
-            : moment(date).format(type === 'date' ? 'MMMM Do, YYYY' : clockFormat)
+            : moment(date)
+                .locale(appLanguage)
+                .format(type === 'date' ? 'LL' : clockFormat)
           : '...'}
       </span>
     );

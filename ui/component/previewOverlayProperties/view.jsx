@@ -21,10 +21,26 @@ type Props = {
   iconOnly: boolean,
   hasEdits: Collection,
   xsmall?: boolean,
+  // -- redux --
+  isLivestreamActive: ?boolean,
+  livestreamViewerCount: ?number,
 };
 
 export default function PreviewOverlayProperties(props: Props) {
-  const { uri, downloaded, claimIsMine, small = false, properties, claim, iconOnly, hasEdits, xsmall } = props;
+  const {
+    uri,
+    downloaded,
+    claimIsMine,
+    small = false,
+    properties,
+    claim,
+    iconOnly,
+    hasEdits,
+    xsmall,
+    // -- redux --
+    isLivestreamActive,
+    livestreamViewerCount,
+  } = props;
   const isCollection = claim && claim.value_type === 'collection';
   // $FlowFixMe
   const claimLength = claim && claim.value && claim.value.claims && claim.value.claims.length;
@@ -37,12 +53,20 @@ export default function PreviewOverlayProperties(props: Props) {
         '.claim-preview__overlay-properties--small': small,
       })}
     >
-      {typeof properties === 'function' ? (
+      {isLivestreamActive ? (
+        Number.isInteger(livestreamViewerCount) ? (
+          <span className="livestream__viewer-count">
+            {livestreamViewerCount} <Icon icon={ICONS.EYE} />
+          </span>
+        ) : (
+          __('LIVE')
+        )
+      ) : typeof properties === 'function' ? (
         properties(claim)
       ) : xsmall ? (
         <>
           <VideoDuration uri={uri} />
-          <FilePrice hideFree uri={uri} />
+          <FilePrice hideFree uri={uri} type="thumbnail" />
         </>
       ) : (
         <>
@@ -60,7 +84,7 @@ export default function PreviewOverlayProperties(props: Props) {
           {!iconOnly && isStream && <VideoDuration uri={uri} />}
           {isStream && <FileType uri={uri} small={small} />}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
-          <FilePrice hideFree uri={uri} />
+          <FilePrice hideFree uri={uri} type="thumbnail" />
         </>
       )}
     </div>

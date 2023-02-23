@@ -1,5 +1,5 @@
 // @flow
-import { MATURE_TAGS } from 'constants/tags';
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
 import { parseURI } from 'util/lbryURI';
 
 const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
@@ -24,7 +24,7 @@ export const isClaimNsfw = (claim: Claim): boolean => {
   return false;
 };
 
-export function createNormalizedClaimSearchKey(options: { page: number, release_time?: string }) {
+export function createNormalizedClaimSearchKey(options: { page?: number, release_time?: string }) {
   // Ignore page because we don't care what the last page searched was, we want everything
   // Ignore release_time because that will change depending on when you call claim_search ex: release_time: ">12344567"
   const { page: optionToIgnoreForQuery, release_time: anotherToIgnore, ...rest } = options;
@@ -127,7 +127,7 @@ export function getChannelNameFromClaim(claim: ?Claim) {
 export function getChannelTitleFromClaim(claim: ?Claim) {
   const channelFromClaim = getChannelFromClaim(claim);
   const value = getClaimMetadata(channelFromClaim);
-  return value && value.title;
+  return (value && value.title) || getNameFromClaim(channelFromClaim);
 }
 
 export function getChannelFromClaim(claim: ?Claim) {
@@ -148,6 +148,16 @@ export function getChannelPermanentUrlFromClaim(claim: ?Claim) {
 export function getClaimMetadata(claim: ?Claim) {
   const metadata = claim && claim.value;
   return metadata || (claim === undefined ? undefined : null);
+}
+
+export function getClaimTags(claim: ?Claim) {
+  const metadata = getClaimMetadata(claim);
+  return metadata && metadata.tags;
+}
+
+export function isClaimProtected(claim: ?Claim) {
+  const tags = getClaimTags(claim);
+  return tags && tags.includes(MEMBERS_ONLY_CONTENT_TAG);
 }
 
 export function getClaimTitle(claim: ?Claim) {
@@ -176,8 +186,11 @@ export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
 };
 
 export const getThumbnailFromClaim = (claim: ?Claim) => {
-  const thumbnail = claim && claim.value && claim.value.thumbnail;
-  return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+  if (!claim) return claim;
+
+  const { thumbnail } = claim.value || {};
+
+  return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : null;
 };
 
 export const getClaimMeta = (claim: ?Claim) => claim && claim.meta;

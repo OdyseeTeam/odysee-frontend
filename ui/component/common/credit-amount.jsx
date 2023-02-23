@@ -1,13 +1,14 @@
 // @flow
 import 'scss/component/_superchat.scss';
 
-import { formatCredits, formatFullPrice } from 'util/format-credits';
+import { getFormattedCreditsAmount, formatFullPrice } from 'util/format-credits';
 import classnames from 'classnames';
+import Icon from 'component/common/icon';
 import LbcSymbol from 'component/common/lbc-symbol';
 import React from 'react';
 
 type Props = {
-  amount?: number,
+  amount?: number | '',
   className?: string,
   customAmounts?: { amountFiat: number, amountLBC: number },
   fee?: boolean,
@@ -23,6 +24,7 @@ type Props = {
   size?: number,
   hyperChat?: boolean,
   superChatLight?: boolean,
+  icon?: string,
 };
 
 class CreditAmount extends React.PureComponent<Props> {
@@ -53,8 +55,8 @@ class CreditAmount extends React.PureComponent<Props> {
       size,
       hyperChat,
       // superChatLight,
+      icon,
     } = this.props;
-    const minimumRenderableAmount = 10 ** (-1 * precision);
 
     // return null, otherwise it will try and convert undefined to a string
     if (amount === undefined && customAmounts === undefined) return null;
@@ -62,16 +64,7 @@ class CreditAmount extends React.PureComponent<Props> {
     function getAmountText(amount: number, isFiat?: boolean) {
       const fullPrice = formatFullPrice(amount, 2);
       const isFree = parseFloat(amount) === 0;
-      let formattedAmount;
-
-      if (showFullPrice) {
-        formattedAmount = fullPrice;
-      } else {
-        formattedAmount =
-          amount > 0 && amount < minimumRenderableAmount
-            ? `<${minimumRenderableAmount}`
-            : formatCredits(amount, precision, true);
-      }
+      const formattedAmount = showFullPrice ? fullPrice : getFormattedCreditsAmount(amount, precision);
 
       if (showFree && isFree) {
         return __('Free');
@@ -103,8 +96,10 @@ class CreditAmount extends React.PureComponent<Props> {
     return (
       <span
         title={amount && !hideTitle ? formatFullPrice(amount, 2) : ''}
-        className={classnames(className, { hyperChat: hyperChat })}
+        className={classnames('credit-amount-wrapper', className, { hyperChat: hyperChat })}
       >
+        {icon && <Icon className="credit-amount__prefix-icon" icon={icon} />}
+
         {customAmounts
           ? Object.values(customAmounts).map((amount, index) => (
               <span key={String(amount)} className="credit-amount">

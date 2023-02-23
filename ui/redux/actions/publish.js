@@ -3,9 +3,12 @@ import * as ERRORS from 'constants/errors';
 import * as MODALS from 'constants/modal_types';
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
+import { PAYWALL } from 'constants/publish';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
+import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
+import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
   selectMyActiveClaims,
@@ -23,10 +26,20 @@ import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/li
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { creditsToString } from 'util/format-credits';
+import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
-import { isClaimNsfw } from 'util/claim';
-import { LBRY_FIRST_TAG, SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
+import { isClaimNsfw, getChannelIdFromClaim } from 'util/claim';
+import {
+  LBRY_FIRST_TAG,
+  SCHEDULED_LIVESTREAM_TAG,
+  MEMBERS_ONLY_CONTENT_TAG,
+  // RESTRICTED_CHAT_COMMENTS_TAG,
+  PURCHASE_TAG,
+  PURCHASE_TAG_OLD,
+  RENTAL_TAG,
+  RENTAL_TAG_OLD,
+} from 'constants/tags';
 
 function resolveClaimTypeForAnalytics(claim) {
   if (!claim) {
@@ -69,14 +82,21 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     thumbnail,
     channel,
     title,
-    contentIsFree,
+    paywall,
     fee,
+    fiatPurchaseFee,
+    fiatPurchaseEnabled,
+    fiatRentalFee,
+    fiatRentalExpiration,
+    fiatRentalEnabled,
     // uri,
     tags,
     // locations,
     optimize,
     isLivestreamPublish,
     remoteFileUrl,
+    restrictedToMemberships,
+    // restrictCommentsAndChat,
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
@@ -113,7 +133,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     fee_currency?: string,
     fee_amount?: string,
     languages?: Array<string>,
-    tags: Array<string>,
+    tags?: Array<string>,
     locations?: Array<any>,
     blocking: boolean,
     optimize_file?: boolean,
@@ -126,12 +146,32 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     locations: [],
     bid: creditsToString(bid),
     languages: [language],
-    tags: tags && tags.map((tag) => tag.name),
     thumbnail_url: thumbnail,
     release_time: nowTimeStamp,
     blocking: true,
     preview: false,
   };
+
+  const tagNames = [];
+  if (tags) {
+    tags.forEach((t) => {
+      if (
+        t.name === RENTAL_TAG ||
+        t.name.startsWith(`${RENTAL_TAG}:`) ||
+        t.name.startsWith(RENTAL_TAG_OLD) ||
+        t.name === PURCHASE_TAG ||
+        t.name.startsWith(`${PURCHASE_TAG}:`) ||
+        t.name.startsWith(PURCHASE_TAG_OLD) ||
+        t.name === SCHEDULED_LIVESTREAM_TAG
+      ) {
+        // Clear these from beginning; repopulate if needed later.
+      } else {
+        tagNames.push(t.name);
+      }
+    });
+  }
+
+  const tagSet = new Set(tagNames);
 
   if (claimId) {
     publishPayload.claim_id = claimId;
@@ -157,7 +197,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   }
 
   if (useLBRYUploader) {
-    publishPayload.tags.push(LBRY_FIRST_TAG);
+    tagSet.add(LBRY_FIRST_TAG);
   }
 
   // Set release time to the newly edited time.
@@ -170,12 +210,9 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     publishPayload.release_time = Number(myClaimForUriEditing.timestamp);
   }
 
-  // Remove internal scheduled tag if it exists.
-  publishPayload.tags = publishPayload.tags.filter((tag) => tag !== SCHEDULED_LIVESTREAM_TAG);
-
   // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
   if (isLivestreamPublish && publishPayload.release_time > nowTimeStamp) {
-    publishPayload.tags.push(SCHEDULED_LIVESTREAM_TAG);
+    tagSet.add(SCHEDULED_LIVESTREAM_TAG);
   }
 
   if (channelId) {
@@ -186,9 +223,32 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     publishPayload.locations = myClaimForUriEditing.value.locations;
   }
 
-  if (!contentIsFree && fee && fee.currency && Number(fee.amount) > 0) {
-    publishPayload.fee_currency = fee.currency;
-    publishPayload.fee_amount = creditsToString(fee.amount);
+  if (paywall === PAYWALL.SDK) {
+    if (fee && fee.currency && Number(fee.amount) > 0) {
+      publishPayload.fee_currency = fee.currency;
+      publishPayload.fee_amount = creditsToString(fee.amount);
+    }
+  }
+
+  if (paywall === PAYWALL.FIAT) {
+    // Purchase
+    if (fiatPurchaseEnabled && fiatPurchaseFee?.currency && Number(fiatPurchaseFee.amount) > 0) {
+      tagSet.add(PURCHASE_TAG);
+      tagSet.add(`${PURCHASE_TAG}:${fiatPurchaseFee.amount.toFixed(2)}`);
+    }
+
+    // Rental
+    if (
+      fiatRentalEnabled &&
+      fiatRentalFee?.currency &&
+      Number(fiatRentalFee.amount) > 0 &&
+      fiatRentalExpiration?.unit &&
+      Number(fiatRentalExpiration.value) > 0
+    ) {
+      const seconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
+      tagSet.add(RENTAL_TAG);
+      tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}`);
+    }
   }
 
   if (optimize) {
@@ -206,6 +266,13 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     publishPayload.optimize_file = false;
   }
 
+  // Membership restrictions
+  tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
+  if (restrictedToMemberships && publishPayload.channel_id) {
+    tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
+  }
+
+  publishPayload.tags = Array.from(tagSet);
   return publishPayload;
 }
 
@@ -222,6 +289,8 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
   const state = getState();
   const editingUri = selectPublishFormValue(state, 'editingURI') || '';
   const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
+  const restrictedToMemberships = selectPublishFormValue(state, 'restrictedToMemberships');
+
   const claim = makeSelectClaimForUri(editingUri)(state) || {};
   const hasSourceFile = claim.value && claim.value.source;
   const redirectToLivestream = noFileParam && !hasSourceFile && !remoteUrl;
@@ -230,7 +299,23 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     const state = getState();
     const myClaims = selectMyClaims(state);
     const pendingClaim = successResponse.outputs[0];
-    analytics.apiLog.publish(pendingClaim);
+    const publishData = selectPublishFormValues(state);
+
+    const { restrictedToMemberships, name } = publishData;
+
+    const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
+      const channelClaimId = getChannelIdFromClaim(claimResult);
+
+      // hit backend to save restricted memberships
+      if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
+        dispatch(
+          doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
+        );
+      }
+    };
+
+    analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
+
     const { permanent_url: url } = pendingClaim;
     const actions = [];
 
@@ -296,6 +381,10 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
       message = ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL;
     }
 
+    if (restrictedToMemberships && message === ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL) {
+      message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
+    }
+
     actions.push(doError({ message, cause: error.cause }));
     dispatch(batchActions(...actions));
   };
@@ -324,8 +413,22 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
 
     const pendingClaim = successResponse.outputs[0];
     const { permanent_url: url } = pendingClaim;
+    const publishData = selectPublishFormValues(state);
 
-    analytics.apiLog.publish(pendingClaim);
+    const { restrictedToMemberships, name } = publishData;
+
+    const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
+      const channelClaimId = getChannelIdFromClaim(claimResult);
+
+      // hit backend to save restricted memberships
+      if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
+        dispatch(
+          doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
+        );
+      }
+    };
+
+    analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
 
     // We have to fake a temp claim until the new pending one is returned by claim_list_mine
     // We can't rely on claim_list_mine because there might be some delay before the new claims are returned
@@ -409,258 +512,327 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => 
     data: { ...publishFormValue },
   });
 
-export const doUploadThumbnail = (
-  filePath?: string,
-  thumbnailBlob?: File,
-  fsAdapter?: any,
-  fs?: any,
-  path?: any,
-  cb?: (string) => void
-) => (dispatch: Dispatch) => {
-  let thumbnail, fileExt, fileName, fileType, stats, size;
+export const doUploadThumbnail =
+  (filePath?: string, thumbnailBlob?: File, fsAdapter?: any, fs?: any, path?: any, cb?: (string) => void) =>
+  (dispatch: Dispatch) => {
+    let thumbnail, fileExt, fileName, fileType, stats, size;
 
-  const uploadError = (error = '') => {
-    dispatch(
-      batchActions(
-        {
-          type: ACTIONS.UPDATE_PUBLISH_FORM,
-          data: {
-            uploadThumbnailStatus: THUMBNAIL_STATUSES.READY,
-            thumbnail: '',
-            nsfw: false,
+    const uploadError = (error = '') => {
+      dispatch(
+        batchActions(
+          {
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: {
+              uploadThumbnailStatus: THUMBNAIL_STATUSES.READY,
+              thumbnail: '',
+              nsfw: false,
+            },
           },
-        },
-        doError(error)
-      )
-    );
-  };
+          doError(error)
+        )
+      );
+    };
 
-  dispatch({
-    type: ACTIONS.UPDATE_PUBLISH_FORM,
-    data: { thumbnailError: undefined },
-  });
+    dispatch({
+      type: ACTIONS.UPDATE_PUBLISH_FORM,
+      data: { thumbnailError: undefined },
+    });
 
-  const doUpload = (data) => {
-    return fetch(IMG_CDN_PUBLISH_URL, {
-      method: 'POST',
-      body: data,
-    })
-      .then((res) => res.text())
-      .then((text) => {
-        try {
-          return text.length ? JSON.parse(text) : {};
-        } catch {
-          throw new Error(text);
-        }
+    const doUpload = (data) => {
+      return fetch(IMG_CDN_PUBLISH_URL, {
+        method: 'POST',
+        body: data,
       })
-      .then((json) => {
-        if (json.type !== 'success') {
-          return uploadError(
-            json.message || __('There was an error in the upload. The format or extension might not be supported.')
-          );
-        }
+        .then((res) => res.text())
+        .then((text) => {
+          try {
+            return text.length ? JSON.parse(text) : {};
+          } catch {
+            throw new Error(text);
+          }
+        })
+        .then((json) => {
+          if (json.type !== 'success') {
+            return uploadError(
+              json.message || __('There was an error in the upload. The format or extension might not be supported.')
+            );
+          }
 
-        if (cb) {
-          cb(json.message);
-        }
+          if (cb) {
+            cb(json.message);
+          }
 
-        return dispatch({
-          type: ACTIONS.UPDATE_PUBLISH_FORM,
-          data: {
-            uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-            thumbnail: json.message,
-          },
+          return dispatch({
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: {
+              uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
+              thumbnail: json.message,
+            },
+          });
+        })
+        .catch((err) => {
+          let message = err.message;
+
+          // This sucks but ¯\_(ツ)_/¯
+          if (message === 'Failed to fetch') {
+            // message = __('Thumbnail upload service may be down, try again later.');
+            message = __(
+              'Thumbnail upload service may be down, try again later. Some plugins like AdGuard Français may be blocking the service. If using Brave, go to brave://adblock and disable it, or turn down shields.'
+            );
+          }
+
+          const userInput = [fileName, fileExt, fileType, thumbnail, size];
+          uploadError({ message, cause: `${userInput.join(' | ')}` });
         });
-      })
-      .catch((err) => {
-        let message = err.message;
+    };
 
-        // This sucks but ¯\_(ツ)_/¯
-        if (message === 'Failed to fetch') {
-          // message = __('Thumbnail upload service may be down, try again later.');
-          message = __(
-            'Thumbnail upload service may be down, try again later. Some plugins like AdGuard Français may be blocking the service. If using Brave, go to brave://adblock and disable it, or turn down shields.'
-          );
-        }
+    dispatch({
+      type: ACTIONS.UPDATE_PUBLISH_FORM,
+      data: { uploadThumbnailStatus: THUMBNAIL_STATUSES.IN_PROGRESS },
+    });
 
-        const userInput = [fileName, fileExt, fileType, thumbnail, size];
-        uploadError({ message, cause: `${userInput.join(' | ')}` });
+    if (fsAdapter && fsAdapter.readFile && filePath) {
+      fsAdapter.readFile(filePath, 'base64').then((base64Image) => {
+        fileExt = 'png';
+        fileName = 'thumbnail.png';
+        fileType = 'image/png';
+
+        const data = new FormData();
+        // $FlowFixMe
+        data.append('file-input', { uri: 'file://' + filePath, type: fileType, name: fileName });
+        data.append('upload', 'Upload');
+        return doUpload(data);
       });
-  };
+    } else {
+      if (filePath && fs && path) {
+        thumbnail = fs.readFileSync(filePath);
+        fileExt = path.extname(filePath);
+        fileName = path.basename(filePath);
+        stats = fs.statSync(filePath);
+        size = stats.size;
+        fileType = `image/${fileExt.slice(1)}`;
+      } else if (thumbnailBlob) {
+        fileExt = `.${thumbnailBlob.type && thumbnailBlob.type.split('/')[1]}`;
+        fileName = thumbnailBlob.name;
+        fileType = thumbnailBlob.type;
+        size = thumbnailBlob.size;
+      } else {
+        return null;
+      }
 
-  dispatch({
-    type: ACTIONS.UPDATE_PUBLISH_FORM,
-    data: { uploadThumbnailStatus: THUMBNAIL_STATUSES.IN_PROGRESS },
-  });
-
-  if (fsAdapter && fsAdapter.readFile && filePath) {
-    fsAdapter.readFile(filePath, 'base64').then((base64Image) => {
-      fileExt = 'png';
-      fileName = 'thumbnail.png';
-      fileType = 'image/png';
+      if (size && size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
+        const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
+        uploadError(__('Thumbnail size over %max_size%MB, please edit and reupload.', { max_size: maxSizeMB }));
+        return;
+      }
 
       const data = new FormData();
+      const file = thumbnailBlob || (thumbnail && new File([thumbnail], fileName, { type: fileType }));
       // $FlowFixMe
-      data.append('file-input', { uri: 'file://' + filePath, type: fileType, name: fileName });
+      data.append('file-input', file);
       data.append('upload', 'Upload');
       return doUpload(data);
-    });
-  } else {
-    if (filePath && fs && path) {
-      thumbnail = fs.readFileSync(filePath);
-      fileExt = path.extname(filePath);
-      fileName = path.basename(filePath);
-      stats = fs.statSync(filePath);
-      size = stats.size;
-      fileType = `image/${fileExt.slice(1)}`;
-    } else if (thumbnailBlob) {
-      fileExt = `.${thumbnailBlob.type && thumbnailBlob.type.split('/')[1]}`;
-      fileName = thumbnailBlob.name;
-      fileType = thumbnailBlob.type;
-      size = thumbnailBlob.size;
-    } else {
-      return null;
     }
-
-    if (size && size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
-      const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
-      uploadError(__('Thumbnail size over %max_size%MB, please edit and reupload.', { max_size: maxSizeMB }));
-      return;
-    }
-
-    const data = new FormData();
-    const file = thumbnailBlob || (thumbnail && new File([thumbnail], fileName, { type: fileType }));
-    // $FlowFixMe
-    data.append('file-input', file);
-    data.append('upload', 'Upload');
-    return doUpload(data);
-  }
-};
-
-export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => (
-  dispatch: Dispatch,
-  getState: () => {}
-) => {
-  const { name, amount, value = {} } = claim;
-  const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
-  const {
-    author,
-    description,
-    // use same values as default state
-    // fee will be undefined for free content
-    fee = {
-      amount: '0',
-      currency: 'LBC',
-    },
-    languages,
-    release_time,
-    license,
-    license_url: licenseUrl,
-    thumbnail,
-    title,
-    tags,
-  } = value;
-
-  const state = getState();
-  const myClaimForUri = selectMyClaimForUri(state);
-  const { claim_id } = myClaimForUri || {};
-  const publishData: UpdatePublishFormData = {
-    claim_id: claim_id,
-    name,
-    bid: Number(amount),
-    contentIsFree: fee.amount === '0',
-    author,
-    description,
-    fee,
-    languages,
-    releaseTime: release_time,
-    releaseTimeEdited: undefined,
-    thumbnail: thumbnail ? thumbnail.url : null,
-    title,
-    uri,
-    uploadThumbnailStatus: thumbnail ? THUMBNAIL_STATUSES.MANUAL : undefined,
-    licenseUrl,
-    nsfw: isClaimNsfw(claim),
-    tags: tags ? tags.map((tag) => ({ name: tag })) : [],
   };
 
-  // Make sure custom licenses are mapped properly
-  // If the license isn't one of the standard licenses, map the custom license and description/url
-  if (!CC_LICENSES.some(({ value }) => value === license)) {
-    if (!license || license === NONE || license === PUBLIC_DOMAIN) {
-      publishData.licenseType = license;
-    } else if (license && !licenseUrl && license !== NONE) {
-      publishData.licenseType = COPYRIGHT;
+export const doPrepareEdit =
+  (claim: StreamClaim, uri: string, claimType: string) => async (dispatch: Dispatch, getState: GetState) => {
+    const { name, amount, value = {} } = claim;
+    const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
+    const channelId = (claim && claim.signing_channel && claim.signing_channel.claim_id) || null;
+    const {
+      author,
+      description,
+      // use same values as default state
+      // fee will be undefined for free content
+      fee = {
+        amount: '0',
+        currency: 'LBC',
+      },
+      languages,
+      release_time,
+      license,
+      license_url: licenseUrl,
+      thumbnail,
+      title,
+      tags,
+      stream_type,
+    } = value;
+
+    let state = getState();
+    const myClaimForUri = selectMyClaimForUri(state);
+    const { claim_id } = myClaimForUri || {};
+
+    const publishData: UpdatePublishFormData = {
+      claim_id: claim_id,
+      name,
+      bid: Number(amount),
+      author,
+      description,
+      fee,
+      languages,
+      releaseTime: release_time,
+      releaseTimeEdited: undefined,
+      thumbnail: thumbnail ? thumbnail.url : null,
+      title,
+      uri,
+      uploadThumbnailStatus: thumbnail ? THUMBNAIL_STATUSES.MANUAL : undefined,
+      licenseUrl,
+      nsfw: isClaimNsfw(claim),
+      tags: tags ? tags.map((tag) => ({ name: tag })) : [],
+      streamType: stream_type,
+    };
+
+    // Make sure custom licenses are mapped properly
+    // If the license isn't one of the standard licenses, map the custom license and description/url
+    if (!CC_LICENSES.some(({ value }) => value === license)) {
+      if (!license || license === NONE || license === PUBLIC_DOMAIN) {
+        publishData.licenseType = license;
+      } else if (license && !licenseUrl && license !== NONE) {
+        publishData.licenseType = COPYRIGHT;
+      } else {
+        publishData.licenseType = OTHER;
+      }
+
+      publishData.otherLicenseDescription = license;
     } else {
-      publishData.licenseType = OTHER;
+      publishData.licenseType = license;
+    }
+    if (channelName) {
+      publishData['channel'] = channelName;
     }
 
-    publishData.otherLicenseDescription = license;
-  } else {
-    publishData.licenseType = license;
-  }
-  if (channelName) {
-    publishData['channel'] = channelName;
-  }
+    // Fill purchase/rental details from the claim
+    const rental = parseRentalTag(tags);
+    const purchasePrice = parsePurchaseTag(tags);
 
-  dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
+    if (rental || purchasePrice) {
+      publishData['paywall'] = PAYWALL.FIAT;
+    } else if (fee.amount && Number(fee.amount) > 0) {
+      publishData['paywall'] = PAYWALL.SDK;
+    } else {
+      publishData['paywall'] = PAYWALL.FREE;
+    }
 
-  switch (claimType) {
-    case 'post':
-      dispatch(push(`/$/${PAGES.POST}`));
-      break;
-    case 'livestream':
-      dispatch(push(`/$/${PAGES.LIVESTREAM}`));
-      break;
-    default:
-      dispatch(push(`/$/${PAGES.UPLOAD}`));
-      break;
-  }
-};
+    if (rental) {
+      publishData.fiatRentalEnabled = true;
+      publishData.fiatRentalFee = {
+        amount: rental.price,
+        currency: 'USD', // TODO: hardcode until we have a direction on currency
+      };
+      publishData.fiatRentalExpiration = {
+        // Don't know which unit the user picked since we store it as 'seconds'
+        // in the tag. Just convert back to days for now.
+        value: rental.expirationTimeInSeconds / TO_SECONDS['days'],
+        unit: 'days',
+      };
+    }
 
-export const doPublish = (success: Function, fail: Function, previewFn?: Function, payload?: FileUploadSdkParams) => (
-  dispatch: Dispatch,
-  getState: () => {}
-) => {
-  if (!previewFn) {
-    dispatch({ type: ACTIONS.PUBLISH_START });
-  }
+    if (purchasePrice) {
+      publishData.fiatPurchaseEnabled = true;
+      publishData.fiatPurchaseFee = {
+        amount: purchasePrice,
+        currency: 'USD', // TODO: hardcode until we have a direction on currency
+      };
+    }
 
-  const state = getState();
-  const myClaimForUri = selectMyClaimForUri(state);
-  const myChannels = selectMyChannelClaims(state);
-  // const myClaims = selectMyClaimsWithoutChannels(state);
-  // get redux publish form
-  const publishData = selectPublishFormValues(state);
+    // Membership restrictions
+    const publishDataTags = new Set(publishData.tags && publishData.tags.map((tag) => tag.name));
+    if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
+      if (channelId) {
+        let protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
 
-  const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, previewFn);
+        if (protectedMembershipIds === undefined) {
+          await dispatch(doMembershipContentforStreamClaimId(claim.claim_id));
+          state = getState();
+          protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
+        }
 
-  if (previewFn) {
-    return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
-      // $FlowIgnore
-      return previewFn(previewResponse);
+        publishData['restrictedToMemberships'] = protectedMembershipIds && protectedMembershipIds.join(',');
+      } else {
+        publishData.tags = publishData.tags
+          ? publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG)
+          : [];
+      }
+    }
+
+    dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
+
+    switch (claimType) {
+      case 'post':
+        dispatch(push(`/$/${PAGES.POST}`));
+        break;
+      case 'livestream':
+        dispatch(push(`/$/${PAGES.LIVESTREAM}`));
+        break;
+      default:
+        dispatch(push(`/$/${PAGES.UPLOAD}`));
+        break;
+    }
+  };
+
+export const doPublish =
+  (success: Function, fail: Function, previewFn?: Function, payload?: FileUploadSdkParams) =>
+  (dispatch: Dispatch, getState: () => {}) => {
+    if (!previewFn) {
+      dispatch({ type: ACTIONS.PUBLISH_START });
+    }
+
+    const state = getState();
+    const myClaimForUri = selectMyClaimForUri(state);
+    const myChannels = selectMyChannelClaims(state);
+    // const myClaims = selectMyClaimsWithoutChannels(state);
+    // get redux publish form
+    const publishData = selectPublishFormValues(state);
+
+    const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, previewFn);
+
+    const { restrictedToMemberships, name } = publishData;
+
+    const { channel_id: channelClaimId } = publishPayload;
+
+    const existingClaimId = myClaimForUri?.claim_id;
+
+    // hit backend to save restricted memberships
+    // hit the backend immediately to save the data, we will overwrite it if publish succeeds
+    if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '') && !previewFn) {
+      dispatch(
+        doSaveMembershipRestrictionsForContent(
+          channelClaimId,
+          existingClaimId,
+          name,
+          restrictedToMemberships,
+          existingClaimId ? undefined : true
+        )
+      );
+    }
+
+    if (previewFn) {
+      return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
+        // $FlowIgnore
+        return previewFn(previewResponse);
+      }, fail);
+    }
+
+    return Lbry.publish(publishPayload).then((response: PublishResponse) => {
+      // TODO: Restore LbryFirst
+      // if (!useLBRYUploader) {
+      return success(response);
+      // }
+
+      // $FlowFixMe
+      // publishPayload.permanent_url = response.outputs[0].permanent_url;
+      //
+      // return LbryFirst.upload(publishPayload)
+      //   .then(() => {
+      //     // Return original publish response so app treats it like a normal publish
+      //     return success(response);
+      //   })
+      //   .catch((error) => {
+      //     return success(response, error);
+      //   });
     }, fail);
-  }
-
-  return Lbry.publish(publishPayload).then((response: PublishResponse) => {
-    // TODO: Restore LbryFirst
-    // if (!useLBRYUploader) {
-    return success(response);
-    // }
-
-    // $FlowFixMe
-    // publishPayload.permanent_url = response.outputs[0].permanent_url;
-    //
-    // return LbryFirst.upload(publishPayload)
-    //   .then(() => {
-    //     // Return original publish response so app treats it like a normal publish
-    //     return success(response);
-    //   })
-    //   .catch((error) => {
-    //     return success(response, error);
-    //   });
-  }, fail);
-};
+  };
 
 // Calls file_list until any reflecting files are done
 export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetState) => {
@@ -750,13 +922,12 @@ export function doUpdateUploadAdd(
   };
 }
 
-export const doUpdateUploadProgress = (props: { guid: string, progress?: string, status?: UploadStatus }) => (
-  dispatch: Dispatch
-) =>
-  dispatch({
-    type: ACTIONS.UPDATE_UPLOAD_PROGRESS,
-    data: props,
-  });
+export const doUpdateUploadProgress =
+  (props: { guid: string, progress?: string, status?: UploadStatus }) => (dispatch: Dispatch) =>
+    dispatch({
+      type: ACTIONS.UPDATE_UPLOAD_PROGRESS,
+      data: props,
+    });
 
 /**
  * doUpdateUploadRemove

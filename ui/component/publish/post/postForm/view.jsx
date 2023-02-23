@@ -19,6 +19,7 @@ import TagsSelect from 'component/tagsSelect';
 // import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
+import PublishPrice from 'component/publish/shared/publishPrice';
 import SelectThumbnail from 'component/selectThumbnail';
 import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
@@ -28,6 +29,7 @@ import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 type Props = {
   disabled: boolean,
@@ -46,7 +48,6 @@ type Props = {
   description: ?string,
   language: string,
   nsfw: boolean,
-  contentIsFree: boolean,
   fee: {
     amount: string,
     currency: string,
@@ -79,9 +80,11 @@ type Props = {
   user: ?User,
   permanentUrl: ?string,
   remoteUrl: ?string,
+  isMarkdownPost: boolean,
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
+  restrictedToMemberships: ?string,
 };
 
 function PostForm(props: Props) {
@@ -119,9 +122,11 @@ function PostForm(props: Props) {
     // user,
     permanentUrl,
     // remoteUrl,
+    isMarkdownPost,
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
+    restrictedToMemberships,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -160,6 +165,7 @@ function PostForm(props: Props) {
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
   const formValidLessFile =
+    restrictedToMemberships !== null &&
     name &&
     isNameValid(name) &&
     title &&
@@ -296,7 +302,7 @@ function PostForm(props: Props) {
       isMarkdownPost: true,
       isLivestreamPublish: false,
     });
-  }, [mode, updatePublishForm]);
+  }, [mode, updatePublishForm, isMarkdownPost]);
 
   useEffect(() => {
     if (incognito) {
@@ -396,7 +402,9 @@ function PostForm(props: Props) {
         <Icon icon={ICONS.POST} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && (
+            <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
+          )}
         </label>
       </h1>
 
@@ -415,6 +423,10 @@ function PostForm(props: Props) {
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
           <Card actions={<SelectThumbnail />} />
+
+          <PublishProtectedContent claim={myClaimForUri} location={'post'} />
+
+          <PublishPrice disabled={formDisabled} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
@@ -475,7 +487,7 @@ function PostForm(props: Props) {
                 odysee_community_guidelines: (
                   <Button
                     button="link"
-                    href="https://help.odysee.tv/communityguidelines"
+                    href="https://help.odysee.tv/communityguidelines/"
                     target="_blank"
                     label={__('Community Guidelines')}
                   />

@@ -20,19 +20,13 @@ type Props = {
 };
 
 export default function CollectionsListMine(props: Props) {
-  const {
-    filterType,
-    isTruncated,
-    sortOption,
-    persistedOption,
-    setFilterType,
-    setSortOption,
-    setPersistedOption,
-  } = props;
+  const { filterType, isTruncated, sortOption, persistedOption, setFilterType, setSortOption, setPersistedOption } =
+    props;
 
+  const history = useHistory();
   const {
     location: { search, pathname },
-  } = useHistory();
+  } = history;
 
   const [expanded, setExpanded] = React.useState(false);
 
@@ -47,7 +41,15 @@ export default function CollectionsListMine(props: Props) {
     setSortOption(sortObj);
 
     const url = `?${urlParams.toString()}`;
-    history.replaceState(history.state, '', url);
+    history.push(url);
+  }
+
+  function handleFilterTypeChange(value) {
+    urlParams.set(COLS.FILTER_TYPE_KEY, value);
+    setFilterType(value);
+
+    const url = `?${urlParams.toString()}`;
+    history.push(url);
   }
 
   function handleClear() {
@@ -55,7 +57,7 @@ export default function CollectionsListMine(props: Props) {
 
     setSortOption(persistedOption);
     const url = urlParams.toString() ? `?${urlParams.toString()}` : pathname;
-    history.replaceState(history.state, '', url);
+    history.push(url);
   }
 
   return (
@@ -71,7 +73,7 @@ export default function CollectionsListMine(props: Props) {
                 key={String(value)}
                 button="alt"
                 // $FlowFixMe
-                onClick={() => setFilterType(value)}
+                onClick={() => handleFilterTypeChange(String(value))}
                 className={classnames('button-toggle', { 'button-toggle--active': filterType === value })}
               />
             ))}
@@ -137,7 +139,7 @@ export default function CollectionsListMine(props: Props) {
                 <div className="claim-search__input-container action-button">
                   <Button
                     button="alt"
-                    aria-label={__('Save')}
+                    label={__('Save')}
                     icon={ICONS.COMPLETE}
                     onClick={() => setPersistedOption(sortOption)}
                   />
@@ -147,7 +149,7 @@ export default function CollectionsListMine(props: Props) {
               {/* Clear Sort */}
               {!hasDefaultSort && (
                 <div className="claim-search__input-container action-button">
-                  <Button button="alt" aria-label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
+                  <Button button="alt" label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
                 </div>
               )}
             </div>

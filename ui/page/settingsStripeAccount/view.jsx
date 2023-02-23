@@ -1,37 +1,32 @@
 // @flow
-import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import Page from 'component/page';
-import BusyIndicator from 'component/common/busy-indicator';
+import I18nMessage from 'component/i18nMessage';
+import Spinner from 'component/spinner';
+import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
+
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
+
+import './style.scss';
 
 type Props = {
   // -- redux --
+  accountInfo: ?StripeAccountInfo,
   unpaidBalance: number,
   chargesEnabled: ?boolean,
   accountRequiresVerification: ?boolean,
-  accountLinkResponse: StripeAccountLink,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
-  doGetAndSetAccountLink: () => Promise<StripeAccountLink>,
 };
 
 const StripeAccountConnection = (props: Props) => {
-  const {
-    unpaidBalance,
-    chargesEnabled,
-    accountRequiresVerification,
-    accountLinkResponse,
-    doTipAccountStatus,
-    doGetAndSetAccountLink,
-  } = props;
+  const { accountInfo, unpaidBalance, chargesEnabled, accountRequiresVerification, doTipAccountStatus } = props;
 
+  const { email, id: accountId } = accountInfo || {};
   const bankAccountNotFetched = chargesEnabled === undefined;
-  const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
-  const stripeConnectionUrl = accountLinkResponse?.url;
-  const shouldFetchLink = noBankAccount || accountRequiresVerification;
-  const linkNotFetched = shouldFetchLink && accountLinkResponse === undefined;
 
   React.useEffect(() => {
     if (bankAccountNotFetched) {
@@ -39,13 +34,7 @@ const StripeAccountConnection = (props: Props) => {
     }
   }, [bankAccountNotFetched, doTipAccountStatus]);
 
-  React.useEffect(() => {
-    if (linkNotFetched) {
-      doGetAndSetAccountLink();
-    }
-  }, [doGetAndSetAccountLink, linkNotFetched]);
-
-  if (bankAccountNotFetched || linkNotFetched) {
+  if (bankAccountNotFetched) {
     return (
       <Page
         noFooter
@@ -54,7 +43,9 @@ const StripeAccountConnection = (props: Props) => {
         className="card-stack"
         backout={{ title: __('Your Payout Method'), backLabel: __('Back') }}
       >
-        <BusyIndicator message={__('Getting your bank account connection status...')} />
+        <div className="main--empty">
+          <Spinner />
+        </div>
       </Page>
     );
   }
@@ -71,12 +62,21 @@ const StripeAccountConnection = (props: Props) => {
       }}
     >
       <Card
-        title={<div className="table__header-text">{__('Connect a bank account')}</div>}
+        title={
+          <div className="table__header-text">
+            {chargesEnabled ? __('Bank account connected') : __('Connect a bank account')}
+          </div>
+        }
         isBodyList
         body={
           chargesEnabled ? (
-            <div className="card__body-actions">
+            <div className="card__body-actions connected-account-information">
               <h3>{__('Congratulations! Your account has been connected with Odysee.')}</h3>
+              <h3>
+                <I18nMessage tokens={{ email: <span className="bolded-email">{email}</span> }}>
+                  The email you registered with Stripe is %email%
+                </I18nMessage>
+              </h3>
 
               {accountRequiresVerification && (
                 <>
@@ -112,28 +112,26 @@ const StripeAccountConnection = (props: Props) => {
           )
         }
         actions={
-          accountRequiresVerification ? (
-            <Button
-              button="primary"
-              label={__('Complete Verification')}
-              icon={ICONS.SETTINGS}
-              navigate={stripeConnectionUrl}
-              className="stripe__complete-verification-button"
-            />
-          ) : chargesEnabled ? (
-            <Button
-              button="secondary"
-              label={__('View Transactions')}
-              icon={ICONS.SETTINGS}
-              navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
-            />
+          chargesEnabled && !accountRequiresVerification ? (
+            <>
+              <Button
+                button="secondary"
+                label={__('View Tips')}
+                icon={ICONS.SETTINGS}
+                navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
+              />
+              {accountId && (
+                <Button
+                  button="secondary"
+                  icon={ICONS.SETTINGS}
+                  label={__('View Account On Stripe')}
+                  navigate={`${STRIPE.STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
+                  className="stripe__view-account-button"
+                />
+              )}
+            </>
           ) : (
-            <Button
-              button="primary"
-              label={__('Connect your bank account')}
-              icon={ICONS.FINANCE}
-              navigate={stripeConnectionUrl}
-            />
+            <ButtonStripeConnectAccount />
           )
         }
       />

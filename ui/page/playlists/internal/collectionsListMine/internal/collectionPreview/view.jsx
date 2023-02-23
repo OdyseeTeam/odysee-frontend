@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import TruncatedText from 'component/common/truncated-text';
-import CollectionItemCount from './internal/collection-item-count';
+import CollectionItemCount from './internal/collectionItemCount';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
 import CollectionPublicIcon from './internal/collection-public-icon';
 import CollectionMenuList from 'component/collectionMenuList';
@@ -15,6 +15,7 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import UriIndicator from 'component/uriIndicator';
 import DateTime from 'component/dateTime';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
+import { getLocalizedNameForCollectionId } from 'util/collections';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import Button from 'component/button';
 import ClaimPreviewLoading from 'component/common/claim-preview-loading';
@@ -27,10 +28,9 @@ type Props = {
   // -- redux --
   collectionCount: number,
   collectionName: string,
-  collectionItemUrls: Array<string>,
   collectionType: ?string,
-  isResolvingCollectionClaims: boolean,
-  isResolvingUri: boolean,
+  isFetchingItems: boolean,
+  isResolvingCollection: boolean,
   title?: string,
   channel: ?any,
   channelTitle?: String,
@@ -38,7 +38,6 @@ type Props = {
   firstCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
   collectionCreatedAt: ?number,
-  hasEdits: boolean,
   isBuiltin: boolean,
   thumbnail: ?string,
   isEmpty: boolean,
@@ -50,9 +49,8 @@ function CollectionPreview(props: Props) {
     collectionId,
     collectionName,
     collectionCount,
-    isResolvingUri,
-    isResolvingCollectionClaims,
-    collectionItemUrls,
+    isFetchingItems,
+    isResolvingCollection,
     collectionType,
     hasClaim,
     firstCollectionItemUrl,
@@ -60,7 +58,6 @@ function CollectionPreview(props: Props) {
     channelTitle,
     collectionUpdatedAt,
     collectionCreatedAt,
-    hasEdits,
     isBuiltin,
     thumbnail,
     isEmpty,
@@ -68,13 +65,14 @@ function CollectionPreview(props: Props) {
 
   const { push } = useHistory();
 
-  if (isResolvingUri || isResolvingCollectionClaims) {
+  if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;
   }
 
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-  const firstItemPath = formatLbryUrlForWeb(collectionItemUrls[0] || '/');
+  const firstItemPath = formatLbryUrlForWeb(firstCollectionItemUrl) || '/';
   const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
+  const usedCollectionName = getLocalizedNameForCollectionId(collectionId) || collectionName;
 
   function handleClick(e) {
     if (navigateUrl) {
@@ -97,8 +95,12 @@ function CollectionPreview(props: Props) {
     >
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
-          <FileThumbnail uri={uri || firstCollectionItemUrl} thumbnail={thumbnail} forcePlaceholder>
-            <CollectionItemCount count={collectionCount} hasEdits={hasEdits} />
+          <FileThumbnail
+            uri={uri || firstCollectionItemUrl}
+            secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
+            thumbnail={thumbnail || null}
+          >
+            <CollectionItemCount collectionId={collectionId} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>
         </NavLink>
@@ -108,25 +110,25 @@ function CollectionPreview(props: Props) {
         <NavLink {...navLinkProps}>
           <h2>
             {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
-            <TruncatedText text={collectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
+            <TruncatedText text={usedCollectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
           </h2>
         </NavLink>
         {hasClaim && (
           <div className="claim-preview__overlay-properties--small playlist-channel">
             <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
               <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-              {channelTitle && channelTitle}
+              {channelTitle}
             </UriIndicator>
           </div>
         )}
       </div>
 
-      <div className="table-column__meta" uri={uri}>
+      <div className="table-column__meta">
         <div className="table-column__visibility">
           <div className="claim-preview-info">{hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}</div>
         </div>
 
-        <div className="table-column__create-at" uri={uri}>
+        <div className="table-column__create-at">
           {collectionCreatedAt && (
             <>
               <Icon icon={ICONS.TIME} />
@@ -135,7 +137,7 @@ function CollectionPreview(props: Props) {
           )}
         </div>
 
-        <div className="table-column__update-at" uri={uri}>
+        <div className="table-column__update-at">
           <Icon icon={ICONS.EDIT} />
           <DateTime timeAgo date={collectionUpdatedAt} />
         </div>
