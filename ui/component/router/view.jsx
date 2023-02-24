@@ -309,7 +309,9 @@ function AppRouter(props: Props) {
           window.scrollTo(0, element.offsetTop);
         }
       } else {
-        window.scrollTo(0, currentScroll);
+        setTimeout(() => {
+          window.scrollTo(0, currentScroll);
+        }, 0);
       }
     }
   }, [currentScroll, pathname, search, hash, resetScroll, hasLinkedCommentInUrl, historyAction]);
