@@ -540,7 +540,9 @@ function SideNavigation(props: Props) {
     if (hideMenuFromView || !menuInitialized) {
       const handler = setTimeout(() => {
         setMenuInitialized(true);
-        setCanDisposeMenu(true);
+        if (hideMenuFromView) {
+          setCanDisposeMenu(true);
+        }
       }, 250);
       return () => {
         clearTimeout(handler);
