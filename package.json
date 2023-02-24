@@ -183,7 +183,7 @@
     "localforage": "^1.7.1",
     "lodash-es": "^4.17.14",
     "mammoth": "^1.4.16",
-    "moment": "^2.22.0",
+    "moment": "2.29.4",
     "node-abi": "^2.5.1",
     "node-fetch": "^2.6.1",
     "node-libs-browser": "^2.1.0",
