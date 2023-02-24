@@ -302,27 +302,6 @@ $actions-z-index: 2;
     border: 2px solid rgba(255, 0, 0, 0.6);
     margin-bottom: var(--spacing-l);
   }
-}
-
-.channelPage-edit-wrapper {
-  .card {
-    padding: var(--spacing-s);
-    background-color: rgba(var(--color-header-background-base), 0.4);
-    border-radius: var(--border-radius);
-    margin-bottom: var(--spacing-xl);
-
-    input,
-    select {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
-
-    .card__body {
-      padding: 0;
-      label:first-of-type {
-        margin-top: 0;
-      }
-    }
-  }
 
   .card-fixed-bottom {
     position: fixed;
@@ -344,6 +323,7 @@ $actions-z-index: 2;
       box-shadow: 0px 1px 4px 1px var(--color-shadow);
       backdrop-filter: blur(4px);
       background-color: var(--color-header-background);
+      padding: var(--spacing-s);
       .section__actions {
         flex-flow: row;
         margin-bottom: 0;
@@ -393,6 +373,27 @@ $actions-z-index: 2;
         .section__actions {
           flex-flow: wrap;
         }
+      }
+    }
+  }
+}
+
+.channelPage-edit-wrapper {
+  .card {
+    padding: var(--spacing-s);
+    background-color: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xl);
+
+    input,
+    select {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+    }
+
+    .card__body {
+      padding: 0;
+      label:first-of-type {
+        margin-top: 0;
       }
     }
   }
