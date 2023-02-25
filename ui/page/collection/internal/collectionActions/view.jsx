@@ -108,7 +108,7 @@ function CollectionActions(props: Props) {
                 title={__('Arrange')}
                 className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
                 icon={ICONS.ARRANGE}
-                onClick={() => setShowEdit(!showEdit)}
+                onClick={() => setShowEdit(true)}
               />
             )
           ) : (
