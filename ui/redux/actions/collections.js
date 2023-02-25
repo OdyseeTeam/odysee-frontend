@@ -458,7 +458,6 @@ export const doSortCollectionByReleaseTime = (collectionId: string, sortOrder: s
 ) => {
   let state = getState();
   const collection: Collection = selectCollectionForId(state, collectionId);
-  const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
 
   // Get claims or return the uri/claimId if not resolved
   const claims = collection.items.map((item) => {

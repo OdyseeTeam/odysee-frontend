@@ -125,7 +125,7 @@ const CollectionPublishForm = (props: Props) => {
 
     if (editing) {
       // $FlowFixMe
-      doCollectionEdit(collectionId, formParams)
+      doCollectionEdit(collectionId, formParams);
 
       return onDoneForId(collectionId);
     }
@@ -219,7 +219,7 @@ const CollectionPublishForm = (props: Props) => {
 
             <TabPanel>
               {tabIndex === TAB.ITEMS && (
-                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit isEditPreview={true} />
+                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit isEditPreview />
               )}
             </TabPanel>
           </TabPanels>

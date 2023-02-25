@@ -6,7 +6,6 @@ import React from 'react';
 import Button from 'component/button';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import FileActionButton from 'component/common/file-action-button';
-import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';

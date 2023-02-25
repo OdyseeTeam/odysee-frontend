@@ -100,7 +100,7 @@ const collectionsReducer = handleActions(
         edited: newEditList,
         unpublished: newUnpublishedList,
         updated: newUpdatedList,
-        unsavedChanges: newUnsavedChangesList
+        unsavedChanges: newUnsavedChangesList,
       };
     },
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {

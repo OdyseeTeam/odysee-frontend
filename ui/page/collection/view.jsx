@@ -137,7 +137,7 @@ const CollectionPage = (props: Props) => {
           <CollectionItemsList
             collectionId={collectionId}
             showEdit={showEdit}
-            isEditPreview={true}
+            isEditPreview
             unavailableUris={unavailableUris}
             showNullPlaceholder
           />
@@ -150,8 +150,8 @@ const CollectionPage = (props: Props) => {
             actions={
               <>
                 <div className="section__actions">
-                  <Button button="primary" label={__('Save changes')} onClick={ saveChanges } />
-                  <Button button="link" label={__('Cancel')} onClick={ clearChanges } />
+                  <Button button="primary" label={__('Save changes')} onClick={saveChanges} />
+                  <Button button="link" label={__('Cancel')} onClick={clearChanges} />
                 </div>
               </>
             }
