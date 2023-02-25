@@ -4,6 +4,9 @@ import * as MODALS from 'constants/modal_types';
 import { COL_TYPES, SORT_ORDER } from 'constants/collections';
 import React from 'react';
 import Button from 'component/button';
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import FileActionButton from 'component/common/file-action-button';
+import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
@@ -94,6 +97,40 @@ function CollectionActions(props: Props) {
 
       {!isOnPublicView && (
         <div>
+        {showEdit && (
+          <div className="sort-menu__button">
+            <Menu>
+              <MenuButton
+                className="button--file-action--menu"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+              >
+                <FileActionButton icon={ICONS.MENU} title={__('Sort')} label={__('Sort')} />
+              </MenuButton>
+
+              <MenuList className="menu__list">
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => { doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC) }}
+                  >
+                    <div className="menu__link">
+                      {__('Newest first')}
+                    </div>
+                  </MenuItem>
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => { doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC) }}
+                  >
+                    <div className="menu__link">
+                      {__('Oldest first')}
+                    </div>
+                  </MenuItem>
+              </MenuList>
+            </Menu>
+        </div>
+          )}
           <Button
             requiresAuth
             title={__('Copy')}
@@ -121,26 +158,9 @@ function CollectionActions(props: Props) {
             />
           )}
         </div>
+
       )}
     </div>
-      {showEdit && (
-      <div className="sort__actions">
-        <div>
-          <Button
-            title={__('Sort by release time: Ascending')}
-            className="button-toggle"
-            onClick={() => { doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC) }}
-            icon={ICONS.UP}
-          />
-          <Button
-            title={__('Sort by release time: Descending')}
-            className="button-toggle"
-            onClick={() => { doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC) }}
-            icon={ICONS.DOWN}
-          />
-        </div>
-      </div>
-      )}
     </>
   );
 }

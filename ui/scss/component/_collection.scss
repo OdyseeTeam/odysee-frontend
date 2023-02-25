@@ -178,16 +178,8 @@
   }
 }
 
-.sort__actions {
-  position: relative;
-  display: flex;
-
-  div {
-    margin-right: 0;
-    margin-left: auto;
-    margin-top: var(--spacing-m);
-
-  }
+.sort-menu__button {
+  display: inline;
 }
 
 .card-fixed-bottom {
