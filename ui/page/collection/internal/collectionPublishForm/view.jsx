@@ -43,7 +43,7 @@ type Props = {
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
   doClearEditsForCollectionId: (id: string) => void,
   doOpenModal: (id: string, props: {}) => void,
-  doRemoveFromUnsavedChangesCollectionsForCollectionId: () => void,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
 };
 
 export const CollectionFormContext = React.createContext<any>();
