@@ -14,7 +14,7 @@ const Lazy = {
 
 type Props = {
   collectionId: string,
-  isEditPreview: ?boolean,
+  isEditPreview?: boolean,
   // -- redux --
   collectionUrls: ?Array<string>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
