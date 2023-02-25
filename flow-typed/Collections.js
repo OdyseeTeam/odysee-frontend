@@ -23,7 +23,7 @@ declare type CollectionState = {
   // -- sync --
   unpublished: CollectionGroup,
   edited: CollectionGroup,
-  unsavedChanges: ?CollectionGroup,
+  unsavedChanges?: CollectionGroup,
   updated: UpdatedCollectionGroup,
   builtin: CollectionGroup,
   savedIds: Array<string>,
