@@ -4,8 +4,8 @@ import 'videojs-ima'; // loads directly after contrib-ads
 import 'videojs-vtt-thumbnails';
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
-import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
-import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
+// neko import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
+// neko import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import * as OVERLAY from './overlays';
@@ -17,14 +17,14 @@ import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-shortcuts';
 import LbryPlaybackRateMenuButton from './lbry-playback-rate';
-import Chromecast from './chromecast';
+// neko import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
 import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
-import snapshotButton from './plugins/videojs-snapshot-button/plugin';
+// neko import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 
 // import runAds from './ads';
 import videojs from 'video.js';
@@ -37,8 +37,8 @@ import Lbry from 'lbry';
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
-require('@silvermine/videojs-chromecast')(videojs);
-require('@silvermine/videojs-airplay')(videojs);
+// neko require('@silvermine/videojs-chromecast')(videojs);
+// neko require('@silvermine/videojs-airplay')(videojs);
 
 export type Player = {
   // -- custom --
@@ -47,7 +47,7 @@ export type Player = {
   isLivestream?: boolean,
   // -- plugins ---
   mobileUi: (any) => void,
-  chromecast: (any) => void,
+  // neko chromecast: (any) => void,
   overlay: (any) => void,
   hlsQualitySelector: ?any,
   i18n: (any) => void,
@@ -136,7 +136,7 @@ const PLUGIN_MAP = {
   recsys: recsys,
   i18n: i18n,
   watchdog: watchdog,
-  snapshotButton: snapshotButton,
+  // neko snapshotButton: snapshotButton,
 };
 
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
@@ -216,17 +216,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
   // initiate keyboard shortcuts
-  const {
-    createKeyDownShortcutsHandler,
-    createVideoScrollShortcutsHandler,
-    createVolumePanelScrollShortcutsHandler,
-  } = keyboardShorcuts({
-    isMobile,
-    isLivestreamClaim,
-    toggleVideoTheaterMode,
-    playNext,
-    playPrevious,
-  });
+  const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
+    keyboardShorcuts({
+      isMobile,
+      isLivestreamClaim,
+      toggleVideoTheaterMode,
+      playNext,
+      playPrevious,
+    });
 
   const [reload, setReload] = useState('initial');
 
@@ -277,8 +274,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       remainingTimeDisplay: true,
       subsCapsButton: !IS_IOS,
     },
-    techOrder: ['chromecast', 'html5'],
-    ...Chromecast.getOptions(),
+    // neko techOrder: ['chromecast', 'html5'],
+    // neko ...Chromecast.getOptions(),
     suppressNotSupportedError: true,
     liveui: true,
   };
@@ -340,9 +337,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       adapter.ready();
 
-      Chromecast.initialize(player);
+      // neko Chromecast.initialize(player);
 
-      player.airPlay();
+      // neko player.airPlay();
 
       player.watchdog({
         timeoutMs: 15000,
@@ -367,7 +364,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   // }, [showQualitySelector]);
 
   useEffect(() => {
-    Chromecast.updateTitles(title, channelTitle);
+    // neko Chromecast.updateTitles(title, channelTitle);
   }, [title, channelTitle]);
 
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
@@ -512,7 +509,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       doSetVideoSourceLoaded(uri);
 
       // bugfix thumbnails showing up if new video doesn't have them
-      if (typeof vjsPlayer.vttThumbnails.detach === 'function') {
+      if (vjsPlayer.vttThumbnails && typeof vjsPlayer.vttThumbnails.detach === 'function') {
         vjsPlayer.vttThumbnails.detach();
       }
 
@@ -544,7 +541,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       if (!isAudio) {
-        vjsPlayer.snapshotButton({ fileTitle: title, poster });
+        // neko vjsPlayer.snapshotButton({ fileTitle: title, poster });
       }
 
       // disable right-click (context-menu) for purchased content

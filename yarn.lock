@@ -1872,15 +1872,13 @@
     "@sentry/cli" "^1.74.6"
     webpack-sources "^2.0.0 || ^3.0.0"
 
-"@silvermine/videojs-airplay@^1.1.0":
+"@silvermine/videojs-airplay@https://github.com/silvermine/videojs-airplay.git":
   version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@silvermine/videojs-airplay/-/videojs-airplay-1.1.0.tgz#3f23fe9aaa4af9041f800d88f51b56748e214fdd"
-  integrity sha512-f1N9YA9PJBVNpxv3/bfJZBbS9Qb51XL1+nnWqwOkDS1S6CbjGypan62nY6qU/uqKOHHQ+jXlRgQ5w9Dy3kbDjw==
+  resolved "https://github.com/silvermine/videojs-airplay.git#5e5457e7a486947f825552e6c70f5b1807669e41"
 
-"@silvermine/videojs-chromecast@^1.3.3":
+"@silvermine/videojs-chromecast@https://github.com/silvermine/videojs-chromecast.git":
   version "1.3.4"
-  resolved "https://registry.yarnpkg.com/@silvermine/videojs-chromecast/-/videojs-chromecast-1.3.4.tgz#101b7c4c65b9887e45264caf63c9ca2e6774440d"
-  integrity sha512-4VC/WEXb18Iex2Tf679RRUR+oSJhNq7+SyMGIsawFglET0IebXnwYKtO6x4t+dVd3be/iN1p5Ny6/iUnny4ljA==
+  resolved "https://github.com/silvermine/videojs-chromecast.git#aa9d079bc87b2ed8f72f309577541ff889b4bbdd"
   dependencies:
     webcomponents.js "git+https://git@github.com/webcomponents/webcomponentsjs.git#v0.7.24"
 
@@ -18434,7 +18432,7 @@ vfile@^2.0.0:
     unist-util-stringify-position "^1.0.0"
     vfile-message "^1.0.0"
 
-video.js@>=5.20.5, "video.js@^6 || ^7 || ^8", "video.js@^7 || ^8":
+video.js@>=5.20.5, "video.js@^7 || ^8", video.js@^8.0.4:
   version "8.0.4"
   resolved "https://registry.yarnpkg.com/video.js/-/video.js-8.0.4.tgz#d95a30c40aa5045769e4c9937ced0ed250518a1f"
   integrity sha512-fvvWauPanrKDps1HQGGL+9CIAK8G0YVwlNme0hvY0k3moXQryaRcJSLHIlPKV2j9ZFTHl32VbN43jL3TaUllfg==
@@ -18454,7 +18452,7 @@ video.js@>=5.20.5, "video.js@^6 || ^7 || ^8", "video.js@^7 || ^8":
     videojs-font "3.2.0"
     videojs-vtt.js "0.15.4"
 
-"video.js@^6 || ^7", "video.js@^6.0.1 || ^7", video.js@^7.19.2, "video.js@^7.2.0 || ^6.6.0":
+"video.js@^6 || ^7", "video.js@^6.0.1 || ^7", "video.js@^7.2.0 || ^6.6.0":
   version "7.21.2"
   resolved "https://registry.yarnpkg.com/video.js/-/video.js-7.21.2.tgz#2dbf17b435690be739b15748bd53d3002f548e3a"
   integrity sha512-Zbo23oT4CbtIxeAtfTvzdl7OlN/P34ir7hDzXFtLZB+BtJsaLy0Rgh/06dBMJSGEjQCDo4MUS6uPonuX0Nl3Kg==
@@ -18481,22 +18479,14 @@ videojs-contrib-ads@^6.6.5, videojs-contrib-ads@^6.7.0, videojs-contrib-ads@^6.9
     global "^4.3.2"
     video.js "^6 || ^7"
 
-videojs-contrib-quality-levels@3.0.0:
+videojs-contrib-quality-levels@3.0.0, videojs-contrib-quality-levels@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/videojs-contrib-quality-levels/-/videojs-contrib-quality-levels-3.0.0.tgz#bc66f1333b763754b4425455bee4ef6e5ba53984"
   integrity sha512-sNx38EYUx+Q+gmup1gVTv9P9/sPs28rM7gZOx1sedaHoKxEdYB+ysOGfHj6MSELBMNGMj6ZspdrpSiWguGvGxA==
   dependencies:
     global "^4.4.0"
 
-videojs-contrib-quality-levels@^2.0.9:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/videojs-contrib-quality-levels/-/videojs-contrib-quality-levels-2.2.1.tgz#46bd7e1db25e6e45824dadf933b08f0c6ec724a1"
-  integrity sha512-cnF6OGGgoC/2nUrbdz54nzPm3BpEZQzMTpyekiX6AXs8imATX2sHbrUz97xXVSHITldk/+d7ZAUrdQYJJTyuug==
-  dependencies:
-    global "^4.3.2"
-    video.js "^6 || ^7 || ^8"
-
-videojs-event-tracking@^1.0.1:
+videojs-event-tracking@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/videojs-event-tracking/-/videojs-event-tracking-1.0.3.tgz#b402cbd1b829c0d815196cca66a066e2260521f8"
   integrity sha512-qiTE4knaC8j8aa/mt3y4jdSXaQ9lH9DS9KKU2o4PBxrCrXXNLcb5IVxUuZCE+wyeDjaSbCIMav+BXKLL8K68vA==
