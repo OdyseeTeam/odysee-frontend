@@ -39,11 +39,12 @@ const ClaimLinkPreview = (props: Props) => {
   );
 
   const PreviewLinkButton = React.useMemo(
-    () => () => (
-      <div className="preview-link__url">
-        <Button button="link" label={uri} navigate={uri} />
-      </div>
-    ),
+    () => () =>
+      (
+        <div className="preview-link__url">
+          <Button button="link" label={uri} navigate={uri} />
+        </div>
+      ),
     [uri]
   );
 

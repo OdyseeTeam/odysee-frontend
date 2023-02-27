@@ -47,8 +47,11 @@ const select = (state, props) => {
   const tipChannelName = channel ? channel.name : name;
 
   const activeChannelClaim = selectActiveChannelClaim(state);
-  const { claim_id: activeChannelClaimId, name: activeChannelName, canonical_url: activeChannelUrl } =
-    activeChannelClaim || {};
+  const {
+    claim_id: activeChannelClaimId,
+    name: activeChannelName,
+    canonical_url: activeChannelUrl,
+  } = activeChannelClaim || {};
 
   return {
     activeChannelClaimId,

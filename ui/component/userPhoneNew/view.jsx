@@ -5,8 +5,8 @@ import Card from 'component/common/card';
 
 const os = require('os').type();
 const countryCodes = require('country-data')
-  .callingCountries.all.filter(_ => _.emoji)
-  .reduce((acc, cur) => acc.concat(cur.countryCallingCodes.map(_ => ({ ...cur, countryCallingCode: _ }))), [])
+  .callingCountries.all.filter((_) => _.emoji)
+  .reduce((acc, cur) => acc.concat(cur.countryCallingCodes.map((_) => ({ ...cur, countryCallingCode: _ }))), [])
   .sort((a, b) => {
     if (a.countryCallingCode < b.countryCallingCode) {
       return -1;
@@ -105,7 +105,7 @@ class UserPhoneNew extends React.PureComponent<Props, State> {
                 name="phone"
                 value={this.state.phone}
                 error={phoneErrorMessage}
-                onChange={event => {
+                onChange={(event) => {
                   this.handleChanged(event);
                 }}
               />

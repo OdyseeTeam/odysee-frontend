@@ -216,17 +216,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
   // initiate keyboard shortcuts
-  const {
-    createKeyDownShortcutsHandler,
-    createVideoScrollShortcutsHandler,
-    createVolumePanelScrollShortcutsHandler,
-  } = keyboardShorcuts({
-    isMobile,
-    isLivestreamClaim,
-    toggleVideoTheaterMode,
-    playNext,
-    playPrevious,
-  });
+  const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
+    keyboardShorcuts({
+      isMobile,
+      isLivestreamClaim,
+      toggleVideoTheaterMode,
+      playNext,
+      playPrevious,
+    });
 
   const [reload, setReload] = useState('initial');
 

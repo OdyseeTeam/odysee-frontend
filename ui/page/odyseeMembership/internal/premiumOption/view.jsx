@@ -21,13 +21,8 @@ type Props = {
 };
 
 const PremiumOption = (props: Props) => {
-  const {
-    membershipPurchase,
-    membershipView,
-    preferredCurrency,
-    doOpenModal,
-    doOpenCancelationModalForMembership,
-  } = props;
+  const { membershipPurchase, membershipView, preferredCurrency, doOpenModal, doOpenCancelationModalForMembership } =
+    props;
 
   if (membershipPurchase) {
     const membership = membershipPurchase;

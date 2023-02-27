@@ -147,105 +147,101 @@ const processLighthouseResults = (results: Array<any>) => {
   return uris;
 };
 
-export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+export const doSearch =
+  (rawQuery: string, searchOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
+    const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
 
-  if (!query) {
-    dispatch({
-      type: ACTIONS.SEARCH_FAIL,
-    });
-    return;
-  }
-
-  const state = getState();
-
-  const queryWithOptions = getSearchQueryString(query, searchOptions);
-
-  const size = searchOptions.size;
-  const from = searchOptions.from;
-
-  // If we have already searched for something, we don't need to do anything
-  const urisForQuery = makeSelectSearchUrisForQuery(queryWithOptions)(state);
-  if (urisForQuery && !!urisForQuery.length) {
-    if (!size || !from || from + size < urisForQuery.length) {
-      return;
-    }
-  }
-
-  dispatch({
-    type: ACTIONS.SEARCH_START,
-  });
-
-  const isSearchingRecommendations = searchOptions.hasOwnProperty(SEARCH_OPTIONS.RELATED_TO);
-  const cmd = isSearchingRecommendations ? lighthouse.searchRecommendations : lighthouse.search;
-
-  cmd(queryWithOptions)
-    .then((data: SearchResults) => {
-      const { body: result, poweredBy, uuid } = data;
-      const uris = processLighthouseResults(result);
-
-      if (isSearchingRecommendations) {
-        // Temporarily resolve using `claim_search` until the SDK bug is fixed.
-        const claimIds = result.map((x) => x.claimId);
-        dispatch(doResolveClaimIds(claimIds)).finally(() => {
-          dispatch({
-            type: ACTIONS.SEARCH_SUCCESS,
-            data: {
-              query: queryWithOptions,
-              from: from,
-              size: size,
-              uris,
-              poweredBy,
-              uuid,
-            },
-          });
-        });
-        return;
-      }
-
-      const actions = [];
-      actions.push(doResolveUris(uris));
-      actions.push({
-        type: ACTIONS.SEARCH_SUCCESS,
-        data: {
-          query: queryWithOptions,
-          from: from,
-          size: size,
-          uris,
-          poweredBy,
-          uuid,
-        },
-      });
-
-      dispatch(batchActions(...actions));
-    })
-    .catch(() => {
+    if (!query) {
       dispatch({
         type: ACTIONS.SEARCH_FAIL,
       });
+      return;
+    }
+
+    const state = getState();
+
+    const queryWithOptions = getSearchQueryString(query, searchOptions);
+
+    const size = searchOptions.size;
+    const from = searchOptions.from;
+
+    // If we have already searched for something, we don't need to do anything
+    const urisForQuery = makeSelectSearchUrisForQuery(queryWithOptions)(state);
+    if (urisForQuery && !!urisForQuery.length) {
+      if (!size || !from || from + size < urisForQuery.length) {
+        return;
+      }
+    }
+
+    dispatch({
+      type: ACTIONS.SEARCH_START,
     });
-};
 
-export const doUpdateSearchOptions = (newOptions: SearchOptions, additionalOptions: SearchOptions) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const searchValue = selectSearchValue(state);
+    const isSearchingRecommendations = searchOptions.hasOwnProperty(SEARCH_OPTIONS.RELATED_TO);
+    const cmd = isSearchingRecommendations ? lighthouse.searchRecommendations : lighthouse.search;
 
-  dispatch({
-    type: ACTIONS.UPDATE_SEARCH_OPTIONS,
-    data: newOptions,
-  });
+    cmd(queryWithOptions)
+      .then((data: SearchResults) => {
+        const { body: result, poweredBy, uuid } = data;
+        const uris = processLighthouseResults(result);
 
-  if (searchValue) {
-    // After updating, perform a search with the new options
-    dispatch(doSearch(searchValue, additionalOptions));
-  }
-};
+        if (isSearchingRecommendations) {
+          // Temporarily resolve using `claim_search` until the SDK bug is fixed.
+          const claimIds = result.map((x) => x.claimId);
+          dispatch(doResolveClaimIds(claimIds)).finally(() => {
+            dispatch({
+              type: ACTIONS.SEARCH_SUCCESS,
+              data: {
+                query: queryWithOptions,
+                from: from,
+                size: size,
+                uris,
+                poweredBy,
+                uuid,
+              },
+            });
+          });
+          return;
+        }
+
+        const actions = [];
+        actions.push(doResolveUris(uris));
+        actions.push({
+          type: ACTIONS.SEARCH_SUCCESS,
+          data: {
+            query: queryWithOptions,
+            from: from,
+            size: size,
+            uris,
+            poweredBy,
+            uuid,
+          },
+        });
+
+        dispatch(batchActions(...actions));
+      })
+      .catch(() => {
+        dispatch({
+          type: ACTIONS.SEARCH_FAIL,
+        });
+      });
+  };
+
+export const doUpdateSearchOptions =
+  (newOptions: SearchOptions, additionalOptions: SearchOptions) => (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const searchValue = selectSearchValue(state);
+
+    dispatch({
+      type: ACTIONS.UPDATE_SEARCH_OPTIONS,
+      data: newOptions,
+    });
+
+    if (searchValue) {
+      // After updating, perform a search with the new options
+      dispatch(doSearch(searchValue, additionalOptions));
+    }
+  };
 
 export const doSetMentionSearchResults = (query: string, uris: Array<string>) => (dispatch: Dispatch) => {
   dispatch({
@@ -254,38 +250,37 @@ export const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
   });
 };
 
-export const doFetchRecommendedContent = (uri: string, fyp: ?FypParam = null) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const claim = selectClaimForUri(state, uri);
-  const matureEnabled = selectShowMatureContent(state);
-  const claimIsMature = selectClaimIsNsfwForUri(state, uri);
-  const languageSetting = selectLanguage(state);
-  const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
-  const language = searchInLanguage ? languageSetting : null;
+export const doFetchRecommendedContent =
+  (uri: string, fyp: ?FypParam = null) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    const matureEnabled = selectShowMatureContent(state);
+    const claimIsMature = selectClaimIsNsfwForUri(state, uri);
+    const languageSetting = selectLanguage(state);
+    const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
+    const language = searchInLanguage ? languageSetting : null;
 
-  if (claim && claim.value && claim.claim_id) {
-    const options: SearchOptions = getRecommendationSearchOptions(
-      matureEnabled,
-      claimIsMature,
-      claim.claim_id,
-      language
-    );
+    if (claim && claim.value && claim.claim_id) {
+      const options: SearchOptions = getRecommendationSearchOptions(
+        matureEnabled,
+        claimIsMature,
+        claim.claim_id,
+        language
+      );
 
-    if (fyp) {
-      options['gid'] = fyp.gid;
-      options['uuid'] = fyp.uuid;
+      if (fyp) {
+        options['gid'] = fyp.gid;
+        options['uuid'] = fyp.uuid;
+      }
+
+      const { title } = claim.value;
+
+      if (title && options) {
+        dispatch(doSearch(title, options));
+      }
     }
-
-    const { title } = claim.value;
-
-    if (title && options) {
-      dispatch(doSearch(title, options));
-    }
-  }
-};
+  };
 
 export const doFetchPersonalRecommendations = () => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();

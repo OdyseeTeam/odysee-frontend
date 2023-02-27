@@ -271,9 +271,7 @@ export function CommentCreate(props: Props) {
   function getMembersOnlyCreatorSetting() {
     return (
       channelClaimId &&
-      doFetchCreatorSettings(
-        channelClaimId
-      ).then(
+      doFetchCreatorSettings(channelClaimId).then(
         ({
           comments_members_only: commentsMembersOnly,
           livestream_chat_members_only: liveChatMembersOnly,

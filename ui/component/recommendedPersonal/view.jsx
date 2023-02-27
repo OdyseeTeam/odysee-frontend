@@ -34,14 +34,8 @@ type Props = {
 };
 
 export default function RecommendedPersonal(props: Props) {
-  const {
-    header,
-    onLoad,
-    userId,
-    personalRecommendations,
-    userHasOdyseeMembership,
-    doFetchPersonalRecommendations,
-  } = props;
+  const { header, onLoad, userId, personalRecommendations, userHasOdyseeMembership, doFetchPersonalRecommendations } =
+    props;
 
   const ref = React.useRef();
   const [markedGid, setMarkedGid] = React.useState('');

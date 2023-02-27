@@ -85,11 +85,10 @@ export default function VideoPlayersPage(props: Props) {
     return startedPlayingOtherPlaylist ? playingCollectionId : colParam;
   }, [colParam, isUriPlaying, playingCollectionId]);
 
-  const rightSideProps = React.useMemo(() => ({ collectionId, uri, isMediumScreen }), [
-    collectionId,
-    isMediumScreen,
-    uri,
-  ]);
+  const rightSideProps = React.useMemo(
+    () => ({ collectionId, uri, isMediumScreen }),
+    [collectionId, isMediumScreen, uri]
+  );
 
   const videoPlayedEnoughToResetPosition = React.useMemo(() => {
     // I've never seen 'fileInfo' contain metadata lately, but retaining as historical fallback.

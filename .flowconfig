@@ -5,6 +5,7 @@
 .*/node_modules/raf-schd/.*
 .*/node_modules/react-beautiful-dnd/.*
 .*/node_modules/@emotion/.*
+.*/malformed_package_json/.*
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
 
 [include]

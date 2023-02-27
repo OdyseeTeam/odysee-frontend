@@ -63,15 +63,17 @@ export default function PaidContentOvelay(props: Props) {
   );
 
   const ButtonPurchase = React.useMemo(
-    () => ({ label }: { label: string }) => (
-      <Button
-        className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
-        icon={fiatIconToUse}
-        button="primary"
-        label={label}
-        {...clickProps}
-      />
-    ),
+    () =>
+      ({ label }: { label: string }) =>
+        (
+          <Button
+            className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
+            icon={fiatIconToUse}
+            button="primary"
+            label={label}
+            {...clickProps}
+          />
+        ),
     [clickProps, fiatIconToUse, sdkFeeRequired]
   );
 

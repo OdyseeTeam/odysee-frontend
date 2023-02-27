@@ -305,7 +305,9 @@ const ModalPublishPreview = (props: Props) => {
       try {
         return new Date(time * 1000).toLocaleString(appLanguage);
       } catch {
-        return moment(new Date(time * 1000)).locale(appLanguage).format('LLL');
+        return moment(new Date(time * 1000))
+          .locale(appLanguage)
+          .format('LLL');
       }
     } else {
       return '';
