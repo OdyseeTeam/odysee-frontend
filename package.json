@@ -258,7 +258,7 @@
     "yarnhook": "^0.2.0"
   },
   "engines": {
-    "node": ">=7",
+    "node": "18.14.2",
     "yarn": "^1.3"
   },
   "husky": {
