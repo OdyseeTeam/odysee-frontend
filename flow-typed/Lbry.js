@@ -136,6 +136,8 @@ declare type ClaimSearchOptions = {
   has_source?: boolean, // find claims containing a source field
   has_no_source?: boolean, // find claims not containing a source field
   include_purchase_receipt?: boolean, // include purchase receipt in response
+  has_channel_signature?: boolean, // only return claims which have channel signature
+  valid_channel_signature?: boolean, // filter out claims with invalid channel signature (doesn't filter claims without channel signature)
 };
 
 declare type ClaimSearchResponse = {
