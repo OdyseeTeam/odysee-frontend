@@ -299,6 +299,7 @@ function ClaimListDiscover(props: Props) {
   const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
   const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
   const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
+  const [hideAnonymous] = usePersistedState(`hideAnonymous-${location.pathname}`, false);
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const excludedIdsParam = excludedChannelIds;
@@ -420,6 +421,11 @@ function ClaimListDiscover(props: Props) {
         console.error('Unhandled duration: ' + durationParam);
         break;
     }
+  }
+
+  if (hideAnonymous) {
+    options.has_channel_signature = true;
+    options.valid_channel_signature = true;
   }
 
   if (streamTypeParam && streamTypeParam !== CS.CONTENT_ALL && claimType !== CS.CLAIM_CHANNEL) {

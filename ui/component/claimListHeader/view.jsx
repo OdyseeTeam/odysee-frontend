@@ -5,6 +5,7 @@ import TagSearch from './internal/tagSearch/tagSearch';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
+import * as PAGES from 'constants/pages';
 import type { Node } from 'react';
 import classnames from 'classnames';
 import React from 'react';
@@ -78,7 +79,7 @@ function ClaimListHeader(props: Props) {
   const isMobile = useIsMobile();
   const filterCtx = React.useContext(ClaimSearchFilterContext);
   const { push, location } = useHistory();
-  const { search } = location;
+  const { search, pathname } = location;
   const [expanded, setExpanded] = usePersistedState(`expanded-${location.pathname}`, false);
   const urlParams = new URLSearchParams(search);
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
@@ -91,6 +92,8 @@ function ClaimListHeader(props: Props) {
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount || CS.FEE_AMOUNT_ANY;
   const showDuration = !(claimType && claimType === CS.CLAIM_CHANNEL && claimType === CS.CLAIM_COLLECTION);
+  const isDiscoverPage = pathname.includes(PAGES.DISCOVER);
+  const [hideAnonymous, setHideAnonymous] = usePersistedState(`hideAnonymous-${location.pathname}`, false);
 
   const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
   const [minDurationMinutes, setMinDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
@@ -291,6 +294,17 @@ function ClaimListHeader(props: Props) {
               )}
 
               {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
+
+              {isDiscoverPage && expanded && (
+                <FormField
+                  label={__('Hide anonymous')}
+                  className="hide-anonymous-checkbox"
+                  name="hide_anonymous"
+                  type="checkbox"
+                  checked={hideAnonymous}
+                  onChange={() => setHideAnonymous(!hideAnonymous)}
+                />
+              )}
             </div>
           </div>
           {meta && !isMobile && <div className="section__actions--no-margin">{meta}</div>}
