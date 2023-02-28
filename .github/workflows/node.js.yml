@@ -23,7 +23,7 @@ jobs:
     name: 'build'
     strategy:
       matrix:
-        node-version: [18.14.2]
+        node-version: [18.x]
         os:
           - ubuntu-latest
     runs-on: ${{ matrix.os }}
