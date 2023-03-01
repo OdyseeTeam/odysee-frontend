@@ -8,6 +8,7 @@ import { Lbryio } from 'lbryinc';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
+import { Redirect } from 'react-router-dom';
 
 type Props = {
   errorMessage: ?string,
@@ -17,13 +18,22 @@ type Props = {
   fetchUser: () => void,
   skipLink?: string,
   onSkip: () => void,
+  is_reward_approved: boolean,
 };
 
 class UserVerify extends React.PureComponent<Props> {
   constructor() {
     super();
-
+    this.state = {
+      shouldRedirect: false,
+    };
     (this: any).onToken = this.onToken.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.is_reward_approved) {
+      this.setState({ shouldRedirect: true });
+    }
   }
 
   onToken(data: { id: string }) {
@@ -31,10 +41,14 @@ class UserVerify extends React.PureComponent<Props> {
   }
 
   render() {
-    const { errorMessage, isPending, verifyPhone, fetchUser, onSkip } = this.props;
+    const { errorMessage, isPending, verifyPhone, fetchUser, onSkip, is_reward_approved } = this.props;
     const skipButtonProps = {
       onClick: onSkip,
     };
+
+    if (this.state.shouldRedirect) {
+      return <Redirect to="/$/rewards" />;
+    }
 
     return (
       <div className="main__auth-content">
@@ -127,6 +141,7 @@ class UserVerify extends React.PureComponent<Props> {
             }
           />
 
+          {/*
           <div className="section__divider">
             <hr />
             <p>{__('OR')}</p>
@@ -159,6 +174,7 @@ class UserVerify extends React.PureComponent<Props> {
               </Fragment>
             }
           />
+          */}
 
           <div className="section__divider">
             <hr />
