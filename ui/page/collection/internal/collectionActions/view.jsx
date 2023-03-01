@@ -65,101 +65,104 @@ function CollectionActions(props: Props) {
 
   return (
     <>
-    <div className={classnames('media__actions justify-space-between', { stretch: isMobile })}>
-      <SectionElement>
-        {showPlaybackButtons && <PlayButton collectionId={collectionId} />}
-        {showPlaybackButtons && <ShuffleButton collectionId={collectionId} />}
+      <div className={classnames('media__actions justify-space-between collection-actions', { stretch: isMobile })}>
+        <SectionElement>
+          {showPlaybackButtons && <PlayButton collectionId={collectionId} />}
+          {showPlaybackButtons && <ShuffleButton collectionId={collectionId} />}
 
-        {!isBuiltin && (
-          <>
-            {uri && (
-              <>
-                {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
-                <ClaimSupportButton uri={uri} fileAction />
-                {/* <ClaimRepostButton uri={uri} /> */}
-                <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />
-              </>
-            )}
-
-            {!isOnPublicView &&
-              (isMyCollection ? (
+          {!isBuiltin && (
+            <>
+              {uri && (
                 <>
-                  <CollectionPublishButton uri={uri} collectionId={collectionId} />
-                  <CollectionDeleteButton uri={uri} collectionId={collectionId} />
+                  {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
+                  <ClaimSupportButton uri={uri} fileAction />
+                  {/* <ClaimRepostButton uri={uri} /> */}
+                  <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />
                 </>
-              ) : (
-                claimId && <CollectionReportButton claimId={claimId} />
-              ))}
-          </>
-        )}
-      </SectionElement>
+              )}
 
-      {!isOnPublicView && (
-        <div>
-        {showEdit && (
-          <div className="sort-menu__button">
-            <Menu>
-              <MenuButton
-                className="button--file-action--menu"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-              >
-                <FileActionButton icon={ICONS.MENU} title={__('Sort')} label={__('Sort')} />
-              </MenuButton>
-
-              <MenuList className="menu__list">
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => { doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC) }}
-                  >
-                    <div className="menu__link">
-                      {__('Newest first')}
-                    </div>
-                  </MenuItem>
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => { doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC) }}
-                  >
-                    <div className="menu__link">
-                      {__('Oldest first')}
-                    </div>
-                  </MenuItem>
-              </MenuList>
-            </Menu>
-        </div>
+              {!isOnPublicView &&
+                (isMyCollection ? (
+                  <>
+                    <CollectionPublishButton uri={uri} collectionId={collectionId} />
+                    <CollectionDeleteButton uri={uri} collectionId={collectionId} />
+                  </>
+                ) : (
+                  claimId && <CollectionReportButton claimId={claimId} />
+                ))}
+            </>
           )}
-          <Button
-            requiresAuth
-            title={__('Copy')}
-            className="button-toggle"
-            icon={ICONS.COPY}
-            onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: collectionId })}
-          />
+        </SectionElement>
 
-          {isMyCollection ? (
-            !collectionEmpty && (
-              <Button
-                title={__('Arrange')}
-                className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-                icon={ICONS.ARRANGE}
-                onClick={() => setShowEdit(true)}
-              />
-            )
-          ) : (
+        {!isOnPublicView && (
+          <div className="section__actions">
+            {showEdit && (
+              <div className="sort-menu__button">
+                <Menu>
+                  <MenuButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                  >
+                    <FileActionButton
+                      className="button-toggle"
+                      icon={ICONS.MENU}
+                      title={__('Sort')}
+                      label={__('Sort')}
+                    />
+                  </MenuButton>
+
+                  <MenuList className="menu__list">
+                    <MenuItem
+                      className="comment__menu-option"
+                      onSelect={() => {
+                        doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC);
+                      }}
+                    >
+                      <div className="menu__link">{__('Newest first')}</div>
+                    </MenuItem>
+                    <MenuItem
+                      className="comment__menu-option"
+                      onSelect={() => {
+                        doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC);
+                      }}
+                    >
+                      <div className="menu__link">{__('Oldest first')}</div>
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </div>
+            )}
             <Button
               requiresAuth
-              title={__('Save')}
+              title={__('Copy')}
               className="button-toggle"
-              icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
-              onClick={() => doToggleCollectionSavedForId(collectionId)}
+              icon={ICONS.COPY}
+              onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: collectionId })}
             />
-          )}
-        </div>
 
-      )}
-    </div>
+            {isMyCollection ? (
+              !collectionEmpty && (
+                <Button
+                  title={__('Arrange')}
+                  className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+                  icon={ICONS.ARRANGE}
+                  onClick={() => setShowEdit(true)}
+                />
+              )
+            ) : (
+              <Button
+                requiresAuth
+                title={__('Save')}
+                className="button-toggle"
+                icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+                onClick={() => doToggleCollectionSavedForId(collectionId)}
+              />
+            )}
+          </div>
+        )}
+      </div>
     </>
   );
 }

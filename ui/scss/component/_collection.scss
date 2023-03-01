@@ -179,7 +179,15 @@
 }
 
 .sort-menu__button {
-  display: inline;
+  display: flex;
+
+  button {
+    &[aria-expanded='true'] {
+      button {
+        background-color: var(--color-button-toggle-bg-hover) !important;
+      }
+    }
+  }
 }
 
 .card-fixed-bottom {

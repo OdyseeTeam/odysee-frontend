@@ -143,14 +143,14 @@ const CollectionPage = (props: Props) => {
           />
         </CollectionPageContext.Provider>
       </div>
-      { showEdit && (
-      <div className="card-fixed-bottom">
+      {showEdit && (
+        <div className="card-fixed-bottom">
           <Card
             className="card--after-tabs tab__panel"
             actions={
               <>
                 <div className="section__actions">
-                  <Button button="primary" label={__('Save changes')} onClick={saveChanges} />
+                  <Button button="primary" label={__('Save')} onClick={saveChanges} />
                   <Button button="link" label={__('Cancel')} onClick={clearChanges} />
                 </div>
               </>
