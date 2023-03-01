@@ -41,6 +41,7 @@ export const KEYS = Object.freeze({
   UPDATED: 'updated',
   UNPUBLISHED: 'unpublished',
   SAVED: 'savedIds',
+  UNSAVED_CHANGES: 'unsavedChanges',
 });
 
 export const SECTION_TAGS = Object.freeze({

@@ -37,11 +37,13 @@ type Props = {
   isClaimPending: boolean,
   activeChannelClaim: ?ChannelClaim,
   collectionHasEdits: boolean,
+  collectionHasUnSavedEdits: boolean,
   hasUnavailableClaims: boolean,
   doCollectionPublish: (CollectionPublishCreateParams, string) => Promise<any>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
   doClearEditsForCollectionId: (id: string) => void,
   doOpenModal: (id: string, props: {}) => void,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
 };
 
 export const CollectionFormContext = React.createContext<any>();
@@ -57,11 +59,13 @@ const CollectionPublishForm = (props: Props) => {
     isClaimPending,
     activeChannelClaim,
     collectionHasEdits,
+    collectionHasUnSavedEdits,
     hasUnavailableClaims,
     doCollectionPublish,
     doCollectionEdit,
     doClearEditsForCollectionId,
     doOpenModal,
+    doRemoveFromUnsavedChangesCollectionsForCollectionId,
   } = props;
 
   const initialParams = React.useRef(collectionParams);
@@ -89,6 +93,7 @@ const CollectionPublishForm = (props: Props) => {
   const hasChanges =
     (publishing && !hasClaim) ||
     collectionHasEdits ||
+    collectionHasUnSavedEdits ||
     JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
   const publishingClaimWithNoChanges = publishing && hasClaim && !collectionHasEdits && !hasChanges;
 
@@ -139,6 +144,11 @@ const CollectionPublishForm = (props: Props) => {
     } else {
       handlePublish();
     }
+  }
+
+  function handleCancelButton() {
+    doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
+    goBack();
   }
 
   function onTabChange(newTabIndex) {
@@ -209,7 +219,7 @@ const CollectionPublishForm = (props: Props) => {
 
             <TabPanel>
               {tabIndex === TAB.ITEMS && (
-                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit />
+                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit isEditPreview />
               )}
             </TabPanel>
           </TabPanels>
@@ -229,7 +239,7 @@ const CollectionPublishForm = (props: Props) => {
             disabled={publishingClaimWithNoChanges || publishPending}
             label={publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit')}
           />
-          <Button button="link" label={__('Cancel')} onClick={goBack} />
+          <Button button="link" label={__('Cancel')} onClick={handleCancelButton} />
 
           {collectionHasEdits && (
             <Tooltip title={__('Delete all edits from this published playlist')}>

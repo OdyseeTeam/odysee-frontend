@@ -10,6 +10,7 @@ import {
 } from 'redux/selectors/collections';
 
 import { doResolveClaimId } from 'redux/actions/claims';
+import { doCollectionEdit, doRemoveFromUnsavedChangesCollectionsForCollectionId } from 'redux/actions/collections';
 
 import CollectionPage from './view';
 
@@ -31,6 +32,8 @@ const select = (state, props) => {
 
 const perform = {
   doResolveClaimId,
+  doCollectionEdit,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId,
 };
 
 export default connect(select, perform)(CollectionPage);

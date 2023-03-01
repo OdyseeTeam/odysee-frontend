@@ -33,6 +33,7 @@ export const selectSavedCollectionIds = (state: State) => selectState(state).sav
 export const selectBuiltinCollections = (state: State) => selectState(state).builtin;
 export const selectMyUnpublishedCollections = (state: State) => selectState(state).unpublished;
 export const selectMyEditedCollections = (state: State) => selectState(state).edited;
+export const selectMyCollectionsWithUnSavedChanges = (state: State) => selectState(state).unsavedChanges;
 export const selectMyUpdatedCollections = (state: State) => selectState(state).updated;
 export const selectCollectionItemsFetchingIds = (state: State) => selectState(state).collectionItemsFetchingIds;
 export const selectQueueCollection = (state: State) => selectState(state).queue;
@@ -94,6 +95,13 @@ export const selectHasCollections = (state: State) => {
 export const selectEditedCollectionForId = (state: State, id: string) => selectMyEditedCollections(state)[id];
 export const selectCollectionHasEditsForId = (state: State, id: string) =>
   Boolean(selectEditedCollectionForId(state, id));
+
+export const selectUnsavedChangesCollectionForId = (state: State, id: string) => {
+  const unSavedCollections = selectMyCollectionsWithUnSavedChanges(state);
+  return unSavedCollections ? unSavedCollections[id] : null;
+};
+export const selectCollectionHasUnsavedEditsForId = (state: State, id: string) =>
+  Boolean(selectUnsavedChangesCollectionForId(state, id));
 
 export const selectUpdatedCollectionForId = (state: State, id: string) => {
   const editedCollections = selectMyEditedCollections(state);
@@ -209,8 +217,9 @@ export const selectCollectionsById = (state: State) => {
   const unpublished = selectMyUnpublishedCollections(state);
   const edited = selectMyEditedCollections(state);
   const queue = { queue: selectQueueCollection(state) };
+  const unsaved = selectMyCollectionsWithUnSavedChanges(state);
 
-  return { ...queue, ...resolved, ...edited, ...unpublished, ...builtin };
+  return { ...queue, ...resolved, ...edited, ...unpublished, ...builtin, ...unsaved };
 };
 
 export const selectCollectionForId = createSelector(

@@ -243,7 +243,7 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: collectionId });
 };
 
-const doFetchCollectionItems = (items: Array<string>, pageSize?: number) => async (dispatch: Dispatch) => {
+const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch) => {
   const sortResults = (resultItems: Array<Claim>) => {
     const newItems: Array<Claim> = [];
 
@@ -425,7 +425,7 @@ export const doFetchItemsInCollection =
   };
 
 export const doFetchThumbnailClaimsForCollectionIds =
-  (params: { collectionIds: Array<string>, pageSize?: number }) => async (dispatch: Dispatch, getState: GetState) => {
+  (params: { collectionIds: Array<any>, pageSize?: number }) => async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
     const { collectionIds, pageSize } = params;
 
@@ -452,6 +452,51 @@ export const doFetchThumbnailClaimsForCollectionIds =
     );
   };
 
+export const doSortCollectionByReleaseTime =
+  (collectionId: string, sortOrder: string) => async (dispatch: Dispatch, getState: GetState) => {
+    let state = getState();
+    const collection: Collection = selectCollectionForId(state, collectionId);
+
+    // Get claims or return the uri/claimId if not resolved
+    const claims = collection.items.map((item) => {
+      // Item should be either claim_id or permanent url
+      const claimIdMatch = item.match(/[a-f|0-9]{40}$/);
+      const claimId = claimIdMatch ? claimIdMatch[0] : null;
+      return claimId ? selectClaimForClaimId(state, claimId) : item;
+    });
+
+    // Save unresolved uris
+    const resolvedClaims = claims.filter((claim) => typeof claim !== 'string');
+    const unresolvedItems = claims.filter((claim) => typeof claim === 'string');
+
+    // $FlowIgnore
+    const sortedClaims = resolvedClaims.sort((a, b) => {
+      const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
+      const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
+
+      if (sortOrder === COLS.SORT_ORDER.ASC) {
+        return keyB - keyA;
+      } else if (sortOrder === COLS.SORT_ORDER.DESC) {
+        return keyA - keyB;
+      }
+    });
+
+    let sortedUris = sortedClaims.map((claim) => claim?.permanent_url);
+    sortedUris = sortedUris.concat(unresolvedItems);
+
+    return dispatch({
+      type: ACTIONS.COLLECTION_EDIT,
+      data: {
+        collectionKey: COLS.KEYS.UNSAVED_CHANGES,
+        collection: {
+          ...collection,
+          items: sortedUris,
+          itemCount: sortedUris.length,
+        },
+      },
+    });
+  };
+
 export const doCollectionEdit =
   (collectionId: string, params: CollectionEditParams) => async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
@@ -463,7 +508,7 @@ export const doCollectionEdit =
 
     const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
 
-    const { uris, remove, replace, order, type } = params;
+    const { uris, remove, replace, order, type, isPreview } = params;
 
     let collectionUrls = selectUrlsForCollectionId(state, collectionId);
     if (collectionUrls === undefined) {
@@ -507,22 +552,33 @@ export const doCollectionEdit =
     const isQueue = collectionId === COLS.QUEUE_ID;
     const title = params.title || params.name;
 
-    return dispatch({
-      // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
-      type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
-      data: {
-        collectionKey: isPublic ? COLS.KEYS.EDITED : selectCollectionKeyForId(state, collectionId),
-        collection: {
-          ...collection,
-          items: newItems,
-          itemCount: newItems.length,
-          // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
-          ...('description' in params ? { description: params.description } : {}),
-          ...(title ? { name: title, title } : {}),
-          ...(type ? { type } : {}),
-          ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
+    return new Promise((success) => {
+      dispatch({
+        // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
+        type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
+        data: {
+          collectionKey: isPreview
+            ? COLS.KEYS.UNSAVED_CHANGES
+            : isPublic
+            ? COLS.KEYS.EDITED
+            : selectCollectionKeyForId(state, collectionId),
+          collection: {
+            ...collection,
+            items: newItems,
+            itemCount: newItems.length,
+            // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
+            ...('description' in params ? { description: params.description } : {}),
+            ...(title ? { name: title, title } : {}),
+            ...(type ? { type } : {}),
+            ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
+          },
         },
-      },
+      });
+      // Needs to be run after collection_edit is dispatched, or saving changes doesn't work from edit page
+      if (!isPreview) {
+        dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
+      }
+      success();
     });
   };
 
@@ -533,6 +589,10 @@ export const doClearEditsForCollectionId = (id: String) => (dispatch: Dispatch) 
 
 export const doRemoveFromUpdatedCollectionsForCollectionId = (id: string) => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'updated' } });
+};
+
+export const doRemoveFromUnsavedChangesCollectionsForCollectionId = (id: string) => (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'unsavedChanges' } });
 };
 
 export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) =>
