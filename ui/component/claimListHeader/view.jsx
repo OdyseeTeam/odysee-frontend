@@ -294,8 +294,9 @@ function ClaimListHeader(props: Props) {
               )}
 
               {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
-
-              {isDiscoverPage && expanded && (
+            </div>
+            <div className="claim-search__menu-group">
+              {isDiscoverPage && (
                 <FormField
                   label={__('Hide anonymous')}
                   className="hide-anonymous-checkbox"
