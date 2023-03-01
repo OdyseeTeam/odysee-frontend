@@ -187,11 +187,20 @@
         margin-right: 0 !important;
       }
     }
+
     .section__actions {
       margin-right: 0;
 
       &:last-of-type {
         width: 100%;
+        button {
+          margin-right: 0 !important;
+          span {
+            justify-content: center;
+            // margin-left:unset !important;
+            margin-right: auto;
+          }
+        }
       }
     }
 
