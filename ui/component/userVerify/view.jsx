@@ -24,14 +24,13 @@ type Props = {
 class UserVerify extends React.PureComponent<Props> {
   constructor() {
     super();
-    this.state = {
-      shouldRedirect: false,
-    };
+    (this: any).state = { shouldRedirect: false };
     (this: any).onToken = this.onToken.bind(this);
   }
 
   componentDidMount() {
     if (this.props.is_reward_approved) {
+      // $FlowIgnore
       this.setState({ shouldRedirect: true });
     }
   }
@@ -41,12 +40,13 @@ class UserVerify extends React.PureComponent<Props> {
   }
 
   render() {
-    const { errorMessage, isPending, verifyPhone, fetchUser, onSkip, is_reward_approved } = this.props;
+    const { errorMessage, isPending, fetchUser, onSkip } = this.props;
     const skipButtonProps = {
       onClick: onSkip,
     };
+    const state = this.state;
 
-    if (this.state.shouldRedirect) {
+    if (state && state.shouldRedirect) {
       return <Redirect to="/$/rewards" />;
     }
 
