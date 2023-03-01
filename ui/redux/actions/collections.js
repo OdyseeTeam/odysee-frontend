@@ -243,7 +243,7 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: collectionId });
 };
 
-const doFetchCollectionItems = (items: Array<string>, pageSize?: number) => async (dispatch: Dispatch) => {
+const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch) => {
   const sortResults = (resultItems: Array<Claim>) => {
     const newItems: Array<Claim> = [];
 
@@ -425,7 +425,7 @@ export const doFetchItemsInCollection =
   };
 
 export const doFetchThumbnailClaimsForCollectionIds =
-  (params: { collectionIds: Array<string>, pageSize?: number }) => async (dispatch: Dispatch, getState: GetState) => {
+  (params: { collectionIds: Array<any>, pageSize?: number }) => async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
     const { collectionIds, pageSize } = params;
 
@@ -466,12 +466,13 @@ export const doSortCollectionByReleaseTime =
     });
 
     // Save unresolved uris
-    const resolvedClaims = claims.filter(claim => typeof claim !== 'string');
-    const unresolvedItems = claims.filter(claim => typeof claim === 'string');
+    const resolvedClaims = claims.filter((claim) => typeof claim !== 'string');
+    const unresolvedItems = claims.filter((claim) => typeof claim === 'string');
 
+    // $FlowIgnore
     const sortedClaims = resolvedClaims.sort((a, b) => {
-      const keyA = a.value?.release_time || a.meta?.creation_timestamp || 0;
-      const keyB = b.value?.release_time || b.meta?.creation_timestamp || 0;
+      const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
+      const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
 
       if (sortOrder === COLS.SORT_ORDER.ASC) {
         return keyB - keyA;
@@ -480,7 +481,7 @@ export const doSortCollectionByReleaseTime =
       }
     });
 
-    let sortedUris = sortedClaims.map(claim => claim?.permanent_url);
+    let sortedUris = sortedClaims.map((claim) => claim?.permanent_url);
     sortedUris = sortedUris.concat(unresolvedItems);
 
     return dispatch({
@@ -492,7 +493,7 @@ export const doSortCollectionByReleaseTime =
           items: sortedUris,
           itemCount: sortedUris.length,
         },
-    },
+      },
     });
   };
 
@@ -556,9 +557,11 @@ export const doCollectionEdit =
         // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
         type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
         data: {
-          collectionKey: isPreview ? COLS.KEYS.UNSAVED_CHANGES
-                          : isPublic ?  COLS.KEYS.EDITED
-                          : selectCollectionKeyForId(state, collectionId),
+          collectionKey: isPreview
+            ? COLS.KEYS.UNSAVED_CHANGES
+            : isPublic
+            ? COLS.KEYS.EDITED
+            : selectCollectionKeyForId(state, collectionId),
           collection: {
             ...collection,
             items: newItems,
@@ -573,7 +576,7 @@ export const doCollectionEdit =
       });
       // Needs to be run after collection_edit is dispatched, or saving changes doesn't work from edit page
       if (!isPreview) {
-          dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
+        dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
       }
       success();
     });

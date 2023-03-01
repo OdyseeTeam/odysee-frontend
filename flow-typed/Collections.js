@@ -1,6 +1,6 @@
 declare type Collection = {
   id: string,
-  items: Array<string>,
+  items: Array<any>,
   name: string,
   title?: string,
   description?: string,
