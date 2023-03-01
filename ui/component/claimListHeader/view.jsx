@@ -94,7 +94,7 @@ function ClaimListHeader(props: Props) {
   const showDuration = !(claimType && claimType === CS.CLAIM_CHANNEL && claimType === CS.CLAIM_COLLECTION);
   const isDiscoverPage = pathname.includes(PAGES.DISCOVER);
   const isRabbitHolePage = pathname.includes(PAGES.RABBIT_HOLE);
-  const showhideAnonymous = isDiscoverPage || isRabbitHolePage;
+  const showHideAnonymous = isDiscoverPage || isRabbitHolePage;
   const [hideAnonymous, setHideAnonymous] = usePersistedState(`hideAnonymous-${location.pathname}`, false);
 
   const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
@@ -298,7 +298,7 @@ function ClaimListHeader(props: Props) {
               {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
             </div>
             <div className="claim-search__menu-group">
-              {showhideAnonymous && (
+              {showHideAnonymous && (
                 <FormField
                   label={__('Hide anonymous')}
                   className="hide-anonymous-checkbox"
