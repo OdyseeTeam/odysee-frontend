@@ -395,7 +395,7 @@ export default function WunderBarSuggestions(props: Props) {
 
                 <div className="wunderbar__label">{__('Search Results')}</div>
 
-                {subscriptionResults.length &&
+                {subscriptionResults.length > 0 &&
                   subscriptionResults.map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)}
 
                 {showPlaceholder && term.length > LIGHTHOUSE_MIN_CHARACTERS ? <Spinner type="small" /> : null}
