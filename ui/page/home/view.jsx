@@ -128,7 +128,6 @@ function HomePage(props: Props) {
 
   function signupDriver() {
     push(`/$/${PAGES.CHANNEL_NEW}?redirect=homepage_customization`);
-    // doToast({ message: __('An account is required to customize your Homepage.') });
   }
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {

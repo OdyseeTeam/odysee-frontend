@@ -70,7 +70,7 @@ function ChannelAbout(props: Props) {
 
           {languages && languages.length && (
             <>
-              <label>{__('Languages x')}</label>
+              <label>{__('Languages')}</label>
               <div className="media__info-text">
                 {languages.reduce((acc, lang, i) => {
                   return acc + `${SUPPORTED_LANGUAGES[lang]}` + ' ';
