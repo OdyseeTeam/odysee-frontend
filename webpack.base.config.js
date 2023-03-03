@@ -123,5 +123,9 @@ let baseConfig = {
     }),
     ...optInPlugins,
   ],
+  stats: {
+    errorDetails: true,
+    warnings: false
+  },
 };
 module.exports = baseConfig;
