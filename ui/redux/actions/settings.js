@@ -15,6 +15,7 @@ import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal } from 
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
 import { getDefaultLanguage } from 'util/default-languages';
+import { postProcessHomepageDb } from 'util/homepages';
 import { LocalStorage } from 'util/storage';
 
 const { URL_DEV } = require('config');
@@ -365,7 +366,7 @@ export function doFetchHomepages() {
       .then((response) => response.json())
       .then((json) => {
         if (json?.status === 'success' && json?.data) {
-          window.homepages = json.data;
+          window.homepages = postProcessHomepageDb(json.data);
           populateCategoryTitles(window.homepages?.en?.categories);
           dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
         } else {
