@@ -15,7 +15,7 @@ import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal } from 
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
 import { getDefaultLanguage } from 'util/default-languages';
-import { postProcessHomepageDb } from 'util/homepages';
+import { postProcessHomepageDb, updateHomepageDb } from 'util/homepages';
 import { LocalStorage } from 'util/storage';
 
 const { URL_DEV } = require('config');
@@ -323,19 +323,32 @@ function populateCategoryTitles(categories) {
   }
 }
 
-function loadBuiltInHomepageData(dispatch) {
-  const homepages = require('homepages');
-  if (homepages) {
-    const v2 = {};
-    const homepageKeys = Object.keys(homepages);
-    homepageKeys.forEach((hp) => {
-      v2[hp] = homepages[hp];
-    });
+export function doLoadBuiltInHomepageData() {
+  return (dispatch) => {
+    // @if USE_LOCAL_HOMEPAGE_DATA='true'
+    // ------------------------------------------------------------------------
+    // USE_LOCAL_HOMEPAGE_DATA used to be able to replace the fetch entirely,
+    // but is now mainly for fallback data and perceived faster startup. We
+    // still need to fetch anyway because the Announcements framework depends on
+    // fresh data, and the built-in version could be a stale one from browser
+    // caching.
+    // ------------------------------------------------------------------------
 
-    window.homepages = v2;
-    populateCategoryTitles(window.homepages?.en?.categories);
-    dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
-  }
+    const homepages = require('homepages');
+    if (homepages) {
+      const v2 = {};
+      const homepageKeys = Object.keys(homepages);
+      homepageKeys.forEach((hp) => {
+        v2[hp] = homepages[hp];
+      });
+
+      window.homepages = v2;
+      populateCategoryTitles(window.homepages?.en?.categories);
+      dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
+    }
+
+    // @endif
+  };
 }
 
 export function doOpenAnnouncements() {
@@ -349,31 +362,24 @@ export function doOpenAnnouncements() {
   };
 }
 
-export function doFetchHomepages() {
+export function doFetchHomepages(hp /* ?string */) {
   return (dispatch) => {
-    // @if USE_LOCAL_HOMEPAGE_DATA='true'
-    // ------------------------------------------------------------------------
-    // USE_LOCAL_HOMEPAGE_DATA used to be able to replace the fetch entirely,
-    // but is now mainly for fallback data and perceived faster startup. We
-    // still need to fetch anyway (hence, no early return here) because the
-    // Announcements framework depends on fresh data, and the built-in version
-    // could be a stale one from browser caching.
-    // ------------------------------------------------------------------------
-    loadBuiltInHomepageData(dispatch);
-    // @endif
+    const param = hp ? `?hp=${hp}` : '';
 
-    fetch('https://odysee.com/$/api/content/v2/get')
+    fetch(`https://odysee.com/$/api/content/v2/get${param}`)
       .then((response) => response.json())
       .then((json) => {
         if (json?.status === 'success' && json?.data) {
-          window.homepages = postProcessHomepageDb(json.data);
+          window.homepages = updateHomepageDb(window.homepages, json.data, hp);
+          window.homepages = postProcessHomepageDb(window.homepages);
           populateCategoryTitles(window.homepages?.en?.categories);
           dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
         } else {
           dispatch({ type: ACTIONS.FETCH_HOMEPAGES_FAILED });
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log('doFetchHomepages:', e); // eslint-disable-line no-console
         dispatch({ type: ACTIONS.FETCH_HOMEPAGES_FAILED });
       });
   };
