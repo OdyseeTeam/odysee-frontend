@@ -88,14 +88,6 @@ export const selectHomepageKeys = (state) => {
 export const selectHomepageData = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);
-
-  if (homepages && homepages[homepageCode] && !homepages[homepageCode].portals) {
-    homepages[homepageCode].portals = homepages['en'].portals;
-  }
-  if (homepages && homepages[homepageCode] && !homepages[homepageCode].featured) {
-    homepages[homepageCode].featured = homepages['en'].featured;
-  }
-
   return homepages ? homepages[homepageCode] || homepages['en'] || {} : undefined;
 };
 
