@@ -6,13 +6,12 @@ import { getDefaultHomepageKey } from 'util/default-languages';
 
 type Props = {
   homepage: string,
+  homepageKeys: Array<string>,
   setHomepage: (string) => void,
 };
 
 function SelectHomepage(props: Props) {
-  const { homepage, setHomepage } = props;
-  const homepages = window.homepages || {};
-  const homepageKeys = Object.keys(homepages);
+  const { homepage, homepageKeys, setHomepage } = props;
 
   function handleSetHomepage(e) {
     const { value } = e.target;
