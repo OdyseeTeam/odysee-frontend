@@ -24,7 +24,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
-// neko import snapshotButton from './plugins/videojs-snapshot-button/plugin';
+import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 
 // import runAds from './ads';
 import videojs from 'video.js';
@@ -136,7 +136,7 @@ const PLUGIN_MAP = {
   recsys: recsys,
   i18n: i18n,
   watchdog: watchdog,
-  // neko snapshotButton: snapshotButton,
+  snapshotButton: snapshotButton,
 };
 
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
@@ -541,7 +541,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       if (!isAudio) {
-        // neko vjsPlayer.snapshotButton({ fileTitle: title, poster });
+        vjsPlayer.snapshotButton({ fileTitle: title, poster });
       }
 
       // disable right-click (context-menu) for purchased content
