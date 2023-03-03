@@ -50,23 +50,33 @@ class SnapshotButton extends videojs.getComponent('Button') {
 
 function onPlayerReady(player: Player, options: Options) {
   videojs.registerComponent('snapshotButton', SnapshotButton);
-  // $FlowIgnore
-  const snapshotButton = player.addChild('snapshotButton', options);
-  player.one('canplay', function () {
-    if (player.getChild && typeof player.getChild === 'function') {
-      const controlBar = player.getChild('controlBar');
-      if (controlBar.getChild && typeof controlBar.getChild === 'function') {
-        controlBar.removeChild(snapshotButton);
-        controlBar.addChild(snapshotButton, {});
+  let snapshotButton = player.getChild('snapshotButton');
+  if (!snapshotButton) {
+    // $FlowIgnore
+    snapshotButton = player.addChild('snapshotButton', options);
+    player.one('canplay', function () {
+      if (player.getChild && typeof player.getChild === 'function') {
+        const controlBar = player.getChild('controlBar');
+        if (controlBar.getChild && typeof controlBar.getChild === 'function') {
+          controlBar.removeChild(snapshotButton);
+          controlBar.addChild(snapshotButton, {});
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 function snapshotButton(options: Options) {
   // needed for canvas to work with cors
   this.el().childNodes[0].setAttribute('crossorigin', 'anonymous');
   const IS_MOBILE = videojs.browser.IS_ANDROID || videojs.browser.IS_IOS;
+
+  // add this flag
+  if (this.snapshotButtonAdded) {
+    return;
+  }
+  this.snapshotButtonAdded = true;
+
   if (!IS_MOBILE) {
     this.ready(() => onPlayerReady(this, Object.assign({}, defaultOptions, options)));
   }
