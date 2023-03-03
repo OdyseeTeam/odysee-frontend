@@ -4,7 +4,7 @@ import 'videojs-ima'; // loads directly after contrib-ads
 import 'videojs-vtt-thumbnails';
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
-// neko import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
+import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 // neko import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
@@ -17,7 +17,7 @@ import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-shortcuts';
 import LbryPlaybackRateMenuButton from './lbry-playback-rate';
-// neko import Chromecast from './chromecast';
+import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
@@ -37,7 +37,7 @@ import Lbry from 'lbry';
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
-// neko require('@silvermine/videojs-chromecast')(videojs);
+require('@silvermine/videojs-chromecast')(videojs);
 // neko require('@silvermine/videojs-airplay')(videojs);
 
 export type Player = {
@@ -47,7 +47,7 @@ export type Player = {
   isLivestream?: boolean,
   // -- plugins ---
   mobileUi: (any) => void,
-  // neko chromecast: (any) => void,
+  chromecast: (any) => void,
   overlay: (any) => void,
   hlsQualitySelector: ?any,
   i18n: (any) => void,
@@ -274,8 +274,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       remainingTimeDisplay: true,
       subsCapsButton: !IS_IOS,
     },
-    // neko techOrder: ['chromecast', 'html5'],
-    // neko ...Chromecast.getOptions(),
+    techOrder: ['chromecast', 'html5'],
+    ...Chromecast.getOptions(),
     suppressNotSupportedError: true,
     liveui: true,
   };
