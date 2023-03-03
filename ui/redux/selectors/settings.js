@@ -57,7 +57,7 @@ export const selectThemePath = createSelector(
 
 export const selectHomepageCode = (state) => {
   const hp = selectClientSetting(state, SETTINGS.HOMEPAGE);
-  const homepages = window.homepages || {};
+  const homepages = selectHomepageDb(state) || {};
   return homepages[hp] ? hp : getDefaultHomepageKey();
 };
 
@@ -66,9 +66,28 @@ export const selectLanguage = (state) => {
   return lang || getDefaultLanguage();
 };
 
+/**
+ * Returns the full/raw homepage object that was fetched.
+ */
+export const selectHomepageDb = (state) => {
+  return window.homepages; // TODO: find a better place than window.
+};
+
+/**
+ * Returns an array of homepage codes that we currently support.
+ * e.g. "['en', 'es', 'ru']"
+ */
+export const selectHomepageKeys = (state) => {
+  const db = selectHomepageDb(state) || {};
+  return Object.keys(db);
+};
+
+/**
+ * Returns the data for the currently-selected homepage.
+ */
 export const selectHomepageData = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
+  const homepages = selectHomepageDb(state);
 
   if (homepages && homepages[homepageCode] && !homepages[homepageCode].portals) {
     homepages[homepageCode].portals = homepages['en'].portals;
@@ -82,7 +101,7 @@ export const selectHomepageData = (state) => {
 
 export const selectHomepageMeme = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
+  const homepages = selectHomepageDb(state);
   if (homepages) {
     const meme = homepages[homepageCode].meme;
     if (meme && meme.text && meme.url) {
@@ -94,7 +113,7 @@ export const selectHomepageMeme = (state) => {
 
 export const selectHomepageDiscover = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
+  const homepages = selectHomepageDb(state);
   if (homepages) {
     const discover = homepages[homepageCode].discover;
     if (discover) {
@@ -106,7 +125,7 @@ export const selectHomepageDiscover = (state) => {
 
 export const selectHomepageAnnouncement = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
+  const homepages = selectHomepageDb(state);
   if (homepages) {
     const news = homepages[homepageCode].announcement;
     if (news) {
