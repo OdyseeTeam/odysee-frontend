@@ -22,13 +22,8 @@ type Props = {
 };
 
 const PlaylistsPage = (props: Props) => {
-  const {
-    areBuiltinCollectionsEmpty,
-    hasCollections,
-    isFetchingCollections,
-    doOpenModal,
-    doFetchCollectionListMine,
-  } = props;
+  const { areBuiltinCollectionsEmpty, hasCollections, isFetchingCollections, doOpenModal, doFetchCollectionListMine } =
+    props;
 
   const { push } = useHistory();
 

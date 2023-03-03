@@ -50,7 +50,7 @@ const RewardListClaimed = (props: Props) => {
               </tr>
             </thead>
             <tbody>
-              {rewards.reverse().map(reward => (
+              {rewards.reverse().map((reward) => (
                 <tr key={reward.id}>
                   <td>{reward.reward_title}</td>
                   <td>{reward.reward_amount}</td>

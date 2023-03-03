@@ -129,11 +129,11 @@ export const doCheckIfPurchasedClaimIds = (claimIds: ClaimIds) => {
   };
 };
 
-export const doCustomerPurchaseCost = (cost: number) => (
-  dispatch: Dispatch
-): Promise<StripeCustomerPurchaseCostResponse> => {
-  return Lbryio.call('customer', 'purchase_cost', { environment: stripeEnvironment, amount: cost });
-};
+export const doCustomerPurchaseCost =
+  (cost: number) =>
+  (dispatch: Dispatch): Promise<StripeCustomerPurchaseCostResponse> => {
+    return Lbryio.call('customer', 'purchase_cost', { environment: stripeEnvironment, amount: cost });
+  };
 
 export const doListAccountTransactions = () => async (dispatch: Dispatch) =>
   await Lbryio.call('account', 'list', { environment: stripeEnvironment }, 'post').then(

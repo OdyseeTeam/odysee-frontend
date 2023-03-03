@@ -113,75 +113,73 @@ export function doDeleteFileAndMaybeGoBack(
   };
 }
 
-export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const alreadyFetching = selectOutpointFetchingForUri(state, uri);
-  const fileInfo = makeSelectFileInfoForUri(uri)(state);
+export const doFileGetForUri =
+  (uri: string, onSuccess?: (GetResponse) => any) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const alreadyFetching = selectOutpointFetchingForUri(state, uri);
+    const fileInfo = makeSelectFileInfoForUri(uri)(state);
 
-  if (fileInfo !== undefined || (alreadyFetching && !onSuccess)) return;
+    if (fileInfo !== undefined || (alreadyFetching && !onSuccess)) return;
 
-  const outpoint = selectClaimOutpointForUri(state, uri);
+    const outpoint = selectClaimOutpointForUri(state, uri);
 
-  dispatch({ type: ACTIONS.FETCH_FILE_INFO_STARTED, data: { outpoint } });
+    dispatch({ type: ACTIONS.FETCH_FILE_INFO_STARTED, data: { outpoint } });
 
-  Lbry.get({ uri, environment: stripeEnvironment })
-    .then((streamInfo: GetResponse) => {
-      const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
-      if (timeout) {
+    Lbry.get({ uri, environment: stripeEnvironment })
+      .then((streamInfo: GetResponse) => {
+        const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
+        if (timeout) {
+          dispatch({
+            type: ACTIONS.FETCH_FILE_INFO_FAILED,
+            data: { outpoint },
+          });
+
+          dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
+        } else {
+          if (streamInfo.purchase_receipt || streamInfo.content_fee) {
+            dispatch({
+              type: ACTIONS.PURCHASE_URI_COMPLETED,
+              data: { uri, purchaseReceipt: streamInfo.purchase_receipt || streamInfo.content_fee },
+            });
+          }
+
+          dispatch({
+            type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
+            data: {
+              fileInfo: streamInfo,
+              outpoint: outpoint,
+            },
+          });
+
+          if (onSuccess) {
+            onSuccess(streamInfo);
+          }
+        }
+      })
+      .catch((error) => {
+        dispatch({
+          type: ACTIONS.PURCHASE_URI_FAILED,
+          data: { uri, error },
+        });
+
         dispatch({
           type: ACTIONS.FETCH_FILE_INFO_FAILED,
           data: { outpoint },
         });
 
-        dispatch(doToast({ message: `File timeout for uri ${uri}`, isError: true }));
-      } else {
-        if (streamInfo.purchase_receipt || streamInfo.content_fee) {
-          dispatch({
-            type: ACTIONS.PURCHASE_URI_COMPLETED,
-            data: { uri, purchaseReceipt: streamInfo.purchase_receipt || streamInfo.content_fee },
-          });
-        }
+        // TODO: probably a better way to address this
+        // supress no source error if it's a livestream
+        const isLivestreamClaim = selectIsLivestreamClaimForUri(state, uri);
+        if (isLivestreamClaim && error.message === "stream doesn't have source data") return;
 
-        dispatch({
-          type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
-          data: {
-            fileInfo: streamInfo,
-            outpoint: outpoint,
-          },
-        });
-
-        if (onSuccess) {
-          onSuccess(streamInfo);
-        }
-      }
-    })
-    .catch((error) => {
-      dispatch({
-        type: ACTIONS.PURCHASE_URI_FAILED,
-        data: { uri, error },
+        dispatch(
+          doToast({
+            message: `Failed to view ${uri}, please try again. If this problem persists, visit https://help.odysee.tv/ for support.`,
+            isError: true,
+          })
+        );
       });
-
-      dispatch({
-        type: ACTIONS.FETCH_FILE_INFO_FAILED,
-        data: { outpoint },
-      });
-
-      // TODO: probably a better way to address this
-      // supress no source error if it's a livestream
-      const isLivestreamClaim = selectIsLivestreamClaimForUri(state, uri);
-      if (isLivestreamClaim && error.message === "stream doesn't have source data") return;
-
-      dispatch(
-        doToast({
-          message: `Failed to view ${uri}, please try again. If this problem persists, visit https://help.odysee.tv/ for support.`,
-          isError: true,
-        })
-      );
-    });
-};
+  };
 
 export function doPurchaseUri(uri: string, costInfo: { cost: number }, onSuccess?: (GetResponse) => any) {
   return (dispatch: Dispatch, getState: GetState) => {

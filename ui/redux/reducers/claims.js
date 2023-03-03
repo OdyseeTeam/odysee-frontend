@@ -688,10 +688,8 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
 };
 
 reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: State, action: any): State => {
-  const {
-    claims: confirmedClaims,
-    pending: pendingClaims,
-  }: { claims: Array<Claim>, pending: { [string]: Claim } } = action.data;
+  const { claims: confirmedClaims, pending: pendingClaims }: { claims: Array<Claim>, pending: { [string]: Claim } } =
+    action.data;
   const byIdDelta = {};
 
   confirmedClaims.forEach((claim: GenericClaim) => {

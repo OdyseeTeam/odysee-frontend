@@ -124,19 +124,21 @@ export const doClearPlayingSource = () => (dispatch: Dispatch) =>
 export const doClearPlayingCollection = () => (dispatch: Dispatch) =>
   dispatch(doChangePlayingUri({ collection: { collectionId: null } }));
 
-export const doPopOutInlinePlayer = ({ source }: { source: string }) => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  const isFloating = selectIsPlayerFloating(state);
-  const playingUri = selectPlayingUri(state);
+export const doPopOutInlinePlayer =
+  ({ source }: { source: string }) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const isFloating = selectIsPlayerFloating(state);
+    const playingUri = selectPlayingUri(state);
 
-  if (playingUri.source === source && !isFloating) {
-    const floatingPlayerEnabled = selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
+    if (playingUri.source === source && !isFloating) {
+      const floatingPlayerEnabled = selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
 
-    if (floatingPlayerEnabled) return dispatch(doClearPlayingSource());
+      if (floatingPlayerEnabled) return dispatch(doClearPlayingSource());
 
-    return dispatch(doClearPlayingUri());
-  }
-};
+      return dispatch(doClearPlayingUri());
+    }
+  };
 
 export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Dispatch, getState: GetState) =>
   dispatch({ type: ACTIONS.SET_PLAYING_URI, data: playingUri });
@@ -163,114 +165,112 @@ export function doDownloadUri(uri: string) {
   return (dispatch: Dispatch) => dispatch(doPlayUri(uri, false, true, () => dispatch(doAnalyticsViewForUri(uri))));
 }
 
-export const doStartFloatingPlayingUri = (playingOptions: PlayingUri) => async (
-  dispatch: Dispatch,
-  getState: () => any
-) => {
-  const { uri, collection } = playingOptions;
+export const doStartFloatingPlayingUri =
+  (playingOptions: PlayingUri) => async (dispatch: Dispatch, getState: () => any) => {
+    const { uri, collection } = playingOptions;
 
-  if (!uri) return;
+    if (!uri) return;
 
-  const state = getState();
-  const isMature = selectClaimIsNsfwForUri(state, uri);
-  const isPlayable = selectIsPlayableForUri(state, uri);
-  const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
-  const isLive = selectIsActiveLivestreamForUri(state, uri);
-  const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
+    const state = getState();
+    const isMature = selectClaimIsNsfwForUri(state, uri);
+    const isPlayable = selectIsPlayableForUri(state, uri);
+    const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
+    const isLive = selectIsActiveLivestreamForUri(state, uri);
+    const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
 
-  if (!canStartloatingPlayer) return;
+    if (!canStartloatingPlayer) return;
 
-  const { collectionId } = collection || {};
+    const { collectionId } = collection || {};
 
-  const playingCollection = selectPlayingCollection(state) || {};
-  const isCurrentlyPlayingQueue = playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID;
-  const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
+    const playingCollection = selectPlayingCollection(state) || {};
+    const isCurrentlyPlayingQueue = playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID;
+    const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
 
-  const { search } = state.router.location;
-  const urlParams = search && new URLSearchParams(search);
-  const pageCollectionId = urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+    const { search } = state.router.location;
+    const urlParams = search && new URLSearchParams(search);
+    const pageCollectionId = urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
-  const playingOtherThanCurrentQueue = isCurrentlyPlayingQueue && !hasClaimInQueue;
+    const playingOtherThanCurrentQueue = isCurrentlyPlayingQueue && !hasClaimInQueue;
 
-  if (playingOtherThanCurrentQueue) {
-    // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
-    // until the player is closed or the page is refreshed, and queue is cleared
-    const permanentUrl = selectPermanentUrlForUri(state, uri);
-    const itemsToAdd = !pageCollectionId
-      ? [permanentUrl]
-      : selectUrlsForCollectionId(state, pageCollectionId).filter(
-          (url) => !selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, url)
-        );
+    if (playingOtherThanCurrentQueue) {
+      // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
+      // until the player is closed or the page is refreshed, and queue is cleared
+      const permanentUrl = selectPermanentUrlForUri(state, uri);
+      const itemsToAdd = !pageCollectionId
+        ? [permanentUrl]
+        : selectUrlsForCollectionId(state, pageCollectionId).filter(
+            (url) => !selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, url)
+          );
 
-    dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: itemsToAdd, type: COL_TYPES.PLAYLIST }));
+      dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: itemsToAdd, type: COL_TYPES.PLAYLIST }));
 
-    return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection }));
-  }
-
-  if (collectionId && playingCollection.collectionId && collectionId === playingCollection.collectionId) {
-    // keep current playingCollection data like loop or shuffle if playing the same but just changed uris
-    return dispatch(doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection } }));
-  }
-
-  return dispatch(doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {} }));
-};
-
-export const doPlayNextUri = ({ uri: nextUri, collectionId }: { uri: string, collectionId?: string }) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const isFloating = selectIsPlayerFloating(state);
-
-  const nextCollectionId = collectionId || selectPlayingCollectionId(state);
-  const isNextUriInCollection = nextCollectionId && selectCollectionForIdHasClaimUrl(state, nextCollectionId, nextUri);
-  const floatingPlayerEnabled = nextCollectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
-
-  if ((!collectionId && !isFloating) || !floatingPlayerEnabled) {
-    dispatch(
-      push({
-        pathname: formatLbryUrlForWeb(nextUri),
-        ...(isNextUriInCollection
-          ? { search: generateListSearchUrlParams(nextCollectionId), state: { collectionId: nextCollectionId } }
-          : {}),
-      })
-    );
-  }
-
-  const canPlayback = selectCanPlaybackFileForUri(state, nextUri);
-  const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, nextUri);
-  const isLive = selectIsActiveLivestreamForUri(state, nextUri);
-  const canStartloatingPlayer = canPlayback && (!isLivestreamClaim || isLive);
-
-  const isLastCollectionItem =
-    nextCollectionId && selectIsLastCollectionItemForIdAndUri(state, nextCollectionId, nextUri);
-  const autoPlayNextEnabled = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
-  const shouldShowCountdown = !isLastCollectionItem || isFloating || autoPlayNextEnabled;
-
-  if (!canStartloatingPlayer) {
-    dispatch(
-      doChangePlayingUri({
-        uri: null,
-        collection: { collectionId: isNextUriInCollection ? nextCollectionId : null },
-      })
-    );
-
-    if (shouldShowCountdown) {
-      dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: true }));
+      return dispatch(doChangePlayingUri({ ...playingOptions, collection: playingCollection }));
     }
 
-    return;
-  }
+    if (collectionId && playingCollection.collectionId && collectionId === playingCollection.collectionId) {
+      // keep current playingCollection data like loop or shuffle if playing the same but just changed uris
+      return dispatch(doChangePlayingUri({ ...playingOptions, collection: { ...playingCollection, ...collection } }));
+    }
 
-  dispatch(
-    doStartFloatingPlayingUri({
-      uri: nextUri,
-      ...(isNextUriInCollection ? { collection: { collectionId: nextCollectionId } } : {}),
-    })
-  );
+    return dispatch(doChangePlayingUri({ ...playingOptions, collection: collectionId ? collection : {} }));
+  };
 
-  if (shouldShowCountdown) dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: false }));
-};
+export const doPlayNextUri =
+  ({ uri: nextUri, collectionId }: { uri: string, collectionId?: string }) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const isFloating = selectIsPlayerFloating(state);
+
+    const nextCollectionId = collectionId || selectPlayingCollectionId(state);
+    const isNextUriInCollection =
+      nextCollectionId && selectCollectionForIdHasClaimUrl(state, nextCollectionId, nextUri);
+    const floatingPlayerEnabled = nextCollectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
+
+    if ((!collectionId && !isFloating) || !floatingPlayerEnabled) {
+      dispatch(
+        push({
+          pathname: formatLbryUrlForWeb(nextUri),
+          ...(isNextUriInCollection
+            ? { search: generateListSearchUrlParams(nextCollectionId), state: { collectionId: nextCollectionId } }
+            : {}),
+        })
+      );
+    }
+
+    const canPlayback = selectCanPlaybackFileForUri(state, nextUri);
+    const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, nextUri);
+    const isLive = selectIsActiveLivestreamForUri(state, nextUri);
+    const canStartloatingPlayer = canPlayback && (!isLivestreamClaim || isLive);
+
+    const isLastCollectionItem =
+      nextCollectionId && selectIsLastCollectionItemForIdAndUri(state, nextCollectionId, nextUri);
+    const autoPlayNextEnabled = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
+    const shouldShowCountdown = !isLastCollectionItem || isFloating || autoPlayNextEnabled;
+
+    if (!canStartloatingPlayer) {
+      dispatch(
+        doChangePlayingUri({
+          uri: null,
+          collection: { collectionId: isNextUriInCollection ? nextCollectionId : null },
+        })
+      );
+
+      if (shouldShowCountdown) {
+        dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: true }));
+      }
+
+      return;
+    }
+
+    dispatch(
+      doStartFloatingPlayingUri({
+        uri: nextUri,
+        ...(isNextUriInCollection ? { collection: { collectionId: nextCollectionId } } : {}),
+      })
+    );
+
+    if (shouldShowCountdown) dispatch(doSetShowAutoplayCountdownForUri({ uri: nextUri, show: false }));
+  };
 
 export function doPlaylistAddAndAllowPlaying({
   uri,
@@ -522,14 +522,13 @@ export function doClearContentHistoryAll() {
   };
 }
 
-export const doRecommendationUpdate = (claimId: string, urls: Array<string>, id: string, parentId: string) => (
-  dispatch: Dispatch
-) => {
-  dispatch({
-    type: ACTIONS.RECOMMENDATION_UPDATED,
-    data: { claimId, urls, id, parentId },
-  });
-};
+export const doRecommendationUpdate =
+  (claimId: string, urls: Array<string>, id: string, parentId: string) => (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.RECOMMENDATION_UPDATED,
+      data: { claimId, urls, id, parentId },
+    });
+  };
 
 export const doRecommendationClicked = (claimId: string, index: number) => (dispatch: Dispatch) => {
   if (index !== undefined && index !== null) {
@@ -540,90 +539,78 @@ export const doRecommendationClicked = (claimId: string, index: number) => (disp
   }
 };
 
-export const doToggleLoopList = (params: { collectionId: string, hideToast?: boolean }) => (
-  dispatch: Dispatch,
-  getState: () => any
-) => {
-  const { collectionId, hideToast } = params;
-  const state = getState();
-  const playingUri = selectPlayingUri(state);
-  const { collection: playingCollection } = playingUri;
-  const loopOn = selectListIsLoopedForId(state, collectionId);
+export const doToggleLoopList =
+  (params: { collectionId: string, hideToast?: boolean }) => (dispatch: Dispatch, getState: () => any) => {
+    const { collectionId, hideToast } = params;
+    const state = getState();
+    const playingUri = selectPlayingUri(state);
+    const { collection: playingCollection } = playingUri;
+    const loopOn = selectListIsLoopedForId(state, collectionId);
 
-  dispatch(doChangePlayingUri({ collection: { ...playingCollection, collectionId, loop: !loopOn } }));
+    dispatch(doChangePlayingUri({ collection: { ...playingCollection, collectionId, loop: !loopOn } }));
 
-  if (!hideToast) {
-    return dispatch(doToast({ message: !loopOn ? __('Loop is on.') : __('Loop is off.') }));
-  }
-};
+    if (!hideToast) {
+      return dispatch(doToast({ message: !loopOn ? __('Loop is on.') : __('Loop is off.') }));
+    }
+  };
 
-export const doEnableCollectionShuffle = ({
-  collectionId,
-  currentUri,
-}: {
-  collectionId: string,
-  currentUri?: string,
-}) => async (dispatch: Dispatch, getState: () => any) => {
-  await dispatch(doFetchItemsInCollection({ collectionId })); // make sure we have the URIS in the collection
+export const doEnableCollectionShuffle =
+  ({ collectionId, currentUri }: { collectionId: string, currentUri?: string }) =>
+  async (dispatch: Dispatch, getState: () => any) => {
+    await dispatch(doFetchItemsInCollection({ collectionId })); // make sure we have the URIS in the collection
 
-  const state = getState();
-  const urls = selectUrlsForCollectionId(state, collectionId);
-  const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
+    const state = getState();
+    const urls = selectUrlsForCollectionId(state, collectionId);
+    const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
 
-  let newUrls = urls
-    .map((item) => ({ item, sort: Math.random() }))
-    .sort((a, b) => a.sort - b.sort)
-    .map(({ item }) => item);
+    let newUrls = urls
+      .map((item) => ({ item, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ item }) => item);
 
-  // the currently playing URI should be first in list or else
-  // can get in strange position where it might be in the middle or last
-  // and the shuffled list ends before scrolling through all entries
-  if (currentUri) {
-    newUrls.splice(newUrls.indexOf(currentUri), 1);
-    newUrls.splice(0, 0, currentUri);
-  }
+    // the currently playing URI should be first in list or else
+    // can get in strange position where it might be in the middle or last
+    // and the shuffled list ends before scrolling through all entries
+    if (currentUri) {
+      newUrls.splice(newUrls.indexOf(currentUri), 1);
+      newUrls.splice(0, 0, currentUri);
+    }
 
-  const newPlayingCollectionObj = { collection: { collectionId, shuffle: { newUrls } } };
+    const newPlayingCollectionObj = { collection: { collectionId, shuffle: { newUrls } } };
 
-  if (collectionIsPlaying) {
-    dispatch(doChangePlayingUri(newPlayingCollectionObj));
-  } else {
-    dispatch(doStartFloatingPlayingUri({ uri: newUrls[0], ...newPlayingCollectionObj }));
-  }
+    if (collectionIsPlaying) {
+      dispatch(doChangePlayingUri(newPlayingCollectionObj));
+    } else {
+      dispatch(doStartFloatingPlayingUri({ uri: newUrls[0], ...newPlayingCollectionObj }));
+    }
 
-  const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
+    const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
 
-  dispatch(
-    push({
-      pathname: navigateUrl,
-      search: generateListSearchUrlParams(collectionId),
-      state: { collectionId, forceAutoplay: true },
-    })
-  );
-};
+    dispatch(
+      push({
+        pathname: navigateUrl,
+        search: generateListSearchUrlParams(collectionId),
+        state: { collectionId, forceAutoplay: true },
+      })
+    );
+  };
 
-export const doToggleShuffleList = ({
-  currentUri,
-  collectionId,
-  hideToast,
-}: {
-  currentUri?: string,
-  collectionId: string,
-  hideToast?: boolean,
-}) => (dispatch: Dispatch, getState: () => any) => {
-  const state = getState();
-  const listIsShuffledForId = selectCollectionForIdIsPlayingShuffle(state, collectionId);
+export const doToggleShuffleList =
+  ({ currentUri, collectionId, hideToast }: { currentUri?: string, collectionId: string, hideToast?: boolean }) =>
+  (dispatch: Dispatch, getState: () => any) => {
+    const state = getState();
+    const listIsShuffledForId = selectCollectionForIdIsPlayingShuffle(state, collectionId);
 
-  if (!listIsShuffledForId) {
-    dispatch(doEnableCollectionShuffle({ collectionId, currentUri }));
-  } else {
-    dispatch(doChangePlayingUri({ collection: { shuffle: undefined } }));
-  }
+    if (!listIsShuffledForId) {
+      dispatch(doEnableCollectionShuffle({ collectionId, currentUri }));
+    } else {
+      dispatch(doChangePlayingUri({ collection: { shuffle: undefined } }));
+    }
 
-  if (!hideToast) {
-    return dispatch(doToast({ message: !listIsShuffledForId ? __('Shuffle is on.') : __('Shuffle is off.') }));
-  }
-};
+    if (!hideToast) {
+      return dispatch(doToast({ message: !listIsShuffledForId ? __('Shuffle is on.') : __('Shuffle is off.') }));
+    }
+  };
 
 export function doSetLastViewedAnnouncement(hash: string) {
   return (dispatch: Dispatch) => {
@@ -661,6 +648,7 @@ export function doSendPastRecsysEntries() {
   };
 }
 
-export const doSetShowAutoplayCountdownForUri = ({ uri, show }: { uri: ?string, show: ?boolean }) => (
-  dispatch: Dispatch
-) => uri && dispatch({ type: ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, data: { uri, show } });
+export const doSetShowAutoplayCountdownForUri =
+  ({ uri, show }: { uri: ?string, show: ?boolean }) =>
+  (dispatch: Dispatch) =>
+    uri && dispatch({ type: ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, data: { uri, show } });

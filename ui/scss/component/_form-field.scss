@@ -250,10 +250,8 @@ input-submit {
   label::after {
     height: 6px;
     width: 12px;
-    border-left: 2px solid;
-    border-bottom: 2px solid;
-    border-color: var(--color-primary);
-    border-left-color: var(--color-primary);
+    border-left: 2px solid var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
     transform: rotate(-45deg);
     left: 6px;
     top: 6px;

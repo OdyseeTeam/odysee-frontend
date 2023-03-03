@@ -60,6 +60,7 @@ type Props = {
   loadedCallback?: (number) => void,
   swipeLayout: boolean,
   showEdit?: boolean,
+  isEditPreview?: boolean,
   droppableProvided?: any,
   unavailableUris?: Array<string>,
   inWatchHistory?: boolean,
@@ -110,6 +111,7 @@ export default function ClaimList(props: Props) {
     loadedCallback,
     swipeLayout = false,
     showEdit,
+    isEditPreview,
     droppableProvided,
     unavailableUris,
     inWatchHistory,
@@ -222,6 +224,7 @@ export default function ClaimList(props: Props) {
       onClick={handleClaimClicked}
       swipeLayout={swipeLayout}
       showEdit={showEdit}
+      isEditPreview={isEditPreview}
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
       wrapperElement={draggableProvided ? 'div' : undefined}
       unavailableUris={unavailableUris}

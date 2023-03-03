@@ -1856,81 +1856,77 @@ export const doDeleteChannelSection = (channelId: string, sectionId: string) => 
   };
 };
 
-export const doToggleMembersOnlyCommentsSettingForClaimId = (claimId: ClaimId) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
+export const doToggleMembersOnlyCommentsSettingForClaimId =
+  (claimId: ClaimId) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
 
-  const claim = selectClaimForClaimId(state, claimId);
-  const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
-  const channelSignature = await channelSignName(channelId, channelName);
+    const claim = selectClaimForClaimId(state, claimId);
+    const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
+    const channelSignature = await channelSignName(channelId, channelName);
 
-  if (!channelSignature) {
-    devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
-    return;
-  }
+    if (!channelSignature) {
+      devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
+      return;
+    }
 
-  const areCommentsMembersOnly = selectMembersOnlyCommentsForChannelId(state, channelId);
-  const value = !areCommentsMembersOnly;
+    const areCommentsMembersOnly = selectMembersOnlyCommentsForChannelId(state, channelId);
+    const value = !areCommentsMembersOnly;
 
-  return Comments.setting_update({
-    channel_name: channelName,
-    channel_id: channelId,
-    signature: channelSignature.signature,
-    signing_ts: channelSignature.signing_ts,
-    comments_members_only: value,
-    active_claim_id: claimId,
-  })
-    .then(() =>
-      dispatch({
-        type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
-        data: { responseData: { CommentsMembersOnly: value }, creatorId: channelId },
-      })
-    )
-    .catch((err) => {
-      dispatch(doToast({ message: err.message, isError: true }));
-      throw new Error(err);
-    });
-};
+    return Comments.setting_update({
+      channel_name: channelName,
+      channel_id: channelId,
+      signature: channelSignature.signature,
+      signing_ts: channelSignature.signing_ts,
+      comments_members_only: value,
+      active_claim_id: claimId,
+    })
+      .then(() =>
+        dispatch({
+          type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+          data: { responseData: { CommentsMembersOnly: value }, creatorId: channelId },
+        })
+      )
+      .catch((err) => {
+        dispatch(doToast({ message: err.message, isError: true }));
+        throw new Error(err);
+      });
+  };
 
-export const doToggleLiveChatMembersOnlySettingForClaimId = (claimId: ClaimId) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
+export const doToggleLiveChatMembersOnlySettingForClaimId =
+  (claimId: ClaimId) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
 
-  const claim = selectClaimForClaimId(state, claimId);
-  const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
-  const channelSignature = await channelSignName(channelId, channelName);
+    const claim = selectClaimForClaimId(state, claimId);
+    const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
+    const channelSignature = await channelSignName(channelId, channelName);
 
-  if (!channelSignature) {
-    devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
-    return;
-  }
+    if (!channelSignature) {
+      devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
+      return;
+    }
 
-  const isLivestreamChatMembersOnly = selectLivestreamChatMembersOnlyForChannelId(state, channelId);
-  const value = !isLivestreamChatMembersOnly;
+    const isLivestreamChatMembersOnly = selectLivestreamChatMembersOnlyForChannelId(state, channelId);
+    const value = !isLivestreamChatMembersOnly;
 
-  return Comments.setting_update({
-    channel_name: channelName,
-    channel_id: channelId,
-    signature: channelSignature.signature,
-    signing_ts: channelSignature.signing_ts,
-    livestream_chat_members_only: value,
-    active_claim_id: claimId,
-  })
-    .then(() =>
-      dispatch({
-        type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
-        data: { responseData: { LivestreamChatMembersOnly: value }, creatorId: channelId },
-      })
-    )
-    .catch((err) => {
-      dispatch(doToast({ message: err.message, isError: true }));
-      throw new Error(err);
-    });
-};
+    return Comments.setting_update({
+      channel_name: channelName,
+      channel_id: channelId,
+      signature: channelSignature.signature,
+      signing_ts: channelSignature.signing_ts,
+      livestream_chat_members_only: value,
+      active_claim_id: claimId,
+    })
+      .then(() =>
+        dispatch({
+          type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+          data: { responseData: { LivestreamChatMembersOnly: value }, creatorId: channelId },
+        })
+      )
+      .catch((err) => {
+        dispatch(doToast({ message: err.message, isError: true }));
+        throw new Error(err);
+      });
+  };
 
 export const doCommentWords = (channelClaim: ChannelClaim, words: Array<string>, isUnblock: boolean) => {
   return async (dispatch: Dispatch, getState: GetState) => {

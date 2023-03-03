@@ -20,15 +20,8 @@ type Props = {
 };
 
 export default function CollectionsListMine(props: Props) {
-  const {
-    filterType,
-    isTruncated,
-    sortOption,
-    persistedOption,
-    setFilterType,
-    setSortOption,
-    setPersistedOption,
-  } = props;
+  const { filterType, isTruncated, sortOption, persistedOption, setFilterType, setSortOption, setPersistedOption } =
+    props;
 
   const history = useHistory();
   const {

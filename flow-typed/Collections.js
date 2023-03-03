@@ -1,6 +1,6 @@
 declare type Collection = {
   id: string,
-  items: Array<string>,
+  items: Array<any>,
   name: string,
   title?: string,
   description?: string,
@@ -23,6 +23,7 @@ declare type CollectionState = {
   // -- sync --
   unpublished: CollectionGroup,
   edited: CollectionGroup,
+  unsavedChanges?: CollectionGroup,
   updated: UpdatedCollectionGroup,
   builtin: CollectionGroup,
   savedIds: Array<string>,
@@ -69,6 +70,7 @@ declare type CollectionEditParams = {
   uris?: Array<string>,
   remove?: boolean,
   replace?: boolean,
+  isPreview?: boolean,
   order?: { from: number, to: number },
   type?: CollectionType,
   name?: string,

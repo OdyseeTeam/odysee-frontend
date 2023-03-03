@@ -24,6 +24,7 @@ const config = {
   DOMAIN: process.env.DOMAIN,
   SHARE_DOMAIN_URL: process.env.SHARE_DOMAIN_URL,
   URL: process.env.URL,
+  USE_LOCAL_HOMEPAGE_DATA: process.env.USE_LOCAL_HOMEPAGE_DATA,
   RECSYS_ENDPOINT: process.env.RECSYS_ENDPOINT,
   RECSYS_FYP_ENDPOINT: process.env.RECSYS_FYP_ENDPOINT,
   IMAGE_PROXY_URL: process.env.IMAGE_PROXY_URL,

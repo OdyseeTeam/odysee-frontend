@@ -28,20 +28,24 @@ const ClaimPage = (props: Props) => {
   } = useHistory();
 
   const ClaimRenderWrapper = React.useMemo(
-    () => ({ children }: { children: any }) => (
-      <Page className="file-page" filePage isMarkdown={!!isMarkdownPost}>
-        {children}
-      </Page>
-    ),
+    () =>
+      ({ children }: { children: any }) =>
+        (
+          <Page className="file-page" filePage isMarkdown={!!isMarkdownPost}>
+            {children}
+          </Page>
+        ),
     [isMarkdownPost]
   );
 
   const LivestreamPageWrapper = React.useMemo(
-    () => ({ children }: { children: any }) => (
-      <Page className="file-page" noFooter livestream={!chatDisabled}>
-        {children}
-      </Page>
-    ),
+    () =>
+      ({ children }: { children: any }) =>
+        (
+          <Page className="file-page" noFooter livestream={!chatDisabled}>
+            {children}
+          </Page>
+        ),
     [chatDisabled]
   );
 

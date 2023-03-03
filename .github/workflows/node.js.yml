@@ -23,7 +23,7 @@ jobs:
     name: 'build'
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [18.x]
         os:
           - ubuntu-latest
     runs-on: ${{ matrix.os }}
@@ -38,7 +38,7 @@ jobs:
         run: |
           yarn global add cross-env
           yarn
-          yarn compile:web
+          cross-env NODE_ENV=production yarn compile:web
         env:
           # UI
           WELCOME_VERSION: 1.0

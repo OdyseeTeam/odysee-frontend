@@ -402,7 +402,9 @@ function PostForm(props: Props) {
         <Icon icon={ICONS.POST} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />}
+          {!isClear && (
+            <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
+          )}
         </label>
       </h1>
 

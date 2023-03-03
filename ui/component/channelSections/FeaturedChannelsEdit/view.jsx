@@ -25,16 +25,8 @@ type Props = {
 };
 
 export default function FeaturedChannelsEdit(props: Props) {
-  const {
-    sectionId,
-    onSave,
-    onCancel,
-    sections,
-    featuredChannels,
-    channelClaim,
-    doUpdateCreatorSettings,
-    doToast,
-  } = props;
+  const { sectionId, onSave, onCancel, sections, featuredChannels, channelClaim, doUpdateCreatorSettings, doToast } =
+    props;
 
   const isEditing = Boolean(sectionId);
 

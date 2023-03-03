@@ -828,7 +828,7 @@
 
   .membership-tier__header {
     position: relative;
-    background-image: url('/public/img/spaceman_pattern.png');
+    background-image: url('~static/img/spaceman_pattern.png');
     background-size: 34px;
     padding: var(--spacing-m);
     width: 100%;
@@ -1305,7 +1305,7 @@
 
   .membership__plan-header {
     padding: var(--spacing-m);
-    background-image: url('/public/img/spaceman_pattern.png');
+    background-image: url('~static/img/spaceman_pattern.png');
     background-size: 34px;
     span {
       padding: var(--spacing-xxs);

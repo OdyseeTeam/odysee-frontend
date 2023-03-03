@@ -60,7 +60,7 @@ Go to the website to interact on this frontend.
 #### Deploy the web app (_experimental_)
 
 1. Create a server with a domain name and a reverse proxy https to port 1337.
-2. Install pm2, node v10, yarn
+2. Install pm2, node v18.14.2, yarn
 3. Clone this repo
 4. Make any customizations as above
 5. Run `yarn` to install

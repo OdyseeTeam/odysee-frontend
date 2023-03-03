@@ -394,15 +394,6 @@ function UploadForm(props: Props) {
     }
   }
 
-  // When accessing to publishing, make sure to reset file input attributes
-  // since we can't restore from previous user selection (like we do
-  // with other properties such as name, title, etc.) for security reasons.
-  useEffect(() => {
-    if (mode === PUBLISH_MODES.FILE) {
-      updatePublishForm({ filePath: '', fileDur: 0, fileSize: 0 });
-    }
-  }, [mode, updatePublishForm]);
-
   // FIle Source Selector State.
   const [fileSource, setFileSource] = useState();
   const changeFileSource = (state) => setFileSource(state);
@@ -436,7 +427,9 @@ function UploadForm(props: Props) {
         <Icon icon={ICONS.PUBLISH} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />}
+          {!isClear && (
+            <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
+          )}
         </label>
       </h1>
 

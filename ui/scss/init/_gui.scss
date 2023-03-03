@@ -547,6 +547,12 @@ img {
   background-position: 50% 50%;
   background-repeat: no-repeat;
   background-size: cover;
+
+  @media (max-width: $breakpoint-small) {
+    width: 100%;
+    height: unset;
+    aspect-ratio: 16 / 9;
+  }
 }
 
 .emoji {
@@ -1900,10 +1906,33 @@ img {
     }
   }
 
+  @media (max-width: $breakpoint-small) {
+    .card__title {
+      .card__title--with-actions {
+        flex-flow: column;
+        .card-title__text {
+          flex: 1;
+        }
+        .card-title__action-buttons {
+          width: 100%;
+          button:first-of-type {
+            flex: 1;
+          }
+          button:nth-of-type(2) {
+            margin-left: var(--spacing-s);
+          }
+          button {
+            border-radius: var(--border-radius);
+          }
+        }
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-medium) {
     .card__subtitle {
       p {
-        margin-bottom: var(--spacing-m);
+        // margin-bottom: var(--spacing-m);
       }
       .media__subtitle {
         margin-top: -8px;
@@ -1912,10 +1941,6 @@ img {
 
     .card-stack {
       margin-top: var(--spacing-m);
-    }
-
-    .card__title {
-      margin-right: var(--spacing-xl);
     }
 
     .card__title-actions {
@@ -1983,6 +2008,21 @@ img {
           margin-left: auto;
         }
       }
+    }
+  }
+
+  .card-fixed-bottom {
+    left: var(--side-nav-width--micro);
+    width: calc(100% - var(--side-nav-width--micro));
+    .card--after-tabs {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      left: 0;
+      width: calc(100% - var(--spacing-xxs) * 2);
+      margin: 0 var(--spacing-xxs);
     }
   }
 }
@@ -2271,7 +2311,13 @@ a {
 }
 
 // Temporary fix for focus-visible
-*:focus-visible:not(.modal):not(.card):not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(.button--secondary):not(.button-like):not(.button-dislike):not(select):not(input):not(textarea):not(video):not([data-reach-tab-panels]):not([data-reach-tabs]):not([data-reach-tab-panel]):not(.CodeMirror-code):not(.MuiModal-root):not(.MuiPaper-root):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay) {
+*:focus-visible:not(.modal):not(.card):not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(
+    .button--secondary
+  ):not(.button-like):not(.button-dislike):not(select):not(input):not(textarea):not(video):not(
+    [data-reach-tab-panels]
+  ):not([data-reach-tabs]):not([data-reach-tab-panel]):not(.CodeMirror-code):not(.MuiModal-root):not(
+    .MuiPaper-root
+  ):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
   box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
@@ -2320,7 +2366,7 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     margin-right: 30px;
     width: 150px;
     height: 150px;
-    background-image: url('/public/img/cookie.svg');
+    background-image: url('~static/img/cookie.svg');
     background-size: contain;
     background-repeat: no-repeat;
 

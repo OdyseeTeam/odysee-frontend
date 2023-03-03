@@ -20,16 +20,8 @@ type Props = {
 };
 
 function ModalRemoveCollection(props: Props) {
-  const {
-    simplify,
-    hasClaim,
-    collectionId,
-    collectionName,
-    redirect,
-    collectionKey,
-    doHideModal,
-    doCollectionDelete,
-  } = props;
+  const { simplify, hasClaim, collectionId, collectionName, redirect, collectionKey, doHideModal, doCollectionDelete } =
+    props;
 
   const { replace } = useHistory();
 

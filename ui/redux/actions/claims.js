@@ -689,27 +689,26 @@ export function doImportChannel(certificate: string) {
   };
 }
 
-export const doFetchChannelListMine = (page: number = 1, pageSize: number = 99999, resolve: boolean = true) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const isFetching = selectFetchingMyChannels(state);
+export const doFetchChannelListMine =
+  (page: number = 1, pageSize: number = 99999, resolve: boolean = true) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const isFetching = selectFetchingMyChannels(state);
 
-  if (isFetching) return;
+    if (isFetching) return;
 
-  dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_STARTED });
+    dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_STARTED });
 
-  const callback = (response: ChannelListResponse) => {
-    dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED, data: { claims: response.items } });
+    const callback = (response: ChannelListResponse) => {
+      dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED, data: { claims: response.items } });
+    };
+
+    const failure = (error) => {
+      dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_FAILED, data: error });
+    };
+
+    Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
   };
-
-  const failure = (error) => {
-    dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_FAILED, data: error });
-  };
-
-  Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
-};
 
 export function doClearClaimSearch() {
   return (dispatch: Dispatch) => {
@@ -1034,43 +1033,39 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
   }, 30000);
 };
 
-export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const searchOptions = {
-    limit_claims_per_channel: 1,
-    channel: uri,
-    no_totals: true,
-    order_by: ['release_time'],
-    page: 1,
-    has_source: true,
-    stream_types: isEmbed ? ['audio', 'video'] : undefined,
+export const doFetchLatestClaimForChannel =
+  (uri: string, isEmbed?: boolean) => (dispatch: Dispatch, getState: GetState) => {
+    const searchOptions = {
+      limit_claims_per_channel: 1,
+      channel: uri,
+      no_totals: true,
+      order_by: ['release_time'],
+      page: 1,
+      has_source: true,
+      stream_types: isEmbed ? ['audio', 'video'] : undefined,
+    };
+
+    return dispatch(doClaimSearch(searchOptions))
+      .then((results) =>
+        dispatch({
+          type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_DONE,
+          data: { uri, results },
+        })
+      )
+      .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
   };
 
-  return dispatch(doClaimSearch(searchOptions))
-    .then((results) =>
-      dispatch({
-        type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_DONE,
-        data: { uri, results },
+export const doFetchNoSourceClaimsForChannelId =
+  (channelId: ClaimId) => async (dispatch: Dispatch, getState: GetState) =>
+    await dispatch(
+      doClaimSearch({
+        channel_ids: [channelId],
+        has_no_source: true,
+        claim_type: ['stream'],
+        no_totals: true,
+        page_size: 20,
+        page: 1,
+        include_is_my_output: true,
+        order_by: ['release_time'],
       })
-    )
-    .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
-};
-
-export const doFetchNoSourceClaimsForChannelId = (channelId: ClaimId) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) =>
-  await dispatch(
-    doClaimSearch({
-      channel_ids: [channelId],
-      has_no_source: true,
-      claim_type: ['stream'],
-      no_totals: true,
-      page_size: 20,
-      page: 1,
-      include_is_my_output: true,
-      order_by: ['release_time'],
-    })
-  );
+    );

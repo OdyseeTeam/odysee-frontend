@@ -3,7 +3,7 @@ import { selectClaimedRewards } from 'redux/selectors/rewards';
 import { selectLanguage } from 'redux/selectors/settings';
 import RewardListClaimed from './view';
 
-const select = state => ({
+const select = (state) => ({
   rewards: selectClaimedRewards(state),
   appLanguage: selectLanguage(state),
 });

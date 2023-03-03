@@ -1,11 +1,5 @@
 // @flow
-import {
-  COL_TYPES,
-  SECTION_TAGS,
-  WATCH_LATER_ID,
-  FAVORITES_ID,
-  QUEUE_ID,
-} from 'constants/collections';
+import { COL_TYPES, SECTION_TAGS, WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID } from 'constants/collections';
 import { getCurrentTimeInSec } from 'util/time';
 
 export const defaultCollectionState: Collection = {

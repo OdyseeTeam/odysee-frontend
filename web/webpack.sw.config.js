@@ -2,6 +2,7 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const path = require('path');
 const WriteFilePlugin = require('write-file-webpack-plugin');
+const { ProvidePlugin } = require('webpack');
 const Dotenv = require('dotenv-webpack');
 const { getIfUtils } = require('webpack-config-utils');
 const { ifProduction } = getIfUtils(NODE_ENV);
@@ -29,9 +30,18 @@ module.exports = {
       silent: false, // hide any errors
       defaults: true, // load '.env.defaults' as the default values if empty.
     }),
+    new ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser',
+      __: [path.resolve(path.join(__dirname, 'ui/i18n')), '__'],
+    }),
   ],
 
   resolve: {
+    fallback: {
+      os: require.resolve('os-browserify/browser'),
+      path: require.resolve('path-browserify'),
+    },
     alias: {
       $web: WEB_PLATFORM_ROOT,
       config: path.resolve(__dirname, '../config.js'),
