@@ -350,9 +350,14 @@ export function doOpenAnnouncements() {
 
 export function doFetchHomepages() {
   return (dispatch) => {
-    // -- Use this env flag to use local homepage data and meme (faster).
-    // -- Otherwise, it will grab from `/$/api/content/v*/get`.
     // @if USE_LOCAL_HOMEPAGE_DATA='true'
+    // ------------------------------------------------------------------------
+    // USE_LOCAL_HOMEPAGE_DATA used to be able to replace the fetch entirely,
+    // but is now mainly for fallback data and perceived faster startup. We
+    // still need to fetch anyway (hence, no early return here) because the
+    // Announcements framework depends on fresh data, and the built-in version
+    // could be a stale one from browser caching.
+    // ------------------------------------------------------------------------
     loadBuiltInHomepageData(dispatch);
     // @endif
 
