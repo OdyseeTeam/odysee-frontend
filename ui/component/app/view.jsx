@@ -68,6 +68,8 @@ type Props = {
   signIn: () => void,
   setLanguage: (string) => void,
   fetchLanguage: (string) => void,
+  homepageCode: string,
+  doFetchHomepages: (string) => void,
   isReloadRequired: boolean,
   uploadCount: number,
   balance: ?number,
@@ -115,6 +117,8 @@ function App(props: Props) {
     languages,
     setLanguage,
     fetchLanguage,
+    homepageCode,
+    doFetchHomepages,
     rewards,
     doUserSetReferrerForUri,
     isAuthenticated,
@@ -359,6 +363,10 @@ function App(props: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, languages]);
+
+  useEffect(() => {
+    doFetchHomepages(homepageCode);
+  }, [homepageCode, doFetchHomepages]);
 
   useEffect(() => {
     if (shouldMigrateLanguage) {
