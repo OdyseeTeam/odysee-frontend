@@ -10,4 +10,85 @@ $OPTIONS_MIN_WIDTH: 250px;
   .claim-search__menus {
     padding: 0;
   }
+
+  .checkbox {
+    background-color: rgba(var(--color-header-background-base), 0.9);
+    margin-left: var(--spacing-s);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-s);
+    label {
+      margin-bottom: -6px;
+      &::before,
+      &::after {
+        margin-top: -2px;
+      }
+    }
+  }
+
+  .section__actions--no-margin {
+    @media (max-width: $breakpoint-medium) {
+      position: absolute;
+      top: calc(40px * -1);
+      right: 0;
+    }
+
+    @media (max-width: $breakpoint-medium) {
+      top: calc(50px * -1);
+    }
+  }
+
+  .claim-search__top {
+    @media (max-width: $breakpoint-medium) {
+      justify-content: space-between;
+
+      .claim-search__menu-group {
+        &:nth-child(2) {
+          margin-right: auto;
+        }
+      }
+    }
+    @media (max-width: $breakpoint-small) {
+      flex-direction: row;
+      max-width: 100%;
+      .claim-search__menu-group {
+        // flex:1;
+        align-items: stretch;
+        width: 100%;
+        margin-right: 0 !important;
+
+        &:first-of-type {
+          button {
+            flex: 1;
+            .button__content {
+              justify-content: center;
+            }
+          }
+        }
+        &:nth-child(2) {
+          button {
+            width: 100%;
+            .button__content {
+              justify-content: center;
+            }
+          }
+          .button-toggle {
+            background: red;
+            .button__content {
+              margin-left: 4px;
+            }
+          }
+        }
+        &:nth-child(3) {
+          .checkbox {
+            height: var(--height-button);
+            margin-left: 0;
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
 }

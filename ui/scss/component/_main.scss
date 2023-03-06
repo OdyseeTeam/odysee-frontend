@@ -706,6 +706,12 @@ body {
 .main--full-width {
   @extend .main;
   max-width: none;
+
+  &.main__discover {
+    @media (max-width: $breakpoint-small) {
+      padding: 0 var(--spacing-xs);
+    }
+  }
 }
 
 .main--popout-chat {
@@ -1346,10 +1352,6 @@ body {
         }
       }
     }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-xs);
   }
 }
 
