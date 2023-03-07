@@ -10,7 +10,7 @@ import { ExpandableContext } from 'contexts/expandable';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
-// import LoadingScreen from 'component/common/loading-screen';
+import LoadingScreen from 'component/common/loading-screen';
 import Button from 'component/button';
 
 type Props = {
@@ -47,7 +47,7 @@ type Props = {
   pendingUnlockedRestrictions: ?boolean,
   canViewFile: ?boolean,
   channelLiveFetched: boolean,
-  // sourceLoaded: boolean,
+  sourceLoaded: boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFileGetForUri: (uri: string) => void,
   doMembershipMine: () => void,
@@ -94,7 +94,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       pendingUnlockedRestrictions,
       canViewFile,
       channelLiveFetched,
-      // sourceLoaded,
+      sourceLoaded,
       doCheckIfPurchasedClaimId,
       doFileGetForUri,
       doMembershipMine,
@@ -304,7 +304,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Main Component Render -- return when already has the claim's contents
-    return <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />;
+    return (
+      <>
+        {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded ? (
+          <LoadingScreen />
+        ) : (
+          <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+        )}
+      </>
+    );
   };
 
   return StreamClaimWrapper;
