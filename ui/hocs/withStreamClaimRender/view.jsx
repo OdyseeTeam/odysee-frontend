@@ -144,7 +144,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
 
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
-    const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
+    // const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
     const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
 
     function handleClick() {
@@ -284,28 +284,41 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     // -- Loading State -- return before component render
-    if ((!playingUri && !streamStarted) || !streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
+    if (
+      (!playingUri && !streamStarted) ||
+      !streamingUrl ||
+      embeddedLivestreamPendingStart ||
+      livestreamUnplayable ||
+      (isPlayable && !currentUriPlaying)
+    ) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
+      } else if (isPlayable) {
+        return (
+          <ClaimCoverRender uri={uri} onClick={handleClick}>
+            <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
+          </ClaimCoverRender>
+        );
       }
 
-      if (streamStarted || streamStartPending || livestreamUnplayable) {
-        return <LoadingScreen transparent={!isPlayable} />;
-      }
-
+      /*
       return (
         <ClaimCoverRender uri={uri} onClick={handleClick}>
           <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
         </ClaimCoverRender>
       );
+      */
     }
 
     // -- Main Component Render -- return when already has the claim's contents
     return (
       <>
-        {claimLinkId && !sourceLoaded && <LoadingScreen />}
-        <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+        {currentUriPlaying && claimLinkId && !sourceLoaded ? (
+          <LoadingScreen />
+        ) : (
+          <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+        )}
       </>
     );
   };
