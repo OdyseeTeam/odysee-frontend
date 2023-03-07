@@ -23,12 +23,7 @@ import {
 import Lbry, { apiCall } from 'lbry';
 import { isURIValid } from 'util/lbryURI';
 import { setSearchApi } from 'redux/actions/search';
-import {
-  doSetLanguage,
-  doFetchLanguage,
-  doUpdateIsNightAsync,
-  doLoadBuiltInHomepageData,
-} from 'redux/actions/settings';
+import { doSetLanguage, doFetchLanguage, doUpdateIsNightAsync, doFetchHomepages } from 'redux/actions/settings';
 import { doFetchUserLocale } from 'redux/actions/user';
 import { Lbryio, doBlackListedOutpointsSubscribe, doFilteredOutpointsSubscribe } from 'lbryinc';
 import rewards from 'rewards';
@@ -240,13 +235,12 @@ function AppWrapper() {
   useEffect(() => {
     if (readyToLaunch && persistDone) {
       app.store.dispatch(doDaemonReady());
-      app.store.dispatch(doLoadBuiltInHomepageData());
 
       const timer = setTimeout(() => {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
-
+        app.store.dispatch(doFetchHomepages());
         app.store.dispatch(doUpdateIsNightAsync());
         app.store.dispatch(doBlackListedOutpointsSubscribe());
         app.store.dispatch(doFilteredOutpointsSubscribe());
