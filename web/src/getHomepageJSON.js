@@ -31,10 +31,6 @@ if (!memo.homepageData) {
   }
 }
 
-// ****************************************************************************
-// v1
-// ****************************************************************************
-
 const getHomepageJsonV1 = () => {
   if (!memo.homepageData) {
     return {};
@@ -48,10 +44,6 @@ const getHomepageJsonV1 = () => {
   return v1;
 };
 
-// ****************************************************************************
-// v2
-// ****************************************************************************
-
 const reformatV2Categories = (categories, format) => {
   if (format === FORMAT.ROKU) {
     return categories && Object.entries(categories).map(([key, value]) => value);
@@ -60,39 +52,23 @@ const reformatV2Categories = (categories, format) => {
   }
 };
 
-/**
- * getHomepageJsonV2
- *
- * @param format [?string] Request for custom format. See FORMAT above.
- * @param lang [?string] Only populates data for the requested homepage.
- *             NOTE: the key for all supported languages will still be created
- *             (for apps to define dropdown lists), just that the value is left
- *             empty.
- * @returns {{}}
- */
-const getHomepageJsonV2 = (format, lang) => {
+const getHomepageJsonV2 = (format) => {
   if (!memo.homepageData) {
     return {};
   }
 
   const v2 = {};
   const homepageKeys = Object.keys(memo.homepageData);
-
   homepageKeys.forEach((hp) => {
-    if (!lang || lang === hp) {
-      v2[hp] = {
-        categories: reformatV2Categories(memo.homepageData[hp].categories, format),
-        portals: memo.homepageData[hp].portals,
-        featured: memo.homepageData[hp].featured,
-        meme: memo.homepageData[hp].meme,
-        discover: memo.homepageData[hp].discover,
-        announcement: memo.announcements[hp],
-      };
-    } else {
-      v2[hp] = null;
-    }
+    v2[hp] = {
+      categories: reformatV2Categories(memo.homepageData[hp].categories, format),
+      portals: memo.homepageData[hp].portals,
+      featured: memo.homepageData[hp].featured,
+      meme: memo.homepageData[hp].meme,
+      discover: memo.homepageData[hp].discover,
+      announcement: memo.announcements[hp],
+    };
   });
-
   return v2;
 };
 
