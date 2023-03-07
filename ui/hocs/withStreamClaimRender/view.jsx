@@ -6,6 +6,7 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
 import { ExpandableContext } from 'contexts/expandable';
+import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
@@ -309,7 +310,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded ? (
           <LoadingScreen />
         ) : (
-          <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+          <>
+            {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+            <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+          </>
         )}
       </>
     );
