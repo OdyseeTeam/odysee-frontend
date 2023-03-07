@@ -30,6 +30,7 @@ import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import MembershipBadge from 'component/membershipBadge';
 import JoinMembershipButton from 'component/joinMembershipButton';
+import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 
 import HomeTab from './tabs/homeTab';
 import ContentTab from './tabs/contentTab';
@@ -72,6 +73,7 @@ type Props = {
   isOdyseeChannel: boolean,
   preferEmbed: boolean,
   banState: any,
+  isMature: boolean,
 };
 
 function ChannelPage(props: Props) {
@@ -98,6 +100,7 @@ function ChannelPage(props: Props) {
     isOdyseeChannel,
     preferEmbed,
     banState,
+    isMature,
   } = props;
   const {
     push,
@@ -367,10 +370,10 @@ function ChannelPage(props: Props) {
                 navigate={`/$/${PAGES.CHANNELS}`}
               />
             )}
-            <JoinMembershipButton uri={uri} />
-            {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
-            {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
-            {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && (
+            {!(isBlocked || isMuted || isMature) && <JoinMembershipButton uri={uri} />}
+            {!(isBlocked || isMuted || isMature || channelIsBlackListed) && <ClaimShareButton uri={uri} webShareable />}
+            {!(isBlocked || isMuted || isMature) && <ClaimSupportButton uri={uri} />}
+            {!(isBlocked || isMuted || isMature) && (!channelIsBlackListed || isSubscribed) && (
               <SubscribeButton uri={permanentUrl} />
             )}
             <ClaimMenuList uri={claim.permanent_url} inline />
@@ -414,7 +417,9 @@ function ChannelPage(props: Props) {
         </div>
       </header>
 
-      {(isBlocked || isMuted) && !viewBlockedChannel ? (
+      {isMature ? (
+        <HiddenNsfwClaims uri={uri} />
+      ) : (isBlocked || isMuted) && !viewBlockedChannel ? (
         <div className="main--empty">
           <Yrbl
             title={isBlocked ? __('This channel is blocked') : __('This channel is muted')}

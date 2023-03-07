@@ -17,7 +17,7 @@ import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
 import { selectLanguage } from 'redux/selectors/settings';
 import { selectOdyseeMembershipForChannelId, selectMembershipMineFetched } from 'redux/selectors/memberships';
-import { getThumbnailFromClaim } from 'util/claim';
+import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
 import { doGetMembershipTiersForChannelClaimId, doMembershipMine } from 'redux/actions/memberships';
 import { PREFERENCE_EMBED } from 'constants/tags';
 import ChannelPage from './view';
@@ -45,6 +45,7 @@ const select = (state, props) => {
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, props.uri),
     preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
     banState: selectBanStateForUri(state, props.uri),
+    isMature: claim ? isClaimNsfw(claim) : false,
   };
 };
 
