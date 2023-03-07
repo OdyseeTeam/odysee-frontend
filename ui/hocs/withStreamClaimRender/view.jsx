@@ -294,7 +294,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
-      } else if (isPlayable) {
+      } else if (isPlayable && !autoplayVideo) {
         return (
           <ClaimCoverRender uri={uri} onClick={handleClick}>
             <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
