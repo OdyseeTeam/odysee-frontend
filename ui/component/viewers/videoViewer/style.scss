@@ -126,6 +126,13 @@
           }
         }
       }
+      div {
+        transition: transform 0.04s;
+        &:hover {
+          cursor: pointer !important;
+          transform: scale(1.08);
+        }
+      }
     }
   }
 }
