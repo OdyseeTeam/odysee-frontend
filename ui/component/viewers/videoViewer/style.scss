@@ -127,10 +127,12 @@
         }
       }
       div {
-        transition: transform 0.04s;
+        transition: background-size 0.2s;
         &:hover {
           cursor: pointer !important;
-          transform: scale(1.08);
+          .media__thumb {
+            background-size: 108%;
+          }
         }
       }
     }
