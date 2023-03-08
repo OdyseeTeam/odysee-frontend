@@ -332,7 +332,7 @@ function SideNavigation(props: Props) {
       categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
     }
 
-    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, ...theRest }) => theRest);
+    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, hideSort, ...theRest }) => theRest);
   }
 
   function getLink(props: SideNavLink) {
