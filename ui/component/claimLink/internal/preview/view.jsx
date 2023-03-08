@@ -69,7 +69,6 @@ const ClaimLinkPreview = (props: Props) => {
 
   return (
     <>
-      <FileViewerEmbeddedTitle uri={uri} />
       <ClaimPreviewTile uri={uri} onlyThumb />
       <PreviewLinkButton />
     </>
