@@ -1,8 +1,5 @@
 // @flow
 
-// $FlowFixMe
-import { Global } from '@emotion/react';
-
 import { ENABLE_PREROLL_ADS } from 'config';
 import { ERR_GRP } from 'constants/errors';
 import * as PAGES from 'constants/pages';
@@ -16,6 +13,7 @@ import { EmbedContext } from 'contexts/embed';
 import classnames from 'classnames';
 import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
 import FileViewerEmbeddedEnded from './internal/fileViewerEmbeddedEnded';
+import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useAutoplayNext from './internal/effects/use-autoplay-next';
 import useTheaterMode from './internal/effects/use-theater-mode';
 import { addPlayNextButton } from './internal/play-next';
@@ -44,6 +42,7 @@ type Props = {
   uri: string,
   source: string,
   contentType: string,
+  embedded: boolean,
 
   // -- withPlaybackUris HOC --
   playNextUri: ?string,
@@ -105,7 +104,7 @@ function VideoViewer(props: Props) {
     playPreviousUri,
     source,
     contentType,
-
+    embedded,
     // -- redux --
     changeVolume,
     changeMute,
@@ -178,7 +177,7 @@ function VideoViewer(props: Props) {
   const vjsCallbackDataRef: any = React.useRef();
 
   const embedContext = useContext(EmbedContext);
-  const embedded = Boolean(embedContext);
+  const isEmbedded = Boolean(embedContext) || embedded;
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
 
   const approvedVideo = Boolean(channelClaimId) && adApprovedChannelIds.includes(channelClaimId);
@@ -229,10 +228,10 @@ function VideoViewer(props: Props) {
   // Update vjsCallbackDataRef (ensures videojs callbacks are not using stale values):
   useEffect(() => {
     vjsCallbackDataRef.current = {
-      embedded: embedded,
+      embedded: isEmbedded,
       videoPlaybackRate: videoPlaybackRate,
     };
-  }, [embedded, videoPlaybackRate]);
+  }, [isEmbedded, videoPlaybackRate]);
 
   const handlePlayNextUri = React.useCallback(() => {
     if (shouldPlayRecommended) {
@@ -306,7 +305,7 @@ function VideoViewer(props: Props) {
   function onPlay(player) {
     setShowRecommendationOverlay(false);
     videoEnded.current = false;
-    if (embedded) {
+    if (isEmbedded) {
       try {
         setIsPlaying(true);
       } catch (error) {}
@@ -341,7 +340,7 @@ function VideoViewer(props: Props) {
     }
   }
 
-  const playerReadyDependencyList = [uri, adUrl, embedded, autoplayIfEmbedded];
+  const playerReadyDependencyList = [uri, adUrl, isEmbedded, autoplayIfEmbedded];
 
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
     // add buttons and initialize some settings for the player
@@ -487,13 +486,9 @@ function VideoViewer(props: Props) {
 
   return (
     <>
-      <Global
-        styles={{
-          '.embed__wrapper:not(:hover), .content__viewer--secondary:not(:hover)': {
-            '.file-viewer__embedded-header': { display: isPlaying && 'none !important' },
-          },
-        }}
-      />
+      <div className={classnames({ 'file-viewer__embedded-header-hide': isPlaying })}>
+        <FileViewerEmbeddedTitle uri={uri} />
+      </div>
 
       <div
         className={classnames('file-viewer', {
@@ -563,7 +558,7 @@ function VideoViewer(props: Props) {
           shareTelemetry={shareTelemetry}
           playNext={handlePlayNextUri}
           playPrevious={handlePlayPreviousUri}
-          embedded={embedded}
+          embedded={isEmbedded}
           embeddedInternal={isMarkdownOrComment}
           claimValues={claim.value}
           doAnalyticsViewForUri={doAnalyticsViewForUri}

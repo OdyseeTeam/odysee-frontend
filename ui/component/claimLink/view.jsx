@@ -47,7 +47,12 @@ const ClaimLink = (props: Props) => {
   if (allowPreview) {
     return (
       <div className="claim-link">
-        <ClaimLinkPreview uri={uri} parentCommentId={parentCommentId} />
+        <ClaimLinkPreview
+          uri={uri}
+          title={claim?.value?.title}
+          channel={claim?.signing_channel?.value?.title}
+          parentCommentId={parentCommentId}
+        />
       </div>
     );
   }

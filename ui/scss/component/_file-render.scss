@@ -399,6 +399,7 @@
   border-radius: 0;
   position: fixed;
   max-height: none;
+  border-radius: var(--border-radius);
 }
 
 .claim-link {
@@ -612,6 +613,32 @@
   .credit-amount,
   .icon--Key {
     margin-right: var(--spacing-m);
+  }
+}
+
+.file-viewer__embedded-header-hide {
+  .file-viewer__embedded-header {
+    animation-name: hide-embedded-header;
+    animation-duration: 0.6s;
+    animation-delay: 2.5s;
+    animation-fill-mode: forwards;
+  }
+}
+
+.file-render--video.file-render--embed {
+  &:hover {
+    .file-viewer__embedded-header {
+      opacity: 1 !important;
+    }
+  }
+}
+
+@keyframes hide-embedded-header {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
@@ -1303,4 +1330,6 @@ $control-bar-icon-size: 30px;
 
 .inline-player__wrapper {
   aspect-ratio: 16 / 9;
+  border-radius: var(--border-radius);
+  // overflow:hidden;
 }

@@ -16,6 +16,8 @@ import withLiveStatus from 'hocs/withLiveStatus';
 
 type Props = {
   uri: string,
+  title: string,
+  channel: string,
   parentCommentId?: string,
   // -- redux --
   playingUri: PlayingUri,
@@ -24,7 +26,7 @@ type Props = {
 };
 
 const ClaimLinkPreview = (props: Props) => {
-  const { uri, parentCommentId, playingUri, renderMode, isLivestreamClaim } = props;
+  const { uri, title, channel, parentCommentId, playingUri, renderMode, isLivestreamClaim } = props;
 
   // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
   const claimLinkIdRef = React.useRef(uuid());
@@ -42,7 +44,7 @@ const ClaimLinkPreview = (props: Props) => {
     () => () =>
       (
         <div className="preview-link__url">
-          <Button button="link" label={uri} navigate={uri} />
+          <Button button="link" label={channel + ': ' + title} navigate={uri} />
         </div>
       ),
     [uri]
