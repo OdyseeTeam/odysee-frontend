@@ -1229,6 +1229,34 @@ $control-bar-icon-size: 30px;
   &.file-render--video {
     aspect-ratio: 16 / 9;
   }
+
+  .vjs-control-bar {
+    .vjs-progress-control.vjs-control {
+      margin: 1px var(--spacing-s) 7px !important;
+      width: calc(100% - var(--spacing-s) * 2) !important;
+    }
+    .vjs-paused {
+      margin-left: 3px !important;
+    }
+    .vjs-playing {
+      margin-left: 6px !important;
+      margin-right: -1px !important;
+    }
+    .vjs-fullscreen-control {
+      margin-right: 7px !important;
+    }
+    .vjs-volume-horizontal {
+      margin-left: 1em !important;
+    }
+    .vjs-volume-panel-horizontal.vjs-hover {
+      width: 10em !important;
+    }
+  }
+  .vjs-menu {
+    // left:-4.8em !important;
+    left: -3em !important;
+    width: 8.7em !important;
+  }
 }
 
 .file-viewer--ended-embed {
