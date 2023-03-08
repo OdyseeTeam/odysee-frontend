@@ -58,7 +58,6 @@ const ClaimLinkPreview = (props: Props) => {
       <>
         <div className={INLINE_PLAYER_WRAPPER_CLASS} id={claimLinkId}>
           {!currentUriPlaying && <FileViewerEmbeddedTitle uri={uri} />}
-
           <Component uri={uri} embedded claimLinkId={claimLinkId} parentCommentId={parentCommentId} />
         </div>
 

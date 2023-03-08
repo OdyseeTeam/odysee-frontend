@@ -194,9 +194,52 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      if (sourceIsReady) {
-        if (canViewFile && (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded))) {
-          updateClaim();
+      console.log('pathname: ', pathname);
+      let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
+      let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
+      cut = cut.substring(cut.indexOf('/') + 1, cut.length);
+      cut = cut.substring(0, cut.indexOf(':'));
+      if (!uri.includes(uriChannel) && !uri.includes(cut)) {
+        /*
+        console.log('======================')
+        console.log('uri: ', uri)
+        console.log('pathname: ', pathname)
+        console.log('currentUriPlaying: ',currentUriPlaying)
+        console.log('playingUri: ',playingUri)
+        */
+
+        // $FlowIgnore
+        if (!playingUri?.uri?.includes(uriChannel) && !playingUri?.uri?.includes(cut)) {
+          console.log('A');
+          // updateClaim();
+        } else {
+          console.log('B');
+          // updateClaim();
+        }
+
+        // const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
+      }
+      // $FlowIgnore
+      if (!playingUri?.uri?.includes(uriChannel) && !playingUri?.uri?.includes(cut)) {
+        console.log('C');
+        updateClaim();
+      } else {
+        console.log('D');
+        // updateClaim();
+      }
+      // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
+    }, [pathname]);
+
+    /*
+    React.useEffect(() => {
+      if (sourceIsReady && canViewFile) {
+        if (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded)) {
+          console.log('============================')
+          console.log('updateClaim')
+          console.log('autoplayEnabled: ', autoplayEnabled)
+          console.log('autoRenderClaim: ', autoRenderClaim)
+          console.log('alreadyPlaying: ', alreadyPlaying.current)
+          // updateClaim();
         }
       }
     }, [
@@ -214,6 +257,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       shouldStartFloating,
       uri,
     ]);
+    */
 
     function updateClaim() {
       const playingOptions: PlayingUri = {
