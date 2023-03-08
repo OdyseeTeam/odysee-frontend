@@ -199,8 +199,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
       cut = cut.substring(0, cut.indexOf(':'));
+      let b = false;
       if (pathname !== '/') {
-        if (!uri.includes(uriChannel) && !uri.includes(cut)) {
+        if (uri.includes(uriChannel) && uri.includes(cut)) {
           /*
           console.log('======================')
           console.log('uri: ', uri)
@@ -208,22 +209,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           console.log('currentUriPlaying: ',currentUriPlaying)
           console.log('playingUri: ',playingUri)
           */
-
-          // $FlowIgnore
-          if (!playingUri?.uri?.includes(uriChannel) && !playingUri?.uri?.includes(cut)) {
-            console.log('A');
-            // updateClaim();
-          } else {
-            console.log('B');
-            // updateClaim();
-          }
-
           // const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
+        } else {
+          b = true;
+          console.log('B: ', b);
         }
         // $FlowIgnore
-        if (!playingUri?.uri?.includes(uriChannel) || !playingUri?.uri?.includes(cut)) {
+        if (playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut)) {
           console.log('C');
-          updateClaim();
+          if (!b) updateClaim();
         } else {
           console.log('D');
           console.log('playingUri?.uri?: ', playingUri?.uri);
