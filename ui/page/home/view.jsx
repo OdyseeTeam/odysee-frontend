@@ -132,9 +132,9 @@ function HomePage(props: Props) {
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     if (id === 'BANNER') {
-      return <FeaturedBanner homepageData={homepageData} authenticated={authenticated} />;
+      return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;
     } else if (id === 'PORTALS') {
-      return <Portals homepageData={homepageData} authenticated={authenticated} />;
+      return <Portals key={id} homepageData={homepageData} authenticated={authenticated} />;
     }
 
     const tilePlaceholder = (
@@ -180,7 +180,7 @@ function HomePage(props: Props) {
 
     return (
       <div
-        key={title}
+        key={id}
         className={classnames('claim-grid__wrapper', {
           'hide-ribbon': link !== `/$/${PAGES.CHANNELS_FOLLOWING}`,
         })}
@@ -234,7 +234,7 @@ function HomePage(props: Props) {
               return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
             } else {
               return (
-                <>
+                <React.Fragment key={id}>
                   {!fetchingActiveLivestreams &&
                     authenticated &&
                     subscriptionChannelIds.length > 0 &&
@@ -248,7 +248,7 @@ function HomePage(props: Props) {
                       />
                     )}
                   {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
-                </>
+                </React.Fragment>
               );
             }
           }
