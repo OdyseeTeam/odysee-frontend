@@ -199,33 +199,42 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
       cut = cut.substring(0, cut.indexOf(':'));
-      if (!uri.includes(uriChannel) && !uri.includes(cut)) {
-        /*
-        console.log('======================')
-        console.log('uri: ', uri)
-        console.log('pathname: ', pathname)
-        console.log('currentUriPlaying: ',currentUriPlaying)
-        console.log('playingUri: ',playingUri)
-        */
+      if (pathname !== '/') {
+        if (!uri.includes(uriChannel) && !uri.includes(cut)) {
+          /*
+          console.log('======================')
+          console.log('uri: ', uri)
+          console.log('pathname: ', pathname)
+          console.log('currentUriPlaying: ',currentUriPlaying)
+          console.log('playingUri: ',playingUri)
+          */
 
+          // $FlowIgnore
+          if (!playingUri?.uri?.includes(uriChannel) && !playingUri?.uri?.includes(cut)) {
+            console.log('A');
+            // updateClaim();
+          } else {
+            console.log('B');
+            // updateClaim();
+          }
+
+          // const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
+        }
         // $FlowIgnore
-        if (!playingUri?.uri?.includes(uriChannel) && !playingUri?.uri?.includes(cut)) {
-          console.log('A');
-          // updateClaim();
+        if (!playingUri?.uri?.includes(uriChannel) || !playingUri?.uri?.includes(cut)) {
+          console.log('C');
+          updateClaim();
         } else {
-          console.log('B');
+          console.log('D');
+          console.log('playingUri?.uri?: ', playingUri?.uri);
+          console.log('uriChannel: ', uriChannel);
+          console.log('cut: ', cut);
+          console.log('Start floating');
           // updateClaim();
         }
-
-        // const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
-      }
-      // $FlowIgnore
-      if (!playingUri?.uri?.includes(uriChannel) && !playingUri?.uri?.includes(cut)) {
-        console.log('C');
-        updateClaim();
       } else {
-        console.log('D');
-        // updateClaim();
+        console.log('E');
+        updateClaim();
       }
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
     }, [pathname]);
