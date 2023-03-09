@@ -17,11 +17,18 @@ import {
   selectThemePath,
   selectDefaultChannelClaim,
   selectHomepageAnnouncement,
+  selectHomepageCode,
 } from 'redux/selectors/settings';
 import { selectAnyNagsShown } from 'redux/selectors/notifications';
 import { selectModal, selectActiveChannelClaim, selectIsReloadRequired } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
-import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
+import {
+  doOpenAnnouncements,
+  doSetLanguage,
+  doSetDefaultChannel,
+  doFetchLanguage,
+  doFetchHomepages,
+} from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetGdprConsentList } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
@@ -34,6 +41,7 @@ const select = (state) => ({
   theme: selectThemePath(state),
   language: selectLanguage(state),
   languages: selectLoadedLanguages(state),
+  homepageCode: selectHomepageCode(state),
   isReloadRequired: selectIsReloadRequired(state),
   prefsReady: selectPrefsReady(state),
   syncError: selectGetSyncErrorMessage(state),
@@ -54,6 +62,7 @@ const select = (state) => ({
 const perform = {
   setLanguage: doSetLanguage,
   fetchLanguage: doFetchLanguage,
+  doFetchHomepages,
   signIn: doSignIn,
   syncLoop: doSyncLoop,
   doUserSetReferrerForUri,

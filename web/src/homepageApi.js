@@ -9,9 +9,10 @@ async function getHomepage(ctx, version) {
   }
 
   const format = ctx?.request?.query?.format;
+  const hp = ctx?.request?.query?.hp;
 
   try {
-    const content = version === 1 ? getHomepageJsonV1() : getHomepageJsonV2(format);
+    const content = version === 1 ? getHomepageJsonV1() : getHomepageJsonV2(format, hp);
     ctx.set('Content-Type', 'application/json');
     ctx.set('Access-Control-Allow-Origin', '*');
     ctx.body = {

@@ -14,6 +14,7 @@ import ThemeSelector from 'component/themeSelector';
 type Props = {
   clock24h: boolean,
   searchInLanguage: boolean,
+  homepageKeys: Array<string>,
   isAuthenticated: boolean,
   hideBalance: boolean,
   hideTitleNotificationCount: boolean,
@@ -25,6 +26,7 @@ export default function SettingAppearance(props: Props) {
   const {
     clock24h,
     searchInLanguage,
+    homepageKeys,
     isAuthenticated,
     hideBalance,
     hideTitleNotificationCount,
@@ -35,7 +37,6 @@ export default function SettingAppearance(props: Props) {
     location: { hash },
   } = useHistory();
   const highlightSearchInLanguage = hash === `#${SEARCH_IN_LANGUAGE}`;
-  const homepages = window.homepages || {};
 
   return (
     <>
@@ -47,7 +48,7 @@ export default function SettingAppearance(props: Props) {
         isBodyList
         body={
           <>
-            {homepages && Object.keys(homepages).length > 1 && (
+            {homepageKeys.length > 1 && (
               <SettingsRow title={__('Homepage')} subtitle={__('Tailor your experience.')}>
                 <HomepageSelector />
               </SettingsRow>
