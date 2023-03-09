@@ -139,8 +139,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       (autoplayEnabled || playingCollectionId) &&
       (!alreadyPlaying.current || currentUriPlaying) &&
       isPlayable;
-    const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
-    const shouldAutoplay = autoplayVideo || autoRenderClaim;
+    // const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
+    // const shouldAutoplay = autoplayVideo || autoRenderClaim;
     const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
 
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
@@ -212,18 +212,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         }
         // $FlowIgnore
         if (playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut)) {
-          console.log('C');
-          if (!b) updateClaim();
+          c = true;
         } else {
-          console.log('playingUri?.uri?: ', playingUri?.uri);
-          console.log('uriChannel: ', uriChannel);
-          console.log('cut: ', cut);
-          console.log('Start floating');
-          // updateClaim();
+          d = true;
         }
       } else {
         e = true;
-        updateClaim();
       }
 
       console.log('A: ', a);
@@ -231,37 +225,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('C: ', c);
       console.log('D: ', d);
       console.log('E: ', e);
+
+      if (e) updateClaim();
+      // Livestream chat
+      // if(!a && b && !c && d && !e) updateClaim();
+      if (a && !b && c && !d && !e) updateClaim();
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
     }, [pathname]);
-
-    /*
-    React.useEffect(() => {
-      if (sourceIsReady && canViewFile) {
-        if (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded)) {
-          console.log('============================')
-          console.log('updateClaim')
-          console.log('autoplayEnabled: ', autoplayEnabled)
-          console.log('autoRenderClaim: ', autoRenderClaim)
-          console.log('alreadyPlaying: ', alreadyPlaying.current)
-          // updateClaim();
-        }
-      }
-    }, [
-      claimLinkId,
-      collectionId,
-      doFileGetForUri,
-      doStartFloatingPlayingUri,
-      embedded,
-      isLivestreamClaim,
-      isMarkdownPost,
-      parentCommentId,
-      pathname,
-      renderMode,
-      search,
-      shouldStartFloating,
-      uri,
-    ]);
-    */
 
     function updateClaim() {
       const playingOptions: PlayingUri = {
@@ -298,12 +268,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       setSourceIsReady(true);
     }
 
+    /*
     React.useEffect(() => {
       if (canViewFile && shouldAutoplay) {
         console.log('streamClaim()');
-        // streamClaim();
+        streamClaim();
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
+    */
 
     React.useEffect(() => {
       shouldClearPlayingUri.current = claimLinkId && currentUriPlaying;

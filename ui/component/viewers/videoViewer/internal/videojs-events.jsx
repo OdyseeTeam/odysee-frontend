@@ -285,6 +285,7 @@ const VideoJsEvents = ({
 
   function initializeEvents() {
     const player = playerRef.current;
+    var seeker = null;
 
     player.one('play', onInitialPlay);
     player.on('volumechange', onVolumeChange);
@@ -324,14 +325,15 @@ const VideoJsEvents = ({
           if (window.liveEdgePaused) delete window.liveEdgePaused;
         }
 
-        setTimeout(() => {
+        seeker = setTimeout(() => {
           // Do not jump ahead if user has paused the player
           if (window.liveEdgePaused) return;
-
           player.liveTracker.seekToLiveEdge();
         }, 5 * 1000);
       });
       player.on('timeupdate', liveEdgeRestoreSpeed);
+    } else {
+      clearTimeout(seeker);
     }
   }
 
