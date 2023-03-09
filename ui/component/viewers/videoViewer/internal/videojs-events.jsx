@@ -315,13 +315,28 @@ const VideoJsEvents = ({
 
     if (isLivestreamClaim) {
       player.liveTracker.on('liveedgechange', () => {
+        console.log('liveedgechange');
         if (player.paused()) {
           // when liveedge changes, add the window variable so that the timeout isn't triggered
           // when it's changed back again
           window.liveEdgePaused = true;
+          return;
         } else {
           if (window.liveEdgePaused) delete window.liveEdgePaused;
         }
+
+        player.liveTracker.seekToLiveEdge();
+
+        /*
+        setTimeout(() => {
+          // Do not jump ahead if user has paused the player
+          if (window.liveEdgePaused) return;
+          // neko
+          // console.log('seekTo 1: ', seeker)
+          console.log('player.liveTracker: ', player)
+          player.liveTracker.seekToLiveEdge();
+        }, 5 * 1000);
+        */
       });
       player.on('timeupdate', liveEdgeRestoreSpeed);
     }
