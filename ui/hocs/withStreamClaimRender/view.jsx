@@ -203,7 +203,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         b,
         c,
         d,
-        e = false;
+        e,
+        f = false;
       if (pathname !== '/') {
         if (uri.includes(uriChannel) && uri.includes(cut)) {
           a = true;
@@ -219,16 +220,18 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       } else {
         e = true;
       }
+      if (claimLinkId) f = true;
 
       console.log('A: ', a);
       console.log('B: ', b);
       console.log('C: ', c);
       console.log('D: ', d);
       console.log('E: ', e);
+      console.log('F: ', f);
 
       if (e) updateClaim();
       // Livestream chat
-      // if(!a && b && !c && d && !e) updateClaim();
+      if (!a && b && !c && d && !e && !f) updateClaim();
       if (a && !b && c && !d && !e) updateClaim();
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
     }, [pathname]);
