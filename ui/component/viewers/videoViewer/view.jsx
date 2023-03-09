@@ -486,9 +486,11 @@ function VideoViewer(props: Props) {
 
   return (
     <>
-      <div className={classnames({ 'file-viewer__embedded-header-hide': isPlaying })}>
-        <FileViewerEmbeddedTitle uri={uri} />
-      </div>
+      {isEmbedded && (
+        <div className={classnames({ 'file-viewer__embedded-header-hide': isPlaying })}>
+          <FileViewerEmbeddedTitle uri={uri} />
+        </div>
+      )}
 
       <div
         className={classnames('file-viewer', {

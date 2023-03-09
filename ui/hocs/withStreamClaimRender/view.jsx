@@ -199,27 +199,22 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
       cut = cut.substring(0, cut.indexOf(':'));
-      let b = false;
+      let a,
+        b,
+        c,
+        d,
+        e = false;
       if (pathname !== '/') {
         if (uri.includes(uriChannel) && uri.includes(cut)) {
-          /*
-          console.log('======================')
-          console.log('uri: ', uri)
-          console.log('pathname: ', pathname)
-          console.log('currentUriPlaying: ',currentUriPlaying)
-          console.log('playingUri: ',playingUri)
-          */
-          // const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
+          a = true;
         } else {
           b = true;
-          console.log('B: ', b);
         }
         // $FlowIgnore
         if (playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut)) {
           console.log('C');
           if (!b) updateClaim();
         } else {
-          console.log('D');
           console.log('playingUri?.uri?: ', playingUri?.uri);
           console.log('uriChannel: ', uriChannel);
           console.log('cut: ', cut);
@@ -227,9 +222,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           // updateClaim();
         }
       } else {
-        console.log('E');
+        e = true;
         updateClaim();
       }
+
+      console.log('A: ', a);
+      console.log('B: ', b);
+      console.log('C: ', c);
+      console.log('D: ', d);
+      console.log('E: ', e);
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
     }, [pathname]);
 
@@ -299,7 +300,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       if (canViewFile && shouldAutoplay) {
-        streamClaim();
+        console.log('streamClaim()');
+        // streamClaim();
       }
     }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
