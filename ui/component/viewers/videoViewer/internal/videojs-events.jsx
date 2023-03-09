@@ -285,7 +285,6 @@ const VideoJsEvents = ({
 
   function initializeEvents() {
     const player = playerRef.current;
-    var seeker = null;
 
     player.one('play', onInitialPlay);
     player.on('volumechange', onVolumeChange);
@@ -320,20 +319,11 @@ const VideoJsEvents = ({
           // when liveedge changes, add the window variable so that the timeout isn't triggered
           // when it's changed back again
           window.liveEdgePaused = true;
-          return;
         } else {
           if (window.liveEdgePaused) delete window.liveEdgePaused;
         }
-
-        seeker = setTimeout(() => {
-          // Do not jump ahead if user has paused the player
-          if (window.liveEdgePaused) return;
-          player.liveTracker.seekToLiveEdge();
-        }, 5 * 1000);
       });
       player.on('timeupdate', liveEdgeRestoreSpeed);
-    } else {
-      clearTimeout(seeker);
     }
   }
 
@@ -346,6 +336,8 @@ const VideoJsEvents = ({
       // Only respond to when we fall behind
       if (player.liveTracker.atLiveEdge()) {
         player.playbackRate(1);
+        // neko
+        console.log('seekTo 2');
         player.liveTracker.seekToLiveEdge();
       }
     }

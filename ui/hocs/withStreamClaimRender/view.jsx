@@ -176,7 +176,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
     const streamClaim = React.useCallback(() => {
-      if (sourceIsReady) updateClaim();
+      if (sourceIsReady) updateClaim('callback');
     }, [
       claimLinkId,
       collectionId,
@@ -229,14 +229,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('E: ', e);
       console.log('F: ', f);
 
-      if (e) updateClaim();
+      if (e) updateClaim('e');
       // Livestream chat
-      if (!a && b && !c && d && !e && !f) updateClaim();
-      if (a && !b && c && !d && !e) updateClaim();
+      if (!a && b && !c && d && !e && !f) updateClaim('b & d & !f');
+      if (a && !b && c && !d && !e) updateClaim('a & c');
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
     }, [pathname]);
 
-    function updateClaim() {
+    function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {
         uri,
         collection: { collectionId },
@@ -245,6 +245,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         sourceId: claimLinkId,
         commentId: undefined,
       };
+
+      console.log('updateClaim: ', trigger);
 
       let check = playingOptions.uri === currentStreamingUri;
 
