@@ -194,9 +194,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       console.log('pathname: ', pathname);
-      // console.log('isMarkdownPost: ', isMarkdownPost)
-      console.log('renderMode: ', renderMode);
-      console.log('isPlayable2: ', isPlayable);
 
       let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
@@ -204,13 +201,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       cut = cut.substring(0, cut.indexOf(':'));
       let isExternaleEmbed = pathname.includes('/$/embed');
       let g = isExternaleEmbed;
-      console.log('isExternaleEmbed2: ', isExternaleEmbed);
       var a,
         b,
         c,
         d,
         e,
         f,
+        h,
         x = false;
       if (pathname !== '/') {
         if (uri.includes(uriChannel) && uri.includes(cut)) {
@@ -228,6 +225,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         e = true;
       }
       if (claimLinkId) f = true;
+      if (autoplayVideo) h = true;
       if (canViewFile) x = true;
 
       console.log('A: ', a);
@@ -237,6 +235,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('E: ', e);
       console.log('F: ', f);
       console.log('G: ', g);
+      console.log('H: ', h);
+
+      console.log('autoplayVideo: ', autoplayVideo);
+      console.log('autoplayEnabled: ', autoplayEnabled);
+
+      console.log('forceAutoplay: ', forceAutoplayParam);
+      console.log('autoplay: ', autoplay);
 
       if (e && x) updateClaim('e');
       // play next | fix autoplay on claim page
