@@ -415,6 +415,9 @@
   background-color: var(--color-placeholder-background);
   border-radius: var(--border-radius);
   position: relative;
+  .file-render {
+    height: unset;
+  }
 }
 
 .file-render--post-container {
