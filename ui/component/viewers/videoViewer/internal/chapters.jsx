@@ -61,7 +61,7 @@ function parse(claim: StreamClaim) {
 
   lines.forEach((line) => {
     if (line.length > 0) {
-      const splitIndex = line.indexOf(' ');
+      const splitIndex = line.search(/[ |\t]/);
       if (splitIndex >= 0 && splitIndex < line.length - 2) {
         const ts = line.substring(0, splitIndex);
         const label = line.substring(splitIndex + 1);
