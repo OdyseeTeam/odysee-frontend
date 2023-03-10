@@ -253,7 +253,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       // ???
       if (a && !b && c && !d && !e && x) updateClaim('a & c');
       if (e) updateClaim('e');
-    }, [sourceLoaded]);
+    }, [pathname, sourceLoaded]);
 
     function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {
