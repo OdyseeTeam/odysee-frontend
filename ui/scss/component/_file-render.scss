@@ -400,6 +400,11 @@
   position: fixed;
   max-height: none;
   border-radius: var(--border-radius);
+  .video-js.vjs-layout-small {
+    .vjs-volume-control {
+      display: block !important;
+    }
+  }
 }
 
 .claim-link {
