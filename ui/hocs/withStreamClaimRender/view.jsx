@@ -252,6 +252,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
       // ???
       if (a && !b && c && !d && !e && x) updateClaim('a & c');
+      if (e) updateClaim('e');
     }, [sourceLoaded]);
 
     function updateClaim(trigger: string) {
