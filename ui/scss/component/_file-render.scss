@@ -1361,6 +1361,13 @@ $control-bar-icon-size: 30px;
 
 .inline-player__wrapper {
   aspect-ratio: 16 / 9;
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius) !important;
   // overflow:hidden;
+
+  .paid-content-overlay,
+  .protected-content-overlay {
+    .button__content {
+      display: flex !important;
+    }
+  }
 }

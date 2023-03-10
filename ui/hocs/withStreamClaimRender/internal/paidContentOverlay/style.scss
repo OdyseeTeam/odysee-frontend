@@ -25,6 +25,7 @@ $ICON_OFFSET: 2px; // depends on font used. boo.
   backdrop-filter: blur(4px);
   color: white;
   background-color: rgba(0, 0, 0, 0.5);
+  border-radius: var(--border-radius);
 
   .purchase-button:not(.purchase-button--fee) {
     background-color: var(--color-fiat-payment) !important;

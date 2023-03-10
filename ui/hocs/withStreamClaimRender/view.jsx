@@ -210,7 +210,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         c,
         d,
         e,
-        f = false;
+        f,
+        x = false;
       if (pathname !== '/') {
         if (uri.includes(uriChannel) && uri.includes(cut)) {
           a = true;
@@ -227,6 +228,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         e = true;
       }
       if (claimLinkId) f = true;
+      if (canViewFile) x = true;
 
       console.log('A: ', a);
       console.log('B: ', b);
@@ -236,13 +238,17 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('F: ', f);
       console.log('G: ', g);
 
-      if (e) updateClaim('e');
+      console.log('isFetchingPurchases: ', isFetchingPurchases);
+      console.log('purchaseTag: ', purchaseTag);
+      console.log('canViewFile: ', canViewFile);
+
+      if (e && x) updateClaim('e');
       // play next | fix autoplay on claim page
-      if (a && !b && !c && d && !e && !f) updateClaim('a & d & !f');
+      if (a && !b && !c && d && !e && !f && !g && x) updateClaim('a & d & !f');
       // Embedded videos in Livestream chat
-      if (!a && b && !c && d && !e && !f && !g) updateClaim('b & d & !f');
+      if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
       // ???
-      if (a && !b && c && !d && !e) updateClaim('a & c');
+      if (a && !b && c && !d && !e && x) updateClaim('a & c');
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
     }, [pathname]);
 
