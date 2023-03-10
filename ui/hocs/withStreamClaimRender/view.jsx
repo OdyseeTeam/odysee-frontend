@@ -237,6 +237,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         console.log('G: ', g);
         console.log('H: ', h);
 
+        console.log('collectionId: ', collectionId);
+
         if (e && x) updateClaim('e');
         // play next | fix autoplay on claim page
         if (a && !b && !c && d && !e && !f && !g && x) {
