@@ -234,8 +234,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('G: ', g);
 
       if (e) updateClaim('e');
-      // play next
-      if (a && !b && !c && d && !e && !f && autoplayEnabled) updateClaim('a & d & !f');
+      // play next | fix autoplay on claim page
+      if (a && !b && !c && d && !e && !f) updateClaim('a & d & !f');
       // Embedded videos in Livestream chat
       if (!a && b && !c && d && !e && !f && !g) updateClaim('b & d & !f');
       // ???
