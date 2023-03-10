@@ -15,7 +15,6 @@ import FileExporter from 'component/common/file-exporter';
 import WalletFiatPaymentHistory from '../walletFiatPaymentHistory';
 import WalletFiatAccountHistory from '../walletFiatAccountHistory';
 
-// constants to be used in query params
 const QUERY_NAME_CURRENCY = 'currency';
 const QUERY_NAME_TAB = 'tab';
 const QUERY_NAME_FIAT_TYPE = 'fiatType';
@@ -80,7 +79,6 @@ function TxoList(props: Props) {
   const active = urlParams.get(TXO.ACTIVE) || TXO.ALL;
   const currency = urlParams.get(QUERY_NAME_CURRENCY) || DEFAULT_CURRENCY_PARAM;
   const fiatType = urlParams.get(QUERY_NAME_FIAT_TYPE) || DEFAULT_FIAT_TYPE_PARAM;
-  // tab used in the wallet section
   const tab = urlParams.get(QUERY_NAME_TAB) || DEFAULT_TAB_PARAM;
   const transactionType = urlParams.get(QUERY_NAME_TRANSACTION_TYPE) || DEFAULT_TRANSACTION_TYPE_PARAM;
 
@@ -174,6 +172,7 @@ function TxoList(props: Props) {
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);
         newUrlParams.set(QUERY_NAME_CURRENCY, currentUrlParams.currency);
         break;
+
       case TXO.TYPE:
         newUrlParams.set(TXO.TYPE, delta.value);
         if (delta.value === TXO.SENT || delta.value === TXO.RECEIVED) {
@@ -194,6 +193,7 @@ function TxoList(props: Props) {
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);
         newUrlParams.set(QUERY_NAME_CURRENCY, currentUrlParams.currency);
         break;
+
       case TXO.SUB_TYPE:
         if (currentUrlParams.type) {
           newUrlParams.set(TXO.TYPE, currentUrlParams.type);
@@ -205,6 +205,7 @@ function TxoList(props: Props) {
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);
         newUrlParams.set(QUERY_NAME_CURRENCY, currentUrlParams.currency);
         break;
+
       case TXO.ACTIVE:
         if (currentUrlParams.type) {
           newUrlParams.set(TXO.TYPE, currentUrlParams.type);
@@ -218,7 +219,7 @@ function TxoList(props: Props) {
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);
         newUrlParams.set(QUERY_NAME_CURRENCY, currentUrlParams.currency);
         break;
-      // toggling the currency type (lbc/fiat)
+
       case QUERY_NAME_CURRENCY:
         newUrlParams.set(QUERY_NAME_CURRENCY, delta.value);
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);
@@ -231,7 +232,7 @@ function TxoList(props: Props) {
           newUrlParams.set(QUERY_NAME_TRANSACTION_TYPE, currentUrlParams.transactionType);
         }
         break;
-      // toggling the fiat type (incoming/outgoing)
+
       case QUERY_NAME_FIAT_TYPE:
         newUrlParams.set(QUERY_NAME_FIAT_TYPE, delta.value);
         newUrlParams.set(QUERY_NAME_TAB, currentUrlParams.tab);

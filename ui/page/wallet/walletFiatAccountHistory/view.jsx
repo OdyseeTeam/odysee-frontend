@@ -20,6 +20,9 @@ const WalletFiatAccountHistory = (props: Props) => {
 
   const transactions = incomingHistory && incomingHistory.filter((x) => typeFilterCb(x));
 
+  // **************************************************************************
+  // **************************************************************************
+
   function typeFilterCb(s: StripeTransaction) {
     switch (transactionType) {
       case 'tips':
@@ -30,6 +33,79 @@ const WalletFiatAccountHistory = (props: Props) => {
         return false;
     }
   }
+
+  function createColumn(value: any) {
+    return <td>{value}</td>;
+  }
+
+  function getDate(transaction) {
+    return moment(transaction.created_at).locale(appLanguage).format('LLL');
+  }
+
+  function getReceivingChannelName(transaction) {
+    return (
+      <Button
+        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
+        label={transaction.channel_name}
+        button="link"
+      />
+    );
+  }
+
+  function getSendingChannelName(transaction) {
+    return (
+      <Button
+        navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
+        label={transaction.tipper_channel_name}
+        button="link"
+      />
+    );
+  }
+
+  function getTransactionType(transaction) {
+    return toCapitalCase(transaction.type);
+  }
+
+  function getClaimLink(transaction) {
+    return (
+      <Button
+        navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined}
+        label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
+        button="link"
+        target="_blank"
+      />
+    );
+  }
+
+  function getTipAmount(transaction, currencySymbol) {
+    return (
+      <>
+        {currencySymbol}
+        {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+      </>
+    );
+  }
+
+  function getProcessingFee(transaction, currencySymbol) {
+    return (
+      <>
+        {currencySymbol}
+        {(transaction.transaction_fee + transaction.application_fee) / 100}
+      </>
+    );
+  }
+
+  function getReceivedAmount(transaction, currencySymbol) {
+    return (
+      <>
+        {currencySymbol}
+        {transaction.received_amount / 100}
+      </>
+    );
+  }
+
+  // **************************************************************************
+  // **************************************************************************
 
   // TODO: should add pagination here
   // if there are more than 10 transactions, limit it to 10 for the frontend
@@ -62,48 +138,16 @@ const WalletFiatAccountHistory = (props: Props) => {
           {transactions &&
             transactions.map((transaction) => {
               const { symbol: currencySymbol } = STRIPE.CURRENCY[transaction.currency.toUpperCase()] || {};
-              const targetClaimId = transaction.target_claim_id;
-
               return (
                 <tr key={transaction.name + transaction.created_at}>
-                  <td>{moment(transaction.created_at).locale(appLanguage).format('LLL')}</td>
-                  <td>
-                    <Button
-                      navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
-                      label={transaction.channel_name}
-                      button="link"
-                    />
-                  </td>
-                  <td>
-                    <Button
-                      navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
-                      label={transaction.tipper_channel_name}
-                      button="link"
-                    />
-                  </td>
-                  <td>{toCapitalCase(transaction.type)}</td>
-                  <td>
-                    <Button
-                      navigate={targetClaimId ? `/$/${PAGES.SEARCH}?q=${targetClaimId}` : undefined}
-                      label={
-                        transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')
-                      }
-                      button="link"
-                      target="_blank"
-                    />
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {(transaction.transaction_fee + transaction.application_fee) / 100}
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {transaction.received_amount / 100}
-                  </td>
+                  {createColumn(getDate(transaction))}
+                  {createColumn(getReceivingChannelName(transaction))}
+                  {createColumn(getSendingChannelName(transaction))}
+                  {createColumn(getTransactionType(transaction))}
+                  {createColumn(getClaimLink(transaction))}
+                  {createColumn(getTipAmount(transaction, currencySymbol))}
+                  {createColumn(getProcessingFee(transaction, currencySymbol))}
+                  {createColumn(getReceivedAmount(transaction, currencySymbol))}
                 </tr>
               );
             })}
