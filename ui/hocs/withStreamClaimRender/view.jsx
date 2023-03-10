@@ -110,7 +110,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
-    const [sourceIsReady, setSourceIsReady] = React.useState(true);
 
     const { search, href, state: locationState, pathname } = location;
     const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
@@ -176,7 +175,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
     const streamClaim = React.useCallback(() => {
-      if (sourceIsReady) updateClaim('callback');
+      updateClaim('callback');
     }, [
       claimLinkId,
       collectionId,
@@ -195,13 +194,17 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       console.log('pathname: ', pathname);
+      // console.log('isMarkdownPost: ', isMarkdownPost)
+      console.log('renderMode: ', renderMode);
+      console.log('isPlayable2: ', isPlayable);
+
       let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
       cut = cut.substring(0, cut.indexOf(':'));
       let isExternaleEmbed = pathname.includes('/$/embed');
       let g = isExternaleEmbed;
-      console.log('isExternaleEmbed: ', isExternaleEmbed);
+      console.log('isExternaleEmbed2: ', isExternaleEmbed);
       var a,
         b,
         c,
@@ -264,7 +267,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         playingOptions.source = 'markdown';
       }
 
-      setSourceIsReady(false);
       if (!isLivestreamClaim) {
         doFileGetForUri(uri);
       }
@@ -277,7 +279,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (!shouldStartFloating && check) {
         setCurrentStreamingUri(uri);
       }
-      setSourceIsReady(true);
     }
 
     /*
@@ -324,6 +325,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       livestreamUnplayable ||
       (isPlayable && !currentUriPlaying)
     ) {
+      if (renderMode === 'md') console.log('22222222222222222222222222');
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
@@ -334,6 +336,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
             <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
           </ClaimCoverRender>
         );
+      } else if (renderMode === 'md') {
+        return <LoadingScreen />;
       }
     }
 
