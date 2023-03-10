@@ -6,7 +6,7 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
 import { ExpandableContext } from 'contexts/expandable';
-
+import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
@@ -235,9 +235,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
       if (e) updateClaim('e');
       // play next
-      if (a && !b && !c && d && !e && !f) updateClaim('a & d & !f');
+      if (a && !b && !c && d && !e && !f && autoplayEnabled) updateClaim('a & d & !f');
       // Embedded videos in Livestream chat
       if (!a && b && !c && d && !e && !f && !g) updateClaim('b & d & !f');
+      // ???
       if (a && !b && c && !d && !e) updateClaim('a & c');
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
     }, [pathname]);
@@ -329,6 +330,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       } else if (isPlayable && !autoplayVideo) {
         return (
           <ClaimCoverRender uri={uri} onClick={handleClick}>
+            {embedded && <FileViewerEmbeddedTitle uri={uri} />}
             <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
           </ClaimCoverRender>
         );
