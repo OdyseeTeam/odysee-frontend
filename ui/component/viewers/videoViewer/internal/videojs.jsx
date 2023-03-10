@@ -663,7 +663,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
 
-  console.log('playerRef: ', playerRef);
   return (
     <div className={classnames('video-js-parent', { 'video-js-parent--ios': IS_IOS })} ref={containerRef}>
       <Button
