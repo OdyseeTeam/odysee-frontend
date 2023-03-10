@@ -1253,7 +1253,6 @@
     background-color: white;
     color: var(--color-fire);
     border-radius: 50%;
-    // margin-top: -54px;
   }
 
   .button {
@@ -1262,8 +1261,6 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    // width: 94%;
-    // height: 90%;
     span {
       text-align: center;
     }

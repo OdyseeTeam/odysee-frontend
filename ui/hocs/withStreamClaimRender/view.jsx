@@ -238,10 +238,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('F: ', f);
       console.log('G: ', g);
 
-      console.log('isFetchingPurchases: ', isFetchingPurchases);
-      console.log('purchaseTag: ', purchaseTag);
-      console.log('canViewFile: ', canViewFile);
-
       if (e && x) updateClaim('e');
       // play next | fix autoplay on claim page
       if (a && !b && !c && d && !e && !f && !g && x) updateClaim('a & d & !f');
