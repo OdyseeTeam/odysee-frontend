@@ -1,13 +1,17 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
+import Paginate from 'component/common/paginate';
 import moment from 'moment/min/moment-with-locales';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
 type Props = {
+  page: number,
+  pageSize: number,
   fetchDataOnMount?: boolean, // Option to fetch it ourselves, or not if parent or someone else has done it
+  // --- redux ---
   incomingHistory: StripeTransactions,
   transactionType: string,
   appLanguage: string,
@@ -16,9 +20,18 @@ type Props = {
 
 const WalletFiatAccountHistory = (props: Props) => {
   const { appLanguage } = props;
-  const { fetchDataOnMount, incomingHistory, transactionType, doListAccountTransactions } = props;
+  const {
+    page = 1,
+    pageSize = 5,
+    fetchDataOnMount,
+    incomingHistory,
+    transactionType,
+    doListAccountTransactions,
+  } = props;
 
-  const transactions = incomingHistory && incomingHistory.filter((x) => typeFilterCb(x));
+  const transactionsRaw = incomingHistory ? incomingHistory.filter((x) => typeFilterCb(x)) : [];
+  const transactions = transactionsRaw.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.ceil(transactionsRaw.length / pageSize);
 
   // **************************************************************************
   // **************************************************************************
@@ -107,12 +120,6 @@ const WalletFiatAccountHistory = (props: Props) => {
   // **************************************************************************
   // **************************************************************************
 
-  // TODO: should add pagination here
-  // if there are more than 10 transactions, limit it to 10 for the frontend
-  // if (transactions && transactions.length > 10) {
-  //   transactions.length = 10;
-  // }
-
   React.useEffect(() => {
     if (fetchDataOnMount) {
       doListAccountTransactions();
@@ -120,41 +127,44 @@ const WalletFiatAccountHistory = (props: Props) => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="table__wrapper">
-      <table className="table table--transactions">
-        <thead>
-          <tr>
-            <th className="date-header">{__('Date')}</th>
-            <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th>
-            <th className="channelName-header">{<>{__('Sending Channel')}</>}</th>
-            <th className="transactionType-header">{<>{__('Type')}</>}</th>
-            <th className="location-header">{__('Location')}</th>
-            <th className="amount-header">{__('Amount')} </th>
-            <th className="processingFee-header">{__('Processing Fee')}</th>
-            <th className="receivedAmount-header">{__('Received Amount')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions &&
-            transactions.map((transaction) => {
-              const { symbol: currencySymbol } = STRIPE.CURRENCY[transaction.currency.toUpperCase()] || {};
-              return (
-                <tr key={transaction.name + transaction.created_at}>
-                  {createColumn(getDate(transaction))}
-                  {createColumn(getReceivingChannelName(transaction))}
-                  {createColumn(getSendingChannelName(transaction))}
-                  {createColumn(getTransactionType(transaction))}
-                  {createColumn(getClaimLink(transaction))}
-                  {createColumn(getTipAmount(transaction, currencySymbol))}
-                  {createColumn(getProcessingFee(transaction, currencySymbol))}
-                  {createColumn(getReceivedAmount(transaction, currencySymbol))}
-                </tr>
-              );
-            })}
-        </tbody>
-      </table>
-      {!transactions && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
-    </div>
+    <>
+      <div className="table__wrapper">
+        <table className="table table--transactions">
+          <thead>
+            <tr>
+              <th className="date-header">{__('Date')}</th>
+              <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th>
+              <th className="channelName-header">{<>{__('Sending Channel')}</>}</th>
+              <th className="transactionType-header">{<>{__('Type')}</>}</th>
+              <th className="location-header">{__('Location')}</th>
+              <th className="amount-header">{__('Amount')} </th>
+              <th className="processingFee-header">{__('Processing Fee')}</th>
+              <th className="receivedAmount-header">{__('Received Amount')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions &&
+              transactions.map((transaction) => {
+                const { symbol: currencySymbol } = STRIPE.CURRENCY[transaction.currency.toUpperCase()] || {};
+                return (
+                  <tr key={transaction.name + transaction.created_at}>
+                    {createColumn(getDate(transaction))}
+                    {createColumn(getReceivingChannelName(transaction))}
+                    {createColumn(getSendingChannelName(transaction))}
+                    {createColumn(getTransactionType(transaction))}
+                    {createColumn(getClaimLink(transaction))}
+                    {createColumn(getTipAmount(transaction, currencySymbol))}
+                    {createColumn(getProcessingFee(transaction, currencySymbol))}
+                    {createColumn(getReceivedAmount(transaction, currencySymbol))}
+                  </tr>
+                );
+              })}
+          </tbody>
+        </table>
+        {transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
+      </div>
+      <Paginate totalPages={totalPages} />
+    </>
   );
 };
 

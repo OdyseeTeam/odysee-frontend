@@ -408,10 +408,12 @@ function TxoList(props: Props) {
                 </div>
               </div>
               {/* listing of the transactions */}
-              {fiatType === 'incoming' && <WalletFiatAccountHistory transactionType={transactionType} />}
-              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactionType={transactionType} />}
-              {/* TODO: have to finish pagination */}
-              {/* <Paginate totalPages={Math.ceil(txoItemCount / Number(pageSize))} /> */}
+              {fiatType === 'incoming' && (
+                <WalletFiatAccountHistory transactionType={transactionType} page={page} pageSize={pageSize} />
+              )}
+              {fiatType === 'outgoing' && (
+                <WalletFiatPaymentHistory transactionType={transactionType} page={page} pageSize={pageSize} />
+              )}
             </div>
           </div>
         )

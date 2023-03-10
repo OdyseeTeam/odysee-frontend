@@ -1,12 +1,16 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
+import Paginate from 'component/common/paginate';
 import moment from 'moment/min/moment-with-locales';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
 type Props = {
+  page: number,
+  pageSize: number,
   fetchDataOnMount?: boolean, // Option to fetch it ourselves, or not if parent or someone else has done it
+  // --- redux ---
   paymentHistory: StripeTransactions,
   lastFour: ?any,
   appLanguage: string,
@@ -17,6 +21,8 @@ type Props = {
 
 const WalletFiatPaymentHistory = (props: Props) => {
   const {
+    page = 1,
+    pageSize = 5,
     fetchDataOnMount,
     paymentHistory,
     lastFour,
@@ -26,7 +32,9 @@ const WalletFiatPaymentHistory = (props: Props) => {
     transactionType,
   } = props;
 
-  const transactions = paymentHistory && paymentHistory.filter(typeFilterCb);
+  const transactionsRaw = paymentHistory ? paymentHistory.filter(typeFilterCb) : [];
+  const transactions = transactionsRaw.slice((page - 1) * pageSize, page * pageSize);
+  const totalPages = Math.ceil(transactionsRaw.length / pageSize);
 
   // **************************************************************************
   // **************************************************************************
@@ -134,6 +142,7 @@ const WalletFiatPaymentHistory = (props: Props) => {
           </table>
           {(!transactions || transactions.length === 0) && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
         </div>
+        <Paginate totalPages={totalPages} />
       </div>
     </>
   );
