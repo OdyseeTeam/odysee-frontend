@@ -12,7 +12,7 @@ type Props = {
   appLanguage: string,
   doCustomerListPaymentHistory: () => void,
   doGetCustomerStatus: () => void,
-  transactionType: string,
+  transactionType: 'tips' | 'rentals-purchases',
 };
 
 const WalletFiatPaymentHistory = (props: Props) => {
@@ -26,25 +26,18 @@ const WalletFiatPaymentHistory = (props: Props) => {
     transactionType,
   } = props;
 
-  const tipsBranch = transactionType === 'tips';
-  const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
+  const transactions = paymentHistory && paymentHistory.filter(typeFilterCb);
 
-  function getMatch(transactionType) {
+  function typeFilterCb(s: StripeTransaction) {
     switch (transactionType) {
-      case 'tip':
-        return tipsBranch;
-      case 'rental':
-        return rentalsAndPurchasesBranch;
-      case 'purchase':
-        return rentalsAndPurchasesBranch;
+      case 'tips':
+        return s.type === 'tip';
+      case 'rentals-purchases':
+        return s.type === 'rental' || s.type === 'purchase';
+      default:
+        return false;
     }
   }
-
-  const transactions =
-    paymentHistory &&
-    paymentHistory.filter((transaction) => {
-      return getMatch(transaction.type);
-    });
 
   React.useEffect(() => {
     if (fetchDataOnMount) {

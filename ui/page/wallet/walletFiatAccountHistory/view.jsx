@@ -18,26 +18,18 @@ const WalletFiatAccountHistory = (props: Props) => {
   const { appLanguage } = props;
   const { fetchDataOnMount, incomingHistory, transactionType, doListAccountTransactions } = props;
 
-  const tipsBranch = transactionType === 'tips';
-  const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
+  const transactions = incomingHistory && incomingHistory.filter((x) => typeFilterCb(x));
 
-  // filter transactions by type
-  function getMatch(transactionType) {
+  function typeFilterCb(s: StripeTransaction) {
     switch (transactionType) {
-      case 'tip':
-        return tipsBranch;
-      case 'rental':
-        return rentalsAndPurchasesBranch;
-      case 'purchase':
-        return rentalsAndPurchasesBranch;
+      case 'tips':
+        return s.type === 'tip';
+      case 'rentals-purchases':
+        return s.type === 'rental' || s.type === 'purchase';
+      default:
+        return false;
     }
   }
-
-  const transactions =
-    incomingHistory &&
-    incomingHistory.filter((transaction) => {
-      return getMatch(transaction.type);
-    });
 
   // TODO: should add pagination here
   // if there are more than 10 transactions, limit it to 10 for the frontend
