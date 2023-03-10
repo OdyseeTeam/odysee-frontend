@@ -1518,7 +1518,8 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview__active {
-  background-color: rgba(var(--color-primary-dynamic), 0.06);
+  background-color: rgba(var(--color-primary-dynamic), 0.04);
+  border-left: 2px solid var(--color-primary);
 
   .claim-preview__title {
     color: var(--color-link);

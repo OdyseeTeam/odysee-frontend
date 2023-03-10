@@ -193,72 +193,66 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      console.log('pathname: ', pathname);
+      if (sourceLoaded) {
+        console.log('pathname: ', pathname);
+        let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
+        let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
+        cut = cut.substring(cut.indexOf('/') + 1, cut.length);
+        cut = cut.substring(0, cut.indexOf(':'));
+        let isExternaleEmbed = pathname.includes('/$/embed');
+        let g = isExternaleEmbed;
+        var a,
+          b,
+          c,
+          d,
+          e,
+          f,
+          h,
+          x = false;
+        if (pathname !== '/') {
+          if (uri.includes(uriChannel) && uri.includes(cut)) {
+            a = true;
+          } else {
+            b = true;
+          }
+          // $FlowIgnore
+          if (playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut)) {
+            c = true;
+          } else {
+            d = true;
+          }
+        } else {
+          e = true;
+        }
+        if (claimLinkId) f = true;
+        if (autoplayVideo) h = true;
+        if (canViewFile) x = true;
 
-      let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
-      let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
-      cut = cut.substring(cut.indexOf('/') + 1, cut.length);
-      cut = cut.substring(0, cut.indexOf(':'));
-      let isExternaleEmbed = pathname.includes('/$/embed');
-      let g = isExternaleEmbed;
-      var a,
-        b,
-        c,
-        d,
-        e,
-        f,
-        h,
-        x = false;
-      if (pathname !== '/') {
-        if (uri.includes(uriChannel) && uri.includes(cut)) {
-          a = true;
-        } else {
-          b = true;
+        console.log('A: ', a);
+        console.log('B: ', b);
+        console.log('C: ', c);
+        console.log('D: ', d);
+        console.log('E: ', e);
+        console.log('F: ', f);
+        console.log('G: ', g);
+        console.log('H: ', h);
+
+        if (e && x) updateClaim('e');
+        // play next | fix autoplay on claim page
+        if (a && !b && !c && d && !e && !f && !g && x) {
+          console.log('renderMode: ', renderMode);
+          if (renderMode === 'video') {
+            if (autoplay) updateClaim('a & d & !f video');
+          } else {
+            updateClaim('a & d & !f nonVideo');
+          }
         }
-        // $FlowIgnore
-        if (playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut)) {
-          c = true;
-        } else {
-          d = true;
-        }
-      } else {
-        e = true;
+        // Embedded videos in Livestream chat
+        if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
+        // ???
+        if (a && !b && c && !d && !e && x) updateClaim('a & c');
       }
-      if (claimLinkId) f = true;
-      if (autoplayVideo) h = true;
-      if (canViewFile) x = true;
-
-      console.log('A: ', a);
-      console.log('B: ', b);
-      console.log('C: ', c);
-      console.log('D: ', d);
-      console.log('E: ', e);
-      console.log('F: ', f);
-      console.log('G: ', g);
-      console.log('H: ', h);
-
-      console.log('autoplayVideo: ', autoplayVideo);
-      console.log('autoplayEnabled: ', autoplayEnabled);
-
-      console.log('forceAutoplay: ', forceAutoplayParam);
-      console.log('autoplay: ', autoplay);
-
-      if (e && x) updateClaim('e');
-      // play next | fix autoplay on claim page
-      if (a && !b && !c && d && !e && !f && !g && x) {
-        console.log('renderMode: ', renderMode);
-        if (renderMode === 'video') {
-          if (autoplay) updateClaim('a & d & !f video');
-        } else {
-          updateClaim('a & d & !f nonVideo');
-        }
-      }
-      // Embedded videos in Livestream chat
-      if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
-      // ???
-      if (a && !b && c && !d && !e && x) updateClaim('a & c');
-      // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
-    }, [pathname]);
+    }, [sourceLoaded]);
 
     function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {
