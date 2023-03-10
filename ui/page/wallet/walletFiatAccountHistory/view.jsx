@@ -7,15 +7,16 @@ import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
 type Props = {
-  transactions: StripeTransactions,
+  fetchDataOnMount?: boolean, // Option to fetch it ourselves, or not if parent or someone else has done it
+  incomingHistory: StripeTransactions,
   transactionType: string,
   appLanguage: string,
+  doListAccountTransactions: () => void,
 };
 
 const WalletFiatAccountHistory = (props: Props) => {
   const { appLanguage } = props;
-  // receive transactions from parent component
-  let { transactions: accountTransactions, transactionType } = props;
+  const { fetchDataOnMount, incomingHistory, transactionType, doListAccountTransactions } = props;
 
   const tipsBranch = transactionType === 'tips';
   const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
@@ -32,17 +33,23 @@ const WalletFiatAccountHistory = (props: Props) => {
     }
   }
 
-  accountTransactions =
-    accountTransactions &&
-    accountTransactions.filter((transaction) => {
+  const transactions =
+    incomingHistory &&
+    incomingHistory.filter((transaction) => {
       return getMatch(transaction.type);
     });
 
   // TODO: should add pagination here
   // if there are more than 10 transactions, limit it to 10 for the frontend
-  // if (accountTransactions && accountTransactions.length > 10) {
-  //   accountTransactions.length = 10;
+  // if (transactions && transactions.length > 10) {
+  //   transactions.length = 10;
   // }
+
+  React.useEffect(() => {
+    if (fetchDataOnMount) {
+      doListAccountTransactions();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="table__wrapper">
@@ -60,8 +67,8 @@ const WalletFiatAccountHistory = (props: Props) => {
           </tr>
         </thead>
         <tbody>
-          {accountTransactions &&
-            accountTransactions.map((transaction) => {
+          {transactions &&
+            transactions.map((transaction) => {
               const { symbol: currencySymbol } = STRIPE.CURRENCY[transaction.currency.toUpperCase()] || {};
               const targetClaimId = transaction.target_claim_id;
 
@@ -110,7 +117,7 @@ const WalletFiatAccountHistory = (props: Props) => {
             })}
         </tbody>
       </table>
-      {!accountTransactions && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
+      {!transactions && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
     </div>
   );
 };

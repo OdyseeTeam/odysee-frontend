@@ -38,8 +38,6 @@ type Props = {
   transactionsFile: string,
   updateTxoPageParams: (any) => void,
   toast: (string, boolean) => void,
-  accountPaymentHistory: ?any,
-  accountTransactions: ?any,
   doCustomerListPaymentHistory: () => void,
   doListAccountTransactions: () => void,
 };
@@ -60,8 +58,6 @@ function TxoList(props: Props) {
     history,
     isFetchingTransactions,
     transactionsFile,
-    accountPaymentHistory,
-    accountTransactions,
     doCustomerListPaymentHistory,
     doListAccountTransactions,
   } = props;
@@ -411,12 +407,8 @@ function TxoList(props: Props) {
                 </div>
               </div>
               {/* listing of the transactions */}
-              {fiatType === 'incoming' && (
-                <WalletFiatAccountHistory transactionType={transactionType} transactions={accountTransactions} />
-              )}
-              {fiatType === 'outgoing' && (
-                <WalletFiatPaymentHistory transactionType={transactionType} transactions={accountPaymentHistory} />
-              )}
+              {fiatType === 'incoming' && <WalletFiatAccountHistory transactionType={transactionType} />}
+              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactionType={transactionType} />}
               {/* TODO: have to finish pagination */}
               {/* <Paginate totalPages={Math.ceil(txoItemCount / Number(pageSize))} /> */}
             </div>

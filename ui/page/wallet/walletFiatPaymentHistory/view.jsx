@@ -6,16 +6,25 @@ import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
 type Props = {
-  transactions: StripeTransactions,
+  fetchDataOnMount?: boolean, // Option to fetch it ourselves, or not if parent or someone else has done it
+  paymentHistory: StripeTransactions,
   lastFour: ?any,
   appLanguage: string,
+  doCustomerListPaymentHistory: () => void,
   doGetCustomerStatus: () => void,
   transactionType: string,
 };
 
 const WalletFiatPaymentHistory = (props: Props) => {
-  // receive transactions from parent component
-  let { transactions: accountTransactions, lastFour, appLanguage, doGetCustomerStatus, transactionType } = props;
+  const {
+    fetchDataOnMount,
+    paymentHistory,
+    lastFour,
+    appLanguage,
+    doCustomerListPaymentHistory,
+    doGetCustomerStatus,
+    transactionType,
+  } = props;
 
   const tipsBranch = transactionType === 'tips';
   const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
@@ -31,11 +40,17 @@ const WalletFiatPaymentHistory = (props: Props) => {
     }
   }
 
-  accountTransactions =
-    accountTransactions &&
-    accountTransactions.filter((transaction) => {
+  const transactions =
+    paymentHistory &&
+    paymentHistory.filter((transaction) => {
       return getMatch(transaction.type);
     });
+
+  React.useEffect(() => {
+    if (fetchDataOnMount) {
+      doCustomerListPaymentHistory();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     doGetCustomerStatus();
@@ -60,8 +75,8 @@ const WalletFiatPaymentHistory = (props: Props) => {
             </thead>
             {/* list data for transactions */}
             <tbody>
-              {accountTransactions &&
-                accountTransactions.map((transaction) => (
+              {transactions &&
+                transactions.map((transaction) => (
                   <tr key={transaction.name + transaction.created_at}>
                     {/* date */}
                     <td>{moment(transaction.created_at).locale(appLanguage).format('LLL')}</td>
@@ -99,9 +114,7 @@ const WalletFiatPaymentHistory = (props: Props) => {
             </tbody>
           </table>
           {/* show some markup if there's no transactions */}
-          {(!accountTransactions || accountTransactions.length === 0) && (
-            <p className="wallet__fiat-transactions">{__('No Tips')}</p>
-          )}
+          {(!transactions || transactions.length === 0) && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
         </div>
       </div>
     </>
