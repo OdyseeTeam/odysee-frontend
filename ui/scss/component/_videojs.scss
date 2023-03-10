@@ -91,11 +91,6 @@ $control-bar-popup-font-size: 0.8rem;
         height: 0.35em !important;
       }
     }
-
-    // Progress Slider
-    //.vjs-slider {
-    //  margin: 0 1rem;
-    //}
   }
 
   // Load progress color
@@ -208,7 +203,6 @@ $control-bar-popup-font-size: 0.8rem;
 .vjs-lock-showing {
   @media (max-width: $breakpoint-small) {
     width: 8em !important;
-    // overflow-y:scroll;
     .vjs-menu-content {
       max-height: 176px !important;
       right: var(--spacing-s);
@@ -217,13 +211,11 @@ $control-bar-popup-font-size: 0.8rem;
 }
 
 [dir] .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
-  //background-color: rgba(43, 51, 63);
   background-color: rgba(var(--color-header-button-base), 0.9);
   backdrop-filter: blur(4px);
   border-radius: var(--border-radius);
   border: 2px solid var(--color-header-background);
   max-height: 20em;
-  // margin-bottom: -3px; // Prevents accidental dismissal when the gap is hovered.
 
   li {
     font-size: $control-bar-popup-font-size;
@@ -282,8 +274,6 @@ $control-bar-popup-font-size: 0.8rem;
   color: white !important;
   background-color: lightgrey !important;
   background-color: white !important;
-  // width: 8px !important;
-  // margin-left: -5px !important;
 }
 
 .vjs_video_3_ima-ad-container {

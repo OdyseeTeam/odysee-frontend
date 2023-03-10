@@ -199,7 +199,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
       cut = cut.substring(0, cut.indexOf(':'));
-      let a,
+      var a,
         b,
         c,
         d,
@@ -230,7 +230,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('F: ', f);
 
       if (e) updateClaim('e');
-      // Livestream chat
+      // play next
+      if (a && !b && !c && d && !e && !f) updateClaim('a & d & !f');
+      // Embedded videos in Livestream chat
       if (!a && b && !c && d && !e && !f) updateClaim('b & d & !f');
       if (a && !b && c && !d && !e) updateClaim('a & c');
       // if(!uri.includes(uriChannel) && !uri.includes(cut) && !currentUriPlaying) updateClaim();
