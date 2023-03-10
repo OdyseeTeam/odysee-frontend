@@ -82,6 +82,8 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doPlayUri,
   } = props;
 
+  console.log('props: ', props);
+
   const isUrlParamModal = React.useContext(ModalContext).isUrlParamModal;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
@@ -154,6 +156,8 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     // -- hide modal until a pendingPurchase condition is found to show it --
     return <Global styles={{ '.ReactModalPortal': { display: 'none' } }} />;
   }
+
+  console.log('pendingSdkPayment: ', pendingSdkPayment);
 
   return (
     <Form onSubmit={handleSubmit}>

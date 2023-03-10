@@ -245,7 +245,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
       if (e && x) updateClaim('e');
       // play next | fix autoplay on claim page
-      if (a && !b && !c && d && !e && !f && !g && x) updateClaim('a & d & !f');
+      if (a && !b && !c && d && !e && !f && !g && x) {
+        console.log('renderMode: ', renderMode);
+        if (renderMode === 'video') {
+          if (autoplay) updateClaim('a & d & !f video');
+        } else {
+          updateClaim('a & d & !f nonVideo');
+        }
+      }
       // Embedded videos in Livestream chat
       if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
       // ???
@@ -332,7 +339,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       livestreamUnplayable ||
       (isPlayable && !currentUriPlaying)
     ) {
-      if (renderMode === 'md') console.log('22222222222222222222222222');
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
