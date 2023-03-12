@@ -7,42 +7,117 @@ import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
 type Props = {
-  transactions: StripeTransactions,
+  fetchDataOnMount?: boolean, // Option to fetch it ourselves, or not if parent or someone else has done it
+  incomingHistory: StripeTransactions,
   transactionType: string,
   appLanguage: string,
+  doListAccountTransactions: () => void,
 };
 
 const WalletFiatAccountHistory = (props: Props) => {
   const { appLanguage } = props;
-  // receive transactions from parent component
-  let { transactions: accountTransactions, transactionType } = props;
+  const { fetchDataOnMount, incomingHistory, transactionType, doListAccountTransactions } = props;
 
-  const tipsBranch = transactionType === 'tips';
-  const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
+  const transactions = incomingHistory && incomingHistory.filter((x) => typeFilterCb(x));
 
-  // filter transactions by type
-  function getMatch(transactionType) {
+  // **************************************************************************
+  // **************************************************************************
+
+  function typeFilterCb(s: StripeTransaction) {
     switch (transactionType) {
-      case 'tip':
-        return tipsBranch;
-      case 'rental':
-        return rentalsAndPurchasesBranch;
-      case 'purchase':
-        return rentalsAndPurchasesBranch;
+      case 'tips':
+        return s.type === 'tip';
+      case 'rentals-purchases':
+        return s.type === 'rental' || s.type === 'purchase';
+      default:
+        return false;
     }
   }
 
-  accountTransactions =
-    accountTransactions &&
-    accountTransactions.filter((transaction) => {
-      return getMatch(transaction.type);
-    });
+  function createColumn(value: any) {
+    return <td>{value}</td>;
+  }
+
+  function getDate(transaction) {
+    return moment(transaction.created_at).locale(appLanguage).format('LLL');
+  }
+
+  function getReceivingChannelName(transaction) {
+    return (
+      <Button
+        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
+        label={transaction.channel_name}
+        button="link"
+      />
+    );
+  }
+
+  function getSendingChannelName(transaction) {
+    return (
+      <Button
+        navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
+        label={transaction.tipper_channel_name}
+        button="link"
+      />
+    );
+  }
+
+  function getTransactionType(transaction) {
+    return toCapitalCase(transaction.type);
+  }
+
+  function getClaimLink(transaction) {
+    return (
+      <Button
+        navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined}
+        label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
+        button="link"
+        target="_blank"
+      />
+    );
+  }
+
+  function getTipAmount(transaction, currencySymbol) {
+    return (
+      <>
+        {currencySymbol}
+        {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+      </>
+    );
+  }
+
+  function getProcessingFee(transaction, currencySymbol) {
+    return (
+      <>
+        {currencySymbol}
+        {(transaction.transaction_fee + transaction.application_fee) / 100}
+      </>
+    );
+  }
+
+  function getReceivedAmount(transaction, currencySymbol) {
+    return (
+      <>
+        {currencySymbol}
+        {transaction.received_amount / 100}
+      </>
+    );
+  }
+
+  // **************************************************************************
+  // **************************************************************************
 
   // TODO: should add pagination here
   // if there are more than 10 transactions, limit it to 10 for the frontend
-  // if (accountTransactions && accountTransactions.length > 10) {
-  //   accountTransactions.length = 10;
+  // if (transactions && transactions.length > 10) {
+  //   transactions.length = 10;
   // }
+
+  React.useEffect(() => {
+    if (fetchDataOnMount) {
+      doListAccountTransactions();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="table__wrapper">
@@ -60,57 +135,25 @@ const WalletFiatAccountHistory = (props: Props) => {
           </tr>
         </thead>
         <tbody>
-          {accountTransactions &&
-            accountTransactions.map((transaction) => {
+          {transactions &&
+            transactions.map((transaction) => {
               const { symbol: currencySymbol } = STRIPE.CURRENCY[transaction.currency.toUpperCase()] || {};
-              const targetClaimId = transaction.target_claim_id;
-
               return (
                 <tr key={transaction.name + transaction.created_at}>
-                  <td>{moment(transaction.created_at).locale(appLanguage).format('LLL')}</td>
-                  <td>
-                    <Button
-                      navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
-                      label={transaction.channel_name}
-                      button="link"
-                    />
-                  </td>
-                  <td>
-                    <Button
-                      navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
-                      label={transaction.tipper_channel_name}
-                      button="link"
-                    />
-                  </td>
-                  <td>{toCapitalCase(transaction.type)}</td>
-                  <td>
-                    <Button
-                      navigate={targetClaimId ? `/$/${PAGES.SEARCH}?q=${targetClaimId}` : undefined}
-                      label={
-                        transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')
-                      }
-                      button="link"
-                      target="_blank"
-                    />
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {(transaction.transaction_fee + transaction.application_fee) / 100}
-                  </td>
-                  <td>
-                    {currencySymbol}
-                    {transaction.received_amount / 100}
-                  </td>
+                  {createColumn(getDate(transaction))}
+                  {createColumn(getReceivingChannelName(transaction))}
+                  {createColumn(getSendingChannelName(transaction))}
+                  {createColumn(getTransactionType(transaction))}
+                  {createColumn(getClaimLink(transaction))}
+                  {createColumn(getTipAmount(transaction, currencySymbol))}
+                  {createColumn(getProcessingFee(transaction, currencySymbol))}
+                  {createColumn(getReceivedAmount(transaction, currencySymbol))}
                 </tr>
               );
             })}
         </tbody>
       </table>
-      {!accountTransactions && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
+      {!transactions && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
     </div>
   );
 };

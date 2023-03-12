@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import { doFetchTxoPage, doFetchTransactions, doUpdateTxoPageParams } from 'redux/actions/wallet';
 import { doCustomerListPaymentHistory, doListAccountTransactions } from 'redux/actions/stripe';
-import { selectPaymentHistory, selectAccountTransactions } from 'redux/selectors/stripe';
 import {
   selectIsFetchingTxos,
   selectIsFetchingTransactions,
@@ -23,8 +22,6 @@ const select = (state) => ({
   loading: selectIsFetchingTxos(state),
   isFetchingTransactions: selectIsFetchingTransactions(state),
   transactionsFile: selectTransactionsFile(state),
-  accountPaymentHistory: selectPaymentHistory(state),
-  accountTransactions: selectAccountTransactions(state),
 });
 
 const perform = {

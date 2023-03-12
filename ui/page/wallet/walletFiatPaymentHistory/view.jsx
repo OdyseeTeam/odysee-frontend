@@ -6,36 +6,95 @@ import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
 type Props = {
-  transactions: StripeTransactions,
+  fetchDataOnMount?: boolean, // Option to fetch it ourselves, or not if parent or someone else has done it
+  paymentHistory: StripeTransactions,
   lastFour: ?any,
   appLanguage: string,
+  doCustomerListPaymentHistory: () => void,
   doGetCustomerStatus: () => void,
-  transactionType: string,
+  transactionType: 'tips' | 'rentals-purchases',
 };
 
 const WalletFiatPaymentHistory = (props: Props) => {
-  // receive transactions from parent component
-  let { transactions: accountTransactions, lastFour, appLanguage, doGetCustomerStatus, transactionType } = props;
+  const {
+    fetchDataOnMount,
+    paymentHistory,
+    lastFour,
+    appLanguage,
+    doCustomerListPaymentHistory,
+    doGetCustomerStatus,
+    transactionType,
+  } = props;
 
-  const tipsBranch = transactionType === 'tips';
-  const rentalsAndPurchasesBranch = transactionType === 'rentals-purchases';
+  const transactions = paymentHistory && paymentHistory.filter(typeFilterCb);
 
-  function getMatch(transactionType) {
+  // **************************************************************************
+  // **************************************************************************
+
+  function typeFilterCb(s: StripeTransaction) {
     switch (transactionType) {
-      case 'tip':
-        return tipsBranch;
-      case 'rental':
-        return rentalsAndPurchasesBranch;
-      case 'purchase':
-        return rentalsAndPurchasesBranch;
+      case 'tips':
+        return s.type === 'tip';
+      case 'rentals-purchases':
+        return s.type === 'rental' || s.type === 'purchase';
+      default:
+        return false;
     }
   }
 
-  accountTransactions =
-    accountTransactions &&
-    accountTransactions.filter((transaction) => {
-      return getMatch(transaction.type);
-    });
+  function createColumn(value: any) {
+    return <td>{value}</td>;
+  }
+
+  function getDate(transaction) {
+    return moment(transaction.created_at).locale(appLanguage).format('LLL');
+  }
+
+  function getReceivingChannelName(transaction) {
+    return (
+      <Button
+        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
+        label={transaction.channel_name}
+        button="link"
+      />
+    );
+  }
+
+  function getTransactionType(transaction) {
+    return toCapitalCase(transaction.type);
+  }
+
+  function getClaimLink(transaction) {
+    return (
+      <Button
+        navigate={'/' + transaction.channel_name + ':' + transaction.source_claim_id}
+        label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
+        button="link"
+      />
+    );
+  }
+
+  function getTipAmount(transaction) {
+    return (
+      <>
+        {STRIPE.CURRENCY[transaction.currency.toUpperCase()]?.symbol}
+        {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+      </>
+    );
+  }
+
+  function getIsAnon(transaction) {
+    return transaction.private_tip ? __('Yes') : __('No');
+  }
+
+  // **************************************************************************
+  // **************************************************************************
+
+  React.useEffect(() => {
+    if (fetchDataOnMount) {
+      doCustomerListPaymentHistory();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     doGetCustomerStatus();
@@ -46,7 +105,6 @@ const WalletFiatPaymentHistory = (props: Props) => {
       <div className="section card-stack">
         <div className="table__wrapper">
           <table className="table table--transactions">
-            {/* table header */}
             <thead>
               <tr>
                 <th className="date-header">{__('Date')}</th>
@@ -58,50 +116,23 @@ const WalletFiatPaymentHistory = (props: Props) => {
                 <th className="anonymous-header">{__('Anonymous')}</th>
               </tr>
             </thead>
-            {/* list data for transactions */}
             <tbody>
-              {accountTransactions &&
-                accountTransactions.map((transaction) => (
-                  <tr key={transaction.name + transaction.created_at}>
-                    {/* date */}
-                    <td>{moment(transaction.created_at).locale(appLanguage).format('LLL')}</td>
-                    {/* receiving channel name */}
-                    <td>
-                      <Button
-                        navigate={'/' + transaction.channel_name + ':' + transaction.channel_claim_id}
-                        label={transaction.channel_name}
-                        button="link"
-                      />
-                    </td>
-                    <td>{toCapitalCase(transaction.type)}</td>
-                    {/* link to content or channel */}
-                    <td>
-                      <Button
-                        navigate={'/' + transaction.channel_name + ':' + transaction.source_claim_id}
-                        label={
-                          transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')
-                        }
-                        button="link"
-                      />
-                    </td>
-                    {/* how much tipped */}
-                    <td>
-                      {STRIPE.CURRENCY[transaction.currency.toUpperCase()]?.symbol}
-                      {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
-                    </td>
+              {transactions &&
+                transactions.map((t) => (
+                  <tr key={t.name + t.created_at}>
+                    {createColumn(getDate(t))}
+                    {createColumn(getReceivingChannelName(t))}
+                    {createColumn(getTransactionType(t))}
+                    {createColumn(getClaimLink(t))}
+                    {createColumn(getTipAmount(t))}
                     {/* TODO: this is incorrect need it per transactions not per user */}
-                    {/* last four of credit card  */}
-                    <td>{lastFour}</td>
-                    {/* whether tip is anonymous or not */}
-                    <td>{transaction.private_tip ? 'Yes' : 'No'}</td>
+                    {createColumn(lastFour)}
+                    {createColumn(getIsAnon(t))}
                   </tr>
                 ))}
             </tbody>
           </table>
-          {/* show some markup if there's no transactions */}
-          {(!accountTransactions || accountTransactions.length === 0) && (
-            <p className="wallet__fiat-transactions">{__('No Tips')}</p>
-          )}
+          {(!transactions || transactions.length === 0) && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
         </div>
       </div>
     </>
