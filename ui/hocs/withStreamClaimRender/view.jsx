@@ -206,7 +206,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         d,
         e,
         f,
-        h,
+        // h,
+        i,
         x = false;
       if (pathname !== '/') {
         if (uri.includes(uriChannel) && uri.includes(cut)) {
@@ -224,9 +225,11 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         e = true;
       }
       if (claimLinkId) f = true;
-      if (autoplayVideo) h = true;
+      // if (autoplayVideo) h = true;
+      if (sourceLoaded) i = true;
       if (canViewFile) x = true;
 
+      /*
       console.log('A: ', a);
       console.log('B: ', b);
       console.log('C: ', c);
@@ -235,8 +238,11 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('F: ', f);
       console.log('G: ', g);
       console.log('H: ', h);
+      console.log('I: ', i);
+      */
 
-      console.log('collectionId: ', collectionId);
+      // console.log('collectionId: ', collectionId);
+      // console.log('sourceLoaded: ', sourceLoaded)
 
       if (e && x) updateClaim('e');
       // play next | fix autoplay on claim page
@@ -250,12 +256,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
       // Embedded videos in Livestream chat
       if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
-      // ???
-      if (a && !b && c && !d && !e && x) updateClaim('a & c');
+      // Playlist
+      if (a && !b && c && !d && !e && !f && i && x) updateClaim('a & c & i');
       if (e) updateClaim('e');
     }, [pathname, sourceLoaded]);
 
     function updateClaim(trigger: string) {
+      // console.log('uri: ', uri)
       const playingOptions: PlayingUri = {
         uri,
         collection: { collectionId },
@@ -348,6 +355,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         return <LoadingScreen />;
       }
     }
+
+    /*
+    console.log('isPlayable: ', isPlayable)
+    console.log('autoplayVideo: ', autoplayVideo)
+    console.log('sourceLoaded: ', sourceLoaded)
+    */
 
     // -- Main Component Render -- return when already has the claim's contents
     return (
