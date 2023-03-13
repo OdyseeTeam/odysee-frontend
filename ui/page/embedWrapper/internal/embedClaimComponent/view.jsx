@@ -84,8 +84,6 @@ const EmbedClaimComponent = (props: Props) => {
     );
   }
 
-  console.log('hhhhhhhhhhhhhhhh');
-
   if (isVideo) {
     return (
       <>

@@ -194,8 +194,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      console.log('###################################');
-      console.log('pathname: ', pathname);
+      // console.log('###################################');
+      // console.log('pathname: ', pathname);
       let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
@@ -245,9 +245,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('I: ', i);
       */
 
-      // console.log('collectionId: ', collectionId);
-      // console.log('sourceLoaded: ', sourceLoaded)
-
       if (e && x) updateClaim('e');
       // play next | fix autoplay on claim page
       if (a && !b && !c && d && !e && !f && !g && x) {
@@ -269,7 +266,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [pathname, sourceLoaded]);
 
     function updateClaim(trigger: string) {
-      // console.log('uri: ', uri)
       const playingOptions: PlayingUri = {
         uri,
         collection: { collectionId },
@@ -279,7 +275,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         commentId: undefined,
       };
 
-      console.log('updateClaim: ', trigger);
+      // console.log('updateClaim: ', trigger);
 
       let check = playingOptions.uri === currentStreamingUri;
 
@@ -303,15 +299,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         setCurrentStreamingUri(uri);
       }
     }
-
-    /*
-    React.useEffect(() => {
-      if (canViewFile && shouldAutoplay) {
-        console.log('streamClaim()');
-        streamClaim();
-      }
-    }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
-    */
 
     React.useEffect(() => {
       shouldClearPlayingUri.current = claimLinkId && currentUriPlaying;
@@ -368,12 +355,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         return <LoadingScreen />;
       }
     }
-
-    /*
-    console.log('isPlayable: ', isPlayable)
-    console.log('autoplayVideo: ', autoplayVideo)
-    console.log('sourceLoaded: ', sourceLoaded)
-    */
 
     // -- Main Component Render -- return when already has the claim's contents
     return (
