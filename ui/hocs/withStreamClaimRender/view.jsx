@@ -231,6 +231,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (sourceLoaded) i = true;
       if (canViewFile) x = true;
 
+      /*
       console.log('autoplayVideo: ', autoplayVideo);
       console.log('forceAutoplayParam: ', forceAutoplayParam);
       console.log('A: ', a);
@@ -242,6 +243,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('G: ', g);
       // console.log('H: ', h);
       console.log('I: ', i);
+      */
 
       // console.log('collectionId: ', collectionId);
       // console.log('sourceLoaded: ', sourceLoaded)
@@ -330,9 +332,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
           {pendingFiatPayment || sdkFeePending ? (
-            <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
+            <>
+              {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+              <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
+            </>
           ) : pendingUnlockedRestrictions ? (
-            <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
+            <>
+              {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+              <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
+            </>
           ) : null}
         </ClaimCoverRender>
       );
@@ -373,7 +381,10 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded ? (
           <LoadingScreen />
         ) : (
-          <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+          <>
+            <h1>dsfasdf</h1>
+            <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+          </>
         )}
       </>
     );

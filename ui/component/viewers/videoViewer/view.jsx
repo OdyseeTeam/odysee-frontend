@@ -177,8 +177,9 @@ function VideoViewer(props: Props) {
   const vjsCallbackDataRef: any = React.useRef();
 
   const embedContext = useContext(EmbedContext);
-  const isEmbedded = Boolean(embedContext) || embedded;
+  const isEmbedded = Boolean(embedContext) || embedded || window.location.pathname.includes('/$/embed/');
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
+  console.log('isEmbedded: ', isEmbedded);
 
   const approvedVideo = Boolean(channelClaimId) && adApprovedChannelIds.includes(channelClaimId);
   const adsEnabled = ENABLE_PREROLL_ADS && !authenticated && !embedded && approvedVideo;
@@ -484,6 +485,7 @@ function VideoViewer(props: Props) {
     playerRef.current.play();
   }
 
+  console.log('here: ', window.location.pathname);
   return (
     <>
       {isEmbedded && (
