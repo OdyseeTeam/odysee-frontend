@@ -112,11 +112,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const [clickProps, setClickProps] = React.useState();
 
     const { search, href, state: locationState, pathname } = location;
-    const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
-
+    const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
 
     const urlParams = search && new URLSearchParams(search);
+    const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
+
     const collectionId =
       (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) ||
       (currentUriPlaying && playingCollectionId) ||
@@ -230,6 +231,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (sourceLoaded) i = true;
       if (canViewFile) x = true;
 
+      console.log('autoplayVideo: ', autoplayVideo);
+      console.log('forceAutoplayParam: ', forceAutoplayParam);
       console.log('A: ', a);
       console.log('B: ', b);
       console.log('C: ', c);
@@ -258,6 +261,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (a && !b && c && !d && !e && !f && !i && x && !collectionId) updateClaim('a & c & !i');
       // Playlist
       if (a && !b && c && !d && !e && !f && i && x) updateClaim('a & c & i');
+      // External embedded autoplay
+      if (!a && b && !c && d && !e && !f && i && x && autoplayVideo) updateClaim('a & c & i');
       if (e) updateClaim('e');
     }, [pathname, sourceLoaded]);
 
