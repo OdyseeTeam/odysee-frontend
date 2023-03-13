@@ -27,6 +27,8 @@ type Props = {
 
 const ClaimLinkPreview = (props: Props) => {
   const { uri, title, channel, parentCommentId, playingUri, renderMode, isLivestreamClaim } = props;
+  const cleanUri = uri.includes('lbry://') ? 'lbry://' + uri.slice(7).replace(/:/g, '#') : uri;
+  // const cleanUri = 'lbry://@toshokanneko#d/BAND-MAID---Onset#f'
 
   // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
   const claimLinkIdRef = React.useRef(uuid());
@@ -44,7 +46,7 @@ const ClaimLinkPreview = (props: Props) => {
     () => () =>
       (
         <div className="preview-link__url">
-          <Button button="link" label={channel + ': ' + title} navigate={uri} />
+          <Button button="link" label={channel + ': ' + title} navigate={cleanUri} />
         </div>
       ),
     [uri]
@@ -57,8 +59,8 @@ const ClaimLinkPreview = (props: Props) => {
     return (
       <>
         <div className={INLINE_PLAYER_WRAPPER_CLASS} id={claimLinkId}>
-          {!currentUriPlaying && <FileViewerEmbeddedTitle uri={uri} />}
-          <Component uri={uri} embedded claimLinkId={claimLinkId} parentCommentId={parentCommentId} />
+          {!currentUriPlaying && <FileViewerEmbeddedTitle uri={cleanUri} />}
+          <Component uri={cleanUri} embedded claimLinkId={claimLinkId} parentCommentId={parentCommentId} />
         </div>
 
         <PreviewLinkButton />
@@ -68,7 +70,7 @@ const ClaimLinkPreview = (props: Props) => {
 
   return (
     <>
-      <ClaimPreviewTile uri={uri} onlyThumb />
+      <ClaimPreviewTile uri={cleanUri} onlyThumb />
       <PreviewLinkButton />
     </>
   );

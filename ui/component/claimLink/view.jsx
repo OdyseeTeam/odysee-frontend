@@ -50,7 +50,7 @@ const ClaimLink = (props: Props) => {
         <ClaimLinkPreview
           uri={uri}
           title={claim?.value?.title}
-          channel={claim?.signing_channel?.value?.title}
+          channel={claim?.signing_channel?.value?.title || claim?.signing_channel?.name}
           parentCommentId={parentCommentId}
         />
       </div>
