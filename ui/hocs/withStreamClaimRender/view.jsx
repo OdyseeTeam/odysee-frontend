@@ -344,7 +344,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
-        return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
+        return (
+          <>
+            {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+            <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
+          </>
+        );
       } else if (isPlayable && !autoplayVideo) {
         return (
           <ClaimCoverRender uri={uri} onClick={handleClick}>
