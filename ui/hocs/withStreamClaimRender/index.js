@@ -5,6 +5,7 @@ import * as SETTINGS from 'constants/settings';
 
 import {
   selectClaimForUri,
+  selectMetadataForUri,
   selectIsFetchingPurchases,
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
@@ -38,6 +39,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const { claim_id: claimId, signing_channel: channelClaim } = claim || {};
   const { name: channelName, claim_id: channelClaimId } = channelClaim || {};
+  selectMetadataForUri(state, props.uri);
 
   return {
     channelName,

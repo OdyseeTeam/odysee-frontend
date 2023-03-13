@@ -126,6 +126,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
     const isAPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
+    console.log('purchaseTag: ', purchaseTag);
 
     // check if there is a time or autoplay parameter, if so force autoplay
     const urlTimeParam = href && href.indexOf('t=') > -1;
@@ -170,7 +171,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [doMembershipMine, myMembershipsFetched]);
 
     React.useEffect(() => {
+      console.log('isAPurchaseOrPreorder: ', isAPurchaseOrPreorder);
       if (isAPurchaseOrPreorder && isFetchingPurchases === undefined) {
+        console.log('doCheckIfPurchasedClaimId');
         doCheckIfPurchasedClaimId(claimId);
       }
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
@@ -317,6 +320,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
+      console.log('canViewFile: ', canViewFile);
+      // console.log('doCheckIfPurchasedClaimId: ', doCheckIfPurchasedClaimId)
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
           {pendingFiatPayment || sdkFeePending ? (
@@ -347,7 +352,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         return (
           <>
             {embedded && <FileViewerEmbeddedTitle uri={uri} />}
-            <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
+            <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>
           </>
         );
       } else if (isPlayable && !autoplayVideo) {

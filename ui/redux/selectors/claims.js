@@ -861,6 +861,7 @@ export const selectTagsForUri = createCachedSelector(selectMetadataForUri, (meta
 })((state, uri) => String(uri));
 
 export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
+  console.log('metadata: ', metadata);
   return parsePurchaseTag(metadata?.tags);
 })((state, uri) => String(uri));
 
