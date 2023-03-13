@@ -193,6 +193,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
+      console.log('###################################');
       console.log('pathname: ', pathname);
       let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
@@ -229,7 +230,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (sourceLoaded) i = true;
       if (canViewFile) x = true;
 
-      /*
       console.log('A: ', a);
       console.log('B: ', b);
       console.log('C: ', c);
@@ -237,9 +237,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       console.log('E: ', e);
       console.log('F: ', f);
       console.log('G: ', g);
-      console.log('H: ', h);
+      // console.log('H: ', h);
       console.log('I: ', i);
-      */
 
       // console.log('collectionId: ', collectionId);
       // console.log('sourceLoaded: ', sourceLoaded)
@@ -247,7 +246,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (e && x) updateClaim('e');
       // play next | fix autoplay on claim page
       if (a && !b && !c && d && !e && !f && !g && x) {
-        console.log('renderMode: ', renderMode);
         if (renderMode === 'video') {
           if (autoplay) updateClaim('a & d & !f video');
         } else {
@@ -256,6 +254,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
       // Embedded videos in Livestream chat
       if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
+      // Play next
+      if (a && !b && c && !d && !e && !f && !i && x && !collectionId) updateClaim('a & c & !i');
       // Playlist
       if (a && !b && c && !d && !e && !f && i && x) updateClaim('a & c & i');
       if (e) updateClaim('e');
