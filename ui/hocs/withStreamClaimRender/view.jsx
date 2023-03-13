@@ -246,11 +246,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       */
 
       if (e && x) updateClaim('e');
-      // play next | fix autoplay on claim page
       if (a && !b && !c && d && !e && !f && !g && x) {
         if (renderMode === 'video') {
+          // Play next
           if (autoplay) updateClaim('a & d & !f video');
         } else {
+          // Non video claims
           updateClaim('a & d & !f nonVideo');
         }
       }
@@ -362,10 +363,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded ? (
           <LoadingScreen />
         ) : (
-          <>
-            <h1>dsfasdf</h1>
-            <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
-          </>
+          <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
         )}
       </>
     );
