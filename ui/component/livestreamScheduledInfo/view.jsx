@@ -3,7 +3,7 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
-import moment from 'moment';
+import moment from 'moment/min/moment-with-locales';
 import 'scss/component/livestream-scheduled-info.scss';
 import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
@@ -13,15 +13,19 @@ const CALC_TIME_INTERVAL_MS = 1000;
 type Props = {
   // -- redux --
   releaseTimeMs: number,
+  appLanguage: string,
 };
 
 export default function LivestreamScheduledInfo(props: Props) {
-  const { releaseTimeMs } = props;
+  const { releaseTimeMs, appLanguage } = props;
 
   const [startDateFromNow, setStartDateFromNow] = React.useState();
   const [inPast, setInPast] = React.useState();
 
-  const startDate = React.useMemo(() => moment(releaseTimeMs).format('MMMM Do, h:mm a'), [releaseTimeMs]);
+  const startDate = React.useMemo(
+    () => moment(releaseTimeMs).locale(appLanguage).format('LLL'),
+    [releaseTimeMs, appLanguage]
+  );
 
   React.useEffect(() => {
     const calcTime = () => {

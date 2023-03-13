@@ -12,12 +12,12 @@ import SettingsRow from 'component/settingsRow';
 
 type Props = {
   searchInLanguage: boolean,
+  homepageKeys: Array<string>,
   setSearchInLanguage: (boolean) => void,
 };
 
 export default function SettingUnauthenticated(props: Props) {
-  const { searchInLanguage, setSearchInLanguage } = props;
-  const homepages = window.homepages || {};
+  const { searchInLanguage, homepageKeys, setSearchInLanguage } = props;
 
   return (
     <Card
@@ -37,7 +37,7 @@ export default function SettingUnauthenticated(props: Props) {
             />
           </SettingsRow>
 
-          {homepages && Object.keys(homepages).length > 1 && (
+          {homepageKeys.length > 1 && (
             <SettingsRow title={__('Homepage')} subtitle={__('Tailor your experience.')}>
               <HomepageSelector />
             </SettingsRow>
