@@ -484,7 +484,6 @@ function VideoViewer(props: Props) {
     playerRef.current.play();
   }
 
-  console.log('here: ', window.location.pathname);
   return (
     <>
       {isEmbedded && (
