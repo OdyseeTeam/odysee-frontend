@@ -86,30 +86,32 @@ const EmbedClaimComponent = (props: Props) => {
 
   if (isVideo) {
     return (
-      <EmbeddedVideoClaim uri={uri} embedded>
-        {isLivestreamClaim && (
-          <>
-            {showScheduledInfo && <LivestreamScheduledInfo uri={uri} />}
+      <>
+        <EmbeddedVideoClaim uri={uri} embedded>
+          {isLivestreamClaim && (
+            <>
+              {showScheduledInfo && <LivestreamScheduledInfo uri={uri} />}
 
-            <div
-              className={classnames('help--notice help--notice-embed-livestream', {
-                'help--notice-short': showScheduledInfo,
-              })}
-            >
-              {showScheduledInfo ? (
-                <I18nMessage tokens={{ click_here: <ClickHereButton /> }}>
-                  %click_here% if you want to join the chat for this stream.
-                </I18nMessage>
-              ) : (
-                <I18nMessage tokens={{ channel_name: channelName, click_here: <ClickHereButton /> }}>
-                  %channel_name% isn't live right now, but the chat is! Check back later to watch the stream, or
-                  %click_here% to start chatting.
-                </I18nMessage>
-              )}
-            </div>
-          </>
-        )}
-      </EmbeddedVideoClaim>
+              <div
+                className={classnames('help--notice help--notice-embed-livestream', {
+                  'help--notice-short': showScheduledInfo,
+                })}
+              >
+                {showScheduledInfo ? (
+                  <I18nMessage tokens={{ click_here: <ClickHereButton /> }}>
+                    %click_here% if you want to join the chat for this stream.
+                  </I18nMessage>
+                ) : (
+                  <I18nMessage tokens={{ channel_name: channelName, click_here: <ClickHereButton /> }}>
+                    %channel_name% isn't live right now, but the chat is! Check back later to watch the stream, or
+                    %click_here% to start chatting.
+                  </I18nMessage>
+                )}
+              </div>
+            </>
+          )}
+        </EmbeddedVideoClaim>
+      </>
     );
   }
 

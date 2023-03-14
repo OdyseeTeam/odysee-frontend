@@ -18,7 +18,13 @@ const VideoRender = (props: Props) => {
 
   return (
     <div className={classnames('file-render file-render--video', className, { 'file-render--embed': embedded })}>
-      <VideoViewer uri={uri} source={streamingUrl} contentType={contentType} streamClaim={streamClaim} />
+      <VideoViewer
+        uri={uri}
+        source={streamingUrl}
+        contentType={contentType}
+        streamClaim={streamClaim}
+        embedded={embedded}
+      />
     </div>
   );
 };

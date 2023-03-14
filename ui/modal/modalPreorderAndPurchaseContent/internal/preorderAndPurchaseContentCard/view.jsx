@@ -155,6 +155,8 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     return <Global styles={{ '.ReactModalPortal': { display: 'none' } }} />;
   }
 
+  console.log('pendingSdkPayment: ', pendingSdkPayment);
+
   return (
     <Form onSubmit={handleSubmit}>
       <Card

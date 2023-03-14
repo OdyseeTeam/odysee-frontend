@@ -126,6 +126,15 @@
           }
         }
       }
+      div {
+        transition: background-size 0.2s;
+        &:hover {
+          cursor: pointer !important;
+          .media__thumb {
+            background-size: 108%;
+          }
+        }
+      }
     }
   }
 }
@@ -162,6 +171,7 @@
 .vjs-control-bar {
   z-index: 2;
   display: flex !important;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
 @keyframes blendin {

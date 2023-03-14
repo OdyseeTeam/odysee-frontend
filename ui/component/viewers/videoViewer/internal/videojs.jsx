@@ -502,7 +502,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
           contentUrl = response.url;
         } else {
-          vjsPlayer.src(vjsPlayer.claimSrcOriginal);
+          if (source) vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
       }
 

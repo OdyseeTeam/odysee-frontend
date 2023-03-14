@@ -324,12 +324,7 @@ const VideoJsEvents = ({
           if (window.liveEdgePaused) delete window.liveEdgePaused;
         }
 
-        setTimeout(() => {
-          // Do not jump ahead if user has paused the player
-          if (window.liveEdgePaused) return;
-
-          player.liveTracker.seekToLiveEdge();
-        }, 5 * 1000);
+        player.liveTracker.seekToLiveEdge();
       });
       player.on('timeupdate', liveEdgeRestoreSpeed);
     }

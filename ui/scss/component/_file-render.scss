@@ -399,6 +399,15 @@
   border-radius: 0;
   position: fixed;
   max-height: none;
+  border-radius: var(--border-radius);
+  .video-js.vjs-layout-small {
+    .vjs-volume-control {
+      display: block !important;
+    }
+  }
+  .vjs-button--autoplay-next {
+    display: none;
+  }
 }
 
 .claim-link {
@@ -414,6 +423,9 @@
   background-color: var(--color-placeholder-background);
   border-radius: var(--border-radius);
   position: relative;
+  .file-render {
+    height: unset;
+  }
 }
 
 .file-render--post-container {
@@ -612,6 +624,32 @@
   .credit-amount,
   .icon--Key {
     margin-right: var(--spacing-m);
+  }
+}
+
+.file-viewer__embedded-header-hide {
+  .file-viewer__embedded-header {
+    animation-name: hide-embedded-header;
+    animation-duration: 0.6s;
+    animation-delay: 2.5s;
+    animation-fill-mode: forwards;
+  }
+}
+
+.file-render--video.file-render--embed {
+  &:hover {
+    .file-viewer__embedded-header {
+      opacity: 1 !important;
+    }
+  }
+}
+
+@keyframes hide-embedded-header {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
@@ -1202,6 +1240,34 @@ $control-bar-icon-size: 30px;
   &.file-render--video {
     aspect-ratio: 16 / 9;
   }
+
+  .vjs-control-bar {
+    .vjs-progress-control.vjs-control {
+      margin: 1px var(--spacing-s) 7px !important;
+      width: calc(100% - var(--spacing-s) * 2) !important;
+    }
+    .vjs-paused {
+      margin-left: 3px !important;
+    }
+    .vjs-playing {
+      margin-left: 6px !important;
+      margin-right: -1px !important;
+    }
+    .vjs-fullscreen-control {
+      margin-right: 7px !important;
+    }
+    .vjs-volume-horizontal {
+      margin-left: 1em !important;
+    }
+    .vjs-volume-panel-horizontal.vjs-hover {
+      width: 10em !important;
+    }
+  }
+  .vjs-menu {
+    // left:-4.8em !important;
+    left: -3em !important;
+    width: 8.7em !important;
+  }
 }
 
 .file-viewer--ended-embed {
@@ -1303,4 +1369,25 @@ $control-bar-icon-size: 30px;
 
 .inline-player__wrapper {
   aspect-ratio: 16 / 9;
+  border-radius: var(--border-radius) !important;
+
+  .paid-content-overlay,
+  .protected-content-overlay {
+    .button__content {
+      display: flex !important;
+    }
+  }
+}
+
+.paid-content-overlay,
+.protected-content-overlay {
+  .button {
+    border: 1px solid white;
+    transition: all 0.2s;
+    opacity: 0.9;
+    &:hover {
+      transform: scale(1.08);
+      opacity: 1;
+    }
+  }
 }

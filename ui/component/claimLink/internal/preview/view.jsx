@@ -16,6 +16,8 @@ import withLiveStatus from 'hocs/withLiveStatus';
 
 type Props = {
   uri: string,
+  title: string,
+  channel: string,
   parentCommentId?: string,
   // -- redux --
   playingUri: PlayingUri,
@@ -24,7 +26,8 @@ type Props = {
 };
 
 const ClaimLinkPreview = (props: Props) => {
-  const { uri, parentCommentId, playingUri, renderMode, isLivestreamClaim } = props;
+  const { uri, title, channel, parentCommentId, playingUri, renderMode, isLivestreamClaim } = props;
+  const cleanUri = uri.includes('lbry://') ? 'lbry://' + uri.slice(7).replace(/:/g, '#') : uri;
 
   // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
   const claimLinkIdRef = React.useRef(uuid());
@@ -42,7 +45,7 @@ const ClaimLinkPreview = (props: Props) => {
     () => () =>
       (
         <div className="preview-link__url">
-          <Button button="link" label={uri} navigate={uri} />
+          <Button button="link" label={channel + ': ' + title} navigate={cleanUri} />
         </div>
       ),
     [uri]
@@ -55,9 +58,8 @@ const ClaimLinkPreview = (props: Props) => {
     return (
       <>
         <div className={INLINE_PLAYER_WRAPPER_CLASS} id={claimLinkId}>
-          {!currentUriPlaying && <FileViewerEmbeddedTitle uri={uri} />}
-
-          <Component uri={uri} embedded claimLinkId={claimLinkId} parentCommentId={parentCommentId} />
+          {!currentUriPlaying && <FileViewerEmbeddedTitle uri={cleanUri} />}
+          <Component uri={cleanUri} embedded claimLinkId={claimLinkId} parentCommentId={parentCommentId} />
         </div>
 
         <PreviewLinkButton />
@@ -67,8 +69,7 @@ const ClaimLinkPreview = (props: Props) => {
 
   return (
     <>
-      <FileViewerEmbeddedTitle uri={uri} />
-      <ClaimPreviewTile uri={uri} onlyThumb />
+      <ClaimPreviewTile uri={cleanUri} onlyThumb />
       <PreviewLinkButton />
     </>
   );

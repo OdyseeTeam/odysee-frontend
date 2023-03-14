@@ -6,7 +6,7 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 
 import { ExpandableContext } from 'contexts/expandable';
-
+import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
@@ -110,14 +110,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
-    const [sourceIsReady, setSourceIsReady] = React.useState(true);
 
     const { search, href, state: locationState, pathname } = location;
-    const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
-
+    const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
 
     const urlParams = search && new URLSearchParams(search);
+    const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
+
     const collectionId =
       (urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) ||
       (currentUriPlaying && playingCollectionId) ||
@@ -139,12 +139,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       (autoplayEnabled || playingCollectionId) &&
       (!alreadyPlaying.current || currentUriPlaying) &&
       isPlayable;
-    const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
-    const shouldAutoplay = autoplayVideo || autoRenderClaim;
     const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
 
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
-    const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
     const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
 
     function handleClick() {
@@ -176,7 +173,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
     const streamClaim = React.useCallback(() => {
-      if (sourceIsReady) updateClaim();
+      updateClaim('callback');
     }, [
       claimLinkId,
       collectionId,
@@ -194,28 +191,47 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      if (sourceIsReady) {
-        if (canViewFile && (autoplayEnabled || autoRenderClaim || (alreadyPlaying.current && !embedded))) {
-          updateClaim();
+      const uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
+      let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
+      cut = cut.substring(cut.indexOf('/') + 1, cut.length);
+      cut = cut.substring(0, cut.indexOf(':'));
+      const isExternaleEmbed = pathname.includes('/$/embed');
+      const uriIsActive = uri.includes(uriChannel) && uri.includes(cut);
+      // $FlowIgnore
+      const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
+      const isHome = pathname === '/';
+
+      if (canViewFile) {
+        if (isHome) updateClaim('isHome');
+        if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
+          if (renderMode === 'video') {
+            // Play next
+            if (autoplay) updateClaim('a & d & !claimLinkId video');
+          } else {
+            // Non video claims
+            updateClaim('a & d & !claimLinkId nonVideo');
+          }
+        }
+        // Embedded videos in Livestream chat
+        if (!uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
+          updateClaim('!uriIsActive & !playingUriIsActive & !claimLinkId');
+        }
+        // Play next
+        if (uriIsActive && playingUriIsActive && !isHome && !claimLinkId && !sourceLoaded && !collectionId) {
+          updateClaim('uriIsActive & playingUriIsActive & !sourceLoaded');
+        }
+        // Playlist
+        if (uriIsActive && playingUriIsActive && !isHome && !claimLinkId && sourceLoaded) {
+          updateClaim('uriIsActive & playingUriIsActive & sourceLoaded');
+        }
+        // External embedded autoplay
+        if (!uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && sourceLoaded && autoplayVideo) {
+          updateClaim('!uriIsActive & !playingUriIsActive & sourceLoaded');
         }
       }
-    }, [
-      claimLinkId,
-      collectionId,
-      doFileGetForUri,
-      doStartFloatingPlayingUri,
-      embedded,
-      isLivestreamClaim,
-      isMarkdownPost,
-      parentCommentId,
-      pathname,
-      renderMode,
-      search,
-      shouldStartFloating,
-      uri,
-    ]);
+    }, [pathname, sourceLoaded]);
 
-    function updateClaim() {
+    function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {
         uri,
         collection: { collectionId },
@@ -224,6 +240,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         sourceId: claimLinkId,
         commentId: undefined,
       };
+
+      // console.log('updateClaim: ', trigger);
 
       let check = playingOptions.uri === currentStreamingUri;
 
@@ -234,7 +252,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         playingOptions.source = 'markdown';
       }
 
-      setSourceIsReady(false);
       if (!isLivestreamClaim) {
         doFileGetForUri(uri);
       }
@@ -247,14 +264,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (!shouldStartFloating && check) {
         setCurrentStreamingUri(uri);
       }
-      setSourceIsReady(true);
     }
-
-    React.useEffect(() => {
-      if (canViewFile && shouldAutoplay) {
-        streamClaim();
-      }
-    }, [canViewFile, streamStarted, shouldAutoplay, streamClaim]);
 
     React.useEffect(() => {
       shouldClearPlayingUri.current = claimLinkId && currentUriPlaying;
@@ -272,40 +282,60 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
+      // console.log('doCheckIfPurchasedClaimId: ', doCheckIfPurchasedClaimId)
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
           {pendingFiatPayment || sdkFeePending ? (
-            <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
+            <>
+              {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+              <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
+            </>
           ) : pendingUnlockedRestrictions ? (
-            <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
+            <>
+              {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+              <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
+            </>
           ) : null}
         </ClaimCoverRender>
       );
     }
 
     // -- Loading State -- return before component render
-    if ((!playingUri && !streamStarted) || !streamingUrl || embeddedLivestreamPendingStart || livestreamUnplayable) {
+    if (
+      (!playingUri && !streamStarted) ||
+      !streamingUrl ||
+      embeddedLivestreamPendingStart ||
+      livestreamUnplayable ||
+      (isPlayable && !currentUriPlaying)
+    ) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
-        return <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>;
+        return (
+          <>
+            {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+            <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>
+          </>
+        );
+      } else if (isPlayable && !autoplayVideo) {
+        return (
+          <ClaimCoverRender uri={uri} onClick={handleClick}>
+            {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+            <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
+          </ClaimCoverRender>
+        );
+      } else if (renderMode === 'md') {
+        return <LoadingScreen />;
       }
-
-      if (streamStarted || streamStartPending || livestreamUnplayable) {
-        return <LoadingScreen transparent={!isPlayable} />;
-      }
-
-      return (
-        <ClaimCoverRender uri={uri} onClick={handleClick}>
-          <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
-        </ClaimCoverRender>
-      );
     }
 
     // -- Main Component Render -- return when already has the claim's contents
     return (
       <>
-        {claimLinkId && !sourceLoaded && <LoadingScreen />}
-        <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+        {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded ? (
+          <LoadingScreen />
+        ) : (
+          <StreamClaimComponent {...props} uri={uri} streamClaim={streamClaim} />
+        )}
       </>
     );
   };

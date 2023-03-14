@@ -22,7 +22,10 @@ export default function LivestreamScheduledInfo(props: Props) {
   const [startDateFromNow, setStartDateFromNow] = React.useState();
   const [inPast, setInPast] = React.useState();
 
-  const startDate = React.useMemo(() => moment(releaseTimeMs).locale(appLanguage).format('LLL'), [releaseTimeMs, appLanguage]);
+  const startDate = React.useMemo(
+    () => moment(releaseTimeMs).locale(appLanguage).format('LLL'),
+    [releaseTimeMs, appLanguage]
+  );
 
   React.useEffect(() => {
     const calcTime = () => {

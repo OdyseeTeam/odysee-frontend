@@ -2,7 +2,6 @@
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import classnames from 'classnames';
-import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import { formatLbryChannelName } from 'util/url';
 import { useHistory } from 'react-router';
 import { EmbedContext } from 'contexts/embed';
@@ -110,7 +109,6 @@ const EmbedWrapperPage = (props: Props) => {
     >
       <EmbedContext.Provider value={{ setVideoEnded, videoEnded, fetchedLiveStatus: fetchedLiveStatus.current }}>
         <EmbedClaimComponent uri={uri} latestClaimUrl={latestClaimUrl} />
-        <FileViewerEmbeddedTitle uri={uri} />
       </EmbedContext.Provider>
     </div>
   );
