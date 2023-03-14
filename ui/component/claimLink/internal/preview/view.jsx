@@ -28,7 +28,6 @@ type Props = {
 const ClaimLinkPreview = (props: Props) => {
   const { uri, title, channel, parentCommentId, playingUri, renderMode, isLivestreamClaim } = props;
   const cleanUri = uri.includes('lbry://') ? 'lbry://' + uri.slice(7).replace(/:/g, '#') : uri;
-  // const cleanUri = 'lbry://@toshokanneko#d/BAND-MAID---Onset#f'
 
   // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
   const claimLinkIdRef = React.useRef(uuid());

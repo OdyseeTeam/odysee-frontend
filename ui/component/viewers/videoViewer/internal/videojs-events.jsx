@@ -315,7 +315,6 @@ const VideoJsEvents = ({
 
     if (isLivestreamClaim) {
       player.liveTracker.on('liveedgechange', () => {
-        window.claimIsLive = true;
         if (player.paused()) {
           // when liveedge changes, add the window variable so that the timeout isn't triggered
           // when it's changed back again
@@ -340,8 +339,6 @@ const VideoJsEvents = ({
       // Only respond to when we fall behind
       if (player.liveTracker.atLiveEdge()) {
         player.playbackRate(1);
-        // neko
-        console.log('seekTo 2');
         player.liveTracker.seekToLiveEdge();
       }
     }

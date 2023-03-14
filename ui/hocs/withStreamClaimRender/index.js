@@ -12,8 +12,8 @@ import {
   selectIsStreamPlaceholderForUri,
   selectPendingFiatPaymentForUri,
   selectSdkFeePendingForUri,
-  selectClaimWasPurchasedForUri,
-  selectIsFiatPaidForUri,
+  // selectClaimWasPurchasedForUri,
+  // selectIsFiatPaidForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
@@ -41,13 +41,8 @@ const select = (state, props) => {
   const { claim_id: claimId, signing_channel: channelClaim } = claim || {};
   const { name: channelName, claim_id: channelClaimId } = channelClaim || {};
 
-  let sdkPaid = selectClaimWasPurchasedForUri(state, props.uri);
-  let fiatPaid = selectIsFiatPaidForUri(state, props.uri);
-
-  if (sdkPaid || fiatPaid) {
-    console.log('sdkPaid: ', sdkPaid);
-    console.log('fiatPaid: ', fiatPaid);
-  }
+  // let sdkPaid = selectClaimWasPurchasedForUri(state, props.uri);
+  // let fiatPaid = selectIsFiatPaidForUri(state, props.uri);
 
   return {
     channelName,

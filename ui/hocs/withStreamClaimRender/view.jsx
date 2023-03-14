@@ -139,12 +139,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       (autoplayEnabled || playingCollectionId) &&
       (!alreadyPlaying.current || currentUriPlaying) &&
       isPlayable;
-    // const autoRenderClaim = !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode);
-    // const shouldAutoplay = autoplayVideo || autoRenderClaim;
     const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
 
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
-    // const streamStartPending = canViewFile && shouldAutoplay && !streamStarted;
     const embeddedLivestreamPendingStart = embedded && isCurrentClaimLive && !streamStarted;
 
     function handleClick() {

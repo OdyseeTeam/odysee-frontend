@@ -82,8 +82,6 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doPlayUri,
   } = props;
 
-  console.log('props: ', props);
-
   const isUrlParamModal = React.useContext(ModalContext).isUrlParamModal;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
