@@ -347,3 +347,7 @@ export function sanitizeName(name: string) {
   const INVALID_URI_CHARS = new RegExp(regexInvalidURI, 'gu');
   return name.replace(INVALID_URI_CHARS, '-');
 }
+
+export function getOldFormatForLbryUri(uri: string) {
+  return uri.replace(/:/g, '#').replace('#', ':');
+}
