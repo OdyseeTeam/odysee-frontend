@@ -5,7 +5,6 @@ import * as SETTINGS from 'constants/settings';
 
 import {
   selectClaimForUri,
-  selectMetadataForUri,
   selectIsFetchingPurchases,
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
@@ -13,6 +12,8 @@ import {
   selectIsStreamPlaceholderForUri,
   selectPendingFiatPaymentForUri,
   selectSdkFeePendingForUri,
+  selectClaimWasPurchasedForUri,
+  selectIsFiatPaidForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
@@ -39,7 +40,14 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const { claim_id: claimId, signing_channel: channelClaim } = claim || {};
   const { name: channelName, claim_id: channelClaimId } = channelClaim || {};
-  selectMetadataForUri(state, props.uri);
+
+  let sdkPaid = selectClaimWasPurchasedForUri(state, props.uri);
+  let fiatPaid = selectIsFiatPaidForUri(state, props.uri);
+
+  if (sdkPaid || fiatPaid) {
+    console.log('sdkPaid: ', sdkPaid);
+    console.log('fiatPaid: ', fiatPaid);
+  }
 
   return {
     channelName,

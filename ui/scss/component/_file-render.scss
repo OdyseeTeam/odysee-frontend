@@ -1384,7 +1384,7 @@ $control-bar-icon-size: 30px;
 .protected-content-overlay {
   .button {
     border: 1px solid white;
-    transition: transform 0.2s, opacity 0.2s;
+    transition: all 0.2s;
     opacity: 0.9;
     &:hover {
       transform: scale(1.08);

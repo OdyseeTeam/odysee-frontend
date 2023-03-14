@@ -126,7 +126,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
     const isAPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
-    console.log('purchaseTag: ', purchaseTag);
 
     // check if there is a time or autoplay parameter, if so force autoplay
     const urlTimeParam = href && href.indexOf('t=') > -1;
@@ -171,9 +170,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, [doMembershipMine, myMembershipsFetched]);
 
     React.useEffect(() => {
-      console.log('isAPurchaseOrPreorder: ', isAPurchaseOrPreorder);
       if (isAPurchaseOrPreorder && isFetchingPurchases === undefined) {
-        console.log('doCheckIfPurchasedClaimId');
         doCheckIfPurchasedClaimId(claimId);
       }
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
@@ -197,76 +194,44 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     ]);
 
     React.useEffect(() => {
-      // console.log('###################################');
-      // console.log('pathname: ', pathname);
-      let uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
+      const uriChannel = pathname.substring(pathname.indexOf('/@') + 2, pathname.indexOf(':'));
       let cut = pathname.substring(pathname.indexOf('/') + 1, pathname.length);
       cut = cut.substring(cut.indexOf('/') + 1, cut.length);
       cut = cut.substring(0, cut.indexOf(':'));
-      let isExternaleEmbed = pathname.includes('/$/embed');
-      let g = isExternaleEmbed;
-      var a,
-        b,
-        c,
-        d,
-        e,
-        f,
-        // h,
-        i,
-        x = false;
-      if (pathname !== '/') {
-        if (uri.includes(uriChannel) && uri.includes(cut)) {
-          a = true;
-        } else {
-          b = true;
-        }
-        // $FlowIgnore
-        if (playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut)) {
-          c = true;
-        } else {
-          d = true;
-        }
-      } else {
-        e = true;
-      }
-      if (claimLinkId) f = true;
-      // if (autoplayVideo) h = true;
-      if (sourceLoaded) i = true;
-      if (canViewFile) x = true;
+      const isExternaleEmbed = pathname.includes('/$/embed');
+      const uriIsActive = uri.includes(uriChannel) && uri.includes(cut);
+      // $FlowIgnore
+      const playingUriIsActive = playingUri?.uri?.includes(uriChannel) && playingUri?.uri?.includes(cut);
+      const isHome = pathname === '/';
 
-      /*
-      console.log('autoplayVideo: ', autoplayVideo);
-      console.log('forceAutoplayParam: ', forceAutoplayParam);
-      console.log('A: ', a);
-      console.log('B: ', b);
-      console.log('C: ', c);
-      console.log('D: ', d);
-      console.log('E: ', e);
-      console.log('F: ', f);
-      console.log('G: ', g);
-      // console.log('H: ', h);
-      console.log('I: ', i);
-      */
-
-      if (e && x) updateClaim('e');
-      if (a && !b && !c && d && !e && !f && !g && x) {
-        if (renderMode === 'video') {
-          // Play next
-          if (autoplay) updateClaim('a & d & !f video');
-        } else {
-          // Non video claims
-          updateClaim('a & d & !f nonVideo');
+      if (canViewFile) {
+        if (isHome) updateClaim('isHome');
+        if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
+          if (renderMode === 'video') {
+            // Play next
+            if (autoplay) updateClaim('a & d & !claimLinkId video');
+          } else {
+            // Non video claims
+            updateClaim('a & d & !claimLinkId nonVideo');
+          }
+        }
+        // Embedded videos in Livestream chat
+        if (!uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
+          updateClaim('!uriIsActive & !playingUriIsActive & !claimLinkId');
+        }
+        // Play next
+        if (uriIsActive && playingUriIsActive && !isHome && !claimLinkId && !sourceLoaded && !collectionId) {
+          updateClaim('uriIsActive & playingUriIsActive & !sourceLoaded');
+        }
+        // Playlist
+        if (uriIsActive && playingUriIsActive && !isHome && !claimLinkId && sourceLoaded) {
+          updateClaim('uriIsActive & playingUriIsActive & sourceLoaded');
+        }
+        // External embedded autoplay
+        if (!uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && sourceLoaded && autoplayVideo) {
+          updateClaim('!uriIsActive & !playingUriIsActive & sourceLoaded');
         }
       }
-      // Embedded videos in Livestream chat
-      if (!a && b && !c && d && !e && !f && !g && x) updateClaim('b & d & !f');
-      // Play next
-      if (a && !b && c && !d && !e && !f && !i && x && !collectionId) updateClaim('a & c & !i');
-      // Playlist
-      if (a && !b && c && !d && !e && !f && i && x) updateClaim('a & c & i');
-      // External embedded autoplay
-      if (!a && b && !c && d && !e && !f && i && x && autoplayVideo) updateClaim('a & c & i');
-      if (e) updateClaim('e');
     }, [pathname, sourceLoaded]);
 
     function updateClaim(trigger: string) {
@@ -320,7 +285,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
-      console.log('canViewFile: ', canViewFile);
       // console.log('doCheckIfPurchasedClaimId: ', doCheckIfPurchasedClaimId)
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
