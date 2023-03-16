@@ -263,7 +263,6 @@
             display: inline;
           }
           .channel-name {
-            // margin-right:var(--spacing-xxs);
             &::after {
               content: '\a';
               white-space: pre;
