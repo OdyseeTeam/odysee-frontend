@@ -13,7 +13,6 @@
   background: black;
   margin-bottom: var(--spacing-l);
   overflow: hidden;
-  // border-radius: var(--border-radius);
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -21,18 +20,6 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-
-  /*
-  &::after{
-    position: absolute;
-    bottom: 0;
-    opacity: 1;
-    content: "";
-    height: 100%;
-    width: 100%;
-    background: linear-gradient(0deg, rgba(0,0,0,0.6) 0, transparent 4%);
-  }
-  */
 
   .banner-controls {
     /*
