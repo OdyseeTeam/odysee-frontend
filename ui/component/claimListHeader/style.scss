@@ -29,14 +29,10 @@ $OPTIONS_MIN_WIDTH: 250px;
   }
 
   .section__actions--no-margin {
-    @media (max-width: $breakpoint-medium) {
-      position: absolute;
-      top: calc(40px * -1);
+    @media (max-width: $breakpoint-small) {
+      top: 0;
       right: 0;
-    }
-
-    @media (max-width: $breakpoint-medium) {
-      top: calc(50px * -1);
+      margin-top: var(--spacing-s);
     }
   }
 
