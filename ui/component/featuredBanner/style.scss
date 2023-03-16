@@ -1,13 +1,19 @@
 @import '~ui/scss/init/breakpoints';
 
 .featured-banner-wrapper {
+  // position: sticky;
+  // top:10px;
+  // position: relative;
   position: relative;
-  width: 100%;
+  width: calc(100% + 80px);
+  margin-top: -32px;
+  margin-left: -40px;
+  margin-right: -40px;
   padding-top: 20%;
   background: black;
   margin-bottom: var(--spacing-l);
   overflow: hidden;
-  border-radius: var(--border-radius);
+  // border-radius: var(--border-radius);
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -26,10 +32,16 @@
     height: 100%;
   }
   .featured-banner-image {
+    width: 100%;
     display: inline-block;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: calc(100% - var(--side-nav-width--micro));
+    background-position: var(--side-nav-width--micro) var(--header-height);
+    /*
     img {
       width: 100%;
-    }
+    }*/
   }
   .featured-banner-remove {
     position: absolute;

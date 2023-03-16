@@ -151,13 +151,16 @@ export default function FeaturedBanner(props: Props) {
                 target={!item.url.includes('odysee.com') ? '_blank' : undefined}
                 title={item.label}
                 key={i}
-                style={{ minWidth: width }}
-              >
-                <img
-                  src={'https://thumbnails.odycdn.com/optimize/s:' + imageWidth + ':0/quality:95/plain/' + item.image}
-                  style={{ width: width }}
-                />
-              </NavLink>
+                style={{
+                  minWidth: width,
+                  backgroundImage:
+                    'url(https://thumbnails.odycdn.com/optimize/s:' +
+                    imageWidth +
+                    ':0/quality:95/plain/' +
+                    item.image +
+                    ')',
+                }}
+              />
             );
           })}
       </div>

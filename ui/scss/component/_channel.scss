@@ -42,7 +42,9 @@ $actions-z-index: 2;
     }
   }
   .tab__wrapper-fixed {
-    background-color: rgba(var(--color-header-background-base), 0.99);
+    background-color: var(--color-header-background);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
     .tabs__list {
       padding-left: 5rem;
       @media (max-width: $breakpoint-small) {
