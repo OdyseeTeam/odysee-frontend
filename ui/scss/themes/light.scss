@@ -76,7 +76,7 @@
   --color-button-toggle-text: rgba(var(--color-text-base), 1);
   --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.9);
   --color-button-toggle-text-hover: var(--color-text);
-  --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
+  --color-button-toggle-bg-active: var(--color-header-button);
   --color-button-toggle-text-active: var(--color-text);
 
   --color-button-border: var(--color-gray-3);
