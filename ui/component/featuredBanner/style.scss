@@ -34,6 +34,26 @@
   }
   */
 
+  .banner-controls {
+    /*
+    position:absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    top:0;
+    width: calc(100% - 2 * var(--spacing-l));
+    // width: 100%;
+    // width: var(--page-max-width);
+    // max-width: var(--page-max-width);
+    height:100%;
+    background:red;
+    margin-right: auto;
+    margin-left: auto;    
+    align-self: center;
+    // left:var(--side-nav-width--micro);
+    */
+  }
+
   .featured-banner-rotator {
     position: absolute;
     top: 0;
@@ -50,6 +70,11 @@
     background-repeat: no-repeat;
     background-size: calc(100% - var(--side-nav-width--micro));
     background-position: var(--side-nav-width--micro) var(--header-height);
+
+    @media (max-width: $breakpoint-medium) {
+      background-size: 100%;
+      background-position: 0 var(--header-height);
+    }
     /*
     img {
       width: 100%;
@@ -58,7 +83,7 @@
   .featured-banner-remove {
     position: absolute;
     top: var(--spacing-m);
-    right: var(--spacing-m);
+    right: 40px;
     background-color: var(--color-primary);
     padding: 0.3rem;
     border-radius: var(--border-radius);
@@ -130,10 +155,10 @@
     font-size: 38px;
 
     &.left {
-      left: var(--spacing-m);
+      left: 40px;
     }
     &.right {
-      right: var(--spacing-m);
+      right: 40px;
     }
 
     &:hover {
