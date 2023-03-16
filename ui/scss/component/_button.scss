@@ -755,7 +755,6 @@ svg + .button__label {
     width: 100%;
     text-align: center;
     border-radius: var(--border-radius);
-    // border: 1px solid var(--color-border);
     &:not(.button-toggle--active) {
       border-right: 2px solid var(--color-border) !important;
     }
@@ -767,10 +766,13 @@ svg + .button__label {
 }
 
 .button-toggle--active {
-  // color: var(--color-button-toggle-text) !important;
-  //box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
   color: var(--color-button-toggle-text-active) !important;
-  background-color: var(--color-button-toggle-bg-active) !important;
+  // background-color: rgba(var(--color-primary-static),0.4) !important;
+  background-color: color-mix(
+    in srgb,
+    rgba(var(--color-primary-static), 1) 30%,
+    var(--color-button-toggle-bg)
+  ) !important;
 
   .icon {
     opacity: 1;

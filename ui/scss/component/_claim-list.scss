@@ -916,16 +916,19 @@
   .icon__wrapper {
     width: 0.5rem;
     height: 0.5rem;
-    background-color: var(--color-header-background);
+    background-color: var(--color-text);
     margin-right: var(--spacing-m);
+    padding: 1rem;
+    margin-top: -2px;
 
     .icon {
-      stroke: var(--color-text);
+      // stroke: var(--color-text-);
+      stroke: rgba(var(--color-header-background-base), 1);
     }
 
     @media (min-width: $breakpoint-small) {
-      height: 1.5rem;
-      width: 1.5rem;
+      height: 1rem;
+      width: 1rem;
     }
   }
 

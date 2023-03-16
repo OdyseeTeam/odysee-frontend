@@ -64,9 +64,9 @@
   --color-button-alt-bg-hover: rgba(var(--color-header-background-base), 0.5);
   --color-button-alt-text-hover: var(--color-text);
 
-  --color-button-toggle-bg: rgba(var(--color-header-button-base), 0.5);
+  --color-button-toggle-bg: rgba(var(--color-header-button-base), 1);
   --color-button-toggle-text: rgba(var(--color-text-base), 1);
-  --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.9);
+  --color-button-toggle-bg-hover: var(--color-primary);
   --color-button-toggle-text-hover: var(--color-text);
   --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
   --color-button-toggle-text-active: var(--color-text);
@@ -98,7 +98,7 @@
   --color-navigation-link: #b9c3ce;
   --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: var(--color-primary-contrast);
-  --color-navigation-hover: rgba(var(--color-background-base), 0.6);
+  --color-navigation-hover: var(--color-header-button);
   --color-navigation-hover-text: var(--color-primary);
 
   // Tags
@@ -163,10 +163,18 @@
   // Scrollbar
   --color-scrollbar-thumb-bg: rgba(255, 255, 255, 0.2);
   --color-scrollbar-track-bg: transparent;
-  --color-body-scrollbar-track-bg: rgba(0, 0, 0, 0.5);  
+  --color-body-scrollbar-track-bg: rgba(0, 0, 0, 0.5);
 
-  --background-shade: linear-gradient(-180deg, rgba(var(--color-header-background-base), 1) 2%, rgba(var(--color-header-background-base), 0.8)),
-    radial-gradient(circle at 90% 97%, rgba(var(--color-header-background-base), 0.4) 0, #202020 70%);
+  --background-shade: linear-gradient(
+      -180deg,
+      rgba(var(--color-background-base), 1) 2%,
+      rgba(var(--color-background-base), 0.8)
+    ),
+    radial-gradient(
+      circle at 90% 97%,
+      rgba(var(--color-background-base), 0.4) 0,
+      rgba(var(--color-background-base), 1) 70%
+    );
 
   --mui-background: #000;
 }

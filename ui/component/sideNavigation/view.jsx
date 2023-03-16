@@ -302,7 +302,8 @@ function SideNavigation(props: Props) {
   const sideNavigationRef = React.useRef(null);
 
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
-  const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
+  // const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
+  const showPushMenu = !menuCanCloseCompletely;
   const showOverlay = sidebarOpen;
 
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
