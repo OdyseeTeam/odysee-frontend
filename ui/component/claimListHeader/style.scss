@@ -30,7 +30,6 @@ $OPTIONS_MIN_WIDTH: 250px;
 
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
-      // top: calc(50px * -1);
       top: 0;
       right: 0;
       margin-top: var(--spacing-s);
