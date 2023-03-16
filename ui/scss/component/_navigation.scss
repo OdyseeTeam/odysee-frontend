@@ -42,7 +42,7 @@
 
 .navigation {
   position: fixed;
-  left: 0;
+  left: var(--spacing-xxs);
   overflow-y: auto;
   overflow-x: hidden;
   top: var(--header-height);
@@ -192,9 +192,10 @@
   text-overflow: ellipsis;
   width: 100%;
   color: var(--color-navigation-link);
-  padding-left: var(--spacing-s);
+  // left:var(--spacing-s);
   font-size: var(--font-small);
   font-weight: var(--font-weight-bold);
+  border-radius:var(--border-radius);
 
   .icon {
     height: 1rem;
@@ -212,6 +213,7 @@
     padding: var(--spacing-s);
     padding-top: var(--spacing-xs);
     padding-bottom: var(--spacing-xs);
+    margin-right:var(--spacing-xxs);
     justify-content: flex-start;
     flex-direction: column;
     .button__label {
@@ -272,9 +274,16 @@
 }
 
 .navigation-link--active {
-  background-color: var(--color-navigation-active);
+  // background-color: var(--color-navigation-active);
   color: var(--color-odysee-contrast);
-
+  background-color: var(--color-primary);
+  
+  .button__content{
+    
+    // margin:0 !important;
+    // padding:0 !important;
+    
+  }
   .icon {
     stroke: var(--color-navigation-active-text);
   }
@@ -293,7 +302,8 @@
 }
 
 .navigation-link--highlighted {
-  background-color: var(--color-navigation-hover);
+  // background-color: var(--color-navigation-hover);
+  background-color: var(--color-header-button);
   color: var(--color-odysee);
 
   .icon {
@@ -336,10 +346,10 @@
 }
 
 .navigation-links--micro {
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);  
 
   li {
-    margin-bottom: 0px;
+    margin-bottom: 0px;    
   }
 
   .icon {
@@ -352,7 +362,7 @@
   .button__content {
     justify-content: flex-start;
     flex-direction: column;
-    width: var(--side-nav-width--micro);
+    width: calc(var(--side-nav-width--micro) - var(--spacing-s));
   }
 
   .button__label {

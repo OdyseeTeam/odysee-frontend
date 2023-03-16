@@ -19,7 +19,7 @@
   --color-shadow: #000000;
 
   // Structure
-  --color-background-base: 32, 32, 32;
+  --color-background-base: 17, 17, 17;
   --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: #0c0d0e95;
   --color-border-base: 68, 68, 68;
@@ -64,7 +64,7 @@
   --color-button-alt-bg-hover: rgba(var(--color-header-background-base), 0.5);
   --color-button-alt-text-hover: var(--color-text);
 
-  --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.5);
+  --color-button-toggle-bg: rgba(var(--color-header-button-base), 0.5);
   --color-button-toggle-text: rgba(var(--color-text-base), 1);
   --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.9);
   --color-button-toggle-text-hover: var(--color-text);
@@ -163,10 +163,10 @@
   // Scrollbar
   --color-scrollbar-thumb-bg: rgba(255, 255, 255, 0.2);
   --color-scrollbar-track-bg: transparent;
-  --color-body-scrollbar-track-bg: rgba(0, 0, 0, 0.5);
+  --color-body-scrollbar-track-bg: rgba(0, 0, 0, 0.5);  
 
-  --background-shade: linear-gradient(-180deg, rgba(25, 25, 25, 0.3) 2%, #202020),
-    radial-gradient(circle at 50% 117%, rgba(25, 25, 25, 0.4) 0, #202020 100%);
+  --background-shade: linear-gradient(-180deg, rgba(var(--color-header-background-base), 1) 2%, rgba(var(--color-header-background-base), 0.8)),
+    radial-gradient(circle at 90% 97%, rgba(var(--color-header-background-base), 0.4) 0, #202020 70%);
 
   --mui-background: #000;
 }
