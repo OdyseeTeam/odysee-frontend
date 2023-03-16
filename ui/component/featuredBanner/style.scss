@@ -22,6 +22,18 @@
   -ms-user-select: none;
   user-select: none;
 
+  /*
+  &::after{
+    position: absolute;
+    bottom: 0;
+    opacity: 1;
+    content: "";
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(0deg, rgba(0,0,0,0.6) 0, transparent 4%);
+  }
+  */
+
   .featured-banner-rotator {
     position: absolute;
     top: 0;
