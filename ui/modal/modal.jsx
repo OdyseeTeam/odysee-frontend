@@ -58,7 +58,7 @@ export function Modal(props: ModalProps) {
       {type === 'card' && (
         <Button
           iconSize={isMobile ? 24 : undefined}
-          button="close red"
+          button="close"
           aria-label={__('Close')}
           icon={ICONS.REMOVE}
           onClick={onAborted}
