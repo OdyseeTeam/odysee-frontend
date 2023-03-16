@@ -24,9 +24,11 @@ $OPTIONS_MIN_WIDTH: 250px;
       }
     }
     .checkbox {
-      justify-content: center;
       padding: 0 var(--spacing-s);
       margin-top: var(--spacing-xs);
+      margin-left: 0;
+      align-items: start;
+      background-color: unset;
 
       @media (min-width: $breakpoint-small) {
         width: $OPTIONS_MIN_WIDTH;
@@ -43,10 +45,18 @@ $OPTIONS_MIN_WIDTH: 250px;
       label::before {
         top: 0; // override the "-1" default, which was clipping the top edge.
         border: 2px solid var(--color-border);
+        margin-top: 0;
       }
 
       label::after {
         top: 7px; // compensation due to the override above.
+        margin-top: 1px;
+      }
+
+      input {
+        margin-left: var(--spacing-s);
+        z-index: 1;
+        margin-top: -3px;
       }
     }
   }
