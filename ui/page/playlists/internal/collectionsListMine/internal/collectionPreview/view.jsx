@@ -41,6 +41,8 @@ type Props = {
   isBuiltin: boolean,
   thumbnail: ?string,
   isEmpty: boolean,
+  thumbnailFromClaim: string,
+  thumbnailFromSecondaryClaim: string,
 };
 
 function CollectionPreview(props: Props) {
@@ -61,9 +63,17 @@ function CollectionPreview(props: Props) {
     isBuiltin,
     thumbnail,
     isEmpty,
+    thumbnailFromClaim,
+    thumbnailFromSecondaryClaim,
   } = props;
 
   const { push } = useHistory();
+  const test = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
+  console.log('====================================');
+  console.log('thumbnail: ', thumbnail);
+  // console.log('ui: ', uri)
+  console.log('thumbnailFromSecondaryClaim: ', thumbnailFromSecondaryClaim);
+  console.log('thumbnailFromClaim: ', thumbnailFromClaim);
 
   if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;
@@ -93,6 +103,7 @@ function CollectionPreview(props: Props) {
       onClick={handleClick}
       className="li--no-style claim-preview__wrapper playlist-claim-preview__wrapper"
     >
+      <div className="claim-preview__background" style={{ backgroundImage: 'url(' + test + ')' }} />
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
           <FileThumbnail

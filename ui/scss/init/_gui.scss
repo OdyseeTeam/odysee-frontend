@@ -750,6 +750,12 @@ img {
   .icon__wrapper--Heart {
     .icon {
       fill: var(--color-header-background);
+      stroke: transparent;
+    }
+    &:hover {
+      .icon {
+        fill: white !important;
+      }
     }
   }
 }

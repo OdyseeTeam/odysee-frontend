@@ -4,6 +4,7 @@ import {
   selectTitleForUri,
   selectClaimIdForUri,
   selectClaimForClaimId,
+  selectThumbnailForUri,
 } from 'redux/selectors/claims';
 import {
   selectCollectionTitleForId,
@@ -35,6 +36,7 @@ const select = (state, props) => {
       channelTitle = name;
     }
   }
+  const firstCollectionItemUrl = selectFirstItemUrlForCollection(state, collectionId);
 
   return {
     collectionId,
@@ -48,12 +50,14 @@ const select = (state, props) => {
     channel,
     channelTitle,
     hasClaim: Boolean(claim),
-    firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
+    firstCollectionItemUrl,
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
     collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
     thumbnail: selectThumbnailForCollectionId(state, collectionId),
     isEmpty: selectCollectionIsEmptyForId(state, collectionId),
+    thumbnailFromClaim: selectThumbnailForUri(state, collectionUri),
+    thumbnailFromSecondaryClaim: selectThumbnailForUri(state, firstCollectionItemUrl, true),
   };
 };
 

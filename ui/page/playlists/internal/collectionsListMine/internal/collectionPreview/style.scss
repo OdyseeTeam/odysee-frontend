@@ -1,10 +1,24 @@
-@import '../../../../../../scss/init/_breakpoints.scss';
+@import '~ui/scss/init/breakpoints';
 
 .playlist-claim-preview__wrapper {
   display: table;
   padding-left: 0 !important;
   padding-right: 0 !important;
   width: 100%;
+  overflow: hidden;
+
+  .claim-preview__background {
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-position: 50%;
+    top: -10px;
+    height: 110%;
+    width: 100%;
+    filter: blur(12px);
+    -webkit-filter: blur(12px);
+    opacity: 0.3;
+  }
 
   .table-column__thumbnail {
     display: table-cell;
@@ -231,7 +245,7 @@
     width: 12%;
     vertical-align: middle;
     .button {
-      border: 2px solid var(--color-border);
+      background-color: var(--color-header-button);
       margin-right: var(--spacing-m);
     }
     @media (max-width: $breakpoint-medium) {

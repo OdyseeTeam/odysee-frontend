@@ -2,7 +2,7 @@
   // List view :not(.claim-preview__wrapper--channel)
   .claim-preview__wrapper:not(.claim-preview__wrapper--small) {
     padding: var(--spacing-m);
-    background-color: rgba(var(--color-header-background-base), 0.6);
+    background-color: var(--color-header-background);
 
     .claim__menu-button {
       // margin-right: var(--spacing-m);
@@ -94,11 +94,23 @@
   color: var(--color-text);
   overflow: visible;
 
-  .icon {
-    width: var(--font-small);
-    height: var(--font-small);
-    margin-right: var(--spacing-xs);
-    stroke: var(--color-text);
+  span {
+    display: inline-block;
+    background-color: white;
+    height: 1rem;
+    width: 1rem;
+    padding: 1rem;
+    border-radius: 50%;
+    // float:left;
+    .icon {
+      // display:inline-block;
+
+      width: var(--font-small);
+      height: var(--font-small);
+      margin-right: var(--spacing-xs);
+      stroke: var(--color-background);
+      // fill: var(--color-background);
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -922,7 +934,6 @@
     margin-top: -2px;
 
     .icon {
-      // stroke: var(--color-text-);
       stroke: rgba(var(--color-header-background-base), 1);
     }
 
@@ -934,11 +945,19 @@
 
   .button__content {
     &:hover {
+      .icon__wrapper {
+        background-color: var(--color-primary);
+        .icon {
+          stroke: white;
+        }
+      }
+      .icon__wrapper--Heart {
+        .icon {
+          fill: white;
+        }
+      }
       .claim-grid__title {
         color: var(--color-primary);
-      }
-      .icon {
-        stroke: var(--color-primary);
       }
     }
   }
