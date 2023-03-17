@@ -23,6 +23,7 @@ import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
 import { tusHandleTabUpdates } from 'util/tus';
 import { NavLink } from 'react-router-dom';
+import './style.scss';
 
 type Props = {
   notifications: Array<Notification>,
@@ -186,6 +187,8 @@ export default function NotificationHeaderButton(props: Props) {
       } catch (e) {}
     }
 
+    let test = notification_parameters?.dynamic?.channel_thumbnail;
+
     return (
       <NavLink
         onClick={handleNotificationClick}
@@ -199,6 +202,7 @@ export default function NotificationHeaderButton(props: Props) {
           className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
           key={id}
         >
+          <div class="menu__list--notification-background" style={{ backgroundImage: 'url(' + test + ')' }} />
           <div className="notification__icon">{icon}</div>
           <div className="menu__list--notification-info">
             <div className="menu__list--notification-type">

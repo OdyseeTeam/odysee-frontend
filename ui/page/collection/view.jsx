@@ -123,13 +123,7 @@ const CollectionPage = (props: Props) => {
   }
 
   return (
-    <Page
-      className="playlists-page-wrapper"
-      style={{
-        backgroundImage:
-          'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/https%3A%2F%2Fplayer.odycdn.com%2Fspeech%2Fc462e7bf99047c2e%3Aa.png)',
-      }}
-    >
+    <Page className="playlists-page-wrapper">
       <div className="section card-stack">
         <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader

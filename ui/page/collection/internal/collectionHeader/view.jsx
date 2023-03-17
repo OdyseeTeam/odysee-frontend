@@ -9,6 +9,7 @@ import * as ICONS from 'constants/icons';
 import Spinner from 'component/spinner';
 import CollectionTitle from './internal/collectionTitle';
 import CollectionSubtitle from './internal/collectionSubtitle';
+import './style.scss';
 
 type Props = {
   collectionId: string,
@@ -49,8 +50,30 @@ const CollectionHeader = (props: Props) => {
   }
 
   return (
+    <>
+      <div className="collection-header__wrapper">
+        <CollectionTitle collectionId={collectionId} />
+        <div className="background__wrapper">
+          <div
+            className="background"
+            style={{
+              backgroundImage:
+                'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/https://thumbs.odycdn.com/50eb71f6fc6cecfd72aad564d4484cbc.webp)',
+            }}
+          />
+          <CollectionActions
+            uri={uri}
+            collectionId={collectionId}
+            isBuiltin={isBuiltin}
+            setShowEdit={setShowEdit}
+            showEdit={showEdit}
+          />
+        </div>
+      </div>
+
+      {/*
     <Card
-      title={<CollectionTitle collectionId={collectionId} />}
+      title={<CollectionTitle collectionId={collectionId} />}      
       titleActions={
         unavailableUris.length > 0 ? (
           <Button
@@ -82,6 +105,8 @@ const CollectionHeader = (props: Props) => {
         />
       }
     />
+    */}
+    </>
   );
 };
 
