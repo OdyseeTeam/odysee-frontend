@@ -752,11 +752,6 @@ img {
       fill: var(--color-header-background);
       stroke: transparent;
     }
-    &:hover {
-      .icon {
-        fill: white !important;
-      }
-    }
   }
 }
 
@@ -883,7 +878,7 @@ img {
 }
 
 .card--publish-section {
-  background: rgba(var(--color-header-background-base), 0.4);
+  background: rgba(var(--color-header-button-base), 0.3);
   border-radius: var(--border-radius);
 
   .card__main-actions {
@@ -1187,7 +1182,7 @@ img {
   }
 
   .tags__input-wrapper {
-    background: rgba(var(--color-header-background-base), 0.4);
+    background: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
   }
@@ -1199,7 +1194,7 @@ img {
   }
 
   .card--livestream {
-    background: rgba(var(--color-header-background-base), 0.4);
+    background: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     margin-top: var(--spacing-l);
@@ -1257,7 +1252,7 @@ img {
       border-bottom: 0;
     }
     .card__main-actions {
-      background: rgba(var(--color-header-background-base), 0.4);
+      background: rgba(var(--color-header-button-base), 0.3);
       border-radius: var(--border-radius);
       padding: var(--spacing-s);
       .section__subtitle {
@@ -1271,7 +1266,7 @@ img {
   }
 
   .card--livestream-key {
-    background: rgba(var(--color-header-background-base), 0.4);
+    background: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     margin-top: var(--spacing-l);
@@ -1294,7 +1289,7 @@ img {
   }
 
   .card--file {
-    background: rgba(var(--color-header-background-base), 0.4);
+    background: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
 
@@ -1355,7 +1350,7 @@ img {
     }
 
     .MuiAutocomplete-root {
-      background: rgba(var(--color-header-background-base), 0.4);
+      background: rgba(var(--color-header-button-base), 0.3);
       padding: var(--spacing-s);
       border: unset !important;
 
@@ -1377,7 +1372,7 @@ img {
   }
 
   .card--restrictions {
-    background: rgba(var(--color-header-background-base), 0.4);
+    background: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
 
@@ -1405,7 +1400,7 @@ img {
   }
 
   .card--thumbnail {
-    background: rgba(var(--color-header-background-base), 0.4);
+    background: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     input {
@@ -1472,7 +1467,7 @@ img {
   }
 
   .card--date {
-    background: rgba(var(--color-header-background-base), 0.4);
+    background: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
 
@@ -2188,7 +2183,7 @@ img {
     }
   }
   .premium-option {
-    background-color: rgba(var(--color-header-background-base), 0.4);
+    background-color: rgba(var(--color-header-button-base), 0.3);
     border-radius: var(--border-radius);
     padding: var(--spacing-m);
     margin-bottom: var(--spacing-m);
