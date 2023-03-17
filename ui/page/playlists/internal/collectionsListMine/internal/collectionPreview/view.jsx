@@ -99,14 +99,10 @@ function CollectionPreview(props: Props) {
   if (collectionId === COLLECTIONS_CONSTS.QUEUE_ID && isEmpty) return null;
 
   return (
-    <li
-      role="link"
-      onClick={handleClick}
-      className="li--no-style claim-preview__wrapper playlist-claim-preview__wrapper"
-    >
+    <li role="link" onClick={handleClick} className="playlist-preview__wrapper">
       <div className="claim-preview__background" style={{ backgroundImage: 'url(' + test + ')' }} />
       <div className="claim-preview__content">
-        <div className="table-column__thumbnail">
+        <div className="thumbnail">
           <NavLink {...navLinkProps}>
             <FileThumbnail
               uri={uri || firstCollectionItemUrl}
@@ -128,17 +124,17 @@ function CollectionPreview(props: Props) {
               </h2>
             </NavLink>
           </div>
+          {hasClaim && (
+            <div className="playlist-channel">
+              <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
+                <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
+                {channelTitle}
+              </UriIndicator>
+            </div>
+          )}
 
           <div className="playlist-claim-preview__info">
-            <div className="playlist-claim-preview__meta">
-              {hasClaim && (
-                <div className="claim-preview__overlay-properties--small playlist-channel">
-                  <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
-                    <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-                    {channelTitle}
-                  </UriIndicator>
-                </div>
-              )}
+            <div className="meta">
               {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
 
               <div className="create-at">
