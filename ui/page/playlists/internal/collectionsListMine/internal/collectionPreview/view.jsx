@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
-import TruncatedText from 'component/common/truncated-text';
+// import TruncatedText from 'component/common/truncated-text';
 import CollectionItemCount from './internal/collectionItemCount';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
 import CollectionPublicIcon from './internal/collection-public-icon';
@@ -109,18 +109,17 @@ function CollectionPreview(props: Props) {
               secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
               thumbnail={thumbnail || null}
             >
-              <CollectionItemCount collectionId={collectionId} />
               <CollectionPreviewOverlay collectionId={collectionId} />
             </FileThumbnail>
           </NavLink>
         </div>
 
         <div className="playlist-claim-preview__text">
-          <div className="table-column__title">
+          <div className="title">
             <NavLink {...navLinkProps}>
               <h2>
                 {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
-                <TruncatedText text={usedCollectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
+                {usedCollectionName}
               </h2>
             </NavLink>
           </div>
@@ -135,6 +134,7 @@ function CollectionPreview(props: Props) {
 
           <div className="playlist-claim-preview__info">
             <div className="meta">
+              <CollectionItemCount collectionId={collectionId} />
               {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
 
               <div className="create-at">
@@ -152,7 +152,7 @@ function CollectionPreview(props: Props) {
               </div>
             </div>
 
-            <div className="table-column__action">
+            <div className="action">
               {collectionCount > 0 && !hidePlayAll && (
                 <Button
                   button="alt"

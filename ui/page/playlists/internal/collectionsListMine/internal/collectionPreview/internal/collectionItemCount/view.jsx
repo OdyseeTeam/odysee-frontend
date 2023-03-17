@@ -13,12 +13,10 @@ function CollectionItemCount(props: Props) {
   const { collectionCount = 0, hasEdits } = props;
 
   return (
-    <div className="claim-preview__claim-property-overlay">
-      <div className="claim-preview__overlay-properties--small">
-        <Icon icon={ICONS.PLAYLIST} />
-        {hasEdits && <Icon customTooltipText={__('Unpublished Edits')} tooltip iconColor="red" icon={ICONS.PUBLISH} />}
-        <span>{collectionCount}</span>
-      </div>
+    <div className="collection-counter">
+      <Icon icon={ICONS.PLAYLIST} />
+      {hasEdits && <Icon customTooltipText={__('Unpublished Edits')} tooltip iconColor="red" icon={ICONS.PUBLISH} />}
+      <span>{collectionCount}</span>
     </div>
   );
 }

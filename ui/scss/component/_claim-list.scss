@@ -119,13 +119,6 @@
   }
 }
 
-.claim-list__header-label--playlist-page {
-  @extend .claim-list__header-label;
-  position: relative;
-  transform: translateY(-100%);
-  margin-bottom: 0px;
-}
-
 .claim-list__conjuction {
   color: var(--color-text-subtitle);
   font-size: var(--font-small);

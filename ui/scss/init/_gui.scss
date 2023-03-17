@@ -1688,29 +1688,28 @@ img {
 .playlists-page-wrapper {
   .claim-list__header-label--playlist-page {
     display: flex;
-    margin-top: var(--spacing-l);
-    margin-bottom: -30px;
+    margin-bottom: var(--spacing-s);
+    align-items: center;
     @media (max-width: $breakpoint-small) {
       margin-top: var(--spacing-xl);
-      margin-bottom: -30px;
     }
 
     svg {
-      width: 3rem;
-      height: 3rem;
-      background-color: var(--color-header-background);
+      width: 2rem;
+      height: 2rem;
+      background-color: var(--color-text);
       border-radius: 50%;
-      padding: var(--spacing-s);
+      padding: var(--spacing-xxs);
       margin-right: 0;
+      stroke: var(--color-background);
+      overflow: display;
     }
     label {
       font-size: var(--font-large);
       font-weight: var(--font-weight-bold);
       padding-left: 10px;
-      // width:auto;
       margin-top: var(--spacing-s);
       flex: 1;
-      border-bottom: 1px solid var(--color-header-background);
     }
 
     button {
