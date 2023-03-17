@@ -68,7 +68,8 @@ function CollectionPreview(props: Props) {
   } = props;
 
   const { push } = useHistory();
-  const test = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
+  let test = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
+  test = 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + test;
   console.log('====================================');
   console.log('thumbnail: ', thumbnail);
   // console.log('ui: ', uri)
@@ -104,74 +105,78 @@ function CollectionPreview(props: Props) {
       className="li--no-style claim-preview__wrapper playlist-claim-preview__wrapper"
     >
       <div className="claim-preview__background" style={{ backgroundImage: 'url(' + test + ')' }} />
-      <div className="table-column__thumbnail">
-        <NavLink {...navLinkProps}>
-          <FileThumbnail
-            uri={uri || firstCollectionItemUrl}
-            secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
-            thumbnail={thumbnail || null}
-          >
-            <CollectionItemCount collectionId={collectionId} />
-            <CollectionPreviewOverlay collectionId={collectionId} />
-          </FileThumbnail>
-        </NavLink>
-      </div>
+      <div className="claim-preview__content">
+        <div className="table-column__thumbnail">
+          <NavLink {...navLinkProps}>
+            <FileThumbnail
+              uri={uri || firstCollectionItemUrl}
+              secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
+              thumbnail={thumbnail || null}
+            >
+              <CollectionItemCount collectionId={collectionId} />
+              <CollectionPreviewOverlay collectionId={collectionId} />
+            </FileThumbnail>
+          </NavLink>
+        </div>
 
-      <div className="table-column__title">
-        <NavLink {...navLinkProps}>
-          <h2>
-            {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
-            <TruncatedText text={usedCollectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
-          </h2>
-        </NavLink>
-        {hasClaim && (
-          <div className="claim-preview__overlay-properties--small playlist-channel">
-            <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
-              <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-              {channelTitle}
-            </UriIndicator>
+        <div className="playlist-claim-preview__text">
+          <div className="table-column__title">
+            <NavLink {...navLinkProps}>
+              <h2>
+                {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
+                <TruncatedText text={usedCollectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
+              </h2>
+            </NavLink>
           </div>
-        )}
-      </div>
 
-      <div className="table-column__meta">
-        <div className="table-column__visibility">
-          <div className="claim-preview-info">{hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}</div>
+          <div className="playlist-claim-preview__info">
+            <div className="playlist-claim-preview__meta">
+              {hasClaim && (
+                <div className="claim-preview__overlay-properties--small playlist-channel">
+                  <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
+                    <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
+                    {channelTitle}
+                  </UriIndicator>
+                </div>
+              )}
+              {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
+
+              <div className="create-at">
+                {collectionCreatedAt && (
+                  <>
+                    <Icon icon={ICONS.TIME} />
+                    <DateTime timeAgo date={collectionCreatedAt} />
+                  </>
+                )}
+              </div>
+
+              <div className="update-at">
+                <Icon icon={ICONS.EDIT} />
+                <DateTime timeAgo date={collectionUpdatedAt} />
+              </div>
+            </div>
+
+            <div className="table-column__action">
+              {collectionCount > 0 && !hidePlayAll && (
+                <Button
+                  button="alt"
+                  // label={__('Play All')}
+                  icon={ICONS.PLAY}
+                  onClick={() =>
+                    push({
+                      pathname: firstItemPath,
+                      search: generateListSearchUrlParams(collectionId),
+                      state: { forceAutoplay: true },
+                    })
+                  }
+                />
+              )}
+            </div>
+          </div>
+
+          <CollectionMenuList collectionId={collectionId} />
         </div>
-
-        <div className="table-column__create-at">
-          {collectionCreatedAt && (
-            <>
-              <Icon icon={ICONS.TIME} />
-              <DateTime timeAgo date={collectionCreatedAt} />
-            </>
-          )}
-        </div>
-
-        <div className="table-column__update-at">
-          <Icon icon={ICONS.EDIT} />
-          <DateTime timeAgo date={collectionUpdatedAt} />
-        </div>
       </div>
-
-      <div className="table-column__action">
-        {collectionCount > 0 && !hidePlayAll && (
-          <Button
-            button="alt"
-            label={__('Play All')}
-            icon={ICONS.PLAY}
-            onClick={() =>
-              push({
-                pathname: firstItemPath,
-                search: generateListSearchUrlParams(collectionId),
-                state: { forceAutoplay: true },
-              })
-            }
-          />
-        )}
-      </div>
-
-      <CollectionMenuList collectionId={collectionId} />
     </li>
   );
 }

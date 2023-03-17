@@ -2,7 +2,7 @@
   // List view :not(.claim-preview__wrapper--channel)
   .claim-preview__wrapper:not(.claim-preview__wrapper--small) {
     padding: var(--spacing-m);
-    background-color: var(--color-header-background);
+    // background-color: var(--color-background);
 
     .claim__menu-button {
       // margin-right: var(--spacing-m);
@@ -14,7 +14,7 @@
     }
 
     &:hover {
-      background-color: rgba(var(--color-header-background-base), 0.9);
+      // background-color: rgba(var(--color-header-background-base), 0.9);
     }
   }
 
