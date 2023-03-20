@@ -304,7 +304,7 @@ function ClaimListHeader(props: Props) {
                   aria-label={__('More')}
                   className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
                     'button-toggle--custom': isFiltered(),
-                    'button-toggle--active': expanded,
+                    'button-toggle--active button-toggle--bottom-arrow': expanded,
                   })}
                   icon={ICONS.SLIDERS}
                   onClick={() => setExpanded(!expanded)}

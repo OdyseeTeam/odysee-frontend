@@ -799,6 +799,21 @@ svg + .button__label {
   }
 }
 
+.button-toggle--bottom-arrow {
+  &:after {
+    position: absolute;
+    bottom: -11px;
+    left: calc(50% - 10px);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 11px solid var(--color-header-button);
+    // background:red;
+    content: '';
+  }
+}
+
 .button-toggle--custom {
   color: var(--color-primary) !important;
   .button__content {
