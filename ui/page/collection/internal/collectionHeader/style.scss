@@ -19,5 +19,15 @@
       filter: blur(12px);
       -webkit-filter: blur(12px);
     }
+
+    .media__actions {
+      position: absolute;
+      bottom: 0;
+      background-color: rgba(var(--color-background-base), 0.6);
+      margin: var(--spacing-s);
+      padding: var(--spacing-m);
+      border-radius: var(--border-radius);
+      width: calc(100% - (var(--spacing-s) * 2));
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   selectTitleForUri,
   selectDateForUri,
   selectGeoRestrictionForUri,
+  selectThumbnailForUri,
 } from 'redux/selectors/claims';
 
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
@@ -54,6 +55,7 @@ const select = (state, props) => {
     streamingUrl: (repostSrcUri || props.uri) && selectStreamingUrlForUri(state, repostSrcUri || props.uri),
     title: props.uri && selectTitleForUri(state, props.uri),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
+    thumbnailFromClaim: selectThumbnailForUri(state, props.uri),
   };
 };
 

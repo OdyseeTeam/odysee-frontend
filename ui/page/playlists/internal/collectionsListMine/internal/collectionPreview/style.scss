@@ -1,6 +1,9 @@
 @import '~ui/scss/init/breakpoints';
+@import '~ui/component/claimPreview/style';
 
 .playlist-preview__wrapper {
+  @extend .claim-preview__wrapper;
+  /*
   position: relative;
   padding: var(--spacing-m);
   width: 100%;
@@ -20,6 +23,7 @@
     width: 100%;
     transition: opacity 0.2s;
   }
+  */
 
   .menu__button {
     position: absolute;
@@ -149,7 +153,7 @@
         .meta {
           display: flex;
           vertical-align: bottom;
-          padding: var(--spacing-m);
+          padding: var(--spacing-s);
           margin-left: var(--spacing-m);
           width: 100%;
           background-color: rgba(var(--color-background-base), 0.6);
@@ -234,6 +238,7 @@
   }
 
   &:hover {
+    /*
     cursor: pointer;
     box-shadow: 0px 1px 0px 0px var(--color-background) inset;
 
@@ -244,6 +249,8 @@
     .background {
       opacity: 0.9;
     }
+    */
+
     .content {
       .thumbnail {
         .media__thumb {

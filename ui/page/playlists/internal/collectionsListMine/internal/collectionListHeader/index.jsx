@@ -63,23 +63,58 @@ export default function CollectionsListMine(props: Props) {
   return (
     <div className="section__header-action-stack">
       <div className="section__header--actions">
-        <div className="claim-search__wrapper--wrap claim-search__wrapper--grid">
+        <div className="claim-search__wrapper--wrap">
           {/* Filter Options */}
           <div className="claim-search__menu-group">
-            {/* $FlowFixMe */}
-            {Object.values(COLS.LIST_TYPE).map((value) => (
-              <Button
-                label={__(String(value))}
-                key={String(value)}
-                button="alt"
-                // $FlowFixMe
-                onClick={() => handleFilterTypeChange(String(value))}
-                className={classnames('button-toggle', { 'button-toggle--active': filterType === value })}
-              />
-            ))}
+            <div className="claim-search__menu-subgroup">
+              {/* $FlowFixMe */}
+              {Object.values(COLS.LIST_TYPE).map((value) => (
+                <Button
+                  label={__(String(value))}
+                  key={String(value)}
+                  button="alt"
+                  // $FlowFixMe
+                  onClick={() => handleFilterTypeChange(String(value))}
+                  className={classnames('button-toggle', { 'button-toggle--active': filterType === value })}
+                />
+              ))}
+            </div>
+            <div className="claim-search__menu-subgroup">
+              <FormField
+                className="claim-search__dropdown"
+                // label={__('Sort By new')}
+                type="select"
+                name="sort_by"
+                value={sortOption.key}
+                onChange={(e) => handleChange({ key: e.target.value, value: COLS.SORT_ORDER.ASC })}
+              >
+                {Object.entries(COLS.SORT_VALUES).map(([key, value]) => (
+                  <option key={key} value={key}>
+                    {/* $FlowFixMe */}
+                    {__(value.str)}
+                  </option>
+                ))}
+              </FormField>
+              <FormField
+                className="claim-search__dropdown"
+                // label={__('Order By')}
+                type="select"
+                name="order_by"
+                value={sortOption.value}
+                onChange={(e) => handleChange({ key: sortOption.key, value: e.target.value })}
+              >
+                {Object.entries(COLS.SORT_ORDER).map(([key, value]) => (
+                  // $FlowFixMe
+                  <option key={value} value={value}>
+                    {__(COLS.SORT_VALUES[sortOption.key].orders[value])}
+                  </option>
+                ))}
+              </FormField>
+            </div>
           </div>
 
           {/* More Sort Button */}
+          {/*
           <div className="claim-search__menu-group">
             <Button
               button="alt"
@@ -92,48 +127,11 @@ export default function CollectionsListMine(props: Props) {
               onClick={() => setExpanded(!expanded)}
             />
           </div>
+          */}
 
           {/* Sort Options */}
           {expanded && (
             <div className="claim-search__menu-group claim-search__menu-group--inputs">
-              {/* Options Field */}
-              <div className="claim-search__input-container">
-                <FormField
-                  className="claim-search__dropdown"
-                  label={__('Sort By')}
-                  type="select"
-                  name="sort_by"
-                  value={sortOption.key}
-                  onChange={(e) => handleChange({ key: e.target.value, value: COLS.SORT_ORDER.ASC })}
-                >
-                  {Object.entries(COLS.SORT_VALUES).map(([key, value]) => (
-                    <option key={key} value={key}>
-                      {/* $FlowFixMe */}
-                      {__(value.str)}
-                    </option>
-                  ))}
-                </FormField>
-              </div>
-
-              {/* Sort By */}
-              <div className="claim-search__input-container">
-                <FormField
-                  className="claim-search__dropdown"
-                  label={__('Order By')}
-                  type="select"
-                  name="order_by"
-                  value={sortOption.value}
-                  onChange={(e) => handleChange({ key: sortOption.key, value: e.target.value })}
-                >
-                  {Object.entries(COLS.SORT_ORDER).map(([key, value]) => (
-                    // $FlowFixMe
-                    <option key={value} value={value}>
-                      {__(COLS.SORT_VALUES[sortOption.key].orders[value])}
-                    </option>
-                  ))}
-                </FormField>
-              </div>
-
               {/* Save Sort */}
               {!hasDefaultSort && (
                 <div className="claim-search__input-container action-button">

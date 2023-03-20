@@ -41,6 +41,7 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import './style.scss';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -109,6 +110,7 @@ type Props = {
   doClearContentHistoryUri: (uri: string) => void,
   doPlayNextUri: (params: { uri: string }) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
+  thumbnailFromClaim: string,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -183,8 +185,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doClearContentHistoryUri,
     doPlayNextUri,
     doDisablePlayerDrag,
+    thumbnailFromClaim,
   } = props;
 
+  console.log('props: ', props);
   const isEmbed = React.useContext(EmbedContext);
 
   const isMobile = useIsMobile();
@@ -421,6 +425,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
+  console.log();
   return (
     <WrapperElement
       ref={ref}
@@ -437,6 +442,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     >
       <>
         {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
+        <div
+          className="background"
+          style={{
+            backgroundImage:
+              'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim + ')',
+          }}
+        />
 
         <div
           className={classnames('claim-preview', {
@@ -529,48 +541,53 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 <ClaimPreviewSubtitle uri={uri} type={type} showAtSign={isChannelUri} />
                 {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
                 {channelSubscribers}
-              </div>
-            </div>
-            {type !== 'small' && (
-              <div className="claim-preview__actions">
-                {type && <JoinButton />}
 
-                {!pending && (
-                  <>
-                    {renderActions && claim && renderActions(claim)}
-                    {shouldHideActions || renderActions ? null : actions !== undefined ? (
-                      actions
-                    ) : (
+                {type !== 'small' && (
+                  <div className="claim-preview__actions">
+                    {type && <JoinButton />}
+
+                    {!pending && (
                       <>
-                        <div className="claim-preview__primary-actions">
-                          {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                            <>
-                              <SubscribeButton
-                                uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                              />
-                            </>
-                          )}
+                        {renderActions && claim && renderActions(claim)}
+                        {shouldHideActions || renderActions ? null : actions !== undefined ? (
+                          actions
+                        ) : (
+                          <>
+                            <div className="claim-preview__primary-actions">
+                              {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                                <>
+                                  <SubscribeButton
+                                    uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                                  />
+                                </>
+                              )}
 
-                          {includeSupportAction && <ClaimSupportButton uri={uri} />}
-                        </div>
+                              {includeSupportAction && <ClaimSupportButton uri={uri} />}
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
-                  </>
-                )}
 
-                {!type && <JoinButton />}
+                    {!type && <JoinButton />}
 
-                {claim && (
-                  <React.Fragment>
-                    {typeof properties === 'function'
-                      ? properties(claim)
-                      : properties !== undefined
-                      ? properties
-                      : !isMobile && <ClaimTags uri={uri} type={type} />}
-                  </React.Fragment>
+                    {claim && (
+                      <React.Fragment>
+                        {typeof properties === 'function'
+                          ? properties(claim)
+                          : properties !== undefined
+                          ? properties
+                          : !isMobile && <ClaimTags uri={uri} type={type} />}
+                      </React.Fragment>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
+
+              <div className="description__wrapper">
+                <div className="description">{claim.value.description || '...'}</div>
+              </div>
+            </div>
           </div>
         </div>
         {inWatchHistory && (

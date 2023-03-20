@@ -12,6 +12,7 @@ import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
+import './style.scss';
 
 const Draggable = React.lazy(() =>
   // $FlowFixMe
