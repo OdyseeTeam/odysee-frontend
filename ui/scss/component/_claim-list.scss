@@ -2,12 +2,6 @@
   // List view :not(.claim-preview__wrapper--channel)
   .claim-preview__wrapper:not(.claim-preview__wrapper--small) {
     padding: var(--spacing-m);
-    // background-color: var(--color-background);
-
-    .claim__menu-button {
-      // margin-right: var(--spacing-m);
-      right: 9px;
-    }
 
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 1.2);
