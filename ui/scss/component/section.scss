@@ -72,6 +72,10 @@
     }
   }
 
+  .section__actions {
+    flex: 1;
+  }
+
   @media (max-width: $breakpoint-small) {
     padding-top: 0;
     margin-bottom: var(--spacing-s);

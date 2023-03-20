@@ -270,6 +270,34 @@ function ClaimListHeader(props: Props) {
               </div>
             )}
             <div className="claim-search__menu-group">
+              {tileLayout !== undefined && !hideLayoutButton && (
+                <>
+                  <Button
+                    onClick={() => {
+                      doSetClientSetting(SETTINGS.TILE_LAYOUT, true);
+                    }}
+                    button="alt"
+                    className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
+                      'button-toggle--active': tileLayout,
+                    })}
+                    aria-label={__('Change to tile layout')}
+                    icon={ICONS.LAYOUT}
+                  />
+                  <Button
+                    onClick={() => {
+                      doSetClientSetting(SETTINGS.TILE_LAYOUT, false);
+                    }}
+                    button="alt"
+                    className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
+                      'button-toggle--active': !tileLayout,
+                    })}
+                    aria-label={__('Change to list layout')}
+                    icon={ICONS.LAYOUT}
+                  />
+                </>
+              )}
+            </div>
+            <div className="claim-search__menu-group">
               {!hideAdvancedFilter && (
                 <Button
                   button="alt"
@@ -280,18 +308,6 @@ function ClaimListHeader(props: Props) {
                   })}
                   icon={ICONS.SLIDERS}
                   onClick={() => setExpanded(!expanded)}
-                />
-              )}
-
-              {tileLayout !== undefined && !hideLayoutButton && (
-                <Button
-                  onClick={() => {
-                    doSetClientSetting(SETTINGS.TILE_LAYOUT, !tileLayout);
-                  }}
-                  button="alt"
-                  className="button-toggle"
-                  aria-label={tileLayout ? __('Change to list layout') : __('Change to tile layout')}
-                  icon={ICONS.LAYOUT}
                 />
               )}
 
