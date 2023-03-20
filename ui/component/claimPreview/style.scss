@@ -3,7 +3,8 @@
   padding: var(--spacing-m);
   width: 100%;
   overflow: hidden;
-  background-color: rgba(var(--color-text-base), 0.1);
+  // background-color: rgba(var(--color-text-base), 0.2);
+  background-color: rgba(var(--color-background), 0.4);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m) !important;
 
@@ -12,7 +13,7 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    opacity: 0.4;
+    opacity: 0.3;
     content: '';
     height: 100%;
     width: 100%;
@@ -29,7 +30,7 @@
     width: 100%;
     filter: blur(12px);
     -webkit-filter: blur(12px);
-    opacity: 0.5;
+    opacity: 0.3;
     z-index: -1;
     transition: opacity 0.2s;
   }
@@ -45,18 +46,34 @@
     .claim-tile__info {
       // flex-direction: column;
       margin-top: 0;
-      margin-bottom: var(--spacing-xxxs);
+      // margin-bottom: var(--spacing-xxxs);
       padding-bottom: 0;
 
       .media__subtitle {
         display: flex;
         flex-direction: column;
-        width: 100%;
+        // width: 100% !important;
+        width: unset !important;
+
+        .button__content {
+          line-height: var(--font-xsmall);
+          margin-bottom: 0;
+          .channel-name {
+            color: rgba(var(--color-text-base), 0.8);
+          }
+        }
+        .claim-extra-info {
+          margin-top: 2px;
+          line-height: var(--font-xsmall);
+          // color: rgba(var(--color-text-base), 0.8);
+        }
       }
 
       .claim-preview__actions {
         margin-top: 0;
+        flex: 2;
         .claim__tags {
+          margin-top: auto;
           margin-bottom: var(--spacing-xxxs);
         }
       }
@@ -69,6 +86,7 @@
       padding: var(--spacing-s);
       background-color: rgba(var(--color-background-base), 0.6);
       border-radius: var(--border-radius);
+      min-height: calc((var(--font-small) * 3) + (var(--spacing-s) * 2));
 
       .description {
         font-size: var(--font-small);
