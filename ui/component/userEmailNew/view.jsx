@@ -1,5 +1,6 @@
 // @flow
 import * as PAGES from 'constants/pages';
+import * as SETTINGS from 'constants/settings';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
@@ -25,6 +26,7 @@ type Props = {
   setShareDiagnosticData: (boolean) => void,
   doSignUp: (string, ?string) => Promise<any>,
   clearEmailEntry: () => void,
+  setClientSetting: (string, boolean | string | number, boolean) => void,
   interestedInYoutubSync: boolean,
   doToggleInterestedInYoutubeSync: () => void,
 };
@@ -38,6 +40,7 @@ function UserEmailNew(props: Props) {
     daemonSettings,
     setShareDiagnosticData,
     clearEmailEntry,
+    setClientSetting,
     emailExists,
     interestedInYoutubSync,
     doToggleInterestedInYoutubeSync,
@@ -63,7 +66,10 @@ function UserEmailNew(props: Props) {
     setShareDiagnosticData(true);
     // @endif
     doSignUp(email, password === '' ? undefined : password)
-      .then(() => analytics.event.emailProvided())
+      .then(() => {
+        setClientSetting(SETTINGS.IS_NEW_ACCOUNT, true, false);
+        analytics.event.emailProvided();
+      })
       .catch(() => {});
   }
 
