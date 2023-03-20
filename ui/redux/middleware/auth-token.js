@@ -1,4 +1,5 @@
 import * as ACTIONS from 'constants/action_types';
+import * as PAGES from 'constants/pages';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import Lbry from 'lbry';
 import { getAuthToken } from 'util/saved-passwords';
@@ -20,7 +21,11 @@ export const populateAuthTokenHeader = ({ dispatch }) => {
       case ACTIONS.USER_LOGGED_IN_BROADCAST:
         const xAuth = (Lbry.getApiRequestHeaders() || {})[X_LBRY_AUTH_TOKEN] || '';
         if (!xAuth) {
-          window.location.reload();
+          if (location.href.includes(PAGES.AUTH_VERIFY) && !location.href.includes(PAGES.REWARDS_VERIFY)) {
+            window.location.assign('/');
+          } else {
+            window.location.reload();
+          }
         }
         break;
 
