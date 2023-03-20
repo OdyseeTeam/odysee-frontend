@@ -78,7 +78,7 @@ const RightSideActions = (props: Props) => {
       </div>
 
       {/* Playlist Create Button */}
-      <Button button="primary" label={__('New Playlist')} onClick={handleCreatePlaylist} />
+      <Button button="primary" icon={ICONS.ADD} label={__('New Playlist')} onClick={handleCreatePlaylist} />
     </div>
   );
 };

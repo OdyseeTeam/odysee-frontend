@@ -100,8 +100,9 @@ function CollectionPreview(props: Props) {
 
   return (
     <li role="link" onClick={handleClick} className="playlist-preview__wrapper">
-      <div className="claim-preview__background" style={{ backgroundImage: 'url(' + test + ')' }} />
-      <div className="claim-preview__content">
+      <CollectionMenuList collectionId={collectionId} />
+      <div className="background" style={{ backgroundImage: 'url(' + test + ')' }} />
+      <div className="content">
         <div className="thumbnail">
           <NavLink {...navLinkProps}>
             <FileThumbnail
@@ -114,7 +115,7 @@ function CollectionPreview(props: Props) {
           </NavLink>
         </div>
 
-        <div className="playlist-claim-preview__text">
+        <div className="text">
           <div className="title">
             <NavLink {...navLinkProps}>
               <h2>
@@ -124,7 +125,7 @@ function CollectionPreview(props: Props) {
             </NavLink>
           </div>
           {hasClaim && (
-            <div className="playlist-channel">
+            <div className="channel">
               <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
                 <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
                 {channelTitle}
@@ -132,7 +133,7 @@ function CollectionPreview(props: Props) {
             </div>
           )}
 
-          <div className="playlist-claim-preview__info">
+          <div className="info">
             <div className="meta">
               <CollectionItemCount collectionId={collectionId} />
               {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
@@ -169,8 +170,6 @@ function CollectionPreview(props: Props) {
               )}
             </div>
           </div>
-
-          <CollectionMenuList collectionId={collectionId} />
         </div>
       </div>
     </li>
