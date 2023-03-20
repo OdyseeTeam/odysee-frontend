@@ -3,7 +3,6 @@
   padding: var(--spacing-m);
   width: 100%;
   overflow: hidden;
-  // background-color: rgba(var(--color-text-base), 0.2);
   background-color: rgba(var(--color-background), 0.4);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m) !important;
@@ -18,6 +17,26 @@
     height: 100%;
     width: 100%;
     transition: opacity 0.2s;
+  }
+
+  .menu__button {
+    position: absolute;
+    opacity: 0;
+    top: var(--spacing-m);
+    right: var(--spacing-m);
+    z-index: 1000;
+    padding: 4px;
+    border-radius: 50%;
+    outline: unset;
+
+    &[aria-expanded='true'] {
+      opacity: 1;
+      background-color: var(--color-background);
+
+      .icon {
+        transform: rotate(90deg);
+      }
+    }
   }
 
   .background {
@@ -44,15 +63,17 @@
     position: relative;
     flex-direction: column;
     .claim-tile__info {
-      // flex-direction: column;
+      flex: 1;
       margin-top: 0;
-      // margin-bottom: var(--spacing-xxxs);
       padding-bottom: 0;
+
+      .claim-preview__channel-staked {
+        align-items: start;
+      }
 
       .media__subtitle {
         display: flex;
         flex-direction: column;
-        // width: 100% !important;
         width: unset !important;
 
         .button__content {
@@ -65,7 +86,6 @@
         .claim-extra-info {
           margin-top: 2px;
           line-height: var(--font-xsmall);
-          // color: rgba(var(--color-text-base), 0.8);
         }
       }
 
@@ -75,12 +95,18 @@
         .claim__tags {
           margin-top: auto;
           margin-bottom: var(--spacing-xxxs);
+          .tag {
+            background-color: var(--color-background);
+            &:hover {
+              background-color: var(--color-primary);
+            }
+          }
         }
       }
     }
     .description__wrapper {
-      position: absolute;
-      bottom: 0;
+      flex: 1;
+      margin-top: auto;
       width: 100%;
       display: block;
       padding: var(--spacing-s);
@@ -101,18 +127,17 @@
     }
   }
 
-  .claim__tags {
-    .tag {
-      background-color: var(--color-background);
-    }
-  }
-
   &:hover {
     cursor: pointer;
     box-shadow: 0px 1px 0px 0px var(--color-background) inset;
 
     &::before {
       opacity: 1;
+    }
+
+    .menu__button {
+      opacity: 1;
+      background-color: var(--color-background);
     }
 
     .background {

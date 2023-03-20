@@ -1169,21 +1169,12 @@
   padding: var(--spacing-xs);
   padding-left: 0px;
   padding-right: var(--spacing-m);
-  padding-bottom: var(--spacing-xxxs);
+  min-height: 3.2rem;
   margin-bottom: 0;
 
   font-weight: 600;
   color: var(--color-text);
   font-size: var(--font-small);
-
-  @media (min-width: $breakpoint-large) {
-    min-height: 3.2rem;
-    padding-bottom: unset;
-  }
-
-  @media (max-width: $breakpoint-small) {
-    min-height: unset;
-  }
 }
 
 .claim-tile__info {

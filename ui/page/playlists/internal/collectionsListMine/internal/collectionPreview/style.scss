@@ -3,28 +3,8 @@
 
 .playlist-preview__wrapper {
   @extend .claim-preview__wrapper;
+
   /*
-  position: relative;
-  padding: var(--spacing-m);
-  width: 100%;
-  overflow: hidden;
-  background-color: rgba(var(--color-text-base), 0.1);
-  border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-m) !important;
-
-  &::before {
-    background: linear-gradient(180deg, rgba(var(--color-background-base), 0.8), transparent 90%);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    opacity: 0.4;
-    content: '';
-    height: 100%;
-    width: 100%;
-    transition: opacity 0.2s;
-  }
-  */
-
   .menu__button {
     position: absolute;
     opacity: 0;
@@ -44,6 +24,7 @@
       }
     }
   }
+  */
 
   .background {
     position: absolute;
@@ -238,19 +219,6 @@
   }
 
   &:hover {
-    /*
-    cursor: pointer;
-    box-shadow: 0px 1px 0px 0px var(--color-background) inset;
-
-    &::before {
-      opacity: 1;
-    }
-
-    .background {
-      opacity: 0.9;
-    }
-    */
-
     .content {
       .thumbnail {
         .media__thumb {
@@ -265,11 +233,6 @@
           }
         }
       }
-    }
-
-    .menu__button {
-      opacity: 1;
-      background-color: var(--color-background);
     }
   }
 }
