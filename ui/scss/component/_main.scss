@@ -534,13 +534,17 @@ body {
     display: none !important;
   }
 
+  /*
   .livestreamDiscussion__header {
     border-radius: var(--border-radius) var(--border-radius) 0 0;
   }
+  */
 
+  /*
   .livestream__comment-create {
     border-radius: 0 0 var(--border-radius) var(--border-radius);
   }
+  */
 
   .file-page__media-actions {
     flex: 1;
@@ -632,9 +636,11 @@ body {
       border-radius: 0;
       .livestreamComments__wrapper {
         height: calc(100vh - 50px) !important;
+        /*
         .livestream__comment-create {
           padding: 0 var(--spacing-xxs);
         }
+        */
       }
     }
   }
@@ -643,9 +649,11 @@ body {
       border-radius: 0;
       .livestreamComments__wrapper {
         height: calc(100vh - 55px) !important;
+        /*
         .livestream__comment-create {
           padding-bottom: var(--spacing-s);
         }
+        */
       }
     }
   }

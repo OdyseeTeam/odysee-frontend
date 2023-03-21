@@ -1,6 +1,4 @@
 // @flow
-import 'scss/component/_livestream-chat.scss';
-
 import React from 'react';
 import ChatComment from 'component/chat/chatComment';
 import Spinner from 'component/spinner';

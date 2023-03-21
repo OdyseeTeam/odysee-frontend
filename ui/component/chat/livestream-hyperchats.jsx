@@ -1,6 +1,5 @@
 // @flow
 import type { ElementRef } from 'react';
-import 'scss/component/_livestream-chat.scss';
 
 import { parseSticker, getStickerUrl } from 'util/comments';
 import * as ICONS from 'constants/icons';

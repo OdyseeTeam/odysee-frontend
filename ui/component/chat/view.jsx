@@ -1,7 +1,4 @@
 // @flow
-import 'scss/component/_livestream-chat.scss';
-
-// $FlowFixMe
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -19,6 +16,7 @@ import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
 import Tooltip from 'component/common/tooltip';
+import './style.scss';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -352,10 +350,10 @@ export default function ChatLayout(props: Props) {
   }
 
   return (
-    <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
+    <div className={classnames('chat__wrapper', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (
-        <div className="card__header--between livestreamDiscussion__header">
-          <div className="recommended-content__toggles">
+        <div className="chat__header">
+          <div className="chat__toggle-mode">
             {/* the superchats in chronological order button */}
             <ChatContentToggle
               {...toggleProps}
@@ -466,7 +464,7 @@ export default function ChatLayout(props: Props) {
         )}
 
         {!isMobile && membersOnlyMessage}
-        <div className="livestream__comment-create">
+        <div className="chat__comment-create">
           {isMobile && membersOnlyMessage}
 
           <CommentCreate
