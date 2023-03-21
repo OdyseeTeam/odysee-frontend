@@ -188,7 +188,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     thumbnailFromClaim,
   } = props;
 
-  console.log('props: ', props);
   const isEmbed = React.useContext(EmbedContext);
 
   const isMobile = useIsMobile();
@@ -425,16 +424,18 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  console.log();
+  if (type !== 'small') console.log('type: ', type);
+
   return (
     <WrapperElement
       ref={ref}
       role="link"
       onClick={pending || type === 'inline' ? undefined : handleOnClick}
       className={classnames('claim-preview__wrapper', {
+        'claim-preview__wrapper--row': !type,
         'claim-preview__wrapper--channel': isChannelUri && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
-        'claim-preview__wrapper--small': type === 'small',
+        'claim-preview__wrapper--recommendation': type === 'small',
         'claim-preview__live': isLivestreamActive,
         'claim-preview__active': active,
         'non-clickable': nonClickable,
@@ -545,32 +546,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {type !== 'small' && (
                   <div className="claim-preview__actions">
                     {type && <JoinButton />}
-
-                    {!pending && (
-                      <>
-                        {renderActions && claim && renderActions(claim)}
-                        {shouldHideActions || renderActions ? null : actions !== undefined ? (
-                          actions
-                        ) : (
-                          <>
-                            <div className="claim-preview__primary-actions">
-                              {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                                <>
-                                  <SubscribeButton
-                                    uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                                  />
-                                </>
-                              )}
-
-                              {includeSupportAction && <ClaimSupportButton uri={uri} />}
-                            </div>
-                          </>
-                        )}
-                      </>
-                    )}
-
-                    {!type && <JoinButton />}
-
                     {claim && (
                       <React.Fragment>
                         {typeof properties === 'function'
@@ -584,10 +559,35 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 )}
               </div>
 
-              <div className="description__wrapper">
-                <div className="description">{claim.value.description || '...'}</div>
-              </div>
+              {!type && (
+                <div className="description__wrapper">
+                  <div className="description">{claim?.value?.description || '...'}</div>
+                </div>
+              )}
             </div>
+
+            {type !== 'small' && (!pending || !type) && isChannelUri && (
+              <div className="claim-preview__actions">
+                {!type && <JoinButton />}
+                {!pending && (
+                  <>
+                    {renderActions && claim && renderActions(claim)}
+                    {shouldHideActions || renderActions ? null : actions !== undefined ? (
+                      actions
+                    ) : (
+                      <>
+                        {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                          <SubscribeButton
+                            uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                          />
+                        )}
+                        {includeSupportAction && <ClaimSupportButton uri={uri} />}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
         {inWatchHistory && (

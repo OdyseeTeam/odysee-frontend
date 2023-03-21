@@ -1,30 +1,3 @@
-.claim-list {
-  // List view :not(.claim-preview__wrapper--channel)
-  .claim-preview__wrapper:not(.claim-preview__wrapper--small) {
-    padding: var(--spacing-m);
-
-    .media__thumb {
-      width: calc(var(--file-list-thumbnail-width) * 1.2);
-    }
-
-    &:hover {
-      // background-color: rgba(var(--color-header-background-base), 0.9);
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    .media__thumb {
-      width: var(--file-list-thumbnail-width) !important;
-    }
-    .claim-preview__text {
-      overflow: visible !important;
-      .claim-preview__actions {
-        overflow: visible;
-      }
-    }
-  }
-}
-
 .claim-list--no-margin {
   li {
     @include list-hover-effect;
@@ -35,20 +8,6 @@
 .claim__menu-button {
   .icon {
     transition: transform 0.2s;
-  }
-}
-
-[aria-expanded='true'].claim__menu-button {
-  opacity: 1;
-  // background-color: var(--color-header-background);
-  background-color: rgba(var(--color-header-button-base), 0.9);
-  //border-radius: var(--border-radius);
-  border-radius: 50%;
-  outline: 2px solid var(--color-header-background);
-
-  .icon {
-    stroke: var(--color-primary) !important;
-    transform: rotate(-90deg);
   }
 }
 
@@ -153,267 +112,11 @@
   }
 }
 
-/*
-.claim-preview__wrapper {
-  @include font-sans;
-  padding: var(--spacing-m);
-  border-radius: var(--border-radius);
-  list-style: none;
-  position: relative;
-
-  .claim-tile__info {
-    padding-bottom: unset;
-  }
-
-  .claim__menu-button {
-    right: calc(var(--spacing-m) - 8px);
-    margin-top: var(--spacing-xxs);
-  }
-
-  .claim__tags {
-    .tag {
-      color: var(--color-text);
-      background-color: var(--color-header-button);
-
-      &:hover {
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-      }
-    }
-  }
-
-  .claim-preview__repost-author {
-    width: 120px;
-    height: 120px;
-    overflow: hidden;
-    position: absolute;
-    top: var(--spacing-m);
-    left: var(--spacing-m);
-    .claim-preview__repost-ribbon {
-      position: absolute;
-      display: block;
-      width: 225px;
-      padding-top: 4px;
-      padding-right: 8px;
-      background-color: rgba(var(--color-primary-dynamic), 0.8);
-      color: var(--color-primary-contrast);
-      text-align: center;
-      z-index: 1;
-      font-size: var(--font-xxsmall);
-
-      left: -80px;
-      top: 10px;
-      transform: rotate(-45deg);
-
-      .button--uri-indicator {
-        top: -3px;
-      }
-
-      .button {
-        width: 80px;
-        text-align: center;
-        .button__content {
-          width: 100%;
-          .channel-name {
-            width: 100%;
-            color: var(--color-primary-contrast);
-            font-size: var(--font-xxsmall);
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-            display: unset;
-
-            &:hover {
-              color: var(--color-secondary);
-            }
-          }
-        }
-      }
-
-      .comment__badge {
-        display: none;
-      }
-    }
-
-    @media (max-width: $breakpoint-small) {
-      top: var(--spacing-s);
-      left: var(--spacing-s);
-      height: 80px;
-      width: 80px;
-      .claim-preview__repost-ribbon {
-        width: 190px;
-        padding-top: 0;
-        left: -66px;
-        .icon {
-          margin-bottom: -4px;
-        }
-        .button {
-          width: 70px;
-          .button__content {
-            .channel-name {
-              font-size: var(--font-xxxsmall);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .claim-preview {
-    .claim-preview__text {
-      overflow: hidden;
-    }
-    .claim-preview-metadata {
-      .claim-tile__info {
-        .media__subtitle {
-          .button {
-            display: inline;
-          }
-          .channel-name {
-            &::after {
-              content: '\a';
-              white-space: pre;
-            }
-          }
-          span:not(.channel-name) {
-            font-size: var(--font-xsmall);
-          }
-        }
-      }
-    }
-  }
-
-  @media (any-pointer: fine) {
-    &:hover {
-      .claim__menu-button {
-        opacity: 1;
-      }
-
-      .collection-preview-overlay__grid {
-        opacity: 1;
-        transition: 0.3s;
-      }
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    &:not(.claim-preview__wrapper--channel):not(.claim-preview__wrapper--inline) {
-      .claim-preview__actions {
-        display: none;
-      }
-      .claim-tile__info {
-        padding-bottom: 0;
-      }
-    }
-    &.claim-preview__wrapper--inline {
-      .claim-tile__info {
-        display: unset !important;
-        .media__subtitle {
-          margin-top: 1px !important;
-          .claim-preview__channel-sub-count {
-            margin-top: 2px !important;
-          }
-        }
-      }
-    }
-    .claim-preview {
-      .media__thumb {
-        width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
-      }
-      .claim-preview-metadata {
-        align-items: flex-start;
-        width: 100%;
-        .claim-tile__info {
-          margin-top: 0;
-          display: flex;
-          width: 100%;
-          .channel-thumbnail--xsmall {
-            margin-right: var(--spacing-xs);
-          }
-        }
-        .claim-preview__title {
-          margin-right: var(--spacing-m);
-        }
-        .media__subtitle {
-          min-width: 0;
-          .button__content {
-            height: auto;
-            span {
-              // display: block;
-              width: 100%;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-              overflow: hidden;
-            }
-          }
-          .view_count {
-            font-size: var(--font-xsmall);
-          }
-          .claim-extra-info {
-            display: block;
-            width: 100%;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-          }
-        }
-      }
-      .claim-preview__actions {
-        margin-top: 0;
-        .claim-preview__primary-actions {
-          .claim-preview__channel-staked {
-            margin-bottom: 0;
-          }
-        }
-      }
-    }
-    .claim__menu-button {
-      opacity: 1;
-    }
-  }
-}
-*/
-
 .claim-preview__wrapper--notice {
   background-color: var(--color-notice);
 }
 
-.claim-preview__wrapper--inline {
-  padding: 0;
-}
-
-.claim-preview__wrapper--small {
-  padding-top: var(--spacing-s);
-  padding-bottom: 0px !important;
-  margin-bottom: 0px !important;
-  padding-left: 0px;
-  padding-right: 0px;
-
-  .claim-preview__title {
-    font-size: var(--font-small);
-  }
-
-  @media (max-width: $breakpoint-small) {
-    margin-bottom: var(--spacing-xxs) !important;
-    padding: 0 !important;
-  }
-
-  .button--uri-indicator {
-    max-width: 11.4rem;
-  }
-
-  .claim__menu-button {
-    // right: -8px !important;
-    margin-top: 6px;
-
-    &:hover {
-      .icon {
-        stroke: var(--color-link);
-      }
-    }
-  }
-}
-
+/*
 .claim-preview__wrapper--channel {
   position: relative;
   border-radius: var(--border-radius);
@@ -458,6 +161,7 @@
     background: rgba(var(--color-header-background-base), 0.9);
   }
 }
+*/
 
 .claim-preview {
   flex: 1;
@@ -653,6 +357,7 @@
   padding: var(--spacing-s);
 }
 
+/*
 .claim-preview--inline {
   .channel-thumbnail {
     @include handleChannelGif(2.5rem);
@@ -694,6 +399,7 @@
     }
   }
 }
+*/
 
 .claim-preview--channel {
   .claim-preview__actions {
@@ -720,30 +426,6 @@
   justify-content: space-between;
 }
 
-.claim-preview__title {
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-body);
-  margin-right: var(--spacing-m);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  color: rgba(var(--color-text-base), 0.9);
-  .truncated-text {
-    display: -webkit-box;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-
-    -webkit-line-clamp: 1 !important;
-    @media (max-width: $breakpoint-xsmall) {
-      -webkit-line-clamp: 2 !important;
-    }
-    @media (min-width: $breakpoint-medium) {
-      -webkit-line-clamp: 1 !important;
-    }
-  }
-}
-
 .claim-preview__channel-sub-count {
   color: var(--color-text-subtitle);
   font-size: var(--font-xsmall);
@@ -756,11 +438,13 @@
   justify-content: flex-end;
 }
 
+/*
 .claim-preview-metadata {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
+*/
 
 .claim-preview-metadata-sub-upload {
   position: relative;
@@ -790,6 +474,7 @@
   justify-content: space-between;
 }
 
+/*
 .claim-preview__actions {
   align-self: flex-end;
   display: flex;
@@ -811,7 +496,9 @@
     flex-direction: row;
   }
 }
+*/
 
+/*
 .claim-preview__primary-actions {
   @extend .section__actions;
   margin-right: var(--spacing-s);
@@ -823,6 +510,7 @@
     }
   }
 }
+*/
 
 .claim-preview__actions--header {
   @extend .claim-preview__actions;
@@ -1006,138 +694,6 @@
   }
 }
 
-.claim-preview--tile {
-  margin-bottom: var(--spacing-m);
-  margin-right: 0;
-  margin-top: 0;
-  margin-left: var(--spacing-m);
-  justify-content: flex-start;
-  list-style: none;
-
-  .media__thumb {
-    overflow: hidden;
-    background-size: 100%;
-    transition: background-size 0.2s ease-in-out;
-  }
-
-  .channel-name {
-    p {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .claim-tile__title {
-    .claim__menu-button {
-      right: calc(var(--spacing-xs) * -1);
-    }
-  }
-
-  .comment__badge {
-    display: inherit;
-
-    .icon {
-      margin-bottom: -1px;
-      padding-bottom: 4px;
-    }
-  }
-
-  @media (any-pointer: fine) {
-    &:hover {
-      cursor: pointer;
-
-      .media__thumb {
-        box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-        background-size: 108%;
-      }
-
-      .claim-tile__title {
-        color: var(--color-link);
-      }
-
-      .claim__menu-button {
-        opacity: 1;
-      }
-
-      .collection-preview-overlay__grid {
-        opacity: 1;
-        transition: 0.3s;
-      }
-
-      .protected-content-holder-lock,
-      .protected-content-unlocked {
-        opacity: 1;
-      }
-    }
-  }
-
-  a {
-    &:focus {
-      .claim-tile__title {
-        color: var(--color-primary);
-      }
-      .media__thumb {
-        box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-      }
-    }
-  }
-  .claim__menu-button {
-    &:focus {
-      border-radius: 50%;
-      opacity: 1;
-    }
-  }
-
-  @media (min-width: $breakpoint-large) {
-    $width: calc((100% - var(--spacing-m) * 5) / 6);
-    width: $width;
-    @include handleClaimTileGifThumbnail($width);
-
-    &:first-child,
-    &:nth-child(6n + 1) {
-      margin-left: 0;
-    }
-  }
-
-  @media (max-width: $breakpoint-large) and (min-width: $breakpoint-medium) {
-    $width: calc((100% - var(--spacing-m) * 3) / 4);
-    width: $width;
-    @include handleClaimTileGifThumbnail($width);
-
-    &:first-child,
-    &:nth-child(4n + 1) {
-      margin-left: 0;
-    }
-  }
-
-  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-small) {
-    $width: calc((100% - var(--spacing-m) * 2) / 3);
-    width: $width;
-    @include handleClaimTileGifThumbnail($width);
-
-    &:first-child,
-    &:nth-child(3n + 1) {
-      margin-left: 0;
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    $width: 100%;
-    width: $width;
-    @include handleClaimTileGifThumbnail($width);
-    margin-left: 0;
-
-    &:not(:first-child) {
-      margin-top: var(--spacing-s);
-    }
-
-    .claim__menu-button {
-      opacity: 1;
-    }
-  }
-}
-
 .embed__wrapper .claim-preview--tile {
   margin-bottom: 0px !important;
   width: unset !important;
@@ -1156,19 +712,6 @@
   &:not(:first-child) {
     margin-top: 0;
   }
-}
-
-.claim-tile__title {
-  position: relative;
-  padding: var(--spacing-xs);
-  padding-left: 0px;
-  padding-right: var(--spacing-m);
-  min-height: 3.2rem;
-  margin-bottom: 0;
-
-  font-weight: 600;
-  color: var(--color-text);
-  font-size: var(--font-small);
 }
 
 .claim-tile__info {
@@ -1581,9 +1124,11 @@ $claim-preview-progress-bar-height: 5px;
     margin-top: 2px; // Even out bottom spacing due to all caps "LIVE".
   }
 
+  /*
   .claim-preview__primary-actions {
     margin-right: var(--spacing-xs);
   }
+  */
 }
 
 .claim-link {
@@ -1621,6 +1166,7 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
+/*
 .menu__button {
   &.claim__menu-button {
     position: absolute;
@@ -1637,6 +1183,7 @@ $claim-preview-progress-bar-height: 5px;
     align-self: flex-end;
   }
 }
+*/
 
 @media (min-width: $breakpoint-small) {
   @media (any-pointer: fine) {

@@ -26,9 +26,11 @@
       }
     }
 
+    /*
     .claim-preview__primary-actions {
       margin-right: 0;
     }
+    */
 
     @media (max-width: $breakpoint-small) {
       .card {
@@ -68,6 +70,7 @@
                     width: 100%;
                   }
                 }
+                /*
                 .claim-preview__primary-actions {
                   width: 50%;
                   margin-right: 0;
@@ -80,6 +83,7 @@
                     }
                   }
                 }
+                */
 
                 @media (max-width: $breakpoint-small) {
                   width: calc(100% + calc(2.7rem + var(--spacing-s)));

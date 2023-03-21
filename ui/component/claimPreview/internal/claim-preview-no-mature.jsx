@@ -20,7 +20,7 @@ function ClaimPreviewHidden(props: Props) {
       className={classnames('claim-preview__wrapper', {
         'claim-preview__wrapper--channel': isChannel && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
-        'claim-preview__wrapper--small': type === 'small',
+        'claim-preview__wrapper--recommendation': type === 'small',
       })}
     >
       <div

@@ -208,6 +208,7 @@ $actions-z-index: 2;
     }
   }
 
+  /*
   .claim-preview__wrapper--channel {
     .menu__button {
       right: var(--spacing-s);
@@ -223,6 +224,7 @@ $actions-z-index: 2;
       right: -8px;
     }
   }
+  */
 
   .mb-xl {
     // Temporary fix for upcoming livestreams on channel page
@@ -238,11 +240,6 @@ $actions-z-index: 2;
 
     .claim-preview--tile {
       margin-bottom: 0px;
-    }
-
-    .claim-tile__title {
-      margin-bottom: 0px;
-      min-height: unset;
     }
 
     .claim-tile__info {
@@ -1313,6 +1310,7 @@ $actions-z-index: 2;
     margin-bottom: var(--spacing-m);
   }
 
+  /*
   .claim-preview__wrapper--channel {
     position: relative;
     border-radius: var(--border-radius);
@@ -1386,6 +1384,7 @@ $actions-z-index: 2;
       }
     }
   }
+  */
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
     .yrbl__wrap {

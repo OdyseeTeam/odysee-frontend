@@ -203,7 +203,7 @@ function ClaimPreviewTile(props: Props) {
   return (
     <li
       onClick={handleClick}
-      className={classnames('card claim-preview--tile', {
+      className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__live': isLivestreamActive,
         'swipe-list__item claim-preview--horizontal-tile': swipeLayout,
@@ -246,7 +246,7 @@ function ClaimPreviewTile(props: Props) {
         <>
           <div className="claim-tile__header">
             <NavLink aria-label={ariaLabelData} {...navLinkProps} target={isEmbed && '_blank'}>
-              <h2 className="claim-tile__title">
+              <h2 className="claim-preview__title">
                 <TruncatedText text={title || (claim && claim.name)} lines={isChannel ? 1 : 2} />
                 {isChannel && (
                   <div className="claim-tile__about">

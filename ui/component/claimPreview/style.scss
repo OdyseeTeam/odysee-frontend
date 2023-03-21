@@ -1,9 +1,141 @@
+@import '~ui/scss/init/breakpoints';
+@import '~ui/scss/init/mixins';
+
 .claim-preview__wrapper {
   position: relative;
+  list-style-type: none;
+
+  .menu__button {
+    position: absolute;
+    opacity: 0;
+    top: var(--spacing-xxxxs);
+    right: 0;
+    padding: 2px;
+    border-radius: 50%;
+    z-index: 2;
+
+    &[aria-expanded='true'] {
+      opacity: 1;
+      .icon {
+        stroke: var(--color-primary) !important;
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .media__thumb {
+    overflow: hidden;
+    background-size: 100%;
+    transition: background-size 0.2s ease-in-out;
+  }
+
+  .claim-preview__title {
+    font-weight: var(--font-weight-bold);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    margin-right: var(--spacing-l);
+    color: rgba(var(--color-text-base), 0.9);
+  }
+
+  &:hover {
+    .menu__button {
+      opacity: 1;
+    }
+    .media__thumb {
+      background-size: 108%;
+      box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+    }
+    .claim-preview__title {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.claim-preview--tile {
+  margin-bottom: var(--spacing-m);
+  margin-right: 0;
+  margin-top: 0;
+  margin-left: var(--spacing-m);
+  justify-content: flex-start;
+  list-style: none;
+
+  .menu__button {
+    &[aria-expanded='true'] {
+      background-color: var(--color-header-button) !important;
+    }
+  }
+
+  .claim-preview__title {
+    font-size: var(--font-small);
+    padding-top: var(--spacing-xs);
+    min-height: 3.2rem;
+  }
+
+  // neko rename claim-preview__channel
+  .channel-name {
+    p {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  @media (min-width: $breakpoint-large) {
+    $width: calc((100% - var(--spacing-m) * 5) / 6);
+    width: $width;
+    @include handleClaimTileGifThumbnail($width);
+
+    &:first-child,
+    &:nth-child(6n + 1) {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: $breakpoint-large) and (min-width: $breakpoint-medium) {
+    $width: calc((100% - var(--spacing-m) * 3) / 4);
+    width: $width;
+    @include handleClaimTileGifThumbnail($width);
+
+    &:first-child,
+    &:nth-child(4n + 1) {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-small) {
+    $width: calc((100% - var(--spacing-m) * 2) / 3);
+    width: $width;
+    @include handleClaimTileGifThumbnail($width);
+
+    &:first-child,
+    &:nth-child(3n + 1) {
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    $width: 100%;
+    width: $width;
+    @include handleClaimTileGifThumbnail($width);
+    margin-left: 0;
+
+    &:not(:first-child) {
+      margin-top: var(--spacing-s);
+    }
+
+    .claim__menu-button {
+      opacity: 1;
+    }
+  }
+}
+
+.claim-preview__wrapper--row {
   padding: var(--spacing-m);
   width: 100%;
   overflow: hidden;
-  background-color: rgba(var(--color-background), 0.4);
+  background-color: rgba(var(--color-header-button-base), 0.4);
+  // background-color: rgba(var(--color-header-button-base), 1);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m) !important;
 
@@ -20,14 +152,9 @@
   }
 
   .menu__button {
-    position: absolute;
-    opacity: 0;
     top: var(--spacing-m);
     right: var(--spacing-m);
-    z-index: 1000;
     padding: 4px;
-    border-radius: 50%;
-    outline: unset;
 
     &[aria-expanded='true'] {
       opacity: 1;
@@ -55,13 +182,20 @@
   }
 
   .media__thumb {
+    width: calc(var(--file-list-thumbnail-width) * 1.2) !important;
     background-size: 100%;
     transition: background-size 0.2s;
+    &[aria-expanded='true'] {
+      opacity: 1;
+      background-color: var(--color-background);
+    }
   }
 
   .claim-preview-metadata {
-    position: relative;
+    // position: relative;
+    display: flex;
     flex-direction: column;
+    height: 100%;
     .claim-tile__info {
       flex: 1;
       margin-top: 0;
@@ -81,6 +215,11 @@
           margin-bottom: 0;
           .channel-name {
             color: rgba(var(--color-text-base), 0.8);
+          }
+          &:hover {
+            .channel-name {
+              color: rgba(var(--color-text-base), 1);
+            }
           }
         }
         .claim-extra-info {
@@ -136,16 +275,61 @@
     }
 
     .menu__button {
-      opacity: 1;
       background-color: var(--color-background);
     }
 
     .background {
       opacity: 0.9;
     }
+  }
+}
 
-    .media__thumb {
-      background-size: 108%;
+// neko rename to header?
+.claim-preview__wrapper--inline {
+  background-color: red !important;
+}
+
+.claim-preview__wrapper--recommendation {
+  margin-bottom: var(--spacing-m);
+  .menu__button {
+    top: -3px;
+    &[aria-expanded='true'] {
+      background-color: var(--color-header-button) !important;
+    }
+  }
+  .claim-preview__title {
+    font-size: var(--font-small);
+  }
+
+  &:hover {
+    .menu__button {
+      background-color: unset;
+    }
+  }
+}
+
+.claim-preview--channel {
+  .claim-preview__text {
+    flex-direction: row;
+
+    .claim-preview-metadata {
+      flex: 1;
+      width: 100%;
+    }
+
+    .claim-preview__actions {
+      flex-direction: column;
+      margin-top: auto;
+      margin-left: var(--spacing-m);
+      button {
+        width: 100%;
+        margin-top: var(--spacing-xxxs);
+      }
+      .button-group {
+        button {
+          background-color: var(--color-primary);
+        }
+      }
     }
   }
 }

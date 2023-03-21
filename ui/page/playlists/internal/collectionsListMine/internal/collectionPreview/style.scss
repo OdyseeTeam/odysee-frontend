@@ -3,28 +3,7 @@
 
 .playlist-preview__wrapper {
   @extend .claim-preview__wrapper;
-
-  /*
-  .menu__button {
-    position: absolute;
-    opacity: 0;
-    top: var(--spacing-m);
-    right: var(--spacing-m);
-    z-index: 1000;
-    padding: 4px;
-    border-radius: 50%;
-    outline: unset;
-
-    &[aria-expanded='true'] {
-      opacity: 1;
-      background-color: var(--color-background);
-
-      .icon {
-        transform: rotate(90deg);
-      }
-    }
-  }
-  */
+  @extend .claim-preview__wrapper--row;
 
   .background {
     position: absolute;

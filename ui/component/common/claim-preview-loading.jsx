@@ -18,7 +18,7 @@ function ClaimPreviewLoading(props: Props) {
       className={classnames('placeholder claim-preview__wrapper', {
         'claim-preview__wrapper--channel': isChannel && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
-        'claim-preview__wrapper--small': type === 'small',
+        'claim-preview__wrapper--recommendation': type === 'small',
       })}
     >
       <div className={classnames('claim-preview', { 'claim-preview--large': type === 'large' })}>

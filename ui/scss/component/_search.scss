@@ -191,6 +191,7 @@
 
 .searchPage-wrapper {
   .search__header {
+    /*
     .claim-preview__wrapper--channel {
       .claim-preview__repost-author {
         margin-top: calc(var(--spacing-m) * -1) !important;
@@ -212,6 +213,8 @@
         background-color: rgba(var(--color-header-background-base), 0.9);
       }
     }
+    */
+    /*
     .claim-preview__wrapper {
       .claim-preview__repost-author {
         top: 0 !important;
@@ -251,8 +254,10 @@
         }
       }
     }
+    */
   }
 
+  /*
   .claim-preview__wrapper {
     background-color: rgba(var(--color-header-background-base), 0.6);
     .claim-tile__info {
@@ -263,7 +268,9 @@
       }
     }
   }
+  */
 
+  /*
   .claim-preview__wrapper--channel {
     position: relative;
     border-radius: var(--border-radius);
@@ -285,6 +292,7 @@
       }
     }
   }
+  */
 
   .ads__claim-item {
     margin-top: 0;

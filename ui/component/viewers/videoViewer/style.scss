@@ -40,17 +40,12 @@
       a {
         pointer-events: none;
       }
-
-      .claim-tile__title {
-        min-height: unset;
-      }
-
       .claim-tile__header {
         position: absolute;
         top: 0;
         width: 100%;
         padding: var(--spacing-s);
-        // padding-bottom: var(--spacing-m);
+        padding-bottom: var(--spacing-m);
         padding-top: 0;
         background: linear-gradient(180deg, rgba(13, 13, 13, 1) 0%, rgba(13, 13, 13, 0) 100%);
         display: none;
@@ -85,9 +80,6 @@
         }
         .claim-tile__header {
           display: flex;
-          .claim-tile__title {
-            color: white;
-          }
         }
         .claim-preview__file-property-overlay {
           display: block;

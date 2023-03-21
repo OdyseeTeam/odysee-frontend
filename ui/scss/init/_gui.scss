@@ -89,38 +89,6 @@ ul {
   }
 }
 
-ul,
-ol {
-  li {
-    position: relative;
-    list-style-position: outside;
-    margin: var(--spacing-xs) 0;
-    margin-left: var(--spacing-xl);
-    margin-bottom: 0;
-  }
-}
-
-.ul--no-style {
-  list-style: none;
-  margin-bottom: 0;
-  overflow: visible !important;
-
-  li {
-    margin: 0;
-    margin-bottom: var(--spacing-xxs);
-  }
-
-  .claim-preview__wrapper {
-    padding: 0px;
-    padding-top: var(--spacing-m);
-    padding-bottom: var(--spacing-m);
-
-    .claim__menu-button {
-      // right: 2px;
-    }
-  }
-}
-
 .claim__menu-button {
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
@@ -1604,9 +1572,11 @@ img {
           }
         }
       }
+      /*
       .claim-preview__text {
         overflow: visible;
       }
+      */
     }
   }
 
@@ -1638,6 +1608,7 @@ img {
     .membership-button-wrapper {
       margin-top: var(--spacing-xxxs);
     }
+    /*
     .claim-preview__primary-actions {
       .button--alt {
         color: var(--color-text);
@@ -1653,17 +1624,22 @@ img {
         }
       }
     }
+    */
     .claim-preview__actions {
+      /*
       .claim-preview__primary-actions {
         margin-top: var(--spacing-xxxs);
       }
+      */
       @media (max-width: $breakpoint-small) {
         margin-top: var(--spacing-xxxs) !important;
+        /*
         .claim-preview__primary-actions {
           flex-wrap: nowrap;
           margin-right: var(--spacing-xxxs);
           margin-left: calc((4rem + var(--spacing-m)) * -1);
         }
+        */
         .membership-button-wrapper {
           display: flex;
           align-items: center;
@@ -1745,6 +1721,7 @@ img {
   .claim-list {
     margin-bottom: var(--spacing-xxl);
     &.playlists {
+      /*
       .claim-preview__text {
         justify-content: space-around;
 
@@ -1790,6 +1767,7 @@ img {
           }
         }
       }
+      */
 
       .claim-preview-info {
         color: var(--color-text);
