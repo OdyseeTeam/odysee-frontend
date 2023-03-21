@@ -1,6 +1,5 @@
 // @flow
 import * as PAGES from 'constants/pages';
-import * as SETTINGS from 'constants/settings';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
@@ -14,6 +13,7 @@ import ErrorText from 'component/common/error-text';
 import Nag from 'component/nag';
 import classnames from 'classnames';
 import LoginGraphic from 'component/loginGraphic';
+import { LocalStorage, LS } from 'util/storage';
 
 type Props = {
   errorMessage: ?string,
@@ -26,7 +26,6 @@ type Props = {
   setShareDiagnosticData: (boolean) => void,
   doSignUp: (string, ?string) => Promise<any>,
   clearEmailEntry: () => void,
-  setClientSetting: (string, boolean | string | number, boolean) => void,
   interestedInYoutubSync: boolean,
   doToggleInterestedInYoutubeSync: () => void,
 };
@@ -40,7 +39,6 @@ function UserEmailNew(props: Props) {
     daemonSettings,
     setShareDiagnosticData,
     clearEmailEntry,
-    setClientSetting,
     emailExists,
     interestedInYoutubSync,
     doToggleInterestedInYoutubeSync,
@@ -67,7 +65,7 @@ function UserEmailNew(props: Props) {
     // @endif
     doSignUp(email, password === '' ? undefined : password)
       .then(() => {
-        setClientSetting(SETTINGS.IS_NEW_ACCOUNT, true, false);
+        LocalStorage.setItem(LS.IS_NEW_ACCOUNT, 'true');
         analytics.event.emailProvided();
       })
       .catch(() => {});

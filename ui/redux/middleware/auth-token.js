@@ -1,12 +1,11 @@
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
-import * as SETTINGS from 'constants/settings';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import Lbry from 'lbry';
 import { getAuthToken } from 'util/saved-passwords';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { LocalStorage, LS } from 'util/storage';
 
-export const populateAuthTokenHeader = ({ getState, dispatch }) => {
+export const populateAuthTokenHeader = ({ dispatch }) => {
   return (next) => (action) => {
     // @if TARGET='web'
 
@@ -21,12 +20,12 @@ export const populateAuthTokenHeader = ({ getState, dispatch }) => {
         break;
 
       case ACTIONS.USER_LOGGED_IN_BROADCAST:
-        const state = getState();
-        const isNewAccount = selectClientSetting(state, SETTINGS.IS_NEW_ACCOUNT);
+        const isNewAccount = LocalStorage.getItem(LS.IS_NEW_ACCOUNT) === 'true';
         const xAuth = (Lbry.getApiRequestHeaders() || {})[X_LBRY_AUTH_TOKEN] || '';
         if (!xAuth) {
           if (location.href.includes(PAGES.AUTH_VERIFY) && !location.href.includes(PAGES.REWARDS_VERIFY)) {
             if (isNewAccount) {
+              LocalStorage.removeItem(LS.IS_NEW_ACCOUNT);
               window.location.assign(`/$/${PAGES.AUTH}`);
             } else {
               window.location.assign('/');

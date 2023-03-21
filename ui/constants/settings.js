@@ -2,7 +2,6 @@
     be careful about changing the value of a SETTINGS constant, as doing so can invalidate existing SETTINGS */
 export const CREDIT_REQUIRED_ACKNOWLEDGED = 'credit_required_acknowledged';
 export const NEW_USER_ACKNOWLEDGED = 'welcome_acknowledged';
-export const IS_NEW_ACCOUNT = 'is_new_account';
 export const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 export const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
 export const LANGUAGE = 'language';

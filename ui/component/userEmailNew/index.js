@@ -8,9 +8,8 @@ import {
 } from 'redux/selectors/user';
 import * as SETTINGS from 'constants/settings';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
-import { doSetWalletSyncPreference, doSetDaemonSetting, doSetClientSetting } from 'redux/actions/settings';
+import { doSetWalletSyncPreference, doSetDaemonSetting } from 'redux/actions/settings';
 import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
-
 import UserEmailNew from './view';
 
 const select = (state) => ({
@@ -28,7 +27,6 @@ const perform = (dispatch) => ({
     dispatch(doSetDaemonSetting(DAEMON_SETTINGS.SHARE_USAGE_DATA, shouldShareData)),
   doSignUp: (email, password) => dispatch(doUserSignUp(email, password)),
   clearEmailEntry: () => dispatch(doClearEmailEntry()),
-  setClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
 });
 
 export default connect(select, perform)(UserEmailNew);
