@@ -20,10 +20,11 @@ export const populateAuthTokenHeader = ({ dispatch }) => {
         break;
 
       case ACTIONS.USER_LOGGED_IN_BROADCAST:
+        const isVerifyPage = location.href.includes(PAGES.AUTH_VERIFY) && !location.href.includes(PAGES.REWARDS_VERIFY);
         const isNewAccount = LocalStorage.getItem(LS.IS_NEW_ACCOUNT) === 'true';
         const xAuth = (Lbry.getApiRequestHeaders() || {})[X_LBRY_AUTH_TOKEN] || '';
         if (!xAuth) {
-          if (location.href.includes(PAGES.AUTH_VERIFY) && !location.href.includes(PAGES.REWARDS_VERIFY)) {
+          if (isVerifyPage) {
             if (isNewAccount) {
               LocalStorage.removeItem(LS.IS_NEW_ACCOUNT);
               window.location.assign(`/$/${PAGES.AUTH}`);
