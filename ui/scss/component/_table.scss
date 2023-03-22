@@ -209,8 +209,16 @@ td {
 .table--lbc-details {
   @extend .table--details;
 
-  td:nth-of-type(2) {
-    text-align: right;
+  background-color: var(--color-header-button);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-s);
+
+  td {
+    padding-left: var(--spacing-s) !important;
+    padding-right: var(--spacing-s) !important;
+    &:nth-of-type(2) {
+      text-align: right;
+    }
   }
 
   @media (max-width: $breakpoint-small) {

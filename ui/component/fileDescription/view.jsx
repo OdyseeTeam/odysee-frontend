@@ -21,15 +21,19 @@ type Props = {
   claimIsMine: boolean,
   pendingAmount: number,
   doOpenModal: (id: string, {}) => void,
+  isLivestreamClaim: boolean,
 };
 
 export default function FileDescription(props: Props) {
-  const { uri, description, amount, hasSupport, isEmpty, doOpenModal, claimIsMine, expandOverride } = props;
+  const { uri, description, amount, hasSupport, isEmpty, doOpenModal, claimIsMine, expandOverride, isLivestreamClaim } =
+    props;
 
   const [expanded, setExpanded] = React.useState(false);
   const [showCreditDetails, setShowCreditDetails] = React.useState(false);
 
   const formattedAmount = formatCredits(amount, 2, true);
+
+  console.log('props: ', props);
 
   if (isEmpty) {
     return <span className="empty">{__('Empty claim or metadata info.')}</span>;
@@ -39,8 +43,8 @@ export default function FileDescription(props: Props) {
     <>
       <div
         className={classnames({
-          'media__info-text--contracted media__info-text--fade': !expanded && !expandOverride,
-          'media__info-text--expanded': expanded,
+          'media__info-text--contracted media__info-text--fade': !expanded && !expandOverride && !isLivestreamClaim,
+          'media__info-text--expanded': expanded || isLivestreamClaim,
         })}
       >
         <div className="mediaInfo__description">
@@ -54,7 +58,12 @@ export default function FileDescription(props: Props) {
 
       <div className="card__bottom-actions">
         {!expandOverride && (
-          <Button button="link" label={expanded ? __('Less') : __('More')} onClick={() => setExpanded(!expanded)} />
+          <>
+            {!isLivestreamClaim && (
+              <Button button="link" label={expanded ? __('Less') : __('More')} onClick={() => setExpanded(!expanded)} />
+            )}
+            {isLivestreamClaim && <Button />}
+          </>
         )}
 
         <div className="section__actions--no-margin">

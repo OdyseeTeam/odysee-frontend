@@ -83,6 +83,10 @@ select {
   padding-right: var(--spacing-xl);
   padding-left: var(--spacing-s);
   font-weight: bold;
+  &:hover,
+  &:focus-visible {
+    background-color: var(--color-primary) !important;
+  }
 }
 
 fieldset-group {
@@ -129,9 +133,6 @@ form,
 
 fieldset-section {
   background-color: unset !important;
-  select:focus-visible {
-    background-color: var(--color-header-background) !important;
-  }
 
   option {
     background-color: var(--color-header-background);

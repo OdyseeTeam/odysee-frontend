@@ -40,15 +40,6 @@ class FileDetails extends PureComponent<Props> {
 
     return (
       <>
-        <div className="media__details">
-          <span>{__('URL')}</span>
-          <span>{claim.canonical_url}</span>
-        </div>
-        <div className="media__details">
-          <span>{__('Claim ID')}</span>
-          <span>{claim.claim_id}</span>
-        </div>
-
         {!SIMPLE_SITE && (
           <>
             {languages && (

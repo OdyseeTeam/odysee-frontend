@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import { makeSelectPendingAmountByUri } from 'redux/selectors/wallet';
 import { doOpenModal } from 'redux/actions/app';
 import FileDescription from './view';
@@ -14,6 +14,7 @@ const select = (state, props) => {
   const description = metadata && metadata.description;
   const amount = claim ? parseFloat(claim.amount) + parseFloat(pendingAmount || claim.meta.support_amount) : 0;
   const hasSupport = claim && claim.meta && claim.meta.support_amount && Number(claim.meta.support_amount) > 0;
+  const isLivestreamClaim = selectIsStreamPlaceholderForUri(state, uri);
 
   const isEmpty = !claim || !metadata;
 
@@ -22,6 +23,7 @@ const select = (state, props) => {
     description,
     amount,
     hasSupport,
+    isLivestreamClaim,
     isEmpty,
   };
 };

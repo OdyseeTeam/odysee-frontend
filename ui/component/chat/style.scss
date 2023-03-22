@@ -5,7 +5,7 @@ $discussion-header__height: 3rem;
 $recent-msg-button__height: 2rem;
 
 .chat__wrapper {
-  margin-top: var(--spacing-m);
+  // margin-top: var(--spacing-m);
   margin-bottom: var(--spacing-m);
   width: 100%;
   border-radius: var(--border-radius);
@@ -22,17 +22,14 @@ $recent-msg-button__height: 2rem;
     justify-content: space-between;
     flex-wrap: wrap;
 
-    .button-toggle {
-      background-color: var(--color-background);
-    }
-
     .chat__toggle-mode {
       margin: var(--spacing-xs);
       .button-toggle {
         height: unset;
         padding: var(--spacing-xxxs) var(--spacing-s);
+        background-color: var(--color-background);
         .button__label {
-          color: white;
+          color: var(--color-text);
           font-size: var(--font-body);
         }
         .credit-amount {
@@ -40,6 +37,12 @@ $recent-msg-button__height: 2rem;
             height: var(--font-body);
             width: var(--font-body);
             margin-right: var(--spacing-xxs);
+          }
+        }
+        &.button-toggle--active,
+        &:hover {
+          .button__label {
+            color: white !important;
           }
         }
       }
@@ -371,6 +374,7 @@ $recent-msg-button__height: 2rem;
   }
 
   .livestream__comment {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
     &:hover {
       background-color: rgba(var(--color-header-button-base), 0.2);
     }
@@ -432,11 +436,6 @@ $recent-msg-button__height: 2rem;
       background-color: var(--color-background);
       @media (max-width: $breakpoint-small) {
         background-color: unset;
-      }
-    }
-    select {
-      &:hover {
-        background-color: var(--color-primary);
       }
     }
     .help {
@@ -790,6 +789,42 @@ $recent-msg-button__height: 2rem;
   }
 }
 
+.livestreamComment__meta-information {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding-top: 1px;
+  transition: width 0.2s;
+
+  .comment__pin {
+    background: var(--color-header-background);
+    padding: 0 3px 0 2px;
+    font-weight: var(--font-weight-bold);
+    border-radius: 10px var(--border-radius) var(--border-radius) 10px;
+    margin-left: 0;
+    border: 2px solid var(--color-border);
+    margin-top: -1px;
+    flex: 1;
+    white-space: nowrap;
+    svg {
+      margin-bottom: -1px;
+      background: var(--color-border);
+      border-radius: 50%;
+      padding: 1px;
+      padding-left: 2px;
+      margin-right: var(--spacing-xxs);
+    }
+  }
+
+  .date_time {
+    flex: 1;
+    white-space: nowrap;
+    margin-bottom: -5px;
+  }
+}
+
 .livestream-pinned__wrapper--mobile {
   @extend .livestream-pinned__wrapper;
 
@@ -881,9 +916,8 @@ $recent-msg-button__height: 2rem;
   margin-right: var(--spacing-xs);
   padding: 2px 2px 2px 2px;
   border-radius: 14px;
-  transition: border 0.4s, background-color 0.4s;
-
-  background-color: rgba(var(--color-header-background-base), 0.8);
+  transition: background-color 0.2s;
+  background-color: rgba(var(--color-header-background-base), 0.9);
 
   .channel-thumbnail {
     margin-right: var(--spacing-xxxs);
@@ -908,35 +942,38 @@ $recent-msg-button__height: 2rem;
 }
 
 .hyperchat-preview-level1 {
-  background-color: rgba(mix(#de0050, #ffa236, 0%), 0.8);
+  background-color: rgba(mix(#de0050, #ffa236, 0%), 0.9);
+  .credit-amount {
+    color: white;
+  }
   &:hover {
     background-color: rgba(mix(#de0050, #ffa236, 0%), 1);
   }
 }
 
 .hyperchat-preview-level2 {
-  background-color: rgba(mix(#de0050, #ffa236, 25%), 0.8);
+  background-color: rgba(mix(#de0050, #ffa236, 25%), 0.9);
   &:hover {
     background-color: rgba(mix(#de0050, #ffa236, 25%), 1);
   }
 }
 
 .hyperchat-preview-level3 {
-  background-color: rgba(mix(#de0050, #ffa236, 50%), 0.8);
+  background-color: rgba(mix(#de0050, #ffa236, 50%), 0.9);
   &:hover {
     background-color: rgba(mix(#de0050, #ffa236, 50%), 1);
   }
 }
 
 .hyperchat-preview-level4 {
-  background-color: rgba(mix(#de0050, #ffa236, 75%), 0.8);
+  background-color: rgba(mix(#de0050, #ffa236, 75%), 0.9);
   &:hover {
     background-color: rgba(mix(#de0050, #ffa236, 75%), 1);
   }
 }
 
 .hyperchat-preview-level5 {
-  background-color: rgba(mix(#de0050, #ffa236, 100%), 0.8);
+  background-color: rgba(mix(#de0050, #ffa236, 100%), 0.9);
   &:hover {
     background-color: rgba(mix(#de0050, #ffa236, 100%), 1);
   }
@@ -1067,6 +1104,11 @@ $recent-msg-button__height: 2rem;
   }
 }
 
+.livestreamComment__meta-information {
+  width: 100%;
+  min-width: 0;
+}
+
 .livestreamComment--minimal {
   width: 100%;
   .date_time {
@@ -1176,5 +1218,49 @@ $recent-msg-button__height: 2rem;
     float: left;
     max-height: 22px;
     margin-bottom: 0;
+  }
+}
+
+.livestreamComment__info {
+  overflow: hidden;
+  width: 100%;
+
+  .comment__author {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .comment__badge {
+    .icon {
+      height: var(--font-body);
+      width: var(--font-body);
+      margin-bottom: -2px;
+    }
+    .icon--BadgeStreamer {
+      height: calc(var(--font-body) + 2px);
+      width: calc(var(--font-body) + 2px);
+      margin-bottom: -7px;
+    }
+    .icon--BadgeMod {
+      height: calc(var(--font-body) - 3px);
+      width: calc(var(--font-body) - 3px);
+      margin-bottom: -4px;
+    }
+    .icon--Premium,
+    .icon--PremiumPlus {
+      margin-bottom: -5px;
+    }
+    .icon--Membership {
+      color: var(--color-text);
+      height: calc(var(--font-body) - 3px);
+      width: calc(var(--font-body) - 3px);
+      margin-bottom: -4.5px;
+    }
+    .icon--BadgeSprout {
+      height: 0.7rem;
+      width: 0.7rem;
+      margin-bottom: -4px;
+    }
   }
 }
