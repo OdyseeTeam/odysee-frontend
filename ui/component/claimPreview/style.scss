@@ -282,6 +282,10 @@
       opacity: 0.9;
     }
   }
+
+  &.placeholder {
+    background-color: rgba(var(--color-header-button-base), 0.4) !important;
+  }
 }
 
 // neko rename to header?

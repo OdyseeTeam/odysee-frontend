@@ -136,12 +136,14 @@
     margin-bottom: 0;
   }
 
+  /*
   .claim-preview__wrapper {
     background: rgba(var(--color-header-background-base), 0.6);
     &:hover {
       background: rgba(var(--color-header-background-base), 0.9);
     }
   }
+  */
 }
 
 .card-collection-selector {
@@ -851,6 +853,7 @@
     }
   }
 
+  /*
   .claim-preview__wrapper {
     padding: var(--spacing-xxs) var(--spacing-s) !important;
     border-radius: unset;
@@ -867,6 +870,7 @@
       width: unset !important;
     }
   }
+  */
 
   .playlist-card-actions {
     grid-column-start: 1;
