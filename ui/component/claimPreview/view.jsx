@@ -545,7 +545,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
                 {type !== 'small' && (
                   <div className="claim-preview__actions">
-                    {type && <JoinButton />}
+                    {/* type && <JoinButton /> */}
                     {claim && (
                       <React.Fragment>
                         {typeof properties === 'function'
@@ -568,7 +568,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
             {type !== 'small' && (!pending || !type) && isChannelUri && (
               <div className="claim-preview__actions">
-                {!type && <JoinButton />}
+                <JoinButton />
                 {!pending && (
                   <>
                     {renderActions && claim && renderActions(claim)}

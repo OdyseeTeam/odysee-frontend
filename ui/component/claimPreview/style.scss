@@ -286,7 +286,18 @@
 
 // neko rename to header?
 .claim-preview__wrapper--inline {
-  background-color: red !important;
+  // background-color: red !important;
+  .claim-preview__actions {
+    display: flex;
+    flex-direction: row !important;
+    margin-top: unset !important;
+    .membership-button-wrapper {
+      margin-top: 0;
+    }
+    button {
+      // margin-top:0 !important;
+    }
+  }
 }
 
 .claim-preview__wrapper--recommendation {
@@ -299,6 +310,10 @@
   }
   .claim-preview__title {
     font-size: var(--font-small);
+  }
+
+  .claim-preview__actions {
+    flex-direction: row;
   }
 
   &:hover {
@@ -318,6 +333,7 @@
     }
 
     .claim-preview__actions {
+      display: flex;
       flex-direction: column;
       margin-top: auto;
       margin-left: var(--spacing-m);

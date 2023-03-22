@@ -51,7 +51,7 @@
   margin-bottom: 0;
   top: 0;
   z-index: var(--floating-player-z-index);
-  border: 2px solid #000;
+  border: 2px solid rgba(var(--color-header-button-base), 0.5);
   background-color: #000;
   border-radius: var(--border-radius);
 
@@ -420,7 +420,7 @@
   backdrop-filter: blur(4px);
   border-bottom-right-radius: var(--border-radius);
   border-bottom-left-radius: var(--border-radius);
-  border: 2px solid #000;
+  border: 2px solid rgba(var(--color-header-button-base), 0.5);
 
   .content-info__text {
     max-width: 100%;

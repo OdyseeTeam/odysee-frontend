@@ -127,6 +127,17 @@
   }
 }
 
+.mediaInfo__description {
+  .claim__tags {
+    .tag {
+      background-color: rgba(var(--color-header-button-base), 1);
+      &:hover {
+        background-color: var(--color-primary);
+      }
+    }
+  }
+}
+
 .media__info-text--fade {
   // -webkit-mask-image: -webkit-gradient(linear, left 30%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
   overflow-wrap: anywhere;

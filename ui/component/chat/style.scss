@@ -11,6 +11,7 @@ $recent-msg-button__height: 2rem;
   border-radius: var(--border-radius);
   margin-left: var(--spacing-m);
   border: 1px solid var(--color-header-button);
+  background-color: var(--color-background);
 
   .chat__header {
     position: relative;
@@ -31,7 +32,7 @@ $recent-msg-button__height: 2rem;
         height: unset;
         padding: var(--spacing-xxxs) var(--spacing-s);
         .button__label {
-          color: var(--color-text) !important;
+          color: white;
           font-size: var(--font-body);
         }
         .credit-amount {
@@ -368,6 +369,12 @@ $recent-msg-button__height: 2rem;
   &::-webkit-scrollbar-track {
     background: var(--color-header-background);
   }
+
+  .livestream__comment {
+    &:hover {
+      background-color: rgba(var(--color-header-button-base), 0.2);
+    }
+  }
 }
 
 .livestream__comments--mobile {
@@ -425,6 +432,11 @@ $recent-msg-button__height: 2rem;
       background-color: var(--color-background);
       @media (max-width: $breakpoint-small) {
         background-color: unset;
+      }
+    }
+    select {
+      &:hover {
+        background-color: var(--color-primary);
       }
     }
     .help {
@@ -573,7 +585,7 @@ $recent-msg-button__height: 2rem;
   background: linear-gradient(180deg, var(--color-header-button) 0%, transparent 100%);
   margin-bottom: var(--spacing-xs);
 
-  overflow-x: scroll;
+  // overflow-x: scroll;
   padding-bottom: var(--spacing-xs) !important;
   &::-webkit-scrollbar {
     width: 0px;
@@ -720,6 +732,7 @@ $recent-msg-button__height: 2rem;
 .livestream__comment {
   list-style-type: none;
   position: relative;
+  font-size: var(--font-xsmall);
 
   .date_time {
     color: var(--color-text-subtitle);
@@ -729,10 +742,6 @@ $recent-msg-button__height: 2rem;
 
   .channel-name {
     font-size: var(--font-xsmall);
-  }
-
-  span {
-    font-size: var(--font-small) !important;
   }
 
   .close-button {
@@ -779,10 +788,6 @@ $recent-msg-button__height: 2rem;
       }
     }
   }
-}
-
-.livestream-comments__top-actions--mobile {
-  // max-width: calc(100% - 2rem - 69px - var(--spacing-s) - var(--spacing-s));
 }
 
 .livestream-pinned__wrapper--mobile {
@@ -843,27 +848,30 @@ $recent-msg-button__height: 2rem;
 .livestream-hyperchats {
   display: flex;
 
-  .channel-thumbnail {
-    margin-top: 4px !important;
-    .comment__badge {
-      bottom: -6px;
-      left: 33%;
-      width: 60%;
-    }
-  }
-  .channel-name {
-    .comment__badge {
-      display: none;
-    }
-  }
-  .close-button {
-    border: 2px solid var(--color-border);
-    border-radius: var(--border-radius);
-    color: var(--color-text-subtitle);
-    padding: 0 var(--spacing-xs);
-    .button__label,
-    .icon {
-      color: var(--color-text);
+  .chat__show-hyperchats {
+    position: absolute;
+    right: 0;
+    // background:var(--color-header-button);
+    background: linear-gradient(270deg, var(--color-header-button) 50%, transparent 100%);
+    width: 100px;
+    height: 100%;
+    padding-left: 20px;
+    .close-button {
+      border: 2px solid rgba(var(--color-header-button-base), 0.8);
+      color: var(--color-text-subtitle);
+      padding: 4px;
+      // margin-top:2px;
+      margin-right: var(--spacing-xs);
+      background-color: var(--color-background);
+      border-radius: 50%;
+      float: right;
+      .button__label,
+      .icon {
+        color: var(--color-text);
+      }
+      &:hover {
+        background-color: var(--color-primary);
+      }
     }
   }
 }
@@ -871,87 +879,66 @@ $recent-msg-button__height: 2rem;
 .livestream-hyperchat {
   display: flex;
   margin-right: var(--spacing-xs);
-  padding: 2px var(--spacing-xxs);
-  border-radius: var(--border-radius);
+  padding: 2px 2px 2px 2px;
+  border-radius: 14px;
   transition: border 0.4s, background-color 0.4s;
-  border: 2px solid var(--color-border);
-  background-color: rgba(var(--color-text-base), 0.05);
+
+  background-color: rgba(var(--color-header-background-base), 0.8);
 
   .channel-thumbnail {
-    margin-right: var(--spacing-xxs);
-    margin-top: var(--spacing-xxs);
-    @include handleChannelGif(2rem);
+    margin-right: var(--spacing-xxxs);
+    @include handleChannelGif(1.6rem);
 
     @media (max-width: $breakpoint-small) {
-      @include handleChannelGif(1.5rem);
+      @include handleChannelGif(0.5rem);
     }
   }
   .channel-name,
   .credit-amount {
     color: var(--color-text);
-  }
-
-  .channel-name {
-    max-width: 10rem;
+    font-size: var(--font-base);
+    font-weight: var(--font-weight-bold);
+    margin-right: var(--spacing-xxxs);
+    margin-top: 3px;
+    svg {
+      width: 1rem !important;
+      height: 1rem !important;
+    }
   }
 }
 
 .hyperchat-preview-level1 {
-  border: 2px solid rgba(mix(#de0050, #ffa236, 0%), 1);
-  background-color: rgba(mix(#de0050, #ffa236, 0%), 0.2);
+  background-color: rgba(mix(#de0050, #ffa236, 0%), 0.8);
+  &:hover {
+    background-color: rgba(mix(#de0050, #ffa236, 0%), 1);
+  }
 }
 
 .hyperchat-preview-level2 {
-  border: 2px solid rgba(mix(#de0050, #ffa236, 25%), 1);
-  background-color: rgba(mix(#de0050, #ffa236, 25%), 0.2);
-  .livestreamHyperchat__info {
-    max-width: 6rem;
-    .channel-name {
-      p {
-        max-width: 6rem;
-      }
-    }
+  background-color: rgba(mix(#de0050, #ffa236, 25%), 0.8);
+  &:hover {
+    background-color: rgba(mix(#de0050, #ffa236, 25%), 1);
   }
 }
 
 .hyperchat-preview-level3 {
-  border: 2px solid rgba(mix(#de0050, #ffa236, 50%), 1);
-  background-color: rgba(mix(#de0050, #ffa236, 50%), 0.2);
-  .livestreamHyperchat__info {
-    max-width: 7rem;
-    .channel-name {
-      p {
-        max-width: 7rem;
-      }
-    }
+  background-color: rgba(mix(#de0050, #ffa236, 50%), 0.8);
+  &:hover {
+    background-color: rgba(mix(#de0050, #ffa236, 50%), 1);
   }
 }
 
 .hyperchat-preview-level4 {
-  border: 2px solid rgba(mix(#de0050, #ffa236, 75%), 1);
-  background-color: rgba(mix(#de0050, #ffa236, 75%), 0.2);
-
-  .livestreamHyperchat__info {
-    max-width: 8rem;
-    .channel-name {
-      p {
-        max-width: 8rem;
-      }
-    }
+  background-color: rgba(mix(#de0050, #ffa236, 75%), 0.8);
+  &:hover {
+    background-color: rgba(mix(#de0050, #ffa236, 75%), 1);
   }
 }
 
 .hyperchat-preview-level5 {
-  border: 2px solid rgba(mix(#de0050, #ffa236, 100%), 1);
-  background-color: rgba(mix(#de0050, #ffa236, 100%), 0.2);
-
-  .livestreamHyperchat__info {
-    max-width: 10rem;
-    .channel-name {
-      p {
-        max-width: 10rem;
-      }
-    }
+  background-color: rgba(mix(#de0050, #ffa236, 100%), 0.8);
+  &:hover {
+    background-color: rgba(mix(#de0050, #ffa236, 100%), 1);
   }
 }
 
@@ -972,7 +959,6 @@ $recent-msg-button__height: 2rem;
 .livestream-hyperchat-orderOptions {
   padding: 0 var(--spacing-xs);
   padding-bottom: var(--spacing-xxxs);
-  //border-bottom:1px solid var(--color-header-background);
   font-size: var(--font-small);
   background: linear-gradient(180deg, var(--color-header-background) 80%, transparent 100%);
 }

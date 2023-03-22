@@ -10,7 +10,7 @@ import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import Tooltip from 'component/common/tooltip';
-import UriIndicator from 'component/uriIndicator';
+// import UriIndicator from 'component/uriIndicator';
 import Slide from '@mui/material/Slide';
 import { Lbryio } from 'lbryinc';
 
@@ -37,8 +37,9 @@ export default function LivestreamHyperchats(props: Props) {
 
   const showMore = superChatTopTen && hyperChatsByAmount && superChatTopTen.length < hyperChatsByAmount.length;
   const elRef: ElementRef<any> = React.useRef();
-  const [showTooltip, setShowTooltip] = React.useState(true);
+  // const [showTooltip, setShowTooltip] = React.useState(true);
 
+  /*
   React.useEffect(() => {
     const el = elRef.current;
     if (el) {
@@ -70,6 +71,7 @@ export default function LivestreamHyperchats(props: Props) {
       return () => el.removeEventListener('wheel', onWheel);
     }
   }, []);
+  */
 
   return !superChatTopTen ? null : (
     <Slider isMobile={isMobile} hyperchatsHidden={hyperchatsHidden}>
@@ -86,7 +88,7 @@ export default function LivestreamHyperchats(props: Props) {
             const stickerImg = <OptimizedImage src={getStickerUrl(comment)} waitLoad loading="lazy" />;
             const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * 10 * exchangeRate;
 
-            return showTooltip ? (
+            return (
               <Tooltip disabled title={isSticker ? stickerImg : comment} key={comment_id}>
                 <div
                   className={classnames('livestream-hyperchat', {
@@ -98,7 +100,7 @@ export default function LivestreamHyperchats(props: Props) {
                     'hyperchat-preview-level5': basedAmount >= 500,
                   })}
                 >
-                  <ChannelThumbnail uri={channel_url} xsmall showMemberBadge />
+                  <ChannelThumbnail uri={channel_url} xxsmall showMemberBadge />
 
                   <div
                     className={classnames('livestreamHyperchat__info', {
@@ -107,7 +109,9 @@ export default function LivestreamHyperchats(props: Props) {
                     })}
                   >
                     <div className="livestreamHyperchat__info--user">
+                      {/*
                       <UriIndicator uri={channel_url} link showAtSign />
+                      */}
 
                       <CreditAmount
                         hideTitle
@@ -122,47 +126,19 @@ export default function LivestreamHyperchats(props: Props) {
                   </div>
                 </div>
               </Tooltip>
-            ) : (
-              <div
-                className={classnames('livestream-hyperchat', {
-                  'livestream-hyperchat--mobile': isMobile,
-                })}
-              >
-                <ChannelThumbnail uri={channel_url} xsmall />
-
-                <div
-                  className={classnames('livestreamHyperchat__info', {
-                    'livestreamHyperchat__info--sticker': isSticker,
-                    'livestreamHyperchat__info--notSticker': stickerSuperChats && !isSticker,
-                  })}
-                >
-                  <div className="livestreamHyperchat__info--user">
-                    <UriIndicator uri={channel_url} link showAtSign />
-
-                    <CreditAmount
-                      hideTitle
-                      size={10}
-                      className="livestreamHyperchat__amount--large"
-                      amount={support_amount}
-                      isFiat={is_fiat}
-                    />
-                  </div>
-
-                  {isSticker && <div className="livestreamHyperchat__info--image">{stickerImg}</div>}
-                </div>
-              </div>
             );
           })}
 
           {showMore && (
-            <Button
-              title={__('Show More...')}
-              label={__('Show More')}
-              button="inverse"
-              className="close-button"
-              onClick={() => toggleHyperChat()}
-              iconRight={ICONS.MORE}
-            />
+            <div className="chat__show-hyperchats">
+              <Button
+                title={__('Show More...')}
+                button="inverse"
+                className="close-button"
+                onClick={() => toggleHyperChat()}
+                iconRight={ICONS.ARROW_RIGHT}
+              />
+            </div>
           )}
         </div>
       </div>

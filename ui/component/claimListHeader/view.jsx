@@ -1,5 +1,4 @@
 // @flow
-import './style.scss';
 import AdditionalFilters from './internal/additionalFilters';
 import TagSearch from './internal/tagSearch/tagSearch';
 import * as CS from 'constants/claim_search';
@@ -19,6 +18,7 @@ import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { useIsMobile } from 'effects/use-screensize';
 import debounce from 'util/debounce';
+import './style.scss';
 
 type Props = {
   defaultTags: string,
