@@ -1,7 +1,11 @@
 // @flow
 import { platform } from 'util/platform';
 
+// For Safari and iOS, you need to delay before adding cue points or they don't
+// get added. This is because the player uses native, asynchronous tracks in the
+// Safari browser and on iOS.
 const REQUIRED_DELAY_FOR_IOS_MS = 10;
+
 const MIN_SECONDS_BETWEEN_CHAPTERS = 10;
 const MIN_CHAPTERS = 3;
 
