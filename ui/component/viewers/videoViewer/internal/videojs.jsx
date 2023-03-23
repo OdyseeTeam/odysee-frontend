@@ -247,8 +247,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     channelTitle,
   });
 
-  console.log('OVERLAY.OVERLAY_DATA: ', OVERLAY.OVERLAY_DATA);
-
   const videoJsOptions = {
     preload: 'auto',
     playbackRates: VIDEO_PLAYBACK_RATES,
