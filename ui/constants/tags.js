@@ -39,6 +39,22 @@ export const SYSTEM_TAGS = [SCHEDULED_LIVESTREAM_TAG, LBRY_FIRST_TAG];
 
 export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS, ...MEMBERS_ONLY_TAGS];
 
+export const UNLISTED_TAGS = 'c:unlisted';
+
+export const SCHEDULED_HIDE_TAG = 'c:scheduled:hide';
+
+export const SCHEDULED_SHOW_TAG = 'c:scheduled:show';
+
+export const SCHEDULED_TAGS = [SCHEDULED_HIDE_TAG, SCHEDULED_SHOW_TAG];
+export const RESTRICTED_CONTENT_TAGS = [
+  ...SCHEDULED_TAGS,
+  ...MEMBERS_ONLY_TAGS,
+  UNLISTED_TAGS,
+  PURCHASE_TAG,
+  RENTAL_TAG,
+  DISABLE_DOWNLOAD_BUTTON_TAG,
+];
+
 export const MATURE_TAGS = Object.freeze([
   'porn',
   'porno',
