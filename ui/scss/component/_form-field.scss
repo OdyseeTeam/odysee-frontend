@@ -85,7 +85,11 @@ select {
   font-weight: bold;
   &:hover,
   &:focus-visible {
+    color: var(--color-primary-contrast);
     background-color: var(--color-primary) !important;
+  }
+  option {
+    color: var(--color-text);
   }
 }
 

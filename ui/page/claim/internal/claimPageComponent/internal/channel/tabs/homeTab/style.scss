@@ -293,6 +293,7 @@
         overflow: hidden;
         &:focus-visible {
           box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+          color: var(--color-primary-contrast);
         }
       }
       input {

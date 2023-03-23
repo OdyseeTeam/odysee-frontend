@@ -518,10 +518,8 @@
   .button--alt {
     color: var(--color-button-alt-text);
     background-color: var(--color-button-alt-bg);
-    // color: var(--color-primary-contrast);
-    // background-color: var(--color-primary);
     &:hover {
-      color: var(--color-primary-contrast);
+      color: var(--color-primary-contrast) !important;
       background-color: var(--color-primary);
       .icon {
         stroke: var(--color-primary-contrast);
