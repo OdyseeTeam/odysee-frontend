@@ -281,6 +281,7 @@
 
   .claim-search__menus {
     margin: 0;
+    gap: var(--spacing-m);
     .claim-search__input-container {
       flex: 1 1 0;
       padding-right: 0;
@@ -289,7 +290,7 @@
         font-weight: var(--font-weight-bold);
         margin-top: var(--spacing-s);
         margin-bottom: 0.1rem;
-        font-size: var(--font-medium);
+        font-size: var(--font-base);
       }
 
       &:last-child {

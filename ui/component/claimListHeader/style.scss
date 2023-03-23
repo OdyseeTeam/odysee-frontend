@@ -29,6 +29,9 @@ $OPTIONS_MIN_WIDTH: 250px;
   }
 
   .section__actions--no-margin {
+    // align-items: end;
+    justify-content: end;
+    margin-left: auto;
     @media (max-width: $breakpoint-small) {
       top: 0;
       right: 0;

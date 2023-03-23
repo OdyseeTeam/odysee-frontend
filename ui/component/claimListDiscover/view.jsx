@@ -840,7 +840,7 @@ function ClaimListDiscover(props: Props) {
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
               </div>
-              {meta && <div className="section__actions--no-margin">{meta}</div>}
+              {/* meta && <div className="section__actions--no-margin">{meta}</div> */}
             </div>
           )}
           {subSection && <div>{subSection}</div>}
