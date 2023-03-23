@@ -48,7 +48,8 @@ class CodeViewer extends React.PureComponent<Props> {
       /* webpackChunkName: "codemirror" */
       'codemirror/lib/codemirror'
     ).then((CodeMirror) => {
-      me.codeMirror = CodeMirror.fromTextArea(me.textarea, {
+      const CM = CodeMirror.default || CodeMirror;
+      me.codeMirror = CM.fromTextArea(me.textarea, {
         // Auto detect syntax with file contentType
         mode: contentType,
         // Adaptive theme
