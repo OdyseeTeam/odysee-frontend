@@ -2,6 +2,11 @@
 @import '~ui/scss/init/mixins';
 
 .claim-list {
+  width: 100%;
+
+  ul {
+    display: grid;
+  }
   li {
     list-style-type: none;
   }

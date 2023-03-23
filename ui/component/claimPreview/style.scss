@@ -131,6 +131,9 @@
 }
 
 .claim-preview__wrapper--row {
+  display: flex;
+  flex-grow: 1;
+  flex-shrink: 0;
   padding: var(--spacing-m);
   width: 100%;
   overflow: hidden;
@@ -263,7 +266,6 @@
       margin-bottom: var(--spacing-xxxs);
     }
     .description__wrapper {
-      flex: 1;
       margin-top: auto;
       width: 100%;
       display: block;
@@ -279,8 +281,9 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-
         -webkit-box-orient: vertical;
+        // word-wrap: break-word;
+        overflow-wrap: anywhere;
       }
     }
   }
