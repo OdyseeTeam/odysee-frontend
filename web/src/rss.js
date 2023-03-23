@@ -40,6 +40,16 @@ async function getChannelClaim(name, claimId) {
 }
 
 async function getClaimsFromChannel(claimId, count) {
+  // had to hardcode because of imports vs require (requires larger refactor?)
+  const restrictedTags = [
+    'c:disable-download',
+    'c:members-only',
+    'c:purchase',
+    'c:rental',
+    'c:unlisted',
+    'c:scheduled:hide',
+    'c:scheduled:show',
+  ];
   const options = {
     channel_ids: [claimId],
     page_size: count,
@@ -47,6 +57,7 @@ async function getClaimsFromChannel(claimId, count) {
     claim_type: 'stream',
     order_by: ['release_time'],
     no_totals: true,
+    not_tags: restrictedTags,
   };
 
   return await doClaimSearch(options);
