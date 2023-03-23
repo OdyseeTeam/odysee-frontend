@@ -53,8 +53,8 @@
     "@mui/material": "^5.6.2",
     "@sentry/react": "^7.8.1",
     "@sentry/tracing": "^7.8.1",
-    "@silvermine/videojs-airplay": "https://github.com/silvermine/videojs-airplay.git",
-    "@silvermine/videojs-chromecast": "https://github.com/silvermine/videojs-chromecast.git#master",
+    "@silvermine/videojs-airplay": "^1.2.0",
+    "@silvermine/videojs-chromecast": "^1.4.1",
     "@stripe/react-stripe-js": "^1.10.0",
     "@stripe/stripe-js": "^1.35.0",
     "@ungap/from-entries": "^0.2.1",
@@ -91,7 +91,7 @@
     "videojs-ima": "^1.11.0",
     "videojs-ima-player": "^0.5.6",
     "videojs-logo": "^2.1.4",
-    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails"
+    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails#neko"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",

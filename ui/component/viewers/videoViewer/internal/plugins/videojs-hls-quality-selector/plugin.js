@@ -1,5 +1,5 @@
 /* eslint-disable */
-import videojs from 'video.js';
+import videojs from '!video.js';
 import p from 'package.json';
 import ConcreteButton from './ConcreteButton';
 import ConcreteMenuItem from './ConcreteMenuItem';

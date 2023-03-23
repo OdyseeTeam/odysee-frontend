@@ -29,7 +29,7 @@ import { getAllIds } from 'util/buildHomepage';
 import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
-import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
+import { lastBandwidthSelector } from '!./internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { platform } from 'util/platform';
 import { useIsMobile } from 'effects/use-screensize';
 import './style.scss';

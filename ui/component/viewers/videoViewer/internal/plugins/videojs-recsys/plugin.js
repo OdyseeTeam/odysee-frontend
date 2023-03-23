@@ -1,5 +1,5 @@
 // Created by xander on 6/21/2021
-import videojs from 'video.js';
+import videojs from '!video.js';
 
 import RecSys from 'extras/recsys/recsys';
 const VERSION = '0.0.1';

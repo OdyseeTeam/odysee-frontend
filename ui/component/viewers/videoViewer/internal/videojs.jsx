@@ -27,7 +27,7 @@ import watchdog from './plugins/videojs-watchdog/plugin';
 import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 
 // import runAds from './ads';
-import videojs from 'video.js';
+import videojs from '!video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import { EmbedContext } from 'contexts/embed';
@@ -247,6 +247,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     channelTitle,
   });
 
+  console.log('OVERLAY.OVERLAY_DATA: ', OVERLAY.OVERLAY_DATA);
+
   const videoJsOptions = {
     preload: 'auto',
     playbackRates: VIDEO_PLAYBACK_RATES,
@@ -337,7 +339,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       adapter.ready();
 
-      // neko Chromecast.initialize(player);
+      Chromecast.initialize(player);
 
       // neko player.airPlay();
 
@@ -364,7 +366,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   // }, [showQualitySelector]);
 
   useEffect(() => {
-    // neko Chromecast.updateTitles(title, channelTitle);
+    Chromecast.updateTitles(title, channelTitle);
   }, [title, channelTitle]);
 
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
@@ -521,7 +523,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // progress bar hover thumbnails
         if (!IS_MOBILE) {
           // if src is a function, it's already been initialized
-          if (typeof vjsPlayer.vttThumbnails.src === 'function') {
+          if (typeof vjsPlayer.vttThumbnails?.src === 'function') {
             vjsPlayer.vttThumbnails.src(thumbnailPath);
           } else {
             // otherwise, initialize plugin

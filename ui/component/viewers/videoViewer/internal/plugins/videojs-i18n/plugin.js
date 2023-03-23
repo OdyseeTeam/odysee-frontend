@@ -18,7 +18,7 @@
  */
 
 // @flow
-import videojs from 'video.js';
+import videojs from '!video.js';
 import type { Player } from '../../videojs';
 
 const VERSION = '1.0.0';
