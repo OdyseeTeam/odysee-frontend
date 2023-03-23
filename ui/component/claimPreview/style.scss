@@ -205,10 +205,15 @@
         align-items: start;
       }
 
+      .channel-thumbnail {
+        margin-top: 2px;
+      }
+
       .media__subtitle {
         display: flex;
         flex-direction: column;
         width: 100%;
+        margin-top: 6px;
         margin-bottom: var(--spacing-xxxs);
 
         .button__content {
@@ -216,6 +221,12 @@
           margin-bottom: 0;
           .channel-name {
             color: rgba(var(--color-text-base), 0.8);
+            .comment__badge {
+              svg {
+                margin-bottom: -1px;
+                height: 12px;
+              }
+            }
           }
           &:hover {
             .channel-name {

@@ -1,11 +1,16 @@
 @import '~ui/scss/init/breakpoints';
 @import '~ui/scss/init/mixins';
 
+.claim-list {
+  li {
+    list-style-type: none;
+  }
+}
+
 .claim-list--no-margin {
   li {
     @include list-hover-effect;
     margin: 0px !important;
-    list-style-type: none;
   }
 }
 
@@ -527,7 +532,7 @@
 
   .channel-thumbnail {
     @include handleChannelGif(2.1rem);
-    margin-right: var(--spacing-s);
+    margin-right: var(--spacing-xs);
   }
 
   .claim-preview__overlay-properties {
@@ -537,15 +542,6 @@
   @media (max-width: $breakpoint-small) {
     padding-bottom: 0;
   }
-
-  /*
-  .media__subtitle {
-    .button__content {
-      margin-top: 3px;
-      margin-bottom: -3px;
-    }
-  }
-  */
 }
 
 .claim-tile-collection__info {
