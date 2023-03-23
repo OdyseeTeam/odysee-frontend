@@ -882,7 +882,7 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview__active {
-  background-color: rgba(var(--color-primary-dynamic), 0.1);
+  background-color: rgba(var(--color-primary-dynamic), 0.1) !important;
   .media__thumb {
     box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
   }
@@ -907,7 +907,11 @@ $claim-preview-progress-bar-height: 5px;
     }
   }
   &:hover {
-    color: white;
+    .claim-preview__title {
+      span {
+        color: white !important;
+      }
+    }
   }
 }
 

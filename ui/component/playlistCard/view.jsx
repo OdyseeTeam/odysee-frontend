@@ -54,6 +54,7 @@ type Props = {
   doOpenModal: (id: string, props: {}) => void,
   doClearQueueList: () => void,
   doToggleCollectionSavedForId: (id: string) => void,
+  thumbnailFromClaim: string,
 };
 
 export default function PlaylistCard(props: Props) {
@@ -142,6 +143,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     doClearQueueList,
     doToggleCollectionSavedForId,
     collectionSavedForId,
+    thumbnailFromClaim,
     ...cardProps
   } = props;
 
@@ -161,6 +163,13 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
+  const [backgroundImage, setBackgroundImage] = React.useState();
+
+  React.useEffect(() => {
+    if (thumbnailFromClaim) {
+      setBackgroundImage('https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim);
+    }
+  }, [thumbnailFromClaim]);
 
   function closePlaylist() {
     if (collectionEmpty) {
@@ -451,9 +460,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             />
           )
         }
-        backgroundImage={
-          'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/https%3A%2F%2Fplayer.odycdn.com%2Fspeech%2F9bb206a5d227001f%3Aa.png'
-        }
+        backgroundImage={backgroundImage}
       />
     </>
   );

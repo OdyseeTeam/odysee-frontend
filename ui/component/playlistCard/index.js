@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import PlaylistCard from './view';
-import { selectClaimForUri, selectChannelNameForId } from 'redux/selectors/claims';
+import { selectClaimForUri, selectChannelNameForId, selectThumbnailForUri } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
   selectCollectionTitleForId,
@@ -45,6 +45,7 @@ const select = (state, props) => {
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),
     playingCollectionId,
     collectionSavedForId: selectCollectionSavedForId(state, collectionId),
+    thumbnailFromClaim: selectThumbnailForUri(state, playingItemUrl),
   };
 };
 

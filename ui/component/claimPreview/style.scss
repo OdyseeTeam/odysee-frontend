@@ -47,7 +47,7 @@
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
     }
     .claim-preview__title {
-      color: var(--color-primary);
+      // color: var(--color-primary);
     }
   }
 }
@@ -373,27 +373,46 @@
     .claim-tile__info,
     .button__content {
       margin-top: 0;
+      pointer-events: none;
     }
 
     .claim-preview__title {
-      font-size: var(--font-xsmall);
+      font-size: var(--font-small);
+      line-height: calc(var(--font-small) + 2px);
+    }
+
+    .claim-tile__info {
+      margin-top: var(--spacing-xxxs);
     }
     .channel-name {
-      margin-top: var(--spacing-xxxxs);
-      font-size: var(--font-xxsmall);
-      line-height: var(--font-xxsmall);
+      margin-top: 4px;
+      font-size: var(--font-xsmall);
+      line-height: var(--font-xsmall);
+
+      .comment__badge {
+        svg {
+          margin-bottom: -3px;
+          width: 16px;
+          height: 16px;
+        }
+      }
     }
     .claim-extra-info {
-      line-height: var(--font-xxsmall);
+      line-height: var(--font-xsmall);
       .date_time {
-        font-size: var(--font-xxsmall);
-        line-height: var(--font-xxsmall);
+        font-size: var(--font-xsmall);
+        line-height: var(--font-xsmall);
       }
     }
     .channel-thumbnail--xsmall {
-      margin-top: var(--spacing-xxxs);
-      width: 1.5rem;
-      height: 1.5rem;
+      margin-top: var(--spacing-xxxxs);
+      margin-right: var(--spacing-xxxs);
+      width: 1.6rem;
+      height: 1.6rem;
+      .ff-canvas {
+        width: 1.6rem !important;
+        height: 1.6rem !important;
+      }
     }
   }
   .claim-tile__info {
@@ -407,6 +426,9 @@
 
   &:hover {
     background-color: rgba(var(--color-background-base), 0.9);
+    .claim-preview__title {
+      color: var(--color-primary) !important;
+    }
   }
 }
 
