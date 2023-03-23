@@ -581,8 +581,8 @@ $recent-msg-button__height: 2rem;
   position: relative;
   padding: var(--spacing-s) 0;
   font-size: var(--font-small);
-  background: linear-gradient(180deg, var(--color-header-button) 0%, transparent 100%);
-  margin-bottom: var(--spacing-xs);
+  background: var(--color-header-button);
+  // margin-bottom: var(--spacing-xs);
 
   // overflow-x: scroll;
   padding-bottom: var(--spacing-xs) !important;
@@ -886,26 +886,21 @@ $recent-msg-button__height: 2rem;
   .chat__show-hyperchats {
     position: absolute;
     right: 0;
-    // background:var(--color-header-button);
     background: linear-gradient(270deg, var(--color-header-button) 50%, transparent 100%);
     width: 100px;
     height: 100%;
     padding-left: 20px;
     .close-button {
       border: 2px solid rgba(var(--color-header-button-base), 0.8);
-      color: var(--color-text-subtitle);
+      color: var(--color-text);
       padding: 4px;
-      // margin-top:2px;
       margin-right: var(--spacing-xs);
       background-color: var(--color-background);
       border-radius: 50%;
       float: right;
-      .button__label,
-      .icon {
-        color: var(--color-text);
-      }
       &:hover {
         background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
       }
     }
   }
@@ -1261,6 +1256,57 @@ $recent-msg-button__height: 2rem;
       height: 0.7rem;
       width: 0.7rem;
       margin-bottom: -4px;
+    }
+  }
+}
+
+.main--popout-chat {
+  // @extend .main;
+  position: relative;
+  // width: calc(100% - 2 * var(--spacing-l));
+  max-width: var(--page-max-width);
+  z-index: 0;
+  margin-right: auto;
+  margin-left: auto;
+
+  @media (max-width: $breakpoint-small) {
+    width: 100%;
+  }
+
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+
+  .livestream-hyperchats__wrapper {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .livestream__chat--popout {
+      border-radius: 0;
+      .livestreamComments__wrapper {
+        height: calc(100vh - 50px) !important;
+        /*
+        .livestream__comment-create {
+          padding: 0 var(--spacing-xxs);
+        }
+        */
+      }
+    }
+  }
+  @media (min-width: $breakpoint-small) {
+    .livestream__chat--popout {
+      border-radius: 0;
+      .livestreamComments__wrapper {
+        height: calc(100vh - 55px) !important;
+        /*
+        .livestream__comment-create {
+          padding-bottom: var(--spacing-s);
+        }
+        */
+      }
     }
   }
 }

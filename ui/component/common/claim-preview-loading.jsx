@@ -15,10 +15,11 @@ function ClaimPreviewLoading(props: Props) {
   return (
     // Uses the same WrapperElement as claimPreview so it's consistent with the rest of the list components
     <WrapperElement
-      className={classnames('placeholder claim-preview__wrapper claim-preview__wrapper--row', {
+      className={classnames('placeholder claim-preview__wrapper', {
         'claim-preview__wrapper--channel': isChannel && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
         'claim-preview__wrapper--recommendation': type === 'small',
+        'claim-preview__wrapper--row': type !== 'small',
       })}
     >
       <div className={classnames('claim-preview', { 'claim-preview--large': type === 'large' })}>

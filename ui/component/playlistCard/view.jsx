@@ -26,6 +26,7 @@ import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import { getLocalizedNameForCollectionId } from 'util/collections';
+import './style.scss';
 
 type Props = {
   id: string,
@@ -94,14 +95,14 @@ export default function PlaylistCard(props: Props) {
           hasSubtitle
         >
           {/* returns the card body element */}
-          <PlaylistCardComponent {...playlistCardProps} className="playlist-card" bodyOnly />
+          <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" bodyOnly />
         </SwipeableDrawer>
       </>
     );
   }
 
   // returns the full card element
-  return <PlaylistCardComponent {...playlistCardProps} className="playlist-card" />;
+  return <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" />;
 }
 
 type PlaylistCardProps = Props & {
@@ -290,7 +291,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             },
           },
 
-          '.playlist-card': {
+          '.playlist__wrapper': {
             '.claim-list': {
               'li:last-child': {
                 marginBottom:
@@ -352,19 +353,43 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
           bodyOnly ? undefined : (
             <NavLink
               to={`/$/${PAGES.PLAYLIST}/${id || ''}`}
-              className={classnames('a--styled', { 'align-end': isFloating })}
+              className={classnames('playlist__title', { 'align-end': isFloating })}
             >
               {isFloating ? (
                 <>
                   <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
-                  <span className="text-ellipsis">
-                    {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
-                  </span>
+                  <div className="playlist__title-text">
+                    <span className="text-ellipsis">
+                      {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
+                      test
+                    </span>
+                  </div>
                 </>
               ) : (
                 <>
                   <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
-                  <span className="text-ellipsis">{usedCollectionName}</span>
+                  <div className="playlist__title-text">
+                    <span className="text-ellipsis">{usedCollectionName}</span>
+                    {bodyOnly ? undefined : (
+                      <>
+                        <div className="sub">
+                          {isPrivateCollection ? (
+                            <I18nMessage
+                              tokens={{
+                                lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} />,
+                              }}
+                            >
+                              Private %lock_icon%
+                            </I18nMessage>
+                          ) : (
+                            <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
+                          )}
+
+                          {currentIndexLabel}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </>
               )}
 
@@ -402,23 +427,6 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             </>
           )
         }
-        subtitle={
-          bodyOnly ? undefined : (
-            <>
-              {isPrivateCollection ? (
-                <I18nMessage
-                  tokens={{ lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} /> }}
-                >
-                  Private %lock_icon%
-                </I18nMessage>
-              ) : (
-                <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
-              )}
-
-              {currentIndexLabel}
-            </>
-          )
-        }
         body={
           !bodyOpen || titleOnly ? undefined : (
             <CollectionItemsList
@@ -442,6 +450,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
               }}
             />
           )
+        }
+        backgroundImage={
+          'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/https%3A%2F%2Fplayer.odycdn.com%2Fspeech%2F9bb206a5d227001f%3Aa.png'
         }
       />
     </>

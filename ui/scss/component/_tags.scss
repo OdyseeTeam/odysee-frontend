@@ -1,5 +1,8 @@
 .tags {
-  @extend .ul--no-style;
+  .ul--no-style {
+    max-height: 100%;
+    overflow-y: scroll !important;
+  }
   display: flex;
   flex-wrap: wrap;
   min-width: 0;

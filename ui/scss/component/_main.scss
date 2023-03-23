@@ -353,7 +353,7 @@ body {
     gap: var(--spacing-l);
 
     .file-page__recommended,
-    .playlist-card {
+    .playlist__wrapper {
       margin-left: 0px;
       height: 100%;
       width: 100%;
@@ -619,46 +619,6 @@ body {
   &.main__discover {
     @media (max-width: $breakpoint-small) {
       padding: 0 var(--spacing-xs);
-    }
-  }
-}
-
-.main--popout-chat {
-  @extend .main;
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-
-  .livestream-hyperchats__wrapper {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  @media (max-width: $breakpoint-small) {
-    .livestream__chat--popout {
-      border-radius: 0;
-      .livestreamComments__wrapper {
-        height: calc(100vh - 50px) !important;
-        /*
-        .livestream__comment-create {
-          padding: 0 var(--spacing-xxs);
-        }
-        */
-      }
-    }
-  }
-  @media (min-width: $breakpoint-small) {
-    .livestream__chat--popout {
-      border-radius: 0;
-      .livestreamComments__wrapper {
-        height: calc(100vh - 55px) !important;
-        /*
-        .livestream__comment-create {
-          padding-bottom: var(--spacing-s);
-        }
-        */
-      }
     }
   }
 }

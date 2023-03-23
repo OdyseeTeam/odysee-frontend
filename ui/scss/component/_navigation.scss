@@ -278,7 +278,7 @@
 
 .navigation-link--active {
   .button__content {
-    background-color: var(--color-navigation-active);
+    background-color: color-mix(in srgb, var(--color-primary) 70%, var(--color-button-toggle-bg));
     color: var(--color-odysee-contrast);
 
     .icon {
@@ -302,11 +302,11 @@
 .navigation-link--highlighted {
   .button__content {
     background-color: var(--color-navigation-hover);
-    color: var(--color-odysee);
+    color: var(--color-navigation-hover-text);
   }
 
   .icon {
-    stroke: var(--color-odysee);
+    stroke: var(--color-navigation-hover-text);
   }
 }
 
@@ -323,7 +323,8 @@
 }
 
 .navigation-links {
-  @extend .ul--no-style;
+  max-height: 100%;
+
   flex-direction: column;
   align-items: flex-start;
   list-style: none;

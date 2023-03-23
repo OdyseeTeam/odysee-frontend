@@ -436,6 +436,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
         'claim-preview__wrapper--channel': isChannelUri && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
         'claim-preview__wrapper--recommendation': type === 'small',
+        'claim-preview__wrapper--playlist-row': type === 'small' && collectionId,
         'claim-preview__live': isLivestreamActive,
         'claim-preview__active': active,
         'non-clickable': nonClickable,
@@ -443,13 +444,15 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     >
       <>
         {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
-        <div
-          className="background"
-          style={{
-            backgroundImage:
-              'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim + ')',
-          }}
-        />
+        {!type && (
+          <div
+            className="background"
+            style={{
+              backgroundImage:
+                'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim + ')',
+            }}
+          />
+        )}
 
         <div
           className={classnames('claim-preview', {
@@ -544,7 +547,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {channelSubscribers}
 
                 {type !== 'small' && (
-                  <div className="claim-preview__actions">
+                  <div className="claim-preview__tags">
                     {/* type && <JoinButton /> */}
                     {claim && (
                       <React.Fragment>

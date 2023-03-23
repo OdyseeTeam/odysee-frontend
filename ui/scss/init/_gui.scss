@@ -189,14 +189,6 @@ a {
   -webkit-user-drag: none;
 }
 
-.a--styled {
-  color: var(--color-text);
-
-  &:hover {
-    color: var(--color-primary);
-  }
-}
-
 img {
   // Hide alt text when an image fails to load
   text-indent: -9999px;

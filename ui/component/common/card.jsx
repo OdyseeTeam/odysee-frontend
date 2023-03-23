@@ -28,6 +28,7 @@ type Props = {
   secondPane?: Node,
   slimHeader?: boolean,
   colorHeader?: boolean,
+  backgroundImage?: string,
   singlePane?: boolean,
   headerActions?: Node,
   gridHeader?: boolean,
@@ -55,6 +56,7 @@ function Card(props: Props) {
     secondPane,
     slimHeader,
     colorHeader,
+    backgroundImage,
     singlePane,
     headerActions,
     accessStatus,
@@ -78,6 +80,15 @@ function Card(props: Props) {
         }
       }}
     >
+      {backgroundImage && (
+        <div
+          className="background"
+          style={{
+            backgroundImage:
+              'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + backgroundImage + ')',
+          }}
+        />
+      )}
       <FirstPaneWrapper singlePane={singlePane}>
         {(title || subtitle) && (
           <div

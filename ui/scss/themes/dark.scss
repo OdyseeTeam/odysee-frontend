@@ -61,7 +61,8 @@
 
   --color-button-alt-bg: var(--color-header-button);
   --color-button-alt-text: var(--color-text);
-  --color-button-alt-bg-hover: rgba(var(--color-header-background-base), 0.5);
+  // --color-button-alt-bg-hover: rgba(var(--color-header-background-base), 0.5);
+  --color-button-alt-bg-hover: var(--color-primary);
   --color-button-alt-text-hover: var(--color-text);
 
   --color-button-toggle-bg: var(--color-header-button);
@@ -102,8 +103,8 @@
   --color-navigation-link: #bfbfbf;
   --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: var(--color-primary-contrast);
-  --color-navigation-hover: var(--color-header-button);
-  --color-navigation-hover-text: var(--color-primary);
+  --color-navigation-hover: var(--color-primary);
+  --color-navigation-hover-text: var(--color-primary-contrast);
 
   // Tags
   --color-tag: var(--color-secondary-contrast);

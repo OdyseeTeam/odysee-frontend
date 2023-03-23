@@ -208,7 +208,8 @@
       .media__subtitle {
         display: flex;
         flex-direction: column;
-        width: unset !important;
+        width: 100%;
+        margin-bottom: var(--spacing-xxxs);
 
         .button__content {
           line-height: var(--font-xsmall);
@@ -243,15 +244,21 @@
         }
       }
     }
+    .claim-preview__tags {
+      display: flex;
+      width: 100%;
+      justify-content: end;
+      margin-bottom: var(--spacing-xxxs);
+    }
     .description__wrapper {
       flex: 1;
       margin-top: auto;
       width: 100%;
       display: block;
-      padding: var(--spacing-s);
+      padding: var(--spacing-xs) var(--spacing-xs);
       background-color: rgba(var(--color-background-base), 0.6);
       border-radius: var(--border-radius);
-      min-height: calc((var(--font-small) * 3) + (var(--spacing-s) * 2));
+      min-height: 56px;
 
       .description {
         font-size: var(--font-small);
@@ -290,16 +297,17 @@
 
 // neko rename to header?
 .claim-preview__wrapper--inline {
-  // background-color: red !important;
+  .channel-thumbnail {
+    height: var(--channel-thumbnail-width--small);
+    width: var(--channel-thumbnail-width--small);
+  }
+
   .claim-preview__actions {
     display: flex;
     flex-direction: row !important;
     margin-top: unset !important;
     .membership-button-wrapper {
       margin-top: 0;
-    }
-    button {
-      // margin-top:0 !important;
     }
   }
 }
@@ -348,8 +356,127 @@
       .button-group {
         button {
           background-color: var(--color-primary);
+          color: var(--color-primary-contrast);
         }
       }
+    }
+  }
+}
+
+.claim-preview__wrapper--playlist-row {
+  margin-bottom: 0;
+  background-color: rgba(var(--color-background-base), 0.6);
+
+  .claim-preview {
+    padding-left: var(--spacing-s);
+
+    .claim-tile__info,
+    .button__content {
+      margin-top: 0;
+    }
+
+    .claim-preview__title {
+      font-size: var(--font-xsmall);
+    }
+    .channel-name {
+      margin-top: var(--spacing-xxxxs);
+      font-size: var(--font-xxsmall);
+      line-height: var(--font-xxsmall);
+    }
+    .claim-extra-info {
+      line-height: var(--font-xxsmall);
+      .date_time {
+        font-size: var(--font-xxsmall);
+        line-height: var(--font-xxsmall);
+      }
+    }
+    .channel-thumbnail--xsmall {
+      margin-top: var(--spacing-xxxs);
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+  .claim-tile__info {
+    padding-bottom: 0;
+  }
+
+  .menu__button {
+    top: var(--spacing-xxxs);
+    right: var(--spacing-xxxs);
+  }
+
+  &:hover {
+    background-color: rgba(var(--color-background-base), 0.9);
+  }
+}
+
+.claim-preview {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: visible;
+
+  &:not(.claim-preview--inline):not(.claim-preview--pending):not(.claim-preview--inactive) {
+    cursor: pointer;
+  }
+
+  .media__thumb {
+    overflow: hidden;
+    $width: calc(var(--file-list-thumbnail-width) * 1.2);
+    width: var(--file-list-thumbnail-width);
+    @include handleClaimListGifThumbnail($width);
+
+    flex-shrink: 0;
+    margin-right: var(--spacing-s);
+    // box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0) inset;
+  }
+
+  .media__thumb-placeholder-text {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-m);
+  }
+
+  .channel-thumbnail {
+    // @include handleChannelGif(6rem);
+  }
+
+  // any-pointer media query prevents double click hover bug on ipad
+  @media (any-pointer: fine) {
+    // show watch later button and duration divs when hovered
+    &:hover {
+      .media__thumb {
+        box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+      }
+      .claim-preview__title {
+        color: var(--color-link);
+      }
+      .claim-preview__hover-actions {
+        display: block;
+      }
+      .claim-preview__file-property-overlay {
+        opacity: 1;
+      }
+      .button--file-action {
+        .icon {
+          stroke: #f3f4f6;
+        }
+      }
+      .ff-canvas {
+        opacity: 0 !important;
+        transition: opacity 1s !important;
+      }
+      .ff-image {
+        opacity: 1 !important;
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    font-size: 14px;
+
+    .channel-thumbnail {
+      @include handleChannelGif(4rem);
     }
   }
 }
