@@ -74,7 +74,6 @@ function CollectionHeaderActions(props: Props) {
     <>
       <div>
         <SectionElement>
-          <CollectionSubtitle uri={uri} />
           {!isBuiltin && (
             <>
               {uri && (

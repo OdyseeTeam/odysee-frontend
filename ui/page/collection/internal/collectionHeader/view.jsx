@@ -70,8 +70,9 @@ const CollectionHeader = (props: Props) => {
     <>
       <div className="collection-header__wrapper">
         {/*<CollectionTitle collectionId={collectionId} />*/}
-        {collection?.thumbnail?.url && (
-          <div className="background__wrapper">
+
+        <div className="background__wrapper">
+          {collection?.thumbnail?.url && (
             <div
               className="background"
               style={{
@@ -82,8 +83,8 @@ const CollectionHeader = (props: Props) => {
                   ')',
               }}
             />
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="collection-header__content">
           <div class="collection-header__content-top">
