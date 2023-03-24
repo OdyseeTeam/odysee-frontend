@@ -45,6 +45,7 @@ const CollectionPage = (props: Props) => {
     doRemoveFromUnsavedChangesCollectionsForCollectionId,
   } = props;
 
+  // console.log('CollectionPage props: ', props)
   const {
     push,
     location: { search, state },
@@ -122,12 +123,14 @@ const CollectionPage = (props: Props) => {
     );
   }
 
+  // console.log('collection: ', collection)
+
   return (
     <Page className="playlists-page-wrapper">
       <div className="section card-stack">
         <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader
-            collectionId={collectionId}
+            collection={collection}
             showEdit={showEdit}
             setShowEdit={setShowEdit}
             unavailableUris={unavailableUris}

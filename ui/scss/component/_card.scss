@@ -314,8 +314,9 @@
 
 .card__title,
 .card-title__text {
-  display: block;
+  display: flex;
   align-items: center;
+  justify-content: center;
   font-size: var(--font-large);
   font-weight: var(--font-weight-bold);
 
@@ -337,6 +338,26 @@
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-large);
     word-break: break-word;
+  }
+}
+
+.card-title__text {
+  svg {
+    width: 2rem;
+    height: 2rem;
+    padding: 4px;
+    background-color: var(--color-text);
+    border-radius: 50%;
+    padding: var(--spacing-xxs);
+    stroke: var(--color-background);
+    margin-right: 0 !important;
+  }
+  label {
+    font-size: var(--font-large);
+    font-weight: var(--font-weight-bold);
+    flex: 1;
+    margin-top: var(--spacing-s);
+    padding-left: 10px;
   }
 }
 
@@ -790,17 +811,13 @@
 .card__title--with-actions {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  // align-items: flex-start;
   gap: 1rem;
 }
 
 .card-title__text {
   word-break: break-word;
   margin-right: 0px !important;
-}
-
-.card-title__text--with-icon {
-  display: flex;
 }
 
 .card-title__action-buttons {

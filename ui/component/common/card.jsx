@@ -27,7 +27,6 @@ type Props = {
   children?: Node,
   secondPane?: Node,
   slimHeader?: boolean,
-  colorHeader?: boolean,
   backgroundImage?: string,
   singlePane?: boolean,
   headerActions?: Node,
@@ -55,7 +54,6 @@ function Card(props: Props) {
     children,
     secondPane,
     slimHeader,
-    colorHeader,
     backgroundImage,
     singlePane,
     headerActions,
@@ -95,7 +93,6 @@ function Card(props: Props) {
             className={classnames('card__header--between', {
               // 'card__header--nowrap': noTitleWrap,
               'card__header--slim': slimHeader,
-              'card__header--bg-color': colorHeader,
               'card__header--grid': gridHeader,
             })}
           >

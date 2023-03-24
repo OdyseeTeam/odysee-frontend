@@ -2,6 +2,7 @@
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
+import classnames from 'classnames';
 
 type Props = {
   id: string,
@@ -16,10 +17,11 @@ const LoopButton = (props: Props) => {
   return (
     <Button
       button="alt"
-      className="button--alt-no-style button-toggle"
+      className={classnames('button--alt-no-style button-toggle', {
+        'button-toggle--active': loop,
+      })}
       title={__('Loop')}
       icon={ICONS.REPEAT}
-      iconColor={loop ? 'blue' : undefined}
       onClick={() => doToggleLoopList({ collectionId: id })}
     />
   );

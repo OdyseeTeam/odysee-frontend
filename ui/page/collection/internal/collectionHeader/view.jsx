@@ -2,6 +2,8 @@
 import React from 'react';
 import Card from 'component/common/card';
 import CollectionActions from '../collectionActions';
+import CollectionHeaderActions from './internal/collectionHeaderActions';
+CollectionHeaderActions;
 import Button from 'component/button';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
@@ -12,11 +14,12 @@ import CollectionSubtitle from './internal/collectionSubtitle';
 import './style.scss';
 
 type Props = {
-  collectionId: string,
+  collection: any,
   showEdit: boolean,
-  unavailableUris: Array<string>,
+  // unavailableUris: Array<string>,
   setShowEdit: (show: boolean) => void,
-  setUnavailable: (uris: Array<string>) => void,
+  // setUnavailable: (uris: Array<string>) => void,
+  collectionThumbnail: string,
   // -- redux --
   uri: string,
   collection: Collection,
@@ -26,17 +29,20 @@ type Props = {
 
 const CollectionHeader = (props: Props) => {
   const {
-    collectionId,
+    collection,
     showEdit,
     unavailableUris,
     setShowEdit,
     setUnavailable,
+    collectionThumbnail,
     // -- redux --
     uri,
-    collection,
     claimIsPending,
     doCollectionEdit,
   } = props;
+
+  console.log('CollectionHeader props: ', props);
+  const { id: collectionId } = collection;
 
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
@@ -58,44 +64,28 @@ const CollectionHeader = (props: Props) => {
             className="background"
             style={{
               backgroundImage:
-                'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/https://thumbs.odycdn.com/50eb71f6fc6cecfd72aad564d4484cbc.webp)',
+                'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                collection.thumbnail.url +
+                ')',
             }}
           />
-          <CollectionActions
-            uri={uri}
-            collectionId={collectionId}
-            isBuiltin={isBuiltin}
-            setShowEdit={setShowEdit}
-            showEdit={showEdit}
-          />
-        </div>
-      </div>
 
-      {/*
-    <Card
-      title={<CollectionTitle collectionId={collectionId} />}      
-      titleActions={
-        unavailableUris.length > 0 ? (
-          <Button
-            button="secondary"
-            icon={ICONS.DELETE}
-            label={__('Remove all unavailable items')}
-            onClick={() => {
-              doCollectionEdit(collectionId, { uris: unavailableUris, remove: true });
-              setUnavailable([]);
-            }}
-          />
-        ) : (
-          claimIsPending && (
-            <div className="help card__title--help">
-              <Spinner type="small" />
-              {__('Your publish is being confirmed and will be live soon')}
+          <div className="collection-header__content">
+            <div className="collection-header__actions">
+              <CollectionHeaderActions
+                uri={uri}
+                collectionId={collectionId}
+                isBuiltin={isBuiltin}
+                setShowEdit={setShowEdit}
+                showEdit={showEdit}
+                isHeader
+              />
             </div>
-          )
-        )
-      }
-      subtitle={<CollectionSubtitle collectionId={collectionId} />}
-      body={
+            <div className="collection-header__meta">
+              <div className="collection-header__description">{collection.description}</div>
+            </div>
+          </div>
+        </div>
         <CollectionActions
           uri={uri}
           collectionId={collectionId}
@@ -103,9 +93,41 @@ const CollectionHeader = (props: Props) => {
           setShowEdit={setShowEdit}
           showEdit={showEdit}
         />
-      }
-    />
-    */}
+      </div>
+
+      <Card
+        title={<CollectionTitle collectionId={collectionId} />}
+        titleActions={
+          unavailableUris.length > 0 ? (
+            <Button
+              button="secondary"
+              icon={ICONS.DELETE}
+              label={__('Remove all unavailable items')}
+              onClick={() => {
+                doCollectionEdit(collectionId, { uris: unavailableUris, remove: true });
+                setUnavailable([]);
+              }}
+            />
+          ) : (
+            claimIsPending && (
+              <div className="help card__title--help">
+                <Spinner type="small" />
+                {__('Your publish is being confirmed and will be live soon')}
+              </div>
+            )
+          )
+        }
+        subtitle={<CollectionSubtitle collectionId={collectionId} />}
+        body={
+          <CollectionActions
+            uri={uri}
+            collectionId={collectionId}
+            isBuiltin={isBuiltin}
+            setShowEdit={setShowEdit}
+            showEdit={showEdit}
+          />
+        }
+      />
     </>
   );
 };

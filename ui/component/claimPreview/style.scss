@@ -27,6 +27,36 @@
     overflow: hidden;
     background-size: 100%;
     transition: background-size 0.2s ease-in-out;
+
+    .claim-preview__hover-actions-grid {
+      display: grid;
+      justify-items: end;
+      justify-content: space-between;
+      opacity: 1;
+
+      .claim-preview__hover-actions {
+        margin: 0px var(--spacing-xxs);
+        margin-bottom: var(--spacing-xxs);
+
+        &.second-item {
+          grid-column: 2;
+          grid-row: 1;
+        }
+
+        &.third-item {
+          grid-column: 2;
+          grid-row: 2;
+        }
+
+        button {
+          margin-right: 0;
+          background-color: var(--color-black);
+          .button__label {
+            color: var(--color-white);
+          }
+        }
+      }
+    }
   }
 
   .claim-preview__title {

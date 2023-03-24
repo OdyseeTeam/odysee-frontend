@@ -9,8 +9,8 @@ import FileActionButton from 'component/common/file-action-button';
 import { useIsMobile } from 'effects/use-screensize';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
-import ClaimSupportButton from 'component/claimSupportButton';
-import ClaimShareButton from 'component/claimShareButton';
+// import ClaimSupportButton from 'component/claimSupportButton';
+// import ClaimShareButton from 'component/claimShareButton';
 import FileReactions from 'component/fileReactions';
 import classnames from 'classnames';
 import { ENABLE_FILE_REACTIONS } from 'config';
@@ -27,6 +27,7 @@ type Props = {
   isMyCollection: boolean,
   collectionId: string,
   showEdit: boolean,
+  isHeader: boolean,
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
   collectionEmpty: boolean,
@@ -45,6 +46,7 @@ function CollectionActions(props: Props) {
     collectionId,
     isBuiltin,
     showEdit,
+    isHeader,
     setShowEdit,
     collectionSavedForId,
     collectionEmpty,
@@ -72,14 +74,7 @@ function CollectionActions(props: Props) {
 
           {!isBuiltin && (
             <>
-              {uri && (
-                <>
-                  {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
-                  <ClaimSupportButton uri={uri} fileAction />
-                  {/* <ClaimRepostButton uri={uri} /> */}
-                  <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />
-                </>
-              )}
+              {uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}
 
               {!isOnPublicView &&
                 (isMyCollection ? (
@@ -134,13 +129,6 @@ function CollectionActions(props: Props) {
                 </Menu>
               </div>
             )}
-            <Button
-              requiresAuth
-              title={__('Copy')}
-              className="button-toggle"
-              icon={ICONS.COPY}
-              onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: collectionId })}
-            />
 
             {isMyCollection ? (
               !collectionEmpty && (

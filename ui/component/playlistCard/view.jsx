@@ -61,6 +61,8 @@ export default function PlaylistCard(props: Props) {
   const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, id } =
     props;
 
+  // console.log('proooooops: ', props)
+
   const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
   const [showEdit, setShowEdit] = React.useState(false);
 
@@ -86,12 +88,7 @@ export default function PlaylistCard(props: Props) {
           type={DRAWERS.PLAYLIST}
           title={
             // returns the card title element
-            <PlaylistCardComponent
-              {...playlistCardProps}
-              className="playlist-card--drawer-header"
-              colorHeader={false}
-              titleOnly
-            />
+            <PlaylistCardComponent {...playlistCardProps} className="playlist-card--drawer-header" titleOnly />
           }
           hasSubtitle
         >
@@ -370,7 +367,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                   <div className="playlist__title-text">
                     <span className="text-ellipsis">
                       {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
-                      test
+                      floating test
                     </span>
                   </div>
                 </>
@@ -378,7 +375,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 <>
                   <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
                   <div className="playlist__title-text">
-                    <span className="text-ellipsis">{usedCollectionName}</span>
+                    <div className="playlist__title-text-list">
+                      <span className="text-ellipsis">{usedCollectionName}</span>
+                    </div>
                     {bodyOnly ? undefined : (
                       <>
                         <div className="sub">

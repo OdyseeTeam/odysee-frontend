@@ -701,6 +701,7 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 // show duration and watch later button when hovered
+/*
 .claim-preview--tile {
   &:hover {
     .claim-preview__hover-actions {
@@ -716,6 +717,7 @@ $claim-preview-progress-bar-height: 5px;
     }
   }
 }
+*/
 
 .claim-preview--tile {
   .claim-preview__repost-author {
@@ -784,27 +786,6 @@ $claim-preview-progress-bar-height: 5px;
   transform: translateX(-23px);
   text-align: end;
   padding-left: var(--spacing-xs);
-}
-
-.claim-preview__hover-actions-grid {
-  display: grid;
-  justify-items: end;
-  justify-content: space-between;
-
-  .claim-preview__hover-actions {
-    margin: 0px var(--spacing-xxs);
-    margin-bottom: var(--spacing-xxs);
-
-    &.second-item {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    &.third-item {
-      grid-column: 2;
-      grid-row: 2;
-    }
-  }
 }
 
 // div that displays watch later button

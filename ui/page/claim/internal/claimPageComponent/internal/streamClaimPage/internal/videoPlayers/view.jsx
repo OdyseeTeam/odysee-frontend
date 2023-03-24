@@ -122,7 +122,7 @@ export default function VideoPlayersPage(props: Props) {
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 
-        {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+        {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
       </>
     );
@@ -139,7 +139,7 @@ export default function VideoPlayersPage(props: Props) {
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
-            {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+            {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
@@ -187,7 +187,7 @@ const RightSideContent = (rightSideProps: RightSideProps) => {
 
   return (
     <div className="card-stack--spacing-m">
-      {!isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+      {!isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
       <RecommendedContent uri={uri} />
     </div>
   );

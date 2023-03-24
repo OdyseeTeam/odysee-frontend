@@ -45,6 +45,10 @@
       }
 
       .playlist__title-text {
+        .playlist__title-text-list {
+          padding-top: 2px;
+          margin-bottom: -2px;
+        }
         .sub {
           opacity: 0.8;
           font-size: var(--font-xsmall);
