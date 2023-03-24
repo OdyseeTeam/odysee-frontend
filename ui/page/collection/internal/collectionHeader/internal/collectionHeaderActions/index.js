@@ -8,6 +8,7 @@ import {
 } from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
 import { doToggleCollectionSavedForId, doSortCollectionByReleaseTime } from 'redux/actions/collections';
+import { doEnableCollectionShuffle } from 'redux/actions/content';
 
 import CollectionActions from './view';
 
@@ -29,6 +30,7 @@ const perform = {
   doOpenModal,
   doToggleCollectionSavedForId,
   doSortCollectionByReleaseTime,
+  doEnableCollectionShuffle,
 };
 
 export default connect(select, perform)(CollectionActions);

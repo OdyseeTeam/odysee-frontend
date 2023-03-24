@@ -37,6 +37,7 @@ type Props = {
   collectionSavedForId: boolean,
   collectionType: string,
   doOpenModal: (id: string, props: {}) => void,
+  doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   doToggleCollectionSavedForId: (id: string) => void,
   doSortCollectionByReleaseTime: (collectionId: string, sortOrder: string) => void,
 };
@@ -55,6 +56,7 @@ function CollectionHeaderActions(props: Props) {
     collectionEmpty,
     collectionType,
     doOpenModal,
+    doEnableCollectionShuffle,
     doToggleCollectionSavedForId,
     doSortCollectionByReleaseTime,
   } = props;

@@ -27,9 +27,9 @@ type Props = {
   collection: any,
   showEdit: boolean,
   hasClaim: boolean,
-  // unavailableUris: Array<string>,
+  unavailableUris: Array<string>,
   setShowEdit: (show: boolean) => void,
-  // setUnavailable: (uris: Array<string>) => void,
+  setUnavailable: (uris: Array<string>) => void,
   collectionThumbnail: string,
   // -- redux --
   uri: string,
@@ -53,7 +53,6 @@ const CollectionHeader = (props: Props) => {
     doCollectionEdit,
   } = props;
 
-  console.log('CollectionHeader props: ', props);
   const { id: collectionId } = collection;
 
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
@@ -71,19 +70,20 @@ const CollectionHeader = (props: Props) => {
     <>
       <div className="collection-header__wrapper">
         {/*<CollectionTitle collectionId={collectionId} />*/}
-        <div className="background__wrapper">
-          {collection && (
+        {collection?.thumbnail?.url && (
+          <div className="background__wrapper">
             <div
               className="background"
               style={{
                 backgroundImage:
                   'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                  // $FlowIgnore
                   collection?.thumbnail?.url +
                   ')',
               }}
             />
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="collection-header__content">
           <div class="collection-header__content-top">
@@ -112,7 +112,7 @@ const CollectionHeader = (props: Props) => {
                   {collection && (
                     <>
                       <Icon icon={ICONS.TIME} />
-                      <DateTime timeAgo date={collection.createdAt * 1000} />
+                      <DateTime timeAgo date={Number(collection?.createdAt) * 1000} />
                     </>
                   )}
                 </div>
@@ -120,7 +120,7 @@ const CollectionHeader = (props: Props) => {
                   {collection && (
                     <>
                       <Icon icon={ICONS.EDIT} />
-                      <DateTime timeAgo date={collection.updatedAt * 1000} />
+                      <DateTime timeAgo date={Number(collection?.updatedAt) * 1000} />
                     </>
                   )}
                 </div>
