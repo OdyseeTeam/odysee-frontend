@@ -22,6 +22,7 @@ import { ENABLE_FILE_REACTIONS } from 'config';
 // import CollectionDeleteButton from 'component/collectionDeleteButton';
 // import CollectionPublishButton from './internal/publishButton';
 // import CollectionReportButton from './internal/report-button';
+import CollectionSubtitle from '../collectionSubtitle';
 
 type Props = {
   uri: string,
@@ -69,8 +70,9 @@ function CollectionHeaderActions(props: Props) {
 
   return (
     <>
-      <div className={classnames('', { stretch: isMobile })}>
+      <div>
         <SectionElement>
+          <CollectionSubtitle uri={uri} />
           {!isBuiltin && (
             <>
               {uri && (

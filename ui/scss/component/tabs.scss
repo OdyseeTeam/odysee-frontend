@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   background-color: var(--color-tabs-background);
-  padding: var(--spacing-m) var(--spacing-main-padding);
+  padding: var(--spacing-xxs) var(--spacing-main-padding);
   overflow-x: auto;
   overflow-y: hidden;
   scroll-behavior: smooth;
@@ -191,6 +191,7 @@
     height: 0;
     width: 100%;
     content: '';
+    z-index: 0;
 
     @media (max-width: $breakpoint-small) {
       bottom: calc(var(--tab-indicator-size) * -2 - 1px);
@@ -218,10 +219,13 @@
 .tab__divider {
   display: block;
   transition: all var(--animation-duration) var(--animation-style);
+  z-index: 1;
 }
 
 .tab:hover::after,
 .tab__divider {
-  height: var(--tab-indicator-size);
+  bottom: -2px;
+  // height: var(--tab-indicator-size);
+  height: 8px;
   background-color: var(--color-link);
 }

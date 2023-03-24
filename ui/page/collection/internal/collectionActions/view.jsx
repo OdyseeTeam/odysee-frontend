@@ -14,10 +14,8 @@ import { useHistory } from 'react-router-dom';
 import FileReactions from 'component/fileReactions';
 import classnames from 'classnames';
 import { ENABLE_FILE_REACTIONS } from 'config';
-// import ClaimRepostButton from 'component/claimRepostButton';
 import PlayButton from './internal/playButton';
 import ShuffleButton from './internal/shuffleButton';
-import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionPublishButton from './internal/publishButton';
 import CollectionReportButton from './internal/report-button';
 
@@ -80,7 +78,6 @@ function CollectionActions(props: Props) {
                 (isMyCollection ? (
                   <>
                     <CollectionPublishButton uri={uri} collectionId={collectionId} />
-                    <CollectionDeleteButton uri={uri} collectionId={collectionId} />
                   </>
                 ) : (
                   claimId && <CollectionReportButton claimId={claimId} />

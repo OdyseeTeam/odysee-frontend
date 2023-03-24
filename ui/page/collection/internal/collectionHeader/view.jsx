@@ -5,17 +5,28 @@ import CollectionActions from '../collectionActions';
 import CollectionHeaderActions from './internal/collectionHeaderActions';
 CollectionHeaderActions;
 import Button from 'component/button';
+
+import CollectionItemCount from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collectionItemCount';
+import CollectionPrivateIcon from 'component/common/collection-private-icon';
+import CollectionPublicIcon from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collection-public-icon';
+
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
 import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+
 import Spinner from 'component/spinner';
+import DateTime from 'component/dateTime';
 import CollectionTitle from './internal/collectionTitle';
 import CollectionSubtitle from './internal/collectionSubtitle';
+import ClaimAuthor from 'component/claimAuthor';
+
 import './style.scss';
 
 type Props = {
   collection: any,
   showEdit: boolean,
+  hasClaim: boolean,
   // unavailableUris: Array<string>,
   setShowEdit: (show: boolean) => void,
   // setUnavailable: (uris: Array<string>) => void,
@@ -31,6 +42,7 @@ const CollectionHeader = (props: Props) => {
   const {
     collection,
     showEdit,
+    hasClaim,
     unavailableUris,
     setShowEdit,
     setUnavailable,
@@ -58,19 +70,27 @@ const CollectionHeader = (props: Props) => {
   return (
     <>
       <div className="collection-header__wrapper">
-        <CollectionTitle collectionId={collectionId} />
+        {/*<CollectionTitle collectionId={collectionId} />*/}
         <div className="background__wrapper">
-          <div
-            className="background"
-            style={{
-              backgroundImage:
-                'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                collection.thumbnail.url +
-                ')',
-            }}
-          />
+          {collection && (
+            <div
+              className="background"
+              style={{
+                backgroundImage:
+                  'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                  collection?.thumbnail?.url +
+                  ')',
+              }}
+            />
+          )}
+        </div>
 
-          <div className="collection-header__content">
+        <div className="collection-header__content">
+          <div class="collection-header__content-top">
+            <div className="collection-header__title">
+              {collection.title}
+              {uri ? <ClaimAuthor uri={uri} /> : <CollectionPrivateIcon />}
+            </div>
             <div className="collection-header__actions">
               <CollectionHeaderActions
                 uri={uri}
@@ -81,20 +101,43 @@ const CollectionHeader = (props: Props) => {
                 isHeader
               />
             </div>
-            <div className="collection-header__meta">
-              <div className="collection-header__description">{collection.description}</div>
+          </div>
+          <div className="collection-header__text">
+            <div className="collection-header__description">
+              {collection.description}
+              <div className="collection-header__meta">
+                <CollectionItemCount collectionId={collectionId} />
+                {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
+                <div className="create-at">
+                  {collection && (
+                    <>
+                      <Icon icon={ICONS.TIME} />
+                      <DateTime timeAgo date={collection.createdAt * 1000} />
+                    </>
+                  )}
+                </div>
+                <div className="update-at">
+                  {collection && (
+                    <>
+                      <Icon icon={ICONS.EDIT} />
+                      <DateTime timeAgo date={collection.updatedAt * 1000} />
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-        <CollectionActions
-          uri={uri}
-          collectionId={collectionId}
-          isBuiltin={isBuiltin}
-          setShowEdit={setShowEdit}
-          showEdit={showEdit}
-        />
       </div>
+      <CollectionActions
+        uri={uri}
+        collectionId={collectionId}
+        isBuiltin={isBuiltin}
+        setShowEdit={setShowEdit}
+        showEdit={showEdit}
+      />
 
+      {/* OLD CARD
       <Card
         title={<CollectionTitle collectionId={collectionId} />}
         titleActions={
@@ -128,6 +171,7 @@ const CollectionHeader = (props: Props) => {
           />
         }
       />
+       */}
     </>
   );
 };

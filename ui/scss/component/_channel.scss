@@ -30,7 +30,7 @@ $actions-z-index: 2;
   }
   .tab__wrapper {
     transition: background-color 0.2s;
-    background-color: var(--color-header-background);
+    background-color: var(--color-background);
     position: sticky;
     top: var(--header-height);
     z-index: 10;
@@ -39,6 +39,14 @@ $actions-z-index: 2;
       top: var(--header-height-mobile);
       margin-bottom: var(--spacing-s);
       padding: 0;
+    }
+    &:after {
+      position: absolute;
+      bottom: calc(-100% + 10px);
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, var(--color-background) 0, transparent 35%);
+      content: '';
     }
   }
   .tab__wrapper-fixed {
@@ -438,6 +446,12 @@ $actions-z-index: 2;
     margin-right: auto;
     margin-left: auto;
 
+    .menu__button {
+      padding: 10px;
+      background-color: rgba(var(--color-background-base), 0.9);
+      border-radius: var(--border-radius);
+    }
+
     @media (max-width: $breakpoint-small) {
       width: 100%;
     }
@@ -651,7 +665,7 @@ $actions-z-index: 2;
 .channel__thumbnail--channel-page-fixed {
   height: 50px;
   width: 50px;
-  top: -1.6rem;
+  top: -1.9rem;
 
   @media (min-width: 1449px) {
     left: calc((100% - (var(--page-max-width))) / 2);
@@ -832,6 +846,7 @@ $actions-z-index: 2;
   > .button,
   > .button-group .button {
     padding: 0 var(--spacing-s);
+    background-color: rgba(var(--color-background-base), 0.9) !important;
   }
 
   > .button,
@@ -860,23 +875,13 @@ $actions-z-index: 2;
         margin-right: 0;
       }
     }
-
-    /*
-    .claim__menu-button--inline {
-      z-index: 7;
-      .icon {
-        padding: 1rem;
-        margin: -1rem;
-      }
-    }
-    */
   }
 
   .button,
   .menu__button {
     &:hover {
       color: var(--color-link);
-      background-color: rgba(var(--color-header-background-base), 0.95);
+      background-color: rgba(var(--color-header-background-base), 0.95) !important;
 
       .icon {
         stroke: var(--color-link);

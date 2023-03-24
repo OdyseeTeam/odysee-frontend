@@ -19,6 +19,7 @@ const select = (state, props) => {
   return {
     // collectionId,
     uri,
+    hasClaim: Boolean(claim),
     // collection: selectCollectionForId(state, collectionId),
     collectionCount: selectCountForCollectionId(state, collectionId),
     claimIsPending: selectClaimIsPendingForId(state, collectionId),
