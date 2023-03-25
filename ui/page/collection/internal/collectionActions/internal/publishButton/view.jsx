@@ -23,9 +23,9 @@ function CollectionPublishButton(props: Props) {
     <FileActionButton
       title={collectionHasEdits ? __('Publish Updates') : __('Publish')}
       label={collectionHasEdits ? __('Publish Updates') : __('Publish')}
+      className={collectionHasEdits ? 'button--warning' : ''}
       onClick={() => push(`?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)}
       icon={ICONS.PUBLISH}
-      iconColor={collectionHasEdits ? 'red' : undefined}
       iconSize={18}
       disabled={claimIsPending}
     />

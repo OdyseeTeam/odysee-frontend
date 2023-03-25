@@ -15,7 +15,6 @@ function CollectionItemCount(props: Props) {
   return (
     <div className="collection-counter">
       <Icon icon={ICONS.PLAYLIST} />
-      {hasEdits && <Icon customTooltipText={__('Unpublished Edits')} tooltip iconColor="red" icon={ICONS.PUBLISH} />}
       <span>{collectionCount}</span>
     </div>
   );

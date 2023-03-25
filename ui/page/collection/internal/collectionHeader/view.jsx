@@ -53,6 +53,8 @@ const CollectionHeader = (props: Props) => {
     doCollectionEdit,
   } = props;
 
+  console.log('CollectionHeader props: ', props);
+
   const { id: collectionId } = collection;
 
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
@@ -90,7 +92,7 @@ const CollectionHeader = (props: Props) => {
           <div class="collection-header__content-top">
             <div className="collection-header__title">
               {collection.title}
-              {uri ? <ClaimAuthor uri={uri} /> : <CollectionPrivateIcon />}
+              {uri ? <ClaimAuthor uri={uri} /> : <h1>{collection.name}</h1>}
             </div>
             <div className="collection-header__actions">
               <CollectionHeaderActions
@@ -107,23 +109,37 @@ const CollectionHeader = (props: Props) => {
             <div className="collection-header__description">
               {collection.description}
               <div className="collection-header__meta">
-                <CollectionItemCount collectionId={collectionId} />
-                {hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}
-                <div className="create-at">
-                  {collection && (
-                    <>
-                      <Icon icon={ICONS.TIME} />
-                      <DateTime timeAgo date={Number(collection?.createdAt) * 1000} />
-                    </>
-                  )}
+                <div className="collection-header__meta-entry">
+                  <CollectionItemCount collectionId={collectionId} />
                 </div>
-                <div className="update-at">
-                  {collection && (
-                    <>
-                      <Icon icon={ICONS.EDIT} />
-                      <DateTime timeAgo date={Number(collection?.updatedAt) * 1000} />
-                    </>
-                  )}
+                {hasClaim ? (
+                  <div className="collection-header__meta-entry">
+                    <CollectionPublicIcon />
+                  </div>
+                ) : (
+                  <div className="collection-header__meta-entry">
+                    <CollectionPrivateIcon />
+                  </div>
+                )}
+                <div className="collection-header__meta-entry">
+                  <div className="create-at">
+                    {collection && (
+                      <>
+                        <Icon icon={ICONS.TIME} />
+                        <DateTime timeAgo date={Number(collection?.createdAt) * 1000} />
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="collection-header__meta-entry">
+                  <div className="update-at">
+                    {collection && (
+                      <>
+                        <Icon icon={ICONS.EDIT} />
+                        <DateTime timeAgo date={Number(collection?.updatedAt) * 1000} />
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

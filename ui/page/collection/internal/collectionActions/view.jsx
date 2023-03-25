@@ -14,8 +14,10 @@ import { useHistory } from 'react-router-dom';
 import FileReactions from 'component/fileReactions';
 import classnames from 'classnames';
 import { ENABLE_FILE_REACTIONS } from 'config';
+// import ClaimRepostButton from 'component/claimRepostButton';
 import PlayButton from './internal/playButton';
 import ShuffleButton from './internal/shuffleButton';
+// import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionPublishButton from './internal/publishButton';
 import CollectionReportButton from './internal/report-button';
 
@@ -74,14 +76,7 @@ function CollectionActions(props: Props) {
             <>
               {uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}
 
-              {!isOnPublicView &&
-                (isMyCollection ? (
-                  <>
-                    <CollectionPublishButton uri={uri} collectionId={collectionId} />
-                  </>
-                ) : (
-                  claimId && <CollectionReportButton claimId={claimId} />
-                ))}
+              {!isOnPublicView && !isMyCollection && claimId && <CollectionReportButton claimId={claimId} />}
             </>
           )}
         </SectionElement>
@@ -127,16 +122,7 @@ function CollectionActions(props: Props) {
               </div>
             )}
 
-            {isMyCollection ? (
-              !collectionEmpty && (
-                <Button
-                  title={__('Arrange')}
-                  className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-                  icon={ICONS.ARRANGE}
-                  onClick={() => setShowEdit(true)}
-                />
-              )
-            ) : (
+            {!isMyCollection && (
               <Button
                 requiresAuth
                 title={__('Save')}

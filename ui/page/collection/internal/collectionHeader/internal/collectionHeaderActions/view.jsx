@@ -9,6 +9,7 @@ import Icon from 'component/common/icon';
 
 import FileActionButton from 'component/common/file-action-button';
 import { useIsMobile } from 'effects/use-screensize';
+import * as PAGES from 'constants/pages';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
 import ClaimSupportButton from 'component/claimSupportButton';
@@ -20,7 +21,7 @@ import { ENABLE_FILE_REACTIONS } from 'config';
 // import PlayButton from './internal/playButton';
 // import ShuffleButton from './internal/shuffleButton';
 // import CollectionDeleteButton from 'component/collectionDeleteButton';
-// import CollectionPublishButton from './internal/publishButton';
+import CollectionPublishButton from 'page/collection/internal/collectionActions/internal/publishButton';
 // import CollectionReportButton from './internal/report-button';
 import CollectionSubtitle from '../collectionSubtitle';
 
@@ -62,6 +63,7 @@ function CollectionHeaderActions(props: Props) {
   } = props;
 
   const {
+    push,
     location: { search },
   } = useHistory();
 
@@ -78,7 +80,8 @@ function CollectionHeaderActions(props: Props) {
             <>
               {uri && (
                 <>
-                  <ClaimSupportButton uri={uri} fileAction />
+                  <CollectionPublishButton uri={uri} collectionId={collectionId} />
+                  {!isMyCollection && <ClaimSupportButton uri={uri} fileAction />}
                   {/* <ClaimRepostButton uri={uri} /> */}
                   <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />
                 </>
@@ -96,13 +99,20 @@ function CollectionHeaderActions(props: Props) {
               <Icon size={20} icon={ICONS.MORE_VERTICAL} />
             </MenuButton>
             <MenuList className="menu__list">
-              <MenuItem className="comment__menu-option" onSelect={() => doEnableCollectionShuffle({ collectionId })}>
+              <MenuItem
+                className="comment__menu-option"
+                onSelect={() =>
+                  push(
+                    `/$/${PAGES.PLAYLIST}/${collectionId}?${COLLECTION_PAGE.QUERIES.VIEW}=${COLLECTION_PAGE.VIEWS.EDIT}`
+                  )
+                }
+              >
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.EDIT} />
                   {__('Edit')}
                 </div>
               </MenuItem>
-              <MenuItem className="comment__menu-option" onSelect={() => doEnableCollectionShuffle({ collectionId })}>
+              <MenuItem className="comment__menu-option" onSelect={() => setShowEdit(true)}>
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.ARRANGE} />
                   {__('Arrange Items')}
@@ -117,7 +127,12 @@ function CollectionHeaderActions(props: Props) {
                   {__('Copy')}
                 </div>
               </MenuItem>
-              <MenuItem className="comment__menu-option" onSelect={() => doEnableCollectionShuffle({ collectionId })}>
+              <MenuItem
+                className="comment__menu-option"
+                onSelect={() =>
+                  doOpenModal(MODALS.COLLECTION_DELETE, { uri, collectionId, redirect: `/$/${PAGES.PLAYLISTS}` })
+                }
+              >
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DELETE} />
                   {__('Delete')}

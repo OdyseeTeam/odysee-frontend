@@ -1126,3 +1126,14 @@ svg + .button__label {
     }
   }
 }
+
+.button--warning {
+  .button__content {
+    .icon {
+      stroke: rgb(226, 73, 94);
+    }
+    .button__label {
+      color: rgb(226, 73, 94);
+    }
+  }
+}
