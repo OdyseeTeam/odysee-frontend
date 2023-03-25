@@ -891,7 +891,7 @@ $claim-preview-progress-bar-height: 5px;
   &:hover {
     .claim-preview__title {
       span {
-        color: white !important;
+        color: var(--color-text) !important;
       }
     }
   }

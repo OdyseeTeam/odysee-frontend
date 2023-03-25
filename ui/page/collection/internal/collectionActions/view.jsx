@@ -1,9 +1,9 @@
 // @flow
 import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
+// import * as MODALS from 'constants/modal_types';
 import { COL_TYPES, SORT_ORDER } from 'constants/collections';
 import React from 'react';
-import Button from 'component/button';
+// import Button from 'component/button';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import FileActionButton from 'component/common/file-action-button';
 import { useIsMobile } from 'effects/use-screensize';
@@ -18,8 +18,7 @@ import { ENABLE_FILE_REACTIONS } from 'config';
 import PlayButton from './internal/playButton';
 import ShuffleButton from './internal/shuffleButton';
 // import CollectionDeleteButton from 'component/collectionDeleteButton';
-import CollectionPublishButton from './internal/publishButton';
-import CollectionReportButton from './internal/report-button';
+// import CollectionPublishButton from './internal/publishButton';
 
 type Props = {
   uri: string,
@@ -41,18 +40,18 @@ type Props = {
 function CollectionActions(props: Props) {
   const {
     uri,
-    claimId,
-    isMyCollection,
+    // claimId,
+    // isMyCollection,
     collectionId,
     isBuiltin,
     showEdit,
-    isHeader,
-    setShowEdit,
-    collectionSavedForId,
+    // isHeader,
+    // setShowEdit,
+    // collectionSavedForId,
     collectionEmpty,
     collectionType,
-    doOpenModal,
-    doToggleCollectionSavedForId,
+    // doOpenModal,
+    // doToggleCollectionSavedForId,
     doSortCollectionByReleaseTime,
   } = props;
 
@@ -72,13 +71,7 @@ function CollectionActions(props: Props) {
           {showPlaybackButtons && <PlayButton collectionId={collectionId} />}
           {showPlaybackButtons && <ShuffleButton collectionId={collectionId} />}
 
-          {!isBuiltin && (
-            <>
-              {uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}
-
-              {!isOnPublicView && !isMyCollection && claimId && <CollectionReportButton claimId={claimId} />}
-            </>
-          )}
+          {!isBuiltin && <>{uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}</>}
         </SectionElement>
 
         {!isOnPublicView && (
@@ -120,16 +113,6 @@ function CollectionActions(props: Props) {
                   </MenuList>
                 </Menu>
               </div>
-            )}
-
-            {!isMyCollection && (
-              <Button
-                requiresAuth
-                title={__('Save')}
-                className="button-toggle"
-                icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
-                onClick={() => doToggleCollectionSavedForId(collectionId)}
-              />
             )}
           </div>
         )}
