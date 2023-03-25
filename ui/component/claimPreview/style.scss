@@ -64,7 +64,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    margin-right: var(--spacing-l);
+    margin-right: var(--spacing-m);
     color: rgba(var(--color-text-base), 0.9);
   }
 
@@ -423,11 +423,12 @@
 
     .claim-preview__title {
       font-size: var(--font-small);
-      line-height: calc(var(--font-small) + 2px);
+      line-height: calc(var(--font-small) + 5px);
     }
 
     .claim-tile__info {
-      margin-top: var(--spacing-xxxs);
+      position:absolute;
+      bottom:1px;
     }
     .channel-name {
       margin-top: 4px;

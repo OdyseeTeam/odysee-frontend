@@ -1128,12 +1128,25 @@ svg + .button__label {
 }
 
 .button--warning {
+  background-color: rgba(244, 44, 44,.9) !important;
   .button__content {
     .icon {
-      stroke: rgb(226, 73, 94);
+      stroke: white;
     }
     .button__label {
-      color: rgb(226, 73, 94);
+      color: white;
     }
   }
+  &:hover{
+    background-color: rgba(244, 44, 44,1) !important;
+    .button__content {
+      .icon {
+        stroke: white;
+      }
+      .button__label {
+        color: white;
+      }
+    } 
+  }
+  
 }

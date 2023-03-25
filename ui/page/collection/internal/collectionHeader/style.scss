@@ -117,8 +117,6 @@
           .collection-header__meta-entry {
             flex: 1;
             align-items: center;
-            // background-color: rgba(var(--color-background-base), 0.6);
-            background-image: url('https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/https://thumbs.odycdn.com/2df32688fd1a339b546ef4e1a511509d.jpg');
             border-radius: var(--border-radius);
             text-align: center;
             background-attachment: fixed;
@@ -129,7 +127,7 @@
             div {
               padding: var(--spacing-s);
               border-radius: var(--border-radius);
-              background-color: rgba(var(--color-header-button-base), 0.4);
+              background-color: rgba(var(--color-header-button-base), 0.8);
             }
 
             .icon {
@@ -145,6 +143,10 @@
 
 .collection-actions {
   margin-bottom: var(--spacing-l);
+  position:sticky;
+  top:var(--header-height);
+  background-color:var(--color-background);
+  z-index:1;
 
   @media (max-width: $breakpoint-medium) {
     flex-flow: column;

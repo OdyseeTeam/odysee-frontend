@@ -109,19 +109,51 @@ const CollectionHeader = (props: Props) => {
             <div className="collection-header__description">
               {collection.description}
               <div className="collection-header__meta">
-                <div className="collection-header__meta-entry">
+                <div 
+                  className="collection-header__meta-entry"
+                  style={{
+                    backgroundImage:
+                      'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                      // $FlowIgnore
+                      collection?.thumbnail?.url +
+                      ')',
+                }}>
                   <CollectionItemCount collectionId={collectionId} />
                 </div>
                 {hasClaim ? (
-                  <div className="collection-header__meta-entry">
+                  <div 
+                    className="collection-header__meta-entry"
+                    style={{
+                      backgroundImage:
+                        'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                        // $FlowIgnore
+                        collection?.thumbnail?.url +
+                        ')',
+                  }}>
                     <CollectionPublicIcon />
                   </div>
                 ) : (
-                  <div className="collection-header__meta-entry">
+                  <div 
+                    className="collection-header__meta-entry"
+                    style={{
+                      backgroundImage:
+                        'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                        // $FlowIgnore
+                        collection?.thumbnail?.url +
+                        ')',
+                  }}>
                     <CollectionPrivateIcon />
                   </div>
                 )}
-                <div className="collection-header__meta-entry">
+                <div 
+                  className="collection-header__meta-entry"
+                  style={{
+                    backgroundImage:
+                      'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                      // $FlowIgnore
+                      collection?.thumbnail?.url +
+                      ')',
+                }}>
                   <div className="create-at">
                     {collection && (
                       <>
@@ -131,7 +163,15 @@ const CollectionHeader = (props: Props) => {
                     )}
                   </div>
                 </div>
-                <div className="collection-header__meta-entry">
+                <div 
+                  className="collection-header__meta-entry"
+                  style={{
+                    backgroundImage:
+                      'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                      // $FlowIgnore
+                      collection?.thumbnail?.url +
+                      ')',
+                }}>
                   <div className="update-at">
                     {collection && (
                       <>
