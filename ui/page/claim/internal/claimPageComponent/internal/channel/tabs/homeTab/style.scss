@@ -3,6 +3,9 @@
 .home-tab {
   margin-bottom: calc(var(--spacing-xxl) * 3);
 
+  .channel_sections__actions {
+  }
+
   .section__header--actions {
     display: none;
   }
@@ -96,10 +99,10 @@
           display: none;
         }
         .channel-section-card__item {
-          background-color: rgba(var(--color-header-background-base), 0.6);
           border-radius: var(--border-radius);
           margin: 0;
           margin-right: var(--spacing-s);
+          overflow: hidden;
 
           .channel-thumbnail__custom {
             margin: var(--spacing-xs);
@@ -114,6 +117,9 @@
 
           .claim-preview__title {
             color: rgba(var(--color-text-base), 0.9);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
           }
 
           &:last-of-type {
@@ -121,7 +127,6 @@
           }
 
           &:hover {
-            background-color: rgba(var(--color-header-background-base), 0.9);
             .channel-thumbnail__custom {
               transform: scale(1.08);
             }
