@@ -86,7 +86,8 @@ select {
   &:hover,
   &:focus-visible {
     color: var(--color-primary-contrast);
-    background-color: var(--color-primary) !important;
+    background-color: var(--color-primary);
+    background-image: var(--select-toggle-background-hover);
   }
   option {
     color: var(--color-text);
