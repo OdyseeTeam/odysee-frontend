@@ -332,6 +332,25 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                   icon={ICONS.COPY}
                   onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: id })}
                 />
+
+                {isMyCollection
+                  ? !collectionEmpty && (
+                      <Button
+                        title={__('Arrange')}
+                        className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+                        icon={ICONS.ARRANGE}
+                        onClick={() => setShowEdit(!showEdit)}
+                      />
+                    )
+                  : id && (
+                      <Button
+                        requiresAuth
+                        title={__('Save')}
+                        className="button-toggle"
+                        icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+                        onClick={() => doToggleCollectionSavedForId(id)}
+                      />
+                    )}
               </section>
             </div>
           )
@@ -348,7 +367,6 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                   <div className="playlist__title-text">
                     <span className="text-ellipsis">
                       {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
-                      floating test
                     </span>
                   </div>
                 </>

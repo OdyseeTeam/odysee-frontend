@@ -225,8 +225,8 @@
 @mixin handleClaimListGifThumbnail($width) {
   .ff-canvas,
   .freezeframe-img {
-    height: calc(#{$width} * (9 / 16)) !important;
-    width: $width;
+    // height: calc(#{$width} * (9 / 16)) !important;
+    // width: $width;
   }
 }
 

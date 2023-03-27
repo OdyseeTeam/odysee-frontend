@@ -41,6 +41,7 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+// import Freezeframe from 'component/common/FreezeframeLite';
 import './style.scss';
 
 const AbandonedChannelPreview = lazyImport(() =>

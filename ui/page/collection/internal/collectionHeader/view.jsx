@@ -3,8 +3,6 @@ import React from 'react';
 import Card from 'component/common/card';
 import CollectionActions from '../collectionActions';
 import CollectionHeaderActions from './internal/collectionHeaderActions';
-CollectionHeaderActions;
-import Button from 'component/button';
 
 import CollectionItemCount from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collectionItemCount';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
@@ -15,7 +13,7 @@ import { COL_TYPES } from 'constants/collections';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
-import Spinner from 'component/spinner';
+// import Spinner from 'component/spinner';
 import DateTime from 'component/dateTime';
 import CollectionTitle from './internal/collectionTitle';
 import CollectionSubtitle from './internal/collectionSubtitle';
@@ -43,17 +41,17 @@ const CollectionHeader = (props: Props) => {
     collection,
     showEdit,
     hasClaim,
-    unavailableUris,
+    // unavailableUris,
     setShowEdit,
-    setUnavailable,
-    collectionThumbnail,
+    // setUnavailable,
+    // collectionThumbnail,
     // -- redux --
     uri,
-    claimIsPending,
-    doCollectionEdit,
+    // claimIsPending,
+    // doCollectionEdit,
   } = props;
 
-  console.log('CollectionHeader props: ', props);
+  // console.log('CollectionHeader props: ', props);
 
   const { id: collectionId } = collection;
 
@@ -71,8 +69,6 @@ const CollectionHeader = (props: Props) => {
   return (
     <>
       <div className="collection-header__wrapper">
-        {/*<CollectionTitle collectionId={collectionId} />*/}
-
         <div className="background__wrapper">
           {collection?.thumbnail?.url && (
             <div
@@ -89,7 +85,7 @@ const CollectionHeader = (props: Props) => {
         </div>
 
         <div className="collection-header__content">
-          <div class="collection-header__content-top">
+          <div className="collection-header__content-top">
             <div className="collection-header__title">
               {collection.title}
               {uri ? <ClaimAuthor uri={uri} /> : <h1>{collection.name}</h1>}
@@ -109,7 +105,7 @@ const CollectionHeader = (props: Props) => {
             <div className="collection-header__description">
               {collection.description}
               <div className="collection-header__meta">
-                <div 
+                <div
                   className="collection-header__meta-entry"
                   style={{
                     backgroundImage:
@@ -117,11 +113,12 @@ const CollectionHeader = (props: Props) => {
                       // $FlowIgnore
                       collection?.thumbnail?.url +
                       ')',
-                }}>
+                  }}
+                >
                   <CollectionItemCount collectionId={collectionId} />
                 </div>
                 {hasClaim ? (
-                  <div 
+                  <div
                     className="collection-header__meta-entry"
                     style={{
                       backgroundImage:
@@ -129,11 +126,12 @@ const CollectionHeader = (props: Props) => {
                         // $FlowIgnore
                         collection?.thumbnail?.url +
                         ')',
-                  }}>
+                    }}
+                  >
                     <CollectionPublicIcon />
                   </div>
                 ) : (
-                  <div 
+                  <div
                     className="collection-header__meta-entry"
                     style={{
                       backgroundImage:
@@ -141,11 +139,12 @@ const CollectionHeader = (props: Props) => {
                         // $FlowIgnore
                         collection?.thumbnail?.url +
                         ')',
-                  }}>
+                    }}
+                  >
                     <CollectionPrivateIcon />
                   </div>
                 )}
-                <div 
+                <div
                   className="collection-header__meta-entry"
                   style={{
                     backgroundImage:
@@ -153,7 +152,8 @@ const CollectionHeader = (props: Props) => {
                       // $FlowIgnore
                       collection?.thumbnail?.url +
                       ')',
-                }}>
+                  }}
+                >
                   <div className="create-at">
                     {collection && (
                       <>
@@ -163,7 +163,7 @@ const CollectionHeader = (props: Props) => {
                     )}
                   </div>
                 </div>
-                <div 
+                <div
                   className="collection-header__meta-entry"
                   style={{
                     backgroundImage:
@@ -171,7 +171,8 @@ const CollectionHeader = (props: Props) => {
                       // $FlowIgnore
                       collection?.thumbnail?.url +
                       ')',
-                }}>
+                  }}
+                >
                   <div className="update-at">
                     {collection && (
                       <>

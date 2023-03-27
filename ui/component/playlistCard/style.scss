@@ -1,4 +1,5 @@
 @import '~ui/scss/init/breakpoints';
+// @import '~ui/scss/component/_main.scss';
 
 .playlist__wrapper {
   // @extend .file-page__recommended-collection;
@@ -6,6 +7,7 @@
   flex-direction: column;
   width: 100%;
   max-width: 100%;
+  overflow: hidden;
 
   padding: 1px;
   background-color: rgba(var(--color-header-button-base), 0.4);
@@ -68,7 +70,7 @@
   }
 
   @media (min-width: $breakpoint-small) {
-    max-height: 40rem;
+    max-height: calc(44rem + 1px);
   }
 
   .card__header--slim {
@@ -135,7 +137,7 @@
     }
 
     .media__subtitle {
-      width: unset !important;
+      // width: unset !important;
     }
   }
 
@@ -192,5 +194,25 @@
 
   @media (max-width: $breakpoint-small) {
     max-width: 100%;
+  }
+}
+
+.content__wrapper--floating {
+  .playlist__wrapper {
+    max-height: 370px;
+    .card__header--grid {
+      .card__title {
+        .playlist__title {
+          .icon {
+            background-color: var(--color-text);
+            color: var(--color-text-inverse);
+            width: 1.4rem;
+            height: 1.4rem;
+            padding: 4px;
+            padding-right: 0;
+          }
+        }
+      }
+    }
   }
 }
