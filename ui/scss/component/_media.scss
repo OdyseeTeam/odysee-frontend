@@ -297,7 +297,7 @@
 
     .button--file-action {
       display: flex;
-      background-color: rgba(var(--color-header-background-base), 1);
+      // background-color: rgba(var(--color-header-background-base), 1);
       margin-right: var(--spacing-xxxs);
       justify-content: center;
       align-items: center;
@@ -335,7 +335,7 @@
       margin-top: var(--spacing-xxxs);
       .button {
         flex: auto;
-        background-color: var(--color-header-background);
+        // background-color: var(--color-header-background);
         margin-right: var(--spacing-xxs);
         .button__content {
           justify-content: center;

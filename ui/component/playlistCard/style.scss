@@ -75,10 +75,11 @@
 
   .card__header--slim {
     padding: var(--spacing-xxs);
-
+    /*
     @media (max-width: $breakpoint-small) {
       padding: 0;
     }
+    */
   }
 
   .card__body {
@@ -149,14 +150,7 @@
     width: 100%;
 
     button {
-      background-color: var(--color-background);
-    }
-
-    @media (max-width: $breakpoint-small) {
-      width: 100%;
-      section:last-of-type {
-        float: right;
-      }
+      background-color: var(--color-background) !important;
     }
   }
 
@@ -167,29 +161,14 @@
 
   .button-toggle {
     background-color: var(--color-background);
-    // border: 2px solid var(--color-border);
   }
-  /*
-	.button-toggle {
-		// border: 2px solid var(--color-border);
-	}
-	section {
-		.button-toggle:nth-child(2) {
-			border-left: 0px solid transparent;
-		}
-	}
-	.card__title-actions {
-		.button-toggle:nth-child(2) {
-			border-left: 0px solid transparent;
-		}
-	}*/
 }
 
 .playlist-card--drawer-header {
   @extend .playlist__wrapper;
   padding-right: 0px;
   padding-left: 0px;
-  padding-top: var(--spacing-xxs);
+  padding-top: var(--spacing-m);
   max-width: 80%;
 
   @media (max-width: $breakpoint-small) {
@@ -214,5 +193,8 @@
         }
       }
     }
+  }
+  @media (max-width: $breakpoint-small) {
+    border-radius: unset !important;
   }
 }
