@@ -823,6 +823,7 @@ $actions-z-index: 2;
   right: 0;
   bottom: var(--spacing-m);
   .button {
+    background-color: rgba(var(--color-background-base), 0.9);
     &:hover {
       background-color: rgba(var(--color-header-background-base), 0.95);
       color: var(--color-primary);
@@ -881,7 +882,8 @@ $actions-z-index: 2;
 
   .button,
   .menu__button {
-    &:hover {
+    &:hover,
+    &[aria-expanded='true'] {
       color: var(--color-link);
       background-color: rgba(var(--color-header-background-base), 0.95) !important;
 

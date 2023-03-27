@@ -128,7 +128,7 @@ function HomeTab(props: Props) {
           <div className="channel_sections__actions">
             <Button
               label={__('Edit Home Tab')}
-              button="secondary"
+              button="primary"
               icon={ICONS.EDIT}
               disabled={edit}
               onClick={() => {
