@@ -61,11 +61,10 @@
   --color-button-primary-bg-hover: var(--color-primary-alt-2);
   --color-button-primary-text: white;
 
-  --color-button-secondary-bg: rgba(var(--color-header-background-base), 0.9);
-  --color-button-secondary-border: var(--color-primary-alt-3);
-  --color-button-secondary-text: black;
-  --color-button-secondary-bg-hover: rgba(var(--color-header-background-base), 0.4);
-  --color-button-secondary-text-hover: var(--color-primary);
+  --color-button-secondary-bg: var(--color-header-button);
+  --color-button-secondary-text: rgba(var(--color-text-base), 0.9);
+  --color-button-secondary-bg-hover: var(--color-primary);
+  --color-button-secondary-text-hover: white;
 
   --color-button-alt-bg: var(--color-header-button);
   --color-button-alt-text: var(--color-text);

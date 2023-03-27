@@ -70,7 +70,7 @@ const ClaimCollectionAdd = (props: Props) => {
           <FormNewCollection uri={uri} closeForm={() => setAddNewCollection(false)} />
         ) : (
           <div className="section__actions">
-            <Button button="secondary" label={__('Done')} disabled={addNewCollection} onClick={closeModal} />
+            <Button button="primary" label={__('Done')} disabled={addNewCollection} onClick={closeModal} />
             <Button button="link" label={__('New Playlist')} onClick={() => setAddNewCollection(true)} />
           </div>
         )

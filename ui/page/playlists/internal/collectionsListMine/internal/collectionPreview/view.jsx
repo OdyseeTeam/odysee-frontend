@@ -68,13 +68,11 @@ function CollectionPreview(props: Props) {
   } = props;
 
   const { push } = useHistory();
+
+  if (collectionType === 'featuredChannels') return null;
+
   let test = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
   test = 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + test;
-  console.log('====================================');
-  console.log('thumbnail: ', thumbnail);
-  // console.log('ui: ', uri)
-  console.log('thumbnailFromSecondaryClaim: ', thumbnailFromSecondaryClaim);
-  console.log('thumbnailFromClaim: ', thumbnailFromClaim);
 
   if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;

@@ -538,7 +538,7 @@
 
   .button--alt {
     color: var(--color-button-alt-text);
-    background-color: var(--color-button-alt-bg);
+    // background-color: var(--color-button-alt-bg);
     &:hover {
       color: var(--color-primary-contrast) !important;
       background-color: var(--color-primary);

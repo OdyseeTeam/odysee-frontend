@@ -307,6 +307,9 @@
   .filer-checkbox-wrapper {
     // box-shadow: 0 0 0 2px var(--color-border) inset;
     background-color: var(--color-background);
+    &:hover {
+      background-color: var(--color-primary);
+    }
   }
 
   .filer-checkbox-wrapper {

@@ -1008,7 +1008,7 @@ $actions-z-index: 2;
 .channel__list-item {
   display: flex;
   align-items: center;
-  background-color: var(--color-header-background);
+  // background-color: var(--color-header-background);
   padding: var(--spacing-s);
   overflow: hidden;
   height: var(--height-button);
