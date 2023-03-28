@@ -243,19 +243,19 @@
 .claim-search__menu-subgroup {
   display: flex;
   flex-direction: row;
-  // width:100%;
 
   .claim-search__dropdown {
     margin-left: var(--spacing-s);
     margin-top: 0;
-    // flex-grow: 1;
   }
 
   &:nth-of-type(2) {
     width: 100%;
-    // align-content: center;
     align-items: center;
     justify-content: center;
+    @media (max-width: $breakpoint-small) {
+      display: none;
+    }
   }
 }
 

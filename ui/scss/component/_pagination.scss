@@ -1,5 +1,6 @@
 .pagination {
-  display: flex;
+  display: flex !important;
+  align-items: center;
   .ul--no-style {
     max-height: 100%;
     overflow-y: scroll !important;
@@ -7,9 +8,6 @@
       background-color: var(--color-border) !important;
     }
   }
-
-  display: flex;
-  align-items: center;
 
   + .form-field {
     margin-left: var(--spacing-m);
@@ -35,7 +33,8 @@
     color: var(--color-button-secondary-text);
 
     &:hover {
-      background-color: var(--color-button-secondary-bg-hover);
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast);
     }
   }
 
@@ -75,7 +74,7 @@
   line-height: 1.5;
   position: relative;
   padding-top: var(--spacing-s);
-  background-color: var(--color-header-background);
+  background-color: var(--color-header-button);
   margin-bottom: 0px !important;
 
   @media (max-width: $breakpoint-small) {
@@ -84,7 +83,8 @@
 }
 
 .pagination__item--selected {
-  background-color: var(--color-button-secondary-bg);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
 .paginate-channel {
