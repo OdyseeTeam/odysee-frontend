@@ -13,7 +13,6 @@ import classnames from 'classnames';
 import HeaderMenuLink from 'component/common/header-menu-link';
 import Icon from 'component/common/icon';
 import React from 'react';
-import Skeleton from '@mui/material/Skeleton';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
