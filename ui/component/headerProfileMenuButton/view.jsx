@@ -27,7 +27,6 @@ type HeaderMenuButtonProps = {
   handleThemeToggle: (boolean, string) => void,
 
   user: ?User,
-  myChannelClaimIds: ?Array<string>,
   activeChannelClaim: ?ChannelClaim,
   authenticated: boolean,
   email: ?string,
