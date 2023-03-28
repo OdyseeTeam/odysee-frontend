@@ -536,7 +536,7 @@
   padding-bottom: var(--spacing-l);
 
   .channel-thumbnail {
-    @include handleChannelGif(2.1rem);
+    @include handleChannelGif(2rem);
     margin-right: var(--spacing-xs);
   }
 
@@ -554,7 +554,7 @@
   color: var(--color-subtitle);
 
   .channel-thumbnail {
-    @include handleChannelGif(2.1rem);
+    @include handleChannelGif(2rem);
     margin-right: var(--spacing-s);
   }
 }
@@ -933,10 +933,12 @@ $claim-preview-progress-bar-height: 5px;
   display: flex;
   align-items: center;
 
+  /*
   .channel-thumbnail {
     @include handleChannelGif(2.1rem);
     // margin-right: 0;
   }
+  */
 }
 
 .claim-tile__header {
@@ -950,9 +952,11 @@ $claim-preview-progress-bar-height: 5px;
     }
   }
 
+  /*
   .claim__menu-button {
     right: -8px;
   }
+  */
 }
 
 @media (min-width: $breakpoint-small) {

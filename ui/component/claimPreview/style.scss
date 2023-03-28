@@ -36,6 +36,9 @@
     }
 
     .claim-preview__hover-actions-grid {
+      position: absolute;
+      top: 0;
+      right: 0;
       display: grid;
       justify-items: end;
       justify-content: space-between;
@@ -85,6 +88,14 @@
     }
     .claim-preview__title {
       color: var(--color-primary);
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .menu__button {
+      top: 4px !important;
+      right: 4px !important;
+      opacity: 0.6;
     }
   }
 }
@@ -175,7 +186,6 @@
   width: 100%;
   overflow: hidden;
   background-color: rgba(var(--color-header-button-base), 0.4);
-  // background-color: rgba(var(--color-header-button-base), 1);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m) !important;
 
@@ -233,7 +243,6 @@
   }
 
   .claim-preview-metadata {
-    // position: relative;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -247,7 +256,7 @@
       }
 
       .channel-thumbnail {
-        margin-top: 2px;
+        margin-top: 5px;
       }
 
       .media__subtitle {
@@ -345,6 +354,30 @@
 
   &.placeholder {
     background-color: rgba(var(--color-header-button-base), 0.4) !important;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
+    .media__thumb {
+      width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
+    }
+    .claim-preview-metadata {
+      .claim-tile__info {
+        margin-top: auto;
+        align-items: flex-end;
+        .claim-preview__tags {
+          width: unset;
+        }
+        /*
+        .media__subtitle{
+          align-self: unset;
+        }
+        */
+      }
+      .description__wrapper {
+        display: none;
+      }
+    }
   }
 }
 
@@ -501,6 +534,7 @@
   display: flex;
   position: relative;
   overflow: visible;
+  max-width: 100%;
 
   &:not(.claim-preview--inline):not(.claim-preview--pending):not(.claim-preview--inactive) {
     cursor: pointer;
@@ -563,6 +597,8 @@
 
     .channel-thumbnail {
       @include handleChannelGif(4rem);
+      width: 2rem;
+      height: 2rem;
     }
   }
 }

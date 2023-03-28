@@ -166,6 +166,8 @@
         .collection-header__description {
           padding: var(--spacing-xxs);
           .collection-header__meta {
+            gap: var(--spacing-xxs);
+            margin-top: var(--spacing-xxs);
             .collection-header__meta-entry {
               div {
                 font-size: var(--font-xxsmall) !important;
@@ -239,6 +241,12 @@
     }
     &:last-of-type {
       justify-content: end;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    &:after {
+      display: none;
     }
   }
 }

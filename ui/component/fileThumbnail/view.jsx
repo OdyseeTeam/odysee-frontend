@@ -57,13 +57,16 @@ function FileThumbnail(props: Props) {
   const isMobile = useIsMobile();
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
+  // const thumbnailCompression = 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/';
   const thumbnail =
     passedThumbnail ||
     (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
   // thumbnailFromClaim returned null and passedThumbnail is still being set by useGetThumbnail hook
   const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
-  const isGif = thumbnail && thumbnail.endsWith('gif');
+  const isGif = thumbnail && (thumbnail.endsWith('gif') || thumbnail.endsWith('webp'));
 
+  console.log('small: ', small);
+  console.log('thumbnail: ', thumbnail);
   // React.useEffect(() => {
   //   if (hasResolvedClaim === false && uri && !passedThumbnail) {
   //     doResolveUri(uri);

@@ -68,6 +68,10 @@ textarea {
   &:disabled {
     cursor: default;
   }
+
+  @media (max-width: $breakpoint-small) {
+    font-size: var(--font-base);
+  }
 }
 
 h1,

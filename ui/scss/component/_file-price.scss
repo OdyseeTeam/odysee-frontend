@@ -22,15 +22,6 @@ $SKEW_AMOUNT: 10deg;
   }
 }
 
-.filePrice--skewedBg {
-  transform: skew($SKEW_AMOUNT);
-
-  .icon,
-  .credit-amount {
-    transform: skew(-$SKEW_AMOUNT);
-  }
-}
-
 .filePrice--fiat {
   background-color: var(--color-fiat-payment);
 

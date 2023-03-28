@@ -10,7 +10,7 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0) inset;
+  // box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0) inset;
 }
 
 .media__thumb--small {
@@ -45,7 +45,7 @@
 //  S U B T I T L E
 
 .media__subtitle {
-  align-self: flex-start;
+  // align-self: flex-start;
   color: var(--color-text-subtitle);
   font-size: var(--font-small);
 }

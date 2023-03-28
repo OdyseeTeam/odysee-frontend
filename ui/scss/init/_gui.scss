@@ -89,6 +89,7 @@ ul {
   }
 }
 
+/*
 .claim__menu-button {
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
@@ -99,17 +100,20 @@ ul {
     }
   }
 }
+*/
 
 .li--no-style {
   margin-bottom: 0px !important;
 }
 
+/*
 .claim__menu-button {
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-m);
     margin: calc(var(--spacing-m) * -1);
   }
 }
+*/
 
 dl {
   display: flex;
@@ -1658,9 +1662,11 @@ img {
     display: flex;
     margin-bottom: var(--spacing-s);
     align-items: center;
+    /*
     @media (max-width: $breakpoint-small) {
       margin-top: var(--spacing-xl);
     }
+    */
 
     svg {
       width: 2rem;
@@ -2194,9 +2200,11 @@ img {
 }
 
 // Temporary master classes
+/*
 .date_time {
   font-size: var(--font-xsmall);
 }
+*/
 .icon--ExternalLink {
   margin-top: -5px;
   margin-left: 2px;

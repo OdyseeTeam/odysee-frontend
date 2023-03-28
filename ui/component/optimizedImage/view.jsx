@@ -14,6 +14,7 @@ function getOptimizedImgUrl(url, width, height, quality) {
   if (url && !url.startsWith('/public/')) {
     optimizedUrl = url.trim().replace(/^http:\/\//i, 'https://');
 
+    // if (optimizedUrl.endsWith('.gif') || optimizedUrl.endsWith('.webp')) {
     if (optimizedUrl.endsWith('.gif')) {
       optimizedUrl = getImageProxyUrl(optimizedUrl);
     } else {

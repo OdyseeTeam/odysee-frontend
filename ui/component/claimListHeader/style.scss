@@ -29,7 +29,6 @@ $OPTIONS_MIN_WIDTH: 250px;
   }
 
   .section__actions--no-margin {
-    // align-items: end;
     justify-content: end;
     margin-left: auto;
     @media (max-width: $breakpoint-small) {
@@ -39,6 +38,7 @@ $OPTIONS_MIN_WIDTH: 250px;
     }
   }
 
+  /*
   .claim-search__top {
     @media (max-width: $breakpoint-medium) {
       justify-content: space-between;
@@ -74,7 +74,6 @@ $OPTIONS_MIN_WIDTH: 250px;
             }
           }
           .button-toggle {
-            background: red;
             .button__content {
               margin-left: 4px;
             }
@@ -89,5 +88,5 @@ $OPTIONS_MIN_WIDTH: 250px;
         }
       }
     }
-  }
+  }*/
 }

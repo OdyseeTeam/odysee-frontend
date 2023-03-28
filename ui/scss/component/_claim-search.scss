@@ -81,16 +81,20 @@
     padding: unset;
   }
 
+  /*
   &:not(:first-child) {
     margin-top: var(--spacing-s) !important;
   }
+  */
 }
 
+/*
 .claim-search__dropdown {
   font-size: var(--font-body);
   background-color: var(--color-card-background);
   background-position: right var(--spacing-m) center;
 }
+*/
 
 .claim-search__input-container {
   display: flex;
@@ -98,18 +102,21 @@
   font-size: var(--font-body);
   width: 100%;
 
+  /*
   &:not(:first-of-type) {
-    margin-top: var(--spacing-s);
+    // margin-top: var(--spacing-s);
   }
-
+  
   @media (min-width: $breakpoint-small) {
     width: auto;
 
+    margin-top: 0 !important;
     &:not(:first-of-type) {
       margin-top: 0;
       // padding-left: var(--spacing-m);
     }
   }
+  */
 
   &.action-button {
     flex-direction: row;
@@ -302,14 +309,17 @@
   }
 
   select,
-  input[type='text'],
-  input[type='number'],
   .filer-checkbox-wrapper {
-    // box-shadow: 0 0 0 2px var(--color-border) inset;
     background-color: var(--color-background);
     &:hover {
       background-color: var(--color-primary);
     }
+  }
+
+  input[type='text'],
+  input[type='number'],
+  .filer-checkbox-wrapper {
+    background-color: var(--color-background);
   }
 
   .filer-checkbox-wrapper {
@@ -322,5 +332,6 @@
 
   @media (max-width: $breakpoint-small) {
     margin-bottom: var(--spacing-m);
+    margin-top: 4px;
   }
 }

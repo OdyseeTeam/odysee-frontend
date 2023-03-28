@@ -20,7 +20,7 @@
 
   &.claim-preview__wrapper {
     background-color: rgba(var(--color-header-background-base), 0.5);
-    margin-bottom: var(--spacing-xxs);
+    // margin-bottom: var(--spacing-xxs);
 
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 1.2);
