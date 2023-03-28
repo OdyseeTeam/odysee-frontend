@@ -8,6 +8,7 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import { useHistory } from 'react-router';
 import IncognitoSelector from './internal/incognito-selector';
+import LoadingSelector from './internal/loading-selector';
 import ChannelListItem from './internal/channelListItem';
 import { NavLink } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
@@ -64,6 +65,8 @@ function ChannelSelector(props: Props) {
 
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
+  const noActiveChannel = activeChannelUrl === null;
+  const pendingChannelFetch = !noActiveChannel && channelIds === undefined;
 
   function handleChannelSelect(channelId) {
     doSetIncognito(false);
@@ -125,6 +128,8 @@ function ChannelSelector(props: Props) {
             <MenuButton>
               {showAllOption && allOptionProps?.isSelected ? (
                 <AllSelector isSelected />
+              ) : pendingChannelFetch ? (
+                <LoadingSelector isSelected />
               ) : (incognito && !hideAnon) || !activeChannelUrl ? (
                 <IncognitoSelector isSelected />
               ) : (
