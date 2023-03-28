@@ -95,7 +95,8 @@
   text-overflow: ellipsis;
   height: var(--height-input);
   border-radius: var(--border-radius);
-  background-color: var(--color-input-bg);
+  // background-color: var(--color-input-bg);
+  background-color: var(--color-header-button);
   color: var(--color-input);
   border: none;
   padding-right: var(--spacing-s);

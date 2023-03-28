@@ -246,10 +246,14 @@
               margin-left: var(--spacing-xs);
               padding: 0.3rem;
               background-color: var(--color-primary);
+              color: var(--color-primary-contrast);
             }
           }
         }
       }
+    }
+    .menu__button {
+      top: 10px !important;
     }
   }
 }

@@ -165,4 +165,24 @@
       opacity: 1;
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: calc(var(--spacing-xs) * -1);
+    margin-bottom: var(--spacing-s);
+    .banner-browse,
+    .featured-banner-remove {
+      opacity: 1;
+    }
+
+    .banner-browse {
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      top: unset;
+      bottom: var(--spacing-xs);
+    }
+    .featured-banner-remove {
+      top: var(--spacing-xs);
+    }
+  }
 }

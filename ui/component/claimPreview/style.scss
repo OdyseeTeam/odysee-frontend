@@ -161,6 +161,10 @@
     @include handleClaimTileGifThumbnail($width);
     margin-left: 0;
 
+    .claim-preview__title {
+      min-height: unset;
+    }
+
     &:not(:first-child) {
       margin-top: var(--spacing-s);
     }
