@@ -8,7 +8,7 @@ class SettingMenu extends Menu {
   constructor(player, options) {
     super(player, {
       ...options,
-      name: 'SettingMenu'
+      name: 'SettingMenu',
     });
 
     this.addClass('vjs-setting-menu');
@@ -36,7 +36,7 @@ class SettingMenu extends Menu {
   createEl() {
     const el = super.createEl();
     const layer = new CloseSettingMenu(this.player_, {
-      menu: this
+      menu: this,
     });
 
     el.insertBefore(layer.el_, el.firstElementChild);
@@ -47,11 +47,11 @@ class SettingMenu extends Menu {
   update(children = []) {
     const children_ = this.children().slice(0);
 
-    children_.forEach(child => {
+    children_.forEach((child) => {
       this.removeChild(child);
     });
 
-    children.forEach(child => {
+    children.forEach((child) => {
       this.addChild(child);
     });
   }
@@ -77,7 +77,8 @@ class SettingMenu extends Menu {
     // remove tempMenu in `player.children`
     player.removeChild(tempMenu);
 
-    return rect;
+    const MIN_WIDTH = 180;
+    return rect.width < MIN_WIDTH ? new DOMRect(rect.x, rect.y, Math.max(MIN_WIDTH, rect.width), rect.height) : rect;
   }
 
   transform(items) {
@@ -103,7 +104,7 @@ class SettingMenu extends Menu {
 class SettingMenuTemp extends SettingMenu {
   constructor(player) {
     super(player, {
-      name: 'SettingMenuTemp'
+      name: 'SettingMenuTemp',
     });
   }
 }
