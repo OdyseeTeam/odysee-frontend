@@ -31,14 +31,25 @@
 
 .vjs-setting-menu.vjs-menu li {
   list-style: none;
-  margin: 0;
-  padding: 0.7em 1em;
+  margin: var(--spacing-xxs);
+  padding: var(--spacing-xxs) var(--spacing-xs);
+
+  border-radius: var(--border-radius);
+  &.vjs-settings-sub-menu-title {
+    border-radius: 0;
+  }
+
   line-height: 1.35em;
-  font-size: 1em;
+  font-size: var(--font-small);
   text-align: left;
   outline: none;
   cursor: pointer;
   white-space: nowrap;
+
+  text-transform: unset; // Negate default "vjs-menu li" = lowercase
+  .vjs-menu-item-text {
+    text-transform: unset; // Negate our ".file-render vjs-icon-placeholder" = uppercase.
+  }
 
   .vjs-icon-placeholder {
     font-size: 1.5em;
