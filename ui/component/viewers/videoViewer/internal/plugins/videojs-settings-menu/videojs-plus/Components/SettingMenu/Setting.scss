@@ -176,7 +176,7 @@
   .vjs-menu.vjs-setting-menu {
     right: 10px;
     bottom: calc(#{$control-bar-height} + 15px);
-    z-index: 1;
+    z-index: 1000;
     max-height: calc(90% - #{$control-bar-height});
     overflow-y: auto;
 
