@@ -326,6 +326,9 @@
       width: 100%;
       justify-content: end;
       margin-bottom: var(--spacing-xxxs);
+      .tag {
+        display: inline-block !important;
+      }
     }
     .description__wrapper {
       margin-top: auto;
