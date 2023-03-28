@@ -287,6 +287,25 @@
         }
       }
 
+      .button {
+        display: inline;
+        @media (max-width: $breakpoint-small) {
+          .button__content {
+            width: 100%;
+            .channel-name {
+              width: 100%;
+              p {
+                width: 100%;
+                margin-right: var(--spacing-xs);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+            }
+          }
+        }
+      }
+
       .claim-preview__actions {
         margin-top: 0;
         flex: 2;
@@ -355,6 +374,7 @@
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs) !important;
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
     }
@@ -564,6 +584,9 @@
   .channel-thumbnail {
     // @include handleChannelGif(6rem);
   }
+  .claim-preview__text {
+    overflow: hidden;
+  }
 
   // any-pointer media query prevents double click hover bug on ipad
   @media (any-pointer: fine) {
@@ -603,6 +626,14 @@
       @include handleChannelGif(4rem);
       width: 2rem;
       height: 2rem;
+    }
+    .claim-preview-metadata {
+      .claim-tile__info {
+        .media__subtitle {
+          margin-bottom: 2px;
+          width: calc(100% - 2.1rem);
+        }
+      }
     }
   }
 }

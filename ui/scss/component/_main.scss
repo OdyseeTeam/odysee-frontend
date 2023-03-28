@@ -1217,6 +1217,7 @@ body {
         .media__subtitle {
           width: calc(100% - 2.1rem);
           .button {
+            /*
             display: inline;
             @media (max-width: $breakpoint-small) {
               .button__content {
@@ -1224,7 +1225,7 @@ body {
                 .channel-name {
                   width: 100%;
                   p {
-                    width: 99%;
+                    width: 100%;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -1232,7 +1233,9 @@ body {
                 }
               }
             }
+            */
           }
+
           span:not(.channel-name) {
             font-size: var(--font-xsmall);
           }
