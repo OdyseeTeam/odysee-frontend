@@ -16,7 +16,7 @@
 .vjs-setting-menu {
   @include visibility-transition-menu-style('.vjs-lock-showing');
 
-  border-radius: 3px;
+  border-radius: var(--border-radius);
 
   &::-webkit-scrollbar {
     width: 0px;
@@ -174,8 +174,8 @@
 
 @media (min-width: $small-dimension + 1) {
   .vjs-menu.vjs-setting-menu {
-    right: 10px;
-    bottom: calc(#{$control-bar-height} + 15px);
+    right: var(--spacing-m);
+    bottom: calc(#{$control-bar-height} + var(--spacing-l));
     z-index: 1000;
     max-height: calc(90% - #{$control-bar-height});
     overflow-y: auto;
