@@ -455,8 +455,11 @@ button.vjs-big-play-button {
 .vjs-button--theater-mode {
   order: 17 !important;
 }
-.vjs-fullscreen-control {
+.vjs-setting-button {
   order: 18 !important;
+}
+.vjs-fullscreen-control {
+  order: 19 !important;
 }
 
 // livestream player
