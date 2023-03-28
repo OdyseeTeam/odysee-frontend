@@ -7,6 +7,7 @@ import './videojs-plus/Components/SettingMenu/SettingMenuButton';
 import type { Player } from '../../videojs';
 
 // Register new settings here (needs to come after all the above imports):
+import './menuItems/AutoPlayNextMenuItem';
 import './menuItems/SnapshotMenuItem';
 
 type Options = {};

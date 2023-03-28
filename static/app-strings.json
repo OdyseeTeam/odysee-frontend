@@ -1772,6 +1772,7 @@
   "Default Video Quality": "Default Video Quality",
   "Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts.": "Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts.",
   "You can also change your default quality on settings.": "You can also change your default quality on settings.",
+  "Autoplay next": "Autoplay next",
   "Autoplay Next On": "Autoplay Next On",
   "Autoplay Next is on.": "Autoplay Next is on.",
   "Autoplay Next Off": "Autoplay Next Off",
