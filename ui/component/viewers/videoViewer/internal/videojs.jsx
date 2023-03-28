@@ -16,7 +16,6 @@ import eventTracking from 'videojs-event-tracking';
 import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-shortcuts';
-import LbryPlaybackRateMenuButton from './lbry-playback-rate';
 import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
@@ -273,6 +272,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       currentTimeDisplay: true,
       timeDivider: true,
       durationDisplay: true,
+      playbackRateMenuButton: false,
       settingMenuButton: true,
       remainingTimeDisplay: true,
       subsCapsButton: !IS_IOS,
@@ -296,8 +296,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!player) return;
 
       // runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
-
-      LbryPlaybackRateMenuButton.replaceExisting(player);
 
       // Add reloadSourceOnError plugin
       player.reloadSourceOnError({ errorInterval: 10 });

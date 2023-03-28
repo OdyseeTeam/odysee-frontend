@@ -6,20 +6,24 @@ class PlaybackRateSettingItem extends SettingOptionItem {
   constructor(player, options) {
     super(player, {
       ...options,
-      label: 'Speed',
+      label: __('Speed --[playback rate]--'),
       icon: 'vjs-icon-slow-motion-video',
       entries: [
+        // NOTE: Entries must match `VIDEO_PLAYBACK_RATES[]`
+        0.25,
         0.5,
         0.75,
         {
-          label: 'Normal',
+          label: __('Normal --[x1 playback rate]--'),
           value: 1,
-          default: true
+          default: true,
         },
+        1.1,
         1.25,
         1.5,
-        2
-      ]
+        1.75,
+        2,
+      ],
     });
 
     this.addClass('vjs-setting-playback-rate');
