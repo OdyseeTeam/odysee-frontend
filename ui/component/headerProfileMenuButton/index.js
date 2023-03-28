@@ -14,7 +14,6 @@ const select = (state) => ({
   automaticDarkModeEnabled: selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED),
 
   user: selectUser(state),
-  myChannelClaimIds: selectMyChannelClaimIds(state),
   activeChannelClaim: selectActiveChannelClaim(state),
   authenticated: selectUserVerifiedEmail(state),
   email: selectUserEmail(state),

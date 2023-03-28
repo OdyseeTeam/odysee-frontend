@@ -44,7 +44,6 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
 
     // User
     user,
-    myChannelClaimIds,
     activeChannelClaim,
     authenticated,
     email,
@@ -61,8 +60,6 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
 
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
   // activeChannel will be: undefined = fetching, null = nothing, or { channel claim }
-  const noActiveChannel = activeChannelUrl === null;
-  const pendingChannelFetch = !noActiveChannel && myChannelClaimIds === undefined;
   const uploadProps = { requiresAuth: !authenticated };
 
   const isMobile = useIsMobile();
@@ -123,27 +120,24 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         )}
         {notificationsEnabled && !isMobile && <NotificationHeaderButton />}
 
-        {pendingChannelFetch ? (
-          <Skeleton variant="circular" animation="wave" className="header__navigationItem--iconSkeleton" />
-        ) : (
-          <Button
-            id="basic-button"
-            aria-controls={open ? 'basic-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? 'true' : undefined}
-            onClick={handleClick}
-            className={classnames('header__navigationItem', {
-              'header__navigationItem--icon': !activeChannelUrl,
-              'header__navigationItem--profilePic': activeChannelUrl,
-            })}
-          >
-            {activeChannelUrl ? (
-              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge />
-            ) : (
-              <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
-            )}
-          </Button>
-        )}
+        <Button
+          id="basic-button"
+          aria-controls={open ? 'basic-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+          onClick={handleClick}
+          className={classnames('header__navigationItem', {
+            'header__navigationItem--icon': !activeChannelUrl,
+            'header__navigationItem--profilePic': activeChannelUrl,
+          })}
+        >
+          {activeChannelUrl ? (
+            <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge />
+          ) : (
+            <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
+          )}
+        </Button>
+
         {authenticated ? (
           <ClickAwayListener onClickAway={handleClickAway}>
             <MuiMenu {...menuProps}>
