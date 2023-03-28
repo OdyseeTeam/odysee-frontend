@@ -72,7 +72,7 @@ $small-dimension: 480px;
 
 @mixin tick($size: 0.8em) {
   content: '';
-  width: $size/2;
+  width: calc($size / 2);
   height: $size;
   display: block;
   margin-top: -0.2em;
