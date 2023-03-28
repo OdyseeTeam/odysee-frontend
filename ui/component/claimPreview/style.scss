@@ -28,13 +28,6 @@
     background-size: 100%;
     transition: background-size 0.2s ease-in-out;
 
-    .ff-container {
-      .ff-canvas,
-      .freezeframe-img {
-        border-radius: unset;
-      }
-    }
-
     .claim-preview__hover-actions-grid {
       position: absolute;
       top: 0;
@@ -548,7 +541,14 @@
 
     flex-shrink: 0;
     margin-right: var(--spacing-s);
-    // box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0) inset;
+
+    .ff-canvas,
+    .freezeframe-img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: unset;
+    }
   }
 
   .media__thumb-placeholder-text {

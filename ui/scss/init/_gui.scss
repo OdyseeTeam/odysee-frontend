@@ -842,7 +842,7 @@ img {
 }
 
 .card--publish-section {
-  background: rgba(var(--color-header-button-base), 0.3);
+  background: rgba(var(--color-header-button-base), 0.6);
   border-radius: var(--border-radius);
 
   .card__main-actions {
@@ -902,13 +902,13 @@ img {
   }
   input,
   select {
-    box-shadow: 0 0 0 2px var(--color-border) inset;
+    //　box-shadow: 0 0 0 2px var(--color-border) inset;
     &:focus-visible {
       box-shadow: 0 0 0 2px var(--color-primary) inset;
     }
   }
   .react-datetime-picker {
-    box-shadow: 0 0 0 2px var(--color-border) inset;
+    // box-shadow: 0 0 0 2px var(--color-border) inset;
     input {
       box-shadow: unset;
     }
@@ -1146,7 +1146,7 @@ img {
   }
 
   .tags__input-wrapper {
-    background: rgba(var(--color-header-button-base), 0.3);
+    background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
   }
@@ -1158,7 +1158,7 @@ img {
   }
 
   .card--livestream {
-    background: rgba(var(--color-header-button-base), 0.3);
+    background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     margin-top: var(--spacing-l);
@@ -1216,7 +1216,7 @@ img {
       border-bottom: 0;
     }
     .card__main-actions {
-      background: rgba(var(--color-header-button-base), 0.3);
+      background: rgba(var(--color-header-button-base), 0.6);
       border-radius: var(--border-radius);
       padding: var(--spacing-s);
       .section__subtitle {
@@ -1230,7 +1230,7 @@ img {
   }
 
   .card--livestream-key {
-    background: rgba(var(--color-header-button-base), 0.3);
+    background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     margin-top: var(--spacing-l);
@@ -1253,12 +1253,12 @@ img {
   }
 
   .card--file {
-    background: rgba(var(--color-header-button-base), 0.3);
+    background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
 
     input {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
+      // box-shadow: 0 0 0 2px var(--color-border) inset;
       &:focus-visible {
         box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
@@ -1314,12 +1314,12 @@ img {
     }
 
     .MuiAutocomplete-root {
-      background: rgba(var(--color-header-button-base), 0.3);
+      background: rgba(var(--color-header-button-base), 0.6);
       padding: var(--spacing-s);
       border: unset !important;
 
       textarea {
-        box-shadow: 0 0 0 2px var(--color-border) inset;
+        // box-shadow: 0 0 0 2px var(--color-border) inset;
         // overflow-y:scroll;
         overflow: auto !important;
         &:focus-visible {
@@ -1336,7 +1336,7 @@ img {
   }
 
   .card--restrictions {
-    background: rgba(var(--color-header-button-base), 0.3);
+    background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
 
@@ -1354,7 +1354,7 @@ img {
       margin-bottom: var(--spacing-m);
       border-radius: var(--border-radius);
       background-color: var(--color-input-bg);
-      box-shadow: 0 0 0 2px var(--color-border) inset;
+      // box-shadow: 0 0 0 2px var(--color-border) inset;
 
       .checkbox {
         @include tier-restriction-checkbox;
@@ -1364,11 +1364,11 @@ img {
   }
 
   .card--thumbnail {
-    background: rgba(var(--color-header-button-base), 0.3);
+    background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     input {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
+      // box-shadow: 0 0 0 2px var(--color-border) inset;
       z-index: unset;
     }
     .button--secondary {
@@ -1397,7 +1397,7 @@ img {
 
   .card--tags {
     input {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
+      // box-shadow: 0 0 0 2px var(--color-border) inset;
     }
 
     .icon__wrapper {
@@ -1431,7 +1431,7 @@ img {
   }
 
   .card--date {
-    background: rgba(var(--color-header-button-base), 0.3);
+    background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
 
@@ -1662,11 +1662,6 @@ img {
     display: flex;
     margin-bottom: var(--spacing-s);
     align-items: center;
-    /*
-    @media (max-width: $breakpoint-small) {
-      margin-top: var(--spacing-xl);
-    }
-    */
 
     svg {
       width: 2rem;
@@ -1678,6 +1673,7 @@ img {
       stroke: var(--color-background);
       overflow: display;
     }
+
     label {
       font-size: var(--font-large);
       font-weight: var(--font-weight-bold);
@@ -2156,7 +2152,7 @@ img {
     }
   }
   .premium-option {
-    background-color: rgba(var(--color-header-button-base), 0.3);
+    background-color: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-m);
     margin-bottom: var(--spacing-m);

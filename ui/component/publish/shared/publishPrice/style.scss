@@ -16,6 +16,9 @@ $INDENT: var(--spacing-xl);
   flex-direction: column;
   padding: var(--spacing-s);
 
+  fieldset-section:first-of-type {
+    padding: 0;
+  }
   .checkbox {
     label {
       font-size: var(--font-body);
