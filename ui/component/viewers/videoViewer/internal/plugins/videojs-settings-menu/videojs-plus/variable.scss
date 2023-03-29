@@ -15,7 +15,11 @@ $control-bar-button-width: $control-bar-height * 0.9;
 
 $smaller-font-size: 0.875em;
 
-$small-dimension: 480px;
+// It doesn't seems like `small-dimension` is fully fleshed out,
+// Just treat everything the same for now, as I think mobile popups need to be
+// implemented as modals anyways ("coming soon").
+// The variable is retained here for future reference and to reduce churn.
+$small-dimension: 1px; // 480px;
 
 @mixin floating-black-transparent-background() {
   box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
