@@ -1321,6 +1321,14 @@ $actions-z-index: 2;
     margin-bottom: var(--spacing-m);
   }
 
+  .claim-list__header {
+    margin-bottom: 0;
+    .claim-list__alt-controls {
+      margin-top: auto;
+      margin-bottom: var(--spacing-m);
+    }
+  }
+
   /*
   .claim-preview__wrapper--channel {
     position: relative;

@@ -285,8 +285,20 @@
 .claim-preview__custom-properties {
   text-align: right;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  padding: var(--spacing-xxxs) var(--spacing-xs);
+  background-color: rgba(var(--color-background-base), 0.6);
+  border-radius: var(--border-radius);
+  height: var(--height-button);
+
+  .help--inline {
+    .button {
+      display: inline-block !important;
+    }
+  }
 }
 
 .claim-preview-metadata-sub-upload {

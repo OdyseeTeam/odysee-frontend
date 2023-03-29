@@ -161,6 +161,13 @@
   .button__content {
     align-items: flex-start;
   }
+
+  .navigation-item {
+    padding: var(--spacing-xxs);
+    .button__content {
+      background-color: var(--color-header-button);
+    }
+  }
 }
 
 .navigation__tertiary {
@@ -179,9 +186,11 @@
     }
 
     &:hover {
-      background-color: var(--color-transparent) !important;
+      // background-color: var(--color-transparent) !important;
+
       color: var(--color-text) !important;
       .button__content {
+        background-color: unset !important;
         .button__label {
           color: var(--color-text);
         }
@@ -398,7 +407,8 @@
 
   li {
     margin-bottom: 0px;
-    padding: 1px var(--spacing-xxs) !important;
+    // padding: 1px var(--spacing-xxs) !important;
+    padding: 0 var(--spacing-xxs) !important;
   }
 
   .navigation-link {
@@ -532,7 +542,7 @@
   .navigation-link {
     &:hover {
       .channel-name {
-        color: var(--color-text);
+        color: var(--color-primary-contrast);
       }
     }
   }

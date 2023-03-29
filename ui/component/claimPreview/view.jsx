@@ -548,18 +548,21 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {channelSubscribers}
 
                 {type !== 'small' && (
-                  <div className="claim-preview__tags">
-                    {/* type && <JoinButton /> */}
-                    {claim && (
-                      <React.Fragment>
-                        {typeof properties === 'function'
-                          ? properties(claim)
-                          : properties !== undefined
-                          ? properties
-                          : !isMobile && <ClaimTags uri={uri} type={type} />}
-                      </React.Fragment>
-                    )}
-                  </div>
+                  <>
+                    <div className="claim-preview__tags">
+                      {/* type && <JoinButton /> */}
+                      {claim && (
+                        <React.Fragment>
+                          {typeof properties === 'function'
+                            ? properties(claim)
+                            : properties !== undefined
+                            ? properties
+                            : !isMobile && <ClaimTags uri={uri} type={type} />}
+                        </React.Fragment>
+                      )}
+                    </div>
+                    {isChannelUri && renderActions && claim && renderActions(claim)}
+                  </>
                 )}
               </div>
 
@@ -570,28 +573,33 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
               )}
             </div>
 
-            {type !== 'small' && (!pending || !type) && isChannelUri && (
-              <div className="claim-preview__actions">
-                <JoinButton />
-                {!pending && (
-                  <>
-                    {renderActions && claim && renderActions(claim)}
-                    {shouldHideActions || renderActions ? null : actions !== undefined ? (
-                      actions
-                    ) : (
-                      <>
-                        {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                          <SubscribeButton
-                            uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                          />
-                        )}
-                        {includeSupportAction && <ClaimSupportButton uri={uri} />}
-                      </>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+            {type !== 'small' &&
+              (!pending || !type) &&
+              isChannelUri &&
+              renderActions &&
+              claim &&
+              !renderActions(claim) && (
+                <div className="claim-preview__actions">
+                  <JoinButton />
+                  {!pending && (
+                    <>
+                      {/* renderActions && claim && renderActions(claim) */}
+                      {shouldHideActions || renderActions ? null : actions !== undefined ? (
+                        actions
+                      ) : (
+                        <>
+                          {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                            <SubscribeButton
+                              uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                            />
+                          )}
+                          {includeSupportAction && <ClaimSupportButton uri={uri} />}
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
           </div>
         </div>
         {inWatchHistory && (

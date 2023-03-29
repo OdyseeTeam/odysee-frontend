@@ -385,10 +385,22 @@
     .claim-preview__tags {
       display: flex;
       width: 100%;
+      min-width: 70px;
       justify-content: end;
+      align-items: end;
       margin-bottom: var(--spacing-xxxs);
+      margin-top: var(--spacing-s);
       .tag {
         display: inline-block !important;
+      }
+
+      @media (max-width: $breakpoint-small) {
+        margin-bottom: 0;
+        font-size: var(--font-xsmall);
+        .icon {
+          width: 10px;
+          height: 10px;
+        }
       }
     }
     .description__wrapper {
@@ -503,12 +515,33 @@
 }
 
 .claim-preview--channel {
+  align-items: flex-start;
+  .channel-thumbnail {
+    width: 3.8rem;
+    height: 3.8rem;
+  }
   .claim-preview__text {
     flex-direction: row;
+    overflow: visible !important;
 
     .claim-preview-metadata {
       flex: 1;
       width: 100%;
+
+      .description__wrapper {
+        margin-left: calc(-3.8rem - var(--spacing-m));
+        width: calc(100% + 3.8rem + var(--spacing-m));
+      }
+
+      .button--alt {
+        background-color: var(--color-background);
+        margin-left: var(--spacing-xxs);
+        margin-bottom: var(--spacing-xxs);
+        margin-top: var(--spacing-xxs);
+        &:hover {
+          background-color: var(--color-primary);
+        }
+      }
     }
 
     .claim-preview__actions {
@@ -686,11 +719,13 @@
   @media (max-width: $breakpoint-small) {
     font-size: 14px;
 
+    /*
     .channel-thumbnail {
       @include handleChannelGif(4rem);
       width: 2rem;
       height: 2rem;
     }
+    */
     .claim-preview-metadata {
       .claim-tile__info {
         .media__subtitle {
