@@ -75,13 +75,13 @@ function ChannelsFollowingPage(props: Props) {
               <>
                 <Button
                   icon={ICONS.SEARCH}
-                  button="secondary"
+                  button="alt"
                   label={__('Discover Channels')}
                   navigate={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
                 />
                 <Button
                   icon={ICONS.SETTINGS}
-                  button="secondary"
+                  button="alt"
                   label={__('Manage')}
                   navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
                 />
