@@ -171,7 +171,7 @@ function PublishPrice(props: Props) {
     return (
       <div
         className={classnames('publish-price__row', {
-          'publish-price__row--indented': true,
+          // 'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1 publish-price__tnc">
@@ -198,7 +198,7 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
-          'publish-price__row--indented': true,
+          // 'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">
@@ -236,7 +236,7 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
-          'publish-price__row--indented': true,
+          // 'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">
@@ -283,7 +283,7 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': restrictedWithoutPrice,
-          'publish-price__row--indented': true,
+          // 'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">

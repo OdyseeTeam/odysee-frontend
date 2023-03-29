@@ -24,6 +24,12 @@ $INDENT: var(--spacing-xl);
       font-size: var(--font-body);
     }
   }
+  .input--currency-select {
+    padding: 0;
+    label {
+      margin-left: 0 !important;
+    }
+  }
 
   svg {
     margin-bottom: 0; // Remove LBC icon offset
@@ -43,9 +49,11 @@ $INDENT: var(--spacing-xl);
   }
 }
 
+/*
 .publish-price__row--indented {
   margin-left: $INDENT;
 }
+*/
 
 .publish-price__grp-1 {
 }

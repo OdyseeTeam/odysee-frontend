@@ -78,12 +78,12 @@
 }
 
 .button--secondary {
-  background-color: var(--color-button-secondary-bg) !important;
+  background-color: var(--color-button-secondary-bg);
   .button__label {
-    color: var(--color-button-secondary-text) !important;
+    color: var(--color-button-secondary-text);
   }
   .icon {
-    stroke: var(--color-button-secondary-text) !important;
+    stroke: var(--color-button-secondary-text);
   }
 
   &:hover {
@@ -1128,7 +1128,7 @@ svg + .button__label {
 }
 
 .button--warning {
-  background-color: rgba(244, 44, 44,.9) !important;
+  background-color: rgba(244, 44, 44, 0.9) !important;
   .button__content {
     .icon {
       stroke: white;
@@ -1137,8 +1137,8 @@ svg + .button__label {
       color: white;
     }
   }
-  &:hover{
-    background-color: rgba(244, 44, 44,1) !important;
+  &:hover {
+    background-color: rgba(244, 44, 44, 1) !important;
     .button__content {
       .icon {
         stroke: white;
@@ -1146,7 +1146,6 @@ svg + .button__label {
       .button__label {
         color: white;
       }
-    } 
+    }
   }
-  
 }

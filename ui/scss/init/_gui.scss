@@ -893,33 +893,11 @@ img {
     }
   }
   .card__main-actions {
-    //padding-top:var(--spacing-s);
     padding-top: 0;
     margin-top: 0;
   }
   .section__actions {
     padding: var(--spacing-s);
-  }
-  input,
-  select {
-    //　box-shadow: 0 0 0 2px var(--color-border) inset;
-    &:focus-visible {
-      box-shadow: 0 0 0 2px var(--color-primary) inset;
-    }
-  }
-  .react-datetime-picker {
-    // box-shadow: 0 0 0 2px var(--color-border) inset;
-    input {
-      box-shadow: unset;
-    }
-    .react-datetime-picker__inputGroup__amPm {
-      margin-top: 4px;
-      height: calc(100% - 8px);
-      box-shadow: unset;
-      &:focus-visible {
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
   }
 
   .form-field__help {
@@ -1023,6 +1001,35 @@ img {
     }
   }
 
+  .card {
+    input,
+    textarea,
+    select,
+    .react-datetime-picker {
+      background-color: var(--color-background);
+    }
+    .checkbox,
+    .radio {
+      label {
+        &:before {
+          border: unset;
+          background-color: var(--color-background);
+        }
+        &:hover {
+          &:before {
+            background-color: rgba(var(--color-background-base), 0.5);
+          }
+        }
+      }
+    }
+    select {
+      &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
+      }
+    }
+  }
+
   .card-stack {
     .section__actions:last-of-type {
       .button--primary {
@@ -1079,7 +1086,7 @@ img {
   }
 
   .card {
-    margin-bottom: var(--spacing-xl) !important;
+    margin-bottom: var(--spacing-xl);
     .card__body {
       padding-top: 0;
     }
@@ -1149,6 +1156,13 @@ img {
     background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
+
+    .tag {
+      background-color: var(--color-background) !important;
+      &:hover {
+        background-color: var(--color-primary) !important;
+      }
+    }
   }
 
   .help {
@@ -1164,17 +1178,23 @@ img {
     margin-top: var(--spacing-l);
     margin-bottom: var(--spacing-m) !important;
 
-    .button-toggle {
-      background-color: var(--color-header-background) !important;
-      border: 2px solid var(--color-border);
-      &:hover:not(.button-toggle--active) {
-        background-color: rgba(var(--color-border-base), 0.1) !important;
-      }
+    .button-toggle,
+    .button--secondary {
+      background-color: var(--color-background);
     }
 
-    .button-toggle--active {
-      background-color: var(--color-border) !important;
-      border: 2px solid transparent;
+    .channel__selector {
+      button {
+        .channel__list-item {
+          background-color: var(--color-background);
+        }
+        &:hover,
+        &[aria-expanded='true'] {
+          .channel__list-item {
+            background-color: var(--color-primary);
+          }
+        }
+      }
     }
 
     .card__main-actions {
@@ -1235,10 +1255,6 @@ img {
     padding: var(--spacing-s);
     margin-top: var(--spacing-l);
     margin-bottom: var(--spacing-xl) !important;
-
-    input {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
 
     .button--primary {
       border: unset;
@@ -1351,9 +1367,9 @@ img {
       padding: var(--spacing-s);
       padding-bottom: 0;
       margin-top: var(--spacing-s);
-      margin-bottom: var(--spacing-m);
+      // margin-bottom: var(--spacing-m);
       border-radius: var(--border-radius);
-      background-color: var(--color-input-bg);
+      background-color: var(--color-background);
       // box-shadow: 0 0 0 2px var(--color-border) inset;
 
       .checkbox {

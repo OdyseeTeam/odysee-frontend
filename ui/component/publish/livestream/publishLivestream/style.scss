@@ -3,10 +3,8 @@
 .uploadPage-wrapper {
   .replay-picker--container {
     border-radius: var(--border-radius);
-    border: 2px solid var(--color-border);
-    background-color: var(--color-input-bg);
+    background-color: var(--color-background);
     overflow: hidden;
-    margin-bottom: var(--spacing-l);
 
     .table__wrapper {
       padding: var(--spacing-xxs);
@@ -14,7 +12,7 @@
     }
 
     .fieldgroup--paginate {
-      background-color: var(--color-border);
+      // background-color: var(--color-border);
       padding: var(--spacing-xxs) !important;
       margin-top: var(--spacing-xxs) !important;
     }
@@ -35,17 +33,13 @@
 
     &:nth-child(n) {
       &.livestream__data-row--selected {
-        background-color: rgba(var(--color-header-button-base), 1);
+        background-color: rgba(var(--color-background-base), 1);
         td {
           border-radius: unset !important;
-          border-top: 2px solid var(--color-border) !important;
-          border-bottom: 2px solid var(--color-border) !important;
           &:first-child {
-            border-left: 2px solid var(--color-border) !important;
             border-radius: var(--border-radius) 0 0 var(--border-radius) !important;
           }
           &:last-child {
-            border-right: 2px solid var(--color-border) !important;
             border-radius: 0 var(--border-radius) var(--border-radius) 0 !important;
           }
         }
@@ -54,18 +48,15 @@
     td {
       background-color: rgba(var(--color-header-button-base), 0.3);
       padding-right: var(--spacing-m);
-      border-top: 2px solid transparent !important;
-      border-bottom: 2px solid transparent !important;
+      border-bottom: unset !important;
 
       &:first-child {
         padding-left: var(--spacing-s);
         padding-right: 0;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
-        border-left: 2px solid transparent !important;
       }
       &:last-child {
         border-radius: 0 var(--border-radius) var(--border-radius) 0;
-        border-right: 2px solid transparent !important;
       }
 
       @media (max-width: $breakpoint-small) {
@@ -81,7 +72,6 @@
         .radio {
           label::before {
             cursor: pointer;
-            background-color: var(--color-input-toggle-bg-hover);
           }
         }
         label {

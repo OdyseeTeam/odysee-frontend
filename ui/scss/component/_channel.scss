@@ -1098,6 +1098,8 @@ $actions-z-index: 2;
 
 .channel__list-item--selected {
   border-radius: var(--border-radius);
+  background-color: var(--color-header-button);
+  color: var(--color-text);
 
   .ff-container {
     position: unset;
