@@ -8,7 +8,7 @@ class SettingMenuItem extends MenuItem {
       player,
       videojs.mergeOptions(
         {
-          selectable: false
+          selectable: false,
         },
         options
       )

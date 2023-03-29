@@ -13,7 +13,7 @@ class SettingOnOffItem extends SettingMenuItem {
         <div>
           <div class="vjs-onoff-button"></div>
         </div>
-      `
+      `,
     });
 
     return el;

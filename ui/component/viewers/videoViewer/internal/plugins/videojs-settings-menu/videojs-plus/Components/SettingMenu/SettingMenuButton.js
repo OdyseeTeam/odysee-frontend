@@ -30,13 +30,13 @@ class SettingMenuButton extends MenuButton {
 
   createMenu() {
     const menu = new SettingMenu(this.player_, {
-      menuButton: this
+      menuButton: this,
     });
     const entries = this.options_.entries || [];
 
-    entries.forEach(componentName => {
+    entries.forEach((componentName) => {
       const component = menu.addChild(componentName, {
-        menu
+        menu,
       });
       menu[componentName] = component;
     });
@@ -84,7 +84,7 @@ class SettingMenuButton extends MenuButton {
 
 SettingMenuButton.prototype.controlText_ = 'Settings';
 SettingMenuButton.prototype.options_ = {
-  entries: ['PlaybackRateSettingItem']
+  entries: ['PlaybackRateSettingItem'],
 };
 
 videojs.registerComponent('SettingMenuButton', SettingMenuButton);

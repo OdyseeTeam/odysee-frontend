@@ -7,12 +7,13 @@ function findChild(parent, name, result) {
     for (let componentId in parent.childIndex_) {
       const component = parent.childIndex_[componentId];
 
+      // eslint-disable-next-line eqeqeq
       if (component && component.name_ == name) {
         result.push({
           parent,
           component,
           index: parent.children_.indexOf(component),
-          [name]: component
+          [name]: component,
         });
       }
 
@@ -23,7 +24,7 @@ function findChild(parent, name, result) {
   return {
     name,
     parent,
-    children
+    children,
   };
 }
 
