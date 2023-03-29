@@ -18746,7 +18746,7 @@ vfile@^2.0.0:
     unist-util-stringify-position "^1.0.0"
     vfile-message "^1.0.0"
 
-video.js@7.21.4, "video.js@^6 || ^7", "video.js@^6 || ^7 || ^8", "video.js@^6.0.1 || ^7", video.js@^7.19.2, "video.js@^7.2.0 || ^6.6.0":
+video.js@7.21.4, video.js@>=5.20.5, "video.js@^6 || ^7", "video.js@^6 || ^7 || ^8", "video.js@^6.0.1 || ^7", video.js@^7.19.2, "video.js@^7.2.0 || ^6.6.0":
   version "7.21.4"
   resolved "https://registry.yarnpkg.com/video.js/-/video.js-7.21.4.tgz#362a2549467434b27507e0420b30eb4758feb128"
   integrity sha512-R5e57M/5uqxQMQpFpybNbd8GtiRwFJPqkHjrhv0QTJ2tqnesbjETbck5kU5dhFr1FevsJRFhjBG4hAnvRGnXbw==
@@ -18780,6 +18780,13 @@ videojs-contrib-quality-levels@^2.0.9:
   dependencies:
     global "^4.3.2"
     video.js "^6 || ^7 || ^8"
+
+videojs-event-tracking@^1.0.1:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/videojs-event-tracking/-/videojs-event-tracking-1.0.3.tgz#b402cbd1b829c0d815196cca66a066e2260521f8"
+  integrity sha512-qiTE4knaC8j8aa/mt3y4jdSXaQ9lH9DS9KKU2o4PBxrCrXXNLcb5IVxUuZCE+wyeDjaSbCIMav+BXKLL8K68vA==
+  dependencies:
+    video.js ">=5.20.5"
 
 videojs-font@3.2.0:
   version "3.2.0"
