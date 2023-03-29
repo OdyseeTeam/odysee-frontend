@@ -1,4 +1,5 @@
 @import '../variable.scss';
+@import '~ui/scss/init/breakpoints';
 
 .vjs-menu .vjs-menu-content {
   padding: 0.3em 0;
@@ -37,6 +38,7 @@
   border-radius: var(--border-radius);
   &.vjs-settings-sub-menu-title {
     border-radius: 0;
+    padding: 0 var(--spacing-xs) var(--spacing-xxs) var(--spacing-xxs);
   }
 
   line-height: 1.35em;
@@ -53,5 +55,12 @@
 
   .vjs-icon-placeholder {
     font-size: 1.5em;
+  }
+
+  &.vjs-settings-sub-menu-option {
+    @media (max-width: $breakpoint-small) {
+      margin: calc(var(--spacing-xxs) / 2) var(--spacing-xxs);
+      padding: calc(var(--spacing-xxs) / 2) var(--spacing-xxs);
+    }
   }
 }

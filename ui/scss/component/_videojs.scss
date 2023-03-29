@@ -200,12 +200,15 @@ $control-bar-popup-font-size: 0.8rem;
   opacity: 1;
 }
 
-.vjs-lock-showing {
-  @media (max-width: $breakpoint-small) {
+.vjs-quality-selector,
+.vjs-chapters-button {
+  .vjs-lock-showing {
     width: 8em !important;
-    .vjs-menu-content {
-      max-height: 176px !important;
-      right: var(--spacing-s);
+    @media (max-width: $breakpoint-small) {
+      .vjs-menu-content {
+        max-height: 176px !important;
+        right: var(--spacing-s);
+      }
     }
   }
 }
