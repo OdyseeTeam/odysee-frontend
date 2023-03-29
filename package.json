@@ -87,7 +87,9 @@
     "terser-webpack-plugin": "^5.3.3",
     "tus-js-client": "^2.3.0",
     "twemoji": "^14.0.2",
-    "videojs-contrib-ads": "^6.9.0"
+    "videojs-contrib-ads": "^6.9.0",
+    "videojs-ima": "^1.11.0",
+    "videojs-ima-player": "^0.5.6"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
