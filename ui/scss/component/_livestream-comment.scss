@@ -104,7 +104,7 @@
   display: unset;
   padding-left: 0;
   border-radius: var(--border-radius);
-  box-shadow: 2px 0px 0px 0px rgba(var(--color-text-base), 0.4) inset;
+  border: 1px solid rgba(var(--color-text-base), 0.4);
 
   + .livestream__comment--hyperchat {
     margin-bottom: var(--spacing-xxs);
@@ -151,7 +151,6 @@
 }
 
 .hyperchat-level1 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 0%) inset;
   background-color: rgba(mix(#de0050, #ffa236, 0%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 0%), transparent);
@@ -159,7 +158,7 @@
 }
 
 .hyperchat-level2 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 25%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 25%);
   background-color: rgba(mix(#de0050, #ffa236, 25%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 25%), transparent);
@@ -167,7 +166,7 @@
 }
 
 .hyperchat-level3 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 50%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 50%);
   background-color: rgba(mix(#de0050, #ffa236, 50%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 50%), transparent);
@@ -175,7 +174,7 @@
 }
 
 .hyperchat-level4 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 75%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 75%);
   background-color: rgba(mix(#de0050, #ffa236, 75%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 75%), transparent);
@@ -183,7 +182,7 @@
 }
 
 .hyperchat-level5 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 100%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 100%);
   background-color: rgba(mix(#de0050, #ffa236, 100%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 100%), transparent);
@@ -247,7 +246,6 @@
   width: 90%;
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
   padding: 2px;
-  margin-left: 2px;
   border-radius: var(--border-radius) 0 0 0;
   display: flex;
 

@@ -27,95 +27,6 @@
     overflow: hidden;
     background-size: 100%;
     transition: background-size 0.2s ease-in-out;
-
-    .claim-preview__hover-actions-grid {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      display: grid;
-      justify-items: end;
-      justify-content: space-between;
-      opacity: 1;
-
-      .claim-preview__hover-actions {
-        position: relative;
-        float: right;
-        margin: 0px var(--spacing-xxs);
-        margin-bottom: var(--spacing-xxs);
-        top: var(--spacing-xxs);
-
-        &.second-item {
-          grid-column: 2;
-          grid-row: 1;
-        }
-
-        &.third-item {
-          grid-column: 2;
-          grid-row: 2;
-        }
-
-        .button--file-action,
-        .download-text {
-          display: block;
-          margin: 0 0;
-          padding: var(--spacing-xxs) var(--spacing-xxs);
-          height: unset;
-
-          .button__label {
-            color: #f3f4f6;
-            font-size: var(--font-small);
-            display: none;
-          }
-
-          &:hover {
-            .button__label {
-              display: inline;
-            }
-          }
-        }
-
-        .button--file-action {
-          width: auto;
-          max-width: 25.59px;
-          transition: max-width 0.2s;
-          padding: 0.3rem !important;
-          margin-right: 0;
-          background-color: var(--color-black);
-
-          .button__content {
-            flex-direction: row-reverse;
-          }
-          .button__label {
-            font-size: var(--font-xsmall);
-            color: var(--color-white);
-            display: none;
-            margin-top: -1px;
-            padding-top: 0px;
-            margin-bottom: -4px;
-            margin-left: 4px;
-            margin-right: var(--spacing-xxs);
-            text-overflow: ellipsis;
-          }
-          &:hover {
-            width: auto;
-            min-width: 25.59px;
-            max-width: 140px;
-            .icon {
-              stroke: white;
-            }
-          }
-        }
-
-        @media (pointer: fine) {
-          display: none;
-        }
-
-        @media (pointer: none), (pointer: coarse) {
-          display: none !important;
-        }
-      }
-    }
   }
 
   .claim-preview__title {
@@ -134,14 +45,12 @@
     .media__thumb {
       background-size: 108%;
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-      .claim-preview__hover-actions-grid {
-        .claim-preview__hover-actions {
-          display: block;
-        }
-      }
     }
     .claim-preview__title {
       color: var(--color-primary);
+    }
+    .claim-preview__hover-actions {
+      display: block;
     }
   }
 
@@ -662,6 +571,7 @@
 
     flex-shrink: 0;
     margin-right: var(--spacing-s);
+    background-color: var(--color-placeholder-background);
 
     .ff-canvas,
     .freezeframe-img {
@@ -733,6 +643,96 @@
           width: calc(100% - 2.1rem);
         }
       }
+    }
+  }
+}
+
+.claim-preview__hover-actions-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  justify-items: end;
+  justify-content: space-between;
+  opacity: 1;
+
+  .claim-preview__hover-actions {
+    position: relative;
+    display: block;
+    float: right;
+    margin: 0px var(--spacing-xxs);
+    margin-bottom: var(--spacing-xxs);
+    top: var(--spacing-xxs);
+
+    &.second-item {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    &.third-item {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .button--file-action,
+    .download-text {
+      display: block;
+      margin: 0 0;
+      padding: var(--spacing-xxs) var(--spacing-xxs);
+      height: unset;
+
+      .button__label {
+        color: #f3f4f6;
+        font-size: var(--font-small);
+        display: none;
+      }
+
+      &:hover {
+        .button__label {
+          display: inline;
+        }
+      }
+    }
+
+    .button--file-action {
+      width: auto;
+      max-width: 25.59px;
+      transition: max-width 0.2s;
+      padding: 0.3rem !important;
+      margin-right: 0;
+      background-color: var(--color-black);
+
+      .button__content {
+        flex-direction: row-reverse;
+      }
+      .button__label {
+        font-size: var(--font-xsmall);
+        color: var(--color-white);
+        display: none;
+        margin-top: -1px;
+        padding-top: 0px;
+        margin-bottom: -4px;
+        margin-left: 4px;
+        margin-right: var(--spacing-xxs);
+        text-overflow: ellipsis;
+      }
+      &:hover {
+        width: auto;
+        min-width: 25.59px;
+        max-width: 140px;
+        .icon {
+          stroke: white;
+        }
+      }
+    }
+
+    @media (pointer: fine) {
+      display: none;
+    }
+
+    @media (pointer: none), (pointer: coarse) {
+      display: none !important;
     }
   }
 }

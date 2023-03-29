@@ -112,6 +112,7 @@ export default function ChatLayout(props: Props) {
   const [chatElement, setChatElement] = React.useState();
   const [textInjection, setTextInjection] = React.useState('');
   const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
+  const [selectedHyperchat, setSelectedHyperchat] = React.useState(null);
   const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
 
   let superChatsByChronologicalOrder = [];
@@ -349,6 +350,12 @@ export default function ChatLayout(props: Props) {
     setTextInjection(authorTitle);
   }
 
+  function handleHyperchatClick(hyperchat: Comment) {
+    console.log('selectHyperchat: ', hyperchat);
+    setSelectedHyperchat(hyperchat);
+    // selectHyperchat(hyperchat);
+  }
+
   return (
     <div className={classnames('chat__wrapper', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (
@@ -408,10 +415,13 @@ export default function ChatLayout(props: Props) {
               hyperchatsHidden={hyperchatsHidden || hideHyperchats}
               isMobile={isMobile}
               noHyperchats={false}
+              handleHyperchatClick={handleHyperchatClick}
+              selectedHyperchat={selectedHyperchat}
             />
           )}
 
           {pinnedComment &&
+            !selectedHyperchat &&
             viewMode === VIEW_MODES.CHAT &&
             (isMobile ? (
               <Slide direction="left" in={showPinned} mountOnEnter unmountOnExit>
@@ -430,7 +440,6 @@ export default function ChatLayout(props: Props) {
               showPinned && (
                 <div className="livestream-pinned__wrapper">
                   <ChatComment comment={pinnedComment} key={pinnedComment.comment_id} uri={uri} />
-
                   <Button
                     title={__('Dismiss pinned comment')}
                     button="inverse"
@@ -442,6 +451,37 @@ export default function ChatLayout(props: Props) {
               )
             ))}
         </div>
+
+        {/* Hyperchat hover */}
+        {selectedHyperchat &&
+          viewMode === VIEW_MODES.CHAT &&
+          (isMobile ? (
+            <Slide direction="left" in={showPinned} mountOnEnter unmountOnExit>
+              <div className="livestream-pinned__wrapper--mobile">
+                <ChatComment
+                  comment={selectedHyperchat}
+                  key={selectedHyperchat.comment_id}
+                  uri={uri}
+                  handleDismissPin={() => setShowPinned(false)}
+                  isMobile
+                  setResolvingSuperChats={setResolvingSuperChats}
+                />
+              </div>
+            </Slide>
+          ) : (
+            showPinned && (
+              <div className="livestream-pinned__wrapper">
+                <ChatComment comment={selectedHyperchat} key={selectedHyperchat.comment_id} uri={uri} />
+                <Button
+                  title={__('Dismiss Hyperchat')}
+                  button="inverse"
+                  className="close-button"
+                  onClick={() => setSelectedHyperchat(null)}
+                  icon={ICONS.REMOVE}
+                />
+              </div>
+            )
+          ))}
 
         <ChatComments
           uri={uri}

@@ -9,20 +9,28 @@ import classnames from 'classnames';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
-import Tooltip from 'component/common/tooltip';
-// import UriIndicator from 'component/uriIndicator';
 import Slide from '@mui/material/Slide';
 import { Lbryio } from 'lbryinc';
 
 type Props = {
   superChats: Array<Comment>,
   hyperchatsHidden?: boolean,
+  selectedHyperchat: ?Comment,
+  channelTitle?: string,
   isMobile?: boolean,
   toggleHyperChat: () => void,
+  handleHyperchatClick: (comment: any) => void,
 };
 
 export default function LivestreamHyperchats(props: Props) {
-  const { superChats: hyperChatsByAmount, hyperchatsHidden, isMobile, toggleHyperChat } = props;
+  const {
+    superChats: hyperChatsByAmount,
+    hyperchatsHidden,
+    isMobile,
+    toggleHyperChat,
+    handleHyperchatClick,
+    selectedHyperchat,
+  } = props;
 
   const superChatTopTen = React.useMemo(() => {
     return hyperChatsByAmount ? hyperChatsByAmount.slice(0, 10) : hyperChatsByAmount;
@@ -37,41 +45,6 @@ export default function LivestreamHyperchats(props: Props) {
 
   const showMore = superChatTopTen && hyperChatsByAmount && superChatTopTen.length < hyperChatsByAmount.length;
   const elRef: ElementRef<any> = React.useRef();
-  // const [showTooltip, setShowTooltip] = React.useState(true);
-
-  /*
-  React.useEffect(() => {
-    const el = elRef.current;
-    if (el) {
-      const onWheel = (e) => {
-        if (
-          !showTooltip ||
-          e.deltaY === 0 ||
-          (el.scrollLeft === 0 && e.deltaY < 0) ||
-          el.scrollLeft === el.scrollWidth
-        ) {
-          return;
-        }
-
-        if (showTooltip) {
-          setShowTooltip(false);
-          e.preventDefault();
-          let scrollSpace =
-            el.scrollLeft + e.deltaY * 2.5 < el.scrollWidth ? el.scrollLeft + e.deltaY * 2.5 : el.scrollWidth;
-          el.scrollTo({
-            left: scrollSpace,
-            behavior: 'smooth',
-          });
-          setTimeout(() => {
-            setShowTooltip(true);
-          }, 1000);
-        }
-      };
-      el.addEventListener('wheel', onWheel);
-      return () => el.removeEventListener('wheel', onWheel);
-    }
-  }, []);
-  */
 
   return !superChatTopTen ? null : (
     <Slider isMobile={isMobile} hyperchatsHidden={hyperchatsHidden}>
@@ -89,43 +62,44 @@ export default function LivestreamHyperchats(props: Props) {
             const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * 10 * exchangeRate;
 
             return (
-              <Tooltip disabled title={isSticker ? stickerImg : comment} key={comment_id}>
+              <div
+                key={comment_id}
+                className={classnames('livestream-hyperchat', {
+                  'livestream-hyperchat--mobile': isMobile,
+                  'hyperchat-preview-level1': basedAmount >= 5,
+                  'hyperchat-preview-level2': basedAmount >= 10,
+                  'hyperchat-preview-level3': basedAmount >= 50,
+                  'hyperchat-preview-level4': basedAmount >= 100,
+                  'hyperchat-preview-level5': basedAmount >= 500,
+                  active: selectedHyperchat && selectedHyperchat.comment_id === comment_id,
+                })}
+                onClick={() => handleHyperchatClick(hyperChat)}
+              >
+                <ChannelThumbnail uri={channel_url} xxsmall showMemberBadge />
+
                 <div
-                  className={classnames('livestream-hyperchat', {
-                    'livestream-hyperchat--mobile': isMobile,
-                    'hyperchat-preview-level1': basedAmount >= 5,
-                    'hyperchat-preview-level2': basedAmount >= 10,
-                    'hyperchat-preview-level3': basedAmount >= 50,
-                    'hyperchat-preview-level4': basedAmount >= 100,
-                    'hyperchat-preview-level5': basedAmount >= 500,
+                  className={classnames('livestreamHyperchat__info', {
+                    'livestreamHyperchat__info--sticker': isSticker,
+                    'livestreamHyperchat__info--notSticker': stickerSuperChats && !isSticker,
                   })}
                 >
-                  <ChannelThumbnail uri={channel_url} xxsmall showMemberBadge />
+                  <div className="livestreamHyperchat__info--user">
+                    {/*
+                    <UriIndicator uri={channel_url} link showAtSign />
+                    */}
 
-                  <div
-                    className={classnames('livestreamHyperchat__info', {
-                      'livestreamHyperchat__info--sticker': isSticker,
-                      'livestreamHyperchat__info--notSticker': stickerSuperChats && !isSticker,
-                    })}
-                  >
-                    <div className="livestreamHyperchat__info--user">
-                      {/*
-                      <UriIndicator uri={channel_url} link showAtSign />
-                      */}
-
-                      <CreditAmount
-                        hideTitle
-                        size={10}
-                        className="livestreamHyperchat__amount--large"
-                        amount={support_amount}
-                        isFiat={is_fiat}
-                      />
-                    </div>
-
-                    {isSticker && <div className="livestreamHyperchat__info--image">{stickerImg}</div>}
+                    <CreditAmount
+                      hideTitle
+                      size={10}
+                      className="livestreamHyperchat__amount--large"
+                      amount={support_amount}
+                      isFiat={is_fiat}
+                    />
                   </div>
+
+                  {isSticker && <div className="livestreamHyperchat__info--image">{stickerImg}</div>}
                 </div>
-              </Tooltip>
+              </div>
             );
           })}
 
