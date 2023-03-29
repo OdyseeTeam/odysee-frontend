@@ -15912,7 +15912,7 @@ replace-ext@^1.0.0:
   resolved "https://registry.yarnpkg.com/replace-ext/-/replace-ext-1.0.1.tgz#2d6d996d04a15855d967443631dd5f77825b016a"
   integrity sha512-yD5BHCe7quCgBph4rMQ+0KkIRKwWCrHDOX1p1Gp6HwjPM5kVoCdKGNhN7ydqqsX6lJEnQDKZ/tFMiEdQ1dvPEw==
 
-request@^2.79.0:
+request@^2.79.0, request@^2.88.2:
   version "2.88.2"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.2.tgz#d73c918731cb5a87da047e207234146f664d12b3"
   integrity sha512-MsvtOrfG9ZcrOwAW+Qi+F6HbD0CWXEh9ou77uOb7FM2WPhwT7smM833PzanhJLsgXjN89Ir6V2PczXNnMpwKhw==
@@ -18746,7 +18746,7 @@ vfile@^2.0.0:
     unist-util-stringify-position "^1.0.0"
     vfile-message "^1.0.0"
 
-"video.js@^6 || ^7", "video.js@^6.0.1 || ^7", video.js@^7.19.2:
+"video.js@^6 || ^7", "video.js@^6.0.1 || ^7", video.js@^7.19.2, "video.js@^7.2.0 || ^6.6.0":
   version "7.21.4"
   resolved "https://registry.yarnpkg.com/video.js/-/video.js-7.21.4.tgz#362a2549467434b27507e0420b30eb4758feb128"
   integrity sha512-R5e57M/5uqxQMQpFpybNbd8GtiRwFJPqkHjrhv0QTJ2tqnesbjETbck5kU5dhFr1FevsJRFhjBG4hAnvRGnXbw==
@@ -18805,6 +18805,14 @@ videojs-logo@^2.1.4:
   dependencies:
     global "^4.4.0"
     video.js "^6 || ^7"
+
+"videojs-vtt-thumbnails@https://github.com/OdyseeTeam/videojs-vtt-thumbnails":
+  version "0.0.13"
+  resolved "https://github.com/OdyseeTeam/videojs-vtt-thumbnails#1986957f79abe0d8c963d047d1bdf780f6d7c5c1"
+  dependencies:
+    global "^4.4.0"
+    request "^2.88.2"
+    video.js "^7.2.0 || ^6.6.0"
 
 videojs-vtt.js@^0.15.4:
   version "0.15.4"
