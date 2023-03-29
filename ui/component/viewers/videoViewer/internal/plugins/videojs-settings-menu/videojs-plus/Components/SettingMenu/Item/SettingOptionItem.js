@@ -12,7 +12,7 @@ function parseEntries(entries, selectedIndex) {
     if (data !== null && typeof data !== 'object') {
       data = {
         value: data,
-        label: data
+        label: data,
       };
     }
 
@@ -25,13 +25,13 @@ function parseEntries(entries, selectedIndex) {
     return {
       ...data,
       index,
-      default: isDefault
+      default: isDefault,
     };
   });
 
   return {
     entries,
-    selected: entries[selectedIndex || 0]
+    selected: entries[selectedIndex || 0],
   };
 }
 
@@ -54,11 +54,11 @@ class SettingOptionItem extends SettingMenuItem {
         <div class="vjs-icon-placeholder ${icon || ''}"></div>
         <div class="vjs-setting-menu-label">${this.localize(label)}</div>
         <div class="vjs-spacer"></div>
-      `
+      `,
     });
 
     this.selectedValueEl = videojs.dom.createEl('div', {
-      className: 'vjs-setting-menu-value'
+      className: 'vjs-setting-menu-value',
     });
 
     el.appendChild(this.selectedValueEl);
@@ -71,13 +71,12 @@ class SettingOptionItem extends SettingMenuItem {
 
     this.updateSelectedValue();
 
-    const SubOptionItem =
-      videojs.getComponent(`${this.name_}Child`) || SettingSubOptionItem;
+    const SubOptionItem = videojs.getComponent(`${this.name_}Child`) || SettingSubOptionItem;
 
     this.subMenuItems = [
       new SettingSubOptionTitle(this.player_, {
         label: this.options_.label,
-        menu: this.menu
+        menu: this.menu,
       }),
       ...this.entries.map(({ label, value }, index) => {
         return new SubOptionItem(this.player_, {
@@ -85,9 +84,9 @@ class SettingOptionItem extends SettingMenuItem {
           label,
           value,
           parent: this,
-          menu: this.menu
+          menu: this.menu,
         });
-      })
+      }),
     ];
   }
 
@@ -101,7 +100,7 @@ class SettingOptionItem extends SettingMenuItem {
   }
 
   update() {
-    this.subMenuItems.forEach(item => {
+    this.subMenuItems.forEach((item) => {
       item.update && item.update();
     });
   }
