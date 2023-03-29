@@ -971,10 +971,10 @@ img {
     width: 80% !important;
   }
   @media (min-width: $breakpoint-medium) {
-    width: 70% !important;
+    // width: 70% !important;
   }
   @media (min-width: $breakpoint-large) {
-    width: 60% !important;
+    // width: 60% !important;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -1028,6 +1028,11 @@ img {
         color: var(--color-primary-contrast);
       }
     }
+    @media (max-width: $breakpoint-small) {
+      textarea {
+        background-color: unset;
+      }
+    }
   }
 
   .card-stack {
@@ -1041,24 +1046,24 @@ img {
 
   .page__title {
     display: flex;
-    margin-bottom: var(--spacing-l);
+    flex-flow: row;
+    margin-top: var(--spacing-m);
+    margin-bottom: var(--spacing-m);
 
     svg {
-      width: 3rem;
-      height: 3rem;
-      background-color: var(--color-header-background);
+      width: 2rem;
+      height: 2rem;
+      background-color: var(--color-text);
       border-radius: 50%;
-      padding: var(--spacing-s);
-      // margin-bottom:calc(var(--spacing-s) * -1);
+      padding: 4px;
+      stroke: var(--color-background);
+      margin-top: -2px;
+      margin-right: var(--spacing-m);
     }
     label {
       font-size: var(--font-large);
       font-weight: var(--font-weight-bold);
-      padding-left: 10px;
-      // width:auto;
-      margin-top: var(--spacing-s);
       flex: 1;
-      border-bottom: 1px solid var(--color-header-background);
     }
 
     button {
@@ -1081,6 +1086,7 @@ img {
         padding-left: 0;
         padding-right: 0;
         margin: 0;
+        stroke: white;
       }
     }
   }
@@ -1148,7 +1154,7 @@ img {
   .form-field__prefix {
     box-shadow: unset !important;
     border-width: 2px 2px 2px 0 !important;
-    border-color: var(--color-border) !important;
+    // border-color: var(--color-border) !important;
     background-color: var(--color-border) !important;
   }
 
@@ -1335,8 +1341,6 @@ img {
       border: unset !important;
 
       textarea {
-        // box-shadow: 0 0 0 2px var(--color-border) inset;
-        // overflow-y:scroll;
         overflow: auto !important;
         &:focus-visible {
           box-shadow: 0 0 0 2px var(--color-primary) inset;
@@ -1367,10 +1371,8 @@ img {
       padding: var(--spacing-s);
       padding-bottom: 0;
       margin-top: var(--spacing-s);
-      // margin-bottom: var(--spacing-m);
       border-radius: var(--border-radius);
       background-color: var(--color-background);
-      // box-shadow: 0 0 0 2px var(--color-border) inset;
 
       .checkbox {
         @include tier-restriction-checkbox;
@@ -1384,7 +1386,6 @@ img {
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
     input {
-      // box-shadow: 0 0 0 2px var(--color-border) inset;
       z-index: unset;
     }
     .button--secondary {
@@ -1412,10 +1413,6 @@ img {
   }
 
   .card--tags {
-    input {
-      // box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
-
     .icon__wrapper {
       margin-right: var(--spacing-s) !important;
     }
@@ -1474,7 +1471,7 @@ img {
   .EasyMDEContainer {
     .editor-toolbar,
     .CodeMirror-wrap {
-      border-width: 2px !important;
+      border-width: 0 !important;
     }
 
     .editor-statusbar {
@@ -1517,7 +1514,6 @@ img {
 
 [data-reach-menu-popover] {
   @media (max-width: $breakpoint-small) {
-    // width: calc(100% - var(--spacing-xs) * 2);
     max-width: calc(100% - var(--spacing-xs) * 2);
   }
 }
@@ -1584,11 +1580,6 @@ img {
           }
         }
       }
-      /*
-      .claim-preview__text {
-        overflow: visible;
-      }
-      */
     }
   }
 
@@ -1620,29 +1611,7 @@ img {
     .membership-button-wrapper {
       margin-top: var(--spacing-xxxs);
     }
-    /*
-    .claim-preview__primary-actions {
-      .button--alt {
-        color: var(--color-text);
-        background-color: var(--color-header-button);
-      }
-      .button-group {
-        .button--alt {
-          color: var(--color-primary-contrast);
-          background-color: var(--color-primary);
-          .icon {
-            stroke: var(--color-primary-contrast);
-          }
-        }
-      }
-    }
-    */
     .claim-preview__actions {
-      /*
-      .claim-preview__primary-actions {
-        margin-top: var(--spacing-xxxs);
-      }
-      */
       @media (max-width: $breakpoint-small) {
         margin-top: var(--spacing-xxxs) !important;
         /*

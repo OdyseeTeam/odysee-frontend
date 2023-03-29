@@ -250,7 +250,7 @@
 
 .card-stack {
   .card:not(:last-of-type) {
-    margin-bottom: var(--spacing-xxl);
+    margin-bottom: var(--spacing-l);
 
     @media (max-width: $breakpoint-small) {
       margin-bottom: var(--spacing-l);

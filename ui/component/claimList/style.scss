@@ -55,8 +55,8 @@
 .claim-list__header-label {
   display: flex;
   flex-flow: row;
-  position: absolute;
-  transform: translateY(-130%);
+  // position: absolute;
+  // transform: translateY(-130%);
   font-size: var(--font-body);
   font-weight: var(--font-weight-bold);
   margin-top: var(--spacing-m);
@@ -82,7 +82,7 @@
   }
 
   label {
-    font-weight: 300;
+    font-weight: var(--font-bold);
     font-size: var(--font-large);
   }
 
