@@ -18798,6 +18798,14 @@ videojs-ima@^1.11.0:
     lodash.template ">=4.5.0"
     videojs-contrib-ads "^6.6.5"
 
+videojs-logo@^2.1.4:
+  version "2.1.6"
+  resolved "https://registry.yarnpkg.com/videojs-logo/-/videojs-logo-2.1.6.tgz#e929354a98959d667bddf790e0daf6d9d81e5d8b"
+  integrity sha512-WoRmidtBsZHCX0CBDVaVOVGmb6mP8sgXBOirAE9Q3JDckv2U0Ze/0SbxDIAm0jEFxCP3nptF4P1+Y0UA7NiO+g==
+  dependencies:
+    global "^4.4.0"
+    video.js "^6 || ^7"
+
 videojs-vtt.js@^0.15.4:
   version "0.15.4"
   resolved "https://registry.yarnpkg.com/videojs-vtt.js/-/videojs-vtt.js-0.15.4.tgz#5dc5aabcd82ba40c5595469bd855ea8230ca152c"
