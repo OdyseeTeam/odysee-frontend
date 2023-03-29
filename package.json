@@ -86,12 +86,7 @@
     "tempy": "^0.6.0",
     "terser-webpack-plugin": "^5.3.3",
     "tus-js-client": "^2.3.0",
-    "twemoji": "^14.0.2",
-    "videojs-contrib-ads": "^6.9.0",
-    "videojs-ima": "^1.11.0",
-    "videojs-ima-player": "^0.5.6",
-    "videojs-logo": "^2.1.4",
-    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails"
+    "twemoji": "^14.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -240,8 +235,6 @@
     "uuid": "^8.3.2",
     "vast-client": "^3.1.1",
     "video.js": "^7.19.2",
-    "videojs-contrib-quality-levels": "^2.0.9",
-    "videojs-event-tracking": "^1.0.1",
     "villain-react": "^1.0.9",
     "wavesurfer.js": "^2.2.1",
     "webpack": "^5.76.0",
