@@ -240,6 +240,7 @@
     "uuid": "^8.3.2",
     "vast-client": "^3.1.1",
     "video.js": "^7.19.2",
+    "videojs-contrib-quality-levels": "^2.0.9",
     "villain-react": "^1.0.9",
     "wavesurfer.js": "^2.2.1",
     "webpack": "^5.76.0",
