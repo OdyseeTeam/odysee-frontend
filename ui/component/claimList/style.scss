@@ -289,14 +289,6 @@
   justify-content: flex-end;
 }
 
-/*
-.claim-preview-metadata {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-*/
-
 .claim-preview-metadata-sub-upload {
   position: relative;
   //margin-left: 4px;
@@ -699,25 +691,6 @@ $claim-preview-progress-bar-height: 5px;
   overflow: hidden;
 }
 
-// show duration and watch later button when hovered
-/*
-.claim-preview--tile {
-  &:hover {
-    .claim-preview__hover-actions {
-      display: block;
-    }
-    .claim-preview__file-property-overlay {
-      opacity: 1;
-    }
-    .button--file-action {
-      .icon {
-        stroke: #f3f4f6;
-      }
-    }
-  }
-}
-*/
-
 .claim-preview--tile {
   .claim-preview__repost-author {
     width: 120px;
@@ -787,81 +760,6 @@ $claim-preview-progress-bar-height: 5px;
   padding-left: var(--spacing-xs);
 }
 
-// div that displays watch later button
-.claim-preview__hover-actions {
-  // if the user is using a mouse
-  @media (pointer: fine) {
-    display: none;
-  }
-
-  // if the user doesn't have a pointer (mouse etc) hide watch later button
-  @media (pointer: none), (pointer: coarse) {
-    display: none !important;
-  }
-
-  position: relative;
-  float: right;
-  top: var(--spacing-xxs);
-  margin-right: var(--spacing-xxs);
-
-  & > * {
-    color: var(--color-text);
-    background-color: var(--color-black);
-    padding: var(--spacing-xxs);
-    margin-right: 0;
-    &:hover {
-      background-color: var(--color-black);
-    }
-  }
-
-  .button--file-action,
-  .download-text {
-    display: block;
-    margin: 0 0;
-    padding: var(--spacing-xxs) var(--spacing-xxs);
-    height: unset;
-
-    // label (with 'Add' text) hidden by default
-    .button__label {
-      color: #f3f4f6;
-      font-size: var(--font-small);
-      display: none;
-    }
-
-    // show the additional watch later text (Add) when hovered
-    &:hover {
-      .button__label {
-        display: inline;
-      }
-    }
-  }
-
-  .button--file-action {
-    width: auto;
-    max-width: 25.59px;
-    transition: max-width 0.2s;
-    padding: 0.3rem !important;
-
-    .button__content {
-      flex-direction: row-reverse;
-    }
-    .button__label {
-      margin-top: -1px;
-      padding-top: 0px;
-      margin-bottom: -4px;
-      margin-left: 4px;
-      margin-right: var(--spacing-xxs);
-      text-overflow: ellipsis;
-    }
-
-    &:hover {
-      width: auto;
-      min-width: 25.59px;
-      max-width: 140px;
-    }
-  }
-}
-
 .claim-preview__active {
   background-color: rgba(var(--color-primary-dynamic), 0.1) !important;
   .media__thumb {
@@ -897,7 +795,6 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview__live {
-  // margin-bottom: 0 !important;
   .claim-preview__file-property-overlay {
     opacity: 0.9; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);
@@ -950,12 +847,6 @@ $claim-preview-progress-bar-height: 5px;
       stroke: var(--color-primary);
     }
   }
-
-  /*
-  .claim__menu-button {
-    right: -8px;
-  }
-  */
 }
 
 @media (min-width: $breakpoint-small) {
