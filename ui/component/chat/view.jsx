@@ -452,7 +452,7 @@ export default function ChatLayout(props: Props) {
             ))}
         </div>
 
-        {/* Hyperchat hover */}
+        {/* Hyperchat */}
         {selectedHyperchat &&
           viewMode === VIEW_MODES.CHAT &&
           (isMobile ? (
@@ -462,9 +462,16 @@ export default function ChatLayout(props: Props) {
                   comment={selectedHyperchat}
                   key={selectedHyperchat.comment_id}
                   uri={uri}
-                  handleDismissPin={() => setShowPinned(false)}
+                  handleDismissPin={() => setSelectedHyperchat(null)}
                   isMobile
                   setResolvingSuperChats={setResolvingSuperChats}
+                />
+                <Button
+                  title={__('Dismiss pinned comment')}
+                  button="inverse"
+                  className="close-button"
+                  onClick={() => setSelectedHyperchat(null)}
+                  icon={ICONS.REMOVE}
                 />
               </div>
             </Slide>

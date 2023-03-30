@@ -30,7 +30,7 @@ type Props = {
 export default function SwipeableDrawer(props: Props) {
   const { title, hasSubtitle, children, type, startOpen, open, actions, doToggleAppDrawer } = props;
 
-  const pullerHeight = type === DRAWERS.PLAYLIST ? 110 : 42;
+  const pullerHeight = type === DRAWERS.PLAYLIST ? 120 : 62;
 
   const drawerRoot = React.useRef();
   const backdropRef = React.useRef();

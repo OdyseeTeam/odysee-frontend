@@ -19,6 +19,7 @@ import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
+import './style.scss';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
@@ -111,25 +112,25 @@ export default function LivestreamLayout(props: Props) {
                   // startOpen
                   type={DRAWERS.CHAT}
                   title={
-                    <ChatModeSelector
-                      superChats={superChats}
-                      chatViewMode={chatViewMode}
-                      setChatViewMode={(mode) => setChatViewMode(mode)}
-                      activeViewers={activeViewers}
-                    />
+                    <div className="chat-card--drawer-header">
+                      <ChatModeSelector
+                        superChats={superChats}
+                        chatViewMode={chatViewMode}
+                        setChatViewMode={(mode) => setChatViewMode(mode)}
+                        activeViewers={activeViewers}
+                      />
+                      <LivestreamMenu
+                        uri={uri}
+                        noHyperchats={!superChats || superChats.length === 0}
+                        hyperchatsHidden={hyperchatsHidden}
+                        toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
+                        toggleIsCompact={() => setIsCompact(!isCompact)}
+                        isCompact={isCompact}
+                        isMobile
+                      />
+                    </div>
                   }
                   hasSubtitle={activeViewers}
-                  actions={
-                    <LivestreamMenu
-                      uri={uri}
-                      noHyperchats={!superChats || superChats.length === 0}
-                      hyperchatsHidden={hyperchatsHidden}
-                      toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
-                      toggleIsCompact={() => setIsCompact(!isCompact)}
-                      isCompact={isCompact}
-                      isMobile
-                    />
-                  }
                 >
                   <ChatLayout
                     uri={uri}

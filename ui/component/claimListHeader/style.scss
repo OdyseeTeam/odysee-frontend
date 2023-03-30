@@ -38,6 +38,14 @@ $OPTIONS_MIN_WIDTH: 250px;
     }
   }
 
+  .claim-search__menu-group {
+    @media (max-width: $breakpoint-small) {
+      &.stretch {
+        width: 100%;
+      }
+    }
+  }
+
   /*
   .claim-search__top {
     @media (max-width: $breakpoint-medium) {

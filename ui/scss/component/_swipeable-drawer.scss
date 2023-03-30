@@ -9,8 +9,8 @@
   border-top: 1px solid var(--color-border);
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
-  top: -120px !important;
-  height: 120px !important;
+  top: -120px;
+  height: 120px;
 
   .button--close {
     top: 2px !important;
@@ -43,9 +43,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  // padding: var(--spacing-s) var(--spacing-xxs);
-  // padding-bottom: var(--spacing-xxxs);
-  //padding-top:var(--spacing-xxxs);
   font-size: var(--font-small);
 }
 
@@ -95,7 +92,8 @@
   border-radius: 0 !important;
   &.button--primary {
     padding-left: var(--spacing-xxs);
-    background-color: var(--color-background) !important;
+    background-color: var(--color-header-button) !important;
+    border-radius: var(--border-radius) !important;
     .button__content {
       .icon {
         stroke: var(--color-text);

@@ -1,0 +1,11 @@
+.chat-card--drawer-header {
+  display: flex;
+  flex-direction: row;
+  padding-top: var(--spacing-m);
+  width: 100%;
+  margin: var(--spacing-xs);
+
+  button:last-of-type {
+    margin-left: auto;
+  }
+}

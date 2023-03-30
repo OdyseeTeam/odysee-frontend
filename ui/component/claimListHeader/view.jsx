@@ -297,7 +297,7 @@ function ClaimListHeader(props: Props) {
                 </>
               )}
             </div>
-            <div className="claim-search__menu-group">
+            <div className="claim-search__menu-group stretch">
               {!hideAdvancedFilter && (
                 <Button
                   button="alt"

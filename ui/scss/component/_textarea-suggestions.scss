@@ -56,7 +56,7 @@
   .MuiPaper-root {
     .form-field__two-column,
     .MuiOutlinedInput-root {
-      padding: 0px var(--spacing-xxs) 0px 0px !important;
+      // padding: 0px var(--spacing-xxs) 0px 0px !important;
     }
   }
 }
@@ -96,7 +96,10 @@
   @media (max-width: $breakpoint-small) {
     flex-wrap: nowrap !important;
     color: var(--color-text) !important;
-    padding: 0px var(--spacing-xxs) 0px 0px !important;
+    // padding: 0 var(--spacing-xxs) 0 0!important;
+    padding: 0 !important;
+
+    background: var(--color-text-inverse);
 
     textarea {
       border: none;

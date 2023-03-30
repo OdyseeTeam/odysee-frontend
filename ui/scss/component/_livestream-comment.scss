@@ -66,7 +66,7 @@
 
   display: flex;
   justify-content: space-between;
-  padding: 0;
+  // padding: 0;
 
   &.livestream__comment--minimal {
     .livestreamComment__menu {
@@ -77,8 +77,10 @@
 
   .livestreamComment__menu {
     position: relative;
-    right: 0;
-    top: var(--spacing-xxs);
+    top: 4px !important;
+    right: 4px !important;
+    background-color: var(--color-background);
+    border-radius: 50%;
     .menu__button {
       opacity: 1;
     }
