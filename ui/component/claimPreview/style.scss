@@ -265,7 +265,7 @@
             .channel-name {
               width: 100%;
               p {
-                width: 100%;
+                // width: 100%;
                 margin-right: var(--spacing-xs);
                 white-space: nowrap;
                 overflow: hidden;
@@ -360,6 +360,7 @@
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
     margin-bottom: var(--spacing-xs) !important;
+
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
     }
@@ -368,7 +369,8 @@
         margin-top: auto;
         align-items: flex-end;
         .claim-preview__tags {
-          width: unset;
+          // width: unset;
+          display: none;
         }
         /*
         .media__subtitle{
@@ -640,7 +642,7 @@
       .claim-tile__info {
         .media__subtitle {
           margin-bottom: 2px;
-          width: calc(100% - 2.1rem);
+          // width: calc(100% - 2.1rem);
         }
       }
     }

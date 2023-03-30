@@ -1792,11 +1792,13 @@ img {
         padding: 0;
         border-radius: unset;
 
+        /*
         .claim-preview-info {
           .claim-preview__title {
             font-size: var(--font-small);
           }
         }
+        */
 
         .media__subtitle {
           .button__content {
@@ -1814,6 +1816,10 @@ img {
   }
 
   @media (max-width: $breakpoint-small) {
+    .claim-preview__wrapper--row {
+      width: calc(100% - var(--spacing-xs));
+    }
+
     .card__title {
       .card__title--with-actions {
         flex-flow: column;
@@ -1886,6 +1892,9 @@ img {
         .button {
           background-color: unset;
           margin-bottom: 0;
+          &:nth-of-type(2) {
+            margin-right: var(--spacing-xxs) !important;
+          }
         }
       }
 
