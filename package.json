@@ -257,6 +257,9 @@
     "y18n": "^4.0.1",
     "yarnhook": "^0.2.0"
   },
+  "resolutions": {
+    "video.js": "7.21.4"
+  },
   "engines": {
     "node": "^18.14",
     "yarn": "^1.3"
