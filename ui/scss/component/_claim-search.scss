@@ -102,22 +102,6 @@
   font-size: var(--font-body);
   width: 100%;
 
-  /*
-  &:not(:first-of-type) {
-    // margin-top: var(--spacing-s);
-  }
-  
-  @media (min-width: $breakpoint-small) {
-    width: auto;
-
-    margin-top: 0 !important;
-    &:not(:first-of-type) {
-      margin-top: 0;
-      // padding-left: var(--spacing-m);
-    }
-  }
-  */
-
   &.action-button {
     flex-direction: row;
     align-items: flex-end;
@@ -313,6 +297,9 @@
   select,
   .filer-checkbox-wrapper {
     background-color: var(--color-background);
+  }
+
+  select {
     &:hover {
       background-color: var(--color-primary);
     }

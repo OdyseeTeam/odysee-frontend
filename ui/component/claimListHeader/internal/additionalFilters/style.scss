@@ -14,7 +14,7 @@ $OPTIONS_MIN_WIDTH: 250px;
     .filer-checkbox-wrapper {
       display: flex;
       flex-flow: column;
-      background-color: var(--color-input-bg);
+      background-color: var(--color-background);
       border-radius: var(--border-radius);
 
       div:last-of-type {
