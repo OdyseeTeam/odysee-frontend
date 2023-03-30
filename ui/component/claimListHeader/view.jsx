@@ -281,7 +281,7 @@ function ClaimListHeader(props: Props) {
                       'button-toggle--active': tileLayout,
                     })}
                     aria-label={__('Change to tile layout')}
-                    icon={ICONS.LAYOUT}
+                    icon={ICONS.VIEW_TILES}
                   />
                   <Button
                     onClick={() => {
@@ -292,7 +292,7 @@ function ClaimListHeader(props: Props) {
                       'button-toggle--active': !tileLayout,
                     })}
                     aria-label={__('Change to list layout')}
-                    icon={ICONS.LAYOUT}
+                    icon={ICONS.VIEW_LIST}
                   />
                 </>
               )}

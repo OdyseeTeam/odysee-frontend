@@ -707,9 +707,9 @@ svg + .button__label {
   border-left-width: 0;
   border-radius: 0;
   margin: 0;
-  color: var(--color-button-toggle-text) !important;
+  color: var(--color-button-toggle-text);
+  stroke: var(--color-button-toggle-text);
   background-color: var(--color-button-toggle-bg);
-  // box-shadow: 0px 0px 0px 2px rgba(var(--color-header-background-base), 1) inset;
 
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -722,7 +722,8 @@ svg + .button__label {
       color: var(--color-button-toggle-text-hover);
     }
     .icon {
-      stroke: var(--color-button-toggle-text-hover) !important;
+      color: var(--color-primary-contrast) !important;
+      stroke: var(--color-primary-contrast) !important;
     }
   }
 
@@ -731,16 +732,8 @@ svg + .button__label {
   }
 
   &:first-of-type {
-    border-left-width: 1px;
     border-top-left-radius: var(--border-radius);
     border-bottom-left-radius: var(--border-radius);
-  }
-
-  &:nth-child(2),
-  &:nth-child(3),
-  &:nth-child(4),
-  &:nth-child(5) {
-    // margin-left: 2px;
   }
 
   &:last-of-type {
@@ -767,7 +760,6 @@ svg + .button__label {
 
 .button-toggle--active {
   color: var(--color-button-toggle-text-active) !important;
-  // background-color: rgba(var(--color-primary-static),0.4) !important;
   background-color: color-mix(
     in srgb,
     rgba(var(--color-primary-static), 1) 70%,
