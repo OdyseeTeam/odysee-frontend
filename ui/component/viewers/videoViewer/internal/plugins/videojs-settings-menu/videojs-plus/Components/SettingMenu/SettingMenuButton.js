@@ -18,6 +18,8 @@ class SettingMenuButton extends MenuButton {
 
     // remove videojs parent child relationship between button and menu
     this.removeChild(this.menu);
+
+    this.controlText(__('Settings'));
   }
 
   buildCSSClass() {
@@ -51,7 +53,6 @@ class SettingMenuButton extends MenuButton {
 
   pressButton() {
     super.pressButton();
-
     this.menu.init();
   }
 
@@ -82,7 +83,7 @@ class SettingMenuButton extends MenuButton {
   }
 }
 
-SettingMenuButton.prototype.controlText_ = 'Settings';
+SettingMenuButton.prototype.controlText_ = __('Settings');
 SettingMenuButton.prototype.options_ = {
   entries: ['PlaybackRateSettingItem'],
 };
