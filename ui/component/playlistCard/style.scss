@@ -158,9 +158,24 @@
     font-size: var(--font-small);
     margin-bottom: var(--spacing-xxxs);
   }
-
   .button-toggle {
     background-color: var(--color-background);
+  }
+  .button-toggle--active {
+    background-color: color-mix(in srgb, var(--color-primary) 70%, var(--color-button-toggle-bg)) !important;
+    &:hover {
+      background-color: var(--color-primary) !important;
+      cursor: pointer;
+    }
+  }
+  .playlist-card-actions {
+    .button-toggle--active {
+      background-color: color-mix(in srgb, var(--color-primary) 70%, var(--color-button-toggle-bg)) !important;
+      &:hover {
+        background-color: var(--color-primary) !important;
+        cursor: pointer;
+      }
+    }
   }
 }
 

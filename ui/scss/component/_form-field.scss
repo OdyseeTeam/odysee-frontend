@@ -86,6 +86,9 @@ select {
     background-color: var(--color-primary);
     background-image: var(--select-toggle-background-hover);
   }
+  &:hover {
+    color: var(--color-primary-contrast);
+  }
   option {
     color: var(--color-text);
   }
