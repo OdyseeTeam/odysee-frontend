@@ -287,7 +287,7 @@
 
 .navigation-link--active {
   .button__content {
-    background-color: color-mix(in srgb, var(--color-primary) 70%, var(--color-button-toggle-bg));
+    background-color: var(--color-button-toggle-bg-active);
     color: var(--color-odysee-contrast);
 
     .icon {

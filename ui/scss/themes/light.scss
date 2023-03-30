@@ -75,11 +75,7 @@
   --color-button-toggle-text: rgba(var(--color-text-base), 1);
   --color-button-toggle-bg-hover: var(--color-primary);
   --color-button-toggle-text-hover: white;
-  --color-button-toggle-bg-active: color-mix(
-    in srgb,
-    rgba(var(--color-primary-static), 1) 70%,
-    var(--color-header-button)
-  );
+  --color-button-toggle-bg-active: #cd4074;
   --color-button-toggle-text-active: white;
 
   --color-button-border: var(--color-gray-3);

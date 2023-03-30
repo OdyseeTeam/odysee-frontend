@@ -760,11 +760,7 @@ svg + .button__label {
 
 .button-toggle--active {
   color: var(--color-button-toggle-text-active) !important;
-  background-color: color-mix(
-    in srgb,
-    rgba(var(--color-primary-static), 1) 70%,
-    var(--color-button-toggle-bg)
-  ) !important;
+  background-color: var(--color-button-toggle-bg-active) !important;
 
   .icon {
     opacity: 1;
@@ -792,6 +788,13 @@ svg + .button__label {
 }
 
 .button-toggle--bottom-arrow {
+  &.button-toggle--active {
+    .button__content {
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
+  }
   &:hover {
     cursor: pointer;
     background-color: var(--color-primary) !important;

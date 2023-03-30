@@ -236,12 +236,17 @@
   opacity: 0.6;
   .claim-tile__info {
     flex-wrap: wrap;
+    padding-bottom: unset;
     .claim-preview__channel-staked {
       flex-basis: 2.1rem;
     }
     .confirming-change {
+      padding-top: unset;
       flex-basis: 100%;
     }
+  }
+  .menu__button {
+    top: var(--spacing-xs) !important;
   }
   .card__main-actions {
     border-top: unset;
@@ -366,6 +371,7 @@
 
 .claim-upload__progress--outer {
   width: 100%;
+  margin-top: var(--spacing-s);
   border-radius: var(--border-radius);
   background-color: var(--color-header-background);
 }
@@ -972,10 +978,17 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
-.web-upload-item.claim-preview {
+.web-upload-item {
   padding: var(--spacing-m);
-  background-color: rgba(var(--color-header-background-base), 0.6);
+  // background-color: rgba(var(--color-header-background-base), 0.6);
 
+  .claim-preview-metadata {
+    width: 100%;
+  }
+
+  &::before {
+    display: none;
+  }
   @media (max-width: $breakpoint-small) {
     display: block;
 
