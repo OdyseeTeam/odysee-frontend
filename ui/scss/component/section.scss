@@ -223,8 +223,9 @@
 
     button {
       // height: 2rem;
-      height: var(--height-button);
-      padding: 0px var(--spacing-s);
+      // width: var(--height-button);
+      // height: var(--height-button);
+      // padding: 0px var(--spacing-s);
 
       .button__content {
         // height: unset;
