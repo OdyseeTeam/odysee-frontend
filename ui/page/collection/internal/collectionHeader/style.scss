@@ -218,7 +218,7 @@
       margin-right: var(--spacing-m) !important;
     }
 
-    button:not(.button-like):not(.button-dislike) {
+    button:not(.button-like):not(.button-dislike):not(.button-toggle):not([data-reach-menu-button]) {
       background: var(--color-primary);
       color: var(--color-primary-contrast);
       margin: var(--spacing-s) 0;
@@ -233,6 +233,13 @@
         .icon {
           stroke: var(--color-primary-contrast);
         }
+      }
+    }
+    .button-toggle {
+      margin-right: 0;
+      background-color: var(--color-header-button) !important;
+      &:hover {
+        background-color: var(--color-primary) !important;
       }
     }
 
