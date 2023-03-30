@@ -20,7 +20,7 @@
   }
 
   .comment__author:not(.comment__author--creator) {
-    color: rgba(var(--color-text-base), 0.5);
+    color: rgba(var(--color-text-base), 0.6);
     margin-top: var(--spacing-xxs);
     max-width: calc(100% - 110px);
 

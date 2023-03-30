@@ -200,7 +200,7 @@ export default function HomepageSort(props: Props) {
       <div className="homepage-sort">
         <Lazy.DragDropContext onDragEnd={onDragEnd}>
           <DroppableBin bin={BINS.ACTIVE} />
-          <DroppableBin bin={BINS.HIDDEN} className="homepage-sort__bin--no-bg homepage-sort__bin--dashed" />
+          <DroppableBin bin={BINS.HIDDEN} />
         </Lazy.DragDropContext>
       </div>
     </React.Suspense>
