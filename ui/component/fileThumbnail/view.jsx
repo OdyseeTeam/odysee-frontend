@@ -66,8 +66,6 @@ function FileThumbnail(props: Props) {
   // const isGif = thumbnail && (thumbnail.endsWith('gif') || thumbnail.endsWith('webp'));
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
-  console.log('small: ', small);
-  console.log('thumbnail: ', thumbnail);
   // React.useEffect(() => {
   //   if (hasResolvedClaim === false && uri && !passedThumbnail) {
   //     doResolveUri(uri);

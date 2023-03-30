@@ -50,6 +50,11 @@
       border-bottom-left-radius: 5px;
       border-bottom-right-radius: 5px;
       width: unset !important;
+      .ff-container {
+        .ff-canvas {
+          border-radius: unset;
+        }
+      }
     }
   }
 }

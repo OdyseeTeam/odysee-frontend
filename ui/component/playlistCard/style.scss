@@ -198,7 +198,7 @@
     .card__header--grid {
       .card__title {
         .playlist__title {
-          .icon {
+          .icon:not(.icon--UploadCloud) {
             background-color: var(--color-text);
             color: var(--color-text-inverse);
             width: 1.4rem;

@@ -210,6 +210,11 @@
         }
       }
     }
+    &:hover {
+      .collection-preview-overlay__grid {
+        opacity: 1;
+      }
+    }
   }
 
   @media (max-width: $breakpoint-small) {
