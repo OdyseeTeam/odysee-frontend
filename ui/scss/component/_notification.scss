@@ -8,9 +8,10 @@ $contentMaxWidth: 60rem;
 
 .notification_list {
   .notification__wrapper {
+    position: relative;
     border-radius: var(--border-radius);
     margin-bottom: var(--spacing-xxs);
-    background-color: rgba(var(--color-header-background-base), 0.6);
+    background-color: rgba(var(--color-header-button-base), 0.4);
 
     &:first-of-type {
       border-top: none;
@@ -70,7 +71,7 @@ $contentMaxWidth: 60rem;
 
     &:hover {
       cursor: pointer;
-      background-color: rgba(var(--color-header-background-base), 0.9);
+      background-color: rgba(var(--color-header-button-base), 0.9);
       .menu__button {
         opacity: 1;
       }
