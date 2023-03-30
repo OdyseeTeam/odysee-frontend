@@ -438,6 +438,11 @@ $recent-msg-button__height: 2rem;
         background-color: unset;
       }
     }
+    select {
+      &:hover {
+        background-color: var(--color-primary);
+      }
+    }
     .help {
       color: var(--color-text);
     }
@@ -659,6 +664,7 @@ $recent-msg-button__height: 2rem;
     width: 100%;
     max-height: 7rem;
     overflow-y: scroll;
+    overflow-x: hidden;
     background-color: var(--color-background);
     border-radius: var(--border-radius);
     padding-left: var(--spacing-s);
@@ -954,9 +960,9 @@ $recent-msg-button__height: 2rem;
   padding: 2px 2px 2px 2px;
   border-radius: 14px;
   transition: background-color 0.2s;
-  // background-color: rgba(var(--color-header-background-base), 0.9);
   background-color: rgba(var(--color-text-base), 0.3);
   &:hover {
+    background-color: rgba(var(--color-text-base), 0.4);
     cursor: pointer;
   }
   &:after {
@@ -1233,8 +1239,8 @@ $recent-msg-button__height: 2rem;
     margin-right: 0px;
     margin-top: 0px !important;
     margin-bottom: 0;
-    height: 20px;
-    line-height: 22px;
+    // height: 20px;
+    // line-height: 22px;
   }
   .colon {
     float: left;
