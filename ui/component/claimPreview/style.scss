@@ -299,6 +299,11 @@
       align-items: end;
       margin-bottom: var(--spacing-xxxs);
       margin-top: var(--spacing-s);
+      .claim__tags {
+        display: flex;
+        flex-flow: row;
+      }
+
       .tag {
         display: inline-block !important;
       }

@@ -55,6 +55,10 @@
           opacity: 0 !important;
         }
       }
+
+      @media (max-width: $breakpoint-small) {
+        width: calc(var(--file-list-thumbnail-width) * 0.8 + var(--spacing-m));
+      }
     }
 
     .text {
