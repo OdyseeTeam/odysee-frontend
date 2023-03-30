@@ -792,6 +792,10 @@ svg + .button__label {
 }
 
 .button-toggle--bottom-arrow {
+  &:hover {
+    cursor: pointer;
+    background-color: var(--color-primary) !important;
+  }
   &:after {
     position: absolute;
     bottom: -11px;
