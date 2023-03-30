@@ -152,7 +152,7 @@
   padding: var(--spacing-m);
   width: 100%;
   overflow: hidden;
-  background-color: rgba(var(--color-header-button-base), 0.4);
+  background-color: rgba(var(--color-header-button-base), 0.6);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m) !important;
 
@@ -194,7 +194,7 @@
     width: 100%;
     filter: blur(12px);
     -webkit-filter: blur(12px);
-    opacity: 0.7;
+    opacity: 0.4;
     z-index: -1;
     transition: opacity 0.2s;
   }

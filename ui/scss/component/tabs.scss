@@ -3,6 +3,7 @@
 }
 
 .tabs__list {
+  position: relative;
   display: flex;
   align-items: center;
   background-color: var(--color-tabs-background);
