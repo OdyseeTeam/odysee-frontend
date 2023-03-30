@@ -212,7 +212,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const volumePanelScrollHandlerRef = useRef();
 
   const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
-  const overrideNativeVhs = !platform.isIPhone();
+  const overrideNativeVhs = !platform.isIOS();
   const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
   // initiate keyboard shortcuts
