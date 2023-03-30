@@ -604,7 +604,7 @@ $recent-msg-button__height: 2rem;
   background-color: transparent;
   padding: 0px !important;
   margin-top: 0 !important;
-  padding-bottom: var(--spacing-xxs) !important;
+  // padding-bottom: var(--spacing-xxs) !important;
   left: 0 !important;
   right: 0 !important;
   border-right: unset;
@@ -613,23 +613,21 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestream-comments__top-actions--mobile {
-  // width: calc(100% + 2px);
-  position: absolute;
   display: grid;
-  padding: var(--spacing-xxs) 0;
-  margin-left: -8px;
+  border-bottom: 1px solid var(--color-header-button);
 
   > div:not(:first-child) {
     margin-top: var(--spacing-xxs);
   }
 
   .livestream-hyperchats {
-    padding: 0 var(--spacing-xxs);
+    padding: var(--spacing-xxs) 0;
   }
 
   .livestream__top-gradient {
     width: calc(100% + 2px);
-    height: 100%;
+    height: 44px;
+    max-height: 100%;
     position: absolute;
     top: -1px;
     margin-left: -8px;
@@ -653,11 +651,8 @@ $recent-msg-button__height: 2rem;
   display: flex;
   flex-shrink: 0;
   position: relative;
-
   font-size: var(--font-small);
-  // background: var(--color-header-background);
   background-color: var(--color-header-button);
-  border-bottom: 1px solid var(--color-header-button);
   padding-bottom: var(--spacing-xxs) !important;
 
   .livestream__comment {
@@ -667,6 +662,7 @@ $recent-msg-button__height: 2rem;
     background-color: var(--color-background);
     border-radius: var(--border-radius);
     padding-left: var(--spacing-s);
+    padding-right: var(--spacing-s);
 
     &.livestream__comment--hyperchat {
       padding-left: 0;
@@ -861,13 +857,10 @@ $recent-msg-button__height: 2rem;
 
 .livestream-pinned__wrapper--mobile {
   @extend .livestream-pinned__wrapper;
-  top: 40px;
   z-index: 1300;
   min-width: 100%;
   max-width: 100%;
   padding: 0;
-  // padding-left: var(--spacing-xxs);
-  // padding-right: var(--spacing-xxs);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-xs);
   background-color: var(--color-background);

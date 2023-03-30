@@ -48,7 +48,7 @@
 
 .swipeable-drawer__menu {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 
   svg {
     margin-left: var(--spacing-xxs);
