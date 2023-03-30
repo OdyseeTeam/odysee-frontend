@@ -265,3 +265,11 @@
     }
   }
 }
+
+#{$control-bar-hidden},
+#{$control-bar-hidden--loose} {
+  // Control-Bar, you jump, I jump.
+  .vjs-setting-menu {
+    opacity: 0 !important;
+  }
+}

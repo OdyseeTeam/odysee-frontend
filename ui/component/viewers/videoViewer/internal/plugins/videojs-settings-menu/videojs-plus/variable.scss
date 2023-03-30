@@ -2,6 +2,8 @@ $control-bar-height: 2.5em;
 $control-bar-button-height: $control-bar-height * 0.72;
 $control-bar-horizontal-padding: 0.75em;
 $control-bar-hidden: '.vjs-user-inactive.vjs-playing:not(.vjs-keep-control-showing)';
+$control-bar-hidden--loose: '.vjs-user-inactive.vjs-playing';
+
 $control-bar-button-width: $control-bar-height * 0.9;
 
 @mixin disable-volume-level() {
