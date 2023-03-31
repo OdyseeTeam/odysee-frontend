@@ -583,7 +583,7 @@ $recent-msg-button__height: 2rem;
 .livestream-hyperchats__wrapper {
   flex-shrink: 0;
   position: relative;
-  padding: var(--spacing-s) 0;
+  padding-left: var(--spacing-s);
   font-size: var(--font-small);
   background: var(--color-header-button);
   // margin-bottom: var(--spacing-xs);
@@ -596,7 +596,7 @@ $recent-msg-button__height: 2rem;
   }
 
   @media (min-width: $breakpoint-small) {
-    padding: 0 var(--spacing-xs);
+    // padding: 0 var(--spacing-xs);
     // padding-bottom:0;
   }
 }
@@ -929,6 +929,7 @@ $recent-msg-button__height: 2rem;
 
 .livestream-hyperchats {
   display: flex;
+  overflow: hidden;
 
   .chat__show-hyperchats {
     position: absolute;
@@ -938,9 +939,10 @@ $recent-msg-button__height: 2rem;
     height: 100%;
     padding-left: 20px;
     .close-button {
-      border: 2px solid rgba(var(--color-header-button-base), 0.8);
+      border: 0px solid rgba(var(--color-header-button-base), 0.8);
       color: var(--color-text);
-      padding: 4px;
+      padding: 8px;
+      margin-top: -1px;
       margin-right: var(--spacing-xxs);
       background-color: var(--color-background);
       border-radius: 50%;
