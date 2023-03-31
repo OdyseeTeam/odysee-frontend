@@ -4,7 +4,7 @@ import { selectShouldShowAds, selectAdBlockerFound } from 'redux/selectors/app';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectAnyNagsShown } from 'redux/selectors/notifications';
 import { selectHomepageData } from 'redux/selectors/settings';
-import { selectUserVerifiedEmail, selectUserLocale } from 'redux/selectors/user';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { isChannelClaim, isStreamPlaceholderClaim } from 'util/claim';
 
 const select = (state, props) => {
@@ -15,7 +15,6 @@ const select = (state, props) => {
     isChannelClaim: isChannelClaim(claim),
     authenticated: selectUserVerifiedEmail(state),
     homepageData: selectHomepageData(state) || {},
-    locale: selectUserLocale(state),
     nagsShown: selectAnyNagsShown(state),
     shouldShowAds: selectShouldShowAds(state),
     adBlockerFound: selectAdBlockerFound(state),
