@@ -247,8 +247,9 @@
   position: relative;
   width: 90%;
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
-  padding: 2px;
-  border-radius: var(--border-radius) 0 0 0;
+  padding: 1px;
+  padding-left: 0;
+  // border-radius: var(--border-radius) 0 0 0;
   display: flex;
 
   .hyperChat {

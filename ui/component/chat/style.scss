@@ -587,6 +587,8 @@ $recent-msg-button__height: 2rem;
   font-size: var(--font-small);
   background: var(--color-header-button);
   // margin-bottom: var(--spacing-xs);
+  overflow: hidden;
+  padding-top: 1px;
 
   // overflow-x: scroll;
   padding-bottom: var(--spacing-xs) !important;
@@ -929,7 +931,6 @@ $recent-msg-button__height: 2rem;
 
 .livestream-hyperchats {
   display: flex;
-  overflow: hidden;
 
   .chat__show-hyperchats {
     position: absolute;
