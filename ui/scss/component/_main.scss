@@ -722,10 +722,19 @@ body {
           background-color: var(--color-background);
           top: unset;
           border: unset;
-          // box-shadow: 0 0 0 2px var(--color-border) inset;
         }
         &::after {
           top: 6px;
+        }
+      }
+      &:hover {
+        label {
+          &::before {
+            background-color: var(--color-primary);
+          }
+          &::after {
+            border-color: var(--color-primary-contrast);
+          }
         }
       }
     }
