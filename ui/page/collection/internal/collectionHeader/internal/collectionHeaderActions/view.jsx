@@ -66,8 +66,6 @@ function CollectionHeaderActions(props: Props) {
     // location: { search },
   } = useHistory();
 
-  console.log('props: ', props);
-
   // const isMobile = useIsMobile();
   // const showPlaybackButtons = !collectionEmpty && collectionType === COL_TYPES.PLAYLIST;
   // const urlParams = new URLSearchParams(search);

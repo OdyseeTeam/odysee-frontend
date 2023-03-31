@@ -263,14 +263,12 @@ $thumbnailWidthSmall: 2rem;
 
   [aria-expanded='true'].menu__button {
     opacity: 1;
-    // background: var(--color-header-background);
     background-color: rgba(var(--color-header-button-base), 0.9);
-    // border-radius: var(--border-radius);
     border-radius: 50%;
     outline: 2px solid var(--color-header-background);
     .icon {
       stroke: var(--color-primary);
-      transform: rotate(-90deg);
+      transform: rotate(90deg);
     }
   }
 }

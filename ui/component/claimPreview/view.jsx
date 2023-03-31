@@ -573,33 +573,31 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
               )}
             </div>
 
-            {type !== 'small' &&
-              (!pending || !type) &&
-              isChannelUri &&
-              renderActions &&
-              claim &&
-              !renderActions(claim) && (
-                <div className="claim-preview__actions">
-                  <JoinButton />
-                  {!pending && (
-                    <>
-                      {/* renderActions && claim && renderActions(claim) */}
-                      {shouldHideActions || renderActions ? null : actions !== undefined ? (
-                        actions
-                      ) : (
-                        <>
-                          {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                            <SubscribeButton
-                              uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                            />
-                          )}
-                          {includeSupportAction && <ClaimSupportButton uri={uri} />}
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
+            {type !== 'small' && (!pending || !type) && isChannelUri && (
+              // renderActions &&
+              // claim &&
+              // !renderActions(claim) && (
+              <div className="claim-preview__actions">
+                <JoinButton />
+                {!pending && (
+                  <>
+                    {/* renderActions && claim && renderActions(claim) */}
+                    {shouldHideActions || renderActions ? null : actions !== undefined ? (
+                      actions
+                    ) : (
+                      <>
+                        {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                          <SubscribeButton
+                            uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                          />
+                        )}
+                        {includeSupportAction && <ClaimSupportButton uri={uri} />}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
         {inWatchHistory && (

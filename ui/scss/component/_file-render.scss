@@ -199,14 +199,12 @@
     }
   }
 
-  // Temporary fix
   .card__main-actions {
     .claim-tile__info {
       display: unset;
       margin-top: -2px;
       padding-bottom: 0;
       .media__subtitle {
-        padding-bottom: 3px;
         .claim-preview__channel-sub-count {
           font-size: var(--font-xsmall) !important;
           @media (max-width: $breakpoint-small) {
