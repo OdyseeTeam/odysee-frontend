@@ -181,6 +181,21 @@ $actions-z-index: 2;
         }
       }
     }
+    .media__subtitle {
+      flex: 1;
+    }
+
+    .claim-tile__info {
+      flex: 1;
+      .claim-preview__tags {
+        // width:100%;
+        .claim__tags {
+          display: flex;
+          width: 100%;
+          margin-left: auto;
+        }
+      }
+    }
     @media (max-width: $breakpoint-small) {
       &.claim-preview__wrapper {
         .claim-preview__text {
