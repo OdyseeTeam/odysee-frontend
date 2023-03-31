@@ -125,7 +125,7 @@ function ChannelSelector(props: Props) {
               </MenuButton>
             </>
           ) : (
-            <MenuButton>
+            <MenuButton disabled={pendingChannelFetch}>
               {showAllOption && allOptionProps?.isSelected ? (
                 <AllSelector isSelected />
               ) : pendingChannelFetch ? (
