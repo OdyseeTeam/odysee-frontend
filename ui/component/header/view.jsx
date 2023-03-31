@@ -117,10 +117,10 @@ const Header = (props: Props) => {
 
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
 
-  function  handleCollectionEditPageCleanUp() {
+  function handleCollectionEditPageCleanUp() {
     const collectionId = pathname.split('/').pop();
     doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
-  };
+  }
 
   const onBackout = React.useCallback(
     (e: any) => {
@@ -232,6 +232,7 @@ const Header = (props: Props) => {
                 <span style={{ position: 'relative' }}>
                   <Button
                     aria-label={sidebarLabel}
+                    id="navigation-button"
                     className="header__navigationItem--icon button-rotate"
                     icon={ICONS.MENU}
                     aria-expanded={sidebarOpen}

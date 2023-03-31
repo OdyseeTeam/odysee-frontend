@@ -33,8 +33,6 @@ export default function FileDescription(props: Props) {
 
   const formattedAmount = formatCredits(amount, 2, true);
 
-  console.log('props: ', props);
-
   if (isEmpty) {
     return <span className="empty">{__('Empty claim or metadata info.')}</span>;
   }

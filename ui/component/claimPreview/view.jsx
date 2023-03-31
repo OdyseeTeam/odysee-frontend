@@ -425,8 +425,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  if (type !== 'small') console.log('type: ', type);
-
   return (
     <WrapperElement
       ref={ref}
