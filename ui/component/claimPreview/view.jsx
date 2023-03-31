@@ -444,7 +444,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       })}
     >
       <>
-        {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
         {!type && (
           <div
             className="background"
@@ -468,6 +467,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'swipe-list__item': swipeLayout,
           })}
         >
+          {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
           {showIndexes && (
             <span className="card__subtitle card__subtitle--small-no-margin claim-preview__list-index">
               {indexInContainer + 1}

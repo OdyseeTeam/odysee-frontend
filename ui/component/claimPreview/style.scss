@@ -199,6 +199,12 @@
     transition: opacity 0.2s;
   }
 
+  &:not(.claim-preview__wrapper--channel) {
+    .claim-preview {
+      overflow: hidden;
+    }
+  }
+
   .media__thumb {
     width: calc(var(--file-list-thumbnail-width) * 1.2) !important;
     background-size: 100%;
@@ -341,49 +347,58 @@
     }
   }
 
-  .claim-preview__repost-ribbon {
+  .claim-preview__repost-author {
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
     position: absolute;
-    display: block;
-    width: 225px;
-    padding-top: 4px;
-    padding-right: 8px;
-    background-color: rgba(var(--color-primary-dynamic), 0.8);
-    color: var(--color-primary-contrast);
-    text-align: center;
-    z-index: 1;
-    font-size: var(--font-xxsmall);
+    top: calc(var(--spacing-m) * -1);
+    left: calc(var(--spacing-m) * -1);
 
-    left: -65px;
-    top: 28px;
-    transform: rotate(-45deg);
-
-    .button--uri-indicator {
-      top: -3px;
-    }
-
-    .button {
-      width: 80px;
+    .claim-preview__repost-ribbon {
+      position: absolute;
+      display: block;
+      width: 225px;
+      padding-top: 4px;
+      padding-right: 8px;
+      background-color: rgba(var(--color-primary-dynamic), 0.8);
+      color: var(--color-primary-contrast);
       text-align: center;
-      .button__content {
-        width: 100%;
-        .channel-name {
-          width: 100%;
-          color: var(--color-primary-contrast);
-          font-size: var(--font-xxsmall);
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          overflow: hidden;
-          display: unset;
+      z-index: 1;
+      font-size: var(--font-xxsmall);
 
-          &:hover {
-            opacity: 0.8;
+      left: -65px;
+      top: 28px;
+      transform: rotate(-45deg);
+
+      .button--uri-indicator {
+        top: -3px;
+      }
+
+      .button {
+        width: 80px;
+        text-align: center;
+        .button__content {
+          width: 100%;
+          .channel-name {
+            width: 100%;
+            color: var(--color-primary-contrast);
+            font-size: var(--font-xxsmall);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+            display: unset;
+
+            &:hover {
+              opacity: 0.8;
+            }
           }
         }
       }
-    }
 
-    .comment__badge {
-      display: none;
+      .comment__badge {
+        display: none;
+      }
     }
   }
 
@@ -788,4 +803,7 @@
       display: none !important;
     }
   }
+}
+
+.claim-preview__wrapper--channel {
 }
