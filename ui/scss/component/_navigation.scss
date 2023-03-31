@@ -207,7 +207,6 @@
   text-overflow: ellipsis;
   width: 100%;
   color: var(--color-navigation-link);
-  // padding-left: var(--spacing-s);
   font-size: var(--font-small);
   font-weight: var(--font-weight-bold);
 
@@ -282,6 +281,14 @@
       margin-top: 0px;
       padding-top: 2px;
     }
+  }
+}
+
+.navigation-links--settings {
+  margin-left: var(--spacing-s);
+  .navigation-link {
+    font-size: var(--font-small);
+    border-radius: var(--border-radius);
   }
 }
 

@@ -109,7 +109,11 @@ export default function SettingsSideNavigation() {
         })}
       >
         <div>
-          <ul className={classnames('navigation-links', { 'navigation-links--micro': !sidebarOpen })}>
+          <ul
+            className={classnames('navigation-links navigation-links--settings', {
+              'navigation-links--micro': !sidebarOpen,
+            })}
+          >
             {SIDE_LINKS.map((linkProps) => {
               return (
                 <li key={linkProps.title}>
