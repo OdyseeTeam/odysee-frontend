@@ -710,6 +710,8 @@ $recent-msg-button__height: 2rem;
       }
     }
     .livestreamComment__menu {
+      top: 3px !important;
+      right: 2px !important;
       .menu__button {
         &[aria-expanded='true'] {
           .icon {
