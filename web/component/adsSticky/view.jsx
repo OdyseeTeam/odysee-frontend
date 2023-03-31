@@ -22,22 +22,13 @@ type Props = {
   authenticated: ?boolean,
   shouldShowAds: boolean,
   homepageData: any,
-  locale: ?LocaleInfo,
   nagsShown: boolean,
   adBlockerFound: ?boolean,
 };
 
 export default function AdsSticky(props: Props) {
-  const {
-    isContentClaim,
-    isChannelClaim,
-    authenticated,
-    shouldShowAds,
-    homepageData,
-    locale,
-    nagsShown,
-    adBlockerFound,
-  } = props;
+  const { isContentClaim, isChannelClaim, authenticated, shouldShowAds, homepageData, nagsShown, adBlockerFound } =
+    props;
 
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
@@ -60,7 +51,6 @@ export default function AdsSticky(props: Props) {
   }
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
-    // $FlowIgnore
     const pathIsCategory = Object.values(homepageData.categories || {}).some((x) =>
       // $FlowIgnore
       pathname.startsWith(`/$/${x?.name}`)
@@ -83,7 +73,7 @@ export default function AdsSticky(props: Props) {
 
   React.useEffect(() => {
     let script, scriptId, scriptSticky;
-    if (!isActive && inAllowedPath && locale && !locale.gdpr_required && !nagsShown) {
+    if (shouldShowAds && !isActive && inAllowedPath && !nagsShown) {
       try {
         const stickyIdCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
           return Boolean(e.innerHTML.indexOf('rcStickyWidgetId'));
@@ -128,7 +118,7 @@ export default function AdsSticky(props: Props) {
         };
       } catch (e) {}
     }
-  }, [shouldShowAds, inAllowedPath, AD_CONFIG, isActive, location]);
+  }, [shouldShowAds, nagsShown, inAllowedPath, isActive]);
 
   return (
     <div
