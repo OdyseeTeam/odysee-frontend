@@ -38,6 +38,12 @@
     color: rgba(var(--color-text-base), 0.9);
   }
 
+  .claim-preview__hover-actions-grid {
+    .icon {
+      stroke: white !important;
+    }
+  }
+
   &:hover {
     .menu__button {
       opacity: 1;
