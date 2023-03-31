@@ -29,17 +29,17 @@ type Props = {
   claimId?: string,
   isMyCollection: boolean,
   collectionId: string,
-  showEdit: boolean,
-  isHeader: boolean,
+  // showEdit: boolean,
+  // isHeader: boolean,
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
-  collectionEmpty: boolean,
-  collectionSavedForId: boolean,
-  collectionType: string,
+  // collectionSavedForId: boolean,
+  // collectionEmpty: boolean,
+  // collectionType: string,
   doOpenModal: (id: string, props: {}) => void,
-  doEnableCollectionShuffle: (params: { collectionId: string }) => void,
+  // doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   doToggleCollectionSavedForId: (id: string) => void,
-  doSortCollectionByReleaseTime: (collectionId: string, sortOrder: string) => void,
+  // doSortCollectionByReleaseTime: (collectionId: string, sortOrder: string) => void,
 };
 
 function CollectionHeaderActions(props: Props) {
@@ -54,7 +54,7 @@ function CollectionHeaderActions(props: Props) {
     setShowEdit,
     // collectionSavedForId,
     // collectionEmpty,
-    collectionType,
+    // collectionType,
     doOpenModal,
     // doEnableCollectionShuffle,
     doToggleCollectionSavedForId,
@@ -66,7 +66,7 @@ function CollectionHeaderActions(props: Props) {
     // location: { search },
   } = useHistory();
 
-  console.log('collectionType: ', collectionType);
+  console.log('props: ', props);
 
   // const isMobile = useIsMobile();
   // const showPlaybackButtons = !collectionEmpty && collectionType === COL_TYPES.PLAYLIST;
@@ -100,7 +100,7 @@ function CollectionHeaderActions(props: Props) {
               <Icon size={20} icon={ICONS.MORE_VERTICAL} />
             </MenuButton>
             <MenuList className="menu__list">
-              {isMyCollection && (
+              {isMyCollection && claimId && (
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>
@@ -140,7 +140,7 @@ function CollectionHeaderActions(props: Props) {
                   {__('Copy')}
                 </div>
               </MenuItem>
-              {isMyCollection && (
+              {isMyCollection && claimId && (
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>
