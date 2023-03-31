@@ -418,7 +418,7 @@ function ChannelPage(props: Props) {
       </header>
 
       {isMature ? (
-        <HiddenNsfwClaims uri={uri} />
+        <HiddenNsfwClaims uri={uri} mature />
       ) : (isBlocked || isMuted) && !viewBlockedChannel ? (
         <div className="main--empty">
           <Yrbl

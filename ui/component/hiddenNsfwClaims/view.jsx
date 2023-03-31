@@ -10,12 +10,12 @@ type Props = {
   numberOfHiddenClaims: number,
   obscureNsfw: boolean,
   className: ?string,
+  mature?: boolean,
 };
 
 export default (props: Props) => {
-  const { numberOfHiddenClaims: number, obscureNsfw } = props;
+  const { numberOfHiddenClaims: number, obscureNsfw, mature } = props;
 
-  const check = false;
   return (
     obscureNsfw && (
       <>
@@ -36,7 +36,7 @@ export default (props: Props) => {
           </div>
         ) : (
           <>
-            {check && (
+            {mature && (
               <div className="main">
                 <div className="info-wrapper">
                   <label>
