@@ -15,6 +15,7 @@ type Props = {
 export default (props: Props) => {
   const { numberOfHiddenClaims: number, obscureNsfw } = props;
 
+  const check = false;
   return (
     obscureNsfw && (
       <>
@@ -34,24 +35,28 @@ export default (props: Props) => {
             </I18nMessage>
           </div>
         ) : (
-          <div className="main">
-            <div className="info-wrapper">
-              <label>
-                <Icon icon={ICONS.INFO} />
-                {__('Mature content')}
-              </label>
-              <p>
-                <I18nMessage
-                  tokens={{
-                    download_url: <Button label={__('lbry.com')} button="link" href="https://lbry.com/get" />,
-                  }}
-                >
-                  You can download the LBRY Desktop or Android app on %download_url% and enable mature content in
-                  Settings.
-                </I18nMessage>
-              </p>
-            </div>
-          </div>
+          <>
+            {check && (
+              <div className="main">
+                <div className="info-wrapper">
+                  <label>
+                    <Icon icon={ICONS.INFO} />
+                    {__('Mature content')}
+                  </label>
+                  <p>
+                    <I18nMessage
+                      tokens={{
+                        download_url: <Button label={__('lbry.com')} button="link" href="https://lbry.com/get" />,
+                      }}
+                    >
+                      You can download the LBRY Desktop or Android app on %download_url% and enable mature content in
+                      Settings.
+                    </I18nMessage>
+                  </p>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </>
     )
