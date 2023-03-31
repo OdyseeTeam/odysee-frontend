@@ -36,7 +36,8 @@ const PremiumPlusTile = (props: Props) => {
       </a>
     </li>
   ) : (
-    <li className="claim-preview__wrapper claim-preview--premium-plus">
+    <li className="claim-preview__wrapper claim-preview__wrapper--row claim-preview--premium-plus">
+      <div className="background" />
       <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
         <div className="claim-preview">
           <div className="media__thumb" />

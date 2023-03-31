@@ -194,3 +194,31 @@
     }
   }
 }
+
+.claim-list {
+  .ul--no-style {
+    .claim-preview--tile {
+      background-color: rgba(var(--color-header-button-base), 0.6);
+      margin-left: 0;
+      padding: var(--spacing-m);
+      width: 100%;
+      border-radius: var(--border-radius);
+      .rc_tile {
+        .css-widget-item-wrap {
+          .rc-sponsored {
+            .rc-photo-container {
+              width: calc(var(--file-list-thumbnail-width) * 1.2) !important;
+            }
+            a {
+              flex-flow: row;
+              width: 100%;
+            }
+            .rc-headline {
+              font-size: 1em !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

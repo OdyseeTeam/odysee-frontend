@@ -130,10 +130,17 @@
 }
 
 .claim-preview--premium-plus {
+  .background {
+    background-image: url('https://odysee.com/public/img/astronaut_n_friends.png');
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-position: 50%;
+  }
   .media__thumb {
     background-color: #283263;
     background-image: url('~ui/component/membershipSplash/internal/assets/astronaut_n_friends.png');
     background-size: 100%;
+    transition: background 0.2s;
   }
 
   .icon {
@@ -148,6 +155,32 @@
     font-weight: var(--font-weight-bold);
     &:hover {
       color: var(--color-text);
+    }
+  }
+
+  .claim-tile__title {
+    color: var(--color-text);
+    font-size: var(--font-small);
+    padding-top: var(--spacing-xs);
+    min-height: 3.2rem;
+  }
+
+  .media__subtitle {
+    .button__content {
+      height: unset;
+    }
+    .view_count {
+      display: none;
+    }
+  }
+
+  &:hover {
+    .claim-tile__title {
+      color: var(--color-primary);
+    }
+    .media__thumb {
+      box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+      background-size: 108%;
     }
   }
 }
