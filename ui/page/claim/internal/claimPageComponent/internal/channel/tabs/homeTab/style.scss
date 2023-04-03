@@ -104,10 +104,13 @@
           margin-right: var(--spacing-s);
           overflow: hidden;
 
-          .channel-thumbnail__custom {
+          .channel-thumbnail__custom,
+          .freezeframe-img,
+          .ff-canvas {
             margin: var(--spacing-xs);
             width: 4rem;
             height: 4rem;
+            transform: scale(1);
             transition: transform 0.2s;
           }
 
@@ -127,7 +130,9 @@
           }
 
           &:hover {
-            .channel-thumbnail__custom {
+            .channel-thumbnail__custom,
+            .freezeframe-img,
+            .ff-canvas {
               transform: scale(1.08);
             }
             .claim-preview__title {
