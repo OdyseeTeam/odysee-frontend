@@ -1209,10 +1209,16 @@ $control-bar-icon-size: 30px;
       width: 10em !important;
     }
   }
+
   .vjs-menu {
     // left:-4.8em !important;
     left: -3em !important;
     width: 8.7em !important;
+
+    &.vjs-setting-menu {
+      left: unset !important;
+      width: unset !important;
+    }
   }
 }
 
