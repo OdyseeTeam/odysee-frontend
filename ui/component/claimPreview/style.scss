@@ -318,6 +318,10 @@
 
       .tag {
         display: inline-block !important;
+        background-color: var(--color-background);
+        &:hover {
+          background-color: var(--color-primary);
+        }
       }
 
       @media (max-width: $breakpoint-small) {
@@ -579,6 +583,17 @@
           background-color: var(--color-primary);
           color: var(--color-primary-contrast);
         }
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .claim-preview__text {
+      flex-direction: column;
+      .claim-preview__actions {
+        flex-direction: row;
+        margin-left: 0;
+        gap: var(--spacing-xs);
       }
     }
   }

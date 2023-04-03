@@ -781,11 +781,11 @@ img {
 
 .followManage-wrapper {
   @extend .discoverPage-wrapper;
-  .claim-list {
-    // margin-top: var(--spacing-m);
-  }
   .wunderbar--inline {
     margin-bottom: var(--spacing-m);
+  }
+  .claim-preview__actions {
+    flex-direction: row;
   }
 }
 

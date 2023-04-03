@@ -28,8 +28,6 @@ export default function CollectionsListMine(props: Props) {
     location: { search, pathname },
   } = history;
 
-  const [expanded, setExpanded] = React.useState(false);
-
   const urlParams = new URLSearchParams(search);
   const hasDefaultSort = sortOption.key === persistedOption.key && sortOption.value === persistedOption.value;
 
@@ -113,45 +111,27 @@ export default function CollectionsListMine(props: Props) {
             </div>
           </div>
 
-          {/* More Sort Button */}
-          {/*
-          <div className="claim-search__menu-group">
-            <Button
-              button="alt"
-              aria-label={__('More')}
-              className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
-                'button-toggle--custom': !hasDefaultSort,
-                'button-toggle--active': expanded,
-              })}
-              icon={ICONS.SLIDERS}
-              onClick={() => setExpanded(!expanded)}
-            />
-          </div>
-          */}
-
           {/* Sort Options */}
-          {expanded && (
-            <div className="claim-search__menu-group claim-search__menu-group--inputs">
-              {/* Save Sort */}
-              {!hasDefaultSort && (
-                <div className="claim-search__input-container action-button">
-                  <Button
-                    button="alt"
-                    label={__('Save')}
-                    icon={ICONS.COMPLETE}
-                    onClick={() => setPersistedOption(sortOption)}
-                  />
-                </div>
-              )}
+          <div className="claim-search__menu-group claim-search__menu-group--inputs">
+            {/* Save Sort */}
+            {!hasDefaultSort && (
+              <div className="claim-search__input-container action-button">
+                <Button
+                  button="alt"
+                  label={__('Save')}
+                  icon={ICONS.COMPLETE}
+                  onClick={() => setPersistedOption(sortOption)}
+                />
+              </div>
+            )}
 
-              {/* Clear Sort */}
-              {!hasDefaultSort && (
-                <div className="claim-search__input-container action-button">
-                  <Button button="alt" label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
-                </div>
-              )}
-            </div>
-          )}
+            {/* Clear Sort */}
+            {!hasDefaultSort && (
+              <div className="claim-search__input-container action-button">
+                <Button button="alt" label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
+              </div>
+            )}
+          </div>
         </div>
 
         <RightSideActions />

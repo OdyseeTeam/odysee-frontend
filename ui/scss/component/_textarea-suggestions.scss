@@ -18,7 +18,7 @@
 }
 
 .MuiAutocomplete-root {
-  background-color: var(--color-input-bg);
+  background-color: var(--color-header-button);
   border-radius: var(--border-radius);
 }
 
@@ -77,7 +77,7 @@
 }
 
 .MuiOutlinedInput-root {
-  // background-color: var(--color-input-bg) !important;
+  background-color: var(--color-input-bg) !important;
 
   textarea:focus-visible {
     box-shadow: unset;
@@ -96,10 +96,8 @@
   @media (max-width: $breakpoint-small) {
     flex-wrap: nowrap !important;
     color: var(--color-text) !important;
-    // padding: 0 var(--spacing-xxs) 0 0!important;
     padding: 0 !important;
-
-    background: var(--color-text-inverse);
+    background-color: var(--color-header-button);
 
     textarea {
       border: none;
@@ -127,7 +125,7 @@
 }
 
 .MuiTextField-root {
-  background-color: var(--color-header-background);
+  background-color: var(--color-header-button);
 
   .button--primary {
     .button__content {

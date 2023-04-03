@@ -74,46 +74,39 @@ function CollectionActions(props: Props) {
           {!isBuiltin && <>{uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}</>}
         </SectionElement>
 
-        {!isOnPublicView && (
+        {!isOnPublicView && showEdit && (
           <div className="section__actions">
-            {showEdit && (
-              <div className="sort-menu__button">
-                <Menu>
-                  <MenuButton
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
+            <div className="sort-menu__button">
+              <Menu>
+                <MenuButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                >
+                  <FileActionButton className="button-toggle" icon={ICONS.MENU} title={__('Sort')} label={__('Sort')} />
+                </MenuButton>
+
+                <MenuList className="menu__list">
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => {
+                      doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC);
                     }}
                   >
-                    <FileActionButton
-                      className="button-toggle"
-                      icon={ICONS.MENU}
-                      title={__('Sort')}
-                      label={__('Sort')}
-                    />
-                  </MenuButton>
-
-                  <MenuList className="menu__list">
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() => {
-                        doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC);
-                      }}
-                    >
-                      <div className="menu__link">{__('Newest first')}</div>
-                    </MenuItem>
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() => {
-                        doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC);
-                      }}
-                    >
-                      <div className="menu__link">{__('Oldest first')}</div>
-                    </MenuItem>
-                  </MenuList>
-                </Menu>
-              </div>
-            )}
+                    <div className="menu__link">{__('Newest first')}</div>
+                  </MenuItem>
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => {
+                      doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC);
+                    }}
+                  >
+                    <div className="menu__link">{__('Oldest first')}</div>
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </div>
           </div>
         )}
       </div>
@@ -127,7 +120,6 @@ type SectionProps = {
 
 const SectionElement = (props: SectionProps) => {
   const { children } = props;
-
   const isMobile = useIsMobile();
   return isMobile ? children : <div className="section__actions">{children}</div>;
 };

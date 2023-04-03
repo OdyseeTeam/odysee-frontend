@@ -123,8 +123,6 @@ const CollectionPage = (props: Props) => {
     );
   }
 
-  // console.log('collection: ', collection)
-
   return (
     <Page className="playlists-page-wrapper">
       <div className="section card-stack">

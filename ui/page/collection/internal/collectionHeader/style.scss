@@ -215,10 +215,6 @@
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 
-  @media (max-width: $breakpoint-small) {
-    top: var(--header-height-mobile);
-  }
-
   &:after {
     position: absolute;
     background: linear-gradient(180deg, var(--color-background) 0, transparent 35%);
@@ -271,6 +267,13 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    top: var(--header-height-mobile);
+    .section__actions {
+      margin: 0;
+    }
+    .button {
+      background-color: var(--color-header-button);
+    }
     &:after {
       display: none;
     }

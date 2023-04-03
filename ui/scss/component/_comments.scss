@@ -76,10 +76,14 @@ $thumbnailWidthSmall: 2rem;
 
 .comment__settings {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-s);
 
   .menu__button {
     opacity: 1;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    gap: var(--spacing-xs);
   }
 }
 
@@ -627,6 +631,9 @@ $thumbnailWidthSmall: 2rem;
         }
       }
     }
+  }
+  .comment__settings {
+    margin-left: auto;
   }
 }
 

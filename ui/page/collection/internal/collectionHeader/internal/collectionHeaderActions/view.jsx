@@ -18,8 +18,6 @@ import ClaimShareButton from 'component/claimShareButton';
 // import classnames from 'classnames';
 // import { ENABLE_FILE_REACTIONS } from 'config';
 // import ClaimRepostButton from 'component/claimRepostButton';
-// import PlayButton from './internal/playButton';
-// import ShuffleButton from './internal/shuffleButton';
 // import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionPublishButton from 'page/collection/internal/collectionActions/internal/publishButton';
 // import CollectionSubtitle from '../collectionSubtitle';
@@ -65,11 +63,6 @@ function CollectionHeaderActions(props: Props) {
     push,
     // location: { search },
   } = useHistory();
-
-  // const isMobile = useIsMobile();
-  // const showPlaybackButtons = !collectionEmpty && collectionType === COL_TYPES.PLAYLIST;
-  // const urlParams = new URLSearchParams(search);
-  // const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
   return (
     <>

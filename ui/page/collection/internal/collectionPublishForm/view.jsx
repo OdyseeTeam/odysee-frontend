@@ -31,7 +31,7 @@ type Props = {
   collectionId: string,
   onDoneForId: (string) => void,
   // -- redux -
-  uri: ?string,
+  // uri: ?string,
   hasClaim: boolean,
   collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams,
   isClaimPending: boolean,
@@ -50,7 +50,7 @@ export const CollectionFormContext = React.createContext<any>();
 
 const CollectionPublishForm = (props: Props) => {
   const {
-    uri,
+    // uri,
     collectionId,
     onDoneForId,
     // -- redux -
@@ -252,7 +252,7 @@ const CollectionPublishForm = (props: Props) => {
           {collectionHasEdits && (
             <Tooltip title={__('Delete all edits from this published playlist')}>
               <Button
-                button="close"
+                button="alt"
                 icon={ICONS.REFRESH}
                 label={__('Clear Updates')}
                 onClick={() =>

@@ -29,8 +29,8 @@
         color: var(--color-primary);
         &::after {
           background: var(--color-primary);
-          height: 4px !important;
-          bottom: calc(var(--tab-indicator-size) * -2 + 13px);
+          height: 8px !important;
+          bottom: calc(var(--tab-indicator-size) * -2);
         }
       }
       &:last-of-type {
@@ -168,10 +168,12 @@
 */
 
 .tabs__list--collection-edit-page {
+  position: relative;
   padding-right: var(--spacing-m);
   margin-bottom: var(--spacing-l);
   height: 4rem;
   border-radius: var(--border-radius);
+  border-bottom: 1px solid var(--color-header-button);
 
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
@@ -210,7 +212,7 @@
 
 .tab__divider {
   position: absolute;
-  margin-top: calc(var(--tab-indicator-size) * -1 - var(--spacing-l));
+  margin-top: -54px;
   @media (max-width: $breakpoint-small) {
     display: none !important;
   }
@@ -225,8 +227,6 @@
 
 .tab:hover::after,
 .tab__divider {
-  bottom: -2px;
-  // height: var(--tab-indicator-size);
   height: 8px;
   background-color: var(--color-link);
 }

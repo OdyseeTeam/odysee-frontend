@@ -51,7 +51,7 @@ const CollectionHeader = (props: Props) => {
     // doCollectionEdit,
   } = props;
 
-  // console.log('CollectionHeader props: ', props);
+  console.log('CollectionHeader props: ', props);
 
   const { id: collectionId } = collection;
 
@@ -144,25 +144,27 @@ const CollectionHeader = (props: Props) => {
                     <CollectionPrivateIcon />
                   </div>
                 )}
-                <div
-                  className="collection-header__meta-entry"
-                  style={{
-                    backgroundImage:
-                      'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                      // $FlowIgnore
-                      collection?.thumbnail?.url +
-                      ')',
-                  }}
-                >
-                  <div className="create-at">
-                    {collection && (
-                      <>
-                        <Icon icon={ICONS.TIME} />
-                        <DateTime timeAgo date={Number(collection?.createdAt) * 1000} />
-                      </>
-                    )}
+                {showEdit && (
+                  <div
+                    className="collection-header__meta-entry"
+                    style={{
+                      backgroundImage:
+                        'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
+                        // $FlowIgnore
+                        collection?.thumbnail?.url +
+                        ')',
+                    }}
+                  >
+                    <div className="create-at">
+                      {collection && (
+                        <>
+                          <Icon icon={ICONS.TIME} />
+                          <DateTime timeAgo date={Number(collection?.createdAt) * 1000} />
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
                 <div
                   className="collection-header__meta-entry"
                   style={{

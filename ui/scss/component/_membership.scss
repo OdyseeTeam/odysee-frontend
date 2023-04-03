@@ -800,7 +800,6 @@
 
 .membership-tier__wrapper {
   position: relative;
-  // text-align: center;
   padding-bottom: var(--spacing-xxl);
   overflow: hidden;
 
@@ -811,7 +810,8 @@
   border-radius: var(--border-radius);
 
   transition: max-height 0.3s;
-  background-color: rgba(var(--color-header-background-base), 0.6);
+  // background-color: rgba(var(--color-header-background-base), 0.6);
+  background-color: rgba(var(--color-header-button-base), 0.6);
 
   .button--primary {
     margin: var(--spacing-m) 0 !important;
