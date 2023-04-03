@@ -1,6 +1,5 @@
 import videojs from 'video.js';
 
-const SettingMenuButton = videojs.getComponent('SettingMenuButton');
 const SettingMenuItem = videojs.getComponent('SettingMenuItem');
 const name = 'SnapshotMenuItem';
 
@@ -36,8 +35,6 @@ class SnapshotMenuItem extends SettingMenuItem {
     }
   }
 }
-
-SettingMenuButton.prototype.options_.entries.push(name);
 
 videojs.registerComponent(name, SnapshotMenuItem);
 

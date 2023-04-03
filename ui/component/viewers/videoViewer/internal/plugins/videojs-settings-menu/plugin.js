@@ -6,13 +6,26 @@ import './videojs-plus/Components/Poster.scss';
 import './videojs-plus/Components/SettingMenu/SettingMenuButton';
 import type { Player } from '../../videojs';
 
-// Register new settings here (needs to come after all the above imports):
+// (1) Register settings (must be after all the imports above):
 import './menuItems/AutoPlayNextMenuItem';
 import './menuItems/SnapshotMenuItem';
+
+// (2) Define the display order
+const DISPLAY_ORDER = ['PlaybackRateSettingItem', 'AutoPlayNextMenuItem', 'SnapshotMenuItem'];
+
+// ****************************************************************************
+// settingsMenu
+// ****************************************************************************
 
 type Options = {};
 
 const DEFAULT_OPTIONS: Options = {};
+
+const SettingMenuButton = videojs.getComponent('SettingMenuButton');
+
+DISPLAY_ORDER.forEach((x) => {
+  SettingMenuButton.prototype.options_.entries.push(x);
+});
 
 function onPlayerReady(player: Player, options: Options) {
   // Future placeholder for things like dynamic placement (mobile vs. desktop).
