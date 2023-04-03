@@ -1,9 +1,17 @@
 .chat-card--drawer-header {
   display: flex;
   flex-direction: row;
-  // padding-top: var(--spacing-m);
   width: 100%;
-  // margin: var(--spacing-xs);
+
+  .chat-card--drawer-header-mode {
+    padding: var(--spacing-s);
+    margin-top: var(--spacing-m);
+
+    .button-toggle {
+      padding: 0 var(--spacing-s);
+      height: var(--height-button-mobile);
+    }
+  }
 
   button:last-of-type {
     margin-left: auto;

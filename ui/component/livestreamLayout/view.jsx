@@ -3,7 +3,7 @@ import 'scss/component/_swipeable-drawer.scss';
 
 import { lazyImport } from 'util/lazyImport';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+// import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import FileTitleSection from 'component/fileTitleSection';
 import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
@@ -15,8 +15,11 @@ import * as DRAWERS from 'constants/drawer_types';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import LivestreamMenu from 'component/livestreamMenu';
-import Icon from 'component/common/icon';
+// import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
+import Button from 'component/button';
+import classnames from 'classnames';
+
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
 import './style.scss';
@@ -165,11 +168,34 @@ export default function LivestreamLayout(props: Props) {
 }
 
 const ChatModeSelector = (chatSelectorProps: any) => {
-  const { superChats, chatViewMode, setChatViewMode, activeViewers } = chatSelectorProps;
+  const { superChats, chatViewMode, setChatViewMode } = chatSelectorProps;
   const { superChatsFiatAmount, superChatsLBCAmount } = getTipValues(superChats);
 
-  const titleProps = { chatViewMode, activeViewers };
+  return (
+    <div className="chat-card--drawer-header-mode">
+      <Button
+        title={__('Live Chat')}
+        label={__('Live Chat')}
+        className={classnames(`button-toggle`, { 'button-toggle--active': chatViewMode === 'chat' })}
+        iconSize={18}
+        onClick={() => setChatViewMode(VIEW_MODES.CHAT)}
+      />
+      <Button
+        title={__('Hyperchats')}
+        label={
+          <>
+            <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /
+            <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
+          </>
+        }
+        className={classnames(`button-toggle`, { 'button-toggle--active': chatViewMode === true })}
+        iconSize={18}
+        onClick={() => setChatViewMode(VIEW_MODES.SUPERCHAT)}
+      />
+    </div>
+  );
 
+  /*
   if (!superChats) {
     return <ChatDrawerTitle {...titleProps} />;
   }
@@ -198,8 +224,10 @@ const ChatModeSelector = (chatSelectorProps: any) => {
       </MenuList>
     </Menu>
   );
+  */
 };
 
+/*
 const ChatDrawerTitle = (titleProps: any) => {
   const { chatViewMode, activeViewers } = titleProps;
 
@@ -215,3 +243,4 @@ const ChatDrawerTitle = (titleProps: any) => {
     </div>
   );
 };
+*/

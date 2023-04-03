@@ -76,7 +76,6 @@ $recent-msg-button__height: 2rem;
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: 0 var(--spacing-xs) !important;
     border-radius: 0 0 var(--border-radius) var(--border-radius);
   }
 
@@ -387,8 +386,10 @@ $recent-msg-button__height: 2rem;
   font-size: var(--font-small);
   overflow-y: scroll;
   overflow-x: visible;
-  padding-top: var(--spacing-s);
+
   width: 100%;
+  padding: 0 var(--spacing-xs) !important;
+  padding-top: var(--spacing-s);
 }
 
 .livestream-comments__scroll-to-recent {
@@ -611,7 +612,7 @@ $recent-msg-button__height: 2rem;
   background-color: transparent;
   padding: 0px !important;
   margin-top: 0 !important;
-  // padding-bottom: var(--spacing-xxs) !important;
+  padding-left: var(--spacing-xs) !important;
   left: 0 !important;
   right: 0 !important;
   border-right: unset;
@@ -954,6 +955,9 @@ $recent-msg-button__height: 2rem;
         background-color: var(--color-primary);
         color: var(--color-primary-contrast);
       }
+    }
+    @media (max-width: $breakpoint-small) {
+      background: linear-gradient(270deg, var(--color-background) 50%, transparent 100%);
     }
   }
 }

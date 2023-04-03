@@ -149,13 +149,13 @@ export default function VideoPlayersPage(props: Props) {
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>
                   {!hasPremiumPlus && <AdsRCAboveComments />}
-                  <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
+                  <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
                     <React.Suspense fallback={null}>
                       <CommentsList {...commentsListProps} />
                     </React.Suspense>
                   </SwipeableDrawer>
 
-                  <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
+                  <DrawerExpandButton icon={ICONS.CHAT} label={<h2>{commentsListTitle}</h2>} type={DRAWERS.CHAT} />
                 </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>

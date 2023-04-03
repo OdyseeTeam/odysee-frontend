@@ -303,7 +303,7 @@ const HeaderContents = (props: HeaderProps) => {
 
   return (
     <div className="swipeable-drawer__header-content" {...divProps}>
-      <h2>{title}</h2>
+      {title}
 
       <div className="swipeable-drawer__header-actions">
         {actions}

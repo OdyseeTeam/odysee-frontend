@@ -46,7 +46,7 @@
   justify-content: space-between;
   font-size: var(--font-small);
 
-  h2 {
+  h2:not(.card__title) {
     padding: var(--spacing-s);
     margin-top: var(--spacing-s);
   }

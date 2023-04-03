@@ -155,11 +155,11 @@ const StreamClaimPage = (props: Props) => {
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
                 ) : isMobile && !isLandscapeRotated ? (
                   <React.Fragment>
-                    <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
+                    <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
                       <CommentsList {...commentsListProps} />
                     </SwipeableDrawer>
 
-                    <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
+                    <DrawerExpandButton icon={ICONS.CHAT} label={<h2>{commentsListTitle}</h2>} type={DRAWERS.CHAT} />
                   </React.Fragment>
                 ) : (
                   <CommentsList {...commentsListProps} notInDrawer />
