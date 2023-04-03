@@ -220,7 +220,9 @@
       &:hover {
         .icon__wrapper {
           background-color: var(--color-primary);
-          color: var(--color-primary-contrast);
+          .icon {
+            stroke: var(--color-primary-contrast);
+          }
         }
       }
     }

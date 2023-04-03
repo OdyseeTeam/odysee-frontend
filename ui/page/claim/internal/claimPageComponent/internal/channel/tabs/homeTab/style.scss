@@ -3,9 +3,6 @@
 .home-tab {
   margin-bottom: calc(var(--spacing-xxl) * 3);
 
-  .channel_sections__actions {
-  }
-
   .section__header--actions {
     display: none;
   }
@@ -196,7 +193,6 @@
       padding: var(--spacing-xs) var(--spacing-m);
       transform: scale(0.8) translateY(-13%);
       margin: 0;
-      // border: 2px solid var(--color-border);
       border-radius: var(--border-radius);
       margin-top: var(--spacing-s);
       min-height: 203px;
@@ -309,13 +305,11 @@
         display: block;
       }
       select {
-        // box-shadow: 0px 0px 0px 2px var(--color-border) inset;
         background-color: var(--color-background);
         max-width: 204px;
         overflow: hidden;
         &:focus-visible {
           box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
-          // color: var(--color-primary-contrast);
         }
         &:hover {
           background-color: var(--color-primary);
@@ -330,7 +324,6 @@
       }
       input {
         background-color: var(--color-background);
-        // box-shadow: 0px 0px 0px 2px var(--color-border) inset;
       }
     }
   }

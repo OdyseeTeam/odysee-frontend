@@ -16,4 +16,16 @@
     margin-right: var(--spacing-s);
     margin-bottom: var(--spacing-s);
   }
+
+  .checkbox {
+    label {
+      &:before {
+        background-color: var(--color-background);
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-s);
+  }
 }
