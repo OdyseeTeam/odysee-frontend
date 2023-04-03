@@ -10,19 +10,19 @@ class PlaybackRateSettingItem extends SettingOptionItem {
       icon: 'vjs-icon-slow-motion-video',
       entries: [
         // NOTE: Entries must match `VIDEO_PLAYBACK_RATES[]`
-        0.25,
-        0.5,
-        0.75,
+        2,
+        1.75,
+        1.5,
+        1.25,
+        1.1,
         {
           label: __('Normal --[x1 playback rate]--'),
           value: 1,
           default: true,
         },
-        1.1,
-        1.25,
-        1.5,
-        1.75,
-        2,
+        0.75,
+        0.5,
+        0.25,
       ],
     });
 
