@@ -326,8 +326,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       } else if (renderMode === 'md') {
         return <LoadingScreen />;
       }
-
-      return <LoadingScreen />;
     }
 
     // -- Main Component Render -- return when already has the claim's contents
