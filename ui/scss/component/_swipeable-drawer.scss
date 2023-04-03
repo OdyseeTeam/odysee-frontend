@@ -5,7 +5,8 @@
   left: 0;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
-  background-color: var(--mui-background);
+  // background-color: var(--mui-background);
+  background-color: var(--color-background);
   border-top: 1px solid var(--color-border);
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
@@ -44,6 +45,11 @@
   align-items: center;
   justify-content: space-between;
   font-size: var(--font-small);
+
+  h2 {
+    padding: var(--spacing-s);
+    margin-top: var(--spacing-s);
+  }
 }
 
 .swipeable-drawer__menu {

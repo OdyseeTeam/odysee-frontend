@@ -264,6 +264,9 @@
     &:last-of-type {
       justify-content: end;
     }
+    &:first-of-type {
+      justify-content: start;
+    }
   }
 
   @media (max-width: $breakpoint-small) {

@@ -54,6 +54,9 @@ $thumbnailWidthSmall: 2rem;
     margin-top: 0;
     margin-bottom: var(--spacing-s);
   }
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xxs);
+  }
 }
 
 .comment__list .card__first-pane > .button {
