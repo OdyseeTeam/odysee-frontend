@@ -1,4 +1,4 @@
-# Odysee Frontend - Odysee.com 
+# Odysee Frontend - Odysee.com
 
 This repo contains the UI and front end code that powers Odysee.com.
 
@@ -27,7 +27,7 @@ Go to the website to interact on this frontend.
 #### Prerequisites
 
 - [Git](https://git-scm.com/downloads)
-- [Node.js](https://nodejs.org/en/download/) (v14 required)
+- [Node.js](https://nodejs.org/en/download/) (v18.14.2 required)
 - [Yarn](https://yarnpkg.com/en/docs/install)
 
 1. Clone (or [fork](https://help.github.com/articles/fork-a-repo/)) this repository: `git clone https://github.com/OdyseeTeam/odysee-frontend`
