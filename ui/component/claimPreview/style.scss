@@ -471,6 +471,44 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
+
+    @media (max-width: $breakpoint-small) {
+      margin: 0;
+      align-self: flex-start;
+
+      .button-group {
+        flex: 1;
+        margin: 0;
+
+        .button {
+          &:first-of-type {
+            flex: 1;
+            width: 100%;
+          }
+          &:last-of-type {
+            width: unset;
+          }
+        }
+      }
+
+      .membership-button-wrapper {
+        margin-top: 0;
+      }
+
+      .button--alt {
+        padding: var(--spacing-xs) !important;
+        // height: unset;
+
+        .button__content {
+          height: unset;
+        }
+      }
+
+      span {
+        font-size: var(--font-xsmall);
+        font-weight: var(--font-weight-bold);
+      }
+    }
   }
 }
 
