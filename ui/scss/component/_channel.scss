@@ -14,14 +14,6 @@ $actions-z-index: 2;
     margin-bottom: var(--spacing-m);
   }
 
-  .tags--remove {
-    .tag {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-      &:hover {
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
-  }
   .tag--add {
     margin-bottom: 0 !important;
   }

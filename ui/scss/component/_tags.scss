@@ -2,6 +2,9 @@
   .ul--no-style {
     max-height: 100%;
     overflow-y: scroll !important;
+    &::-webkit-scrollbar {
+      background-color: var(--color-border) !important;
+    }
   }
   display: flex;
   flex-wrap: wrap;
@@ -12,7 +15,7 @@
     margin-bottom: var(--spacing-s);
     margin-right: var(--spacing-s);
     color: var(--color-text);
-    background-color: var(--color-header-background);
+    background-color: var(--color-header-button);
 
     &:hover {
       color: var(--color-primary-contrast);

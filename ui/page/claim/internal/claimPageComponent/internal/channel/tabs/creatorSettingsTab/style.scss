@@ -39,4 +39,24 @@
   .tag--remove {
     color: black !important;
   }
+
+  input,
+  .tag__input {
+    background-color: var(--color-background);
+  }
+
+  .checkbox {
+    label {
+      &:before {
+        background-color: var(--color-background);
+      }
+    }
+  }
+
+  .tag--blocked-words {
+    .tag {
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast) !important;
+    }
+  }
 }
