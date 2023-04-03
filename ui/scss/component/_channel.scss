@@ -29,11 +29,6 @@ $actions-z-index: 2;
     margin-bottom: var(--spacing-l);
     border-bottom: 1px solid var(--color-header-button);
 
-    @media (max-width: $breakpoint-small) {
-      top: var(--header-height-mobile);
-      margin-bottom: var(--spacing-s);
-      padding: 0;
-    }
     &:after {
       position: absolute;
       bottom: calc(-100% + 10px);
@@ -41,6 +36,16 @@ $actions-z-index: 2;
       height: 100%;
       background: linear-gradient(180deg, var(--color-background) 0, transparent 35%);
       content: '';
+    }
+
+    @media (max-width: $breakpoint-small) {
+      top: var(--header-height-mobile);
+      margin-bottom: var(--spacing-s);
+      padding: 0;
+      &:after {
+        bottom: 0;
+        // height: 20px;
+      }
     }
   }
   .tab__wrapper-fixed {
