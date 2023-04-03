@@ -126,7 +126,7 @@ function CollectionPreview(props: Props) {
             <div className="channel">
               <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
                 <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-                {channelTitle}
+                <label>{channelTitle}</label>
               </UriIndicator>
             </div>
           )}

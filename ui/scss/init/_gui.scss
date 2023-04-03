@@ -784,9 +784,6 @@ img {
   .wunderbar--inline {
     margin-bottom: var(--spacing-m);
   }
-  .claim-preview__actions {
-    flex-direction: row;
-  }
 }
 
 .followManage-wrapper__activeSubs {
@@ -1816,6 +1813,19 @@ img {
   }
 
   @media (max-width: $breakpoint-small) {
+    .claim-search__wrapper--wrap {
+      .claim-search__menu-group {
+        width: 100%;
+        .claim-search__menu-subgroup {
+          width: 100%;
+          .button {
+            width: 100%;
+            flex: 1;
+          }
+        }
+      }
+    }
+
     .claim-preview__wrapper--row {
       width: calc(100% - var(--spacing-xs));
     }
