@@ -84,9 +84,7 @@ class SettingMenuButton extends MenuButton {
 }
 
 SettingMenuButton.prototype.controlText_ = __('Settings');
-SettingMenuButton.prototype.options_ = {
-  entries: ['PlaybackRateSettingItem'],
-};
+SettingMenuButton.prototype.options_ = { entries: [] };
 
 videojs.registerComponent('SettingMenuButton', SettingMenuButton);
 
