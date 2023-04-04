@@ -17,6 +17,7 @@ import {
   selectThumbnailForCollectionId,
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
+  selectCollectionHasEditsForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -58,6 +59,7 @@ const select = (state, props) => {
     isEmpty: selectCollectionIsEmptyForId(state, collectionId),
     thumbnailFromClaim: selectThumbnailForUri(state, collectionUri),
     thumbnailFromSecondaryClaim: selectThumbnailForUri(state, firstCollectionItemUrl, true),
+    collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
   };
 };
 

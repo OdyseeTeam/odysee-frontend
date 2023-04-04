@@ -86,6 +86,10 @@
           svg {
             margin-right: var(--spacing-s);
           }
+          .icon--UploadCloud {
+            stroke: rgb(244, 44, 44);
+            margin-left: var(--spacing-s);
+          }
         }
       }
 
@@ -103,6 +107,7 @@
         .channel-thumbnail {
           width: 20px;
           height: 20px;
+          flex-shrink: 0;
         }
 
         label {

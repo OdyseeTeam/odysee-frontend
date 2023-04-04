@@ -42,6 +42,7 @@ type Props = {
   isEmpty: boolean,
   thumbnailFromClaim: string,
   thumbnailFromSecondaryClaim: string,
+  collectionHasEdits: boolean,
 };
 
 function CollectionPreview(props: Props) {
@@ -64,6 +65,7 @@ function CollectionPreview(props: Props) {
     isEmpty,
     thumbnailFromClaim,
     thumbnailFromSecondaryClaim,
+    collectionHasEdits,
   } = props;
 
   const { push } = useHistory();
@@ -118,6 +120,7 @@ function CollectionPreview(props: Props) {
               <h2>
                 {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
                 {usedCollectionName}
+                {collectionHasEdits && <Icon icon={ICONS.PUBLISH} />}
               </h2>
             </NavLink>
           </div>
