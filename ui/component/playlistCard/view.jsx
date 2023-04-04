@@ -158,13 +158,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
-  const [backgroundImage, setBackgroundImage] = React.useState();
 
-  React.useEffect(() => {
-    if (thumbnailFromClaim) {
-      setBackgroundImage('https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim);
-    }
-  }, [thumbnailFromClaim]);
+  const backgroundImage = thumbnailFromClaim
+    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    : undefined;
 
   function closePlaylist() {
     if (collectionEmpty) {
