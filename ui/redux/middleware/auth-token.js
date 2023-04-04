@@ -1,7 +1,9 @@
 import * as ACTIONS from 'constants/action_types';
+import * as PAGES from 'constants/pages';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import Lbry from 'lbry';
 import { getAuthToken } from 'util/saved-passwords';
+import { LocalStorage, LS } from 'util/storage';
 
 export const populateAuthTokenHeader = ({ dispatch }) => {
   return (next) => (action) => {
@@ -18,9 +20,20 @@ export const populateAuthTokenHeader = ({ dispatch }) => {
         break;
 
       case ACTIONS.USER_LOGGED_IN_BROADCAST:
+        const isVerifyPage = location.href.includes(PAGES.AUTH_VERIFY) && !location.href.includes(PAGES.REWARDS_VERIFY);
+        const isNewAccount = LocalStorage.getItem(LS.IS_NEW_ACCOUNT) === 'true';
         const xAuth = (Lbry.getApiRequestHeaders() || {})[X_LBRY_AUTH_TOKEN] || '';
         if (!xAuth) {
-          window.location.reload();
+          if (isVerifyPage) {
+            if (isNewAccount) {
+              LocalStorage.removeItem(LS.IS_NEW_ACCOUNT);
+              window.location.assign(`/$/${PAGES.AUTH}`);
+            } else {
+              window.location.assign('/');
+            }
+          } else {
+            window.location.reload();
+          }
         }
         break;
 

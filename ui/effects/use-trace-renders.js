@@ -2,8 +2,8 @@
 import React from 'react';
 
 type Options = {
-  color?: string,
-  disabled?: boolean,
+  color?: string, // Color for the given 'label'.
+  disabled?: boolean, // Turn the output trace on/off without removing the effect.
 };
 
 /**
@@ -16,13 +16,13 @@ type Options = {
  * This hook is only meant for debugging purposes, so remember to remove the
  * usage before committing.
  *
- * @param props
- * @param label
- * @param options
+ * @param props The component's full props.
+ * @param label The name of the component.
+ * @param options @see Options
  * @see https://stackoverflow.com/a/51082563/977819
  */
 export default function useTraceRenders(props: any, label: string, options: Options = {}) {
-  const { color, disabled } = options;
+  const { color = 'yellow', disabled } = options;
   const prev = React.useRef(props);
 
   function trace(msg) {
@@ -35,7 +35,10 @@ export default function useTraceRenders(props: any, label: string, options: Opti
   React.useEffect(() => {
     const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
       if (prev.current[k] !== v) {
-        ps[k] = [prev.current[k], v];
+        ps[k] = {
+          prev: prev.current[k],
+          next: v,
+        };
       }
       return ps;
     }, {});

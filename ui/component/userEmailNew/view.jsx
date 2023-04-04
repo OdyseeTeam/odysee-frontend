@@ -13,6 +13,7 @@ import ErrorText from 'component/common/error-text';
 import Nag from 'component/nag';
 import classnames from 'classnames';
 import LoginGraphic from 'component/loginGraphic';
+import { LocalStorage, LS } from 'util/storage';
 
 type Props = {
   errorMessage: ?string,
@@ -63,7 +64,10 @@ function UserEmailNew(props: Props) {
     setShareDiagnosticData(true);
     // @endif
     doSignUp(email, password === '' ? undefined : password)
-      .then(() => analytics.event.emailProvided())
+      .then(() => {
+        LocalStorage.setItem(LS.IS_NEW_ACCOUNT, 'true');
+        analytics.event.emailProvided();
+      })
       .catch(() => {});
   }
 
