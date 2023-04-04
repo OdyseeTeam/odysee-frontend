@@ -17,6 +17,10 @@
   -ms-user-select: none;
   user-select: none;
 
+  @media (max-width: $breakpoint-small) {
+    padding-top: var(--spacing-xl);
+  }
+
   h1 {
     position: absolute;
     width: 100%;
@@ -25,6 +29,9 @@
     font-weight: var(--font-weight-bold);
     color: rgba(255, 255, 255, 0.9);
     background: radial-gradient(rgba(101, 15, 124, 0.7) 0%, transparent 60%);
+    @media (max-width: $breakpoint-small) {
+      width: 90%;
+    }
   }
 
   .portal-rotator {
@@ -38,6 +45,10 @@
     flex-wrap: nowrap;
     flex-grow: 1 0 auto;
     height: 100%;
+
+    @media (max-width: $breakpoint-small) {
+      margin-top: 80px;
+    }
   }
 
   .portal-wrapper {
@@ -158,6 +169,11 @@
 
     &:hover {
       cursor: pointer;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      top: var(--spacing-s);
+      right: var(--spacing-s);
     }
   }
 
