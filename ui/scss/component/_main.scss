@@ -1235,9 +1235,10 @@ body {
 .main__channelsFollowing {
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
-      text-align: left; // It was forced to 'right' at the base level.
-      .button--secondary {
-        width: unset; // It was being set to '100%' at the base level.
+      display: flex;
+      width: 100%;
+      .button {
+        flex: 1;
       }
     }
   }
