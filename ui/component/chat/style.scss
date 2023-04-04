@@ -453,14 +453,11 @@ $recent-msg-button__height: 2rem;
     }
     .section {
       .button-toggle {
-        background-color: rgba(var(--color-header-button-base), 0.4) !important;
-        &:hover {
-          background-color: rgba(var(--color-header-button-base), 0.9) !important;
-        }
+        background-color: var(--color-background);
       }
       .button-toggle--active,
       .button--secondary {
-        background-color: rgba(var(--color-header-button-base), 0.9) !important;
+        background-color: var(--color-background);
       }
     }
 
