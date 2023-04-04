@@ -565,7 +565,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
               {!type && (
                 <div className="description__wrapper">
-                  <div className="description">{claim?.value?.description || '...'}</div>
+                  <div className="description">{claim?.value?.description || __('No description available.')}</div>
                 </div>
               )}
             </div>
