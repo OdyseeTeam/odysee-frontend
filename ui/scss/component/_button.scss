@@ -4,6 +4,9 @@
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
+  .button__label {
+    margin-top: 2px;
+  }
 }
 
 .button--primary,
