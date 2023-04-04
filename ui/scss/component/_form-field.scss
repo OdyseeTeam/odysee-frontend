@@ -597,6 +597,9 @@ fieldset-section {
 
   .react-datetime-picker__wrapper {
     border: 0;
+    input {
+      background-color: unset;
+    }
   }
 }
 
