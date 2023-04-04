@@ -252,11 +252,14 @@
   label {
     padding: var(--spacing-xxxs) var(--spacing-s);
     border-radius: var(--border-radius);
-
     &::before,
     &::after {
       display: none;
     }
+  }
+
+  input {
+    display: none;
   }
 
   input[type='checkbox'] + label {
