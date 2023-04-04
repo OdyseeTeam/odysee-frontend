@@ -498,7 +498,7 @@ $recent-msg-button__height: 2rem;
         margin: 0;
         padding: 0 !important;
         .tab {
-          background-color: rgba(var(--color-header-button-base), 0.3);
+          background-color: rgba(var(--color-background-base), 0.7);
           border-radius: var(--border-radius) var(--border-radius) 0 0;
           padding: var(--spacing-xxxs) var(--spacing-s) 0 var(--spacing-s);
           margin-top: var(--spacing-s);
@@ -506,7 +506,7 @@ $recent-msg-button__height: 2rem;
           opacity: 0.8;
           &[data-selected] {
             opacity: 1;
-            background-color: var(--color-header-button);
+            background-color: var(--color-background);
           }
           &:hover {
             color: var(--color-text);

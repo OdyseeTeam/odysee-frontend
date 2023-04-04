@@ -87,7 +87,7 @@
 
     .selector-menu {
       border: unset;
-      background-color: var(--color-header-button);
+      background-color: var(--color-background);
       border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
       padding-bottom: 20px;
       margin: 10px;
@@ -95,7 +95,7 @@
       .button--close {
         margin-right: 4px;
         margin-top: 4px;
-        background-color: var(--color-header-button);
+        background-color: var(--color-background);
         &:hover {
           background-color: var(--color-primary);
         }

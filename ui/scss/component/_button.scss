@@ -377,7 +377,7 @@ a.button--alt {
   @extend .button--alt;
   color: var(--color-text);
   background-color: transparent;
-  margin-right: var(--spacing-m);
+  // margin-right: var(--spacing-m);
   padding: 0 var(--spacing-xxs);
 
   @media (max-width: $breakpoint-small) {
@@ -919,11 +919,13 @@ svg + .button__label {
   }
 }
 
+/*
 .button--file-action {
   &:first-child {
     margin-right: var(--spacing-s);
   }
 }
+*/
 
 .button--hash-id {
   @include font-mono;
