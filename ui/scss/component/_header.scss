@@ -36,6 +36,7 @@
   .header__menu--right {
     .header__navigationItem--balance {
       transition: border-radius 0.4s;
+      margin-right: var(--spacing-s);
       .button__label {
         margin-left: var(--spacing-xxs) !important;
       }
