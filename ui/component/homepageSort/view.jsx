@@ -105,7 +105,6 @@ type Props = {
 export default function HomepageSort(props: Props) {
   const { onUpdate, homepageData, homepageOrder, userHasOdyseeMembership } = props;
   const { categories } = homepageData;
-  console.log(props);
 
   const SECTIONS = { ...NON_CATEGORY, ...categories };
   const [listActive, setListActive] = useState(() =>
@@ -119,6 +118,8 @@ export default function HomepageSort(props: Props) {
     ACTIVE: { id: 'ACTIVE', title: 'Active', list: listActive, setList: setListActive },
     HIDDEN: { id: 'HIDDEN', title: 'Hidden', list: listHidden, setList: setListHidden },
   };
+
+  const [showBanner, setShowBanner] = React.useState(BINS['ACTIVE'].list.includes('BANNER'));
 
   function onDragEnd(result) {
     const { source, destination } = result;
@@ -136,7 +137,20 @@ export default function HomepageSort(props: Props) {
   }
 
   function toggleBanner() {
-    console.log('toggle banner');
+    const result = BINS;
+    if (result['ACTIVE'].list.indexOf('BANNER') !== -1) {
+      result['ACTIVE'].list.splice(result['ACTIVE'].list.indexOf('BANNER'), 1);
+      result['HIDDEN'].list.push('BANNER');
+      setShowBanner(false);
+    } else {
+      result['HIDDEN'].list.splice(result['HIDDEN'].list.indexOf('BANNER'), 1);
+      result['ACTIVE'].list.push('BANNER');
+      setShowBanner(true);
+    }
+    BINS['ACTIVE'].setList(result['ACTIVE'].list);
+    BINS['HIDDEN'].setList(result['HIDDEN'].list);
+
+    onUpdate({ active: BINS['ACTIVE'].list, hidden: BINS['HIDDEN'].list });
   }
 
   const draggedItemRef = React.useRef();
@@ -191,8 +205,7 @@ export default function HomepageSort(props: Props) {
                   type="checkbox"
                   name="homepage_banner"
                   label={__('Banner')}
-                  // $FlowIgnore
-                  checked={homepageOrder?.active?.includes('BANNER')}
+                  checked={showBanner}
                   onChange={() => toggleBanner()}
                 />
               </div>
