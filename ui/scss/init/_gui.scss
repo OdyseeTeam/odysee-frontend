@@ -317,10 +317,6 @@ img {
     margin-bottom: var(--spacing-m);
   }
 
-  .button--link + .button--link {
-    margin-left: var(--spacing-s);
-  }
-
   @media (min-width: $breakpoint-small) {
     font-size: var(--font-small);
   }
@@ -967,12 +963,6 @@ img {
   @media (min-width: $breakpoint-small) {
     width: 80% !important;
   }
-  @media (min-width: $breakpoint-medium) {
-    // width: 70% !important;
-  }
-  @media (min-width: $breakpoint-large) {
-    // width: 60% !important;
-  }
 
   @media (max-width: $breakpoint-small) {
     .channel__selector {
@@ -981,7 +971,6 @@ img {
       button {
         width: 100%;
         .claim-preview__title {
-          // flex: 1;
           text-align: left;
         }
         .comment__badge {
@@ -2000,30 +1989,6 @@ img {
   }
 }
 
-.repost-wrapper {
-  // Repost now uses a modal. Lock the width because the bid message
-  // keeps changing as you type the desired name.
-  min-width: var(--modal-width);
-  @media (max-width: $breakpoint-small) {
-    min-width: 100%;
-  }
-
-  .claim-preview__wrapper {
-    background-color: rgba(var(--color-header-background-base), 0.6);
-    &:hover {
-      background-color: rgba(var(--color-header-background-base), 0.9);
-    }
-    .claim-tile__info {
-      padding-bottom: 0;
-    }
-    .claim-preview__actions {
-      .claim__tags {
-        margin-left: auto;
-      }
-    }
-  }
-}
-
 .custom-wrapper {
   @media (max-width: $breakpoint-small) {
     .card {
@@ -2046,21 +2011,6 @@ img {
 
 .channelsToFollow-wrapper {
   margin-top: var(--spacing-l);
-
-  .claim-preview__wrapper--channel {
-    /*
-    .claim-preview--channel {
-      a.button:not(.tag) {
-        .button__content {
-          align-items: unset;
-        }
-      }
-    }
-    .menu__button {
-      right: var(--spacing-xs);
-    }
-    */
-  }
 }
 
 .historyPage-wrapper {

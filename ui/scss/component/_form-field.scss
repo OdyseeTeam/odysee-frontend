@@ -30,6 +30,12 @@ select,
   }
 }
 
+input {
+  &:hover {
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+  }
+}
+
 @media (min-width: $breakpoint-small) {
   textarea {
     height: var(--height-input);
@@ -178,8 +184,6 @@ input-submit {
   & > *:nth-child(2) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    // border: 1px solid var(--color-border);
-    border-left: none;
   }
 }
 
@@ -212,12 +216,16 @@ input-submit {
     min-height: var(--height-checkbox);
 
     &::before {
-      background-color: var(--color-input-toggle-bg);
+      // background-color: var(--color-input-toggle-bg);
+      background-color: var(--color-header-button);
     }
 
     &:hover {
       &::before {
-        background-color: var(--color-input-toggle-bg-hover);
+        background-color: var(--color-primary);
+      }
+      &::after {
+        border-color: var(--color-primary-contrast);
       }
     }
   }
@@ -249,7 +257,7 @@ input-submit {
     // border: 1px solid var(--color-input-border);
     border-radius: var(--border-radius);
     left: 0px;
-    top: -1px;
+    // top: -1px;
   }
 
   // Checkmark of the fake checkbox
@@ -430,12 +438,12 @@ fieldset-group {
         height: var(--height-input);
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
-        border-color: var(--color-input-border);
+        // border-color: var(--color-input-border);
         border-right-color: var(--color-input-prefix-border);
-        //color: white;
-        background-color: var(--color-border);
-        color: var(--color-text);
-        // box-shadow: 0px 0px 0px 2px rgba(var(--color-text-base), 0.1) inset;
+        // background-color: var(--color-border);
+        // background-color: rgba(var(--color-primary-static),.2);
+        background-color: var(--color-text);
+        color: var(--color-text-inverse);
       }
     }
 
@@ -447,14 +455,6 @@ fieldset-group {
         // an error message, which could be long in other languages.
         width: 100%;
         white-space: normal;
-      }
-
-      input {
-        border-left: 0;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-color: var(--color-input-border);
-        padding-left: var(--spacing-xs);
       }
     }
   }

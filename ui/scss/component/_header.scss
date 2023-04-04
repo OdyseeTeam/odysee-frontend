@@ -183,12 +183,12 @@
 
     &:hover {
       .wunderbar__input {
-        outline: 2px solid var(--color-header-button-hover) !important;
+        // outline: 2px solid var(--color-header-button-hover) !important;
       }
     }
 
     .wunderbar__input:focus-visible {
-      outline: 2px solid var(--color-header-button-hover) !important;
+      // outline: 2px solid var(--color-header-button-hover) !important;
     }
   }
 

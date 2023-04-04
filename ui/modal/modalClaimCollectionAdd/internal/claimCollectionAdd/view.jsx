@@ -44,6 +44,7 @@ const ClaimCollectionAdd = (props: Props) => {
   return (
     <Card
       title={__('Save to...')}
+      className="card--background"
       singlePane
       body={
         <ul className="ul--no-style card__body-scrollable">

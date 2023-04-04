@@ -52,15 +52,6 @@
   }
 }
 
-.comment-create--drawer {
-  .MuiPaper-root {
-    .form-field__two-column,
-    .MuiOutlinedInput-root {
-      // padding: 0px var(--spacing-xxs) 0px 0px !important;
-    }
-  }
-}
-
 .MuiOutlinedInput-root.Mui-focused {
   outline: 2px solid var(--color-primary);
   outline-offset: -2px;

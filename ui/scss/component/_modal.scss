@@ -52,20 +52,6 @@
       border-top: unset;
     }
 
-    .card__body {
-      background-color: var(--color-header-button);
-      border-radius: var(--border-radius);
-      padding: var(--spacing-s);
-    }
-
-    input {
-      background: var(--color-header-button);
-      &:focus {
-        border: 1px solid var(--color-primary);
-        box-shadow: unset;
-      }
-    }
-
     .card__title-section {
       padding-top: 0;
     }
@@ -90,6 +76,7 @@
     background-color: var(--color-modal-background) !important;
   }
 
+  /*
   .claim-preview__wrapper {
     padding-top: 0;
 
@@ -100,16 +87,7 @@
       right: var(--spacing-xxs) !important;
     }
   }
-
-  .repost-wrapper {
-    .claim-preview__wrapper {
-      padding-top: var(--spacing-m);
-      border: 2px solid var(--color-border);
-      .claim-preview__actions {
-        margin-top: unset;
-      }
-    }
-  }
+  */
 
   .purchase-stuff {
     div:first-of-type {
@@ -210,69 +188,9 @@
     border: 2px solid black;
     border-radius: var(--border-radius);
 
-    .form-field--copyable {
-      background: rgba(var(--color-primary-dynamic), 0.1);
-    }
-
-    /*
-    .channel__list-item,
-    .button--secondary {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
-    .channel__list-item {
-      &:hover {
-        box-shadow: unset;
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-      }
-    }
-    */
-
-    /*
-    input,
-    select {
-      background-color: var(--color-header-background);
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-      &:hover {
-        background-color: var(--color-input-toggle-bg-hover);
-      }
-      &:focus-visible {
-        border: unset;
-        background-color: var(--color-input-toggle-bg-hover);
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }*/
-
     label {
       color: var(--color-text);
       font-size: var(--font-medium);
-    }
-
-    .checkbox,
-    .radio {
-      label {
-        &::before {
-          top: unset;
-          border: unset;
-          box-shadow: 0 0 0 2px var(--color-border) inset;
-        }
-        &::after {
-          top: 6px;
-        }
-      }
-      &:hover {
-        input {
-          border: unset !important;
-          // outline:unset !important;
-        }
-      }
-    }
-    .checkbox {
-      label {
-        &::after {
-          top: 8px !important;
-        }
-      }
     }
 
     [data-reach-menu-button] {

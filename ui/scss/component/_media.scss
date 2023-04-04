@@ -163,7 +163,6 @@
   @include font-sans;
   position: relative;
   display: flex;
-  // flex-wrap: wrap;
   margin-top: 0;
 
   > *:not(:last-child) {
@@ -172,6 +171,19 @@
 
   .button--file-action {
     background-color: unset;
+    // border-radius:50%;
+    .icon {
+      transform: rotate(0deg);
+      transition: transform 0.2s;
+    }
+
+    &[aria-expanded='true'] {
+      // background-color: unset !important;
+      background-color: var(--color-header-button) !important;
+      .icon {
+        transform: rotate(90deg);
+      }
+    }
   }
 
   .button {
