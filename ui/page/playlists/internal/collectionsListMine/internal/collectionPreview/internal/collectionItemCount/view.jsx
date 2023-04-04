@@ -6,11 +6,10 @@ import Icon from 'component/common/icon';
 type Props = {
   // -- redux --
   collectionCount: number,
-  hasEdits: boolean,
 };
 
 function CollectionItemCount(props: Props) {
-  const { collectionCount = 0, hasEdits } = props;
+  const { collectionCount = 0 } = props;
 
   return (
     <div className="collection-counter">
