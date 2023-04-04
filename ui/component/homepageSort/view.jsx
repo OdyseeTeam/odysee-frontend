@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import 'scss/component/homepage-sort.scss';
 
 // prettier-ignore
 const Lazy = {

@@ -85,7 +85,7 @@ export default function ModalCustomizeHomepage(props: Props) {
       <Card
         title={__('Customize Homepage')}
         body={
-          <div className="modal-customize-homepage__body">
+          <>
             <HomepageSort onUpdate={handleNewOrder} />
             <Button button="link" label={__('Reset')} onClick={handleReset} />
             <FormField
@@ -95,7 +95,7 @@ export default function ModalCustomizeHomepage(props: Props) {
               checked={applyToSidebar}
               onChange={() => setApplyToSidebar((prev) => !prev)}
             />
-          </div>
+          </>
         }
         actions={
           <div className="modal-customize-homepage__actions section__actions">

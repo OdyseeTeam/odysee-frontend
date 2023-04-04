@@ -1,14 +1,12 @@
 @import '~ui/scss/init/breakpoints';
 
 .featured-banner-wrapper {
-  // position: sticky;
-  // top:10px;
-  // position: relative;
   position: relative;
   width: calc(100% + 80px);
   margin-top: -32px;
   margin-left: -40px;
   margin-right: -40px;
+  padding-bottom: 32px;
   padding-top: 20%;
   background: black;
   margin-bottom: var(--spacing-l);
@@ -20,26 +18,6 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-
-  .banner-controls {
-    /*
-    position:absolute;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    top:0;
-    width: calc(100% - 2 * var(--spacing-l));
-    // width: 100%;
-    // width: var(--page-max-width);
-    // max-width: var(--page-max-width);
-    height:100%;
-    background:red;
-    margin-right: auto;
-    margin-left: auto;    
-    align-self: center;
-    // left:var(--side-nav-width--micro);
-    */
-  }
 
   .featured-banner-rotator {
     position: absolute;
@@ -53,19 +31,8 @@
   .featured-banner-image {
     width: 100%;
     display: inline-block;
-    background-attachment: fixed;
     background-repeat: no-repeat;
-    background-size: calc(100% - var(--side-nav-width--micro));
-    background-position: var(--side-nav-width--micro) var(--header-height);
-
-    @media (max-width: $breakpoint-medium) {
-      background-size: 100%;
-      background-position: 0 var(--header-height);
-    }
-    /*
-    img {
-      width: 100%;
-    }*/
+    background-size: cover;
   }
   .featured-banner-remove {
     position: absolute;
@@ -98,10 +65,11 @@
     margin-top: var(--spacing-m);
     bottom: var(--spacing-m);
     div {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: rgba(150, 150, 150, 0.6);
+      border: 1px solid white;
       display: inline-block;
       margin: 0 var(--spacing-xxs);
       transition: all 1s;
@@ -112,7 +80,7 @@
     }
 
     @media (max-width: $breakpoint-small) {
-      bottom: 3px;
+      bottom: 5px;
       div {
         width: 6px;
         height: 6px;
@@ -179,10 +147,10 @@
       height: 30px;
       font-size: 20px;
       top: unset;
-      bottom: var(--spacing-xs);
+      bottom: var(--spacing-xxxs);
     }
     .featured-banner-remove {
-      top: var(--spacing-xs);
+      top: var(--spacing-xxxs);
     }
   }
 }
