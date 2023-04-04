@@ -1317,6 +1317,10 @@ img {
         @include tier-restriction-checkbox;
         margin-bottom: var(--spacing-s);
       }
+
+      input {
+        display: none;
+      }
     }
   }
 
