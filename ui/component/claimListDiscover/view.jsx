@@ -781,7 +781,7 @@ function ClaimListDiscover(props: Props) {
       hideFilters={hideFilters}
       scrollAnchor={scrollAnchor}
       contentType={contentType}
-      meta={claimType !== 'channel' && meta}
+      meta={meta}
     />
   );
 
