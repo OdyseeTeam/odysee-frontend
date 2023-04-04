@@ -602,6 +602,8 @@
         flex-direction: row;
         margin-left: 0;
         gap: var(--spacing-xs);
+        margin-left: calc((3.8rem + (2 * var(--spacing-s))) * -1);
+        width: calc(100% + (3.8rem + (2 * var(--spacing-s))));
       }
     }
   }
