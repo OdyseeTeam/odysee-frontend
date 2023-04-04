@@ -130,6 +130,14 @@
       opacity: 1 !important;
       background: rgba(var(--color-header-background-base), 1);
     }
+
+    @media (max-width: $breakpoint-small) {
+      top: calc(50% - 20px);
+      width: 40px;
+      height: 40px;
+      font-size: 26px;
+      opacity: 0.8;
+    }
   }
 
   .portals-remove {
