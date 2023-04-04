@@ -826,7 +826,7 @@
     padding: var(--spacing-xs) 0;
 
     input {
-      background: var(--color-header-button);
+      background: var(--color-background);
       &:focus {
         border: 1px solid var(--color-primary);
         box-shadow: unset;
