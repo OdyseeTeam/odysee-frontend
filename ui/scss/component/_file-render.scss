@@ -6,7 +6,8 @@
   @media (max-width: $breakpoint-small) {
     margin-top: var(--spacing-xxs);
     margin-bottom: var(--spacing-s);
-    margin-right: var(--spacing-s);
+    // margin-right: var(--spacing-s);
+    margin-right: 0;
     margin-left: 0;
   }
 }
@@ -44,7 +45,7 @@
                 .membership-button-wrapper {
                   width: 50%;
                   margin-bottom: 0;
-                  margin-right: var(--spacing-xxs);
+                  // margin-right: var(--spacing-xxs);
                   .button--membership,
                   .button--membership-active {
                     width: 100%;

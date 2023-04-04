@@ -62,9 +62,28 @@
   }
 
   .homepage-sort__entry-special {
-    background-color: rgba(var(--color-primary-dynamic), 0.4);
+    background-color: rgba(var(--color-primary-dynamic), 0.8);
+    color: var(--color-primary-contrast);
+    .checkbox {
+      padding-top: 5px;
+      padding-bottom: 6px;
+    }
+    label {
+      color: var(--color-primary-contrast);
+      &::before {
+        background-color: var(--color-background);
+      }
+    }
     &:hover {
-      background-color: rgba(var(--color-primary-dynamic), 0.6);
+      background-color: rgba(var(--color-primary-dynamic), 1);
+      label {
+        &::before {
+          background-color: var(--color-background);
+        }
+        &::after {
+          border-color: var(--color-primary);
+        }
+      }
     }
   }
 }

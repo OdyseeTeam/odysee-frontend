@@ -1,6 +1,7 @@
 // @flow
 import React, { useState } from 'react';
 import classnames from 'classnames';
+import { FormField } from 'component/common/form';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 
@@ -104,6 +105,7 @@ type Props = {
 export default function HomepageSort(props: Props) {
   const { onUpdate, homepageData, homepageOrder, userHasOdyseeMembership } = props;
   const { categories } = homepageData;
+  console.log(props);
 
   const SECTIONS = { ...NON_CATEGORY, ...categories };
   const [listActive, setListActive] = useState(() =>
@@ -131,6 +133,10 @@ export default function HomepageSort(props: Props) {
         BINS[destination.droppableId].setList(result[destination.droppableId]);
       }
     }
+  }
+
+  function toggleBanner() {
+    console.log('toggle banner');
   }
 
   const draggedItemRef = React.useRef();
@@ -178,8 +184,21 @@ export default function HomepageSort(props: Props) {
             })}
           >
             <div className="homepage-sort__bin-header">{__(bin.title)}</div>
+
+            {bin.id === 'ACTIVE' && (
+              <div className="homepage-sort__entry homepage-sort__entry-special">
+                <FormField
+                  type="checkbox"
+                  name="homepage_banner"
+                  label={__('Banner')}
+                  // $FlowIgnore
+                  checked={homepageOrder?.active?.includes('BANNER')}
+                  onChange={() => toggleBanner()}
+                />
+              </div>
+            )}
             {bin.list.map((item, index) => (
-              <DraggableItem key={item} item={item} index={index} />
+              <>{item !== 'BANNER' && <DraggableItem key={item} item={item} index={index} />}</>
             ))}
             {provided.placeholder}
           </div>
