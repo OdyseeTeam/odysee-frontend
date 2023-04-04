@@ -56,6 +56,7 @@ $OPTIONS_MIN_WIDTH: 250px;
     align-items: center;
     justify-content: center;
     padding: 0 var(--spacing-s);
+    height: var(--height-input);
     label {
       margin-bottom: -6px;
       &::before {
