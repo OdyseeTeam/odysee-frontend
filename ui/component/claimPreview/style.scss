@@ -475,8 +475,10 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
+  }
 
-    @media (max-width: $breakpoint-small) {
+  @media (max-width: $breakpoint-small) {
+    .claim-preview__actions {
       margin: 0;
       align-self: flex-start;
 

@@ -889,14 +889,8 @@ body {
       }
     }
     .claim-preview__actions {
-      /*
-      .claim-preview__primary-actions {
-        margin: 0;
-      }
-      */
       .membership-button-wrapper {
         margin: 0;
-        margin-right: var(--spacing-s);
       }
     }
 
@@ -909,28 +903,16 @@ body {
         flex-direction: column;
         .claim-preview__actions {
           overflow: visible;
-          margin-left: calc((2rem + (2 * var(--spacing-s))) * -1);
+          margin-left: calc((2rem + (2 * var(--spacing-xxs))) * -1);
           margin-top: var(--spacing-s);
-          width: calc(100% + (2rem + (2 * var(--spacing-s))));
+          width: calc(100% + (2rem + (2 * var(--spacing-xxs))));
           .membership-button-wrapper {
-            margin-right: var(--spacing-xxs);
             margin-bottom: 0;
             width: 50%;
             .button {
               width: 100%;
             }
           }
-          /*
-          .claim-preview__primary-actions {
-            width: 50%;
-            .button-group {
-              width: 100%;
-              .button:first-of-type {
-                width: 100%;
-              }
-            }
-          }
-          */
         }
       }
     }
@@ -981,7 +963,11 @@ body {
     padding: var(--spacing-xxxs);
     .claim-preview__wrapper {
       .claim-tile__info {
-        margin-top: var(--spacing-xxxs) !important;
+        margin-top: var(--spacing-xs) !important;
+      }
+      .channel-thumbnail {
+        width: 2rem !important;
+        height: 2rem !important;
       }
     }
   }
