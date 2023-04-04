@@ -29,10 +29,11 @@
     height: 100%;
   }
   .featured-banner-image {
-    width: 100%;
     display: inline-block;
-    background-repeat: no-repeat;
-    background-size: cover;
+    max-height: 100%;
+    img {
+      width: 100%;
+    }
   }
   .featured-banner-remove {
     position: absolute;

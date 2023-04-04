@@ -313,18 +313,19 @@ function ClaimListHeader(props: Props) {
 
               {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
             </div>
-            <div className="claim-search__menu-group">
+            <>
               {showHideAnonymous && (
-                <FormField
-                  label={__('Hide anonymous')}
-                  className="hide-anonymous-checkbox"
-                  name="hide_anonymous"
-                  type="checkbox"
-                  checked={hideAnonymous}
-                  onChange={() => setHideAnonymous(!hideAnonymous)}
-                />
+                <div className="claim-search__menu-group hide-anonymous-checkbox">
+                  <FormField
+                    label={__('Hide anonymous')}
+                    name="hide_anonymous"
+                    type="checkbox"
+                    checked={hideAnonymous}
+                    onChange={() => setHideAnonymous(!hideAnonymous)}
+                  />
+                </div>
               )}
-            </div>
+            </>
           </div>
           {meta && !isMobile && <div className="section__actions--no-margin">{meta}</div>}
         </div>
