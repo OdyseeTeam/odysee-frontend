@@ -13,7 +13,6 @@ import { COL_TYPES } from 'constants/collections';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
-// import Spinner from 'component/spinner';
 import DateTime from 'component/dateTime';
 import CollectionTitle from './internal/collectionTitle';
 import CollectionSubtitle from './internal/collectionSubtitle';

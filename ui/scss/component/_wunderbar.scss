@@ -95,7 +95,6 @@
   text-overflow: ellipsis;
   height: var(--height-input);
   border-radius: var(--border-radius);
-  // background-color: var(--color-input-bg);
   background-color: var(--color-header-button);
   color: var(--color-input);
   border: none;
@@ -105,7 +104,6 @@
   border: 1px solid rgba(0, 0, 0, 0);
 
   &:focus {
-    // outline: 2px solid var(--color-primary) !important;
     box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
   }
 }

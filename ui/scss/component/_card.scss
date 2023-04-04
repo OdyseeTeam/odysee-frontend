@@ -149,15 +149,6 @@
   &:last-of-type {
     margin-bottom: 0;
   }
-
-  /*
-  .claim-preview__wrapper {
-    background: rgba(var(--color-header-background-base), 0.6);
-    &:hover {
-      background: rgba(var(--color-header-background-base), 0.9);
-    }
-  }
-  */
 }
 
 .card-collection-selector {
@@ -330,7 +321,6 @@
 .card-title__text {
   display: flex;
   align-items: center;
-  // justify-content: center;
   font-size: var(--font-large);
   font-weight: var(--font-weight-bold);
 
@@ -572,7 +562,6 @@
     margin-bottom: var(--spacing-s);
     .card__title-section {
       .card__title {
-        // margin-top: calc(var(--spacing-s) - 2px);
         margin-bottom: calc(var(--spacing-s) * -1);
       }
     }

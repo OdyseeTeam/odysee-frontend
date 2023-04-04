@@ -1,9 +1,7 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
-// import { COL_TYPES, SORT_ORDER } from 'constants/collections';
 import React from 'react';
-// import Button from 'component/button';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 

@@ -353,7 +353,6 @@ export default function ChatLayout(props: Props) {
   function handleHyperchatClick(hyperchat: Comment) {
     console.log('selectHyperchat: ', hyperchat);
     setSelectedHyperchat(hyperchat);
-    // selectHyperchat(hyperchat);
   }
 
   return (
@@ -404,10 +403,6 @@ export default function ChatLayout(props: Props) {
             'livestream-comments__top-actions--mobile': isMobile,
           })}
         >
-          {/* isMobile && ((pinnedComment && showPinned) || (hyperChatsByAmount && !hyperchatsHidden)) && (
-            <div className="livestream__top-gradient" />
-          ) */}
-
           {viewMode === VIEW_MODES.CHAT && hyperChatsByAmount && (
             <LivestreamHyperchats
               superChats={hyperChatsByAmount}

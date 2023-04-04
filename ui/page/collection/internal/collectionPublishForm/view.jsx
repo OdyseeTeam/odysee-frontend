@@ -280,12 +280,6 @@ const CollectionPublishForm = (props: Props) => {
             ? __('After submitting, it will take a few minutes for your changes to be live for everyone.')
             : __('After saving, all changes will remain private')}
         </p>
-
-        {/*
-        <div className="section__actions">
-          <CollectionDeleteButton uri={uri} collectionId={collectionId} />
-        </div>
-          */}
       </CollectionFormContext.Provider>
     </Form>
   );

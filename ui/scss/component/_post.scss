@@ -95,7 +95,6 @@
   @include font-sans;
   margin-top: var(--spacing-l);
   margin-bottom: var(--spacing-l);
-  // width: 75%;
 
   .tag {
     margin-top: 0;
@@ -103,9 +102,7 @@
 }
 
 .post__date {
-  // display: block;
   display: flex;
-  // margin-top: var(--spacing-s);
   font-size: var(--font-small);
   color: var(--color-help);
 

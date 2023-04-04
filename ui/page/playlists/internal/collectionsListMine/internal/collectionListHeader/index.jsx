@@ -80,7 +80,6 @@ export default function CollectionsListMine(props: Props) {
             <div className="claim-search__menu-subgroup">
               <FormField
                 className="claim-search__dropdown"
-                // label={__('Sort By new')}
                 type="select"
                 name="sort_by"
                 value={sortOption.key}
@@ -95,7 +94,6 @@ export default function CollectionsListMine(props: Props) {
               </FormField>
               <FormField
                 className="claim-search__dropdown"
-                // label={__('Order By')}
                 type="select"
                 name="order_by"
                 value={sortOption.value}

@@ -52,18 +52,10 @@
 }
 
 .clh-tag-search__input {
-  // width: $OPTIONS_MIN_WIDTH;
   width: 100%;
   padding-left: 36px;
   padding-right: 30px;
 }
-
-/*
-.clh-tag-search__input--standalone {
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  width: unset;
-}
-*/
 
 .clh-tag-search__input--hidden {
   display: none;

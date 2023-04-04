@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
-// import TruncatedText from 'component/common/truncated-text';
 import CollectionItemCount from './internal/collectionItemCount';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
 import CollectionPublicIcon from './internal/collection-public-icon';
@@ -155,7 +154,6 @@ function CollectionPreview(props: Props) {
               {collectionCount > 0 && !hidePlayAll && (
                 <Button
                   button="alt"
-                  // label={__('Play All')}
                   icon={ICONS.PLAY}
                   onClick={() =>
                     push({

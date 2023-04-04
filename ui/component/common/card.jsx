@@ -91,7 +91,6 @@ function Card(props: Props) {
         {(title || subtitle) && (
           <div
             className={classnames('card__header--between', {
-              // 'card__header--nowrap': noTitleWrap,
               'card__header--slim': slimHeader,
               'card__header--grid': gridHeader,
             })}

@@ -169,11 +169,7 @@ function PublishPrice(props: Props) {
 
   function getTncRow() {
     return (
-      <div
-        className={classnames('publish-price__row', {
-          // 'publish-price__row--indented': true,
-        })}
-      >
+      <div className="publish-price__row">
         <div className="publish-price__grp-1 publish-price__tnc">
           <I18nMessage
             tokens={{
@@ -198,7 +194,6 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
-          // 'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">
@@ -236,7 +231,6 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
-          // 'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">
@@ -283,7 +277,6 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': restrictedWithoutPrice,
-          // 'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">

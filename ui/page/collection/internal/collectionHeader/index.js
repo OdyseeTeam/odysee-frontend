@@ -1,11 +1,7 @@
 import { connect } from 'react-redux';
 
 import { selectClaimIsPendingForId, selectClaimForId } from 'redux/selectors/claims';
-import {
-  selectCollectionForId,
-  selectCountForCollectionId,
-  selectCollectionHasEditsForId,
-} from 'redux/selectors/collections';
+import { selectCountForCollectionId, selectCollectionHasEditsForId } from 'redux/selectors/collections';
 import { doCollectionEdit } from 'redux/actions/collections';
 
 import CollectionHeader from './view';
@@ -17,10 +13,8 @@ const select = (state, props) => {
   const uri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
 
   return {
-    // collectionId,
     uri,
     hasClaim: Boolean(claim),
-    // collection: selectCollectionForId(state, collectionId),
     collectionCount: selectCountForCollectionId(state, collectionId),
     claimIsPending: selectClaimIsPendingForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),

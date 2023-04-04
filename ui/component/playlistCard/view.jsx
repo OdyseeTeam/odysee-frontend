@@ -61,8 +61,6 @@ export default function PlaylistCard(props: Props) {
   const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, id } =
     props;
 
-  // console.log('proooooops: ', props)
-
   const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
   const [showEdit, setShowEdit] = React.useState(false);
 

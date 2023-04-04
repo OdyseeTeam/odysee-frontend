@@ -798,7 +798,6 @@ function ClaimListDiscover(props: Props) {
               <div className="section__actions section__actions-span">
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
-                {/* meta && <div className="section__actions--no-margin">{meta}</div> */}
               </div>
             </div>
           )}
@@ -840,7 +839,6 @@ function ClaimListDiscover(props: Props) {
                 {headerToUse}
                 {searchInSelectedLang && <LangFilterIndicator />}
               </div>
-              {/* meta && <div className="section__actions--no-margin">{meta}</div> */}
             </div>
           )}
           {subSection && <div>{subSection}</div>}

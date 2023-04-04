@@ -216,7 +216,6 @@ input-submit {
     min-height: var(--height-checkbox);
 
     &::before {
-      // background-color: var(--color-input-toggle-bg);
       background-color: var(--color-header-button);
     }
 
@@ -254,10 +253,8 @@ input-submit {
   label::before {
     height: var(--height-checkbox);
     width: var(--height-checkbox);
-    // border: 1px solid var(--color-input-border);
     border-radius: var(--border-radius);
     left: 0px;
-    // top: -1px;
   }
 
   // Checkmark of the fake checkbox
@@ -438,10 +435,7 @@ fieldset-group {
         height: var(--height-input);
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
-        // border-color: var(--color-input-border);
         border-right-color: var(--color-input-prefix-border);
-        // background-color: var(--color-border);
-        // background-color: rgba(var(--color-primary-static),.2);
         background-color: var(--color-text);
         color: var(--color-text-inverse);
       }

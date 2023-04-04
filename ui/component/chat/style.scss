@@ -5,7 +5,6 @@ $discussion-header__height: 3rem;
 $recent-msg-button__height: 2rem;
 
 .chat__wrapper {
-  // margin-top: var(--spacing-m);
   margin-bottom: var(--spacing-m);
   width: 100%;
   border-radius: var(--border-radius);
@@ -777,7 +776,6 @@ $recent-msg-button__height: 2rem;
   .date_time {
     color: var(--color-text-subtitle);
     opacity: var(--live-timestamp-opacity);
-    // font-size: var(--font-xsmall) !important;
   }
 
   .channel-name {

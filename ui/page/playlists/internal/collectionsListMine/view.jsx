@@ -10,7 +10,6 @@ import { getTitleForCollection } from 'util/collections';
 
 import CollectionPreview from './internal/collectionPreview';
 import SectionLabel from './internal/label';
-// import TableHeader from './internal/table-header';
 import CollectionListHeader from './internal/collectionListHeader/index';
 import Paginate from 'component/common/paginate';
 import usePersistedState from 'effects/use-persisted-state';

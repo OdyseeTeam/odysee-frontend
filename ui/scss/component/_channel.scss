@@ -185,7 +185,6 @@ $actions-z-index: 2;
     .claim-tile__info {
       flex: 1;
       .claim-preview__tags {
-        // width:100%;
         .claim__tags {
           display: flex;
           width: 100%;
@@ -229,24 +228,6 @@ $actions-z-index: 2;
       }
     }
   }
-
-  /*
-  .claim-preview__wrapper--channel {
-    .menu__button {
-      right: var(--spacing-s);
-    }
-    .claim-tile__info {
-      margin-top: 0;
-      padding-bottom: var(--spacing-xxxs);
-      .claim-preview-metadata-sub-upload {
-        margin-top: 3px;
-      }
-    }
-    .claim__menu-button {
-      right: -8px;
-    }
-  }
-  */
 
   .mb-xl {
     // Temporary fix for upcoming livestreams on channel page
@@ -1020,7 +1001,6 @@ $actions-z-index: 2;
 .channel__list-item {
   display: flex;
   align-items: center;
-  // background-color: var(--color-header-background);
   padding: var(--spacing-s);
   overflow: hidden;
   height: var(--height-button);
@@ -1344,81 +1324,6 @@ $actions-z-index: 2;
     }
   }
 
-  /*
-  .claim-preview__wrapper--channel {
-    position: relative;
-    border-radius: var(--border-radius);
-    background: rgba(var(--color-header-background-base), 0.6);
-    padding: var(--spacing-m) !important;
-
-    .comment__badge {
-      .icon {
-        margin-bottom: -10%;
-        width: 40%;
-        @media (max-width: $breakpoint-small) {
-          margin-bottom: -30%;
-        }
-      }
-      .icon--PremiumPlus,
-      .icon--Premium {
-        width: 18px;
-        margin-bottom: -12%;
-      }
-    }
-
-    .claim__menu-button {
-      margin-top: var(--spacing-xxs);
-
-      .icon {
-        stroke: var(--color-text);
-      }
-
-      &:hover {
-        background-color: rgba(var(--color-header-button-base), 0.9);
-        border-radius: 50%;
-        outline: 2px solid var(--color-header-background);
-        .icon {
-          stroke: var(--color-primary);
-        }
-      }
-    }
-    .help--inline {
-      color: var(--color-text);
-    }
-    .claim-tile__info {
-      display: unset;
-      margin-top: 0;
-      margin-bottom: 0;
-      padding-bottom: 0;
-    }
-    .media__subtitle {
-      .claim-preview-metadata-sub-upload {
-        margin-top: 2px;
-        font-size: var(--font-small) !important;
-      }
-    }
-
-    @media (max-width: $breakpoint-small) {
-      .claim-preview--channel {
-        .claim-preview__actions {
-          flex-flow: row;
-          .section__actions {
-            .button--alt {
-              margin-bottom: 0;
-            }
-          }
-          .claim-preview__custom-properties {
-            justify-content: unset;
-          }
-        }
-      }
-
-      .claim-preview__actions {
-        margin-top: var(--spacing-s) !important;
-      }
-    }
-  }
-  */
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
     .yrbl__wrap {

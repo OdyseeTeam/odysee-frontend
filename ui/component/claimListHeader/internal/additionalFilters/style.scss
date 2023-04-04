@@ -44,7 +44,6 @@ $OPTIONS_MIN_WIDTH: 250px;
 
       label::before {
         top: 0; // override the "-1" default, which was clipping the top edge.
-        // border: 2px solid var(--color-border);
         margin-top: 0;
       }
 

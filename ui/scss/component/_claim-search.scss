@@ -80,21 +80,7 @@
   @media (max-width: $breakpoint-small) {
     padding: unset;
   }
-
-  /*
-  &:not(:first-child) {
-    margin-top: var(--spacing-s) !important;
-  }
-  */
 }
-
-/*
-.claim-search__dropdown {
-  font-size: var(--font-body);
-  background-color: var(--color-card-background);
-  background-position: right var(--spacing-m) center;
-}
-*/
 
 .claim-search__input-container {
   display: flex;
@@ -111,7 +97,6 @@
 .claim-search__dropdown,
 .claim-search__input-container {
   padding-left: 0;
-  // padding-right: var(--spacing-m);
   @media (max-width: $breakpoint-small) {
     padding-right: 0;
   }
@@ -175,14 +160,6 @@
   .claim-search__menu-group:last-of-type {
     margin-right: unset;
   }
-
-  /*
-  @media (max-width: $breakpoint-small) {
-    .claim-search__menu-group:first-of-type {
-      margin-right: var(--spacing-s);
-    }
-  }
-  */
 }
 
 .claim-search__top > div {

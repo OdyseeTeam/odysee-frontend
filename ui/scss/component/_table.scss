@@ -32,11 +32,6 @@
     color: var(--color-text-help);
     padding-bottom: var(--spacing-xxxs);
     text-align: left;
-
-    @media (max-width: $breakpoint-small) {
-      // padding-left: var(--spacing-xs) !important;
-      // padding-right: var(--spacing-xs) !important;
-    }
   }
 }
 

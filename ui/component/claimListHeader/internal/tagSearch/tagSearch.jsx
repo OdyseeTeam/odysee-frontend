@@ -10,7 +10,6 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
 import debounce from 'util/debounce';
-// import { useIsLargeScreen } from 'effects/use-screensize';
 
 type Props = {
   urlParams: any,
@@ -22,7 +21,6 @@ function TagSearch(props: Props) {
   const { urlParams, handleChange, standalone } = props;
 
   const inputRef: ElementRef<any> = React.useRef();
-  // const isLargeScreen = useIsLargeScreen();
   // const isTagFiltered = urlParams.get(CS.TAGS_KEY);
 
   // const [tagSearchExpanded, setTagSearchExpanded] = React.useState(isLargeScreen);

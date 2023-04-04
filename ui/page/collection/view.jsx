@@ -45,7 +45,6 @@ const CollectionPage = (props: Props) => {
     doRemoveFromUnsavedChangesCollectionsForCollectionId,
   } = props;
 
-  // console.log('CollectionPage props: ', props)
   const {
     push,
     location: { search, state },
