@@ -337,7 +337,7 @@ function SideNavigation(props: Props) {
 
   function handleClick(event) {
     setTimeout(() => {
-      event.stopPropagation();
+      if (event) event.stopPropagation();
     }, 0);
   }
 
