@@ -2028,7 +2028,7 @@ img {
     .claim-preview__history-remove {
       position: absolute;
       top: var(--spacing-s);
-      right: var(--spacing-xs);
+      right: 40px;
       opacity: 0;
 
       .icon {
@@ -2049,7 +2049,8 @@ img {
     }
 
     .menu__button.claim__menu-button {
-      top: 2.2rem;
+      top: var(--spacing-xs);
+      right: var(--spacing-xs);
     }
 
     &:hover {
