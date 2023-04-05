@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import * as ICONS from 'constants/icons';
 import * as COLS from 'constants/collections';
 import classnames from 'classnames';
 import { FormField } from 'component/common/form';
@@ -20,16 +19,14 @@ type Props = {
 };
 
 export default function CollectionsListMine(props: Props) {
-  const { filterType, isTruncated, sortOption, persistedOption, setFilterType, setSortOption, setPersistedOption } =
-    props;
+  const { filterType, isTruncated, sortOption, setFilterType, setSortOption, setPersistedOption } = props;
 
   const history = useHistory();
   const {
-    location: { search, pathname },
+    location: { search },
   } = history;
 
   const urlParams = new URLSearchParams(search);
-  const hasDefaultSort = sortOption.key === persistedOption.key && sortOption.value === persistedOption.value;
 
   function handleChange(sortObj) {
     // can only have one sorting option at a time
@@ -40,6 +37,7 @@ export default function CollectionsListMine(props: Props) {
 
     const url = `?${urlParams.toString()}`;
     history.push(url);
+    setPersistedOption(sortOption);
   }
 
   function handleFilterTypeChange(value) {
@@ -47,14 +45,6 @@ export default function CollectionsListMine(props: Props) {
     setFilterType(value);
 
     const url = `?${urlParams.toString()}`;
-    history.push(url);
-  }
-
-  function handleClear() {
-    Object.keys(COLS.SORT_VALUES).forEach((k) => urlParams.get(k) && urlParams.delete(k));
-
-    setSortOption(persistedOption);
-    const url = urlParams.toString() ? `?${urlParams.toString()}` : pathname;
     history.push(url);
   }
 
@@ -107,28 +97,6 @@ export default function CollectionsListMine(props: Props) {
                 ))}
               </FormField>
             </div>
-          </div>
-
-          {/* Sort Options */}
-          <div className="claim-search__menu-group claim-search__menu-group--inputs">
-            {/* Save Sort */}
-            {!hasDefaultSort && (
-              <div className="claim-search__input-container action-button">
-                <Button
-                  button="alt"
-                  label={__('Save')}
-                  icon={ICONS.COMPLETE}
-                  onClick={() => setPersistedOption(sortOption)}
-                />
-              </div>
-            )}
-
-            {/* Clear Sort */}
-            {!hasDefaultSort && (
-              <div className="claim-search__input-container action-button">
-                <Button button="alt" label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
-              </div>
-            )}
           </div>
         </div>
 
