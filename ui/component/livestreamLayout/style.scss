@@ -12,6 +12,10 @@
       height: var(--height-button-mobile);
     }
   }
+  .menu__button {
+    opacity: 1;
+    margin-right: var(--spacing-xs);
+  }
 
   button:last-of-type {
     margin-left: auto;

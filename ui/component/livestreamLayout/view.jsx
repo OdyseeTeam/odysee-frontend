@@ -181,7 +181,7 @@ const ChatModeSelector = (chatSelectorProps: any) => {
       />
       {superChats && (
         <Button
-          title={__('Hyperchats')}
+          title={__('HyperChats')}
           label={
             <>
               <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /
