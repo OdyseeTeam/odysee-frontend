@@ -1286,7 +1286,8 @@ $recent-msg-button__height: 2rem;
       width: calc(var(--font-body) + 2px);
       margin-bottom: -7px;
     }
-    .icon--BadgeMod {
+    .icon--BadgeMod,
+    .icon--BadgeAdmin {
       height: calc(var(--font-body) - 3px);
       width: calc(var(--font-body) - 3px);
       margin-bottom: -4px;
