@@ -1,0 +1,102 @@
+.collection-edit-wrapper {
+  .collection_name-wrapper {
+    label {
+      font-size: var(--font-large);
+      font-weight: var(--font-weight-bold);
+    }
+    .collection_name {
+      padding: var(--spacing-s);
+      margin-bottom: var(--spacing-l);
+      background-color: var(--color-header-button);
+      border-radius: var(--border-radius);
+      fieldset-group {
+        label {
+          display: none;
+        }
+      }
+
+      input {
+        background-color: var(--color-background);
+      }
+    }
+  }
+
+  .collection_title {
+    label {
+      font-size: var(--font-large);
+      font-weight: var(--font-weight-bold);
+    }
+    fieldset-section {
+      padding: var(--spacing-s);
+      margin-bottom: var(--spacing-l);
+      background-color: var(--color-header-button) !important;
+      border-radius: var(--border-radius);
+      input {
+        background-color: var(--color-background);
+      }
+    }
+  }
+
+  .card--thumbnail,
+  .EasyMDEContainer {
+    padding: var(--spacing-s);
+    margin-bottom: var(--spacing-l);
+  }
+  .card--thumbnail {
+    background-color: var(--color-header-button);
+    border-radius: var(--border-radius);
+    fieldset-section {
+      input {
+        background-color: var(--color-background);
+      }
+      button {
+        background-color: var(--color-primary);
+        .button__label {
+          color: var(--color-primary-contrast);
+        }
+      }
+    }
+  }
+
+  .form-field--SimpleMDE {
+    margin-top: 0;
+    .form-field__two-column {
+      label {
+        font-size: var(--font-large);
+        font-weight: var(--font-weight-bold);
+      }
+    }
+    .EasyMDEContainer {
+      background-color: var(--color-header-button);
+      border-radius: var(--border-radius);
+    }
+  }
+
+  .card--additional-options {
+    input,
+    select {
+      background-color: var(--color-background);
+    }
+    select {
+      &:hover {
+        background-color: var(--color-primary);
+      }
+    }
+    label {
+      font-size: var(--font-body);
+    }
+
+    .tag {
+      background-color: var(--color-background);
+      &:hover {
+        background-color: var(--color-primary);
+      }
+    }
+
+    fieldset-section {
+      fieldset-section {
+        padding: 0;
+      }
+    }
+  }
+}

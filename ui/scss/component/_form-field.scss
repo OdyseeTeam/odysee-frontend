@@ -436,8 +436,8 @@ fieldset-group {
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
         border-right-color: var(--color-input-prefix-border);
-        background-color: var(--color-text);
-        color: var(--color-text-inverse);
+        background-color: var(--color-border);
+        color: rgba(var(--color-text-base), 0.7);
       }
     }
 
@@ -445,8 +445,6 @@ fieldset-group {
       width: 100%;
 
       label {
-        // Overwrite the input's label to wrap instead. This is usually
-        // an error message, which could be long in other languages.
         width: 100%;
         white-space: normal;
       }

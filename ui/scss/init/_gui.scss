@@ -1090,13 +1090,6 @@ img {
     font-size: var(--font-body);
   }
 
-  .form-field__prefix {
-    box-shadow: unset !important;
-    border-width: 2px 2px 2px 0 !important;
-    // border-color: var(--color-border) !important;
-    background-color: var(--color-border) !important;
-  }
-
   .tags__input-wrapper {
     background: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
