@@ -153,6 +153,7 @@
 
 .claim-preview__wrapper--row {
   display: flex;
+  flex-direction: column;
   flex-grow: 1;
   flex-shrink: 0;
   padding: var(--spacing-m);
@@ -215,6 +216,7 @@
     width: calc(var(--file-list-thumbnail-width) * 1.2) !important;
     background-size: 100%;
     transition: background-size 0.2s;
+    aspect-ratio: 16 / 9;
     &[aria-expanded='true'] {
       opacity: 1;
       background-color: var(--color-background);
