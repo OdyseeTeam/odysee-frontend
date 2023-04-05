@@ -73,13 +73,6 @@ $SKEW_AMOUNT: 10deg;
   }
 }
 
-.filePrice--filepage.filePrice--skewedBg {
-  // Buy some space to avoid clipping.
-  // Not sure why it's not needed for claim thumbnails.
-  margin-left: calc(var(--spacing-s) / 2);
-  margin-right: calc(var(--spacing-s) / 2);
-}
-
 .filePrice--modal {
   border: 5px solid var(--color-purchased);
   font-size: var(--font-body);
