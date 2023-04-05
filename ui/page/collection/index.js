@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { selectHasClaimForId } from 'redux/selectors/claims';
+import { selectHasClaimForId, selectClaimIsPendingForId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectBrokenUrlsForCollectionId,
@@ -27,6 +27,7 @@ const select = (state, props) => {
     isCollectionMine: selectCollectionIsMine(state, collectionId),
     hasPrivate: selectHasPrivateCollectionForId(state, collectionId),
     isPrivate: selectIsCollectionPrivateForId(state, collectionId),
+    isClaimPending: selectClaimIsPendingForId(state, collectionId),
   };
 };
 

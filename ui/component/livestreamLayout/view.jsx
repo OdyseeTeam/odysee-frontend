@@ -109,7 +109,6 @@ export default function LivestreamLayout(props: Props) {
             {isMobile && !isLandscapeRotated && !videoTheaterMode && livestreamChatEnabled && (
               <React.Suspense fallback={null}>
                 <SwipeableDrawer
-                  // startOpen
                   type={DRAWERS.CHAT}
                   title={
                     <div className="chat-card--drawer-header">
