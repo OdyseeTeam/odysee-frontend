@@ -16,6 +16,10 @@ $INDENT: var(--spacing-xl);
   flex-direction: column;
   padding: var(--spacing-s);
 
+  .publish-price__grp-1 {
+    margin-bottom: var(--spacing-s);
+  }
+
   fieldset-section:first-of-type {
     padding: 0;
   }
