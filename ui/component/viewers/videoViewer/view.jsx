@@ -239,8 +239,6 @@ function VideoViewer(props: Props) {
       // if a playlist, navigate to next item
     } else if (playNextUri) {
       doPlayNextUri({ uri: playNextUri });
-    } else {
-      setShowRecommendationOverlay(true);
     }
   }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
 
@@ -283,7 +281,11 @@ function VideoViewer(props: Props) {
     if (embedContext) {
       embedContext.setVideoEnded(true);
     } else {
-      handlePlayNextUri();
+      if (canPlayNext) {
+        handlePlayNextUri();
+      } else {
+        setShowRecommendationOverlay(true);
+      }
     }
 
     clearPosition(uri);
@@ -293,7 +295,7 @@ function VideoViewer(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle'); // eslint-disable-line no-unused-expressions
     }
-  }, [adUrl, autoplayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
+  }, [adUrl, canPlayNext, autoplayNext, clearPosition, embedContext, handlePlayNextUri, setAdUrl, uri]);
 
   React.useEffect(() => {
     if (playerElem) {
