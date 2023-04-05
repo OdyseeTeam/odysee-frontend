@@ -1023,7 +1023,7 @@ img {
     }
     select {
       &:hover {
-        background-color: var(--color-primary);
+        background-color: var(--color-button-toggle-bg-hover);
         color: var(--color-primary-contrast);
       }
     }
