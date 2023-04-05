@@ -407,7 +407,7 @@ $recent-msg-button__height: 2rem;
     }
     select {
       &:hover {
-        background-color: var(--color-primary);
+        background-color: var(--color-button-toggle-bg-hover);
       }
     }
     .help {
