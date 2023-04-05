@@ -239,8 +239,6 @@ function VideoViewer(props: Props) {
       // if a playlist, navigate to next item
     } else if (playNextUri) {
       doPlayNextUri({ uri: playNextUri });
-    } else {
-      setShowRecommendationOverlay(true);
     }
   }, [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]);
 
@@ -283,7 +281,11 @@ function VideoViewer(props: Props) {
     if (embedContext) {
       embedContext.setVideoEnded(true);
     } else {
-      handlePlayNextUri();
+      if (canPlayNext) {
+        handlePlayNextUri();
+      } else {
+        setShowRecommendationOverlay(true);
+      }
     }
 
     clearPosition(uri);
