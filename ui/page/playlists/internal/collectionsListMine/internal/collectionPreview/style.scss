@@ -21,6 +21,16 @@
     transition: opacity 0.2s;
   }
 
+  .pending-change {
+    display: inline-block;
+    height: var(--font-large);
+    // background-color: rgba(244, 44, 44, 0.9);
+    border-radius: var(--border-radius);
+    .spinner {
+      height: 16px;
+    }
+  }
+
   .content {
     display: flex;
     height: 100%;

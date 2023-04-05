@@ -5,20 +5,18 @@ import React from 'react';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 
-// import FileActionButton from 'component/common/file-action-button';
 import { useIsMobile } from 'effects/use-screensize';
 import * as PAGES from 'constants/pages';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
 import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimShareButton from 'component/claimShareButton';
-// import FileReactions from 'component/fileReactions';
-// import classnames from 'classnames';
 // import { ENABLE_FILE_REACTIONS } from 'config';
 // import ClaimRepostButton from 'component/claimRepostButton';
-// import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionPublishButton from 'page/collection/internal/collectionActions/internal/publishButton';
 // import CollectionSubtitle from '../collectionSubtitle';
+import Tooltip from 'component/common/tooltip';
+import Spinner from 'component/spinner';
 
 type Props = {
   uri: string,
@@ -29,6 +27,7 @@ type Props = {
   // isHeader: boolean,
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
+  claimIsPending: boolean,
   // collectionSavedForId: boolean,
   // collectionEmpty: boolean,
   // collectionType: string,
@@ -45,6 +44,7 @@ function CollectionHeaderActions(props: Props) {
     isMyCollection,
     collectionId,
     isBuiltin,
+    claimIsPending,
     // showEdit,
     // isHeader,
     setShowEdit,
@@ -73,6 +73,17 @@ function CollectionHeaderActions(props: Props) {
               {uri && (
                 <>
                   {isMyCollection && <CollectionPublishButton uri={uri} collectionId={collectionId} />}
+                  {claimIsPending && (
+                    <Tooltip
+                      title={__('Your publish is being confirmed and will be live soon')}
+                      arrow={false}
+                      enterDelay={100}
+                    >
+                      <div className="pending-change">
+                        <Spinner />
+                      </div>
+                    </Tooltip>
+                  )}
                   {!isMyCollection && <ClaimSupportButton uri={uri} fileAction />}
                   {/* <ClaimRepostButton uri={uri} /> */}
                   <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />

@@ -26,6 +26,15 @@
     }
   }
 
+  .pending-change {
+    height: var(--height-button);
+    background-color: rgba(244, 44, 44, 0.9);
+    border-radius: var(--border-radius);
+    .spinner {
+      height: 20px;
+    }
+  }
+
   .collection-header__content {
     position: relative;
     display: flex;

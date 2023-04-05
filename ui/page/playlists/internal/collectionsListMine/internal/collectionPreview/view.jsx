@@ -19,6 +19,8 @@ import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import Button from 'component/button';
 import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import Icon from 'component/common/icon';
+import Tooltip from 'component/common/tooltip';
+import Spinner from 'component/spinner';
 import './style.scss';
 
 type Props = {
@@ -28,6 +30,7 @@ type Props = {
   collectionCount: number,
   collectionName: string,
   collectionType: ?string,
+  claimIsPending: boolean,
   isFetchingItems: boolean,
   isResolvingCollection: boolean,
   title?: string,
@@ -49,8 +52,9 @@ function CollectionPreview(props: Props) {
   const {
     uri,
     collectionId,
-    collectionName,
     collectionCount,
+    collectionName,
+    claimIsPending,
     isFetchingItems,
     isResolvingCollection,
     collectionType,
@@ -121,6 +125,17 @@ function CollectionPreview(props: Props) {
                 {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
                 {usedCollectionName}
                 {collectionHasEdits && <Icon icon={ICONS.PUBLISH} />}
+                {claimIsPending && (
+                  <Tooltip
+                    title={__('Your publish is being confirmed and will be live soon')}
+                    arrow={false}
+                    enterDelay={100}
+                  >
+                    <div className="pending-change">
+                      <Spinner />
+                    </div>
+                  </Tooltip>
+                )}
               </h2>
             </NavLink>
           </div>

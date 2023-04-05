@@ -5,6 +5,7 @@ import {
   selectClaimIdForUri,
   selectClaimForClaimId,
   selectThumbnailForUri,
+  selectClaimIsPendingForId,
 } from 'redux/selectors/claims';
 import {
   selectCollectionTitleForId,
@@ -47,6 +48,7 @@ const select = (state, props) => {
     collectionType: selectCollectionTypeForId(state, collectionId),
     isFetchingItems: selectAreCollectionItemsFetchingForId(state, collectionId),
     isResolvingCollection: selectIsResolvingForId(state, collectionId),
+    claimIsPending: selectClaimIsPendingForId(state, collectionId),
     title: collectionUri && selectTitleForUri(state, collectionUri),
     channel,
     channelTitle,

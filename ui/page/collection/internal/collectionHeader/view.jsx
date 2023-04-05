@@ -46,7 +46,7 @@ const CollectionHeader = (props: Props) => {
     // collectionThumbnail,
     // -- redux --
     uri,
-    // claimIsPending,
+    claimIsPending,
     // doCollectionEdit,
   } = props;
 
@@ -99,6 +99,7 @@ const CollectionHeader = (props: Props) => {
                 isBuiltin={isBuiltin}
                 setShowEdit={setShowEdit}
                 showEdit={showEdit}
+                claimIsPending={claimIsPending}
                 isHeader
               />
             </div>
