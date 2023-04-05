@@ -33,6 +33,14 @@
     .spinner {
       height: 20px;
     }
+
+    @media (max-width: $breakpoint-small) {
+      width: 31px;
+      margin-top: var(--spacing-xxs);
+      .spinner {
+        align-items: unset !important;
+      }
+    }
   }
 
   .collection-header__content {
