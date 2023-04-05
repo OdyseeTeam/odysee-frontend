@@ -634,7 +634,7 @@ $recent-msg-button__height: 2rem;
     background-color: var(--color-background);
     border-radius: var(--border-radius);
     padding-left: var(--spacing-s);
-    padding-right: var(--spacing-s);
+    padding-right: 2px;
 
     &.livestream__comment--hyperchat {
       padding-left: 0;
@@ -660,7 +660,7 @@ $recent-msg-button__height: 2rem;
         font-weight: var(--font-weight-bold);
         margin: var(--spacing-xs);
         margin-right: 0;
-        margin-left: 0;
+        margin-left: auto;
         margin-bottom: 2px;
         @media (max-width: $breakpoint-small) {
           margin: 0;
@@ -674,8 +674,8 @@ $recent-msg-button__height: 2rem;
       }
     }
     .livestreamComment__menu {
-      top: 3px !important;
-      right: 2px !important;
+      top: 8px !important;
+      right: 6px !important;
       .menu__button {
         &[aria-expanded='true'] {
           .icon {
@@ -684,20 +684,23 @@ $recent-msg-button__height: 2rem;
         }
       }
       @media (min-width: $breakpoint-small) {
-        top: 9px;
+        top: 10px;
       }
     }
+
     &:hover {
       background-color: var(--color-background);
+
+      .livestreamComment__menu {
+        .menu__button {
+          background: var(--color-header-button);
+        }
+      }
     }
   }
 
   .close-button {
-    // border-left: 1px solid var(--color-background);
-    // padding: 0 calc(var(--spacing-m) - var(--spacing-xs)) 0 var(--spacing-m);
-    // padding:var(--spacing-s);
     margin-left: var(--spacing-s);
-    // margin-right: var(--spacing-s);
     color: var(--color-text);
 
     .button__content {
@@ -786,7 +789,7 @@ $recent-msg-button__height: 2rem;
     }
     @media (min-width: $breakpoint-small) {
       .livestreamComment__meta-information {
-        width: calc(100% - var(--spacing-m) - 20px);
+        width: calc(100% - var(--spacing-m) - 16px);
       }
     }
   }
@@ -1081,34 +1084,6 @@ $recent-msg-button__height: 2rem;
 
   @media (max-width: $breakpoint-small) {
     max-height: 40px;
-  }
-}
-
-.livestreamHyperchat__info--sticker {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  flex-direction: row;
-  width: 7rem;
-  max-width: 7rem !important;
-  height: 38px;
-
-  .livestreamHyperchat__info--user {
-    .channel-name {
-      max-width: 7rem;
-    }
-  }
-
-  .livestreamHyperchat__info--image {
-    max-height: 100%;
-    width: auto;
-    margin-left: 0;
-    img {
-      height: 38px;
-      max-height: 100%;
-      width: auto;
-      max-width: unset;
-    }
   }
 }
 

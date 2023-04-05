@@ -17,7 +17,8 @@
       height: 100%;
       background-attachment: fixed;
       background-repeat: no-repeat;
-      background-size: 120%;
+      // background-size: 120%;
+      background-size: cover;
       background-position: 50%;
       filter: blur(12px);
       -webkit-filter: blur(12px);
@@ -182,7 +183,12 @@
           .collection-header__meta {
             gap: var(--spacing-xxs);
             margin-top: var(--spacing-xxs);
+            flex-wrap: wrap;
             .collection-header__meta-entry {
+              flex-grow: 1;
+              align-items: center;
+              flex: 1 0 40%;
+              box-sizing: border-box;
               div {
                 font-size: var(--font-xxsmall) !important;
                 padding: var(--spacing-xxs);
@@ -236,7 +242,7 @@
       background: var(--color-header-button);
       margin: var(--spacing-s) 0;
       padding: var(--spacing-s);
-      margin-right: var(--spacing-m) !important;
+      // margin-right: var(--spacing-m) !important;
       &:hover {
         background: var(--color-primary) !important;
         .button__label,

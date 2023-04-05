@@ -209,6 +209,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
 
+  const backgroundImage = thumbnailFromClaim
+    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    : undefined;
+
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const channelSubscribers = React.useMemo(() => {
     if (channelSubCount === undefined) {
@@ -444,10 +448,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
         {!type && (
           <div
             className="background"
-            style={{
-              backgroundImage:
-                'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim + ')',
-            }}
+            style={
+              backgroundImage && {
+                backgroundImage: 'url(' + backgroundImage + ')',
+              }
+            }
           />
         )}
 

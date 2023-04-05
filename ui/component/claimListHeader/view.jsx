@@ -277,7 +277,7 @@ function ClaimListHeader(props: Props) {
                       doSetClientSetting(SETTINGS.TILE_LAYOUT, true);
                     }}
                     button="alt"
-                    className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
+                    className={classnames(`button-toggle button-toggle--top`, {
                       'button-toggle--active': tileLayout,
                     })}
                     aria-label={__('Change to tile layout')}
@@ -288,7 +288,7 @@ function ClaimListHeader(props: Props) {
                       doSetClientSetting(SETTINGS.TILE_LAYOUT, false);
                     }}
                     button="alt"
-                    className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
+                    className={classnames(`button-toggle button-toggle--top`, {
                       'button-toggle--active': !tileLayout,
                     })}
                     aria-label={__('Change to list layout')}

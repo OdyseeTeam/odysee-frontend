@@ -50,7 +50,12 @@ const CollectionHeader = (props: Props) => {
     // doCollectionEdit,
   } = props;
 
-  console.log('CollectionHeader props: ', props);
+  const isNotADefaultList = collection.id !== 'watchlater' && collection.id !== 'favorites';
+
+  const backgroundImage =
+    collection && collection.thumbnail && collection.thumbnail.url
+      ? 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + collection.thumbnail.url
+      : undefined;
 
   const { id: collectionId } = collection;
 
@@ -72,13 +77,11 @@ const CollectionHeader = (props: Props) => {
           {collection?.thumbnail?.url && (
             <div
               className="background"
-              style={{
-                backgroundImage:
-                  'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                  // $FlowIgnore
-                  collection?.thumbnail?.url +
-                  ')',
-              }}
+              style={
+                backgroundImage && {
+                  backgroundImage: 'url(' + backgroundImage + ')',
+                }
+              }
             />
           )}
         </div>
@@ -106,53 +109,45 @@ const CollectionHeader = (props: Props) => {
               <div className="collection-header__meta">
                 <div
                   className="collection-header__meta-entry"
-                  style={{
-                    backgroundImage:
-                      'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                      // $FlowIgnore
-                      collection?.thumbnail?.url +
-                      ')',
-                  }}
+                  style={
+                    backgroundImage && {
+                      backgroundImage: 'url(' + backgroundImage + ')',
+                    }
+                  }
                 >
                   <CollectionItemCount collectionId={collectionId} />
                 </div>
                 {hasClaim ? (
                   <div
                     className="collection-header__meta-entry"
-                    style={{
-                      backgroundImage:
-                        'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                        // $FlowIgnore
-                        collection?.thumbnail?.url +
-                        ')',
-                    }}
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
                   >
                     <CollectionPublicIcon />
                   </div>
                 ) : (
                   <div
                     className="collection-header__meta-entry"
-                    style={{
-                      backgroundImage:
-                        'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                        // $FlowIgnore
-                        collection?.thumbnail?.url +
-                        ')',
-                    }}
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
                   >
                     <CollectionPrivateIcon />
                   </div>
                 )}
-                {showEdit && (
+                {isNotADefaultList && (
                   <div
                     className="collection-header__meta-entry"
-                    style={{
-                      backgroundImage:
-                        'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                        // $FlowIgnore
-                        collection?.thumbnail?.url +
-                        ')',
-                    }}
+                    style={
+                      backgroundImage && {
+                        backgroundImage: 'url(' + backgroundImage + ')',
+                      }
+                    }
                   >
                     <div className="create-at">
                       {collection && (
@@ -166,13 +161,11 @@ const CollectionHeader = (props: Props) => {
                 )}
                 <div
                   className="collection-header__meta-entry"
-                  style={{
-                    backgroundImage:
-                      'url(https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' +
-                      // $FlowIgnore
-                      collection?.thumbnail?.url +
-                      ')',
-                  }}
+                  style={
+                    backgroundImage && {
+                      backgroundImage: 'url(' + backgroundImage + ')',
+                    }
+                  }
                 >
                   <div className="update-at">
                     {collection && (

@@ -1,13 +1,12 @@
 // @flow
 import type { ElementRef } from 'react';
 
-import { parseSticker, getStickerUrl } from 'util/comments';
+import { parseSticker } from 'util/comments';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import CreditAmount from 'component/common/credit-amount';
-import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import Slide from '@mui/material/Slide';
 import { Lbryio } from 'lbryinc';
@@ -56,9 +55,8 @@ export default function LivestreamHyperchats(props: Props) {
       >
         <div className="livestream-hyperchats">
           {superChatTopTen.map((hyperChat: Comment) => {
-            const { comment, comment_id, channel_url, support_amount, is_fiat } = hyperChat;
+            const { comment_id, channel_url, support_amount, is_fiat } = hyperChat;
             const isSticker = stickerSuperChats && stickerSuperChats.includes(hyperChat);
-            const stickerImg = <OptimizedImage src={getStickerUrl(comment)} waitLoad loading="lazy" />;
             const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * 10 * exchangeRate;
 
             return (
@@ -79,15 +77,10 @@ export default function LivestreamHyperchats(props: Props) {
 
                 <div
                   className={classnames('livestreamHyperchat__info', {
-                    'livestreamHyperchat__info--sticker': isSticker,
                     'livestreamHyperchat__info--notSticker': stickerSuperChats && !isSticker,
                   })}
                 >
                   <div className="livestreamHyperchat__info--user">
-                    {/*
-                    <UriIndicator uri={channel_url} link showAtSign />
-                    */}
-
                     <CreditAmount
                       hideTitle
                       size={10}
@@ -96,8 +89,6 @@ export default function LivestreamHyperchats(props: Props) {
                       isFiat={is_fiat}
                     />
                   </div>
-
-                  {isSticker && <div className="livestreamHyperchat__info--image">{stickerImg}</div>}
                 </div>
               </div>
             );

@@ -700,8 +700,8 @@ svg + .button__label {
   -ms-user-select: none;
   user-select: none;
 
-  &:hover:not(.button-toggle--active) {
-    background-color: var(--color-button-toggle-bg-hover) !important;
+  &:hover:not(.button-toggle--active):not(.button-toggle--more) {
+    background-color: var(--color-button-toggle-bg-hover);
     .button__label {
       color: var(--color-button-toggle-text-hover);
     }

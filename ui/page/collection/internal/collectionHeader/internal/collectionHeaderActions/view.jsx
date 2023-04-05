@@ -62,6 +62,8 @@ function CollectionHeaderActions(props: Props) {
     // location: { search },
   } = useHistory();
 
+  const isNotADefaultList = collectionId !== 'watchlater' && collectionId !== 'favorites';
+
   return (
     <>
       <div>
@@ -89,7 +91,7 @@ function CollectionHeaderActions(props: Props) {
               <Icon size={20} icon={ICONS.MORE_VERTICAL} />
             </MenuButton>
             <MenuList className="menu__list">
-              {isMyCollection && claimId && (
+              {isMyCollection && isNotADefaultList && (
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>
@@ -129,7 +131,7 @@ function CollectionHeaderActions(props: Props) {
                   {__('Copy')}
                 </div>
               </MenuItem>
-              {isMyCollection && claimId && (
+              {isMyCollection && isNotADefaultList && (
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>

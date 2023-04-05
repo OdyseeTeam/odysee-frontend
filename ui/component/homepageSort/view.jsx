@@ -169,7 +169,7 @@ export default function HomepageSort(props: Props) {
           return (
             <div
               className={classnames('homepage-sort__entry', {
-                'homepage-sort__entry-special': item === 'BANNER' || item === 'PORTALS',
+                'homepage-sort__entry--special': item === 'BANNER' || item === 'PORTALS',
               })}
               ref={draggableProvided.innerRef}
               {...draggableProvided.draggableProps}
@@ -200,7 +200,7 @@ export default function HomepageSort(props: Props) {
             <div className="homepage-sort__bin-header">{__(bin.title)}</div>
 
             {bin.id === 'ACTIVE' && (
-              <div className="homepage-sort__entry homepage-sort__entry-special">
+              <div className="homepage-sort__entry homepage-sort__entry--special">
                 <FormField
                   type="checkbox"
                   name="homepage_banner"
