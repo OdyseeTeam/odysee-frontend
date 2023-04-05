@@ -994,6 +994,7 @@ img {
     .react-datetime-picker {
       background-color: var(--color-background);
     }
+
     .checkbox,
     .radio {
       label {
@@ -1003,7 +1004,19 @@ img {
         }
         &:hover {
           &:before {
-            background-color: rgba(var(--color-background-base), 0.5);
+            background-color: var(--color-primary);
+          }
+          &::after {
+            border-color: var(--color-primary-contrast);
+          }
+        }
+      }
+    }
+    .radio {
+      label {
+        &:hover {
+          &::after {
+            background-color: var(--color-primary-contrast);
           }
         }
       }
