@@ -11,6 +11,11 @@
   background-color: rgba(var(--color-header-button-base), 0.4);
   border-radius: var(--border-radius);
 
+  @media (min-width: $breakpoint-medium) {
+    width: 32rem;
+    margin-left: var(--spacing-l);
+  }
+
   .background {
     position: absolute;
     background-repeat: no-repeat;
