@@ -118,6 +118,10 @@ $SKEW_AMOUNT: 10deg;
       margin-right: var(--spacing-s);
     }
   }
+  .icon {
+    stroke: black !important;
+    color: black !important;
+  }
 }
 
 .filePrice__key--modal {
