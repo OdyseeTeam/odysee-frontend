@@ -414,6 +414,16 @@
     }
   }
 
+  &.claim-preview__wrapper--channel {
+    .claim-preview--channel {
+      .claim-preview__text {
+        .claim-preview__actions {
+          gap: 0;
+        }
+      }
+    }
+  }
+
   &:hover {
     cursor: pointer;
     box-shadow: 0px 1px 0px 0px var(--color-background) inset;

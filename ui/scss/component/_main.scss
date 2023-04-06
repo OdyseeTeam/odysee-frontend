@@ -896,6 +896,13 @@ body {
         margin: 0;
       }
     }
+    .claim-preview--channel {
+      .claim-preview__text {
+        .claim-preview__actions {
+          margin-left: calc((2.5rem + var(--spacing-xxs)) * -1) !important;
+        }
+      }
+    }
 
     @media (max-width: $breakpoint-small) {
       a.button {
