@@ -54,7 +54,8 @@ $SKEW_AMOUNT: 10deg;
 }
 
 .filePrice--filepage {
-  padding: 0 var(--spacing-s);
+  padding-left: var(--spacing-s);
+  padding-right: var(--spacing-xxxs);
   height: 2.4rem;
 
   opacity: 0;
@@ -99,10 +100,12 @@ $SKEW_AMOUNT: 10deg;
 
 .filePrice--key {
   background-color: var(--color-purchased);
+  color: black;
 
   .icon--Key {
     margin-left: var(--spacing-m);
     margin-right: var(--spacing-m);
+    stroke: black;
 
     @media (max-width: $breakpoint-small) {
       margin-left: var(--spacing-s);
