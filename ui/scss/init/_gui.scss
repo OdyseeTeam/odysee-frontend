@@ -1505,49 +1505,6 @@ img {
       }
     }
   }
-
-  .claim-preview__wrapper--channel {
-    .claim__menu-button {
-      right: var(--spacing-xxs) !important;
-    }
-  }
-
-  .claim-preview__wrapper {
-    .claim-tile__info {
-      padding-bottom: 0;
-    }
-    .membership-button-wrapper {
-      margin-top: var(--spacing-xxxs);
-    }
-    .claim-preview__actions {
-      @media (max-width: $breakpoint-small) {
-        margin-top: var(--spacing-xxxs) !important;
-        /*
-        .claim-preview__primary-actions {
-          flex-wrap: nowrap;
-          margin-right: var(--spacing-xxxs);
-          margin-left: calc((4rem + var(--spacing-m)) * -1);
-        }
-        */
-        .membership-button-wrapper {
-          display: flex;
-          align-items: center;
-        }
-      }
-    }
-    .claim-preview__repost-author {
-      top: var(--spacing-m);
-      left: var(--spacing-m);
-      .claim-preview__repost-ribbon {
-        @media (max-width: $breakpoint-small) {
-          .icon {
-            margin-top: 3px;
-          }
-          font-size: var(--font-xxxsmall);
-        }
-      }
-    }
-  }
 }
 
 .playlists-page-wrapper {
