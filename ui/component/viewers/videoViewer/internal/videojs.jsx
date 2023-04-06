@@ -564,6 +564,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           .catch((error) => {
             const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
+            const attributes = ['font-weight:bold', 'color:pink'];
+            console.log(`%c---play() disallowed---\n${error}`, attributes.join(';')); // eslint-disable-line no-console
+
             if (noPermissionError) {
               if (IS_IOS) {
                 // autoplay not allowed, mute video, play and show 'tap to unmute' button
