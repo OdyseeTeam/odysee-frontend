@@ -935,6 +935,12 @@ svg + .button__label {
   transform: rotate(90deg);
   transition: transform 0.2s;
   margin-right: var(--spacing-s) !important;
+  &[aria-expanded='true'] {
+    background-color: var(--color-button-toggle-bg-active);
+    .icon {
+      stroke: white;
+    }
+  }
 }
 
 .button-like {
