@@ -888,6 +888,9 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestreamHyperchat__amount--large {
+  display: flex;
+  margin-left: 0;
+  justify-content: center;
   .credit-amount {
     display: flex;
     align-items: center;
