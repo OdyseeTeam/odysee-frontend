@@ -18,6 +18,7 @@
   --color-fire-outside: #ff9b20;
   --color-slime: #7bc45e;
   --color-shadow: #666666;
+  --color-hover-primary: rgba(10, 10, 10, 0.4);
 
   --color-primary-alt-2: #f77937;
   --color-primary-alt-3: #fbcbdd;
@@ -73,7 +74,7 @@
 
   --color-button-toggle-bg: var(--color-header-button);
   --color-button-toggle-text: rgba(var(--color-text-base), 1);
-  --color-button-toggle-bg-hover: rgba(10, 10, 10, 0.4);
+  --color-button-toggle-bg-hover: var(--color-hover-primary);
   --color-button-toggle-text-hover: white;
   --color-button-toggle-bg-active: #cd4074;
   --color-button-toggle-text-active: white;
@@ -106,7 +107,7 @@
   --color-navigation-link: #333333;
   --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: var(--color-primary-contrast);
-  --color-navigation-hover: rgba(10, 10, 10, 0.4);
+  --color-navigation-hover: var(--color-hover-primary);
   --color-navigation-hover-text: var(--color-primary-contrast);
 
   // Tags

@@ -17,6 +17,7 @@
   --color-fire-outside: #ff9b20;
   --color-slime: #7bc45e;
   --color-shadow: #000000;
+  --color-hover-primary: rgba(120, 120, 120, 0.4);
 
   // Structure
   --color-background-base: 17, 17, 17;
@@ -65,7 +66,7 @@
 
   --color-button-toggle-bg: var(--color-header-button);
   --color-button-toggle-text: rgba(var(--color-text-base), 1);
-  --color-button-toggle-bg-hover: rgba(120, 120, 120, 0.4);
+  --color-button-toggle-bg-hover: var(--color-hover-primary);
   --color-button-toggle-text-hover: var(--color-text);
   --color-button-toggle-bg-active: #a60a43;
   --color-button-toggle-text-active: var(--color-text);
@@ -98,7 +99,7 @@
   --color-navigation-link: #bfbfbf;
   --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: var(--color-primary-contrast);
-  --color-navigation-hover: rgba(120, 120, 120, 0.4);
+  --color-navigation-hover: var(--color-hover-primary);
   --color-navigation-hover-text: var(--color-primary-contrast);
 
   // Tags
