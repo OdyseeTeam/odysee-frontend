@@ -577,7 +577,6 @@
       display: flex;
       flex-direction: column;
       margin-top: auto;
-      // margin-left: var(--spacing-m);
       gap: var(--spacing-s);
       button,
       .button {
@@ -603,10 +602,13 @@
       flex-direction: column;
       .claim-preview__actions {
         flex-direction: row;
-        margin-left: 0;
-        gap: var(--spacing-xs);
-        margin-left: calc((3.8rem + (2 * var(--spacing-s))) * -1);
-        width: calc(100% + (3.8rem + (2 * var(--spacing-s))));
+        justify-content: flex-start !important;
+        gap: var(--spacing-xs) !important;
+        margin-left: calc((3.8rem + (2 * var(--spacing-xs))) * -1) !important;
+        width: calc(100% + (3.8rem + (2 * var(--spacing-xs))));
+        .membership-button-wrapper {
+          margin-top: 0;
+        }
       }
     }
   }
