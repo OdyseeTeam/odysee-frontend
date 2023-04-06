@@ -100,22 +100,19 @@ $SKEW_AMOUNT: 10deg;
 
 .filePrice--key {
   background-color: var(--color-purchased);
-  color: black;
+  color: black !important;
 
   .icon--Key {
     margin-left: var(--spacing-m);
     margin-right: var(--spacing-m);
-    stroke: black;
+    stroke: black !important;
+    color: black !important;
+    stroke-width: 2;
 
     @media (max-width: $breakpoint-small) {
       margin-left: var(--spacing-s);
       margin-right: var(--spacing-s);
     }
-  }
-
-  .icon {
-    stroke: black;
-    stroke-width: 2;
   }
 }
 
