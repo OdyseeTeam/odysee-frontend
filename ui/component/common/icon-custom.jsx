@@ -1220,16 +1220,16 @@ export const icons = {
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 48 48"
+      viewBox="0 0 40 40"
       width={props.size || '16'}
-      height={props.size || '18'}
+      height={props.size || '16'}
       fill="none"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="1.5"
       stroke="currentColor"
     >
-      <g transform="matrix(2,0,0,2,0,0)">
+      <g transform="matrix(2,0,0,2,0,0), scale(.8)">
         <path d="M19.5,23.25a11.25,11.25,0,0,1,0-22.5" />
         <path d="M4.5 9.75L16.5 9.75" />
         <path d="M4.5 14.25L13.5 14.25" />

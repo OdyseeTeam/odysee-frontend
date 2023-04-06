@@ -327,6 +327,10 @@ pre {
 }
 
 .successCard {
+  .button {
+    background-color: var(--color-background);
+  }
+
   .card__body {
     display: flex;
     background-color: var(--color-header-button);

@@ -703,7 +703,8 @@ body {
 
     select {
       &:hover {
-        background-color: var(--color-button-toggle-bg-hover);
+        background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
       }
     }
 

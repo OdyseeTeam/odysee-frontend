@@ -26,11 +26,14 @@
     }
   }
 
+  /*
   select {
     &:hover {
-      background-color: var(--color-button-toggle-bg-hover);
+      background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
     }
   }
+  */
 
   @media (max-width: $breakpoint-small) {
     .wunderbar--inline {
@@ -278,7 +281,11 @@
 
   select {
     &:hover {
-      background-color: var(--color-button-toggle-bg-hover);
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast) !important;
+    }
+    &:focus-visible {
+      color: var(--color-text);
     }
   }
 

@@ -310,9 +310,11 @@
         overflow: hidden;
         &:focus-visible {
           box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+          color: var(--color-text);
         }
         &:hover {
-          background-color: var(--color-hover-primary);
+          background-color: var(--color-primary);
+          color: var(--color-primary-contrast);
         }
         option {
           background-color: var(--color-header-button);
