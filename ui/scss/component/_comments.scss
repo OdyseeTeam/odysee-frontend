@@ -354,15 +354,11 @@ $thumbnailWidthSmall: 2rem;
     }
   }
 
-  .credit-amount-wrapper {
-    margin-right: var(--spacing-xxs);
-    margin-top: -2px;
-  }
   .credit-amount {
     background-color: var(--color-primary);
     padding: 3px 4px 3px 4px;
     border-radius: var(--border-radius);
-    font-size: var(--font-xsmall);
+    font-size: var(--font-small);
     font-weight: var(--font-weight-bold);
     color: white;
     svg {
@@ -410,6 +406,13 @@ $thumbnailWidthSmall: 2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+.credit-amount-wrapper {
+  margin-left: var(--spacing-xxs);
+  .credit-amount {
+    font-size: var(--font-small);
   }
 }
 
