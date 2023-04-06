@@ -41,6 +41,7 @@ import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import './style.scss';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -109,6 +110,7 @@ type Props = {
   doClearContentHistoryUri: (uri: string) => void,
   doPlayNextUri: (params: { uri: string }) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
+  thumbnailFromClaim: string,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -183,6 +185,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doClearContentHistoryUri,
     doPlayNextUri,
     doDisablePlayerDrag,
+    thumbnailFromClaim,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -205,6 +208,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const abandoned = !isResolvingUri && !claim;
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
+
+  const backgroundImage = thumbnailFromClaim
+    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    : undefined;
 
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const channelSubscribers = React.useMemo(() => {
@@ -427,16 +434,27 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       role="link"
       onClick={pending || type === 'inline' ? undefined : handleOnClick}
       className={classnames('claim-preview__wrapper', {
+        'claim-preview__wrapper--row': !type,
         'claim-preview__wrapper--channel': isChannelUri && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
-        'claim-preview__wrapper--small': type === 'small',
+        'claim-preview__wrapper--recommendation': type === 'small',
+        'claim-preview__wrapper--playlist-row': type === 'small' && collectionId,
         'claim-preview__live': isLivestreamActive,
         'claim-preview__active': active,
         'non-clickable': nonClickable,
       })}
     >
       <>
-        {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
+        {!type && (
+          <div
+            className="background"
+            style={
+              backgroundImage && {
+                backgroundImage: 'url(' + backgroundImage + ')',
+              }
+            }
+          />
+        )}
 
         <div
           className={classnames('claim-preview', {
@@ -451,6 +469,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'swipe-list__item': swipeLayout,
           })}
         >
+          {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
           {showIndexes && (
             <span className="card__subtitle card__subtitle--small-no-margin claim-preview__list-index">
               {indexInContainer + 1}
@@ -529,45 +548,55 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 <ClaimPreviewSubtitle uri={uri} type={type} showAtSign={isChannelUri} />
                 {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
                 {channelSubscribers}
-              </div>
-            </div>
-            {type !== 'small' && (
-              <div className="claim-preview__actions">
-                {type && <JoinButton />}
 
+                {type !== 'small' && (
+                  <>
+                    <div className="claim-preview__tags">
+                      {/* type && <JoinButton /> */}
+                      {claim && (
+                        <React.Fragment>
+                          {typeof properties === 'function'
+                            ? properties(claim)
+                            : properties !== undefined
+                            ? properties
+                            : !isMobile && <ClaimTags uri={uri} type={type} />}
+                        </React.Fragment>
+                      )}
+                    </div>
+                    {isChannelUri && renderActions && claim && renderActions(claim)}
+                  </>
+                )}
+              </div>
+
+              {!type && (
+                <div className="description__wrapper">
+                  <div className="description">{claim?.value?.description || __('No description available.')}</div>
+                </div>
+              )}
+            </div>
+
+            {type !== 'small' && (!pending || !type) && isChannelUri && (
+              // renderActions &&
+              // claim &&
+              // !renderActions(claim) && (
+              <div className="claim-preview__actions">
+                <JoinButton />
                 {!pending && (
                   <>
-                    {renderActions && claim && renderActions(claim)}
+                    {/* renderActions && claim && renderActions(claim) */}
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (
                       actions
                     ) : (
                       <>
-                        <div className="claim-preview__primary-actions">
-                          {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                            <>
-                              <SubscribeButton
-                                uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                              />
-                            </>
-                          )}
-
-                          {includeSupportAction && <ClaimSupportButton uri={uri} />}
-                        </div>
+                        {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                          <SubscribeButton
+                            uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                          />
+                        )}
+                        {includeSupportAction && type && <ClaimSupportButton uri={uri} />}
                       </>
                     )}
                   </>
-                )}
-
-                {!type && <JoinButton />}
-
-                {claim && (
-                  <React.Fragment>
-                    {typeof properties === 'function'
-                      ? properties(claim)
-                      : properties !== undefined
-                      ? properties
-                      : !isMobile && <ClaimTags uri={uri} type={type} />}
-                  </React.Fragment>
                 )}
               </div>
             )}

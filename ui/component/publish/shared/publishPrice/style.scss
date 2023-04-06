@@ -16,9 +16,22 @@ $INDENT: var(--spacing-xl);
   flex-direction: column;
   padding: var(--spacing-s);
 
+  .publish-price__grp-1 {
+    margin-bottom: var(--spacing-s);
+  }
+
+  fieldset-section:first-of-type {
+    padding: 0;
+  }
   .checkbox {
     label {
       font-size: var(--font-body);
+    }
+  }
+  .input--currency-select {
+    padding: 0;
+    label {
+      margin-left: 0 !important;
     }
   }
 
@@ -38,10 +51,6 @@ $INDENT: var(--spacing-xl);
   .publish-price__grp-2 {
     opacity: $DISABLED_OPACITY; // Set at column level so the border won't be dimmed.
   }
-}
-
-.publish-price__row--indented {
-  margin-left: $INDENT;
 }
 
 .publish-price__grp-1 {

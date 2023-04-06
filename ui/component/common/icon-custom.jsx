@@ -1220,16 +1220,16 @@ export const icons = {
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 48 48"
+      viewBox="0 0 40 40"
       width={props.size || '16'}
-      height={props.size || '18'}
+      height={props.size || '16'}
       fill="none"
       strokeLinecap="round"
       strokeLinejoin="round"
       strokeWidth="1.5"
       stroke="currentColor"
     >
-      <g transform="matrix(2,0,0,2,0,0)">
+      <g transform="matrix(2,0,0,2,0,0), scale(.8)">
         <path d="M19.5,23.25a11.25,11.25,0,0,1,0-22.5" />
         <path d="M4.5 9.75L16.5 9.75" />
         <path d="M4.5 14.25L13.5 14.25" />
@@ -3499,6 +3499,56 @@ export const icons = {
       <path d="M9.06674 12.4247C9.3956 11.5703 10.6044 11.5703 10.9333 12.4247L11.2089 13.1408C11.461 13.7958 10.9775 14.5 10.2756 14.5H9.72437C9.02248 14.5 8.53899 13.7958 8.79111 13.1408L9.06674 12.4247Z" />
     </svg>
   ),
+  [ICONS.VIEW_TILES]: (props: IconProps) => {
+    const { color = 'currentColor' } = props;
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="19"
+        height="16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke={color}
+        fill={color}
+      >
+        <g>
+          <rect x="1" y="1" width="17" height="14" rx="2" ry="2" fill="none" />
+          <rect x="3" y="3" width="3" height="2" />
+          <rect x="8" y="3" width="3" height="2" />
+          <rect x="13" y="3" width="3" height="2" />
+
+          <rect x="3" y="7" width="3" height="2" />
+          <rect x="8" y="7" width="3" height="2" />
+          <rect x="13" y="7" width="3" height="2" />
+
+          <rect x="3" y="11" width="3" height="2" />
+          <rect x="8" y="11" width="3" height="2" />
+          <rect x="13" y="11" width="3" height="2" />
+        </g>
+      </svg>
+    );
+  },
+  [ICONS.VIEW_LIST]: (props: IconProps) => {
+    const { color = 'currentColor' } = props;
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="19"
+        height="16"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke={color}
+        fill={color}
+      >
+        <g>
+          <rect x="1" y="1" width="17" height="14" rx="2" ry="2" fill="none" />
+          <rect x="3" y="3" width="13" height="2" />
+          <rect x="3" y="7" width="13" height="2" />
+          <rect x="3" y="11" width="13" height="2" />
+        </g>
+      </svg>
+    );
+  },
 
   // -- Temporary --
 

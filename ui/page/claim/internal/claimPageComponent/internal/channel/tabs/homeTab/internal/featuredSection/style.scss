@@ -6,8 +6,20 @@
   border-radius: var(--border-radius);
   color: var(--color-text);
   .menu__button.claim__menu-button {
+    position: absolute;
     top: 6px;
     right: 2px;
+    padding: 2px;
+    transition: transform 0.2s;
+    &[aria-expanded='true'] {
+      opacity: 1;
+      background-color: var(--color-header-button);
+      border-radius: 50%;
+      transform: rotate(90deg);
+      .icon {
+        stroke: var(--color-primary);
+      }
+    }
   }
   .media__thumb {
     width: calc(var(--file-list-thumbnail-width) * 2) !important;

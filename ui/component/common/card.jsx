@@ -27,7 +27,7 @@ type Props = {
   children?: Node,
   secondPane?: Node,
   slimHeader?: boolean,
-  colorHeader?: boolean,
+  backgroundImage?: string,
   singlePane?: boolean,
   headerActions?: Node,
   gridHeader?: boolean,
@@ -54,7 +54,7 @@ function Card(props: Props) {
     children,
     secondPane,
     slimHeader,
-    colorHeader,
+    backgroundImage,
     singlePane,
     headerActions,
     accessStatus,
@@ -78,13 +78,20 @@ function Card(props: Props) {
         }
       }}
     >
+      {backgroundImage && (
+        <div
+          className="background"
+          style={{
+            backgroundImage:
+              'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + backgroundImage + ')',
+          }}
+        />
+      )}
       <FirstPaneWrapper singlePane={singlePane}>
         {(title || subtitle) && (
           <div
             className={classnames('card__header--between', {
-              // 'card__header--nowrap': noTitleWrap,
               'card__header--slim': slimHeader,
-              'card__header--bg-color': colorHeader,
               'card__header--grid': gridHeader,
             })}
           >

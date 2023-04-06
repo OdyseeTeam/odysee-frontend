@@ -11,7 +11,7 @@ import { Form, Submit, FormErrors } from 'component/common/form';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 
 import Button from 'component/button';
-import CollectionDeleteButton from 'component/collectionDeleteButton';
+// import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionItemsList from 'component/collectionItemsList';
 import Spinner from 'component/spinner';
 import BusyIndicator from 'component/common/busy-indicator';
@@ -31,7 +31,7 @@ type Props = {
   collectionId: string,
   onDoneForId: (string) => void,
   // -- redux -
-  uri: ?string,
+  // uri: ?string,
   hasClaim: boolean,
   collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams,
   isClaimPending: boolean,
@@ -50,7 +50,7 @@ export const CollectionFormContext = React.createContext<any>();
 
 const CollectionPublishForm = (props: Props) => {
   const {
-    uri,
+    // uri,
     collectionId,
     onDoneForId,
     // -- redux -
@@ -179,7 +179,7 @@ const CollectionPublishForm = (props: Props) => {
       collectionResetPending.current = false;
     } else if (collectionParams) {
       // Keep claims in formParams up to date
-      updateFormParams({claims: collectionParams.claims});
+      updateFormParams({ claims: collectionParams.claims });
     }
   }, [collectionParams]);
 
@@ -222,7 +222,12 @@ const CollectionPublishForm = (props: Props) => {
 
             <TabPanel>
               {tabIndex === TAB.ITEMS && (
-                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit isEditPreview />
+                <CollectionItemsList
+                  collectionId={collectionId}
+                  empty={__('This playlist has no items.')}
+                  showEdit
+                  isEditPreview
+                />
               )}
             </TabPanel>
           </TabPanels>
@@ -247,7 +252,7 @@ const CollectionPublishForm = (props: Props) => {
           {collectionHasEdits && (
             <Tooltip title={__('Delete all edits from this published playlist')}>
               <Button
-                button="close"
+                button="alt"
                 icon={ICONS.REFRESH}
                 label={__('Clear Updates')}
                 onClick={() =>
@@ -275,10 +280,6 @@ const CollectionPublishForm = (props: Props) => {
             ? __('After submitting, it will take a few minutes for your changes to be live for everyone.')
             : __('After saving, all changes will remain private')}
         </p>
-
-        <div className="section__actions">
-          <CollectionDeleteButton uri={uri} collectionId={collectionId} />
-        </div>
       </CollectionFormContext.Provider>
     </Form>
   );

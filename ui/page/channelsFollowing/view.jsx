@@ -61,10 +61,12 @@ function ChannelsFollowingPage(props: Props) {
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
             tileLayout={tileLayout}
             headerLabel={
-              <span>
-                <Icon icon={ICONS.SUBSCRIBE} size={10} />
-                {__('Following')}
-              </span>
+              <>
+                <span className="icon__wrapper">
+                  <Icon icon={ICONS.SUBSCRIBE} size={10} />
+                </span>
+                <label>{__('Following')}</label>
+              </>
             }
             hideMembersOnly={hideMembersOnly}
             defaultOrderBy={CS.ORDER_BY_NEW}
@@ -73,13 +75,13 @@ function ChannelsFollowingPage(props: Props) {
               <>
                 <Button
                   icon={ICONS.SEARCH}
-                  button="secondary"
+                  button="alt"
                   label={__('Discover Channels')}
                   navigate={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
                 />
                 <Button
                   icon={ICONS.SETTINGS}
-                  button="secondary"
+                  button="alt"
                   label={__('Manage')}
                   navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
                 />

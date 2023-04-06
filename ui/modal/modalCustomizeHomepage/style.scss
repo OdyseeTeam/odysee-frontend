@@ -4,16 +4,89 @@
   @media (max-width: $breakpoint-small) {
     padding: 0;
   }
-}
 
-.modal-customize-homepage__body {
-  display: flex;
-  flex-direction: column;
-  margin-top: var(--spacing-s);
+  .homepage-sort {
+    display: flex;
+    margin-bottom: var(--spacing-m);
+    height: 50vh;
+  }
 
-  button {
-    align-self: flex-end;
+  .homepage-sort__bin {
+    width: 50%;
+    background-color: var(--color-header-button);
+    padding: var(--spacing-s);
     margin-right: var(--spacing-s);
+    overflow: auto;
+    overflow-x: hidden;
+    border-radius: var(--border-radius);
+
+    &:last-of-type {
+      margin-right: 0;
+    }
+  }
+
+  .homepage-sort__bin--highlight {
+    outline-color: var(--color-primary);
+    outline-width: 2px;
+  }
+
+  .homepage-sort__bin-header {
+    text-align: center;
     margin-bottom: var(--spacing-s);
+    color: var(--color-text-subtitle);
+  }
+
+  .homepage-sort__entry {
+    display: flex;
+    width: 100%;
+    margin-bottom: var(--spacing-m);
+    background-color: rgba(var(--color-background-base), 0.6);
+    padding: var(--spacing-xs) var(--spacing-m) var(--spacing-xs) var(--spacing-m);
+    align-items: center;
+    font-size: var(--font-small);
+    border-radius: var(--border-radius);
+
+    svg {
+      margin-top: var(--spacing-xxs);
+      margin-right: var(--spacing-s);
+      opacity: 0.4;
+    }
+
+    &:hover {
+      background-color: rgba(var(--color-background-base), 1);
+    }
+  }
+
+  .homepage-sort__entry:last-child {
+    margin-bottom: 0;
+  }
+
+  .homepage-sort__entry--special {
+    background-color: rgba(var(--color-primary-dynamic), 0.8);
+    color: var(--color-primary-contrast);
+    .checkbox {
+      padding-top: 5px;
+      padding-bottom: 6px;
+    }
+    label {
+      color: var(--color-primary-contrast);
+      &::before {
+        background-color: var(--color-background);
+      }
+    }
+    &:hover {
+      background-color: rgba(var(--color-primary-dynamic), 1);
+      label {
+        &::before {
+          background-color: var(--color-background);
+        }
+        &::after {
+          border-color: var(--color-primary);
+        }
+      }
+    }
+  }
+  .button--link:first-of-type {
+    float: right;
   }
 }

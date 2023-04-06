@@ -1,0 +1,72 @@
+@import '~ui/scss/init/breakpoints';
+
+.file-page__recommended {
+  width: 32rem;
+  margin-left: var(--spacing-l);
+
+  .card__first-pane {
+    .card__header--between {
+      margin-bottom: var(--spacing-m);
+      .card__title-section {
+        display: none !important;
+      }
+    }
+    .card__body.card__body--list {
+      border-top: unset;
+    }
+  }
+
+  .card__header--between {
+    align-items: unset;
+    .card__title-section--body-list {
+      margin-top: auto;
+    }
+  }
+
+  .claim-preview-metadata {
+    .claim-tile__info {
+      margin-top: 0;
+      .media__subtitle {
+        .button__content {
+          margin-top: 0;
+          .channel-name {
+            margin-top: 0;
+            p {
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+        }
+        span,
+        .date_time {
+          margin-top: 0px;
+        }
+      }
+    }
+    .claim-preview__title {
+      .truncated-text {
+        -webkit-line-clamp: 2 !important;
+      }
+    }
+    .channel-thumbnail {
+      display: none;
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+  }
+
+  @media (max-width: $breakpoint-medium) {
+    width: 100%;
+    margin-left: 0;
+    margin-top: var(--spacing-l);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .card__header--between {
+      padding: var(--spacing-xxs);
+      padding-bottom: var(--spacing-s);
+      padding-left: 0;
+    }
+  }
+}

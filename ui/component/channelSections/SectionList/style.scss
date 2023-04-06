@@ -1,10 +1,14 @@
 .channel_sections {
   .channel-section-card__item {
-    .channel-thumbnail__custom {
+    .channel-thumbnail__custom,
+    .ff-canvas,
+    .freezeframe-img {
       transition: transform 0.2s;
     }
     &:hover {
-      .channel-thumbnail__custom {
+      .channel-thumbnail__custom,
+      .ff-canvas,
+      .freezeframe-img {
         transform: scale(1.08);
       }
       .claim-preview__title {

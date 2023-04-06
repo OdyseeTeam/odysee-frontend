@@ -56,7 +56,6 @@ class FilePrice extends React.PureComponent<Props> {
       'filePrice--thumbnail': type === 'thumbnail',
       'filePrice--modal': type === 'modal',
       'filePrice--fiat': fiatRequired,
-      'filePrice--skewedBg': true,
     });
 
     if (fiatRequired) {

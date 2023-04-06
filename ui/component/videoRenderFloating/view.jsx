@@ -733,7 +733,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
           ...maxHeight,
         },
 
-        '.playlist-card': {
+        '.playlist__wrapper': {
           maxHeight:
             !isMobile && !theaterMode && mainFilePlaying
               ? `${heightForViewer}px`

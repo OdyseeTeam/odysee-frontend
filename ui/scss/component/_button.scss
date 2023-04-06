@@ -4,6 +4,9 @@
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
+  .button__label {
+    margin-top: 2px;
+  }
 }
 
 .button--primary,
@@ -20,20 +23,9 @@
 .button--alt {
   height: var(--height-button);
   border-radius: var(--border-radius);
-  // padding: var(--spacing-s) var(--spacing-m);
   padding: 0 var(--spacing-m);
   line-height: 1.2em;
   font-weight: var(--font-weight-bold);
-
-  .button__label {
-    // height:1em;
-    margin-top: 1px;
-    padding-top: 2px;
-
-    @media (max-width: $breakpoint-small) {
-      // font-size: var(--font-small) !important;
-    }
-  }
 }
 
 .button--primary {
@@ -78,12 +70,12 @@
 }
 
 .button--secondary {
-  background-color: var(--color-button-secondary-bg) !important;
+  background-color: var(--color-button-secondary-bg);
   .button__label {
-    color: var(--color-button-secondary-text) !important;
+    color: var(--color-button-secondary-text);
   }
   .icon {
-    stroke: var(--color-button-secondary-text) !important;
+    stroke: var(--color-button-secondary-text);
   }
 
   &:hover {
@@ -153,8 +145,6 @@ a.button--alt {
   }
 
   &.button--play {
-    // border: 2px solid black;
-    // background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='black' stroke-width='1' fill='white' fill-rule='evenodd' stroke-linejoin='round'%3E %3Cpolygon points='5 21 5 3 21 12'/%3E %3C/g%3E %3C/svg%3E");
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='white' stroke-width='2' fill='white' fill-rule='evenodd' stroke-linejoin='round'%3E %3Cpolygon points='5 21 5 3 21 12'/%3E %3C/g%3E %3C/svg%3E");
     background-position: calc(50% + 0.1rem) center;
     opacity: 0.95;
@@ -387,17 +377,11 @@ a.button--alt {
   @extend .button--alt;
   color: var(--color-text);
   background-color: transparent;
-  margin-right: var(--spacing-m);
+  // margin-right: var(--spacing-m);
   padding: 0 var(--spacing-xxs);
 
   @media (max-width: $breakpoint-small) {
     padding: 0 0;
-  }
-
-  .icon {
-    &:not(.color-override) {
-      stroke: var(--color-text);
-    }
   }
 
   .button__label {
@@ -707,22 +691,23 @@ svg + .button__label {
   border-left-width: 0;
   border-radius: 0;
   margin: 0;
-  color: var(--color-button-toggle-text) !important;
-  background-color: var(--color-button-toggle-bg) !important;
-  // box-shadow: 0px 0px 0px 2px rgba(var(--color-header-background-base), 1) inset;
+  color: var(--color-button-toggle-text);
+  stroke: var(--color-button-toggle-text);
+  background-color: var(--color-button-toggle-bg);
 
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 
-  &:hover:not(.button-toggle--active) {
-    background-color: var(--color-button-toggle-bg-hover) !important;
+  &:hover:not(.button-toggle--active):not(.button-toggle--more) {
+    background-color: var(--color-button-toggle-bg-hover);
     .button__label {
       color: var(--color-button-toggle-text-hover);
     }
     .icon {
-      stroke: var(--color-button-toggle-text-hover) !important;
+      color: var(--color-primary-contrast) !important;
+      stroke: var(--color-primary-contrast) !important;
     }
   }
 
@@ -731,16 +716,8 @@ svg + .button__label {
   }
 
   &:first-of-type {
-    border-left-width: 1px;
     border-top-left-radius: var(--border-radius);
     border-bottom-left-radius: var(--border-radius);
-  }
-
-  &:nth-child(2),
-  &:nth-child(3),
-  &:nth-child(4),
-  &:nth-child(5) {
-    // margin-left: 2px;
   }
 
   &:last-of-type {
@@ -755,7 +732,6 @@ svg + .button__label {
     width: 100%;
     text-align: center;
     border-radius: var(--border-radius);
-    // border: 1px solid var(--color-border);
     &:not(.button-toggle--active) {
       border-right: 2px solid var(--color-border) !important;
     }
@@ -767,8 +743,6 @@ svg + .button__label {
 }
 
 .button-toggle--active {
-  // color: var(--color-button-toggle-text) !important;
-  //box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
   color: var(--color-button-toggle-text-active) !important;
   background-color: var(--color-button-toggle-bg-active) !important;
 
@@ -794,6 +768,31 @@ svg + .button__label {
     .icon {
       stroke: var(--color-button-toggle-text) !important;
     }
+  }
+}
+
+.button-toggle--bottom-arrow {
+  &.button-toggle--active {
+    .button__content {
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
+  }
+  &:hover {
+    cursor: pointer;
+    background-color: var(--color-primary) !important;
+  }
+  &:after {
+    position: absolute;
+    bottom: -11px;
+    left: calc(50% - 10px);
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 11px solid var(--color-header-button);
+    content: '';
   }
 }
 
@@ -920,11 +919,13 @@ svg + .button__label {
   }
 }
 
+/*
 .button--file-action {
   &:first-child {
     margin-right: var(--spacing-s);
   }
 }
+*/
 
 .button--hash-id {
   @include font-mono;
@@ -934,6 +935,12 @@ svg + .button__label {
   transform: rotate(90deg);
   transition: transform 0.2s;
   margin-right: var(--spacing-s) !important;
+  &[aria-expanded='true'] {
+    background-color: var(--color-button-toggle-bg-active);
+    .icon {
+      stroke: white;
+    }
+  }
 }
 
 .button-like {
@@ -1008,7 +1015,6 @@ svg + .button__label {
 }
 
 .recommended-content__bubble {
-  // margin-top: var(--spacing-xs);
   display: flex;
 
   .icon--langFilter {
@@ -1107,6 +1113,29 @@ svg + .button__label {
       color: white !important;
       stroke: white !important;
       fill: white !important;
+    }
+  }
+}
+
+.button--warning {
+  background-color: rgba(244, 44, 44, 0.9) !important;
+  .button__content {
+    .icon {
+      stroke: white;
+    }
+    .button__label {
+      color: white;
+    }
+  }
+  &:hover {
+    background-color: rgba(244, 44, 44, 1) !important;
+    .button__content {
+      .icon {
+        stroke: white;
+      }
+      .button__label {
+        color: white;
+      }
     }
   }
 }

@@ -140,15 +140,6 @@ body {
       max-width: 100%;
     }
 
-    .claim-preview__wrapper--inline {
-      .media__subtitle {
-        padding-bottom: 0;
-        a.button {
-          display: inline-block !important;
-        }
-      }
-    }
-
     .date_time {
       font-size: var(--font-small);
     }
@@ -170,26 +161,6 @@ body {
     @media (max-width: $breakpoint-medium) {
       section + .empty__wrap {
         margin: var(--spacing-m);
-      }
-      .claim-preview__wrapper--inline {
-        .claim-preview-metadata {
-          .claim-tile__info {
-            margin-top: 0;
-          }
-        }
-        .media__subtitle {
-          padding-bottom: 1;
-          a.button {
-            display: inline-block !important;
-          }
-        }
-        .button--alt {
-          padding: var(--spacing-s);
-        }
-        .button-following {
-          padding-left: var(--spacing-m);
-          padding-right: var(--spacing-m);
-        }
       }
     }
     @media (max-width: $breakpoint-small) {
@@ -264,76 +235,6 @@ body {
 
   .file-page__info {
     margin-top: var(--spacing-m);
-  }
-
-  .file-page__recommended {
-    width: 32rem;
-    margin-left: var(--spacing-l);
-
-    .card__first-pane {
-      .card__header--between {
-        .card__title-section {
-          display: none !important;
-        }
-      }
-      .card__body.card__body--list {
-        border-top: unset;
-      }
-    }
-
-    .card__header--between {
-      align-items: unset;
-      .card__title-section--body-list {
-        margin-top: auto;
-      }
-    }
-
-    .claim-preview-metadata {
-      .claim-tile__info {
-        margin-top: 0;
-        .media__subtitle {
-          .button__content {
-            margin-top: 0;
-            .channel-name {
-              margin-top: 0;
-              p {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              }
-            }
-          }
-          span,
-          .date_time {
-            margin-top: 0px;
-          }
-        }
-      }
-      .claim-preview__title {
-        .truncated-text {
-          -webkit-line-clamp: 2 !important;
-        }
-      }
-      .channel-thumbnail {
-        display: none;
-        width: 1.4rem;
-        height: 1.4rem;
-      }
-    }
-
-    @media (max-width: $breakpoint-medium) {
-      width: 100%;
-      margin-left: 0;
-      margin-top: var(--spacing-l);
-    }
-
-    @media (max-width: $breakpoint-small) {
-      .card__header--between {
-        padding: var(--spacing-xxs);
-        padding-bottom: var(--spacing-s);
-        padding-left: 0;
-      }
-    }
   }
 
   .file-page__recommended-collection {
@@ -419,7 +320,6 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
-    // margin-top: var(--spacing-s);
     flex-direction: column;
     padding-top: 0;
     margin: 0;
@@ -452,7 +352,7 @@ body {
     gap: var(--spacing-l);
 
     .file-page__recommended,
-    .playlist-card {
+    .playlist__wrapper {
       margin-left: 0px;
       height: 100%;
       width: 100%;
@@ -629,17 +529,25 @@ body {
     margin-right: var(--spacing-s);
   }
 
+  .file-page__secondary-content {
+    margin-top: var(--spacing-m);
+  }
+
   .chat-resize {
     display: none !important;
   }
 
+  /*
   .livestreamDiscussion__header {
     border-radius: var(--border-radius) var(--border-radius) 0 0;
   }
+  */
 
+  /*
   .livestream__comment-create {
     border-radius: 0 0 var(--border-radius) var(--border-radius);
   }
+  */
 
   .file-page__media-actions {
     flex: 1;
@@ -714,42 +622,6 @@ body {
   }
 }
 
-.main--popout-chat {
-  @extend .main;
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-
-  .livestream-hyperchats__wrapper {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  @media (max-width: $breakpoint-small) {
-    .livestream__chat--popout {
-      border-radius: 0;
-      .livestreamComments__wrapper {
-        height: calc(100vh - 50px) !important;
-        .livestream__comment-create {
-          padding: 0 var(--spacing-xxs);
-        }
-      }
-    }
-  }
-  @media (min-width: $breakpoint-small) {
-    .livestream__chat--popout {
-      border-radius: 0;
-      .livestreamComments__wrapper {
-        height: calc(100vh - 55px) !important;
-        .livestream__comment-create {
-          padding-bottom: var(--spacing-s);
-        }
-      }
-    }
-  }
-}
-
 .main--auth-page {
   width: 100%;
   max-width: 70rem;
@@ -785,7 +657,7 @@ body {
     }
   }
   .card__body--list {
-    background-color: rgba(var(--color-header-background-base), 0.4);
+    background-color: rgba(var(--color-header-button-base), 0.6);
 
     border-radius: var(--border-radius);
     border-top: unset;
@@ -823,13 +695,16 @@ body {
 
     input,
     select {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-      &:hover {
-        background-color: var(--color-input-toggle-bg-hover);
-      }
+      background-color: var(--color-background);
       &:focus-visible {
-        background-color: var(--color-input-toggle-bg-hover) !important;
         box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
+
+    select {
+      &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
       }
     }
 
@@ -837,12 +712,22 @@ body {
     .radio {
       label {
         &::before {
+          background-color: var(--color-background);
           top: unset;
           border: unset;
-          box-shadow: 0 0 0 2px var(--color-border) inset;
         }
         &::after {
           top: 6px;
+        }
+      }
+      &:hover {
+        label {
+          &::before {
+            background-color: var(--color-primary);
+          }
+          &::after {
+            border-color: var(--color-primary-contrast);
+          }
         }
       }
     }
@@ -855,6 +740,7 @@ body {
     }
   }
 
+  /*
   .button--secondary {
     background-color: var(--color-header-button) !important;
     .button__content {
@@ -877,6 +763,7 @@ body {
       }
     }
   }
+  */
 
   @media (max-width: $breakpoint-small) {
     padding: 0 0;
@@ -1005,12 +892,8 @@ body {
       }
     }
     .claim-preview__actions {
-      .claim-preview__primary-actions {
-        margin: 0;
-      }
       .membership-button-wrapper {
         margin: 0;
-        margin-right: var(--spacing-s);
       }
     }
 
@@ -1023,24 +906,14 @@ body {
         flex-direction: column;
         .claim-preview__actions {
           overflow: visible;
-          margin-left: calc((2rem + (2 * var(--spacing-s))) * -1);
+          margin-left: calc((2rem + (2 * var(--spacing-xxs))) * -1);
           margin-top: var(--spacing-s);
-          width: calc(100% + (2rem + (2 * var(--spacing-s))));
+          width: calc(100% + (2rem + (2 * var(--spacing-xxs))));
           .membership-button-wrapper {
-            margin-right: var(--spacing-xxs);
             margin-bottom: 0;
             width: 50%;
             .button {
               width: 100%;
-            }
-          }
-          .claim-preview__primary-actions {
-            width: 50%;
-            .button-group {
-              width: 100%;
-              .button:first-of-type {
-                width: 100%;
-              }
             }
           }
         }
@@ -1093,7 +966,11 @@ body {
     padding: var(--spacing-xxxs);
     .claim-preview__wrapper {
       .claim-tile__info {
-        margin-top: var(--spacing-xxxs) !important;
+        margin-top: var(--spacing-xs) !important;
+      }
+      .channel-thumbnail {
+        width: 2rem !important;
+        height: 2rem !important;
       }
     }
   }
@@ -1110,7 +987,6 @@ body {
 
     > :first-child {
       position: fixed;
-      // background-color: var(--color-background);
       width: calc(40% - var(--spacing-l));
       margin-top: var(--spacing-xl);
     }
@@ -1330,6 +1206,7 @@ body {
         .media__subtitle {
           width: calc(100% - 2.1rem);
           .button {
+            /*
             display: inline;
             @media (max-width: $breakpoint-small) {
               .button__content {
@@ -1337,7 +1214,7 @@ body {
                 .channel-name {
                   width: 100%;
                   p {
-                    width: 99%;
+                    width: 100%;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -1345,7 +1222,9 @@ body {
                 }
               }
             }
+            */
           }
+
           span:not(.channel-name) {
             font-size: var(--font-xsmall);
           }
@@ -1359,9 +1238,10 @@ body {
 .main__channelsFollowing {
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
-      text-align: left; // It was forced to 'right' at the base level.
-      .button--secondary {
-        width: unset; // It was being set to '100%' at the base level.
+      display: flex;
+      width: 100%;
+      .button {
+        flex: 1;
       }
     }
   }

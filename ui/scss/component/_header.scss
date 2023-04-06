@@ -36,6 +36,7 @@
   .header__menu--right {
     .header__navigationItem--balance {
       transition: border-radius 0.4s;
+      margin-right: var(--spacing-s);
       .button__label {
         margin-left: var(--spacing-xxs) !important;
       }
@@ -183,12 +184,12 @@
 
     &:hover {
       .wunderbar__input {
-        outline: 2px solid var(--color-header-button-hover) !important;
+        // outline: 2px solid var(--color-header-button-hover) !important;
       }
     }
 
     .wunderbar__input:focus-visible {
-      outline: 2px solid var(--color-header-button-hover) !important;
+      // outline: 2px solid var(--color-header-button-hover) !important;
     }
   }
 

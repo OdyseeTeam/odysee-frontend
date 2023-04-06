@@ -23,6 +23,7 @@ import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
 import { tusHandleTabUpdates } from 'util/tus';
 import { NavLink } from 'react-router-dom';
+import './style.scss';
 
 type Props = {
   notifications: Array<Notification>,

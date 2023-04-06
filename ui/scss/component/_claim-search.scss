@@ -19,6 +19,22 @@
   display: flex;
   flex-wrap: wrap;
 
+  &:first-of-type {
+    flex: 1;
+    .claim-search__menu-group {
+      width: 100%;
+    }
+  }
+
+  /*
+  select {
+    &:hover {
+      background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
+    }
+  }
+  */
+
   @media (max-width: $breakpoint-small) {
     .wunderbar--inline {
       margin-top: 0px;
@@ -43,6 +59,8 @@
   display: grid;
   grid-template-columns: auto auto;
   grid-row-gap: 1rem;
+
+  //width:100%;
 }
 
 .claim-search__menus {
@@ -65,18 +83,6 @@
   @media (max-width: $breakpoint-small) {
     padding: unset;
   }
-
-  &:not(:first-child) {
-    margin-top: var(--spacing-s) !important;
-  }
-}
-
-.claim-search__dropdown {
-  padding: 0 var(--spacing-m);
-  padding-right: var(--spacing-xl);
-  font-size: var(--font-body);
-  background-color: var(--color-card-background);
-  background-position: right var(--spacing-m) center;
 }
 
 .claim-search__input-container {
@@ -84,19 +90,6 @@
   flex-direction: column;
   font-size: var(--font-body);
   width: 100%;
-
-  &:not(:first-of-type) {
-    margin-top: var(--spacing-s);
-  }
-
-  @media (min-width: $breakpoint-small) {
-    width: auto;
-
-    &:not(:first-of-type) {
-      margin-top: 0;
-      // padding-left: var(--spacing-m);
-    }
-  }
 
   &.action-button {
     flex-direction: row;
@@ -107,7 +100,6 @@
 .claim-search__dropdown,
 .claim-search__input-container {
   padding-left: 0;
-  padding-right: var(--spacing-m);
   @media (max-width: $breakpoint-small) {
     padding-right: 0;
   }
@@ -171,12 +163,6 @@
   .claim-search__menu-group:last-of-type {
     margin-right: unset;
   }
-
-  @media (max-width: $breakpoint-small) {
-    .claim-search__menu-group:first-of-type {
-      margin-right: var(--spacing-s);
-    }
-  }
 }
 
 .claim-search__top > div {
@@ -220,6 +206,25 @@
   }
 }
 
+.claim-search__menu-subgroup {
+  display: flex;
+  flex-direction: row;
+
+  .claim-search__dropdown {
+    margin-left: var(--spacing-s);
+    margin-top: 0;
+  }
+
+  &:nth-of-type(2) {
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    @media (max-width: $breakpoint-small) {
+      display: none;
+    }
+  }
+}
+
 .claim-search__tags-link {
   margin-left: var(--spacing-s);
 }
@@ -239,7 +244,7 @@
 
 .claim-search__filters {
   width: 100%;
-  background-color: rgba(var(--color-header-background-base), 0.4);
+  background-color: var(--color-header-button);
   border-radius: var(--border-radius);
   padding-top: var(--spacing-s);
   padding-left: var(--spacing-m);
@@ -249,6 +254,7 @@
 
   .claim-search__menus {
     margin: 0;
+    gap: var(--spacing-m);
     .claim-search__input-container {
       flex: 1 1 0;
       padding-right: 0;
@@ -257,7 +263,7 @@
         font-weight: var(--font-weight-bold);
         margin-top: var(--spacing-s);
         margin-bottom: 0.1rem;
-        font-size: var(--font-medium);
+        font-size: var(--font-base);
       }
 
       &:last-child {
@@ -269,10 +275,24 @@
   }
 
   select,
+  .filer-checkbox-wrapper {
+    background-color: var(--color-background);
+  }
+
+  select {
+    &:hover {
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast) !important;
+    }
+    &:focus-visible {
+      color: var(--color-text);
+    }
+  }
+
   input[type='text'],
   input[type='number'],
   .filer-checkbox-wrapper {
-    box-shadow: 0 0 0 2px var(--color-border) inset;
+    background-color: var(--color-background);
   }
 
   .filer-checkbox-wrapper {
@@ -285,5 +305,6 @@
 
   @media (max-width: $breakpoint-small) {
     margin-bottom: var(--spacing-m);
+    margin-top: 4px;
   }
 }

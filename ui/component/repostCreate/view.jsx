@@ -18,6 +18,7 @@ import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 import BidHelpText from 'component/publish/shared/publishBid/bid-help-text';
 import Spinner from 'component/spinner';
 import { REPOST_PARAMS } from 'page/repost/view';
+import './style.scss';
 
 type Props = {
   doToast: ({ message: string }) => void,

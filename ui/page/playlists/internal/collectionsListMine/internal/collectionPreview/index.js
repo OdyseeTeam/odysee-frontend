@@ -4,6 +4,8 @@ import {
   selectTitleForUri,
   selectClaimIdForUri,
   selectClaimForClaimId,
+  selectThumbnailForUri,
+  selectClaimIsPendingForId,
 } from 'redux/selectors/claims';
 import {
   selectCollectionTitleForId,
@@ -16,6 +18,7 @@ import {
   selectThumbnailForCollectionId,
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
+  selectCollectionHasEditsForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -35,6 +38,7 @@ const select = (state, props) => {
       channelTitle = name;
     }
   }
+  const firstCollectionItemUrl = selectFirstItemUrlForCollection(state, collectionId);
 
   return {
     collectionId,
@@ -44,16 +48,20 @@ const select = (state, props) => {
     collectionType: selectCollectionTypeForId(state, collectionId),
     isFetchingItems: selectAreCollectionItemsFetchingForId(state, collectionId),
     isResolvingCollection: selectIsResolvingForId(state, collectionId),
+    claimIsPending: selectClaimIsPendingForId(state, collectionId),
     title: collectionUri && selectTitleForUri(state, collectionUri),
     channel,
     channelTitle,
     hasClaim: Boolean(claim),
-    firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
+    firstCollectionItemUrl,
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
     collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
     thumbnail: selectThumbnailForCollectionId(state, collectionId),
     isEmpty: selectCollectionIsEmptyForId(state, collectionId),
+    thumbnailFromClaim: selectThumbnailForUri(state, collectionUri),
+    thumbnailFromSecondaryClaim: selectThumbnailForUri(state, firstCollectionItemUrl, true),
+    collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
   };
 };
 

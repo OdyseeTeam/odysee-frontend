@@ -31,8 +31,9 @@
 
   .card__subtitle {
     .section {
-      button:first-of-type {
-        bottom: -2px;
+      .icon--DollarSign {
+        margin-top: -0.25rem;
+        // padding-bottom:0px;
       }
     }
   }

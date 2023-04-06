@@ -43,7 +43,7 @@ const CollectionTitle = (props: Props) => {
 
   return (
     <div className="card__title card__title--with-actions">
-      <h2 className="card-title__text card-title__text--with-icon">
+      <h2 className="card-title__text">
         {!noIcon && (
           <Icon
             icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId] || ICONS.PLAYLIST}
@@ -52,11 +52,7 @@ const CollectionTitle = (props: Props) => {
         )}
 
         {collectionTitle ? (
-          isBuiltin ? (
-            __(collectionTitle)
-          ) : (
-            collectionTitle
-          )
+          <label>{isBuiltin ? __(collectionTitle) : collectionTitle}</label>
         ) : (
           <Skeleton
             variant="text"

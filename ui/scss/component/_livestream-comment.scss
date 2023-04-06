@@ -20,7 +20,7 @@
   }
 
   .comment__author:not(.comment__author--creator) {
-    color: rgba(var(--color-text-base), 0.5);
+    color: rgba(var(--color-text-base), 0.6);
     margin-top: var(--spacing-xxs);
     max-width: calc(100% - 110px);
 
@@ -66,7 +66,7 @@
 
   display: flex;
   justify-content: space-between;
-  padding: 0;
+  // padding: 0;
 
   &.livestream__comment--minimal {
     .livestreamComment__menu {
@@ -74,14 +74,13 @@
       right: 0;
     }
   }
-  .livestreamComment__meta-information {
-    width: 100%;
-    min-width: 0;
-  }
+
   .livestreamComment__menu {
     position: relative;
-    right: 0;
-    top: var(--spacing-xxs);
+    top: 4px !important;
+    right: 4px !important;
+    background-color: var(--color-background);
+    border-radius: 50%;
     .menu__button {
       opacity: 1;
     }
@@ -101,93 +100,13 @@
   background-color: rgba(var(--color-header-background-base), 0.6);
 }
 
-.livestreamComment__meta-information {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-  padding-top: 1px;
-  transition: width 0.2s;
-
-  .comment__pin {
-    background: var(--color-header-background);
-    padding: 0 3px 0 2px;
-    font-weight: var(--font-weight-bold);
-    border-radius: 10px var(--border-radius) var(--border-radius) 10px;
-    margin-left: 0;
-    border: 2px solid var(--color-border);
-    margin-top: -1px;
-    flex: 1;
-    white-space: nowrap;
-    svg {
-      margin-bottom: -1px;
-      background: var(--color-border);
-      border-radius: 50%;
-      padding: 1px;
-      padding-left: 2px;
-      margin-right: var(--spacing-xxs);
-    }
-  }
-
-  .date_time {
-    flex: 1;
-    white-space: nowrap;
-    margin-bottom: -5px;
-  }
-}
-
-.livestreamComment__info {
-  overflow: hidden;
-  width: 100%;
-
-  .comment__author {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  .comment__badge {
-    .icon {
-      height: var(--font-body);
-      width: var(--font-body);
-      margin-bottom: -2px;
-    }
-    .icon--BadgeStreamer {
-      height: calc(var(--font-body) + 2px);
-      width: calc(var(--font-body) + 2px);
-      margin-bottom: -7px;
-    }
-    .icon--BadgeMod {
-      height: calc(var(--font-body) - 3px);
-      width: calc(var(--font-body) - 3px);
-      margin-bottom: -4px;
-    }
-    .icon--Premium,
-    .icon--PremiumPlus {
-      margin-bottom: -5px;
-    }
-    .icon--Membership {
-      color: var(--color-text);
-      height: calc(var(--font-body) - 3px);
-      width: calc(var(--font-body) - 3px);
-      margin-bottom: -4.5px;
-    }
-    .icon--BadgeSprout {
-      height: 1rem;
-      width: 1rem;
-      margin-bottom: -4px;
-    }
-  }
-}
-
 .livestream__comment--hyperchat {
   background-color: rgba(var(--color-text-base), 0.1);
   margin: 0 var(--spacing-xxxs);
   display: unset;
   padding-left: 0;
   border-radius: var(--border-radius);
-  box-shadow: 2px 0px 0px 0px rgba(var(--color-text-base), 0.4) inset;
+  border: 1px solid rgba(var(--color-text-base), 0.4);
 
   + .livestream__comment--hyperchat {
     margin-bottom: var(--spacing-xxs);
@@ -234,7 +153,6 @@
 }
 
 .hyperchat-level1 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 0%) inset;
   background-color: rgba(mix(#de0050, #ffa236, 0%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 0%), transparent);
@@ -242,7 +160,7 @@
 }
 
 .hyperchat-level2 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 25%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 25%);
   background-color: rgba(mix(#de0050, #ffa236, 25%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 25%), transparent);
@@ -250,7 +168,7 @@
 }
 
 .hyperchat-level3 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 50%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 50%);
   background-color: rgba(mix(#de0050, #ffa236, 50%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 50%), transparent);
@@ -258,7 +176,7 @@
 }
 
 .hyperchat-level4 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 75%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 75%);
   background-color: rgba(mix(#de0050, #ffa236, 75%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 75%), transparent);
@@ -266,7 +184,7 @@
 }
 
 .hyperchat-level5 {
-  box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 100%) inset;
+  border: 1px solid mix(#de0050, #ffa236, 100%);
   background-color: rgba(mix(#de0050, #ffa236, 100%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 100%), transparent);
@@ -329,9 +247,9 @@
   position: relative;
   width: 90%;
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
-  padding: 2px;
-  margin-left: 2px;
-  border-radius: var(--border-radius) 0 0 0;
+  padding: 1px;
+  padding-left: 0;
+  // border-radius: var(--border-radius) 0 0 0;
   display: flex;
 
   .hyperChat {
@@ -402,8 +320,8 @@
     }
 
     .emote {
-      max-width: 1.25rem;
-      max-height: 1.25rem;
+      max-width: 1.1rem;
+      max-height: 1.1rem;
     }
   }
 }

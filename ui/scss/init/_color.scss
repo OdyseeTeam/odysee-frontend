@@ -39,9 +39,9 @@
   --color-button-secondary-border: var(--color-secondary-alt);
   --color-button-secondary-text: var(--color-secondary);
   --color-button-secondary-bg-hover: #b9d0e9;
-  --color-button-alt-bg: var(--color-gray-1);
+  // --color-button-alt-bg: var(--color-gray-1);
   --color-button-alt-text: var(--color-text);
-  --color-button-alt-bg-hover: var(--color-gray-2);
+  // --color-button-alt-bg-hover: var(--color-gray-2);
   --color-link: var(--color-primary);
   --color-link-hover: var(--color-black);
 
@@ -50,7 +50,7 @@
 
   // Tag
   --color-tag: var(--color-gray-5);
-  --color-tag-bg: var(--color-button-alt-bg);
+  // --color-tag-bg: var(--color-button-alt-bg);
   --color-tag-hover: var(--color-button-alt-text);
-  --color-tag-bg-hover: var(--color-button-alt-bg-hover);
+  // --color-tag-bg-hover: var(--color-button-alt-bg-hover);
 }

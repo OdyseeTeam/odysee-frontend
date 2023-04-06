@@ -5,8 +5,7 @@ select,
 .date-picker-input {
   height: var(--height-input);
   border-radius: var(--border-radius);
-  color: var(--color-input);
-  border-color: var(--color-input-border);
+  color: var(--color-text);
   background-color: var(--color-input-bg);
   padding-right: var(--spacing-s);
   padding-left: var(--spacing-s);
@@ -31,22 +30,27 @@ select,
   }
 }
 
+input {
+  &:hover {
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+  }
+}
+
+.MuiInputBase-root {
+  &:hover {
+    outline: 2px solid var(--color-primary) !important;
+    outline-offset: -2px;
+  }
+}
+
 @media (min-width: $breakpoint-small) {
   textarea {
     height: var(--height-input);
     border-radius: var(--border-radius);
-    // border: 1px solid;
     color: var(--color-input);
-    // border-color: var(--color-input-border);
     background-color: var(--color-input-bg);
     padding-right: var(--spacing-s);
     padding-left: var(--spacing-s);
-
-    /*
-    &:focus {
-      @include focus;
-    }
-    */
 
     &::placeholder {
       color: var(--color-input-placeholder);
@@ -83,6 +87,18 @@ select {
   padding-right: var(--spacing-xl);
   padding-left: var(--spacing-s);
   font-weight: bold;
+  &:hover,
+  &:focus-visible {
+    color: var(--color-primary-contrast);
+    background-color: var(--color-primary);
+    background-image: var(--select-toggle-background-hover);
+  }
+  &:hover {
+    color: var(--color-primary-contrast);
+  }
+  option {
+    color: var(--color-text);
+  }
 }
 
 fieldset-group {
@@ -129,9 +145,6 @@ form,
 
 fieldset-section {
   background-color: unset !important;
-  select:focus-visible {
-    background-color: var(--color-header-background) !important;
-  }
 
   option {
     background-color: var(--color-header-background);
@@ -172,8 +185,6 @@ input-submit {
   & > *:nth-child(2) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    // border: 1px solid var(--color-border);
-    border-left: none;
   }
 }
 
@@ -206,12 +217,15 @@ input-submit {
     min-height: var(--height-checkbox);
 
     &::before {
-      background-color: var(--color-input-toggle-bg);
+      background-color: var(--color-header-button);
     }
 
     &:hover {
       &::before {
-        background-color: var(--color-input-toggle-bg-hover);
+        background-color: var(--color-primary);
+      }
+      &::after {
+        border-color: var(--color-primary-contrast);
       }
     }
   }
@@ -240,10 +254,8 @@ input-submit {
   label::before {
     height: var(--height-checkbox);
     width: var(--height-checkbox);
-    border: 1px solid var(--color-input-border);
     border-radius: var(--border-radius);
     left: 0px;
-    top: -1px;
   }
 
   // Checkmark of the fake checkbox
@@ -424,12 +436,9 @@ fieldset-group {
         height: var(--height-input);
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
-        border-color: var(--color-input-border);
         border-right-color: var(--color-input-prefix-border);
-        //color: white;
         background-color: var(--color-border);
-        color: var(--color-text);
-        // box-shadow: 0px 0px 0px 2px rgba(var(--color-text-base), 0.1) inset;
+        color: rgba(var(--color-text-base), 0.7);
       }
     }
 
@@ -437,18 +446,8 @@ fieldset-group {
       width: 100%;
 
       label {
-        // Overwrite the input's label to wrap instead. This is usually
-        // an error message, which could be long in other languages.
         width: 100%;
         white-space: normal;
-      }
-
-      input {
-        border-left: 0;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-color: var(--color-input-border);
-        padding-left: var(--spacing-xs);
       }
     }
   }
@@ -597,6 +596,9 @@ fieldset-section {
 
   .react-datetime-picker__wrapper {
     border: 0;
+    input {
+      background-color: unset;
+    }
   }
 }
 

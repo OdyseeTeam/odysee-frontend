@@ -6,7 +6,6 @@
   margin-top: var(--spacing-l);
   padding: var(--spacing-s);
   border-radius: var(--border-radius);
-  background: var(--color-header-background);
 
   &:hover {
     .menu__button {
@@ -75,8 +74,7 @@ $ITEM_H_MOBILE: 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: var(--spacing-xxs);
-  padding: var(--spacing-xxs);
+  padding: var(--spacing-xxs) 0;
   border-radius: var(--border-radius);
   cursor: pointer;
 
@@ -85,6 +83,8 @@ $ITEM_H_MOBILE: 120px;
   }
 
   .claim-preview__title {
+    width: 100%;
+    text-align: center;
     font-size: var(--font-small);
     margin-right: unset;
 

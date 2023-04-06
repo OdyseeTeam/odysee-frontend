@@ -101,6 +101,11 @@ function HomePage(props: Props) {
   };
 
   const topGrid = sortedRowData.findIndex((row) => row.title);
+  const hasBanner = Boolean(
+    sortedRowData.filter((obj) => {
+      return obj.id === 'BANNER';
+    }).length
+  );
 
   const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
     return (
@@ -132,7 +137,9 @@ function HomePage(props: Props) {
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     if (id === 'BANNER') {
-      return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;
+      if (index === undefined) {
+        return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;
+      } else return null;
     } else if (id === 'PORTALS') {
       return <Portals key={id} homepageData={homepageData} authenticated={authenticated} />;
     }
@@ -226,6 +233,20 @@ function HomePage(props: Props) {
           />
         </div>
       )}
+
+      {hasBanner &&
+        getRowElements(
+          'BANNER',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          {},
+          undefined,
+          undefined,
+          undefined
+        )}
 
       {homepageFetched &&
         sortedRowData.map(

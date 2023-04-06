@@ -44,6 +44,7 @@ const ClaimCollectionAdd = (props: Props) => {
   return (
     <Card
       title={__('Save to...')}
+      className="card--background"
       singlePane
       body={
         <ul className="ul--no-style card__body-scrollable">
@@ -70,7 +71,7 @@ const ClaimCollectionAdd = (props: Props) => {
           <FormNewCollection uri={uri} closeForm={() => setAddNewCollection(false)} />
         ) : (
           <div className="section__actions">
-            <Button button="secondary" label={__('Done')} disabled={addNewCollection} onClick={closeModal} />
+            <Button button="primary" label={__('Done')} disabled={addNewCollection} onClick={closeModal} />
             <Button button="link" label={__('New Playlist')} onClick={() => setAddNewCollection(true)} />
           </div>
         )

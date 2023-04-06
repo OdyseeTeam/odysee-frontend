@@ -40,11 +40,6 @@
       a {
         pointer-events: none;
       }
-
-      .claim-tile__title {
-        min-height: unset;
-      }
-
       .claim-tile__header {
         position: absolute;
         top: 0;
@@ -85,9 +80,6 @@
         }
         .claim-tile__header {
           display: flex;
-          .claim-tile__title {
-            color: white;
-          }
         }
         .claim-preview__file-property-overlay {
           display: block;

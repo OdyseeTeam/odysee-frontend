@@ -1,5 +1,4 @@
 // @flow
-import './style.scss';
 import AdditionalFilters from './internal/additionalFilters';
 import TagSearch from './internal/tagSearch/tagSearch';
 import * as CS from 'constants/claim_search';
@@ -19,6 +18,7 @@ import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { useIsMobile } from 'effects/use-screensize';
 import debounce from 'util/debounce';
+import './style.scss';
 
 type Props = {
   defaultTags: string,
@@ -270,44 +270,61 @@ function ClaimListHeader(props: Props) {
               </div>
             )}
             <div className="claim-search__menu-group">
+              {tileLayout !== undefined && !hideLayoutButton && (
+                <>
+                  <Button
+                    onClick={() => {
+                      doSetClientSetting(SETTINGS.TILE_LAYOUT, true);
+                    }}
+                    button="alt"
+                    className={classnames(`button-toggle button-toggle--top`, {
+                      'button-toggle--active': tileLayout,
+                    })}
+                    aria-label={__('Change to tile layout')}
+                    icon={ICONS.VIEW_TILES}
+                  />
+                  <Button
+                    onClick={() => {
+                      doSetClientSetting(SETTINGS.TILE_LAYOUT, false);
+                    }}
+                    button="alt"
+                    className={classnames(`button-toggle button-toggle--top`, {
+                      'button-toggle--active': !tileLayout,
+                    })}
+                    aria-label={__('Change to list layout')}
+                    icon={ICONS.VIEW_LIST}
+                  />
+                </>
+              )}
+            </div>
+            <>
+              {showHideAnonymous && (
+                <div className="claim-search__menu-group hide-anonymous-checkbox">
+                  <FormField
+                    label={__('Hide anonymous')}
+                    name="hide_anonymous"
+                    type="checkbox"
+                    checked={hideAnonymous}
+                    onChange={() => setHideAnonymous(!hideAnonymous)}
+                  />
+                </div>
+              )}
+            </>
+            <div className="claim-search__menu-group stretch">
               {!hideAdvancedFilter && (
                 <Button
                   button="alt"
                   aria-label={__('More')}
                   className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
                     'button-toggle--custom': isFiltered(),
-                    'button-toggle--active': expanded,
+                    'button-toggle--active button-toggle--bottom-arrow': expanded,
                   })}
                   icon={ICONS.SLIDERS}
                   onClick={() => setExpanded(!expanded)}
                 />
               )}
 
-              {tileLayout !== undefined && !hideLayoutButton && (
-                <Button
-                  onClick={() => {
-                    doSetClientSetting(SETTINGS.TILE_LAYOUT, !tileLayout);
-                  }}
-                  button="alt"
-                  className="button-toggle"
-                  aria-label={tileLayout ? __('Change to list layout') : __('Change to tile layout')}
-                  icon={ICONS.LAYOUT}
-                />
-              )}
-
               {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
-            </div>
-            <div className="claim-search__menu-group">
-              {showHideAnonymous && (
-                <FormField
-                  label={__('Hide anonymous')}
-                  className="hide-anonymous-checkbox"
-                  name="hide_anonymous"
-                  type="checkbox"
-                  checked={hideAnonymous}
-                  onChange={() => setHideAnonymous(!hideAnonymous)}
-                />
-              )}
             </div>
           </div>
           {meta && !isMobile && <div className="section__actions--no-margin">{meta}</div>}

@@ -1,6 +1,11 @@
 import { connect } from 'react-redux';
 import PlaylistCard from './view';
-import { selectClaimForUri, selectChannelNameForId } from 'redux/selectors/claims';
+import {
+  selectClaimForUri,
+  selectChannelNameForId,
+  selectThumbnailForUri,
+  selectClaimForClaimId,
+} from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
   selectCollectionTitleForId,
@@ -29,6 +34,9 @@ const select = (state, props) => {
   const playingCurrentPlaylist = collectionId === playingCollectionId;
   const { permanent_url: playingItemUrl } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
 
+  const claim = selectClaimForClaimId(state, collectionId);
+  const collectionUri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
+
   return {
     id: collectionId,
     playingItemUrl,
@@ -45,6 +53,7 @@ const select = (state, props) => {
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),
     playingCollectionId,
     collectionSavedForId: selectCollectionSavedForId(state, collectionId),
+    thumbnailFromClaim: selectThumbnailForUri(state, playingItemUrl || collectionUri),
   };
 };
 

@@ -103,7 +103,7 @@ export class FormFieldPrice extends React.PureComponent<Props, State> {
           name={`${name}_currency`}
           type="select"
           id={`${name}_currency`}
-          className="input--currency-select"
+          className="input--currency-select currency-fix"
           disabled={disabled}
           onChange={this.handleCurrencyChange}
           value={price.currency}

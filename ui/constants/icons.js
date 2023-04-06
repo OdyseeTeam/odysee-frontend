@@ -225,6 +225,8 @@ export const GOLIVE = 'GOLIVE';
 export const GHOST = 'Ghost';
 export const SPIRITUALITY = 'Spirituality';
 export const HORROR = 'Horror';
+export const VIEW_TILES = 'TileView';
+export const VIEW_LIST = 'ListView';
 
 // -- Temporary --
 export const HOLIDAY = 'Holiday';

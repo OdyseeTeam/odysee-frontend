@@ -1,35 +1,19 @@
 .membership-button-wrapper.inline {
-  margin: var(--spacing-s);
-  margin-bottom: 0;
-  margin-left: 0;
+  // margin: var(--spacing-s);
+  // margin-bottom: 0;
+  // margin-left: 0;
 
   @media (max-width: $breakpoint-small) {
     margin-top: var(--spacing-xxs);
     margin-bottom: var(--spacing-s);
-    margin-right: var(--spacing-s);
+    // margin-right: var(--spacing-s);
+    margin-right: 0;
     margin-left: 0;
   }
 }
 
 .file-page {
   .card-stack {
-    .claim-preview {
-      &:hover {
-        .claim-preview__title {
-          color: var(--color-text);
-        }
-      }
-      .claim-preview__title {
-        &:hover {
-          color: var(--color-link);
-        }
-      }
-    }
-
-    .claim-preview__primary-actions {
-      margin-right: 0;
-    }
-
     @media (max-width: $breakpoint-small) {
       .card {
         .card__first-pane {
@@ -54,36 +38,18 @@
                 overflow: visible;
               }
               .claim-preview__actions {
-                width: calc(100% + calc(2.5rem + var(--spacing-m)));
+                width: calc(100% + calc(2.7rem + var(--spacing-s)));
+                margin-left: calc(-2.7rem + calc(var(--spacing-s) * -1));
                 flex-direction: row;
-                margin-left: calc(-2.5rem + calc(var(--spacing-m) * -1));
 
                 .membership-button-wrapper {
                   width: 50%;
-                  margin-top: var(--spacing-xxs);
                   margin-bottom: 0;
-                  margin-right: var(--spacing-xxs);
+                  // margin-right: var(--spacing-xxs);
                   .button--membership,
                   .button--membership-active {
                     width: 100%;
                   }
-                }
-                .claim-preview__primary-actions {
-                  width: 50%;
-                  margin-right: 0;
-                  .button-group {
-                    width: 100%;
-                    .button {
-                      &:first-of-type {
-                        width: 100%;
-                      }
-                    }
-                  }
-                }
-
-                @media (max-width: $breakpoint-small) {
-                  width: calc(100% + calc(2.7rem + var(--spacing-s)));
-                  margin-left: calc(-2.7rem + calc(var(--spacing-s) * -1));
                 }
 
                 @media (max-width: $breakpoint-xsmall) {
@@ -95,8 +61,7 @@
           }
         }
       }
-    }
-    @media (max-width: $breakpoint-small) {
+
       .membership-button-wrapper {
         margin-left: var(--spacing-xs) !important;
       }
@@ -193,14 +158,12 @@
     }
   }
 
-  // Temporary fix
   .card__main-actions {
     .claim-tile__info {
       display: unset;
       margin-top: -2px;
       padding-bottom: 0;
       .media__subtitle {
-        padding-bottom: 3px;
         .claim-preview__channel-sub-count {
           font-size: var(--font-xsmall) !important;
           @media (max-width: $breakpoint-small) {
@@ -276,29 +239,6 @@
 
         span {
           font-size: var(--font-xxsmall);
-        }
-      }
-
-      .claim-preview__actions {
-        margin: 0;
-        align-self: flex-start;
-
-        .button-group {
-          margin: 0;
-        }
-
-        .button--alt {
-          padding: var(--spacing-xs);
-          height: unset;
-
-          .button__content {
-            height: unset;
-          }
-        }
-
-        span {
-          font-size: var(--font-xsmall);
-          font-weight: var(--font-weight-bold);
         }
       }
     }

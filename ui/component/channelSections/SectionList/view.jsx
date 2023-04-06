@@ -37,15 +37,15 @@ export default function SectionList(props: Props) {
       {editMode && (
         <div className="channel_sections__actions">
           {fetchingCreatorSettings && <Spinner type="small" />}
-          <Button
-            label={__('Add featured channels')}
-            button="secondary"
-            icon={ICONS.ADD}
-            onClick={handleAddFeaturedChannels}
-          />
           {sectionCount > 1 && (
             <Button title={__('Sort')} button="secondary" icon={ICONS.ARRANGE} onClick={handleSort} />
           )}
+          <Button
+            label={__('Add featured channels')}
+            button="primary"
+            icon={ICONS.ADD}
+            onClick={handleAddFeaturedChannels}
+          />
         </div>
       )}
       <div className="channel_sections__list">

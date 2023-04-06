@@ -3,8 +3,6 @@ import 'scss/component/_swipeable-drawer.scss';
 
 // $FlowFixMe;
 import { Global } from '@emotion/react';
-// $FlowFixMe
-import { grey } from '@mui/material/colors';
 
 import { PRIMARY_PLAYER_WRAPPER_CLASS, PRIMARY_IMAGE_WRAPPER_CLASS, HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
@@ -13,7 +11,6 @@ import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import * as DRAWERS from 'constants/drawer_types';
 import Button from 'component/button';
-import classnames from 'classnames';
 
 const TRANSITION_MS = 225;
 const TRANSITION_STR = `${TRANSITION_MS}ms cubic-bezier(0, 0, 0.2, 1) 0ms`;
@@ -27,14 +24,13 @@ type Props = {
   startOpen?: boolean,
   // -- redux --
   open: boolean,
-  theme: string,
   doToggleAppDrawer: (type: string) => void,
 };
 
 export default function SwipeableDrawer(props: Props) {
-  const { title, hasSubtitle, children, type, startOpen, open, theme, actions, doToggleAppDrawer } = props;
+  const { title, hasSubtitle, children, type, startOpen, open, actions, doToggleAppDrawer } = props;
 
-  const pullerHeight = type === DRAWERS.PLAYLIST ? 110 : 42;
+  const pullerHeight = type === DRAWERS.PLAYLIST ? 120 : 62;
 
   const drawerRoot = React.useRef();
   const backdropRef = React.useRef();
@@ -256,7 +252,7 @@ export default function SwipeableDrawer(props: Props) {
       >
         {open && (
           <div className="swipeable-drawer__header" style={{ top: -pullerHeight, height: pullerHeight }}>
-            <Puller theme={theme} />
+            <span className="swipeable-drawer__puller" />
             <HeaderContents
               title={title}
               hasSubtitle={hasSubtitle}
@@ -294,18 +290,6 @@ const DrawerGlobalStyles = (props: GlobalStylesProps) => {
   );
 };
 
-type PullerProps = {
-  theme: string,
-};
-
-const Puller = (props: PullerProps) => {
-  const { theme } = props;
-
-  return (
-    <span className="swipeable-drawer__puller" style={{ backgroundColor: theme === 'light' ? grey[300] : grey[800] }} />
-  );
-};
-
 type HeaderProps = {
   title: any,
   hasSubtitle?: boolean,
@@ -318,12 +302,7 @@ const HeaderContents = (props: HeaderProps) => {
   const { title, hasSubtitle, actions, handleClose, type, ...divProps } = props;
 
   return (
-    <div
-      className={classnames('swipeable-drawer__header-content', {
-        'swipeable-drawer__header--with-subtitle': hasSubtitle,
-      })}
-      {...divProps}
-    >
+    <div className="swipeable-drawer__header-content" {...divProps}>
       {title}
 
       <div className="swipeable-drawer__header-actions">

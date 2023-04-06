@@ -12,13 +12,10 @@
   z-index: 9999;
 
   @media (max-width: $breakpoint-small) {
-    // background-color: rgba(var(--color-header-background-base), 0.95);
-    background-color: rgba(var(--color-header-background-base), 0.4);
+    background-color: rgba(var(--color-header-button-base), 0.3);
     padding: var(--spacing-s);
-    // // border:
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);
-    // border: 2px solid black;
 
     .ReactModal__Content {
       border: 2px solid black;
@@ -55,14 +52,6 @@
       border-top: unset;
     }
 
-    input {
-      background: var(--color-header-button);
-      &:focus {
-        border: 1px solid var(--color-primary);
-        box-shadow: unset;
-      }
-    }
-
     .card__title-section {
       padding-top: 0;
     }
@@ -87,6 +76,7 @@
     background-color: var(--color-modal-background) !important;
   }
 
+  /*
   .claim-preview__wrapper {
     padding-top: 0;
 
@@ -97,16 +87,7 @@
       right: var(--spacing-xxs) !important;
     }
   }
-
-  .repost-wrapper {
-    .claim-preview__wrapper {
-      padding-top: var(--spacing-m);
-      border: 2px solid var(--color-border);
-      .claim-preview__actions {
-        margin-top: unset;
-      }
-    }
-  }
+  */
 
   .purchase-stuff {
     div:first-of-type {
@@ -207,104 +188,19 @@
     border: 2px solid black;
     border-radius: var(--border-radius);
 
-    .form-field--copyable {
-      background: rgba(var(--color-primary-dynamic), 0.1);
-      /*
-      border-top: 2px solid var(--color-border);
-      border-bottom: 2px solid var(--color-border);
-      border-left: 2px solid var(--color-border);
-      */
-    }
-
-    button.button-toggle {
-      background-color: var(--color-header-background) !important;
-      border: 2px solid var(--color-border);
-      border-left: 0px;
-      &:hover {
-        background-color: var(--color-border) !important;
-        border: 2px solid transparent;
-        border-left: 0px;
-      }
-      &:first-of-type {
-        border-left: 2px solid var(--color-border);
-        &:hover {
-          border-left: 2px solid transparent;
-        }
-      }
-      .button__label {
-        margin-right: 2px;
-      }
-    }
-
-    button.button-toggle--active {
-      background-color: var(--color-border) !important;
-      border: 2px solid transparent;
-      border-left: 0px;
-      &:first-child {
-        border-left: 2px solid transparent;
-      }
-    }
-
-    .channel__list-item,
-    .button--secondary {
-      // background-color: rgba(var(--color-header-button-base), 0.9) !important;
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
-    .channel__list-item {
-      &:hover {
-        box-shadow: unset;
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-      }
-    }
-
-    input,
-    select {
-      background-color: var(--color-header-background);
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-      &:hover {
-        background-color: var(--color-input-toggle-bg-hover);
-      }
-      &:focus-visible {
-        border: unset;
-        background-color: var(--color-input-toggle-bg-hover);
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
-
     label {
       color: var(--color-text);
       font-size: var(--font-medium);
     }
 
-    .checkbox,
-    .radio {
-      label {
-        &::before {
-          top: unset;
-          border: unset;
-          box-shadow: 0 0 0 2px var(--color-border) inset;
-        }
-        &::after {
-          top: 6px;
-        }
-      }
-      &:hover {
-        input {
-          border: unset !important;
-          // outline:unset !important;
-        }
-      }
-    }
-    .checkbox {
-      label {
-        &::after {
-          top: 8px !important;
-        }
-      }
-    }
-
     [data-reach-menu-button] {
+      .channel__list-item--selected {
+        background-color: var(--color-header-button) !important;
+        color: var(--color-text);
+        .claim-preview__title {
+          margin-right: var(--spacing-s);
+        }
+      }
       &:hover {
         .channel__list-item--selected {
           background-color: var(--color-primary) !important;

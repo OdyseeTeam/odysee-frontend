@@ -8,6 +8,7 @@
   padding: var(--spacing-l) 12px;
   margin-bottom: var(--spacing-xxl);
   overflow: hidden;
+  background-attachment: fixed;
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -15,6 +16,10 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+
+  @media (max-width: $breakpoint-small) {
+    padding-top: var(--spacing-xl);
+  }
 
   h1 {
     position: absolute;
@@ -24,6 +29,9 @@
     font-weight: var(--font-weight-bold);
     color: rgba(255, 255, 255, 0.9);
     background: radial-gradient(rgba(101, 15, 124, 0.7) 0%, transparent 60%);
+    @media (max-width: $breakpoint-small) {
+      width: 90%;
+    }
   }
 
   .portal-rotator {
@@ -37,6 +45,10 @@
     flex-wrap: nowrap;
     flex-grow: 1 0 auto;
     height: 100%;
+
+    @media (max-width: $breakpoint-small) {
+      margin-top: 80px;
+    }
   }
 
   .portal-wrapper {
@@ -74,10 +86,11 @@
     text-align: center;
     bottom: var(--spacing-m);
     div {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: rgba(150, 150, 150, 0.6);
+      border: 1px solid white;
       display: inline-block;
       margin: 0 var(--spacing-xxs);
       transition: all 1s;
@@ -129,6 +142,14 @@
       opacity: 1 !important;
       background: rgba(var(--color-header-background-base), 1);
     }
+
+    @media (max-width: $breakpoint-small) {
+      top: calc(50% - 20px);
+      width: 40px;
+      height: 40px;
+      font-size: 26px;
+      opacity: 0.8;
+    }
   }
 
   .portals-remove {
@@ -149,6 +170,11 @@
 
     &:hover {
       cursor: pointer;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      top: var(--spacing-s);
+      right: var(--spacing-s);
     }
   }
 

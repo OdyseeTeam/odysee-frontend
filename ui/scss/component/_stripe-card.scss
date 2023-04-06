@@ -327,9 +327,13 @@ pre {
 }
 
 .successCard {
+  .button {
+    background-color: var(--color-background);
+  }
+
   .card__body {
     display: flex;
-    background-color: rgba(var(--color-header-background-base), 0.4);
+    background-color: var(--color-header-button);
     padding: var(--spacing-s);
     border-radius: var(--border-radius);
 
@@ -351,7 +355,14 @@ pre {
       }
 
       select {
-        box-shadow: 0 0 0 2px var(--color-border) inset;
+        background-color: var(--color-background);
+        &:hover {
+          background-color: var(--color-primary);
+          color: var(--color-primary-contrast) !important;
+        }
+        &:focus-visible {
+          color: var(--color-text);
+        }
       }
     }
 

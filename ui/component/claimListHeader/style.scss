@@ -11,6 +11,7 @@ $OPTIONS_MIN_WIDTH: 250px;
     padding: 0;
   }
 
+  /*
   .checkbox {
     background-color: rgba(var(--color-header-background-base), 0.9);
     margin-left: var(--spacing-s);
@@ -19,6 +20,7 @@ $OPTIONS_MIN_WIDTH: 250px;
     align-items: center;
     justify-content: center;
     padding: 0 var(--spacing-s);
+    background:blue;
     label {
       margin-bottom: -6px;
       &::before,
@@ -27,8 +29,11 @@ $OPTIONS_MIN_WIDTH: 250px;
       }
     }
   }
+  */
 
   .section__actions--no-margin {
+    justify-content: end;
+    margin-left: auto;
     @media (max-width: $breakpoint-small) {
       top: 0;
       right: 0;
@@ -36,54 +41,30 @@ $OPTIONS_MIN_WIDTH: 250px;
     }
   }
 
-  .claim-search__top {
-    @media (max-width: $breakpoint-medium) {
-      justify-content: space-between;
-
-      .claim-search__menu-group {
-        &:nth-child(2) {
-          margin-right: auto;
-        }
+  .claim-search__menu-group {
+    @media (max-width: $breakpoint-small) {
+      &.stretch {
+        width: 100%;
       }
     }
-    @media (max-width: $breakpoint-small) {
-      flex-direction: row;
-      max-width: 100%;
-      .claim-search__menu-group {
-        // flex:1;
-        align-items: stretch;
-        width: 100%;
-        margin-right: 0 !important;
+  }
 
-        &:first-of-type {
-          button {
-            flex: 1;
-            .button__content {
-              justify-content: center;
-            }
-          }
-        }
-        &:nth-child(2) {
-          button {
-            width: 100%;
-            .button__content {
-              justify-content: center;
-            }
-          }
-          .button-toggle {
-            background: red;
-            .button__content {
-              margin-left: 4px;
-            }
-          }
-        }
-        &:nth-child(3) {
-          .checkbox {
-            height: var(--height-button);
-            margin-left: 0;
-            width: 100%;
-          }
-        }
+  .hide-anonymous-checkbox {
+    background-color: var(--color-header-button);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-s);
+    height: var(--height-input);
+    label {
+      margin-bottom: -6px;
+      &::before {
+        background-color: var(--color-background);
+        margin-top: -2px;
+      }
+      &::after {
+        margin-top: -2px;
       }
     }
   }

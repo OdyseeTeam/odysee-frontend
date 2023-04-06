@@ -1,6 +1,8 @@
+/*
 .placeholder {
   @include placeholder;
 }
+*/
 
 .placeholder__wrapper {
   width: 100%;
@@ -18,7 +20,7 @@
 
   &.claim-preview__wrapper {
     background-color: rgba(var(--color-header-background-base), 0.5);
-    margin-bottom: var(--spacing-xxs);
+    // margin-bottom: var(--spacing-xxs);
 
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 1.2);
@@ -82,6 +84,7 @@
     }
   }
 
+  /*
   .claim-tile__title {
     border-radius: var(--border-radius);
     width: 95%;
@@ -101,6 +104,7 @@
     opacity: 0.2;
     margin-bottom: calc(var(--spacing-s) + 4px);
   }
+  */
 
   .claim-tile__info {
     .channel-thumbnail {

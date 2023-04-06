@@ -2,12 +2,15 @@
 
 .featured-banner-wrapper {
   position: relative;
-  width: 100%;
+  width: calc(100% + 80px);
+  margin-top: -32px;
+  margin-left: -40px;
+  margin-right: -40px;
+  // padding-bottom: 32px;
   padding-top: 20%;
   background: black;
   margin-bottom: var(--spacing-l);
   overflow: hidden;
-  border-radius: var(--border-radius);
 
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -27,6 +30,7 @@
   }
   .featured-banner-image {
     display: inline-block;
+    max-height: 100%;
     img {
       width: 100%;
     }
@@ -34,7 +38,7 @@
   .featured-banner-remove {
     position: absolute;
     top: var(--spacing-m);
-    right: var(--spacing-m);
+    right: 40px;
     background-color: var(--color-primary);
     padding: 0.3rem;
     border-radius: var(--border-radius);
@@ -62,10 +66,11 @@
     margin-top: var(--spacing-m);
     bottom: var(--spacing-m);
     div {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: rgba(150, 150, 150, 0.6);
+      border: 1px solid white;
       display: inline-block;
       margin: 0 var(--spacing-xxs);
       transition: all 1s;
@@ -76,7 +81,7 @@
     }
 
     @media (max-width: $breakpoint-small) {
-      bottom: 3px;
+      bottom: 5px;
       div {
         width: 6px;
         height: 6px;
@@ -106,10 +111,10 @@
     font-size: 38px;
 
     &.left {
-      left: var(--spacing-m);
+      left: 40px;
     }
     &.right {
-      right: var(--spacing-m);
+      right: 40px;
     }
 
     &:hover {
@@ -127,6 +132,26 @@
     .banner-browse,
     .featured-banner-remove {
       opacity: 1;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: calc(var(--spacing-xs) * -1);
+    margin-bottom: var(--spacing-s);
+    .banner-browse,
+    .featured-banner-remove {
+      opacity: 1;
+    }
+
+    .banner-browse {
+      width: 30px;
+      height: 30px;
+      font-size: 20px;
+      top: unset;
+      bottom: var(--spacing-xxxs);
+    }
+    .featured-banner-remove {
+      top: var(--spacing-xxxs);
     }
   }
 }

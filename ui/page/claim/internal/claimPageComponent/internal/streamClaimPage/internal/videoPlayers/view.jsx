@@ -122,7 +122,7 @@ export default function VideoPlayersPage(props: Props) {
           <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
 
-        {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+        {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
         {!videoTheaterMode && <RightSideContent {...rightSideProps} />}
       </>
     );
@@ -139,7 +139,7 @@ export default function VideoPlayersPage(props: Props) {
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">
-            {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+            {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
 
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
@@ -149,13 +149,13 @@ export default function VideoPlayersPage(props: Props) {
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>
                   {!hasPremiumPlus && <AdsRCAboveComments />}
-                  <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
+                  <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
                     <React.Suspense fallback={null}>
                       <CommentsList {...commentsListProps} />
                     </React.Suspense>
                   </SwipeableDrawer>
 
-                  <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
+                  <DrawerExpandButton icon={ICONS.CHAT} label={<h2>{commentsListTitle}</h2>} type={DRAWERS.CHAT} />
                 </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
@@ -187,7 +187,7 @@ const RightSideContent = (rightSideProps: RightSideProps) => {
 
   return (
     <div className="card-stack--spacing-m">
-      {!isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+      {!isMediumScreen && <PlaylistCard id={collectionId} uri={uri} useDrawer={isMobile} />}
       <RecommendedContent uri={uri} />
     </div>
   );

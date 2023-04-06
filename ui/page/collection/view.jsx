@@ -127,7 +127,7 @@ const CollectionPage = (props: Props) => {
       <div className="section card-stack">
         <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader
-            collectionId={collectionId}
+            collection={collection}
             showEdit={showEdit}
             setShowEdit={setShowEdit}
             unavailableUris={unavailableUris}

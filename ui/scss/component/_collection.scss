@@ -50,6 +50,11 @@
       border-bottom-left-radius: 5px;
       border-bottom-right-radius: 5px;
       width: unset !important;
+      .ff-container {
+        .ff-canvas {
+          border-radius: unset;
+        }
+      }
     }
   }
 }
@@ -83,6 +88,19 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   align-items: center;
+  width: 2rem;
+
+  .collection-preview__edit-group {
+    display: none;
+    width: 0;
+    &:nth-child(1) {
+      display: flex;
+      width: 2rem;
+    }
+    .button-collection-manage {
+      background-color: unset;
+    }
+  }
 
   @media (max-width: $breakpoint-small) {
     margin-right: var(--spacing-s);
@@ -194,7 +212,6 @@
   position: fixed;
   display: flex;
   width: 100%;
-  z-index: 10;
   bottom: 0;
 
   .card--after-tabs {

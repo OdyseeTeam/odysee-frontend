@@ -12,6 +12,7 @@ import { FormContext } from 'component/common/form-components/form';
 import ChannelSelector from 'component/channelSelector';
 import SelectThumbnail from 'component/selectThumbnail';
 import CollectionPublishAdditionalOptions from './internal/additionalOptions';
+import './style.scss';
 
 type Props = {
   formParams: any,
@@ -78,7 +79,7 @@ function CollectionGeneralTab(props: Props) {
   }, [setThumbnailError, thumbError, thumbStatus]);
 
   return (
-    <>
+    <div className="card card--background collection-edit-wrapper">
       {publishing && (
         <>
           <ChannelSelector
@@ -87,28 +88,37 @@ function CollectionGeneralTab(props: Props) {
             onChannelSelect={(id) => updateFormParams({ channel_id: id })}
           />
 
-          <FormUrlName
-            channelName={collectionChannelName}
-            name={name}
-            autoFocus={!hasClaim}
-            disabled={hasClaim}
-            onChange={(e) => updateFormParams({ name: e.target.value || '' })}
-          />
+          <div className="collection_name-wrapper">
+            <label>{__('Name')}</label>
+            <div className="collection_name">
+              <FormUrlName
+                channelName={collectionChannelName}
+                name={name}
+                autoFocus={!hasClaim}
+                disabled={hasClaim}
+                onChange={(e) => updateFormParams({ name: e.target.value || '' })}
+              />
 
-          <span className="form-field__help">
-            {!hasClaim ? __("This won't be able to be changed in the future.") : __('This field cannot be changed.')}
-          </span>
+              <span className="form-field__help">
+                {!hasClaim
+                  ? __("This won't be able to be changed in the future.")
+                  : __('This field cannot be changed.')}
+              </span>
+            </div>
+          </div>
         </>
       )}
 
-      <FormField
-        type="text"
-        name="collection_title"
-        label={__('Title')}
-        placeholder={__('My Awesome Playlist')}
-        value={title || ''}
-        onChange={(e) => updateFormParams({ title: e.target.value || '' })}
-      />
+      <div className="collection_title">
+        <label>{__('Title')}</label>
+        <FormField
+          type="text"
+          name="collection_title"
+          placeholder={__('My Awesome Playlist')}
+          value={title || ''}
+          onChange={(e) => updateFormParams({ title: e.target.value || '' })}
+        />
+      </div>
 
       <fieldset-section>
         <SelectThumbnail
@@ -134,7 +144,7 @@ function CollectionGeneralTab(props: Props) {
           <CollectionPublishAdditionalOptions />
         </fieldset-section>
       )}
-    </>
+    </div>
   );
 }
 

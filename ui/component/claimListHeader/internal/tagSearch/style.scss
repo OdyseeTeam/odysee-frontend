@@ -9,7 +9,6 @@
 
   .button-toggle--active {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
-    border-right: 1px solid var(--color-input-border);
   }
 
   input::placeholder {
@@ -17,7 +16,9 @@
   }
 
   .clh-tag-search__clear {
+    position: absolute;
     background: unset;
+    right: var(--spacing-xxxs);
     &:hover {
       background: unset;
     }
@@ -29,25 +30,31 @@
 }
 
 .clh-tag-search--standalone {
+  width: 100%;
   margin-left: var(--spacing-s);
+  @media (max-width: $breakpoint-small) {
+    margin-left: var(--spacing-xxs);
+  }
 }
 
 .clh-tag-search__input_group {
+  position: relative;
   display: flex;
   width: 100%;
   fieldset-section {
     width: 100%;
   }
+  .icon {
+    position: absolute;
+    left: var(--spacing-s);
+    top: calc(50% - 7px);
+  }
 }
 
 .clh-tag-search__input {
-  // width: $OPTIONS_MIN_WIDTH;
   width: 100%;
-}
-
-.clh-tag-search__input--standalone {
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  width: unset;
+  padding-left: 36px;
+  padding-right: 30px;
 }
 
 .clh-tag-search__input--hidden {

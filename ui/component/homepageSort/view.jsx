@@ -1,9 +1,9 @@
 // @flow
 import React, { useState } from 'react';
 import classnames from 'classnames';
+import { FormField } from 'component/common/form';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import 'scss/component/homepage-sort.scss';
 
 // prettier-ignore
 const Lazy = {
@@ -119,6 +119,8 @@ export default function HomepageSort(props: Props) {
     HIDDEN: { id: 'HIDDEN', title: 'Hidden', list: listHidden, setList: setListHidden },
   };
 
+  const [showBanner, setShowBanner] = React.useState(BINS['ACTIVE'].list.includes('BANNER'));
+
   function onDragEnd(result) {
     const { source, destination } = result;
 
@@ -132,6 +134,23 @@ export default function HomepageSort(props: Props) {
         BINS[destination.droppableId].setList(result[destination.droppableId]);
       }
     }
+  }
+
+  function toggleBanner() {
+    const result = BINS;
+    if (result['ACTIVE'].list.indexOf('BANNER') !== -1) {
+      result['ACTIVE'].list.splice(result['ACTIVE'].list.indexOf('BANNER'), 1);
+      result['HIDDEN'].list.push('BANNER');
+      setShowBanner(false);
+    } else {
+      result['HIDDEN'].list.splice(result['HIDDEN'].list.indexOf('BANNER'), 1);
+      result['ACTIVE'].list.push('BANNER');
+      setShowBanner(true);
+    }
+    BINS['ACTIVE'].setList(result['ACTIVE'].list);
+    BINS['HIDDEN'].setList(result['HIDDEN'].list);
+
+    onUpdate({ active: BINS['ACTIVE'].list, hidden: BINS['HIDDEN'].list });
   }
 
   const draggedItemRef = React.useRef();
@@ -150,7 +169,7 @@ export default function HomepageSort(props: Props) {
           return (
             <div
               className={classnames('homepage-sort__entry', {
-                'homepage-sort__entry-special': item === 'BANNER' || item === 'PORTALS',
+                'homepage-sort__entry--special': item === 'BANNER' || item === 'PORTALS',
               })}
               ref={draggableProvided.innerRef}
               {...draggableProvided.draggableProps}
@@ -179,8 +198,20 @@ export default function HomepageSort(props: Props) {
             })}
           >
             <div className="homepage-sort__bin-header">{__(bin.title)}</div>
+
+            {bin.id === 'ACTIVE' && (
+              <div className="homepage-sort__entry homepage-sort__entry--special">
+                <FormField
+                  type="checkbox"
+                  name="homepage_banner"
+                  label={__('Banner')}
+                  checked={showBanner}
+                  onChange={() => toggleBanner()}
+                />
+              </div>
+            )}
             {bin.list.map((item, index) => (
-              <DraggableItem key={item} item={item} index={index} />
+              <>{item !== 'BANNER' && <DraggableItem key={item} item={item} index={index} />}</>
             ))}
             {provided.placeholder}
           </div>
@@ -200,7 +231,7 @@ export default function HomepageSort(props: Props) {
       <div className="homepage-sort">
         <Lazy.DragDropContext onDragEnd={onDragEnd}>
           <DroppableBin bin={BINS.ACTIVE} />
-          <DroppableBin bin={BINS.HIDDEN} className="homepage-sort__bin--no-bg homepage-sort__bin--dashed" />
+          <DroppableBin bin={BINS.HIDDEN} />
         </Lazy.DragDropContext>
       </div>
     </React.Suspense>

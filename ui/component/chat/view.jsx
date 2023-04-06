@@ -1,7 +1,4 @@
 // @flow
-import 'scss/component/_livestream-chat.scss';
-
-// $FlowFixMe
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -19,6 +16,7 @@ import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
 import Tooltip from 'component/common/tooltip';
+import './style.scss';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -114,6 +112,7 @@ export default function ChatLayout(props: Props) {
   const [chatElement, setChatElement] = React.useState();
   const [textInjection, setTextInjection] = React.useState('');
   const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
+  const [selectedHyperchat, setSelectedHyperchat] = React.useState(null);
   const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
 
   let superChatsByChronologicalOrder = [];
@@ -351,11 +350,16 @@ export default function ChatLayout(props: Props) {
     setTextInjection(authorTitle);
   }
 
+  function handleHyperchatClick(hyperchat: Comment) {
+    console.log('selectHyperchat: ', hyperchat);
+    setSelectedHyperchat(hyperchat);
+  }
+
   return (
-    <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
+    <div className={classnames('chat__wrapper', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (
-        <div className="card__header--between livestreamDiscussion__header">
-          <div className="recommended-content__toggles">
+        <div className="chat__header">
+          <div className="chat__toggle-mode">
             {/* the superchats in chronological order button */}
             <ChatContentToggle
               {...toggleProps}
@@ -399,10 +403,6 @@ export default function ChatLayout(props: Props) {
             'livestream-comments__top-actions--mobile': isMobile,
           })}
         >
-          {isMobile && ((pinnedComment && showPinned) || (hyperChatsByAmount && !hyperchatsHidden)) && (
-            <div className="livestream__top-gradient" />
-          )}
-
           {viewMode === VIEW_MODES.CHAT && hyperChatsByAmount && (
             <LivestreamHyperchats
               superChats={hyperChatsByAmount}
@@ -410,10 +410,13 @@ export default function ChatLayout(props: Props) {
               hyperchatsHidden={hyperchatsHidden || hideHyperchats}
               isMobile={isMobile}
               noHyperchats={false}
+              handleHyperchatClick={handleHyperchatClick}
+              selectedHyperchat={selectedHyperchat}
             />
           )}
 
           {pinnedComment &&
+            !selectedHyperchat &&
             viewMode === VIEW_MODES.CHAT &&
             (isMobile ? (
               <Slide direction="left" in={showPinned} mountOnEnter unmountOnExit>
@@ -432,7 +435,6 @@ export default function ChatLayout(props: Props) {
               showPinned && (
                 <div className="livestream-pinned__wrapper">
                   <ChatComment comment={pinnedComment} key={pinnedComment.comment_id} uri={uri} />
-
                   <Button
                     title={__('Dismiss pinned comment')}
                     button="inverse"
@@ -444,6 +446,44 @@ export default function ChatLayout(props: Props) {
               )
             ))}
         </div>
+
+        {/* Hyperchat */}
+        {selectedHyperchat &&
+          viewMode === VIEW_MODES.CHAT &&
+          (isMobile ? (
+            <Slide direction="left" in={showPinned} mountOnEnter unmountOnExit>
+              <div className="livestream-pinned__wrapper--mobile">
+                <ChatComment
+                  comment={selectedHyperchat}
+                  key={selectedHyperchat.comment_id}
+                  uri={uri}
+                  handleDismissPin={() => setSelectedHyperchat(null)}
+                  isMobile
+                  setResolvingSuperChats={setResolvingSuperChats}
+                />
+                <Button
+                  title={__('Dismiss pinned comment')}
+                  button="inverse"
+                  className="close-button"
+                  onClick={() => setSelectedHyperchat(null)}
+                  icon={ICONS.REMOVE}
+                />
+              </div>
+            </Slide>
+          ) : (
+            showPinned && (
+              <div className="livestream-pinned__wrapper">
+                <ChatComment comment={selectedHyperchat} key={selectedHyperchat.comment_id} uri={uri} />
+                <Button
+                  title={__('Dismiss Hyperchat')}
+                  button="inverse"
+                  className="close-button"
+                  onClick={() => setSelectedHyperchat(null)}
+                  icon={ICONS.REMOVE}
+                />
+              </div>
+            )
+          ))}
 
         <ChatComments
           uri={uri}
@@ -466,7 +506,7 @@ export default function ChatLayout(props: Props) {
         )}
 
         {!isMobile && membersOnlyMessage}
-        <div className="livestream__comment-create">
+        <div className="chat__comment-create">
           {isMobile && membersOnlyMessage}
 
           <CommentCreate

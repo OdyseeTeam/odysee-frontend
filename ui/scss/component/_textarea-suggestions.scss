@@ -18,7 +18,7 @@
 }
 
 .MuiAutocomplete-root {
-  background-color: var(--color-input-bg);
+  background-color: var(--color-header-button);
   border-radius: var(--border-radius);
 }
 
@@ -48,15 +48,6 @@
   .comment-create__auth {
     .MuiAutocomplete-root {
       margin-top: 0px;
-    }
-  }
-}
-
-.comment-create--drawer {
-  .MuiPaper-root {
-    .form-field__two-column,
-    .MuiOutlinedInput-root {
-      padding: 0px var(--spacing-xxs) 0px 0px !important;
     }
   }
 }
@@ -96,7 +87,8 @@
   @media (max-width: $breakpoint-small) {
     flex-wrap: nowrap !important;
     color: var(--color-text) !important;
-    padding: 0px var(--spacing-xxs) 0px 0px !important;
+    padding: 0 !important;
+    background-color: var(--color-header-button);
 
     textarea {
       border: none;
@@ -124,7 +116,7 @@
 }
 
 .MuiTextField-root {
-  background-color: var(--color-header-background);
+  background-color: var(--color-header-button);
 
   .button--primary {
     .button__content {
@@ -289,6 +281,7 @@
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
   }
+  /*
   .card {
     &:not(.playlist-card--drawer-header) {
       padding: var(--spacing-xxs) !important;
@@ -301,6 +294,7 @@
       }
     }
   }
+  */
   .card::-webkit-scrollbar {
     width: 2px !important;
     height: 6px;
@@ -356,10 +350,11 @@
     }
   }
 
+  /*
   .button-toggle {
     background-color: rgba(var(--color-header-button-base), 0.4) !important;
     &:hover {
-      background-color: rgba(var(--color-header-button-base), 0.9) !important;
+      background-color: var(--color-background) !important;
     }
   }
   .button-toggle--active {
@@ -367,7 +362,7 @@
   }
   .button--alt {
     background-color: rgba(var(--color-header-button-base), 0.9);
-  }
+  }*/
 
   .emote-selector__items,
   .sticker-selector__items {

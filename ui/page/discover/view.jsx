@@ -135,10 +135,12 @@ function DiscoverPage(props: Props) {
       );
     } else {
       headerLabel = (
-        <span>
-          <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
-          {(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}
-        </span>
+        <>
+          <span className="icon__wrapper">
+            <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
+          </span>
+          <label>{(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}</label>
+        </>
       );
     }
     return headerLabel;

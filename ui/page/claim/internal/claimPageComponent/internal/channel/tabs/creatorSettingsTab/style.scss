@@ -1,13 +1,4 @@
 .creator-settings-tab {
-  margin-bottom: var(--spacing-l);
-
-  .card__body {
-    background-color: rgba(var(--color-header-background-base), 0.4);
-    border-radius: var(--border-radius);
-    border-top: unset;
-    padding-top: 0;
-  }
-
   .settings-row {
     margin-top: 0;
     padding: var(--spacing-s);
@@ -38,5 +29,25 @@
 
   .tag--remove {
     color: black !important;
+  }
+
+  input,
+  .tag__input {
+    background-color: var(--color-background);
+  }
+
+  .checkbox {
+    label {
+      &:before {
+        background-color: var(--color-background);
+      }
+    }
+  }
+
+  .tag--blocked-words {
+    .tag {
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast) !important;
+    }
   }
 }

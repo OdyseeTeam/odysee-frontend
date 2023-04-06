@@ -15,6 +15,7 @@ import classnames from 'classnames';
 import RecSys from 'recsys';
 import { getClaimMetadata } from 'util/claim';
 import LangFilterIndicator from 'component/langFilterIndicator';
+import './style.scss';
 
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';

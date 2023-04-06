@@ -1,0 +1,20 @@
+@import '~ui/scss/init/breakpoints';
+
+.repost-wrapper {
+  min-width: var(--modal-width);
+  @media (max-width: $breakpoint-small) {
+    min-width: 100%;
+  }
+
+  .claim-preview__wrapper--row {
+    padding: var(--spacing-xs);
+    .description__wrapper,
+    .claim-preview__tags {
+      display: none;
+    }
+    .menu__button {
+      top: var(--spacing-xs);
+      right: var(--spacing-xs);
+    }
+  }
+}

@@ -302,7 +302,7 @@ function SideNavigation(props: Props) {
   const sideNavigationRef = React.useRef(null);
 
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
-  const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
+  const showPushMenu = !menuCanCloseCompletely;
   const showOverlay = sidebarOpen;
 
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
@@ -335,6 +335,12 @@ function SideNavigation(props: Props) {
     return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, hideSort, ...theRest }) => theRest);
   }
 
+  function handleClick(event) {
+    setTimeout(() => {
+      if (event) event.stopPropagation();
+    }, 0);
+  }
+
   function getLink(props: SideNavLink) {
     const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
     const { title, icon, extra } = passedProps;
@@ -356,6 +362,7 @@ function SideNavigation(props: Props) {
             'navigation-link--highlighted': icon === ICONS.NOTIFICATION && unseenCount > 0,
           })}
           activeClass="navigation-link--active"
+          onClick={handleClick}
         />
         {extra && extra}
       </li>
@@ -494,16 +501,16 @@ function SideNavigation(props: Props) {
     }
 
     function handleOutsideClick(e) {
-      if (sidebarOpen) {
-        const isNavigationButton =
-          e.target.classList.contains('icon--Menu') ||
-          (e.target.hasChildNodes() && e.target.firstChild.classList.contains('icon--Menu')) ||
-          e.target.classList.contains('button-rotate');
-        if (
-          (sideNavigationRef.current === null || !sideNavigationRef.current.contains(e.target)) &&
-          !isNavigationButton
-        ) {
-          setSidebarOpen(false);
+      if (sidebarOpen && e) {
+        const navigationButton = document.querySelector('#navigation-button');
+        if (e.target === navigationButton || (navigationButton && navigationButton.contains(e.target))) {
+          if (sideNavigationRef.current === null || sideNavigationRef.current.contains(e.target)) {
+            setSidebarOpen(false);
+          }
+        } else {
+          setTimeout(() => {
+            setSidebarOpen(false);
+          }, 0);
         }
       }
     }
