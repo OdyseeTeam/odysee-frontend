@@ -1,0 +1,18 @@
+@import '../variable.scss';
+
+.vjs-poster {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-size: contain;
+  background-position: 50%;
+  background-repeat: no-repeat;
+  background-color: #000;
+  outline: none;
+}
+
+.vjs-has-started:not(.vjs-ended) .vjs-poster {
+  visibility: hidden;
+}
