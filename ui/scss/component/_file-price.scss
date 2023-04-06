@@ -100,8 +100,12 @@ $SKEW_AMOUNT: 10deg;
 
 .filePrice--key {
   background-color: var(--color-purchased);
-  color: black !important;
 
+  .credit-amount {
+    p {
+      color: black !important;
+    }
+  }
   .icon--Key {
     margin-left: var(--spacing-m);
     margin-right: var(--spacing-m);
