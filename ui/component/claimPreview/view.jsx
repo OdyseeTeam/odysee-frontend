@@ -593,7 +593,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                             uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
                           />
                         )}
-                        {includeSupportAction && <ClaimSupportButton uri={uri} />}
+                        {includeSupportAction && type && <ClaimSupportButton uri={uri} />}
                       </>
                     )}
                   </>
