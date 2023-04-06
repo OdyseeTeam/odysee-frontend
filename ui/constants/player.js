@@ -17,3 +17,9 @@ export const VIDEO_QUALITY_OPTIONS = [AUTO, ORIGINAL, 144, 240, 360, 480, 720, 1
 
 // Player Position
 export const DEFAULT_INITIAL_FLOATING_POS = { x: window.innerWidth, y: window.innerHeight - 500 };
+
+// Custom videojs component names
+export const VJS_COMP = Object.freeze({
+  AUTOPLAY_NEXT_BUTTON: 'AutoplayNextButton',
+  AUTOPLAY_NEXT_MENU_ITEM: 'AutoPlayNextMenuItem',
+});

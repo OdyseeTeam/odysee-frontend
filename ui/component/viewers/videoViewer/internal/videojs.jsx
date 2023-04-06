@@ -16,13 +16,13 @@ import eventTracking from 'videojs-event-tracking';
 import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-shortcuts';
-import LbryPlaybackRateMenuButton from './lbry-playback-rate';
 import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
 import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
+import settingsMenu from './plugins/videojs-settings-menu/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
 import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 
@@ -135,6 +135,7 @@ const PLUGIN_MAP = {
   qualityLevels: qualityLevels,
   recsys: recsys,
   i18n: i18n,
+  settingsMenu: settingsMenu,
   watchdog: watchdog,
   snapshotButton: snapshotButton,
 };
@@ -271,6 +272,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       currentTimeDisplay: true,
       timeDivider: true,
       durationDisplay: true,
+      playbackRateMenuButton: false,
+      settingMenuButton: true,
       remainingTimeDisplay: true,
       subsCapsButton: !IS_IOS,
     },
@@ -294,8 +297,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
 
-      LbryPlaybackRateMenuButton.replaceExisting(player);
-
       // Add reloadSourceOnError plugin
       player.reloadSourceOnError({ errorInterval: 10 });
 
@@ -310,6 +311,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       });
 
       player.i18n();
+      player.settingsMenu();
 
       // Add quality selector to player
       if (showQualitySelector) {
@@ -563,6 +565,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           })
           .catch((error) => {
             const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+
+            const attributes = ['font-weight:bold', 'color:pink'];
+            console.log(`%c---play() disallowed---\n${error}`, attributes.join(';')); // eslint-disable-line no-console
 
             if (noPermissionError) {
               if (IS_IOS) {
