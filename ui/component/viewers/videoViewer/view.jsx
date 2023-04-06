@@ -235,8 +235,15 @@ function VideoViewer(props: Props) {
 
   const handlePlayNextUri = React.useCallback(() => {
     if (shouldPlayRecommended) {
-      doSetShowAutoplayCountdownForUri({ uri, show: true });
-      // if a playlist, navigate to next item
+      if (IS_IOS) {
+        // Safari doesn't like it when there is an async action between click
+        // and `player.play()`. Chrome allows it. Skip the countdown for now.
+
+        // $FlowIgnore: shouldPlayRecommended guarantees non-null playNextUri
+        doPlayNextUri({ uri: playNextUri });
+      } else {
+        doSetShowAutoplayCountdownForUri({ uri, show: true });
+      }
     } else if (playNextUri) {
       doPlayNextUri({ uri: playNextUri });
     }
