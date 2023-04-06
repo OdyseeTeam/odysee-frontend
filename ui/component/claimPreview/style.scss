@@ -517,6 +517,13 @@
         font-weight: var(--font-weight-bold);
       }
     }
+    .claim-preview--channel {
+      .claim-preview__text {
+        .claim-preview__actions {
+          margin-left: calc((2.5rem + 2 * var(--spacing-xs)) * -1) !important;
+        }
+      }
+    }
   }
 }
 

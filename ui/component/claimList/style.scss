@@ -292,9 +292,7 @@
   .claim-preview__text {
     .claim-preview__actions {
       margin-left: var(--spacing-xs);
-      // flex-direction: row;
-      gap: 0;
-      // justify-content: unset;
+      gap: var(--spacing-xs);
       justify-content: flex-end;
       .claim-preview__custom-properties {
         margin-left: auto;
