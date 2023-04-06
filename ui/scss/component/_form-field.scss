@@ -36,6 +36,13 @@ input {
   }
 }
 
+.MuiInputBase-root {
+  &:hover {
+    outline: 2px solid var(--color-primary) !important;
+    outline-offset: -2px;
+  }
+}
+
 @media (min-width: $breakpoint-small) {
   textarea {
     height: var(--height-input);
@@ -44,12 +51,6 @@ input {
     background-color: var(--color-input-bg);
     padding-right: var(--spacing-s);
     padding-left: var(--spacing-s);
-
-    /*
-    &:focus {
-      @include focus;
-    }
-    */
 
     &::placeholder {
       color: var(--color-input-placeholder);

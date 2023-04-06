@@ -40,6 +40,7 @@ $recent-msg-button__height: 2rem;
         }
         &.button-toggle--active,
         &:hover {
+          background: var(--color-hover-primary);
           .button__label {
             color: white !important;
           }
@@ -407,7 +408,7 @@ $recent-msg-button__height: 2rem;
     }
     select {
       &:hover {
-        background-color: var(--color-button-toggle-bg-hover);
+        background-color: var(--color-primary);
       }
     }
     .help {

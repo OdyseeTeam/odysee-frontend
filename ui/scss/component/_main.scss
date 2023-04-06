@@ -739,8 +739,9 @@ body {
     }
   }
 
+  /*
   .button--secondary {
-    background-color: var(--color-background) !important;
+    background-color: var(--color-header-button) !important;
     .button__content {
       .icon {
         stroke: var(--color-text) !important;
@@ -761,6 +762,7 @@ body {
       }
     }
   }
+  */
 
   @media (max-width: $breakpoint-small) {
     padding: 0 0;
