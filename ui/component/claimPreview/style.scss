@@ -577,7 +577,8 @@
       display: flex;
       flex-direction: column;
       margin-top: auto;
-      margin-left: var(--spacing-m);
+      // margin-left: var(--spacing-m);
+      gap: var(--spacing-s);
       button,
       .button {
         width: 100%;
