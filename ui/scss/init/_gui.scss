@@ -1036,9 +1036,9 @@ img {
 
   .card-stack {
     .section__actions:last-of-type {
+      gap: 0;
       .button--primary {
         border-radius: var(--border-radius) 0 0 var(--border-radius);
-        margin-right: 2px;
       }
     }
   }
