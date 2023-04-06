@@ -1491,41 +1491,6 @@ img {
 }
 
 .topPage-wrapper {
-  .search__header {
-    .claim-preview__wrapper {
-      background-color: rgba(var(--color-header-background-base), 0.6);
-      &:hover {
-        background-color: rgba(var(--color-header-background-base), 0.9);
-      }
-      .claim-preview__repost-author {
-        left: 0;
-        top: 0;
-        .claim-preview__repost-ribbon {
-          span {
-            display: inline-block;
-            margin-left: 12px;
-            margin-top: -4px;
-            width: 92px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-          @media (max-width: $breakpoint-small) {
-            font-size: var(--font-xxxsmall);
-            .icon {
-              margin-top: 3px;
-            }
-            span {
-              width: 78px;
-              margin-top: 1px;
-              margin-left: 10px;
-            }
-          }
-        }
-      }
-    }
-  }
-
   .search__top-links {
     @media (max-width: $breakpoint-small) {
       .button {
