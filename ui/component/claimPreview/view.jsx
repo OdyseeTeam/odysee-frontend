@@ -367,11 +367,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   // **************************************************************************
   // **************************************************************************
 
-  if (
-    claim &&
-    !playlistPreviewItem &&
-    ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS))
-  ) {
+  if (!playlistPreviewItem && ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS))) {
     return null;
   }
 
