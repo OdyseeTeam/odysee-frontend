@@ -1,9 +1,9 @@
-// $control-bar-height: 2.6rem;
+@import 'videojs-font/scss/videojs-icons.scss';
+
 $control-bar-height: 48px;
 $control-bar-height-mobile: 44px;
 $control-bar-font-size: 0.8rem;
 $control-bar-popup-font-size: 0.8rem;
-// $control-bar-icon-size: 0.8rem;
 
 .video-js {
   font-size: 12px;
@@ -403,12 +403,20 @@ button.vjs-big-play-button {
 // Rearrange icons
 .vjs-button--play-previous {
   order: 1 !important;
+  background-image: unset !important;
+  .vjs-icon-placeholder {
+    @extend .vjs-icon-previous-item;
+  }
 }
 .vjs-play-control {
   order: 2 !important;
 }
 .vjs-button--play-next {
   order: 3 !important;
+  background-image: unset !important;
+  .vjs-icon-placeholder {
+    @extend .vjs-icon-next-item;
+  }
 }
 .vjs-volume-panel {
   order: 4 !important;
