@@ -781,6 +781,13 @@ $control-bar-icon-size: 30px;
 
     .vjs-quality-selector {
       margin-left: var(--spacing-xs);
+      opacity: 1 !important;
+      button {
+        opacity: 0.9 !important;
+        &:hover {
+          opacity: 1 !important;
+        }
+      }
       .vjs-icon-placeholder {
         font-size: $control-bar-font-size;
         span {
@@ -905,7 +912,7 @@ $control-bar-icon-size: 30px;
     .vjs-button--play-previous:first-child,
     .vjs-play-control:first-child {
       margin-left: var(--spacing-s);
-      margin-right: var(--spacing-xs);
+      // margin-right: var(--spacing-xs);
       @media (max-width: $breakpoint-small) {
         margin-left: 0;
       }

@@ -13,7 +13,6 @@
 
     &:before {
       font-size: 1em;
-      //transform: translateY(-0.005em);
       display: block;
     }
   }
@@ -42,7 +41,6 @@
   }
 
   .vjs-menu-item {
-    // display: table;
     display: flex;
     align-items: center;
   }
