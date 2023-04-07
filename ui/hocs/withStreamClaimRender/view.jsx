@@ -325,7 +325,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         );
       } else if (renderMode === 'md') {
         return <LoadingScreen />;
-      } else if (!streamingUrl) {
+      } else if (!streamingUrl && !embedded) {
         return <LoadingScreen />;
       }
     }
