@@ -129,7 +129,7 @@ function overrideHoverTooltip(player: any, tsData: TimestampData, duration: numb
 
 function load(player: any, timestampData: TimestampData, duration: number) {
   player.one('loadedmetadata', () => {
-    const textTrack = player.addTextTrack('chapters', __('Chapters'), 'en');
+    const textTrack = player.addRemoteTextTrack({ kind: 'chapters' }).track;
 
     setTimeout(() => {
       const values = Object.values(timestampData);
@@ -172,7 +172,7 @@ function deleteHoverInformation(player) {
 export function parseAndLoad(player: any, claim: StreamClaim) {
   console.assert(claim, 'null claim');
 
-  if (platform.isMobile()) {
+  if (platform.isMobile() || platform.isSafari()) {
     return;
   }
 
