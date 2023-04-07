@@ -3,7 +3,6 @@ import React from 'react';
 import FileDownloadLink from 'component/fileDownloadLink';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import Card from 'component/common/card';
-import Button from 'component/button';
 
 type Props = {
   uri: string,
@@ -17,18 +16,17 @@ export default function FileRenderDownload(props: Props) {
   if (RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode)) {
     return (
       <Card
-        title={__('Download or get the app')}
+        title={__('Download')}
         subtitle={
           <p>
             {__(
-              'This content can be downloaded from odysee.com, but not displayed. It will display in LBRY Desktop, an app for desktop computers.'
+              "This file type can't be viewed on Odysee."
             )}
           </p>
         }
         actions={
           <div className="section__actions">
             <FileDownloadLink uri={uri} buttonType="primary" showLabel />
-            <Button button={'link'} label={__('Get the App')} href="https://lbry.com/get" />
           </div>
         }
       />
