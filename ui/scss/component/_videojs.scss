@@ -414,6 +414,8 @@ button.vjs-big-play-button {
 .vjs-button--play-next {
   order: 3 !important;
   background-image: unset !important;
+  margin-left: 0 !important;
+  // margin-right:0 !important;
   .vjs-icon-placeholder {
     @extend .vjs-icon-next-item;
   }
