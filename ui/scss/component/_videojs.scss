@@ -472,6 +472,9 @@ button.vjs-big-play-button {
       font-size: 22px !important;
     }
   }
+  @media (max-width: $breakpoint-small) {
+    max-width: 40px;
+  }
 }
 
 .vjs-button--theater-mode {

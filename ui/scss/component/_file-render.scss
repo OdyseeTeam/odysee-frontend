@@ -781,13 +781,6 @@ $control-bar-icon-size: 30px;
 
     .vjs-quality-selector {
       margin-left: var(--spacing-xs);
-      opacity: 1 !important;
-      button {
-        opacity: 0.9 !important;
-        &:hover {
-          opacity: 1 !important;
-        }
-      }
       .vjs-icon-placeholder {
         font-size: $control-bar-font-size;
         span {
@@ -868,6 +861,7 @@ $control-bar-icon-size: 30px;
       }
       @media (max-width: $breakpoint-small) {
         width: 3em;
+        right: 0;
       }
     }
     button.vjs-chapters-button {
