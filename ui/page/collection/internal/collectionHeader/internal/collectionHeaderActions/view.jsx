@@ -70,9 +70,9 @@ function CollectionHeaderActions(props: Props) {
         <SectionElement>
           {!isBuiltin && (
             <>
+              {isMyCollection && <CollectionPublishButton uri={uri} collectionId={collectionId} />}
               {uri && (
                 <>
-                  {isMyCollection && <CollectionPublishButton uri={uri} collectionId={collectionId} />}
                   {claimIsPending && (
                     <Tooltip
                       title={__('Your publish is being confirmed and will be live soon')}

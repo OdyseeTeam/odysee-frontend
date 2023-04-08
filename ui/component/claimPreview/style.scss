@@ -747,22 +747,30 @@
     padding: var(--spacing-m);
   }
 
-  .channel-thumbnail {
-    // @include handleChannelGif(6rem);
-  }
   .claim-preview__text {
     overflow: hidden;
+
+    .claim-preview__actions {
+      .button-group {
+        .button {
+          margin-top: 0;
+          .button__content {
+            align-items: center !important;
+            margin-top: 0;
+            .button__label {
+              font-size: var(--font-body);
+              margin-top: 2px;
+            }
+          }
+        }
+      }
+    }
   }
 
-  // any-pointer media query prevents double click hover bug on ipad
   @media (any-pointer: fine) {
-    // show watch later button and duration divs when hovered
     &:hover {
       .media__thumb {
         box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-      }
-      .claim-preview__title {
-        // color: var(--color-link);
       }
       .claim-preview__hover-actions {
         display: block;
@@ -788,18 +796,10 @@
   @media (max-width: $breakpoint-small) {
     font-size: 14px;
 
-    /*
-    .channel-thumbnail {
-      @include handleChannelGif(4rem);
-      width: 2rem;
-      height: 2rem;
-    }
-    */
     .claim-preview-metadata {
       .claim-tile__info {
         .media__subtitle {
           margin-bottom: 2px;
-          // width: calc(100% - 2.1rem);
         }
       }
     }
