@@ -96,6 +96,19 @@
                 align-items: center;
               }
             }
+            .button-group {
+              a.button {
+                margin-top: 0;
+                .button__content {
+                  align-items: center !important;
+                  margin-top: 0;
+                  .button__label {
+                    font-size: var(--font-body);
+                    margin-top: 2px;
+                  }
+                }
+              }
+            }
           }
         }
 
