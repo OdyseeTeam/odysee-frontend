@@ -23,6 +23,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
 import settingsMenu from './plugins/videojs-settings-menu/plugin';
+import timeMarkerPlugin from './plugins/videojs-time-marker/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
 import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 
@@ -139,6 +140,7 @@ const PLUGIN_MAP = {
   settingsMenu: settingsMenu,
   watchdog: watchdog,
   snapshotButton: snapshotButton,
+  timeMarkerPlugin: timeMarkerPlugin,
 };
 
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
@@ -313,6 +315,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       player.i18n();
       player.settingsMenu();
+      player.timeMarkerPlugin();
 
       // Add quality selector to player
       if (showQualitySelector) {
