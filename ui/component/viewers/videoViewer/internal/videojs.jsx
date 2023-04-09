@@ -7,7 +7,7 @@ import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
-import { VIDEO_PLAYBACK_RATES } from 'constants/player';
+import { VIDEO_PLAYBACK_RATES, VJS_EVENTS } from 'constants/player';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
 import classnames from 'classnames';
@@ -45,6 +45,7 @@ export type Player = {
   claimSrcOriginal: ?{ src: string, type: string },
   claimSrcVhs: ?{ src: string, type: string },
   isLivestream?: boolean,
+  chaptersInfo?: Array<{ seconds: number, label: string }>,
   // -- plugins ---
   mobileUi: (any) => void,
   chromecast: (any) => void,
@@ -619,15 +620,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         volumePanelRef.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
       }
 
-      const chapterMarkers = document.getElementsByClassName('vjs-chapter-marker');
-      while (chapterMarkers.length > 0) {
-        // $FlowIssue
-        chapterMarkers[0].parentNode?.removeChild(chapterMarkers[0]);
-      }
-
       const player = playerRef.current;
 
       if (player) {
+        player.trigger(VJS_EVENTS.SRC_CHANGE_CLEANUP);
+
         try {
           window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
         } catch {}
