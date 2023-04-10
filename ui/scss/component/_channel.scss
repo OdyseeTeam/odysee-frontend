@@ -302,13 +302,6 @@ $actions-z-index: 2;
     opacity: 1;
   }
 
-  .channelpage-edit-tags {
-    .tag {
-      background: var(--color-header-button);
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
-  }
-
   .section__header--actions {
     position: relative;
     .section__actions--no-margin {
@@ -407,19 +400,38 @@ $actions-z-index: 2;
 .channelPage-edit-wrapper {
   .card {
     padding: var(--spacing-s);
-    background-color: rgba(var(--color-header-button-base), 0.3);
+    background-color: rgba(var(--color-header-button-base), 0.6);
     border-radius: var(--border-radius);
     margin-bottom: var(--spacing-xl);
-
-    input,
-    select {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
 
     .card__body {
       padding: 0;
       label:first-of-type {
         margin-top: 0;
+      }
+    }
+  }
+
+  input,
+  select {
+    background-color: var(--color-background);
+  }
+  .tags {
+    .tag {
+      background-color: var(--color-background);
+    }
+  }
+  .tags__input-wrapper {
+    .tag__input {
+      background-color: var(--color-background);
+    }
+  }
+  .button--alt {
+    background-color: var(--color-background);
+    &:hover {
+      background-color: var(--color-primary);
+      .icon {
+        stroke: var(--color-primary-contrast);
       }
     }
   }
