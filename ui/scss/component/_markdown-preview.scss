@@ -101,6 +101,17 @@
     margin-top: var(--spacing-m);
   }
 
+  ol {
+    li {
+      list-style-position: outside;
+      margin-left: var(--spacing-l);
+      margin-bottom: var(--spacing-m);
+      p {
+        margin-top: var(--spacing-m);
+      }
+    }
+  }
+
   blockquote {
     white-space: normal;
 
