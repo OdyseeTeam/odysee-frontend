@@ -684,9 +684,6 @@ $recent-msg-button__height: 2rem;
           }
         }
       }
-      @media (min-width: $breakpoint-small) {
-        top: 10px;
-      }
     }
 
     &:hover {
@@ -876,8 +873,18 @@ $recent-msg-button__height: 2rem;
     }
   }
 
-  .livestreamComment__menu {
-    display: none;
+  .livestream__comment {
+    .livestreamComment__menu {
+      position: absolute;
+      top: 34px !important;
+      right: 10px !important;
+      // display: none;
+      z-index: 1;
+      button {
+        border-radius: 50%;
+        padding: 1px;
+      }
+    }
   }
 
   .close-button {
