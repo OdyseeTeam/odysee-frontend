@@ -55,8 +55,14 @@ class TimeMarker extends Component {
     const timeTooltip = this.getChild('timeTooltip');
 
     timeTooltip.updateTime(seekBarRect, seekBarPoint, time, () => {
+      // --- vjs-time-marker ---
       this.el_.style.left = `${seekBarRect.width * seekBarPoint}px`;
 
+      // --- vjs-time-tooltip ---
+      const playerRect = videojs.dom.findPosition(this.player_.el());
+      let tooltipRect = videojs.dom.findPosition(timeTooltip.el_);
+
+      // 1. Handle chapters
       if (tsData) {
         const values = Object.values(tsData);
         // $FlowIssue
@@ -76,18 +82,21 @@ class TimeMarker extends Component {
           // $FlowIgnore
           const newStr = `${videojs.formatTime(time, duration)}  ${values[i].label}`;
           timeTooltip.write(newStr);
-
-          const playerRect = videojs.dom.findPosition(this.player_.el());
-          const tooltipRect = videojs.dom.findPosition(timeTooltip.el_);
-
-          const tooltipRight = tooltipRect.left + tooltipRect.width;
-          const playerRight = playerRect.left + playerRect.width;
-
-          if (tooltipRight > playerRight) {
-            const delta = seekBarRect.width * (1 - seekBarPoint);
-            timeTooltip.el_.style.right = `-${delta}px`;
-          }
         }
+      }
+
+      // 2. Center the tooltip
+      tooltipRect = videojs.dom.findPosition(timeTooltip.el_); // recalculate
+
+      const curPx = seekBarRect.width * seekBarPoint;
+      const halfWidth = tooltipRect.width / 2;
+
+      if (curPx - halfWidth < playerRect.left) {
+        timeTooltip.el_.style.right = `-${tooltipRect.width - curPx}px`;
+      } else if (curPx + halfWidth > seekBarRect.width) {
+        timeTooltip.el_.style.right = `-${seekBarRect.width * (1 - seekBarPoint)}px`;
+      } else {
+        timeTooltip.el_.style.right = `-${tooltipRect.width / 2}px`;
       }
     });
   }
