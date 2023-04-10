@@ -325,10 +325,12 @@ function App(props: Props) {
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
 
+  /*
   useEffect(() => {
     // $FlowFixMe
     document.body.style.overflowY = currentModal ? 'hidden' : '';
   }, [currentModal]);
+  */
 
   useEffect(() => {
     if (hasNoChannels) {
