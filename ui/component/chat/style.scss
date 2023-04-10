@@ -81,6 +81,10 @@ $recent-msg-button__height: 2rem;
 
   .credit-amount {
     font-weight: unset;
+    font-size: var(--font-body);
+  }
+  .credit-amount-wrapper {
+    margin-left: 0;
   }
   .button__label {
     svg {
