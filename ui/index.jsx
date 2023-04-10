@@ -59,8 +59,6 @@ import { doSendPastRecsysEntries } from 'redux/actions/content';
 
 analytics.init();
 
-window.l = console.log;
-
 Lbry.setDaemonConnectionString(PROXY_URL);
 
 Lbry.setOverride(
