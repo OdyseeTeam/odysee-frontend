@@ -106,7 +106,7 @@ export default function LivestreamLayout(props: Props) {
 
             <LivestreamLink title={__("Click here to access the stream that's currently active")} uri={uri} />
 
-            {isMobile && !isLandscapeRotated && !videoTheaterMode && livestreamChatEnabled && (
+            {isMobile && !isLandscapeRotated && livestreamChatEnabled && (
               <React.Suspense fallback={null}>
                 <SwipeableDrawer
                   type={DRAWERS.CHAT}
