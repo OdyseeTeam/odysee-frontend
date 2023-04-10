@@ -47,7 +47,7 @@ class FileSelector extends React.PureComponent<Props> {
   };
 
   handleDirectoryInputSelection = () => {
-    remote.dialog.showOpenDialog({ properties: ['openDirectory'] }).then(result => {
+    remote.dialog.showOpenDialog({ properties: ['openDirectory'] }).then((result) => {
       const path = result && result.filePaths[0];
       if (path) {
         // $FlowFixMe
@@ -80,7 +80,7 @@ class FileSelector extends React.PureComponent<Props> {
           inputButton={
             <Button
               autoFocus={autoFocus}
-              button="secondary"
+              button="primary"
               disabled={disabled}
               onClick={type === 'openDirectory' ? this.handleDirectoryInputSelection : this.fileInputButton}
               label={__('Browse')}
