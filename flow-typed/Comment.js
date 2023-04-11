@@ -377,3 +377,14 @@ declare type WebsocketSettingDataResponse = {
   LivestreamChatMembersOnly?: boolean,
   CommentsMembersOnly?: boolean,
 };
+
+declare type VerifyClaimSignatureParams = {|
+  channel_id: string, // Channel ID claiming to have signed the signature
+  claim_id: string,   // Claim ID of the content being validated.
+  signature: string,  // Signature returned from the channel_sign api of LBRY SDK
+  signing_ts: string, // Timestamp returned from the channel_sign api of LBRY SDK
+|}
+
+declare type VerifyClaimSignatureResponse = {|
+  is_valid: boolean,
+|};
