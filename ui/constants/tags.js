@@ -18,7 +18,7 @@ export const INTERNAL_TAG_PREFIX = 'c:';
 // export const CHANNEL_COLOR_TAG = 'c:color';
 export const DISABLE_SUPPORT_TAG = 'disable-support';
 export const PREFERENCE_EMBED = 'c:preference-embed';
-export const SCHEDULED_LIVESTREAM_TAG = 'c:scheduled-livestream';
+export const SCHEDULED_LIVESTREAM_TAG = 'c:scheduled-livestream'; // Deprecated; use 'SCHEDULED_TAGS.LIVE'
 export const LBRY_FIRST_TAG = 'c:lbry-first';
 export const DISABLE_DOWNLOAD_BUTTON_TAG = 'c:disable-download';
 
@@ -31,29 +31,24 @@ export const MEMBERS_ONLY_CONTENT_TAG = 'c:members-only';
 export const RESTRICTED_CHAT_COMMENTS_TAG = 'chat:members-only';
 export const MEMBERS_ONLY_TAGS = [MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG];
 
+export const VISIBILITY_TAGS = Object.freeze({
+  UNLISTED: 'c:unlisted',
+  PRIVATE: 'c:private', // stub
+});
+
+export const SCHEDULED_TAGS = Object.freeze({
+  HIDE: 'c:scheduled:hide', // Regular claim + hide from Upcoming section
+  SHOW: 'c:scheduled:show', // Regular claim + show in Upcoming Section
+  LIVE: 'c:scheduled-livestream', // Livestream
+});
+
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [DISABLE_SUPPORT_TAG, PREFERENCE_EMBED, DISABLE_DOWNLOAD_BUTTON_TAG];
 
 // System tags are special tags that are not available to the user.
-export const SYSTEM_TAGS = [SCHEDULED_LIVESTREAM_TAG, LBRY_FIRST_TAG];
+export const SYSTEM_TAGS = [LBRY_FIRST_TAG, ...Object.values(VISIBILITY_TAGS), ...Object.values(SCHEDULED_TAGS)];
 
 export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS, ...MEMBERS_ONLY_TAGS];
-
-export const UNLISTED_TAGS = 'c:unlisted';
-
-export const SCHEDULED_HIDE_TAG = 'c:scheduled:hide';
-
-export const SCHEDULED_SHOW_TAG = 'c:scheduled:show';
-
-export const SCHEDULED_TAGS = [SCHEDULED_HIDE_TAG, SCHEDULED_SHOW_TAG];
-export const RESTRICTED_CONTENT_TAGS = [
-  ...SCHEDULED_TAGS,
-  ...MEMBERS_ONLY_TAGS,
-  UNLISTED_TAGS,
-  PURCHASE_TAG,
-  RENTAL_TAG,
-  DISABLE_DOWNLOAD_BUTTON_TAG,
-];
 
 export const MATURE_TAGS = Object.freeze([
   'porn',
