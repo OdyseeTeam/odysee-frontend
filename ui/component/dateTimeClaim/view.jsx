@@ -1,30 +1,55 @@
 // @flow
+import type { ClaimTsList } from 'redux/selectors/claims';
+
 import React from 'react';
 import moment from 'moment';
 
 import { formatDateStr } from './helper';
+import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 
 type Props = {
   uri: ?string,
   format?: 'date-only',
   disableFromNowFormat?: boolean,
   // --- Internal ---
+  claimTsList: ClaimTsList,
   clock24h: ?boolean,
-  date: ?Date,
+  tags: ?Array<string>,
 };
 
 function DateTimeClaim(props: Props) {
-  const { clock24h, date, disableFromNowFormat, format } = props;
+  const { claimTsList, clock24h, disableFromNowFormat, format, tags } = props;
 
+  const date: ?Date = resolveDate(tags, claimTsList);
   const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
   const title = moment(date).format(`LL ${clockFormat}`);
+
+  function resolveDate(tags: ?Array<string>, claimTsList: ClaimTsList): ?Date {
+    if (tags) {
+      if (tags.includes(VISIBILITY_TAGS.UNLISTED)) {
+        // 'release_time' is maxed out for unlisted, so show 'claim.timestamp' instead.
+        assert(claimTsList.updated);
+        return claimTsList.updated ? new Date(claimTsList.updated * 1000) : undefined;
+      }
+    }
+
+    // Defaults should match selectDateForUri()
+    const defaultTs = claimTsList.released || claimTsList.created;
+    return defaultTs ? new Date(defaultTs * 1000) : undefined;
+  }
+
+  function isDatePassed(date: ?Date) {
+    return date && date.getTime() < Date.now();
+  }
 
   function getDateElem() {
     if (date) {
       if (disableFromNowFormat) {
         return moment(date).format(format === 'date-only' ? 'LL' : clockFormat);
       } else {
-        return formatDateStr(date);
+        const isScheduled = tags && (tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE));
+        const datePassed = isDatePassed(date);
+        return formatDateStr(date, isScheduled && !datePassed ? 'Available' : '');
       }
     } else {
       return '...';

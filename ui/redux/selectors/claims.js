@@ -555,6 +555,24 @@ export const selectDateForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
+export type ClaimTsList = {|
+  released: ?number,
+  created: ?number,
+  updated: ?number,
+|};
+
+export const selectTimestampsForUri = createCachedSelector(
+  selectClaimForUri, // (state, uri, ?returnRepost)
+  (claim) => {
+    const list: ClaimTsList = {
+      released: claim?.value?.release_time,
+      created: claim?.meta?.creation_timestamp,
+      updated: claim?.timestamp,
+    };
+    return list;
+  }
+)((state, uri) => String(uri));
+
 export const makeSelectAmountForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     return claim && claim.amount;
@@ -860,6 +878,10 @@ export const makeSelectMyChannelPermUrlForName = (name: string) =>
 export const selectTagsForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return metadata && metadata.tags ? removeInternalStringTags(metadata.tags) : [];
 })((state, uri) => String(uri));
+
+export const selectTagsRawForUri = (state: State, uri: string) => {
+  return selectMetadataForUri(state, uri)?.tags;
+};
 
 export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return parsePurchaseTag(metadata?.tags);
