@@ -506,7 +506,7 @@ export const doClearPublish = () => (dispatch: Dispatch) => {
   return dispatch(doResetThumbnailStatus());
 };
 
-export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => (dispatch: Dispatch) =>
+export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (dispatch: Dispatch) =>
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { ...publishFormValue },
@@ -663,7 +663,8 @@ export const doPrepareEdit =
     const myClaimForUri = selectMyClaimForUri(state);
     const { claim_id } = myClaimForUri || {};
 
-    const publishData: UpdatePublishFormData = {
+    // $FlowFixMe (TODO: Lots of undefined states. If truely used, please define them)
+    const publishData: UpdatePublishState = {
       claim_id: claim_id,
       name,
       bid: Number(amount),
@@ -694,6 +695,7 @@ export const doPrepareEdit =
         publishData.licenseType = OTHER;
       }
 
+      // $FlowFixMe (I think this field shouldn't be populated if `license` doesn't exist.
       publishData.otherLicenseDescription = license;
     } else {
       publishData.licenseType = license;
@@ -737,6 +739,7 @@ export const doPrepareEdit =
     }
 
     // Membership restrictions
+    // $FlowFixMe (please remove and fix this warning. I think someone ended up passing the whole Tag structure)
     const publishDataTags = new Set(publishData.tags && publishData.tags.map((tag) => tag.name));
     if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
       if (channelId) {
@@ -750,9 +753,12 @@ export const doPrepareEdit =
 
         publishData['restrictedToMemberships'] = protectedMembershipIds && protectedMembershipIds.join(',');
       } else {
-        publishData.tags = publishData.tags
-          ? publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG)
-          : [];
+        if (publishData.tags) {
+          // $FlowFixMe
+          publishData.tags = publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG);
+        } else {
+          publishData.tags = [];
+        }
       }
     }
 

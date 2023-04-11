@@ -2,45 +2,7 @@
 
 declare type Paywall = 'free' | 'fiat' | 'sdk';
 
-declare type UpdatePublishFormData = {
-  claim_id?: string,
-  filePath?: string,
-  paywall?: Paywall,
-  fee?: {
-    amount: string,
-    currency: string,
-  },
-  fiatPurchaseFee?: Price,
-  fiatPurchaseEnabled?: boolean,
-  fiatRentalFee?: Price,
-  fiatRentalExpiration?: Duration,
-  fiatRentalEnabled?: boolean,
-  title?: string,
-  thumbnail_url?: string,
-  uploadThumbnailStatus?: string,
-  thumbnailPath?: string,
-  thumbnailError?: boolean,
-  description?: string,
-  language?: string,
-  releaseTime?: number,
-  releaseTimeEdited?: number,
-  releaseTimeError?: string,
-  channel?: string,
-  channelId?: string,
-  name?: string,
-  nameError?: string,
-  bid?: number,
-  bidError?: string,
-  otherLicenseDescription?: string,
-  licenseUrl?: string,
-  licenseType?: string,
-  uri?: string,
-  nsfw?: boolean,
-  isMarkdownPost?: boolean,
-  tags?: Array<Tag>,
-  restrictedToMemberships?: Array<string>,
-};
-
+// SDK
 declare type PublishParams = {
   name: ?string,
   bid: ?number,
@@ -65,6 +27,57 @@ declare type PublishParams = {
   nsfw: boolean,
   tags: Array<Tag>,
 };
+
+// Redux slice. Includes both form data and some UI states
+declare type PublishState = {
+  editingURI: ?string,
+  fileText: ?string,
+  filePath: ?string,
+  remoteFileUrl: ?string,
+  paywall: Paywall,
+  fileDur: number,
+  fileSize: number,
+  fileVid: boolean,
+  fileMime: string,
+  streamType: ?string,
+  fee: {
+    amount: number,
+    currency: string,
+  },
+  fiatPurchaseFee: Price,
+  fiatPurchaseEnabled: boolean,
+  fiatRentalFee: Price,
+  fiatRentalExpiration: Duration,
+  fiatRentalEnabled: boolean,
+  title: string,
+  thumbnail_url: string,
+  thumbnailPath: string,
+  uploadThumbnailStatus: string,
+  thumbnailError: ?boolean,
+  description: string,
+  language: string,
+  releaseTime: ?number,
+  releaseTimeEdited: ?number,
+  releaseAnytime: boolean,
+  channel: string,
+  channelId: ?string,
+  name: string,
+  nameError: ?string,
+  bid: number,
+  bidError: ?string,
+  otherLicenseDescription: string,
+  licenseUrl: string,
+  tags: Array<string>,
+  optimize: boolean,
+  useLBRYUploader: boolean,
+  currentUploads: { [key: string]: FileUploadItem },
+  isMarkdownPost: boolean,
+  isLivestreamPublish: boolean,
+  publishError?: boolean,
+};
+
+// Redux slice, optional version. Used to selectively update certains states.
+declare type UpdatePublishState = $Shape<PublishState>;
 
 declare type TusUploader = any;
 
