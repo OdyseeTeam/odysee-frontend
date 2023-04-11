@@ -637,8 +637,10 @@ export const doUploadThumbnail =
     }
   };
 
-export const doPrepareEdit =
-  (claim: StreamClaim, uri: string, claimType: string) => async (dispatch: Dispatch, getState: GetState) => {
+export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => {
+  assert(claim, 'doPrepareEdit: claim must not be null');
+
+  return async (dispatch: Dispatch, getState: GetState) => {
     const { name, amount, value = {} } = claim;
     const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
     const channelId = (claim && claim.signing_channel && claim.signing_channel.claim_id) || null;
@@ -775,6 +777,7 @@ export const doPrepareEdit =
         break;
     }
   };
+};
 
 export const doPublish =
   (success: Function, fail: Function, previewFn?: Function, payload?: FileUploadSdkParams) =>
