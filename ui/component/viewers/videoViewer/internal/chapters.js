@@ -2,6 +2,8 @@
 import { VJS_EVENTS } from 'constants/player';
 import { platform } from 'util/platform';
 
+const CHAPTERS__USE_CLIP_PATH = true;
+
 // For Safari and iOS, you need to delay before adding cue points or they don't
 // get added. This is because the player uses native, asynchronous tracks in the
 // Safari browser and on iOS.
@@ -153,50 +155,72 @@ export function parseAndLoad(player: any, claim: StreamClaim) {
 function addMarkersOnProgressBar(chapterStartTimes: Array<number>, videoDuration: number) {
   const progressControl = document.getElementsByClassName('vjs-progress-holder vjs-slider vjs-slider-horizontal')[0];
   if (!progressControl) {
-    console.error('Failed to find progress-control');
+    console.error('Failed to find progress-control'); // eslint-disable-line no-console
     return;
   }
 
-  const gapNumPixels = 3;
-  const gapWidthPct = (gapNumPixels * 100) / progressControl.clientWidth;
+  if (CHAPTERS__USE_CLIP_PATH) {
+    const gapNumPixels = 3;
+    const gapWidthPct = (gapNumPixels * 100) / progressControl.clientWidth;
 
-  // The clipping region needs to extend all 4 extremes a little so that the
-  // circular progress grabber (vjs-play-progress) won't be clipped.
-  const CLIP_PCT = { LEFT: -10, RIGHT: 110, TOP: -500, BOTTOM: 200 };
+    // The clipping region needs to extend all 4 extremes a little so that the
+    // circular progress grabber (vjs-play-progress) won't be clipped.
+    const CLIP_PCT = { LEFT: -10, RIGHT: 110, TOP: -500, BOTTOM: 200 };
 
-  let clipRegion = [
-    `${CLIP_PCT.LEFT}% ${CLIP_PCT.BOTTOM}%`,
-    `${CLIP_PCT.LEFT}% ${CLIP_PCT.TOP}%`,
-    `0% ${CLIP_PCT.TOP}%`,
-    `0% ${CLIP_PCT.BOTTOM}%`,
-    `${CLIP_PCT.LEFT}% ${CLIP_PCT.BOTTOM}%`,
-  ];
+    let clipRegion = [
+      `${CLIP_PCT.LEFT}% ${CLIP_PCT.BOTTOM}%`,
+      `${CLIP_PCT.LEFT}% ${CLIP_PCT.TOP}%`,
+      `0% ${CLIP_PCT.TOP}%`,
+      `0% ${CLIP_PCT.BOTTOM}%`,
+      `${CLIP_PCT.LEFT}% ${CLIP_PCT.BOTTOM}%`,
+    ];
 
-  for (let i = 0; i < chapterStartTimes.length; ++i) {
-    const isLastChapter = i === chapterStartTimes.length - 1;
+    for (let i = 0; i < chapterStartTimes.length; ++i) {
+      const isLastChapter = i === chapterStartTimes.length - 1;
 
-    let x1 = (chapterStartTimes[i] / videoDuration) * 100 + gapWidthPct;
-    let x2 = isLastChapter ? CLIP_PCT.RIGHT : (chapterStartTimes[i + 1] / videoDuration) * 100;
+      let x1 = (chapterStartTimes[i] / videoDuration) * 100 + gapWidthPct;
+      let x2 = isLastChapter ? CLIP_PCT.RIGHT : (chapterStartTimes[i + 1] / videoDuration) * 100;
 
-    x1 = x1.toFixed(2);
-    x2 = x2.toFixed(2);
+      x1 = x1.toFixed(2);
+      x2 = x2.toFixed(2);
 
-    clipRegion = clipRegion.concat([
-      `${x1}% ${CLIP_PCT.BOTTOM}%`,
-      `${x1}% ${CLIP_PCT.TOP}%`,
-      `${x2}% ${CLIP_PCT.TOP}%`,
-      `${x2}% ${CLIP_PCT.BOTTOM}%`,
-      `${x1}% ${CLIP_PCT.BOTTOM}%`,
-    ]);
+      clipRegion = clipRegion.concat([
+        `${x1}% ${CLIP_PCT.BOTTOM}%`,
+        `${x1}% ${CLIP_PCT.TOP}%`,
+        `${x2}% ${CLIP_PCT.TOP}%`,
+        `${x2}% ${CLIP_PCT.BOTTOM}%`,
+        `${x1}% ${CLIP_PCT.BOTTOM}%`,
+      ]);
+    }
+
+    // $FlowIssue
+    progressControl.style['clipPath'] = `polygon(${clipRegion.join(',')})`;
+  } else {
+    for (let i = 0; i < chapterStartTimes.length; ++i) {
+      const elem = document.createElement('div');
+      // $FlowIssue
+      elem['className'] = 'vjs-chapter-marker';
+      // $FlowIssue
+      elem['id'] = 'chapter' + i;
+      elem.style.left = `${(chapterStartTimes[i] / videoDuration) * 100}%`;
+      progressControl.appendChild(elem);
+    }
   }
-
-  // $FlowIgnore (I think it's outdated definition)
-  progressControl.style['clipPath'] = `polygon(${clipRegion.join(',')})`;
 }
 
 function removeMarkersOnProgressBar() {
   const progressControl = document.getElementsByClassName('vjs-progress-holder vjs-slider vjs-slider-horizontal')[0];
-  if (progressControl) {
+  if (!progressControl) {
+    console.error('Failed to find progress-control'); // eslint-disable-line no-console
+    return;
+  }
+
+  if (CHAPTERS__USE_CLIP_PATH) {
     progressControl.style.removeProperty('clip-path');
+  } else {
+    const chapterMarkers = progressControl.querySelectorAll('.vjs-chapter-marker');
+    for (const marker of chapterMarkers) {
+      progressControl.removeChild(marker);
+    }
   }
 }

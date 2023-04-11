@@ -506,6 +506,13 @@ button.vjs-big-play-button {
   }
 }
 
+.vjs-chapter-marker {
+  position: absolute;
+  height: 100%;
+  background-color: var(--color-error);
+  width: 2px;
+}
+
 // don't show Tap To Unmute button on mobile miniplayer
 .content__viewer--floating.content__viewer--mobile {
   .video-js--tap-to-unmute {
