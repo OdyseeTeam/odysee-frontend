@@ -32,6 +32,15 @@ declare type DoToast = {
   data: Toast,
 };
 
+declare type DoDebugLog = {
+  type: 'DEBUG_LOG',
+  data: {
+    info?: string | Error,
+    append?: boolean, // clear-and-add if false
+    clear?: boolean,
+  };
+};
+
 /*
   Notifications:
     - List of notifications based on user interactions/app notifications
@@ -99,6 +108,7 @@ declare type NotificationState = {
   errors: Array<ErrorNotification>,
   toasts: Array<Toast>,
   nagIds: Array<string>,
+  debugLog: Array<string | Error>,
 };
 
 declare type WebNotification = {

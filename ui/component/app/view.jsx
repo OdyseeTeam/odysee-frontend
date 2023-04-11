@@ -7,6 +7,7 @@ import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
 import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
+import DebugLog from 'component/debugLog';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
@@ -586,6 +587,7 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
+          <DebugLog />
           <AdBlockTester />
         </AppContext.Provider>
       )}

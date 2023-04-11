@@ -114,6 +114,7 @@ let baseConfig = {
       Buffer: ['buffer', 'Buffer'],
       process: 'process/browser',
       __: [path.resolve(path.join(__dirname, 'ui/i18n')), '__'],
+      assert: [path.resolve(path.join(__dirname, 'ui/asserts')), 'assert'],
     }),
     new Dotenv({
       allowEmptyValues: true, // allow empty variables (e.g. `FOO=`) (treat it as empty string, rather than missing)

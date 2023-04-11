@@ -1,8 +1,9 @@
 import { store } from 'store';
 
 const env = process.env.NODE_ENV || 'production';
-
 const logs = [];
+let pause_asserts = false;
+
 const app = {
   env,
   store,
@@ -10,6 +11,7 @@ const app = {
   log(message) {
     logs.push(message);
   },
+  pause_asserts,
 };
 
 global.app = app;

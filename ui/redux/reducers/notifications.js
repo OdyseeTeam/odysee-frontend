@@ -10,6 +10,7 @@ const defaultState: NotificationState = {
   toasts: [],
   errors: [],
   nagIds: [],
+  debugLog: [],
 };
 
 export default handleActions(
@@ -33,6 +34,18 @@ export default handleActions(
         ...state,
         toasts: newToasts,
       };
+    },
+
+    // Debug Log
+    [ACTIONS.DEBUG_LOG]: (state: NotificationState, action: DoDebugLog) => {
+      const { clear, append, info } = action.data;
+      const debugLog = append ? state.debugLog.slice() : [];
+
+      if (!clear && info) {
+        debugLog.splice(0, 0, info);
+      }
+
+      return { ...state, debugLog };
     },
 
     // Notifications

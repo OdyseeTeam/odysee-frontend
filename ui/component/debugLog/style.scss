@@ -1,0 +1,42 @@
+.debug-log {
+  position: fixed;
+  transition: bottom 0.5s ease-in-out;
+  bottom: -50%; // start offscreen
+  left: 0;
+  right: 0;
+  background-color: var(--color-card-background-highlighted);
+  height: 30%;
+  z-index: 888;
+  border-radius: var(--border-radius);
+  margin: 0 var(--spacing-m);
+  padding: var(--spacing-m) var(--spacing-l);
+  box-shadow: 0 0 var(--spacing-l) rgba(var(--color-text-base), 0.5);
+  overflow-y: auto;
+}
+
+.debug-log--open {
+  bottom: 0;
+}
+
+.debug-log__entry {
+  margin: var(--spacing-s) 0;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-xs);
+
+  pre {
+    color: var(--color-text-subtitle);
+  }
+}
+
+.debug-log__actions {
+  background-color: var(--color-card-background-highlighted);
+  position: absolute !important;
+  top: var(--spacing-m);
+  right: var(--spacing-m);
+  padding-left: var(--spacing-m);
+  padding-bottom: var(--spacing-m);
+
+  .button {
+    margin-left: var(--spacing-m);
+  }
+}
