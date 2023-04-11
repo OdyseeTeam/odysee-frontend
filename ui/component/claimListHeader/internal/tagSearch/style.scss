@@ -1,7 +1,5 @@
 @import '~ui/scss/init/breakpoints';
 
-// $OPTIONS_MIN_WIDTH: 250px;
-
 .clh-tag-search {
   .button-toggle {
     border-radius: var(--border-radius);
@@ -31,10 +29,7 @@
 
 .clh-tag-search--standalone {
   width: 100%;
-  margin-left: var(--spacing-s);
-  @media (max-width: $breakpoint-small) {
-    margin-left: var(--spacing-xxs);
-  }
+  margin-left: var(--spacing-xs);
 }
 
 .clh-tag-search__input_group {

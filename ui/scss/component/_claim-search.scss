@@ -11,6 +11,7 @@
 
     .claim-search__top {
       flex-grow: 1;
+      gap: var(--spacing-xs);
     }
   }
 }
@@ -18,6 +19,7 @@
 .claim-search__wrapper--wrap {
   display: flex;
   flex-wrap: wrap;
+  gap: var(--spacing-xs);
 
   &:first-of-type {
     flex: 1;
@@ -25,15 +27,6 @@
       width: 100%;
     }
   }
-
-  /*
-  select {
-    &:hover {
-      background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-    }
-  }
-  */
 
   @media (max-width: $breakpoint-small) {
     .wunderbar--inline {
@@ -48,19 +41,19 @@
     }
   }
 
+  /*
   @media (min-width: $breakpoint-xxsmall) {
     & > *:not(:last-child) {
       margin-right: var(--spacing-s);
     }
   }
+  */
 }
 
 .claim-search__wrapper--grid {
   display: grid;
   grid-template-columns: auto auto;
   grid-row-gap: 1rem;
-
-  //width:100%;
 }
 
 .claim-search__menus {
@@ -165,19 +158,11 @@
   }
 }
 
-.claim-search__top > div {
-  @media (max-width: $breakpoint-small) {
-    margin-bottom: var(--spacing-xxs);
-  }
-}
-
 .claim-search__menu-group {
   display: flex;
   flex-wrap: nowrap;
-  margin-right: var(--spacing-s);
 
-  @media (max-width: $breakpoint-small) {
-    margin-right: 0;
+  @media (max-width: $breakpoint-medium) {
     .button-toggle {
       padding: 0 var(--spacing-s) 0 var(--spacing-xs);
     }
@@ -211,16 +196,20 @@
   flex-direction: row;
 
   .claim-search__dropdown {
-    margin-left: var(--spacing-s);
     margin-top: 0;
+    font-size: var(--font-base);
+    &:first-of-type {
+      margin-left: var(--spacing-xs);
+    }
   }
 
   &:nth-of-type(2) {
     width: 100%;
     align-items: center;
     justify-content: center;
-    @media (max-width: $breakpoint-small) {
-      display: none;
+    gap: var(--spacing-xs);
+    @media (max-width: $breakpoint-medium) {
+      justify-content: end;
     }
   }
 }

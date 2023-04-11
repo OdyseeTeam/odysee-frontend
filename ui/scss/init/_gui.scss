@@ -1568,54 +1568,6 @@ img {
   .claim-list {
     margin-bottom: var(--spacing-xxl);
     &.playlists {
-      /*
-      .claim-preview__text {
-        justify-content: space-around;
-
-        .claim-preview-metadata {
-          flex: unset;
-          display: grid;
-          flex-direction: row;
-          align-items: center;
-
-          .claim-preview-info {
-            display: inline-block;
-            .claim-preview__title {
-              width: 40%;
-              margin-left: var(--file-list-thumbnail-width);
-            }
-          }
-          .claim-tile__info {
-            display: inline-block;
-            &.action {
-              width: 10%;
-              .button {
-                border: 2px solid var(--color-border);
-              }
-            }
-          }
-
-          @media (max-width: $breakpoint-medium) {
-            grid-template-columns: 1.3fr repeat(4, 1fr);
-          }
-
-          @media (min-width: $breakpoint-medium) {
-            grid-template-columns: 1.9fr repeat(4, 1fr);
-          }
-
-          .truncated-text {
-            word-break: break-all;
-          }
-
-          .claim-tile__info {
-            &.date {
-              justify-self: flex-end;
-            }
-          }
-        }
-      }
-      */
-
       .claim-preview-info {
         color: var(--color-text);
       }
@@ -1707,14 +1659,6 @@ img {
         padding: 0;
         border-radius: unset;
 
-        /*
-        .claim-preview-info {
-          .claim-preview__title {
-            font-size: var(--font-small);
-          }
-        }
-        */
-
         .media__subtitle {
           .button__content {
             .channel-name {
@@ -1772,9 +1716,6 @@ img {
 
   @media (max-width: $breakpoint-medium) {
     .card__subtitle {
-      p {
-        // margin-bottom: var(--spacing-m);
-      }
       .media__subtitle {
         margin-top: -8px;
       }
@@ -1793,8 +1734,10 @@ img {
 
     .claim-search__wrapper--grid {
       grid-template-columns: minmax(auto, 85%) 1fr;
-
       .claim-search__menu-group {
+        display: flex !important;
+        width: 100%;
+        flex: 1;
         &:nth-of-type(2) {
           margin-left: auto;
         }
@@ -1835,15 +1778,13 @@ img {
     @media (max-width: $breakpoint-medium) {
       .claim-search__wrapper--wrap {
         width: 100%;
+        flex-flow: row;
+        gap: var(--spacing-xs);
 
         &:last-of-type {
           margin-top: var(--spacing-s);
         }
 
-        .claim-search__menu-group:last-child {
-          display: inline-block;
-          width: auto;
-        }
         .button.button-toggle--more {
           float: right;
           margin-left: var(--spacing-s);

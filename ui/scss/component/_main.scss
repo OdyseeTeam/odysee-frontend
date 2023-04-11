@@ -1212,25 +1212,6 @@ body {
       .claim-tile__info {
         .media__subtitle {
           width: calc(100% - 2.1rem);
-          .button {
-            /*
-            display: inline;
-            @media (max-width: $breakpoint-small) {
-              .button__content {
-                width: 100%;
-                .channel-name {
-                  width: 100%;
-                  p {
-                    width: 100%;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  }
-                }
-              }
-            }
-            */
-          }
 
           span:not(.channel-name) {
             font-size: var(--font-xsmall);
@@ -1254,6 +1235,15 @@ body {
   }
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
+    .claim-search__top {
+      flex-wrap: unset;
+      .claim-search__menu-group {
+        flex: 1;
+        &:last-of-type {
+          justify-content: flex-end;
+        }
+      }
+    }
   }
 }
 
