@@ -123,12 +123,14 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: calc(var(--header-height) - (var(--height-input)) + 22px);
+  top: calc(var(--header-height) - (var(--height-input)) + 19px);
   border-top: none;
   padding-top: var(--spacing-xs);
   background-color: var(--color-background);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
-  border: 2px solid var(--color-header-background);
+  // border: 2px solid var(--color-header-background);
+  border: 2px solid rgba(var(--color-header-button-base), 0.5);
+  border-top: 1px solid rgba(var(--color-header-button-base), 0.3);
 
   [data-highlighted] {
     .button {
