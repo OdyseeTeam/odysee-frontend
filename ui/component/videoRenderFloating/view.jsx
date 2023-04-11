@@ -344,6 +344,7 @@ function VideoRenderFloating(props: Props) {
       typeof className === 'string' &&
       (className.includes('vjs-volume-control') ||
         className.includes('vjs-volume-level') ||
+        className.includes('vjs-time-marker') ||
         className.includes('vjs-mouse-display'))
     );
   }

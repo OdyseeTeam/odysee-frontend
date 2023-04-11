@@ -1,7 +1,14 @@
 // @flow
+import { VJS_EVENTS } from 'constants/player';
 import { platform } from 'util/platform';
 
+const CHAPTERS__USE_CLIP_PATH = true;
+
+// For Safari and iOS, you need to delay before adding cue points or they don't
+// get added. This is because the player uses native, asynchronous tracks in the
+// Safari browser and on iOS.
 const REQUIRED_DELAY_FOR_IOS_MS = 10;
+
 const MIN_SECONDS_BETWEEN_CHAPTERS = 10;
 const MIN_CHAPTERS = 3;
 
@@ -89,44 +96,6 @@ function parse(claim: StreamClaim) {
   return timestamps.length >= MIN_CHAPTERS ? timestamps : null;
 }
 
-function overrideHoverTooltip(player: any, tsData: TimestampData, duration: number) {
-  try {
-    const timeTooltip = player
-      .getChild('controlBar')
-      .getChild('progressControl')
-      .getChild('seekBar')
-      .getChild('mouseTimeDisplay')
-      .getChild('timeTooltip');
-
-    // sometimes old 'right' rule is persisted and messes up styling
-    timeTooltip.el().style.removeProperty('right');
-
-    timeTooltip.update = function (seekBarRect, seekBarPoint, time) {
-      const values = Object.values(tsData);
-      // $FlowIssue: mixed
-      const seconds = values.map((v) => v.seconds);
-      const curSeconds = timestampStrToSeconds(time);
-      let i = 0;
-
-      for (; i < seconds.length; ++i) {
-        const s0 = seconds[i];
-        const s1 = i === seconds.length - 1 ? duration : seconds[i + 1];
-        if (curSeconds >= s0 && curSeconds < s1) {
-          break;
-        }
-      }
-
-      if (i < seconds.length) {
-        // $FlowIssue: mixed
-        this.write(`${time} - ${values[i].label}`);
-      } else {
-        console.error('Chapters: oob ' + player?.claim?.name);
-        this.write(time);
-      }
-    };
-  } catch {}
-}
-
 function load(player: any, timestampData: TimestampData, duration: number) {
   player.one('loadedmetadata', () => {
     const textTrack = player.addRemoteTextTrack({ kind: 'chapters' }).track;
@@ -154,19 +123,13 @@ function load(player: any, timestampData: TimestampData, duration: number) {
       }
     }, REQUIRED_DELAY_FOR_IOS_MS);
   });
-}
 
-function deleteHoverInformation(player) {
-  try {
-    const timeTooltip = player
-      .getChild('controlBar')
-      .getChild('progressControl')
-      .getChild('seekBar')
-      .getChild('mouseTimeDisplay')
-      .getChild('timeTooltip');
-
-    delete timeTooltip.update;
-  } catch {}
+  player.on(VJS_EVENTS.SRC_CHANGE_CLEANUP, () => {
+    delete player.chaptersInfo;
+    // $FlowIssue
+    player?.controlBar?.getChild('ChaptersButton')?.hide();
+    removeMarkersOnProgressBar();
+  });
 }
 
 export function parseAndLoad(player: any, claim: StreamClaim) {
@@ -181,9 +144,9 @@ export function parseAndLoad(player: any, claim: StreamClaim) {
 
   if (tsData && duration) {
     load(player, tsData, duration);
-    overrideHoverTooltip(player, tsData, duration);
+    player.chaptersInfo = tsData;
   } else {
-    deleteHoverInformation(player);
+    delete player.chaptersInfo;
     // $FlowIssue
     player?.controlBar?.getChild('ChaptersButton')?.hide();
   }
@@ -192,17 +155,72 @@ export function parseAndLoad(player: any, claim: StreamClaim) {
 function addMarkersOnProgressBar(chapterStartTimes: Array<number>, videoDuration: number) {
   const progressControl = document.getElementsByClassName('vjs-progress-holder vjs-slider vjs-slider-horizontal')[0];
   if (!progressControl) {
-    console.error('Failed to find progress-control');
+    console.error('Failed to find progress-control'); // eslint-disable-line no-console
     return;
   }
 
-  for (let i = 0; i < chapterStartTimes.length; ++i) {
-    const elem = document.createElement('div');
+  if (CHAPTERS__USE_CLIP_PATH) {
+    const gapNumPixels = 3;
+    const gapWidthPct = (gapNumPixels * 100) / progressControl.clientWidth;
+
+    // The clipping region needs to extend all 4 extremes a little so that the
+    // circular progress grabber (vjs-play-progress) won't be clipped.
+    const CLIP_PCT = { LEFT: -10, RIGHT: 110, TOP: -500, BOTTOM: 200 };
+
+    let clipRegion = [
+      `${CLIP_PCT.LEFT}% ${CLIP_PCT.BOTTOM}%`,
+      `${CLIP_PCT.LEFT}% ${CLIP_PCT.TOP}%`,
+      `0% ${CLIP_PCT.TOP}%`,
+      `0% ${CLIP_PCT.BOTTOM}%`,
+      `${CLIP_PCT.LEFT}% ${CLIP_PCT.BOTTOM}%`,
+    ];
+
+    for (let i = 0; i < chapterStartTimes.length; ++i) {
+      const isLastChapter = i === chapterStartTimes.length - 1;
+
+      let x1 = (chapterStartTimes[i] / videoDuration) * 100 + gapWidthPct;
+      let x2 = isLastChapter ? CLIP_PCT.RIGHT : (chapterStartTimes[i + 1] / videoDuration) * 100;
+
+      x1 = x1.toFixed(2);
+      x2 = x2.toFixed(2);
+
+      clipRegion = clipRegion.concat([
+        `${x1}% ${CLIP_PCT.BOTTOM}%`,
+        `${x1}% ${CLIP_PCT.TOP}%`,
+        `${x2}% ${CLIP_PCT.TOP}%`,
+        `${x2}% ${CLIP_PCT.BOTTOM}%`,
+        `${x1}% ${CLIP_PCT.BOTTOM}%`,
+      ]);
+    }
+
     // $FlowIssue
-    elem['className'] = 'vjs-chapter-marker';
-    // $FlowIssue
-    elem['id'] = 'chapter' + i;
-    elem.style.left = `${(chapterStartTimes[i] / videoDuration) * 100}%`;
-    progressControl.appendChild(elem);
+    progressControl.style['clipPath'] = `polygon(${clipRegion.join(',')})`;
+  } else {
+    for (let i = 0; i < chapterStartTimes.length; ++i) {
+      const elem = document.createElement('div');
+      // $FlowIssue
+      elem['className'] = 'vjs-chapter-marker';
+      // $FlowIssue
+      elem['id'] = 'chapter' + i;
+      elem.style.left = `${(chapterStartTimes[i] / videoDuration) * 100}%`;
+      progressControl.appendChild(elem);
+    }
+  }
+}
+
+function removeMarkersOnProgressBar() {
+  const progressControl = document.getElementsByClassName('vjs-progress-holder vjs-slider vjs-slider-horizontal')[0];
+  if (!progressControl) {
+    console.error('Failed to find progress-control'); // eslint-disable-line no-console
+    return;
+  }
+
+  if (CHAPTERS__USE_CLIP_PATH) {
+    progressControl.style.removeProperty('clip-path');
+  } else {
+    const chapterMarkers = progressControl.querySelectorAll('.vjs-chapter-marker');
+    for (const marker of chapterMarkers) {
+      progressControl.removeChild(marker);
+    }
   }
 }
