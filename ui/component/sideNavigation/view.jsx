@@ -508,9 +508,11 @@ function SideNavigation(props: Props) {
             setSidebarOpen(false);
           }
         } else {
-          setTimeout(() => {
-            setSidebarOpen(false);
-          }, 0);
+          if (e.target.tagName !== 'INPUT') {
+            setTimeout(() => {
+              setSidebarOpen(false);
+            }, 0);
+          }
         }
       }
     }
