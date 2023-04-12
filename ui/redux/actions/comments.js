@@ -172,6 +172,8 @@ export function doCommentListOwn(
   pageSize: number = 10,
   sortBy: number = SORT_BY.NEWEST_NO_PINS
 ) {
+  assert(pageSize <= 50, `claim_search can't resolve > 50 (pageSize=${pageSize})`);
+
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const myChannelClaims = selectMyChannelClaims(state);
@@ -191,10 +193,6 @@ export function doCommentListOwn(
       console.error('Failed to sign channel name.'); // eslint-disable-line
       return;
     }
-
-    // @if process.env.NODE_ENV!='production'
-    console.assert(pageSize <= 50, `claim_search can't resolve > 50 (pageSize=${pageSize})`);
-    // @endif
 
     dispatch({
       type: ACTIONS.COMMENT_LIST_STARTED,

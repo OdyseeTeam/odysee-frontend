@@ -26,7 +26,7 @@ import { getAuthToken } from 'util/saved-passwords';
 // dependency problem with `extras`, I'm temporarily placing it. The recsys
 // object should be moved into `ui`, but that change will require more testing.
 
-console.assert(RECSYS_FYP_ENDPOINT, 'RECSYS_FYP_ENDPOINT not defined!');
+assert(RECSYS_FYP_ENDPOINT, 'RECSYS_FYP_ENDPOINT not defined!');
 
 const recsysFyp = {
   fetchPersonalRecommendations: (userId: string) => {

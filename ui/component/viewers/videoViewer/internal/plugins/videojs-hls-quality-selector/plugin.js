@@ -300,7 +300,7 @@ class HlsQualitySelectorPlugin {
     });
     this.player.load();
 
-    console.assert(mode === 'vhs' || mode === QUALITY_OPTIONS.ORIGINAL, 'Unexpected input');
+    assert(mode === 'vhs' || mode === QUALITY_OPTIONS.ORIGINAL, 'Unexpected input');
   }
 
   /**
