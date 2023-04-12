@@ -120,9 +120,6 @@ $thumbnailWidthSmall: 2rem;
     @media (max-width: $breakpoint-small) {
       width: 2rem;
       height: 2rem;
-      .channel-staked__indicator {
-        margin-left: 0.1rem;
-      }
     }
   }
 }
