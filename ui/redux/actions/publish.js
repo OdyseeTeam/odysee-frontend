@@ -72,8 +72,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     filePath,
     description,
     language,
-    releaseTimeEdited,
-    releaseAnytime,
+    releaseTime,
     // license,
     licenseUrl,
     useLBRYUploader,
@@ -119,27 +118,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   const nowTimeStamp = Number(Math.round(Date.now() / 1000));
   const { claim_id: claimId } = myClaimForUri || {};
 
-  const publishPayload: {
-    claim_id?: string,
-    name: ?string,
-    bid: string,
-    description?: string,
-    channel_id?: string,
-    file_path?: string,
-    license_url?: string,
-    license?: string,
-    thumbnail_url?: string,
-    release_time: number,
-    fee_currency?: string,
-    fee_amount?: string,
-    languages?: Array<string>,
-    tags?: Array<string>,
-    locations?: Array<any>,
-    blocking: boolean,
-    optimize_file?: boolean,
-    preview?: boolean,
-    remote_url?: string,
-  } = {
+  const publishPayload: PublishParams = {
     name,
     title,
     description,
@@ -147,7 +126,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     bid: creditsToString(bid),
     languages: [language],
     thumbnail_url: thumbnail,
-    release_time: nowTimeStamp,
+    release_time: PUBLISH.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing) || nowTimeStamp,
     blocking: true,
     preview: false,
   };
@@ -200,18 +179,8 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     tagSet.add(LBRY_FIRST_TAG);
   }
 
-  // Set release time to the newly edited time.
-  // On edits, if not explicitly set to anytime, keep the original release/transaction time as release_time
-  if (releaseTimeEdited) {
-    publishPayload.release_time = releaseTimeEdited;
-  } else if (!releaseAnytime && myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
-    publishPayload.release_time = Number(myClaimForUri.value.release_time);
-  } else if (!releaseAnytime && myClaimForUriEditing && myClaimForUriEditing.timestamp) {
-    publishPayload.release_time = Number(myClaimForUriEditing.timestamp);
-  }
-
   // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
-  if (isLivestreamPublish && publishPayload.release_time > nowTimeStamp) {
+  if (isLivestreamPublish && publishPayload.release_time && publishPayload.release_time > nowTimeStamp) {
     tagSet.add(SCHEDULED_LIVESTREAM_TAG);
   }
 
@@ -273,8 +242,41 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   }
 
   publishPayload.tags = Array.from(tagSet);
+
   return publishPayload;
 }
+
+/**
+ * Helper functions to resolve SDK's publish payload.
+ */
+const PUBLISH = {
+  releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim) => {
+    const visibility = 'public';
+    const isEditing = Boolean(claimToEdit);
+    const claimOriginalTs = isEditing ? Number(claimToEdit?.value?.release_time || claimToEdit?.timestamp) : undefined;
+
+    switch (visibility) {
+      case 'public':
+        if (isEditing) {
+          if (userEnteredTs === undefined) {
+            return claimOriginalTs;
+          } else {
+            return userEnteredTs;
+          }
+        } else {
+          if (userEnteredTs === undefined) {
+            return nowTs;
+          } else {
+            return userEnteredTs;
+          }
+        }
+
+      default:
+        console.assert(false, `unhandled: "${visibility}"`);
+        break;
+    }
+  },
+};
 
 export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispatch: Dispatch, getState: () => {}) => {
   const publishPreviewFn = (previewResponse) => {
@@ -650,7 +652,6 @@ export const doPrepareEdit =
         currency: 'LBC',
       },
       languages,
-      release_time,
       license,
       license_url: licenseUrl,
       thumbnail,
@@ -672,8 +673,6 @@ export const doPrepareEdit =
       description,
       fee,
       languages,
-      releaseTime: release_time,
-      releaseTimeEdited: undefined,
       thumbnail: thumbnail ? thumbnail.url : null,
       title,
       uri,

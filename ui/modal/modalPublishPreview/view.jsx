@@ -40,7 +40,7 @@ type Props = {
   fiatRentalFee: Price,
   fiatRentalExpiration: Duration,
   language: string,
-  releaseTimeEdited: ?number,
+  releaseTime: ?number,
   licenseType: string,
   otherLicenseDescription: ?string,
   licenseUrl: ?string,
@@ -86,7 +86,7 @@ const ModalPublishPreview = (props: Props) => {
     fiatRentalExpiration,
 
     language,
-    releaseTimeEdited,
+    releaseTime,
     licenseType,
     otherLicenseDescription,
     licenseUrl,
@@ -119,7 +119,7 @@ const ModalPublishPreview = (props: Props) => {
 
   const formattedTitle = truncateWithEllipsis(title, 128);
   const formattedUri = truncateWithEllipsis(uri, 128);
-  const releasesInFuture = releaseTimeEdited && moment(releaseTimeEdited * 1000).isAfter();
+  const releasesInFuture = releaseTime && moment(releaseTime * 1000).isAfter();
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
@@ -403,7 +403,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(__('Deposit'), getDeposit())}
                     {createRow(getPriceLabel(), getPriceValue())}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
-                    {releaseTimeEdited && createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTimeEdited))}
+                    {releaseTime && createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime))}
                     {createRow(__('License'), getLicense())}
                     {createRow(__('Restricted to'), getTierRestrictionValue(), !tiers || !restrictingTiers)}
                     {createRow(__('Tags'), getTagsValue(tags))}

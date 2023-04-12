@@ -6,8 +6,9 @@ import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
 import PublishReleaseDate from './view';
 
 const select = (state) => ({
+  isEdit: Boolean(selectPublishFormValue(state, 'editingURI')),
   releaseTime: selectPublishFormValue(state, 'releaseTime'),
-  releaseTimeEdited: selectPublishFormValue(state, 'releaseTimeEdited'),
+  releaseTimeError: selectPublishFormValue(state, 'releaseTimeError'),
   clock24h: selectClientSetting(state, SETTINGS.CLOCK_24H),
   appLanguage: selectLanguage(state),
 });

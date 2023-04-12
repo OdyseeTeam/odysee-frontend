@@ -117,6 +117,7 @@ function UploadForm(props: Props) {
     publishError,
     publishSuccess,
     publishing,
+    releaseTimeError,
     remoteUrl,
     resetThumbnailStatus,
     resolveUri,
@@ -197,6 +198,7 @@ function UploadForm(props: Props) {
     thumbnail &&
     !bidError &&
     !emptyPostError &&
+    !releaseTimeError &&
     !(thumbnailError && !thumbnailUploaded) &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 

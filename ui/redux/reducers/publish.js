@@ -18,6 +18,7 @@ import { PAYWALL } from 'constants/publish';
 // any pending uploads. Can be removed from January 2022 onwards.
 const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anonymous'}`;
 
+// @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
   editingURI: undefined,
   fileText: '',
@@ -46,9 +47,7 @@ const defaultState: PublishState = {
   description: '',
   language: '',
   releaseTime: undefined,
-  releaseTimeEdited: undefined,
-  releaseTimeError: false,
-  releaseAnytime: false,
+  releaseTimeError: undefined,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
