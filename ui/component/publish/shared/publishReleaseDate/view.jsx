@@ -18,7 +18,7 @@ const FUTURE_DATE_ERROR = 'Cannot set to a future date.';
 
 type Props = {
   // --- redux:
-  isEdit: boolean,
+  claimToEdit: ?StreamClaim,
   releaseTime: ?number,
   releaseTimeError: ?string,
   clock24h: boolean,
@@ -27,11 +27,18 @@ type Props = {
 };
 
 const PublishReleaseDate = (props: Props) => {
-  const { isEdit, releaseTime, releaseTimeError, clock24h, appLanguage, updatePublishForm } = props;
+  const { claimToEdit, releaseTime, releaseTimeError, clock24h, appLanguage, updatePublishForm } = props;
 
   const maxDate = new Date();
   const showDefaultBtn = releaseTime !== undefined;
   const showDatePicker = true;
+  const isEdit = Boolean(claimToEdit);
+
+  let claimDateStr;
+  if (isEdit) {
+    const date = new Date((claimToEdit?.value?.release_time || claimToEdit?.timestamp || 0) * 1000);
+    claimDateStr = date.toLocaleString(appLanguage || 'en');
+  }
 
   const onDateTimePickerChanged = (value) => {
     const isValueInFuture = maxDate && value && value.getTime() > maxDate.getTime();
@@ -119,6 +126,9 @@ const PublishReleaseDate = (props: Props) => {
           </span>
         )}
       </div>
+      {claimDateStr && (
+        <div className="form-field-date-picker__past-value">{__('Previous:  %date%', { date: claimDateStr })}</div>
+      )}
     </div>
   );
 };

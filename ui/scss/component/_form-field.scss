@@ -833,6 +833,12 @@ fieldset-section {
   }
 }
 
+.form-field-date-picker__past-value {
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  margin-top: var(--spacing-xxxs);
+}
+
 .form-field-calendar {
   border-radius: var(--border-radius);
   border: 1px solid var(--color-border);
