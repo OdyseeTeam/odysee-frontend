@@ -55,22 +55,26 @@ $SKEW_AMOUNT: 10deg;
 
 .filePrice--filepage {
   padding-left: var(--spacing-s);
-  padding-right: var(--spacing-xxxs);
+  padding-right: var(--spacing-m);
+  margin-top: var(--spacing-s);
   height: 2.4rem;
-
+  border-radius: var(--border-radius);
   opacity: 0;
   animation: fadeIn 1.5s;
   animation-fill-mode: forwards;
 
-  @media (max-width: $breakpoint-small) {
-    padding: 0 var(--spacing-xs);
-    height: 2rem;
+  .credit-amount {
+    font-size: var(--font-body) !important;
+    font-weight: var(--font-weight-bold);
+    svg {
+      margin-right: var(--spacing-s);
+    }
   }
 
-  .credit-amount {
-    @media (max-width: $breakpoint-small) {
-      margin-right: 0 !important;
-    }
+  @media (max-width: $breakpoint-small) {
+    margin-top: 0;
+    padding: 0 var(--spacing-xs);
+    height: 2rem;
   }
 }
 
@@ -162,6 +166,18 @@ $SKEW_AMOUNT: 10deg;
 
     & > *:not(:last-child) {
       margin-bottom: calc(var(--spacing-xxs) / 2);
+    }
+  }
+}
+
+.file-page__media-actions {
+  .card__header--between {
+    flex-wrap: nowrap;
+    .card__title-actions-container {
+      overflow: visible;
+      .card__title-actions {
+        align-self: normal;
+      }
     }
   }
 }
