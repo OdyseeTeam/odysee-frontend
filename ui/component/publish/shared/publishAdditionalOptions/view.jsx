@@ -30,6 +30,7 @@ type Props = {
   needsYTAuth: boolean,
   showSchedulingOptions: boolean,
   isLivestream?: Boolean,
+  visibility: Visibility,
 };
 
 function PublishAdditionalOptions(props: Props) {
@@ -42,8 +43,11 @@ function PublishAdditionalOptions(props: Props) {
     updatePublishForm,
     showSchedulingOptions,
     disabled,
+    visibility,
   } = props;
+
   const [hideSection, setHideSection] = useState(disabled);
+  const showReleaseDate = !showSchedulingOptions && visibility === 'public';
 
   function toggleHideSection() {
     setHideSection(!hideSection);
@@ -70,9 +74,9 @@ function PublishAdditionalOptions(props: Props) {
               <div className="settings-row">
                 <div className={classnames({ 'card--disabled': !name })}>
                   <div className="section">
-                    {!showSchedulingOptions && <PublishReleaseDate />}
+                    {showReleaseDate && <PublishReleaseDate />}
                     <FormField
-                      className={showSchedulingOptions && 'publish-row--no-margin-select'}
+                      className={!showReleaseDate && 'publish-row--no-margin-select'}
                       label={__('Language')}
                       type="select"
                       name="content_language"

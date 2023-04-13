@@ -1,0 +1,22 @@
+.publish-visibility {
+  margin-bottom: var(--spacing-l);
+
+  .card__body {
+    padding: var(--spacing-s);
+  }
+
+  fieldset-section.radio:first-of-type {
+    padding-top: 0;
+  }
+  fieldset-section.radio:last-of-type {
+    padding-bottom: 0;
+  }
+}
+
+$RADIO_HELP_INDENT: calc(var(--spacing-l) + 3px); // @FixMe
+
+.publish-visibility__radio-help {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  margin-left: $RADIO_HELP_INDENT;
+}

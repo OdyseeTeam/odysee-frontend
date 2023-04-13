@@ -22,6 +22,7 @@ import PublishDescription from 'component/publish/shared/publishDescription';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
 import PublishFile from 'component/publish/upload/publishFile';
 import PublishProtectedContent from 'component/publishProtectedContent';
 
@@ -501,6 +502,8 @@ function UploadForm(props: Props) {
               </div>
             }
           />
+
+          <PublishVisibility />
 
           <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
 

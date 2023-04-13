@@ -8,6 +8,7 @@ import PublishReleaseDate from './view';
 const select = (state) => ({
   claimToEdit: selectMyClaimForUri(state),
   releaseTime: selectPublishFormValue(state, 'releaseTime'),
+  releaseTimeDisabled: selectPublishFormValue(state, 'releaseTimeDisabled'),
   releaseTimeError: selectPublishFormValue(state, 'releaseTimeError'),
   clock24h: selectClientSetting(state, SETTINGS.CLOCK_24H),
   appLanguage: selectLanguage(state),

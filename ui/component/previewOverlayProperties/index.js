@@ -1,6 +1,11 @@
 import { connect } from 'react-redux';
 
-import { selectClaimIsMine, selectClaimForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import {
+  selectClaimIsMine,
+  selectClaimForUri,
+  selectIsStreamPlaceholderForUri,
+  selectIsUriUnlisted,
+} from 'redux/selectors/claims';
 import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
 import { makeSelectFilePartlyDownloaded } from 'redux/selectors/file_info';
 import { selectCollectionHasEditsForId } from 'redux/selectors/collections';
@@ -21,6 +26,7 @@ const select = (state, props) => {
     downloaded: makeSelectFilePartlyDownloaded(uri)(state),
     claimIsMine: selectClaimIsMine(state, claim),
     isLivestreamActive: isLivestreamClaim && selectIsActiveLivestreamForUri(state, uri),
+    isUnlisted: selectIsUriUnlisted(state, uri),
     livestreamViewerCount: isLivestreamClaim ? selectViewersForId(state, claim.claim_id) : undefined,
   };
 };

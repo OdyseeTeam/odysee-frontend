@@ -23,6 +23,7 @@ type Props = {
   xsmall?: boolean,
   // -- redux --
   isLivestreamActive: ?boolean,
+  isUnlisted: boolean,
   livestreamViewerCount: ?number,
 };
 
@@ -39,6 +40,7 @@ export default function PreviewOverlayProperties(props: Props) {
     xsmall,
     // -- redux --
     isLivestreamActive,
+    isUnlisted,
     livestreamViewerCount,
   } = props;
   const isCollection = claim && claim.value_type === 'collection';
@@ -66,6 +68,7 @@ export default function PreviewOverlayProperties(props: Props) {
       ) : xsmall ? (
         <>
           <VideoDuration uri={uri} />
+          {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />
         </>
       ) : (
@@ -84,6 +87,7 @@ export default function PreviewOverlayProperties(props: Props) {
           {!iconOnly && isStream && <VideoDuration uri={uri} />}
           {isStream && <FileType uri={uri} small={small} />}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
+          {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />
         </>
       )}

@@ -20,6 +20,7 @@ import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
 import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -445,6 +446,8 @@ function PostForm(props: Props) {
           />
 
           <PublishProtectedContent claim={myClaimForUri} location={'post'} />
+
+          <PublishVisibility />
 
           <PublishPrice disabled={formDisabled} />
 

@@ -799,6 +799,11 @@ fieldset-section {
   }
 }
 
+.form-field-date-picker--disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 .form-field-date-picker__header {
   display: flex;
 

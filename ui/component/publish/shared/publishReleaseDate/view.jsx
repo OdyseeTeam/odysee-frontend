@@ -1,5 +1,7 @@
 // @flow
 import React from 'react';
+import classnames from 'classnames';
+
 import Button from 'component/button';
 import DateTimePicker from 'react-datetime-picker';
 
@@ -20,6 +22,7 @@ type Props = {
   // --- redux:
   claimToEdit: ?StreamClaim,
   releaseTime: ?number,
+  releaseTimeDisabled: boolean,
   releaseTimeError: ?string,
   clock24h: boolean,
   appLanguage: ?string,
@@ -27,7 +30,8 @@ type Props = {
 };
 
 const PublishReleaseDate = (props: Props) => {
-  const { claimToEdit, releaseTime, releaseTimeError, clock24h, appLanguage, updatePublishForm } = props;
+  const { claimToEdit, releaseTime, releaseTimeDisabled, releaseTimeError, clock24h, appLanguage, updatePublishForm } =
+    props;
 
   const maxDate = new Date();
   const showDefaultBtn = releaseTime !== undefined;
@@ -96,7 +100,11 @@ const PublishReleaseDate = (props: Props) => {
   }
 
   return (
-    <div className="form-field-date-picker">
+    <div
+      className={classnames('form-field-date-picker', {
+        'form-field-date-picker--disabled': releaseTimeDisabled,
+      })}
+    >
       <label>{__('Release date')}</label>
       <div className="form-field-date-picker__controls">
         {showDatePicker && (
