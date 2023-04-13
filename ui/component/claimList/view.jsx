@@ -450,12 +450,9 @@ export default function ClaimList(props: Props) {
       )}
 
       {restoreScrollPos && (
-        <Button
-          button="secondary"
-          className="claim-list__scroll-to-recent"
-          label={__('Scroll to Playing')}
-          onClick={restoreScrollPos}
-        />
+        <div className="claim-list__scroll-to-recent">
+          <Button button="secondary" label={__('Scroll to Playing')} onClick={restoreScrollPos} />
+        </div>
       )}
 
       {!timedOut && urisLength === 0 && !loading && !noEmpty && (

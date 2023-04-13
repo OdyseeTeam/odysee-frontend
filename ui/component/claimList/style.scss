@@ -1041,20 +1041,21 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-list__scroll-to-recent {
-  margin-bottom: var(--spacing-xxs);
   position: absolute;
-  right: 50%;
-  transform: translateX(50%);
+  display: flex;
+  left: 0;
+  right: 12px;
+  bottom: 0;
   z-index: 1600;
-
-  font-size: var(--font-xsmall);
-  padding: var(--spacing-xxs) var(--spacing-s);
-  bottom: var(--spacing-xxs);
-
-  background-color: var(--color-header-button) !important;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
-  border: 1px solid var(--color-text);
-
+  justify-content: center;
   transition: opacity 0.2s ease, visibility 0.2s ease;
+
+  .button {
+    background-color: var(--color-header-button) !important;
+    border: 1px solid var(--color-text);
+    font-size: var(--font-small);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    margin-bottom: var(--spacing-xs);
+  }
 }
