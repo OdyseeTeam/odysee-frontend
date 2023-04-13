@@ -600,33 +600,6 @@ img {
   }
 }
 
-.home__meme {
-  text-align: center;
-  font-weight: bold;
-  line-height: 1;
-  font-size: 1rem;
-
-  > .button {
-    white-space: initial;
-  }
-
-  @media (min-width: $breakpoint-small) {
-    font-size: 1.2rem;
-  }
-  @media (min-width: 1200px) {
-    margin-top: var(--spacing-s);
-    margin-bottom: -3.6rem;
-    span {
-      margin-top: -2rem;
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    margin-top: var(--spacing-s);
-    margin-bottom: var(--spacing-m);
-  }
-}
-
 .confirming-change {
   padding-top: var(--spacing-s);
   font-size: var(--font-small);

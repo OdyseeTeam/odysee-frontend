@@ -4,8 +4,23 @@
   line-height: 1;
   font-size: 1rem;
 
+  > .button {
+    white-space: initial;
+  }
+
   @media (min-width: $breakpoint-small) {
     font-size: 1.2rem;
-    margin-bottom: 0;
+  }
+  @media (min-width: 1200px) {
+    margin-top: var(--spacing-s);
+    margin-bottom: -3.6rem;
+    span {
+      margin-top: -2rem;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-s);
+    margin-bottom: var(--spacing-m);
   }
 }
