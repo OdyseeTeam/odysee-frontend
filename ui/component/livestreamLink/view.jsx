@@ -26,7 +26,7 @@ const LivestreamLink = (props: Props) => {
 
   return (
     <Card
-      className="livestream__channel-link claim-preview__live"
+      className="livestream__channel-link claim-preview__wrapper--live"
       title={title || __('Live stream in progress')}
       onClick={() => push(formatLbryUrlForWeb(claimUri))}
     >

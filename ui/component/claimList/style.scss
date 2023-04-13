@@ -811,7 +811,7 @@ $claim-preview-progress-bar-height: 5px;
   padding-left: var(--spacing-xs);
 }
 
-.claim-preview__active {
+.claim-preview__wrapper--active {
   background-color: rgba(var(--color-primary-dynamic), 0.1) !important;
   .media__thumb {
     box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
@@ -845,7 +845,7 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
-.claim-preview__live {
+.claim-preview__wrapper--live {
   .claim-preview__file-property-overlay {
     opacity: 0.9; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);

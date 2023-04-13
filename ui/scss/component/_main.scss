@@ -439,7 +439,7 @@ body {
 .main--livestream {
   @extend .main--file-page;
 
-  .claim-preview__live {
+  .claim-preview__wrapper--live {
     .claim-tile__info {
       display: flex;
       .media__subtitle {

@@ -435,15 +435,15 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
         'claim-preview__wrapper--inline': type === 'inline',
         'claim-preview__wrapper--recommendation': type === 'small',
         'claim-preview__wrapper--playlist-row': type === 'small' && collectionId,
-        'claim-preview__live': isLivestreamActive,
-        'claim-preview__active': active,
+        'claim-preview__wrapper--live': isLivestreamActive,
+        'claim-preview__wrapper--active': active,
         'non-clickable': nonClickable,
       })}
     >
       <>
         {!type && (
           <div
-            className="background"
+            className="claim-preview__background"
             style={
               backgroundImage && {
                 backgroundImage: 'url(' + backgroundImage + ')',

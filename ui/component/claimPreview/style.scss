@@ -190,7 +190,7 @@
     }
   }
 
-  .background {
+  .claim-preview__background {
     position: absolute;
     background-repeat: no-repeat;
     background-size: 100%;
@@ -436,7 +436,7 @@
       background-color: var(--color-background);
     }
 
-    .background {
+    .claim-preview__background {
       opacity: 0.9;
     }
   }

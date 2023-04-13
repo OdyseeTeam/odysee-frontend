@@ -205,7 +205,7 @@ function ClaimPreviewTile(props: Props) {
       onClick={handleClick}
       className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
-        'claim-preview__live': isLivestreamActive,
+        'claim-preview__wrapper--live': isLivestreamActive,
         'swipe-list__item claim-preview--horizontal-tile': swipeLayout,
       })}
     >
