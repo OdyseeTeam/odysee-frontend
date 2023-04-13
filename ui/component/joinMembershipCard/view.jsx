@@ -12,8 +12,8 @@ import ConfirmationPage from './internal/confirmationPage';
 import PreviewPage from './internal/previewPage';
 import Spinner from 'component/spinner';
 import classnames from 'classnames';
-
 import { ModalContext } from 'contexts/modal';
+import './style.scss';
 
 type Props = {
   uri: string,
