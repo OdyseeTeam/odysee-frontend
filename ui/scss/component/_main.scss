@@ -52,36 +52,18 @@ body {
 
 .sidebar--pusher {
   animation-timing-function: var(--resizing-animation-function);
-  // transition: transform var(--resizing-animation-timing);
-  // transform-origin: top center;
-  // will-change: transform;
   padding-left: var(--side-nav-width--micro);
   position: absolute;
   width: 100%;
 
   @media (max-width: $breakpoint-small) {
-    // transform: translateX(0);
-    // width: calc(100% - var(--spacing-m));
     padding-left: 0;
     margin-left: calc(var(--spacing-xs) * -1);
-  }
-
-  @media (min-width: $breakpoint-small) {
-    // transform: translateX(var(--side-nav-width--micro));
-    // width: calc(100% - ((var(--side-nav-width--micro))));
   }
 }
 
 .sidebar--pusher--filepage {
   width: 100%;
-}
-
-.sidebar--pusher--open {
-  /*
-  @media (min-width: $breakpoint-medium) {
-    transform: scaleX(0.9) translateX(calc(5.4 * var(--spacing-l))) scaleY(0.9);
-  }
-  */
 }
 
 .main-wrapper__inner--auth {
@@ -273,16 +255,7 @@ body {
         }
       }
 
-      @media (min-width: $breakpoint-medium) {
-        // max-width: 15rem;
-      }
-
-      @media (max-width: $breakpoint-medium) {
-        // max-width: 50rem;
-      }
-
       @media (max-width: $breakpoint-small) {
-        // display: inline-block;
         max-width: unset;
         width: 100%;
         .button--file-action {
@@ -361,11 +334,6 @@ body {
   }
 }
 
-.file-page__secondary-content {
-  @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
-    // padding-right: calc(var(--spacing-s) + 12px) !important;
-  }
-}
 .card__title-section--body-list {
   display: unset !important;
   div {
@@ -409,12 +377,6 @@ body {
     margin-left: auto;
     margin-right: auto;
   }
-
-  /*
-  .file-page__video-container {
-    max-height: unset;
-  }
-  */
 
   .file-page__recommended {
     @media (max-width: $breakpoint-medium) {
@@ -573,12 +535,6 @@ body {
     margin-right: auto;
   }
 
-  /*
-  .file-page__video-container {
-    max-height: unset;
-  }
-  */
-
   .file-page__recommended {
     @media (max-width: $breakpoint-medium) {
       width: 100%;
@@ -727,31 +683,6 @@ body {
       }
     }
   }
-
-  /*
-  .button--secondary {
-    background-color: var(--color-header-button) !important;
-    .button__content {
-      .icon {
-        stroke: var(--color-text) !important;
-      }
-      .button__label {
-        color: var(--color-text) !important;
-      }
-    }
-    &:hover {
-      background-color: var(--color-primary) !important;
-      .button__content {
-        .icon {
-          stroke: var(--color-primary-contrast) !important;
-        }
-        .button__label {
-          color: var(--color-primary-contrast) !important;
-        }
-      }
-    }
-  }
-  */
 
   @media (max-width: $breakpoint-small) {
     padding: 0 0;
