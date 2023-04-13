@@ -4,9 +4,9 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import moment from 'moment/min/moment-with-locales';
-import 'scss/component/livestream-scheduled-info.scss';
 import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
+import './style.scss';
 
 const CALC_TIME_INTERVAL_MS = 1000;
 
