@@ -16,6 +16,7 @@ import Card from 'component/common/card';
 import Plastic from 'react-plastic';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
+import './style.scss';
 
 const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 const CARD_NAME_REGEX = /[0-9!@#$%^&*()_+=[\]{};:"\\|,<>?~]/;

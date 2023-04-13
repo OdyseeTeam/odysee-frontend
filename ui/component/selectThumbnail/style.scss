@@ -1,0 +1,19 @@
+@import '~ui/scss/init/breakpoints';
+
+.thumbnail-picker__preview {
+  width: calc(var(--thumbnail-preview-width) * 1.5);
+  height: calc(var(--thumbnail-preview-height) * 1.5);
+  background-color: var(--color-thumbnail-background);
+  padding: var(--spacing-s);
+  font-size: var(--font-small);
+  border-radius: var(--border-radius);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: cover;
+
+  @media (max-width: $breakpoint-small) {
+    width: 100%;
+    height: unset;
+    aspect-ratio: 16 / 9;
+  }
+}

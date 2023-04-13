@@ -9,6 +9,7 @@ import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import ThumbnailMissingImage from './thumbnail-missing.png';
 import ThumbnailBrokenImage from './thumbnail-broken.png';
+import './style.scss';
 
 type Props = {
   filePath: ?string,
