@@ -4,6 +4,7 @@ import Page from 'component/page';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
+import './style.scss';
 
 const CareersPage = () => {
   return (
@@ -15,9 +16,9 @@ const CareersPage = () => {
             <h1>Work at Odysee</h1>
 
             <section className="section card--section">
-              <h2 className="card__title">We're redefining online media because the current paradigm sucks.</h2>
-
-              <h2 className="career-page__subtitle">
+              <h2 className="card__title">
+                We're redefining online media because the current paradigm sucks.
+                <br />
                 If you share our passion and want to help we'd love to hear from you.
               </h2>
 
