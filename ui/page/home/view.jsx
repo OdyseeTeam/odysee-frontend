@@ -24,6 +24,7 @@ import Meme from 'web/component/meme';
 import Portals from 'component/portals';
 import FeaturedBanner from 'component/featuredBanner';
 import { useHistory } from 'react-router-dom';
+import './style.scss';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
