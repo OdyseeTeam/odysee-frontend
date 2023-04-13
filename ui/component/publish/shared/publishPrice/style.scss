@@ -53,9 +53,6 @@ $INDENT: var(--spacing-xl);
   }
 }
 
-.publish-price__grp-1 {
-}
-
 .publish-price__grp-2 {
   select {
     width: 150px; // lock all dropdowns to same width
@@ -73,9 +70,15 @@ $INDENT: var(--spacing-xl);
 }
 
 .publish-price__bank-driver {
-  font-size: var(--font-xsmall);
+  display: flex;
   color: var(--color-text-subtitle);
   margin-left: calc(var(--height-checkbox) + var(--spacing-s));
+  font-size: var(--font-base);
+  align-items: center;
+  .button {
+    font-size: var(--font-body);
+    margin-right: var(--spacing-xs);
+  }
 }
 
 .publish-price__fees {
