@@ -115,6 +115,7 @@ export const generateEncodedLbryURL = (domain, lbryWebUrl, includeStartTime, sta
   return `${domain}/${encodedPart}`;
 };
 
+// @flow
 export const generateShareUrl = (
   domain,
   lbryUrl,
@@ -122,7 +123,8 @@ export const generateShareUrl = (
   rewardsApproved,
   includeStartTime,
   startTime,
-  listId
+  listId,
+  viewKeySigData: ChannelSignResponse
 ) => {
   let urlParams = new URLSearchParams();
   if (referralCode && rewardsApproved) {
@@ -135,6 +137,11 @@ export const generateShareUrl = (
 
   if (includeStartTime) {
     urlParams.append('t', startTime.toString());
+  }
+
+  if (viewKeySigData) {
+    urlParams.append('signature', viewKeySigData.signature);
+    urlParams.append('signature_ts', viewKeySigData.signing_ts);
   }
 
   const urlParamsString = urlParams.toString();

@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import Lbry from 'lbry';
 import { doFetchInviteStatus } from 'redux/actions/user';
 import {
   selectClaimForUri,
@@ -6,6 +7,7 @@ import {
   makeSelectTagInClaimOrChannelForUri,
   selectClaimIsNsfwForUri,
   selectIsFiatRequiredForUri,
+  selectClaimIsMine,
 } from 'redux/selectors/claims';
 import SocialShare from './view';
 import { selectUserInviteReferralCode, selectUser, selectUserInviteStatusFetched } from 'redux/selectors/user';
@@ -19,6 +21,7 @@ const select = (state, props) => {
 
   return {
     claim,
+    claimIsMine: selectClaimIsMine(state, claim),
     inviteStatusFetched: selectUserInviteStatusFetched(state),
     referralCode: selectUserInviteReferralCode(state),
     user: selectUser(state),
@@ -28,6 +31,7 @@ const select = (state, props) => {
     isMature: selectClaimIsNsfwForUri(state, uri),
     isMembershipProtected: claim && selectContentHasProtectedMembershipIds(state, claim.claim_id),
     isFiatRequired: selectIsFiatRequiredForUri(state, uri),
+    channelSign: Lbry.channel_sign,
   };
 };
 
