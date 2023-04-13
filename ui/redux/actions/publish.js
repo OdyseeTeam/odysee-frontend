@@ -118,6 +118,13 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     release_time: PUBLISH.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing) || nowTimeStamp,
     blocking: true,
     preview: false,
+    ...(remoteFileUrl ? { remote_url: remoteFileUrl } : {}),
+    ...(claimId ? { claim_id: claimId } : {}), // 'stream_update' support
+    ...(optimize ? { optimize_file: true } : {}),
+    ...(thumbnail ? { thumbnail_url: thumbnail } : {}),
+    ...(channelId ? { channel_id: channelId } : {}),
+    ...(licenseUrl ? { license_url: licenseUrl } : {}),
+    ...(publishingLicense ? { license: publishingLicense } : {}),
   };
 
   const tagSet = new Set(tags.map((t) => t.name));
@@ -129,33 +136,6 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
 
   publishPayload.tags = Array.from(tagSet);
 
-  if (claimId) {
-    publishPayload.claim_id = claimId;
-  }
-
-  // Temporary solution to keep the same publish flow with the new tags api
-  // Eventually we will allow users to enter their own tags on publish
-  // `nsfw` will probably be removed
-  if (remoteFileUrl) {
-    publishPayload.remote_url = remoteFileUrl;
-  }
-
-  if (publishingLicense) {
-    publishPayload.license = publishingLicense;
-  }
-
-  if (licenseUrl) {
-    publishPayload.license_url = licenseUrl;
-  }
-
-  if (thumbnail) {
-    publishPayload.thumbnail_url = thumbnail;
-  }
-
-  if (channelId) {
-    publishPayload.channel_id = channelId;
-  }
-
   if (myClaimForUriEditing && myClaimForUriEditing.value && myClaimForUriEditing.value.locations) {
     publishPayload.locations = myClaimForUriEditing.value.locations;
   }
@@ -165,10 +145,6 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
       publishPayload.fee_currency = fee.currency;
       publishPayload.fee_amount = creditsToString(fee.amount);
     }
-  }
-
-  if (optimize) {
-    publishPayload.optimize_file = true;
   }
 
   // Only pass file on new uploads, not metadata only edits.
