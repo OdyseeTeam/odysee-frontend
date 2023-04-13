@@ -16,10 +16,6 @@ $INDENT: var(--spacing-xl);
   flex-direction: column;
   padding: var(--spacing-s);
 
-  .publish-price__grp-1 {
-    margin-bottom: var(--spacing-s);
-  }
-
   fieldset-section:first-of-type {
     padding: 0;
   }
@@ -50,6 +46,18 @@ $INDENT: var(--spacing-xl);
   .publish-price__grp-1,
   .publish-price__grp-2 {
     opacity: $DISABLED_OPACITY; // Set at column level so the border won't be dimmed.
+  }
+}
+
+.publish-price__grp-1 {
+  margin-bottom: var(--spacing-s);
+
+  &:only-child {
+    margin-bottom: 0;
+  }
+
+  fieldset-section.radio:last-of-type {
+    padding-bottom: 0;
   }
 }
 
