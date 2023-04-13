@@ -273,8 +273,8 @@ function WalletTipAmountSelector(props: Props) {
       {/* help message */}
       {activeTab === TAB_FIAT &&
         (!canReceiveFiatTips
-          ? getHelpMessage(__('Only creators that verify cash accounts can receive tips'))
-          : getHelpMessage(__('Send a tip directly from your attached card')))}
+          ? getHelpMessage(__('Only creators that verify cash accounts can receive tips.'))
+          : getHelpMessage(__('Send a tip directly from your attached card.')))}
     </>
   );
 }
