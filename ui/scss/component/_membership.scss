@@ -13,14 +13,18 @@
   }
 }
 
+/*
 .show-tiers {
   display: flex !important;
 }
+*/
 
+/*
 .button--membership-see-all-tiers {
   color: var(--color-text);
   margin: 0 auto;
 }
+*/
 
 .membership_title {
   margin-top: var(--spacing-l);
@@ -57,44 +61,12 @@
   margin-top: 10px;
 }
 
-.cancel-membership-button {
-  margin-top: var(--spacing-s);
-  display: inline;
-}
-
 .edit-membership-button {
   display: inline;
 }
 
 .explanation-text {
   margin-bottom: 16px;
-}
-
-.premium-explanation-text {
-  .icon--ChevronDown,
-  .icon--ChevronUp {
-    height: 24px;
-    width: 24px;
-  }
-  .icon--ChevronUp {
-    margin-top: -2px;
-    margin-bottom: 2px;
-  }
-
-  .card__main-actions {
-    margin-bottom: 15px;
-  }
-
-  .button--close {
-    margin-top: 3px;
-    width: 34px;
-  }
-
-  .section__subtitle {
-    margin-bottom: 25px;
-  }
-
-  margin-bottom: 21px;
 }
 
 .getPaymentCard {
@@ -1074,16 +1046,20 @@
   }
 }
 
+/*
 .create-tier__card {
   background-color: rgba(var(--color-header-button-base), 0.3);
   border-radius: var(--border-radius);
   padding: var(--spacing-m);
   margin-bottom: var(--spacing-l);
 }
+*/
 
+/*
 .create-tiers__header {
   margin-bottom: 22px;
 }
+*/
 
 .add-membership__button {
   margin-top: 13px;
@@ -1099,32 +1075,31 @@ svg.icon--Upgrade {
   opacity: 0.7;
 }
 
+/*
 .header--cant_change_price {
   font-size: 13px;
   color: grey;
   margin-top: 10px;
 }
+*/
 
 .membership-tier__header {
   font-size: var(--font-large);
   font-weight: var(--font-weight-bold);
 }
 
+/*
 .join-membership__subtitle {
   color: var(--color-text-subtitle);
   font-size: var(--font-body);
   margin-top: var(--spacing-s);
   margin-bottom: var(--spacing-m);
 }
+*/
 
 .protected-membership-button {
   span {
     color: #68f368;
-  }
-}
-
-.table--pledges {
-  th {
   }
 }
 
