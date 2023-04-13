@@ -174,8 +174,10 @@ export const doFileGetForUri =
 
         dispatch(
           doToast({
-            message: `Failed to view ${uri}, please try again. If this problem persists, visit https://help.odysee.tv/ for support.`,
+            message: __('Failed to load the file. If problem persists, visit https://help.odysee.tv/ for support.'),
+            ...(error.message ? { subMessage: error.message } : {}),
             isError: true,
+            duration: 'long',
           })
         );
       });
