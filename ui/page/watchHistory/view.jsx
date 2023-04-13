@@ -9,6 +9,7 @@ import * as ICONS from 'constants/icons';
 import { YRBL_SAD_IMG_URL } from 'config';
 import Tooltip from 'component/common/tooltip';
 import useClaimListInfiniteScroll from 'effects/use-claimList-infinite-scroll';
+import './style.scss';
 
 export const PAGE_SIZE = 30;
 

@@ -19,6 +19,7 @@ import Tooltip from 'component/common/tooltip';
 import CollectionGeneralTab from './internal/collectionGeneralTab';
 import withCollectionItems from 'hocs/withCollectionItems';
 import ErrorBubble from 'component/common/error-bubble';
+import './style.scss';
 
 export const PAGE_TAB_QUERY = `tab`;
 

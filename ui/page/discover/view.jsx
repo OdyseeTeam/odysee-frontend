@@ -77,6 +77,8 @@ function DiscoverPage(props: Props) {
       return (
         <a
           className="help"
+          target="_blank"
+          rel="noreferrer"
           href="https://help.odysee.tv/category-blockchain/category-staking/increase/"
           title={__('Learn more about Credits on %DOMAIN%', { DOMAIN })}
         >

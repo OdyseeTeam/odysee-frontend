@@ -85,6 +85,8 @@ export default function SearchTopClaim(props: Props) {
         <div className="claim-preview__actions--header">
           <a
             className="media__uri"
+            target="_blank"
+            rel="noreferrer"
             href="https://help.odysee.tv/category-blockchain/category-staking/increase/"
             title={__('Learn more about Credits on %DOMAIN%', { DOMAIN })}
           >

@@ -1,12 +1,7 @@
 .membership-button-wrapper.inline {
-  // margin: var(--spacing-s);
-  // margin-bottom: 0;
-  // margin-left: 0;
-
   @media (max-width: $breakpoint-small) {
     margin-top: var(--spacing-xxs);
     margin-bottom: var(--spacing-s);
-    // margin-right: var(--spacing-s);
     margin-right: 0;
     margin-left: 0;
   }
@@ -45,7 +40,6 @@
                 .membership-button-wrapper {
                   width: 50%;
                   margin-bottom: 0;
-                  // margin-right: var(--spacing-xxs);
                   .button--membership,
                   .button--membership-active {
                     width: 100%;
@@ -112,8 +106,6 @@
   }
 
   .file-page__video-container + .card,
-  // .file-render + .card,
-  // .content__cover + .card,
   .card + .file-render,
   .card + .file-page__video-container,
   .card + .content__cover {
@@ -646,7 +638,6 @@
   }
 
   .CodeMirror .CodeMirror-lines {
-    // is there really a .CodeMirror inside a .CodeMirror?
     padding: var(--spacing-s) 0;
   }
 
@@ -675,12 +666,10 @@
 // ****************************************************************************
 
 // DRY: we'll soon move vjs items to videojs.scss, so just duplicate these for now.
-// $control-bar-height: 48px;
 $control-bar-height: 48px;
 $control-bar-height-mobile: 44px;
 $control-bar-font-size: 0.9rem;
 $control-bar-popup-font-size: 0.8rem;
-// $control-bar-icon-size: 1.9rem;
 $control-bar-icon-size: 30px;
 
 .video-js-parent {
@@ -688,7 +677,6 @@ $control-bar-icon-size: 30px;
   width: 100%;
 }
 
-// By default no video js play button
 .vjs-big-play-button {
   display: none;
 }
@@ -737,7 +725,6 @@ $control-bar-icon-size: 30px;
 
     .vjs-current-time {
       padding-right: 0;
-      // margin-right: 0.4rem;
       @media (max-width: $breakpoint-small) {
         margin-right: 0.2rem;
       }
@@ -753,7 +740,6 @@ $control-bar-icon-size: 30px;
       padding-left: 0;
       margin-left: var(--spacing-xs);
       @media (max-width: $breakpoint-small) {
-        // margin-left: 0.2rem;
         margin-left: var(--spacing-xs) !important;
       }
     }
@@ -761,7 +747,6 @@ $control-bar-icon-size: 30px;
 
   // control-bar: menu, button and icon
   .vjs-control-bar {
-    // margin-bottom:-4px;
     .vjs-menu-button {
       font-size: $control-bar-font-size;
       line-height: $control-bar-height;
@@ -808,7 +793,6 @@ $control-bar-icon-size: 30px;
             span {
               margin-left: 20%;
               margin-right: 20%;
-              // font-size: 0.5rem;
             }
           }
         }
@@ -826,7 +810,6 @@ $control-bar-icon-size: 30px;
     }
 
     div.vjs-playback-rate {
-      // margin-left: var(--spacing-xs);
       margin-right: calc(var(--spacing-xs) * -1);
       .vjs-playback-rate-value {
         font-size: $control-bar-font-size;
@@ -906,7 +889,6 @@ $control-bar-icon-size: 30px;
     .vjs-button--play-previous:first-child,
     .vjs-play-control:first-child {
       margin-left: var(--spacing-s);
-      // margin-right: var(--spacing-xs);
       @media (max-width: $breakpoint-small) {
         margin-left: 0;
       }
@@ -1089,7 +1071,6 @@ $control-bar-icon-size: 30px;
     @extend .button--icon;
     @extend .button--play;
     border: none;
-    /*position: static;*/
     z-index: 2;
 
     .vjs-icon-placeholder {
@@ -1132,7 +1113,6 @@ $control-bar-icon-size: 30px;
     margin-left: var(--spacing-s);
 
     @media (min-width: $breakpoint-small) {
-      // margin-left: calc(var(--spacing-m) + var(--spacing-s));
       margin-top: calc(var(--spacing-l) + var(--spacing-s));
       margin-left: var(--spacing-xxxs);
     }
@@ -1204,7 +1184,6 @@ $control-bar-icon-size: 30px;
   }
 
   .vjs-menu {
-    // left:-4.8em !important;
     left: -3em !important;
     width: 8.7em !important;
 

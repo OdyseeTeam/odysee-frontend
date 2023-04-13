@@ -8,6 +8,7 @@ import * as PAGES from 'constants/pages';
 import Spinner from 'component/spinner';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import './style.scss';
 
 const TAB_QUERY = 'tab';
 

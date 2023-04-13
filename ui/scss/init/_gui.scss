@@ -89,31 +89,9 @@ ul {
   }
 }
 
-/*
-.claim__menu-button {
-  @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s);
-    margin: calc(var(--spacing-s) * -1);
-    &[aria-expanded='true'] {
-      padding: 0;
-      margin: 0;
-    }
-  }
-}
-*/
-
 .li--no-style {
   margin-bottom: 0px !important;
 }
-
-/*
-.claim__menu-button {
-  @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-m);
-    margin: calc(var(--spacing-m) * -1);
-  }
-}
-*/
 
 dl {
   display: flex;
@@ -776,58 +754,6 @@ img {
   }
 }
 
-.followManage-wrapper__activeSubs {
-  -moz-column-count: 2;
-  -moz-column-gap: var(--spacing-s);
-  -webkit-column-count: 2;
-  -webkit-column-gap: var(--spacing-s);
-  column-count: 2;
-  column-gap: var(--spacing-s);
-
-  .navigation-link__wrapper {
-    .button {
-      padding-left: 0;
-      background-color: rgba(var(--color-header-button-base), 0.6);
-      margin-bottom: var(--spacing-s);
-      border-radius: var(--border-radius);
-      &:hover {
-        background-color: rgba(var(--color-header-button-base), 0.8);
-      }
-    }
-  }
-
-  .claim-preview__title {
-    height: 20px;
-  }
-
-  @media (min-width: $breakpoint-small) {
-    .navigation-link {
-      &.navigation-link--with-thumbnail .button__content {
-        .channel-thumbnail {
-          @include handleChannelGif(2.25rem);
-        }
-      }
-    }
-
-    .navigation__subscription {
-      .claim-preview__title {
-        span {
-          font-size: var(--font-body);
-        }
-      }
-
-      .channel-name {
-        font-size: var(--font-small);
-      }
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    -webkit-column-gap: var(--spacing-s);
-    column-gap: var(--spacing-s);
-  }
-}
-
 .card--publish-section {
   background: rgba(var(--color-header-button-base), 0.6);
   border-radius: var(--border-radius);
@@ -1067,12 +993,8 @@ img {
   }
 
   .card__header--between {
-    // margin-bottom: var(--spacing-xl);
     margin-bottom: 0;
     border-bottom: 1px solid var(--color-border);
-    @media (max-width: $breakpoint-small) {
-      // margin-bottom: var(--spacing-l);
-    }
   }
 
   .card__title {
@@ -1222,7 +1144,6 @@ img {
     padding: var(--spacing-s);
 
     input {
-      // box-shadow: 0 0 0 2px var(--color-border) inset;
       &:focus-visible {
         box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
@@ -1461,52 +1382,6 @@ img {
 [data-reach-menu-popover] {
   @media (max-width: $breakpoint-small) {
     max-width: calc(100% - var(--spacing-xs) * 2);
-  }
-}
-
-.transactionsPage-wrapper {
-  .card__header--between {
-    align-items: unset;
-    .card__title-section {
-      width: 100%;
-      div {
-        width: 100%;
-        .card__title {
-          width: 100%;
-          .txo__table_header {
-            width: auto !important;
-          }
-        }
-        .card__subtitle {
-          min-height: 3rem;
-        }
-      }
-    }
-  }
-
-  .card__actions {
-    @media (max-width: $breakpoint-small) {
-      > * {
-        padding-bottom: var(--spacing-m);
-      }
-    }
-  }
-}
-
-.topPage-wrapper {
-  .search__top-links {
-    @media (max-width: $breakpoint-small) {
-      .button {
-        padding: 0 var(--spacing-m);
-        height: var(--height-button);
-        margin-bottom: var(--spacing-xxxs);
-        .button__content {
-          .button__label {
-            font-size: var(--font-base);
-          }
-        }
-      }
-    }
   }
 }
 
@@ -1812,113 +1687,8 @@ img {
   }
 }
 
-.collection-publish-form__wrapper {
-  .help {
-    color: var(--color-text);
-  }
-
-  @media (min-width: $breakpoint-small) {
-    .claim-preview--collection-editing {
-      height: unset;
-      position: relative;
-
-      .media__thumb {
-        position: relative;
-        right: unset;
-
-        .claim-preview__hover-actions {
-          display: visible;
-        }
-      }
-
-      .claim-preview__text {
-        position: unset;
-        right: unset;
-        width: 100%;
-        background-color: unset;
-        padding: 0;
-        border-radius: unset;
-
-        .claim-preview-info {
-          .claim-preview__title {
-            font-size: var(--font-small);
-          }
-        }
-        .media__subtitle {
-          .button__content {
-            .channel-name {
-              font-size: var(--font-xsmall);
-            }
-          }
-        }
-      }
-    }
-    .button-dislike {
-      margin-right: 0;
-    }
-  }
-}
-
-.custom-wrapper {
-  @media (max-width: $breakpoint-small) {
-    .card {
-      padding: var(--spacing-xxxs);
-      .card__title-section {
-        width: 100%;
-        div:first-of-type {
-          width: 100%;
-          .card__title {
-            width: 100%;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        }
-      }
-    }
-  }
-}
-
 .channelsToFollow-wrapper {
   margin-top: var(--spacing-l);
-}
-
-.historyPage-wrapper {
-  .claim-preview__wrapper {
-    .claim-preview__history-remove {
-      position: absolute;
-      top: var(--spacing-s);
-      right: 40px;
-      opacity: 0;
-
-      .icon {
-        width: 22px;
-        height: 22px;
-      }
-
-      &:hover {
-        .icon {
-          stroke: var(--color-primary);
-          cursor: pointer;
-        }
-      }
-
-      @media (max-width: $breakpoint-small) {
-        opacity: 1;
-      }
-    }
-
-    .menu__button.claim__menu-button {
-      top: var(--spacing-xs);
-      right: var(--spacing-xs);
-    }
-
-    &:hover {
-      .claim-preview__history-remove {
-        opacity: 1;
-      }
-    }
-  }
 }
 
 .static-page {
@@ -1954,25 +1724,11 @@ img {
 }
 
 // Temporary master classes
-/*
-.date_time {
-  font-size: var(--font-xsmall);
-}
-*/
-.icon--ExternalLink {
-  margin-top: -5px;
-  margin-left: 2px;
-  margin-left: var(--spacing-xxs) !important;
-}
+
 .markdown-preview {
   .icon--ExternalLink {
     flex-shrink: 0;
     margin-bottom: -1px !important;
-    // margin-left:2px !important;
-  }
-
-  .content__loading {
-    // display: none !important;
   }
 }
 
@@ -2218,9 +1974,7 @@ video {
 .help-hub__wrapper {
   margin-top: var(--spacing-l);
   width: 100%;
-  // background-color: #f3e3f6;
   background-color: rgba(255, 221, 162, 1);
-  // border: 2px solid rgba(255, 221, 162, 0.8);
   color: black;
   border-radius: var(--border-radius);
   text-align: center;
@@ -2233,7 +1987,6 @@ video {
 
   a {
     color: var(--color-primary);
-    // color: rgba(255,221,162,1);
   }
 
   img {
@@ -2290,10 +2043,6 @@ video {
 
 .margin-vertical-medium {
   margin: var(--spacing-m) 0px;
-}
-
-.padding-small {
-  padding: var(--spacing-s);
 }
 
 .currency-fix {

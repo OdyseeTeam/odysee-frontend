@@ -11,6 +11,7 @@ import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import useClaimListInfiniteScroll from 'effects/use-claimList-infinite-scroll';
+import './style.scss';
 
 function getFilteredUris(uris, filterQuery) {
   if (filterQuery) {
