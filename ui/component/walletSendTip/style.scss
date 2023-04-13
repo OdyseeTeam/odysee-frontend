@@ -1,8 +1,4 @@
 .wallet-send-tip-modal {
-  .help--no-card {
-    // font-size: var(--font-base);
-  }
-
   .confirm__wrapper {
     .confirm__value {
       width: 100%;
@@ -14,5 +10,9 @@
 
   .icon--DollarSign {
     height: 16px;
+  }
+
+  .button {
+    padding: 0 calc(var(--spacing-m) - 3px);
   }
 }
