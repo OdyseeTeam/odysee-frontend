@@ -18,7 +18,6 @@ import Yrbl from 'component/yrbl';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import ScheduledStreams from 'component/scheduledStreams';
-import { splitBySeparator } from 'util/lbryURI';
 import AdTileA from 'web/component/ads/adTileA';
 import Meme from 'web/component/meme';
 import Portals from 'component/portals';
@@ -31,7 +30,7 @@ type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 type Props = {
   authenticated: boolean,
   followedTags: Array<Tag>,
-  subscribedChannels: Array<Subscription>,
+  subscribedChannelIds: Array<ClaimId>,
   showNsfw: boolean,
   homepageData: any,
   homepageMeme: ?{ text: string, url: string },
@@ -50,7 +49,7 @@ type Props = {
 function HomePage(props: Props) {
   const {
     followedTags,
-    subscribedChannels,
+    subscribedChannelIds,
     authenticated,
     showNsfw,
     homepageData,
@@ -66,11 +65,10 @@ function HomePage(props: Props) {
     getActiveLivestreamUrisForIds,
   } = props;
 
-  const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
+  const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
-  const subscriptionChannelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
   const { push } = useHistory();
 
   const rowData: Array<RowDataItem> = GetLinksData(
@@ -80,7 +78,7 @@ function HomePage(props: Props) {
     authenticated,
     showPersonalizedChannels,
     showPersonalizedTags,
-    subscribedChannels,
+    subscribedChannelIds,
     followedTags,
     showIndividualTags,
     showNsfw
@@ -259,13 +257,13 @@ function HomePage(props: Props) {
                 <React.Fragment key={id}>
                   {!fetchingActiveLivestreams &&
                     authenticated &&
-                    subscriptionChannelIds.length > 0 &&
+                    subscribedChannelIds.length > 0 &&
                     id === 'FOLLOWING' &&
                     !hideScheduledLivestreams && (
                       <ScheduledStreams
-                        channelIds={subscriptionChannelIds}
+                        channelIds={subscribedChannelIds}
                         tileLayout
-                        liveUris={getActiveLivestreamUrisForIds(subscriptionChannelIds)}
+                        liveUris={getActiveLivestreamUrisForIds(subscribedChannelIds)}
                         limitClaimsPerChannel={2}
                       />
                     )}

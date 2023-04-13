@@ -9,7 +9,7 @@ import { getChannelFromClaim } from 'util/claim';
 import { parseURI } from 'util/lbryURI';
 import { doAlertWaitingForSync } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
-import { selectSubscriptions } from 'redux/selectors/subscriptions';
+import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 
 type SubscriptionArgs = {
   channelName: string,
@@ -97,15 +97,6 @@ export function doChannelUnsubscribe(subscription: SubscriptionArgs, followToast
 }
 
 export function doFetchLastActiveSubs(forceFetch: boolean = false, count: number = SIDEBAR_SUBS_DISPLAYED) {
-  function parseIdFromUri(uri) {
-    try {
-      const { channelClaimId } = parseURI(uri);
-      return channelClaimId;
-    } catch {
-      return '';
-    }
-  }
-
   return (dispatch: Dispatch, getState: GetState) => {
     const now = Date.now();
     if (!forceFetch && now - activeSubsLastFetchedTime < FETCH_LAST_ACTIVE_SUBS_MIN_INTERVAL_MS) {
@@ -114,8 +105,7 @@ export function doFetchLastActiveSubs(forceFetch: boolean = false, count: number
     }
 
     const state = getState();
-    const subscriptions = selectSubscriptions(state);
-    const channelIds = subscriptions.map((sub) => parseIdFromUri(sub.uri));
+    const channelIds = selectSubscriptionIds(state);
     activeSubsLastFetchedTime = now;
 
     if (channelIds.length === 0) {

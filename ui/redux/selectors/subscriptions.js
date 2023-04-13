@@ -26,6 +26,14 @@ export const selectSubscriptionUris = createSelector(
   (subscriptions) => subscriptions && subscriptions.map((sub) => sub.uri)
 );
 
+export const selectSubscriptionIds = createSelector(selectSubscriptions, (subscriptions) => {
+  if (subscriptions) {
+    return subscriptions.map((sub) => parseURI(sub.uri).channelClaimId);
+  } else {
+    return [];
+  }
+});
+
 export const selectLastActiveSubscriptions = (state) => selectState(state).lastActiveSubscriptions;
 
 export const selectFollowing = createSelector(selectState, (state) => state.following && state.following);

@@ -6,7 +6,7 @@ import { selectIsFetchingActiveLivestreams, selectFilteredActiveLivestreamUris }
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUserHasValidOdyseeMembership, selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
-import { selectSubscriptions } from 'redux/selectors/subscriptions';
+import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import {
   selectShowMatureContent,
   selectHomepageData,
@@ -18,7 +18,7 @@ import HomePage from './view';
 
 const select = (state) => ({
   followedTags: selectFollowedTags(state),
-  subscribedChannels: selectSubscriptions(state),
+  subscribedChannelIds: selectSubscriptionIds(state),
   authenticated: selectUserVerifiedEmail(state),
   showNsfw: selectShowMatureContent(state),
   homepageData: selectHomepageData(state) || {},

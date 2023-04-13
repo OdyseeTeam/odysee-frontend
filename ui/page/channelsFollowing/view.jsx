@@ -15,7 +15,6 @@ import ScheduledStreams from 'component/scheduledStreams';
 import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
-  subscribedChannels: Array<Subscription>,
   channelIds: Array<string>,
   tileLayout: boolean,
   activeLivestreamUris: ?Array<string>,
@@ -26,7 +25,6 @@ type Props = {
 
 function ChannelsFollowingPage(props: Props) {
   const {
-    subscribedChannels,
     channelIds,
     tileLayout,
     activeLivestreamUris,
@@ -35,7 +33,7 @@ function ChannelsFollowingPage(props: Props) {
     hideScheduledLivestreams,
   } = props;
 
-  const hasSubscribedChannels = subscribedChannels.length > 0;
+  const hasSubscribedChannels = channelIds.length > 0;
   const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
   React.useEffect(() => {
