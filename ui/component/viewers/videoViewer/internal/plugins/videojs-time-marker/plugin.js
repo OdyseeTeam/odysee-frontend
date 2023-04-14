@@ -24,8 +24,11 @@ const defaultOptions = {};
 type Options = {};
 
 function onPlayerReady(player: Player, options: Options) {
-  const progressControl = player.getChild('controlBar').getChild('progressControl');
-  progressControl.addChild('timeMarker');
+  const cb = player.getChild('controlBar');
+  const pc = cb && cb.getChild('progressControl');
+  if (pc) {
+    pc.addChild('timeMarker');
+  }
 }
 
 function timeMarkerPlugin(options: Options) {
