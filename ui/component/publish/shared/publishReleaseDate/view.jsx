@@ -43,12 +43,20 @@ const PublishReleaseDate = (props: Props) => {
   const onDateTimePickerChanged = (value) => {
     const isValueInFuture = maxDate && value && value.getTime() > maxDate.getTime();
 
-    console.assert(value, 'onDateTimePickerChanged: null value?'); // eslint-disable-line no-console
+    if (isValueInFuture) {
+      updatePublishForm({ releaseTimeError: FUTURE_DATE_ERROR });
+      return;
+    }
 
-    updatePublishForm({
-      releaseTime: isValueInFuture ? releaseTime : dateToLinuxTimestamp(value),
-      releaseTimeError: isValueInFuture ? FUTURE_DATE_ERROR : undefined,
-    });
+    if (value instanceof Date) {
+      updatePublishForm({
+        releaseTime: dateToLinuxTimestamp(value),
+        releaseTimeError: undefined,
+      });
+    } else {
+      // The widget actually doesn't inform us...
+      updatePublishForm({ releaseTimeError: 'Invalid date' });
+    }
   };
 
   function newDate(value: string | Date) {
