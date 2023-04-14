@@ -310,6 +310,7 @@ const VideoJsEvents = ({
       player.off('tracking:buffered', doTrackingBuffered);
       player.off('playing', removeControlBar);
       player.off('playing', determineVideoFps);
+      player.off('timeupdate', liveEdgeRestoreSpeed);
     });
     // player.on('ended', onEnded);
 
