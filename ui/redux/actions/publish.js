@@ -638,7 +638,7 @@ export const doUploadThumbnail =
   };
 
 export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => {
-  assert(claim, 'doPrepareEdit: claim must not be null');
+  assert(claim, 'doPrepareEdit: claim must not be null', { uri, claimType });
 
   return async (dispatch: Dispatch, getState: GetState) => {
     const { name, amount, value = {} } = claim;

@@ -20,6 +20,13 @@ function DebugLog(props: Props) {
     return info instanceof Error || typeof info === 'object' ? <p>{info.message}</p> : <p>{info}</p>;
   }
 
+  function getDataElem(info: string | Error) {
+    // $FlowFixMe
+    if (info instanceof Error && info.cause) {
+      return <pre>{JSON.stringify(info.cause)}</pre>;
+    }
+  }
+
   function getStackTraceElem(info: string | Error) {
     if (info instanceof Error && info.stack) {
       const allLines: Array<string> = info.stack.split('\n');
@@ -53,6 +60,7 @@ function DebugLog(props: Props) {
       {debugLog.map((x, index) => (
         <div className="debug-log__entry" key={index}>
           {getMessageElem(x)}
+          {getDataElem(x)}
           {getStackTraceElem(x)}
         </div>
       ))}

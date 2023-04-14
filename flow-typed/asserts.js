@@ -1,2 +1,2 @@
 // @flow
-declare function assert(condition: any, msg?: string): void;
+declare function assert(condition: any, msg?: string, data?: any): void;
