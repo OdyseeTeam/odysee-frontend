@@ -10,10 +10,9 @@ import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/c
 import { doFetchThumbnailClaimsForCollectionIds } from 'redux/actions/collections';
 import * as SETTINGS from 'constants/settings';
 import { selectFollowedTags } from 'redux/selectors/tags';
-import { selectMutedChannels } from 'redux/selectors/blocked';
+import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
-import { selectModerationBlockList } from 'redux/selectors/comments';
 import ClaimListDiscover from './view';
 import { doFetchViewCount } from 'lbryinc';
 
@@ -33,9 +32,8 @@ const select = (state, props) => ({
   hideMembersOnly: resolveHideMembersOnly(selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT), props.hideMembersOnly),
   hideReposts: selectClientSetting(state, SETTINGS.HIDE_REPOSTS),
   languageSetting: selectLanguage(state),
-  mutedUris: selectMutedChannels(state),
-  blockedUris: selectModerationBlockList(state),
   searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
+  mutedAndBlockedChannelIds: selectMutedAndBlockedChannelIds(state),
 });
 
 const perform = {

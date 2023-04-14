@@ -332,6 +332,8 @@ export function convertToShareLink(URL: string) {
   );
 }
 
+// WARNING: do not use this to parse a permanent URI. '*' is a valid character.
+// Function retained here just in case.
 export function splitBySeparator(uri: string) {
   const protocolLength = 7;
   return uri.startsWith('lbry://') ? uri.slice(protocolLength).split(/[#:*]/) : uri.split(/#:\*\$/);

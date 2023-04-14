@@ -8,7 +8,6 @@ import { MATURE_TAGS } from 'constants/tags';
 import { resolveLangForClaimSearch } from 'util/default-languages';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptions } from 'util/claim-search';
-import { splitBySeparator } from 'util/lbryURI';
 import Button from 'component/button';
 import moment from 'moment';
 import ClaimList from 'component/claimList';
@@ -105,9 +104,8 @@ type Props = {
   showNsfw: boolean,
   hideReposts: boolean,
   languageSetting: string,
-  mutedUris: Array<string>,
-  blockedUris: Array<string>,
   searchInLanguage: boolean,
+  mutedAndBlockedChannelIds: Array<ClaimId>,
 
   // --- perform ---
   doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void,
@@ -147,8 +145,6 @@ function ClaimListDiscover(props: Props) {
     fetchViewCount,
     history,
     location,
-    mutedUris,
-    blockedUris,
     hiddenNsfwMessage,
     defaultOrderBy,
     sortBy,
@@ -185,6 +181,7 @@ function ClaimListDiscover(props: Props) {
     searchLanguages,
     searchInLanguage,
     ignoreSearchInLanguage,
+    mutedAndBlockedChannelIds,
     limitClaimsPerChannel,
     releaseTime,
     scrollAnchor,
@@ -246,9 +243,6 @@ function ClaimListDiscover(props: Props) {
     (defaultTags && getParamFromTags(defaultTags));
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
   const sortByParam = sortBy || urlParams.get(CS.SORT_BY_KEY) || CS.SORT_BY.NEWEST.key;
-  const mutedAndBlockedChannelIds = Array.from(
-    new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1]))
-  );
   const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
 
   const [finalUris, setFinalUris] = React.useState();
