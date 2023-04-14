@@ -133,7 +133,7 @@ function load(player: any, timestampData: TimestampData, duration: number) {
 }
 
 export function parseAndLoad(player: any, claim: StreamClaim) {
-  console.assert(claim, 'null claim');
+  assert(claim, 'null claim');
 
   if (platform.isMobile() || platform.isSafari()) {
     return;

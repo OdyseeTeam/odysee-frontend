@@ -201,3 +201,10 @@ export function doUpdateVisibleNagIds(id: string, shown: boolean) {
     });
   };
 }
+
+export function doClearDebugLog() {
+  return {
+    type: ACTIONS.DEBUG_LOG,
+    data: { clear: true },
+  };
+}
