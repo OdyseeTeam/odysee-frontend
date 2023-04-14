@@ -2,6 +2,7 @@
 import React from 'react';
 import moment from 'moment/min/moment-with-locales';
 import classnames from 'classnames';
+import type { DoPublishDesktop } from 'redux/actions/publish';
 
 import './style.scss';
 import Button from 'component/button';
@@ -48,7 +49,7 @@ type Props = {
   isVid: boolean,
   ffmpegStatus: any,
   previewResponse: PublishResponse,
-  publish: (?string, ?boolean) => void,
+  publish: DoPublishDesktop,
   closeModal: () => void,
   enablePublishPreview: boolean,
   setEnablePublishPreview: (boolean) => void,

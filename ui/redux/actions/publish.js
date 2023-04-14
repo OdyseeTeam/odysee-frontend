@@ -954,3 +954,7 @@ export function doUpdateUploadRemove(guid: string, params?: { [key: string]: any
     });
   };
 }
+
+// -- Flow exports --
+export type DoPublishDesktop = typeof doPublishDesktop;
+export type DoUpdateUploadRemove = typeof doUpdateUploadRemove;

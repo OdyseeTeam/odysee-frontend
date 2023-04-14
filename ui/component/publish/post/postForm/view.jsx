@@ -1,4 +1,5 @@
 // @flow
+import type { DoPublishDesktop } from 'redux/actions/publish';
 
 /*
   On submit, this component calls publish, which dispatches doPublishDesktop.
@@ -34,7 +35,7 @@ import PublishProtectedContent from 'component/publishProtectedContent';
 type Props = {
   disabled: boolean,
   tags: Array<Tag>,
-  publish: (source?: string | File, ?boolean) => void,
+  publish: DoPublishDesktop,
   filePath: string | File,
   fileText: string,
   bid: ?number,
