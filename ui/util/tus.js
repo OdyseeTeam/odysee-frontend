@@ -11,7 +11,6 @@
 import { v4 as uuid } from 'uuid';
 import { isLocalStorageAvailable, LocalStorage, LS } from 'util/storage';
 import { doUpdateUploadRemove, doUpdateUploadProgress } from 'redux/actions/publish';
-import { doSeeAllNotifications } from 'redux/actions/notifications';
 
 const localStorageAvailable = isLocalStorageAvailable();
 
@@ -134,9 +133,6 @@ export function tusHandleTabUpdates(storageKey: string) {
         const removedUploads = getRemovedUploads();
         removedUploads.forEach((guid) => window.store.dispatch(doUpdateUploadRemove(guid)));
       }
-      break;
-    case LS.NOTIFICATIONS_UNSEEN:
-      window.store.dispatch(doSeeAllNotifications());
       break;
   }
 }

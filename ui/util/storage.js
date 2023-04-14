@@ -11,7 +11,6 @@ export const LS = Object.freeze({
   TUS_LOCKED_UPLOADS: 'tusLockedUploads',
   TUS_REFRESH_LOCK: 'tusRefreshLock',
   TUS_REMOVED_UPLOADS: 'tusRemovedUploads',
-  NOTIFICATIONS_UNSEEN: 'notifications_unseen',
   IS_NEW_ACCOUNT: 'is_new_account',
 });
 

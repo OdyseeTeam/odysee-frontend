@@ -21,7 +21,6 @@ import { getNotificationLocation } from '../notification/helpers/target';
 import { generateNotificationTitle } from '../notification/helpers/title';
 import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
-import { tusHandleTabUpdates } from 'util/tus';
 import { NavLink } from 'react-router-dom';
 import './style.scss';
 
@@ -106,19 +105,6 @@ export default function NotificationHeaderButton(props: Props) {
   React.useEffect(() => {
     if (!open) setClicked(false);
   }, [open]);
-
-  React.useEffect(() => {
-    if (!notificationsEnabled) return;
-
-    const onStorageUpdate = (e) => {
-      if (unseenCount >= window.localStorage.getItem('notifications_unseen')) {
-        tusHandleTabUpdates(e.key);
-      }
-    };
-
-    window.addEventListener('storage', onStorageUpdate);
-    return () => window.removeEventListener('storage', onStorageUpdate);
-  }, [unseenCount]);
 
   if (!notificationsEnabled) return null;
 

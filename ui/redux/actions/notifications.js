@@ -9,6 +9,7 @@ import {
   selectNotificationCategories,
 } from 'redux/selectors/notifications';
 import { doResolveUris } from 'redux/actions/claims';
+
 export function doToast(params: ToastParams) {
   if (!params) {
     throw Error("'params' object is required to create a toast notification");
@@ -176,7 +177,6 @@ export function doSeeAllNotifications() {
     const getUnseenIds = (list) => list.filter((n) => !n.is_seen).map((n) => n.id);
     const unseenIds = Array.from(new Set([...getUnseenIds(notifications), ...getUnseenIds(notificationsFiltered)]));
 
-    window.localStorage.setItem('notifications_unseen', unseenIds.length);
     dispatch(doSeeNotifications(unseenIds));
   };
 }
