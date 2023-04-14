@@ -12,7 +12,7 @@ type Props = {
   navigate: (string) => void,
   uri: string,
   isEdit: boolean,
-  filePath: ?string,
+  filePath: ?string | ?File,
   lbryFirstError: ?string,
   claim: Claim,
 };
