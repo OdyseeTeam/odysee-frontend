@@ -278,134 +278,136 @@ const PUBLISH = {
   },
 };
 
-export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispatch: Dispatch, getState: () => {}) => {
-  const publishPreviewFn = (previewResponse) => {
-    dispatch(
-      doOpenModal(MODALS.PUBLISH_PREVIEW, {
-        previewResponse,
-      })
-    );
-  };
-
-  const noFileParam = !filePath || filePath === NO_FILE;
-  const state = getState();
-  const editingUri = selectPublishFormValue(state, 'editingURI') || '';
-  const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
-  const restrictedToMemberships = selectPublishFormValue(state, 'restrictedToMemberships');
-
-  const claim = makeSelectClaimForUri(editingUri)(state) || {};
-  const hasSourceFile = claim.value && claim.value.source;
-  const redirectToLivestream = noFileParam && !hasSourceFile && !remoteUrl;
-
-  const publishSuccess = (successResponse, lbryFirstError) => {
-    const state = getState();
-    const myClaims = selectMyClaims(state);
-    const pendingClaim = successResponse.outputs[0];
-    const publishData = selectPublishFormValues(state);
-
-    const { restrictedToMemberships, name } = publishData;
-
-    const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
-      const channelClaimId = getChannelIdFromClaim(claimResult);
-
-      // hit backend to save restricted memberships
-      if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
-        dispatch(
-          doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
-        );
-      }
+export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) => {
+  return (dispatch: Dispatch, getState: () => {}) => {
+    const publishPreviewFn = (previewResponse) => {
+      dispatch(
+        doOpenModal(MODALS.PUBLISH_PREVIEW, {
+          previewResponse,
+        })
+      );
     };
 
-    analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
+    const noFileParam = !filePath || filePath === NO_FILE;
+    const state = getState();
+    const editingUri = selectPublishFormValue(state, 'editingURI') || '';
+    const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
+    const restrictedToMemberships = selectPublishFormValue(state, 'restrictedToMemberships');
 
-    const { permanent_url: url } = pendingClaim;
-    const actions = [];
+    const claim = makeSelectClaimForUri(editingUri)(state) || {};
+    const hasSourceFile = claim.value && claim.value.source;
+    const redirectToLivestream = noFileParam && !hasSourceFile && !remoteUrl;
 
-    // @if TARGET='app'
-    actions.push(push(`/$/${PAGES.UPLOADS}`));
-    // @endif
+    const publishSuccess = (successResponse, lbryFirstError) => {
+      const state = getState();
+      const myClaims = selectMyClaims(state);
+      const pendingClaim = successResponse.outputs[0];
+      const publishData = selectPublishFormValues(state);
 
-    actions.push({
-      type: ACTIONS.PUBLISH_SUCCESS,
-      data: {
-        type: resolveClaimTypeForAnalytics(pendingClaim),
-      },
-    });
+      const { restrictedToMemberships, name } = publishData;
 
-    // We have to fake a temp claim until the new pending one is returned by claim_list_mine
-    // We can't rely on claim_list_mine because there might be some delay before the new claims are returned
-    // Doing this allows us to show the pending claim immediately, it will get overwritten by the real one
-    const isMatch = (claim) => claim.claim_id === pendingClaim.claim_id;
-    const isEdit = myClaims.some(isMatch);
+      const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
+        const channelClaimId = getChannelIdFromClaim(claimResult);
 
-    actions.push({
-      type: ACTIONS.UPDATE_PENDING_CLAIMS,
-      data: {
-        claims: [pendingClaim],
-      },
-    });
-    // @if TARGET='app'
-    actions.push({
-      type: ACTIONS.ADD_FILES_REFLECTING,
-      data: pendingClaim,
-    });
-    // @endif
+        // hit backend to save restricted memberships
+        if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
+          dispatch(
+            doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
+          );
+        }
+      };
 
-    dispatch(batchActions(...actions));
-    dispatch(
-      doOpenModal(MODALS.PUBLISH, {
-        uri: url,
-        isEdit,
-        filePath,
-        lbryFirstError,
-      })
-    );
-    dispatch(doCheckPendingClaims());
-    // @if TARGET='app'
-    dispatch(doCheckReflectingFiles());
-    // @endif
+      analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
+
+      const { permanent_url: url } = pendingClaim;
+      const actions = [];
+
+      // @if TARGET='app'
+      actions.push(push(`/$/${PAGES.UPLOADS}`));
+      // @endif
+
+      actions.push({
+        type: ACTIONS.PUBLISH_SUCCESS,
+        data: {
+          type: resolveClaimTypeForAnalytics(pendingClaim),
+        },
+      });
+
+      // We have to fake a temp claim until the new pending one is returned by claim_list_mine
+      // We can't rely on claim_list_mine because there might be some delay before the new claims are returned
+      // Doing this allows us to show the pending claim immediately, it will get overwritten by the real one
+      const isMatch = (claim) => claim.claim_id === pendingClaim.claim_id;
+      const isEdit = myClaims.some(isMatch);
+
+      actions.push({
+        type: ACTIONS.UPDATE_PENDING_CLAIMS,
+        data: {
+          claims: [pendingClaim],
+        },
+      });
+      // @if TARGET='app'
+      actions.push({
+        type: ACTIONS.ADD_FILES_REFLECTING,
+        data: pendingClaim,
+      });
+      // @endif
+
+      dispatch(batchActions(...actions));
+      dispatch(
+        doOpenModal(MODALS.PUBLISH, {
+          uri: url,
+          isEdit,
+          filePath,
+          lbryFirstError,
+        })
+      );
+      dispatch(doCheckPendingClaims());
+      // @if TARGET='app'
+      dispatch(doCheckReflectingFiles());
+      // @endif
+      // @if TARGET='web'
+      if (redirectToLivestream) {
+        dispatch(push(`/$/${PAGES.LIVESTREAM}`));
+      }
+      // @endif
+    };
+
+    const publishFail = (error) => {
+      const actions = [];
+      actions.push({
+        type: ACTIONS.PUBLISH_FAIL,
+      });
+
+      let message = typeof error === 'string' ? error : error.message;
+
+      if (message.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
+        message = ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL;
+      }
+
+      if (restrictedToMemberships && message === ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL) {
+        message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
+      }
+
+      actions.push(doError({ message, cause: error.cause }));
+      dispatch(batchActions(...actions));
+    };
+
+    if (preview) {
+      dispatch(doPublish(publishSuccess, publishFail, publishPreviewFn));
+      return;
+    }
+
+    // Redirect on web immediately because we have a file upload progress componenet
+    // on the publishes page. This doesn't exist on desktop so wait until we get a response
+    // from the SDK
     // @if TARGET='web'
-    if (redirectToLivestream) {
-      dispatch(push(`/$/${PAGES.LIVESTREAM}`));
+    if (!redirectToLivestream) {
+      dispatch(push(`/$/${PAGES.UPLOADS}`));
     }
     // @endif
+
+    dispatch(doPublish(publishSuccess, publishFail));
   };
-
-  const publishFail = (error) => {
-    const actions = [];
-    actions.push({
-      type: ACTIONS.PUBLISH_FAIL,
-    });
-
-    let message = typeof error === 'string' ? error : error.message;
-
-    if (message.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
-      message = ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL;
-    }
-
-    if (restrictedToMemberships && message === ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL) {
-      message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
-    }
-
-    actions.push(doError({ message, cause: error.cause }));
-    dispatch(batchActions(...actions));
-  };
-
-  if (preview) {
-    dispatch(doPublish(publishSuccess, publishFail, publishPreviewFn));
-    return;
-  }
-
-  // Redirect on web immediately because we have a file upload progress componenet
-  // on the publishes page. This doesn't exist on desktop so wait until we get a response
-  // from the SDK
-  // @if TARGET='web'
-  if (!redirectToLivestream) {
-    dispatch(push(`/$/${PAGES.UPLOADS}`));
-  }
-  // @endif
-
-  dispatch(doPublish(publishSuccess, publishFail));
 };
 
 export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: () => {}) => {
@@ -954,3 +956,7 @@ export function doUpdateUploadRemove(guid: string, params?: { [key: string]: any
     });
   };
 }
+
+// -- Flow exports --
+export type DoPublishDesktop = typeof doPublishDesktop;
+export type DoUpdateUploadRemove = typeof doUpdateUploadRemove;
