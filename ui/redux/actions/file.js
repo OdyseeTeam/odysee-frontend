@@ -119,7 +119,14 @@ export const doFileGetForUri =
     const alreadyFetching = selectOutpointFetchingForUri(state, uri);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
 
-    if (fileInfo !== undefined || (alreadyFetching && !onSuccess)) return;
+    if (alreadyFetching && !onSuccess) {
+      return;
+    }
+
+    if (fileInfo !== undefined && onSuccess !== undefined) {
+      onSuccess(fileInfo);
+      return;
+    }
 
     const outpoint = selectClaimOutpointForUri(state, uri);
 
