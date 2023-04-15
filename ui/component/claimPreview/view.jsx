@@ -1,10 +1,11 @@
 // @flow
 import type { Node } from 'react';
-import React, { forwardRef } from 'react';
+import React, { useEffect, forwardRef } from 'react';
 import { NavLink, withRouter } from 'react-router-dom';
 import { isEmpty } from 'util/object';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
+import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { isChannelClaim } from 'util/claim';
@@ -57,6 +58,7 @@ type Props = {
   claimIsMine: boolean,
   pending?: boolean,
   reflectingProgress?: any, // fxme
+  resolveUri: (string) => void,
   isResolvingUri: boolean,
   history: { push: (string | any) => void, location: { pathname: string, search: string } },
   title: string,
@@ -121,6 +123,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     isResolvingUri,
     // core actions
     getFile,
+    resolveUri,
     // claim properties
     // is the claim consider nsfw?
     nsfw,
@@ -350,6 +353,14 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     e.stopPropagation();
     doClearContentHistoryUri(uri);
   }
+
+  useEffect(() => {
+    if (!isResolvingUri && shouldFetch && uri) {
+      if (isURIValid(uri, false)) {
+        resolveUri(uri);
+      }
+    }
+  }, [uri, isResolvingUri, shouldFetch, resolveUri]);
 
   const JoinButton = React.useMemo(
     () => () =>
