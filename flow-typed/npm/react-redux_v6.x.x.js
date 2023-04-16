@@ -1,5 +1,5 @@
-// flow-typed signature: f06f00c3ad0cfedb90c0c6de04b219f3
-// flow-typed version: 3a6d556e4b/react-redux_v5.x.x/flow_>=v0.89.x
+// flow-typed signature: a3bf3a0265d2c1448e04855dac255b90
+// flow-typed version: c6154227d1/react-redux_v6.x.x/flow_>=v0.89.x <=v0.103.x
 
 /**
 The order of type arguments for connect() is as follows:
@@ -38,7 +38,7 @@ declare module "react-redux" {
 
   declare export type Options<S, OP, SP, MP> = {|
     pure?: boolean,
-    withRef?: boolean,
+    forwardRef?: boolean,
     areStatesEqual?: (next: S, prev: S) => boolean,
     areOwnPropsEqual?: (next: OP, prev: OP) => boolean,
     areStatePropsEqual?: (next: SP, prev: SP) => boolean,
@@ -222,7 +222,7 @@ declare module "react-redux" {
     renderCountProp?: string,
     shouldHandleStateChanges?: boolean,
     storeKey?: string,
-    withRef?: boolean,
+    forwardRef?: boolean,
   };
 
   declare type SelectorFactoryOptions<Com> = {
@@ -231,7 +231,7 @@ declare module "react-redux" {
     renderCountProp: ?string,
     shouldHandleStateChanges: boolean,
     storeKey: string,
-    withRef: boolean,
+    forwardRef: boolean,
     displayName: string,
     wrappedComponentName: string,
     WrappedComponent: Com,
