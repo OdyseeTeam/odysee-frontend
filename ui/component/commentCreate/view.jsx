@@ -271,12 +271,9 @@ export function CommentCreate(props: Props) {
   function getMembersOnlyCreatorSetting() {
     return (
       channelClaimId &&
-      doFetchCreatorSettings(channelClaimId).then(
-        ({
-          comments_members_only: commentsMembersOnly,
-          livestream_chat_members_only: liveChatMembersOnly,
-        }: SettingsResponse) => (isLivestream ? liveChatMembersOnly : commentsMembersOnly)
-      )
+      doFetchCreatorSettings(channelClaimId)
+        .then((cs: SettingsResponse) => (isLivestream ? cs.livestream_chat_members_only : cs.comments_members_only))
+        .catch(() => undefined)
     );
   }
 
@@ -364,6 +361,15 @@ export function CommentCreate(props: Props) {
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
     const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (commentsAreMembersOnly === undefined) {
+      doToast({
+        message: __('Unable to send the comment.'),
+        subMessage: __('Try again later, or refresh the page.'),
+        isError: true,
+      });
+      return;
+    }
+
     if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     // if comment post didn't work, but tip was already made, try again to create comment
@@ -375,21 +381,29 @@ export function CommentCreate(props: Props) {
     }
 
     // !! Beware of stale closure when editing the then-block, including doSubmitTip().
-    doFetchCreatorSettings(channelClaimId).then(() => {
-      const lockedMinAmount = minAmount; // value during closure.
-      const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
+    doFetchCreatorSettings(channelClaimId)
+      .then(() => {
+        const lockedMinAmount = minAmount; // value during closure.
+        const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
 
-      if (lockedMinAmount !== currentMinAmount) {
+        if (lockedMinAmount !== currentMinAmount) {
+          doToast({
+            message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
+            isError: true,
+          });
+          setReviewingSupportComment(false);
+          return;
+        }
+
+        doSubmitTip();
+      })
+      .catch(() => {
         doToast({
-          message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
+          message: __('Unable to send the comment.'),
+          subMessage: __('Try again later, or refresh the page.'),
           isError: true,
         });
-        setReviewingSupportComment(false);
-        return;
-      }
-
-      doSubmitTip();
-    });
+      });
   }
 
   function doSubmitTip() {
@@ -468,6 +482,15 @@ export function CommentCreate(props: Props) {
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
     const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (commentsAreMembersOnly === undefined) {
+      doToast({
+        message: __('Unable to send the comment.'),
+        subMessage: __('Try again later, or refresh the page.'),
+        isError: true,
+      });
+      return;
+    }
+
     if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
@@ -506,7 +529,7 @@ export function CommentCreate(props: Props) {
         if (channelClaimId) {
           // It could be that the creator added a minimum tip setting.
           // Manually update for now until a websocket msg is available.
-          doFetchCreatorSettings(channelClaimId);
+          doFetchCreatorSettings(channelClaimId).catch(() => {});
         }
       });
   }
@@ -531,7 +554,7 @@ export function CommentCreate(props: Props) {
   // Fetch channel constraints if not already.
   React.useEffect(() => {
     if (!channelSettings && channelClaimId) {
-      doFetchCreatorSettings(channelClaimId);
+      doFetchCreatorSettings(channelClaimId).catch(() => {});
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
