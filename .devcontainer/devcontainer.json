@@ -1,4 +1,9 @@
 {
   "name": "Odysee dev w/ node.js 18 (Bullseye)",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:18-bullseye"
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:18-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/sshd:1": {
+      "version": "latest"
+    }
+  }
 }
