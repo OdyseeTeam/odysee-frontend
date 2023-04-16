@@ -185,7 +185,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
       : '';
   if (xAuth && xAuth !== getAuthToken()) {
     window.location.reload();
-    return;
+    return () => {};
   }
   // @endif
 

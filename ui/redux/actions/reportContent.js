@@ -2,8 +2,6 @@
 import * as ACTIONS from 'constants/action_types';
 import { COPYRIGHT_ISSUES, OTHER_LEGAL_ISSUES } from 'constants/report_content';
 
-type Dispatch = (action: any) => any;
-
 export const doReportContent = (category: string, params: string) => (dispatch: Dispatch) => {
   dispatch({
     type: ACTIONS.REPORT_CONTENT_STARTED,
