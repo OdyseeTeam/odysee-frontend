@@ -10,5 +10,6 @@ declare type DoClaimSearchSettings = {|
 declare type NotTagInput = {
   notTags?: Array<string>,
   showNsfw?: boolean,
+  showUnlisted?: boolean,
   hideMembersOnly?: boolean,
 };

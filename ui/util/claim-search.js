@@ -2,7 +2,7 @@
 import type { Duration } from 'constants/claim_search';
 
 import * as CS from 'constants/claim_search';
-import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, VISIBILITY_TAGS } from 'constants/tags';
 
 /**
  * Common logic to generate ClaimSearch option payload.
@@ -17,6 +17,10 @@ export const CsOptHelper = {
 
     if (input.hideMembersOnly) {
       not_tags.push(MEMBERS_ONLY_CONTENT_TAG);
+    }
+
+    if (!input.showUnlisted) {
+      not_tags.push(VISIBILITY_TAGS.UNLISTED);
     }
 
     return not_tags;
