@@ -16,64 +16,51 @@ type Props = {
   },
 };
 
-type State = {
-  content: ?string,
-};
+const DocumentViewer = (props: Props) => {
+  const { source, theme, renderMode } = props;
+  const { stream, contentType } = source;
+  const [content, setContent] = React.useState();
 
-class DocumentViewer extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      content: undefined,
-    };
-  }
+  const getContent = (source: string) => {
+    https.get(source, (res) => {
+      if (res.statusCode === 200) {
+        let data = '';
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          setContent(data);
+        });
+      } else {
+        setContent(null);
+      }
+    });
+  };
 
-  componentDidMount() {
-    const { source } = this.props;
-
-    if (source && source.stream) {
-      https.get(source.stream, (response) => {
-        if (response.statusCode === 200) {
-          let data = '';
-          response.on('data', (chunk) => {
-            data += chunk;
-          });
-          response.on('end', () => {
-            this.setState({ content: data });
-          });
-        } else {
-          this.setState({ content: null });
-        }
-      });
+  React.useEffect(() => {
+    if (stream) {
+      getContent(stream);
     }
-  }
+  }, [stream, getContent]);
 
-  renderDocument() {
-    const { content } = this.state;
-    const { source, theme, renderMode } = this.props;
-    const { contentType } = source;
-
+  const getRenderDocument = (stream, content, theme, renderMode, contentType) => {
     return renderMode === RENDER_MODES.MARKDOWN ? (
       <MarkdownPreview content={content} isMarkdownPost promptLinks />
     ) : (
       <CodeViewer value={content} contentType={contentType} theme={theme} />
     );
+  };
+
+  if (content === undefined) {
+    return <LoadingScreen transparent />;
   }
 
-  render() {
-    const { content } = this.state;
-
-    if (content === undefined) {
-      return <LoadingScreen transparent />;
-    }
-
-    return (
-      <div className="file-viewer file-viewer--document">
-        {content === null && <LoadingScreen transparent status={__("Sorry, looks like we can't load the document.")} />}
-        {content && this.renderDocument()}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="file-viewer file-viewer--document">
+      {content === null && <LoadingScreen transparent status={__("Sorry, looks like we can't load the document.")} />}
+      {content && getRenderDocument(stream, content, theme, renderMode, contentType)}
+    </div>
+  );
+};
 
 export default DocumentViewer;
