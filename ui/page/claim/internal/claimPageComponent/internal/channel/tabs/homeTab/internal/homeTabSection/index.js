@@ -34,7 +34,9 @@ const select = (state, props) => {
     claim_type: props.section.type === 'playlists' ? 'collection' : 'stream',
     order_by: props.section.order_by || ['effective_amount'],
     not_tags:
-      props.section.type === 'playlists' ? CsOptions.not_tags([SECTION_TAGS.FEATURED_CHANNELS]) : CsOptions.not_tags(),
+      props.section.type === 'playlists'
+        ? CsOptions.not_tags({ notTags: [SECTION_TAGS.FEATURED_CHANNELS] })
+        : CsOptions.not_tags(),
     any_tags: props.section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
     no_totals: true,
     index: props.index,
