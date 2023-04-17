@@ -587,9 +587,11 @@ function ClaimListHeader(props: Props) {
               )}
             </div>
             <div className="claim-search__menus">
-              <div className="claim-search__input-container">
-                <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
-              </div>
+              {filterCtx.repost && (
+                <div className="claim-search__input-container">
+                  <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
+                </div>
+              )}
               <div className="claim-search__input-container">
                 {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
               </div>
