@@ -8,6 +8,7 @@ import Card from 'component/common/card';
 import Yrbl from 'component/yrbl';
 import { parseURI } from 'util/lbryURI';
 import * as MODALS from 'constants/modal_types';
+import useIsVisibilityRestricted from 'effects/use-is-visibility-restricted';
 
 type Props = {
   uri: string,
@@ -15,6 +16,7 @@ type Props = {
   Wrapper?: any,
   ClaimRenderWrapper?: any,
   // -- redux --
+  claim: ?StreamClaim,
   hasClaim: ?boolean,
   isClaimBlackListed: boolean,
   isClaimFiltered: boolean,
@@ -25,6 +27,7 @@ type Props = {
   geoRestriction: ?GeoRestriction,
   gblAvailable: boolean,
   preferEmbed: boolean,
+  verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (name: ?string) => void,
   doOpenModal: (string, {}) => void,
@@ -45,6 +48,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       Wrapper = React.Fragment,
       ClaimRenderWrapper = React.Fragment,
       // -- redux --
+      claim,
       hasClaim,
       isClaimBlackListed,
       isClaimFiltered,
@@ -55,6 +59,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       geoRestriction,
       gblAvailable,
       preferEmbed,
+      verifyClaimSignature,
       doResolveUri,
       doBeginPublish,
       doOpenModal,
@@ -67,6 +72,8 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
 
     const claimIsRestricted =
       !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
+
+    const isVisibilityRestricted = useIsVisibilityRestricted(claim, claimIsMine, uriAccessKey, verifyClaimSignature);
 
     useAppendAccessKeyToUrl(claim, doFetchUriAccessKey);
 
@@ -155,6 +162,25 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       } else {
         return <LoadingSpinner text={__('Resolving...')} />;
       }
+    }
+
+    if (isVisibilityRestricted !== false) {
+      if (isVisibilityRestricted === undefined) {
+        return <LoadingSpinner text={__('Resolving...')} />;
+      }
+
+      return (
+        <Wrapper>
+          <div className="main--empty">
+            <Yrbl
+              title={__(isChannel ? 'Channel unavailable' : 'Content unavailable')}
+              subtitle={__('Reach out to the creator to obtain the full URL for access.')}
+              type="sad"
+              alwaysShow
+            />
+          </div>
+        </Wrapper>
+      );
     }
 
     if (claimIsRestricted && isChannel) {

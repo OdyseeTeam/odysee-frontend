@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import Comments from 'comments';
 import withResolvedClaimRender from './view';
 
 import { PREFERENCE_EMBED } from 'constants/tags';
@@ -30,6 +31,7 @@ const select = (state, props) => {
 
   return {
     uri,
+    claim,
     hasClaim: selectHasClaimForUri(state, uri),
     isClaimBlackListed: selectIsClaimBlackListedForUri(state, uri),
     isClaimFiltered: selectIsClaimFilteredForUri(state, uri),
@@ -40,6 +42,7 @@ const select = (state, props) => {
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     gblAvailable: selectGblAvailable(state),
     preferEmbed,
+    verifyClaimSignature: Comments.verify_claim_signature,
   };
 };
 
