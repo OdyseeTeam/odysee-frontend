@@ -277,6 +277,9 @@
       color: var(--color-text);
     }
   }
+  label {
+    pointer-events: none;
+  }
 
   input[type='text'],
   input[type='number'],
