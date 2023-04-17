@@ -1,21 +1,23 @@
 @import '~ui/scss/init/breakpoints';
 @import '~ui/scss/init/mixins';
 
-.following__recently-active {
-  -moz-column-count: 2;
-  -moz-column-gap: var(--spacing-s);
-  -webkit-column-count: 2;
-  -webkit-column-gap: var(--spacing-s);
-  column-count: 2;
-  column-gap: var(--spacing-s);
+$column-count: 2;
+$column-gap: var(--spacing-s);
 
-  .navigation-link__wrapper {
-    .button {
-      padding-left: 0;
-      background-color: rgba(var(--color-header-button-base), 0.6);
-      margin-bottom: var(--spacing-s);
-      border-radius: var(--border-radius);
-    }
+.following__recently-active {
+  column-count: $column-count;
+  column-gap: $column-gap;
+
+  -moz-column-count: $column-count;
+  -moz-column-gap: $column-gap;
+  -webkit-column-count: $column-count;
+  -webkit-column-gap: $column-gap;
+
+  .navigation-link__wrapper .button {
+    padding-left: 0;
+    background-color: rgba(var(--color-header-button-base), 0.6);
+    margin-bottom: var(--spacing-s);
+    border-radius: var(--border-radius);
   }
 
   .claim-preview__title {
@@ -23,19 +25,13 @@
   }
 
   @media (min-width: $breakpoint-small) {
-    .navigation-link {
-      &.navigation-link--with-thumbnail .button__content {
-        .channel-thumbnail {
-          @include handleChannelGif(2.25rem);
-        }
-      }
+    .navigation-link.navigation-link--with-thumbnail .button__content .channel-thumbnail {
+      @include handleChannelGif(2.25rem);
     }
 
     .navigation__subscription {
-      .claim-preview__title {
-        span {
-          font-size: var(--font-body);
-        }
+      .claim-preview__title span {
+        font-size: var(--font-body);
       }
 
       .channel-name {
@@ -45,7 +41,6 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    -webkit-column-gap: var(--spacing-s);
-    column-gap: var(--spacing-s);
+    column-gap: $column-gap;
   }
 }
