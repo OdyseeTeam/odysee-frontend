@@ -16,6 +16,7 @@ import DateTime from 'component/dateTime';
 import Button from 'component/button';
 import LbcSymbol from 'component/common/lbc-symbol';
 import classnames from 'classnames';
+import './style.scss';
 
 const EXPAND = {
   NONE: 'none',

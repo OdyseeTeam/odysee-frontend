@@ -181,40 +181,6 @@ body {
     }
   }
 
-  .file-page__post-comments {
-    margin-top: var(--spacing-l);
-
-    opacity: 0;
-    animation: fadeIn 2s;
-    animation-delay: 2s;
-    animation-fill-mode: forwards;
-
-    @media (min-width: $breakpoint-small) {
-      padding: var(--spacing-m);
-    }
-
-    @media (max-width: $breakpoint-small) {
-      margin-top: 0;
-      .card {
-        padding: 0;
-        .card__first-pane {
-          .button--alt[aria-label='Refresh'] {
-            top: -1px;
-            float: right;
-            margin-right: 0;
-          }
-          .comment__sort {
-            .button--alt[aria-label='Refresh'] {
-              top: unset;
-              float: unset;
-              margin-right: unset;
-            }
-          }
-        }
-      }
-    }
-  }
-
   .file-page__info {
     margin-top: var(--spacing-m);
   }
@@ -861,17 +827,6 @@ body {
       }
     }
   }
-  .post__info--grouped {
-    .button__content {
-      color: var(--color-primary);
-      .icon {
-        color: var(--color-text-subtitle);
-      }
-      &:hover {
-        color: var(--color-secondary);
-      }
-    }
-  }
 
   .markdown-preview {
     p {
@@ -884,19 +839,6 @@ body {
           }
           &:hover {
             color: var(--color-secondary);
-          }
-        }
-      }
-    }
-  }
-
-  .file-page__post-comments {
-    p {
-      .button--uri-indicator {
-        .channel-name {
-          font-size: var(--font-small);
-          @media (max-width: $breakpoint-small) {
-            font-size: var(--font-xsmall);
           }
         }
       }

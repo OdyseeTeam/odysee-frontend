@@ -140,7 +140,7 @@
   top: 0;
   left: var(--spacing-l);
   margin-top: calc(var(--spacing-m) * 7);
-  z-index: $metadata-z-index;
+  z-index: 1;
 
   > * {
     padding: 0 var(--spacing-xs);
