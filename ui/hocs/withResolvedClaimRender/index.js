@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import withResolvedClaimRender from './view';
 
 import { PREFERENCE_EMBED } from 'constants/tags';
 import { selectIsClaimBlackListedForUri, selectIsClaimFilteredForUri } from 'lbryinc';
@@ -6,7 +7,7 @@ import { selectIsClaimBlackListedForUri, selectIsClaimFilteredForUri } from 'lbr
 import {
   selectClaimForUri,
   selectHasClaimForUri,
-  selectClaimIsMineForUri,
+  selectClaimIsMine,
   selectGeoRestrictionForUri,
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
@@ -15,8 +16,6 @@ import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveUri } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
-
-import withResolvedClaimRender from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -30,7 +29,7 @@ const select = (state, props) => {
     hasClaim: selectHasClaimForUri(state, uri),
     isClaimBlackListed: selectIsClaimBlackListedForUri(state, uri),
     isClaimFiltered: selectIsClaimFilteredForUri(state, uri),
-    claimIsMine: selectClaimIsMineForUri(state, claim),
+    claimIsMine: selectClaimIsMine(state, claim),
     isAuthenticated: selectUserVerifiedEmail(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     preferEmbed,
