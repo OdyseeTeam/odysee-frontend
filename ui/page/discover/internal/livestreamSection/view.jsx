@@ -79,8 +79,7 @@ export default function LivestreamSection(props: Props) {
       <div className="livestream-list">
         <ClaimListDiscover
           uris={activeLivestreamUris}
-          tileLayout={activeLivestreamUris.length > 1 ? true : tileLayout}
-          swipeLayout={activeLivestreamUris.length > 1}
+          tileLayout={tileLayout}
           headerLabel={<div className="section__title">{__('Livestreams')}</div>}
           useSkeletonScreen={false}
           showHeader={false}

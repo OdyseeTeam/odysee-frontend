@@ -95,7 +95,6 @@ type Props = {
   date?: any,
   indexInContainer?: number, // The index order of this component within 'containerId'.
   channelSubCount?: number,
-  swipeLayout: boolean,
   lang: string,
   showEdit?: boolean,
   isEditPreview?: boolean,
@@ -170,7 +169,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     disableNavigation,
     indexInContainer,
     channelSubCount,
-    swipeLayout = false,
     lang,
     showEdit,
     isEditPreview,
@@ -462,7 +460,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'claim-preview--visited': !isChannelUri && !claimIsMine && hasVisitedUri,
             'claim-preview--pending': pending,
             'claim-preview--collection-editing': isMyCollection && showEdit,
-            'swipe-list__item': swipeLayout,
           })}
         >
           {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}

@@ -296,7 +296,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    margin-bottom: var(--spacing-m);
-    margin-top: 4px;
+    margin-bottom: var(--spacing-s);
+    margin-top: var(--spacing-s);
   }
 }

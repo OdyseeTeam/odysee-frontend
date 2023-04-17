@@ -59,7 +59,6 @@ type Props = {
   noEmpty?: boolean,
   maxClaimRender?: number,
   loadedCallback?: (number) => void,
-  swipeLayout: boolean,
   showEdit?: boolean,
   isEditPreview?: boolean,
   droppableProvided?: any,
@@ -110,7 +109,6 @@ export default function ClaimList(props: Props) {
     noEmpty,
     maxClaimRender,
     loadedCallback,
-    swipeLayout = false,
     showEdit,
     isEditPreview,
     droppableProvided,
@@ -223,7 +221,6 @@ export default function ClaimList(props: Props) {
       showNoSourceClaims={showNoSourceClaims}
       customShouldHide={customShouldHide}
       onClick={handleClaimClicked}
-      swipeLayout={swipeLayout}
       showEdit={showEdit}
       isEditPreview={isEditPreview}
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
@@ -294,7 +291,7 @@ export default function ClaimList(props: Props) {
 
   return tileLayout && !header ? (
     <>
-      <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
+      <section ref={listRef} className="claim-grid">
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
             if (uri) {
@@ -318,7 +315,6 @@ export default function ClaimList(props: Props) {
                       collectionId={collectionId}
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
-                      swipeLayout={swipeLayout}
                     />
                   )}
                 </React.Fragment>
@@ -370,9 +366,8 @@ export default function ClaimList(props: Props) {
       {(urisLength > 0 || droppableProvided) && (
         <ul
           className={classnames('ul--no-style', {
-            card: !(tileLayout || swipeLayout || type === 'small'),
+            card: !(tileLayout || type === 'small'),
             'claim-list--card-body': tileLayout,
-            'swipe-list': swipeLayout,
           })}
           {...(droppableProvided && droppableProvided.droppableProps)}
           ref={listRefCb}

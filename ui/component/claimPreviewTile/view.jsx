@@ -52,7 +52,6 @@ type Props = {
   isLivestream: boolean,
   viewCount: ?string,
   isLivestreamActive: boolean,
-  swipeLayout: boolean,
   pulse?: boolean,
   firstCollectionItemUrl: ?string,
   onlyThumb?: boolean,
@@ -85,7 +84,6 @@ function ClaimPreviewTile(props: Props) {
     fypId,
     mediaDuration,
     viewCount,
-    swipeLayout = false,
     pulse,
     firstCollectionItemUrl,
     onlyThumb,
@@ -174,7 +172,6 @@ function ClaimPreviewTile(props: Props) {
     return (
       <li
         className={classnames('placeholder claim-preview--tile', {
-          'swipe-list__item claim-preview--horizontal-tile': swipeLayout,
           pulse: pulse,
         })}
       >
@@ -206,7 +203,6 @@ function ClaimPreviewTile(props: Props) {
       className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__wrapper--live': isLivestreamActive,
-        'swipe-list__item claim-preview--horizontal-tile': swipeLayout,
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>

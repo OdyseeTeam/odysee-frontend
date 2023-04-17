@@ -120,8 +120,6 @@ type Props = {
   maxClaimRender?: number,
   useSkeletonScreen?: boolean,
   excludeUris?: Array<string>,
-
-  swipeLayout: boolean,
 };
 
 function ClaimListDiscover(props: Props) {
@@ -201,7 +199,6 @@ function ClaimListDiscover(props: Props) {
     excludeUris = [],
     doFetchOdyseeMembershipForChannelIds,
     doFetchThumbnailClaimsForCollectionIds,
-    swipeLayout = false,
     doResolveUris,
     doResolveClaimIds,
   } = props;
@@ -814,7 +811,6 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
-            swipeLayout={swipeLayout}
           />
 
           {claimListLoading && useSkeletonScreen && (
@@ -854,7 +850,6 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
-            swipeLayout={swipeLayout}
           />
 
           {claimListLoading &&

@@ -85,7 +85,6 @@ const ScheduledStreams = (props: Props) => {
       style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}
     >
       <ClaimListDiscover
-        swipeLayout={useSwipeLayout}
         useSkeletonScreen={false}
         channelIds={channelIds}
         limitClaimsPerChannel={limitClaimsPerChannel}

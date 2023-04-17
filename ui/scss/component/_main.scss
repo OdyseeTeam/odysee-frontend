@@ -28,7 +28,7 @@ body {
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-xs);
+    // padding: var(--spacing-xs);
     margin-top: var(--header-height-mobile);
   }
 
@@ -57,6 +57,7 @@ body {
   width: 100%;
 
   @media (max-width: $breakpoint-small) {
+    position: relative;
     padding-left: 0;
     margin-left: calc(var(--spacing-xs) * -1);
   }
@@ -88,6 +89,7 @@ body {
 
   @media (max-width: $breakpoint-small) {
     width: 100%;
+    padding: 0 var(--spacing-xs);
   }
 }
 
@@ -524,12 +526,6 @@ body {
 .main--full-width {
   @extend .main;
   max-width: none;
-
-  &.main__discover {
-    @media (max-width: $breakpoint-small) {
-      padding: 0 var(--spacing-xs);
-    }
-  }
 }
 
 .main--auth-page {
@@ -1096,6 +1092,9 @@ body {
       }
     }
   }
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.
@@ -1103,7 +1102,7 @@ body {
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
       display: flex;
-      width: 100%;
+      // width: 100%;
       .button {
         flex: 1;
       }
