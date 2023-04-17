@@ -368,16 +368,6 @@ body {
 .main--livestream {
   @extend .main--file-page;
 
-  .claim-preview__wrapper--live {
-    .claim-tile__info {
-      display: flex;
-      .media__subtitle {
-        display: flex;
-        flex-flow: column;
-      }
-    }
-  }
-
   .card-stack {
     margin-bottom: var(--spacing-m);
 

@@ -846,6 +846,14 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview__wrapper--live {
+  .claim-tile__info {
+    display: flex;
+    .media__subtitle {
+      display: flex;
+      flex-flow: column;
+    }
+  }
+
   .claim-preview__file-property-overlay {
     opacity: 0.9; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);
@@ -859,12 +867,6 @@ $claim-preview-progress-bar-height: 5px;
     font-weight: var(--font-weight-bold);
     margin-top: 2px; // Even out bottom spacing due to all caps "LIVE".
   }
-
-  /*
-  .claim-preview__primary-actions {
-    margin-right: var(--spacing-xs);
-  }
-  */
 }
 
 .claim-link {
