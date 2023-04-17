@@ -14,6 +14,7 @@ import {
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectCollectionIsMine, selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 
+import { doResolveUri } from 'redux/actions/claims';
 import { doFileGetForUri } from 'redux/actions/file';
 import { selectBanStateForUri } from 'lbryinc';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
@@ -60,6 +61,7 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
+  resolveUri: (uri) => dispatch(doResolveUri(uri)),
   getFile: (uri) => dispatch(doFileGetForUri(uri)),
   doClearContentHistoryUri: (uri) => dispatch(doClearContentHistoryUri(uri)),
   doPlayNextUri: (playingOptions) => dispatch(doPlayNextUri(playingOptions)),
