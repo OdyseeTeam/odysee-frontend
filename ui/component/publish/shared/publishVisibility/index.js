@@ -5,6 +5,7 @@ import PublishVisibility from './view';
 
 const select = (state, props) => ({
   visibility: selectPublishFormValue(state, 'visibility'),
+  scheduledShow: selectPublishFormValue(state, 'scheduledShow'),
 });
 
 const perform = {
