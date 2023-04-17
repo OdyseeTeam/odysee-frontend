@@ -632,44 +632,6 @@ img {
 }
 
 // The following wrapper classes are temporary to fix page specific issues
-.discoverPage-wrapper {
-  .claim-preview__wrapper {
-    .claim-tile__info {
-      margin-top: 0;
-      .claim-preview-metadata-sub-upload {
-        margin-top: 3px;
-      }
-    }
-  }
-  .claim-preview__wrapper--channel {
-    position: relative;
-    border-radius: var(--border-radius);
-    background: rgba(var(--color-header-background-base), 0.6);
-    padding: var(--spacing-m) !important;
-
-    .claim__menu-button {
-      right: calc(var(--spacing-m) - 8px) !important;
-      margin-top: var(--spacing-xxs);
-
-      .icon {
-        stroke: var(--color-text);
-      }
-
-      &:hover {
-        .icon {
-          stroke: var(--color-primary);
-        }
-      }
-    }
-  }
-}
-
-.followManage-wrapper {
-  @extend .discoverPage-wrapper;
-  .wunderbar--inline {
-    margin-bottom: var(--spacing-m);
-  }
-}
 
 .card--publish-section {
   background: rgba(var(--color-header-button-base), 0.6);

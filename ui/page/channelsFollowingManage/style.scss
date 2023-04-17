@@ -1,7 +1,7 @@
 @import '~ui/scss/init/breakpoints';
 @import '~ui/scss/init/mixins';
 
-.followManage-wrapper__activeSubs {
+.following__recently-active {
   -moz-column-count: 2;
   -moz-column-gap: var(--spacing-s);
   -webkit-column-count: 2;
@@ -15,9 +15,6 @@
       background-color: rgba(var(--color-header-button-base), 0.6);
       margin-bottom: var(--spacing-s);
       border-radius: var(--border-radius);
-      &:hover {
-        background-color: rgba(var(--color-header-button-base), 0.8);
-      }
     }
   }
 

@@ -65,7 +65,7 @@ export default function ChannelsFollowingManage(props: Props) {
   }, []);
 
   return (
-    <Page className="followManage-wrapper" noFooter>
+    <Page noFooter>
       <div className="card__title-section">
         <div className="card__title"> {__('Followed Channels')}</div>
       </div>
@@ -87,7 +87,7 @@ export default function ChannelsFollowingManage(props: Props) {
               <div className="card__title-section">
                 <div className="card__subtitle"> {__('Recently Active')}</div>
               </div>
-              <div className="followManage-wrapper__activeSubs">
+              <div className="following__recently-active">
                 {lastActiveSubs.map((sub) => {
                   return (
                     <div key={sub.uri} className="navigation-link__wrapper navigation__subscription">

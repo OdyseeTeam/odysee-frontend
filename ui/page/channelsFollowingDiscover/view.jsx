@@ -30,7 +30,7 @@ function ChannelsFollowingDiscover(props: Props) {
   }
 
   return (
-    <Page className="discoverPage-wrapper">
+    <Page>
       <ClaimListDiscover
         defaultOrderBy={CS.ORDER_BY_TRENDING}
         defaultFreshness={CS.FRESH_ALL}
