@@ -1829,9 +1829,13 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
         dispatch(doFetchCreatorSettings(channelClaim.claim_id));
       })
       .catch((err) => {
-        try {
-          dispatch(doToast({ message: err.message, isError: true }));
-        } catch (error) {}
+        dispatch(
+          doToast({
+            message: __('Failed to update settings.'),
+            subMessage: err?.message,
+            isError: true,
+          })
+        );
       });
   };
 };

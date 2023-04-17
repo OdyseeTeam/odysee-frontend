@@ -120,7 +120,7 @@ const ClaimPageComponent = (props: Props) => {
 
   React.useEffect(() => {
     if (creatorSettings === undefined && channelClaimId) {
-      doFetchCreatorSettings(channelClaimId);
+      doFetchCreatorSettings(channelClaimId).catch(() => {});
     }
   }, [channelClaimId, creatorSettings, doFetchCreatorSettings]);
 

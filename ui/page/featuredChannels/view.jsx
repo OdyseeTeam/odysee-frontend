@@ -30,7 +30,7 @@ function FeaturedChannelsPage(props: Props) {
 
   React.useEffect(() => {
     if (!creatorSettingsFetched && claimId) {
-      doFetchCreatorSettings(claimId);
+      doFetchCreatorSettings(claimId).catch(() => {});
     }
   }, [claimId, creatorSettingsFetched, doFetchCreatorSettings]);
 
