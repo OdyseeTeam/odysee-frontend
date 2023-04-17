@@ -4,9 +4,6 @@
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  .button__label {
-    margin-top: 2px;
-  }
 }
 
 .button--primary,
@@ -670,6 +667,7 @@ a.button--alt {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-top: 2px;
 }
 
 // Handle icons on the left or right side of the button label

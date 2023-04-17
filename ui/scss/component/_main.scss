@@ -587,6 +587,18 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
+  .checkbox {
+    label {
+      padding-left: var(--height-checkbox);
+    }
+  }
+
+  .theme-checkbox {
+    label {
+      padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
+    }
+  }
+
   .section__actions {
     margin-left: var(--spacing-s);
   }
@@ -624,6 +636,9 @@ body {
         fieldset-section:last-of-type {
           margin-left: 2px;
         }
+      }
+      .button--secondary {
+        background-color: var(--color-background);
       }
     }
     .settings-row:first-of-type {

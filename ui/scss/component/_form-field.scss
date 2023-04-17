@@ -93,9 +93,6 @@ select {
     background-color: var(--color-primary);
     background-image: var(--select-toggle-background-hover);
   }
-  &:hover {
-    color: var(--color-primary-contrast);
-  }
   option {
     color: var(--color-text);
   }
@@ -213,20 +210,11 @@ input-submit {
     display: inline-block;
     margin: 0;
     font-size: var(--font-base);
-    padding-left: calc(var(--height-checkbox) + 10px);
+    padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
     min-height: var(--height-checkbox);
 
     &::before {
       background-color: var(--color-header-button);
-    }
-
-    &:hover {
-      &::before {
-        background-color: var(--color-primary);
-      }
-      &::after {
-        border-color: var(--color-primary-contrast);
-      }
     }
   }
 
@@ -268,6 +256,15 @@ input-submit {
     left: 6px;
     top: 6px;
   }
+
+  &:hover {
+    &::before {
+      background-color: var(--color-primary);
+    }
+    &::after {
+      border-color: var(--color-primary-contrast);
+    }
+  }
 }
 
 .radio {
@@ -293,6 +290,12 @@ input-submit {
     background-color: var(--color-primary);
     left: 6px;
     top: 5px;
+  }
+
+  &:hover {
+    label::after {
+      background-color: var(--color-primary-contrast);
+    }
   }
 }
 
