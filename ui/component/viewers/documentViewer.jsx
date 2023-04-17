@@ -21,27 +21,23 @@ const DocumentViewer = (props: Props) => {
   const { stream, contentType } = source;
   const [content, setContent] = React.useState();
 
-  const getContent = (source: string) => {
-    https.get(source, (res) => {
-      if (res.statusCode === 200) {
-        let data = '';
-        res.on('data', (chunk) => {
-          data += chunk;
-        });
-        res.on('end', () => {
-          setContent(data);
-        });
-      } else {
-        setContent(null);
-      }
-    });
-  };
-
   React.useEffect(() => {
     if (stream) {
-      getContent(stream);
+      https.get(stream, (res) => {
+        if (res.statusCode === 200) {
+          let data = '';
+          res.on('data', (chunk) => {
+            data += chunk;
+          });
+          res.on('end', () => {
+            setContent(data);
+          });
+        } else {
+          setContent(null);
+        }
+      });
     }
-  }, [stream, getContent]);
+  }, [stream]);
 
   const getRenderDocument = (stream, content, theme, renderMode, contentType) => {
     return renderMode === RENDER_MODES.MARKDOWN ? (
