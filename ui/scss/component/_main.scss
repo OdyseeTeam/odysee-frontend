@@ -28,7 +28,6 @@ body {
   }
 
   @media (max-width: $breakpoint-small) {
-    // padding: var(--spacing-xs);
     margin-top: var(--header-height-mobile);
   }
 
@@ -565,15 +564,6 @@ body {
     margin-left: var(--spacing-s);
   }
 
-  @media (max-width: $breakpoint-small) {
-    .section__header--actions {
-      .section__actions--inline:last-of-type {
-        .button__label {
-          display: none;
-        }
-      }
-    }
-  }
   .card__body--list {
     background-color: rgba(var(--color-header-button-base), 0.6);
 
@@ -662,7 +652,16 @@ body {
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: 0 0;
+    padding: 0 var(--spacing-xs);
+
+    .section__header--actions {
+      .section__actions--inline:last-of-type {
+        .button__label {
+          display: none;
+        }
+      }
+    }
+
     .wunderbar__wrapper {
       margin-right: 0;
       .wunderbar {
