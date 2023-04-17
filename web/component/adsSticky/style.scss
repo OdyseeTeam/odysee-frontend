@@ -21,6 +21,8 @@
     left: calc(var(--spacing-m) + 93px) !important;
     width: calc(100% - (var(--spacing-m) * 2) - 93px) !important;
     transition: width 0.2s, left 0.2s, bottom 1s, opacity 1s !important;
+    border: 2px solid var(--color-header-button);
+    border-radius: var(--border-radius) 0 var(--border-radius) var(--border-radius);
 
     .sticky-d-rc {
       background-color: var(--color-header-background);
@@ -35,9 +37,11 @@
         border-radius: var(--border-radius) var(--border-radius) 0 0;
         width: unset;
         height: unset;
-        top: -40px;
+        top: -44px;
+        right: -2px;
         -webkit-backdrop-filter: blur(4px);
         backdrop-filter: blur(4px);
+        border: 2px solid var(--color-header-button);
 
         #rcStickyClose {
           background-color: var(--color-primary);
