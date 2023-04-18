@@ -7,7 +7,7 @@ import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
 import TruncatedText from 'component/common/truncated-text';
-import DateTime from 'component/dateTime';
+import DateTimeClaim from 'component/dateTimeClaim';
 import LivestreamDateTime from 'component/livestreamDateTime';
 import ChannelThumbnail from 'component/channelThumbnail';
 import FileViewCountInline from 'component/fileViewCountInline';
@@ -153,7 +153,7 @@ function ClaimPreviewTile(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  function handleClick(e) {
+  function handleClick() {
     if (navigateUrl && !isEmbed) {
       history.push(navigateUrl);
     }
@@ -271,7 +271,7 @@ function ClaimPreviewTile(props: Props) {
                     <div className="claim-tile__about--counts">
                       <FileViewCountInline uri={uri} />
                       {isLivestream && <LivestreamDateTime uri={uri} />}
-                      {!isLivestream && <DateTime timeAgo uri={uri} />}
+                      {!isLivestream && <DateTimeClaim uri={uri} />}
                     </div>
                   </div>
                 </React.Fragment>
