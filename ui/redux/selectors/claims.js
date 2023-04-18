@@ -11,6 +11,7 @@ import { createCachedSelector } from 're-reselect';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import {
   isClaimNsfw,
+  isClaimUnlisted,
   filterClaims,
   getChannelIdFromClaim,
   isStreamPlaceholderClaim,
@@ -23,7 +24,11 @@ import {
   getChannelPermanentUrlFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
-import { INTERNAL_TAGS, MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
+import {
+  INTERNAL_TAGS,
+  MEMBERS_ONLY_CONTENT_TAG,
+  RESTRICTED_CHAT_COMMENTS_TAG,
+} from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { removeInternalStringTags } from 'util/tags';
@@ -1155,4 +1160,9 @@ export const selectPendingPurchaseForUri = (state: State, uri: string) => {
   const pendingSdkPayment = selectSdkFeePendingForUri(state, uri);
 
   return pendingFiatPayment || pendingSdkPayment;
+};
+
+export const selectIsUriUnlisted = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  return isClaimUnlisted(claim);
 };

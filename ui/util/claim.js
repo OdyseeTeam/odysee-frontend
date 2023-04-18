@@ -1,5 +1,5 @@
 // @flow
-import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, VISIBILITY_TAGS } from 'constants/tags';
 import { parseURI } from 'util/lbryURI';
 
 const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
@@ -158,6 +158,16 @@ export function getClaimTags(claim: ?Claim) {
 export function isClaimProtected(claim: ?Claim) {
   const tags = getClaimTags(claim);
   return tags && tags.includes(MEMBERS_ONLY_CONTENT_TAG);
+}
+
+export function isClaimUnlisted(claim: ?Claim) {
+  const tags = getClaimTags(claim);
+  return tags ? tags.includes(VISIBILITY_TAGS.UNLISTED) : false;
+}
+
+export function isClaimPrivate(claim: ?Claim) {
+  const tags = getClaimTags(claim);
+  return tags ? tags.includes(VISIBILITY_TAGS.PRIVATE) : false;
 }
 
 export function getClaimTitle(claim: ?Claim) {

@@ -520,7 +520,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                   </FileThumbnail>
                 </NavLink>
               ) : (
-                <FileThumbnail thumbnail={thumbnailUrl} uri={uri} />
+                <>
+                  <FileThumbnail thumbnail={thumbnailUrl} uri={uri}>
+                    <div className="claim-preview__file-property-overlay">
+                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} pending />
+                    </div>
+                  </FileThumbnail>
+                </>
               )}
             </>
           )}

@@ -12,6 +12,7 @@ import * as COL from 'constants/collections';
 
 type Props = {
   uri: string,
+  pending?: boolean,
   downloaded: boolean,
   claimIsMine: boolean,
   isSubscribed: boolean,
@@ -34,6 +35,7 @@ export default function PreviewOverlayProperties(props: Props) {
     claimIsMine,
     small = false,
     properties,
+    pending,
     claim,
     iconOnly,
     hasEdits,
@@ -48,6 +50,18 @@ export default function PreviewOverlayProperties(props: Props) {
   const claimLength = claim && claim.value && claim.value.claims && claim.value.claims.length;
   const isStream = claim && claim.value_type === 'stream';
   const size = small ? COL.ICON_SIZE : undefined;
+
+  if (pending && isUnlisted) {
+    return (
+      <div
+        className={classnames('claim-preview__overlay-properties', {
+          '.claim-preview__overlay-properties--small': small,
+        })}
+      >
+        {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
+      </div>
+    );
+  }
 
   return (
     <div
