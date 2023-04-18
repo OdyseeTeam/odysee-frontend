@@ -24,6 +24,7 @@ import analytics from 'analytics';
 import { doOpenModal } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
+import { YEAR_2038_TS } from 'constants/date-time';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { creditsToString } from 'util/format-credits';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
@@ -39,6 +40,7 @@ import {
   PURCHASE_TAG_OLD,
   RENTAL_TAG,
   RENTAL_TAG_OLD,
+  VISIBILITY_TAGS,
 } from 'constants/tags';
 
 function resolveClaimTypeForAnalytics(claim) {
@@ -133,6 +135,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   PUBLISH.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
   PUBLISH.tags.fiatPaywall(tagSet, publishData);
   PUBLISH.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
+  PUBLISH.tags.visibility(tagSet, publishData);
 
   publishPayload.tags = Array.from(tagSet);
 
@@ -166,19 +169,28 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
  */
 const PUBLISH = {
   releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim, publishData: UpdatePublishState) => {
-    const visibility = 'public';
     const isEditing = Boolean(claimToEdit);
-    const claimOriginalTs = isEditing ? Number(claimToEdit?.value?.release_time || claimToEdit?.timestamp) : undefined;
+    const past = {};
 
-    switch (visibility) {
+    if (isEditing && claimToEdit) {
+      const tags = claimToEdit.value?.tags || [];
+      past.wasHidden = tags.includes(VISIBILITY_TAGS.UNLISTED) || tags.includes(VISIBILITY_TAGS.PRIVATE);
+      past.timestamp = claimToEdit.timestamp;
+      past.release_time = claimToEdit.value?.release_time;
+      past.creation_timestamp = claimToEdit.meta?.creation_timestamp;
+    }
+
+    switch (publishData.visibility) {
       case 'public':
         if (isEditing) {
           if (publishData.isLivestreamPublish && publishData.replaySource !== 'keep') {
-            return claimOriginalTs;
+            return Number(past.release_time || past.timestamp);
           }
 
           if (userEnteredTs === undefined) {
-            return claimOriginalTs;
+            return past.wasHidden
+              ? past.creation_timestamp
+              : Number(claimToEdit?.value?.release_time || claimToEdit?.timestamp);
           } else {
             return userEnteredTs;
           }
@@ -190,8 +202,12 @@ const PUBLISH = {
           }
         }
 
+      case 'private':
+      case 'unlisted':
+        return YEAR_2038_TS;
+
       default:
-        assert(false, `unhandled: "${visibility}"`);
+        assert(false, `unhandled: "${publishData.visibility}"`);
         break;
     }
   },
@@ -259,6 +275,27 @@ const PUBLISH = {
         tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
       } else {
         tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
+      }
+    },
+
+    visibility: (tagSet: Set<string>, publishData: UpdatePublishState) => {
+      const { visibility } = publishData;
+
+      tagSet.delete(VISIBILITY_TAGS.PRIVATE);
+      tagSet.delete(VISIBILITY_TAGS.UNLISTED);
+
+      switch (visibility) {
+        case 'public':
+          break; // Nothing to do
+        case 'private':
+          tagSet.add(VISIBILITY_TAGS.PRIVATE);
+          break;
+        case 'unlisted':
+          tagSet.add(VISIBILITY_TAGS.UNLISTED);
+          break;
+        default:
+          assert(false, `unhandled: "${visibility}"`);
+          break;
       }
     },
   },
@@ -749,6 +786,19 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
           publishData.tags = [];
         }
       }
+    }
+
+    // -- Visibility restrictions
+    if (tags) {
+      if (tags.includes(VISIBILITY_TAGS.UNLISTED)) {
+        publishData.visibility = 'unlisted';
+      } else if (tags.includes(VISIBILITY_TAGS.PRIVATE)) {
+        publishData.visibility = 'private';
+      } else {
+        publishData.visibility = 'public';
+      }
+    } else {
+      publishData.visibility = 'public';
     }
 
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });

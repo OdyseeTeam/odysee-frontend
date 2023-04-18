@@ -47,6 +47,7 @@ const defaultState: PublishState = {
   description: '',
   language: '',
   releaseTime: undefined,
+  releaseTimeDisabled: false,
   releaseTimeError: undefined,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
@@ -68,16 +69,40 @@ const defaultState: PublishState = {
   isMarkdownPost: false,
   isLivestreamPublish: false,
   replaySource: 'keep',
+  visibility: 'public',
 };
 
 export const publishReducer = handleActions(
   {
-    [ACTIONS.UPDATE_PUBLISH_FORM]: (state, action): PublishState => {
+    [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: DoUpdatePublishForm): PublishState => {
       const { data } = action;
-      return {
-        ...state,
-        ...data,
-      };
+      const auto = {};
+
+      // --- Resolve PublishState based on the incoming changes ---------------
+      // data -> incoming changes (partial PublishState)
+      // state -> current PublishState
+      // auto -> any related states that needs to be adjusted per new input
+      // ----------------------------------------------------------------------
+
+      // -- releaseTimeDisabled
+      if (data.hasOwnProperty('visibility')) {
+        switch (data.visibility) {
+          case 'public':
+            auto.releaseTimeDisabled = false;
+            break;
+          case 'private':
+          case 'unlisted':
+            auto.releaseTimeDisabled = true;
+            break;
+          default:
+            assert(null, `unhandled visibility: "${data.visibility}"`);
+            auto.releaseTimeDisabled = false;
+            break;
+        }
+      }
+
+      // Finalize
+      return { ...state, ...data, ...auto };
     },
     [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
       ...defaultState,

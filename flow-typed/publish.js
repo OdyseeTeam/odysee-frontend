@@ -1,6 +1,7 @@
 // @flow
 
 declare type Paywall = 'free' | 'fiat' | 'sdk';
+declare type Visibility = 'public' | 'unlisted' | 'private' | 'scheduled';
 
 declare type PublishParams = {
   // --- Odysee API ---
@@ -63,6 +64,10 @@ declare type PublishState = {
   //   some scenarios, but value should be retained for un-graying.
   //   @see PUBLISH.releaseTime() for full logic for "undefined".
   releaseTime: ?number,
+  // releaseTimeDisabled:
+  //   Indicates that the user's setting will have no effect in the current
+  //   scenario. Basically, gray it out.
+  releaseTimeDisabled: boolean,
   releaseTimeError: ?string,
   channel: string,
   channelId: ?string,
@@ -80,10 +85,17 @@ declare type PublishState = {
   isLivestreamPublish: boolean,
   publishError?: boolean,
   replaySource: 'keep' | 'choose' | 'upload',
+  visibility: Visibility,
+  scheduledShow: boolean,
 };
 
 // Redux slice, optional version. Used to selectively update certains states.
 declare type UpdatePublishState = $Shape<PublishState>;
+
+declare type DoUpdatePublishForm = {
+  type: 'UPDATE_PUBLISH_FORM', // ACTIONS.UPDATE_PUBLISH_FORM,
+  data: UpdatePublishState,
+};
 
 declare type TusUploader = any;
 
