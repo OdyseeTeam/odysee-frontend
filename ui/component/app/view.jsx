@@ -25,7 +25,7 @@ import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
 import AdBlockTester from 'web/component/adBlockTester';
-import AdsSticky from 'web/component/adsSticky';
+import Ad from 'web/component/ad/ad';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import {
   useDegradedPerformance,
@@ -569,7 +569,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <AdBlockTester />
-          {!hasPremiumPlus && !embedPath && <AdsSticky uri={uri} />}
+          {!hasPremiumPlus && !embedPath && <Ad type="sticky" />}
           <Router uri={uri} />
           <ModalRouter />
 

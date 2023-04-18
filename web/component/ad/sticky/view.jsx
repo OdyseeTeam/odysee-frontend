@@ -3,10 +3,6 @@ import React from 'react';
 import classnames from 'classnames';
 import './style.scss';
 
-// ****************************************************************************
-// AdsSticky
-// ****************************************************************************
-
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
   url: 'https://assets.revcontent.com/master/delivery.js',
@@ -15,7 +11,6 @@ const AD_CONFIG = Object.freeze({
 });
 
 type Props = {
-  uri: ?string,
   // --- redux ---
   isContentClaim: boolean,
   isChannelClaim: boolean,
@@ -26,7 +21,7 @@ type Props = {
   adBlockerFound: ?boolean,
 };
 
-export default function AdsSticky(props: Props) {
+export default function AdSticky(props: Props) {
   const { isContentClaim, isChannelClaim, authenticated, shouldShowAds, homepageData, nagsShown, adBlockerFound } =
     props;
 

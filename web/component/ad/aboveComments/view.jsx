@@ -9,16 +9,12 @@ const AD_CONFIGS = Object.freeze({
   },
 });
 
-// ****************************************************************************
-// RC Ads
-// ****************************************************************************
-
 type Props = {
   // --- redux ---
   shouldShowAds: boolean,
 };
 
-function AdsRCAboveComments(props: Props) {
+function AdAboveComments(props: Props) {
   const { shouldShowAds } = props;
   const adConfig = AD_CONFIGS.REVCONTENT;
   const [isActive, setIsActive] = React.useState(false);
@@ -60,4 +56,4 @@ function AdsRCAboveComments(props: Props) {
   );
 }
 
-export default AdsRCAboveComments;
+export default AdAboveComments;
