@@ -419,9 +419,14 @@ $thumbnailWidthSmall: 2rem;
 
   ul li {
     list-style-type: disc;
+    margin-left: var(--spacing-l);
+    p {
+      display: inline-block;
+    }
 
     ul li {
       list-style-type: circle;
+      margin-left: var(--spacing-l);
     }
   }
 
@@ -432,6 +437,9 @@ $thumbnailWidthSmall: 2rem;
   }
 
   .markdown-preview {
+    ul {
+      margin-top: var(--spacing-s);
+    }
     .img__zoomable {
       margin-bottom: var(--spacing-xs) !important;
       padding-top: 0 !important;
@@ -441,6 +449,12 @@ $thumbnailWidthSmall: 2rem;
 
   .channel-name {
     color: var(--color-primary);
+    p {
+      font-size: var(--font-small);
+    }
+    &:hover {
+      color: var(--color-secondary);
+    }
   }
 
   @media (max-width: $breakpoint-small) {
