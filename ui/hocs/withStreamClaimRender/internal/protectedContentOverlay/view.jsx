@@ -17,6 +17,7 @@ type Props = {
   claimIsMine: boolean,
   isProtected: boolean,
   uri: string,
+  scheduledState: ClaimScheduledState,
   userIsAMember: boolean,
   myMembership: ?Membership,
   cheapestPlanPrice: ?Membership,
@@ -31,6 +32,7 @@ const ProtectedContentOverlay = (props: Props) => {
     uri,
     isProtected,
     myMembership,
+    scheduledState,
     userIsAMember,
     cheapestPlanPrice,
     passClickPropsToParent,
@@ -57,6 +59,10 @@ const ProtectedContentOverlay = (props: Props) => {
   }, [clickProps, passClickPropsToParent]);
 
   if (membershipFetching || !isProtected || userIsAMember || claimIsMine) return null;
+
+  if (scheduledState === 'scheduled') {
+    return null;
+  }
 
   return (
     <div className="protected-content-overlay">

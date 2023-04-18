@@ -9,6 +9,7 @@ import {
   selectPendingPurchaseForUri,
   selectIsAnonymousFiatContentForUri,
   selectClaimIsNsfwForUri,
+  selectScheduledStateForUri,
 } from 'redux/selectors/claims';
 import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
 import { selectBalance } from 'redux/selectors/wallet';
@@ -328,12 +329,17 @@ export const selectInsufficientCreditsForUri = (state: State, uri: string) => {
 };
 
 export const selectCanViewFileForUri = (state: State, uri: string) => {
+  const scheduledButNotReady = selectScheduledStateForUri(state, uri) === 'scheduled';
+  if (scheduledButNotReady) {
+    const claimIsMine = selectClaimIsMineForUri(state, uri);
+    return !!claimIsMine;
+  }
+
   const pendingPurchase = selectPendingPurchaseForUri(state, uri);
   const isAnonymousFiatContent = selectIsAnonymousFiatContentForUri(state, uri);
   const pendingUnlockedRestrictions = selectPendingUnlockedRestrictionsForUri(state, uri);
 
   const canViewFile = !pendingPurchase && !pendingUnlockedRestrictions && !isAnonymousFiatContent;
-
   return canViewFile;
 };
 

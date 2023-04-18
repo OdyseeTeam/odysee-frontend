@@ -11,6 +11,7 @@ import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
+import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
 
 type Props = {
@@ -40,6 +41,7 @@ type Props = {
   streamingUrl: any,
   isLivestreamClaim: ?boolean,
   isCurrentClaimLive: ?boolean,
+  scheduledState: ClaimScheduledState,
   playingUri: PlayingUri,
   playingCollectionId: ?string,
   pendingFiatPayment: ?boolean,
@@ -87,6 +89,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       streamingUrl,
       isLivestreamClaim,
       isCurrentClaimLive,
+      scheduledState,
       playingUri,
       playingCollectionId,
       pendingFiatPayment,
@@ -307,6 +310,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
               <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
             </>
           ) : null}
+          {scheduledState === 'scheduled' && <ScheduledInfo uri={uri} />}
         </ClaimCoverRender>
       );
     }

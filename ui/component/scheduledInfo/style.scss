@@ -1,0 +1,22 @@
+.scheduled-info {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: var(--spacing-m);
+  left: var(--spacing-m);
+  padding: var(--spacing-m);
+  border-radius: var(--border-radius);
+}
+
+.scheduled-info__text {
+  padding-left: var(--spacing-m);
+  line-height: 1;
+}
+
+.scheduled-info__date {
+  margin-top: var(--spacing-xxs);
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+}
