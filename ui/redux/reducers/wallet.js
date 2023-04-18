@@ -14,7 +14,7 @@ type ActionResult = {
   result: any,
 };
 
-type WalletState = {
+export type WalletState = {
   balance: any,
   totalBalance: any,
   reservedBalance: any,

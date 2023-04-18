@@ -3,7 +3,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
-type LivestreamState = {
+export type LivestreamState = {
   livestreamInfoByCreatorId: LivestreamInfoByCreatorIds,
   activeLivestreamByCreatorId: { [creatorId: string]: ?LivestreamActiveClaim },
   futureLivestreamsByCreatorId: { [creatorId: string]: ?Array<LivestreamActiveClaim> },

@@ -70,9 +70,6 @@ const recsysFyp = {
 // ****************************************************************************
 // ****************************************************************************
 
-type Dispatch = (action: any) => any;
-type GetState = () => { claims: any, search: SearchState, user: UserState };
-
 type SearchOptions = {
   size?: number,
   from?: number,
