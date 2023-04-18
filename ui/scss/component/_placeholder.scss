@@ -1,11 +1,21 @@
-/*
-.placeholder {
-  @include placeholder;
-}
-*/
-
 .placeholder__wrapper {
   width: 100%;
+  margin-top: var(--spacing-xxxs);
+  margin-bottom: 3px;
+  .claim-tile__title,
+  .claim-tile__title_b {
+    margin-top: 8px;
+    width: 95%;
+    min-height: var(--font-body);
+    background-color: var(--color-text);
+    border-radius: var(--border-radius);
+    opacity: 0.2;
+  }
+  .claim-tile__title_b {
+    margin-top: 4px;
+    margin-bottom: 14px;
+    width: 75%;
+  }
 }
 
 .placeholder {
@@ -20,7 +30,6 @@
 
   &.claim-preview__wrapper {
     background-color: rgba(var(--color-header-background-base), 0.5);
-    // margin-bottom: var(--spacing-xxs);
 
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 1.2);
@@ -84,33 +93,11 @@
     }
   }
 
-  /*
-  .claim-tile__title {
-    border-radius: var(--border-radius);
-    width: 95%;
-    margin-left: 0;
-    margin-top: calc(var(--spacing-s) - 1px);
-    min-height: var(--font-small);
-    background-color: var(--color-text);
-    opacity: 0.2;
-  }
-  .claim-tile__title_b {
-    border-radius: var(--border-radius);
-    width: 65%;
-    margin-left: 0;
-    margin-top: var(--spacing-xxs);
-    min-height: var(--font-small);
-    background-color: var(--color-text);
-    opacity: 0.2;
-    margin-bottom: calc(var(--spacing-s) + 4px);
-  }
-  */
-
   .claim-tile__info {
     .channel-thumbnail {
       margin-top: 8px;
-      width: 2.1rem;
-      height: 2.1rem;
+      width: 2rem;
+      height: 2rem;
       background-color: var(--color-placeholder-background);
     }
     .claim-tile__about {
