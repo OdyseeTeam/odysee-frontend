@@ -9,11 +9,12 @@ import PublishReleaseDate from 'component/publish/shared/publishReleaseDate';
 type Props = {
   visibility: Visibility,
   scheduledShow: boolean,
+  isNonPublicAllowed: boolean,
   doUpdatePublishForm: (data: UpdatePublishState) => void,
 };
 
 const PublishVisibility = (props: Props) => {
-  const { visibility, scheduledShow, doUpdatePublishForm } = props;
+  const { visibility, scheduledShow, isNonPublicAllowed, doUpdatePublishForm } = props;
 
   function setVisibility(visibility: Visibility) {
     const change: UpdatePublishState = { visibility };
@@ -43,6 +44,7 @@ const PublishVisibility = (props: Props) => {
                 type="radio"
                 name="visibility::unlisted"
                 checked={visibility === 'unlisted'}
+                disabled={!isNonPublicAllowed}
                 label={__('Unlisted')}
                 onChange={() => setVisibility('unlisted')}
               />
@@ -53,6 +55,7 @@ const PublishVisibility = (props: Props) => {
                 type="radio"
                 name="visibility::scheduled"
                 checked={visibility === 'scheduled'}
+                disabled={!isNonPublicAllowed}
                 label={__('Scheduled')}
                 onChange={() => setVisibility('scheduled')}
               />

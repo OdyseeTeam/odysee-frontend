@@ -106,6 +106,12 @@ export const publishReducer = handleActions(
         }
       }
 
+      // -- channel
+      const channel = data.hasOwnProperty('channel') ? data.channel : state.channel;
+      if (channel === undefined) {
+        auto.visibility = 'public';
+      }
+
       // -- releaseTimeError
       const currentTs = Date.now() / 1000;
       const visibility = getValue('visibility');
