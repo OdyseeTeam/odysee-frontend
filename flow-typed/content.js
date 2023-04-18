@@ -12,6 +12,11 @@ declare type ContentState = {|
   autoplayCountdownUri: ?string,
 |};
 
+declare type UriAccessKey = {|
+  signature: string,
+  signature_ts: string, // Backend uses 'signature_ts', SDK uses 'signing_ts' :(
+|};
+
 declare type LastViewedAnnouncement = Array<string>;
 
 declare type WatchHistory = {

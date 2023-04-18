@@ -110,9 +110,9 @@ export function doDeleteFileAndMaybeGoBack(
   };
 }
 
-export const doFileGetForUri =
-  (uri: string, onSuccess?: (GetResponse) => any) => async (dispatch: Dispatch, getState: GetState) => {
-    const state = getState();
+export const doFileGetForUri = (uri: string, opt?: ?FileGetOptions, onSuccess?: (GetResponse) => any) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const state: State = getState();
     const alreadyFetching = selectOutpointFetchingForUri(state, uri);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
 
@@ -127,9 +127,16 @@ export const doFileGetForUri =
 
     const outpoint = selectClaimOutpointForUri(state, uri);
 
+    const keyFromOpt = opt && opt.uriAccessKey;
+    const accessKey: ?UriAccessKey = keyFromOpt || null;
+
     dispatch({ type: ACTIONS.FETCH_FILE_INFO_STARTED, data: { outpoint } });
 
-    Lbry.get({ uri, environment: stripeEnvironment })
+    Lbry.get({
+      uri,
+      environment: stripeEnvironment,
+      ...(accessKey || {}),
+    })
       .then((streamInfo: GetResponse) => {
         const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
         if (timeout) {
@@ -186,6 +193,7 @@ export const doFileGetForUri =
         );
       });
   };
+};
 
 export function doPurchaseUri(uri: string, costInfo: { cost: number }, onSuccess?: (GetResponse) => any) {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -208,7 +216,7 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, onSuccess
       return;
     }
 
-    dispatch(doFileGetForUri(uri, onSuccess));
+    dispatch(doFileGetForUri(uri, null, onSuccess));
   };
 }
 

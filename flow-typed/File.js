@@ -76,3 +76,7 @@ declare type DeletePurchasedUri = {
     uri: string,
   },
 };
+
+declare type FileGetOptions = {
+  uriAccessKey?: UriAccessKey,
+};
