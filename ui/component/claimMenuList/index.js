@@ -92,22 +92,21 @@ const select = (state, props) => {
   };
 };
 
-const perform = (dispatch) => ({
-  prepareEdit: (publishData, uri, claimType) => dispatch(doPrepareEdit(publishData, uri, claimType)),
-  doToast: (props) => dispatch(doToast(props)),
-  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  doChannelMute: (channelUri) => dispatch(doChannelMute(channelUri)),
-  doChannelUnmute: (channelUri) => dispatch(doChannelUnmute(channelUri)),
-  doCommentModBlock: (channelUri) => dispatch(doCommentModBlock(channelUri)),
-  doCommentModUnBlock: (channelUri) => dispatch(doCommentModUnBlock(channelUri)),
-  doCommentModBlockAsAdmin: (a, b, c) => dispatch(doCommentModBlockAsAdmin(a, b, c)),
-  doCommentModUnBlockAsAdmin: (commenterUri, blockerId) =>
-    dispatch(doCommentModUnBlockAsAdmin(commenterUri, blockerId)),
-  doChannelSubscribe: (subscription) => dispatch(doChannelSubscribe(subscription)),
-  doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
-  doEnableCollectionShuffle: (params) => dispatch(doEnableCollectionShuffle(params)),
-  doRemovePersonalRecommendation: (uri) => dispatch(doRemovePersonalRecommendation(uri)),
-  doPlaylistAddAndAllowPlaying: (params) => dispatch(doPlaylistAddAndAllowPlaying(params)),
-});
+const perform = {
+  prepareEdit: doPrepareEdit,
+  doToast,
+  openModal: doOpenModal,
+  doChannelMute,
+  doChannelUnmute,
+  doCommentModBlock,
+  doCommentModUnBlock,
+  doCommentModBlockAsAdmin,
+  doCommentModUnBlockAsAdmin,
+  doChannelSubscribe,
+  doChannelUnsubscribe,
+  doEnableCollectionShuffle,
+  doRemovePersonalRecommendation,
+  doPlaylistAddAndAllowPlaying,
+};
 
 export default connect(select, perform)(ClaimPreview);

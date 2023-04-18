@@ -100,6 +100,7 @@ function resolveSearchOptions(props) {
   const urlParams = new URLSearchParams(location.search);
   const feeAmountInUrl = urlParams.get('fee_amount');
   const feeAmountParam = feeAmountInUrl || feeAmount;
+  const notTagInput: NotTagInput = { notTags, showNsfw, hideMembersOnly };
 
   let streamTypesParam;
   if (streamTypes) {
@@ -116,7 +117,7 @@ function resolveSearchOptions(props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     any_tags: tags || [],
-    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnly),
+    not_tags: CsOptions.not_tags(notTagInput),
     any_languages: languages,
     channel_ids: channelIds || [],
     not_channel_ids: mutedAndBlockedChannelIds,

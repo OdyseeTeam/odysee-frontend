@@ -297,6 +297,7 @@ function ClaimListDiscover(props: Props) {
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
   const originalPageSize = 12;
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
+  const notTagInput: NotTagInput = { notTags, showNsfw, hideMembersOnly };
   const orderParam = usePersistentUserParam(
     [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
     'orderUser',
@@ -312,7 +313,7 @@ function ClaimListDiscover(props: Props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     not_channel_ids: isChannel ? undefined : mutedAndBlockedChannelIds,
-    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnly),
+    not_tags: CsOptions.not_tags(notTagInput),
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
   };

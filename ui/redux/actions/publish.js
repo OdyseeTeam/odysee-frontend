@@ -73,9 +73,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     description,
     language,
     releaseTime,
-    // license,
     licenseUrl,
-    useLBRYUploader,
     licenseType,
     otherLicenseDescription,
     thumbnail,
@@ -83,19 +81,10 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     title,
     paywall,
     fee,
-    fiatPurchaseFee,
-    fiatPurchaseEnabled,
-    fiatRentalFee,
-    fiatRentalExpiration,
-    fiatRentalEnabled,
-    // uri,
     tags,
-    // locations,
     optimize,
     isLivestreamPublish,
     remoteFileUrl,
-    restrictedToMemberships,
-    // restrictCommentsAndChat,
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
@@ -129,64 +118,23 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     release_time: PUBLISH.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing) || nowTimeStamp,
     blocking: true,
     preview: false,
+    ...(remoteFileUrl ? { remote_url: remoteFileUrl } : {}),
+    ...(claimId ? { claim_id: claimId } : {}), // 'stream_update' support
+    ...(optimize ? { optimize_file: true } : {}),
+    ...(thumbnail ? { thumbnail_url: thumbnail } : {}),
+    ...(channelId ? { channel_id: channelId } : {}),
+    ...(licenseUrl ? { license_url: licenseUrl } : {}),
+    ...(publishingLicense ? { license: publishingLicense } : {}),
   };
 
-  const tagNames = [];
-  if (tags) {
-    tags.forEach((t) => {
-      if (
-        t.name === RENTAL_TAG ||
-        t.name.startsWith(`${RENTAL_TAG}:`) ||
-        t.name.startsWith(RENTAL_TAG_OLD) ||
-        t.name === PURCHASE_TAG ||
-        t.name.startsWith(`${PURCHASE_TAG}:`) ||
-        t.name.startsWith(PURCHASE_TAG_OLD) ||
-        t.name === SCHEDULED_LIVESTREAM_TAG
-      ) {
-        // Clear these from beginning; repopulate if needed later.
-      } else {
-        tagNames.push(t.name);
-      }
-    });
-  }
+  const tagSet = new Set(tags.map((t) => t.name));
 
-  const tagSet = new Set(tagNames);
+  PUBLISH.tags.useLbryUploader(tagSet, publishData);
+  PUBLISH.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
+  PUBLISH.tags.fiatPaywall(tagSet, publishData);
+  PUBLISH.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
 
-  if (claimId) {
-    publishPayload.claim_id = claimId;
-  }
-
-  // Temporary solution to keep the same publish flow with the new tags api
-  // Eventually we will allow users to enter their own tags on publish
-  // `nsfw` will probably be removed
-  if (remoteFileUrl) {
-    publishPayload.remote_url = remoteFileUrl;
-  }
-
-  if (publishingLicense) {
-    publishPayload.license = publishingLicense;
-  }
-
-  if (licenseUrl) {
-    publishPayload.license_url = licenseUrl;
-  }
-
-  if (thumbnail) {
-    publishPayload.thumbnail_url = thumbnail;
-  }
-
-  if (useLBRYUploader) {
-    tagSet.add(LBRY_FIRST_TAG);
-  }
-
-  // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
-  if (isLivestreamPublish && publishPayload.release_time && publishPayload.release_time > nowTimeStamp) {
-    tagSet.add(SCHEDULED_LIVESTREAM_TAG);
-  }
-
-  if (channelId) {
-    publishPayload.channel_id = channelId;
-  }
+  publishPayload.tags = Array.from(tagSet);
 
   if (myClaimForUriEditing && myClaimForUriEditing.value && myClaimForUriEditing.value.locations) {
     publishPayload.locations = myClaimForUriEditing.value.locations;
@@ -199,31 +147,6 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     }
   }
 
-  if (paywall === PAYWALL.FIAT) {
-    // Purchase
-    if (fiatPurchaseEnabled && fiatPurchaseFee?.currency && Number(fiatPurchaseFee.amount) > 0) {
-      tagSet.add(PURCHASE_TAG);
-      tagSet.add(`${PURCHASE_TAG}:${fiatPurchaseFee.amount.toFixed(2)}`);
-    }
-
-    // Rental
-    if (
-      fiatRentalEnabled &&
-      fiatRentalFee?.currency &&
-      Number(fiatRentalFee.amount) > 0 &&
-      fiatRentalExpiration?.unit &&
-      Number(fiatRentalExpiration.value) > 0
-    ) {
-      const seconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
-      tagSet.add(RENTAL_TAG);
-      tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}`);
-    }
-  }
-
-  if (optimize) {
-    publishPayload.optimize_file = true;
-  }
-
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
   if (filePath && !isLivestreamPublish) {
@@ -234,14 +157,6 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     publishPayload.preview = true;
     publishPayload.optimize_file = false;
   }
-
-  // Membership restrictions
-  tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
-  if (restrictedToMemberships && publishPayload.channel_id) {
-    tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
-  }
-
-  publishPayload.tags = Array.from(tagSet);
 
   return publishPayload;
 }
@@ -275,6 +190,73 @@ const PUBLISH = {
         console.assert(false, `unhandled: "${visibility}"`);
         break;
     }
+  },
+
+  tags: {
+    useLbryUploader: (tagSet: Set<string>, publishData: UpdatePublishState) => {
+      if (publishData.useLBRYUploader) {
+        tagSet.add(LBRY_FIRST_TAG);
+      }
+    },
+
+    scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime, nowTime) => {
+      const { isLivestreamPublish } = publishData;
+      // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
+      if (isLivestreamPublish && releaseTime && releaseTime > nowTime) {
+        tagSet.add(SCHEDULED_LIVESTREAM_TAG);
+      } else {
+        tagSet.delete(SCHEDULED_LIVESTREAM_TAG);
+      }
+    },
+
+    fiatPaywall: (tagSet: Set<string>, publishData: UpdatePublishState) => {
+      const { paywall, fiatPurchaseEnabled, fiatPurchaseFee, fiatRentalEnabled, fiatRentalFee, fiatRentalExpiration } =
+        publishData;
+
+      const refSet = new Set(tagSet);
+      refSet.forEach((t) => {
+        if (
+          t === RENTAL_TAG ||
+          t === PURCHASE_TAG ||
+          t.startsWith(`${RENTAL_TAG}:`) ||
+          t.startsWith(`${PURCHASE_TAG}:`) ||
+          t.startsWith(RENTAL_TAG_OLD) ||
+          t.startsWith(PURCHASE_TAG_OLD)
+        ) {
+          tagSet.delete(t);
+        }
+      });
+
+      if (paywall === PAYWALL.FIAT) {
+        // Purchase
+        if (fiatPurchaseEnabled && fiatPurchaseFee?.currency && Number(fiatPurchaseFee.amount) > 0) {
+          tagSet.add(PURCHASE_TAG);
+          tagSet.add(`${PURCHASE_TAG}:${fiatPurchaseFee.amount.toFixed(2)}`);
+        }
+
+        // Rental
+        if (
+          fiatRentalEnabled &&
+          fiatRentalFee?.currency &&
+          Number(fiatRentalFee.amount) > 0 &&
+          fiatRentalExpiration?.unit &&
+          Number(fiatRentalExpiration.value) > 0
+        ) {
+          const seconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
+          tagSet.add(RENTAL_TAG);
+          tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}`);
+        }
+      }
+    },
+
+    membershipRestrictions: (tagSet: Set<string>, publishData: UpdatePublishState, channel_id: ?string) => {
+      // $FlowFixMe - handle restrictedToMemberships
+      if (publishData.restrictedToMemberships && channel_id) {
+        tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
+      } else {
+        tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
+      }
+    },
   },
 };
 
