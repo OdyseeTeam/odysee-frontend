@@ -85,6 +85,9 @@
           .rc-content {
             .rc-headline {
               color: var(--color-text);
+              @media (max-width: $breakpoint-small) {
+                font-size: var(--font-small);
+              }
             }
           }
         }
@@ -115,26 +118,36 @@
     @media (max-width: $breakpoint-small) {
       left: 0 !important;
       width: 100% !important;
+      border-radius: var(--border-radius) 0 0 0;
 
       .sticky-d-rc-content {
         margin: var(--spacing-s);
-        height: 164px;
+        height: 150px;
         .rc-headline {
-          line-clamp: 3;
-          -webkit-line-clamp: 3;
+          line-clamp: 2;
+          -webkit-line-clamp: 2;
           overflow: hidden;
           word-break: break-all;
           text-overflow: ellipsis;
           -webkit-box-orient: vertical;
           display: -webkit-box;
         }
+
+        .css-widget-item-wrap {
+          .rc-sponsored {
+            .rc-content {
+              .rc-headline {
+                font-size: var(--font-small);
+              }
+            }
+          }
+        }
       }
 
       .sticky-d-rc {
-        height: 160px;
+        height: 140px;
         padding-top: var(--spacing-l);
         .sticky-d-rc-close {
-          top: -40px;
           #rcStickyClose {
             background-color: var(--color-primary);
             color: var(--color-text);
