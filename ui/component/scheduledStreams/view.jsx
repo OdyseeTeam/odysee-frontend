@@ -9,8 +9,12 @@ import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
 import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
-import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
+import { SCHEDULED_TAGS } from 'constants/tags';
 import * as SETTINGS from 'constants/settings';
+
+// TODO: This has been hijacked to cover general Upcoming content too, so the
+// "livestream" naming in variables and functions currently might not make
+// sense. Will clean up later.
 
 type Props = {
   channelIds: Array<string>,
@@ -69,7 +73,7 @@ const ScheduledStreams = (props: Props) => {
           <span className="icon__wrapper">
             <Icon icon={ICONS.VIDEO} />
           </span>
-          <span className="claim-grid__title">{__('Upcoming Livestreams')}</span>
+          <span className="claim-grid__title">{__('Upcoming')}</span>
           {showHideSetting && (
             <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'hide-livestreams'} />
           )}
@@ -89,10 +93,9 @@ const ScheduledStreams = (props: Props) => {
         limitClaimsPerChannel={limitClaimsPerChannel}
         pageSize={50}
         streamType={'all'}
-        hasNoSource
         orderBy={CS.ORDER_BY_NEW_ASC}
         tileLayout={tileLayout}
-        tags={[SCHEDULED_LIVESTREAM_TAG]}
+        tags={[SCHEDULED_TAGS.LIVE, SCHEDULED_TAGS.SHOW]}
         claimType={[CS.CLAIM_STREAM]}
         releaseTime={`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`}
         hideAdvancedFilter
@@ -108,7 +111,7 @@ const ScheduledStreams = (props: Props) => {
       {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && !useSwipeLayout && (
         <div className="livestream-list--view-more">
           <Button
-            label={__('Show more upcoming livestreams')}
+            label={__('Show more upcoming content')}
             button="link"
             iconRight={ICONS.ARROW_RIGHT}
             className="claim-grid__title--secondary"
@@ -121,7 +124,7 @@ const ScheduledStreams = (props: Props) => {
       {showAllUpcoming && (
         <div className="livestream-list--view-more">
           <Button
-            label={__('Show less upcoming livestreams')}
+            label={__('Show less upcoming content')}
             button="link"
             iconRight={ICONS.ARROW_RIGHT}
             className="claim-grid__title--secondary"
