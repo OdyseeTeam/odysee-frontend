@@ -211,7 +211,7 @@ function PublishProtectedContent(props: Props) {
 
               {paywall !== PAYWALL.FREE && (
                 <div className="error__text">
-                  {__('This file has an attached price, disabled it in order to add content restrictions.')}
+                  {__('This file has an attached price, disable it in order to add content restrictions.')}
                 </div>
               )}
             </>
