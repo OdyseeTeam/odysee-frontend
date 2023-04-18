@@ -11,24 +11,13 @@ const AD_CONFIG = Object.freeze({
   url: 'https://assets.revcontent.com/master/delivery.js',
 });
 
-// ****************************************************************************
-// Ads
-// ****************************************************************************
-
 type Props = {
-  type: string,
-  tileLayout?: boolean,
-  small?: boolean,
-  className?: string,
-  noFallback?: boolean,
   // --- redux ---
   shouldShowAds: boolean,
-  doSetAdBlockerFound: (boolean) => void,
 };
 
 function AdTileB(props: Props) {
   const { shouldShowAds } = props;
-  // const isMobile = useIsMobile();
   const [isActive, setIsActive] = React.useState(false);
   // const ref = React.useRef();
   React.useEffect(() => {

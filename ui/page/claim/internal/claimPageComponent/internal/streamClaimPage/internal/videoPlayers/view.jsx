@@ -14,7 +14,7 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
-import AdsRCAboveComments from 'web/component/adsRCAboveComments';
+import Ad from 'web/component/ad/ad';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 
@@ -148,7 +148,7 @@ export default function VideoPlayersPage(props: Props) {
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>
-                  {!hasPremiumPlus && <AdsRCAboveComments />}
+                  {!hasPremiumPlus && <Ad type="aboveComments" />}
                   <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
                     <React.Suspense fallback={null}>
                       <CommentsList {...commentsListProps} />
@@ -159,7 +159,7 @@ export default function VideoPlayersPage(props: Props) {
                 </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
-                  {!hasPremiumPlus && <AdsRCAboveComments />}
+                  {!hasPremiumPlus && <Ad type="aboveComments" />}
                   <CommentsList {...commentsListProps} notInDrawer />
                 </React.Suspense>
               ))}

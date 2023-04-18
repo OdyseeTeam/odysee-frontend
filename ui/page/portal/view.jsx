@@ -4,7 +4,7 @@ import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Portals from 'component/portals';
-import AdTileA from 'web/component/ads/adTileA';
+import Ad from 'web/component/ad/ad';
 import './style.scss';
 
 type Props = {
@@ -65,7 +65,7 @@ function PortalPage(props: Props) {
             showHeader={false}
             loadedCallback={setDisplayedTiles}
             fetchViewCount={showViews}
-            injectedItem={!hasPremiumPlus && { node: <AdTileA small type="video" tileLayout /> }}
+            injectedItem={!hasPremiumPlus && { node: <Ad type="tileA" tileLayout /> }}
           />
         </div>
         {homepageData && displayedTiles >= portal.claimIds.videos.length - 3 && (

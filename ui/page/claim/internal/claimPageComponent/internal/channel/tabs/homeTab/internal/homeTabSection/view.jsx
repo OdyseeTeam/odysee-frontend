@@ -11,7 +11,7 @@ import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import AdTileA from 'web/component/ads/adTileA';
+import Ad from 'web/component/ad/ad';
 
 type Props = {
   channelClaimId: any,
@@ -388,7 +388,7 @@ function HomeTabSection(props: Props) {
                       !hasPremiumPlus &&
                       index === topContentGridIndex && {
                         node: (index) => {
-                          return index === maxTilesPerRow ? <AdTileA type="video" tileLayout small /> : null;
+                          return index === maxTilesPerRow ? <Ad type="tileA" tileLayout /> : null;
                         },
                       }
                     }

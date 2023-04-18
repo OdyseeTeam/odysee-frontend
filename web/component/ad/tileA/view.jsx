@@ -15,9 +15,7 @@ const AD_CONFIG = Object.freeze({
 // ****************************************************************************
 
 type Props = {
-  type: string,
   tileLayout?: boolean,
-  small?: boolean,
   className?: string,
   noFallback?: boolean,
   // --- redux ---
@@ -26,9 +24,7 @@ type Props = {
 };
 
 function AdTileA(props: Props) {
-  const { type = 'video', tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
-  // const isMobile = useIsMobile();
-  // const [isActive, setIsActive] = React.useState(false);
+  const { tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
   const ref = React.useRef();
 
   React.useEffect(() => {
@@ -39,7 +35,6 @@ function AdTileA(props: Props) {
         script.src = AD_CONFIG.url;
         // $FlowIgnore
         document.body.appendChild(script);
-        // setIsActive(true)
       } catch (e) {}
 
       return () => {
@@ -56,24 +51,22 @@ function AdTileA(props: Props) {
     }
   }, []);
 
-  if (type === 'video') {
-    if (shouldShowAds) {
-      return (
-        <li className="claim-preview--tile">
-          <div
-            className="rc_tile"
-            id="rc-widget-fceddd"
-            ref={ref}
-            data-rc-widget
-            data-widget-host="habitat"
-            data-endpoint="//trends.revcontent.com"
-            data-widget-id="273434"
-          />
-        </li>
-      );
-    } else if (!noFallback) {
-      return <PremiumPlusTile tileLayout={tileLayout} />;
-    }
+  if (shouldShowAds) {
+    return (
+      <li className="claim-preview--tile">
+        <div
+          className="rc_tile"
+          id="rc-widget-fceddd"
+          ref={ref}
+          data-rc-widget
+          data-widget-host="habitat"
+          data-endpoint="//trends.revcontent.com"
+          data-widget-id="273434"
+        />
+      </li>
+    );
+  } else if (!noFallback) {
+    return <PremiumPlusTile tileLayout={tileLayout} />;
   }
 
   return null;
