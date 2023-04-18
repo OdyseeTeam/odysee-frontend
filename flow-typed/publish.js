@@ -34,6 +34,11 @@ declare type PublishParams = {
 // Redux slice. Includes both form data and some UI states
 declare type PublishState = {
   editingURI: ?string,
+  // claimToEdit:
+  //   A copy of the claim being edited for reference. We want this because
+  //   reducers can't access other slices to find the claim through editingURI.
+  //   We can eventually remove editingURI and just derive that in a selector.
+  claimToEdit: ?StreamClaim,
   fileText: ?string,
   filePath: ?string,
   remoteFileUrl: ?string,

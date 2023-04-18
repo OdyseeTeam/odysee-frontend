@@ -40,6 +40,7 @@ import {
   PURCHASE_TAG_OLD,
   RENTAL_TAG,
   RENTAL_TAG_OLD,
+  SCHEDULED_TAGS,
   VISIBILITY_TAGS,
 } from 'constants/tags';
 
@@ -174,7 +175,9 @@ const PUBLISH = {
 
     if (isEditing && claimToEdit) {
       const tags = claimToEdit.value?.tags || [];
+
       past.wasHidden = tags.includes(VISIBILITY_TAGS.UNLISTED) || tags.includes(VISIBILITY_TAGS.PRIVATE);
+      past.wasScheduled = tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE);
       past.timestamp = claimToEdit.timestamp;
       past.release_time = claimToEdit.value?.release_time;
       past.creation_timestamp = claimToEdit.meta?.creation_timestamp;
@@ -188,9 +191,9 @@ const PUBLISH = {
           }
 
           if (userEnteredTs === undefined) {
-            return past.wasHidden
+            return past.wasHidden || past.wasScheduled
               ? past.creation_timestamp
-              : Number(claimToEdit?.value?.release_time || claimToEdit?.timestamp);
+              : Number(past.release_time || past.timestamp);
           } else {
             return userEnteredTs;
           }
@@ -205,6 +208,19 @@ const PUBLISH = {
       case 'private':
       case 'unlisted':
         return YEAR_2038_TS;
+
+      case 'scheduled':
+        if (isEditing) {
+          if (userEnteredTs === undefined) {
+            return past.wasHidden ? past.creation_timestamp : Number(past.release_time || past.timestamp);
+          } else {
+            return userEnteredTs;
+          }
+        } else {
+          // The reducer enforces '>Now' through releaseTimeError, but double-check in case UI broke:
+          assert(userEnteredTs, 'New scheduled publish cannot have undefined release time');
+          return userEnteredTs;
+        }
 
       default:
         assert(false, `unhandled: "${publishData.visibility}"`);
@@ -283,6 +299,8 @@ const PUBLISH = {
 
       tagSet.delete(VISIBILITY_TAGS.PRIVATE);
       tagSet.delete(VISIBILITY_TAGS.UNLISTED);
+      tagSet.delete(SCHEDULED_TAGS.SHOW);
+      tagSet.delete(SCHEDULED_TAGS.HIDE);
 
       switch (visibility) {
         case 'public':
@@ -292,6 +310,9 @@ const PUBLISH = {
           break;
         case 'unlisted':
           tagSet.add(VISIBILITY_TAGS.UNLISTED);
+          break;
+        case 'scheduled':
+          tagSet.add(publishData.scheduledShow ? SCHEDULED_TAGS.SHOW : SCHEDULED_TAGS.HIDE);
           break;
         default:
           assert(false, `unhandled: "${visibility}"`);
@@ -690,6 +711,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     let state = getState();
     const myClaimForUri = selectMyClaimForUri(state);
     const { claim_id } = myClaimForUri || {};
+    //         ^--- can we just use 'claim.claim_id'?
 
     // $FlowFixMe (TODO: Lots of undefined states. If truely used, please define them)
     const publishData: UpdatePublishState = {
@@ -708,6 +730,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       nsfw: isClaimNsfw(claim),
       tags: tags ? tags.map((tag) => ({ name: tag })) : [],
       streamType: stream_type,
+      claimToEdit: { ...claim },
     };
 
     // Make sure custom licenses are mapped properly
@@ -794,6 +817,12 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
         publishData.visibility = 'unlisted';
       } else if (tags.includes(VISIBILITY_TAGS.PRIVATE)) {
         publishData.visibility = 'private';
+      } else if (tags.includes(SCHEDULED_TAGS.HIDE)) {
+        publishData.visibility = 'scheduled';
+        publishData.scheduledShow = false;
+      } else if (tags.includes(SCHEDULED_TAGS.SHOW)) {
+        publishData.visibility = 'scheduled';
+        publishData.scheduledShow = true;
       } else {
         publishData.visibility = 'public';
       }

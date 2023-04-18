@@ -1,5 +1,5 @@
 // @flow
-import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, VISIBILITY_TAGS } from 'constants/tags';
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import { parseURI } from 'util/lbryURI';
 
 const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
@@ -168,6 +168,22 @@ export function isClaimUnlisted(claim: ?Claim) {
 export function isClaimPrivate(claim: ?Claim) {
   const tags = getClaimTags(claim);
   return tags ? tags.includes(VISIBILITY_TAGS.PRIVATE) : false;
+}
+
+export function getClaimScheduledState(claim: ?Claim): ClaimScheduledState {
+  const tags = getClaimTags(claim);
+  if (tags && (tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE))) {
+    // $FlowFixMe
+    const releaseTime = claim?.value?.release_time;
+    if (releaseTime) {
+      return Date.now() > releaseTime * 1000 ? 'started' : 'scheduled';
+    } else {
+      assert(false, 'scheduled claim without a release date');
+      return 'scheduled';
+    }
+  }
+
+  return 'non-scheduled';
 }
 
 export function getClaimTitle(claim: ?Claim) {

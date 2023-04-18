@@ -41,7 +41,7 @@ declare type GenericClaim = {
   repost_channel_url?: string,
   repost_url?: string,
   repost_bid_amount?: string,
-  purchase_receipt?: PurchaseReceipt,  
+  purchase_receipt?: PurchaseReceipt,
   meta: {
     activation_height: number,
     claims_in_channel?: number,
@@ -213,3 +213,5 @@ declare type ChannelPublishParams = {
 };
 declare type ChannelPublishUpdateParams = GenericPublishUpdateParams & ChannelPublishParams;
 declare type ChannelPublishCreateParams = GenericPublishCreateParams & ChannelPublishParams;
+
+declare type ClaimScheduledState = 'non-scheduled' | 'scheduled' | 'started';

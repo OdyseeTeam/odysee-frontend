@@ -21,6 +21,7 @@ const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anon
 // @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
   editingURI: undefined,
+  claimToEdit: undefined,
   fileText: '',
   filePath: undefined,
   fileDur: 0,
@@ -70,6 +71,7 @@ const defaultState: PublishState = {
   isLivestreamPublish: false,
   replaySource: 'keep',
   visibility: 'public',
+  scheduledShow: false,
 };
 
 export const publishReducer = handleActions(
@@ -84,10 +86,13 @@ export const publishReducer = handleActions(
       // auto -> any related states that needs to be adjusted per new input
       // ----------------------------------------------------------------------
 
+      const getValue = (stateName: string) => (data.hasOwnProperty(stateName) ? data[stateName] : state[stateName]);
+
       // -- releaseTimeDisabled
       if (data.hasOwnProperty('visibility')) {
         switch (data.visibility) {
           case 'public':
+          case 'scheduled':
             auto.releaseTimeDisabled = false;
             break;
           case 'private':
@@ -99,6 +104,47 @@ export const publishReducer = handleActions(
             auto.releaseTimeDisabled = false;
             break;
         }
+      }
+
+      // -- releaseTimeError
+      const currentTs = Date.now() / 1000;
+      const visibility = getValue('visibility');
+      const releaseTime = getValue('releaseTime');
+      const isEditing = Boolean(getValue('editingURI'));
+      const isLivestream = getValue('isLivestreamPublish');
+
+      auto.releaseTimeError = '';
+
+      switch (visibility) {
+        case 'public':
+          if (releaseTime && releaseTime - 30 > currentTs && !isLivestream) {
+            auto.releaseTimeError = 'Cannot set to a future date.';
+          }
+          break;
+        case 'scheduled':
+          if (releaseTime) {
+            if (releaseTime + 5 < currentTs) {
+              auto.releaseTimeError = 'Please set to a future date.';
+            }
+          } else {
+            if (isEditing) {
+              assert(state.claimToEdit?.value?.release_time, 'scheduled claim without release_time');
+              const originalTs = state.claimToEdit?.value?.release_time || 0;
+              if (originalTs < currentTs) {
+                auto.releaseTimeError = 'Please set to a future date.';
+              }
+            } else {
+              auto.releaseTimeError = 'Set a scheduled release date.';
+            }
+          }
+          break;
+        case 'private':
+        case 'unlisted':
+          auto.releaseTimeError = ''; // not used in payload
+          break;
+        default:
+          assert(null, `unhandled visibility: "${visibility}"`);
+          break;
       }
 
       // Finalize
