@@ -26,6 +26,7 @@ declare type Sentry = {
   captureException: (exception: any, captureContext?: CaptureContext) => string,
   captureMessage: (message: string, captureContext?: CaptureContext | Severity) => string,
   withScope: ((scope: SentryScope) => void) => void,
+  BrowserTracing: any,
 };
 
 declare type SentryScope = {

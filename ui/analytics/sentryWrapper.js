@@ -9,7 +9,6 @@
 
 // @flow
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
 import { LocalStorage } from 'util/storage';
 
 const SENTRY_DSN = 'https://1f3c88e2e4b341328a638e138a60fb73@sentry.odysee.tv/2';
@@ -42,7 +41,7 @@ export const sentryWrapper: SentryWrapper = {
         beforeSend: handleBeforeSend,
         debug: LocalStorage.getItem('sentry_debug') === 'true',
         denyUrls: [/extensions\//i, /^chrome:\/\//i],
-        integrations: [new BrowserTracing()],
+        integrations: [new Sentry.BrowserTracing()],
         maxBreadcrumbs: 50,
         release: process.env.BUILD_REV,
         tracesSampleRate: 0.0,
