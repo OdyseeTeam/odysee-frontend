@@ -1,6 +1,6 @@
 // @flow
 import { Lbryio } from 'lbryinc';
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/react';
 import { apiLog } from 'analytics/apiLog';
 import { events } from 'analytics/events';
 import { sentryWrapper } from 'analytics/sentryWrapper';
