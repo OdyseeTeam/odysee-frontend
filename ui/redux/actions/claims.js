@@ -25,6 +25,7 @@ import { doMembershipContentForStreamClaimIds, doFetchOdyseeMembershipForChannel
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
+import { applyReleaseTimeUpperLimit } from 'util/claim-search';
 import { hasFiatTags } from 'util/tags';
 import { PAGE_SIZE } from 'constants/claim';
 
@@ -723,13 +724,14 @@ export function doClearClaimSearch() {
 }
 
 export function doClaimSearch(
-  options: ClaimSearchOptions = {
+  csOptions: ClaimSearchOptions = {
     no_totals: true,
     page_size: 10,
     page: 1,
   },
   settings?: DoClaimSearchSettings
 ) {
+  const options = settings?.noUpperReleaseTimeLimit ? csOptions : applyReleaseTimeUpperLimit(csOptions);
   const query = createNormalizedClaimSearchKey(options);
 
   return async (dispatch: Dispatch, getState: GetState) => {

@@ -98,6 +98,7 @@ const ScheduledStreams = (props: Props) => {
         tags={[SCHEDULED_TAGS.LIVE, SCHEDULED_TAGS.SHOW]}
         claimType={[CS.CLAIM_STREAM]}
         releaseTime={`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`}
+        noUpperReleaseTimeLimit
         hideAdvancedFilter
         hideFilters
         infiniteScroll={false}
