@@ -116,7 +116,7 @@ declare type ClaimSearchOptions = {|
   valid_channel_signature?: boolean, // claims with a valid channel signature or no signature, use in conjunction with has_channel_signature
   limit_claims_per_channel?: number, // only return up to the specified number of claims per channel
   timestamp?: number | string, // last updated timestamp (supports equality constraints)
-  release_time?: string, // limit to claims self-described as having been released to the public on or after this UTC timestamp
+  release_time?: string | Array<string>, // limit to claims self-described as having been released to the public on or after this UTC timestamp
   reposted_claim_id?: string, // all reposts of the specified original claim id
   reposted?: number | string, // claims reposted this many times (supports equality constraints)
   claim_type?: string | Array<string>, // filter by 'channel', 'stream', 'repost' or 'collection'
