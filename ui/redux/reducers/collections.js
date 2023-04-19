@@ -112,7 +112,10 @@ const collectionsReducer = handleActions(
       return {
         ...state,
         [collectionKey]: collectionsByIdForKey,
-        lastUsedCollection: state.lastUsedCollection === id ? undefined : state.lastUsedCollection,
+        lastUsedCollection:
+          state.lastUsedCollection === id && collectionKey !== COLS.KEYS.UNSAVED_CHANGES
+            ? null
+            : state.lastUsedCollection,
       };
     },
 
