@@ -4,7 +4,13 @@
  * Not meant to be used directly by the rest of the system -- access
  * functionality through `ui/analytics.js` instead.
  *
- * The web-server logging will require SENTRY_AUTH_TOKEN.
+ * The web-server will require SENTRY_AUTH_TOKEN to publish source-maps.
+ *
+ * -- How to debug --
+ * Add the following local-storage flags from devtools:
+ *   sentry_install  : true         // force install
+ *   sentry_debug    : true         // enables verbose logging
+ *   sentry_test_dsn : https://blah // if you have your own DSN
  */
 
 // @flow
@@ -14,6 +20,7 @@ import { LocalStorage } from 'util/storage';
 const SENTRY_DSN = 'https://1f3c88e2e4b341328a638e138a60fb73@sentry.odysee.tv/2';
 const TEST_DSN = LocalStorage.getItem('sentry_test_dsn') || '';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const FORCE_INSTALL = LocalStorage.getItem('sentry_install') === 'true';
 
 let gSentryInitialized = false;
 let gSentryEnabled = false;
@@ -33,7 +40,7 @@ export const sentryWrapper: SentryWrapper = {
     // Call init() as early as possible in the app.
     // Note that we currently catch React errors in 'component/errorBoundary' and
     // manually relay it to Sentry. Those will not bubble up to this error reporter.
-    if (IS_PRODUCTION || LocalStorage.getItem('sentry_install')) {
+    if (IS_PRODUCTION || FORCE_INSTALL) {
       // https://docs.sentry.io/platforms/javascript/configuration/options/
       Sentry.init({
         dsn: TEST_DSN || SENTRY_DSN,
@@ -45,7 +52,7 @@ export const sentryWrapper: SentryWrapper = {
         maxBreadcrumbs: 50,
         release: process.env.BUILD_REV,
         tracesSampleRate: 0.0,
-        allowUrls: [/https:\/\/((.*)\.)?odysee\.(com|tv)/],
+        allowUrls: FORCE_INSTALL ? null : [/https:\/\/((.*)\.)?odysee\.(com|tv)/],
       });
 
       gSentryInitialized = true;
