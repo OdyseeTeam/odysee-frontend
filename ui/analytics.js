@@ -21,9 +21,9 @@ type Analytics = {
   event: Events,
   video: Watchman,
   error: (string) => Promise<any>,
+  // [sentryError]: deprecated, only used for React ErrorBoundary. Use log() for new usages.
   sentryError: ({} | string, {}) => Promise<any>,
-  // log: will replace `sentryError` (and maybe also `error`) when done. Now in beta stage.
-  // error::string does not include the stacktrace while error::Error does.
+  // [error] string-form does not include the stacktrace; Error-form does.
   log: (error: Error | string, options?: LogOptions, label?: string) => Promise<?LogId>,
 };
 
@@ -60,6 +60,8 @@ const analytics: Analytics = {
       if (gAnalyticsEnabled && isProduction) {
         Sentry.withScope((scope) => {
           scope.setExtras(errorInfo);
+          scope.setTag('_origin', 'react-error-boundary');
+          scope.setLevel('fatal');
           const eventId = Sentry.captureException(error);
           resolve(eventId);
         });
