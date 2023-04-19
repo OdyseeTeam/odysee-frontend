@@ -1814,10 +1814,15 @@ video {
     height: 2rem;
     background-color: var(--color-text);
     border-radius: 50%;
-    padding: 4px;
+    padding: 6px;
     stroke: var(--color-background);
     margin-top: -2px;
     margin-right: var(--spacing-m);
+
+    &.icon--Heart {
+      fill: var(--color-background);
+      stroke: transparent !important;
+    }
   }
   label {
     font-size: var(--font-large);
