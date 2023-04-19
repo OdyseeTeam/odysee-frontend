@@ -51,6 +51,9 @@
     .media__thumb {
       background-size: 108%;
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+      .claim-preview__hover-actions-grid {
+        opacity: 1;
+      }
     }
     .claim-preview__title {
       color: var(--color-primary);
@@ -782,7 +785,7 @@
   display: grid;
   justify-items: end;
   justify-content: space-between;
-  opacity: 1;
+  opacity: 0;
 
   .claim-preview__hover-actions {
     display: block;
