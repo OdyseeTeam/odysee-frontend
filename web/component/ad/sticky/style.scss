@@ -68,7 +68,8 @@
       }
 
       .css-widget-item-wrap {
-        .rc-sponsored {
+        .rc-sponsored,
+        .rc-house {
           margin: 0;
           .rc-photo-container {
             height: unset;
@@ -92,7 +93,8 @@
         }
 
         &:hover {
-          .rc-sponsored {
+          .rc-sponsored,
+          .rc-house {
             .rc-content {
               .rc-headline {
                 color: var(--color-primary);
