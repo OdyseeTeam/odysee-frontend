@@ -114,7 +114,6 @@
     "@reach/tabs": "^0.1.5",
     "@reach/tooltip": "^0.12.1",
     "@reach/utils": "^0.12.1",
-    "@sentry/browser": "^5.12.1",
     "@sentry/webpack-plugin": "^1.18.8",
     "@types/three": "^0.103.2",
     "@types/webpack-config-utils": "^2.3.1",
