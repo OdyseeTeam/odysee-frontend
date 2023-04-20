@@ -17,6 +17,9 @@
     color: var(--color-text);
     background-color: var(--color-header-button);
 
+    .button__label {
+      margin-top: 0;
+    }
     &:hover {
       color: var(--color-primary-contrast);
       background-color: var(--color-primary);
