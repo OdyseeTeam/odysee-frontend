@@ -246,7 +246,6 @@
       .media__subtitle {
         display: flex;
         flex-direction: column;
-        width: 100%;
         margin-top: 6px;
         margin-bottom: var(--spacing-xxxs);
 
@@ -281,8 +280,6 @@
             .channel-name {
               width: 100%;
               p {
-                // width: 100%;
-                margin-right: var(--spacing-xs);
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -309,7 +306,8 @@
     }
     .claim-preview__tags {
       display: flex;
-      width: 100%;
+      // width: 100%;
+      flex: 1;
       min-width: 70px;
       justify-content: end;
       align-items: end;
