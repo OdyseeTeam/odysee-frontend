@@ -1,5 +1,7 @@
 // @flow
 import React from 'react';
+
+import useAppendAccessKeyToUrl from './helper';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -17,13 +19,16 @@ type Props = {
   isClaimBlackListed: boolean,
   isClaimFiltered: boolean,
   claimIsMine: ?boolean,
+  isUnlisted: boolean,
   isAuthenticated: boolean,
+  uriAccessKey: ?UriAccessKey,
   geoRestriction: ?GeoRestriction,
   gblAvailable: boolean,
   preferEmbed: boolean,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (name: ?string) => void,
   doOpenModal: (string, {}) => void,
+  doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
 };
 
 /**
@@ -44,13 +49,16 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       isClaimBlackListed,
       isClaimFiltered,
       claimIsMine,
+      isUnlisted,
       isAuthenticated,
+      uriAccessKey,
       geoRestriction,
       gblAvailable,
       preferEmbed,
       doResolveUri,
       doBeginPublish,
       doOpenModal,
+      doFetchUriAccessKey,
 
       ...otherProps
     } = props;
@@ -59,6 +67,8 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
 
     const claimIsRestricted =
       !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
+
+    useAppendAccessKeyToUrl(claim, doFetchUriAccessKey);
 
     const LoadingSpinner = React.useMemo(
       () =>
