@@ -204,7 +204,7 @@ input-submit {
     display: inline-block;
     margin: 0;
     font-size: var(--font-base);
-    padding-left: var(--height-checkbox);
+    padding-left: calc(var(--height-checkbox) + var(--spacing-s));
     min-height: var(--height-checkbox);
 
     &::before {
@@ -248,7 +248,7 @@ input-submit {
     border-bottom: 2px solid var(--color-primary);
     transform: rotate(-45deg);
     left: 6px;
-    top: 6px;
+    top: 8px;
   }
 
   &:hover {
@@ -868,8 +868,16 @@ fieldset-section {
     position: absolute;
     background: unset;
     right: var(--spacing-xxxs);
+    .icon {
+      transform: rotate(0deg);
+      transition: transform 0.2s;
+    }
     &:hover {
       background: unset;
+      .icon {
+        stroke: var(--color-primary);
+        transform: rotate(90deg);
+      }
     }
   }
 

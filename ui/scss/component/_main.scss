@@ -538,18 +538,6 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
-  .checkbox {
-    label {
-      padding-left: var(--height-checkbox);
-    }
-  }
-
-  .theme-checkbox {
-    label {
-      padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
-    }
-  }
-
   .section__actions {
     margin-left: var(--spacing-s);
   }
@@ -602,6 +590,15 @@ body {
       }
     }
 
+    .checkbox {
+      input {
+        background-color: unset;
+      }
+      label {
+        padding-left: var(--height-checkbox);
+      }
+    }
+
     select {
       &:hover {
         background-color: var(--color-primary);
@@ -609,22 +606,24 @@ body {
       }
     }
 
-    .checkbox,
-    .radio {
+    .theme-checkbox {
+      input {
+        background-color: unset;
+      }
       label {
+        margin-bottom: -4px;
+        padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
         &::before {
-          top: unset;
-          border: unset;
+          margin-top: -2px;
         }
         &::after {
           top: 6px;
         }
       }
-    }
-    .checkbox {
-      label {
-        &::after {
-          top: 8px !important;
+      fieldset-group {
+        label {
+          padding-left: 0;
+          margin-bottom: 0;
         }
       }
     }
