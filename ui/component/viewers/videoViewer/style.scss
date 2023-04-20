@@ -73,6 +73,7 @@
       &:hover {
         .claim-tile__info {
           display: flex;
+          .channel-name,
           .date_time {
             color: white;
           }
