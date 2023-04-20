@@ -203,11 +203,7 @@ function DiscoverPage(props: Props) {
   // **************************************************************************
 
   return (
-    <Page
-      noFooter
-      fullWidthPage={tileLayout}
-      className={classnames('main__discover', { 'hide-ribbon': hideRepostRibbon })}
-    >
+    <Page noFooter fullWidthPage={tileLayout} className={classnames({ 'hide-ribbon': hideRepostRibbon })}>
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
         <ClaimListDiscover
           pins={getPins(dynamicRouteProps)}

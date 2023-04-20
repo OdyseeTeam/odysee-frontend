@@ -5,6 +5,7 @@ const Dotenv = require('dotenv-webpack');
 const { DefinePlugin, ProvidePlugin } = require('webpack');
 const { getIfUtils } = require('webpack-config-utils');
 const TerserPlugin = require('terser-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const { ifProduction } = getIfUtils(NODE_ENV);
@@ -56,8 +57,20 @@ let baseConfig = {
       },
       {
         test: /\.s?css$/,
+        exclude: /style\.scss/,
         use: [
+          // MiniCssExtractPlugin.loader,
           'style-loader',
+          'css-loader',
+          'postcss-loader',
+          'sass-loader',
+        ],
+      },
+      {
+        test: /style\.scss/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          // 'style-loader',
           'css-loader',
           'postcss-loader',
           'sass-loader',
@@ -121,6 +134,10 @@ let baseConfig = {
       systemvars: true, // load all the predefined 'process.env' variables which will trump anything local per dotenv specs.
       silent: false, // hide any errors
       defaults: true, // load '.env.defaults' as the default values if empty.
+    }),
+    new MiniCssExtractPlugin({
+      filename: NODE_ENV === 'development' ? "[name].css" : "[name].[contenthash].css",
+      chunkFilename: NODE_ENV === 'development' ? "[id].css" : "[id].[contenthash].css",
     }),
     ...optInPlugins,
   ],

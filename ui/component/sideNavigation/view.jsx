@@ -2,8 +2,6 @@
 import React from 'react';
 import type { Node } from 'react';
 import classnames from 'classnames';
-
-import './style.scss';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
