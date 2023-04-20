@@ -18,7 +18,6 @@ import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { useIsMobile } from 'effects/use-screensize';
 import debounce from 'util/debounce';
-import './style.scss';
 
 type Props = {
   defaultTags: string,
@@ -298,7 +297,7 @@ function ClaimListHeader(props: Props) {
               )}
             </div>
             <>
-              {true && (
+              {showHideAnonymous && (
                 <div className="claim-search__menu-group hide-anonymous-checkbox">
                   <FormField
                     label={__('Hide anonymous')}

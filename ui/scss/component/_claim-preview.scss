@@ -310,7 +310,7 @@
     }
     .claim-preview__tags {
       display: flex;
-      width: 100%;
+      flex: 1;
       min-width: 70px;
       justify-content: end;
       align-items: end;

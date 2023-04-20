@@ -894,10 +894,13 @@ fieldset-section {
   fieldset-section {
     width: 100%;
   }
+  input::placeholder {
+    font-size: var(--font-body);
+  }
   .icon {
     position: absolute;
     left: var(--spacing-s);
-    top: calc(50% - 7px);
+    top: calc(50% - 8px);
   }
 }
 

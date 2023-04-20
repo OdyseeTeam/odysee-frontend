@@ -85,14 +85,6 @@
       margin-top: var(--spacing-s);
     }
   }
-
-  /*
-  @media (min-width: $breakpoint-xxsmall) {
-    & > *:not(:last-child) {
-      margin-right: var(--spacing-s);
-    }
-  }
-  */
 }
 
 .claim-search__wrapper--grid {
@@ -107,10 +99,10 @@
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
-  padding: var(--spacing-m);
-  padding-left: 0px;
-  padding-bottom: var(--spacing-s);
-  margin-top: var(--spacing-m);
+  // padding: var(--spacing-m);
+  // padding-left: 0px;
+  // padding-bottom: var(--spacing-s);
+  // margin-top: var(--spacing-m);
   margin-bottom: var(--spacing-m);
   color: var(--color-text-subtitle);
   align-items: flex-start;
