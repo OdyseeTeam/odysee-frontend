@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import FileTitleSection from 'component/fileTitleSection';
-import Ad from 'web/component/ad/ad';
 
+const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
 

@@ -11,7 +11,9 @@ import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import Ad from 'web/component/ad/ad';
+import { lazyImport } from 'util/lazyImport';
+
+const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 
 type Props = {
   channelClaimId: any,

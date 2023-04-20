@@ -6,11 +6,13 @@ import { parseURI, isNameValid } from 'util/lbryURI';
 import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
-import Ad from 'web/component/ad/ad';
 import SearchTopClaim from 'component/searchTopClaim';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
+import { lazyImport } from 'util/lazyImport';
+
+const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 
 type Props = {
   urlQuery: string,

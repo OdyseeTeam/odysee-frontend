@@ -25,7 +25,6 @@ import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
 import AdBlockTester from 'web/component/adBlockTester';
-import Ad from 'web/component/ad/ad';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import {
   useDegradedPerformance,
@@ -37,6 +36,7 @@ import {
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
 
+const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
 const NagDegradedPerformance = lazyImport(() =>
@@ -569,7 +569,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <AdBlockTester />
-          {!hasPremiumPlus && !embedPath && <Ad type="sticky" />}
+          <React.Suspense fallback={null}>{!hasPremiumPlus && !embedPath && <Ad type="sticky" />}</React.Suspense>
           <Router uri={uri} />
           <ModalRouter />
 

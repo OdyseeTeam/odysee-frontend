@@ -1,9 +1,11 @@
 // @flow
 import React from 'react';
-import AdTileA from './tileA';
-import AdTileB from './tileB';
-import AdSticky from './sticky';
-import AdAboveComments from './aboveComments';
+import { lazyImport } from 'util/lazyImport';
+
+const AdTileA = lazyImport(() => import('./tileA' /* webpackChunkName: "adTileA" */));
+const AdTileB = lazyImport(() => import('./tileB' /* webpackChunkName: "adTileB" */));
+const AdSticky = lazyImport(() => import('./sticky' /* webpackChunkName: "adSticky" */));
+const AdAboveComments = lazyImport(() => import('./aboveComments' /* webpackChunkName: "adAboveComments" */));
 
 type Props = {
   type: string,

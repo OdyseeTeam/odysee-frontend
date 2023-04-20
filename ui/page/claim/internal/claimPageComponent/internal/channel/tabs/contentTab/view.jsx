@@ -9,7 +9,6 @@ import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
-import Ad from 'web/component/ad/ad';
 import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
@@ -19,7 +18,9 @@ import { SearchResults } from './internal/searchResults';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { tagSearchCsOptionsHook } from 'util/search';
+import { lazyImport } from 'util/lazyImport';
 
+const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
 type Props = {

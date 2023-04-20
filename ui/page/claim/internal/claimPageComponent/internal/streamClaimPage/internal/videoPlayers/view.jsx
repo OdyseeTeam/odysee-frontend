@@ -14,8 +14,8 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
-import Ad from 'web/component/ad/ad';
 
+const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 
 export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
