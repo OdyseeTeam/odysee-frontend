@@ -12,7 +12,13 @@ import { generateDownloadUrl, generateNewestUrl } from 'util/web';
 import useChannelSign from 'effects/use-channel-sign';
 import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
-import { getChannelIdFromClaim, getClaimTags } from 'util/claim';
+import {
+  getChannelIdFromClaim,
+  getClaimScheduledState,
+  getClaimTags,
+  isClaimPrivate,
+  isClaimUnlisted,
+} from 'util/claim';
 import { VISIBILITY_TAGS } from 'constants/tags';
 import { hmsToSeconds, secondsToHms } from 'util/time';
 import {
@@ -72,6 +78,8 @@ function SocialShare(props: Props) {
   const [showClaimLinks, setShowClaimLinks] = React.useState(false);
   const [includeStartTime, setincludeStartTime]: [boolean, any] = React.useState(false);
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
+  const showAdditionalShareOptions =
+    !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) === 'non-scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
 
@@ -218,114 +226,117 @@ function SocialShare(props: Props) {
           />
         </div>
       )}
-      <div className="section__actions">
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.TWITTER}
-          title={__('Share on Twitter')}
-          href={tweetIntent}
-        />
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.FACEBOOK}
-          title={__('Share on Facebook')}
-          target="_blank"
-          href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
-        />
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.REDDIT}
-          title={__('Share on Reddit')}
-          target="_blank"
-          href={`https://reddit.com/submit?url=${encodedLbryURL}`}
-        />
-        {!isMobile ? (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.WHATSAPP}
-            title={__('Share on WhatsApp')}
-            target="_blank"
-            href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
-          />
-        ) : (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.WHATSAPP}
-            title={__('Share on WhatsApp')}
-            href={`whatsapp://send?text=${encodedLbryURL}`}
-          />
-        )}
-        {!IOS ? (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.TELEGRAM}
-            title={__('Share on Telegram')}
-            target="_blank"
-            href={`https://t.me/share/url?url=${encodedLbryURL}`}
-          />
-        ) : (
-          // Only ios client supports share urls
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.TELEGRAM}
-            title={__('Share on Telegram')}
-            href={`tg://msg_url?url=${encodedLbryURL}&amp;text=text`}
-          />
-        )}
-        {webShareable && !isCollection && (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.EMBED}
-            title={__('Embed this content')}
-            onClick={() => {
-              setShowEmbed(!showEmbed);
-              setShowClaimLinks(false);
-            }}
-          />
-        )}
-        {claimLinkElements.length > 0 && (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.SHARE_LINK}
-            title={__('Links')}
-            onClick={() => {
-              setShowClaimLinks(!showClaimLinks);
-              setShowEmbed(false);
-            }}
-          />
-        )}
-      </div>
-
-      {SUPPORTS_SHARE_API && isMobile && (
-        <div className="section__actions">
-          <Button icon={ICONS.SHARE} button="primary" label={__('Share via...')} onClick={handleWebShareClick} />
-        </div>
+      {showAdditionalShareOptions && (
+        <>
+          <div className="section__actions">
+            <Button
+              className="share"
+              iconSize={24}
+              icon={ICONS.TWITTER}
+              title={__('Share on Twitter')}
+              href={tweetIntent}
+            />
+            <Button
+              className="share"
+              iconSize={24}
+              icon={ICONS.FACEBOOK}
+              title={__('Share on Facebook')}
+              target="_blank"
+              href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
+            />
+            <Button
+              className="share"
+              iconSize={24}
+              icon={ICONS.REDDIT}
+              title={__('Share on Reddit')}
+              target="_blank"
+              href={`https://reddit.com/submit?url=${encodedLbryURL}`}
+            />
+            {!isMobile ? (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.WHATSAPP}
+                title={__('Share on WhatsApp')}
+                target="_blank"
+                href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
+              />
+            ) : (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.WHATSAPP}
+                title={__('Share on WhatsApp')}
+                href={`whatsapp://send?text=${encodedLbryURL}`}
+              />
+            )}
+            {!IOS ? (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.TELEGRAM}
+                title={__('Share on Telegram')}
+                target="_blank"
+                href={`https://t.me/share/url?url=${encodedLbryURL}`}
+              />
+            ) : (
+              // Only ios client supports share urls
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.TELEGRAM}
+                title={__('Share on Telegram')}
+                href={`tg://msg_url?url=${encodedLbryURL}&amp;text=text`}
+              />
+            )}
+            {webShareable && !isCollection && (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.EMBED}
+                title={__('Embed this content')}
+                onClick={() => {
+                  setShowEmbed(!showEmbed);
+                  setShowClaimLinks(false);
+                }}
+              />
+            )}
+            {claimLinkElements.length > 0 && (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.SHARE_LINK}
+                title={__('Links')}
+                onClick={() => {
+                  setShowClaimLinks(!showClaimLinks);
+                  setShowEmbed(false);
+                }}
+              />
+            )}
+          </div>
+          {SUPPORTS_SHARE_API && isMobile && (
+            <div className="section__actions">
+              <Button icon={ICONS.SHARE} button="primary" label={__('Share via...')} onClick={handleWebShareClick} />
+            </div>
+          )}
+          {showEmbed &&
+            (!isChannel ? (
+              <EmbedTextArea
+                label={__('Embedded')}
+                claim={claim}
+                includeStartTime={includeStartTime}
+                startTime={startTimeSeconds}
+                referralCode={referralCode}
+              />
+            ) : (
+              <>
+                <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
+                <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
+              </>
+            ))}
+          {showClaimLinks && <div className="section">{claimLinkElements}</div>}
+        </>
       )}
-      {showEmbed &&
-        (!isChannel ? (
-          <EmbedTextArea
-            label={__('Embedded')}
-            claim={claim}
-            includeStartTime={includeStartTime}
-            startTime={startTimeSeconds}
-            referralCode={referralCode}
-          />
-        ) : (
-          <>
-            <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
-            <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
-          </>
-        ))}
-      {showClaimLinks && <div className="section">{claimLinkElements}</div>}
     </React.Fragment>
   );
 }

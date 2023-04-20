@@ -9,12 +9,21 @@ type Props = {
   fileAction?: boolean,
   webShareable: boolean,
   collectionId?: string,
-  // redux
+  // -- internal --
+  isClaimMine: ?boolean,
+  isUnlisted: boolean,
   doOpenModal: (id: string, {}) => void,
 };
 
 function ClaimShareButton(props: Props) {
-  const { uri, fileAction, collectionId, webShareable, doOpenModal } = props;
+  const { uri, fileAction, collectionId, webShareable, isClaimMine, isUnlisted, doOpenModal } = props;
+
+  if (isUnlisted && !isClaimMine) {
+    // The only way a non-creator can re-share is by copying the current URL.
+    // But can't confirm if that is kosher (might contain malicious stuff from
+    // another sharer?). I think should limit to just creator.
+    return null;
+  }
 
   return (
     <FileActionButton
