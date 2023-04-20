@@ -314,6 +314,18 @@
   &:only-child {
     border-top: none;
   }
+  @media (max-width: $breakpoint-small) {
+    flex-flow: row;
+    .settings-row__title {
+      min-width: unset;
+      max-width: 60%;
+    }
+    .settings-row__value {
+      width: unset;
+      justify-content: end;
+      margin-left: auto;
+    }
+  }
 }
 
 .card__main-actions.settings-row {
