@@ -14,6 +14,51 @@
       gap: var(--spacing-xs);
     }
   }
+
+  .section__actions--no-margin {
+    justify-content: end;
+    margin-left: auto;
+    @media (max-width: $breakpoint-small) {
+      top: 0;
+      right: 0;
+      margin-top: var(--spacing-s);
+    }
+  }
+
+  .hide-anonymous-checkbox {
+    background-color: var(--color-header-button);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-s);
+    height: var(--height-input);
+    label {
+      &::before {
+        background-color: var(--color-background);
+      }
+      /*
+      &:hover{
+        &::before {
+          background-color: var(--color-primary);
+        }
+        
+      }
+      */
+    }
+    /*
+    label {
+      margin-bottom: -6px;
+      &::before {
+        background-color: var(--color-background);
+        margin-top: -2px;
+      }
+      &::after {
+        margin-top: -2px;
+      }
+    }
+    */
+  }
 }
 
 .claim-search__wrapper--wrap {

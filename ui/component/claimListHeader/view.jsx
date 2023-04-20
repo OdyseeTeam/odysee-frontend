@@ -298,7 +298,7 @@ function ClaimListHeader(props: Props) {
               )}
             </div>
             <>
-              {showHideAnonymous && (
+              {true && (
                 <div className="claim-search__menu-group hide-anonymous-checkbox">
                   <FormField
                     label={__('Hide anonymous')}
