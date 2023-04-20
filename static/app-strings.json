@@ -1006,7 +1006,7 @@
   "Please %sign_in_link% to comment.": "Please %sign_in_link% to comment.",
   "Replying as %reply_channel%": "Replying as %reply_channel%",
   "Error ID: %sentryEventId%": "Error ID: %sentryEventId%",
-  "%channel_name% is waiting for you on %site_name%. %signup_link% to claim it.": "%channel_name% is waiting for you on %site_name%. %signup_link% to claim it.",
+  "%channel_name% is waiting for you on %site_name%. %signup_link% to follow them.": "%channel_name% is waiting for you on %site_name%. %signup_link% to follow them.",
   "Content freedom and a present are waiting for you. %signup_link% to claim it.": "Content freedom and a present are waiting for you. %signup_link% to claim it.",
   "Finish Account": "Finish Account",
   "Create Account": "Create Account",
