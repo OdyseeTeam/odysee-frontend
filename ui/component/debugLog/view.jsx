@@ -1,9 +1,8 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-
-import './style.scss';
 import Button from 'component/button';
+import './style.scss';
 
 type Props = {
   debugLog: Array<string | Error>,

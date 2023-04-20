@@ -1,0 +1,38 @@
+.homePage-wrapper {
+  padding: 0 var(--spacing-xs);
+  .mb-xl {
+    margin-bottom: 0px;
+  }
+  .icon__wrapper--Heart {
+    .icon {
+      fill: var(--color-header-background);
+      stroke: transparent;
+    }
+  }
+}
+
+.homePage-wrapper__section-title {
+  display: flex;
+  justify-content: space-between;
+
+  @media (max-width: $breakpoint-small) {
+    button {
+      right: calc(var(--spacing-xs) * -1);
+      .button__content {
+        padding: 10px;
+        background-color: var(--color-header-background);
+        height: unset;
+        border-radius: 50% 0 0 50%;
+
+        .icon {
+          margin-left: 0;
+          width: 22px;
+          height: 22px;
+        }
+      }
+      .button__label {
+        display: none;
+      }
+    }
+  }
+}

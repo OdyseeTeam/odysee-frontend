@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
+import { lazyImport } from 'util/lazyImport';
 
 import { getSortedRowData } from './helper';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
@@ -21,9 +22,9 @@ import ScheduledStreams from 'component/scheduledStreams';
 import Ad from 'web/component/ad/ad';
 import Meme from 'web/component/meme';
 import Portals from 'component/portals';
-import FeaturedBanner from 'component/featuredBanner';
 import { useHistory } from 'react-router-dom';
-import './style.scss';
+
+const FeaturedBanner = lazyImport(() => import('component/featuredBanner' /* webpackChunkName: "featuredBanner" */));
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
