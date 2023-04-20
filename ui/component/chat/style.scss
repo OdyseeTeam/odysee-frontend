@@ -975,6 +975,10 @@ $recent-msg-button__height: 2rem;
     margin-right: var(--spacing-xxxs);
     @include handleChannelGif(1.6rem);
 
+    .comment__badge {
+      left: 7px;
+    }
+
     @media (max-width: $breakpoint-small) {
       margin-top: 2.5px;
       margin-left: -2px;
