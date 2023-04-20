@@ -1818,6 +1818,7 @@ video {
     stroke: var(--color-background);
     margin-top: -2px;
     margin-right: var(--spacing-m);
+    overflow: visible;
 
     &.icon--Heart {
       fill: var(--color-background);

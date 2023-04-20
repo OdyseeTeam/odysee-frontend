@@ -124,17 +124,21 @@ function DiscoverPage(props: Props) {
       headerLabel = __('Reposts of %uri%', { uri: repostedUri });
     } else if (tag && !isCategory) {
       headerLabel = (
-        <span>
+        <h1 className="page__title">
           <Icon icon={ICONS.TAG} size={10} />
-          {(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          <span>
+            #{(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          </span>
 
-          <Button
-            className="claim-search__tags-link"
-            button="link"
-            label={__('Manage Tags')}
-            navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
-          />
-        </span>
+          <span>
+            <Button
+              className="claim-search__tags-link"
+              button="link"
+              label={__('Manage Tags')}
+              navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
+            />
+          </span>
+        </h1>
       );
     } else {
       headerLabel = (

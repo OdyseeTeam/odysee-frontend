@@ -253,6 +253,9 @@
 
 .claim-search__tags-link {
   margin-left: var(--spacing-s);
+  .button__label {
+    margin-top: 0;
+  }
 }
 
 .claim-search__filters-wrapper {
