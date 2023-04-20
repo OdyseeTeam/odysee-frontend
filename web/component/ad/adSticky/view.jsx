@@ -27,8 +27,6 @@ export default function AdSticky(props: Props) {
 
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
-  console.log('---------------');
-  console.log('inAllowedPath: ', inAllowedPath);
   const [isActive, setIsActive] = React.useState(false);
   const [isHidden, setIsHidden] = React.useState(false);
   const [loads, setLoads] = React.useState(1);
