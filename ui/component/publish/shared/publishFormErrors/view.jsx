@@ -18,6 +18,7 @@ type Props = {
   uploadThumbnailStatus: string,
   thumbnail: string,
   thumbnailError: boolean,
+  releaseTimeError: ?string,
   restrictedToMemberships: ?string,
 };
 
@@ -33,6 +34,7 @@ function PublishFormErrors(props: Props) {
     uploadThumbnailStatus,
     thumbnail,
     thumbnailError,
+    releaseTimeError,
     waitForFile,
     overMaxBitrate,
     restrictedToMemberships,
@@ -66,6 +68,7 @@ function PublishFormErrors(props: Props) {
         thumbnailError && !thumbnailUploaded && <div>{__('Thumbnail is invalid.')}</div>
       )}
       {editingURI && !isStillEditing && !filePath && <div>{__('Please reselect a file after changing the URL')}</div>}
+      {releaseTimeError && <div>{__(releaseTimeError)}</div>}
     </div>
   );
 }

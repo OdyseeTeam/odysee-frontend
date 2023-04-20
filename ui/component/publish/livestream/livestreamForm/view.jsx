@@ -54,6 +54,7 @@ type Props = {
   thumbnail: ?string,
   thumbnailError: ?boolean,
   uploadThumbnailStatus: ?string,
+  releaseTimeError: ?string,
   thumbnailPath: ?string,
   description: ?string,
   language: string,
@@ -105,6 +106,7 @@ function LivestreamForm(props: Props) {
   const {
     thumbnail,
     thumbnailError,
+    releaseTimeError,
     name,
     editingURI,
     myClaimForUri,
@@ -198,6 +200,7 @@ function LivestreamForm(props: Props) {
     !bidError &&
     !emptyPostError &&
     !(thumbnailError && !thumbnailUploaded) &&
+    !releaseTimeError &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;

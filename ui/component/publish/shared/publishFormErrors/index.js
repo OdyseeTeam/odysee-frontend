@@ -12,6 +12,7 @@ const select = (state) => ({
   restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
   thumbnail: selectPublishFormValue(state, 'thumbnail'),
   thumbnailError: selectPublishFormValue(state, 'thumbnailError'),
+  releaseTimeError: selectPublishFormValue(state, 'releaseTimeError'),
   isStillEditing: selectIsStillEditing(state),
 });
 

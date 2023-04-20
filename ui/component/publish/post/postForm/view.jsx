@@ -169,6 +169,7 @@ function PostForm(props: Props) {
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
+  // TODO: formValidLessFile should be a selector
   const formValidLessFile =
     restrictedToMemberships !== null &&
     name &&
@@ -180,6 +181,7 @@ function PostForm(props: Props) {
     !releaseTimeError &&
     !emptyPostError &&
     !(thumbnailError && !thumbnailUploaded) &&
+    !releaseTimeError &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
