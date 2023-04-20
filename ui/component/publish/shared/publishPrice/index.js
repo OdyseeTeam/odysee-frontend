@@ -18,6 +18,7 @@ const select = (state) => ({
   fee: selectPublishFormValue(state, 'fee'),
   chargesEnabled: selectAccountChargesEnabled(state),
   restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
+  visibility: selectPublishFormValue(state, 'visibility'),
 });
 
 const perform = {

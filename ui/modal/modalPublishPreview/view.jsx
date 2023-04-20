@@ -416,7 +416,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(__('Channel'), getChannelValue(channel))}
                     {createRow(__('URL'), formattedUri)}
                     {createRow(__('Deposit'), getDeposit())}
-                    {createRow(getPriceLabel(), getPriceValue())}
+                    {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
                     {createRow(__('Visibility'), getVisibilityValue())}
                     {createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime), !showReleaseTimeRow())}

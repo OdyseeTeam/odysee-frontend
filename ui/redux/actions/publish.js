@@ -144,7 +144,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     publishPayload.locations = myClaimForUriEditing.value.locations;
   }
 
-  if (paywall === PAYWALL.SDK) {
+  if (paywall === PAYWALL.SDK && publishData.visibility === 'public') {
     if (fee && fee.currency && Number(fee.amount) > 0) {
       publishPayload.fee_currency = fee.currency;
       publishPayload.fee_amount = creditsToString(fee.amount);
@@ -246,8 +246,15 @@ const PUBLISH = {
     },
 
     fiatPaywall: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      const { paywall, fiatPurchaseEnabled, fiatPurchaseFee, fiatRentalEnabled, fiatRentalFee, fiatRentalExpiration } =
-        publishData;
+      const {
+        paywall,
+        fiatPurchaseEnabled,
+        fiatPurchaseFee,
+        fiatRentalEnabled,
+        fiatRentalFee,
+        fiatRentalExpiration,
+        visibility,
+      } = publishData;
 
       const refSet = new Set(tagSet);
       refSet.forEach((t) => {
@@ -262,6 +269,11 @@ const PUBLISH = {
           tagSet.delete(t);
         }
       });
+
+      if (visibility !== 'public') {
+        // Payment options disabled.
+        return;
+      }
 
       if (paywall === PAYWALL.FIAT) {
         // Purchase
