@@ -21,10 +21,10 @@ import { GetLinksData } from 'util/buildHomepage';
 import ScheduledStreams from 'component/scheduledStreams';
 import Ad from 'web/component/ad/ad';
 import Meme from 'web/component/meme';
-import Portals from 'component/portals';
 import { useHistory } from 'react-router-dom';
 
 const FeaturedBanner = lazyImport(() => import('component/featuredBanner' /* webpackChunkName: "featuredBanner" */));
+const Portals = lazyImport(() => import('component/portals' /* webpackChunkName: "portals" */));
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
