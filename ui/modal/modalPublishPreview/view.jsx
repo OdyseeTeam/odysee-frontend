@@ -346,6 +346,10 @@ const ModalPublishPreview = (props: Props) => {
     return null;
   }
 
+  function hideTierRestrictions() {
+    return !tiers || !restrictingTiers || visibility === 'unlisted';
+  }
+
   function getVisibilityValue() {
     switch (visibility) {
       case 'public':
@@ -421,7 +425,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(__('Visibility'), getVisibilityValue())}
                     {createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime), !showReleaseTimeRow())}
                     {createRow(__('License'), getLicense())}
-                    {createRow(__('Restricted to'), getTierRestrictionValue(), !tiers || !restrictingTiers)}
+                    {createRow(__('Restricted to'), getTierRestrictionValue(), hideTierRestrictions())}
                     {createRow(__('Tags'), getTagsValue(tags))}
                   </tbody>
                 </table>

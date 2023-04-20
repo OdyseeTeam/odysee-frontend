@@ -13,6 +13,7 @@ const select = (state) => ({
   thumbnail: selectPublishFormValue(state, 'thumbnail'),
   thumbnailError: selectPublishFormValue(state, 'thumbnailError'),
   releaseTimeError: selectPublishFormValue(state, 'releaseTimeError'),
+  visibility: selectPublishFormValue(state, 'visibility'),
   isStillEditing: selectIsStillEditing(state),
 });
 

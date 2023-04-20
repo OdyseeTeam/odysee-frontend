@@ -1,12 +1,14 @@
 // @flow
 import React, { useEffect } from 'react';
+import classnames from 'classnames';
+
+import './style.scss';
 import { FormField } from 'component/common/form';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
 import { PAYWALL } from 'constants/publish';
-import classnames from 'classnames';
 
 type Props = {
   description: ?string,
@@ -24,6 +26,7 @@ type Props = {
   location: string,
   isStillEditing: boolean,
   paywall: Paywall,
+  visibility: Visibility,
 };
 
 function PublishProtectedContent(props: Props) {
@@ -41,6 +44,7 @@ function PublishProtectedContent(props: Props) {
     location,
     isStillEditing,
     paywall,
+    visibility,
   } = props;
 
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
@@ -181,8 +185,15 @@ function PublishProtectedContent(props: Props) {
           background
           isBodyList
           title={__('Restrict Content')}
+          className={classnames('', { 'card--disabled': visibility === 'unlisted' })}
           body={
             <div className="publish-row publish-row-tiers">
+              {visibility === 'unlisted' && (
+                <div className="publish-row__reason">
+                  {__('Membership restrictions are not available for Unlisted content.')}
+                </div>
+              )}
+
               <FormField
                 type="checkbox"
                 disabled={paywall !== PAYWALL.FREE}

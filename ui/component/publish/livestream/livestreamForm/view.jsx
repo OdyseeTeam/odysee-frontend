@@ -99,6 +99,7 @@ type Props = {
   remoteFileUrl?: string,
   urlSource?: string,
   restrictedToMemberships: ?string,
+  visibility: Visibility,
 };
 
 function LivestreamForm(props: Props) {
@@ -143,6 +144,7 @@ function LivestreamForm(props: Props) {
     remoteFileUrl,
     urlSource,
     restrictedToMemberships,
+    visibility,
   } = props;
 
   const isMobile = useIsMobile();
@@ -190,7 +192,7 @@ function LivestreamForm(props: Props) {
   const waitingForFile = waitForFile && !remoteUrl && !filePath;
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
-    restrictedToMemberships !== null &&
+    (restrictedToMemberships !== null || visibility === 'unlisted') &&
     name &&
     isNameValid(name) &&
     title &&

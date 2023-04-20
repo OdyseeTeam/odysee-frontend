@@ -90,6 +90,7 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   restrictedToMemberships: ?string,
+  visibility: Visibility,
 };
 
 function PostForm(props: Props) {
@@ -132,6 +133,7 @@ function PostForm(props: Props) {
     claimInitialRewards,
     hasClaimedInitialRewards,
     restrictedToMemberships,
+    visibility,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -171,7 +173,7 @@ function PostForm(props: Props) {
 
   // TODO: formValidLessFile should be a selector
   const formValidLessFile =
-    restrictedToMemberships !== null &&
+    (restrictedToMemberships !== null || visibility === 'unlisted') &&
     name &&
     isNameValid(name) &&
     title &&
