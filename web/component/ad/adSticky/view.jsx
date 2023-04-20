@@ -27,6 +27,8 @@ export default function AdSticky(props: Props) {
 
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
+  console.log('---------------');
+  console.log('inAllowedPath: ', inAllowedPath);
   const [isActive, setIsActive] = React.useState(false);
   const [isHidden, setIsHidden] = React.useState(false);
   const [loads, setLoads] = React.useState(1);
@@ -68,6 +70,7 @@ export default function AdSticky(props: Props) {
 
   React.useEffect(() => {
     let script, scriptId, scriptSticky;
+
     if (shouldShowAds && !isActive && inAllowedPath && !nagsShown) {
       try {
         const stickyIdCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
