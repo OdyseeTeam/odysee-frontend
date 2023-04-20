@@ -47,7 +47,7 @@
         padding: var(--spacing-s);
         padding-bottom: var(--spacing-m);
         padding-top: 0;
-        background: linear-gradient(180deg, rgba(13, 13, 13, 1) 0%, rgba(13, 13, 13, 0) 100%);
+        background: linear-gradient(180deg, rgba(13, 13, 13, 0.9) 50%, rgba(13, 13, 13, 0) 100%);
         display: none;
       }
       .claim-preview__hover-actions,
@@ -61,7 +61,7 @@
         bottom: 0;
         width: 100%;
         padding: var(--spacing-m) var(--spacing-s);
-        background: linear-gradient(0deg, rgba(13, 13, 13, 1) 0%, rgba(13, 13, 13, 0) 100%);
+        background: linear-gradient(0deg, rgba(13, 13, 13, 0.9) 50%, rgba(13, 13, 13, 0) 100%);
         display: none;
       }
 
@@ -73,13 +73,15 @@
       &:hover {
         .claim-tile__info {
           display: flex;
-          .channel-name,
           .date_time {
             color: white;
           }
         }
         .claim-tile__header {
           display: flex;
+          .claim-preview__title {
+            color: white;
+          }
         }
         .claim-preview__file-property-overlay {
           display: block;
