@@ -34,30 +34,15 @@
     padding: 0 var(--spacing-s);
     height: var(--height-input);
     label {
+      font-size: var(--font-base);
+      font-weight: var(--font-weight-bold);
+      padding-left: calc(var(--height-checkbox) + var(--spacing-s));
+      margin-bottom: -4px;
       &::before {
-        background-color: var(--color-background);
-      }
-      /*
-      &:hover{
-        &::before {
-          background-color: var(--color-primary);
-        }
-        
-      }
-      */
-    }
-    /*
-    label {
-      margin-bottom: -6px;
-      &::before {
-        background-color: var(--color-background);
-        margin-top: -2px;
-      }
-      &::after {
+        // background-color: var(--color-background);
         margin-top: -2px;
       }
     }
-    */
   }
 }
 

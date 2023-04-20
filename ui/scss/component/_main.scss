@@ -613,22 +613,11 @@ body {
     .radio {
       label {
         &::before {
-          background-color: var(--color-background);
           top: unset;
           border: unset;
         }
         &::after {
           top: 6px;
-        }
-      }
-      &:hover {
-        label {
-          &::before {
-            background-color: var(--color-primary);
-          }
-          &::after {
-            border-color: var(--color-primary-contrast);
-          }
         }
       }
     }

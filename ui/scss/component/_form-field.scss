@@ -30,12 +30,6 @@ select,
   }
 }
 
-input {
-  &:hover {
-    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
-  }
-}
-
 .MuiInputBase-root {
   &:hover {
     outline: 2px solid var(--color-primary) !important;
@@ -214,7 +208,7 @@ input-submit {
     min-height: var(--height-checkbox);
 
     &::before {
-      background-color: var(--color-header-button);
+      background-color: var(--color-background);
     }
   }
 
@@ -258,11 +252,13 @@ input-submit {
   }
 
   &:hover {
-    &::before {
-      background-color: var(--color-primary);
-    }
-    &::after {
-      border-color: var(--color-primary-contrast);
+    label {
+      &::before {
+        background-color: var(--color-primary);
+      }
+      &::after {
+        border-color: var(--color-primary-contrast);
+      }
     }
   }
 }
