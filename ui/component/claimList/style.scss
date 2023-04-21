@@ -743,6 +743,13 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview--tile {
+  .channel-thumbnail {
+    img,
+    canvas {
+      width: 32px;
+      height: 32px;
+    }
+  }
   .claim-preview__repost-author {
     width: 120px;
     height: 120px;
