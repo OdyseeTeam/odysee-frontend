@@ -23,7 +23,13 @@ function DebugLog(props: Props) {
   function getDataElem(info: string | Error) {
     // $FlowFixMe
     if (info instanceof Error && info.cause) {
-      return <pre>{JSON.stringify(info.cause)}</pre>;
+      if (info.cause instanceof Error) {
+        return <pre>{info.cause.toString()}</pre>;
+      } else {
+        try {
+          return <pre>{JSON.stringify(info.cause)}</pre>;
+        } catch {}
+      }
     }
   }
 
