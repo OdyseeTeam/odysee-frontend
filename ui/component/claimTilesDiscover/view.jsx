@@ -165,32 +165,29 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
+  /**
+   * Injects pinned URLs into `uris` in-place.
+   * i.e. don't use immutable functions like concat().
+   */
   function injectPinUrls(uris, pins, resolvedPinUris) {
     if (!pins || !uris) {
-      return uris;
+      return;
     }
 
     if (resolvedPinUris) {
-      if (uris.length < resolvedPinUris.length) {
-        return uris.concat(resolvedPinUris);
-      }
-
       resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
-          // remove the pin from the resolved/searched uris
+          // remove the duplicate pin; we'll put it back at 2nd slot later.
           uris.splice(uris.indexOf(pin), 1);
         } else {
+          // remove to make space for the pin (maintain total count).
           uris.pop();
         }
       });
 
       // add the pins on uris starting from the 2nd index
       uris.splice(2, 0, ...resolvedPinUris);
-
-      return uris;
     }
-
-    return uris;
   }
 
   const getInjectedItem = (index) => {
