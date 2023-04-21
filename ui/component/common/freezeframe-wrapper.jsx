@@ -28,7 +28,7 @@ const FreezeframeWrapper = (props: Props) => {
 
   useEffect(() => {
     if (imgRef.current) {
-      const width = imgRef.current.width * devicePixelRatio;
+      const width = Math.floor(imgRef.current.width * devicePixelRatio);
       setOptimizedSrc(`${THUMBNAIL_CDN_URL}s:${width}:0/quality:95/plain/${src}`);
     }
   }, [imgRef]);
