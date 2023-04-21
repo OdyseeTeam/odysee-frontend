@@ -159,7 +159,7 @@ function HomePage(props: Props) {
         hideMembersOnly={id !== 'FOLLOWING'}
         hasSource
         prefixUris={options.channelIds && getActiveLivestreamUrisForIds(options.channelIds)}
-        pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
+        // pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         injectedItem={index === topGrid && !hasPremiumPlus && { node: <Ad type="tileA" tileLayout /> }}
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
