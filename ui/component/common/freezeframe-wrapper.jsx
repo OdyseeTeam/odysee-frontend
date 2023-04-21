@@ -13,7 +13,6 @@ type Props = {
 
 const FreezeframeWrapper = (props: Props) => {
   const { src, className, children } = props;
-  const [optimizedSrc, setOptimizedSrc] = React.useState(undefined);
 
   const imgRef = React.useRef();
   const freezeframe = React.useRef();
@@ -29,13 +28,15 @@ const FreezeframeWrapper = (props: Props) => {
   useEffect(() => {
     if (imgRef.current) {
       const width = Math.floor(imgRef.current.width * devicePixelRatio);
-      setOptimizedSrc(`${THUMBNAIL_CDN_URL}s:${width}:0/quality:95/plain/${src}`);
+      // $FlowIgnore
+      imgRef.current?.setAttribute('src', `${THUMBNAIL_CDN_URL}s:${width}:0/quality:95/plain/${src}`);
+      freezeframe.current = new Freezeframe(imgRef.current);
     }
-  }, [imgRef]);
+  }, [src, imgRef]);
 
   return (
     <div className={classnames(className, 'freezeframe-wrapper')}>
-      <img ref={imgRef} data-src={optimizedSrc} className="freezeframe-img" />
+      <img ref={imgRef} className="freezeframe-img" />
       {children}
     </div>
   );

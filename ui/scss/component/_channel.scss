@@ -608,6 +608,11 @@ $actions-z-index: 2;
       height: 100%;
     }
   }
+
+  &.freezeframe-wrapper {
+    border-radius: 50%;
+    overflow: hidden;
+  }
 }
 
 .channel-thumbnail--resolving {
