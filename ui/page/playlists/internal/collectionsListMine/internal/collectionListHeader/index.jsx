@@ -12,14 +12,12 @@ type Props = {
   filterType: string,
   isTruncated: boolean,
   sortOption: { key: string, value: string },
-  persistedOption: { key: string, value: string },
   setFilterType: (type: string) => void,
   setSortOption: (params: { key: string, value: string }) => void,
-  setPersistedOption: (params: { key: string, value: string }) => void,
 };
 
 export default function CollectionsListMine(props: Props) {
-  const { filterType, isTruncated, sortOption, setFilterType, setSortOption, setPersistedOption } = props;
+  const { filterType, isTruncated, sortOption, setFilterType, setSortOption } = props;
 
   const history = useHistory();
   const {
@@ -37,7 +35,6 @@ export default function CollectionsListMine(props: Props) {
 
     const url = `?${urlParams.toString()}`;
     history.push(url);
-    setPersistedOption(sortOption);
   }
 
   function handleFilterTypeChange(value) {

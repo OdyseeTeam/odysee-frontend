@@ -224,6 +224,10 @@ export default function CollectionsListMine(props: Props) {
     }
   }, [filterParamsChanged]);
 
+  React.useEffect(() => {
+    setPersistedOption(sortOption);
+  }, [sortOption]);
+
   return (
     <>
       <SectionLabel label={__('Your Playlists')} />
@@ -243,8 +247,6 @@ export default function CollectionsListMine(props: Props) {
           // $FlowFixMe
           sortOption={sortOption}
           setSortOption={setSortOption}
-          persistedOption={persistedOption}
-          setPersistedOption={setPersistedOption}
         />
       </CollectionsListContext.Provider>
 
