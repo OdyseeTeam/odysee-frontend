@@ -1,25 +1,24 @@
 // @flow
 import React from 'react';
-import { lazyImport } from 'util/lazyImport';
-
-const AdTileA = lazyImport(() => import('./tileA' /* webpackChunkName: "adTileA" */));
-const AdTileB = lazyImport(() => import('./tileB' /* webpackChunkName: "adTileB" */));
-const AdSticky = lazyImport(() => import('./sticky' /* webpackChunkName: "adSticky" */));
-const AdAboveComments = lazyImport(() => import('./aboveComments' /* webpackChunkName: "adAboveComments" */));
+import AdTileA from './tileA';
+import AdTileB from './tileB';
+import AdSticky from './adSticky';
+import AdAboveComments from './aboveComments';
 
 type Props = {
   type: string,
+  uri?: string,
   tileLayout?: boolean,
 };
 
 function Ad(props: Props) {
-  const { type, tileLayout } = props;
+  const { type, uri, tileLayout } = props;
 
   return (
     <>
       {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
       {type === 'tileB' && <AdTileB />}
-      {type === 'sticky' && <AdSticky />}
+      {type === 'sticky' && <AdSticky uri={uri} />}
       {type === 'aboveComments' && <AdAboveComments />}
     </>
   );

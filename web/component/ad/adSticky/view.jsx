@@ -68,6 +68,7 @@ export default function AdSticky(props: Props) {
 
   React.useEffect(() => {
     let script, scriptId, scriptSticky;
+
     if (shouldShowAds && !isActive && inAllowedPath && !nagsShown) {
       try {
         const stickyIdCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {

@@ -9,7 +9,7 @@ const select = (state) => {
   const { portals } = homepageData;
   const { mainPortal } = portals || {};
   const user = selectUser(state);
-  const { global_mod, internal_feature } = user;
+  const { global_mod, internal_feature } = user || {};
   const showViews = global_mod || internal_feature;
 
   return {
