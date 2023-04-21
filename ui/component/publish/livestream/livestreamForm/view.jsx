@@ -267,9 +267,9 @@ function LivestreamForm(props: Props) {
 
       const responseFromNewApi = await fetch(newEndpointUrl);
 
-      const data = (await responseFromNewApi.json()).data;
+      const data: Array<ReplayListResponse> = (await responseFromNewApi.json()).data;
+      const newData: Array<LivestreamReplayItem> = [];
 
-      let newData = [];
       if (data && data.length > 0) {
         for (const dataItem of data) {
           if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
@@ -280,6 +280,7 @@ function LivestreamForm(props: Props) {
                   dataItem.Status.toLowerCase() === 'inprogress'
                     ? __('Processing...(') + dataItem.PercentComplete + '%)'
                     : (dataItem.Duration / 1000000000).toString(),
+                percentComplete: dataItem.PercentComplete,
                 thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
                 uploadedAt: dataItem.Created,
               },

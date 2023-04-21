@@ -21,7 +21,7 @@ type Props = {
   uri: ?string,
   mode: ?string,
   disabled: boolean,
-  livestreamData: LivestreamReplayData,
+  livestreamData: Array<LivestreamReplayItem>,
   isCheckingLivestreams: boolean,
   setOverMaxBitrate: (boolean) => void,
   fileSource: string,
@@ -397,11 +397,10 @@ function PublishLivestream(props: Props) {
                               {livestreamData
                                 .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
                                 .map((item, i) => (
-                                  <>
-                                    <tr className="livestream__data-row-spacer" key={item.id + '_spacer'} />
+                                  <React.Fragment key={item.data.fileLocation}>
+                                    <tr className="livestream__data-row-spacer" />
                                     <tr
                                       onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                      key={item.id}
                                       className={classnames('livestream__data-row', {
                                         'livestream__data-row--selected':
                                           selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i,
@@ -425,13 +424,21 @@ function PublishLivestream(props: Props) {
                                         </div>
                                       </td>
                                       <td>
-                                        {item.data.fileDuration && isNaN(item.data.fileDuration)
-                                          ? item.data.fileDuration
-                                          : `${Math.floor(item.data.fileDuration / 60)} ${
-                                              Math.floor(item.data.fileDuration / 60) === 1
-                                                ? __('minute')
-                                                : __('minutes')
-                                            }`}
+                                        {typeof item.data.fileDuration === 'string' && item.data.fileDuration}
+                                        {typeof item.data.fileDuration === 'number' &&
+                                          !isNaN(item.data.fileDuration) && (
+                                            <>
+                                              {Math.floor(item.data.fileDuration / 60) === 1
+                                                ? __('%duration% minute', {
+                                                    // $FlowIgnore (already ensured as number)
+                                                    file_duration: Math.floor(item.data.fileDuration / 60),
+                                                  })
+                                                : __('%duration% minutes', {
+                                                    // $FlowIgnore (already ensured as number)
+                                                    file_duration: Math.floor(item.data.fileDuration / 60),
+                                                  })}
+                                            </>
+                                          )}
                                         <div className="table__item-label">
                                           {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
                                         </div>
@@ -444,7 +451,7 @@ function PublishLivestream(props: Props) {
                                         />
                                       </td>
                                     </tr>
-                                  </>
+                                  </React.Fragment>
                                 ))}
                             </tbody>
                           </table>
