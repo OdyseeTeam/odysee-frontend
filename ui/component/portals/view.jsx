@@ -52,6 +52,7 @@ export default function Portals(props: Props) {
     if (portals && width) {
       setMarginLeft((index - 1) * (tileWidth * -1));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [portals, index, width]);
 
   useOnResize(() => {

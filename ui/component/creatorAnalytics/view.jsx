@@ -46,6 +46,7 @@ export default function CreatorAnalytics(props: Props) {
       if (VideoURITopNew && VideoURITopNew.charAt(0) === '@') uris.push(VideoURITopNew);
       doResolveUris(uris);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [stats]);
 
   const channelForEffect = JSON.stringify(claim);

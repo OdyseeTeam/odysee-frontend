@@ -55,6 +55,7 @@ function PublishAdditionalOptions(props: Props) {
         otherLicenseDescription: 'All rights reserved',
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [licenseType]);
 
   return (

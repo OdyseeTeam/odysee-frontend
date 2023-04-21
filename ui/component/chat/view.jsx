@@ -246,7 +246,6 @@ export default function ChatLayout(props: Props) {
   React.useEffect(() => {
     if (discussionElement && commentsLength > 0) {
       // Only update comment scroll if the user hasn't scrolled up to view old comments
-      // $FlowFixMe
       if (scrollPos && (!isMobile || minScrollHeight) && scrollPos >= minScrollHeight) {
         // +ve scrollPos: not scrolled (Usually, there'll be a few pixels beyond 0).
         // -ve scrollPos: user scrolled.
@@ -300,7 +299,7 @@ export default function ChatLayout(props: Props) {
         </div>
       )
     );
-  }, [channelTitle, chatUnlocked, isLivestreamChatMembersOnly]);
+  }, [notAuthedToLiveChat, channelTitle, chatUnlocked, isLivestreamChatMembersOnly]);
 
   if (!claimId) return null;
 

@@ -70,6 +70,7 @@ export default function LivestreamLayout(props: Props) {
 
   React.useEffect(() => {
     if (!isCurrentClaimLive) doClearPlayingUri();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isCurrentClaimLive]);
 
   if (!claim || !claim.signing_channel) return null;

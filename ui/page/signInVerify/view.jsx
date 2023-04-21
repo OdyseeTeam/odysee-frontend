@@ -44,6 +44,7 @@ function SignInVerifyPage(props: Props) {
     if (!authToken || !userSubmittedEmail || !verificationToken) {
       onAuthError(__('Invalid or expired sign-in link.'));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [authToken, userSubmittedEmail, verificationToken, doToast, push]);
 
   React.useEffect(() => {

@@ -615,7 +615,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     return () => {
       window.removeEventListener('keydown', keyDownHandlerRef.current);
 
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- FIX_THIS!
       const containerDiv = containerRef.current;
+
       // $FlowFixMe
       containerDiv && containerDiv.removeEventListener('wheel', videoScrollHandlerRef.current);
 
@@ -666,6 +668,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         delete window.videoFps;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
 
   return (

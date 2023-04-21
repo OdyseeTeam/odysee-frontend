@@ -58,6 +58,7 @@ function PublishProtectedContent(props: Props) {
     if (claimId) {
       getMembershipTiersForContentClaimId(claimId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimId]);
 
   // $FlowIssue
@@ -88,6 +89,7 @@ function PublishProtectedContent(props: Props) {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [protectedMembershipIds, activeChannel, isStillEditing]);
 
   function handleRestrictedMembershipChange(event) {
@@ -139,6 +141,7 @@ function PublishProtectedContent(props: Props) {
         channel_id: activeChannel.claim_id,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [activeChannel]);
 
   if (incognito) return null;

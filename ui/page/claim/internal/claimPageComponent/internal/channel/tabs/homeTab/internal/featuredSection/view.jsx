@@ -34,7 +34,7 @@ function FeaturedSection(props: Props) {
       doResolveClaimId(claimId);
       doFetchViewCount(claimId);
     }
-  }, [uri]);
+  }, [uri, claimId, doResolveClaimId, doFetchViewCount]);
 
   if (geoRestriction) {
     return null;

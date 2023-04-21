@@ -51,6 +51,7 @@ export default function ModalAnnouncements(props: Props) {
       setShow(true);
       doSetLastViewedAnnouncement(hash);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   if (!show) {

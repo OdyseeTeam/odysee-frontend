@@ -125,6 +125,7 @@ export default function SearchChannelField(props: Props) {
         setSearchUri('');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [searchTerm, setSearchTermError]);
 
   return (

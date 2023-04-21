@@ -68,6 +68,7 @@ export default function useTheaterMode(playerRef: any, videoTheaterMode: boolean
         theaterButton.controlText(videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- I think no need to listen to refs
   }, [videoTheaterMode]);
 
   return addTheaterModeButton;

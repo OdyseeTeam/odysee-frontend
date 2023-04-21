@@ -62,6 +62,7 @@ export default function ChannelsFollowingManage(props: Props) {
 
   React.useEffect(() => {
     doFetchLastActiveSubs(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   return (

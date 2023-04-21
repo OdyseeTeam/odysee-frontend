@@ -148,7 +148,7 @@ function ChannelPage(props: Props) {
     }
 
     return discussionWasMounted && currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
-  }, [discussionWasMounted, uri]);
+  }, [discussionWasMounted, currentView]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);

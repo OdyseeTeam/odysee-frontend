@@ -64,7 +64,7 @@ function OpenInAppLink(props: Props) {
       const newUrl = `${pathname}?${newParams}`;
       replace(newUrl);
     }
-  }, [hasSrcParam, search, pathname, replace]);
+  }, [hasSrcParam, search, pathname, replace, params]);
 
   React.useEffect(() => {
     const isOnDeviceToPrompt = (isAndroidUser && isAndroidDevice) || (isDesktopUser && isDesktopDevice);

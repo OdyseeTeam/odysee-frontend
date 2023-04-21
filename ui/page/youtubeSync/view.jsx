@@ -52,6 +52,7 @@ export default function YoutubeSync(props: Props) {
     }
 
     replace(`?${urlParamsInEffect.toString()}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [pathname, search]);
 
   React.useEffect(() => {

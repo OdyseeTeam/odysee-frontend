@@ -102,6 +102,7 @@ function AutoplayCountdown(props: Props) {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   // Update countdown timer.

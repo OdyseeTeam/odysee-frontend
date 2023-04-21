@@ -218,6 +218,7 @@ function HomePage(props: Props) {
 
   React.useEffect(() => {
     doFetchAllActiveLivestreamsForQuery();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   return (

@@ -39,7 +39,7 @@ function AdTileB(props: Props) {
         if (script) document.body.removeChild(script);
       };
     }
-  }, [shouldShowAds, AD_CONFIG]);
+  }, [shouldShowAds]);
 
   return (
     <div

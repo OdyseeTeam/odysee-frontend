@@ -135,6 +135,7 @@ function UserSignUp(props: Props) {
     if (previousHasVerifiedEmail === false && hasVerifiedEmail && prefsReady) {
       setSettingAndSync(SETTINGS.FIRST_RUN_STARTED, true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [hasVerifiedEmail, previousHasVerifiedEmail, prefsReady]);
 
   React.useEffect(() => {

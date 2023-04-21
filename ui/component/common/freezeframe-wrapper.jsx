@@ -32,6 +32,7 @@ const FreezeframeWrapper = (props: Props) => {
       imgRef.current?.setAttribute('src', `${THUMBNAIL_CDN_URL}s:${width}:0/quality:95/plain/${src}`);
       freezeframe.current = new Freezeframe(imgRef.current);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [src, imgRef]);
 
   return (

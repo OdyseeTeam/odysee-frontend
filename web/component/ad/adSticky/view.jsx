@@ -60,10 +60,13 @@ export default function AdSticky(props: Props) {
       setLoads(0);
     }
     // $FlowIgnore
-  }, [location.href]);
+  }, [location.href]); // eslint-disable-line react-hooks/exhaustive-deps -- no idea
 
   React.useEffect(() => {
-    if (stickyContainer && stickyContainer.current) observer.observe(stickyContainer.current, { attributes: true });
+    if (stickyContainer && stickyContainer.current) {
+      observer.observe(stickyContainer.current, { attributes: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   React.useEffect(() => {

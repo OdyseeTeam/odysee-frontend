@@ -43,6 +43,7 @@ function useHasWindowWidthChangedEnough(comparisonFn: (windowSize: number) => bo
 
       return () => window.removeEventListener('resize', setSize);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isWindowClient]);
 
   return windowSize;

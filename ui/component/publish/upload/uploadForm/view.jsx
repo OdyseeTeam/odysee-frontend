@@ -238,6 +238,7 @@ function UploadForm(props: Props) {
       setPreviewing(false);
       updatePublishForm({ publishError: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishError]);
 
   let submitLabel;

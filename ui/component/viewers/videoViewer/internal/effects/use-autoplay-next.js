@@ -83,6 +83,7 @@ export default function useAutoplayNext(playerRef: any, autoplayNext: boolean, i
         autoplayButton.setAttribute('aria-checked', autoplayNext);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [autoplayNext, isMarkdownOrComment]);
 
   React.useEffect(() => {
@@ -90,6 +91,7 @@ export default function useAutoplayNext(playerRef: any, autoplayNext: boolean, i
     if (player) {
       player.trigger(`${VJS_COMP.AUTOPLAY_NEXT_BUTTON}::onState`, autoplayNext);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- I think listening to refs don't work?
   }, [autoplayNext]);
 
   return addAutoplayNextButton;
