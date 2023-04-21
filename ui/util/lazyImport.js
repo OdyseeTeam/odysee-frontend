@@ -12,6 +12,7 @@ function componentLoader(lazyComponent, attemptsLeft) {
         setTimeout(() => {
           if (attemptsLeft === 1) {
             window.store.dispatch({ type: ACTIONS.RELOAD_REQUIRED });
+            // eslint-disable-next-line no-console
             console.error(error.message); // Spew the error so users can report to us if reloading doesn't help.
           } else {
             componentLoader(lazyComponent, attemptsLeft - 1).then(resolve, reject);

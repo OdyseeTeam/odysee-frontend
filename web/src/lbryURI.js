@@ -8,7 +8,8 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+const regexInvalidURI =
+  /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 // const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
@@ -211,17 +212,18 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
 
   if (!isProduction) {
     if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead")); // eslint-disable-line no-console
     }
     if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
+      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead")); // eslint-disable-line no-console
     }
     if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
+      console.error(__("'contentName' should no longer be used. Use 'streamName' instead")); // eslint-disable-line no-console
     }
   }
 
   if (!claimName && !channelName && !streamName) {
+    // eslint-disable-next-line no-console
     console.error(
       __("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.")
     );

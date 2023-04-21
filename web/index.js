@@ -17,7 +17,7 @@ app.use(async (ctx, next) => {
   try {
     await next();
   } catch (err) {
-    console.log('error: ', err);
+    console.log('error: ', err); // eslint-disable-line no-console
     ctx.status = err.status || 500;
     ctx.body = err.message;
   }

@@ -351,7 +351,6 @@ export default function ChatLayout(props: Props) {
   }
 
   function handleHyperchatClick(hyperchat: Comment) {
-    console.log('selectHyperchat: ', hyperchat);
     setSelectedHyperchat(hyperchat);
   }
 

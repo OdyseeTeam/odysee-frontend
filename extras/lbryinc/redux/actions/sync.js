@@ -284,6 +284,7 @@ export function doSyncEncryptAndDecrypt(oldPassword, newPassword, encrypt) {
           return dispatch(doSetSync(data.oldHash, syncApplyResponse.hash, syncApplyResponse.data));
         }
       })
+      // eslint-disable-next-line no-console
       .catch(console.error);
   };
 }
