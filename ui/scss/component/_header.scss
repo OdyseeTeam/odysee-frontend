@@ -365,6 +365,10 @@
     height: var(--height-button);
     width: var(--height-button);
     margin-right: 0;
+    img {
+      height: var(--height-button);
+      width: var(--height-button);
+    }
   }
 
   &:hover {

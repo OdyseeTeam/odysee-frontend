@@ -24,8 +24,6 @@ import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import { FYP_ID } from 'constants/urlParams';
 import { EmbedContext } from 'contexts/embed';
-// $FlowFixMe cannot resolve ...
-import PlaceholderTx from 'static/img/placeholderTx.gif';
 
 type Props = {
   uri: string,
@@ -175,9 +173,7 @@ function ClaimPreviewTile(props: Props) {
           pulse: pulse,
         })}
       >
-        <div className="media__thumb">
-          <img src={PlaceholderTx} alt="Placeholder" />
-        </div>
+        <div className="media__thumb" />
         <div className="placeholder__wrapper">
           <div className="claim-tile__title" />
           <div className="claim-tile__title_b" />
