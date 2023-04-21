@@ -218,6 +218,7 @@ function ClaimListDiscover(props: Props) {
         }
 
         const uri = claim.canonical_url || claim.canonical_url;
+        // looks wrong ---^----------------------^
         // $FlowFixMe
         resolvedPinUris.push(uri);
       });
@@ -693,6 +694,11 @@ function ClaimListDiscover(props: Props) {
   }
 
   function injectPinUrls(uris, order, pins, resolvedPinUris) {
+    // TODO_FIX]
+    //
+    // This function no longer make sense. It's mixing mutable and immutable changes,
+    // AND there are both clients that take the return value and ones that don't.
+
     if (!pins || !uris || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
       return uris;
     }
