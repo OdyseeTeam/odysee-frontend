@@ -30,6 +30,7 @@ export default function Portals(props: Props) {
   const [index, setIndex] = React.useState(1);
   const [pause, setPause] = React.useState(false);
   const [hover, setHover] = React.useState(undefined);
+  const rotate = portals.mainPortal.portals.length > tileNum;
 
   const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
@@ -37,7 +38,7 @@ export default function Portals(props: Props) {
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
 
   React.useEffect(() => {
-    if (portals && width) {
+    if (rotate && portals && width) {
       const interval = setInterval(() => {
         if (!pause) {
           setIndex(index + 1 <= portals.mainPortal.portals.length - (tileNum - 1) ? index + 1 : 1);
@@ -45,7 +46,7 @@ export default function Portals(props: Props) {
       }, 5000 + 1000);
       return () => clearInterval(interval);
     }
-  }, [portals, marginLeft, width, pause, index]);
+  }, [rotate, portals, tileNum, marginLeft, width, pause, index]);
 
   React.useEffect(() => {
     if (portals && width) {
