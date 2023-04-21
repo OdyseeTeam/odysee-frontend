@@ -3,6 +3,7 @@ import React from 'react';
 import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 
 function scaleToDevicePixelRatio(value: number) {
+  if (value === 64) return 64;
   const devicePixelRatio = window.devicePixelRatio || 1.0;
   const nextInteger = Math.ceil(value * devicePixelRatio);
   // Round to next 100px for better caching
