@@ -18,7 +18,7 @@ export default function useStream(url) {
         if (isMounted && response.statusCode >= 200 && response.statusCode < 300) {
           let chunks = [];
           // Handle stream chunk recived
-          response.on('data', function(chunk) {
+          response.on('data', function (chunk) {
             if (isMounted.current) {
               chunks.push(chunk);
             } else {
