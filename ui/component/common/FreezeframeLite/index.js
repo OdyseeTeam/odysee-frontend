@@ -83,11 +83,11 @@ class FreezeframeLite {
       const { $canvas, $image, $container } = freeze;
       const { clientWidth, clientHeight } = $image;
 
-      $canvas.setAttribute('width', clientWidth);
-      $canvas.setAttribute('height', clientHeight);
+      $canvas.setAttribute('width', clientWidth * 2);
+      $canvas.setAttribute('height', clientHeight * 2);
 
       const context = $canvas.getContext('2d');
-      context.drawImage($image, 0, 0, clientWidth, clientHeight);
+      context.drawImage($image, 0, 0, clientWidth * 2, clientHeight * 2);
 
       $canvas.classList.add(classes.CANVAS_READY);
 
