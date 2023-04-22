@@ -64,7 +64,7 @@ type Props = {
   streamType?: string | Array<string>,
   defaultStreamType?: string | Array<string>,
 
-  contentType?: string | Array<string>,
+  contentType?: string,
 
   empty?: string,
   feeAmount?: string,
@@ -288,7 +288,7 @@ function ClaimListDiscover(props: Props) {
     }
   }
 
-  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
+  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION.ALL], 'durUser', null);
   const [minDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
   const [maxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
   const [hideAnonymous] = usePersistedState(`hideAnonymous-${location.pathname}`, false);
@@ -304,6 +304,13 @@ function ClaimListDiscover(props: Props) {
     'orderUser',
     CS.ORDER_BY_TRENDING
   );
+  const durationOption = CsOptions.duration(
+    contentTypeParam,
+    durationParam,
+    duration,
+    minDurationMinutes,
+    maxDurationMinutes
+  );
 
   let options: ClaimSearchOptions = {
     page_size: dynamicPageSize,
@@ -317,6 +324,7 @@ function ClaimListDiscover(props: Props) {
     not_tags: CsOptions.not_tags(notTagInput),
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
+    ...(durationOption ? { duration: durationOption } : {}),
   };
 
   if (ENABLE_NO_SOURCE_CLAIMS && hasNoSource) {
@@ -387,32 +395,6 @@ function ClaimListDiscover(props: Props) {
         // Hack for at least the New page until https://github.com/lbryio/lbry-sdk/issues/2591 is fixed
         options.release_time = `<${Math.floor(moment().startOf('minute').unix())}`;
       }
-    }
-  }
-
-  if (durationParam) {
-    switch (durationParam) {
-      case CS.DURATION_ALL:
-        options.duration = duration || undefined;
-        break;
-      case CS.DURATION_SHORT:
-        options.duration = '<=240';
-        break;
-      case CS.DURATION_LONG:
-        options.duration = '>=1200';
-        break;
-      case CS.DURATION_CUSTOM:
-        options.duration = [];
-        if (minDurationMinutes) {
-          options.duration.push(`>=${minDurationMinutes * 60}`);
-        }
-        if (maxDurationMinutes) {
-          options.duration.push(`<=${maxDurationMinutes * 60}`);
-        }
-        break;
-      default:
-        assert(false, 'Unhandled duration:', durationParam);
-        break;
     }
   }
 

@@ -1,3 +1,5 @@
+// @flow
+
 export const PAGE_SIZE = 20;
 
 export const FRESH_KEY = 'fresh';
@@ -45,11 +47,9 @@ export const ORDER_BY_NAME_ASC_VALUE = ['^name'];
 // @note: These are used to build the default controls available on claim listings.
 export const ORDER_BY_TYPES = [ORDER_BY_NEW, ORDER_BY_TRENDING, ORDER_BY_TOP];
 
-export const DURATION_SHORT = 'short';
-export const DURATION_LONG = 'long';
-export const DURATION_ALL = 'all';
-export const DURATION_CUSTOM = 'custom';
-export const DURATION_TYPES = [DURATION_ALL, DURATION_SHORT, DURATION_LONG, DURATION_CUSTOM];
+export type Duration = 'all' | 'short' | 'long' | 'custom';
+export const DURATION = { SHORT: 'short', LONG: 'long', ALL: 'all', CUSTOM: 'custom' };
+export const DURATION_TYPES = Object.values(DURATION);
 
 export const SORT_BY = {
   // key: Enumeration; can be anything as long as unique. Also used as URLParam.
