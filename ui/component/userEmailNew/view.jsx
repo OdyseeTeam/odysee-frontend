@@ -94,6 +94,7 @@ function UserEmailNew(props: Props) {
     if (emailExists) {
       handleChangeToSignIn();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [emailExists]);
 
   return (

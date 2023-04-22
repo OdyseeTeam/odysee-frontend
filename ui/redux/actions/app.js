@@ -286,7 +286,7 @@ export function doMinVersionCheck() {
         }
       })
       .catch((err) => {
-        console.error(err);
+        assert(false, 'minVersion failed', err);
       });
   };
 }

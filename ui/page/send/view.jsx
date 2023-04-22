@@ -106,7 +106,7 @@ export default function SendPage(props: Props) {
         setContentUri(``);
       }
     }
-  }, [enteredContent, setContentUri, setContentError, parseURI, isNameValid]);
+  }, [enteredContent, setContentUri, setContentError]);
 
   return (
     <Page

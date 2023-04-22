@@ -189,7 +189,7 @@ const errorHistory = [];
 function logErrorOnce(err: string) {
   if (!errorHistory.includes(err)) {
     errorHistory.push(err);
-    console.error(err);
+    console.error(err); // eslint-disable-line no-console
   }
 }
 
@@ -228,7 +228,7 @@ export function buildURI(UrlObj: LbryUrlObj, includeProto: boolean = true, proto
   // @endif
 
   if (!claimName && !channelName && !streamName) {
-    console.error("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.");
+    assert(false, "'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.");
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);

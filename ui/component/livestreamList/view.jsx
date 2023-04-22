@@ -27,6 +27,7 @@ export default function LivestreamList(props: Props) {
     return () => {
       clearInterval(fetchInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   if (fetchingActiveLivestreams) {

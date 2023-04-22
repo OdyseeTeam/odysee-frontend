@@ -84,6 +84,7 @@ export default function useLazyLoading(
 
     // $FlowFixMe
     lazyLoadingObserver.observe(elementRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- PLEASE FIX
   }, deps);
 
   return srcLoaded;

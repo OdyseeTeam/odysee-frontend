@@ -211,6 +211,7 @@ function LivestreamForm(props: Props) {
 
   useEffect(() => {
     setClearStatus(isClear);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isClear]);
 
   useEffect(() => {
@@ -241,6 +242,7 @@ function LivestreamForm(props: Props) {
       setPreviewing(false);
       updatePublishForm({ publishError: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishError]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
@@ -374,6 +376,7 @@ function LivestreamForm(props: Props) {
       setPublishMode('New');
       updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [editingURI, resolveUri]);
 
   useEffect(() => {
@@ -387,6 +390,7 @@ function LivestreamForm(props: Props) {
     if (publishMode === 'New') {
       updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishMode]);
 
   useEffect(() => {

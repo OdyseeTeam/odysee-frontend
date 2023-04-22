@@ -10,6 +10,7 @@ import Page from 'component/page';
 import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
+import useComponentDidMount from 'effects/use-component-did-mount';
 import useClaimListInfiniteScroll from 'effects/use-claimList-infinite-scroll';
 import './style.scss';
 
@@ -60,9 +61,9 @@ export default function ChannelsFollowingManage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only need to respond to 'filterQuery'
   }, [filterQuery]);
 
-  React.useEffect(() => {
+  useComponentDidMount(() => {
     doFetchLastActiveSubs(true);
-  }, []);
+  });
 
   return (
     <Page noFooter>

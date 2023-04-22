@@ -48,6 +48,7 @@ const ClaimLinkPreview = (props: Props) => {
           <Button button="link" label={channel + ': ' + title} navigate={cleanUri} />
         </div>
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
     [uri]
   );
 

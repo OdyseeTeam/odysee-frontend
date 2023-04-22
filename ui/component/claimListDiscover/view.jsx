@@ -283,7 +283,7 @@ function ClaimListDiscover(props: Props) {
         break;
 
       default:
-        console.log('Invalid or unhandled CONTENT_KEY:', contentTypeParam); // eslint-disable-line no-console
+        assert(false, 'Invalid or unhandled CONTENT_KEY:', contentTypeParam);
         break;
     }
   }
@@ -411,7 +411,7 @@ function ClaimListDiscover(props: Props) {
         }
         break;
       default:
-        console.error('Unhandled duration: ' + durationParam);
+        assert(false, 'Unhandled duration:', durationParam);
         break;
     }
   }

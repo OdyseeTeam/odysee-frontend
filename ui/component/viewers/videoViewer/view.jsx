@@ -198,6 +198,7 @@ function VideoViewer(props: Props) {
       // save the updated watch time
       doSetContentHistoryItem(claim.permanent_url);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isPlaying]);
 
   useEffect(() => {
@@ -206,6 +207,7 @@ function VideoViewer(props: Props) {
       return;
     }
     toggleAutoplayNext();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [localAutoplayNext]);
 
   useInterval(

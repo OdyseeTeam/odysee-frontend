@@ -69,6 +69,7 @@ function SettingWalletServer(props: Props) {
         doClear();
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
     []
   );
 
@@ -76,6 +77,7 @@ function SettingWalletServer(props: Props) {
     if (hasWalletServerPrefs) {
       setAdvancedMode(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   useEffect(() => {
@@ -83,6 +85,7 @@ function SettingWalletServer(props: Props) {
       getDaemonStatus();
     }, STATUS_INTERVAL);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   function doClear() {

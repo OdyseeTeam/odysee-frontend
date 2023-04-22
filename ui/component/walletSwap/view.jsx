@@ -215,6 +215,7 @@ function WalletSwap(props: Props) {
         setNag({ msg: swapInfo.status.status, type: 'error' });
         break;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [swap, coinSwaps]);
 
   // Validate entered LBC

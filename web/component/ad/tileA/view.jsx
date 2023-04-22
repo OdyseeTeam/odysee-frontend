@@ -42,13 +42,14 @@ function AdTileA(props: Props) {
         if (script) document.body.removeChild(script);
       };
     }
-  }, [shouldShowAds, AD_CONFIG]);
+  }, [shouldShowAds]);
 
   React.useEffect(() => {
     if (ref.current) {
       const mountedStyle = getComputedStyle(ref.current);
       doSetAdBlockerFound(mountedStyle?.display === 'none');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   if (shouldShowAds) {

@@ -55,6 +55,7 @@ function HomeTab(props: Props) {
         setHome(homeTemplate);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [homepage_settings]);
 
   function handleEditCollection(e, index) {

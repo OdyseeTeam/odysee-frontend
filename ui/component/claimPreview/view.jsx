@@ -230,6 +230,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
         </Tooltip>
       </div>
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [channelSubCount]);
 
   // $FlowFixMe

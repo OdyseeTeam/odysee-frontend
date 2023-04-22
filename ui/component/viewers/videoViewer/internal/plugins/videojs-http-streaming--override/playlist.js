@@ -1,3 +1,5 @@
+/* eslint-disable space-before-function-paren */
+
 /**
  * @file playlist.js
  *
@@ -11,7 +13,7 @@
  * @return {boolean} whether the playlist is blacklisted or not
  * @function isBlacklisted
  */
-export const isBlacklisted = function(playlist) {
+export const isBlacklisted = function (playlist) {
   return playlist.excludeUntil && playlist.excludeUntil > Date.now();
 };
 
@@ -23,7 +25,7 @@ export const isBlacklisted = function(playlist) {
  * @return {boolean} whether the playlist is incompatible or not
  * @function isIncompatible
  */
-export const isIncompatible = function(playlist) {
+export const isIncompatible = function (playlist) {
   return playlist.excludeUntil && playlist.excludeUntil === Infinity;
 };
 
@@ -34,10 +36,10 @@ export const isIncompatible = function(playlist) {
  * @return {boolean} whether the playlist is enabled or not
  * @function isEnabled
  */
-export const isEnabled = function(playlist) {
+export const isEnabled = function (playlist) {
   const blacklisted = isBlacklisted(playlist);
 
-  return (!playlist.disabled && !blacklisted);
+  return !playlist.disabled && !blacklisted;
 };
 
 /**
@@ -47,7 +49,7 @@ export const isEnabled = function(playlist) {
  * @return {boolean} whether the playlist is disabled manually or not
  * @function isDisabled
  */
-export const isDisabled = function(playlist) {
+export const isDisabled = function (playlist) {
   return playlist.disabled;
 };
 

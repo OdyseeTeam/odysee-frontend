@@ -39,6 +39,7 @@ export default function useGetLastVisibleSlot(listRef: any, skipEval: boolean, c
 
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   return lastVisibleIndex;

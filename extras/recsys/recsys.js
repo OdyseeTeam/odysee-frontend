@@ -192,7 +192,7 @@ const recsys: Recsys = {
           }
         })
         .catch((err) => {
-          console.log('RECSYS: failed to send entry', err);
+          console.log('RECSYS: failed to send entry', err); // eslint-disable-line no-console
         });
     }
     recsys.log('sendRecsysEntry', claimId);
@@ -202,7 +202,7 @@ const recsys: Recsys = {
     if (entries) {
       if (Object.keys(recsys.entries).length !== 0) {
         // Typically called on startup only.
-        console.warn('RECSYS: sendEntries() called on non-empty state. Data will be overwritten.');
+        console.warn('RECSYS: sendEntries() called on non-empty state. Data will be overwritten.'); // eslint-disable-line no-console
       }
 
       recsys.entries = entries;
@@ -243,6 +243,7 @@ const recsys: Recsys = {
 
   log: function (callName, claimId) {
     if (recsys.debug) {
+      // eslint-disable-next-line no-console
       console.log(`Call: ***${callName}***, ClaimId: ${claimId}, Recsys Entries`, Object.assign({}, recsys.entries));
     }
   },

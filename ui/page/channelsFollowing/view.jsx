@@ -12,6 +12,7 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import { tagSearchCsOptionsHook } from 'util/search';
 import ScheduledStreams from 'component/scheduledStreams';
+import useComponentDidMount from 'effects/use-component-did-mount';
 import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
@@ -36,9 +37,9 @@ function ChannelsFollowingPage(props: Props) {
   const hasSubscribedChannels = channelIds.length > 0;
   const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
-  React.useEffect(() => {
+  useComponentDidMount(() => {
     doFetchAllActiveLivestreamsForQuery();
-  }, []);
+  });
 
   return !hasSubscribedChannels ? (
     <ChannelsFollowingDiscoverPage />

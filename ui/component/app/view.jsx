@@ -496,13 +496,14 @@ function App(props: Props) {
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
       doOpenAnnouncements();
     }
-  }, [announcement, isAuthenticated, pathname, prefsReady]);
+  }, [announcement, isAuthenticated, pathname, prefsReady, doOpenAnnouncements]);
 
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
       console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
       doSetLastViewedAnnouncement('clear');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   // Keep this at the end to ensure initial setup effects are run first

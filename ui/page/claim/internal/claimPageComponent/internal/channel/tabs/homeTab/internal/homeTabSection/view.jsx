@@ -83,18 +83,21 @@ function HomeTabSection(props: Props) {
       const searchOptions = JSON.parse(optionsStringified);
       doClaimSearch(searchOptions);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- DOESN'T FEEL RIGHT WITHOUT optionsStringified
   }, [doClaimSearch, shouldPerformSearch]);
 
   React.useEffect(() => {
     if (section.claim_id) {
       doResolveClaimId(section.claim_id);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [section]);
 
   React.useEffect(() => {
     if (shouldResolveCollectionClaims) {
       doResolveUris(collectionUrls);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [shouldResolveCollectionClaims]);
 
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -134,6 +137,7 @@ function HomeTabSection(props: Props) {
     }, DEBOUNCE_WAIT_DURATION_MS);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION (definitely needs channelClaimId, no?)
   }, [searchQuery]);
 
   function getTitle() {

@@ -104,6 +104,8 @@ function PublishLivestream(props: Props) {
   // Reset title when form gets cleared
   useEffect(() => {
     updatePublishForm({ title: title });
+    // ^ TODO: logic these should be at the reducer/action.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Reset title when form gets cleared
   }, [filePath]);
 
   // Initialize default file source state for each mode.
@@ -182,10 +184,12 @@ function PublishLivestream(props: Props) {
         handleFileChange(filePath);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [filePath, currentFile, doToast, updatePublishForm]);
 
   useEffect(() => {
     setOverMaxBitrate(bitRateIsOverMax);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [bitRateIsOverMax]);
 
   function updateFileInfo(duration, size, isvid) {

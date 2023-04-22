@@ -34,7 +34,7 @@ const recsysFyp = {
       .then((response) => response.json())
       .then((result) => result)
       .catch((error) => {
-        console.log('FYP: fetch', { error, userId });
+        console.log('FYP: fetch', { error, userId }); // eslint-disable-line no-console
         return {};
       });
   },
@@ -44,7 +44,7 @@ const recsysFyp = {
       method: 'POST',
       headers: { [X_LBRY_AUTH_TOKEN]: getAuthToken() },
     }).catch((error) => {
-      console.log('FYP: mark', { error, userId, gid });
+      console.log('FYP: mark', { error, userId, gid }); // eslint-disable-line no-console
       return {};
     });
   },
@@ -61,7 +61,7 @@ const recsysFyp = {
     })
       .then((result) => result)
       .catch((error) => {
-        console.log('FYP: ignore', { error, userId, gid, claimId });
+        console.log('FYP: ignore', { error, userId, gid, claimId }); // eslint-disable-line no-console
         return {};
       });
   },
@@ -342,7 +342,7 @@ export const doRemovePersonalRecommendation = (uri: string) => (dispatch: Dispat
             );
           })
           .catch((err) => {
-            console.log('doRemovePersonalRecommendation:', err);
+            assert(false, 'recsys "ignore" failed', err);
           });
       },
     })

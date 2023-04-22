@@ -174,6 +174,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const streamClaim = React.useCallback(() => {
       updateClaim('callback');
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
     }, [
       claimLinkId,
       collectionId,
@@ -229,6 +230,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           updateClaim('!uriIsActive & !playingUriIsActive & sourceLoaded');
         }
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- SIGH
     }, [pathname, sourceLoaded]);
 
     function updateClaim(trigger: string) {

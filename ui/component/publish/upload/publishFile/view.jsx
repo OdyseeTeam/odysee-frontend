@@ -103,6 +103,7 @@ function PublishFile(props: Props) {
 
   useEffect(() => {
     updatePublishForm({ title: title });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset title when file changes
   }, [filePath]);
 
   /*
@@ -131,10 +132,12 @@ function PublishFile(props: Props) {
         handleFileChange(filePath);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [filePath, currentFile, doToast, updatePublishForm]);
 
   useEffect(() => {
     setOverMaxBitrate(bitRateIsOverMax);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [bitRateIsOverMax]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
@@ -193,6 +196,7 @@ function PublishFile(props: Props) {
     if (activeChannelClaim && activeChannelClaim.claim_id && activeChannelName) {
       fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimChannelId, activeChannelName]);
 
   useEffect(() => {

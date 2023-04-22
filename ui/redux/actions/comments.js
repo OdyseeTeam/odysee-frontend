@@ -356,7 +356,7 @@ export function doFetchMyCommentedChannels(claimId: ?string) {
           });
         })
         .catch((err) => {
-          console.log({ err });
+          assert(false, 'doFetchMyCommentedChannels failed', err);
         });
     });
   };
