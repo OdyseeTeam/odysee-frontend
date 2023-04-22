@@ -97,7 +97,7 @@ function ClaimListHeader(props: Props) {
   const showHideAnonymous = isDiscoverPage || isRabbitHolePage;
   const [hideAnonymous, setHideAnonymous] = usePersistedState(`hideAnonymous-${location.pathname}`, false);
 
-  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
+  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION.ALL], 'durUser', null);
   const [minDurationMinutes, setMinDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
   const [maxDurationMinutes, setMaxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
   const [minMinutes, setMinMinutes] = React.useState(minDurationMinutes);
@@ -204,7 +204,7 @@ function ClaimListHeader(props: Props) {
         }
         break;
       case CS.DURATION_KEY:
-        if (delta.value === CS.DURATION_ALL) {
+        if (delta.value === CS.DURATION.ALL) {
           newUrlParams.delete(CS.DURATION_KEY);
         } else {
           newUrlParams.set(CS.DURATION_KEY, delta.value);
@@ -438,7 +438,7 @@ function ClaimListHeader(props: Props) {
                           streamTypeParam === CS.FILE_VIDEO
                         )
                       }
-                      value={durationParam || CS.DURATION_ALL}
+                      value={durationParam || CS.DURATION.ALL}
                       onChange={(e) =>
                         handleChange({
                           key: CS.DURATION_KEY,
@@ -447,17 +447,17 @@ function ClaimListHeader(props: Props) {
                       }
                     >
                       {CS.DURATION_TYPES.map((dur) => (
-                        <option key={dur} value={dur}>
+                        <option key={String(dur)} value={dur}>
                           {/* i18fixme */}
-                          {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
-                          {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
-                          {dur === CS.DURATION_ALL && __('Any')}
-                          {dur === CS.DURATION_CUSTOM && __('Custom')}
+                          {dur === CS.DURATION.SHORT && __('Short (< 4 minutes)')}
+                          {dur === CS.DURATION.LONG && __('Long (> 20 min)')}
+                          {dur === CS.DURATION.ALL && __('Any')}
+                          {dur === CS.DURATION.CUSTOM && __('Custom')}
                         </option>
                       ))}
                     </FormField>
                   </div>
-                  {durationParam === CS.DURATION_CUSTOM && (
+                  {durationParam === CS.DURATION.CUSTOM && (
                     <div className="claim-search__duration-inputs-container">
                       <div className="claim-search__input-container">
                         <FormField
