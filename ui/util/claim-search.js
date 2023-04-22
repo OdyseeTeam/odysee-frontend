@@ -61,14 +61,15 @@ export const CsOptions = {
         x = '>=1200';
         break;
       case CS.DURATION.CUSTOM:
-        x = [];
-        if (minMinutes) {
-          x.push(`>=${minMinutes * 60}`);
+        if (minMinutes || maxMinutes) {
+          x = [];
+          if (minMinutes) {
+            x.push(`>=${minMinutes * 60}`);
+          }
+          if (maxMinutes) {
+            x.push(`<=${maxMinutes * 60}`);
+          }
         }
-        if (maxMinutes) {
-          x.push(`<=${maxMinutes * 60}`);
-        }
-        assert(minMinutes || maxMinutes, 'custom duration but no limits given');
         break;
       default:
         assert(false, 'invalid duration type', duration);
