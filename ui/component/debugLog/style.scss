@@ -12,6 +12,7 @@
   padding: var(--spacing-m) var(--spacing-l);
   box-shadow: 0 0 var(--spacing-l) rgba(var(--color-text-base), 0.5);
   overflow-y: auto;
+  font-size: var(--font-xsmall);
 }
 
 .debug-log--open {
