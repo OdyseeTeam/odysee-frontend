@@ -304,7 +304,13 @@ function ClaimListDiscover(props: Props) {
     'orderUser',
     CS.ORDER_BY_TRENDING
   );
-  const durationOption = CsOptions.duration(durationParam, duration, minDurationMinutes, maxDurationMinutes);
+  const durationOption = CsOptions.duration(
+    contentTypeParam,
+    durationParam,
+    duration,
+    minDurationMinutes,
+    maxDurationMinutes
+  );
 
   let options: ClaimSearchOptions = {
     page_size: dynamicPageSize,

@@ -25,13 +25,29 @@ export const CsOptions = {
   /**
    * duration
    *
+   * @param contentType
    * @param duration Duration type
    * @param durationVal Only applicable is 'duration === all';
    * @param minMinutes Only for 'duration === custom'
    * @param maxMinutes Only for 'duration === custom'
    * @returns {?string|Array<string>}
    */
-  duration: (duration: Duration, durationVal?: string, minMinutes?: number, maxMinutes?: number) => {
+  duration: (
+    contentType: ?string,
+    duration: Duration,
+    durationVal?: string,
+    minMinutes?: number,
+    maxMinutes?: number
+  ) => {
+    if (
+      contentType !== CS.FILE_VIDEO &&
+      contentType !== CS.FILE_AUDIO &&
+      contentType !== null && // Any
+      contentType !== undefined // Any
+    ) {
+      return undefined;
+    }
+
     let x: ?string | Array<string>;
 
     switch (duration) {
