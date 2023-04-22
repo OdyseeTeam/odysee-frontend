@@ -7,7 +7,6 @@ import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
 import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
-import DebugLog from 'component/debugLog';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
@@ -37,6 +36,7 @@ import {
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
 
+const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
 const NagDegradedPerformance = lazyImport(() =>
@@ -169,6 +169,7 @@ function App(props: Props) {
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
   const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox();
+  const useDebugLog = process.env.NODE_ENV !== 'production' || process.env.IS_TEST_INSTANCE === 'true';
   const connectionStatus = useConnectionStatus();
 
   const urlPath = pathname + hash;
@@ -576,8 +577,9 @@ function App(props: Props) {
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
             )}
             {getStatusNag()}
+            {useDebugLog && <DebugLog />}
           </React.Suspense>
-          <DebugLog />
+
           <AdBlockTester />
         </AppContext.Provider>
       )}
