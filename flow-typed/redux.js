@@ -30,7 +30,6 @@ declare type State =
   & NotificationState
   & PublishState
   // & ReactionsState
-  & ReportContentState
   // & RewardsState
   & SearchState
   // & Settings

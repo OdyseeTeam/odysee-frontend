@@ -23,7 +23,6 @@ import livestreamReducer from 'redux/reducers/livestream';
 import searchReducer from 'redux/reducers/search';
 import reactionsReducer from 'redux/reducers/reactions';
 import syncReducer from 'redux/reducers/sync';
-import reportContentReducer from 'redux/reducers/reportContent';
 
 export default (history) =>
   combineReducers({
@@ -39,7 +38,6 @@ export default (history) =>
     notifications: notificationsReducer,
     publish: publishReducer,
     reactions: reactionsReducer,
-    reportContent: reportContentReducer,
     rewards: rewardsReducer,
     search: searchReducer,
     settings: settingsReducer,
