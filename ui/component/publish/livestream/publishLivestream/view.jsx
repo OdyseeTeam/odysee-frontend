@@ -396,63 +396,60 @@ function PublishLivestream(props: Props) {
                             <tbody>
                               {livestreamData
                                 .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-                                .map((item, i) => (
-                                  <React.Fragment key={item.data.fileLocation}>
-                                    <tr className="livestream__data-row-spacer" />
-                                    <tr
-                                      onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                      className={classnames('livestream__data-row', {
-                                        'livestream__data-row--selected':
-                                          selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i,
-                                      })}
-                                    >
-                                      <td>
-                                        <FormField
-                                          type="radio"
-                                          checked={selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i}
-                                          label={null}
-                                          onChange={() => {}}
-                                          onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                          className="livestream__data-row-radio"
-                                        />
-                                      </td>
-                                      <td>
-                                        <div className="livestream_thumb_container">
-                                          {item.data.thumbnails.slice(0, 3).map((thumb) => (
-                                            <img key={thumb} className="livestream___thumb" src={thumb} />
-                                          ))}
-                                        </div>
-                                      </td>
-                                      <td>
-                                        {typeof item.data.fileDuration === 'string' && item.data.fileDuration}
-                                        {typeof item.data.fileDuration === 'number' &&
-                                          !isNaN(item.data.fileDuration) && (
-                                            <>
-                                              {Math.floor(item.data.fileDuration / 60) === 1
-                                                ? __('%duration% minute', {
-                                                    // $FlowIgnore (already ensured as number)
-                                                    file_duration: Math.floor(item.data.fileDuration / 60),
-                                                  })
-                                                : __('%duration% minutes', {
-                                                    // $FlowIgnore (already ensured as number)
-                                                    file_duration: Math.floor(item.data.fileDuration / 60),
-                                                  })}
-                                            </>
-                                          )}
-                                        <div className="table__item-label">
-                                          {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
-                                        </div>
-                                      </td>
-                                      <td>
-                                        <CopyableText
-                                          primaryButton
-                                          copyable={normalizeUrlForProtocol(item.data.fileLocation)}
-                                          snackMessage={__('Url copied.')}
-                                        />
-                                      </td>
-                                    </tr>
-                                  </React.Fragment>
-                                ))}
+                                .map((item, i) => {
+                                  const useStr = item.data.fileDuration && isNaN(item.data.fileDuration);
+                                  // $FlowIgnore (confirmed a number)
+                                  const durationMinutes = !useStr ? Math.floor(item.data.fileDuration / 60) : null;
+                                  const durationElem = useStr
+                                    ? item.data.fileDuration
+                                    : durationMinutes === 1
+                                    ? __('%duration% minute', { duration: durationMinutes })
+                                    : __('%duration% minutes', { duration: durationMinutes });
+
+                                  return (
+                                    <React.Fragment key={item.data.fileLocation}>
+                                      <tr className="livestream__data-row-spacer" />
+                                      <tr
+                                        onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
+                                        className={classnames('livestream__data-row', {
+                                          'livestream__data-row--selected':
+                                            selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i,
+                                        })}
+                                      >
+                                        <td>
+                                          <FormField
+                                            type="radio"
+                                            checked={selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i}
+                                            label={null}
+                                            onChange={() => {}}
+                                            onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
+                                            className="livestream__data-row-radio"
+                                          />
+                                        </td>
+                                        <td>
+                                          <div className="livestream_thumb_container">
+                                            {item.data.thumbnails.slice(0, 3).map((thumb) => (
+                                              <img key={thumb} className="livestream___thumb" src={thumb} />
+                                            ))}
+                                          </div>
+                                        </td>
+                                        <td>
+                                          {durationElem}
+                                          <div className="table__item-label">
+                                            {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
+                                          </div>
+                                        </td>
+                                        <td>
+                                          <CopyableText
+                                            primaryButton
+                                            copyable={normalizeUrlForProtocol(item.data.fileLocation)}
+                                            snackMessage={__('Url copied.')}
+                                          />
+                                        </td>
+                                      </tr>
+                                    </React.Fragment>
+                                  );
+                                })}
                             </tbody>
                           </table>
                         </div>
