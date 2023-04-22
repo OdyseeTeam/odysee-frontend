@@ -2,7 +2,11 @@ import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import { doOpenModal } from 'redux/actions/app';
 import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
-import { selectIsFetchingActiveLivestreams, selectFilteredActiveLivestreamUris } from 'redux/selectors/livestream';
+import {
+  selectIsFetchingActiveLivestreams,
+  selectActiveLivestreamByCreatorId,
+  selectViewersById,
+} from 'redux/selectors/livestream';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUserHasValidOdyseeMembership, selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
@@ -29,7 +33,8 @@ const select = (state) => ({
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   userHasOdyseeMembership: selectUserHasValidOdyseeMembership(state),
   hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
-  getActiveLivestreamUrisForIds: (channelIds) => selectFilteredActiveLivestreamUris(state, channelIds),
+  activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
+  livestreamViewersById: selectViewersById(state),
 });
 
 const perform = (dispatch) => ({

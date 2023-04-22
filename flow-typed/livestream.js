@@ -83,3 +83,6 @@ declare type LivestreamInfo = {
 declare type LivestreamInfoByCreatorIds = {
   [creatorId: string]: LivestreamInfo,
 };
+
+declare type LivestreamByCreatorId = { [creatorId: string]: ?LivestreamActiveClaim };
+declare type LivestreamViewersById = { [claimId: string]: number };

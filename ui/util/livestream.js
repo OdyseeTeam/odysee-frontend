@@ -90,3 +90,55 @@ export const killStream = async (channelId: string, channelName: string) => {
     throw e;
   }
 };
+
+export function filterActiveLivestreamUris(
+  channelIds: ?Array<string>,
+  excludedChannelIds: ?Array<string>,
+  activeLivestreamByCreatorId: LivestreamByCreatorId,
+  viewersById: LivestreamViewersById
+) {
+  if (!activeLivestreamByCreatorId) {
+    return undefined;
+  }
+
+  const filtered: Array<LivestreamActiveClaim> = [];
+
+  for (const creatorId in activeLivestreamByCreatorId) {
+    const activeLivestream = activeLivestreamByCreatorId[creatorId];
+    if (activeLivestream) {
+      if (channelIds) {
+        if (channelIds.includes(creatorId)) {
+          if (excludedChannelIds && !excludedChannelIds.includes(creatorId)) {
+            filtered.push(activeLivestream);
+          }
+        }
+      } else {
+        if (excludedChannelIds && !excludedChannelIds.includes(creatorId)) {
+          filtered.push(activeLivestream);
+        }
+      }
+    }
+  }
+
+  for (const creatorId in activeLivestreamByCreatorId) {
+    const activeLivestream = activeLivestreamByCreatorId[creatorId];
+    if (activeLivestream) {
+      const shouldInclude =
+        (!channelIds || channelIds.includes(creatorId)) &&
+        (!excludedChannelIds || !excludedChannelIds.includes(creatorId));
+
+      if (shouldInclude) {
+        filtered.push(activeLivestream);
+      }
+    }
+  }
+
+  const sorted: Array<LivestreamActiveClaim> = filtered.sort((a: LivestreamActiveClaim, b: LivestreamActiveClaim) => {
+    const [viewCountA, viewCountB] = [viewersById[a.claimId], viewersById[b.claimId]];
+    if (viewCountA < viewCountB) return 1;
+    if (viewCountA > viewCountB) return -1;
+    return 0;
+  });
+
+  return sorted.map<string>((activeLivestream: LivestreamActiveClaim) => activeLivestream.uri);
+}

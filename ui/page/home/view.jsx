@@ -17,6 +17,7 @@ import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
+import { filterActiveLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import Ad from 'web/component/ad/ad';
 import Meme from 'web/component/meme';
@@ -43,6 +44,8 @@ type Props = {
   userHasOdyseeMembership: ?boolean,
   hasPremiumPlus: boolean,
   currentTheme: string,
+  activeLivestreamByCreatorId: LivestreamByCreatorId,
+  livestreamViewersById: LivestreamViewersById,
   getActiveLivestreamUrisForIds: (Array<string>) => Array<string>,
 };
 
@@ -62,7 +65,8 @@ function HomePage(props: Props) {
     doOpenModal,
     userHasOdyseeMembership,
     hasPremiumPlus,
-    getActiveLivestreamUrisForIds,
+    activeLivestreamByCreatorId: al, // yup, unreadable name, but we are just relaying here.
+    livestreamViewersById: lv,
   } = props;
 
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
@@ -71,26 +75,68 @@ function HomePage(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const { push } = useHistory();
 
-  const rowData: Array<RowDataItem> = GetLinksData(
-    homepageData,
-    isLargeScreen,
-    true,
+  const sortedRowData: Array<RowDataItem> = React.useMemo(() => {
+    const rowData: Array<RowDataItem> = GetLinksData(
+      homepageData,
+      isLargeScreen,
+      true,
+      authenticated,
+      showPersonalizedChannels,
+      showPersonalizedTags,
+      subscribedChannelIds,
+      followedTags,
+      showIndividualTags,
+      showNsfw
+    );
+    return getSortedRowData(authenticated, userHasOdyseeMembership, homepageOrder, homepageData, rowData);
+  }, [
     authenticated,
+    followedTags,
+    homepageData,
+    homepageOrder,
+    isLargeScreen,
+    showIndividualTags,
+    showNsfw,
     showPersonalizedChannels,
     showPersonalizedTags,
     subscribedChannelIds,
-    followedTags,
-    showIndividualTags,
-    showNsfw
-  );
-
-  const sortedRowData: Array<RowDataItem> = getSortedRowData(
-    authenticated,
     userHasOdyseeMembership,
-    homepageOrder,
-    homepageData,
-    rowData
-  );
+  ]);
+
+  type Cache = {
+    topGrid: number,
+    hasBanner: boolean,
+    [homepageId: string]: {
+      livestreamUris: ?Array<string>,
+    },
+  };
+
+  const cache: Cache = React.useMemo(() => {
+    const cache = { topGrid: -1, hasBanner: false };
+    if (homepageFetched) {
+      sortedRowData.forEach((row: RowDataItem, index: number) => {
+        // -- Find index of first row with a title if not already:
+        if (cache.topGrid === -1 && Boolean(row.title)) {
+          cache.topGrid = index;
+        }
+        // -- Find Bruce Banner if not already:
+        if (!cache.hasBanner && row.id === 'BANNER') {
+          cache.hasBanner = true;
+        }
+        // -- Find livestreams related to the category:
+        const rowChannelIds = row.options?.channelIds;
+        cache[row.id] = {
+          livestreamUris:
+            row.id === 'FOLLOWING'
+              ? filterActiveLivestreamUris(subscribedChannelIds, null, al, lv)
+              : rowChannelIds
+              ? filterActiveLivestreamUris(rowChannelIds, null, al, lv)
+              : null,
+        };
+      });
+    }
+    return cache;
+  }, [homepageFetched, sortedRowData, subscribedChannelIds, al, lv]);
 
   type SectionHeaderProps = {
     title: string,
@@ -98,13 +144,6 @@ function HomePage(props: Props) {
     icon?: string,
     help?: string,
   };
-
-  const topGrid = sortedRowData.findIndex((row) => row.title);
-  const hasBanner = Boolean(
-    sortedRowData.filter((obj) => {
-      return obj.id === 'BANNER';
-    }).length
-  );
 
   const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
     return (
@@ -157,9 +196,9 @@ function HomePage(props: Props) {
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
         hideMembersOnly={id !== 'FOLLOWING'}
         hasSource
-        prefixUris={options.channelIds && getActiveLivestreamUrisForIds(options.channelIds)}
+        prefixUris={cache[id].livestreamUris}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        injectedItem={index === topGrid && !hasPremiumPlus && { node: <Ad type="tileA" tileLayout /> }}
+        injectedItem={index === cache.topGrid && !hasPremiumPlus && { node: <Ad type="tileA" tileLayout /> }}
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />
@@ -172,11 +211,11 @@ function HomePage(props: Props) {
 
       return (
         <>
-          {index === topGrid && <Meme meme={homepageMeme} />}
+          {index === cache.topGrid && <Meme meme={homepageMeme} />}
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {index === topGrid && <CustomizeHomepage />}
+              {index === cache.topGrid && <CustomizeHomepage />}
             </div>
           )}
         </>
@@ -233,7 +272,7 @@ function HomePage(props: Props) {
         </div>
       )}
 
-      {hasBanner &&
+      {cache.hasBanner &&
         getRowElements(
           'BANNER',
           undefined,
@@ -263,7 +302,7 @@ function HomePage(props: Props) {
                       <ScheduledStreams
                         channelIds={subscribedChannelIds}
                         tileLayout
-                        liveUris={getActiveLivestreamUrisForIds(subscribedChannelIds)}
+                        liveUris={cache[id].livestreamUris}
                         limitClaimsPerChannel={2}
                       />
                     )}
