@@ -279,7 +279,7 @@ function App(props: Props) {
     if (!uploadCount) return;
 
     const msg = 'Unfinished uploads.';
-    const handleUnload = (event) => tusUnlockAndNotify();
+    const handleUnload = () => tusUnlockAndNotify();
     const handleBeforeUnload = (event) => {
       event.preventDefault();
       event.returnValue = __(msg); // without setting this to something it doesn't work in some browsers.
@@ -325,13 +325,6 @@ function App(props: Props) {
     // $FlowFixMe
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
-
-  /*
-  useEffect(() => {
-    // $FlowFixMe
-    document.body.style.overflowY = currentModal ? 'hidden' : '';
-  }, [currentModal]);
-  */
 
   useEffect(() => {
     if (hasNoChannels) {
@@ -397,10 +390,8 @@ function App(props: Props) {
   //     const script = document.createElement('script');
   //     script.src = imaLibraryPath;
   //     script.async = true;
-  //     // $FlowFixMe
   //     document.body.appendChild(script);
   //     return () => {
-  //       // $FlowFixMe
   //       document.body.removeChild(script);
   //     };
   //   }
@@ -426,7 +417,6 @@ function App(props: Props) {
       return;
     }
 
-    // $FlowFixMe
     const useProductionOneTrust = process.env.NODE_ENV === 'production' && hostname === 'odysee.com';
 
     const script = document.createElement('script');
