@@ -124,6 +124,7 @@ export default function ReportContent(props: Props) {
   // On mount, pause player and get the timestamp, if applicable.
   React.useEffect(() => {
     if (window.player) {
+      // TODO: should create a doPlayerPause() thunk action instead of getting from window.
       window.player.pause();
 
       const seconds = window.player.currentTime();
