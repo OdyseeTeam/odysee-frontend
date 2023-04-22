@@ -271,13 +271,20 @@
     .content-info__text {
       padding: var(--spacing-s) var(--spacing-xxs);
       padding-bottom: var(--spacing-xxs);
+      display: flex;
+      flex-wrap: wrap;
+
+      .claim-preview__title {
+        width: 100%;
+      }
 
       .content__floating-link {
         display: unset;
       }
 
       .channel-thumbnail {
-        display: inline-block;
+        // display: inline-block;
+        display: flex;
         margin-right: var(--spacing-xxs);
         img {
           margin-bottom: -1px;
