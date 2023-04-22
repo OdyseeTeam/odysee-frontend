@@ -432,6 +432,8 @@ function ClaimListHeader(props: Props) {
                       disabled={
                         !(
                           contentTypeParam === null ||
+                          contentTypeParam === CS.FILE_AUDIO ||
+                          contentTypeParam === CS.FILE_VIDEO ||
                           streamTypeParam === CS.FILE_AUDIO ||
                           streamTypeParam === CS.FILE_VIDEO
                         )
