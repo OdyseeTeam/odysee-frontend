@@ -1297,7 +1297,6 @@
   "My content for this post...": "My content for this post...",
   "Closing preferences": "Closing preferences",
   "You are now signed in.": "You are now signed in.",
-  "Welcome back! You are automatically being signed in.": "Welcome back! You are automatically being signed in.",
   "You can now close this tab.": "You can now close this tab.",
   "Authentication failure.": "Authentication failure.",
   "Invalid or expired sign-in link.": "Invalid or expired sign-in link.",
@@ -2887,6 +2886,9 @@
   "Show this creator your appreciation by sending a donation.": "Show this creator your appreciation by sending a donation.",
   "Loading channels...": "Loading channels...",
   "Failed to load the file. If problem persists, visit https://help.odysee.tv/ for support.": "Failed to load the file. If problem persists, visit https://help.odysee.tv/ for support.",
+  "Continue to Odysee": "Continue to Odysee",
+  "Log in failed": "Log in failed",
+  "New verification email has been sent": "New verification email has been sent",
 
   "--end--": "--end--"
 }
