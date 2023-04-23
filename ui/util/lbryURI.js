@@ -197,8 +197,14 @@ function logErrorOnce(err: string) {
  * Takes an object in the same format returned by parse() and builds a URI.
  *
  * The channelName key will accept names with or without the @ prefix.
+ *
+ * @param UrlObj
+ * @param suppressErrors If used in a try-catch or IsURIValid is used to validate the output, set to TRUE to suppress development error; asserts on valid input otherwise.
+ * @param includeProto
+ * @param protoDefault
+ * @returns {string}
  */
-export function buildURI(UrlObj: LbryUrlObj, includeProto: boolean = true, protoDefault: string = 'lbry://'): string {
+export function buildURI(UrlObj: LbryUrlObj, suppressErrors: boolean = false, includeProto: boolean = true, protoDefault: string = 'lbry://'): string {
   const {
     streamName,
     streamClaimId,
@@ -213,22 +219,28 @@ export function buildURI(UrlObj: LbryUrlObj, includeProto: boolean = true, proto
   } = UrlObj;
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  // @ifndef IGNORE_BUILD_URI_WARNINGS
-  if (!isProduction) {
-    if (claimId) {
-      logErrorOnce("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead");
+  if (!suppressErrors) {
+    // @ifndef IGNORE_BUILD_URI_WARNINGS
+    if (!isProduction) {
+      if (claimId) {
+        logErrorOnce("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead");
+      }
+      if (claimName) {
+        logErrorOnce("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead");
+      }
+      if (contentName) {
+        logErrorOnce("'contentName' should no longer be used. Use 'streamName' instead");
+      }
     }
-    if (claimName) {
-      logErrorOnce("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead");
-    }
-    if (contentName) {
-      logErrorOnce("'contentName' should no longer be used. Use 'streamName' instead");
-    }
-  }
-  // @endif
+    // @endif
 
-  if (!claimName && !channelName && !streamName) {
-    assert(false, "'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.");
+    if (!claimName && !channelName && !streamName) {
+      assert(
+        false,
+        "'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.",
+        UrlObj
+      );
+    }
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
@@ -327,6 +339,7 @@ export function convertToShareLink(URL: string) {
       secondaryBidPosition,
       secondaryClaimSequence,
     },
+    false,
     true,
     'https://open.lbry.com/'
   );

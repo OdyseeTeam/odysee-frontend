@@ -195,7 +195,7 @@ function parseURIModifier(modSeperator, modValue) {
  *
  * The channelName key will accept names with or without the @ prefix.
  */
-function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
+function buildURI(UrlObj, suppressErrors = false, includeProto = true, protoDefault = 'lbry://') {
   const {
     streamName,
     streamClaimId,
@@ -210,23 +210,25 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   } = UrlObj;
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  if (!isProduction) {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead")); // eslint-disable-line no-console
+  if (!suppressErrors) {
+    if (!isProduction) {
+      if (claimId) {
+        console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead")); // eslint-disable-line no-console
+      }
+      if (claimName) {
+        console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead")); // eslint-disable-line no-console
+      }
+      if (contentName) {
+        console.error(__("'contentName' should no longer be used. Use 'streamName' instead")); // eslint-disable-line no-console
+      }
     }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead")); // eslint-disable-line no-console
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead")); // eslint-disable-line no-console
-    }
-  }
 
-  if (!claimName && !channelName && !streamName) {
-    // eslint-disable-next-line no-console
-    console.error(
-      __("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.")
-    );
+    if (!claimName && !channelName && !streamName) {
+      // eslint-disable-next-line no-console
+      console.error(
+        __("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.")
+      );
+    }
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
@@ -325,6 +327,7 @@ function convertToShareLink(URL) {
       secondaryBidPosition,
       secondaryClaimSequence,
     },
+    false,
     true,
     'https://open.lbry.com/'
   );

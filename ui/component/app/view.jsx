@@ -201,7 +201,7 @@ function App(props: Props) {
     // here queryString and startTime are "removed" from the buildURI process
     // to build only the uri itself
     const { queryString, startTime, ...parsedUri } = parseURI(path);
-    uri = buildURI({ ...parsedUri });
+    uri = buildURI({ ...parsedUri }, true);
   } catch (e) {
     const match = path.match(/[#/:]/);
 
