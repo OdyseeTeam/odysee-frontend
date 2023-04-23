@@ -226,7 +226,8 @@ export default function CollectionsListMine(props: Props) {
 
   React.useEffect(() => {
     setPersistedOption(sortOption);
-  }, [sortOption, setPersistedOption]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- (setPersistedOption is custom setState, can ignore)
+  }, [sortOption]);
 
   return (
     <>
