@@ -30,6 +30,7 @@ function SignInVerifyPage(props: Props) {
   const userSubmittedEmail = urlParams.get('email');
   const verificationToken = urlParams.get('verification_token');
   const needsRecaptcha = urlParams.get('needs_recaptcha') === 'true';
+  const [verificationTried, setVerificationTried] = useState(needsRecaptcha);
 
   const successful = isAuthenticationSuccess || verificationApiHistory.successful;
 
@@ -93,14 +94,22 @@ function SignInVerifyPage(props: Props) {
       .catch(() => {
         verificationApiHistory.successful = false;
         onAuthError(__('Invalid captcha response or other authentication error.'));
+      })
+      .then(() => {
+        setVerificationTried(true);
       });
   }
 
   return (
     <Page authPage noFooter>
       <div className="main__sign-up">
+        {verificationTried && (
         <Card
-          title={successful ? __('Log in success!') : __('Log in')}
+          title={successful
+            ? __('Log in success!')
+            : needsRecaptcha
+            ? __('Log in')
+            : __('Log in failed')}
           subtitle={
             <React.Fragment>
               <p>
@@ -108,7 +117,7 @@ function SignInVerifyPage(props: Props) {
                   ? __('You can now close this tab.')
                   : needsRecaptcha
                   ? null
-                  : __('Welcome back! You are automatically being signed in.')}
+                  : __('New verification email has been sent')}
               </p>
               {showCaptchaMessage && !successful && (
                 <p>
@@ -126,20 +135,30 @@ function SignInVerifyPage(props: Props) {
             </React.Fragment>
           }
           actions={
-            !successful &&
-            needsRecaptcha && (
-              <div className="section__actions">
-                <ReCAPTCHA
-                  sitekey="6LePsJgUAAAAAFTuWOKRLnyoNKhm0HA4C3elrFMG"
-                  onChange={onCaptchaChange}
-                  asyncScriptOnLoad={onCaptchaReady}
-                  onExpired={onAuthError}
-                  onErrored={onAuthError}
+            <>
+              {!successful &&
+                needsRecaptcha && (
+                  <div className="section__actions">
+                    <ReCAPTCHA
+                      sitekey="6LePsJgUAAAAAFTuWOKRLnyoNKhm0HA4C3elrFMG"
+                      onChange={onCaptchaChange}
+                      asyncScriptOnLoad={onCaptchaReady}
+                      onExpired={onAuthError}
+                      onErrored={onAuthError}
+                    />
+                  </div>
+                )}
+              {successful && (
+                <Button
+                  button="primary"
+                  label={__('Continue to Odysee')}
+                  onClick={() => window.location.assign('/')}
                 />
-              </div>
-            )
+              )}
+            </>
           }
         />
+      )}
       </div>
     </Page>
   );
