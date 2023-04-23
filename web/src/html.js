@@ -395,7 +395,7 @@ async function getHtml(ctx) {
 
     try {
       parsedUri = parseURI(normalizeClaimUrl(requestPath.slice(1)));
-      claimUri = buildURI({ ...parsedUri, startTime: undefined });
+      claimUri = buildURI({ ...parsedUri, startTime: undefined }, true);
     } catch (err) {
       ctx.status = 404;
       return err.message;

@@ -103,10 +103,10 @@ class TransactionListTableItem extends React.PureComponent<Props, State> {
     try {
       if (name.startsWith('@')) {
         ({ claimName } = parseURI(name));
-        uri = buildURI({ channelName: claimName, channelClaimId: claimId });
+        uri = buildURI({ channelName: claimName, channelClaimId: claimId }, true);
       } else {
         ({ claimName } = parseURI(name));
-        uri = buildURI({ streamName: claimName, streamClaimId: claimId });
+        uri = buildURI({ streamName: claimName, streamClaimId: claimId }, true);
       }
     } catch (e) {}
 

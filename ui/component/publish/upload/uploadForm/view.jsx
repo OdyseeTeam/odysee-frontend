@@ -298,13 +298,13 @@ function UploadForm(props: Props) {
     // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
     let uri;
     try {
-      uri = name && buildURI({ streamName: name, activeChannelName });
+      uri = name && buildURI({ streamName: name, activeChannelName }, true);
     } catch (e) {}
 
     if (activeChannelName && name) {
       // resolve without the channel name so we know the winning bid for it
       try {
-        const uriLessChannel = buildURI({ streamName: name });
+        const uriLessChannel = buildURI({ streamName: name }, true);
         resolveUri(uriLessChannel);
       } catch (e) {}
     }

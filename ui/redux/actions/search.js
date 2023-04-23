@@ -134,7 +134,7 @@ const processLighthouseResults = (results: Array<any>) => {
         urlObj.streamClaimId = claimId;
       }
 
-      const url = buildURI(urlObj);
+      const url = buildURI(urlObj, true);
       if (isURIValid(url)) {
         uris.push(url);
       }
