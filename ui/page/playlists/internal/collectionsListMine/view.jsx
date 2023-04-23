@@ -226,7 +226,7 @@ export default function CollectionsListMine(props: Props) {
 
   React.useEffect(() => {
     setPersistedOption(sortOption);
-  }, [sortOption]);
+  }, [sortOption, setPersistedOption]);
 
   return (
     <>
