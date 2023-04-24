@@ -902,6 +902,13 @@
 }
 
 .publish-row {
-  // background:red;
   padding: var(--spacing-s);
+  p {
+    color: rgba(var(--color-text-base), 0.8);
+    margin-top: var(--spacing-xxs);
+  }
+  li {
+    color: rgba(var(--color-text-base), 0.8);
+    margin-left: var(--spacing-l);
+  }
 }

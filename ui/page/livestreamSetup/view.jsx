@@ -81,7 +81,7 @@ export default function LivestreamSetupPage(props: Props) {
   const pendingLength = pendingClaims.length;
   const totalLivestreamClaims = pendingClaims.concat(myLivestreamClaims);
   const helpText = (
-    <div className="section__subtitle">
+    <div className="publish-row">
       <p>
         {__(
           `Create a Livestream by first submitting your livestream details and waiting for approval confirmation. This can be done well in advance and will take a few minutes.`
@@ -381,7 +381,8 @@ export default function LivestreamSetupPage(props: Props) {
                       }
                     />
                   )}
-                  <Card className="card--livestream-instructions" title="Instructions" actions={helpText} />
+
+                  <Card background title="Instructions" body={helpText} />
 
                   {/* Debug Stuff */}
                   {streamKey && false && activeChannelClaim && (

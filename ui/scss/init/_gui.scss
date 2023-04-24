@@ -970,31 +970,6 @@ img {
     }
   }
 
-  .card--livestream-instructions {
-    margin-top: var(--spacing-m);
-    .card__title-actions-container {
-      button {
-        background-color: var(--color-primary);
-        margin-right: calc(var(--spacing-xs) * -1);
-      }
-    }
-
-    .card__header--between {
-      border-bottom: 0;
-    }
-    .card__main-actions {
-      background: rgba(var(--color-header-button-base), 0.6);
-      border-radius: var(--border-radius);
-      padding: var(--spacing-s);
-      .section__subtitle {
-        color: rgba(var(--color-text-base), 0.8);
-        li {
-          margin-left: var(--spacing-l);
-        }
-      }
-    }
-  }
-
   .card--livestream-past {
     margin-top: var(--spacing-l);
   }
