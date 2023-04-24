@@ -54,6 +54,7 @@ export default function SettingContent(props: Props) {
       </div>
       <Card
         id={SETTINGS_GRP.CONTENT}
+        background
         isBodyList
         body={
           <>

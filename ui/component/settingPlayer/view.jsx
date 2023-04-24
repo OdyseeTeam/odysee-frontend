@@ -28,6 +28,7 @@ export default function SettingPlayer(props: Props) {
       </div>
       <Card
         id={SETTINGS_GRP.PLAYER}
+        background
         isBodyList
         body={
           <>

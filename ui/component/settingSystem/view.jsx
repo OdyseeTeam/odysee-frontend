@@ -126,6 +126,7 @@ export default function SettingSystem(props: Props) {
       </div>
       <Card
         id={SETTINGS_GRP.SYSTEM}
+        background
         isBodyList
         body={
           <>

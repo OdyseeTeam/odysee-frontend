@@ -1,6 +1,4 @@
 // @flow
-import './style.scss';
-
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import CreditAmount from 'component/common/credit-amount';

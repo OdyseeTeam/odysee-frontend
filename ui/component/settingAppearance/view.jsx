@@ -45,6 +45,7 @@ export default function SettingAppearance(props: Props) {
       </div>
       <Card
         id={SETTINGS_GRP.APPEARANCE}
+        background
         isBodyList
         body={
           <>

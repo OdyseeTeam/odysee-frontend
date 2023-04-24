@@ -8,7 +8,6 @@ import React from 'react';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { FREE_GLOBAL_STICKERS, PAID_GLOBAL_STICKERS } from 'constants/stickers';
 import { useIsMobile } from 'effects/use-screensize';
-import './style.scss';
 
 let gMountedOnce = false;
 
@@ -45,7 +44,7 @@ export default function CommentSelectors(props: Props) {
   }, [mount, isOpen]);
 
   return (
-    <Tabs index={openTab} className={isOpen ? 'tabs tabs-comment tabs--open' : 'tabs'} onChange={() => {}}>
+    <Tabs index={openTab} className={isOpen ? 'tabs tabs--comment tabs--open' : 'tabs'} onChange={() => {}}>
       <TabList className="tabs__list--comment-selector">
         <Tab>{__('Emojis')}</Tab>
         <Tab>{__('Stickers')}</Tab>

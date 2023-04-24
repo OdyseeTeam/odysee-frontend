@@ -1,6 +1,4 @@
 // @flow
-import './style.scss';
-
 import Button from 'component/button';
 import React from 'react';
 import ChannelThumbnail from 'component/channelThumbnail';

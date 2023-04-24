@@ -1,6 +1,4 @@
 // @flow
-import './style.scss';
-
 import Button from 'component/button';
 import React from 'react';
 import FilePrice from 'component/filePrice';
@@ -19,13 +17,13 @@ export const StickerReviewBox = (props: Props) => {
   const { activeChannelUrl, src, price, exchangeRate } = props;
 
   return (
-    <div className="commentCreate__stickerPreview">
-      <div className="commentCreate__stickerPreviewInfo">
+    <div className="comment-create__sticker-preview">
+      <div className="commentCreate__sticker-preview__info">
         <ChannelThumbnail xsmall uri={activeChannelUrl} />
         <UriIndicator uri={activeChannelUrl} link showAtSign />
       </div>
 
-      <div className="commentCreate__stickerPreviewImage">
+      <div className="commentCreate__sticker-preview__image">
         <OptimizedImage src={src} waitLoad loading="lazy" />
       </div>
 

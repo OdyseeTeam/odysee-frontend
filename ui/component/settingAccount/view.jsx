@@ -43,6 +43,7 @@ export default function SettingAccount(props: Props) {
 
       <Card
         id={SETTINGS_GRP.ACCOUNT}
+        background
         isBodyList
         body={
           <>

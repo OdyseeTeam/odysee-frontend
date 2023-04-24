@@ -2,6 +2,13 @@
   position: relative;
 }
 
+.tabs--comment {
+  .tab__panel {
+    width: unset;
+    max-width: unset;
+  }
+}
+
 .tabs__list {
   position: relative;
   display: flex;
@@ -45,7 +52,6 @@
 }
 
 .tabs__list--comment-selector {
-  // padding-left: var(--spacing-m) !important;
   border: 0 !important;
   border-radius: 0 !important;
   margin-bottom: 0px !important;

@@ -97,13 +97,6 @@ $actions-z-index: 2;
     }
   }
 
-  .tabs-comment {
-    .tab__panel {
-      width: unset;
-      max-width: unset;
-    }
-  }
-
   .section__header--actions {
     @media (max-width: $breakpoint-small) {
       .section__actions {

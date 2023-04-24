@@ -13,7 +13,6 @@ import * as REACTION_TYPES from 'constants/reactions';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import classnames from 'classnames';
-import CommentCreate from 'component/commentCreate';
 import CommentView from 'component/comment';
 import debounce from 'util/debounce';
 import Empty from 'component/common/empty';
@@ -22,8 +21,10 @@ import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
 import { useHistory } from 'react-router-dom';
 import CommentListMenu from './internal/commentListMenu';
+import { lazyImport } from 'util/lazyImport';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "commentCreate" */));
 
 function scaleToDevicePixelRatio(value) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;

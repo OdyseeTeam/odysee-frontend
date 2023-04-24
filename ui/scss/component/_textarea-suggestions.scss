@@ -308,7 +308,6 @@
   .tabs {
     border-top: 1px solid var(--color-border);
     .tab {
-      // padding-top:0;
       &::after {
         height: 4px !important;
         bottom: calc(var(--tab-indicator-size) * -2 + 13px);

@@ -1,7 +1,4 @@
 // @flow
-
-import 'scss/component/_comment-create.scss';
-
 import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
@@ -15,22 +12,21 @@ import * as MODALS from 'constants/modal_types';
 import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import classnames from 'classnames';
-import CommentSelectors, { SELECTOR_TABS } from './comment-selectors';
+import CommentSelectors, { SELECTOR_TABS } from './internal/comment-selectors';
 import React from 'react';
 import type { ElementRef } from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import { useIsMobile } from 'effects/use-screensize';
-import { StickerReviewBox, StickerActionButton } from './sticker-contents';
-import { TipReviewBox, TipActionButton } from './tip-contents';
-import { FormChannelSelector, HelpText } from './extra-contents';
+import { StickerReviewBox, StickerActionButton } from './internal/sticker-contents';
+import { TipReviewBox, TipActionButton } from './internal/tip-contents';
+import { FormChannelSelector, HelpText } from './internal/extra-contents';
 import ErrorBubble from 'component/common/error-bubble';
-
 import { AppContext } from 'component/app/view';
-
 import withCreditCard from 'hocs/withCreditCard';
-
 import { getStripeEnvironment } from 'util/stripe';
+import './style.scss';
+
 const stripeEnvironment = getStripeEnvironment();
 
 const TAB_FIAT = 'TabFiat';
@@ -704,10 +700,10 @@ export function CommentCreate(props: Props) {
 
       <Form
         onSubmit={() => {}}
-        className={classnames('commentCreate', {
-          'commentCreate--reply': isReply,
-          'commentCreate--nestedReply': isNested,
-          'commentCreate--bottom': bottom,
+        className={classnames('comment-create', {
+          'comment-create--reply': isReply,
+          'comment-create--nestedReply': isNested,
+          'comment-create--bottom': bottom,
         })}
       >
         {isReviewingSupportComment ? (
