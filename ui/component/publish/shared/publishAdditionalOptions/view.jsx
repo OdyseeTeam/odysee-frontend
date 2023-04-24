@@ -60,10 +60,11 @@ function PublishAdditionalOptions(props: Props) {
 
   return (
     <>
-      <h2 className="card__title">{__('Additional Options')}</h2>
       <Card
+        background
         className="card--enable-overflow card--publish-section card--additional-options"
-        actions={
+        title={__('Additional Options')}
+        body={
           <React.Fragment>
             {!hideSection && !disabled && (
               <>

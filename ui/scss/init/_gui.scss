@@ -634,16 +634,18 @@ img {
 // The following wrapper classes are temporary to fix page specific issues
 
 .card--publish-section {
-  background: rgba(var(--color-header-button-base), 0.6);
-  border-radius: var(--border-radius);
+  // background: rgba(var(--color-header-button-base), 0.6);
+  // border-radius: var(--border-radius);
 
   .card__main-actions {
     padding: 0;
   }
 
+  /*
   fieldset-section {
     padding: var(--spacing-s);
   }
+  */
 
   fieldset-section.radio {
     margin-top: 0;
@@ -663,17 +665,14 @@ img {
     }
   }
 
+  /*
   .publish-row {
     .form-field__help {
       padding: var(--spacing-s);
       padding-top: 0;
     }
   }
-
-  .form-field-date-picker {
-    padding: var(--spacing-s);
-    margin-bottom: 0;
-  }
+  */
 }
 
 .card--additional-options {
@@ -871,10 +870,12 @@ img {
     }
   }
 
+  /*
   .card__header--between {
     margin-bottom: 0;
     border-bottom: 1px solid var(--color-border);
   }
+  */
 
   .card__title {
     div {
@@ -1098,9 +1099,9 @@ img {
   }
 
   .card--restrictions {
-    background: rgba(var(--color-header-button-base), 0.6);
-    border-radius: var(--border-radius);
-    padding: var(--spacing-s);
+    // background: rgba(var(--color-header-button-base), 0.6);
+    // border-radius: var(--border-radius);
+    // padding: var(--spacing-s);
 
     .checkbox {
       margin-top: var(--spacing-xs);

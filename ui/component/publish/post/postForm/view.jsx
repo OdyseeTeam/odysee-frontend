@@ -424,7 +424,7 @@ function PostForm(props: Props) {
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
-          <Card actions={<SelectThumbnail />} />
+          <Card background title={__('Thumbnail')} actions={<SelectThumbnail />} />
 
           <PublishProtectedContent claim={myClaimForUri} location={'post'} />
 

@@ -866,15 +866,6 @@
       }
     }
 
-    .checkbox,
-    .radio {
-      label {
-        &::before {
-          background-color: var(--color-background);
-        }
-      }
-    }
-
     .checkbox {
       label::after {
         top: 8px;
@@ -908,4 +899,9 @@
       padding: var(--spacing-xxs) 0;
     }
   }
+}
+
+.publish-row {
+  // background:red;
+  padding: var(--spacing-s);
 }

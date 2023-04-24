@@ -326,13 +326,15 @@ function PublishPrice(props: Props) {
 
   return (
     <div className="publish-price">
-      <h2 className="publish-price__title">{__('Price')}</h2>
       <Card
+        background
+        isBodyList
         className={classnames('card--enable-overflow card--publish-section card--additional-options', {
           'card--disabled': disabled,
         })}
-        actions={
-          <>
+        title={__('Price')}
+        body={
+          <div className="settings-row">
             {expanded && (
               <>
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
@@ -354,7 +356,7 @@ function PublishPrice(props: Props) {
                 onClick={() => setExpanded((prev) => !prev)}
               />
             </div>
-          </>
+          </div>
         }
       />
     </div>

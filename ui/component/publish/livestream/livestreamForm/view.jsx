@@ -544,7 +544,7 @@ function LivestreamForm(props: Props) {
               <Card body={<PublishStreamReleaseDate />} />
             )}
 
-            <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+            <Card background title={__('Thumbnail')} actions={<SelectThumbnail />} livestreamData={livestreamData} />
 
             <PublishProtectedContent claim={myClaimForUri} location={channelRestrictionToUse} />
 

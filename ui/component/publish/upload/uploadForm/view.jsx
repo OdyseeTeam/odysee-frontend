@@ -460,10 +460,6 @@ function UploadForm(props: Props) {
                 iconSize={18}
                 label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
                 button="alt"
-                onClick={() => {
-                  // $FlowFixMe
-                  // setMode(modeName);
-                }}
                 className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
               />
             ))}
@@ -477,7 +473,7 @@ function UploadForm(props: Props) {
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
-          <Card actions={<SelectThumbnail />} />
+          <Card background title={__('Thumbnail')} actions={<SelectThumbnail />} />
 
           <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
 

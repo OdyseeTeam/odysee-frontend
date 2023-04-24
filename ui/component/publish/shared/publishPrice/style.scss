@@ -3,9 +3,6 @@
 $DISABLED_OPACITY: 0.2;
 $INDENT: var(--spacing-xl);
 
-.publish-price {
-}
-
 .publish-price__title {
   font-size: var(--font-large);
   font-weight: var(--font-weight-bold);
@@ -14,7 +11,7 @@ $INDENT: var(--spacing-xl);
 .publish-price__row {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-s);
+  // padding: var(--spacing-s);
 
   fieldset-section:first-of-type {
     padding: 0;

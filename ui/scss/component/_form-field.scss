@@ -279,10 +279,8 @@ input-submit {
   label::before {
     height: var(--height-radio);
     width: var(--height-radio);
-    border: 1px solid var(--color-input-border);
     border-radius: calc(var(--height-radio) * 0.5);
     left: 0px;
-    // top: -1px;
   }
 
   // Checkmark of the fake radio
@@ -611,7 +609,7 @@ fieldset-section {
 }
 
 .form-field-date-picker {
-  margin-bottom: var(--spacing-l);
+  // margin-bottom: var(--spacing-l);
   font-size: var(--font-base);
 
   label {

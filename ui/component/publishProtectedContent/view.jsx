@@ -149,24 +149,27 @@ function PublishProtectedContent(props: Props) {
   if (!myMembershipTiers || (myMembershipTiers && myMembershipTiers.length === 0)) {
     return (
       <>
-        <h2 className="card__title">{__('Restrict Content')}</h2>
-
         <Card
+          background
+          isBodyList
           className="card--restrictions"
+          title={__('Restrict Content')}
           body={
-            <I18nMessage
-              tokens={{
-                activate_your_memberships: (
-                  <Button
-                    navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
-                    label={__('activate your memberships')}
-                    button="link"
-                  />
-                ),
-              }}
-            >
-              Please %activate_your_memberships% first to to use this functionality.
-            </I18nMessage>
+            <div className="settings-row">
+              <I18nMessage
+                tokens={{
+                  activate_your_memberships: (
+                    <Button
+                      navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+                      label={__('activate your memberships')}
+                      button="link"
+                    />
+                  ),
+                }}
+              >
+                Please %activate_your_memberships% first to to use this functionality.
+              </I18nMessage>
+            </div>
           }
         />
       </>
@@ -176,10 +179,11 @@ function PublishProtectedContent(props: Props) {
   if (membershipsToUse && membershipsToUse.length > 0) {
     return (
       <>
-        <h2 className="card__title">{__('Restrict Content')}</h2>
-
         <Card
+          background
+          isBodyList
           className="card--restrictions"
+          title={__('Restrict Content')}
           body={
             <>
               <FormField
