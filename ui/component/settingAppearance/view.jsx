@@ -40,11 +40,9 @@ export default function SettingAppearance(props: Props) {
 
   return (
     <>
-      <div className="card__title-section">
-        <h2 className="card__title">{__('Appearance')}</h2>
-      </div>
       <Card
         id={SETTINGS_GRP.APPEARANCE}
+        title={__('Appearance')}
         background
         isBodyList
         body={

@@ -852,10 +852,12 @@
 }
 
 .card--background {
+  .card__title-section {
+    padding-bottom: 0;
+  }
   .card__body {
     background-color: var(--color-header-button);
     border-radius: var(--border-radius);
-    padding: var(--spacing-xs) 0;
 
     input {
       background: var(--color-background);

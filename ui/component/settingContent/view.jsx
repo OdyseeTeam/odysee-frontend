@@ -49,13 +49,11 @@ export default function SettingContent(props: Props) {
 
   return (
     <>
-      <div className="card__title-section">
-        <h2 className="card__title">{__('Content settings')}</h2>
-      </div>
       <Card
         id={SETTINGS_GRP.CONTENT}
         background
         isBodyList
+        title={__('Content settings')}
         body={
           <>
             <SettingsRow title={__('Hide members-only content')} subtitle={__(HELP.HIDE_MEMBERS_ONLY_CONTENT)}>

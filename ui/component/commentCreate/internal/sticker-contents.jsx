@@ -18,12 +18,12 @@ export const StickerReviewBox = (props: Props) => {
 
   return (
     <div className="comment-create__sticker-preview">
-      <div className="commentCreate__sticker-preview__info">
+      <div className="comment-create__sticker-preview__info">
         <ChannelThumbnail xsmall uri={activeChannelUrl} />
         <UriIndicator uri={activeChannelUrl} link showAtSign />
       </div>
 
-      <div className="commentCreate__sticker-preview__image">
+      <div className="comment-create__sticker-preview__image">
         <OptimizedImage src={src} waitLoad loading="lazy" />
       </div>
 

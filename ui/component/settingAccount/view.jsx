@@ -37,12 +37,9 @@ export default function SettingAccount(props: Props) {
 
   return (
     <>
-      <div className="card__title-section">
-        <h2 className="card__title">{__('Account')}</h2>
-      </div>
-
       <Card
         id={SETTINGS_GRP.ACCOUNT}
+        title={__('Account')}
         background
         isBodyList
         body={

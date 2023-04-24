@@ -121,13 +121,11 @@ export default function SettingSystem(props: Props) {
 
   return (
     <>
-      <div className="card__title-section">
-        <h2 className="card__title">{__('System')}</h2>
-      </div>
       <Card
         id={SETTINGS_GRP.SYSTEM}
         background
         isBodyList
+        title={__('System')}
         body={
           <>
             {/* @if TARGET='app' */}

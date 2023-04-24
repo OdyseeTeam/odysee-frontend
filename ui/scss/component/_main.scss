@@ -569,21 +569,9 @@ body {
     color: var(--color-primary);
   }
 
-  .card__title-section {
-    padding-bottom: 0;
-  }
   .card__title-section:not(:first-child) {
     padding-top: var(--spacing-l);
   }
-
-  /*
-  .tags--remove {
-    .button {
-      background-color: var(--color-header-background);
-      color: var(--color-text);
-    }
-  }
-  */
 
   .claim-preview__wrapper--channel {
     .menu__button {
