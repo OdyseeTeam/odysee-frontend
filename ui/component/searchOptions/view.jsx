@@ -48,15 +48,8 @@ type Props = {
 };
 
 const SearchOptions = (props: Props) => {
-  const {
-    options,
-    simple,
-    setSearchOption,
-    expanded,
-    searchInLanguage,
-    toggleSearchExpanded,
-    onSearchOptionsChanged,
-  } = props;
+  const { options, simple, setSearchOption, expanded, searchInLanguage, toggleSearchExpanded, onSearchOptionsChanged } =
+    props;
 
   const stringifiedOptions = JSON.stringify(options);
 
@@ -77,6 +70,7 @@ const SearchOptions = (props: Props) => {
     if (options[SEARCH_OPTIONS.RESULT_COUNT] !== SEARCH_PAGE_SIZE) {
       setSearchOption(SEARCH_OPTIONS.RESULT_COUNT, SEARCH_PAGE_SIZE);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   function updateSearchOptions(option, value) {

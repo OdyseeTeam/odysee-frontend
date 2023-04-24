@@ -224,6 +224,11 @@ export default function CollectionsListMine(props: Props) {
     }
   }, [filterParamsChanged]);
 
+  React.useEffect(() => {
+    setPersistedOption(sortOption);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- (setPersistedOption is custom setState, can ignore)
+  }, [sortOption]);
+
   return (
     <>
       <SectionLabel label={__('Your Playlists')} />
@@ -243,8 +248,6 @@ export default function CollectionsListMine(props: Props) {
           // $FlowFixMe
           sortOption={sortOption}
           setSortOption={setSortOption}
-          persistedOption={persistedOption}
-          setPersistedOption={setPersistedOption}
         />
       </CollectionsListContext.Provider>
 

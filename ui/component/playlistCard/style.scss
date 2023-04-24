@@ -196,6 +196,7 @@
       .card__title {
         .playlist__title {
           .icon:not(.icon--UploadCloud) {
+            flex-shrink: 0;
             background-color: var(--color-text);
             color: var(--color-text-inverse);
             width: 1.4rem;

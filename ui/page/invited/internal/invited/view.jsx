@@ -8,7 +8,7 @@ import Card from 'component/common/card';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { ERRORS } from 'lbryinc';
 import { formatLbryUrlForWeb } from 'util/url';
-import ContentTab from 'page/claim/internal/claimPageComponent/internal/channel/tabs/contentTab';
+import ContentTab from 'page/claim/internal/claimPageComponent/internal/channelPage/tabs/contentTab';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
 
@@ -188,7 +188,7 @@ function Invited(props: Props) {
       subtitle={
         referrerIsChannel ? (
           <I18nMessage tokens={{ channel_name: channelTitle, signup_link: <SignUpButton />, site_name: SITE_NAME }}>
-            %channel_name% is waiting for you on %site_name%. %signup_link% to claim it.
+            %channel_name% is waiting for you on %site_name%. %signup_link% to follow them.
           </I18nMessage>
         ) : (
           <I18nMessage tokens={{ signup_link: <SignUpButton /> }}>

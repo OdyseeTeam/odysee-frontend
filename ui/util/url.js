@@ -148,7 +148,7 @@ export const generateShareUrl = (
     ...(channelClaimId ? { channelClaimId } : {}),
   };
 
-  const encodedUrl = buildURI(uriParts, false);
+  const encodedUrl = buildURI(uriParts, false, false);
   const lbryWebUrl = encodedUrl.replace(/#/g, ':');
 
   const url = `${domain}/${lbryWebUrl}` + (urlParamsString === '' ? '' : `?${urlParamsString}`);

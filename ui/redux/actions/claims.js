@@ -388,7 +388,7 @@ export function doAbandonTxo(txo: Txo, cb: (string) => void) {
     }
 
     if (!method) {
-      console.error('No "method" chosen for claim or support abandon');
+      assert(false, 'No "method" chosen for claim or support abandon');
       return;
     }
 
@@ -411,7 +411,7 @@ export function doAbandonClaim(claim: Claim, cb: (string) => any) {
     const supportToAbandon = mySupports[outpoint];
 
     if (!claimToAbandon && !supportToAbandon) {
-      console.error('No associated support or claim with txid: ', txid);
+      assert(false, 'No associated support or claim with txid: ' + txid);
       return;
     }
 
@@ -477,7 +477,7 @@ export function doAbandonClaim(claim: Claim, cb: (string) => any) {
     }
 
     if (!method) {
-      console.error('No "method" chosen for claim or support abandon');
+      assert(false, 'No "method" chosen for claim or support abandon');
       return;
     }
 

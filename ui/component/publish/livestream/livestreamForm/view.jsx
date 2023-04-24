@@ -211,6 +211,7 @@ function LivestreamForm(props: Props) {
 
   useEffect(() => {
     setClearStatus(isClear);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isClear]);
 
   useEffect(() => {
@@ -241,6 +242,7 @@ function LivestreamForm(props: Props) {
       setPreviewing(false);
       updatePublishForm({ publishError: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishError]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
@@ -267,9 +269,9 @@ function LivestreamForm(props: Props) {
 
       const responseFromNewApi = await fetch(newEndpointUrl);
 
-      const data = (await responseFromNewApi.json()).data;
+      const data: Array<ReplayListResponse> = (await responseFromNewApi.json()).data;
+      const newData: Array<LivestreamReplayItem> = [];
 
-      let newData = [];
       if (data && data.length > 0) {
         for (const dataItem of data) {
           if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
@@ -280,6 +282,7 @@ function LivestreamForm(props: Props) {
                   dataItem.Status.toLowerCase() === 'inprogress'
                     ? __('Processing...(') + dataItem.PercentComplete + '%)'
                     : (dataItem.Duration / 1000000000).toString(),
+                percentComplete: dataItem.PercentComplete,
                 thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
                 uploadedAt: dataItem.Created,
               },
@@ -343,13 +346,13 @@ function LivestreamForm(props: Props) {
     // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
     let uri;
     try {
-      uri = name && buildURI({ streamName: name, activeChannelName });
+      uri = name && buildURI({ streamName: name, activeChannelName }, true);
     } catch (e) {}
 
     if (activeChannelName && name) {
       // resolve without the channel name so we know the winning bid for it
       try {
-        const uriLessChannel = buildURI({ streamName: name });
+        const uriLessChannel = buildURI({ streamName: name }, true);
         resolveUri(uriLessChannel);
       } catch (e) {}
     }
@@ -373,6 +376,7 @@ function LivestreamForm(props: Props) {
       setPublishMode('New');
       updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [editingURI, resolveUri]);
 
   useEffect(() => {
@@ -386,6 +390,7 @@ function LivestreamForm(props: Props) {
     if (publishMode === 'New') {
       updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishMode]);
 
   useEffect(() => {

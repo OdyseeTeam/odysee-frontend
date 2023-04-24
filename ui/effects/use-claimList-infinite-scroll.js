@@ -49,6 +49,7 @@ export default function useClaimListInfiniteScroll(
       setIsLoadingPage(false);
       setPage(0);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // -- Optional: remove the locking behavior for whatever reason:
@@ -56,7 +57,7 @@ export default function useClaimListInfiniteScroll(
     if (disableListLock) {
       setUris(allUris);
     }
-  }, [allUris]);
+  }, [disableListLock, allUris]);
 
   return { uris, page, isLoadingPage, bumpPage };
 }

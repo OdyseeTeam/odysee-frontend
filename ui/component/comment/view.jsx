@@ -197,6 +197,7 @@ function CommentView(props: Props) {
       fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
       setShowReplies(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only?
   }, []);
 
   const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;

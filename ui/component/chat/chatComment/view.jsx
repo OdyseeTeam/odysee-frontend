@@ -110,6 +110,7 @@ export default function ChatComment(props: Props) {
 
   React.useEffect(() => {
     if (hasUserMention) setUserMention(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO: no idea if valid
   }, [activeChannelClaim]);
 
   return (

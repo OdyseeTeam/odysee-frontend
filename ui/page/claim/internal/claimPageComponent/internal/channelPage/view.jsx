@@ -20,12 +20,9 @@ import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimMenuList from 'component/claimMenuList';
-// import OptimizedImage from 'component/optimizedImage';
 import Yrbl from 'component/yrbl';
 import I18nMessage from 'component/i18nMessage';
 import TruncatedText from 'component/common/truncated-text';
-// $FlowFixMe cannot resolve ...
-// import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import MembershipBadge from 'component/membershipBadge';
@@ -39,6 +36,7 @@ import CommunityTab from './tabs/communityTab';
 import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import * as CS from 'constants/claim_search';
+import './style.scss';
 
 const TABS_FOR_CHANNELS_WITH_CONTENT = [
   CHANNEL_PAGE.VIEWS.HOME,
@@ -148,7 +146,7 @@ function ChannelPage(props: Props) {
     }
 
     return discussionWasMounted && currentView === CHANNEL_PAGE.VIEWS.DISCUSSION;
-  }, [discussionWasMounted, uri]);
+  }, [discussionWasMounted, currentView]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
   const [filters, setFilters] = React.useState(undefined);

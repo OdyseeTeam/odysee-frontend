@@ -283,7 +283,8 @@ export default function CreatorSettingsTab(props: Props) {
           <>
             <h2 className="card__title">{__('General')}</h2>
             <Card
-              className="card--background"
+              background
+              isBodyList
               body={
                 <>
                   {channelHasMembershipTiers && (
@@ -437,7 +438,8 @@ export default function CreatorSettingsTab(props: Props) {
 
             <h2 className="card__title">{__('Moderators')}</h2>
             <Card
-              className="card--background"
+              background
+              isBodyList
               body={
                 <SettingsRow subtitle={__(HELP.MODERATORS)} multirow>
                   <SearchChannelField
@@ -454,7 +456,8 @@ export default function CreatorSettingsTab(props: Props) {
 
             <h2 className="card__title">{__('Filters')}</h2>
             <Card
-              className="card--background"
+              background
+              isBodyList
               body={
                 <SettingsRow subtitle={__(HELP.BLOCKED_WORDS)} multirow>
                   <div className="tag--blocked-words">

@@ -1,6 +1,9 @@
 @import '~ui/scss/init/breakpoints';
 @import '~ui/scss/init/mixins';
 
+$list-height: 40vh;
+$list-height--mobile: 30vh;
+
 .channel-finder {
   padding: var(--spacing-m) 0;
 
@@ -21,9 +24,6 @@
 .channel-finder__bottom {
   padding-left: var(--spacing-xs);
 }
-
-$list-height: 40vh;
-$list-height--mobile: 30vh;
 
 .channel-finder__suggestion-list {
   width: 50%;

@@ -8,7 +8,8 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-const regexInvalidURI = /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+const regexInvalidURI =
+  /[ =&#:$@%?;/\\"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 // const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
@@ -194,7 +195,7 @@ function parseURIModifier(modSeperator, modValue) {
  *
  * The channelName key will accept names with or without the @ prefix.
  */
-function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
+function buildURI(UrlObj, suppressErrors = false, includeProto = true, protoDefault = 'lbry://') {
   const {
     streamName,
     streamClaimId,
@@ -209,22 +210,25 @@ function buildURI(UrlObj, includeProto = true, protoDefault = 'lbry://') {
   } = UrlObj;
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  if (!isProduction) {
-    if (claimId) {
-      console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead"));
+  if (!suppressErrors) {
+    if (!isProduction) {
+      if (claimId) {
+        console.error(__("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead")); // eslint-disable-line no-console
+      }
+      if (claimName) {
+        console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead")); // eslint-disable-line no-console
+      }
+      if (contentName) {
+        console.error(__("'contentName' should no longer be used. Use 'streamName' instead")); // eslint-disable-line no-console
+      }
     }
-    if (claimName) {
-      console.error(__("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead"));
-    }
-    if (contentName) {
-      console.error(__("'contentName' should no longer be used. Use 'streamName' instead"));
-    }
-  }
 
-  if (!claimName && !channelName && !streamName) {
-    console.error(
-      __("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.")
-    );
+    if (!claimName && !channelName && !streamName) {
+      // eslint-disable-next-line no-console
+      console.error(
+        __("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.")
+      );
+    }
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
@@ -323,6 +327,7 @@ function convertToShareLink(URL) {
       secondaryBidPosition,
       secondaryClaimSequence,
     },
+    false,
     true,
     'https://open.lbry.com/'
   );

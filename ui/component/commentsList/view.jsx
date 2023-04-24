@@ -277,12 +277,14 @@ export default function CommentList(props: Props) {
         activeChannelId
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [currentFetchedPage, fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId, uri]);
 
   React.useEffect(() => {
     if (threadCommentId) {
       refreshComments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [threadCommentId]);
 
   // Fetch reacts

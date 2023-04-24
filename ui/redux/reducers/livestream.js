@@ -5,10 +5,10 @@ import { handleActions } from 'util/redux-utils';
 
 export type LivestreamState = {
   livestreamInfoByCreatorId: LivestreamInfoByCreatorIds,
-  activeLivestreamByCreatorId: { [creatorId: string]: ?LivestreamActiveClaim },
+  activeLivestreamByCreatorId: LivestreamByCreatorId,
   futureLivestreamsByCreatorId: { [creatorId: string]: ?Array<LivestreamActiveClaim> },
   pastLivestreamsByCreatorId: { [creatorId: string]: ?Array<LivestreamActiveClaim> },
-  viewersById: { [claimId: string]: number },
+  viewersById: LivestreamViewersById,
   isLiveFetchingIds: Array<string>,
   activeLivestreamsFetchingQueries: Array<string>,
   activeCreatorLivestreamsByQuery: {

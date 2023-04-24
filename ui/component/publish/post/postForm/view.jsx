@@ -212,6 +212,7 @@ function PostForm(props: Props) {
       setPreviewing(false);
       updatePublishForm({ publishError: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishError]);
 
   let submitLabel;
@@ -271,13 +272,13 @@ function PostForm(props: Props) {
     // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
     let uri;
     try {
-      uri = name && buildURI({ streamName: name, activeChannelName });
+      uri = name && buildURI({ streamName: name, activeChannelName }, true);
     } catch (e) {}
 
     if (activeChannelName && name) {
       // resolve without the channel name so we know the winning bid for it
       try {
-        const uriLessChannel = buildURI({ streamName: name });
+        const uriLessChannel = buildURI({ streamName: name }, true);
         resolveUri(uriLessChannel);
       } catch (e) {}
     }

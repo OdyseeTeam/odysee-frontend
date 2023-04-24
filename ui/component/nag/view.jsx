@@ -45,6 +45,7 @@ export default function Nag(props: Props) {
     return () => {
       doUpdateVisibleNagIds(id, false);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   return (

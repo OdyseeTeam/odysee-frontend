@@ -187,7 +187,7 @@ const PUBLISH = {
         }
 
       default:
-        console.assert(false, `unhandled: "${visibility}"`);
+        assert(false, `unhandled: "${visibility}"`);
         break;
     }
   },

@@ -103,6 +103,7 @@ function PublishFile(props: Props) {
 
   useEffect(() => {
     updatePublishForm({ title: title });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset title when file changes
   }, [filePath]);
 
   /*
@@ -131,12 +132,15 @@ function PublishFile(props: Props) {
         handleFileChange(filePath);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [filePath, currentFile, doToast, updatePublishForm]);
 
   useEffect(() => {
     setOverMaxBitrate(bitRateIsOverMax);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [bitRateIsOverMax]);
 
+  // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
   async function fetchLivestreams(channelId, channelName) {
     // setCheckingLivestreams(true);
     let signedMessage;
@@ -160,9 +164,9 @@ function PublishFile(props: Props) {
 
       const responseFromNewApi = await fetch(newEndpointUrl);
 
-      const data = (await responseFromNewApi.json()).data;
+      const data: Array<ReplayListResponse> = (await responseFromNewApi.json()).data;
+      const newData: Array<LivestreamReplayItem> = [];
 
-      let newData = [];
       if (data && data.length > 0) {
         for (const dataItem of data) {
           if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
@@ -173,6 +177,7 @@ function PublishFile(props: Props) {
                   dataItem.Status.toLowerCase() === 'inprogress'
                     ? __('Processing...(') + dataItem.PercentComplete + '%)'
                     : (dataItem.Duration / 1000000000).toString(),
+                percentComplete: dataItem.PercentComplete,
                 thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
                 uploadedAt: dataItem.Created,
               },
@@ -191,6 +196,7 @@ function PublishFile(props: Props) {
     if (activeChannelClaim && activeChannelClaim.claim_id && activeChannelName) {
       fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimChannelId, activeChannelName]);
 
   useEffect(() => {

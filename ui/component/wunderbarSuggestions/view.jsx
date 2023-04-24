@@ -48,7 +48,6 @@ type Props = {
   showMature: boolean,
   claimsByUri: { [string]: Claim },
   subscriptionUris: Array<string>,
-  doResolveUris: (string) => void,
   navigateToSearchPage: (string) => void,
   doShowSnackBar: (string) => void,
   doCloseMobileSearch: () => void,
@@ -247,6 +246,7 @@ export default function WunderBarSuggestions(props: Props) {
 
     return () => {
       if (inputRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- wrong, but unused code
         inputRef.current.removeEventListener('keydown', overrideHomeEndHandling);
       }
     };
@@ -304,6 +304,7 @@ export default function WunderBarSuggestions(props: Props) {
       window.removeEventListener('keydown', handleKeyDown);
       // @if TARGET='app'
       if (inputRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- wrong, but unused code
         inputRef.current.removeEventListener('dblclick', handleDoubleClick);
       }
       // @endif
@@ -317,6 +318,7 @@ export default function WunderBarSuggestions(props: Props) {
   }, [inputRef, isMobile]);
 
   const stringifiedResults = JSON.stringify(results);
+
   React.useEffect(() => {
     if (stringifiedResults) {
       const arrayResults = JSON.parse(stringifiedResults);
@@ -327,6 +329,7 @@ export default function WunderBarSuggestions(props: Props) {
   }, [doResolveUris, stringifiedResults]);
 
   const [subscriptionResults, setSubscriptionResults] = React.useState([]);
+
   React.useEffect(() => {
     if (subscriptionUris && term && term.length > 1) {
       let subscriptionResults = [];
@@ -343,6 +346,7 @@ export default function WunderBarSuggestions(props: Props) {
       });
       setSubscriptionResults(subscriptionResults.slice(0, isMobile ? 5 : 10));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [term]);
 
   React.useEffect(() => {

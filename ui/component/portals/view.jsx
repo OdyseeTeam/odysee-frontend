@@ -46,12 +46,13 @@ export default function Portals(props: Props) {
       }, 5000 + 1000);
       return () => clearInterval(interval);
     }
-  }, [rotate, portals, marginLeft, width, pause, index]);
+  }, [rotate, portals, tileNum, marginLeft, width, pause, index]);
 
   React.useEffect(() => {
     if (portals && width) {
       setMarginLeft((index - 1) * (tileWidth * -1));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [portals, index, width]);
 
   useOnResize(() => {

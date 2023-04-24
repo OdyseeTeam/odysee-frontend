@@ -51,5 +51,6 @@ export function useDegradedPerformance(onDegradedPerformanceCallback, user) {
           onDegradedPerformanceCallback(STATUS_FAILING);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [hasUser]);
 }

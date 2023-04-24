@@ -141,6 +141,7 @@ const Header = (props: Props) => {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
     [backNavDefault, goBack, hasNavigated, push, returnPath]
   );
 

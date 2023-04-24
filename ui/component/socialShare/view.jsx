@@ -1,4 +1,6 @@
 // @flow
+import type { Node } from 'react';
+
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
@@ -111,7 +113,7 @@ function SocialShare(props: Props) {
     includedCollectionId
   );
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
-  const claimLinkElements = getClaimLinkElements();
+  const claimLinkElements: Array<Node> = getClaimLinkElements();
 
   // Tweet params
   let tweetIntentParams = {
@@ -138,21 +140,29 @@ function SocialShare(props: Props) {
   }
 
   function getClaimLinkElements() {
-    const elements = [];
+    const elements: Array<Node> = [];
 
     if (Boolean(isStream) && !disableDownloadButton && !isMature && !isMembershipProtected && !isFiatRequired) {
-      elements.push(<CopyableText label={__('Download Link')} copyable={downloadUrl} />);
+      elements.push(<CopyableText label={__('Download Link')} copyable={downloadUrl} key="download" />);
     }
 
     if (rssUrl) {
-      elements.push(<CopyableText label={__('RSS Url')} copyable={rssUrl} />);
+      elements.push(<CopyableText label={__('RSS Url')} copyable={rssUrl} key="rss" />);
     }
 
     if (isChannel) {
       elements.push(
         <>
-          <CopyableText label={__('Latest Content Link')} copyable={generateNewestUrl(name, PAGES.LATEST)} />
-          <CopyableText label={__('Current Livestream Link')} copyable={generateNewestUrl(name, PAGES.LIVE_NOW)} />
+          <CopyableText
+            label={__('Latest Content Link')}
+            copyable={generateNewestUrl(name, PAGES.LATEST)}
+            key="latest"
+          />
+          <CopyableText
+            label={__('Current Livestream Link')}
+            copyable={generateNewestUrl(name, PAGES.LIVE_NOW)}
+            key="current"
+          />
         </>
       );
     }

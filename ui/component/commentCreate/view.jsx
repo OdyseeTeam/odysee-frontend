@@ -618,6 +618,7 @@ export function CommentCreate(props: Props) {
     if (myCommentedChannelIds === undefined && claimId && myChannelClaimIds) {
       doFetchMyCommentedChannels(claimId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimId, myCommentedChannelIds, myChannelClaimIds]);
 
   React.useEffect(() => {
@@ -632,6 +633,7 @@ export function CommentCreate(props: Props) {
       // $FlowFixMe
       return formFieldRef?.current?.input?.current?.focus();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [textInjection]);
 
   const notAuthedToLiveChat = Boolean(

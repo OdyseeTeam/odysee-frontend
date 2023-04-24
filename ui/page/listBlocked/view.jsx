@@ -70,11 +70,13 @@ function ListBlocked(props: Props) {
     myChannelClaimIds &&
     myChannelClaimIds.some((id) => delegatorsById[id] && Object.keys(delegatorsById[id].delegators).length > 0);
 
+  const list = getList(viewMode);
+
   // **************************************************************************
 
   React.useEffect(() => {
-    doResolveUris(getList(viewMode) || []);
-  }, [getList(viewMode)]);
+    doResolveUris(list || []);
+  }, [list, doResolveUris]);
 
   function getList(view) {
     switch (view) {
@@ -277,7 +279,7 @@ function ListBlocked(props: Props) {
 
           <BlockList
             key={viewMode}
-            uris={getList(viewMode)}
+            uris={list}
             help={getHelpText(viewMode)}
             titleEmptyList={getEmptyListTitle(viewMode)}
             subtitle={getEmptyListSubtitle(viewMode)}

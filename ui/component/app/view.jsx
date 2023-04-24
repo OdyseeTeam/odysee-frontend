@@ -7,7 +7,6 @@ import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
 import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
-import DebugLog from 'component/debugLog';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
@@ -37,6 +36,7 @@ import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
 
 const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
+const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
 const NagDegradedPerformance = lazyImport(() =>
@@ -169,6 +169,7 @@ function App(props: Props) {
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
   const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox();
+  const useDebugLog = process.env.NODE_ENV !== 'production' || process.env.IS_TEST_INSTANCE === 'true';
   const connectionStatus = useConnectionStatus();
 
   const urlPath = pathname + hash;
@@ -200,7 +201,7 @@ function App(props: Props) {
     // here queryString and startTime are "removed" from the buildURI process
     // to build only the uri itself
     const { queryString, startTime, ...parsedUri } = parseURI(path);
-    uri = buildURI({ ...parsedUri });
+    uri = buildURI({ ...parsedUri }, true);
   } catch (e) {
     const match = path.match(/[#/:]/);
 
@@ -279,7 +280,7 @@ function App(props: Props) {
     if (!uploadCount) return;
 
     const msg = 'Unfinished uploads.';
-    const handleUnload = (event) => tusUnlockAndNotify();
+    const handleUnload = () => tusUnlockAndNotify();
     const handleBeforeUnload = (event) => {
       event.preventDefault();
       event.returnValue = __(msg); // without setting this to something it doesn't work in some browsers.
@@ -325,13 +326,6 @@ function App(props: Props) {
     // $FlowFixMe
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
-
-  /*
-  useEffect(() => {
-    // $FlowFixMe
-    document.body.style.overflowY = currentModal ? 'hidden' : '';
-  }, [currentModal]);
-  */
 
   useEffect(() => {
     if (hasNoChannels) {
@@ -397,10 +391,8 @@ function App(props: Props) {
   //     const script = document.createElement('script');
   //     script.src = imaLibraryPath;
   //     script.async = true;
-  //     // $FlowFixMe
   //     document.body.appendChild(script);
   //     return () => {
-  //       // $FlowFixMe
   //       document.body.removeChild(script);
   //     };
   //   }
@@ -426,7 +418,6 @@ function App(props: Props) {
       return;
     }
 
-    // $FlowFixMe
     const useProductionOneTrust = process.env.NODE_ENV === 'production' && hostname === 'odysee.com';
 
     const script = document.createElement('script');
@@ -505,13 +496,14 @@ function App(props: Props) {
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
       doOpenAnnouncements();
     }
-  }, [announcement, isAuthenticated, pathname, prefsReady]);
+  }, [announcement, isAuthenticated, pathname, prefsReady, doOpenAnnouncements]);
 
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
       console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
       doSetLastViewedAnnouncement('clear');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   // Keep this at the end to ensure initial setup effects are run first
@@ -586,8 +578,9 @@ function App(props: Props) {
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
             )}
             {getStatusNag()}
+            {useDebugLog && <DebugLog />}
           </React.Suspense>
-          <DebugLog />
+
           <AdBlockTester />
         </AppContext.Provider>
       )}

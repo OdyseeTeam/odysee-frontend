@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 export default function doLogWarningConsoleMessage() {
   const style = {
     redTitle:

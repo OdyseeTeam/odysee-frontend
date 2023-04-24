@@ -1,6 +1,6 @@
 // @flow
 
-declare type LivestreamReplayItem = {
+declare type LivestreamReplayItem_OBSOLETE = {
   data: {
     claimId: string,
     deleted: boolean,
@@ -19,7 +19,26 @@ declare type LivestreamReplayItem = {
   },
   id: string,
 };
-declare type LivestreamReplayData = Array<LivestreamReplayItem>;
+
+declare type LivestreamReplayItem = {|
+  data: {|
+    fileDuration: number | string, // should just be number, but was used as string
+    fileLocation: string,
+    percentComplete: number,
+    thumbnails: Array<string>,
+    uploadedAt: number,
+  |},
+|};
+
+// @see livestreamer -> replays.go
+declare type ReplayListResponse = {
+  Status: string,
+  PercentComplete: number,
+  URL: string,
+  ThumbnailURLs: Array<string>,
+  Duration: number,
+  Created: number,
+};
 
 declare type LivestreamClaimResponse = {
   ClaimID: string,
@@ -64,3 +83,6 @@ declare type LivestreamInfo = {
 declare type LivestreamInfoByCreatorIds = {
   [creatorId: string]: LivestreamInfo,
 };
+
+declare type LivestreamByCreatorId = { [creatorId: string]: ?LivestreamActiveClaim };
+declare type LivestreamViewersById = { [claimId: string]: number };

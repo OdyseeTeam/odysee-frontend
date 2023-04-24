@@ -172,7 +172,7 @@ class RecsysPlugin extends Component {
 
   log(...args) {
     if (this.options_.debug) {
-      console.log(`Recsys Player Debug:`, JSON.stringify(args));
+      console.log(`Recsys Player Debug:`, JSON.stringify(args)); // eslint-disable-line no-console
     }
   }
 }
