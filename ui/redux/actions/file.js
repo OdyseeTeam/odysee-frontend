@@ -128,7 +128,8 @@ export const doFileGetForUri = (uri: string, opt?: ?FileGetOptions, onSuccess?: 
     const outpoint = selectClaimOutpointForUri(state, uri);
 
     const keyFromOpt = opt && opt.uriAccessKey;
-    const accessKey: ?UriAccessKey = keyFromOpt || null;
+    const cachedKey: ?UriAccessKey = state.content.uriAccessKeys[uri];
+    const accessKey: ?UriAccessKey = keyFromOpt || cachedKey || null;
 
     dispatch({ type: ACTIONS.FETCH_FILE_INFO_STARTED, data: { outpoint } });
 
@@ -151,6 +152,16 @@ export const doFileGetForUri = (uri: string, opt?: ?FileGetOptions, onSuccess?: 
             dispatch({
               type: ACTIONS.PURCHASE_URI_COMPLETED,
               data: { uri, purchaseReceipt: streamInfo.purchase_receipt || streamInfo.content_fee },
+            });
+          }
+
+          if (accessKey) {
+            // User passed an access key and it was legit. Stash it, so we can
+            // automatically re-append to URL when necessary.
+            // e.g. when navigating back from Floating player.
+            dispatch({
+              type: ACTIONS.SAVE_URI_ACCESS_KEY,
+              data: { uri, accessKey },
             });
           }
 
