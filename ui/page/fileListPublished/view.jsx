@@ -1,5 +1,7 @@
 // @flow
 import type { DoFetchClaimListMine } from 'redux/actions/claims';
+
+import './style.scss';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect } from 'react';
@@ -14,9 +16,13 @@ import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
 import classnames from 'classnames';
 
-const FILTER_ALL = 'stream,repost';
-const FILTER_UPLOADS = 'stream';
-const FILTER_REPOSTS = 'repost';
+type FilterInfo = { key: string, cmd: string, label: string, ariaLabel?: string };
+
+const FILTER: { [string]: FilterInfo } = Object.freeze({
+  ALL: { key: 'ALL', cmd: 'stream,repost', label: 'All', ariaLabel: 'All uploads' },
+  UPLOADS: { key: 'UPLOADS', cmd: 'stream', label: 'Uploads' },
+  REPOSTS: { key: 'REPOSTS', cmd: 'repost', label: 'Reposts' },
+});
 
 type Props = {
   uploadCount: number,
@@ -44,13 +50,73 @@ function FileListPublished(props: Props) {
     pageSize,
   } = props;
 
-  const [filterBy, setFilterBy] = React.useState(FILTER_ALL);
+  const [filterBy, setFilterBy] = React.useState(FILTER.ALL.key);
   const params = {};
 
   params[PAGE_PARAM] = Number(page);
   params[PAGE_SIZE_PARAM] = Number(pageSize);
 
   const paramsString = JSON.stringify(params);
+
+  function getHeaderJsx() {
+    return (
+      <div className={classnames('flp__header')}>
+        <div className="flp__filter">
+          {/* $FlowIgnore: mixed bug */}
+          {Object.values(FILTER).map((info: FilterInfo) => (
+            <Button
+              button="alt"
+              key={info.label}
+              label={__(info.label)}
+              aria-label={info.ariaLabel}
+              onClick={() => setFilterBy(info.key)}
+              className={classnames(`button-toggle`, { 'button-toggle--active': filterBy === info.key })}
+            />
+          ))}
+        </div>
+        <div className="flp__refresh">
+          {!fetching && (
+            <Button
+              button="alt"
+              label={__('Refresh')}
+              icon={ICONS.REFRESH}
+              onClick={() => fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','), true)}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function getClaimListResultsJsx() {
+    return (
+      <>
+        {!!urls && (
+          <>
+            <ClaimList
+              noEmpty
+              persistedStorageKey="claim-list-published"
+              uris={fetching ? [] : urls}
+              loading={fetching}
+            />
+            {getFetchingPlaceholders()}
+            <Paginate totalPages={urlTotal > 0 ? Math.ceil(urlTotal / Number(pageSize)) : 1} />
+          </>
+        )}
+      </>
+    );
+  }
+
+  function getFetchingPlaceholders() {
+    return (
+      <>
+        {fetching &&
+          new Array(Number(pageSize)).fill(1).map((x, i) => {
+            return <ClaimPreview key={i} placeholder="loading" />;
+          })}
+      </>
+    );
+  }
 
   useEffect(() => {
     checkPendingPublishes();
@@ -59,7 +125,7 @@ function FileListPublished(props: Props) {
   useEffect(() => {
     if (paramsString && fetchClaimListMine) {
       const params = JSON.parse(paramsString);
-      fetchClaimListMine(params.page, params.page_size, true, filterBy.split(','), true);
+      fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','));
     }
   }, [uploadCount, paramsString, filterBy, fetchClaimListMine]);
 
@@ -67,74 +133,22 @@ function FileListPublished(props: Props) {
     <Page>
       <div className="card-stack">
         <WebUploadList />
-        {!!urls && (
-          <>
-            <ClaimList
-              noEmpty
-              header={
-                <span>
-                  <Button
-                    button="alt"
-                    label={__('All')}
-                    aria-label={__('All uploads')}
-                    onClick={() => setFilterBy(FILTER_ALL)}
-                    className={classnames(`button-toggle`, {
-                      'button-toggle--active': filterBy === FILTER_ALL,
-                    })}
-                  />
-                  <Button
-                    button="alt"
-                    label={__('Uploads')}
-                    onClick={() => setFilterBy(FILTER_UPLOADS)}
-                    className={classnames(`button-toggle`, {
-                      'button-toggle--active': filterBy === FILTER_UPLOADS,
-                    })}
-                  />
-                  <Button
-                    button="alt"
-                    label={__('Reposts')}
-                    onClick={() => setFilterBy(FILTER_REPOSTS)}
-                    className={classnames(`button-toggle`, {
-                      'button-toggle--active': filterBy === FILTER_REPOSTS,
-                    })}
-                  />
-                </span>
-              }
-              headerAltControls={
-                <div className="card__actions--inline">
-                  {!fetching && (
-                    <Button
-                      button="alt"
-                      label={__('Refresh')}
-                      icon={ICONS.REFRESH}
-                      onClick={() => fetchClaimListMine(params.page, params.page_size, true, filterBy.split(','))}
-                    />
-                  )}
-                </div>
-              }
-              persistedStorageKey="claim-list-published"
-              uris={fetching ? [] : urls}
-              loading={fetching}
-            />
-            {fetching &&
-              new Array(Number(pageSize)).fill(1).map((x, i) => <ClaimPreview key={i} placeholder="loading" />)}
-            <Paginate totalPages={urlTotal > 0 ? Math.ceil(urlTotal / Number(pageSize)) : 1} />
-          </>
-        )}
+        {getHeaderJsx()}
+        {getClaimListResultsJsx()}
       </div>
       {!(urls && urls.length) && (
         <React.Fragment>
           {!fetching ? (
             <section className="main--empty">
               <Yrbl
-                title={filterBy === FILTER_REPOSTS ? __('No Reposts') : __('No uploads')}
+                title={filterBy === FILTER.REPOSTS ? __('No Reposts') : __('No uploads')}
                 subtitle={
-                  filterBy === FILTER_REPOSTS
+                  filterBy === FILTER.REPOSTS
                     ? __("You haven't reposted anything yet.")
                     : __("You haven't uploaded anything yet. This is where you can find them when you do!")
                 }
                 actions={
-                  filterBy !== FILTER_REPOSTS && (
+                  filterBy !== FILTER.REPOSTS && (
                     <div className="section__actions">
                       <Button
                         button="primary"
