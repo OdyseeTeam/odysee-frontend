@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import Lbry from 'lbry';
+import { selectClaimForUri, selectClaimIsMine, selectIsUriUnlisted } from 'redux/selectors/claims';
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
@@ -79,6 +80,7 @@ const select = (state, props) => {
     isAdmin: selectHasAdminChannel(state),
     claimInCollection: selectCollectionForIdHasClaimUrl(state, collectionId, contentPermanentUri),
     isMyCollection: selectCollectionIsMine(state, collectionId),
+    isUnlisted: selectIsUriUnlisted(state, uri),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
     lastUsedCollection,
@@ -89,6 +91,7 @@ const select = (state, props) => {
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     isContentProtectedAndLocked:
       contentClaim && selectIsProtectedContentLockedFromUserForId(state, contentClaim.claim_id),
+    channelSign: Lbry.channel_sign,
   };
 };
 

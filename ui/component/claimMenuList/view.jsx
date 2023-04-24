@@ -14,7 +14,9 @@ import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
 import { generateShareUrl, generateRssUrl, generateLbryContentUrl } from 'util/url';
 import { useHistory } from 'react-router';
+import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
+import { toHex } from 'util/hex';
 import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
 
@@ -50,6 +52,7 @@ type Props = {
   claimInCollection: boolean,
   collectionId: string,
   isMyCollection: boolean,
+  isUnlisted: boolean,
   isLivestreamClaim?: boolean,
   isPostClaim?: boolean,
   fypId?: string,
@@ -71,6 +74,7 @@ type Props = {
   collectionEmpty: boolean,
   doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
   isContentProtectedAndLocked: boolean,
+  channelSign: ({ channel_id: string, hexdata: string }) => Promise<ChannelSignResponse>,
 };
 
 function ClaimMenuList(props: Props) {
@@ -97,6 +101,7 @@ function ClaimMenuList(props: Props) {
     hasClaimInFavorites,
     collectionId,
     isMyCollection,
+    isUnlisted,
     isLivestreamClaim,
     isPostClaim,
     fypId,
@@ -118,6 +123,7 @@ function ClaimMenuList(props: Props) {
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
     isContentProtectedAndLocked,
+    channelSign,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -148,14 +154,11 @@ function ClaimMenuList(props: Props) {
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl);
   const rssUrl: string = isChannel ? generateRssUrl(SHARE_DOMAIN, claim) : '';
   const isCollectionClaim = claim && claim.value_type === 'collection';
-  // $FlowFixMe
   const isPlayable =
     contentClaim &&
-    // $FlowFixMe
     contentClaim.value &&
     // $FlowFixMe
     contentClaim.value.stream_type &&
-    // $FlowFixMe
     (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
@@ -256,6 +259,24 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleCopyLink() {
+    const claimId = claim?.claim_id;
+    const channelId = getChannelIdFromClaim(claim);
+    if (claimIsMine && isUnlisted && channelId && claimId) {
+      channelSign({ channel_id: channelId, hexdata: toHex(claimId) })
+        .then((output: ChannelSignResponse) => {
+          const unlistedUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl, null, null, false, null, null, output);
+          copyToClipboard(unlistedUrl, 'Unlisted link copied.', 'Failed to copy link.');
+        })
+        .catch(() => {
+          doToast({
+            message: __('Failed to generate unlisted URL.'),
+            subMessage: __('Please try again later.'),
+            duration: 'long',
+          });
+        });
+      return;
+    }
+
     copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
   }
 
@@ -537,7 +558,6 @@ function ClaimMenuList(props: Props) {
           >
             <NavLink
               className="menu__link"
-              // $FlowFixMe
               to={{ pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '' }}
               target={isEmbed && '_blank'}
             >
