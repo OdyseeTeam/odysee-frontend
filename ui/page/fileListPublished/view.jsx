@@ -51,12 +51,13 @@ function FileListPublished(props: Props) {
   } = props;
 
   const [filterBy, setFilterBy] = React.useState(FILTER.ALL.key);
-  const params = {};
 
-  params[PAGE_PARAM] = Number(page);
-  params[PAGE_SIZE_PARAM] = Number(pageSize);
-
-  const paramsString = JSON.stringify(params);
+  const params = React.useMemo(() => {
+    return {
+      [PAGE_PARAM]: Number(page),
+      [PAGE_SIZE_PARAM]: Number(pageSize),
+    };
+  }, [page, pageSize]);
 
   function getHeaderJsx() {
     return (
@@ -123,11 +124,10 @@ function FileListPublished(props: Props) {
   }, [checkPendingPublishes]);
 
   useEffect(() => {
-    if (paramsString && fetchClaimListMine) {
-      const params = JSON.parse(paramsString);
+    if (params && fetchClaimListMine) {
       fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','));
     }
-  }, [uploadCount, paramsString, filterBy, fetchClaimListMine]);
+  }, [uploadCount, params, filterBy, fetchClaimListMine]);
 
   return (
     <Page>
