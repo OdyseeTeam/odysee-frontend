@@ -255,6 +255,28 @@
 .section__actions--between {
   @extend .section__actions;
   justify-content: space-between;
+  border-top: unset;
+  margin-top: 0;
+  padding-top: var(--spacing-s);
+  padding-bottom: var(--spacing-s);
+  margin-left: auto;
+  position: relative;
+
+  .settings-row__value {
+    align-self: start;
+  }
+  .settings-row__title {
+    color: rgba(var(--color-text-base), 0.9);
+  }
+  .settings-row__subtitle {
+    color: rgba(var(--color-text-base), 0.6);
+  }
+
+  &:hover:not(.opacity-30) {
+    .settings-row__title {
+      color: rgba(var(--color-text-base), 1);
+    }
+  }
 
   @media (max-width: $breakpoint-small) {
     justify-content: flex-start;

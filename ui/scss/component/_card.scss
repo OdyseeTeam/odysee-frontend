@@ -603,11 +603,56 @@
   &.card__body--list {
     padding: 0;
     margin-bottom: 0;
+    border-radius: var(--border-radius);
+    border-top: unset;
+
     .settings-row:last-of-type {
       border-bottom: unset;
     }
     .card__main-actions {
       border-top: unset;
+    }
+    .button--secondary {
+      background-color: var(--color-background);
+    }
+    .checkbox label {
+      padding-left: var(--height-checkbox);
+    }
+    input,
+    select {
+      background-color: var(--color-background);
+      &:focus-visible {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
+
+    select {
+      &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
+      }
+    }
+
+    .theme-checkbox {
+      input {
+        background-color: unset;
+      }
+      label {
+        margin-bottom: -4px;
+        padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
+        &::before {
+          margin-top: -2px;
+        }
+        &::after {
+          top: 6px;
+        }
+      }
+      fieldset-group {
+        label {
+          padding-left: 0;
+          margin-bottom: 0;
+        }
+      }
     }
   }
 

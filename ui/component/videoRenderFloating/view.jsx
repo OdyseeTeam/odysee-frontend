@@ -39,17 +39,14 @@ import {
   getAmountNeededToCenterVideo,
   getPossiblePlayerHeight,
 } from 'util/window';
-import PlaylistCard from 'component/playlistCard';
+import { lazyImport } from 'util/lazyImport';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 
-// scss/init/vars.scss
-// --header-height
 const HEADER_HEIGHT = 60;
-
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
-
 const CONTENT_VIEWER_CLASS = 'content__viewer';
+const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
 
 // ****************************************************************************
 // ****************************************************************************
@@ -502,13 +499,15 @@ function VideoRenderFloating(props: Props) {
                 </div>
 
                 {playingCollection && collectionSidebarId !== collectionId && (
-                  <PlaylistCard
-                    id={collectionId}
-                    uri={uri}
-                    disableClickNavigation
-                    doDisablePlayerDrag={setForceDisable}
-                    isFloating
-                  />
+                  <React.Suspense fallback={null}>
+                    <PlaylistCard
+                      id={collectionId}
+                      uri={uri}
+                      disableClickNavigation
+                      doDisablePlayerDrag={setForceDisable}
+                      isFloating
+                    />
+                  </React.Suspense>
                 )}
               </div>
             )}

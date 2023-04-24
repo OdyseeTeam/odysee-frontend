@@ -538,63 +538,6 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
-  .section__actions {
-    margin-left: var(--spacing-s);
-  }
-
-  .card__body--list {
-    background-color: rgba(var(--color-header-button-base), 0.6);
-
-    border-radius: var(--border-radius);
-    border-top: unset;
-
-    input,
-    select {
-      background-color: var(--color-background);
-      &:focus-visible {
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
-
-    .checkbox {
-      input {
-        background-color: unset;
-      }
-      label {
-        padding-left: var(--height-checkbox);
-      }
-    }
-
-    select {
-      &:hover {
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-      }
-    }
-
-    .theme-checkbox {
-      input {
-        background-color: unset;
-      }
-      label {
-        margin-bottom: -4px;
-        padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
-        &::before {
-          margin-top: -2px;
-        }
-        &::after {
-          top: 6px;
-        }
-      }
-      fieldset-group {
-        label {
-          padding-left: 0;
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
-
   @media (max-width: $breakpoint-small) {
     padding: 0 var(--spacing-xs);
 
@@ -633,41 +576,14 @@ body {
     padding-top: var(--spacing-l);
   }
 
-  .section__actions--between:first-child {
-    margin-top: var(--spacing-s);
-  }
-  .section__actions--between {
-    border-top: unset;
-    margin-top: 0;
-    padding-top: var(--spacing-s);
-    padding-bottom: var(--spacing-s);
-    margin-left: auto;
-    position: relative;
-
-    .settings-row__value {
-      align-self: start;
-    }
-
-    .settings-row__title {
-      color: rgba(var(--color-text-base), 0.9);
-    }
-    .settings-row__subtitle {
-      color: rgba(var(--color-text-base), 0.6);
-    }
-
-    &:hover:not(.opacity-30) {
-      .settings-row__title {
-        color: rgba(var(--color-text-base), 1);
-      }
-    }
-  }
-
+  /*
   .tags--remove {
     .button {
       background-color: var(--color-header-background);
       color: var(--color-text);
     }
   }
+  */
 
   .claim-preview__wrapper--channel {
     .menu__button {

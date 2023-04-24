@@ -9,7 +9,6 @@ import FileTitleSection from 'component/fileTitleSection';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import ClaimCoverRender from 'component/claimCoverRender';
 import RecommendedContent from 'component/recommendedContent';
-import PlaylistCard from 'component/playlistCard';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
@@ -17,6 +16,7 @@ import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/us
 
 const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
+const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
 
 export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
