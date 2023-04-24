@@ -23,6 +23,7 @@ type Props = {
   streamingUrl: ?string,
   contentRestrictedFromUser: boolean,
   isProtectedContent: boolean,
+  uriAccessKey: ?UriAccessKey,
 };
 
 function FileDownloadLink(props: Props) {
@@ -44,6 +45,7 @@ function FileDownloadLink(props: Props) {
     streamingUrl,
     contentRestrictedFromUser,
     isProtectedContent,
+    uriAccessKey,
   } = props;
 
   const [didClickDownloadButton, setDidClickDownloadButton] = useState(false);
@@ -53,10 +55,10 @@ function FileDownloadLink(props: Props) {
   // initiate download when streamingUrl is available
   React.useEffect(() => {
     if (didClickDownloadButton && streamingUrl) {
-      webDownloadClaim(streamingUrl, fileName, isProtectedContent);
+      webDownloadClaim(streamingUrl, fileName, isProtectedContent, uriAccessKey);
       setDidClickDownloadButton(false);
     }
-  }, [streamingUrl, didClickDownloadButton, fileName, isProtectedContent]);
+  }, [streamingUrl, didClickDownloadButton, fileName, isProtectedContent, uriAccessKey]);
   // @endif
 
   function handleDownload(e) {

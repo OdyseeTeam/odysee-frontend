@@ -17,7 +17,7 @@ import { doDownloadUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
 import { doOpenModal } from 'redux/actions/app';
 import FileActions from './view';
-import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { makeSelectFileRenderModeForUri, selectContentStates } from 'redux/selectors/content';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { DISABLE_DOWNLOAD_BUTTON_TAG } from 'constants/tags';
 import { isStreamPlaceholderClaim } from 'util/claim';
@@ -36,6 +36,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     costInfo: selectCostInfoForUri(state, uri),
     hasChannels: selectHasChannels(state),
+    uriAccessKey: selectContentStates(state).uriAccessKeys[uri],
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     isPostClaim,
     streamingUrl: selectStreamingUrlForUri(state, uri),

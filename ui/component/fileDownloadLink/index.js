@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimIsMine, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import { selectContentStates } from 'redux/selectors/content';
 import {
   makeSelectFileInfoForUri,
   makeSelectDownloadingForUri,
@@ -23,6 +24,7 @@ const select = (state, props) => {
     streamingUrl: selectStreamingUrlForUri(state, props.uri),
     contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, props.uri)),
+    uriAccessKey: selectContentStates(state).uriAccessKeys[props.uri],
   };
 };
 

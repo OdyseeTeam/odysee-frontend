@@ -29,6 +29,7 @@ type Props = {
   renderMode: string,
   costInfo: ?{ cost: number },
   hasChannels: boolean,
+  uriAccessKey: ?UriAccessKey,
   isLivestreamClaim: boolean,
   isPostClaim?: boolean,
   streamingUrl: ?string,
@@ -54,6 +55,7 @@ export default function FileActions(props: Props) {
     renderMode,
     hasChannels,
     hideRepost,
+    uriAccessKey,
     isLivestreamClaim,
     isPostClaim,
     streamingUrl,
@@ -120,10 +122,10 @@ export default function FileActions(props: Props) {
 
   React.useEffect(() => {
     if (downloadClicked && streamingUrl) {
-      webDownloadClaim(streamingUrl, fileName);
+      webDownloadClaim(streamingUrl, fileName, false, uriAccessKey);
       setDownloadClicked(false);
     }
-  }, [downloadClicked, streamingUrl, fileName]);
+  }, [downloadClicked, streamingUrl, fileName, uriAccessKey]);
 
   function handleRepostClick() {
     if (!hasChannels) {
