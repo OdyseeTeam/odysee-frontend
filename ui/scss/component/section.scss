@@ -310,12 +310,33 @@
 }
 
 .settings-row {
+  padding: var(--spacing-s);
+  border-bottom: 1px solid var(--color-border);
+
   &:first-child,
   &:only-child {
     border-top: none;
   }
+
+  .settings-row__value {
+    .button__content {
+      &:hover {
+        color: var(--color-secondary);
+      }
+    }
+  }
+  .fieldset-group--smushed {
+    label {
+      margin-left: 0;
+    }
+    fieldset-section:last-of-type {
+      margin-left: 2px;
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     flex-flow: row;
+    padding: var(--spacing-xs);
     .settings-row__title {
       min-width: unset;
       max-width: 60%;
@@ -328,6 +349,7 @@
   }
 }
 
+/*
 .card__main-actions.settings-row {
   @media (max-width: $breakpoint-small) {
     padding: 0;
@@ -335,6 +357,7 @@
     margin-bottom: 0;
   }
 }
+*/
 
 .settings-row__title {
   min-width: 100%;
@@ -396,7 +419,7 @@
 .settings-row__value--multirow {
   @media (min-width: $breakpoint-medium) {
     width: 80%;
-    margin-top: var(--spacing-l);
+    // margin-top: var(--spacing-l);
 
     input {
       align-self: flex-start;

@@ -328,11 +328,10 @@
     margin-right: var(--spacing-m);
   }
 
-  /* .badge rule inherited from file page prices, should be refactored */
   .badge {
     float: right;
     margin-left: var(--spacing-s);
-    margin-top: 8px; // should be flex'd, but don't blame me! I just moved it down 3px
+    margin-top: 8px;
   }
 
   img {
@@ -421,9 +420,6 @@
   align-self: flex-start;
   .button--alt {
     padding-top: 2px;
-    .icon {
-      // margin-top: -2px;
-    }
   }
   .comment__sort {
     .button--alt {
@@ -499,7 +495,6 @@
   flex-wrap: wrap;
 
   @media (max-width: $breakpoint-small) {
-    // padding: var(--spacing-xxs);
     padding-bottom: 0;
     margin: 0;
 
@@ -607,15 +602,19 @@
 
   &.card__body--list {
     padding: 0;
-    border-top: 1px solid var(--color-border);
     margin-bottom: 0;
+    .settings-row:last-of-type {
+      border-bottom: unset;
+    }
+    .card__main-actions {
+      border-top: unset;
+    }
   }
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-l);
     padding-left: 0px;
     padding-right: 0px;
-    // margin-bottom: var(--spacing-s) !important;
     padding: 0 !important;
 
     .file__viewdate {
@@ -795,7 +794,6 @@
 .card__title--with-actions {
   display: flex;
   justify-content: space-between;
-  // align-items: flex-start;
   gap: 1rem;
 }
 
@@ -817,8 +815,7 @@
     input {
       background: var(--color-background);
       &:focus {
-        border: 1px solid var(--color-primary);
-        box-shadow: unset;
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
     }
 
@@ -828,7 +825,15 @@
         &::before {
           background-color: var(--color-background);
         }
-        &:hover {
+      }
+    }
+
+    .checkbox {
+      label::after {
+        top: 8px;
+      }
+      &:hover {
+        label {
           &::before {
             background-color: var(--color-primary);
           }
@@ -839,16 +844,21 @@
       }
     }
 
-    .checkbox {
-      label {
-        &::after {
-          top: 8px;
-        }
-      }
-    }
-
     .button--secondary {
       background-color: var(--color-background);
+    }
+  }
+
+  .tag--blocked-words {
+    .tag {
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast);
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .card__body {
+      padding: var(--spacing-xxs) 0;
     }
   }
 }

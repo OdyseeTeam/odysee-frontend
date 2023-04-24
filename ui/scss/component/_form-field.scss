@@ -30,6 +30,12 @@ select,
   }
 }
 
+input {
+  &:hover {
+    box-shadow: 0 0 0 2px var(--color-primary) inset;
+  }
+}
+
 .MuiInputBase-root {
   &:hover {
     outline: 2px solid var(--color-primary) !important;
@@ -253,6 +259,7 @@ input-submit {
 
   &:hover {
     label {
+      cursor: pointer;
       &::before {
         background-color: var(--color-primary);
       }
@@ -275,7 +282,7 @@ input-submit {
     border: 1px solid var(--color-input-border);
     border-radius: calc(var(--height-radio) * 0.5);
     left: 0px;
-    top: -1px;
+    // top: -1px;
   }
 
   // Checkmark of the fake radio
@@ -285,12 +292,18 @@ input-submit {
     border-radius: 50%;
     background-color: var(--color-primary);
     left: 6px;
-    top: 5px;
+    top: 6px;
   }
 
   &:hover {
-    label::after {
-      background-color: var(--color-primary-contrast);
+    label {
+      cursor: pointer;
+      &::after {
+        background-color: var(--color-primary-contrast);
+      }
+      &::before {
+        background-color: var(--color-primary);
+      }
     }
   }
 }
@@ -373,14 +386,10 @@ fieldset-group {
 
       &:nth-of-type(2) {
         &:not(input.paginate-channel) {
-          // yuck
           input,
           select {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
-          }
-          label {
-            margin-left: var(--spacing-s);
           }
         }
       }
