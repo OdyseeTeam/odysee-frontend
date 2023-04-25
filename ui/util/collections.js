@@ -1,6 +1,7 @@
 // @flow
 import { COL_TYPES, SECTION_TAGS, WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID } from 'constants/collections';
 import { getCurrentTimeInSec } from 'util/time';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 
 export const defaultCollectionState: Collection = {
   id: '',
@@ -122,4 +123,21 @@ export function getLocalizedNameForCollectionId(collectionId: string) {
     default:
       return null;
   }
+}
+
+export function isClaimAllowedForCollection(claim: ?StreamClaim) {
+  if (claim) {
+    const streamType = claim.value?.stream_type;
+    const isPlayable = streamType && (streamType === 'audio' || streamType === 'video');
+
+    // Ideally, unlisted and scheduled (if started) claims should be allowed,
+    // but the decision is to disable for now for simplicity.
+    if (isPlayable) {
+      if (!isClaimUnlisted(claim) && !isClaimPrivate(claim)) {
+        const ss: ClaimScheduledState = getClaimScheduledState(claim);
+        return ss === 'non-scheduled';
+      }
+    }
+  }
+  return false;
 }

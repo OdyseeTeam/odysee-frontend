@@ -19,6 +19,7 @@ import { buildURI, parseURI } from 'util/lbryURI';
 import { toHex } from 'util/hex';
 import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
+import { isClaimAllowedForCollection } from 'util/collections';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 
@@ -154,12 +155,9 @@ function ClaimMenuList(props: Props) {
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl);
   const rssUrl: string = isChannel ? generateRssUrl(SHARE_DOMAIN, claim) : '';
   const isCollectionClaim = claim && claim.value_type === 'collection';
-  const isPlayable =
-    contentClaim &&
-    contentClaim.value &&
-    // $FlowFixMe
-    contentClaim.value.stream_type &&
-    (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
+
+  // $FlowFixMe: claims not typed right
+  const showCollectionContext = isClaimAllowedForCollection(contentClaim);
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
     const itemUrl = contentClaim?.permanent_url;
@@ -366,7 +364,7 @@ function ClaimMenuList(props: Props) {
               )}
             </>
           ) : (
-            isPlayable && (
+            showCollectionContext && (
               <>
                 {/* QUEUE */}
                 {contentClaim && <ButtonAddToQueue uri={contentClaim.permanent_url} menuItem />}

@@ -9,6 +9,7 @@ import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { isChannelClaim } from 'util/claim';
+import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { getChannelSubCountStr } from 'util/formatMediaDuration';
@@ -232,15 +233,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [channelSubCount]);
 
-  // $FlowFixMe
-  const isPlayable =
-    claim &&
-    // $FlowFixMe
-    claim.value &&
-    // $FlowFixMe
-    claim.value.stream_type &&
-    // $FlowFixMe
-    (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
+  // $FlowFixMe: claims not typed right
+  const showCollectionContext = isClaimAllowedForCollection(claim);
   const isChannelUri = isChannelClaim(claim, uri);
   const signingChannel = claim && claim.signing_channel;
   const repostedChannelUri =
@@ -504,7 +498,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     uri={uri}
                     secondaryUri={firstCollectionItemUrl}
                   >
-                    {isPlayable && !smallThumbnail && (
+                    {showCollectionContext && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
                         <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
                         <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
