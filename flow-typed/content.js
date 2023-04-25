@@ -5,10 +5,6 @@ declare type ContentState = {
   playingUri: PlayingUri,
   positions: { [string]: { [string]: number } }, // claimId: { outpoint: position }
   history: Array<WatchHistory>,
-  recommendationId: { [string]: string }, // claimId: recommendationId
-  recommendationParentId: { [string]: string }, // claimId: referrerId
-  recommendationUrls: { [string]: Array<string> }, // claimId: [lbryUrls...]
-  recommendationClicks: { [string]: Array<number> }, // "claimId": [clicked indices...]
   lastViewedAnnouncement: LastViewedAnnouncement, // undefined = not seen in wallet.
   recsysEntries: { [ClaimId]: RecsysEntry }, // Persistent shadow copy. The main one resides in RecSys.
   autoplayCountdownUri: ?string,

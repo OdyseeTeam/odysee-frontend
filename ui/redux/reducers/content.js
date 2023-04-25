@@ -1,3 +1,7 @@
+/**
+ * Content, a.k.a. "player" states.
+ */
+
 // @flow
 import * as ACTIONS from 'constants/action_types';
 
@@ -8,10 +12,6 @@ const defaultState: ContentState = {
   channelClaimCounts: {},
   positions: {},
   history: [],
-  recommendationId: {},
-  recommendationParentId: {},
-  recommendationUrls: {},
-  recommendationClicks: {},
   lastViewedAnnouncement: [],
   recsysEntries: {},
   autoplayCountdownUri: null,
@@ -116,16 +116,8 @@ reducers[ACTIONS.SET_RECSYS_ENTRIES] = (state, action) => ({ ...state, recsysEnt
 
 reducers[ACTIONS.SHOW_AUTOPLAY_COUNTDOWN] = (state, action) => {
   const { uri, show } = action.data;
-
   return { ...state, autoplayCountdownUri: show ? uri : null };
 };
-
-// reducers[LBRY_REDUX_ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
-//   return {
-//     ...state,
-//     playingUri: null,
-//   };
-// };
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state, action) => {
   const { lastViewedAnnouncement } = action.data;
