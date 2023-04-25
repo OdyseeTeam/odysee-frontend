@@ -286,6 +286,7 @@ export default function LivestreamSetupPage(props: Props) {
                     className={classnames('section card--livestream-key', {
                       disabled: !streamKey || totalLivestreamClaims.length === 0,
                     })}
+                    style={{ marginTop: 'var(--spacing-s)' }}
                     body={
                       <div className="publish-row">
                         <CopyableText

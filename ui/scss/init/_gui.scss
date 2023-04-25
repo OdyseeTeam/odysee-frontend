@@ -1329,6 +1329,25 @@ img {
   height: var(--spacing-xxs);
 }
 
+.card--livestream-key {
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-l);
+
+  fieldset-section:first-of-type {
+    div {
+      label {
+        margin-top: 0;
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .card__main-actions {
+      margin-top: var(--spacing-s);
+    }
+  }
+}
+
 .radio {
   display: inline-block;
   label {

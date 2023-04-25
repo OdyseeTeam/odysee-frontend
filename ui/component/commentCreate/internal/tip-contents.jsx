@@ -21,10 +21,10 @@ export const TipReviewBox = (props: Props) => {
   const { activeChannelUrl, tipAmount, activeTab, message, isReviewingStickerComment, stickerPreviewComponent } = props;
 
   return (
-    <div className="commentCreate__supportCommentPreview">
+    <div className="comment-create__support-comment-preview">
       <CreditAmount
         amount={tipAmount}
-        className="commentCreate__supportCommentPreviewAmount"
+        className="comment-create__support-comment-preview__amount"
         isFiat={activeTab === TAB_FIAT}
         size={activeTab === TAB_LBC ? 18 : 2}
       />
@@ -35,7 +35,7 @@ export const TipReviewBox = (props: Props) => {
         <>
           <ChannelThumbnail xsmall uri={activeChannelUrl} />
 
-          <div className="commentCreate__supportCommentBody">
+          <div>
             <UriIndicator uri={activeChannelUrl} link showAtSign />
             <div>{message}</div>
           </div>

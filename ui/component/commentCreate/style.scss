@@ -145,7 +145,7 @@
   }
 }
 
-.commentCreate__supportCommentPreview {
+.comment-create__support-comment-preview {
   display: flex;
   align-items: center;
   border: 1px solid var(--color-border);
@@ -153,7 +153,7 @@
   padding: var(--spacing-s);
   margin: var(--spacing-s) 0;
 
-  .commentCreate__supportCommentPreviewAmount {
+  .comment-create__support-comment-preview__amount {
     margin-right: var(--spacing-m);
     font-size: var(--font-large);
   }
