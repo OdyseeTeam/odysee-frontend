@@ -103,7 +103,7 @@ declare type PublishResponse = GenericTxResponse & {
   outputs: Array<Claim>,
 };
 
-declare type ClaimSearchOptions = {
+declare type ClaimSearchOptions = {|
   name?: string, // claim name (normalized)
   text?: string, // full text search
   claim_id?: string, // full or partial claim id
@@ -112,6 +112,8 @@ declare type ClaimSearchOptions = {
   channel?: string, // claims signed by this channel (argument is a URL which automatically gets resolved)
   channel_ids?: Array<string>, // claims signed by any of these channels (arguments must be claim ids of the channels)
   not_channel_ids?: Array<string>, // exclude claims signed by any of these channels (arguments must be claim ids of the channels)
+  has_channel_signature?: boolean, // claims with a channel signature (valid or invalid)
+  valid_channel_signature?: boolean, // claims with a valid channel signature or no signature, use in conjunction with has_channel_signature
   limit_claims_per_channel?: number, // only return up to the specified number of claims per channel
   timestamp?: number | string, // last updated timestamp (supports equality constraints)
   release_time?: string, // limit to claims self-described as having been released to the public on or after this UTC timestamp
@@ -133,12 +135,12 @@ declare type ClaimSearchOptions = {
   page_size?: number, // number of items on page during pagination
   order_by?: Array<string>, // field to order by, default is descending order, to do an ascending order prepend ^ to the field name,
   no_totals?: boolean, // do not calculate the total number of pages and items in result set (significant performance boost)
+  include_purchase_receipt?: boolean, // lookup and include a receipt if this wallet has purchased the claim
+  include_is_my_output?: boolean, // lookup and include a boolean indicating if claim being resolved is yours
+  remove_duplicates?: boolean, // removes duplicated content from search by picking either the original claim or the oldest matching repost
   has_source?: boolean, // find claims containing a source field
   has_no_source?: boolean, // find claims not containing a source field
-  include_purchase_receipt?: boolean, // include purchase receipt in response
-  has_channel_signature?: boolean, // only return claims which have channel signature
-  valid_channel_signature?: boolean, // filter out claims with invalid channel signature (doesn't filter claims without channel signature)
-};
+|};
 
 declare type ClaimSearchResponse = {
   items: Array<Claim>,

@@ -722,7 +722,7 @@ export function doClaimSearch(
     page_size: 10,
     page: 1,
   },
-  settings: DoClaimSearchSettings = {
+  settings?: DoClaimSearchSettings = {
     useAutoPagination: false,
     fetchStripeTransactions: true,
   }
