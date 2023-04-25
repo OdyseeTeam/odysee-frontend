@@ -20,6 +20,7 @@ import LivestreamForm from 'component/publish/livestream/livestreamForm';
 import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
+import './style.scss';
 
 type Props = {
   hasChannels: boolean,

@@ -15,7 +15,6 @@ import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
-import './style.scss';
 
 type Props = {
   uri: ?string,
