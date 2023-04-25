@@ -618,20 +618,6 @@
     .checkbox label {
       padding-left: var(--height-checkbox);
     }
-    input,
-    select {
-      background-color: var(--color-background);
-      &:focus-visible {
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
-
-    select {
-      &:hover {
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-      }
-    }
 
     .theme-checkbox {
       input {
@@ -654,6 +640,10 @@
         }
       }
     }
+  }
+
+  & div:last-child {
+    border-top: unset;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -757,9 +747,21 @@
   margin: 0;
   margin-bottom: 0px;
 
+  &:first-of-type {
+    padding: 0;
+  }
+
   @media (max-width: $breakpoint-small) {
     margin-bottom: 0px;
     padding-bottom: var(--spacing-xxs);
+  }
+}
+
+.card__body--list {
+  .card__main-actions {
+    &:first-of-type {
+      padding: var(--spacing-s);
+    }
   }
 }
 
@@ -858,35 +860,61 @@
   .card__body {
     background-color: var(--color-header-button);
     border-radius: var(--border-radius);
+  }
 
-    input {
-      background: var(--color-background);
-      &:focus {
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
+  label {
+    margin-top: var(--spacing-l);
+    font-size: var(--font-body);
+  }
 
-    .checkbox {
-      label::after {
-        top: 8px;
-      }
-      &:hover {
-        label {
-          &::before {
-            background-color: var(--color-primary);
-          }
-          &::after {
-            border-color: var(--color-primary-contrast);
-          }
-        }
-      }
-    }
-
-    .button--secondary {
-      background-color: var(--color-background);
+  input,
+  select,
+  textarea,
+  .date-picker-input,
+  .MuiTextField-root {
+    background-color: var(--color-background);
+    &:focus-visible {
+      box-shadow: 0 0 0 2px var(--color-primary) inset;
     }
   }
 
+  select {
+    &:hover {
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast);
+    }
+  }
+
+  fieldset-section.radio {
+    padding-top: var(--spacing-s);
+  }
+
+  .checkbox {
+    label::after {
+      top: 8px;
+    }
+    &:hover {
+      label {
+        &::before {
+          background-color: var(--color-primary);
+        }
+        &::after {
+          border-color: var(--color-primary-contrast);
+        }
+      }
+    }
+  }
+
+  .button--secondary {
+    background-color: var(--color-background);
+  }
+
+  .tags {
+    .tag {
+      background-color: var(--color-background);
+      color: var(--color-primary-contrast);
+    }
+  }
   .tag--blocked-words {
     .tag {
       background-color: var(--color-primary);
@@ -911,4 +939,9 @@
     color: rgba(var(--color-text-base), 0.8);
     margin-left: var(--spacing-l);
   }
+}
+
+.publish-row--more {
+  padding-top: var(--spacing-s);
+  border-top: 1px solid var(--color-border);
 }

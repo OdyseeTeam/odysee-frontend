@@ -71,33 +71,4 @@
       border-radius: var(--border-radius);
     }
   }
-
-  .card--additional-options {
-    input,
-    select {
-      background-color: var(--color-background);
-    }
-    select {
-      &:hover {
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-      }
-    }
-    label {
-      font-size: var(--font-body);
-    }
-
-    .tag {
-      background-color: var(--color-background);
-      &:hover {
-        background-color: var(--color-primary);
-      }
-    }
-
-    fieldset-section {
-      fieldset-section {
-        padding: 0;
-      }
-    }
-  }
 }

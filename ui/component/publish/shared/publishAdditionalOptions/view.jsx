@@ -62,60 +62,54 @@ function PublishAdditionalOptions(props: Props) {
     <>
       <Card
         background
-        className="card--enable-overflow card--publish-section card--additional-options"
+        className="card--enable-overflow"
         title={__('Additional Options')}
         body={
           <React.Fragment>
             {!hideSection && !disabled && (
-              <>
+              <div className="publish-row">
                 <div className={classnames({ 'card--disabled': !name })}>
                   <div className="section">
-                    <div className="publish-row">{!showSchedulingOptions && <PublishReleaseDate />}</div>
+                    {!showSchedulingOptions && <PublishReleaseDate />}
 
-                    <div className="publish-row">
-                      <FormField
-                        label={__('Language')}
-                        type="select"
-                        name="content_language"
-                        value={language}
-                        onChange={(event) => updatePublishForm({ languages: [event.target.value] })}
-                      >
-                        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
-                          <option key={langKey} value={langKey}>
-                            {langName}
-                          </option>
-                        ))}
-                      </FormField>
-                    </div>
+                    <FormField
+                      label={__('Language')}
+                      type="select"
+                      name="content_language"
+                      value={language}
+                      onChange={(event) => updatePublishForm({ languages: [event.target.value] })}
+                    >
+                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                        <option key={langKey} value={langKey}>
+                          {langName}
+                        </option>
+                      ))}
+                    </FormField>
 
-                    <div className="publish-row">
-                      <LicenseType
-                        licenseType={licenseType}
-                        otherLicenseDescription={otherLicenseDescription}
-                        licenseUrl={licenseUrl}
-                        handleLicenseChange={(newLicenseType, newLicenseUrl) =>
-                          updatePublishForm({
-                            licenseType: newLicenseType,
-                            licenseUrl: newLicenseUrl,
-                          })
-                        }
-                        handleLicenseDescriptionChange={(event) =>
-                          updatePublishForm({
-                            otherLicenseDescription: event.target.value,
-                          })
-                        }
-                        handleLicenseUrlChange={(event) => updatePublishForm({ licenseUrl: event.target.value })}
-                      />
-                    </div>
+                    <LicenseType
+                      licenseType={licenseType}
+                      otherLicenseDescription={otherLicenseDescription}
+                      licenseUrl={licenseUrl}
+                      handleLicenseChange={(newLicenseType, newLicenseUrl) =>
+                        updatePublishForm({
+                          licenseType: newLicenseType,
+                          licenseUrl: newLicenseUrl,
+                        })
+                      }
+                      handleLicenseDescriptionChange={(event) =>
+                        updatePublishForm({
+                          otherLicenseDescription: event.target.value,
+                        })
+                      }
+                      handleLicenseUrlChange={(event) => updatePublishForm({ licenseUrl: event.target.value })}
+                    />
                   </div>
                 </div>
-                <div className="publish-row">
-                  <PublishBid />
-                </div>
-              </>
+                <PublishBid />
+              </div>
             )}
 
-            <div className="section__actions">
+            <div className="publish-row publish-row--more">
               <Button label={hideSection ? __('Show') : __('Hide')} button="link" onClick={toggleHideSection} />
             </div>
           </React.Fragment>

@@ -329,14 +329,14 @@ function PublishPrice(props: Props) {
       <Card
         background
         isBodyList
-        className={classnames('card--enable-overflow card--publish-section card--additional-options', {
+        className={classnames('card--enable-overflows', {
           'card--disabled': disabled,
         })}
         title={__('Price')}
         body={
-          <div className="settings-row">
+          <>
             {expanded && (
-              <>
+              <div className="settings-row">
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
                 {getPaywallOptionsRow()}
                 {paywall === PAYWALL.FIAT && (
@@ -347,16 +347,16 @@ function PublishPrice(props: Props) {
                   </>
                 )}
                 {paywall === PAYWALL.SDK && getLbcPurchaseRow()}
-              </>
+              </div>
             )}
-            <div className="publish-price__row">
+            <div className="publish-row publish-row--more">
               <Button
                 label={__(expanded ? 'Hide' : 'Show')}
                 button="link"
                 onClick={() => setExpanded((prev) => !prev)}
               />
             </div>
-          </div>
+          </>
         }
       />
     </div>

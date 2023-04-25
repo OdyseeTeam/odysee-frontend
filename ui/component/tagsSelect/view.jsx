@@ -80,7 +80,6 @@ export default function TagsSelect(props: Props) {
     ((showClose && !hasClosed) || !showClose) && (
       <Card
         className="card--tags"
-        // icon={ICONS.TAG}
         title={
           hideHeader ? null : (
             <React.Fragment>

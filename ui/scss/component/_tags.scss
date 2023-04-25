@@ -53,13 +53,10 @@
 }
 
 .tags__input-wrapper {
-  // Nested style needed for more specificity
   .tag__input {
     @extend .tag--remove;
     height: var(--input-height);
     padding: calc(var(--spacing-xxs) + 1px) var(--spacing-s);
-    background-color: var(--color-input-bg);
-    // margin-bottom: var(--spacing-m);
   }
 }
 

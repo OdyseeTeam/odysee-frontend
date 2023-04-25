@@ -633,48 +633,7 @@ img {
 
 // The following wrapper classes are temporary to fix page specific issues
 
-.card--publish-section {
-  // background: rgba(var(--color-header-button-base), 0.6);
-  // border-radius: var(--border-radius);
-
-  .card__main-actions {
-    padding: 0;
-  }
-
-  /*
-  fieldset-section {
-    padding: var(--spacing-s);
-  }
-  */
-
-  fieldset-section.radio {
-    margin-top: 0;
-    padding-bottom: 0;
-  }
-  fieldset-section.radio:last-of-type {
-    padding-bottom: var(--spacing-s);
-  }
-
-  fieldset-group {
-    margin-top: 0;
-    fieldset-section {
-      padding-right: 0;
-    }
-    .input--currency-select {
-      padding-left: 2px;
-    }
-  }
-
-  /*
-  .publish-row {
-    .form-field__help {
-      padding: var(--spacing-s);
-      padding-top: 0;
-    }
-  }
-  */
-}
-
+/*
 .card--additional-options {
   margin-bottom: var(--spacing-l) !important;
   .card {
@@ -755,7 +714,9 @@ img {
     }
   }
 }
+*/
 
+/*
 .uploadPage-wrapper {
   transition: width 0.4s;
   @media (min-width: $breakpoint-small) {
@@ -869,13 +830,6 @@ img {
       }
     }
   }
-
-  /*
-  .card__header--between {
-    margin-bottom: 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-  */
 
   .card__title {
     div {
@@ -1233,6 +1187,8 @@ img {
     }
   }
 }
+
+  */
 
 [data-reach-menu-popover] {
   @media (max-width: $breakpoint-small) {

@@ -117,6 +117,7 @@ form,
 .radio,
 .form-field--SimpleMDE,
 .form-field__help {
+  /*
   + fieldset-section,
   + fieldset-group,
   + form,
@@ -125,6 +126,7 @@ form,
   + .form-field--SimpleMDE {
     margin-top: var(--spacing-l);
   }
+  */
 
   + .form-field__help {
     margin-top: var(--spacing-s);
@@ -609,10 +611,10 @@ fieldset-section {
 }
 
 .form-field-date-picker {
-  // margin-bottom: var(--spacing-l);
   font-size: var(--font-base);
 
   label {
+    margin-top: 0;
     display: block;
   }
 

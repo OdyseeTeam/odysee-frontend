@@ -33,10 +33,6 @@ $INDENT: var(--spacing-xl);
   }
 }
 
-.publish-price__row:not(:first-child) {
-  border-top: 1px solid var(--color-border);
-}
-
 .publish-price__row--disabled {
   pointer-events: none;
 

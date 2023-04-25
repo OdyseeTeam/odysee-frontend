@@ -288,7 +288,7 @@ function PublishFile(props: Props) {
     // @if TARGET='web'
     if (!isStillEditing) {
       return (
-        <p className="help">
+        <p className="help" style={{ marginBottom: 0 }}>
           {__(
             'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
             { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }
@@ -424,45 +424,42 @@ function PublishFile(props: Props) {
       })}
       actions={
         <>
-          <div className="card--file">
-            <React.Fragment>
-              <>
-                <FileSelector
-                  disabled={disabled}
-                  currentPath={currentFile}
-                  onFileChosen={handleFileChange}
-                  // accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*,audio/*,image/*' : undefined}
-                  placeholder={
-                    SIMPLE_SITE ? __('Select video, audio or image file to upload') : __('Select a file to upload')
-                  }
-                  autoFocus
-                />
-                {getUploadMessage()}
-                {hasLivestreamData && linkReplays()}
+          <React.Fragment>
+            <>
+              <FileSelector
+                disabled={disabled}
+                currentPath={currentFile}
+                onFileChosen={handleFileChange}
+                placeholder={
+                  SIMPLE_SITE ? __('Select video, audio or image file to upload') : __('Select a file to upload')
+                }
+                autoFocus
+              />
+              {getUploadMessage()}
+              {hasLivestreamData && linkReplays()}
 
-                {fileSource === SOURCE_SELECT && (
-                  <div className="main--empty empty">
-                    <Spinner small />
-                  </div>
-                )}
-              </>
-              <div className="form-spacer">
-                <FormField
-                  type="text"
-                  name="content_title"
-                  label={__('Title')}
-                  placeholder={__('Descriptive titles work best')}
-                  disabled={disabled}
-                  value={title}
-                  onChange={handleTitleChange}
-                  className="fieldset-group"
-                  max="200"
-                  ref={titleInput}
-                />
-              </div>
-              <PublishName uri={uri} />
-            </React.Fragment>
-          </div>
+              {fileSource === SOURCE_SELECT && (
+                <div className="main--empty empty">
+                  <Spinner small />
+                </div>
+              )}
+            </>
+            <div className="form-spacer">
+              <FormField
+                type="text"
+                name="content_title"
+                label={__('Title')}
+                placeholder={__('Descriptive titles work best')}
+                disabled={disabled}
+                value={title}
+                onChange={handleTitleChange}
+                className="fieldset-group"
+                max="200"
+                ref={titleInput}
+              />
+            </div>
+            <PublishName uri={uri} />
+          </React.Fragment>
         </>
       }
     />

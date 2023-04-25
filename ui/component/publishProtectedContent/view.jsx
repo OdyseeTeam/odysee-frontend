@@ -152,7 +152,6 @@ function PublishProtectedContent(props: Props) {
         <Card
           background
           isBodyList
-          className="card--restrictions"
           title={__('Restrict Content')}
           body={
             <div className="settings-row">

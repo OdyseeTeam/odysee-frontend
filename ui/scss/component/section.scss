@@ -126,7 +126,7 @@
 
 .section__subtitle {
   color: var(--color-text-subtitle);
-  margin: var(--spacing-s) 0;
+  // margin: var(--spacing-s) 0;
   font-size: var(--font-body);
 }
 
@@ -401,7 +401,7 @@
   width: 100%;
 
   fieldset-section.radio {
-    margin-top: var(--spacing-s);
+    margin-top: 0;
   }
 
   fieldset-group {

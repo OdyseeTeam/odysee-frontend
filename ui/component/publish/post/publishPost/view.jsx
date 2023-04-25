@@ -38,31 +38,29 @@ function PublishPost(props: Props) {
         'card--disabled': disabled || balance === 0,
       })}
       actions={
-        <div className="card--file">
-          <React.Fragment>
-            <FormField
-              type="text"
-              name="content_title"
-              label={__('Title')}
-              placeholder={__('Descriptive titles work best')}
-              disabled={disabled}
-              value={title}
-              onChange={handleTitleChange}
-              className="fieldset-group"
-              max="200"
-              autoFocus
-              autoComplete="off"
-            />
-            <PublishName uri={uri} />
-            <PostEditor
-              label={__('Post --[noun, markdown post tab button]--')}
-              uri={uri}
-              disabled={disabled}
-              fileMimeType={fileMimeType}
-              setPrevFileText={setPrevFileText}
-            />
-          </React.Fragment>
-        </div>
+        <React.Fragment>
+          <FormField
+            type="text"
+            name="content_title"
+            label={__('Title')}
+            placeholder={__('Descriptive titles work best')}
+            disabled={disabled}
+            value={title}
+            onChange={handleTitleChange}
+            className="fieldset-group"
+            max="200"
+            autoFocus
+            autoComplete="off"
+          />
+          <PublishName uri={uri} />
+          <PostEditor
+            label={__('Post --[noun, markdown post tab button]--')}
+            uri={uri}
+            disabled={disabled}
+            fileMimeType={fileMimeType}
+            setPrevFileText={setPrevFileText}
+          />
+        </React.Fragment>
       }
     />
   );

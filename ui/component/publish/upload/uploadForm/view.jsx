@@ -437,43 +437,68 @@ function UploadForm(props: Props) {
         </label>
       </h1>
 
-      <PublishFile
-        inEditMode={inEditMode}
-        fileSource={fileSource}
-        changeFileSource={changeFileSource}
-        uri={permanentUrl}
-        mode={mode}
-        fileMimeType={fileMimeType}
-        disabled={disabled || publishing}
-        inProgress={isInProgress}
-        setPrevFileText={setPrevFileText}
-        setWaitForFile={setWaitForFile}
-        setOverMaxBitrate={setOverMaxBitrate}
-        channelId={claimChannelId}
-        channelName={activeChannelName}
-        header={
-          <>
-            {AVAILABLE_MODES.map((modeName) => (
-              <Button
-                key={String(modeName)}
-                icon={modeName}
-                iconSize={18}
-                label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
-                button="alt"
-                className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
-              />
-            ))}
-          </>
+      <Card
+        background
+        body={
+          <div className="publish-row">
+            <PublishFile
+              inEditMode={inEditMode}
+              fileSource={fileSource}
+              changeFileSource={changeFileSource}
+              uri={permanentUrl}
+              mode={mode}
+              fileMimeType={fileMimeType}
+              disabled={disabled || publishing}
+              inProgress={isInProgress}
+              setPrevFileText={setPrevFileText}
+              setWaitForFile={setWaitForFile}
+              setOverMaxBitrate={setOverMaxBitrate}
+              channelId={claimChannelId}
+              channelName={activeChannelName}
+              header={
+                <>
+                  {AVAILABLE_MODES.map((modeName) => (
+                    <Button
+                      key={String(modeName)}
+                      icon={modeName}
+                      iconSize={18}
+                      label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
+                      button="alt"
+                      className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
+                    />
+                  ))}
+                </>
+              }
+            />
+          </div>
         }
       />
 
-      {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+      {mode !== PUBLISH_MODES.POST && (
+        <Card
+          background
+          title={__('Description')}
+          body={
+            <div className="publish-row">
+              <PublishDescription disabled={formDisabled} />
+            </div>
+          }
+        />
+      )}
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
-          <Card background title={__('Thumbnail')} actions={<SelectThumbnail />} />
+          <Card
+            background
+            title={__('Thumbnail')}
+            body={
+              <div className="publish-row">
+                <SelectThumbnail />
+              </div>
+            }
+          />
 
           <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
 
@@ -482,31 +507,39 @@ function UploadForm(props: Props) {
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
           </h2>
-          <TagsSelect
-            suggestMature={!SIMPLE_SITE}
-            disableAutoFocus
-            hideHeader
-            label={__('Selected Tags')}
-            empty={__('No tags added')}
-            limitSelect={TAGS_LIMIT}
-            help={__(
-              "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-            )}
-            placeholder={__('gaming, crypto')}
-            onSelect={(newTags) => {
-              const validatedTags = [];
-              newTags.forEach((newTag) => {
-                if (!tags.some((tag) => tag.name === newTag.name)) {
-                  validatedTags.push(newTag);
-                }
-              });
-              updatePublishForm({ tags: [...tags, ...validatedTags] });
-            }}
-            onRemove={(clickedTag) => {
-              const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePublishForm({ tags: newTags });
-            }}
-            tagsChosen={tags}
+
+          <Card
+            background
+            body={
+              <div className="publish-row">
+                <TagsSelect
+                  suggestMature={!SIMPLE_SITE}
+                  disableAutoFocus
+                  hideHeader
+                  label={__('Selected Tags')}
+                  empty={__('No tags added')}
+                  limitSelect={TAGS_LIMIT}
+                  help={__(
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                  )}
+                  placeholder={__('gaming, crypto')}
+                  onSelect={(newTags) => {
+                    const validatedTags = [];
+                    newTags.forEach((newTag) => {
+                      if (!tags.some((tag) => tag.name === newTag.name)) {
+                        validatedTags.push(newTag);
+                      }
+                    });
+                    updatePublishForm({ tags: [...tags, ...validatedTags] });
+                  }}
+                  onRemove={(clickedTag) => {
+                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                    updatePublishForm({ tags: newTags });
+                  }}
+                  tagsChosen={tags}
+                />
+              </div>
+            }
           />
 
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
