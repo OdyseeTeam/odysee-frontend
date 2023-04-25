@@ -462,48 +462,46 @@ function LivestreamForm(props: Props) {
   return (
     <div className={balance < 0.01 ? 'disabled' : ''}>
       <div className="card-stack">
-        <Card className="card--livestream">
-          <div>
+        <Card className="publish-livestream-header">
+          <Button
+            key={'New'}
+            icon={ICONS.LIVESTREAM}
+            iconSize={18}
+            label={__('New Livestream')}
+            button="alt"
+            onClick={() => {
+              setPublishMode('New');
+            }}
+            disabled={editingURI}
+            className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
+          />
+          {publishMode !== 'Edit' && (
             <Button
-              key={'New'}
-              icon={ICONS.LIVESTREAM}
+              key={'Replay'}
+              icon={ICONS.MENU}
               iconSize={18}
-              label={__('New Livestream')}
+              label={__('Choose Replay')}
               button="alt"
               onClick={() => {
-                setPublishMode('New');
+                setPublishMode('Replay');
               }}
-              disabled={editingURI}
-              className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
+              disabled={!hasLivestreamData || publishMode === 'Edit'}
+              className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
             />
-            {publishMode !== 'Edit' && (
-              <Button
-                key={'Replay'}
-                icon={ICONS.MENU}
-                iconSize={18}
-                label={__('Choose Replay')}
-                button="alt"
-                onClick={() => {
-                  setPublishMode('Replay');
-                }}
-                disabled={!hasLivestreamData || publishMode === 'Edit'}
-                className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
-              />
-            )}
-            {publishMode === 'Edit' && (
-              <Button
-                key={'Edit'}
-                icon={ICONS.EDIT}
-                iconSize={18}
-                label={__('Edit / Update')}
-                button="alt"
-                onClick={() => {
-                  setPublishMode('Edit');
-                }}
-                className="button-toggle button-toggle--active"
-              />
-            )}
-          </div>
+          )}
+          {publishMode === 'Edit' && (
+            <Button
+              key={'Edit'}
+              icon={ICONS.EDIT}
+              iconSize={18}
+              label={__('Edit / Update')}
+              button="alt"
+              onClick={() => {
+                setPublishMode('Edit');
+              }}
+              className="button-toggle button-toggle--active"
+            />
+          )}
           {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
           <Tooltip title={__('Check for Replays')}>
             <Button
@@ -516,68 +514,97 @@ function LivestreamForm(props: Props) {
           </Tooltip>
         </Card>
 
-        <PublishLivestream
-          inEditMode={inEditMode}
-          fileSource={publishMode === 'New' || publishMode === 'Edit' ? fileSource : SOURCE_SELECT}
-          changeFileSource={changeFileSource}
-          uri={permanentUrl}
-          mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
-          fileMimeType={fileMimeType}
-          disabled={publishing}
-          inProgress={isInProgress}
-          livestreamData={livestreamData}
-          setWaitForFile={setWaitForFile}
-          setOverMaxBitrate={setOverMaxBitrate}
-          isCheckingLivestreams={isCheckingLivestreams}
-          checkLivestreams={fetchLivestreams}
-          channelId={claimChannelId}
-          channelName={activeChannelName}
-          setReplaySource={setReplaySource}
-          replaySource={replaySource}
+        <Card
+          background
+          body={
+            <div className="publish-row">
+              <PublishLivestream
+                inEditMode={inEditMode}
+                fileSource={publishMode === 'New' || publishMode === 'Edit' ? fileSource : SOURCE_SELECT}
+                changeFileSource={changeFileSource}
+                uri={permanentUrl}
+                mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
+                fileMimeType={fileMimeType}
+                disabled={publishing}
+                inProgress={isInProgress}
+                livestreamData={livestreamData}
+                setWaitForFile={setWaitForFile}
+                setOverMaxBitrate={setOverMaxBitrate}
+                isCheckingLivestreams={isCheckingLivestreams}
+                checkLivestreams={fetchLivestreams}
+                channelId={claimChannelId}
+                channelName={activeChannelName}
+                setReplaySource={setReplaySource}
+                replaySource={replaySource}
+              />
+            </div>
+          }
         />
 
-        <PublishDescription disabled={disabled} />
+        <Card
+          background
+          title={__('Description')}
+          body={
+            <div className="publish-row">
+              <PublishDescription disabled={disabled} />
+            </div>
+          }
+        />
 
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
             {(publishMode === 'New' || (publishMode === 'Edit' && replaySource === 'keep')) && (
-              <Card body={<PublishStreamReleaseDate />} />
+              <Card background title={__('Date')} body={<PublishStreamReleaseDate />} />
             )}
 
-            <Card background title={__('Thumbnail')} actions={<SelectThumbnail />} livestreamData={livestreamData} />
+            <Card
+              background
+              title={__('Thumbnail')}
+              body={
+                <div className="publish-row">
+                  <SelectThumbnail />
+                </div>
+              }
+              livestreamData={livestreamData}
+            />
 
             <PublishProtectedContent claim={myClaimForUri} location={channelRestrictionToUse} />
 
             {publishMode === 'Replay' && <PublishPrice disabled={disabled} />}
 
-            <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
-              {__('Tags')}
-            </h2>
-            <TagsSelect
-              suggestMature={!SIMPLE_SITE}
-              disableAutoFocus
-              hideHeader
-              label={__('Selected Tags')}
-              empty={__('No tags added')}
-              limitSelect={TAGS_LIMIT}
-              help={__(
-                "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-              )}
-              placeholder={__('gaming, crypto')}
-              onSelect={(newTags) => {
-                const validatedTags = [];
-                newTags.forEach((newTag) => {
-                  if (!tags.some((tag) => tag.name === newTag.name)) {
-                    validatedTags.push(newTag);
-                  }
-                });
-                updatePublishForm({ tags: [...tags, ...validatedTags] });
-              }}
-              onRemove={(clickedTag) => {
-                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                updatePublishForm({ tags: newTags });
-              }}
-              tagsChosen={tags}
+            <Card
+              background
+              title={__('Tags')}
+              body={
+                <div className="publish-row">
+                  <TagsSelect
+                    suggestMature={!SIMPLE_SITE}
+                    disableAutoFocus
+                    hideHeader
+                    label={__('Selected Tags')}
+                    empty={__('No tags added')}
+                    limitSelect={TAGS_LIMIT}
+                    help={__(
+                      "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                    )}
+                    placeholder={__('gaming, crypto')}
+                    onSelect={(newTags) => {
+                      const validatedTags = [];
+                      newTags.forEach((newTag) => {
+                        if (!tags.some((tag) => tag.name === newTag.name)) {
+                          validatedTags.push(newTag);
+                        }
+                      });
+                      updatePublishForm({ tags: [...tags, ...validatedTags] });
+                    }}
+                    onRemove={(clickedTag) => {
+                      const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                      updatePublishForm({ tags: newTags });
+                    }}
+                    tagsChosen={tags}
+                  />
+                </div>
+              }
             />
 
             <PublishAdditionalOptions

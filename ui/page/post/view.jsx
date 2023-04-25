@@ -14,7 +14,7 @@ function PostPage(props: Props) {
   const { balance, fetchingChannels } = props;
 
   return (
-    <Page className="uploadPage-wrapper" noFooter>
+    <Page noFooter>
       {balance < 0.01 && <YrblWalletEmpty />}
       {balance >= 0.01 && fetchingChannels ? (
         <div className="main--empty">

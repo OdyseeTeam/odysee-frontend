@@ -67,12 +67,13 @@ function PublishAdditionalOptions(props: Props) {
         body={
           <React.Fragment>
             {!hideSection && !disabled && (
-              <div className="publish-row">
+              <div className="settings-row">
                 <div className={classnames({ 'card--disabled': !name })}>
                   <div className="section">
                     {!showSchedulingOptions && <PublishReleaseDate />}
 
                     <FormField
+                      className={showSchedulingOptions && 'publish-row--no-margin'}
                       label={__('Language')}
                       type="select"
                       name="content_language"

@@ -241,7 +241,7 @@ export default function LivestreamSetupPage(props: Props) {
   }
 
   return (
-    <Page className="uploadPage-wrapper">
+    <Page>
       {balance < 0.01 && <YrblWalletEmpty />}
       <h1 className="page__title">
         <Icon icon={ICONS.VIDEO} />
@@ -282,13 +282,15 @@ export default function LivestreamSetupPage(props: Props) {
               {!fetchingChannels && channelId && (
                 <>
                   <Card
+                    background
                     className={classnames('section card--livestream-key', {
                       disabled: !streamKey || totalLivestreamClaims.length === 0,
                     })}
-                    actions={
-                      <>
+                    body={
+                      <div className="publish-row">
                         <CopyableText
                           primaryButton
+                          className="publish-row--no-margin"
                           enableInputMask={!streamKey || totalLivestreamClaims.length === 0}
                           name="stream-server"
                           label={__('Stream server')}
@@ -304,13 +306,13 @@ export default function LivestreamSetupPage(props: Props) {
                           copyable={!streamKey || totalLivestreamClaims.length === 0 ? LIVESTREAM_RTMP_URL : streamKey}
                           snackMessage={__('Copied stream key.')}
                         />
-                      </>
+                      </div>
                     }
                   />
                   {totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
-                        <div className="section card--livestream-past">
+                        <div className="section">
                           <ClaimList
                             header={__('Your pending livestreams uploads')}
                             uris={pendingClaims.map((claim) => claim.permanent_url)}
@@ -327,7 +329,7 @@ export default function LivestreamSetupPage(props: Props) {
                               />
                             </div>
                           )}
-                          <div className="section card--livestream-past">
+                          <div className="section">
                             <ClaimList
                               header={
                                 <ListHeader

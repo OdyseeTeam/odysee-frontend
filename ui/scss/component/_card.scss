@@ -642,10 +642,6 @@
     }
   }
 
-  & div:last-child {
-    border-top: unset;
-  }
-
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-l);
     padding-left: 0px;
@@ -941,7 +937,12 @@
   }
 }
 
+.publish-row--no-margin {
+  label {
+    margin-top: 0;
+  }
+}
+
 .publish-row--more {
   padding-top: var(--spacing-s);
-  border-top: 1px solid var(--color-border);
 }
