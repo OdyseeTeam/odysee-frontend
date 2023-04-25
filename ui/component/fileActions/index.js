@@ -10,6 +10,7 @@ import {
   selectIsFiatRequiredForUri,
   selectIsFiatPaidForUri,
   selectCostInfoForUri,
+  selectScheduledStateForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doPrepareEdit } from 'redux/actions/publish';
@@ -47,6 +48,7 @@ const select = (state, props) => {
     isFiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFiatPaid: selectIsFiatPaidForUri(state, uri),
     isTierUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
+    scheduledState: selectScheduledStateForUri(state, uri),
   };
 };
 

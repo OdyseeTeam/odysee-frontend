@@ -119,6 +119,7 @@ type Props = {
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   isProtectedContent: boolean,
+  isUnlisted: boolean,
   doSetVideoSourceLoaded: (uri: string) => void,
 };
 
@@ -187,6 +188,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    isUnlisted,
     doSetVideoSourceLoaded,
   } = props;
 
@@ -535,7 +537,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // disable right-click (context-menu) for purchased content
-      if (isPurchasableContent || isRentableContent || isProtectedContent) {
+      if (isPurchasableContent || isRentableContent || isProtectedContent || isUnlisted) {
         const player = document.querySelector('video.vjs-tech');
         if (player) player.setAttribute('oncontextmenu', 'return false;');
       }

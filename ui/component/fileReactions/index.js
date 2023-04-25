@@ -2,7 +2,12 @@ import { connect } from 'react-redux';
 import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
 import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
 import FileReactions from './view';
-import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import {
+  selectClaimForUri,
+  selectIsStreamPlaceholderForUri,
+  selectClaimIsMine,
+  selectScheduledStateForUri,
+} from 'redux/selectors/claims';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -18,6 +23,7 @@ const select = (state, props) => {
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     claimId,
     claimIsMine: selectClaimIsMine(state, claim),
+    scheduledState: selectScheduledStateForUri(state, uri),
   };
 };
 
