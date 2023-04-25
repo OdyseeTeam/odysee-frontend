@@ -4,9 +4,10 @@ import {
   selectMyClaimsPage,
   selectMyClaimsPageItemCount,
   selectFetchingMyClaimsPageError,
+  selectMyChannelClaimIds,
 } from 'redux/selectors/claims';
 import { selectUploadCount } from 'redux/selectors/publish';
-import { doFetchClaimListMine, doCheckPendingClaims } from 'redux/actions/claims';
+import { doFetchClaimListMine, doCheckPendingClaims, doClearClaimSearch } from 'redux/actions/claims';
 import { doClearPublish } from 'redux/actions/publish';
 import FileListPublished from './view';
 import { withRouter } from 'react-router';
@@ -26,6 +27,7 @@ const select = (state, props) => {
     urlTotal: selectMyClaimsPageItemCount(state),
     error: selectFetchingMyClaimsPageError(state),
     uploadCount: selectUploadCount(state),
+    myChannelIds: selectMyChannelClaimIds(state),
   };
 };
 
@@ -33,6 +35,7 @@ const perform = {
   checkPendingPublishes: doCheckPendingClaims,
   fetchClaimListMine: doFetchClaimListMine,
   clearPublish: doClearPublish,
+  doClearClaimSearch,
 };
 
 export default withRouter(connect(select, perform)(FileListPublished));

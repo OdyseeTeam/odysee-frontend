@@ -8,9 +8,11 @@ import React, { useEffect } from 'react';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
+import ClaimSearchView from 'component/claimSearchView';
 import Page from 'component/page';
 import Paginate from 'component/common/paginate';
 import { PAGE_PARAM, PAGE_SIZE_PARAM } from 'constants/claim';
+import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import WebUploadList from 'component/webUploadList';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
@@ -22,7 +24,14 @@ const FILTER: { [string]: FilterInfo } = Object.freeze({
   ALL: { key: 'ALL', cmd: 'stream,repost', label: 'All', ariaLabel: 'All uploads' },
   UPLOADS: { key: 'UPLOADS', cmd: 'stream', label: 'Uploads' },
   REPOSTS: { key: 'REPOSTS', cmd: 'repost', label: 'Reposts' },
+  UNLISTED: { key: 'UNLISTED', cmd: '', label: 'Unlisted' },
+  SCHEDULED: { key: 'SCHEDULED', cmd: '', label: 'Scheduled' },
 });
+
+const METHOD = {
+  CLAIM_LIST: 'CLAIM_LIST',
+  CLAIM_SEARCH: 'CLAIM_SEARCH',
+};
 
 type Props = {
   uploadCount: number,
@@ -35,6 +44,8 @@ type Props = {
   history: { replace: (string) => void, push: (string) => void },
   page: number,
   pageSize: number,
+  myChannelIds: ?Array<ClaimId>,
+  doClearClaimSearch: () => void,
 };
 
 function FileListPublished(props: Props) {
@@ -48,9 +59,13 @@ function FileListPublished(props: Props) {
     urlTotal,
     page,
     pageSize,
+    myChannelIds,
+    doClearClaimSearch,
   } = props;
 
   const [filterBy, setFilterBy] = React.useState(FILTER.ALL.key);
+  const method =
+    filterBy === FILTER.UNLISTED.key || filterBy === FILTER.SCHEDULED.key ? METHOD.CLAIM_SEARCH : METHOD.CLAIM_LIST;
 
   const params = React.useMemo(() => {
     return {
@@ -58,6 +73,31 @@ function FileListPublished(props: Props) {
       [PAGE_SIZE_PARAM]: Number(pageSize),
     };
   }, [page, pageSize]);
+
+  const csOptions: ClaimSearchOptions = React.useMemo(() => {
+    return {
+      page_size: 20,
+      any_tags: [VISIBILITY_TAGS.UNLISTED],
+      channel_ids: myChannelIds || [],
+      claim_type: ['stream'],
+      has_source: true,
+      order_by: ['height'],
+      remove_duplicates: true,
+    };
+  }, [myChannelIds]);
+
+  const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
+    return {
+      page_size: 20,
+      any_tags: [SCHEDULED_TAGS.SHOW, SCHEDULED_TAGS.HIDE],
+      channel_ids: myChannelIds || [],
+      claim_type: ['stream'],
+      has_source: true,
+      order_by: ['height'],
+      remove_duplicates: true,
+      release_time: `>${Math.floor(Date.now() / 1000)}`,
+    };
+  }, [myChannelIds]);
 
   function getHeaderJsx() {
     return (
@@ -81,7 +121,13 @@ function FileListPublished(props: Props) {
               button="alt"
               label={__('Refresh')}
               icon={ICONS.REFRESH}
-              onClick={() => fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','), true)}
+              onClick={() => {
+                if (method === METHOD.CLAIM_LIST) {
+                  fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','), true);
+                } else {
+                  doClearClaimSearch();
+                }
+              }}
             />
           )}
         </div>
@@ -108,10 +154,24 @@ function FileListPublished(props: Props) {
     );
   }
 
+  function getClaimSearchResultsJsx() {
+    const isUnlisted = filterBy === FILTER.UNLISTED.key;
+    return (
+      <ClaimSearchView
+        key={isUnlisted ? 'unlisted' : 'scheduled'}
+        csOptions={isUnlisted ? csOptions : csOptionsScheduled}
+        layout="list"
+        pagination="infinite"
+        noUpperReleaseTimeLimit
+      />
+    );
+  }
+
   function getFetchingPlaceholders() {
     return (
       <>
-        {fetching &&
+        {method === METHOD.CLAIM_LIST &&
+          fetching &&
           new Array(Number(pageSize)).fill(1).map((x, i) => {
             return <ClaimPreview key={i} placeholder="loading" />;
           })}
@@ -124,19 +184,20 @@ function FileListPublished(props: Props) {
   }, [checkPendingPublishes]);
 
   useEffect(() => {
-    if (params && fetchClaimListMine) {
+    if (params && fetchClaimListMine && method === METHOD.CLAIM_LIST) {
       fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','));
     }
-  }, [uploadCount, params, filterBy, fetchClaimListMine]);
+  }, [uploadCount, params, filterBy, fetchClaimListMine, method]);
 
   return (
     <Page>
       <div className="card-stack">
         <WebUploadList />
         {getHeaderJsx()}
-        {getClaimListResultsJsx()}
+        {method === METHOD.CLAIM_LIST && getClaimListResultsJsx()}
+        {method === METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
       </div>
-      {!(urls && urls.length) && (
+      {!(urls && urls.length) && method === METHOD.CLAIM_LIST && (
         <React.Fragment>
           {!fetching ? (
             <section className="main--empty">
