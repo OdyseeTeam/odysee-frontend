@@ -183,7 +183,7 @@
 }
 
 .comment-create__sticker-preview {
-  @extend .commentCreate;
+  @extend .comment-create;
   display: flex;
   background-color: var(--color-header-button);
   border-radius: var(--border-radius);
@@ -404,7 +404,7 @@
 }
 
 .notification__wrapper {
-  .commentCreate {
+  .comment-create {
     .tabs {
       background-color: var(--color-background);
       .tabs__list {

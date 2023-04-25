@@ -286,7 +286,7 @@ $recent-msg-button__height: 2rem;
     }
   }
 
-  .commentCreate__stickerPreview {
+  .comment-create__sticker-preview {
     background-color: var(--color-header-button);
   }
 
@@ -299,7 +299,7 @@ $recent-msg-button__height: 2rem;
     flex-direction: column;
 
     .chat__comment-create {
-      .commentCreate__stickerPreview,
+      .comment-create__sticker-preview,
       .section__actions {
         margin-left: var(--spacing-xxxs);
         margin-right: var(--spacing-xxxs);
@@ -401,7 +401,7 @@ $recent-msg-button__height: 2rem;
     }
   }
 
-  .commentCreate {
+  .comment-create {
     select,
     textarea,
     input {
