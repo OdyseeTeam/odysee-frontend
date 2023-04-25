@@ -50,7 +50,7 @@ import Spinner from 'component/spinner';
 import { lazyImport } from 'util/lazyImport';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
-const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "commentCreate" */));
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
 type Props = {
   comment: Comment,

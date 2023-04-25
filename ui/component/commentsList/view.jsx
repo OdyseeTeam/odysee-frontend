@@ -24,7 +24,7 @@ import CommentListMenu from './internal/commentListMenu';
 import { lazyImport } from 'util/lazyImport';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
-const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "commentCreate" */));
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
 function scaleToDevicePixelRatio(value) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;

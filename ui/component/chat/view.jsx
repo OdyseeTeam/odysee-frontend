@@ -23,7 +23,7 @@ export const VIEW_MODES = {
   SUPERCHAT: 'sc',
 };
 const COMMENT_SCROLL_TIMEOUT = 25;
-const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "commentCreate" */));
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
 type Props = {
   customViewMode?: string,
