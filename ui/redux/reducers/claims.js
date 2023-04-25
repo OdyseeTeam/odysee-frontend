@@ -38,6 +38,7 @@ type State = {
   fetchingMyPurchasesError: ?string,
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
+  claimSearchByQueryMiscInfo: { [query: string]: ClaimSearchResultsInfo },
   creatingChannel: boolean,
   paginatedClaimsByChannel: {
     [string]: {
@@ -93,6 +94,7 @@ const defaultState = {
   claimSearchError: false,
   claimSearchByQuery: {},
   claimSearchByQueryLastPageReached: {},
+  claimSearchByQueryMiscInfo: {},
   fetchingClaimSearchByQuery: {},
   updateChannelError: '',
   updatingChannel: false,
@@ -822,6 +824,7 @@ reducers[ACTIONS.CLEAR_CLAIM_SEARCH_HISTORY] = (state: State): State => {
     ...state,
     claimSearchByQuery: {},
     claimSearchByQueryLastPageReached: {},
+    claimSearchByQueryMiscInfo: {},
   };
 };
 
@@ -841,8 +844,9 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
+  const claimSearchByQueryMiscInfo = { ...state.claimSearchByQueryMiscInfo };
   const newResolvingIds = new Set(state.resolvingIds);
-  const { append, query, urls, pageSize } = action.data;
+  const { append, query, urls, page, pageSize, totalItems, totalPages } = action.data;
 
   if (append) {
     // todo: check for duplicate urls when concatenating?
@@ -857,6 +861,8 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
 
   delete fetchingClaimSearchByQuery[query];
 
+  claimSearchByQueryMiscInfo[query] = { page, pageSize, totalItems, totalPages };
+
   const { claim_ids: claimIds } = JSON.parse(query);
   if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.delete(claimId));
 
@@ -864,6 +870,7 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
     ...handleClaimAction(state, action),
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
+    claimSearchByQueryMiscInfo,
     fetchingClaimSearchByQuery,
     resolvingIds: Array.from(newResolvingIds),
   });

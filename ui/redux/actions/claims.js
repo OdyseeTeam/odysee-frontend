@@ -787,7 +787,10 @@ export function doClaimSearch(
           resolveInfo,
           urls,
           append: options.page && options.page !== 1,
+          page: options.page,
           pageSize: options.page_size,
+          totalItems: data.total_items,
+          totalPages: data.total_pages,
         },
       });
 

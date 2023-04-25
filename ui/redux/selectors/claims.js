@@ -32,6 +32,10 @@ import { removeInternalStringTags } from 'util/tags';
 
 type State = { claims: any, user: UserState };
 
+export function selectClaimsStates(state: State) {
+  return state.claims || {};
+}
+
 const selectState = (state: State) => state.claims || {};
 
 export const selectById = (state: State) => selectState(state).byId || {};
