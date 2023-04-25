@@ -9,7 +9,6 @@ const reducers = {};
 const defaultState: ContentState = {
   primaryUri: null, // Top level content uri triggered from the file page
   playingUri: { uri: undefined, collection: {} },
-  channelClaimCounts: {},
   positions: {},
   history: [],
   lastViewedAnnouncement: [],
