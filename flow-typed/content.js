@@ -1,14 +1,16 @@
 // @flow
 
-declare type ContentState = {
+declare type ContentState = {|
   primaryUri: ?string,
   playingUri: PlayingUri,
-  positions: { [string]: { [string]: number } }, // claimId: { outpoint: position }
+  positions: { [claimId: string]: { [outpoint: string]: number } },
   history: Array<WatchHistory>,
-  lastViewedAnnouncement: LastViewedAnnouncement, // undefined = not seen in wallet.
+  // -- Outliers; should move to another slice --------------------------------
+  lastViewedAnnouncement: ?LastViewedAnnouncement, // undefined = not seen in wallet.
   recsysEntries: { [ClaimId]: RecsysEntry }, // Persistent shadow copy. The main one resides in RecSys.
+  // --------------------------------------------------------------------------
   autoplayCountdownUri: ?string,
-};
+|};
 
 declare type LastViewedAnnouncement = Array<string>;
 
