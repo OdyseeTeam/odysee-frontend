@@ -61,6 +61,21 @@
     .claim-preview__hover-actions {
       display: block;
     }
+    .protected-content__wrapper {
+      -webkit-backdrop-filter: blur(0);
+      backdrop-filter: blur(0);
+      background-color: rgba(0, 0, 0, 0);
+
+      .protected-content__label-wrapper {
+        opacity: 0;
+      }
+      .protected-content__lock {
+        opacity: 1;
+        .icon {
+          stroke-width: 3;
+        }
+      }
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -787,6 +802,7 @@
   justify-items: end;
   justify-content: space-between;
   opacity: 0;
+  z-index: 1;
 
   .claim-preview__hover-actions {
     display: block;
@@ -2202,7 +2218,6 @@ $claim-preview-progress-bar-height: 5px;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  z-index: 5;
   width: 100%;
   height: 100%;
   -webkit-backdrop-filter: blur(2px);
@@ -2210,21 +2225,36 @@ $claim-preview-progress-bar-height: 5px;
   transition: all 0.2s;
   background-color: rgba(0, 0, 0, 0.6);
 
-  .protected-content__label {
-    // background-color: var(--color-header-background);
-    padding: 0 var(--spacing-xxxs);
+  .protected-content__label-wrapper {
+    padding: 0 var(--spacing-xxs);
     border-radius: var(--border-radius);
     text-align: center;
     color: var(--color-text);
     font-size: var(--font-body);
-    border: 2px solid var(--color-text);
-    background-image: var(--color-odysee-memberships);
     max-width: 80%;
-    span {
-      display: block;
-      font-size: var(--font-xsmall);
-      opacity: 0.8;
-      margin-top: -6px;
+    background: var(--color-odysee-memberships);
+    transition: all 0.4s;
+    opacity: 1;
+
+    .protected-content__label-container {
+      background: rgba(0, 0, 0, 0.95);
+      .protected-content__label {
+        background-image: var(--color-odysee-memberships);
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        padding: 0 var(--spacing-xxxs);
+        font-weight: var(--font-weight-bold);
+
+        span {
+          display: block;
+          font-size: var(--font-xxsmall);
+          margin-top: -6px;
+          background-clip: text;
+          -webkit-background-clip: text;
+          color: transparent;
+        }
+      }
     }
   }
 
@@ -2234,6 +2264,7 @@ $claim-preview-progress-bar-height: 5px;
     left: var(--spacing-xxs);
     background: var(--color-black);
     border-radius: var(--border-radius);
+    transition: all 0.2s;
     opacity: 0.85;
 
     .icon {

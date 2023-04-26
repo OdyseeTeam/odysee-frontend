@@ -44,9 +44,13 @@ const PreviewOverlayProtectedContent = (props: Props) => {
         <div className="protected-content__lock">
           <Icon icon={ICONS.LOCK} />
         </div>
-        <div className="protected-content__label">
-          {__('Members Only')}
-          <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
+        <div className="protected-content__label-wrapper">
+          <div className="protected-content__label-container">
+            <div className="protected-content__label">
+              {__('Members Only')}
+              <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
+            </div>
+          </div>
         </div>
       </div>
     );
