@@ -32,7 +32,7 @@ const PreviewOverlayProtectedContent = (props: Props) => {
 
   if (userIsAMember || (protectedMembershipIds && claimIsMine)) {
     return (
-      <div className="protected-content-unlocked">
+      <div className="protected-content__wrapper--unlocked">
         <Icon icon={ICONS.UNLOCK} size={64} />
       </div>
     );
@@ -40,11 +40,11 @@ const PreviewOverlayProtectedContent = (props: Props) => {
 
   if (protectedMembershipIds && userIsAMember !== undefined && cheapestPlanPrice && hasProtectedContentTag) {
     return (
-      <div className="protected-content-holder">
-        <div className="protected-content-holder-lock">
+      <div className="protected-content__wrapper">
+        <div className="protected-content__lock">
           <Icon icon={ICONS.LOCK} />
         </div>
-        <div className="protected-content-holder-label">
+        <div className="protected-content__label">
           {__('Members Only')}
           <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
         </div>
