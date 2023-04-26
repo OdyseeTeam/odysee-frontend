@@ -351,7 +351,7 @@ function VideoViewer(props: Props) {
     }
   }
 
-  const playerReadyDependencyList = [uri, adUrl, isEmbedded, autoplayIfEmbedded];
+  const playerReadyDependencyList = [muted, uri, adUrl, isEmbedded, autoplayIfEmbedded];
 
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
     // add buttons and initialize some settings for the player
