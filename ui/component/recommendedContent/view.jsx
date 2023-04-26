@@ -4,7 +4,7 @@ import { SHOW_ADS, AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION 
 import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
-import Spinner from 'component/spinner';
+import ClaimPreview from 'component/claimPreview';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';
@@ -155,9 +155,11 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
       body={
         <div>
           {isSearching && (
-            <div className="empty empty--centered-tight">
-              <Spinner type="small" />
-            </div>
+            <>
+              {new Array(20).fill(1).map((x, i) => (
+                <ClaimPreview key={i} placeholder="loading" type="small" />
+              ))}
+            </>
           )}
           {viewMode === VIEW_ALL_RELATED && (
             <ClaimList
