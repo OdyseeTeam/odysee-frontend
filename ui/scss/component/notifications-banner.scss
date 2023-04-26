@@ -1,10 +1,12 @@
 @import '../init/breakpoints';
 
-.browserNotificationsBanner {
+.browser-notifications__banner {
   display: flex;
   align-items: center;
   margin-bottom: var(--spacing-xl);
   justify-content: space-between;
+  border: 2px solid var(--color-primary);
+  background-color: rgba(var(--color-primary-static), 0.1);
   width: 100%;
 
   @media (max-width: $breakpoint-small) {
@@ -13,7 +15,7 @@
   }
 }
 
-.browserNotificationsBanner__actions {
+.browser-notifications__actions {
   display: flex;
   align-items: center;
 
@@ -22,20 +24,20 @@
   }
 }
 
-.browserNotificationsBanner__overview {
+.browser-notifications__overview {
   display: flex;
   align-items: center;
 }
 
-.browserNotificationsBanner__icon {
+.browser-notifications__icon {
   margin-right: var(--spacing-m);
   flex-shrink: 0;
 }
-.browserNotificationsBanner__button {
+.browser-notifications__button {
   margin-right: var(--spacing-m);
 }
 
-.notificationsBlocked__subText {
+.notifications-blocked__subText {
   color: var(--color-text-subtitle);
   font-size: var(--font-small);
 }

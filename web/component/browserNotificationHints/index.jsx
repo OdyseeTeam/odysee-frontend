@@ -13,17 +13,17 @@ type InlineMessageProps = {
 const InlineMessage = (props: InlineMessageProps) => {
   const { title, children } = props;
   return (
-    <div className="notificationsBlocked">
-      <Icon className="notificationsBlocked__icon" color="#E50054" icon={ICONS.ALERT} size={32} />
+    <div className="notifications-blocked">
+      <Icon className="notifications-blocked__icon" color="#E50054" icon={ICONS.ALERT} size={32} />
       <div>
         <span>{title}</span>
-        <span className={'notificationsBlocked__subText'}>{children}</span>
+        <span className={'notifications-blocked__subText'}>{children}</span>
       </div>
     </div>
   );
 };
 
-export const BrowserNotificationsBlocked = () => {
+export const BrowsernotificationsBlocked = () => {
   return (
     <InlineMessage title={__('Heads up: browser notifications are currently blocked in this browser.')}>
       {__('To enable push notifications please configure your browser to allow notifications on odysee.com.')}
@@ -34,7 +34,7 @@ export const BrowserNotificationsBlocked = () => {
 export const BrowserNotificationHints = () => {
   return (
     <InlineMessage title={__("Browser notifications aren't supported. Here's a few tips:")}>
-      <ul className={'notificationsBlocked__subText notificationsBlocked__subTextList'}>
+      <ul className={'notifications-blocked__subText notifications-blocked__subTextList'}>
         <li>{__("Notifications aren't available when in incognito or private mode.")}</li>
         <li>
           {__(
