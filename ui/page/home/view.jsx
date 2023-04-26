@@ -306,6 +306,7 @@ function HomePage(props: Props) {
                     id === 'FOLLOWING' &&
                     !hideScheduledLivestreams && (
                       <ScheduledStreams
+                        name="homepage_following"
                         channelIds={subscribedChannelIds}
                         tileLayout
                         liveUris={cache[id].livestreamUris}

@@ -49,6 +49,7 @@ function ChannelsFollowingPage(props: Props) {
         <>
           {!hideScheduledLivestreams && (
             <ScheduledStreams
+              name="channels_following"
               channelIds={channelIds}
               tileLayout={tileLayout}
               liveUris={activeLivestreamUris}

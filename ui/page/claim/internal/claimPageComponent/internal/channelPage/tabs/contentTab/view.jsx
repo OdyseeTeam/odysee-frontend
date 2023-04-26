@@ -99,7 +99,8 @@ function ContentTab(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
 
-  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
+  const showScheduledLiveStreams = claimType !== 'collection'; // i.e. not on the playlist page.
+  const scheduledChanIds = React.useMemo(() => [claimId], [claimId]);
 
   function handleInputChange(e) {
     const { value } = e.target;
@@ -124,7 +125,8 @@ function ContentTab(props: Props) {
 
       {!fetching && showScheduledLiveStreams && (
         <ScheduledStreams
-          channelIds={[claimId]}
+          name="contentTab"
+          channelIds={scheduledChanIds}
           tileLayout={false}
           liveUris={
             activeLivestreamForChannel && activeLivestreamForChannel.uri ? [activeLivestreamForChannel.uri] : []
