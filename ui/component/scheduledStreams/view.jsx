@@ -54,14 +54,13 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
   const isMobileScreen = useIsMobile();
   const isLargeScreen = useIsLargeScreen();
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
-  const useSwipeLayout = isMobileScreen;
 
   const upcomingMax = React.useMemo(() => {
-    if (showAllUpcoming || useSwipeLayout) return -1;
+    if (showAllUpcoming) return -1;
     if (isLargeScreen) return 6;
     if (isMobileScreen) return 3;
     return 4;
-  }, [showAllUpcoming, isMobileScreen, isLargeScreen, useSwipeLayout]);
+  }, [showAllUpcoming, isMobileScreen, isLargeScreen]);
 
   const list = React.useMemo(() => {
     let uris = (livestreamUris || []).concat(scheduledUris || []);
@@ -111,7 +110,7 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
     <div className={'mb-m mt-m md:mb-xl upcoming-livestreams'} style={{ display: list.total > 0 ? 'block' : 'none' }}>
       <Header />
       <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />
-      {list.total > upcomingMax && !showAllUpcoming && !useSwipeLayout && (
+      {list.total > upcomingMax && !showAllUpcoming && (
         <div className="livestream-list--view-more">
           <Button
             label={__('Show more upcoming content')}
