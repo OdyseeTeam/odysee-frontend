@@ -1,11 +1,10 @@
 .homePage-wrapper {
-  padding: 0 var(--spacing-xs);
   .mb-xl {
     margin-bottom: 0px;
   }
   .icon__wrapper--Heart {
     .icon {
-      fill: var(--color-header-background);
+      fill: var(--color-background);
       stroke: transparent;
     }
   }
@@ -20,7 +19,7 @@
       right: calc(var(--spacing-xs) * -1);
       .button__content {
         padding: 10px;
-        background-color: var(--color-header-background);
+        background-color: var(--color-background);
         height: unset;
         border-radius: 50% 0 0 50%;
 

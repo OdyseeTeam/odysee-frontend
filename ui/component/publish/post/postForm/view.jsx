@@ -410,21 +410,36 @@ function PostForm(props: Props) {
         </label>
       </h1>
 
-      <PublishPost
-        inEditMode={inEditMode}
-        uri={permanentUrl}
-        mode={mode}
-        fileMimeType={fileMimeType}
-        disabled={disabled || publishing}
-        inProgress={isInProgress}
-        setPrevFileText={setPrevFileText}
-        channelId={claimChannelId}
-        channelName={activeChannelName}
+      <Card
+        background
+        body={
+          <div className="publish-row">
+            <PublishPost
+              inEditMode={inEditMode}
+              uri={permanentUrl}
+              mode={mode}
+              fileMimeType={fileMimeType}
+              disabled={disabled || publishing}
+              inProgress={isInProgress}
+              setPrevFileText={setPrevFileText}
+              channelId={claimChannelId}
+              channelName={activeChannelName}
+            />
+          </div>
+        }
       />
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
-          <Card background title={__('Thumbnail')} actions={<SelectThumbnail />} />
+          <Card
+            background
+            title={__('Thumbnail')}
+            body={
+              <div className="publish-row">
+                <SelectThumbnail />
+              </div>
+            }
+          />
 
           <PublishProtectedContent claim={myClaimForUri} location={'post'} />
 
@@ -433,31 +448,38 @@ function PostForm(props: Props) {
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
           </h2>
-          <TagsSelect
-            suggestMature={!SIMPLE_SITE}
-            disableAutoFocus
-            hideHeader
-            label={__('Selected Tags')}
-            empty={__('No tags added')}
-            limitSelect={TAGS_LIMIT}
-            help={__(
-              "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-            )}
-            placeholder={__('gaming, crypto')}
-            onSelect={(newTags) => {
-              const validatedTags = [];
-              newTags.forEach((newTag) => {
-                if (!tags.some((tag) => tag.name === newTag.name)) {
-                  validatedTags.push(newTag);
-                }
-              });
-              updatePublishForm({ tags: [...tags, ...validatedTags] });
-            }}
-            onRemove={(clickedTag) => {
-              const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePublishForm({ tags: newTags });
-            }}
-            tagsChosen={tags}
+          <Card
+            background
+            body={
+              <div className="publish-row">
+                <TagsSelect
+                  suggestMature={!SIMPLE_SITE}
+                  disableAutoFocus
+                  hideHeader
+                  label={__('Selected Tags')}
+                  empty={__('No tags added')}
+                  limitSelect={TAGS_LIMIT}
+                  help={__(
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                  )}
+                  placeholder={__('gaming, crypto')}
+                  onSelect={(newTags) => {
+                    const validatedTags = [];
+                    newTags.forEach((newTag) => {
+                      if (!tags.some((tag) => tag.name === newTag.name)) {
+                        validatedTags.push(newTag);
+                      }
+                    });
+                    updatePublishForm({ tags: [...tags, ...validatedTags] });
+                  }}
+                  onRemove={(clickedTag) => {
+                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                    updatePublishForm({ tags: newTags });
+                  }}
+                  tagsChosen={tags}
+                />
+              </div>
+            }
           />
 
           <PublishAdditionalOptions disabled={formDisabled} />

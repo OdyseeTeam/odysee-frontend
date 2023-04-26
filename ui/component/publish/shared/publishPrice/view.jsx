@@ -329,9 +329,7 @@ function PublishPrice(props: Props) {
       <Card
         background
         isBodyList
-        className={classnames('card--enable-overflows', {
-          'card--disabled': disabled,
-        })}
+        className="card--enable-overflows"
         title={__('Price')}
         body={
           <>

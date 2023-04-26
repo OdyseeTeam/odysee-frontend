@@ -1,52 +1,9 @@
 @import '~ui/scss/init/breakpoints';
 
 .playlists-page__wrapper {
-  .claim-list__header-label--playlist-page {
-    display: flex;
-    margin-bottom: var(--spacing-s);
-    align-items: center;
-
-    svg {
-      width: 2rem;
-      height: 2rem;
-      background-color: var(--color-text);
-      border-radius: 50%;
-      padding: var(--spacing-xxs);
-      margin-right: 0;
-      stroke: var(--color-background);
-      overflow: display;
-    }
-
-    label {
-      font-size: var(--font-large);
-      font-weight: var(--font-weight-bold);
-      padding-left: 10px;
-      margin-top: var(--spacing-s);
-      flex: 1;
-    }
-
-    button {
-      height: 36px;
-      margin-top: -6px;
-      float: right;
-      padding-left: var(--spacing-xs);
-      padding-right: var(--spacing-s);
-      .button__content {
-        .button__label {
-          font-size: var(--font-body);
-          margin-left: 0;
-        }
-      }
-      .icon {
-        background-color: unset;
-        width: 2rem;
-        height: 2rem;
-        padding: 8px;
-        padding-left: 0;
-        padding-right: 0;
-        margin: 0;
-      }
-    }
+  .page__title {
+    margin-top: var(--spacing-xxxs);
+    margin-bottom: var(--spacing-m);
   }
 
   .card-stack:first-of-type {

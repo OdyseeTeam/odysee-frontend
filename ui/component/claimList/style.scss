@@ -52,44 +52,6 @@
   }
 }
 
-.claim-list__header-label {
-  display: flex;
-  flex-flow: row;
-  font-size: var(--font-body);
-  font-weight: var(--font-weight-bold);
-  margin-top: var(--spacing-m);
-  color: var(--color-text);
-  overflow: visible;
-
-  .icon__wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    height: 1rem;
-    width: 1rem;
-    padding: 1rem;
-    margin-top: -2px;
-    margin-right: var(--spacing-m);
-    background-color: var(--color-text);
-    border-radius: 50%;
-    .icon {
-      stroke: rgba(var(--color-header-background-base), 1);
-      stroke-width: 2;
-    }
-  }
-
-  label {
-    font-weight: var(--font-bold);
-    font-size: var(--font-large);
-  }
-
-  @media (max-width: $breakpoint-small) {
-    position: static;
-    transform: none;
-  }
-}
-
 .claim-list__conjuction {
   color: var(--color-text-subtitle);
   font-size: var(--font-small);

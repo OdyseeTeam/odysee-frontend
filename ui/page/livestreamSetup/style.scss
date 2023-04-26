@@ -52,7 +52,7 @@
   }
 }
 
-.replay-picker--container {
+.replay-picker__container {
   border-radius: var(--border-radius);
   background-color: var(--color-background);
   overflow: hidden;
@@ -73,7 +73,7 @@
   border-spacing: 0;
 }
 
-.livestream__data-row {
+.livestream-data__row {
   border-radius: var(--border-radius);
   background-color: rgba(var(--color-header-button-base), 0.4);
   cursor: pointer;
@@ -81,8 +81,12 @@
     cursor: pointer;
   }
 
+  fieldset-section.radio {
+    padding-top: 0;
+  }
+
   &:nth-child(n) {
-    &.livestream__data-row--selected {
+    &.livestream-data__row--selected {
       background-color: rgba(var(--color-background-base), 1);
       td {
         border-radius: unset !important;
@@ -113,9 +117,6 @@
       padding: var(--spacing-xs);
     }
   }
-  .button--primary {
-    margin-bottom: -2px;
-  }
   &:hover {
     background-color: rgba(var(--color-header-button-base), 0.6);
     td {
@@ -135,7 +136,7 @@
   }
 }
 
-.livestream__data-row-spacer {
+.livestream-data__row-spacer {
   height: var(--spacing-xxs);
 }
 
@@ -164,4 +165,63 @@
   .help {
     margin-bottom: 0;
   }
+}
+
+.livestreams__past {
+  .claim-list__header {
+    margin-bottom: 0;
+    span:not(.button__content):not(.button__label) {
+      font-size: var(--font-large);
+      font-weight: var(--font-weight-bold);
+      align-self: flex-end;
+    }
+    .button {
+      margin-bottom: var(--spacing-s);
+    }
+  }
+}
+
+.table--livestream-data {
+  td:nth-of-type(1) {
+    max-width: 4rem;
+  }
+  td:nth-of-type(2) {
+    min-width: 8.5rem;
+  }
+  td:nth-of-type(3) {
+    width: 4rem;
+    min-width: 9rem;
+  }
+  td:nth-of-type(4) {
+    display: none;
+  }
+  @media (min-width: $breakpoint-small) {
+    td:nth-of-type(1) {
+      max-width: 4rem;
+    }
+    td:nth-of-type(2) {
+      width: 40%;
+    }
+    td:nth-of-type(3) {
+      width: 5rem;
+    }
+    td:nth-of-type(4) {
+      width: 100%;
+      display: table-cell;
+    }
+  }
+}
+
+.livestream-data__thumb-container {
+  height: 4rem;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.livestream___thumb {
+  margin: 0 var(--spacing-xxxs);
+  object-fit: cover;
+  border-radius: var(--border-radius);
 }

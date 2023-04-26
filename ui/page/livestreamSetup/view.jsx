@@ -331,7 +331,7 @@ export default function LivestreamSetupPage(props: Props) {
                               />
                             </div>
                           )}
-                          <div className="section">
+                          <div className="section livestreams__past">
                             <ClaimList
                               header={
                                 <ListHeader

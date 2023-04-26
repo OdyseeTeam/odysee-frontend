@@ -388,7 +388,7 @@ function PublishLivestream(props: Props) {
                     {replayTitleLabel}
                   </label>
                   <div
-                    className={classnames('replay-picker--container', {
+                    className={classnames('replay-picker__container', {
                       disabled: inEditMode && replaySource !== 'choose',
                     })}
                   >
@@ -410,11 +410,11 @@ function PublishLivestream(props: Props) {
 
                                 return (
                                   <React.Fragment key={item.data.fileLocation}>
-                                    <tr className="livestream__data-row-spacer" />
+                                    <tr className="livestream-data__row-spacer" />
                                     <tr
                                       onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                      className={classnames('livestream__data-row', {
-                                        'livestream__data-row--selected':
+                                      className={classnames('livestream-data__row', {
+                                        'livestream-data__row--selected':
                                           selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i,
                                       })}
                                     >
@@ -425,11 +425,11 @@ function PublishLivestream(props: Props) {
                                           label={null}
                                           onChange={() => {}}
                                           onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                          className="livestream__data-row-radio"
+                                          className="livestream-data__row-radio"
                                         />
                                       </td>
                                       <td>
-                                        <div className="livestream_thumb_container">
+                                        <div className="livestream-data__thumb-container">
                                           {item.data.thumbnails.slice(0, 3).map((thumb) => (
                                             <img key={thumb} className="livestream___thumb" src={thumb} />
                                           ))}

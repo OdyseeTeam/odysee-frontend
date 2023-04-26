@@ -119,10 +119,8 @@ export default function NotificationsPage(props: Props) {
 
       {ready && (
         <div className="claim-list__header">
-          <h1 className="claim-list__header-label card__title">
-            <div className="icon__wrapper">
-              <Icon icon={ICONS.NOTIFICATION} />
-            </div>
+          <h1 className="page__title">
+            <Icon icon={ICONS.NOTIFICATION} />
             <label>{__('Notifications')}</label>
           </h1>
           <div className="claim-list__alt-controls--wrap">

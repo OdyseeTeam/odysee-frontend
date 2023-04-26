@@ -19,10 +19,10 @@ function TagsFollowingPage(props: Props) {
     <Page noFooter fullWidthPage>
       <ClaimListDiscover
         headerLabel={
-          <span>
-            <Icon icon={ICONS.TAG} size={10} />
-            {__('Your Tags')}
-          </span>
+          <h1 className="page__title">
+            <Icon icon={ICONS.TAG} />
+            <label>{__('Your Tags')}</label>
+          </h1>
         }
         personalView
         defaultTags={CS.TAGS_FOLLOWED}
