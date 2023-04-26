@@ -2,7 +2,6 @@
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Icon from 'component/common/icon';
-import './style.scss';
 
 type Props = {
   channel: ?ChannelClaim,

@@ -29,6 +29,7 @@ body {
 
   @media (max-width: $breakpoint-small) {
     margin-top: var(--header-height-mobile);
+    padding: 0;
   }
 
   @media (min-width: $breakpoint-large) {
@@ -89,6 +90,7 @@ body {
   @media (max-width: $breakpoint-small) {
     width: 100%;
     padding: 0 var(--spacing-xs);
+    margin-top: var(--spacing-m);
   }
 }
 
