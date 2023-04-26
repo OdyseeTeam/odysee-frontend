@@ -2,10 +2,21 @@
   text-align: center;
   font-weight: bold;
   line-height: 1;
-  font-size: 1rem;
 
   > .button {
     white-space: initial;
+  }
+
+  .button__content {
+    background-image: var(--color-odysee-memberships);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 0 transparent;
+    transition: text-shadow 3s;
+    &:hover {
+      text-shadow: 0 0 20px #e60073;
+    }
   }
 
   @media (min-width: $breakpoint-small) {
@@ -13,7 +24,10 @@
   }
   @media (min-width: 1200px) {
     margin-top: var(--spacing-s);
-    margin-bottom: -3.6rem;
+    margin-bottom: -3rem;
+    .button__content {
+      font-size: var(--font-large);
+    }
     span {
       margin-top: -2rem;
     }
