@@ -18,11 +18,8 @@ import * as ICONS from 'constants/icons';
 
 // prettier-ignore
 const Lazy = {
-  // $FlowFixMe: cannot resolve dnd
   DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
-  // $FlowFixMe: cannot resolve dnd
   Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
-  // $FlowFixMe: cannot resolve dnd
   Draggable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))),
 };
 
@@ -31,7 +28,7 @@ const Lazy = {
 
 type Props = {
   list: Array<any>,
-  onGetElemAtIndex: (item: any, index: number) => Node,
+  onGetElemAtIndex: (item: any, index: number) => React$Element<any>,
   onIsHiddenAtIndex?: (item: any, index: number) => boolean,
   onDragEnd: ({ source: any, destination: any }) => void,
 };
@@ -46,11 +43,14 @@ export default function SortableList(props: Props) {
       <Lazy.Draggable draggableId={item} index={index}>
         {(draggableProvided, snapshot) => {
           if (snapshot.isDragging) {
-            // https://github.com/atlassian/react-beautiful-dnd/issues/1881#issuecomment-691237307
-            // $FlowIgnore
-            draggableProvided.draggableProps.style.left = draggedItemRef.offsetLeft;
-            draggableProvided.draggableProps.style.top =
-              draggableProvided.draggableProps.style.top - document.getElementsByClassName('modal')[0].offsetTop;
+            // Handle strange offset (https://github.com/atlassian/react-beautiful-dnd/issues/1881#issuecomment-691237307)
+            const dp = draggableProvided.draggableProps;
+            if (draggedItemRef.current && dp.style && dp.style.left && dp.style.top) {
+              // $FlowFixMe (`.offsetLeft` is wrong; should be `.current.offsetLeft`. But Firefox breaks without wrong code).
+              dp.style.left = draggedItemRef.offsetLeft;
+              // $FlowIgnore (already confirmed 'style' is not null and not NotDraggingStyle)
+              dp.style.top = dp.style.top - document.getElementsByClassName('modal')[0].offsetTop;
+            }
           }
           return (
             <div
@@ -75,7 +75,7 @@ export default function SortableList(props: Props) {
   const DroppableBin = ({ list, className }: any) => {
     return (
       <Lazy.Droppable droppableId="bin-1">
-        {(provided, snapshot) => (
+        {(provided /* ,snapshot */) => (
           <div ref={provided.innerRef} {...provided.droppableProps} className={classnames('sortable__bin', className)}>
             {list.map((item, index) => (
               <DraggableItem key={item} item={item} index={index} />

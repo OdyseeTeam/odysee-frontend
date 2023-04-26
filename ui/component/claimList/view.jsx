@@ -15,7 +15,6 @@ import { useIsMobile } from 'effects/use-screensize';
 import './style.scss';
 
 const Draggable = React.lazy(() =>
-  // $FlowFixMe
   import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))
 );
 
@@ -378,9 +377,9 @@ export default function ClaimList(props: Props) {
                 <React.Suspense fallback={null} key={uri}>
                   <Draggable draggableId={uri} index={index}>
                     {(draggableProvided, draggableSnapshot) => {
-                      // Restrict dragging to vertical axis
-                      // https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919
-                      let transform = draggableProvided.draggableProps.style.transform;
+                      const dp = draggableProvided.draggableProps;
+                      // Restrict dragging to vertical axis (https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919)
+                      let transform = dp.style ? dp.style.transform : undefined;
                       if (draggableSnapshot.isDragging && transform) {
                         transform = transform.replace(/\(.+,/, '(0,');
                       }
@@ -401,15 +400,23 @@ export default function ClaimList(props: Props) {
                           playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
                         );
 
+                      assert(dp.style, 'Invalid style detected. Please fix Flow warnings below.');
+
+                      // prettier-ignore
                       const style = {
                         ...draggableProvided.draggableProps.style,
                         transform,
                         top: isDraggingFromFloatingPlayer
+                          // $FlowIgnore
                           ? draggableProvided.draggableProps.style.top - playerInfo?.offsetTop - Number(playerTop)
                           : isDraggingFromMobile
+                          // $FlowIgnore
                           ? draggableProvided.draggableProps.style.top - topForDrawer
+                          // $FlowIgnore
                           : draggableProvided.draggableProps.style.top,
+                        // $FlowIgnore
                         left: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.left,
+                        // $FlowIgnore
                         right: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.right,
                       };
                       const isActive = activeUri && uri === activeUri;
