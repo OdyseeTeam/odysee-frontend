@@ -338,7 +338,7 @@ function PublishLivestream(props: Props) {
         'card--disabled': disabled || balance === 0,
       })}
       actions={
-        <>
+        <div className="publish-row--no-margin">
           <React.Fragment>
             {/* Decide whether to show file upload or replay selector */}
             {/* @if TARGET='web' */}
@@ -545,7 +545,7 @@ function PublishLivestream(props: Props) {
             </>
             {/* @endif */}
           </React.Fragment>
-        </>
+        </div>
       }
     />
   );

@@ -14,7 +14,7 @@ import React, { useEffect } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
-import ChannelSelect from 'component/channelSelector';
+import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 // import PublishPrice from 'component/publish/shared/publishPrice';
@@ -400,7 +400,7 @@ function PostForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <h1 className="page__title">
+      <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.POST} />
         <label>
           {formTitle}
@@ -413,7 +413,7 @@ function PostForm(props: Props) {
       <Card
         background
         body={
-          <div className="publish-row">
+          <div className="publish-row publish-row--no-margin">
             <PublishPost
               inEditMode={inEditMode}
               uri={permanentUrl}
@@ -486,14 +486,14 @@ function PostForm(props: Props) {
         </div>
       )}
       <section>
-        <div className="section__actions">
+        <div className="section__actions publish__actions">
           <Button
             button="primary"
             onClick={handlePublish}
             label={submitLabel}
             disabled={isFormIncomplete || !formValid}
           />
-          <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (

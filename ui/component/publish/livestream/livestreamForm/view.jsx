@@ -16,7 +16,7 @@ import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
-import ChannelSelect from 'component/channelSelector';
+import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publish/shared/publishDescription';
@@ -502,7 +502,7 @@ function LivestreamForm(props: Props) {
               className="button-toggle button-toggle--active"
             />
           )}
-          {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
+          {!isMobile && <ChannelSelector hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
           <Tooltip title={__('Check for Replays')}>
             <Button
               button="secondary"
@@ -615,9 +615,9 @@ function LivestreamForm(props: Props) {
           </div>
         )}
         <section>
-          <div className="section__actions">
+          <div className="section__actions publish__actions">
             <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-            <ChannelSelect hideAnon disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+            <ChannelSelector hideAnon disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (

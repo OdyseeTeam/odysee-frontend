@@ -85,7 +85,7 @@
 
 .pagination__item--selected {
   background-color: var(--color-primary);
-  color: var(--color-primary-contrast);
+  color: var(--color-primary-contrast) !important;
 }
 
 .paginate-channel {

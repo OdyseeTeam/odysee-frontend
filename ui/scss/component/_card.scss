@@ -938,11 +938,23 @@
 }
 
 .publish-row--no-margin {
-  label {
-    margin-top: 0;
+  fieldset-section:first-child {
+    div {
+      width: 100%;
+      label {
+        margin-top: 0;
+      }
+    }
   }
 }
 
 .publish-row--more {
   padding-top: var(--spacing-s);
+}
+
+.publish__actions {
+  gap: 0 !important;
+  .button--primary {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
 }

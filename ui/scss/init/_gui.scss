@@ -969,6 +969,10 @@ video {
   }
 }
 
+.page__title--margin {
+  margin-bottom: var(--spacing-m);
+}
+
 .help-hub__wrapper {
   margin-top: var(--spacing-l);
   width: 100%;

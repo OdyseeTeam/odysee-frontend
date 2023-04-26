@@ -244,7 +244,7 @@ export default function LivestreamSetupPage(props: Props) {
   return (
     <Page>
       {balance < 0.01 && <YrblWalletEmpty />}
-      <h1 className="page__title">
+      <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.VIDEO} />
         <label>
           {formTitle}
@@ -289,7 +289,7 @@ export default function LivestreamSetupPage(props: Props) {
                     })}
                     style={{ marginTop: 'var(--spacing-s)' }}
                     body={
-                      <div className="publish-row">
+                      <div className="publish-row publish-row--no-margin">
                         <CopyableText
                           primaryButton
                           className="publish-row--no-margin"

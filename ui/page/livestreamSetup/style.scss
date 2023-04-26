@@ -11,6 +11,9 @@
   .button--secondary {
     background-color: var(--color-background);
   }
+  .button-toggle:nth-child(2) {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
 
   .channel__selector {
     button {
@@ -133,6 +136,14 @@
     input {
       cursor: pointer;
     }
+    fieldset-section.radio {
+      label::before {
+        background-color: var(--color-primary);
+      }
+      label::after {
+        background-color: var(--color-primary-contrast);
+      }
+    }
   }
 }
 
@@ -144,6 +155,7 @@
   border-radius: var(--border-radius);
   margin-top: var(--spacing-l);
 
+  /*
   fieldset-section:first-of-type {
     div {
       label {
@@ -151,6 +163,7 @@
       }
     }
   }
+  */
 
   @media (max-width: $breakpoint-small) {
     .card__main-actions {
