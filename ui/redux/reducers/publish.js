@@ -97,7 +97,7 @@ export const publishReducer = handleActions(
             break;
           case 'private':
           case 'unlisted':
-            auto.releaseTimeDisabled = true;
+            auto.releaseTimeDisabled = false; // true;
             break;
           default:
             assert(null, `unhandled visibility: "${data.visibility}"`);
@@ -123,6 +123,8 @@ export const publishReducer = handleActions(
 
       switch (visibility) {
         case 'public':
+        case 'private':
+        case 'unlisted':
           if (releaseTime && releaseTime - 30 > currentTs && !isLivestream) {
             auto.releaseTimeError = 'Cannot set to a future date.';
           }
@@ -143,10 +145,6 @@ export const publishReducer = handleActions(
               auto.releaseTimeError = 'Set a scheduled release date.';
             }
           }
-          break;
-        case 'private':
-        case 'unlisted':
-          auto.releaseTimeError = ''; // not used in payload
           break;
         default:
           assert(null, `unhandled visibility: "${visibility}"`);

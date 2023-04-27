@@ -24,7 +24,6 @@ import analytics from 'analytics';
 import { doOpenModal } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
-import { YEAR_2038_TS } from 'constants/date-time';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { creditsToString } from 'util/format-credits';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
@@ -185,15 +184,15 @@ const PUBLISH = {
 
     switch (publishData.visibility) {
       case 'public':
+      case 'private':
+      case 'unlisted':
         if (isEditing) {
           if (publishData.isLivestreamPublish && publishData.replaySource !== 'keep') {
             return Number(past.release_time || past.timestamp);
           }
 
           if (userEnteredTs === undefined) {
-            return past.wasHidden || past.wasScheduled
-              ? past.creation_timestamp
-              : Number(past.release_time || past.timestamp);
+            return past.wasScheduled ? past.creation_timestamp : Number(past.release_time || past.timestamp);
           } else {
             return userEnteredTs;
           }
@@ -204,10 +203,6 @@ const PUBLISH = {
             return userEnteredTs;
           }
         }
-
-      case 'private':
-      case 'unlisted':
-        return YEAR_2038_TS;
 
       case 'scheduled':
         if (isEditing) {

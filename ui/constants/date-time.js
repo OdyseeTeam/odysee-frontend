@@ -8,5 +8,3 @@ export const MS = Object.freeze({
   DAY: 24 * 60 * 60 * 1000,
   WEEK: 7 * 24 * 60 * 60 * 1000,
 });
-
-export const YEAR_2038_TS = 2147483647;

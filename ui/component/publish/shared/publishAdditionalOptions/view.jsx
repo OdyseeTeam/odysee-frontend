@@ -47,7 +47,7 @@ function PublishAdditionalOptions(props: Props) {
   } = props;
 
   const [hideSection, setHideSection] = useState(disabled);
-  const showReleaseDate = !showSchedulingOptions && visibility === 'public';
+  const showReleaseDate = !showSchedulingOptions && (visibility === 'public' || visibility === 'unlisted');
 
   function toggleHideSection() {
     setHideSection(!hideSection);

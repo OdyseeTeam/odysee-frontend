@@ -5,7 +5,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { formatDateStr } from './helper';
-import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+import { SCHEDULED_TAGS } from 'constants/tags';
 
 type Props = {
   uri: ?string,
@@ -25,14 +25,6 @@ function DateTimeClaim(props: Props) {
   const title = moment(date).format(`LL ${clockFormat}`);
 
   function resolveDate(tags: ?Array<string>, claimTsList: ClaimTsList): ?Date {
-    if (tags) {
-      if (tags.includes(VISIBILITY_TAGS.UNLISTED)) {
-        // 'release_time' is maxed out for unlisted, so show 'claim.timestamp' instead.
-        assert(claimTsList.updated);
-        return claimTsList.updated ? new Date(claimTsList.updated * 1000) : undefined;
-      }
-    }
-
     // Defaults should match selectDateForUri()
     const defaultTs = claimTsList.released || claimTsList.created;
     return defaultTs ? new Date(defaultTs * 1000) : undefined;

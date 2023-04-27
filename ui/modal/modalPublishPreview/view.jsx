@@ -311,10 +311,6 @@ const ModalPublishPreview = (props: Props) => {
     }
   }
 
-  function showReleaseTimeRow() {
-    return !releaseTime || visibility === 'unlisted';
-  }
-
   function getTierRestrictionValue() {
     if (myMembershipTiers && restrictingTiers) {
       const rt = restrictingTiers.split(',');
@@ -423,7 +419,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
                     {createRow(__('Visibility'), getVisibilityValue())}
-                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime), !showReleaseTimeRow())}
+                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime), !releaseTime)}
                     {createRow(__('License'), getLicense())}
                     {createRow(__('Restricted to'), getTierRestrictionValue(), hideTierRestrictions())}
                     {createRow(__('Tags'), getTagsValue(tags))}
