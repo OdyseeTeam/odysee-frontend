@@ -250,6 +250,26 @@
 
 .claim-search__filters-wrapper-expanded {
   max-height: 300px;
+
+  .filer-checkbox-wrapper {
+    display: flex;
+    flex-flow: column;
+    border-radius: var(--border-radius);
+    padding-left: var(--spacing-s);
+    padding-top: var(--spacing-xs);
+
+    div {
+      .checkbox {
+        margin-top: var(--spacing-xs);
+      }
+    }
+    div:last-of-type {
+      .checkbox {
+        margin-bottom: var(--spacing-xs);
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     max-height: 700px;
   }
