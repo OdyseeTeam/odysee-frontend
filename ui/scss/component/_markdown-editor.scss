@@ -8,6 +8,9 @@
   .CodeMirror-placeholder {
     opacity: 0.5;
   }
+  .CodeMirror-hscrollbar {
+    display: none !important;
+  }
 }
 
 .CodeMirror-wrap {
