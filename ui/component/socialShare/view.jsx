@@ -9,21 +9,20 @@ import CopyableText from 'component/copyableText';
 import EmbedTextArea from 'component/embedTextArea';
 import Spinner from 'component/spinner';
 import { generateDownloadUrl, generateNewestUrl } from 'util/web';
-import useChannelSign from 'effects/use-channel-sign';
 import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
-import { getChannelIdFromClaim, getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { hmsToSeconds, secondsToHms } from 'util/time';
 import {
   generateLbryContentUrl,
   generateLbryWebUrl,
   generateEncodedLbryURL,
-  generateShareUrl,
+  generateShortShareUrl,
   generateRssUrl,
 } from 'util/url';
-import { URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
+import { URL as SITE_URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
 
-const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
+const SHARE_DOMAIN = SHARE_DOMAIN_URL || SITE_URL;
 const IOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
 const SUPPORTS_SHARE_API = typeof navigator.share !== 'undefined';
 
@@ -34,14 +33,14 @@ const TWITTER_INTENT_API = 'https://twitter.com/intent/tweet?';
 // ****************************************************************************
 
 type SpinnerStateProps = {|
+  uri: string,
   claim: StreamClaim,
-  claimIsMine: boolean,
   inviteStatusFetched: boolean,
-  channelSign: ({ channel_id: string, hexdata: string }) => Promise<ChannelSignResponse>,
 |};
 
 type SpinnerDispatchProps = {|
   doFetchInviteStatus: (boolean) => void,
+  doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
 |};
 
 type SocialShareStateProps = {|
@@ -56,22 +55,19 @@ type SocialShareStateProps = {|
   isMature: boolean,
   isMembershipProtected: boolean,
   isFiatRequired: boolean,
-  signedClaimId: string,
+  uriAccessKey: ?UriAccessKey,
 |};
 
 // ****************************************************************************
 // withLoadingSpinner
 // ****************************************************************************
 
+const FETCHING_ACCESS_KEY = -1;
+
 function withSpinner(Component: (props: any) => React$Element<any>) {
   return function LoadingSpinner(props: SpinnerStateProps & SpinnerDispatchProps) {
-    const { claim, claimIsMine, inviteStatusFetched, doFetchInviteStatus, channelSign } = props;
-
-    const addKey = claimIsMine ? isClaimUnlisted(claim) : false;
-    const channel_id = getChannelIdFromClaim(claim);
-    const claim_id = claim?.claim_id;
-
-    const signedClaimId = useChannelSign(addKey ? channel_id : null, claim_id, channelSign);
+    const { uri, claim, inviteStatusFetched, doFetchInviteStatus, doFetchUriAccessKey } = props;
+    const [accessKey, setAccessKey] = React.useState(FETCHING_ACCESS_KEY);
 
     React.useEffect(() => {
       if (!inviteStatusFetched) {
@@ -79,9 +75,16 @@ function withSpinner(Component: (props: any) => React$Element<any>) {
       }
     }, [inviteStatusFetched, doFetchInviteStatus]);
 
+    React.useEffect(() => {
+      doFetchUriAccessKey(uri)
+        .then((accessKey: ?UriAccessKey) => setAccessKey(accessKey))
+        .catch();
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+    }, []);
+
     if (!claim) {
       return null;
-    } else if (!inviteStatusFetched || signedClaimId === undefined) {
+    } else if (!inviteStatusFetched || accessKey === FETCHING_ACCESS_KEY) {
       return (
         <div className="main--empty">
           <Spinner />
@@ -89,7 +92,7 @@ function withSpinner(Component: (props: any) => React$Element<any>) {
       );
     }
 
-    const componentProps = { ...props, signedClaimId };
+    const componentProps = { ...props, uriAccessKey: accessKey };
 
     return <Component {...componentProps} />;
   };
@@ -112,7 +115,7 @@ function SocialShare(props: SocialShareStateProps) {
     isMature,
     isMembershipProtected,
     isFiatRequired,
-    signedClaimId,
+    uriAccessKey,
   } = props;
 
   const [showEmbed, setShowEmbed] = React.useState(false);
@@ -144,16 +147,7 @@ function SocialShare(props: SocialShareStateProps) {
     startTimeSeconds,
     includedCollectionId
   );
-  const shareUrl: string = generateShareUrl(
-    SHARE_DOMAIN,
-    lbryUrl,
-    referralCode,
-    rewardsApproved,
-    includeStartTime,
-    startTimeSeconds,
-    includedCollectionId,
-    signedClaimId
-  );
+  const [shareUrl, setShareUrl] = React.useState('');
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
   const claimLinkElements: Array<Node> = getClaimLinkElements();
 
@@ -210,6 +204,44 @@ function SocialShare(props: SocialShareStateProps) {
     }
 
     return elements;
+  }
+
+  React.useEffect(() => {
+    if (shareUrl) {
+      const url = new URL(shareUrl);
+
+      if (includeStartTime) {
+        url.searchParams.set('t', startTimeSeconds.toString());
+      } else {
+        url.searchParams.delete('t');
+      }
+
+      setShareUrl(url.toString());
+    }
+  }, [includeStartTime, shareUrl, startTimeSeconds]);
+
+  React.useEffect(() => {
+    generateShortShareUrl(
+      SHARE_DOMAIN,
+      lbryUrl,
+      referralCode,
+      rewardsApproved,
+      includeStartTime,
+      startTimeSeconds,
+      includedCollectionId,
+      uriAccessKey
+    )
+      .then((result) => setShareUrl(result))
+      .catch((err) => assert(false, 'SocialShare', err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+  }, []);
+
+  if (!shareUrl) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
   }
 
   return (

@@ -12,11 +12,10 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-import { generateShareUrl, generateRssUrl, generateLbryContentUrl } from 'util/url';
+import { generateShareUrl, generateRssUrl, generateLbryContentUrl, generateShortShareUrl } from 'util/url';
 import { useHistory } from 'react-router';
 import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
-import { toHex } from 'util/hex';
 import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
 import { isClaimAllowedForCollection } from 'util/collections';
@@ -75,7 +74,7 @@ type Props = {
   collectionEmpty: boolean,
   doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
   isContentProtectedAndLocked: boolean,
-  channelSign: ({ channel_id: string, hexdata: string }) => Promise<ChannelSignResponse>,
+  doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
 };
 
 function ClaimMenuList(props: Props) {
@@ -124,7 +123,7 @@ function ClaimMenuList(props: Props) {
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
     isContentProtectedAndLocked,
-    channelSign,
+    doFetchUriAccessKey,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -260,10 +259,19 @@ function ClaimMenuList(props: Props) {
     const claimId = claim?.claim_id;
     const channelId = getChannelIdFromClaim(claim);
     if (claimIsMine && isUnlisted && channelId && claimId) {
-      channelSign({ channel_id: channelId, hexdata: toHex(claimId) })
-        .then((output: ChannelSignResponse) => {
-          const unlistedUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl, null, null, false, null, null, output);
-          copyToClipboard(unlistedUrl, 'Unlisted link copied.', 'Failed to copy link.');
+      doFetchUriAccessKey(uri)
+        .then((accessKey: ?UriAccessKey) => {
+          if (accessKey === null) {
+            throw new Error();
+          } else {
+            generateShortShareUrl(SHARE_DOMAIN, lbryUrl, null, null, false, null, null, accessKey)
+              .then((result) => {
+                copyToClipboard(result, 'Unlisted link copied.', 'Failed to copy link.');
+              })
+              .catch((err) => {
+                assert(false, 'ClaimMenuList', err);
+              });
+          }
         })
         .catch(() => {
           doToast({
@@ -272,10 +280,9 @@ function ClaimMenuList(props: Props) {
             duration: 'long',
           });
         });
-      return;
+    } else {
+      copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
     }
-
-    copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
   }
 
   function handleReportContent() {

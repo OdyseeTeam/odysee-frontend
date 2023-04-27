@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import Lbry from 'lbry';
 import { selectClaimForUri, selectClaimIsMine, selectIsUriUnlisted } from 'redux/selectors/claims';
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
@@ -34,7 +33,7 @@ import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { doEnableCollectionShuffle, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
+import { doEnableCollectionShuffle, doFetchUriAccessKey, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 import { isStreamPlaceholderClaim } from 'util/claim';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import ClaimPreview from './view';
@@ -91,7 +90,6 @@ const select = (state, props) => {
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     isContentProtectedAndLocked:
       contentClaim && selectIsProtectedContentLockedFromUserForId(state, contentClaim.claim_id),
-    channelSign: Lbry.channel_sign,
   };
 };
 
@@ -110,6 +108,7 @@ const perform = {
   doEnableCollectionShuffle,
   doRemovePersonalRecommendation,
   doPlaylistAddAndAllowPlaying,
+  doFetchUriAccessKey,
 };
 
 export default connect(select, perform)(ClaimPreview);
