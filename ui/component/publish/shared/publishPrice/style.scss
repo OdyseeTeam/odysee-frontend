@@ -8,17 +8,34 @@ $INDENT: var(--spacing-xl);
   font-weight: var(--font-weight-bold);
 }
 
+.publish-price__group {
+  background-color: var(--color-background);
+  padding: var(--spacing-s);
+  border-radius: var(--border-radius);
+
+  input,
+  select {
+    background-color: var(--color-header-button);
+  }
+  .checkbox {
+    label::before {
+      background-color: var(--color-header-button);
+    }
+  }
+}
+
 .publish-price__row {
   display: flex;
   flex-direction: column;
-  // padding: var(--spacing-s);
+  margin-bottom: var(--spacing-m);
 
   fieldset-section:first-of-type {
     padding: 0;
   }
   .checkbox {
     label {
-      font-size: var(--font-body);
+      // font-size: var(--font-body);
+      padding-left: calc(var(--height-checkbox) + var(--spacing-xs)) !important;
     }
   }
   .input--currency-select {
@@ -26,6 +43,10 @@ $INDENT: var(--spacing-xl);
     label {
       margin-left: 0 !important;
     }
+  }
+
+  label {
+    margin-top: 0;
   }
 
   svg {

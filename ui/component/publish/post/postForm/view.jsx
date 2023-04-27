@@ -20,7 +20,6 @@ import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
-import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -32,6 +31,9 @@ import Icon from 'component/common/icon';
 import PublishProtectedContent from 'component/publishProtectedContent';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
+const PublishPrice = lazyImport(() =>
+  import('component/publish/shared/publishPrice' /* webpackChunkName: "publish" */)
+);
 
 type Props = {
   disabled: boolean,

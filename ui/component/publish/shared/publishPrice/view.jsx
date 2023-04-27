@@ -338,13 +338,13 @@ function PublishPrice(props: Props) {
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
                 {getPaywallOptionsRow()}
                 {paywall === PAYWALL.FIAT && (
-                  <>
+                  <div className="publish-price__group">
                     {getPurchaseRow()}
                     {getRentalRow()}
                     {getTncRow()}
-                  </>
+                  </div>
                 )}
-                {paywall === PAYWALL.SDK && getLbcPurchaseRow()}
+                {paywall === PAYWALL.SDK && <div className="publish-price__group">{getLbcPurchaseRow()}</div>}
               </div>
             )}
             <div className="publish-row publish-row--more">
