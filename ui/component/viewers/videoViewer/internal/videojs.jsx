@@ -43,6 +43,7 @@ require('@silvermine/videojs-airplay')(videojs);
 
 export type Player = {
   // -- custom --
+  odyseeState?: OdyseeState,
   claimSrcOriginal: ?{ src: string, type: string },
   claimSrcVhs: ?{ src: string, type: string },
   isLivestream?: boolean,
@@ -298,12 +299,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // this seems like a weird thing to have to check for here
       if (!player) return;
 
-      // runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
+      player.odyseeState = {};
 
-      // Add reloadSourceOnError plugin
       player.reloadSourceOnError({ errorInterval: 10 });
 
-      // Initialize mobile UI.
       player.mobileUi({
         fullscreen: {
           enterOnRotate: false,
@@ -538,6 +537,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           }
         }
       }
+
+      // Pass data required by plugins from redux to player, then trigger.
+      vjsPlayer.odyseeState = {
+        ...vjsPlayer.odyseeState,
+      };
+
+      vjsPlayer.trigger(VJS_EVENTS.SRC_CHANGED);
 
       vjsPlayer.load();
 
