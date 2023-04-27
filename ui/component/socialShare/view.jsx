@@ -12,14 +12,7 @@ import { generateDownloadUrl, generateNewestUrl } from 'util/web';
 import useChannelSign from 'effects/use-channel-sign';
 import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
-import {
-  getChannelIdFromClaim,
-  getClaimScheduledState,
-  getClaimTags,
-  isClaimPrivate,
-  isClaimUnlisted,
-} from 'util/claim';
-import { VISIBILITY_TAGS } from 'constants/tags';
+import { getChannelIdFromClaim, getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { hmsToSeconds, secondsToHms } from 'util/time';
 import {
   generateLbryContentUrl,
@@ -37,42 +30,91 @@ const SUPPORTS_SHARE_API = typeof navigator.share !== 'undefined';
 // Twitter share
 const TWITTER_INTENT_API = 'https://twitter.com/intent/tweet?';
 
-type Props = {
+// ****************************************************************************
+// ****************************************************************************
+
+type SpinnerStateProps = {|
   claim: StreamClaim,
   claimIsMine: boolean,
+  inviteStatusFetched: boolean,
+  channelSign: ({ channel_id: string, hexdata: string }) => Promise<ChannelSignResponse>,
+|};
+
+type SpinnerDispatchProps = {|
+  doFetchInviteStatus: (boolean) => void,
+|};
+
+type SocialShareStateProps = {|
+  claim: StreamClaim,
   title: ?string,
   webShareable: boolean,
-  inviteStatusFetched: boolean,
   referralCode: string,
   user: any,
   position: number,
   collectionId?: number,
-  doFetchInviteStatus: (boolean) => void,
   disableDownloadButton: boolean,
   isMature: boolean,
   isMembershipProtected: boolean,
   isFiatRequired: boolean,
-  channelSign: ({ channel_id: string, hexdata: string }) => Promise<ChannelSignResponse>,
-};
+  signedClaimId: string,
+|};
 
-function SocialShare(props: Props) {
+// ****************************************************************************
+// withLoadingSpinner
+// ****************************************************************************
+
+function withSpinner(Component: (props: any) => React$Element<any>) {
+  return function LoadingSpinner(props: SpinnerStateProps & SpinnerDispatchProps) {
+    const { claim, claimIsMine, inviteStatusFetched, doFetchInviteStatus, channelSign } = props;
+
+    const addKey = claimIsMine ? isClaimUnlisted(claim) : false;
+    const channel_id = getChannelIdFromClaim(claim);
+    const claim_id = claim?.claim_id;
+
+    const signedClaimId = useChannelSign(addKey ? channel_id : null, claim_id, channelSign);
+
+    React.useEffect(() => {
+      if (!inviteStatusFetched) {
+        doFetchInviteStatus(false);
+      }
+    }, [inviteStatusFetched, doFetchInviteStatus]);
+
+    if (!claim) {
+      return null;
+    } else if (!inviteStatusFetched || signedClaimId === undefined) {
+      return (
+        <div className="main--empty">
+          <Spinner />
+        </div>
+      );
+    }
+
+    const componentProps = { ...props, signedClaimId };
+
+    return <Component {...componentProps} />;
+  };
+}
+
+// ****************************************************************************
+// SocialShare
+// ****************************************************************************
+
+function SocialShare(props: SocialShareStateProps) {
   const {
     claim,
-    claimIsMine,
     title,
-    inviteStatusFetched,
     referralCode,
     user,
     webShareable,
     position,
     collectionId,
-    doFetchInviteStatus,
     disableDownloadButton,
     isMature,
     isMembershipProtected,
     isFiatRequired,
-    channelSign,
+    signedClaimId,
   } = props;
+
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
   const [showClaimLinks, setShowClaimLinks] = React.useState(false);
@@ -82,30 +124,6 @@ function SocialShare(props: Props) {
     !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) === 'non-scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
-
-  const tags = getClaimTags(claim);
-  const addKey = claimIsMine && tags ? tags.includes(VISIBILITY_TAGS.UNLISTED) : false;
-
-  const channel_id = getChannelIdFromClaim(claim);
-  const claim_id = claim?.claim_id;
-
-  const signedClaimId = useChannelSign(addKey ? channel_id : null, claim_id, channelSign);
-
-  React.useEffect(() => {
-    if (!inviteStatusFetched) {
-      doFetchInviteStatus(false);
-    }
-  }, [inviteStatusFetched, doFetchInviteStatus]);
-
-  if (!claim) {
-    return null;
-  } else if (!inviteStatusFetched || signedClaimId === undefined) {
-    return (
-      <div className="main--empty">
-        <Spinner />
-      </div>
-    );
-  }
 
   const { canonical_url: canonicalUrl, permanent_url: permanentUrl, name, claim_id: claimId } = claim;
   const isChannel = claim.value_type === 'channel';
@@ -341,4 +359,4 @@ function SocialShare(props: Props) {
   );
 }
 
-export default SocialShare;
+export default withSpinner(SocialShare);
