@@ -1,6 +1,7 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
 import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
+import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
@@ -15,6 +16,7 @@ import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
+import Icon from 'component/common/icon';
 
 type Props = {
   uri: ?string,
@@ -274,6 +276,7 @@ function PublishLivestream(props: Props) {
     if (oversized) {
       return (
         <p className="help--error">
+          <Icon icon={ICONS.INFO} />
           {UPLOAD_SIZE_MESSAGE}{' '}
           <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>
@@ -284,6 +287,7 @@ function PublishLivestream(props: Props) {
     if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
       return (
         <p className="help--warning">
+          <Icon icon={ICONS.INFO} />
           {bitRateIsOverMax
             ? __(
                 'Your video has a bitrate over ~16 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
@@ -299,6 +303,7 @@ function PublishLivestream(props: Props) {
     if (isVid && !duration) {
       return (
         <p className="help--warning">
+          <Icon icon={ICONS.INFO} />
           {__(
             'Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming.'
           )}{' '}
@@ -311,6 +316,7 @@ function PublishLivestream(props: Props) {
     if (!isStillEditing) {
       return (
         <p className="help">
+          <Icon icon={ICONS.INFO} />
           {__(
             'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
             { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }

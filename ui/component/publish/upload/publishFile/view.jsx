@@ -1,5 +1,6 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
+import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
@@ -16,6 +17,7 @@ import classnames from 'classnames';
 import * as PAGES from 'constants/pages';
 import { SOURCE_SELECT } from 'constants/publish_sources';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import Icon from 'component/common/icon';
 
 type Props = {
   uri: ?string,
@@ -223,6 +225,7 @@ function PublishFile(props: Props) {
   function linkReplays() {
     return (
       <p className="help">
+        <Icon icon={ICONS.HELP} />
         <I18nMessage
           tokens={{
             livestream_replay_instead: (
@@ -255,6 +258,7 @@ function PublishFile(props: Props) {
     if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
       return (
         <p className="help--warning">
+          <Icon icon={ICONS.INFO} />
           {bitRateIsOverMax
             ? __(
                 'Your video has a bitrate over ~16 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
@@ -270,6 +274,7 @@ function PublishFile(props: Props) {
     if (isVid && !duration) {
       return (
         <p className="help--warning">
+          <Icon icon={ICONS.INFO} />
           {__(
             'Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming.'
           )}{' '}
@@ -281,6 +286,7 @@ function PublishFile(props: Props) {
     if (!!isStillEditing && name) {
       return (
         <p className="help">
+          <Icon icon={ICONS.INFO} />
           {__("If you don't choose a file, the file from your existing claim %name% will be used", { name: name })}
         </p>
       );
@@ -289,6 +295,7 @@ function PublishFile(props: Props) {
     if (!isStillEditing) {
       return (
         <p className="help" style={{ marginBottom: 0 }}>
+          <Icon icon={ICONS.INFO} />
           {__(
             'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
             { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }

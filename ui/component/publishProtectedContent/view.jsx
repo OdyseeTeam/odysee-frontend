@@ -181,10 +181,9 @@ function PublishProtectedContent(props: Props) {
         <Card
           background
           isBodyList
-          className="card--restrictions"
           title={__('Restrict Content')}
           body={
-            <>
+            <div className="publish-row publish-row-tiers">
               <FormField
                 type="checkbox"
                 disabled={paywall !== PAYWALL.FREE}
@@ -220,7 +219,7 @@ function PublishProtectedContent(props: Props) {
                   {__('This file has an attached price, disable it in order to add content restrictions.')}
                 </div>
               )}
-            </>
+            </div>
           }
         />
       </>

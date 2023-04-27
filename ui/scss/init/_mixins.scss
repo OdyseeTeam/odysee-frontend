@@ -334,7 +334,7 @@
       background-color: rgba(var(--color-membership-6), 0.2);
 
       &:hover {
-        background-color: rgba(var(--color-membership-6), 1);
+        background-color: rgba(var(--color-membership-6), 0.4);
       }
     }
     input[type='checkbox']:checked + label {
