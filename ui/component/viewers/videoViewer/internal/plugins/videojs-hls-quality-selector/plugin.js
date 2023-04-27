@@ -103,6 +103,7 @@ class HlsQualitySelectorPlugin {
    */
   bindPlayerEvents() {
     this.player.qualityLevels().on('addqualitylevel', this.onAddQualityLevel.bind(this));
+    this.player.on(VJS_EVENTS.PLAYER_CLOSED, this.playerClosed.bind(this));
   }
 
   /**
@@ -180,6 +181,10 @@ class HlsQualitySelectorPlugin {
     const player = this.player;
 
     return new ConcreteMenuItem(player, item, this._qualityButton, this);
+  }
+
+  playerClosed() {
+    this._qualityButton.hide();
   }
 
   createIOSQualityList() {
