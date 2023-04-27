@@ -891,8 +891,27 @@ body {
   }
 
   .card__title {
-    font-size: 0.93rem;
     font-weight: var(--font-weight-bold);
+  }
+
+  div:not(.checkbox) {
+    label {
+      font-size: var(--font-body);
+    }
+  }
+  .checkbox {
+    margin-bottom: var(--spacing-l);
+    label::before {
+      background-color: var(--color-header-button);
+    }
+    &:hover {
+      label::before {
+        background-color: var(--color-primary);
+      }
+    }
+  }
+  input {
+    margin-bottom: var(--spacing-m);
   }
 
   .card__main-actions {
