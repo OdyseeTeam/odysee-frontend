@@ -16,6 +16,7 @@ $OPTIONS_MIN_WIDTH: 250px;
       flex-flow: column;
       background-color: var(--color-background);
       border-radius: var(--border-radius);
+      padding-left: var(--spacing-s);
 
       div:last-of-type {
         .checkbox {

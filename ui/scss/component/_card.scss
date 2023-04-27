@@ -620,6 +620,7 @@
     }
 
     .theme-checkbox {
+      margin-top: var(--spacing-s);
       input {
         background-color: unset;
       }
@@ -880,6 +881,15 @@
 
   fieldset-section.radio {
     padding-top: var(--spacing-s);
+  }
+
+  .checkbox,
+  .radio {
+    label {
+      &::before {
+        background-color: var(--color-background);
+      }
+    }
   }
 
   .checkbox {
