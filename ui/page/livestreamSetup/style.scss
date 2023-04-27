@@ -181,6 +181,7 @@
 }
 
 .livestreams__past {
+  margin-bottom: var(--spacing-l);
   .claim-list__header {
     margin-bottom: 0;
     span:not(.button__content):not(.button__label) {

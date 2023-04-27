@@ -12,6 +12,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
+import { lazyImport } from 'util/lazyImport';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
@@ -25,7 +26,6 @@ import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishFile from 'component/publish/upload/publishFile';
 import PublishProtectedContent from 'component/publishProtectedContent';
 
-import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
@@ -35,6 +35,8 @@ import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 
 type Props = {
   disabled: boolean,

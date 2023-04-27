@@ -12,16 +12,15 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
+import { lazyImport } from 'util/lazyImport';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
-// import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishPrice from 'component/publish/shared/publishPrice';
-import SelectThumbnail from 'component/selectThumbnail';
 import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -31,6 +30,8 @@ import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import PublishProtectedContent from 'component/publishProtectedContent';
+
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 
 type Props = {
   disabled: boolean,

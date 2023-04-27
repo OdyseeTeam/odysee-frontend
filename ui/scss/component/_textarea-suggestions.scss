@@ -94,7 +94,8 @@
 
     textarea {
       border: none;
-      margin: 9px 0px;
+      border-radius: var(--border-radius);
+      padding: var(--spacing-xxs) var(--spacing-xxxs);
     }
 
     button {

@@ -71,9 +71,8 @@ function PublishAdditionalOptions(props: Props) {
                 <div className={classnames({ 'card--disabled': !name })}>
                   <div className="section">
                     {!showSchedulingOptions && <PublishReleaseDate />}
-
                     <FormField
-                      className={showSchedulingOptions && 'publish-row--no-margin'}
+                      className={showSchedulingOptions && 'publish-row--no-margin-select'}
                       label={__('Language')}
                       type="select"
                       name="content_language"

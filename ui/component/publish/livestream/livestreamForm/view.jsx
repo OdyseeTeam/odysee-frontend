@@ -25,18 +25,20 @@ import PublishAdditionalOptions from 'component/publish/shared/publishAdditional
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
 import PublishLivestream from 'component/publish/livestream/publishLivestream';
-import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
+import { lazyImport } from 'util/lazyImport';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
 import PublishProtectedContent from 'component/publishProtectedContent';
+
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 
 type Props = {
   tags: Array<Tag>,

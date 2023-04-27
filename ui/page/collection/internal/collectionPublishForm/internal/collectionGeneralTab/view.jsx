@@ -10,9 +10,13 @@ import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import { FormContext } from 'component/common/form-components/form';
 
 import ChannelSelector from 'component/channelSelector';
-import SelectThumbnail from 'component/selectThumbnail';
 import CollectionPublishAdditionalOptions from './internal/additionalOptions';
+
+import { lazyImport } from 'util/lazyImport';
+
 import './style.scss';
+
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 
 type Props = {
   formParams: any,

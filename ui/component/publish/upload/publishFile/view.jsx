@@ -222,7 +222,7 @@ function PublishFile(props: Props) {
 
   function linkReplays() {
     return (
-      <p className="help--link">
+      <p className="help">
         <I18nMessage
           tokens={{
             livestream_replay_instead: (

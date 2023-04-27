@@ -154,7 +154,7 @@ function PublishProtectedContent(props: Props) {
           isBodyList
           title={__('Restrict Content')}
           body={
-            <div className="settings-row">
+            <div className="settings-row publish-row--locked">
               <I18nMessage
                 tokens={{
                   activate_your_memberships: (

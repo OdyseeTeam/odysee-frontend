@@ -502,7 +502,8 @@ fieldset-group {
 
 .form-field__help {
   @extend .help;
-  color: var(--color-text);
+  opacity: 0.8;
+  color: rgba(var(--color-text-base), 0.8);
 }
 
 .form-field__help + .checkbox,
@@ -532,14 +533,11 @@ fieldset-group {
 
 .form-field__hint {
   opacity: 0.8;
-  font-size: var(--font-xsmall);
+  font-size: var(--font-small);
   color: var(--color-input-label);
 }
 
 .form-field__textarea-info {
-  //display: flex;
-  //flex-wrap: wrap;
-  //align-items: right;
   justify-content: space-between;
   margin-top: var(--spacing-xxs);
   margin-bottom: var(--spacing-s);
