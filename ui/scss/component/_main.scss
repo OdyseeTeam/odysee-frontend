@@ -926,6 +926,12 @@ body {
       }
     }
   }
+
+  fieldset-group,
+  fieldset-section,
+  .checkbox {
+    margin-bottom: var(--spacing-m);
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.
