@@ -48,9 +48,8 @@ const OdyseeMembershipPage = (props: Props) => {
   const stillWaitingFromBackend = membershipOptions === undefined || !mineFetched;
 
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-
-  const { interval, plan: planValue } = params;
+  const interval = urlSearchParams.get('interval') || undefined;
+  const planValue = urlSearchParams.get('plan') || undefined;
 
   // add a bit of a delay otherwise it's a bit jarring
   const timeoutValue = 300;
