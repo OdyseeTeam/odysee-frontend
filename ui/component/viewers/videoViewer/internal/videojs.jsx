@@ -218,7 +218,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIOS();
-  const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
   // initiate keyboard shortcuts
   const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
@@ -316,17 +315,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.settingsMenu();
       player.timeMarkerPlugin();
 
-      // Add quality selector to player
-      if (showQualitySelector) {
-        player.hlsQualitySelector({
-          displayCurrentQuality: true,
-          originalHeight: claimValues?.video?.height,
-          defaultQuality,
-          initialQualityChange,
-          setInitialQualityChange: !isEmbed && setInitialQualityChange,
-          doToast,
-        });
-      }
+      player.hlsQualitySelector({
+        displayCurrentQuality: true,
+        originalHeight: claimValues?.video?.height,
+        defaultQuality,
+        initialQualityChange,
+        setInitialQualityChange: !isEmbed && setInitialQualityChange,
+        doToast,
+      });
 
       // Add recsys plugin
       if (shareTelemetry) {
@@ -541,6 +537,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Pass data required by plugins from redux to player, then trigger.
       vjsPlayer.odyseeState = {
         ...vjsPlayer.odyseeState,
+        defaultQuality: defaultQuality,
       };
 
       vjsPlayer.trigger(VJS_EVENTS.SRC_CHANGED);

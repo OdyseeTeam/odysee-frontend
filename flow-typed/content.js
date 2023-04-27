@@ -36,4 +36,5 @@ declare type PlayingCollection = {
 };
 
 declare type OdyseeState = {|
+  defaultQuality?: string,
 |};
