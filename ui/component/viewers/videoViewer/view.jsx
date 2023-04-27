@@ -4,6 +4,7 @@ import { ENABLE_PREROLL_ADS } from 'config';
 import { ERR_GRP } from 'constants/errors';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
+import { VJS_EVENTS } from 'constants/player';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import * as Chapters from './internal/chapters';
 import type { Player } from './internal/videojs';
@@ -454,7 +455,7 @@ function VideoViewer(props: Props) {
     // load events onto playerplayerRef
     player.on('play', onPlay);
     player.on('pause', onPauseEvent);
-    player.on('playerClosed', onPlayerClosedEvent);
+    player.on(VJS_EVENTS.PLAYER_CLOSED, onPlayerClosedEvent);
     player.on('ended', onVideoEnded);
     player.on('error', onError);
     player.on('volumechange', onVolumeChange);
@@ -467,20 +468,20 @@ function VideoViewer(props: Props) {
     const cancelOldEvents = () => {
       player.off('play', onPlay);
       player.off('pause', onPauseEvent);
-      player.off('playerClosed', onPlayerClosedEvent);
+      player.off(VJS_EVENTS.PLAYER_CLOSED, onPlayerClosedEvent);
       player.off('ended', onVideoEnded);
       player.off('error', onError);
       player.off('volumechange', onVolumeChange);
       player.off('ratechange', onRateChange);
       player.off('loadedmetadata', overrideAutoAlgorithm);
       player.off('loadedmetadata', restorePlaybackRateEvent);
-      player.off('playerClosed', cancelOldEvents);
+      player.off(VJS_EVENTS.PLAYER_CLOSED, cancelOldEvents);
       player.off('loadedmetadata', moveToPosition);
       player.off('seeking', onSeeking);
     };
 
     // turn off old events to prevent duplicate runs
-    player.on('playerClosed', cancelOldEvents);
+    player.on(VJS_EVENTS.PLAYER_CLOSED, cancelOldEvents);
 
     // add (or remove) chapters button and time tooltips when video is ready
     player.one('loadstart', () => Chapters.parseAndLoad(player, claim));

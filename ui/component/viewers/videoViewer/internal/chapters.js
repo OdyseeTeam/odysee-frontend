@@ -124,7 +124,7 @@ function load(player: any, timestampData: TimestampData, duration: number) {
     }, REQUIRED_DELAY_FOR_IOS_MS);
   });
 
-  player.on(VJS_EVENTS.SRC_CHANGE_CLEANUP, () => {
+  player.on(VJS_EVENTS.PLAYER_CLOSED, () => {
     delete player.chaptersInfo;
     // $FlowIssue
     player?.controlBar?.getChild('ChaptersButton')?.hide();
