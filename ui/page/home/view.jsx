@@ -199,7 +199,16 @@ function HomePage(props: Props) {
         hasSource
         prefixUris={cache[id].livestreamUris}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        injectedItem={index === cache.topGrid && !hasPremiumPlus && { node: <Ad type="tileA" tileLayout /> }}
+        injectedItem={
+          index === cache.topGrid &&
+          !hasPremiumPlus && {
+            node: (
+              <React.Suspense fallback={null}>
+                <Ad type="tileA" tileLayout />
+              </React.Suspense>
+            ),
+          }
+        }
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />

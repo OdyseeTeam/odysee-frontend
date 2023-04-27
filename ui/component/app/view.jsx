@@ -561,7 +561,11 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <AdBlockTester />
-          {!hasPremiumPlus && !embedPath && <Ad type="sticky" uri={uri} />}
+          {!hasPremiumPlus && !embedPath && (
+            <React.Suspense fallback={null}>
+              <Ad type="sticky" uri={uri} />
+            </React.Suspense>
+          )}
           <Router uri={uri} />
           <ModalRouter />
 

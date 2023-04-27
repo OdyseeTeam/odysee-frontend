@@ -67,7 +67,15 @@ function PortalPage(props: Props) {
             showHeader={false}
             loadedCallback={setDisplayedTiles}
             fetchViewCount={showViews}
-            injectedItem={!hasPremiumPlus && { node: <Ad type="tileA" tileLayout /> }}
+            injectedItem={
+              !hasPremiumPlus && {
+                node: (
+                  <React.Suspense fallback={null}>
+                    <Ad type="tileA" tileLayout />
+                  </React.Suspense>
+                ),
+              }
+            }
           />
         </div>
         {homepageData && displayedTiles >= portal.claimIds.videos.length - 3 && (

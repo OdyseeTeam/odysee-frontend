@@ -84,7 +84,11 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const InjectedAd =
     injectAds && !blacklistTriggered && !hasPremiumPlus
       ? {
-          node: <Ad type="tileB" />,
+          node: (
+            <React.Suspense fallback={null}>
+              <Ad type="tileB" />
+            </React.Suspense>
+          ),
           index: isMobile ? 0 : 3,
         }
       : null;

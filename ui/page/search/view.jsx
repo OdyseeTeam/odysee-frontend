@@ -100,7 +100,16 @@ export default function SearchPage(props: Props) {
           header={
             <SearchOptions simple={SIMPLE_SITE} additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />
           }
-          injectedItem={!hasPremiumPlus && { node: <Ad type="tileA" />, index: 3 }}
+          injectedItem={
+            !hasPremiumPlus && {
+              node: (
+                <React.Suspense fallback={null}>
+                  <Ad type="tileA" />
+                </React.Suspense>
+              ),
+              index: 3,
+            }
+          }
         />
         <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
       </section>

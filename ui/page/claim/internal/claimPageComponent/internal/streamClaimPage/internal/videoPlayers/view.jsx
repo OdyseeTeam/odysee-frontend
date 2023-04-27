@@ -148,7 +148,11 @@ export default function VideoPlayersPage(props: Props) {
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>
-                  {!hasPremiumPlus && <Ad type="aboveComments" />}
+                  {!hasPremiumPlus && (
+                    <React.Suspense fallback={null}>
+                      <Ad type="aboveComments" />
+                    </React.Suspense>
+                  )}
                   <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
                     <React.Suspense fallback={null}>
                       <CommentsList {...commentsListProps} />
@@ -159,7 +163,11 @@ export default function VideoPlayersPage(props: Props) {
                 </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
-                  {!hasPremiumPlus && <Ad type="aboveComments" />}
+                  {!hasPremiumPlus && (
+                    <React.Suspense fallback={null}>
+                      <Ad type="aboveComments" />
+                    </React.Suspense>
+                  )}
                   <CommentsList {...commentsListProps} notInDrawer />
                 </React.Suspense>
               ))}

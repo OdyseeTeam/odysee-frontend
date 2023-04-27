@@ -394,7 +394,11 @@ function HomeTabSection(props: Props) {
                       !hasPremiumPlus &&
                       index === topContentGridIndex && {
                         node: (index) => {
-                          return index === maxTilesPerRow ? <Ad type="tileA" tileLayout /> : null;
+                          return index === maxTilesPerRow ? (
+                            <React.Suspense fallback={null}>
+                              <Ad type="tileA" tileLayout />
+                            </React.Suspense>
+                          ) : null;
                         },
                       }
                     }

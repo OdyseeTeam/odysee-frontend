@@ -159,9 +159,17 @@ function DiscoverPage(props: Props) {
       !hasPremiumPlus && {
         node: (index, lastVisibleIndex, pageSize) => {
           if (pageSize && index < pageSize) {
-            return index === lastVisibleIndex ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
+            return index === lastVisibleIndex ? (
+              <React.Suspense fallback={null}>
+                <Ad type="tileA" tileLayout={tileLayout} />
+              </React.Suspense>
+            ) : null;
           } else {
-            return index % (pageSize * 2) === 0 ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
+            return index % (pageSize * 2) === 0 ? (
+              <React.Suspense fallback={null}>
+                <Ad type="tileA" tileLayout={tileLayout} />
+              </React.Suspense>
+            ) : null;
           }
         },
       }
