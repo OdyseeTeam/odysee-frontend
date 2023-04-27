@@ -137,7 +137,7 @@ let baseConfig = {
     }),
     new MiniCssExtractPlugin({
       filename: NODE_ENV === 'development' ? "[name].css" : "[name].[contenthash].css",
-      chunkFilename: NODE_ENV === 'development' ? "[id].css" : "[id].[contenthash].css",
+      chunkFilename: NODE_ENV === 'development' ? "[name].css" : "[name].[contenthash].css",
     }),
     ...optInPlugins,
   ],

@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import PremiumPlusTile from 'component/premiumPlusTile';
-import './style.scss';
 
 const DISABLE_VIDEO_AD = false;
 
