@@ -34,3 +34,6 @@ declare type PlayingCollection = {
   loop?: ?boolean,
   shuffle?: ?{ newUrls: Array<string> },
 };
+
+declare type OdyseeState = {|
+|};
