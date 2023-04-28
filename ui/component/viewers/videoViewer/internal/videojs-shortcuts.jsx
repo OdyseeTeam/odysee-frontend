@@ -76,7 +76,11 @@ function toggleFullscreen(playerRef) {
 function toggleMute(playerRef) {
   if (!playerRef) return;
   const player = playerRef.current;
+  const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
   player.muted(!player.muted());
+  if (!tapToUnmuteButton) return;
+  tapToUnmuteButton.style.setProperty('visibility', 'visible');
+  tapToUnmuteButton.style.setProperty('display', 'inline', 'important');
 }
 
 function togglePlay(containerRef) {
