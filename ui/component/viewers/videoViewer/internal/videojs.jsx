@@ -634,8 +634,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
         } catch {}
 
-        window.player.switchedFromDefaultQuality = false;
-
         window.player.userActive(false);
         window.player.pause();
 

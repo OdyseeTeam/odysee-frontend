@@ -49,18 +49,18 @@ class HlsQualitySelectorPlugin {
 
     // Listen for source changes
     this.player.on('loadedmetadata', (e) => {
-      const { switchedFromDefaultQuality, claimSrcVhs } = this.player;
+      const { claimSrcVhs } = this.player;
 
-      const qualityToSet = this.createIOSQualityList() || this.player.qualityToSet;
+      const initialQuality = this.createIOSQualityList() || this._initialQuality;
 
       // if there was a quality option selected to default to, set it using the setQuality function
       // as if it was being clicked on, on loadedmetadata
-      if (qualityToSet && !switchedFromDefaultQuality && claimSrcVhs) {
-        this.setQuality(qualityToSet);
+      if (initialQuality && !this._initialQualityHandled && claimSrcVhs) {
+        this.setQuality(initialQuality);
 
         // Add this attribute to the video player so later it can be checked and avoid switching again
         // Since this is only for initial load, based on the default quality setting
-        this.player.switchedFromDefaultQuality = true;
+        this._initialQualityHandled = true;
       }
       this.updatePlugin();
     });
@@ -185,6 +185,8 @@ class HlsQualitySelectorPlugin {
 
   playerClosed() {
     this._qualityButton.hide();
+    delete this._initialQuality;
+    delete this._initialQualityHandled;
   }
 
   createIOSQualityList() {
@@ -296,7 +298,7 @@ class HlsQualitySelectorPlugin {
           selected: defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false,
         })
       );
-      if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !player.switchedFromDefaultQuality) {
+      if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !this._initialQualityHandled) {
         this.swapSrcTo(QUALITY_OPTIONS.ORIGINAL);
       }
     }
@@ -310,7 +312,7 @@ class HlsQualitySelectorPlugin {
     );
 
     // initial button inner text based on default quality setting, or next lowest
-    if (!this.player.switchedFromDefaultQuality) {
+    if (!this._initialQualityHandled) {
       this.setButtonInnerText(
         nextLowestQualityItemObj ? nextLowestQualityItemObj.label : defaultQuality || QUALITY_OPTIONS.AUTO
       );
@@ -324,10 +326,12 @@ class HlsQualitySelectorPlugin {
     }
 
     if (defaultQuality) {
-      this.player.qualityToSet =
+      this._initialQuality =
         nextLowestQualityItemObj?.value ||
         (defaultQuality === QUALITY_OPTIONS.ORIGINAL && QUALITY_OPTIONS.ORIGINAL) ||
         QUALITY_OPTIONS.AUTO;
+    } else {
+      delete this._initialQuality;
     }
   }
 
