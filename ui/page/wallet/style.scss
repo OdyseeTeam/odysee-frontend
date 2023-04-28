@@ -7,4 +7,10 @@
   .card__actions {
     align-items: end;
   }
+  .empty {
+    .spinner {
+      border: unset;
+      background: unset;
+    }
+  }
 }
