@@ -29,6 +29,11 @@ select,
     background-color: var(--color-secondary);
   }
 }
+input {
+  &:hover {
+    box-shadow: 0 0 0 2px var(--color-primary) inset;
+  }
+}
 
 .MuiInputBase-root {
   &:hover {
@@ -111,17 +116,6 @@ form,
 .radio,
 .form-field--SimpleMDE,
 .form-field__help {
-  /*
-  + fieldset-section,
-  + fieldset-group,
-  + form,
-  + .checkbox,
-  + .radio,
-  + .form-field--SimpleMDE {
-    margin-top: var(--spacing-l);
-  }
-  */
-
   + .form-field__help {
     margin-top: var(--spacing-s);
   }
@@ -254,6 +248,9 @@ input-submit {
   }
 
   &:hover {
+    input {
+      box-shadow: unset;
+    }
     label {
       cursor: pointer;
       &::before {
