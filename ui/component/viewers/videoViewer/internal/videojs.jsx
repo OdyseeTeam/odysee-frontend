@@ -31,8 +31,6 @@ import snapshotButton from './plugins/videojs-snapshot-button/plugin';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
-import { EmbedContext } from 'contexts/embed';
-import usePersistedState from 'effects/use-persisted-state';
 import Lbry from 'lbry';
 
 import { getStripeEnvironment } from 'util/stripe';
@@ -118,7 +116,6 @@ type Props = {
   isLivestreamClaim: boolean,
   userClaimId: ?string,
   activeLivestreamForChannel: ?LivestreamActiveClaim,
-  doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   isProtectedContent: boolean,
@@ -187,21 +184,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     userClaimId,
     isLivestreamClaim,
     activeLivestreamForChannel,
-    doToast,
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
     doSetVideoSourceLoaded,
   } = props;
-
-  const isEmbed = React.useContext(EmbedContext);
-
-  // used to notify about default quality setting
-  // if already has a quality set, no need to notify
-  const [initialQualityChange, setInitialQualityChange] = usePersistedState(
-    'initial-quality-change',
-    Boolean(defaultQuality)
-  );
 
   const isMobile = useIsMobile();
 
@@ -319,9 +306,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         displayCurrentQuality: true,
         originalHeight: claimValues?.video?.height,
         defaultQuality,
-        initialQualityChange,
-        setInitialQualityChange: !isEmbed && setInitialQualityChange,
-        doToast,
       });
 
       // Add recsys plugin

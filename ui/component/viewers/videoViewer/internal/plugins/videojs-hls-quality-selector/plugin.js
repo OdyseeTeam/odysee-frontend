@@ -363,23 +363,15 @@ class HlsQualitySelectorPlugin {
    * Sets quality (based on media height)
    *
    * @param {number} height - A number representing HLS playlist.
+   * @param {boolean} fromUser - true if the change is from the user (click), false if called internally.
    */
-  setQuality(height) {
+  setQuality(height, fromUser = false) {
     if (this.setQualityIOS(height)) {
+      this.player.trigger(fromUser ? 'hlsQualitySelector:changed:user' : 'hlsQualitySelector:changed:internal');
       return;
     }
 
     const qualityList = this.player.qualityLevels();
-    const { initialQualityChange, setInitialQualityChange, doToast } = this.config;
-
-    if (!initialQualityChange && setInitialQualityChange) {
-      doToast({
-        message: __('You can also change your default quality on settings.'),
-        linkText: __('Settings'),
-        linkTarget: '/settings',
-      });
-      setInitialQualityChange(true);
-    }
 
     // Set quality on plugin
     this._currentQuality = height;
@@ -422,6 +414,7 @@ class HlsQualitySelectorPlugin {
     }
 
     this._qualityButton.unpressButton();
+    this.player.trigger(fromUser ? 'hlsQualitySelector:changed:user' : 'hlsQualitySelector:changed:internal');
   }
 
   /**
@@ -493,6 +486,12 @@ const onPlayerReady = (player, options) => {
  * instance. You cannot rely on the player being in a "ready" state here,
  * depending on how the plugin is invoked. This may or may not be important
  * to you; if not, remove the wait for "ready"!
+ *
+ * ====================================
+ * --Spewed events--
+ *   "hlsQualitySelector:changed:internal" - Selection changed from internal event, e.g. new video loaded.
+ *   "hlsQualitySelector:changed:user"     - Selection changed by the user.
+ * ====================================
  *
  * @function hlsQualitySelector
  * @param    {Object} [options={}]
