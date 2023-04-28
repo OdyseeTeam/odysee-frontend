@@ -6,9 +6,7 @@ import withCollectionItems from 'hocs/withCollectionItems';
 
 // prettier-ignore
 const Lazy = {
-  // $FlowFixMe
   DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
-  // $FlowFixMe
   Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
 };
 

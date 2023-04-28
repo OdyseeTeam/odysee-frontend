@@ -12,9 +12,9 @@ import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import Ad from 'web/component/ad/ad';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
 
-const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
 
@@ -148,11 +148,7 @@ export default function VideoPlayersPage(props: Props) {
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>
-                  {!hasPremiumPlus && (
-                    <React.Suspense fallback={null}>
-                      <Ad type="aboveComments" />
-                    </React.Suspense>
-                  )}
+                  {!hasPremiumPlus && <Ad type="aboveComments" />}
                   <SwipeableDrawer type={DRAWERS.CHAT} title={<h2>{commentsListTitle}</h2>}>
                     <React.Suspense fallback={null}>
                       <CommentsList {...commentsListProps} />
@@ -163,11 +159,7 @@ export default function VideoPlayersPage(props: Props) {
                 </React.Fragment>
               ) : (
                 <React.Suspense fallback={null}>
-                  {!hasPremiumPlus && (
-                    <React.Suspense fallback={null}>
-                      <Ad type="aboveComments" />
-                    </React.Suspense>
-                  )}
+                  {!hasPremiumPlus && <Ad type="aboveComments" />}
                   <CommentsList {...commentsListProps} notInDrawer />
                 </React.Suspense>
               ))}

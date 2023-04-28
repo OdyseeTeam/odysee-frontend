@@ -1,6 +1,7 @@
 // Created by xander on 6/21/2021
 import videojs from 'video.js';
 
+import { VJS_EVENTS } from 'constants/player';
 import RecSys from 'extras/recsys/recsys';
 const VERSION = '0.0.1';
 
@@ -66,7 +67,7 @@ class RecsysPlugin extends Component {
     player.on('seeked', (event) => this.onSeeked(event));
 
     // Event trigger to send recsys event
-    player.on('playerClosed', (event) => this.onDispose(event));
+    player.on(VJS_EVENTS.PLAYER_CLOSED, (event) => this.onDispose(event));
   }
 
   onPlay(event) {

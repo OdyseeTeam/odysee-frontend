@@ -1,9 +1,9 @@
 // @flow
 import * as React from 'react';
-import { lazyImport } from 'util/lazyImport';
+import Ad from 'web/component/ad/ad';
 import FileTitleSection from 'component/fileTitleSection';
+import { lazyImport } from 'util/lazyImport';
 
-const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
 
@@ -51,11 +51,7 @@ export default function MarkdownPostPage(props: Props) {
       {!commentSettingDisabled && contentUnlocked && (
         <div className="file-page__post-comments">
           <React.Suspense fallback={null}>
-            {!hasPremiumPlus && (
-              <React.Suspense fallback={null}>
-                <Ad type="aboveComments" />
-              </React.Suspense>
-            )}
+            {!hasPremiumPlus && <Ad type="aboveComments" />}
             <CommentsList
               uri={uri}
               linkedCommentId={linkedCommentId}

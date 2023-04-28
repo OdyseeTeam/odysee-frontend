@@ -15,10 +15,9 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './internal/livestreamSection';
+import Ad from 'web/component/ad/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
-import { lazyImport } from 'util/lazyImport';
 
-const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 
 type Props = {
@@ -159,17 +158,9 @@ function DiscoverPage(props: Props) {
       !hasPremiumPlus && {
         node: (index, lastVisibleIndex, pageSize) => {
           if (pageSize && index < pageSize) {
-            return index === lastVisibleIndex ? (
-              <React.Suspense fallback={null}>
-                <Ad type="tileA" tileLayout={tileLayout} />
-              </React.Suspense>
-            ) : null;
+            return index === lastVisibleIndex ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
           } else {
-            return index % (pageSize * 2) === 0 ? (
-              <React.Suspense fallback={null}>
-                <Ad type="tileA" tileLayout={tileLayout} />
-              </React.Suspense>
-            ) : null;
+            return index % (pageSize * 2) === 0 ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
           }
         },
       }

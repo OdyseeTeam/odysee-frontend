@@ -17,10 +17,9 @@ import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
+import Ad from 'web/component/ad/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
-import { lazyImport } from 'util/lazyImport';
 
-const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
 type Props = {
@@ -173,17 +172,9 @@ function ContentTab(props: Props) {
               !hasPremiumPlus && {
                 node: (index, lastVisibleIndex, pageSize) => {
                   if (pageSize && index < pageSize) {
-                    return index === lastVisibleIndex ? (
-                      <React.Suspense fallback={null}>
-                        <Ad type="tileA" tileLayout={tileLayout} />
-                      </React.Suspense>
-                    ) : null;
+                    return index === lastVisibleIndex ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
                   } else {
-                    return index % (pageSize * 2) === 0 ? (
-                      <React.Suspense fallback={null}>
-                        <Ad type="tileA" tileLayout={tileLayout} />
-                      </React.Suspense>
-                    ) : null;
+                    return index % (pageSize * 2) === 0 ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
                   }
                 },
               }

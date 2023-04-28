@@ -4,10 +4,8 @@ import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Portals from 'component/portals';
-import { lazyImport } from 'util/lazyImport';
+import Ad from 'web/component/ad/ad';
 import './style.scss';
-
-const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 
 type Props = {
   portals: any,
@@ -69,11 +67,7 @@ function PortalPage(props: Props) {
             fetchViewCount={showViews}
             injectedItem={
               !hasPremiumPlus && {
-                node: (
-                  <React.Suspense fallback={null}>
-                    <Ad type="tileA" tileLayout />
-                  </React.Suspense>
-                ),
+                node: <Ad type="tileA" tileLayout />,
               }
             }
           />

@@ -1,6 +1,7 @@
 // @flow
 import analytics from 'analytics';
 import { THUMBNAIL_HEIGHT_POSTER, THUMBNAIL_WIDTH_POSTER } from 'config';
+import { VJS_EVENTS } from 'constants/player';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
 import { platform } from 'util/platform';
 
@@ -300,7 +301,7 @@ const VideoJsEvents = ({
     }
 
     player.on('playing', removeControlBar);
-    player.on('playerClosed', () => {
+    player.on(VJS_EVENTS.PLAYER_CLOSED, () => {
       player.off('play', onInitialPlay);
       player.off('volumechange', onVolumeChange);
       player.off('error', onError);

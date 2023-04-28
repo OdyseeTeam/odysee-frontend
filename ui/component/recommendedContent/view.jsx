@@ -5,6 +5,7 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
 import ClaimPreview from 'component/claimPreview';
+import Ad from 'web/component/ad/ad';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';
@@ -13,10 +14,8 @@ import classnames from 'classnames';
 import RecSys from 'recsys';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import { getClaimMetadata } from 'util/claim';
-import { lazyImport } from 'util/lazyImport';
 import './style.scss';
 
-const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
 const BLOCKED_WORDS: ?Array<string> = AD_KEYWORD_BLOCKLIST && AD_KEYWORD_BLOCKLIST.toLowerCase().split(',');
@@ -84,11 +83,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const InjectedAd =
     injectAds && !blacklistTriggered && !hasPremiumPlus
       ? {
-          node: (
-            <React.Suspense fallback={null}>
-              <Ad type="tileB" />
-            </React.Suspense>
-          ),
+          node: <Ad type="tileB" />,
           index: isMobile ? 0 : 3,
         }
       : null;

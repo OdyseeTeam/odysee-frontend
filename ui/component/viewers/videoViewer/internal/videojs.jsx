@@ -628,8 +628,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const player = playerRef.current;
 
       if (player) {
-        player.trigger(VJS_EVENTS.SRC_CHANGE_CLEANUP);
-
         try {
           window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
         } catch {}
@@ -653,7 +651,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         window.oldSavedDiv = window.player.el();
 
-        window.player.trigger('playerClosed');
+        window.player.trigger(VJS_EVENTS.PLAYER_CLOSED);
 
         // stop streams running in background
         window.player.loadTech_('html5', null);

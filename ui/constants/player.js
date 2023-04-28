@@ -26,10 +26,5 @@ export const VJS_COMP = Object.freeze({
 
 // Custom videojs event names
 export const VJS_EVENTS = Object.freeze({
-  // --SRC_CHANGE_CLEANUP--
-  // Due to the videojs instance being retained, we have to do some additional
-  // cleanup before a source-change. These are pretty much scattered atm :(
-  // For default or 3rd-party plugins, so be it.
-  // For internal plugins, let's still do things within the plugin.
-  SRC_CHANGE_CLEANUP: 'src_change_cleanup',
+  PLAYER_CLOSED: 'player_closed',
 });

@@ -15,7 +15,7 @@ import {
 import { SECTION_TAGS } from 'constants/collections';
 import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import { selectFeaturedChannelsForChannelId } from 'redux/selectors/comments';
-import { CsOptions } from 'util/claim-search';
+import { CsOptHelper } from 'util/claim-search';
 import HomeTabSection from './view';
 
 const select = (state, props) => {
@@ -35,8 +35,8 @@ const select = (state, props) => {
     order_by: props.section.order_by || ['effective_amount'],
     not_tags:
       props.section.type === 'playlists'
-        ? CsOptions.not_tags({ notTags: [SECTION_TAGS.FEATURED_CHANNELS] })
-        : CsOptions.not_tags(),
+        ? CsOptHelper.not_tags({ notTags: [SECTION_TAGS.FEATURED_CHANNELS] })
+        : CsOptHelper.not_tags(),
     any_tags: props.section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
     no_totals: true,
     index: props.index,

@@ -7,12 +7,10 @@ import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
 import SearchTopClaim from 'component/searchTopClaim';
+import Ad from 'web/component/ad/ad';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
-import { lazyImport } from 'util/lazyImport';
-
-const Ad = lazyImport(() => import('web/component/ad/ad' /* webpackChunkName: "ad" */));
 
 type Props = {
   urlQuery: string,
@@ -102,11 +100,7 @@ export default function SearchPage(props: Props) {
           }
           injectedItem={
             !hasPremiumPlus && {
-              node: (
-                <React.Suspense fallback={null}>
-                  <Ad type="tileA" />
-                </React.Suspense>
-              ),
+              node: <Ad type="tileA" />,
               index: 3,
             }
           }

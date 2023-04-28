@@ -202,11 +202,7 @@ function HomePage(props: Props) {
         injectedItem={
           index === cache.topGrid &&
           !hasPremiumPlus && {
-            node: (
-              <React.Suspense fallback={null}>
-                <Ad type="tileA" tileLayout />
-              </React.Suspense>
-            ),
+            node: <Ad type="tileA" tileLayout />,
           }
         }
         forceShowReposts={id !== 'FOLLOWING'}

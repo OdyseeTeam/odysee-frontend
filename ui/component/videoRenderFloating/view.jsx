@@ -169,6 +169,8 @@ function VideoRenderFloating(props: Props) {
 
     const rect = element.getBoundingClientRect();
 
+    console.log('rect: ', rect);
+    console.log('element: ', element);
     // getBoundingClientRect returns a DomRect, not an object
     const objectRect = {
       top: rect.top,
@@ -291,7 +293,6 @@ function VideoRenderFloating(props: Props) {
   React.useEffect(() => {
     // Initial update for relativePosRef:
     relativePosRef.current = calculateRelativePos(position.x, position.y);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on mount
   }, []);
 

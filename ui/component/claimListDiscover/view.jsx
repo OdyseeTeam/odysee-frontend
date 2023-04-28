@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import { MATURE_TAGS } from 'constants/tags';
 import { resolveLangForClaimSearch } from 'util/default-languages';
 import { createNormalizedClaimSearchKey } from 'util/claim';
-import { CsOptions } from 'util/claim-search';
+import { CsOptHelper } from 'util/claim-search';
 import Button from 'component/button';
 import moment from 'moment';
 import ClaimList from 'component/claimList';
@@ -304,7 +304,7 @@ function ClaimListDiscover(props: Props) {
     'orderUser',
     CS.ORDER_BY_TRENDING
   );
-  const durationOption = CsOptions.duration(
+  const durationOption = CsOptHelper.duration(
     contentTypeParam,
     durationParam,
     duration,
@@ -321,7 +321,7 @@ function ClaimListDiscover(props: Props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     not_channel_ids: isChannel ? undefined : mutedAndBlockedChannelIds,
-    not_tags: CsOptions.not_tags(notTagInput),
+    not_tags: CsOptHelper.not_tags(notTagInput),
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
     ...(durationOption ? { duration: durationOption } : {}),
