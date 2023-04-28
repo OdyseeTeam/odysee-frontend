@@ -30,12 +30,6 @@ select,
   }
 }
 
-input {
-  &:hover {
-    box-shadow: 0 0 0 2px var(--color-primary) inset;
-  }
-}
-
 .MuiInputBase-root {
   &:hover {
     outline: 2px solid var(--color-primary) !important;
