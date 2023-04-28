@@ -352,7 +352,11 @@ const plugin = function (options) {
 
     const playerChild = this.addChild('overlay', mergeOptions);
 
-    this.el().insertBefore(playerChild.el(), this.controlBar.el());
+    // This is causing errors in mobile when a keyboard is used to seek, because
+    // the control bar is owned by the overlay. I think since we don't have any
+    // overlays that overlay the controlBar, just don't re-order it for now.
+    //
+    // this.el().insertBefore(playerChild.el(), this.controlBar.el());
     return playerChild;
   });
 };
