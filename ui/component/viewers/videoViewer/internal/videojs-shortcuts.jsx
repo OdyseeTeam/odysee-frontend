@@ -73,10 +73,10 @@ function toggleFullscreen(playerRef) {
   }
 }
 
-function toggleMute(containerRef) {
-  const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
-  if (!videoNode) return;
-  videoNode.muted = !videoNode.muted;
+function toggleMute(playerRef) {
+  if (!playerRef) return;
+  const player = playerRef.current;
+  player.muted(!player.muted());
 }
 
 function togglePlay(containerRef) {
@@ -148,7 +148,7 @@ const VideoJsShorcuts = ({
     }
 
     if (e.keyCode === KEYCODES.F) toggleFullscreen(playerRef);
-    if (e.keyCode === KEYCODES.M) toggleMute(containerRef);
+    if (e.keyCode === KEYCODES.M) toggleMute(playerRef);
     if (e.keyCode === KEYCODES.UP) volumeUp(e, playerRef);
     if (e.keyCode === KEYCODES.DOWN) volumeDown(e, playerRef);
     if (e.keyCode === KEYCODES.T && !isMobile) toggleTheaterMode(playerRef);
