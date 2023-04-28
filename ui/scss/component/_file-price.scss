@@ -55,7 +55,7 @@ $SKEW_AMOUNT: 10deg;
 
 .filePrice--filepage {
   padding-left: var(--spacing-s);
-  padding-right: var(--spacing-m);
+  padding-right: var(--spacing-s);
   margin-top: var(--spacing-s);
   height: 2.4rem;
   border-radius: var(--border-radius);
@@ -66,6 +66,7 @@ $SKEW_AMOUNT: 10deg;
   .credit-amount {
     font-size: var(--font-body) !important;
     font-weight: var(--font-weight-bold);
+    padding-right: 0;
     svg {
       margin-right: var(--spacing-s);
     }
@@ -179,5 +180,68 @@ $SKEW_AMOUNT: 10deg;
         align-self: normal;
       }
     }
+  }
+}
+
+.paid-content-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.paid-content-overlay__body {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: var(--border-radius);
+
+  .purchase-button:not(.purchase-button--fee) {
+    background-color: var(--color-fiat-payment) !important;
+  }
+}
+
+.paid-content-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  .paid-content-prompt__notice {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-fiat-payment);
+    background-color: rgba(var(--color-fiat-payment-decimal), 0.2);
+    color: var(--color-text);
+    padding: var(--spacing-xs) var(--spacing-s);
+    margin-bottom: var(--spacing-s);
+    font-size: var(--font-small);
+  }
+
+  .paid-content-prompt__price {
+    font-size: var(--font-body);
+    margin-bottom: var(--spacing-s);
+
+    .icon {
+      margin-right: var(--spacing-xs);
+      margin-bottom: -2px;
+    }
+  }
+}
+
+.paid-content-prompt--overlay {
+  align-items: center;
+
+  .paid-content-prompt__notice {
+    font-size: var(--font-base);
   }
 }
