@@ -5,6 +5,7 @@ import './style.scss';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import PublishReleaseDate from 'component/publish/shared/publishReleaseDate';
+import { MS } from 'constants/date-time';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 
 type Props = {
@@ -87,7 +88,7 @@ const PublishVisibility = (props: Props) => {
                   checked={scheduledShow}
                   onChange={() => doUpdatePublishForm({ scheduledShow: !scheduledShow })}
                 />
-                <PublishReleaseDate />
+                <PublishReleaseDate minDate={new Date(Date.now() + 30 * MS.MINUTE)} />
               </div>
             )}
           </>
