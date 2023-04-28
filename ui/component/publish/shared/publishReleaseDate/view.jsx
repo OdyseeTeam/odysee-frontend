@@ -17,18 +17,22 @@ const NOW = 'now';
 const DEFAULT = 'default';
 const RESET_TO_ORIGINAL = 'reset-to-original';
 
-type Props = {
-  // --- redux:
+export type Props = {||};
+
+type StateProps = {|
   claimToEdit: ?StreamClaim,
   releaseTime: ?number,
   releaseTimeDisabled: boolean,
   releaseTimeError: ?string,
   clock24h: boolean,
   appLanguage: ?string,
-  updatePublishForm: ({}) => void,
-};
+|};
 
-const PublishReleaseDate = (props: Props) => {
+type DispatchProps = {|
+  updatePublishForm: ({}) => void,
+|};
+
+const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
   const { claimToEdit, releaseTime, releaseTimeDisabled, releaseTimeError, clock24h, appLanguage, updatePublishForm } =
     props;
 

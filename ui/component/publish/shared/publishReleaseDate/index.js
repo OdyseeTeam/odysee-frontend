@@ -1,9 +1,12 @@
+// @flow
 import { connect } from 'react-redux';
+import type { Props } from './view';
+import PublishReleaseDate from './view';
+
 import * as SETTINGS from 'constants/settings';
 import { selectMyClaimForUri, selectPublishFormValue } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
-import PublishReleaseDate from './view';
 
 const select = (state) => ({
   claimToEdit: selectMyClaimForUri(state),
@@ -14,8 +17,8 @@ const select = (state) => ({
   appLanguage: selectLanguage(state),
 });
 
-const perform = (dispatch) => ({
-  updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
-});
+const perform = {
+  updatePublishForm: doUpdatePublishForm,
+};
 
-export default connect(select, perform)(PublishReleaseDate);
+export default connect<_, Props, _, _, _, _>(select, perform)(PublishReleaseDate);
