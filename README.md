@@ -1,6 +1,6 @@
-# Odysee Frontend - Odysee.com
+# Odysee Frontend
 
-This repo contains the UI and front end code that powers Odysee.com.
+The code that runs [odysee.com](https://odysee.com).
 
  <a href="https://github.com/OdyseeTeam/odysee-frontend/blob/master/LICENSE" title="MIT licensed">
    <img alt="npm" src="https://img.shields.io/dub/l/vibe-d.svg?style=flat">
@@ -16,7 +16,6 @@ This repo contains the UI and front end code that powers Odysee.com.
 3. [Contributing](#contributing)
 4. [License](#license)
 5. [Security](#security)
-6. [Contact](#contact)
 
 ## Usage
 
@@ -24,7 +23,7 @@ Go to the website to interact on this frontend.
 
 ## Running from Source
 
-#### Prerequisites
+### Prerequisites
 
 - [Git](https://git-scm.com/downloads)
 - [Node.js](https://nodejs.org/en/download/) (v18.14.2 required)
@@ -34,13 +33,17 @@ Go to the website to interact on this frontend.
 2. Change directory into the cloned repository: `cd odysee-frontend`
 3. Install the dependencies: `yarn`
 
-#### Run the web app for development
+### Run the web app for development
 
 `yarn dev:web`
 
 - This uses `webpack-dev-server` and includes hot-reloading. If you want to debug the [web server we use in production](https://github.com/OdyseeTeam/odysee-frontend/blob/master/web/index.js) you can run `yarn dev:web-server`. This starts a server at `localhost:1337` and does not include hot reloading.
 
-#### Customize the web app
+### Customization and troubleshooting
+
+<ul>
+<details>
+  <summary>Customize the web app</summary>
 
 - In root directory, duplicate the `.env.default` file as `.env` and make customizations there.
     ```
@@ -56,22 +59,30 @@ Go to the website to interact on this frontend.
     2. Copy `/custom/homepage.example.js` to `/custom/homepage.js` and make desired changes to `homepage.js`.
 - Finally, run `NODE_ENV=production yarn compile:web` to rebuild.
     - _Note: You do not need to edit the `.env` file in the `/web` folder - that is copied during compilation._
+</details>
 
-#### Deploy the web app (_experimental_)
+<details>
+  <summary>Deploy the web app</summary>
 
 1. Create a server with a domain name and a reverse proxy https to port 1337.
-2. Install pm2, node v18.14.2, yarn
-3. Clone this repo
-4. Make any customizations as above
-5. Run `yarn` to install
-6. Run `NODE_ENV=production yarn compile:web` to build
-7. Set up pm2 to start ./web/index.js
+2. Install `pm2`, `node` v18.14.2, `yarn`.
+3. Clone this repo.
+4. Make any customizations as above.
+5. Run `yarn` to install.
+6. Run `NODE_ENV=production yarn compile:web` to build.
+7. Set up pm2 to start `./web/index.js`.
+</details>
 
-#### Resetting your Packages
+<details>
+  <summary>Resetting your packages</summary>
 
 If the app isn't building, or `yarn xxx` commands aren't working you may need to just reset your `node_modules`. To do so you can run: `rm -r node_modules && yarn` or `del /s /q node_modules && yarn` on Windows.
 
 If you _really_ think something might have gone wrong, you can force your repo to clear everything that doesn't match the repo with `git reset --hard HEAD && git clean -fxd && git pull -r`
+
+</details>
+
+</ul>
 
 ## Contributing
 

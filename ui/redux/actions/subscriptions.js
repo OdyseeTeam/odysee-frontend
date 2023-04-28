@@ -1,5 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
+import { MS } from 'constants/date-time';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import REWARDS from 'rewards';
 import { Lbryio } from 'lbryinc';
@@ -17,7 +18,7 @@ type SubscriptionArgs = {
   notificationsDisabled?: boolean,
 };
 
-const FETCH_LAST_ACTIVE_SUBS_MIN_INTERVAL_MS = 5 * 60 * 1000;
+const FETCH_LAST_ACTIVE_SUBS_MIN_INTERVAL_MS = 5 * MS.MINUTE;
 let activeSubsLastFetchedTime = 0;
 
 export function doToggleSubscription(
