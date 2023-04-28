@@ -254,10 +254,16 @@ function VideoRenderFloating(props: Props) {
   ]);
 
   React.useEffect(() => {
-    if (playingPrimaryUri || uri || noPlayerHeight || collectionSidebarId) {
+    if (playingPrimaryUri || uri || collectionSidebarId) {
       handleResize();
     }
-  }, [handleResize, playingPrimaryUri, theaterMode, uri, noPlayerHeight, collectionSidebarId]);
+  }, [handleResize, playingPrimaryUri, theaterMode, uri, collectionSidebarId]);
+
+  React.useEffect(() => {
+    if (noPlayerHeight) {
+      handleResize();
+    }
+  }, [fileViewerRect, noPlayerHeight, handleResize]);
 
   // Listen to main-window resizing and adjust the floating player position accordingly:
   React.useEffect(() => {
