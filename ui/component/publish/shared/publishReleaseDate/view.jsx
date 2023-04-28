@@ -17,7 +17,9 @@ const NOW = 'now';
 const DEFAULT = 'default';
 const RESET_TO_ORIGINAL = 'reset-to-original';
 
-export type Props = {||};
+export type Props = {|
+  minDate?: Date,
+|};
 
 type StateProps = {|
   claimToEdit: ?StreamClaim,
@@ -33,8 +35,16 @@ type DispatchProps = {|
 |};
 
 const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
-  const { claimToEdit, releaseTime, releaseTimeDisabled, releaseTimeError, clock24h, appLanguage, updatePublishForm } =
-    props;
+  const {
+    minDate,
+    claimToEdit,
+    releaseTime,
+    releaseTimeDisabled,
+    releaseTimeError,
+    clock24h,
+    appLanguage,
+    updatePublishForm,
+  } = props;
 
   const showDefaultBtn = releaseTime !== undefined;
   const showDatePicker = true;
@@ -57,7 +67,11 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
   function newDate(value: string | Date) {
     switch (value) {
       case NOW:
-        updatePublishForm({ releaseTime: dateToLinuxTimestamp(new Date()) });
+        let newDate = new Date();
+        if (minDate && newDate < minDate) {
+          newDate = new Date(minDate.getTime());
+        }
+        updatePublishForm({ releaseTime: dateToLinuxTimestamp(newDate) });
         break;
 
       case DEFAULT:
@@ -104,6 +118,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
             format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
             disableClock
             clearIcon={null}
+            minDate={minDate}
           />
         )}
         {showDatePicker && (
