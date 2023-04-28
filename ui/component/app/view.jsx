@@ -354,7 +354,7 @@ function App(props: Props) {
     if (!languages.includes(language)) {
       fetchLanguage(language);
 
-      if (document && document.documentElement && LANGUAGES[language].length >= 3) {
+      if (document && document.documentElement && LANGUAGES[language] && LANGUAGES[language].length >= 3) {
         document.documentElement.dir = LANGUAGES[language][2];
       }
     }
