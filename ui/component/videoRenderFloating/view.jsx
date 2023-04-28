@@ -169,8 +169,6 @@ function VideoRenderFloating(props: Props) {
 
     const rect = element.getBoundingClientRect();
 
-    console.log('rect: ', rect);
-    console.log('element: ', element);
     // getBoundingClientRect returns a DomRect, not an object
     const objectRect = {
       top: rect.top,

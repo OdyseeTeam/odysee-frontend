@@ -376,6 +376,16 @@ $actions-z-index: 2;
       }
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    .claim-search__wrapper {
+      .claim-search__header {
+        .claim-search__top {
+          gap: 0;
+        }
+      }
+    }
+  }
 }
 
 .channelPage-edit-wrapper {
