@@ -15,14 +15,18 @@ export const makeSelectChannelIsMuted = (uri: string) =>
   });
 
 export const selectMutedAndBlockedChannelIds = createSelector(
-  // Can't seem to import selectors from Comments slice, so just access directly.
-  // Maybe related to https://github.com/OdyseeTeam/odysee-frontend/issues/764
   (state) => state.blocked.blockedChannels,
   (state) => state.comments.moderationBlockList,
   (mutedUris, blockedUris) => {
     const allUris = (mutedUris || []).concat(blockedUris || []);
-    const allIds = allUris.map((uri) => parseURI(uri).channelClaimId);
-    const uniqueSet = new Set(allIds);
+    const uniqueSet = new Set();
+
+    allUris.forEach((u) => {
+      try {
+        uniqueSet.add(parseURI(u).channelClaimId);
+      } catch {}
+    });
+
     return Array.from(uniqueSet).sort();
   }
 );
