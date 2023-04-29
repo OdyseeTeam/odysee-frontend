@@ -6,8 +6,8 @@ import Button from 'component/button';
 import { withRouter } from 'react-router';
 import analytics from 'analytics';
 import I18nMessage from 'component/i18nMessage';
-import Native from 'native';
-import Lbry from 'lbry';
+// import Native from 'native';
+// import Lbry from 'lbry';
 
 type Props = {
   children: Node,
@@ -42,18 +42,18 @@ class ErrorBoundary extends React.Component<Props, State> {
     // @endif
 
     // @if TARGET='app'
-    let errorMessage = 'Uncaught error\n';
-    Native.getAppVersionInfo().then(({ localVersion }) => {
-      Lbry.version().then(({ lbrynet_version: sdkVersion }) => {
-        errorMessage += `app version: ${localVersion}\n`;
-        errorMessage += `sdk version: ${sdkVersion}\n`;
-        errorMessage += `page: ${window.location.href.split('.html')[1]}\n`;
-        errorMessage += `${error.stack}`;
-        analytics.error(errorMessage).then((isSharingData) => {
-          this.setState({ desktopErrorReported: isSharingData });
-        });
-      });
-    });
+    // let errorMessage = 'Uncaught error\n';
+    // Native.getAppVersionInfo().then(({ localVersion }) => {
+    //   Lbry.version().then(({ lbrynet_version: sdkVersion }) => {
+    //     errorMessage += `app version: ${localVersion}\n`;
+    //     errorMessage += `sdk version: ${sdkVersion}\n`;
+    //     errorMessage += `page: ${window.location.href.split('.html')[1]}\n`;
+    //     errorMessage += `${error.stack}`;
+    //     analytics.error(errorMessage).then((isSharingData) => {
+    //       this.setState({ desktopErrorReported: isSharingData });
+    //     });
+    //   });
+    // });
     // @endif
   }
 

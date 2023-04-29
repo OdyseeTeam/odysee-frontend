@@ -12,18 +12,23 @@ import type { Watchman } from 'analytics/watchman';
 const isProduction = process.env.NODE_ENV === 'production';
 let gAnalyticsEnabled = false;
 
-type Analytics = {
+export type Analytics = {
   init: () => void,
-  setState: (enable: boolean) => void,
+  setState: (enable: boolean) => void, // Enables/disables logging.
   setUser: (Object) => void,
-  // --------------------------------
-  apiLog: ApiLog,
-  event: Events,
-  video: Watchman,
-  error: (string) => Promise<any>,
-  // [sentryError]: deprecated, only used for React ErrorBoundary. Use log() for new usages.
-  sentryError: ({} | string, {}) => Promise<any>,
-  // [error] string-form does not include the stacktrace; Error-form does.
+  apiLog: ApiLog, // Legacy logging interface that uses internal-apis.
+  event: Events, // General event-logging. Currently inactive.
+  video: Watchman, // AV-playback logging through Watchman.
+  error: (string) => Promise<any>, // Logging using internal-apis.
+  sentryError: ({} | string, {}) => Promise<any>, // Deprecated, only used for React ErrorBoundary. Use log() instead.
+
+  /**
+   * The primary logging interface.
+   *
+   * @param error The string-form does not include the stacktrace; Error-form does.
+   * @param options Additional information and logging options.
+   * @param label Specific label to use for the event (easier to find in dashboard).
+   */
   log: (error: Error | string, options?: LogOptions, label?: string) => Promise<?LogId>,
 };
 
@@ -72,7 +77,7 @@ const analytics: Analytics = {
   },
   setUser: (userId) => {
     analytics.event.setUser(userId);
-    // Pass on to other submodules as needed...
+    // Pass on to other submodules if needed...
   },
   toggleThirdParty: (enabled: boolean): void => {
     // Retained to keep things compiling. We don't do third-party analytics,

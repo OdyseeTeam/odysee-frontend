@@ -1,20 +1,21 @@
 
 declare type LogId = string;
 
-declare type LogOptions = {
-  level?: 'info' | 'warning' | 'error',
-  tags?: { [string]: string },
+declare type LogOptions = {|
+  level?: 'info' | 'warning' | 'error' | 'fatal',
+  tags?: { [tagName: string]: string },
+  extra?: { [extraName: string]: any },
   fingerprint?: Array<string>,
-};
+|};
 
 // ****************************************************************************
 // Sentry
 // ****************************************************************************
 
 declare type SentryEventOptions = {
-  level?: 'info' | 'warning' | 'error',
-  tags?: { [string]: string },
-  extra?: { [string]: any },
+  level?: 'info' | 'warning' | 'error' | 'fatal',
+  tags?: { [tagName: string]: string },
+  extra?: { [extraName: string]: any },
   fingerprint?: Array<string>, // https://docs.sentry.io/product/data-management-settings/event-grouping/
   logger?: string,
 };
