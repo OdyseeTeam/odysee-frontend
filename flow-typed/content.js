@@ -35,6 +35,6 @@ declare type PlayingCollection = {
   shuffle?: ?{ newUrls: Array<string> },
 };
 
-declare type OdyseeState = {|
+declare type VideojsClientState = {|
   defaultQuality?: string,
 |};

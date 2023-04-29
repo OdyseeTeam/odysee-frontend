@@ -26,7 +26,7 @@ export const VJS_COMP = Object.freeze({
 
 // Custom videojs event names
 export const VJS_EVENTS = Object.freeze({
-  // Triggered just before load() is called, with player.odyseeState updated.
+  // Triggered just before load() is called, with 'player.appState' updated.
   // Plugins should update per new states.
   SRC_CHANGED: 'src_changed',
   // Player removed but not disposed. Plugins should perform cleanup.

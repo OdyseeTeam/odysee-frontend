@@ -199,7 +199,7 @@ class HlsQualitySelectorPlugin {
     }
 
     const player = this.player;
-    const { defaultQuality } = player.odyseeState;
+    const { defaultQuality } = player.appState;
     const levelItems = [];
 
     const selectOriginal = defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false;

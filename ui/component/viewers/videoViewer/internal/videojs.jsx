@@ -41,7 +41,7 @@ require('@silvermine/videojs-airplay')(videojs);
 
 export type Player = {
   // -- custom --
-  odyseeState?: OdyseeState,
+  appState?: VideojsClientState,
   claimSrcOriginal: ?{ src: string, type: string },
   claimSrcVhs: ?{ src: string, type: string },
   isLivestream?: boolean,
@@ -285,7 +285,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // this seems like a weird thing to have to check for here
       if (!player) return;
 
-      player.odyseeState = {};
+      player.appState = {};
 
       player.reloadSourceOnError({ errorInterval: 10 });
 
@@ -519,8 +519,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // Pass data required by plugins from redux to player, then trigger.
-      vjsPlayer.odyseeState = {
-        ...vjsPlayer.odyseeState,
+      vjsPlayer.appState = {
+        ...vjsPlayer.appState,
         defaultQuality: defaultQuality,
       };
 
