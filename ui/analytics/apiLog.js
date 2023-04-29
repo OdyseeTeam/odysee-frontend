@@ -4,19 +4,20 @@ import { Lbryio } from 'lbryinc';
 const isProduction = process.env.NODE_ENV === 'production';
 const devInternalApis = process.env.LBRY_API_URL && process.env.LBRY_API_URL.includes('dev');
 
-type LogPublishParams = {
+type LogPublishParams = {|
   uri: string,
   claim_id: string,
   outpoint: string,
   channel_claim_id?: string,
-};
+|};
 
-export type ApiLog = {
+export type ApiLog = {|
   setState: (enable: boolean) => void,
   view: (string, string, string, ?number, ?() => void) => Promise<any>,
   search: () => void,
   publish: (ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => void,
-};
+  desktopError: (message: string) => Promise<boolean>,
+|};
 
 let gApiLogOn = false;
 
@@ -70,5 +71,17 @@ export const apiLog: ApiLog = {
         if (successCb) successCb(claimResult);
       });
     }
+  },
+
+  desktopError: (message: string) => {
+    return new Promise((resolve) => {
+      if (gApiLogOn && isProduction) {
+        return Lbryio.call('event', 'desktop_error', { error_message: message }).then(() => {
+          resolve(true);
+        });
+      } else {
+        resolve(false);
+      }
+    });
   },
 };
