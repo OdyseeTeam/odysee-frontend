@@ -79,6 +79,14 @@ class HlsQualitySelectorPlugin {
     }
   }
 
+  updateConfig() {
+    this.config = {
+      ...this.config,
+      defaultQuality: this.player.appState.defaultQuality,
+      originalVideoHeight: this.player.appState.originalVideoHeight,
+    };
+  }
+
   /**
    * Deprecated, returns VHS plugin
    *
@@ -103,6 +111,7 @@ class HlsQualitySelectorPlugin {
    */
   bindPlayerEvents() {
     this.player.qualityLevels().on('addqualitylevel', this.onAddQualityLevel.bind(this));
+    this.player.on(VJS_EVENTS.SRC_CHANGED, this.updateConfig.bind(this));
     this.player.on(VJS_EVENTS.PLAYER_CLOSED, this.playerClosed.bind(this));
   }
 
@@ -133,11 +142,13 @@ class HlsQualitySelectorPlugin {
   }
 
   resolveOriginalQualityLabel(abbreviatedForm, includeResolution) {
-    if (includeResolution && this.config.originalHeight) {
+    const { originalVideoHeight: videoHeight } = this.config;
+
+    if (includeResolution && videoHeight) {
       return abbreviatedForm
-        ? __('Orig (%quality%) --[Video quality popup. Short form.]--', { quality: this.config.originalHeight + 'p' })
+        ? __('Orig (%quality%) --[Video quality popup. Short form.]--', { quality: videoHeight + 'p' })
         : __('Original (%quality%) --[Video quality popup. Long form.]--', {
-            quality: this.config.originalHeight + 'p',
+            quality: videoHeight + 'p',
           });
     } else {
       // The allocated space for the button is fixed and happened to fit
@@ -199,7 +210,7 @@ class HlsQualitySelectorPlugin {
     }
 
     const player = this.player;
-    const { defaultQuality } = player.appState;
+    const { defaultQuality } = this.config;
     const levelItems = [];
 
     const selectOriginal = defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false;

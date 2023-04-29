@@ -3,7 +3,7 @@
 declare type HlsQualitySelectorOptions = {|
   defaultQuality?: string,
   displayCurrentQuality: boolean,
-  originalHeight?: number,
+  originalVideoHeight?: number,
   placementIndex?: number, // controlBar placement index
   vjsIconClass?: string,
 |};

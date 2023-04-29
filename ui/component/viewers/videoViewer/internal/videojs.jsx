@@ -301,12 +301,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.i18n();
       player.settingsMenu();
       player.timeMarkerPlugin();
-
-      player.hlsQualitySelector({
-        displayCurrentQuality: true,
-        originalHeight: claimValues?.video?.height,
-        defaultQuality,
-      });
+      player.hlsQualitySelector({ displayCurrentQuality: true });
 
       // Add recsys plugin
       if (shareTelemetry) {
@@ -522,6 +517,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       vjsPlayer.appState = {
         ...vjsPlayer.appState,
         defaultQuality: defaultQuality,
+        originalVideoHeight: claimValues?.video?.height,
       };
 
       vjsPlayer.trigger(VJS_EVENTS.SRC_CHANGED);

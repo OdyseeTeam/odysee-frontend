@@ -37,4 +37,5 @@ declare type PlayingCollection = {
 
 declare type VideojsClientState = {|
   defaultQuality?: string,
+  originalVideoHeight?: number,
 |};
