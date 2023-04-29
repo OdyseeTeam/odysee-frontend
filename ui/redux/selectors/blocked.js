@@ -1,6 +1,7 @@
 // @flow
 import { createSelector } from 'reselect';
 import { parseURI } from 'util/lbryURI';
+import analytics from 'analytics';
 
 type State = { blocked: BlocklistState, comments: CommentsState };
 
@@ -26,6 +27,8 @@ export const selectMutedAndBlockedChannelIds = createSelector(
         uniqueSet.add(parseURI(u).channelClaimId);
       } catch {}
     });
+
+    analytics.log('blah');
 
     return Array.from(uniqueSet).sort();
   }
