@@ -1,5 +1,4 @@
 // @flow
-import { Lbryio } from 'lbryinc';
 import * as Sentry from '@sentry/react';
 import { apiLog } from 'analytics/apiLog';
 import { events } from 'analytics/events';
@@ -11,6 +10,9 @@ import type { Watchman } from 'analytics/watchman';
 
 const isProduction = process.env.NODE_ENV === 'production';
 let gAnalyticsEnabled = false;
+
+// ****************************************************************************
+// ****************************************************************************
 
 export type Analytics = {
   init: () => void,
@@ -32,6 +34,9 @@ export type Analytics = {
   log: (error: Error | string, options?: LogOptions, label?: string) => Promise<?LogId>,
 };
 
+// ****************************************************************************
+// ****************************************************************************
+
 const analytics: Analytics = {
   init: () => {
     sentryWrapper.init();
@@ -47,15 +52,7 @@ const analytics: Analytics = {
   event: events,
   video: watchman,
   error: (message) => {
-    return new Promise((resolve) => {
-      if (gAnalyticsEnabled && isProduction) {
-        return Lbryio.call('event', 'desktop_error', { error_message: message }).then(() => {
-          resolve(true);
-        });
-      } else {
-        resolve(false);
-      }
-    });
+    return analytics.apiLog.desktopError(message);
   },
   log: (error: Error | string, options?: LogOptions, label?: string) => {
     return sentryWrapper.log(error, { ...options }, label);
