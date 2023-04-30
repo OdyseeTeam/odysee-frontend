@@ -132,19 +132,16 @@ export function doResolveUris(
 
             const resultResponse = {};
             if (uriResolveInfo.value_type === 'channel') {
-              // $FlowFixMe
               const channel: ChannelClaim = uriResolveInfo;
 
               resultResponse.channel = channel;
               resultResponse.claimsInChannel = (channel.meta && channel.meta.claims_in_channel) || 0;
             } else if (uriResolveInfo.value_type === 'collection') {
-              // $FlowFixMe
               const collection: CollectionClaim = uriResolveInfo;
 
               resultResponse.collection = collection;
               collectionIds.add(collection.claim_id);
             } else {
-              // $FlowFixMe
               const stream: StreamClaim = uriResolveInfo;
 
               resultResponse.stream = stream;
@@ -153,7 +150,6 @@ export function doResolveUris(
               if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
               if (stream.signing_channel) {
-                // $FlowFixMe
                 const channel: ChannelClaim = stream.signing_channel;
 
                 resultResponse.channel = channel;
@@ -722,10 +718,7 @@ export function doClaimSearch(
     page_size: 10,
     page: 1,
   },
-  settings?: DoClaimSearchSettings = {
-    useAutoPagination: false,
-    fetchStripeTransactions: true,
-  }
+  settings?: DoClaimSearchSettings
 ) {
   const query = createNormalizedClaimSearchKey(options);
 
@@ -748,7 +741,6 @@ export function doClaimSearch(
       const costInfos = new Set();
       const fiatClaimIds = [];
       let collectionResolveInfo;
-      const shouldFetchPurchases = settings.fetchStripeTransactions && !options.has_no_source;
 
       data.items.some((stream: Claim, index: number) => {
         resolveInfo[stream.canonical_url] = { stream };
@@ -769,7 +761,7 @@ export function doClaimSearch(
         const channelId = getChannelIdFromClaim(stream);
         if (channelId) channelClaimIds.add(channelId);
 
-        if (shouldFetchPurchases && hasFiatTags(stream) && stream.claim_id) {
+        if (!options.has_no_source && hasFiatTags(stream) && stream.claim_id) {
           fiatClaimIds.push(stream.claim_id);
         }
       });
@@ -859,7 +851,7 @@ export function doClaimSearch(
       return next;
     };
 
-    const successCallback = settings.useAutoPagination ? autoPaginate() : success;
+    const successCallback = settings?.useAutoPagination ? autoPaginate() : success;
     return await Lbry.claim_search(options).then(successCallback, failure);
   };
 }
