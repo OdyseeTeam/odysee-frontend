@@ -1,7 +1,7 @@
 import * as CS from 'constants/claim_search';
 import { connect } from 'react-redux';
 import { doResolveUri } from 'redux/actions/claims';
-import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
@@ -14,7 +14,7 @@ const select = (state, props) => {
 
   return {
     repostedUri: repostedUri,
-    repostedClaim: repostedUri ? makeSelectClaimForUri(repostedUri)(state) : null,
+    repostedClaim: repostedUri ? selectClaimForUri(state, repostedUri, false) : null,
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
