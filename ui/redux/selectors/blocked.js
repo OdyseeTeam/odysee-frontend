@@ -1,5 +1,6 @@
 // @flow
 import { createSelector } from 'reselect';
+import { Container } from 'util/container';
 import { parseURI } from 'util/lbryURI';
 
 type State = { blocked: BlocklistState, comments: CommentsState };
@@ -27,6 +28,6 @@ export const selectMutedAndBlockedChannelIds = createSelector(
       } catch {}
     });
 
-    return Array.from(uniqueSet).sort();
+    return Container.Arr.useStableEmpty(Array.from(uniqueSet).sort());
   }
 );

@@ -11,6 +11,7 @@ import {
 } from 'redux/selectors/claims';
 import { swapKeyAndValue } from 'util/swap-json';
 import { getChannelFromClaim, isChannelClaim } from 'util/claim';
+import { Container } from 'util/container';
 
 // Returns the entire subscriptions state
 const selectState = (state) => state.subscriptions || {};
@@ -28,9 +29,9 @@ export const selectSubscriptionUris = createSelector(
 
 export const selectSubscriptionIds = createSelector(selectSubscriptions, (subscriptions) => {
   if (subscriptions) {
-    return subscriptions.map((sub) => parseURI(sub.uri).channelClaimId);
+    return Container.Arr.useStableEmpty(subscriptions.map((sub) => parseURI(sub.uri).channelClaimId));
   } else {
-    return [];
+    return Container.Arr.EMPTY;
   }
 });
 
