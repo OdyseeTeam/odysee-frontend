@@ -9,7 +9,6 @@ import { stripLeadingAtSign } from 'util/string';
 type ChannelInfo = { uri: string, name: string, title: string };
 
 type Props = {
-  uri: string,
   channelInfo: ?ChannelInfo, // Direct channel info to use, bypassing the need to resolve 'uri'.
   link: ?boolean,
   external?: boolean,
@@ -66,7 +65,6 @@ class UriIndicator extends React.PureComponent<Props> {
 
   render() {
     const {
-      uri,
       channelInfo,
       link,
       isResolvingUri,
@@ -87,7 +85,7 @@ class UriIndicator extends React.PureComponent<Props> {
     if (!channelInfo && !claim && !showHiddenAsAnonymous) {
       return (
         <span className={classnames('empty', className)}>
-          {uri === null ? '---' : isResolvingUri || claim === undefined ? __('Validating...') : __('[Removed]')}
+          {claim === null ? '---' : isResolvingUri || claim === undefined ? __('Validating...') : __('[Removed]')}
         </span>
       );
     }
