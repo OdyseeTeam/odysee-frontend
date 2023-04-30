@@ -58,7 +58,6 @@ type Props = {
   location: { search: string },
   claimSearchResults: Array<string>,
   claimSearchLastPageReached: ?boolean,
-  claimsById: { [string]: any },
   fetchingClaimSearch: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
@@ -75,7 +74,6 @@ function ClaimTilesDiscover(props: Props) {
     doClaimSearch,
     claimSearchResults,
     claimSearchLastPageReached,
-    claimsById,
     fetchViewCount,
     fetchingClaimSearch,
     hasNoSource,
@@ -101,7 +99,7 @@ function ClaimTilesDiscover(props: Props) {
   const prevUris = React.useRef();
   const claimSearchUris = claimSearchResults || [];
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
-  const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
+  const resolvedPinUris = useResolvePins({ pins, doResolveClaimIds, doResolveUris });
   const uriBuffer = useRef([]);
 
   const timedOut = claimSearchResults === null;

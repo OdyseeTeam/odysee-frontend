@@ -4,24 +4,41 @@ import useFetched from 'effects/use-fetched';
 
 type Props = {
   pins?: { urls?: Array<string>, claimIds?: Array<string>, onlyPinForOrder?: string },
-  claimsById: { [string]: Claim },
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
 };
 
 export default function useResolvePins(props: Props) {
-  const { pins, claimsById, doResolveClaimIds, doResolveUris } = props;
+  const { pins, doResolveClaimIds, doResolveUris } = props;
 
   const [resolvedPinUris, setResolvedPinUris] = React.useState(pins ? undefined : null);
   const [isResolving, setIsResolving] = React.useState(false);
-  const hasResolvedPinUris = useFetched(isResolving);
+  const hasResolvedPinUris = useFetched(isResolving); // Only attempt once
 
   React.useEffect(() => {
-    if (resolvedPinUris === undefined && pins && !isResolving) {
+    if (resolvedPinUris === undefined && pins && !isResolving && !hasResolvedPinUris) {
       if (pins.claimIds) {
         setIsResolving(true);
         // $FlowIgnore (null checked)
-        doResolveClaimIds(pins.claimIds).finally(() => setIsResolving(false));
+        doResolveClaimIds(pins.claimIds)
+          .then((result) => {
+            const uris = [];
+            if (result) {
+              Object.values(result).forEach((r) => {
+                // $FlowIgnore (flow mixed bug)
+                const claim = r && r.stream;
+                // $FlowIgnore (flow mixed bug)
+                if (claim && pins.claimIds?.includes(claim.claim_id)) {
+                  if (claim.canonical_url) {
+                    // $FlowIgnore (flow mixed bug)
+                    uris.push(claim.canonical_url);
+                  }
+                }
+              });
+            }
+            setResolvedPinUris(uris.length > 0 ? uris : null);
+          })
+          .finally(() => setIsResolving(false));
       } else if (pins.urls) {
         setIsResolving(true);
         // $FlowIgnore (null checked)
@@ -33,26 +50,7 @@ export default function useResolvePins(props: Props) {
         setResolvedPinUris(null);
       }
     }
-  }, [resolvedPinUris, pins, doResolveUris, doResolveClaimIds, isResolving]);
-
-  React.useEffect(() => {
-    if (hasResolvedPinUris) {
-      if (pins && pins.claimIds) {
-        const uris = [];
-
-        pins.claimIds.forEach((id) => {
-          const uri = claimsById[id]?.canonical_url;
-          if (uri) {
-            // The pinned IDs could lead to deleted claims. Discard nulls.
-            uris.push(uri);
-          }
-        });
-
-        setResolvedPinUris(uris.length > 0 ? uris : null);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only do this over a false->true->false transition for hasResolvedPinUris.
-  }, [hasResolvedPinUris]);
+  }, [resolvedPinUris, pins, doResolveUris, doResolveClaimIds, isResolving, hasResolvedPinUris]);
 
   return resolvedPinUris;
 }

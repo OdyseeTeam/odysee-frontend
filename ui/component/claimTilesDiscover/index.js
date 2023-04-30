@@ -4,7 +4,6 @@ import { withRouter } from 'react-router';
 import {
   selectClaimSearchByQuery,
   selectFetchingClaimSearchByQuery,
-  selectById,
   selectClaimSearchByQueryLastPageReached,
 } from 'redux/selectors/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
@@ -46,7 +45,6 @@ const select = (state, props) => {
   return {
     claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
     claimSearchLastPageReached: selectClaimSearchByQueryLastPageReached(state)[searchKey],
-    claimsById: selectById(state),
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     showNsfw,
     hideReposts,
