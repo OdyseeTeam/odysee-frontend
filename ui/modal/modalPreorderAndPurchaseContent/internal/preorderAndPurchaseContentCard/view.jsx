@@ -172,7 +172,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 requiresAuth
                 onClick={() => doPlayUri(uri, true, undefined, doHideModal)}
                 label={
-                  <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost }}>
+                  <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo?.cost || '?' }}>
                     Purchase for %currency%%amount%
                   </I18nMessage>
                 }
