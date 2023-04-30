@@ -1,4 +1,5 @@
 // @flow
+import type { DoFetchClaimListMine } from 'redux/actions/claims';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect } from 'react';
@@ -12,7 +13,6 @@ import WebUploadList from 'component/webUploadList';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
 import classnames from 'classnames';
-import useFetchViewCount from 'effects/use-fetch-view-count';
 
 const FILTER_ALL = 'stream,repost';
 const FILTER_UPLOADS = 'stream';
@@ -20,23 +20,20 @@ const FILTER_REPOSTS = 'repost';
 
 type Props = {
   uploadCount: number,
-  claimsByUri: { [string]: any },
   checkPendingPublishes: () => void,
   clearPublish: () => void,
-  fetchClaimListMine: (number, number, boolean, Array<string>) => void,
+  fetchClaimListMine: DoFetchClaimListMine,
   fetching: boolean,
   urls: Array<string>,
   urlTotal: number,
   history: { replace: (string) => void, push: (string) => void },
   page: number,
   pageSize: number,
-  doFetchViewCount: (claimIdCsv: string) => void,
 };
 
 function FileListPublished(props: Props) {
   const {
     uploadCount,
-    claimsByUri,
     checkPendingPublishes,
     clearPublish,
     fetchClaimListMine,
@@ -45,7 +42,6 @@ function FileListPublished(props: Props) {
     urlTotal,
     page,
     pageSize,
-    doFetchViewCount,
   } = props;
 
   const [filterBy, setFilterBy] = React.useState(FILTER_ALL);
@@ -63,11 +59,9 @@ function FileListPublished(props: Props) {
   useEffect(() => {
     if (paramsString && fetchClaimListMine) {
       const params = JSON.parse(paramsString);
-      fetchClaimListMine(params.page, params.page_size, true, filterBy.split(','));
+      fetchClaimListMine(params.page, params.page_size, true, filterBy.split(','), true);
     }
   }, [uploadCount, paramsString, filterBy, fetchClaimListMine]);
-
-  useFetchViewCount(!fetching, urls, claimsByUri, doFetchViewCount);
 
   return (
     <Page>

@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
-import { Lbryio } from 'lbryinc';
+import { Lbryio, doFetchViewCount } from 'lbryinc';
 import Lbry from 'lbry';
 import { normalizeURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
@@ -259,7 +259,8 @@ export function doFetchClaimListMine(
   page: number = 1,
   pageSize: number = 99999,
   resolve: boolean = true,
-  filterBy: Array<string> = []
+  filterBy: Array<string> = [],
+  fetchViewCount: boolean = false
 ) {
   return (dispatch: Dispatch) => {
     dispatch({
@@ -287,10 +288,13 @@ export function doFetchClaimListMine(
         },
       });
 
+      const claimIds: Array<ClaimId> = [];
       const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
 
       result.items.forEach((item) => {
+        claimIds.push(item.claim_id);
+
         if (item.value_type !== 'channel' && item.value_type !== 'collection') {
           const isProtected = isClaimProtected(item);
           if (isProtected) membersOnlyClaimIds.add(item.claim_id);
@@ -307,9 +311,15 @@ export function doFetchClaimListMine(
       if (channelClaimIds.size > 0) {
         dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
       }
+
+      if (fetchViewCount && claimIds.length > 0) {
+        dispatch(doFetchViewCount(claimIds.join(',')));
+      }
     });
   };
 }
+
+export type DoFetchClaimListMine = typeof doFetchClaimListMine;
 
 export function doAbandonTxo(txo: Txo, cb: (string) => void) {
   return (dispatch: Dispatch) => {
@@ -736,6 +746,7 @@ export function doClaimSearch(
     const success = async (data: ClaimSearchResponse) => {
       const resolveInfo = {};
       const urls = [];
+      const claimIds: Array<ClaimId> = [];
       const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
       const costInfos = new Set();
@@ -745,6 +756,7 @@ export function doClaimSearch(
       data.items.some((stream: Claim, index: number) => {
         resolveInfo[stream.canonical_url] = { stream };
         urls.push(stream.canonical_url);
+        claimIds.push(stream.claim_id);
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           const isProtected = isClaimProtected(stream);
@@ -804,6 +816,10 @@ export function doClaimSearch(
 
       if (fiatClaimIds.length > 0) {
         dispatch(doCheckIfPurchasedClaimIds(fiatClaimIds));
+      }
+
+      if (settings?.fetch?.viewCount && claimIds.length > 0) {
+        dispatch(doFetchViewCount(claimIds.join(',')));
       }
 
       return resolveInfo;

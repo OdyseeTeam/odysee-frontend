@@ -14,7 +14,6 @@ import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
 import ClaimListDiscover from './view';
-import { doFetchViewCount } from 'lbryinc';
 
 function resolveHideMembersOnly(global, override) {
   return override === undefined || override === null ? global : override;
@@ -38,7 +37,6 @@ const select = (state, props) => ({
 
 const perform = {
   doClaimSearch,
-  doFetchViewCount,
   doFetchOdyseeMembershipForChannelIds,
   doResolveClaimIds,
   doResolveUris,

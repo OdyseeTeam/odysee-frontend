@@ -16,7 +16,6 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import ClaimListHeader from 'component/claimListHeader';
-import useFetchViewCount from 'effects/use-fetch-view-count';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
@@ -109,8 +108,7 @@ type Props = {
 
   // --- perform ---
   doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void,
-  doClaimSearch: ({}) => void,
-  doFetchViewCount: (claimIdCsv: string) => void,
+  doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
@@ -191,7 +189,6 @@ function ClaimListDiscover(props: Props) {
     empty,
     claimsByUri,
     claimsById,
-    doFetchViewCount,
     hideLayoutButton = false,
     loadedCallback,
     maxClaimRender,
@@ -720,8 +717,6 @@ function ClaimListDiscover(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  useFetchViewCount(fetchViewCount, finalUris, claimsByUri, doFetchViewCount);
-
   React.useEffect(() => {
     if (channelIds) {
       doFetchOdyseeMembershipForChannelIds(channelIds);
@@ -739,9 +734,10 @@ function ClaimListDiscover(props: Props) {
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringForEffect);
-      doClaimSearch(searchOptions);
+      const searchSettings = fetchViewCount ? { fetch: { viewCount: true } } : null;
+      doClaimSearch(searchOptions, searchSettings);
     }
-  }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh]);
+  }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount]);
 
   const headerToUse = header || (
     <ClaimListHeader

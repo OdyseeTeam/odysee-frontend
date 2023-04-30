@@ -1,8 +1,11 @@
 // @flow
 
-declare type DoClaimSearchSettings = {
+declare type DoClaimSearchSettings = {|
   useAutoPagination?: boolean,
-};
+  fetch?: {|
+    viewCount?: boolean,
+  |}
+|};
 
 declare type NotTagInput = {
   notTags?: Array<string>,

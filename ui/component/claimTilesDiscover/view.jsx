@@ -4,7 +4,6 @@ import React, { useRef } from 'react';
 import Button from 'component/button';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
-import useFetchViewCount from 'effects/use-fetch-view-count';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
 
@@ -59,15 +58,13 @@ type Props = {
   location: { search: string },
   claimSearchResults: Array<string>,
   claimSearchLastPageReached: ?boolean,
-  claimsByUri: { [string]: any },
   claimsById: { [string]: any },
   fetchingClaimSearch: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
   optionsStringified: string,
   // --- perform ---
-  doClaimSearch: ({}) => void,
-  doFetchViewCount: (claimIdCsv: string) => void,
+  doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
@@ -78,7 +75,6 @@ function ClaimTilesDiscover(props: Props) {
     doClaimSearch,
     claimSearchResults,
     claimSearchLastPageReached,
-    claimsByUri,
     claimsById,
     fetchViewCount,
     fetchingClaimSearch,
@@ -89,7 +85,6 @@ function ClaimTilesDiscover(props: Props) {
     prefixUris,
     injectedItem,
     showNoSourceClaims,
-    doFetchViewCount,
     pageSize = 8,
     optionsStringified,
     channelIds,
@@ -177,8 +172,6 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
-  useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
-
   React.useEffect(() => {
     if (channelIds) {
       doFetchOdyseeMembershipForChannelIds(channelIds);
@@ -188,9 +181,10 @@ function ClaimTilesDiscover(props: Props) {
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
-      doClaimSearch(searchOptions);
+      const searchSettings = fetchViewCount ? { fetch: { viewCount: true } } : null;
+      doClaimSearch(searchOptions, searchSettings);
     }
-  }, [doClaimSearch, shouldPerformSearch, optionsStringified]);
+  }, [doClaimSearch, shouldPerformSearch, optionsStringified, fetchViewCount]);
 
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------

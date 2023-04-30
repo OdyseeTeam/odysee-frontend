@@ -4,14 +4,12 @@ import { withRouter } from 'react-router';
 import {
   selectClaimSearchByQuery,
   selectFetchingClaimSearchByQuery,
-  selectClaimsByUri,
   selectById,
   selectClaimSearchByQueryLastPageReached,
 } from 'redux/selectors/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import * as SETTINGS from 'constants/settings';
-import { doFetchViewCount } from 'lbryinc';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
@@ -48,7 +46,6 @@ const select = (state, props) => {
   return {
     claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
     claimSearchLastPageReached: selectClaimSearchByQueryLastPageReached(state)[searchKey],
-    claimsByUri: selectClaimsByUri(state),
     claimsById: selectById(state),
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     showNsfw,
@@ -60,7 +57,6 @@ const select = (state, props) => {
 
 const perform = {
   doClaimSearch,
-  doFetchViewCount,
   doFetchOdyseeMembershipForChannelIds,
   doResolveClaimIds,
   doResolveUris,
