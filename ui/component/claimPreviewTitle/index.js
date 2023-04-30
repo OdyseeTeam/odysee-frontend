@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { makeSelectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
+import { selectTitleForUri, selectClaimForUri } from 'redux/selectors/claims';
 import ClaimPreviewTitle from './view';
 
 const select = (state, props) => ({
-  claim: makeSelectClaimForUri(props.uri)(state),
+  claim: selectClaimForUri(state, props.uri, false),
   title: selectTitleForUri(state, props.uri),
 });
 
