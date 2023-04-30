@@ -259,6 +259,7 @@ export const selectUserHasOdyseePremiumPlus = createSelector(selectMyValidOdysee
 
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) =>
   selectMembershipForCreatorIdAndChannelId(state, ODYSEE_CHANNEL.ID, channelId);
+
 export const selectOdyseeMembershipIsPremiumPlus = (state: State, channelId: string) =>
   selectOdyseeMembershipForChannelId(state, channelId) === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS;
 
