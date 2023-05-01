@@ -6,7 +6,7 @@ import { doOpenFileInFolder } from 'redux/actions/file';
 import FileDetails from './view';
 
 const select = (state, props) => ({
-  claim: selectClaimForUri(state, props.uri, false),
+  claim: selectClaimForUri(state, props.uri),
   contentType: makeSelectContentTypeForUri(props.uri)(state),
   fileInfo: makeSelectFileInfoForUri(props.uri)(state),
   metadata: makeSelectMetadataForUri(props.uri)(state),
