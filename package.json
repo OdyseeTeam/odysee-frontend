@@ -51,7 +51,6 @@
     "@emotion/react": "^11.6.0",
     "@emotion/styled": "^11.6.0",
     "@mui/material": "^5.6.2",
-    "@publir/publir-react-plugin": "^1.0.6",
     "@sentry/react": "^7.48.0",
     "@sentry/types": "^7.48.0",
     "@silvermine/videojs-airplay": "^1.1.0",
