@@ -16,7 +16,7 @@ export const isClaimNsfw = (claim: Claim): boolean => {
   const tags = claim.value.tags || [];
   for (let i = 0; i < tags.length; i += 1) {
     const tag = tags[i].toLowerCase();
-    if (matureTagMap[tag]) {
+    if (matureTagMap.hasOwnProperty(tag)) {
       return true;
     }
   }
