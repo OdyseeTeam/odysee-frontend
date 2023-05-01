@@ -17,9 +17,9 @@ function Ad(props: Props) {
   return (
     <>
       {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
-      {type === 'tileB' && <AdTileB />}
+      {type === 'tileB' && <AdTileB provider="publir" />}
       {type === 'sticky' && <AdSticky uri={uri} />}
-      {type === 'aboveComments' && <AdAboveComments />}
+      {type === 'aboveComments' && <AdAboveComments provider="publir" />}
     </>
   );
 }

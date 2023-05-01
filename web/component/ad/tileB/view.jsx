@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/dist/';
 import classnames from 'classnames';
 
 const DISABLE_VIDEO_AD = false;
@@ -10,12 +11,13 @@ const AD_CONFIG = Object.freeze({
 });
 
 type Props = {
+  provider: string,
   // --- redux ---
   shouldShowAds: boolean,
 };
 
 function AdTileB(props: Props) {
-  const { shouldShowAds } = props;
+  const { provider, shouldShowAds } = props;
   const [isActive, setIsActive] = React.useState(false);
   // const ref = React.useRef();
   React.useEffect(() => {
@@ -40,16 +42,25 @@ function AdTileB(props: Props) {
   }, [shouldShowAds]);
 
   return (
-    <div
-      className={classnames('rc_tileB', {
-        'show-rc_tile': isActive,
-      })}
-      id="rc-widget-952c79"
-      data-rc-widget
-      data-widget-host="habitat"
-      data-endpoint="//trends.revcontent.com"
-      data-widget-id="274791"
-    />
+    <>
+      {provider === 'revcontent' && (
+        <div
+          className={classnames('rc_tileB', {
+            'show-rc_tile': isActive,
+          })}
+          id="rc-widget-952c79"
+          data-rc-widget
+          data-widget-host="habitat"
+          data-endpoint="//trends.revcontent.com"
+          data-widget-id="274791"
+        />
+      )}
+      {provider === 'publir' && (
+        <PublirAdsProvider publisherId="1391">
+          <AdSlot id="div-hre-Odysee-3293 " />
+        </PublirAdsProvider>
+      )}
+    </>
   );
 }
 
