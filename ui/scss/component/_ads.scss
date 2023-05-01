@@ -126,7 +126,7 @@
       height: unset;
 
       .sticky-d-rc-content {
-        height: 114px;
+        height: 134px;
       }
 
       .sticky-d-rc-close {
@@ -156,7 +156,7 @@
       #rc-widget-sticky-d {
         height: 100%;
         .layout_1 {
-          height: 150px;
+          height: 180px;
           .sc-cTJkRt {
             height: 100%;
             .sc-jNnpgg {
@@ -178,6 +178,7 @@
           .rc-content {
             .rc-headline {
               color: var(--color-text);
+              font-size: var(--font-small);
               @media (max-width: $breakpoint-small) {
                 font-size: var(--font-small);
               }
