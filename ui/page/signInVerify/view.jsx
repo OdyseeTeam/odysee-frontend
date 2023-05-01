@@ -95,7 +95,7 @@ function SignInVerifyPage(props: Props) {
         verificationApiHistory.successful = false;
         onAuthError(__('Invalid captcha response or other authentication error.'));
       })
-      .then(() => {
+      .finally(() => {
         setVerificationTried(true);
       });
   }
