@@ -587,8 +587,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
                   mutedPlayPromise
                     .then(() => {
                       const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
-                      console.log('tapToUnmuteButton: ', tapToUnmuteButton);
-
                       // $FlowIssue
                       tapToUnmuteButton?.style.setProperty('visibility', 'visible');
                       // $FlowIssue

@@ -35,7 +35,7 @@ type Props = {
   featuredChannels: any,
   hasPremiumPlus: boolean,
   // --- perform ---
-  doClaimSearch: ({}) => void,
+  doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => void,
   doResolveClaimId: (claimId: string) => void,
   doResolveUris: (Array<string>) => Promise<any>,
 };
@@ -81,7 +81,8 @@ function HomeTabSection(props: Props) {
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
-      doClaimSearch(searchOptions);
+      const searchSettings = { fetch: { viewCount: true } };
+      doClaimSearch(searchOptions, searchSettings);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- DOESN'T FEEL RIGHT WITHOUT optionsStringified
   }, [doClaimSearch, shouldPerformSearch]);
@@ -387,7 +388,6 @@ function HomeTabSection(props: Props) {
                     uris={collectionUrls || claimSearchResults}
                     maxClaimRender={maxClaimsInSection}
                     claimIds={collectionClaimIds}
-                    fetchViewCount
                     injectedItem={
                       !hasPremiumPlus &&
                       index === topContentGridIndex && {
