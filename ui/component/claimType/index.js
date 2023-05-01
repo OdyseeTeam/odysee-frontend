@@ -3,7 +3,7 @@ import { selectIsStreamPlaceholderForUri, selectClaimForUri } from 'redux/select
 import FileType from './view';
 
 const select = (state, props) => ({
-  claim: selectClaimForUri(state, props.uri, false),
+  claim: selectClaimForUri(state, props.uri),
   isLivestream: selectIsStreamPlaceholderForUri(state, props.uri),
 });
 

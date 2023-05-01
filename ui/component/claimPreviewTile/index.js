@@ -18,7 +18,7 @@ import ClaimPreviewTile from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
 
 const select = (state, props) => {
-  const claim = props.uri && selectClaimForUri(state, props.uri, false);
+  const claim = props.uri && selectClaimForUri(state, props.uri);
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
   const mediaDuration = media && media.duration && formatMediaDuration(media.duration, { screenReader: true });
   const isLivestream = isStreamPlaceholderClaim(claim);
