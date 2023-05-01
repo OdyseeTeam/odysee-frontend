@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/dist/';
+import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/';
 import classnames from 'classnames';
 
 const DISABLE_VIDEO_AD = false;

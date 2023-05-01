@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/dist/';
+import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/';
 
 // prettier-ignore
 const AD_CONFIGS = Object.freeze({
