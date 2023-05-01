@@ -4,7 +4,8 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-export const regexInvalidURI = /[ =&#:$@%?;/\\\n"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+export const regexInvalidURI =
+  /[ =&#:$@%?;/\\\n"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
@@ -204,7 +205,12 @@ function logErrorOnce(err: string) {
  * @param protoDefault
  * @returns {string}
  */
-export function buildURI(UrlObj: LbryUrlObj, suppressErrors: boolean = false, includeProto: boolean = true, protoDefault: string = 'lbry://'): string {
+export function buildURI(
+  UrlObj: LbryUrlObj,
+  suppressErrors: boolean = false,
+  includeProto: boolean = true,
+  protoDefault: string = 'lbry://'
+): string {
   const {
     streamName,
     streamClaimId,

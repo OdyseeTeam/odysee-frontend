@@ -750,10 +750,6 @@ svg + .button__label {
     cursor: default;
     text-decoration: none;
     background-color: var(--color-button-toggle-bg-active);
-
-    .icon {
-      stroke: var(--color-button-toggle-text-active) !important;
-    }
   }
 
   &:focus-visible {
@@ -800,6 +796,11 @@ svg + .button__label {
   }
   svg {
     opacity: 1;
+  }
+  &:hover {
+    .icon {
+      stroke: var(--color-primary-contrast) !important;
+    }
   }
 }
 

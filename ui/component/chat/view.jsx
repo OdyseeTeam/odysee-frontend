@@ -3,7 +3,6 @@ import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import classnames from 'classnames';
-import CommentCreate from 'component/commentCreate';
 import CreditAmount from 'component/common/credit-amount';
 import Icon from 'component/common/icon';
 import ChatComment from 'component/chat/chatComment';
@@ -16,6 +15,7 @@ import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
 import Tooltip from 'component/common/tooltip';
+import { lazyImport } from 'util/lazyImport';
 import './style.scss';
 
 export const VIEW_MODES = {
@@ -23,6 +23,7 @@ export const VIEW_MODES = {
   SUPERCHAT: 'sc',
 };
 const COMMENT_SCROLL_TIMEOUT = 25;
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
 type Props = {
   customViewMode?: string,

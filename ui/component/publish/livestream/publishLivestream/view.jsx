@@ -1,6 +1,7 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
 import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
+import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
@@ -15,7 +16,7 @@ import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
-import './style.scss';
+import Icon from 'component/common/icon';
 
 type Props = {
   uri: ?string,
@@ -275,6 +276,7 @@ function PublishLivestream(props: Props) {
     if (oversized) {
       return (
         <p className="help--error">
+          <Icon icon={ICONS.INFO} />
           {UPLOAD_SIZE_MESSAGE}{' '}
           <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>
@@ -285,6 +287,7 @@ function PublishLivestream(props: Props) {
     if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
       return (
         <p className="help--warning">
+          <Icon icon={ICONS.INFO} />
           {bitRateIsOverMax
             ? __(
                 'Your video has a bitrate over ~16 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
@@ -300,6 +303,7 @@ function PublishLivestream(props: Props) {
     if (isVid && !duration) {
       return (
         <p className="help--warning">
+          <Icon icon={ICONS.INFO} />
           {__(
             'Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming.'
           )}{' '}
@@ -312,6 +316,7 @@ function PublishLivestream(props: Props) {
     if (!isStillEditing) {
       return (
         <p className="help">
+          <Icon icon={ICONS.INFO} />
           {__(
             'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
             { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }
@@ -339,216 +344,214 @@ function PublishLivestream(props: Props) {
         'card--disabled': disabled || balance === 0,
       })}
       actions={
-        <>
-          <div className="card--file">
-            <React.Fragment>
-              {/* Decide whether to show file upload or replay selector */}
-              {/* @if TARGET='web' */}
-              <FormField
-                type="text"
-                name="content_title"
-                label={__('Title')}
-                placeholder={__('Descriptive titles work best')}
-                disabled={disabled}
-                value={title}
-                onChange={handleTitleChange}
-                className="fieldset-group"
-                max="200"
-                autoFocus
-                autoComplete="off"
-              />
-              <PublishName uri={uri} />
-              <>
-                {inEditMode && (
-                  <fieldset-section>
-                    <label style={{ marginBottom: 'var(--spacing-s)' }}>
-                      {inEditMode && (
-                        <FormField
-                          name="reuse-replay"
-                          key="reuse-replay"
-                          type="radio"
-                          checked={replaySource === 'keep'}
-                          onClick={() => updateReplayOption('keep')}
-                        />
-                      )}
-                      {__('Update only')}
-                    </label>
-                  </fieldset-section>
-                )}
-                {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
-                  <>
-                    <label>
-                      {inEditMode && (
-                        <FormField
-                          name="show-replays"
-                          key="show-replays"
-                          type="radio"
-                          checked={replaySource === 'choose'}
-                          onClick={() => updateReplayOption('choose')}
-                        />
-                      )}
-                      {replayTitleLabel}
-                    </label>
-                    <div
-                      className={classnames('replay-picker--container', {
-                        disabled: inEditMode && replaySource !== 'choose',
-                      })}
-                    >
-                      <fieldset-section>
-                        <div className="table__wrapper">
-                          <table className="table table--livestream-data">
-                            <tbody>
-                              {livestreamData
-                                .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-                                .map((item, i) => {
-                                  const useStr = item.data.fileDuration && isNaN(item.data.fileDuration);
-                                  // $FlowIgnore (confirmed a number)
-                                  const durationMinutes = !useStr ? Math.floor(item.data.fileDuration / 60) : null;
-                                  const durationElem = useStr
-                                    ? item.data.fileDuration
-                                    : durationMinutes === 1
-                                    ? __('%duration% minute', { duration: durationMinutes })
-                                    : __('%duration% minutes', { duration: durationMinutes });
+        <div className="publish-row--no-margin">
+          <React.Fragment>
+            {/* Decide whether to show file upload or replay selector */}
+            {/* @if TARGET='web' */}
+            <FormField
+              type="text"
+              name="content_title"
+              label={__('Title')}
+              placeholder={__('Descriptive titles work best')}
+              disabled={disabled}
+              value={title}
+              onChange={handleTitleChange}
+              className="fieldset-group"
+              max="200"
+              autoFocus
+              autoComplete="off"
+            />
+            <PublishName uri={uri} />
+            <>
+              {inEditMode && (
+                <fieldset-section>
+                  <label style={{ marginBottom: 'var(--spacing-s)' }}>
+                    {inEditMode && (
+                      <FormField
+                        name="reuse-replay"
+                        key="reuse-replay"
+                        type="radio"
+                        checked={replaySource === 'keep'}
+                        onClick={() => updateReplayOption('keep')}
+                      />
+                    )}
+                    {__('Update only')}
+                  </label>
+                </fieldset-section>
+              )}
+              {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
+                <>
+                  <label>
+                    {inEditMode && (
+                      <FormField
+                        name="show-replays"
+                        key="show-replays"
+                        type="radio"
+                        checked={replaySource === 'choose'}
+                        onClick={() => updateReplayOption('choose')}
+                      />
+                    )}
+                    {replayTitleLabel}
+                  </label>
+                  <div
+                    className={classnames('replay-picker__container', {
+                      disabled: inEditMode && replaySource !== 'choose',
+                    })}
+                  >
+                    <fieldset-section>
+                      <div className="table__wrapper">
+                        <table className="table table--livestream-data">
+                          <tbody>
+                            {livestreamData
+                              .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+                              .map((item, i) => {
+                                const useStr = item.data.fileDuration && isNaN(item.data.fileDuration);
+                                // $FlowIgnore (confirmed a number)
+                                const durationMinutes = !useStr ? Math.floor(item.data.fileDuration / 60) : null;
+                                const durationElem = useStr
+                                  ? item.data.fileDuration
+                                  : durationMinutes === 1
+                                  ? __('%duration% minute', { duration: durationMinutes })
+                                  : __('%duration% minutes', { duration: durationMinutes });
 
-                                  return (
-                                    <React.Fragment key={item.data.fileLocation}>
-                                      <tr className="livestream__data-row-spacer" />
-                                      <tr
-                                        onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                        className={classnames('livestream__data-row', {
-                                          'livestream__data-row--selected':
-                                            selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i,
-                                        })}
-                                      >
-                                        <td>
-                                          <FormField
-                                            type="radio"
-                                            checked={selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i}
-                                            label={null}
-                                            onChange={() => {}}
-                                            onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                            className="livestream__data-row-radio"
-                                          />
-                                        </td>
-                                        <td>
-                                          <div className="livestream_thumb_container">
-                                            {item.data.thumbnails.slice(0, 3).map((thumb) => (
-                                              <img key={thumb} className="livestream___thumb" src={thumb} />
-                                            ))}
-                                          </div>
-                                        </td>
-                                        <td>
-                                          {durationElem}
-                                          <div className="table__item-label">
-                                            {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
-                                          </div>
-                                        </td>
-                                        <td>
-                                          <CopyableText
-                                            primaryButton
-                                            copyable={normalizeUrlForProtocol(item.data.fileLocation)}
-                                            snackMessage={__('Url copied.')}
-                                          />
-                                        </td>
-                                      </tr>
-                                    </React.Fragment>
-                                  );
-                                })}
-                            </tbody>
-                          </table>
-                        </div>
-                      </fieldset-section>
-                      {totalPages > 1 && (
-                        <fieldset-group class="fieldset-group--smushed fieldgroup--paginate">
-                          <fieldset-section>
-                            <ReactPaginate
-                              pageCount={totalPages}
-                              pageRangeDisplayed={2}
-                              previousLabel="‹"
-                              nextLabel="›"
-                              activeClassName="pagination__item--selected"
-                              pageClassName="pagination__item"
-                              previousClassName="pagination__item pagination__item--previous"
-                              nextClassName="pagination__item pagination__item--next"
-                              breakClassName="pagination__item pagination__item--break"
-                              marginPagesDisplayed={2}
-                              onPageChange={(e) => handlePaginateReplays(e.selected + 1)}
-                              forcePage={currentPage - 1}
-                              initialPage={currentPage - 1}
-                              containerClassName="pagination"
-                            />
-                          </fieldset-section>
-                        </fieldset-group>
-                      )}
-                    </div>
-                  </>
-                )}
-                {(fileSource === SOURCE_SELECT || inEditMode) && !hasLivestreamData && !isCheckingLivestreams && (
-                  <>
-                    <label className="disabled">
-                      {inEditMode && (
-                        <FormField
-                          name="show-replays"
-                          key="show-replays"
-                          type="radio"
-                          checked={replaySource === 'choose'}
-                          onClick={() => updateReplayOption('choose')}
-                        />
-                      )}
-                      {replayTitleLabel}
-                    </label>
-                    <div className="main--empty empty disabled">
-                      <Empty text={__('No replays found.')} />
-                    </div>
-                  </>
-                )}
-                {(fileSource === SOURCE_SELECT || inEditMode) && isCheckingLivestreams && (
-                  <>
-                    <label className="disabled">
-                      {inEditMode && (
-                        <FormField
-                          name="replay-source"
-                          value="choose"
-                          key="show-replays-spin"
-                          type="radio"
-                          checked={replaySource === 'choose'}
-                          onClick={() => updateReplayOption('choose')}
-                        />
-                      )}
-                      {replayTitleLabel}
-                    </label>
-                    <div className="main--empty empty">
-                      <Spinner small />
-                    </div>
-                  </>
-                )}
-
-                {inEditMode && (
-                  <div className="file-upload">
-                    <label>
+                                return (
+                                  <React.Fragment key={item.data.fileLocation}>
+                                    <tr className="livestream-data__row-spacer" />
+                                    <tr
+                                      onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
+                                      className={classnames('livestream-data__row', {
+                                        'livestream-data__row--selected':
+                                          selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i,
+                                      })}
+                                    >
+                                      <td>
+                                        <FormField
+                                          type="radio"
+                                          checked={selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i}
+                                          label={null}
+                                          onChange={() => {}}
+                                          onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
+                                          className="livestream-data__row-radio"
+                                        />
+                                      </td>
+                                      <td>
+                                        <div className="livestream-data__thumb-container">
+                                          {item.data.thumbnails.slice(0, 3).map((thumb) => (
+                                            <img key={thumb} className="livestream___thumb" src={thumb} />
+                                          ))}
+                                        </div>
+                                      </td>
+                                      <td>
+                                        {durationElem}
+                                        <div className="table__item-label">
+                                          {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
+                                        </div>
+                                      </td>
+                                      <td>
+                                        <CopyableText
+                                          primaryButton
+                                          copyable={normalizeUrlForProtocol(item.data.fileLocation)}
+                                          snackMessage={__('Url copied.')}
+                                        />
+                                      </td>
+                                    </tr>
+                                  </React.Fragment>
+                                );
+                              })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </fieldset-section>
+                    {totalPages > 1 && (
+                      <fieldset-group class="fieldset-group--smushed fieldgroup--paginate">
+                        <fieldset-section>
+                          <ReactPaginate
+                            pageCount={totalPages}
+                            pageRangeDisplayed={2}
+                            previousLabel="‹"
+                            nextLabel="›"
+                            activeClassName="pagination__item--selected"
+                            pageClassName="pagination__item"
+                            previousClassName="pagination__item pagination__item--previous"
+                            nextClassName="pagination__item pagination__item--next"
+                            breakClassName="pagination__item pagination__item--break"
+                            marginPagesDisplayed={2}
+                            onPageChange={(e) => handlePaginateReplays(e.selected + 1)}
+                            forcePage={currentPage - 1}
+                            initialPage={currentPage - 1}
+                            containerClassName="pagination"
+                          />
+                        </fieldset-section>
+                      </fieldset-group>
+                    )}
+                  </div>
+                </>
+              )}
+              {(fileSource === SOURCE_SELECT || inEditMode) && !hasLivestreamData && !isCheckingLivestreams && (
+                <>
+                  <label className="disabled">
+                    {inEditMode && (
+                      <FormField
+                        name="show-replays"
+                        key="show-replays"
+                        type="radio"
+                        checked={replaySource === 'choose'}
+                        onClick={() => updateReplayOption('choose')}
+                      />
+                    )}
+                    {replayTitleLabel}
+                  </label>
+                  <div className="main--empty empty disabled">
+                    <Empty text={__('No replays found.')} />
+                  </div>
+                </>
+              )}
+              {(fileSource === SOURCE_SELECT || inEditMode) && isCheckingLivestreams && (
+                <>
+                  <label className="disabled">
+                    {inEditMode && (
                       <FormField
                         name="replay-source"
+                        value="choose"
+                        key="show-replays-spin"
                         type="radio"
-                        checked={replaySource === 'upload'}
-                        onClick={() => updateReplayOption('upload')}
+                        checked={replaySource === 'choose'}
+                        onClick={() => updateReplayOption('choose')}
                       />
-                      Upload Replay
-                    </label>
-                    <FileSelector
-                      disabled={replaySource !== 'upload'}
-                      currentPath={currentFile}
-                      onFileChosen={handleFileChange}
-                      accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*' : undefined}
-                      placeholder={__('Select video replay file to upload')}
-                    />
-                    {getUploadMessage()}
+                    )}
+                    {replayTitleLabel}
+                  </label>
+                  <div className="main--empty empty">
+                    <Spinner small />
                   </div>
-                )}
-              </>
-              {/* @endif */}
-            </React.Fragment>
-          </div>
-        </>
+                </>
+              )}
+
+              {inEditMode && (
+                <div className="file-upload">
+                  <label>
+                    <FormField
+                      name="replay-source"
+                      type="radio"
+                      checked={replaySource === 'upload'}
+                      onClick={() => updateReplayOption('upload')}
+                    />
+                    Upload Replay
+                  </label>
+                  <FileSelector
+                    disabled={replaySource !== 'upload'}
+                    currentPath={currentFile}
+                    onFileChosen={handleFileChange}
+                    accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*' : undefined}
+                    placeholder={__('Select video replay file to upload')}
+                  />
+                  {getUploadMessage()}
+                </div>
+              )}
+            </>
+            {/* @endif */}
+          </React.Fragment>
+        </div>
       }
     />
   );

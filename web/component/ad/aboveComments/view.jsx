@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import './style.scss';
 
 // prettier-ignore
 const AD_CONFIGS = Object.freeze({

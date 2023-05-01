@@ -60,9 +60,10 @@ const PublishStreamReleaseDate = (props: Props) => {
 
   return (
     <>
-      <h2 className="card__title">{__('Date')}</h2>
-      <div className="card--date">
-        <label htmlFor="date-picker-input">{__('When do you want to go live?')}</label>
+      <div className="publish-row">
+        <label htmlFor="date-picker-input" style={{ marginTop: 0 }}>
+          {__('When do you want to go live?')}
+        </label>
 
         <div className={'w-full flex flex-col mt-s md:mt-0 md:h-12 md:items-center md:flex-row'}>
           <FormField

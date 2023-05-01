@@ -128,7 +128,7 @@ function SelectThumbnail(props: Props) {
 
   return (
     <>
-      <h2 className="card__title">{optional ? __('Thumbnail (Optional)') : __('Thumbnail')}</h2>
+      {optional && <h2 className="card__title">{__('Thumbnail (Optional)')}</h2>}
       {status !== THUMBNAIL_STATUSES.IN_PROGRESS && (
         <div className="column card--thumbnail">
           {thumbPreview}

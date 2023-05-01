@@ -8,7 +8,7 @@ import Card from 'component/common/card';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { ERRORS } from 'lbryinc';
 import { formatLbryUrlForWeb } from 'util/url';
-import ContentTab from 'page/claim/internal/claimPageComponent/internal/channel/tabs/contentTab';
+import ContentTab from 'page/claim/internal/claimPageComponent/internal/channelPage/tabs/contentTab';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
 

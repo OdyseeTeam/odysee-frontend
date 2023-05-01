@@ -181,7 +181,7 @@ export default function TagsSearch(props: Props) {
     <React.Fragment>
       <Form className="tags__input-wrapper" onSubmit={handleSubmit}>
         <fieldset-section>
-          <label>
+          <label style={{ marginTop: 0 }}>
             {limitSelect < TAG_FOLLOW_MAX ? (
               <I18nMessage
                 tokens={{

@@ -21,7 +21,6 @@ import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import Icon from 'component/common/icon';
 import Tooltip from 'component/common/tooltip';
 import Spinner from 'component/spinner';
-import './style.scss';
 
 type Props = {
   uri: string,

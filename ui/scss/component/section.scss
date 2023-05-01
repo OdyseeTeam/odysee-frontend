@@ -126,7 +126,7 @@
 
 .section__subtitle {
   color: var(--color-text-subtitle);
-  margin: var(--spacing-s) 0;
+  // margin: var(--spacing-s) 0;
   font-size: var(--font-body);
 }
 
@@ -255,6 +255,28 @@
 .section__actions--between {
   @extend .section__actions;
   justify-content: space-between;
+  border-top: unset;
+  margin-top: 0;
+  padding-top: var(--spacing-s);
+  padding-bottom: var(--spacing-s);
+  margin-left: auto;
+  position: relative;
+
+  .settings-row__value {
+    align-self: start;
+  }
+  .settings-row__title {
+    color: rgba(var(--color-text-base), 0.9);
+  }
+  .settings-row__subtitle {
+    color: rgba(var(--color-text-base), 0.6);
+  }
+
+  &:hover:not(.opacity-30) {
+    .settings-row__title {
+      color: rgba(var(--color-text-base), 1);
+    }
+  }
 
   @media (max-width: $breakpoint-small) {
     justify-content: flex-start;
@@ -310,12 +332,46 @@
 }
 
 .settings-row {
+  padding: var(--spacing-s);
+  border-bottom: 1px solid var(--color-border);
+
   &:first-child,
   &:only-child {
     border-top: none;
   }
+
+  .settings-row__value {
+    .button__content {
+      &:hover {
+        color: var(--color-secondary);
+      }
+    }
+  }
+  .fieldset-group--smushed {
+    label {
+      margin-left: 0;
+    }
+    fieldset-section:last-of-type {
+      margin-left: 2px;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    flex-flow: row;
+    padding: var(--spacing-xs);
+    .settings-row__title {
+      min-width: unset;
+      max-width: 60%;
+    }
+    .settings-row__value {
+      width: unset;
+      justify-content: end;
+      margin-left: auto;
+    }
+  }
 }
 
+/*
 .card__main-actions.settings-row {
   @media (max-width: $breakpoint-small) {
     padding: 0;
@@ -323,6 +379,7 @@
     margin-bottom: 0;
   }
 }
+*/
 
 .settings-row__title {
   min-width: 100%;
@@ -344,7 +401,7 @@
   width: 100%;
 
   fieldset-section.radio {
-    margin-top: var(--spacing-s);
+    margin-top: 0;
   }
 
   fieldset-group {
@@ -384,7 +441,7 @@
 .settings-row__value--multirow {
   @media (min-width: $breakpoint-medium) {
     width: 80%;
-    margin-top: var(--spacing-l);
+    // margin-top: var(--spacing-l);
 
     input {
       align-self: flex-start;

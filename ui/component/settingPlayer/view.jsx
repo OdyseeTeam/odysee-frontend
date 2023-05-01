@@ -23,12 +23,11 @@ export default function SettingPlayer(props: Props) {
 
   return (
     <>
-      <div className="card__title-section">
-        <h2 className="card__title">{__('Player settings')}</h2>
-      </div>
       <Card
         id={SETTINGS_GRP.PLAYER}
+        background
         isBodyList
+        title={__('Player settings')}
         body={
           <>
             <SettingsRow title={__('Floating video player')} subtitle={__(HELP.FLOATING_PLAYER)}>

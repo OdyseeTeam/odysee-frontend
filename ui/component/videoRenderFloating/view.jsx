@@ -39,17 +39,14 @@ import {
   getAmountNeededToCenterVideo,
   getPossiblePlayerHeight,
 } from 'util/window';
-import PlaylistCard from 'component/playlistCard';
+import { lazyImport } from 'util/lazyImport';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
 
-// scss/init/vars.scss
-// --header-height
 const HEADER_HEIGHT = 60;
-
 const DEBOUNCE_WINDOW_RESIZE_HANDLER_MS = 100;
-
 const CONTENT_VIEWER_CLASS = 'content__viewer';
+const PlaylistCard = lazyImport(() => import('component/playlistCard' /* webpackChunkName: "playlistCard" */));
 
 // ****************************************************************************
 // ****************************************************************************
@@ -255,10 +252,16 @@ function VideoRenderFloating(props: Props) {
   ]);
 
   React.useEffect(() => {
-    if (playingPrimaryUri || uri || noPlayerHeight || collectionSidebarId) {
+    if (playingPrimaryUri || uri || collectionSidebarId) {
       handleResize();
     }
-  }, [handleResize, playingPrimaryUri, theaterMode, uri, noPlayerHeight, collectionSidebarId]);
+  }, [handleResize, playingPrimaryUri, theaterMode, uri, collectionSidebarId]);
+
+  React.useEffect(() => {
+    if (noPlayerHeight) {
+      handleResize();
+    }
+  }, [fileViewerRect, noPlayerHeight, handleResize]);
 
   // Listen to main-window resizing and adjust the floating player position accordingly:
   React.useEffect(() => {
@@ -294,7 +297,6 @@ function VideoRenderFloating(props: Props) {
   React.useEffect(() => {
     // Initial update for relativePosRef:
     relativePosRef.current = calculateRelativePos(position.x, position.y);
-
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on mount
   }, []);
 
@@ -502,13 +504,15 @@ function VideoRenderFloating(props: Props) {
                 </div>
 
                 {playingCollection && collectionSidebarId !== collectionId && (
-                  <PlaylistCard
-                    id={collectionId}
-                    uri={uri}
-                    disableClickNavigation
-                    doDisablePlayerDrag={setForceDisable}
-                    isFloating
-                  />
+                  <React.Suspense fallback={null}>
+                    <PlaylistCard
+                      id={collectionId}
+                      uri={uri}
+                      disableClickNavigation
+                      doDisablePlayerDrag={setForceDisable}
+                      isFloating
+                    />
+                  </React.Suspense>
                 )}
               </div>
             )}

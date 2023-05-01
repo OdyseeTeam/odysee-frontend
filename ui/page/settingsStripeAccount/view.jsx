@@ -67,6 +67,7 @@ const StripeAccountConnection = (props: Props) => {
             {chargesEnabled ? __('Bank account connected') : __('Connect a bank account')}
           </div>
         }
+        background
         isBodyList
         body={
           chargesEnabled ? (

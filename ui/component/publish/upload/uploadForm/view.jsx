@@ -12,20 +12,19 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
+import { lazyImport } from 'util/lazyImport';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
-import ChannelSelect from 'component/channelSelector';
+import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publish/shared/publishDescription';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
-import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishFile from 'component/publish/upload/publishFile';
 import PublishProtectedContent from 'component/publishProtectedContent';
 
-import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
@@ -35,6 +34,11 @@ import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
+const PublishPrice = lazyImport(() =>
+  import('component/publish/shared/publishPrice' /* webpackChunkName: "publish" */)
+);
 
 type Props = {
   disabled: boolean,
@@ -427,7 +431,7 @@ function UploadForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <h1 className="page__title">
+      <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.PUBLISH} />
         <label>
           {formTitle}
@@ -437,47 +441,68 @@ function UploadForm(props: Props) {
         </label>
       </h1>
 
-      <PublishFile
-        inEditMode={inEditMode}
-        fileSource={fileSource}
-        changeFileSource={changeFileSource}
-        uri={permanentUrl}
-        mode={mode}
-        fileMimeType={fileMimeType}
-        disabled={disabled || publishing}
-        inProgress={isInProgress}
-        setPrevFileText={setPrevFileText}
-        setWaitForFile={setWaitForFile}
-        setOverMaxBitrate={setOverMaxBitrate}
-        channelId={claimChannelId}
-        channelName={activeChannelName}
-        header={
-          <>
-            {AVAILABLE_MODES.map((modeName) => (
-              <Button
-                key={String(modeName)}
-                icon={modeName}
-                iconSize={18}
-                label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
-                button="alt"
-                onClick={() => {
-                  // $FlowFixMe
-                  // setMode(modeName);
-                }}
-                className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
-              />
-            ))}
-          </>
+      <Card
+        background
+        body={
+          <div className="publish-row">
+            <PublishFile
+              inEditMode={inEditMode}
+              fileSource={fileSource}
+              changeFileSource={changeFileSource}
+              uri={permanentUrl}
+              mode={mode}
+              fileMimeType={fileMimeType}
+              disabled={disabled || publishing}
+              inProgress={isInProgress}
+              setPrevFileText={setPrevFileText}
+              setWaitForFile={setWaitForFile}
+              setOverMaxBitrate={setOverMaxBitrate}
+              channelId={claimChannelId}
+              channelName={activeChannelName}
+              header={
+                <>
+                  {AVAILABLE_MODES.map((modeName) => (
+                    <Button
+                      key={String(modeName)}
+                      icon={modeName}
+                      iconSize={18}
+                      label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
+                      button="alt"
+                      className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
+                    />
+                  ))}
+                </>
+              }
+            />
+          </div>
         }
       />
 
-      {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+      {mode !== PUBLISH_MODES.POST && (
+        <Card
+          background
+          title={__('Description')}
+          body={
+            <div className="publish-row">
+              <PublishDescription disabled={formDisabled} />
+            </div>
+          }
+        />
+      )}
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
-          <Card actions={<SelectThumbnail />} />
+          <Card
+            background
+            title={__('Thumbnail')}
+            body={
+              <div className="publish-row">
+                <SelectThumbnail />
+              </div>
+            }
+          />
 
           <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
 
@@ -486,40 +511,48 @@ function UploadForm(props: Props) {
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
           </h2>
-          <TagsSelect
-            suggestMature={!SIMPLE_SITE}
-            disableAutoFocus
-            hideHeader
-            label={__('Selected Tags')}
-            empty={__('No tags added')}
-            limitSelect={TAGS_LIMIT}
-            help={__(
-              "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-            )}
-            placeholder={__('gaming, crypto')}
-            onSelect={(newTags) => {
-              const validatedTags = [];
-              newTags.forEach((newTag) => {
-                if (!tags.some((tag) => tag.name === newTag.name)) {
-                  validatedTags.push(newTag);
-                }
-              });
-              updatePublishForm({ tags: [...tags, ...validatedTags] });
-            }}
-            onRemove={(clickedTag) => {
-              const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePublishForm({ tags: newTags });
-            }}
-            tagsChosen={tags}
+
+          <Card
+            background
+            body={
+              <div className="publish-row">
+                <TagsSelect
+                  suggestMature={!SIMPLE_SITE}
+                  disableAutoFocus
+                  hideHeader
+                  label={__('Selected Tags')}
+                  empty={__('No tags added')}
+                  limitSelect={TAGS_LIMIT}
+                  help={__(
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                  )}
+                  placeholder={__('gaming, crypto')}
+                  onSelect={(newTags) => {
+                    const validatedTags = [];
+                    newTags.forEach((newTag) => {
+                      if (!tags.some((tag) => tag.name === newTag.name)) {
+                        validatedTags.push(newTag);
+                      }
+                    });
+                    updatePublishForm({ tags: [...tags, ...validatedTags] });
+                  }}
+                  onRemove={(clickedTag) => {
+                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                    updatePublishForm({ tags: newTags });
+                  }}
+                  tagsChosen={tags}
+                />
+              </div>
+            }
           />
 
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
         </div>
       )}
       <section>
-        <div className="section__actions">
+        <div className="section__actions publish__actions">
           <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-          <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
         </div>
         <span className="help">
           {!formDisabled && !formValid ? (

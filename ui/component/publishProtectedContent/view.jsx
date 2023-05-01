@@ -149,24 +149,26 @@ function PublishProtectedContent(props: Props) {
   if (!myMembershipTiers || (myMembershipTiers && myMembershipTiers.length === 0)) {
     return (
       <>
-        <h2 className="card__title">{__('Restrict Content')}</h2>
-
         <Card
-          className="card--restrictions"
+          background
+          isBodyList
+          title={__('Restrict Content')}
           body={
-            <I18nMessage
-              tokens={{
-                activate_your_memberships: (
-                  <Button
-                    navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
-                    label={__('activate your memberships')}
-                    button="link"
-                  />
-                ),
-              }}
-            >
-              Please %activate_your_memberships% first to to use this functionality.
-            </I18nMessage>
+            <div className="settings-row publish-row--locked">
+              <I18nMessage
+                tokens={{
+                  activate_your_memberships: (
+                    <Button
+                      navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+                      label={__('activate your memberships')}
+                      button="link"
+                    />
+                  ),
+                }}
+              >
+                Please %activate_your_memberships% first to to use this functionality.
+              </I18nMessage>
+            </div>
           }
         />
       </>
@@ -176,12 +178,12 @@ function PublishProtectedContent(props: Props) {
   if (membershipsToUse && membershipsToUse.length > 0) {
     return (
       <>
-        <h2 className="card__title">{__('Restrict Content')}</h2>
-
         <Card
-          className="card--restrictions"
+          background
+          isBodyList
+          title={__('Restrict Content')}
           body={
-            <>
+            <div className="publish-row publish-row-tiers">
               <FormField
                 type="checkbox"
                 disabled={paywall !== PAYWALL.FREE}
@@ -217,7 +219,7 @@ function PublishProtectedContent(props: Props) {
                   {__('This file has an attached price, disable it in order to add content restrictions.')}
                 </div>
               )}
-            </>
+            </div>
           }
         />
       </>

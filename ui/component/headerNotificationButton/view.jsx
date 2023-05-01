@@ -1,6 +1,4 @@
 // @flow
-import 'scss/component/_header.scss';
-
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
@@ -22,7 +20,6 @@ import { generateNotificationTitle } from '../notification/helpers/title';
 import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
 import { NavLink } from 'react-router-dom';
-import './style.scss';
 
 type Props = {
   notifications: Array<Notification>,

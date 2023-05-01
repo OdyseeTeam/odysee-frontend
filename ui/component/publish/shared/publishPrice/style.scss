@@ -3,25 +3,39 @@
 $DISABLED_OPACITY: 0.2;
 $INDENT: var(--spacing-xl);
 
-.publish-price {
-}
-
 .publish-price__title {
   font-size: var(--font-large);
   font-weight: var(--font-weight-bold);
 }
 
+.publish-price__group {
+  background-color: var(--color-background);
+  padding: var(--spacing-s);
+  border-radius: var(--border-radius);
+
+  input,
+  select {
+    background-color: var(--color-header-button);
+  }
+  .checkbox {
+    label::before {
+      background-color: var(--color-header-button);
+    }
+  }
+}
+
 .publish-price__row {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-s);
+  margin-bottom: var(--spacing-m);
 
   fieldset-section:first-of-type {
     padding: 0;
   }
   .checkbox {
     label {
-      font-size: var(--font-body);
+      // font-size: var(--font-body);
+      padding-left: calc(var(--height-checkbox) + var(--spacing-xs)) !important;
     }
   }
   .input--currency-select {
@@ -31,13 +45,13 @@ $INDENT: var(--spacing-xl);
     }
   }
 
+  label {
+    margin-top: 0;
+  }
+
   svg {
     margin-bottom: 0; // Remove LBC icon offset
   }
-}
-
-.publish-price__row:not(:first-child) {
-  border-top: 1px solid var(--color-border);
 }
 
 .publish-price__row--disabled {

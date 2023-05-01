@@ -1,7 +1,5 @@
 // @flow
 import * as React from 'react';
-
-import './style.scss';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';

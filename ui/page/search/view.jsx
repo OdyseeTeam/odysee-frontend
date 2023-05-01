@@ -6,8 +6,8 @@ import { parseURI, isNameValid } from 'util/lbryURI';
 import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
-import Ad from 'web/component/ad/ad';
 import SearchTopClaim from 'component/searchTopClaim';
+import Ad from 'web/component/ad/ad';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
@@ -98,7 +98,12 @@ export default function SearchPage(props: Props) {
           header={
             <SearchOptions simple={SIMPLE_SITE} additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />
           }
-          injectedItem={!hasPremiumPlus && { node: <Ad type="tileA" />, index: 3 }}
+          injectedItem={
+            !hasPremiumPlus && {
+              node: <Ad type="tileA" />,
+              index: 3,
+            }
+          }
         />
         <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
       </section>

@@ -17,6 +17,9 @@
     color: var(--color-text);
     background-color: var(--color-header-button);
 
+    .button__label {
+      margin-top: 0;
+    }
     &:hover {
       color: var(--color-primary-contrast);
       background-color: var(--color-primary);
@@ -26,7 +29,7 @@
 
 .tags--remove {
   @extend .tags;
-  margin-bottom: var(--spacing-m);
+  // margin-bottom: var(--spacing-m);
 
   .tag {
     margin-top: 0;
@@ -50,13 +53,10 @@
 }
 
 .tags__input-wrapper {
-  // Nested style needed for more specificity
   .tag__input {
     @extend .tag--remove;
     height: var(--input-height);
     padding: calc(var(--spacing-xxs) + 1px) var(--spacing-s);
-    background-color: var(--color-input-bg);
-    margin-bottom: var(--spacing-m);
   }
 }
 

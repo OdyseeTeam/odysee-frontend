@@ -130,6 +130,7 @@ export default function NotificationSettingsPage(props: Props) {
             <div className="card__subtitle">{__("Choose how you'd like to receive your Odysee notifications.")}</div>
           </div>
           <Card
+            background
             isBodyList
             body={
               <>
@@ -181,6 +182,7 @@ export default function NotificationSettingsPage(props: Props) {
                 <div className="card__subtitle">{__('Choose which topics you’d like to be emailed about.')}</div>
               </div>
               <Card
+                background
                 isBodyList
                 body={
                   <>

@@ -157,8 +157,8 @@ const SettingsStripeCard = (props: Props) => {
           />
         )}
         <Card
-          title={isModal ? undefined : __('Card Details')}
           className="add-payment-card"
+          title={isModal ? undefined : __('Card Details')}
           body={
             <>
               <Plastic

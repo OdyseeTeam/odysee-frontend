@@ -29,10 +29,9 @@ select,
     background-color: var(--color-secondary);
   }
 }
-
 input {
   &:hover {
-    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+    box-shadow: 0 0 0 2px var(--color-primary) inset;
   }
 }
 
@@ -117,15 +116,6 @@ form,
 .radio,
 .form-field--SimpleMDE,
 .form-field__help {
-  + fieldset-section,
-  + fieldset-group,
-  + form,
-  + .checkbox,
-  + .radio,
-  + .form-field--SimpleMDE {
-    margin-top: var(--spacing-l);
-  }
-
   + .form-field__help {
     margin-top: var(--spacing-s);
   }
@@ -210,7 +200,7 @@ input-submit {
     display: inline-block;
     margin: 0;
     font-size: var(--font-base);
-    padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
+    padding-left: calc(var(--height-checkbox) + var(--spacing-s));
     min-height: var(--height-checkbox);
 
     &::before {
@@ -254,15 +244,21 @@ input-submit {
     border-bottom: 2px solid var(--color-primary);
     transform: rotate(-45deg);
     left: 6px;
-    top: 6px;
+    top: 8px;
   }
 
   &:hover {
-    &::before {
-      background-color: var(--color-primary);
+    input {
+      box-shadow: unset;
     }
-    &::after {
-      border-color: var(--color-primary-contrast);
+    label {
+      cursor: pointer;
+      &::before {
+        background-color: var(--color-primary);
+      }
+      &::after {
+        border-color: var(--color-primary-contrast);
+      }
     }
   }
 }
@@ -276,10 +272,8 @@ input-submit {
   label::before {
     height: var(--height-radio);
     width: var(--height-radio);
-    border: 1px solid var(--color-input-border);
     border-radius: calc(var(--height-radio) * 0.5);
     left: 0px;
-    top: -1px;
   }
 
   // Checkmark of the fake radio
@@ -289,12 +283,18 @@ input-submit {
     border-radius: 50%;
     background-color: var(--color-primary);
     left: 6px;
-    top: 5px;
+    top: 6px;
   }
 
   &:hover {
-    label::after {
-      background-color: var(--color-primary-contrast);
+    label {
+      cursor: pointer;
+      &::after {
+        background-color: var(--color-primary-contrast);
+      }
+      &::before {
+        background-color: var(--color-primary);
+      }
     }
   }
 }
@@ -377,14 +377,10 @@ fieldset-group {
 
       &:nth-of-type(2) {
         &:not(input.paginate-channel) {
-          // yuck
           input,
           select {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
-          }
-          label {
-            margin-left: var(--spacing-s);
           }
         }
       }
@@ -497,7 +493,8 @@ fieldset-group {
 
 .form-field__help {
   @extend .help;
-  color: var(--color-text);
+  opacity: 0.8;
+  color: rgba(var(--color-text-base), 0.8);
 }
 
 .form-field__help + .checkbox,
@@ -527,14 +524,11 @@ fieldset-group {
 
 .form-field__hint {
   opacity: 0.8;
-  font-size: var(--font-xsmall);
+  font-size: var(--font-small);
   color: var(--color-input-label);
 }
 
 .form-field__textarea-info {
-  //display: flex;
-  //flex-wrap: wrap;
-  //align-items: right;
   justify-content: space-between;
   margin-top: var(--spacing-xxs);
   margin-bottom: var(--spacing-s);
@@ -606,10 +600,10 @@ fieldset-section {
 }
 
 .form-field-date-picker {
-  margin-bottom: var(--spacing-l);
   font-size: var(--font-base);
 
   label {
+    margin-top: 0;
     display: block;
   }
 
@@ -853,4 +847,71 @@ fieldset-section {
 
 #yt_sync_channel {
   width: unset;
+}
+
+.clh-tag-search {
+  .button-toggle {
+    border-radius: var(--border-radius);
+  }
+
+  .button-toggle--active {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  input::placeholder {
+    font-size: var(--font-small);
+  }
+
+  .clh-tag-search__clear {
+    position: absolute;
+    background: unset;
+    right: var(--spacing-xxxs);
+    .icon {
+      transform: rotate(0deg);
+      transition: transform 0.2s;
+    }
+    &:hover {
+      background: unset;
+      .icon {
+        stroke: var(--color-primary);
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .clh-tag-search__clear--hidden {
+    display: none;
+  }
+}
+
+.clh-tag-search--standalone {
+  width: 100%;
+  margin-left: var(--spacing-xs);
+}
+
+.clh-tag-search__input_group {
+  position: relative;
+  display: flex;
+  width: 100%;
+  fieldset-section {
+    width: 100%;
+  }
+  input::placeholder {
+    font-size: var(--font-body);
+  }
+  .icon {
+    position: absolute;
+    left: var(--spacing-s);
+    top: calc(50% - 8px);
+  }
+}
+
+.clh-tag-search__input {
+  width: 100%;
+  padding-left: 36px;
+  padding-right: 30px;
+}
+
+.clh-tag-search__input--hidden {
+  display: none;
 }

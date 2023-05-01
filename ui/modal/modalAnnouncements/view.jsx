@@ -18,14 +18,8 @@ type Props = {
 };
 
 export default function ModalAnnouncements(props: Props) {
-  const {
-    authenticated,
-    announcement,
-    lastViewedHash,
-    isAutoInvoked,
-    doHideModal,
-    doSetLastViewedAnnouncement,
-  } = props;
+  const { authenticated, announcement, lastViewedHash, isAutoInvoked, doHideModal, doSetLastViewedAnnouncement } =
+    props;
 
   const {
     location: { pathname },

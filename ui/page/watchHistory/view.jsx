@@ -36,9 +36,9 @@ export default function WatchHistoryPage(props: Props) {
     <Page className="historyPage-wrapper">
       <div className={classnames('section card-stack')}>
         <div className="claim-list__header">
-          <h1 className="card__title">
+          <h1 className="page__title">
             <Icon icon={ICONS.WATCH_HISTORY} style={{ marginRight: 'var(--spacing-s)' }} />
-            {__('Watch History')}
+            <label>{__('Watch History')}</label>
             <Tooltip title={__('Currently, your watch history is only saved locally.')}>
               <Button className="icon--help" icon={ICONS.HELP} iconSize={14} />
             </Tooltip>

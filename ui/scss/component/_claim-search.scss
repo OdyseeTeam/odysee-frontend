@@ -14,6 +14,53 @@
       gap: var(--spacing-xs);
     }
   }
+
+  .section__actions--no-margin {
+    justify-content: end;
+    margin-left: auto;
+    @media (max-width: $breakpoint-small) {
+      top: 0;
+      right: 0;
+      margin-top: var(--spacing-s);
+    }
+  }
+
+  .hide-anonymous-checkbox {
+    background-color: var(--color-header-button);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 var(--spacing-s);
+    height: var(--height-input);
+    label {
+      font-size: var(--font-base);
+      font-weight: var(--font-weight-bold);
+      padding-left: calc(var(--height-checkbox) + var(--spacing-s));
+      margin-bottom: -4px;
+      &::before {
+        background-color: var(--color-background);
+        margin-top: -2px;
+      }
+      &::after {
+        background: none;
+        margin-top: -2px;
+      }
+    }
+    &:hover {
+      label {
+        &::before {
+          background-color: var(--color-primary);
+        }
+        &::after {
+          background: none;
+        }
+      }
+      input {
+        background: none;
+      }
+    }
+  }
 }
 
 .claim-search__wrapper--wrap {
@@ -54,10 +101,10 @@
   flex-wrap: wrap;
   justify-content: flex-start;
   align-items: center;
-  padding: var(--spacing-m);
-  padding-left: 0px;
-  padding-bottom: var(--spacing-s);
-  margin-top: var(--spacing-m);
+  // padding: var(--spacing-m);
+  // padding-left: 0px;
+  // padding-bottom: var(--spacing-s);
+  // margin-top: var(--spacing-m);
   margin-bottom: var(--spacing-m);
   color: var(--color-text-subtitle);
   align-items: flex-start;
@@ -208,6 +255,9 @@
 
 .claim-search__tags-link {
   margin-left: var(--spacing-s);
+  .button__label {
+    margin-top: 0;
+  }
 }
 
 .claim-search__filters-wrapper {
@@ -218,6 +268,26 @@
 
 .claim-search__filters-wrapper-expanded {
   max-height: 300px;
+
+  .filer-checkbox-wrapper {
+    display: flex;
+    flex-flow: column;
+    border-radius: var(--border-radius);
+    padding-left: var(--spacing-s);
+    padding-top: var(--spacing-xs);
+
+    div {
+      .checkbox {
+        margin-top: var(--spacing-xs);
+      }
+    }
+    div:last-of-type {
+      .checkbox {
+        margin-bottom: var(--spacing-xs);
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     max-height: 700px;
   }
@@ -268,9 +338,6 @@
     &:focus-visible {
       color: var(--color-text);
     }
-  }
-  label {
-    pointer-events: none;
   }
 
   input[type='text'],

@@ -11,7 +11,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
 import PAGES from 'constants/pages';
 
-const ChannelPage = lazyImport(() => import('./internal/channel' /* webpackChunkName: "channelPage" */));
+const ChannelPage = lazyImport(() => import('./internal/channelPage' /* webpackChunkName: "channelPage" */));
 const StreamClaimPage = lazyImport(() =>
   import('./internal/streamClaimPage' /* webpackChunkName: "streamClaimPage" */)
 );

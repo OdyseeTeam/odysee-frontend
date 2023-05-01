@@ -770,7 +770,7 @@ function ClaimListDiscover(props: Props) {
 
   return (
     <React.Fragment>
-      {headerLabel && <label className="claim-list__header-label">{headerLabel}</label>}
+      {headerLabel && headerLabel}
       {tileLayout ? (
         <div>
           {!repostedClaimId && showHeader && (

@@ -14,7 +14,6 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
-import './style.scss';
 
 const DEBOUNCE_REFRESH_MS = 1000;
 
@@ -281,9 +280,10 @@ export default function CreatorSettingsTab(props: Props) {
 
         {!isBusy && !isDisabled && (
           <>
-            <h2 className="card__title">{__('General')}</h2>
             <Card
-              className="card--background"
+              background
+              isBodyList
+              title={__('General')}
               body={
                 <>
                   {channelHasMembershipTiers && (
@@ -435,9 +435,10 @@ export default function CreatorSettingsTab(props: Props) {
               }
             />
 
-            <h2 className="card__title">{__('Moderators')}</h2>
             <Card
-              className="card--background"
+              background
+              isBodyList
+              title={__('Moderators')}
               body={
                 <SettingsRow subtitle={__(HELP.MODERATORS)} multirow>
                   <SearchChannelField
@@ -452,9 +453,10 @@ export default function CreatorSettingsTab(props: Props) {
               }
             />
 
-            <h2 className="card__title">{__('Filters')}</h2>
             <Card
-              className="card--background"
+              background
+              isBodyList
+              title={__('Filters')}
               body={
                 <SettingsRow subtitle={__(HELP.BLOCKED_WORDS)} multirow>
                   <div className="tag--blocked-words">

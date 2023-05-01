@@ -25,6 +25,10 @@ $thumbnailWidthSmall: 2rem;
       font-size: var(--font-xsmall);
     }
   }
+  .spinner {
+    background: unset;
+    border: unset;
+  }
 }
 
 .comments--contracted {

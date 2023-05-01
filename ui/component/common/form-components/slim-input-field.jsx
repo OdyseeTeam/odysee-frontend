@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import Drawer from '@mui/material/Drawer';
-import CommentSelectors from 'component/commentCreate/comment-selectors';
+import CommentSelectors from 'component/commentCreate/internal/comment-selectors';
 
 type TextareaWrapperProps = {
   slimInput?: boolean,

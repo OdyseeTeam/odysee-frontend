@@ -2,7 +2,6 @@
 import React from 'react';
 import type { ElementRef } from 'react';
 
-import './style.scss';
 import { FormField } from 'component/common/form';
 import * as CS from 'constants/claim_search';
 import Button from 'component/button';
@@ -21,9 +20,6 @@ function TagSearch(props: Props) {
   const { urlParams, handleChange, standalone } = props;
 
   const inputRef: ElementRef<any> = React.useRef();
-  // const isTagFiltered = urlParams.get(CS.TAGS_KEY);
-
-  // const [tagSearchExpanded, setTagSearchExpanded] = React.useState(isLargeScreen);
   const [tagSearchQuery, setTagSearchQuery] = React.useState(urlParams.get(CS.TAGS_KEY) || '');
   const handleChangeDebounced = React.useCallback(
     debounce((v) => handleChange({ key: CS.TAGS_KEY, value: v }), 500),
@@ -43,10 +39,7 @@ function TagSearch(props: Props) {
           ref={inputRef}
           placeholder={__('Search tags')}
           type="text"
-          className={classnames('clh-tag-search__input', {
-            // 'clh-tag-search__input--standalone': standalone,
-            // 'clh-tag-search__input--hidden': standalone && !tagSearchExpanded,
-          })}
+          className="clh-tag-search__input"
           name="tag_query"
           value={tagSearchQuery}
           onChange={(e) => {
@@ -59,12 +52,9 @@ function TagSearch(props: Props) {
           icon={ICONS.REMOVE}
           aria-label={__('Clear')}
           button="alt"
-          className={classnames('clh-tag-search__clear', {
-            // 'clh-tag-search__clear--hidden': (standalone && !tagSearchExpanded) || !tagSearchQuery,
-          })}
+          className="clh-tag-search__clear"
           onClick={() => {
             setTagSearchQuery('');
-            // setTagSearchExpanded(false);
             handleChange({ key: CS.TAGS_KEY, value: '' });
           }}
         />

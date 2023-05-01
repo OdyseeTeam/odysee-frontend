@@ -326,28 +326,28 @@ function PublishPrice(props: Props) {
 
   return (
     <div className="publish-price">
-      <h2 className="publish-price__title">{__('Price')}</h2>
       <Card
-        className={classnames('card--enable-overflow card--publish-section card--additional-options', {
-          'card--disabled': disabled,
-        })}
-        actions={
+        background
+        isBodyList
+        className="card--enable-overflows"
+        title={__('Price')}
+        body={
           <>
             {expanded && (
-              <>
+              <div className="settings-row">
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
                 {getPaywallOptionsRow()}
                 {paywall === PAYWALL.FIAT && (
-                  <>
+                  <div className="publish-price__group">
                     {getPurchaseRow()}
                     {getRentalRow()}
                     {getTncRow()}
-                  </>
+                  </div>
                 )}
-                {paywall === PAYWALL.SDK && getLbcPurchaseRow()}
-              </>
+                {paywall === PAYWALL.SDK && <div className="publish-price__group">{getLbcPurchaseRow()}</div>}
+              </div>
             )}
-            <div className="publish-price__row">
+            <div className="publish-row publish-row--more">
               <Button
                 label={__(expanded ? 'Hide' : 'Show')}
                 button="link"

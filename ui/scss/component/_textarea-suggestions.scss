@@ -22,11 +22,13 @@
   border-radius: var(--border-radius);
 }
 
+/*
 .comment__content {
   .MuiAutocomplete-root {
     margin: var(--spacing-xxs) 0 var(--spacing-s) 0;
   }
 }
+*/
 
 .comment-create__auth {
   .MuiAutocomplete-root {
@@ -92,7 +94,8 @@
 
     textarea {
       border: none;
-      margin: 9px 0px;
+      border-radius: var(--border-radius);
+      padding: var(--spacing-xxs) var(--spacing-xxxs);
     }
 
     button {
@@ -308,7 +311,6 @@
   .tabs {
     border-top: 1px solid var(--color-border);
     .tab {
-      // padding-top:0;
       &::after {
         height: 4px !important;
         bottom: calc(var(--tab-indicator-size) * -2 + 13px);
@@ -398,7 +400,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    .commentCreate {
+    .comment-create {
       .section__actions {
         .button {
           background-color: var(--color-header-button);

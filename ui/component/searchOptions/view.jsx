@@ -48,15 +48,8 @@ type Props = {
 };
 
 const SearchOptions = (props: Props) => {
-  const {
-    options,
-    simple,
-    setSearchOption,
-    expanded,
-    searchInLanguage,
-    toggleSearchExpanded,
-    onSearchOptionsChanged,
-  } = props;
+  const { options, simple, setSearchOption, expanded, searchInLanguage, toggleSearchExpanded, onSearchOptionsChanged } =
+    props;
 
   const stringifiedOptions = JSON.stringify(options);
 

@@ -180,6 +180,7 @@
     "localforage": "^1.7.1",
     "lodash-es": "^4.17.14",
     "mammoth": "^1.4.16",
+    "mini-css-extract-plugin": "^2.7.5",
     "moment": "https://github.com/OdyseeTeam/moment.git",
     "node-abi": "^2.5.1",
     "node-fetch": "^2.6.1",

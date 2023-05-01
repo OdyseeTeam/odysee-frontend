@@ -1,7 +1,5 @@
 // @flow
 import React from 'react';
-
-import './style.scss';
 import { FormField } from 'component/common/form';
 import * as CS from 'constants/claim_search';
 

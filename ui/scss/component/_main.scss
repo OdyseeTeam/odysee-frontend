@@ -29,6 +29,7 @@ body {
 
   @media (max-width: $breakpoint-small) {
     margin-top: var(--header-height-mobile);
+    padding: 0;
   }
 
   @media (min-width: $breakpoint-large) {
@@ -89,6 +90,7 @@ body {
   @media (max-width: $breakpoint-small) {
     width: 100%;
     padding: 0 var(--spacing-xs);
+    margin-top: var(--spacing-m);
   }
 }
 
@@ -538,109 +540,6 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
-  .checkbox {
-    label {
-      padding-left: var(--height-checkbox);
-    }
-  }
-
-  .theme-checkbox {
-    label {
-      padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
-    }
-  }
-
-  .section__actions {
-    margin-left: var(--spacing-s);
-  }
-
-  .card__body--list {
-    background-color: rgba(var(--color-header-button-base), 0.6);
-
-    border-radius: var(--border-radius);
-    border-top: unset;
-
-    .settings-row {
-      padding: var(--spacing-s);
-      border-bottom: 1px solid var(--color-border);
-
-      .settings-row__value {
-        .button__content {
-          &:hover {
-            color: var(--color-secondary);
-          }
-        }
-      }
-      .fieldset-group--smushed {
-        label {
-          margin-left: 0;
-        }
-        fieldset-section:last-of-type {
-          margin-left: 2px;
-        }
-      }
-      .button--secondary {
-        background-color: var(--color-background);
-      }
-    }
-    .settings-row:first-of-type {
-      margin-top: var(--spacing-xxxs);
-    }
-    .settings-row:last-of-type {
-      border-bottom: unset;
-    }
-
-    .card__main-actions {
-      border-top: unset;
-    }
-
-    input,
-    select {
-      background-color: var(--color-background);
-      &:focus-visible {
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
-
-    select {
-      &:hover {
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast);
-      }
-    }
-
-    .checkbox,
-    .radio {
-      label {
-        &::before {
-          background-color: var(--color-background);
-          top: unset;
-          border: unset;
-        }
-        &::after {
-          top: 6px;
-        }
-      }
-      &:hover {
-        label {
-          &::before {
-            background-color: var(--color-primary);
-          }
-          &::after {
-            border-color: var(--color-primary-contrast);
-          }
-        }
-      }
-    }
-    .checkbox {
-      label {
-        &::after {
-          top: 8px !important;
-        }
-      }
-    }
-  }
-
   @media (max-width: $breakpoint-small) {
     padding: 0 var(--spacing-xs);
 
@@ -672,47 +571,8 @@ body {
     color: var(--color-primary);
   }
 
-  .card__title-section {
-    padding-bottom: 0;
-  }
   .card__title-section:not(:first-child) {
     padding-top: var(--spacing-l);
-  }
-
-  .section__actions--between:first-child {
-    margin-top: var(--spacing-s);
-  }
-  .section__actions--between {
-    border-top: unset;
-    margin-top: 0;
-    padding-top: var(--spacing-s);
-    padding-bottom: var(--spacing-s);
-    margin-left: auto;
-    position: relative;
-
-    .settings-row__value {
-      align-self: start;
-    }
-
-    .settings-row__title {
-      color: rgba(var(--color-text-base), 0.9);
-    }
-    .settings-row__subtitle {
-      color: rgba(var(--color-text-base), 0.6);
-    }
-
-    &:hover:not(.opacity-30) {
-      .settings-row__title {
-        color: rgba(var(--color-text-base), 1);
-      }
-    }
-  }
-
-  .tags--remove {
-    .button {
-      background-color: var(--color-header-background);
-      color: var(--color-text);
-    }
   }
 
   .claim-preview__wrapper--channel {
@@ -1031,8 +891,19 @@ body {
   }
 
   .card__title {
-    font-size: 0.93rem;
     font-weight: var(--font-weight-bold);
+  }
+
+  div:not(.checkbox) {
+    label {
+      font-size: var(--font-body);
+    }
+  }
+  .checkbox {
+    margin-bottom: var(--spacing-l);
+  }
+  input {
+    margin-bottom: var(--spacing-m);
   }
 
   .card__main-actions {
@@ -1055,38 +926,11 @@ body {
       }
     }
   }
-}
 
-// Temp hacks until 'section__actions--no-margin' is generic again.
-.main__discover {
-  .claim-preview {
-    .claim-preview__text {
-      overflow: hidden;
-    }
-    .claim-preview-metadata {
-      .claim-tile__info {
-        .media__subtitle {
-          span:not(.channel-name) {
-            font-size: var(--font-xsmall);
-          }
-        }
-      }
-    }
-  }
-  @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-xs);
-    .claim-preview {
-      .claim-preview-metadata {
-        .claim-tile__info {
-          .media__subtitle {
-            width: calc(100% - 2.1rem);
-          }
-        }
-      }
-    }
-    .section__actions--no-margin {
-      width: unset;
-    }
+  fieldset-group,
+  fieldset-section,
+  .checkbox {
+    margin-bottom: var(--spacing-m);
   }
 }
 

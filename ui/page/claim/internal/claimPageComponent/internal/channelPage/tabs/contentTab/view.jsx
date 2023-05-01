@@ -9,7 +9,6 @@ import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
-import Ad from 'web/component/ad/ad';
 import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
@@ -18,6 +17,7 @@ import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
+import Ad from 'web/component/ad/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];

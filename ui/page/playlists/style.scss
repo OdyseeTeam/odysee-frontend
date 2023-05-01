@@ -1,0 +1,260 @@
+@import '~ui/scss/init/breakpoints';
+
+.playlists-page__wrapper {
+  .page__title {
+    margin-top: var(--spacing-xxxs);
+    margin-bottom: var(--spacing-m);
+  }
+
+  .card-stack:first-of-type {
+    .card {
+      margin-bottom: var(--spacing-l);
+    }
+  }
+
+  .claim-list {
+    margin-bottom: var(--spacing-xxl);
+    &.playlists {
+      .claim-preview-info {
+        color: var(--color-text);
+      }
+    }
+  }
+
+  .claim-grid__wrapper:last-of-type {
+    .section__header--actions {
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .section__header--actions {
+      @media (max-width: $breakpoint-medium) {
+        .claim-search__menu-group {
+          .button-toggle {
+            flex: auto;
+            .button__content {
+              display: flex;
+              justify-content: center !important;
+              align-items: center;
+            }
+          }
+        }
+        .wunderbar--inline {
+          width: 100%;
+          flex: unset;
+        }
+      }
+    }
+  }
+
+  .card__header--between {
+    width: 100%;
+    flex-wrap: wrap;
+
+    .card__title-section {
+      width: 100%;
+      flex-wrap: wrap;
+
+      div:first-child:not(.channel-thumbnail) {
+        width: 100%;
+
+        .card__subtitle {
+          background-color: var(--color-header-background);
+          padding: var(--spacing-m);
+          border-radius: var(--border-radius);
+
+          .claim-preview__wrapper {
+            display: flex;
+            align-items: flex-start;
+
+            .claim-preview-metadata {
+              flex-wrap: unset;
+
+              .claim-preview-info {
+                width: 100%;
+              }
+            }
+          }
+
+          .markdown-preview--description {
+            color: var(--color-text);
+          }
+        }
+      }
+    }
+  }
+
+  @media (min-width: $breakpoint-small) {
+    .claim-preview--collection-editing {
+      height: unset;
+      position: relative;
+
+      .media__thumb {
+        position: relative;
+        right: unset;
+
+        .claim-preview__hover-actions {
+          display: visible;
+        }
+      }
+
+      .claim-preview__text {
+        position: unset;
+        right: unset;
+        width: 100%;
+        background-color: unset;
+        padding: 0;
+        border-radius: unset;
+
+        .media__subtitle {
+          .button__content {
+            .channel-name {
+              font-size: var(--font-xsmall);
+            }
+          }
+        }
+      }
+    }
+
+    .button-dislike {
+      margin-right: 0;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .claim-search__wrapper--wrap {
+      .claim-search__menu-group {
+        width: 100%;
+        .claim-search__menu-subgroup {
+          width: 100%;
+          .button {
+            width: 100%;
+            flex: 1;
+          }
+        }
+      }
+    }
+
+    .claim-preview__wrapper--row {
+      width: calc(100% - var(--spacing-xs));
+    }
+
+    .card__title {
+      .card__title--with-actions {
+        flex-flow: column;
+        .card-title__text {
+          flex: 1;
+        }
+        .card-title__action-buttons {
+          width: 100%;
+          button:first-of-type {
+            flex: 1;
+          }
+          button:nth-of-type(2) {
+            margin-left: var(--spacing-s);
+          }
+          button {
+            border-radius: var(--border-radius);
+          }
+        }
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-medium) {
+    .card__subtitle {
+      .media__subtitle {
+        margin-top: -8px;
+      }
+    }
+
+    .card-stack {
+      margin-top: var(--spacing-m);
+    }
+
+    .card__title-actions {
+      .button--close {
+        right: 0;
+        top: calc(var(--spacing-s) * -1);
+      }
+    }
+
+    .claim-search__wrapper--grid {
+      grid-template-columns: minmax(auto, 85%) 1fr;
+      .claim-search__menu-group {
+        display: flex !important;
+        width: 100%;
+        flex: 1;
+        &:nth-of-type(2) {
+          margin-left: auto;
+        }
+      }
+    }
+
+    .claim-search__menu-group--inputs {
+      .claim-search__input-container {
+        margin-bottom: var(--spacing-s);
+      }
+    }
+
+    .button--primary {
+      top: 0;
+    }
+
+    .media__actions.stretch {
+      .button:nth-of-type(2) {
+        margin-right: 0 !important;
+      }
+
+      .ratio-wrapper {
+        .button {
+          background-color: unset;
+          margin-bottom: 0;
+          &:nth-of-type(2) {
+            margin-right: var(--spacing-xxs) !important;
+          }
+        }
+      }
+
+      a {
+        margin-left: var(--spacing-xxs);
+      }
+    }
+  }
+  .section__header--actions {
+    @media (max-width: $breakpoint-medium) {
+      .claim-search__wrapper--wrap {
+        width: 100%;
+        flex-flow: row;
+        gap: var(--spacing-xs);
+
+        &:last-of-type {
+          margin-top: var(--spacing-s);
+        }
+
+        .button.button-toggle--more {
+          float: right;
+          margin-left: var(--spacing-s);
+        }
+        .button--primary {
+          margin-left: auto;
+        }
+      }
+    }
+  }
+
+  .card-fixed-bottom {
+    left: var(--side-nav-width--micro);
+    width: calc(100% - var(--side-nav-width--micro));
+    .card--after-tabs {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      left: 0;
+      width: calc(100% - var(--spacing-xxs) * 2);
+      margin: 0 var(--spacing-xxs);
+    }
+  }
+}

@@ -24,8 +24,8 @@ import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
 import AdBlockTester from 'web/component/adBlockTester';
-import Ad from 'web/component/ad/ad';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
+import Ad from 'web/component/ad/ad';
 import {
   useDegradedPerformance,
   STATUS_OK,

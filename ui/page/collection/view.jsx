@@ -11,6 +11,7 @@ import CollectionHeader from './internal/collectionHeader';
 import Spinner from 'component/spinner';
 import Card from 'component/common/card';
 import Button from 'component/button';
+import '../playlists/style.scss';
 
 type Props = {
   // -- path match --
@@ -123,7 +124,7 @@ const CollectionPage = (props: Props) => {
   }
 
   return (
-    <Page className="playlists-page-wrapper">
+    <Page className="playlists-page__wrapper">
       <div className="section card-stack">
         <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader

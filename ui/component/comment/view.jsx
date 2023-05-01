@@ -39,7 +39,6 @@ import usePersistedState from 'effects/use-persisted-state';
 import CommentReactions from 'component/commentReactions';
 import CommentsReplies from 'component/commentsReplies';
 import { useHistory } from 'react-router';
-import CommentCreate from 'component/commentCreate';
 import CommentMenuList from 'component/commentMenuList';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
@@ -48,8 +47,10 @@ import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
 import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
+import { lazyImport } from 'util/lazyImport';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
 type Props = {
   comment: Comment,

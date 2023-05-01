@@ -66,7 +66,7 @@ function CollectionPublishAdditionalOptions(props: Props) {
       <h2 className="card__title">{__('Additional Options')}</h2>
 
       <Card
-        className="card--enable-overflow card--publish-section card--additional-options"
+        className="card--enable-overflow"
         actions={
           <>
             {!hideSection && (

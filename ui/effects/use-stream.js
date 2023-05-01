@@ -14,7 +14,7 @@ export default function useStream(url) {
 
   React.useEffect(() => {
     if (url && isMounted.current) {
-      https.get(url, response => {
+      https.get(url, (response) => {
         if (isMounted && response.statusCode >= 200 && response.statusCode < 300) {
           let chunks = [];
           // Handle stream chunk recived

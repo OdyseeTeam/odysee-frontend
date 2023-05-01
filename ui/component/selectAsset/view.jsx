@@ -108,22 +108,22 @@ function SelectAsset(props: Props) {
   const currentPlaceholder = pathSelected ? imagePreview : currentValue;
   const ChannelPreview = () => {
     return (
-      <div className="channel-preview-wrapper">
+      <div className="channel-preview__wrapper">
         <div
-          className="channel-preview-header"
+          className="channel-preview__header"
           style={{
             backgroundImage:
               'url(' + (assetName === 'Cover Image' ? String(currentPlaceholder) : String(otherValue)) + ')',
           }}
         />
-        <div className="channel-preview-tabs" />
-        <div className="channel-preview-thumbnail">
+        <div className="channel-preview__tabs" />
+        <div className="channel-preview__thumbnail">
           {otherValue && <img src={assetName === 'Cover Image' ? String(otherValue) : String(currentPlaceholder)} />}
         </div>
-        <div className="channel-preview-grid">
+        <div className="channel-preview__grid">
           {Array.from(Array(6), (e, i) => {
             return (
-              <div className="channel-preview-grid-tile" key={i}>
+              <div className="channel-preview__grid-tile" key={i}>
                 <div />
                 <div />
                 <div />
@@ -170,8 +170,8 @@ function SelectAsset(props: Props) {
                     setImageTitle(e.target.value);
                   }}
                 />
-                <div className="preview-image-wrapper">
-                  <div className="preview-image-container">
+                <div className="preview-image__wrapper">
+                  <div className="preview-image__container">
                     {url ? <img className="preview-image" src={String(url)} /> : <Icon icon={ICONS.IMAGE} />}
                   </div>
                 </div>
@@ -206,7 +206,7 @@ function SelectAsset(props: Props) {
               accept={accept}
             />
             {assetName === 'Image' && (
-              <div className="image-upload-wrapper">
+              <div className="image-upload__wrapper">
                 <FormField
                   type={'text'}
                   name={'thumbnail'}
@@ -217,8 +217,8 @@ function SelectAsset(props: Props) {
                     setImageTitle(e.target.value);
                   }}
                 />
-                <div className="preview-image-wrapper">
-                  <div className="preview-image-container">
+                <div className="preview-image__wrapper">
+                  <div className="preview-image__container">
                     {currentPlaceholder ? (
                       <img className="preview-image" src={String(currentPlaceholder)} />
                     ) : (
@@ -252,6 +252,7 @@ function SelectAsset(props: Props) {
           />
         )}
         <FormField
+          className="toggle-upload-checkbox"
           name="toggle-upload"
           type="checkbox"
           label={__('Use a URL')}

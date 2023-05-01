@@ -7,11 +7,11 @@ import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
 import ChannelSection from 'component/channelSections/Section';
 import ScheduledStreams from 'component/scheduledStreams';
 import ClaimPreviewTile from 'component/claimPreviewTile';
+import Ad from 'web/component/ad/ad';
 import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import Ad from 'web/component/ad/ad';
 
 type Props = {
   channelClaimId: any,

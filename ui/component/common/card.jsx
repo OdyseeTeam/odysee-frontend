@@ -27,6 +27,7 @@ type Props = {
   children?: Node,
   secondPane?: Node,
   slimHeader?: boolean,
+  background?: boolean,
   backgroundImage?: string,
   singlePane?: boolean,
   headerActions?: Node,
@@ -54,6 +55,7 @@ function Card(props: Props) {
     children,
     secondPane,
     slimHeader,
+    background,
     backgroundImage,
     singlePane,
     headerActions,
@@ -69,6 +71,7 @@ function Card(props: Props) {
       role={onClick ? 'button' : undefined}
       className={classnames(className, 'card', {
         'card__multi-pane': Boolean(secondPane),
+        'card--background': background,
       })}
       id={id}
       onClick={(e) => {

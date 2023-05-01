@@ -11,11 +11,11 @@ import Button from 'component/button';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
-import Ad from 'web/component/ad/ad';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './internal/livestreamSection';
+import Ad from 'web/component/ad/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
@@ -123,25 +123,29 @@ function DiscoverPage(props: Props) {
       headerLabel = __('Reposts of %uri%', { uri: repostedUri });
     } else if (tag && !isCategory) {
       headerLabel = (
-        <span>
+        <h1 className="page__title">
           <Icon icon={ICONS.TAG} size={10} />
-          {(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          <span>
+            #{(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          </span>
 
-          <Button
-            className="claim-search__tags-link"
-            button="link"
-            label={__('Manage Tags')}
-            navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
-          />
-        </span>
+          <span>
+            <Button
+              className="claim-search__tags-link"
+              button="link"
+              label={__('Manage Tags')}
+              navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
+            />
+          </span>
+        </h1>
       );
     } else {
       headerLabel = (
         <>
-          <span className="icon__wrapper">
+          <h1 className="page__title">
             <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
-          </span>
-          <label>{(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}</label>
+            <label>{(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}</label>
+          </h1>
         </>
       );
     }
@@ -203,11 +207,7 @@ function DiscoverPage(props: Props) {
   // **************************************************************************
 
   return (
-    <Page
-      noFooter
-      fullWidthPage={tileLayout}
-      className={classnames('main__discover', { 'hide-ribbon': hideRepostRibbon })}
-    >
+    <Page noFooter fullWidthPage={tileLayout} className={classnames({ 'hide-ribbon': hideRepostRibbon })}>
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
         <ClaimListDiscover
           pins={getPins(dynamicRouteProps)}

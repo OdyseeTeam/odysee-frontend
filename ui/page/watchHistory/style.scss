@@ -4,13 +4,16 @@
   .claim-preview__wrapper {
     .claim-preview__history-remove {
       position: absolute;
-      top: var(--spacing-s);
-      right: 40px;
+      top: var(--spacing-xs);
+      right: var(--spacing-xs);
       opacity: 0;
 
       .icon {
-        width: 22px;
-        height: 22px;
+        width: 28px;
+        height: 28px;
+        padding: 4px;
+        background: var(--color-background);
+        border-radius: 50%;
       }
 
       &:hover {
@@ -19,20 +22,32 @@
           cursor: pointer;
         }
       }
-
-      @media (max-width: $breakpoint-small) {
-        opacity: 1;
-      }
     }
 
     .menu__button.claim__menu-button {
       top: var(--spacing-xs);
-      right: var(--spacing-xs);
+      right: 40px;
     }
 
     &:hover {
       .claim-preview__history-remove {
         opacity: 1;
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      .claim-preview__history-remove {
+        top: 2px;
+        right: 2px;
+        opacity: 1;
+        .icon {
+          background: none;
+        }
+      }
+
+      .menu__button.claim__menu-button {
+        top: 30px !important;
+        right: 2px !important;
       }
     }
   }

@@ -18,7 +18,6 @@ import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { useIsMobile } from 'effects/use-screensize';
 import debounce from 'util/debounce';
-import './style.scss';
 
 type Props = {
   defaultTags: string,

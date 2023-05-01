@@ -1,8 +1,8 @@
 // @flow
 import * as React from 'react';
-import { lazyImport } from 'util/lazyImport';
-import FileTitleSection from 'component/fileTitleSection';
 import Ad from 'web/component/ad/ad';
+import FileTitleSection from 'component/fileTitleSection';
+import { lazyImport } from 'util/lazyImport';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
