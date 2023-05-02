@@ -55,8 +55,6 @@ export default function FeaturedBanner(props: Props) {
   });
 
   function getUriTo(uri) {
-    // console.log('urlParams: ', urlParams.toString())
-    // urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)
     if (uri.includes('odysee.com')) {
       uri = uri.substring(uri.indexOf('odysee.com') + 10);
     }
