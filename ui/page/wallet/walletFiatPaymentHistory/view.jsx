@@ -2,7 +2,7 @@
 import React from 'react';
 import Button from 'component/button';
 import Paginate from 'component/common/paginate';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 

@@ -3,7 +3,7 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
 import './style.scss';

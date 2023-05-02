@@ -6,7 +6,6 @@ import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import JoinMembershipCard from 'component/joinMembershipCard';
-// import moment from 'moment';
 import ClearMembershipDataButton from 'component/clearMembershipData';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';

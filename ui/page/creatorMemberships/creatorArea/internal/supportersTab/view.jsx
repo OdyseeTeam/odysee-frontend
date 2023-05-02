@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 
 import { buildURI } from 'util/lbryURI';
 

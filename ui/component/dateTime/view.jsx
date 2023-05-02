@@ -1,6 +1,6 @@
 // @flow
 import { getTimeAgoStr } from 'util/time';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import React from 'react';
 
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
