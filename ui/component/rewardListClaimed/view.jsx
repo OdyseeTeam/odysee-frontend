@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import ButtonTransaction from 'component/common/transaction-link';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import LbcSymbol from 'component/common/lbc-symbol';
 import Card from 'component/common/card';
 

@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import { BLOCK_LEVEL } from 'constants/comment';
 import React from 'react';
 import classnames from 'classnames';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import BlockList from 'component/blockList';
 import ClaimPreview from 'component/claimPreview';

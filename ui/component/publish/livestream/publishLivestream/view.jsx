@@ -11,7 +11,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
 import Empty from 'component/common/empty';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
 import FileSelector from 'component/common/file-selector';
