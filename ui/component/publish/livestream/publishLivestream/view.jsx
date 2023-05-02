@@ -364,34 +364,36 @@ function PublishLivestream(props: Props) {
             <PublishName uri={uri} />
             <>
               {inEditMode && (
-                <fieldset-section>
-                  <label style={{ marginBottom: 'var(--spacing-s)' }}>
-                    {inEditMode && (
-                      <FormField
-                        name="reuse-replay"
-                        key="reuse-replay"
-                        type="radio"
-                        checked={replaySource === 'keep'}
-                        onClick={() => updateReplayOption('keep')}
-                      />
-                    )}
-                    {__('Update only')}
-                  </label>
-                </fieldset-section>
+                <fieldset-group>
+                  <fieldset-section>
+                    <label style={{ marginBottom: 'var(--spacing-s)' }}>
+                      {inEditMode && (
+                        <FormField
+                          name="reuse-replay"
+                          label={__('Update only')}
+                          key="reuse-replay"
+                          type="radio"
+                          checked={replaySource === 'keep'}
+                          onClick={() => updateReplayOption('keep')}
+                        />
+                      )}
+                    </label>
+                  </fieldset-section>
+                </fieldset-group>
               )}
               {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
                 <>
-                  <label>
+                  <label style={{ marginTop: 0 }}>
                     {inEditMode && (
                       <FormField
                         name="show-replays"
+                        label={replayTitleLabel}
                         key="show-replays"
                         type="radio"
                         checked={replaySource === 'choose'}
                         onClick={() => updateReplayOption('choose')}
                       />
                     )}
-                    {replayTitleLabel}
                   </label>
                   <div
                     className={classnames('replay-picker__container', {
@@ -493,13 +495,13 @@ function PublishLivestream(props: Props) {
                     {inEditMode && (
                       <FormField
                         name="show-replays"
+                        label={replayTitleLabel}
                         key="show-replays"
                         type="radio"
                         checked={replaySource === 'choose'}
                         onClick={() => updateReplayOption('choose')}
                       />
                     )}
-                    {replayTitleLabel}
                   </label>
                   <div className="main--empty empty disabled">
                     <Empty text={__('No replays found.')} />
@@ -512,6 +514,7 @@ function PublishLivestream(props: Props) {
                     {inEditMode && (
                       <FormField
                         name="replay-source"
+                        label={replayTitleLabel}
                         value="choose"
                         key="show-replays-spin"
                         type="radio"
@@ -519,7 +522,6 @@ function PublishLivestream(props: Props) {
                         onClick={() => updateReplayOption('choose')}
                       />
                     )}
-                    {replayTitleLabel}
                   </label>
                   <div className="main--empty empty">
                     <Spinner small />
@@ -529,14 +531,14 @@ function PublishLivestream(props: Props) {
 
               {inEditMode && (
                 <div className="file-upload">
-                  <label>
+                  <label style={{ marginTop: 0 }}>
                     <FormField
                       name="replay-source"
+                      label={__('Upload Replay')}
                       type="radio"
                       checked={replaySource === 'upload'}
                       onClick={() => updateReplayOption('upload')}
                     />
-                    Upload Replay
                   </label>
                   <FileSelector
                     disabled={replaySource !== 'upload'}

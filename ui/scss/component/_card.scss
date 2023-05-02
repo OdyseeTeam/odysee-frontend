@@ -951,6 +951,21 @@
     color: rgba(var(--color-text-base), 0.8);
     margin-left: var(--spacing-l);
   }
+
+  fieldset-section.radio {
+    margin-top: 0;
+    padding-top: 0;
+
+    input {
+      box-shadow: unset;
+    }
+    label::before {
+      margin-top: -3px;
+    }
+    label::after {
+      margin-top: -3px;
+    }
+  }
 }
 
 .publish-row--no-margin {
