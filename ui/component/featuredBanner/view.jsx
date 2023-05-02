@@ -58,8 +58,13 @@ export default function FeaturedBanner(props: Props) {
     if (uri.includes('odysee.com')) {
       uri = uri.substring(uri.indexOf('odysee.com') + 10);
     }
+    let search;
+    if (uri.includes('?lid=')) {
+      search = uri.substring(uri.indexOf('?lid='));
+    }
     return {
       pathname: uri,
+      search: search || undefined,
     };
   }
 
