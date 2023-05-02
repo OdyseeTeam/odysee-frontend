@@ -57,7 +57,7 @@ function AdTileB(props: Props) {
       )}
       {provider === 'publir' && (
         <PublirAdsProvider publisherId="1391">
-          <AdSlot id="div-hre-Odysee-3293 " />
+          <AdSlot id="div-hre-Odysee-3293" />
         </PublirAdsProvider>
       )}
     </>
