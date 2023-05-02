@@ -49,18 +49,18 @@ class HlsQualitySelectorPlugin {
 
     // Listen for source changes
     this.player.on('loadedmetadata', (e) => {
-      const { switchedFromDefaultQuality, claimSrcVhs } = this.player;
+      const { claimSrcVhs } = this.player;
 
-      const qualityToSet = this.createIOSQualityList() || this.player.qualityToSet;
+      const initialQuality = this.createIOSQualityList() || this._initialQuality;
 
       // if there was a quality option selected to default to, set it using the setQuality function
       // as if it was being clicked on, on loadedmetadata
-      if (qualityToSet && !switchedFromDefaultQuality && claimSrcVhs) {
-        this.setQuality(qualityToSet);
+      if (initialQuality && !this._initialQualityHandled && claimSrcVhs) {
+        this.setQuality(initialQuality);
 
         // Add this attribute to the video player so later it can be checked and avoid switching again
         // Since this is only for initial load, based on the default quality setting
-        this.player.switchedFromDefaultQuality = true;
+        this._initialQualityHandled = true;
       }
       this.updatePlugin();
     });
@@ -77,6 +77,14 @@ class HlsQualitySelectorPlugin {
     } else {
       this._qualityButton.hide();
     }
+  }
+
+  updateConfig() {
+    this.config = {
+      ...this.config,
+      defaultQuality: this.player.appState.defaultQuality,
+      originalVideoHeight: this.player.appState.originalVideoHeight,
+    };
   }
 
   /**
@@ -103,6 +111,7 @@ class HlsQualitySelectorPlugin {
    */
   bindPlayerEvents() {
     this.player.qualityLevels().on('addqualitylevel', this.onAddQualityLevel.bind(this));
+    this.player.on(VJS_EVENTS.SRC_CHANGED, this.updateConfig.bind(this));
     this.player.on(VJS_EVENTS.PLAYER_CLOSED, this.playerClosed.bind(this));
   }
 
@@ -133,11 +142,13 @@ class HlsQualitySelectorPlugin {
   }
 
   resolveOriginalQualityLabel(abbreviatedForm, includeResolution) {
-    if (includeResolution && this.config.originalHeight) {
+    const { originalVideoHeight: videoHeight } = this.config;
+
+    if (includeResolution && videoHeight) {
       return abbreviatedForm
-        ? __('Orig (%quality%) --[Video quality popup. Short form.]--', { quality: this.config.originalHeight + 'p' })
+        ? __('Orig (%quality%) --[Video quality popup. Short form.]--', { quality: videoHeight + 'p' })
         : __('Original (%quality%) --[Video quality popup. Long form.]--', {
-            quality: this.config.originalHeight + 'p',
+            quality: videoHeight + 'p',
           });
     } else {
       // The allocated space for the button is fixed and happened to fit
@@ -185,6 +196,8 @@ class HlsQualitySelectorPlugin {
 
   playerClosed() {
     this._qualityButton.hide();
+    delete this._initialQuality;
+    delete this._initialQualityHandled;
   }
 
   createIOSQualityList() {
@@ -197,7 +210,7 @@ class HlsQualitySelectorPlugin {
     }
 
     const player = this.player;
-    const { defaultQuality } = player.odyseeState;
+    const { defaultQuality } = this.config;
     const levelItems = [];
 
     const selectOriginal = defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false;
@@ -296,7 +309,7 @@ class HlsQualitySelectorPlugin {
           selected: defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false,
         })
       );
-      if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !player.switchedFromDefaultQuality) {
+      if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !this._initialQualityHandled) {
         this.swapSrcTo(QUALITY_OPTIONS.ORIGINAL);
       }
     }
@@ -310,7 +323,7 @@ class HlsQualitySelectorPlugin {
     );
 
     // initial button inner text based on default quality setting, or next lowest
-    if (!this.player.switchedFromDefaultQuality) {
+    if (!this._initialQualityHandled) {
       this.setButtonInnerText(
         nextLowestQualityItemObj ? nextLowestQualityItemObj.label : defaultQuality || QUALITY_OPTIONS.AUTO
       );
@@ -324,10 +337,12 @@ class HlsQualitySelectorPlugin {
     }
 
     if (defaultQuality) {
-      this.player.qualityToSet =
+      this._initialQuality =
         nextLowestQualityItemObj?.value ||
         (defaultQuality === QUALITY_OPTIONS.ORIGINAL && QUALITY_OPTIONS.ORIGINAL) ||
         QUALITY_OPTIONS.AUTO;
+    } else {
+      delete this._initialQuality;
     }
   }
 
@@ -359,23 +374,15 @@ class HlsQualitySelectorPlugin {
    * Sets quality (based on media height)
    *
    * @param {number} height - A number representing HLS playlist.
+   * @param {boolean} fromUser - true if the change is from the user (click), false if called internally.
    */
-  setQuality(height) {
+  setQuality(height, fromUser = false) {
     if (this.setQualityIOS(height)) {
+      this.player.trigger(fromUser ? 'hlsQualitySelector:changed:user' : 'hlsQualitySelector:changed:internal');
       return;
     }
 
     const qualityList = this.player.qualityLevels();
-    const { initialQualityChange, setInitialQualityChange, doToast } = this.config;
-
-    if (!initialQualityChange && setInitialQualityChange) {
-      doToast({
-        message: __('You can also change your default quality on settings.'),
-        linkText: __('Settings'),
-        linkTarget: '/settings',
-      });
-      setInitialQualityChange(true);
-    }
 
     // Set quality on plugin
     this._currentQuality = height;
@@ -418,6 +425,7 @@ class HlsQualitySelectorPlugin {
     }
 
     this._qualityButton.unpressButton();
+    this.player.trigger(fromUser ? 'hlsQualitySelector:changed:user' : 'hlsQualitySelector:changed:internal');
   }
 
   /**
@@ -489,6 +497,12 @@ const onPlayerReady = (player, options) => {
  * instance. You cannot rely on the player being in a "ready" state here,
  * depending on how the plugin is invoked. This may or may not be important
  * to you; if not, remove the wait for "ready"!
+ *
+ * ====================================
+ * --Spewed events--
+ *   "hlsQualitySelector:changed:internal" - Selection changed from internal event, e.g. new video loaded.
+ *   "hlsQualitySelector:changed:user"     - Selection changed by the user.
+ * ====================================
  *
  * @function hlsQualitySelector
  * @param    {Object} [options={}]

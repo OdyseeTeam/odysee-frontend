@@ -30,13 +30,12 @@ import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { platform } from 'util/platform';
+import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
 
-// const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
-// const PLAY_TIMEOUT_LIMIT = 2000;
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
-
 const IS_IOS = platform.isIOS();
+const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change'; // can't change name (shipped)
 
 type Props = {
   uri: string,
@@ -153,6 +152,11 @@ function VideoViewer(props: Props) {
   const shouldPlayRecommended = !nextPlaylistUri && playNextUri && autoplayNext;
   const [showRecommendationOverlay, setShowRecommendationOverlay] = useState(false);
 
+  // DQ = Default Quality
+  const dqSettingUsedBefore = Boolean(defaultQuality);
+  const dqSettingPromoted = LocalStorage.getItem(DQ_SETTING_PROMOTED_KEY) === 'true';
+  const promoteDqSetting = React.useRef<boolean>(!dqSettingPromoted && !dqSettingUsedBefore);
+
   const canPlayNext = Boolean(playNextUri || shouldPlayRecommended);
   const canPlayPrevious = Boolean(playPreviousUri);
 
@@ -192,6 +196,15 @@ function VideoViewer(props: Props) {
 
   const addAutoplayNextButton = useAutoplayNext(playerRef, autoplayNext, isMarkdownOrComment);
   const addTheaterModeButton = useTheaterMode(playerRef, videoTheaterMode);
+
+  React.useEffect(() => {
+    if (defaultQuality) {
+      promoteDqSetting.current = false;
+      if (!dqSettingPromoted) {
+        LocalStorage.setItem(DQ_SETTING_PROMOTED_KEY, 'true');
+      }
+    }
+  }, [defaultQuality, dqSettingPromoted]);
 
   React.useEffect(() => {
     if (isPlaying) {
@@ -451,6 +464,19 @@ function VideoViewer(props: Props) {
       setShowRecommendationOverlay(false);
     }
 
+    function onQualityChanged() {
+      if (promoteDqSetting.current && !isEmbedded) {
+        promoteDqSetting.current = false;
+        LocalStorage.setItem(DQ_SETTING_PROMOTED_KEY, 'true');
+
+        doToast({
+          message: __('You can also change your default quality on settings.'),
+          linkText: __('Settings'),
+          linkTarget: '/settings',
+        });
+      }
+    }
+
     // load events onto playerplayerRef
     player.on('play', onPlay);
     player.on('pause', onPauseEvent);
@@ -462,6 +488,7 @@ function VideoViewer(props: Props) {
     player.on('loadedmetadata', overrideAutoAlgorithm);
     player.on('loadedmetadata', restorePlaybackRateEvent);
     player.on('seeking', onSeeking);
+    player.on('hlsQualitySelector:changed:user', onQualityChanged);
     player.one('loadedmetadata', moveToPosition);
 
     const cancelOldEvents = () => {
@@ -487,6 +514,11 @@ function VideoViewer(props: Props) {
 
     playerRef.current = player;
   }, playerReadyDependencyList); // eslint-disable-line
+  // --- This is problematic --------^
+  // Issues like #2134 and #2634 happen because of this stale closure.
+  // Unfortunately, we cannot just update the dependencies blindly, as it will
+  // cause the child to render and might cause even more problems.
+  // Live with it until we break apart into proper abstraction
 
   function replay() {
     // $FlowIgnore
