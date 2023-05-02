@@ -146,9 +146,7 @@ function UploadForm(props: Props) {
 
   const enableLivestream = ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled;
 
-  // $FlowFixMe
   const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
-    // $FlowFixMe
     if (inEditMode) {
       return mode === PUBLISH_MODES.FILE;
     } else if (_uploadType) {

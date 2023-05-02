@@ -96,7 +96,6 @@ function PublishProtectedContent(props: Props) {
     let matchedMemberships;
     const restrictCheckboxes = document.querySelectorAll('*[id^="restrictToMembership"]');
 
-    // $FlowFixMe
     for (const checkbox of restrictCheckboxes) {
       // $FlowFixMe
       if (checkbox.checked) {
