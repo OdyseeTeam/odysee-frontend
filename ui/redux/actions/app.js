@@ -6,6 +6,7 @@ import isDev from 'electron-is-dev';
 import { ipcRenderer, remote } from 'electron';
 // @endif
 
+import moment from 'moment';
 import path from 'path';
 import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from 'config';
 import * as ACTIONS from 'constants/action_types';
@@ -817,3 +818,27 @@ export const doSetMainPlayerDimension = (dimensions: any) => (dispatch: Dispatch
 
 export const doSetVideoSourceLoaded = (uri: string) => (dispatch: Dispatch) =>
   dispatch({ type: ACTIONS.SET_VIDEO_SOURCE_LOADED, data: uri });
+
+const MOMENT_LOCALE_MAP = {
+  no: 'nn',
+  'zh-Hans': 'zh-cn',
+  'zh-Hant': 'zh-tw',
+};
+
+export function doSetChronoLocale(language: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const lang = MOMENT_LOCALE_MAP[language] || language;
+
+    if (lang === 'en' || (lang && lang.startsWith('en-'))) {
+      moment.locale('en');
+    } else {
+      // $FlowIgnore: allow non-literal string; errors will be handled.
+      import(`moment/locale/${lang}`)
+        .then(() => moment.locale(lang))
+        .catch((err) => {
+          assert(false, 'Failed to load locale:', err);
+          moment.locale('en');
+        });
+    }
+  };
+}

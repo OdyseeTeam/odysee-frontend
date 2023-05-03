@@ -40,7 +40,6 @@ type Props = {
   size: number,
   duration: number,
   isVid: boolean,
-  appLanguage: string,
   doUpdatePublishForm: ({}) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
@@ -59,7 +58,6 @@ function PublishLivestream(props: Props) {
     size,
     duration,
     isVid,
-    appLanguage,
     disabled,
     livestreamData,
     isCheckingLivestreams,
@@ -446,7 +444,7 @@ function PublishLivestream(props: Props) {
                                       <td>
                                         {durationElem}
                                         <div className="table__item-label">
-                                          {`${moment(item.data.uploadedAt).locale(appLanguage).from(moment())}`}
+                                          {`${moment(item.data.uploadedAt).from(moment())}`}
                                         </div>
                                       </td>
                                       <td>

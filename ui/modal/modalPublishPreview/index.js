@@ -9,7 +9,7 @@ import {
 import { selectPublishFormValue, selectPublishFormValues, selectIsStillEditing } from 'redux/selectors/publish';
 import { selectMyChannelClaims, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
-import { selectFfmpegStatus, selectClientSetting, selectLanguage } from 'redux/selectors/settings';
+import { selectFfmpegStatus, selectClientSetting } from 'redux/selectors/settings';
 import { doPublishDesktop } from 'redux/actions/publish';
 import { doSetClientSetting } from 'redux/actions/settings';
 
@@ -32,7 +32,6 @@ const select = (state, props) => {
     ffmpegStatus: selectFfmpegStatus(state),
     enablePublishPreview: selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, editingUri),
-    appLanguage: selectLanguage(state), // note: selectPublishFormValues contains 'language'
   };
 };
 

@@ -16,7 +16,6 @@ type Props = {
   // -- redux --
   supportersList: ?SupportersList,
   channelMembershipTiers: ?CreatorMemberships,
-  appLanguage: string,
   doResolveClaimIds: (claimIds: Array<string>) => void,
 };
 
@@ -27,7 +26,6 @@ const SupportersTab = (props: Props) => {
     // -- redux --
     supportersList,
     channelMembershipTiers,
-    appLanguage,
     doResolveClaimIds,
   } = props;
 
@@ -138,7 +136,7 @@ const SupportersTab = (props: Props) => {
                               </td>
                               <td>{supporter.MembershipName}</td>
                               <td>${supporter.Price / 100} USD / Month</td>
-                              <td>{moment(new Date(supporter.JoinedAtTime)).locale(appLanguage).format('LL')}</td>
+                              <td>{moment(new Date(supporter.JoinedAtTime)).format('LL')}</td>
                               <td>
                                 {Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}
                               </td>

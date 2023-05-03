@@ -14,12 +14,10 @@ type Props = {
   // --- redux ---
   incomingHistory: StripeTransactions,
   transactionType: string,
-  appLanguage: string,
   doListAccountTransactions: () => void,
 };
 
 const WalletFiatAccountHistory = (props: Props) => {
-  const { appLanguage } = props;
   const {
     page = 1,
     pageSize = 5,
@@ -52,7 +50,7 @@ const WalletFiatAccountHistory = (props: Props) => {
   }
 
   function getDate(transaction) {
-    return moment(transaction.created_at).locale(appLanguage).format('LLL');
+    return moment(transaction.created_at).format('LLL');
   }
 
   function getReceivingChannelName(transaction) {

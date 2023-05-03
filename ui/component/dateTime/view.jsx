@@ -12,7 +12,6 @@ type State = {
 type Props = {
   clock24h?: boolean,
   date?: any,
-  appLanguage?: string,
   genericSeconds?: boolean,
   minUpdateDeltaMs?: number,
   showFutureDate?: boolean,
@@ -61,17 +60,15 @@ class DateTime extends React.Component<Props, State> {
   }
 
   render() {
-    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, appLanguage } = this.props;
+    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type } = this.props;
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
     return (
-      <span className="date_time" title={timeAgo && moment(date).locale(appLanguage).format(`LL ${clockFormat}`)}>
+      <span className="date_time" title={timeAgo && moment(date).format(`LL ${clockFormat}`)}>
         {date
           ? timeAgo
             ? getTimeAgoStr(date, showFutureDate, genericSeconds)
-            : moment(date)
-                .locale(appLanguage)
-                .format(type === 'date' ? 'LL' : clockFormat)
+            : moment(date).format(type === 'date' ? 'LL' : clockFormat)
           : '...'}
       </span>
     );

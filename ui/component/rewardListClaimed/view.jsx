@@ -15,11 +15,10 @@ type Reward = {
 
 type Props = {
   rewards: Array<Reward>,
-  appLanguage: string,
 };
 
 const RewardListClaimed = (props: Props) => {
-  const { rewards, appLanguage } = props;
+  const { rewards } = props;
 
   if (!rewards || !rewards.length) {
     return null;
@@ -55,7 +54,7 @@ const RewardListClaimed = (props: Props) => {
                   <td>{reward.reward_title}</td>
                   <td>{reward.reward_amount}</td>
                   <td>{reward.transaction_id && <ButtonTransaction id={reward.transaction_id} />}</td>
-                  <td>{moment(reward.created_at).locale(appLanguage).format('LLL')}</td>
+                  <td>{moment(reward.created_at).format('LLL')}</td>
                 </tr>
               ))}
             </tbody>

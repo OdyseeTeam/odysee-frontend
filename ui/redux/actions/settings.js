@@ -12,7 +12,7 @@ import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { launcher } from 'util/autoLaunch';
 import { selectClientSetting, selectHomepageDb } from 'redux/selectors/settings';
 import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
-import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal } from 'redux/actions/app';
+import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal, doSetChronoLocale } from 'redux/actions/app';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
 import { getDefaultLanguage } from 'util/default-languages';
@@ -305,6 +305,7 @@ export function doFetchLanguage(language: string) {
     if (settings.language !== language || (settings.loadedLanguages && !settings.loadedLanguages.includes(language))) {
       return fetchAndStoreLanguage(language)
         .then(() => {
+          dispatch(doSetChronoLocale(language));
           dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS, data: { language } });
         })
         .catch((e) => {
@@ -434,6 +435,7 @@ export function doSetLanguage(language: string) {
     ) {
       return fetchAndStoreLanguage(language)
         .then(() => {
+          dispatch(doSetChronoLocale(language));
           dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS, data: { language } });
         })
         .then(() => {
