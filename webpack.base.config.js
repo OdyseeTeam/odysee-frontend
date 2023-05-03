@@ -115,7 +115,7 @@ let baseConfig = {
   },
 
   plugins: [
-    new webpack.IgnorePlugin({resourceRegExp: /moment\/locale\//}),
+    new webpack.IgnorePlugin({ resourceRegExp: /^\.\/locale$/, contextRegExp: /moment$/ }),
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new DefinePlugin({
       __static: `"${path.join(__dirname, 'static').replace(/\\/g, '\\\\')}"`,
