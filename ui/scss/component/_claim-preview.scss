@@ -1552,7 +1552,8 @@ $claim-preview-progress-bar-height: 5px;
 
 .claim-preview__progress-bar {
   height: $claim-preview-progress-bar-height;
-  background-color: var(--color-primary);
+  // background-color: var(--color-primary);
+  background-image: var(--color-odysee-memberships);
 }
 
 .claim-preview__claim-property-overlay {
