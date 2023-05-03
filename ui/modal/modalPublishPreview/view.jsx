@@ -63,7 +63,6 @@ type Props = {
   tiersWithExclusiveLivestream: MembershipTiers,
   myMembershipTiers: MembershipTiers,
   restrictingTiers: string,
-  appLanguage: string,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
@@ -109,7 +108,6 @@ const ModalPublishPreview = (props: Props) => {
     tiersWithExclusiveLivestream,
     myMembershipTiers,
     restrictingTiers,
-    appLanguage,
   } = props;
 
   const livestream =
@@ -303,13 +301,7 @@ const ModalPublishPreview = (props: Props) => {
 
   function getReleaseTimeValue(time) {
     if (time) {
-      try {
-        return new Date(time * 1000).toLocaleString(appLanguage);
-      } catch {
-        return moment(new Date(time * 1000))
-          .locale(appLanguage)
-          .format('LLL');
-      }
+      return moment(new Date(time * 1000)).format('LLL');
     } else {
       return '';
     }

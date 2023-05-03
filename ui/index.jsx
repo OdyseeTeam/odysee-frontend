@@ -5,9 +5,9 @@ import SnackBar from 'component/snackBar';
 // @if TARGET='app'
 import SplashScreen from 'component/splash';
 import * as ACTIONS from 'constants/action_types';
+import moment from 'moment';
 // @endif
 import { ipcRenderer, remote, shell } from 'electron';
-import moment from 'moment';
 import * as MODALS from 'constants/modal_types';
 import React, { Fragment, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';

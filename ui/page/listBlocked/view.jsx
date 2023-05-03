@@ -50,7 +50,6 @@ function ListBlocked(props: Props) {
     moderatorTimeoutMap,
     moderatorBlockListDelegatorsMap: delegatorsMap,
     fetchingModerationBlockList,
-    appLanguage,
     fetchModBlockedList,
     fetchModAmIList,
     delegatorsById,
@@ -102,7 +101,7 @@ function ListBlocked(props: Props) {
         <div>
           <div className="help">
             <blockquote>
-              {moment(timeoutInfo.blockedAt).locale(appLanguage).format('LLL')}
+              {moment(timeoutInfo.blockedAt).format('LLL')}
               <br />
               {getDurationStr(timeoutInfo.bannedFor)}{' '}
               {__('(Remaining: %duration%) --[timeout ban duration]--', {
