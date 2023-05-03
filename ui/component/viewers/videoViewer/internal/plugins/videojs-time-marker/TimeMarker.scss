@@ -5,9 +5,7 @@
 .video-js .vjs-progress-control .vjs-time-marker {
   display: none;
   position: absolute;
-  //width: 1px;
   height: 100%;
-  background-color: red;
   z-index: 1;
 }
 
@@ -28,12 +26,15 @@
 // ============================================================================
 
 .video-js .vjs-progress-control {
-  .vjs-time-marker .vjs-time-tooltip {
-    font-size: 1em;
-    background-color: #000;
-    background-color: rgba(#000, 0.8);
-    color: white;
-    white-space: nowrap;
-    border-radius: var(--border-radius);
+  .vjs-time-marker {
+    .vjs-time-tooltip {
+      font-size: 1em;
+      padding-bottom: 4px;
+      background-color: #000;
+      background-color: rgba(#000, 0.8);
+      color: white;
+      white-space: nowrap;
+      border-radius: var(--border-radius);
+    }
   }
 }

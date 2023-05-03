@@ -76,10 +76,12 @@ $control-bar-popup-font-size: 0.8rem;
     .vjs-play-progress::before {
       transform: scale(0);
       transition: transform 0.1s;
+      color: #f77937;
     }
 
     .vjs-progress-holder {
       margin: 0;
+      border-radius: 4px;
     }
 
     &:hover {
@@ -96,7 +98,8 @@ $control-bar-popup-font-size: 0.8rem;
   // Load progress color
   .vjs-load-progress,
   .vjs-load-progress div {
-    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    background-color: rgba(155, 155, 155, 1);
   }
 
   // Progress Bar Background
@@ -111,8 +114,9 @@ $control-bar-popup-font-size: 0.8rem;
 
   // Inner Progress Bar
   .vjs-play-progress {
-    background-color: var(--color-primary);
+    background-image: var(--color-odysee-memberships);
     color: var(--color-primary);
+    border-radius: 4px;
   }
 
   // Spacer
@@ -121,24 +125,11 @@ $control-bar-popup-font-size: 0.8rem;
     flex: auto;
   }
 
-  // Transcoding menu
-  /*.vjs-tech {
-    height: auto !important;
-    position: absolute !important;
-  }*/
-
   // Volume slider
   .vjs-volume-panel {
-    // margin-left: var(--spacing-xxs);
     margin-right: calc(var(--spacing-xxs) * -1);
-
-    &.vjs-control {
-      // transition: 0.2s;
-    }
-
     .vjs-volume-control.vjs-volume-horizontal {
       transition: 0.1s;
-      // margin-top: -2px !important;
     }
   }
 }
@@ -149,6 +140,7 @@ $control-bar-popup-font-size: 0.8rem;
   white-space: nowrap;
   top: -32px;
   padding-top: 9px;
+  background: blue;
 }
 
 // Tooltip
