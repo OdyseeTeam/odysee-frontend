@@ -90,7 +90,7 @@ export default function AdSticky(props: Props) {
 
         let stickyAllCheck = false;
         Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-          if (e.src.indexOf('rc_sticky_all') !== -1) {
+          if (e.src.indexOf('delivery') !== -1) {
             stickyAllCheck = true;
           }
         });
@@ -99,18 +99,11 @@ export default function AdSticky(props: Props) {
           script.src = AD_CONFIG.url;
           // $FlowIgnore
           document.body.appendChild(script);
-
-          scriptSticky = document.createElement('script');
-          scriptSticky.src = 'https://x.revcontent.com/rc_sticky_all.js';
-          // $FlowIgnore
-          document.body.appendChild(scriptSticky);
-          setIsActive(true);
         }
 
-        /*
         let stickyWidgetCheck = false;
         Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-          if (e.src.indexOf('delivery') !== -1) {
+          if (e.src.indexOf('rc_sticky_all') !== -1) {
             stickyWidgetCheck = true;
           }
         });
@@ -121,7 +114,6 @@ export default function AdSticky(props: Props) {
           document.body.appendChild(scriptSticky);
           setIsActive(true);
         }
-        */
 
         return () => {
           // $FlowIgnore
