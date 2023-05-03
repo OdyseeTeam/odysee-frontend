@@ -1,3 +1,4 @@
+// @flow
 import Lbry from 'lbry';
 import { doWalletReconnect } from 'redux/actions/wallet';
 import * as SETTINGS from 'constants/settings';
@@ -25,7 +26,7 @@ export const IS_MAC = process.platform === 'darwin';
 const UPDATE_IS_NIGHT_INTERVAL = 5 * 60 * 1000;
 
 export function doFetchDaemonSettings() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     Lbry.settings_get().then((settings) => {
       analytics.setState(settings.share_usage_data);
       dispatch({
@@ -39,7 +40,7 @@ export function doFetchDaemonSettings() {
 }
 
 export function doFindFFmpeg() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FINDING_FFMPEG_STARTED,
     });
@@ -53,7 +54,7 @@ export function doFindFFmpeg() {
 }
 
 export function doGetDaemonStatus() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     return Lbry.status().then((status) => {
       dispatch({
         type: ACTIONS.DAEMON_STATUS_RECEIVED,
@@ -66,8 +67,8 @@ export function doGetDaemonStatus() {
   };
 }
 
-export function doClearDaemonSetting(key) {
-  return (dispatch, getState) => {
+export function doClearDaemonSetting(key: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
 
@@ -78,6 +79,9 @@ export function doClearDaemonSetting(key) {
     const clearKey = {
       key,
     };
+
+    assert(false, 'Will not work in web');
+
     // not if syncLocked
     Lbry.settings_clear(clearKey).then((defaultSettings) => {
       if (SDK_SYNC_KEYS.includes(key)) {
@@ -102,14 +106,16 @@ export function doClearDaemonSetting(key) {
   };
 }
 // if doPopulate is applying settings, we don't want to cause a loop; doNotDispatch = true.
-export function doSetDaemonSetting(key, value, doNotDispatch = false) {
-  return (dispatch, getState) => {
+export function doSetDaemonSetting(key: string, value: any, doNotDispatch: boolean = false) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
 
     if (!ready) {
       return dispatch(doAlertWaitingForSync());
     }
+
+    assert(false, 'Will not work in web');
 
     const newSettings = {
       key,
@@ -140,15 +146,15 @@ export function doSetDaemonSetting(key, value, doNotDispatch = false) {
   };
 }
 
-export function doSaveCustomWalletServers(servers) {
+export function doSaveCustomWalletServers(servers: string) {
   return {
     type: ACTIONS.SAVE_CUSTOM_WALLET_SERVERS,
     data: servers,
   };
 }
 
-export function doSetClientSetting(key, value, pushPrefs) {
-  return (dispatch, getState) => {
+export function doSetClientSetting(key: string, value: any, pushPrefs?: boolean) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
 
@@ -170,7 +176,7 @@ export function doSetClientSetting(key, value, pushPrefs) {
   };
 }
 
-export const doSetPreferredCurrency = (value) => (dispatch) =>
+export const doSetPreferredCurrency = (value: any) => (dispatch: Dispatch) =>
   dispatch(doSetClientSetting(SETTINGS.PREFERRED_CURRENCY, value, true));
 
 export function doUpdateIsNight() {
@@ -180,16 +186,16 @@ export function doUpdateIsNight() {
 }
 
 export function doUpdateIsNightAsync() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(doUpdateIsNight());
 
     setInterval(() => dispatch(doUpdateIsNight()), UPDATE_IS_NIGHT_INTERVAL);
   };
 }
 
-export function doSetDarkTime(value, options) {
+export function doSetDarkTime(value: any, options: any) {
   const { fromTo, time } = options;
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const darkModeTimes = state.settings.clientSettings[SETTINGS.DARK_MODE_TIMES];
     const { hour, min } = darkModeTimes[fromTo];
@@ -211,7 +217,7 @@ export function doSetDarkTime(value, options) {
 
 export function doGetWalletSyncPreference() {
   const SYNC_KEY = 'enable-sync';
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     return Lbry.preference_get({ key: SYNC_KEY }).then((result) => {
       const enabled = result && result[SYNC_KEY];
       if (enabled !== null) {
@@ -222,9 +228,9 @@ export function doGetWalletSyncPreference() {
   };
 }
 
-export function doSetWalletSyncPreference(pref) {
+export function doSetWalletSyncPreference(pref: any) {
   const SYNC_KEY = 'enable-sync';
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     return Lbry.preference_set({ key: SYNC_KEY, value: pref }).then((result) => {
       const enabled = result && result[SYNC_KEY];
       if (enabled !== null) {
@@ -236,7 +242,8 @@ export function doSetWalletSyncPreference(pref) {
 }
 
 export function doPushSettingsToPrefs() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
+    // $FlowFixMe please
     return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.SYNC_CLIENT_SETTINGS,
@@ -247,7 +254,7 @@ export function doPushSettingsToPrefs() {
 }
 
 export function doEnterSettingsPage() {
-  return async (dispatch, getState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
@@ -265,7 +272,7 @@ export function doEnterSettingsPage() {
 }
 
 export function doExitSettingsPage() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
     if (IS_WEB && !hasVerifiedEmail) {
@@ -277,8 +284,8 @@ export function doExitSettingsPage() {
   };
 }
 
-export function doFetchLanguage(language) {
-  return (dispatch, getState) => {
+export function doFetchLanguage(language: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const { settings } = getState();
 
     if (settings.language !== language || (settings.loadedLanguages && !settings.loadedLanguages.includes(language))) {
@@ -318,13 +325,14 @@ function populateCategoryTitles(categories) {
   if (categories) {
     window.CATEGORY_PAGE_TITLE = {};
     Object.values(categories).forEach((x) => {
+      // $FlowIgnore mixed bug
       window.CATEGORY_PAGE_TITLE[x.name] = x.label;
     });
   }
 }
 
 export function doLoadBuiltInHomepageData() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     // @if USE_LOCAL_HOMEPAGE_DATA='true'
     // ------------------------------------------------------------------------
     // USE_LOCAL_HOMEPAGE_DATA used to be able to replace the fetch entirely,
@@ -352,7 +360,7 @@ export function doLoadBuiltInHomepageData() {
 }
 
 export function doOpenAnnouncements() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     // There is a weird useEffect in modalRouter that closes all modals on
     // initial mount. Not sure what scenario that covers, so just delay a bit
     // until it is mounted.
@@ -362,8 +370,8 @@ export function doOpenAnnouncements() {
   };
 }
 
-export function doFetchHomepages(hp /* ?string */) {
-  return (dispatch) => {
+export function doFetchHomepages(hp?: string) {
+  return (dispatch: Dispatch) => {
     const param = hp ? `?hp=${hp}` : '';
 
     fetch(`https://odysee.com/$/api/content/v2/get${param}`)
@@ -385,16 +393,16 @@ export function doFetchHomepages(hp /* ?string */) {
   };
 }
 
-export function doSetHomepage(code) {
-  return (dispatch, getState) => {
+export function doSetHomepage(code: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const languageCode = code === getDefaultLanguage() ? null : code;
 
     dispatch(doSetClientSetting(SETTINGS.HOMEPAGE, languageCode));
   };
 }
 
-export function doSetLanguage(language) {
-  return (dispatch, getState) => {
+export function doSetLanguage(language: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const { settings } = getState();
     const { daemonSettings } = settings;
     const { share_usage_data: shareSetting } = daemonSettings;
@@ -453,8 +461,8 @@ export function doSetLanguage(language) {
   };
 }
 
-export function doSetAutoLaunch(value) {
-  return (dispatch, getState) => {
+export function doSetAutoLaunch(value: any) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const autoLaunch = selectClientSetting(state, SETTINGS.AUTO_LAUNCH);
 
@@ -503,15 +511,15 @@ export function doSetAutoLaunch(value) {
   };
 }
 
-export function doSetAppToTrayWhenClosed(value) {
-  return (dispatch) => {
+export function doSetAppToTrayWhenClosed(value: any) {
+  return (dispatch: Dispatch) => {
     LocalStorage.setItem(SETTINGS.TO_TRAY_WHEN_CLOSED, value);
     dispatch(doSetClientSetting(SETTINGS.TO_TRAY_WHEN_CLOSED, value));
   };
 }
 
 export function toggleVideoTheaterMode() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const videoTheaterMode = selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE);
 
@@ -520,7 +528,7 @@ export function toggleVideoTheaterMode() {
 }
 
 export function toggleAutoplayNext() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
     const autoplayNext = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
@@ -535,8 +543,8 @@ export function toggleAutoplayNext() {
   };
 }
 
-export const doSetDefaultVideoQuality = (value) => (dispatch) =>
+export const doSetDefaultVideoQuality = (value: any) => (dispatch: Dispatch) =>
   dispatch(doSetClientSetting(SETTINGS.DEFAULT_VIDEO_QUALITY, value, true));
 
-export const doSetDefaultChannel = (claimId) => (dispatch) =>
+export const doSetDefaultChannel = (claimId: ClaimId) => (dispatch: Dispatch) =>
   dispatch(doSetClientSetting(SETTINGS.ACTIVE_CHANNEL_CLAIM, claimId, true));

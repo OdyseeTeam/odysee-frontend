@@ -376,7 +376,8 @@ declare type LbryTypes = {
   unsetApiHeader: (string) => void,
   overrides: { [string]: ?Function },
   setOverride: (string, Function) => void,
-  // getMediaType: (?string, ?string) => string,
+  getMediaType: (?string, ?string) => string,
+  getApiRequestHeaders: () => { [key: string]: string }, // apiRequestHeaders
 
   // Lbry Methods
   stop: () => Promise<string>,
@@ -448,4 +449,10 @@ declare type LbryTypes = {
 
   // The app shouldn't need to do this
   utxo_release: () => Promise<any>,
+
+  // Desktop only?
+  ffmpeg_find: () => Promise<any>,
+  settings_get: (params?: {}) => Promise<any>,
+  settings_set: (params: {}) => Promise<any>,
+  settings_clear: (params?: {}) => Promise<any>,
 };

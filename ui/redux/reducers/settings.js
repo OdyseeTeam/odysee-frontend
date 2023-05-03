@@ -1,3 +1,4 @@
+// @flow
 import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
@@ -182,7 +183,8 @@ reducers[ACTIONS.SAVE_CUSTOM_WALLET_SERVERS] = (state, action) => {
   return Object.assign({}, state, { customWalletServers: action.data });
 };
 
-export default function reducer(state = defaultState, action) {
+// $FlowFixMe
+export default function reducer(state = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;
