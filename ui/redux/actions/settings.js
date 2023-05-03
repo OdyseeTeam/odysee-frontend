@@ -284,16 +284,27 @@ export function doExitSettingsPage() {
   };
 }
 
+async function fetchAndStoreLanguage(language: string) {
+  // this should match the behavior/logic in index-web.html
+  const url = `https://odysee.com/app-strings/${language}.json`;
+  return fetch(url)
+    .then((r) => r.json())
+    .then((j) => {
+      window.i18n_messages[language] = j;
+    })
+    .catch((err) => {
+      // assert(false, `Failed: "${language}" from (${url})`, err);
+      throw err;
+    });
+}
+
 export function doFetchLanguage(language: string) {
   return (dispatch: Dispatch, getState: GetState) => {
     const { settings } = getState();
 
     if (settings.language !== language || (settings.loadedLanguages && !settings.loadedLanguages.includes(language))) {
-      // this should match the behavior/logic in index-web.html
-      fetch(`https://odysee.com/app-strings/${language}.json`)
-        .then((r) => r.json())
-        .then((j) => {
-          window.i18n_messages[language] = j;
+      return fetchAndStoreLanguage(language)
+        .then(() => {
           dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS, data: { language } });
         })
         .catch((e) => {
@@ -414,17 +425,9 @@ export function doSetLanguage(language: string) {
       settings.language !== languageSetting ||
       (settings.loadedLanguages && !settings.loadedLanguages.includes(language))
     ) {
-      // this should match the behavior/logic in index-web.html
-      return fetch('https://odysee.com/app-strings/' + language + '.json')
-        .then((r) => r.json())
-        .then((j) => {
-          window.i18n_messages[language] = j;
-          dispatch({
-            type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
-            data: {
-              language,
-            },
-          });
+      return fetchAndStoreLanguage(language)
+        .then(() => {
+          dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS, data: { language } });
         })
         .then(() => {
           dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
