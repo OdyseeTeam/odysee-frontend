@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import FileTitleSection from 'component/fileTitleSection';
 import { lazyImport } from 'util/lazyImport';
 

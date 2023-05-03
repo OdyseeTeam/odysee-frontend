@@ -7,7 +7,7 @@ import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
 import SearchTopClaim from 'component/searchTopClaim';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { SEARCH_PAGE_SIZE } from 'constants/search';

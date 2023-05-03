@@ -3,7 +3,13 @@ import React from 'react';
 import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/';
 
 // prettier-ignore
-const AD_CONFIGS = Object.freeze({
+const AD_CONFIG = Object.freeze({
+  PUBLIR: {
+    slotId: {
+      desktop: 'div-hre-Odysee-3291',
+      mobile: 'div-hre-Odysee-3297',
+    },
+  },
   REVCONTENT: {
     url: 'https://assets.revcontent.com/master/delivery.js',
   },
@@ -11,13 +17,13 @@ const AD_CONFIGS = Object.freeze({
 
 type Props = {
   provider: string,
-  // --- redux ---
+  device: string,
   shouldShowAds: boolean,
 };
 
 function AdAboveComments(props: Props) {
-  const { provider, shouldShowAds } = props;
-  const adConfig = AD_CONFIGS.REVCONTENT;
+  const { provider, device, shouldShowAds } = props;
+  const adConfig = AD_CONFIG.REVCONTENT;
   const [isActive, setIsActive] = React.useState(false);
 
   React.useEffect(() => {
@@ -25,8 +31,11 @@ function AdAboveComments(props: Props) {
       if (shouldShowAds && !isActive) {
         let script;
         try {
-          const checkExisting = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-            return Boolean(e.src.indexOf('trends.revcontent.com'));
+          let checkExisting = false;
+          Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+            if (e.src.indexOf('trends.revcontent.com') !== -1) {
+              checkExisting = true;
+            }
           });
 
           if (!checkExisting) {
@@ -45,9 +54,6 @@ function AdAboveComments(props: Props) {
         } catch (e) {}
       }
     }
-    if (provider === 'publir') {
-      console.log('Publir above comments');
-    }
   }, [shouldShowAds, adConfig, isActive, provider]);
 
   return (
@@ -64,7 +70,7 @@ function AdAboveComments(props: Props) {
       )}
       {provider === 'publir' && (
         <PublirAdsProvider publisherId="1391">
-          <AdSlot id="div-hre-Odysee-3291" />
+          <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
         </PublirAdsProvider>
       )}
     </>

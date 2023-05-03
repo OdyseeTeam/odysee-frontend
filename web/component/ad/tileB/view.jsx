@@ -7,17 +7,25 @@ const DISABLE_VIDEO_AD = false;
 
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
-  url: 'https://assets.revcontent.com/master/delivery.js',
+  PUBLIR: {
+    slotId: {
+      desktop: 'div-hre-Odysee-3293',
+      mobile: 'div-hre-Odysee-3293',
+    },
+  },
+  REVCONTENT: {
+    url: 'https://assets.revcontent.com/master/delivery.js',
+  },
 });
 
 type Props = {
   provider: string,
-  // --- redux ---
+  device: string,
   shouldShowAds: boolean,
 };
 
 function AdTileB(props: Props) {
-  const { provider, shouldShowAds } = props;
+  const { provider, device, shouldShowAds } = props;
   const [isActive, setIsActive] = React.useState(false);
   // const ref = React.useRef();
   React.useEffect(() => {
@@ -25,7 +33,7 @@ function AdTileB(props: Props) {
       let script;
       try {
         script = document.createElement('script');
-        script.src = AD_CONFIG.url;
+        script.src = AD_CONFIG.REVCONTENT.url;
         script.defer = true;
         // $FlowIgnore
         document.body.appendChild(script);
@@ -57,7 +65,7 @@ function AdTileB(props: Props) {
       )}
       {provider === 'publir' && (
         <PublirAdsProvider publisherId="1391">
-          <AdSlot id="div-hre-Odysee-3293" />
+          <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
         </PublirAdsProvider>
       )}
     </>

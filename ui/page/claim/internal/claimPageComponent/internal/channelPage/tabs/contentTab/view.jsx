@@ -17,7 +17,7 @@ import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];

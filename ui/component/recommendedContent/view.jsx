@@ -5,7 +5,7 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
 import ClaimPreview from 'component/claimPreview';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';

@@ -73,8 +73,11 @@ export default function AdSticky(props: Props) {
 
     if (shouldShowAds && !isActive && inAllowedPath && !nagsShown) {
       try {
-        const stickyIdCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-          return Boolean(e.innerHTML.indexOf('rcStickyWidgetId'));
+        let stickyIdCheck = false;
+        Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          if (e.innerHTML.indexOf('rcStickyWidgetId') !== -1) {
+            stickyIdCheck = true;
+          }
         });
         if (!stickyIdCheck) {
           scriptId = document.createElement('script');
@@ -85,8 +88,11 @@ export default function AdSticky(props: Props) {
           } catch (e) {}
         }
 
-        const stickyAllCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-          return Boolean(e.src.indexOf('rc_sticky_all'));
+        let stickyAllCheck = false;
+        Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          if (e.src.indexOf('rc_sticky_all') !== -1) {
+            stickyAllCheck = true;
+          }
         });
         if (!stickyAllCheck) {
           script = document.createElement('script');
@@ -95,8 +101,11 @@ export default function AdSticky(props: Props) {
           document.body.appendChild(script);
         }
 
-        const stickyWidgetCheck = Array.from(document.getElementsByTagName('script')).findIndex((e) => {
-          return Boolean(e.src.indexOf('delivery'));
+        let stickyWidgetCheck = false;
+        Array.from(document.getElementsByTagName('script')).findIndex((e) => {
+          if (e.src.indexOf('delivery') !== -1) {
+            stickyWidgetCheck = true;
+          }
         });
         if (!stickyWidgetCheck) {
           scriptSticky = document.createElement('script');

@@ -4,7 +4,7 @@ import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Portals from 'component/portals';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import './style.scss';
 
 type Props = {
