@@ -244,6 +244,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     responsive: true,
     controls: true,
     html5: {
+      ...(videojs.browser.IS_ANY_SAFARI ? { nativeTextTracks: false } : {}),
       vhs: {
         overrideNative: overrideNativeVhs, // !videojs.browser.IS_ANY_SAFARI,
         enableLowInitialPlaylist: false,
