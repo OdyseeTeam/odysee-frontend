@@ -26,6 +26,7 @@ import { setSearchApi } from 'redux/actions/search';
 import {
   doSetLanguage,
   doFetchLanguage,
+  doFetchDevStrings,
   doUpdateIsNightAsync,
   doLoadBuiltInHomepageData,
 } from 'redux/actions/settings';
@@ -253,6 +254,7 @@ function AppWrapper() {
 
       const nonCriticalTimer = setTimeout(() => {
         app.store.dispatch(doMinVersionSubscribe());
+        app.store.dispatch(doFetchDevStrings());
       }, 5000);
 
       analytics.event.startup(Date.now());

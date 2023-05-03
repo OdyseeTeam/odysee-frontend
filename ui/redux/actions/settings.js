@@ -290,31 +290,26 @@ export function doFetchLanguage(language: string) {
 
     if (settings.language !== language || (settings.loadedLanguages && !settings.loadedLanguages.includes(language))) {
       // this should match the behavior/logic in index-web.html
-      fetch('https://odysee.com/app-strings/' + language + '.json')
+      fetch(`https://odysee.com/app-strings/${language}.json`)
         .then((r) => r.json())
         .then((j) => {
           window.i18n_messages[language] = j;
-          dispatch({
-            type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
-            data: {
-              language,
-            },
-          });
+          dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS, data: { language } });
         })
         .catch((e) => {
-          dispatch({
-            type: ACTIONS.DOWNLOAD_LANGUAGE_FAILURE,
-          });
+          dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_FAILURE });
         });
     }
+  };
+}
 
+export function doFetchDevStrings() {
+  return (dispatch: Dispatch, getState: GetState) => {
     // @if process.env.NODE_ENV!='production'
     if (!window.app_strings) {
       fetch(`${URL_DEV}/app-strings.json`)
         .then((r) => r.json())
-        .then((j) => {
-          window.app_strings = j;
-        })
+        .then((j) => (window.app_strings = j))
         .catch(() => {});
     }
     // @endif
