@@ -426,6 +426,10 @@ $recent-msg-button__height: 2rem;
     .section {
       .button-toggle {
         background-color: var(--color-background);
+        &:hover {
+          background-color: var(--color-button-toggle-bg-hover);
+          // color:var(--color-text);
+        }
       }
       .button-toggle--active,
       .button--secondary {
@@ -451,6 +455,11 @@ $recent-msg-button__height: 2rem;
       }
     }
 
+    .credit-amount-wrapper {
+      .credit-amount {
+        font-size: var(--font-small);
+      }
+    }
     .tabs {
       overflow: hidden;
       border: unset;
