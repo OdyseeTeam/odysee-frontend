@@ -214,7 +214,6 @@ function CommentMenuList(props: Props) {
           <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
           <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>
             {authorTitle || authorName}
-            <Icon icon={ICONS.COPY_LINK} />
           </NavLink>
         </div>
       )}
@@ -341,7 +340,8 @@ function CommentMenuList(props: Props) {
         <div className="comment__menu-active">
           <ChannelThumbnail xsmall noLazyLoad uri={activeChannelClaim.permanent_url} />
           <div className="comment__menu-channel">
-            {__('Interacting as %channelName%', { channelName: activeChannelClaim.name })}
+            {__('Interacting as', { channelName: activeChannelClaim.name })}
+            <span>{activeChannelClaim.name}</span>
           </div>
         </div>
       )}
