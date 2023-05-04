@@ -95,7 +95,7 @@ let baseConfig = {
     alias: {
       config: path.resolve(__dirname, 'config.js'),
       homepage: 'util/homepage.js',
-      homepages: process.env.CUSTOM_HOMEPAGE === 'true' ? path.resolve(__dirname, 'custom/homepages/v2/index.js') : ('homepages/index.js'),
+      homepages: process.env.CUSTOM_HOMEPAGE === 'true' ? path.resolve(__dirname, 'custom/homepages/v2') : ('homepages'),
       memes: process.env.CUSTOM_HOMEPAGE === 'true' ? path.resolve(__dirname, 'custom/homepages/meme/index.js') : path.resolve(__dirname, 'homepages/meme/index.js'),
       lbryinc: 'extras/lbryinc',
       recsys: 'extras/recsys',

@@ -1,10 +1,4 @@
-const {
-  BRANDED_SITE,
-  CUSTOM_HOMEPAGE,
-  LBRY_WEB_API,
-  USE_LOCAL_HOMEPAGE_DATA,
-  WEBPACK_WEB_PORT,
-} = require('../config.js');
+const { BRANDED_SITE, CUSTOM_HOMEPAGE, LBRY_WEB_API, WEBPACK_WEB_PORT } = require('../config.js');
 const path = require('path');
 const fs = require('fs');
 const { merge } = require('webpack-merge');
@@ -232,7 +226,6 @@ const webConfig = {
           TARGET: 'web',
           BRANDED_SITE,
           CUSTOM_HOMEPAGE,
-          USE_LOCAL_HOMEPAGE_DATA,
           ppOptions: {
             type: 'js',
           },
