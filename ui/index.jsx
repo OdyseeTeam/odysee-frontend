@@ -27,6 +27,7 @@ import {
   doSetLanguage,
   doFetchLanguage,
   doFetchDevStrings,
+  doFetchHomepages,
   doUpdateIsNightAsync,
   doLoadBuiltInHomepageData,
 } from 'redux/actions/settings';
@@ -240,6 +241,7 @@ function AppWrapper() {
     if (readyToLaunch && persistDone) {
       app.store.dispatch(doDaemonReady());
       app.store.dispatch(doLoadBuiltInHomepageData());
+      app.store.dispatch(doFetchHomepages());
 
       const timer = setTimeout(() => {
         if (DEFAULT_LANGUAGE) {
