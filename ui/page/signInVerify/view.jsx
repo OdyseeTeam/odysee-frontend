@@ -30,7 +30,7 @@ function SignInVerifyPage(props: Props) {
   const userSubmittedEmail = urlParams.get('email');
   const verificationToken = urlParams.get('verification_token');
   const needsRecaptcha = urlParams.get('needs_recaptcha') === 'true';
-  const [verificationTried, setVerificationTried] = useState(needsRecaptcha);
+  const [verificationTried, setVerificationTried] = useState(needsRecaptcha || verificationApiHistory.called);
 
   const successful = isAuthenticationSuccess || verificationApiHistory.successful;
 
