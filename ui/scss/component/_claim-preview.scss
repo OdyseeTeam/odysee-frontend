@@ -1858,10 +1858,11 @@ $claim-preview-progress-bar-height: 5px;
 
 .web-upload-item {
   padding: var(--spacing-m);
-  // background-color: rgba(var(--color-header-background-base), 0.6);
+  flex-flow: row;
 
   .claim-preview-metadata {
     width: 100%;
+    flex: 1;
   }
 
   &::before {
