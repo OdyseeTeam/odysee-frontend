@@ -352,7 +352,6 @@ function CommentView(props: Props) {
                     uri={uri}
                     commentId={commentId}
                     authorUri={authorUri}
-                    authorName={claimName}
                     commentIsMine={commentIsMine}
                     isPinned={isPinned}
                     isTopLevel={isTopLevel}

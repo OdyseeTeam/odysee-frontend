@@ -54,8 +54,8 @@ reach-portal {
   display: block;
   white-space: nowrap;
   outline: none;
-  background-color: rgba(var(--color-header-button-base), 0.9) !important;
-  border: 2px solid var(--color-header-background) !important;
+  background-color: var(--color-background) !important;
+  border: 2px solid var(--color-border) !important;
   border-top: none;
   -webkit-backdrop-filter: blur(4px) !important;
   backdrop-filter: blur(4px) !important;
@@ -236,7 +236,7 @@ reach-portal {
 }
 
 .menu__chat-comment {
-  padding: 0 0 var(--spacing-xxs) 0;
+  padding: var(--spacing-xxs) 0 var(--spacing-xxs) 0;
 }
 
 .menu__list--comments {
