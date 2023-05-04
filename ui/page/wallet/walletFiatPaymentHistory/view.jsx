@@ -2,7 +2,7 @@
 import React from 'react';
 import Button from 'component/button';
 import Paginate from 'component/common/paginate';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
@@ -13,7 +13,6 @@ type Props = {
   // --- redux ---
   paymentHistory: StripeTransactions,
   lastFour: ?any,
-  appLanguage: string,
   doCustomerListPaymentHistory: () => void,
   doGetCustomerStatus: () => void,
   transactionType: 'tips' | 'rentals-purchases',
@@ -26,7 +25,6 @@ const WalletFiatPaymentHistory = (props: Props) => {
     fetchDataOnMount,
     paymentHistory,
     lastFour,
-    appLanguage,
     doCustomerListPaymentHistory,
     doGetCustomerStatus,
     transactionType,
@@ -55,7 +53,7 @@ const WalletFiatPaymentHistory = (props: Props) => {
   }
 
   function getDate(transaction) {
-    return moment(transaction.created_at).locale(appLanguage).format('LLL');
+    return moment(transaction.created_at).format('LLL');
   }
 
   function getReceivingChannelName(transaction) {

@@ -5,7 +5,7 @@ const Dotenv = require('dotenv-webpack');
 const { DefinePlugin, ProvidePlugin } = require('webpack');
 const { getIfUtils } = require('webpack-config-utils');
 const TerserPlugin = require('terser-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const { ifProduction } = getIfUtils(NODE_ENV);
@@ -14,6 +14,7 @@ const UI_ROOT = path.resolve(__dirname, 'ui/');
 const optInPlugins = [];
 
 if (NODE_ENV !== 'development' && process.env.BUNDLE_ANALYZER_ENABLED) {
+  // noinspection JSUnresolvedVariable
   const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
   optInPlugins.push(new BundleAnalyzerPlugin({
     analyzerMode: 'static',
@@ -114,7 +115,7 @@ let baseConfig = {
   },
 
   plugins: [
-    new webpack.IgnorePlugin({resourceRegExp: /moment\/locale\//}),
+    new webpack.IgnorePlugin({ resourceRegExp: /^\.\/locale$/, contextRegExp: /moment$/ }),
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new DefinePlugin({
       __static: `"${path.join(__dirname, 'static').replace(/\\/g, '\\\\')}"`,
@@ -136,14 +137,14 @@ let baseConfig = {
       defaults: true, // load '.env.defaults' as the default values if empty.
     }),
     new MiniCssExtractPlugin({
-      filename: NODE_ENV === 'development' ? "[name].css" : "[name].[contenthash].css",
-      chunkFilename: NODE_ENV === 'development' ? "[name].css" : "[name].[contenthash].css",
+      filename: NODE_ENV === 'development' ? '[name].css' : '[name].[contenthash].css',
+      chunkFilename: NODE_ENV === 'development' ? '[name].css' : '[name].[contenthash].css',
     }),
     ...optInPlugins,
   ],
   stats: {
     errorDetails: true,
-    warnings: false
+    warnings: false,
   },
 };
 module.exports = baseConfig;
