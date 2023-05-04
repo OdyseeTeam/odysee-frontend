@@ -16,7 +16,7 @@ import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
 import Tooltip from 'component/common/tooltip';
 import { lazyImport } from 'util/lazyImport';
-import './style.scss';
+import './style.lazy.scss';
 
 export const VIEW_MODES = {
   CHAT: 'chat',

@@ -3,9 +3,11 @@ import React from 'react';
 import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
-import Portals from 'component/portals';
 import Ad from 'web/component/ad/ad';
+import { lazyImport } from 'util/lazyImport';
 import './style.scss';
+
+const Portals = lazyImport(() => import('component/portals' /* webpackChunkName: "portals" */));
 
 type Props = {
   portals: any,

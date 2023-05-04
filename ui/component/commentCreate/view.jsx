@@ -25,7 +25,7 @@ import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
-import './style.scss';
+import './style.lazy.scss';
 
 const stripeEnvironment = getStripeEnvironment();
 

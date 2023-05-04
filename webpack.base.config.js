@@ -57,7 +57,7 @@ let baseConfig = {
       },
       {
         test: /\.s?css$/,
-        exclude: /style\.scss/,
+        exclude: /style\.lazy\.scss/,
         use: [
           // MiniCssExtractPlugin.loader,
           'style-loader',
@@ -67,7 +67,7 @@ let baseConfig = {
         ],
       },
       {
-        test: /style\.scss/,
+        test: /style\.lazy\.scss/,
         use: [
           MiniCssExtractPlugin.loader,
           // 'style-loader',

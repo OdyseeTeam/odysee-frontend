@@ -1,8 +1,6 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-
-import './style.scss';
 import FeeBreakdown from './internal/feeBreakdown';
 import Button from 'component/button';
 import { FormField, FormFieldPrice } from 'component/common/form';
@@ -13,6 +11,7 @@ import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
 import usePersistedState from 'effects/use-persisted-state';
 import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
+import './style.lazy.scss';
 
 const FEE = { MIN: 1, MAX: 999.99 };
 const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until currency approach is determined.

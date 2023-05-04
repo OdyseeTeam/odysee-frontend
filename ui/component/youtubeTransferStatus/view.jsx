@@ -11,7 +11,7 @@ import { buildURI } from 'util/lbryURI';
 import Spinner from 'component/spinner';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
-import './style.scss';
+import './style.lazy.scss';
 
 type Props = {
   youtubeChannels: Array<any>,

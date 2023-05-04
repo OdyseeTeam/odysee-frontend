@@ -2,7 +2,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
-import './style.scss';
+import './style.lazy.scss';
 
 type Props = {
   debugLog: Array<string | Error>,

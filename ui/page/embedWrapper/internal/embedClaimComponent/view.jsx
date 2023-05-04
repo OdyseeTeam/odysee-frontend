@@ -10,11 +10,13 @@ import { lazyImport } from 'util/lazyImport';
 import { formatLbryUrlForWeb } from 'util/url';
 
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
-import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import Spinner from 'component/spinner';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 
+const LivestreamScheduledInfo = lazyImport(() =>
+  import('component/livestreamScheduledInfo' /* webpackChunkName: "livestreamScheduledInfo" */)
+);
 const ClaimPreviewTile = lazyImport(() =>
   import('component/claimPreviewTile' /* webpackChunkName: "claimPreviewTile" */)
 );
