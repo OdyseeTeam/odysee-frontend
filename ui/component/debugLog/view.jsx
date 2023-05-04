@@ -44,12 +44,7 @@ function DebugLog(props: Props) {
         );
       });
 
-      return (
-        <pre>
-          {lines.slice(0, 3).join('\n')}
-          {allLines.length > 3 && '\n... (see console for more)'}
-        </pre>
-      );
+      return <pre>{lines.slice(0, 3).join('\n')}</pre>;
     }
   }
 

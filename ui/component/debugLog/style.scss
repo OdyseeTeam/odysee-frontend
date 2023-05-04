@@ -8,11 +8,11 @@
   height: 30%;
   z-index: 888;
   border-radius: var(--border-radius);
-  margin: 0 var(--spacing-m);
+  margin: 0 var(--spacing-l);
   padding: var(--spacing-m) var(--spacing-l);
-  box-shadow: 0 0 var(--spacing-l) rgba(var(--color-text-base), 0.5);
+  box-shadow: 0 0 var(--spacing-m) rgba(var(--color-text-base), 0.3);
   overflow-y: auto;
-  font-size: var(--font-xsmall);
+  font-size: var(--font-body);
 }
 
 .debug-log--open {
@@ -27,6 +27,7 @@
   pre {
     color: var(--color-text-subtitle);
     white-space: pre-wrap;
+    font-size: var(--font-small);
   }
 }
 
