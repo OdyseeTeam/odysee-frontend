@@ -16,7 +16,7 @@ type Props = {
   hasClaim: ?boolean,
   isClaimBlackListed: boolean,
   isClaimFiltered: boolean,
-  claimIsMine: boolean,
+  claimIsMine: ?boolean,
   isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
   preferEmbed: boolean,
@@ -56,7 +56,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     const { streamName, channelName, isChannel } = parseURI(uri);
 
     const claimIsRestricted =
-      !claimIsMine && (geoRestriction || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
+      !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
 
     const LoadingSpinner = React.useMemo(
       () =>
@@ -119,6 +119,10 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
           </div>
         </Wrapper>
       );
+    }
+
+    if (claimIsRestricted && geoRestriction === undefined) {
+      return <LoadingSpinner text={__('Resolving...')} />;
     }
 
     if (claimIsRestricted && isChannel) {
