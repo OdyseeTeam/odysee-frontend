@@ -293,7 +293,7 @@ async function fetchAndStoreLanguage(language: string) {
       window.i18n_messages[language] = j;
     })
     .catch((err) => {
-      assert(false, `Failed: "${language}" from (${url})`, err);
+      // assert(false, `Failed: "${language}" from (${url})`, err);
       throw err;
     });
 }
