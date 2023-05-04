@@ -1,9 +1,6 @@
 import { connect } from 'react-redux';
-// import { selectShouldShowAds } from 'redux/selectors/app';
 import AdAboveComments from './view';
 
-const select = (state, props) => ({
-  // shouldShowAds: selectShouldShowAds(state),
-});
+const select = (state, props) => ({});
 
 export default connect(select)(AdAboveComments);
