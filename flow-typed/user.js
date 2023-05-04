@@ -68,6 +68,7 @@ declare type UserState = {
   odyseeMembershipName: ?string, // undefined: not fetched, '': no membership
   odyseeMembershipsPerClaimIds: ?{ [string]: string },
   locale: ?LocaleInfo,
+  localeFailed: ?boolean,
 };
 
 declare type LocaleInfo = {
