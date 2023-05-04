@@ -95,12 +95,12 @@ export const selectHomepageMeme = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);
   if (homepages) {
-    const meme = homepages[homepageCode].meme;
+    const meme = homepages[homepageCode]?.meme;
     if (meme && meme.text && meme.url) {
       return meme;
     }
   }
-  return homepages ? homepages['en'].meme || {} : {};
+  return homepages ? homepages['en']?.meme || {} : {};
 };
 
 export const selectHomepageDiscover = (state) => {
@@ -119,12 +119,11 @@ export const selectHomepageAnnouncement = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);
   if (homepages) {
-    const news = homepages[homepageCode].announcement;
-    if (news) {
-      return news;
-    }
+    const news = homepages[homepageCode]?.announcement;
+    const newsFallback = homepages['en']?.announcement;
+    return news || newsFallback || '';
   }
-  return homepages ? homepages['en'].announcement || '' : '';
+  return '';
 };
 
 export const selectInRegionByCode = (state, code) => {

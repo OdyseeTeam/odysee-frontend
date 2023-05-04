@@ -10,7 +10,7 @@ import { doToast } from 'redux/actions/notifications';
 import analytics from 'analytics';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { launcher } from 'util/autoLaunch';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectHomepageDb } from 'redux/selectors/settings';
 import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
 import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal } from 'redux/actions/app';
 import { selectPrefsReady } from 'redux/selectors/sync';
@@ -339,24 +339,23 @@ function populateCategoryTitles(categories) {
 
 export function doLoadBuiltInHomepageData() {
   return (dispatch: Dispatch) => {
-    // @if USE_LOCAL_HOMEPAGE_DATA='true'
-    // ------------------------------------------------------------------------
-    // USE_LOCAL_HOMEPAGE_DATA used to be able to replace the fetch entirely,
-    // but is now mainly for fallback data and perceived faster startup. We
-    // still need to fetch anyway because the Announcements framework depends on
-    // fresh data, and the built-in version could be a stale one from browser
-    // caching.
-    // ------------------------------------------------------------------------
+    // We always fetch fresh homepages on load, but the baked in data is
+    // required for
+    // (1) some homepages need English as fallback (e.g. empty portals).
+    // (2) perceived faster startup
+    //
+    // As a compromise between the above needs vs. wanting a smaller ui.js,
+    // we'll just bake in the English version.
 
-    const homepages = require('homepages');
-    if (homepages) {
-      const v2 = {};
-      const homepageKeys = Object.keys(homepages);
-      homepageKeys.forEach((hp) => {
-        v2[hp] = homepages[hp];
-      });
+    // @if process.env.CUSTOM_HOMEPAGE='true'
 
-      window.homepages = v2;
+    // $FlowIgnore
+    const enHp = require('homepages/odysee-en');
+    if (enHp) {
+      window.homepages = {};
+      const keys = ['en', 'fr', 'es', 'de', 'it', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
+      keys.forEach((hp) => (window.homepages[hp] = undefined));
+      window.homepages['en'] = enHp;
       populateCategoryTitles(window.homepages?.en?.categories);
       dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
     }
@@ -380,7 +379,7 @@ export function doFetchHomepages(hp?: string) {
   return (dispatch: Dispatch) => {
     const param = hp ? `?hp=${hp}` : '';
 
-    fetch(`https://odysee.com/$/api/content/v2/get${param}`)
+    return fetch(`https://odysee.com/$/api/content/v2/get${param}`)
       .then((response) => response.json())
       .then((json) => {
         if (json?.status === 'success' && json?.data) {
@@ -400,7 +399,14 @@ export function doFetchHomepages(hp?: string) {
 }
 
 export function doSetHomepage(code: string) {
-  return (dispatch: Dispatch, getState: GetState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const homepages = selectHomepageDb(state);
+
+    if (code && !homepages[code]) {
+      await dispatch(doFetchHomepages(code));
+    }
+
     // bc3c56b8: Why reset to null -- makes it look like homepage was deleted.
     const languageCode = code === getDefaultLanguage() ? null : code;
 
