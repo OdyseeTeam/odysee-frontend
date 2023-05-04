@@ -2,7 +2,6 @@
 import React from 'react';
 import { getLanguageName } from 'constants/languages';
 import { FormField } from 'component/common/form';
-import { getDefaultHomepageKey } from 'util/default-languages';
 
 type Props = {
   homepage: string,
@@ -12,6 +11,9 @@ type Props = {
 
 function SelectHomepage(props: Props) {
   const { homepage, homepageKeys, setHomepage } = props;
+
+  // Don't know why bc3c56b8 resets the code to null when in English.
+  const value = homepage === null ? 'en' : homepage;
 
   function handleSetHomepage(e) {
     const { value } = e.target;
@@ -24,12 +26,7 @@ function SelectHomepage(props: Props) {
 
   return (
     <React.Fragment>
-      <FormField
-        name="homepage_select"
-        type="select"
-        onChange={handleSetHomepage}
-        value={homepage || getDefaultHomepageKey()}
-      >
+      <FormField name="homepage_select" type="select" onChange={handleSetHomepage} value={value}>
         {homepageKeys.map((hp) => (
           <option key={'hp' + hp} value={hp}>
             {getLanguageName(hp)}

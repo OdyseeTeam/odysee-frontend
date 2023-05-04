@@ -401,6 +401,7 @@ export function doFetchHomepages(hp?: string) {
 
 export function doSetHomepage(code: string) {
   return (dispatch: Dispatch, getState: GetState) => {
+    // bc3c56b8: Why reset to null -- makes it look like homepage was deleted.
     const languageCode = code === getDefaultLanguage() ? null : code;
 
     dispatch(doSetClientSetting(SETTINGS.HOMEPAGE, languageCode));
