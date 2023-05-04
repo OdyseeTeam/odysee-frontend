@@ -5,7 +5,6 @@ import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import React, { Fragment } from 'react';
 import GeoRestrictionInfo from 'component/geoRestictionInfo';
-import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
@@ -19,6 +18,11 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import Ad from 'web/component/ad/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
+import { lazyImport } from 'util/lazyImport';
+
+const HiddenNsfwClaims = lazyImport(() =>
+  import('component/hiddenNsfwClaims' /* webpackChunkName: "hiddenNsfwClaims" */)
+);
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -111,7 +115,9 @@ function ContentTab(props: Props) {
       <GeoRestrictionInfo uri={uri} />
 
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
-        <HiddenNsfwClaims uri={uri} />
+        <React.Suspense fallback={null}>
+          <HiddenNsfwClaims uri={uri} />
+        </React.Suspense>
       )}
 
       <LivestreamLink uri={uri} />
@@ -146,7 +152,11 @@ function ContentTab(props: Props) {
         </div>
       )}
 
-      {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
+      {!channelIsMine && claimsInChannel > 0 && (
+        <React.Suspense fallback={null}>
+          <HiddenNsfwClaims uri={uri} />
+        </React.Suspense>
+      )}
       {!fetching && (
         <ClaimSearchFilterContext.Provider value={claimSearchFilterCtx}>
           <ClaimListDiscover

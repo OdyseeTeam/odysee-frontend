@@ -19,7 +19,6 @@ import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
 import 'scss/component/_swipeable-drawer.scss';
-import './style.scss';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 

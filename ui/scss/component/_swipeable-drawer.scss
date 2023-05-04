@@ -118,3 +118,27 @@
     z-index: 9999;
   }
 }
+
+.chat-card--drawer-header {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+
+  .chat-card--drawer-header-mode {
+    padding: var(--spacing-s);
+    margin-top: var(--spacing-m);
+
+    .button-toggle {
+      padding: 0 var(--spacing-s);
+      height: var(--height-button-mobile);
+    }
+  }
+  .menu__button {
+    opacity: 1;
+    margin-right: var(--spacing-xs);
+  }
+
+  button:last-of-type {
+    margin-left: auto;
+  }
+}
