@@ -4,7 +4,6 @@ import * as MODALS from 'constants/modal_types';
 import React, { useState } from 'react';
 import Button from 'component/button';
 import { webDownloadClaim } from 'util/downloadClaim';
-import './style.scss';
 
 type Props = {
   uri: string,
