@@ -15,11 +15,15 @@ import { YOUTUBE_STATUSES } from 'lbryinc';
 import REWARDS from 'rewards';
 import UserVerify from 'component/userVerify';
 import Spinner from 'component/spinner';
-import YoutubeTransferStatus from 'component/youtubeTransferStatus';
 import useFetched from 'effects/use-fetched';
 import Confetti from 'react-confetti';
 import usePrevious from 'effects/use-previous';
+import { lazyImport } from 'util/lazyImport';
 import { SHOW_TAGS_INTRO } from 'config';
+
+const YoutubeTransferStatus = lazyImport(() =>
+  import('component/youtubeTransferStatus' /* webpackChunkName: "youtubeTransferStatus" */)
+);
 
 const REDIRECT_PARAM = 'redirect';
 const REDIRECT_IMMEDIATELY_PARAM = 'immediate';
@@ -221,7 +225,9 @@ function UserSignUp(props: Props) {
     ),
     showYoutubeTransfer && (
       <div>
-        <YoutubeTransferStatus /> <Confetti recycle={false} style={{ position: 'fixed' }} />
+        <React.Suspense fallback={null}>
+          <YoutubeTransferStatus /> <Confetti recycle={false} style={{ position: 'fixed' }} />
+        </React.Suspense>
       </div>
     ),
     showLoadingSpinner && (

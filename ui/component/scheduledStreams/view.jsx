@@ -11,7 +11,6 @@ import Button from 'component/button';
 import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
 import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
 import * as SETTINGS from 'constants/settings';
-import './style.scss';
 
 type Props = {
   channelIds: Array<string>,
