@@ -156,7 +156,6 @@ export default function ChatComment(props: Props) {
                     uri={uri}
                     commentId={commentId}
                     authorUri={authorUri}
-                    authorName={comment && comment.channel_name}
                     commentIsMine={commentIsMine}
                     isPinned={isPinned}
                     isTopLevel
@@ -241,7 +240,6 @@ export default function ChatComment(props: Props) {
                 uri={uri}
                 commentId={commentId}
                 authorUri={authorUri}
-                authorName={comment && comment.channel_name}
                 commentIsMine={commentIsMine}
                 isPinned={isPinned}
                 isTopLevel
@@ -289,7 +287,6 @@ export default function ChatComment(props: Props) {
             uri={uri}
             commentId={commentId}
             authorUri={authorUri}
-            authorName={comment && comment.channel_name}
             commentIsMine={commentIsMine}
             isPinned={isPinned}
             isTopLevel

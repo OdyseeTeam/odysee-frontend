@@ -12,13 +12,11 @@ import Icon from 'component/common/icon';
 import classnames from 'classnames';
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
-import { NavLink } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 
 type Props = {
   uri: ?string,
   authorUri: string, // full LBRY Channel URI: lbry://@channel#123...
-  authorName?: string,
   commentId: string, // sha256 digest identifying the comment
   isTopLevel: boolean,
   isPinned: boolean,
@@ -36,7 +34,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   playingUri: PlayingUri,
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
-  authorTitle: string,
   authorCanonicalUri: ?string,
   authorId: string,
   // --- perform ---
@@ -58,7 +55,6 @@ function CommentMenuList(props: Props) {
     claim,
     claimIsMine,
     authorUri,
-    authorName,
     authorId,
     commentIsMine,
     channelIsMine,
@@ -68,7 +64,6 @@ function CommentMenuList(props: Props) {
     isPinned,
     playingUri,
     moderationDelegatorsById,
-    authorTitle,
     authorCanonicalUri,
     isAuthenticated,
     disableEdit,
@@ -93,6 +88,7 @@ function CommentMenuList(props: Props) {
   const {
     location: { pathname, search },
   } = useHistory();
+  const history = useHistory();
 
   const contentChannelClaim = getChannelFromClaim(claim);
   const contentChannelPermanentUrl = contentChannelClaim && contentChannelClaim.permanent_url;
@@ -210,12 +206,15 @@ function CommentMenuList(props: Props) {
       onClick={(e) => e.stopPropagation()}
     >
       {(isLiveComment || isUserLabel) && (
-        <div className="comment__menu-target">
-          <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
-          <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>
-            {authorTitle || authorName}
-          </NavLink>
-        </div>
+        <MenuItem
+          className="comment__menu-option menu__link"
+          onSelect={() => history.push(formatLbryUrlForWeb(authorUri))}
+        >
+          <span className={'button__content'}>
+            <Icon aria-hidden icon={ICONS.CHANNEL} className={'icon'} />
+            {__('Visit')}
+          </span>
+        </MenuItem>
       )}
       {isAuthenticated && isLiveComment && setQuickReply && !commentIsMine && !channelIsMine && (
         <>

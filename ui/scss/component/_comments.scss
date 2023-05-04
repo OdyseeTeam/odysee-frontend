@@ -776,35 +776,6 @@ $thumbnailWidthSmall: 2rem;
   overflow: hidden;
 }
 
-.comment__menu-target {
-  display: flex;
-  align-items: center;
-  background-color: var(--color-header-button);
-  font-size: var(--font-xsmall);
-  margin-top: 0;
-  white-space: pre-line;
-  margin-bottom: var(--spacing-xxs);
-  min-width: 13rem;
-  padding: var(--spacing-xxs);
-  color: var(--color-text);
-
-  .channel-thumbnail--xsmall {
-    width: 1.8rem;
-    height: 1.8rem;
-  }
-  .comment__menu-channel {
-    margin-right: 0;
-    .icon {
-      height: var(--font-xxsmall);
-      margin-left: var(--spacing-xxxs);
-      margin-bottom: -1px;
-    }
-    &:hover {
-      color: var(--color-primary);
-    }
-  }
-}
-
 .comment--blocked {
   opacity: 0.5;
 }
