@@ -4,6 +4,7 @@ import withResolvedClaimRender from './view';
 import { PREFERENCE_EMBED } from 'constants/tags';
 import { selectIsClaimBlackListedForUri, selectIsClaimFilteredForUri } from 'lbryinc';
 
+import { selectGblAvailable } from 'redux/selectors/blocked';
 import {
   selectClaimForUri,
   selectHasClaimForUri,
@@ -32,6 +33,7 @@ const select = (state, props) => {
     claimIsMine: selectClaimIsMine(state, claim),
     isAuthenticated: selectUserVerifiedEmail(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
+    gblAvailable: selectGblAvailable(state),
     preferEmbed,
   };
 };

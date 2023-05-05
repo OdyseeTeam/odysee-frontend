@@ -34,6 +34,7 @@ const defaultState: UserState = {
   odyseeMembershipName: undefined,
   odyseeMembershipsPerClaimIds: undefined,
   locale: undefined,
+  localeFailed: undefined,
   homepageFetched: false,
 };
 
@@ -374,6 +375,12 @@ reducers[ACTIONS.USER_PASSWORD_SET_FAILURE] = (state, action) =>
 reducers[ACTIONS.USER_FETCH_LOCALE_DONE] = (state, action) =>
   Object.assign({}, state, {
     locale: action.data,
+    localeFailed: false,
+  });
+
+reducers[ACTIONS.USER_FETCH_LOCALE_FAILED] = (state, action) =>
+  Object.assign({}, state, {
+    localeFailed: true,
   });
 
 reducers[ACTIONS.FETCH_HOMEPAGES_DONE] = (state) =>

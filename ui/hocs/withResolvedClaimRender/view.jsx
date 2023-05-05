@@ -16,9 +16,10 @@ type Props = {
   hasClaim: ?boolean,
   isClaimBlackListed: boolean,
   isClaimFiltered: boolean,
-  claimIsMine: boolean,
+  claimIsMine: ?boolean,
   isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
+  gblAvailable: boolean,
   preferEmbed: boolean,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (name: ?string) => void,
@@ -45,6 +46,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       claimIsMine,
       isAuthenticated,
       geoRestriction,
+      gblAvailable,
       preferEmbed,
       doResolveUri,
       doBeginPublish,
@@ -56,7 +58,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     const { streamName, channelName, isChannel } = parseURI(uri);
 
     const claimIsRestricted =
-      !claimIsMine && (geoRestriction || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
+      !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
 
     const LoadingSpinner = React.useMemo(
       () =>
@@ -119,6 +121,30 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
           </div>
         </Wrapper>
       );
+    }
+
+    if (claimIsRestricted && geoRestriction === undefined) {
+      if (!gblAvailable) {
+        return (
+          <Wrapper>
+            <div className="main--empty">
+              <Yrbl
+                title={__('Oops! Something went wrong.')}
+                subtitle={
+                  <>
+                    <p>{__(HELP.GBL_NA_LINE_1)}</p>
+                    <p>{__(HELP.GBL_NA_LINE_2)}</p>
+                  </>
+                }
+                type="sad"
+                alwaysShow
+              />
+            </div>
+          </Wrapper>
+        );
+      } else {
+        return <LoadingSpinner text={__('Resolving...')} />;
+      }
     }
 
     if (claimIsRestricted && isChannel) {
@@ -199,6 +225,12 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
   };
 
   return ClaimRenderWrapper;
+};
+
+// prettier-ignore
+const HELP = {
+  GBL_NA_LINE_1: 'It looks like there was a problem with the network connection or one of your extensions is blocking the request.',
+  GBL_NA_LINE_2: 'Please check your internet connection and try again. If the problem persists, email help@odysee.com.',
 };
 
 export default withResolvedClaimRender;

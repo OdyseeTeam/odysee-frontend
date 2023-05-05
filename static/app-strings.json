@@ -2891,6 +2891,9 @@
   "Continue to Odysee": "Continue to Odysee",
   "Log in failed": "Log in failed",
   "New verification email has been sent": "New verification email has been sent",
+  "Oops! Something went wrong.": "Oops! Something went wrong.",
+  "It looks like there was a problem with the network connection or one of your extensions is blocking the request.": "It looks like there was a problem with the network connection or one of your extensions is blocking the request.",
+  "Please check your internet connection and try again. If the problem persists, email help@odysee.com.": "Please check your internet connection and try again. If the problem persists, email help@odysee.com.",
 
   "--end--": "--end--"
 }

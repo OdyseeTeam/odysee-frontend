@@ -1032,6 +1032,10 @@ export const selectIsMyChannelCountOverLimit = createSelector(
   }
 );
 
+/**
+ * selectGeoRestrictionForUri
+ * @returns {undefined|null|GeoConfig} undefined = pending fetch; null = no restrictions; GeoConfig = blocked reason
+ */
 export const selectGeoRestrictionForUri = createCachedSelector(
   selectClaimForUri,
   selectGeoBlockLists,
