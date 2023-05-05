@@ -774,10 +774,13 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    font-size: 14px;
+    font-size: var(--font-small);
 
     .claim-preview-metadata {
       .claim-tile__info {
+        .channel-thumbnail {
+          margin-bottom: 5px;
+        }
         .media__subtitle {
           margin-bottom: 2px;
         }
