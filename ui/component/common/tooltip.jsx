@@ -12,6 +12,7 @@ type Props = {
   className?: string,
   followCursor?: boolean,
   placement?: string, // https://mui.com/api/tooltip/
+  state?: { open: boolean, onClose: any },
 };
 
 function Tooltip(props: Props) {
@@ -24,6 +25,7 @@ function Tooltip(props: Props) {
     className,
     followCursor = false,
     placement = 'bottom',
+    state,
   } = props;
 
   return (
@@ -36,6 +38,7 @@ function Tooltip(props: Props) {
       followCursor={followCursor}
       placement={placement}
       classes={{ tooltip: className }}
+      {...(state || {})}
     >
       {children}
     </MUITooltip>
