@@ -178,6 +178,7 @@ function addMarkersOnProgressBar(chapterStartTimes: Array<number>, videoDuration
     for (let i = 0; i < chapterStartTimes.length; ++i) {
       const isLastChapter = i === chapterStartTimes.length - 1;
 
+      if (chapterStartTimes[i] === 0) chapterStartTimes[i] = -4;
       let x1 = (chapterStartTimes[i] / videoDuration) * 100 + gapWidthPct;
       let x2 = isLastChapter ? CLIP_PCT.RIGHT : (chapterStartTimes[i + 1] / videoDuration) * 100;
 

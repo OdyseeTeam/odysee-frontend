@@ -2,14 +2,18 @@
 
 .vjs-progress-nub {
   @extend .vjs-icon-circle;
+  position: absolute;
   transform: scale(0);
   transition: transform 0.1s;
-  color: #f77937;
-
-  font-size: 1.5em;
-  position: absolute;
-  top: 50%;
+  color: transparent;
+  font-size: 1.6em;
+  top: 0.68em;
   z-index: 1;
+  &::before {
+    margin-bottom: -10px !important;
+    margin-left: -100% !important;
+    color: #f77937;
+  }
 }
 
 .vjs-progress-control.vjs-control {
