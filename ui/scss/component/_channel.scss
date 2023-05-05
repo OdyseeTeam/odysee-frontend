@@ -677,7 +677,7 @@ $actions-z-index: 2;
   }
 
   @media (max-width: $breakpoint-small) {
-    padding-left: calc(((100% - calc(100% - 2 * var(--spacing-l)) - 2rem) / 2) + 5rem);
+    padding-left: calc(((100% - calc(100% - 3 * var(--spacing-l)) - 2rem) / 2) + 5rem);
     padding-bottom: var(--spacing-s);
     margin-top: 0;
     margin-bottom: 0;
