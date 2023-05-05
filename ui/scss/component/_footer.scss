@@ -20,6 +20,9 @@
 .footer__links {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 
   .navigation-link {
     font-size: var(--font-small);
