@@ -10,6 +10,7 @@ import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
 import ClaimSearchView from 'component/claimSearchView';
 import Page from 'component/page';
+import Icon from 'component/common/icon';
 import Paginate from 'component/common/paginate';
 import { PAGE_PARAM, PAGE_SIZE_PARAM } from 'constants/claim';
 import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
@@ -98,6 +99,22 @@ function FileListPublished(props: Props) {
       release_time: `>${Math.floor(Date.now() / 1000)}`,
     };
   }, [myChannelIds]);
+
+  const AdvisoryMsg = () => {
+    if (filterBy === FILTER.UNLISTED.key) {
+      return (
+        <div className="flp__advisory">
+          <Icon icon={ICONS.INFO} />
+          <p>
+            {__(
+              'A special link is required to share unlisted contents. The link can be obtained from "Copy Link" in the context menu, or the "Share" functionality in the file page.'
+            )}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   function getHeaderJsx() {
     return (
@@ -194,6 +211,7 @@ function FileListPublished(props: Props) {
       <div className="card-stack">
         <WebUploadList />
         {getHeaderJsx()}
+        <AdvisoryMsg />
         {method === METHOD.CLAIM_LIST && getClaimListResultsJsx()}
         {method === METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
       </div>
