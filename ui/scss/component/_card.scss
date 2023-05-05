@@ -691,7 +691,7 @@
   }
 
   .help {
-    color: var(--color-text);
+    color: rgba(var(--color-text-base), 0.7);
     .icon {
       width: 12px;
       height: 12px;
