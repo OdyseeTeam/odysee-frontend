@@ -91,7 +91,7 @@ reach-portal {
 
 [data-reach-menu-item][data-selected] {
   color: var(--color-primary-contrast) !important;
-  background-color: var(--color-primary);
+  background-color: var(--color-navigation-hover);
   box-shadow: none;
 
   .icon {
@@ -243,6 +243,14 @@ reach-portal {
   @extend .menu__list;
 }
 
+.MuiList-root {
+  .menu__link:hover {
+    color: white;
+    background-color: var(--color-navigation-hover);
+    border-radius: var(--border-radius);
+  }
+}
+
 .MuiMenuItem-root {
   margin-left: 0px !important;
   font-size: var(--font-small) !important;
@@ -266,31 +274,10 @@ reach-portal {
   }
 
   &:hover {
-    color: var(--color-primary-contrast);
-    background-color: var(--color-odysee);
-    border-radius: var(--border-radius);
-    box-shadow: none;
-
     .icon {
       stroke: var(--color-primary-contrast);
       margin-right: var(--spacing-s);
     }
-  }
-}
-
-.menu__link-help {
-  @extend .menu__link;
-  display: block;
-  color: var(--color-text);
-  font-size: var(--font-small);
-  padding: 0px;
-  white-space: normal;
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-
-  :hover > & {
-    color: black;
-    color: var(--color-text-help);
   }
 }
 

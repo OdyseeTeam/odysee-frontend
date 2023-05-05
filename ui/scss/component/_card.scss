@@ -921,18 +921,20 @@
     background-color: var(--color-background);
   }
 
+  /*
   .tags {
     .tag {
       background-color: var(--color-background);
       color: var(--color-text);
     }
-  }
+  }  
   .tag--blocked-words {
     .tag {
       background-color: var(--color-primary);
       color: var(--color-primary-contrast);
     }
   }
+  */
 
   @media (max-width: $breakpoint-small) {
     .card__body {

@@ -96,6 +96,7 @@
   list-style: none;
 
   .menu__button {
+    right: calc(var(--spacing-xs) * -1);
     &[aria-expanded='true'] {
       background-color: var(--color-header-button) !important;
     }
@@ -334,14 +335,6 @@
       .claim__tags {
         display: flex;
         flex-flow: row;
-      }
-
-      .tag {
-        display: inline-block !important;
-        background-color: var(--color-background);
-        &:hover {
-          background-color: var(--color-primary);
-        }
       }
 
       @media (max-width: $breakpoint-small) {
@@ -1818,28 +1811,6 @@ $claim-preview-progress-bar-height: 5px;
   margin-left: 0;
   margin-top: auto;
   position: relative;
-
-  .tag {
-    background-color: var(--color-header-button);
-    color: var(--color-text);
-    font-size: var(--font-xsmall);
-
-    @media (max-width: $breakpoint-small) {
-      font-size: var(--font-xxsmall);
-      margin-top: var(--spacing-xxs);
-      padding: 2px var(--spacing-xxs);
-      height: unset;
-
-      .button__content {
-        height: unset;
-      }
-    }
-
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-primary-contrast);
-    }
-  }
 
   & > *:not(:last-child) {
     margin-right: var(--spacing-xxs);
