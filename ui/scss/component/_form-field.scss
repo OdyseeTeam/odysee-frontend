@@ -590,6 +590,7 @@ fieldset-section {
 
 .date-picker-input {
   font-weight: bold;
+  z-index: 9;
 
   .react-datetime-picker__wrapper {
     border: 0;
@@ -746,6 +747,7 @@ fieldset-section {
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus {
     background: var(--color-button-alt-bg-hover);
+    color: var(--color-primary-contrast);
   }
 
   .react-calendar__tile:disabled {
