@@ -5,7 +5,7 @@
   position: absolute;
   transform: scale(0);
   transition: transform 0.1s;
-  color: transparent;
+  color: transparent !important;
   font-size: 1.6em;
   top: 0.68em;
   z-index: 1;
