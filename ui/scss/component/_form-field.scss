@@ -90,7 +90,6 @@ select {
   &:focus-visible {
     color: var(--color-primary-contrast);
     background-color: var(--color-primary);
-    background-image: var(--select-toggle-background-hover);
   }
   option {
     color: var(--color-text);
@@ -788,7 +787,7 @@ fieldset-section {
   }
 
   .react-datetime-picker__inputGroup__amPm {
-    background: var(--color-input-bg);
+    // background: var(--color-input-bg);
   }
 
   .react-datetime-picker__inputGroup__leadingZero {
