@@ -5,11 +5,10 @@
  *   "progressControl > timeMarker"
  *
  * The TimeMarker component handles:
- *   - whatever mouseTimeDisplay was handling.
- *   - disables the use of "progressControl > seekBar > mouseTimeDisplay".
- *   - display of chapter titles by looking at `player.parsedChapterInfo`.
+ *   - whatever mouseTimeDisplay was handling but at a different z-order.
+ *   - the display of chapter titles by looking at `player.chaptersInfo`.
  *
- * The change in z-order add some flexibility for future tweaks, but it is
+ * The change in z-order adds some flexibility for future tweaks, but it is
  * primarily to detach itself from the seekBar's clipping region.
  */
 
