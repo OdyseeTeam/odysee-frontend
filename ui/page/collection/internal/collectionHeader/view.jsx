@@ -5,8 +5,9 @@ import CollectionActions from '../collectionActions';
 import CollectionHeaderActions from './internal/collectionHeaderActions';
 
 import CollectionItemCount from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collectionItemCount';
-import CollectionPrivateIcon from 'component/common/collection-private-icon';
 import CollectionPublicIcon from 'page/playlists/internal/collectionsListMine/internal/collectionPreview/internal/collection-public-icon';
+import CollectionPrivateIcon from 'component/common/collection-private-icon';
+import MarkdownPreview from 'component/common/markdown-preview';
 
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
@@ -14,9 +15,9 @@ import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
 import DateTime from 'component/dateTime';
+import ClaimAuthor from 'component/claimAuthor';
 import CollectionTitle from './internal/collectionTitle';
 import CollectionSubtitle from './internal/collectionSubtitle';
-import ClaimAuthor from 'component/claimAuthor';
 
 import './style.scss';
 
@@ -106,7 +107,7 @@ const CollectionHeader = (props: Props) => {
           </div>
           <div className="collection-header__text">
             <div className="collection-header__description">
-              {collection.description}
+              <MarkdownPreview content={collection.description} />
               <div className="collection-header__meta">
                 <div
                   className="collection-header__meta-entry"
