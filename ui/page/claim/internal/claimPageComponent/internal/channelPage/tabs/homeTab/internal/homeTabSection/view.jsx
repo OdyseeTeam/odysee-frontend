@@ -219,7 +219,9 @@ function HomeTabSection(props: Props) {
 
   return (
     <div className="home-section-content">
-      {index === 0 && <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />}
+      {!editMode && index === 0 && (
+        <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />
+      )}
       {editMode && (
         <div className="home-section-header-wrapper">
           <div className="home-section-header-option">

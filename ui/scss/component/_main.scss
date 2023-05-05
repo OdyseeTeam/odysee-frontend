@@ -627,8 +627,8 @@ body {
   flex-direction: column;
   .claim-preview__wrapper {
     .claim-tile__info {
-      margin-top: 0;
-      padding-bottom: var(--spacing-xxxs);
+      margin-top: -4px;
+      padding-bottom: unset;
       .claim-preview-metadata-sub-upload {
         margin-top: 3px;
       }
