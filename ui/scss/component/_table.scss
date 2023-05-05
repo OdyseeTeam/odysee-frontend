@@ -69,7 +69,7 @@ td {
 }
 
 .table__item--align-right {
-  text-align: right;
+  text-align: right !important;
 
   * {
     text-align: right;
