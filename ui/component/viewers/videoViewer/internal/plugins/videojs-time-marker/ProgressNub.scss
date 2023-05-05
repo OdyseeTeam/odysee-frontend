@@ -1,0 +1,25 @@
+@import 'videojs-font/scss/videojs-icons.scss';
+
+.vjs-progress-nub {
+  @extend .vjs-icon-circle;
+  transform: scale(0);
+  transition: transform 0.1s;
+  color: #f77937;
+
+  font-size: 1.5em;
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+}
+
+.vjs-progress-control.vjs-control {
+  &:hover {
+    .vjs-progress-nub {
+      transform: scale(1);
+    }
+  }
+
+  .vjs-progress-holder.vjs-slider.vjs-slider-horizontal.vjs-sliding ~ .vjs-progress-nub {
+    transform: scale(1);
+  }
+}

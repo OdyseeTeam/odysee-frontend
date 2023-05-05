@@ -15,7 +15,9 @@
 // @flow
 import videojs from 'video.js';
 import type { Player } from '../../videojs';
+import ProgressNub from './ProgressNub';
 import TimeMarker from './TimeMarker';
+import './ProgressNub.scss';
 import './TimeMarker.scss';
 
 const defaultOptions = {};
@@ -27,6 +29,7 @@ function onPlayerReady(player: Player, options: Options) {
   const pc = cb && cb.getChild('progressControl');
   if (pc) {
     pc.addChild('timeMarker');
+    pc.addChild('progressNub');
   }
 }
 
@@ -35,5 +38,7 @@ function timeMarkerPlugin(options: Options) {
 }
 
 videojs.registerComponent('TimeMarker', TimeMarker);
+videojs.registerComponent('ProgressNub', ProgressNub);
+
 videojs.registerPlugin('timeMarkerPlugin', timeMarkerPlugin);
 export default timeMarkerPlugin;
