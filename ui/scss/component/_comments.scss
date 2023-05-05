@@ -488,6 +488,9 @@ $thumbnailWidthSmall: 2rem;
   background-color: var(--color-primary);
   border-radius: var(--border-radius);
   color: var(--color-primary-contrast) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   .button__content {
     color: var(--color-primary-contrast);
