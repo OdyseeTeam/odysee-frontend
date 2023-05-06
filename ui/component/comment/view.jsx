@@ -188,9 +188,9 @@ function CommentView(props: Props) {
   const likesCount = (othersReacts && othersReacts.like) || 0;
   const dislikesCount = (othersReacts && othersReacts.dislike) || 0;
   const totalLikesAndDislikes = likesCount + dislikesCount;
-  const slimedToDeath = totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
+  const slimedToDeath = !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const stickerFromMessage = parseSticker(message);
 
   React.useEffect(() => {
@@ -436,7 +436,7 @@ function CommentView(props: Props) {
                 <div className="comment__message">
                   {slimedToDeath && !displayDeadComment ? (
                     <div onClick={() => setDisplayDeadComment(true)} className="comment__dead">
-                      {__('This comment was slimed to death.')} <Icon icon={ICONS.SLIME_ACTIVE} />
+                      {__('This comment was slimed to death. (Click to view)')} <Icon icon={ICONS.SLIME_ACTIVE} />
                     </div>
                   ) : stickerFromMessage ? (
                     <div className="sticker__comment">
