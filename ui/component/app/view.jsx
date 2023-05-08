@@ -25,7 +25,7 @@ import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
 import AdBlockTester from 'web/component/adBlockTester';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import {
   useDegradedPerformance,
   STATUS_OK,

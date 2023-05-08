@@ -12,7 +12,7 @@ import RecommendedContent from 'component/recommendedContent';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
@@ -81,7 +81,6 @@ export default function VideoPlayersPage(props: Props) {
       (isUriPlaying || playingCollectionId === null) &&
       playingCollectionId !== undefined &&
       !initialPlayingCol.current !== playingCollectionId;
-
     return startedPlayingOtherPlaylist ? playingCollectionId : colParam;
   }, [colParam, isUriPlaying, playingCollectionId]);
 
@@ -129,7 +128,6 @@ export default function VideoPlayersPage(props: Props) {
   }
 
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
-
   return (
     <>
       <div className="section card-stack file-page__video">
