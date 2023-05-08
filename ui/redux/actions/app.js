@@ -286,7 +286,7 @@ export function doMinVersionCheck() {
         if (json?.status === 'success' && json?.data && MINIMUM_VERSION) {
           const liveMinimumVersion = Number(json.data);
           if (liveMinimumVersion > MINIMUM_VERSION) {
-            dispatch({ type: ACTIONS.RELOAD_REQUIRED, data: { reason: 'minVersion', aux: liveMinimumVersion } });
+            dispatch({ type: ACTIONS.RELOAD_REQUIRED, data: { reason: 'minVersion', error: liveMinimumVersion } });
           }
         }
       })

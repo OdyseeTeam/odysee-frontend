@@ -69,22 +69,12 @@ function handleAnalyticsForAction(action: { type: string, data: any }) {
 
     case ACTIONS.RELOAD_REQUIRED:
       {
-        const { reason, aux } = action.data;
-
-        const extractFile = (str) => {
-          const regex = /\/\*! import\(\) \| (.+?) \*\/.+?['"](.*?)['"]/;
-          const match = str.match(regex);
-          return match ? match[2] : str;
-        };
-
-        try {
-          const info = reason === 'lazyImport' ? extractFile(aux.toString()) : aux;
-          analytics.log(`Reload required: ${reason} @ ${info}`, {
-            level: 'fatal',
-            extra: { aux: aux.toString() },
-            fingerprint: [reason, info],
-          });
-        } catch {}
+        const { reason, error } = action.data;
+        if (typeof error === 'string') {
+          analytics.log(`Reload required: ${reason} @ ${error}`, { level: 'fatal', fingerprint: [reason] });
+        } else {
+          analytics.log(error, { level: 'fatal' });
+        }
       }
       break;
 

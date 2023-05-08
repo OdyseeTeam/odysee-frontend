@@ -13,10 +13,9 @@ function componentLoader(lazyComponent, attemptsLeft) {
           if (attemptsLeft === 1) {
             window.store.dispatch({
               type: ACTIONS.RELOAD_REQUIRED,
-              data: { reason: 'lazyImport', aux: lazyComponent },
+              data: { reason: 'lazyImport', error },
             });
-            // eslint-disable-next-line no-console
-            console.error(error.message); // Spew the error so users can report to us if reloading doesn't help.
+            console.error(error.message); // eslint-disable-line no-console
           } else {
             componentLoader(lazyComponent, attemptsLeft - 1).then(resolve, reject);
           }
