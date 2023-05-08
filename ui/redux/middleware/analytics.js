@@ -4,19 +4,17 @@ import { GA_DIMENSIONS } from 'analytics/events';
 import * as ACTIONS from 'constants/action_types';
 
 export function createAnalyticsMiddleware() {
-  return (/* { dispatch, getState } */) => (next: any) => (action: {
-    type: string,
-    data: any,
-    actions: Array<any>,
-  }) => {
-    if (action.type === 'BATCH_ACTIONS') {
-      action.actions.forEach((a) => handleAnalyticsForAction(a));
-    } else {
-      handleAnalyticsForAction(action);
-    }
+  return (/* { dispatch, getState } */) =>
+    (next: any) =>
+    (action: { type: string, data: any, actions: Array<any> }) => {
+      if (action.type === 'BATCH_ACTIONS') {
+        action.actions.forEach((a) => handleAnalyticsForAction(a));
+      } else {
+        handleAnalyticsForAction(action);
+      }
 
-    return next(action);
-  };
+      return next(action);
+    };
 }
 
 function handleAnalyticsForAction(action: { type: string, data: any }) {
@@ -67,6 +65,27 @@ function handleAnalyticsForAction(action: { type: string, data: any }) {
 
     case ACTIONS.AUTHENTICATION_SUCCESS:
       analytics.event.eventCompleted('diag_authentication', Date.now());
+      break;
+
+    case ACTIONS.RELOAD_REQUIRED:
+      {
+        const { reason, aux } = action.data;
+
+        const extractFile = (str) => {
+          const regex = /\/\*! import\(\) \| (.+?) \*\/.+?['"](.*?)['"]/;
+          const match = str.match(regex);
+          return match ? match[2] : str;
+        };
+
+        try {
+          const info = reason === 'lazyImport' ? extractFile(aux.toString()) : aux;
+          analytics.log(`Reload required: ${reason} @ ${info}`, {
+            level: 'fatal',
+            extra: { aux: aux.toString() },
+            fingerprint: [reason, info],
+          });
+        } catch {}
+      }
       break;
 
     default:
