@@ -71,9 +71,9 @@ function handleAnalyticsForAction(action: { type: string, data: any }) {
       {
         const { reason, error } = action.data;
         if (typeof error === 'string') {
-          analytics.log(`Reload required: ${reason} @ ${error}`, { level: 'fatal', fingerprint: [reason] });
+          analytics.log(`Reload required: ${reason} @ ${error}`, { level: 'error', fingerprint: [reason] });
         } else {
-          analytics.log(error, { level: 'fatal' });
+          analytics.log(error, { level: 'error' });
         }
       }
       break;
