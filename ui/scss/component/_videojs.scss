@@ -76,7 +76,7 @@ $control-bar-popup-font-size: 0.8rem;
     .vjs-play-progress::before {
       transform: scale(0);
       transition: transform 0.1s;
-      color: #f77937;
+      color: transparent;
     }
 
     .vjs-progress-holder {
