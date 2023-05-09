@@ -346,6 +346,7 @@ function VideoViewer(props: Props) {
   }
 
   function onPlayerClosed(event, player) {
+    setShowRecommendationOverlay(false);
     handlePosition(player);
     analytics.video.videoIsPlaying(false, player);
   }
