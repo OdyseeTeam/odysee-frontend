@@ -195,7 +195,9 @@ const webConfig = {
     path: path.join(__dirname, `${output.DIR}/public`),
     publicPath: '/public/',
     chunkFilename: ({ chunk }) => {
-      return chunk.name && chunk.name.startsWith('locale-') ? 'locales/[name]-[chunkhash].js' : '[name]-[chunkhash].js';
+      return chunk.name && chunk.name.startsWith('locale-')
+        ? 'locales/[name]-[contenthash].js'
+        : '[name]-[contenthash].js';
     },
     assetModuleFilename: 'img/[name][ext]',
   },
