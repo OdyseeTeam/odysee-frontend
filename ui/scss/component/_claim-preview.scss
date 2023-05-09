@@ -491,6 +491,13 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
+    .button-following {
+      color: var(--color-primary-contrast) !important;
+      background-color: rgba(125, 125, 125, 0.5) !important;
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -599,6 +606,10 @@
         button {
           background-color: var(--color-primary);
           color: var(--color-primary-contrast);
+        }
+        a.button {
+          color: var(--color-text) !important;
+          background-color: var(--color-background) !important;
         }
       }
     }
