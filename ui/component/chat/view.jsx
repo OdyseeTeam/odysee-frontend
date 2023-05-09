@@ -153,12 +153,26 @@ export default function ChatLayout(props: Props) {
     getTipValues(superChatsByChronologicalOrder);
   const scrolledPastRecent = Boolean(
     (viewMode !== VIEW_MODES.SUPERCHAT || !resolvingSuperChats) &&
-      (!isMobile ? scrollPos < 0 : scrollPos < minScrollHeight)
+      (!isMobile ? scrollPos < -2 : scrollPos < minScrollHeight)
   );
+  const setHoverLock = React.useCallback(
+    (e) => {
+      if (!isMobile) {
+        if (e && discussionElement && discussionElement.scrollTop === 0) {
+          discussionElement.scrollTop = -1;
+          discussionElement.style.paddingBottom = discussionElement.scrollTop * -1 + 'px';
+        } else if (!e && discussionElement) {
+          discussionElement.style.paddingBottom = '0px';
+          if (discussionElement.scrollTop > -2) discussionElement.scrollTop = 0;
+        }
+      }
+    },
+    [discussionElement, isMobile]
+  );
+
   const restoreScrollPos = React.useCallback(() => {
     if (discussionElement) {
       discussionElement.scrollTop = !isMobile ? 0 : discussionElement.scrollHeight;
-
       if (isMobile) {
         const pos = lastCommentElem && discussionElement.scrollTop - lastCommentElem.getBoundingClientRect().height;
 
@@ -217,6 +231,7 @@ export default function ChatLayout(props: Props) {
     if (isMobile && !didInitialScroll) {
       restoreScrollPos();
       setDidInitialScroll(true);
+      console.log('didInitialScroll');
     }
   }, [didInitialScroll, isMobile, restoreScrollPos, viewMode]);
 
@@ -492,6 +507,7 @@ export default function ChatLayout(props: Props) {
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}
           isCompact={isCompact}
+          setHoverLock={setHoverLock}
         />
 
         {scrolledPastRecent && (

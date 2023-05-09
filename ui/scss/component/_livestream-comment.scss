@@ -103,6 +103,7 @@
 .livestream__comment--hyperchat {
   background-color: rgba(var(--color-text-base), 0.1);
   margin: 0 var(--spacing-xxxs);
+  margin-top: var(--spacing-xs);
   display: unset;
   padding-left: 0;
   border-radius: var(--border-radius);
@@ -122,6 +123,7 @@
     .freezeframe-wrapper,
     .channel-thumbnail--xsmall {
       margin-left: var(--spacing-xs);
+      margin-top: var(--spacing-xxs);
     }
   }
 
