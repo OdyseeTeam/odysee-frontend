@@ -231,7 +231,6 @@ export default function ChatLayout(props: Props) {
     if (isMobile && !didInitialScroll) {
       restoreScrollPos();
       setDidInitialScroll(true);
-      console.log('didInitialScroll');
     }
   }, [didInitialScroll, isMobile, restoreScrollPos, viewMode]);
 
