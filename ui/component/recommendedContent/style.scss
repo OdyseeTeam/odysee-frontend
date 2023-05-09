@@ -63,10 +63,30 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    .card__header--between {
-      padding: var(--spacing-xxs);
-      padding-bottom: var(--spacing-s);
-      padding-left: 0;
+    .claim-preview-metadata {
+      .claim-preview__title {
+        .truncated-text {
+          width: calc(100% - var(--file-list-thumbnail-width) - (var(--spacing-xxs) * 2) - var(--spacing-s));
+        }
+      }
+      .claim-tile__info {
+        .media__subtitle {
+          .button__content {
+            .channel-name {
+              p {
+                width: calc(
+                  100% - var(--file-list-thumbnail-width) - (var(--spacing-xxs) * 2) - (var(--spacing-s) * 2)
+                );
+              }
+            }
+          }
+        }
+      }
+      .card__header--between {
+        padding: var(--spacing-xxs);
+        padding-bottom: var(--spacing-s);
+        padding-left: 0;
+      }
     }
   }
 }
