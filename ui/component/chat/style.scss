@@ -807,7 +807,6 @@ $recent-msg-button__height: 2rem;
   align-items: center;
   height: 100%;
   width: 100%;
-  // padding-top: 1px;
   transition: width 0.2s;
 
   .comment__pin {
@@ -982,7 +981,6 @@ $recent-msg-button__height: 2rem;
     .comment__badge {
       left: 6.5px;
       z-index: 5;
-      // left:calc(50% - 8rem);
     }
 
     @media (max-width: $breakpoint-small) {
