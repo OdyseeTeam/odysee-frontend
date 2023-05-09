@@ -40,6 +40,7 @@ let baseConfig = {
         },
       }),
     ],
+    moduleIds: 'deterministic',
   },
   node: {
     __dirname: false,
