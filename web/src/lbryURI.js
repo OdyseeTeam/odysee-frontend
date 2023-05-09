@@ -175,6 +175,7 @@ function parseURIModifier(modSeperator, modValue) {
       // validate the new claimId length and characters again after stripping off the pathHash
       [claimId] = parseURIModifier(modSeperator, claimId);
     } else {
+      console.log({ modSeperator, modValue }); // eslint-disable-line no-console
       throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
     }
   }
