@@ -461,7 +461,7 @@ $actions-z-index: 2;
     text-align: center;
     width: 80%;
     left: 22%;
-    bottom: -30%;
+    bottom: -26%;
 
     svg {
       stroke: unset;
@@ -473,7 +473,9 @@ $actions-z-index: 2;
 
   &.freezeframe-wrapper {
     border-radius: 50%;
-    overflow: hidden;
+    .ff-container {
+      overflow: hidden;
+    }
   }
 }
 

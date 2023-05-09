@@ -13,6 +13,7 @@ type Props = {
   viewMode: string,
   restoreScrollPos?: () => void,
   setResolvingSuperChats?: (boolean) => void,
+  setHoverLock: (boolean) => void,
   handleCommentClick?: (string) => void,
   isCompact: string,
   // redux
@@ -27,6 +28,7 @@ export default function ChatComments(props: Props) {
     isMobile,
     restoreScrollPos,
     setResolvingSuperChats,
+    setHoverLock,
     handleCommentClick,
     isCompact,
     fetchingComments,
@@ -92,7 +94,11 @@ export default function ChatComments(props: Props) {
           ))}
       </div>
     ) : (
-      <div className="livestream__comments">
+      <div
+        className="livestream__comments"
+        onMouseEnter={() => setHoverLock(true)}
+        onMouseLeave={() => setHoverLock(false)}
+      >
         {comments.map((comment) => (
           <ChatComment
             {...commentProps}
