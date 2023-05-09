@@ -498,6 +498,10 @@
         stroke: var(--color-primary-contrast) !important;
       }
     }
+    a.button {
+      color: var(--color-primary-contrast) !important;
+      background-color: rgba(125, 125, 125, 0.5) !important;
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -608,8 +612,12 @@
           color: var(--color-primary-contrast);
         }
         a.button {
-          color: var(--color-text) !important;
-          background-color: var(--color-background) !important;
+          color: var(--color-text);
+          background-color: var(--color-background);
+          &:hover {
+            color: var(--color-primary-contrast);
+            background-color: var(--color-primary);
+          }
         }
       }
     }
