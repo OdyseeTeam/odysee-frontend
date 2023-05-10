@@ -333,6 +333,10 @@ export const selectInsufficientCreditsForUri = (state: State, uri: string) => {
 };
 
 export const selectCanViewFileForUri = (state: State, uri: string) => {
+  if (state.user.user?.global_mod) {
+    return true;
+  }
+
   const scheduledButNotReady = selectScheduledStateForUri(state, uri) === 'scheduled';
   if (scheduledButNotReady) {
     const claimIsMine = selectClaimIsMineForUri(state, uri);

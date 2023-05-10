@@ -23,6 +23,7 @@ type Props = {
   claimIsMine: ?boolean,
   isUnlisted: boolean,
   isAuthenticated: boolean,
+  isGlobalMod: boolean,
   uriAccessKey: ?UriAccessKey,
   geoRestriction: ?GeoRestriction,
   gblAvailable: boolean,
@@ -54,6 +55,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       isClaimFiltered,
       claimIsMine,
       isUnlisted,
+      isGlobalMod,
       isAuthenticated,
       uriAccessKey,
       geoRestriction,
@@ -73,7 +75,13 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
     const claimIsRestricted =
       !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
 
-    const isVisibilityRestricted = useIsVisibilityRestricted(claim, claimIsMine, uriAccessKey, verifyClaimSignature);
+    const isVisibilityRestricted = useIsVisibilityRestricted(
+      claim,
+      claimIsMine,
+      isGlobalMod,
+      uriAccessKey,
+      verifyClaimSignature
+    );
 
     useAppendAccessKeyToUrl(claim, doFetchUriAccessKey);
 

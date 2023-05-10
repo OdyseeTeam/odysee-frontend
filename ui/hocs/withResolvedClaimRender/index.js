@@ -15,7 +15,7 @@ import {
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectContentStates } from 'redux/selectors/content';
-import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 
 import { doResolveUri } from 'redux/actions/claims';
 import { doFetchUriAccessKey } from 'redux/actions/content';
@@ -38,6 +38,7 @@ const select = (state, props) => {
     claimIsMine: selectClaimIsMine(state, claim),
     isUnlisted: selectIsUriUnlisted(state, uri),
     isAuthenticated: selectUserVerifiedEmail(state),
+    isGlobalMod: Boolean(selectUser(state)?.global_mod),
     uriAccessKey: selectContentStates(state).uriAccessKeys[uri],
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     gblAvailable: selectGblAvailable(state),

@@ -15,6 +15,7 @@ import { getChannelIdFromClaim, getClaimTags } from 'util/claim';
  *
  * @param claim The stream claim being inspected.fdf
  * @param claimIsMine
+ * @param isGlobalMod
  * @param uriAccessKey Cached key to evaluate (will skip the verification call).
  * @param verifyClaimSignature Service call to make the verification.
  * @returns {undefined|boolean} undefined = still pending; boolean = true if we need to restrict, false otherwise.
@@ -22,6 +23,7 @@ import { getChannelIdFromClaim, getClaimTags } from 'util/claim';
 export default function useIsVisibilityRestricted(
   claim: ?Claim,
   claimIsMine: ?boolean,
+  isGlobalMod: boolean,
   uriAccessKey: ?UriAccessKey,
   verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>
 ) {
@@ -69,12 +71,12 @@ export default function useIsVisibilityRestricted(
       }
     };
 
-    if (claimIsMine || uriAccessKey) {
+    if (claimIsMine || uriAccessKey || isGlobalMod) {
       setIsRestricted(false);
     } else {
       verify().then((res) => setIsRestricted(res));
     }
-  }, [accessKey, claim, claimIsMine, uriAccessKey, verifyClaimSignature]);
+  }, [accessKey, claim, claimIsMine, isGlobalMod, uriAccessKey, verifyClaimSignature]);
 
   return isRestricted;
 }
