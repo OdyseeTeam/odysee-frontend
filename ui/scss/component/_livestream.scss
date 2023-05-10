@@ -91,8 +91,8 @@
 .livestream-list--view-more {
   display: flex;
   align-items: flex-end;
-  margin-bottom: var(--spacing-s);
-  @media (max-width: $breakpoint-small) {
-    margin-bottom: var(--spacing-l);
+  margin-bottom: var(--spacing-xl);
+  @media (min-width: $breakpoint-small) {
+    margin-top: calc(var(--spacing-m) * -1);
   }
 }
