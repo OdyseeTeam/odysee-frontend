@@ -51,6 +51,10 @@ function Ad(props: Props) {
     }
   }, [shouldShowAds]);
 
+  if (!shouldShowAds) {
+    return null;
+  }
+
   return (
     <>
       {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
