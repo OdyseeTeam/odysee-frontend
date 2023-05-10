@@ -115,7 +115,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     bid: creditsToString(bid),
     languages: [language],
     thumbnail_url: thumbnail,
-    release_time: PUBLISH.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing) || nowTimeStamp,
+    release_time: PUBLISH.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,
     blocking: true,
     preview: false,
     ...(remoteFileUrl ? { remote_url: remoteFileUrl } : {}),
@@ -165,7 +165,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
  * Helper functions to resolve SDK's publish payload.
  */
 const PUBLISH = {
-  releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim) => {
+  releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim, publishData: UpdatePublishState) => {
     const visibility = 'public';
     const isEditing = Boolean(claimToEdit);
     const claimOriginalTs = isEditing ? Number(claimToEdit?.value?.release_time || claimToEdit?.timestamp) : undefined;
@@ -173,6 +173,10 @@ const PUBLISH = {
     switch (visibility) {
       case 'public':
         if (isEditing) {
+          if (publishData.isLivestreamPublish && publishData.replaySource !== 'keep') {
+            return claimOriginalTs;
+          }
+
           if (userEnteredTs === undefined) {
             return claimOriginalTs;
           } else {

@@ -213,6 +213,10 @@ function LivestreamForm(props: Props) {
   const disabled = !title || !name || (publishMode === 'Replay' && !remoteFileUrl);
   const isClear = !title && !name && !description && !thumbnail;
 
+  React.useEffect(() => {
+    updatePublishForm({ replaySource });
+  }, [replaySource, updatePublishForm]);
+
   useEffect(() => {
     setClearStatus(isClear);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION

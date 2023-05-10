@@ -79,6 +79,7 @@ declare type PublishState = {
   isMarkdownPost: boolean,
   isLivestreamPublish: boolean,
   publishError?: boolean,
+  replaySource: 'keep' | 'choose' | 'upload',
 };
 
 // Redux slice, optional version. Used to selectively update certains states.

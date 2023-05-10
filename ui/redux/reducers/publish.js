@@ -67,6 +67,7 @@ const defaultState: PublishState = {
   currentUploads: {},
   isMarkdownPost: false,
   isLivestreamPublish: false,
+  replaySource: 'keep',
 };
 
 export const publishReducer = handleActions(
