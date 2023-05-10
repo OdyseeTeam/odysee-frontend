@@ -47,19 +47,6 @@
         margin-top: -2px;
       }
     }
-    &:hover {
-      label {
-        &::before {
-          background-color: var(--color-primary);
-        }
-        &::after {
-          background: none;
-        }
-      }
-      input {
-        background: none;
-      }
-    }
   }
 }
 
