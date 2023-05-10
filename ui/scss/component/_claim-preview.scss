@@ -1129,18 +1129,24 @@
     border-top: unset;
   }
   .confirming-change {
-    margin-top: 1px;
-    background-color: black;
-    color: white;
-    padding: 1px 0 0 var(--spacing-xxs);
-    margin-right: auto;
-    padding-top: unset;
-    margin-left: var(--spacing-s);
-    border-radius: var(--border-radius);
-    .spinner {
-      margin: 0;
-      .rect {
-        background-color: var(--color-spinner-light);
+    display: none;
+  }
+  .claim-preview-info {
+    .confirming-change {
+      display: inline-block;
+      margin-top: 1px;
+      background-color: black;
+      color: white;
+      padding: 1px 0 0 var(--spacing-xxs);
+      margin-right: auto;
+      padding-top: unset;
+      margin-left: var(--spacing-s);
+      border-radius: var(--border-radius);
+      .spinner {
+        margin: 0;
+        .rect {
+          background-color: var(--color-spinner-light);
+        }
       }
     }
   }

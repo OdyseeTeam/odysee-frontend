@@ -388,7 +388,7 @@ function ChannelForm(props: Props) {
                 background
                 title={__('General')}
                 body={
-                  <div className="settings-row">
+                  <div className="publish-row publish-row--no-margin">
                     {isNewChannel && (
                       <Button
                         button="primary"
@@ -448,7 +448,7 @@ function ChannelForm(props: Props) {
                 background
                 title={__('Contact')}
                 body={
-                  <div className="settings-row publish-row--no-margin">
+                  <div className="publish-row publish-row--no-margin">
                     <FormField
                       type="text"
                       name="content_email2"
@@ -476,7 +476,7 @@ function ChannelForm(props: Props) {
                 title={__('Tags')}
                 className="card--tags"
                 body={
-                  <div className="settings-row">
+                  <div className="publish-row">
                     <TagsSearch
                       suggestMature={!SIMPLE_SITE}
                       disableAutoFocus
@@ -507,7 +507,7 @@ function ChannelForm(props: Props) {
                 background
                 title={__('Languages')}
                 body={
-                  <div className="settings-row">
+                  <div className="publish-row">
                     <fieldset-section style={{ marginTop: 'calc(var(--spacing-m) * -1)' }}>
                       <FormField
                         name="language_select"
@@ -554,33 +554,38 @@ function ChannelForm(props: Props) {
                 background
                 title={__('Credit Details')}
                 body={
-                  <FormField
-                    className="form-field--price-amount"
-                    type="number"
-                    name="content_bid2"
-                    step="any"
-                    label={<LbcSymbol postfix={__('Deposit')} size={14} />}
-                    value={params.amount}
-                    error={bidError}
-                    min="0.0"
-                    disabled={false}
-                    onChange={(event) => handleBidChange(parseFloat(event.target.value))}
-                    placeholder={0.1}
-                    helper={
-                      <>
-                        {__('Increasing your deposit can help your channel be discovered more easily.')}
-                        <WalletSpendableBalanceHelp inline />
-                      </>
-                    }
-                  />
+                  <div className="publish-row publish-row--no-margin">
+                    <FormField
+                      className="form-field--price-amount"
+                      type="number"
+                      name="content_bid2"
+                      step="any"
+                      label={<LbcSymbol postfix={__('Deposit')} size={14} />}
+                      value={params.amount}
+                      error={bidError}
+                      min="0.0"
+                      disabled={false}
+                      onChange={(event) => handleBidChange(parseFloat(event.target.value))}
+                      placeholder={0.1}
+                      helper={
+                        <>
+                          {__('Increasing your deposit can help your channel be discovered more easily.')}
+                          <WalletSpendableBalanceHelp inline />
+                        </>
+                      }
+                    />
+                  </div>
                 }
               />
               {!isNewChannel && (
                 <>
-                  <h2 className="card__title">{__('Delete Channel')}</h2>
                   <Card
+                    background
+                    title={__('Delete Channel')}
                     body={
-                      <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                      <div className="publish-row">
+                        <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                      </div>
                     }
                   />
                 </>
