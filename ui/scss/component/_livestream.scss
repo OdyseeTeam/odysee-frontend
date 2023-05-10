@@ -92,4 +92,7 @@
   display: flex;
   align-items: flex-end;
   margin-bottom: var(--spacing-s);
+  @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-l);
+  }
 }

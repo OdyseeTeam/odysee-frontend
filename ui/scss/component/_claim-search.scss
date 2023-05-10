@@ -205,6 +205,9 @@
     .button-toggle {
       padding: 0 var(--spacing-s) 0 var(--spacing-xs);
     }
+    &.stretch {
+      width: 100%;
+    }
   }
 }
 
