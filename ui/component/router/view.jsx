@@ -81,6 +81,7 @@ const FileListPublished = lazyImport(() =>
 );
 const FourOhFourPage = lazyImport(() => import('page/fourOhFour' /* webpackChunkName: "fourOhFour" */));
 const HelpPage = lazyImport(() => import('page/help' /* webpackChunkName: "help" */));
+const HiddenContentPage = lazyImport(() => import('page/hiddenContent' /* webpackChunkName: "hiddenContent" */));
 const InvitePage = lazyImport(() => import('page/invite' /* webpackChunkName: "invite" */));
 const InvitedPage = lazyImport(() => import('page/invited' /* webpackChunkName: "invited" */));
 const LibraryPage = lazyImport(() => import('page/library' /* webpackChunkName: "library" */));
@@ -442,6 +443,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CREATE}`} component={LivestreamCreatePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM}`} component={LiveStreamSetupPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CURRENT}`} component={LivestreamCurrentPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.HIDDEN_CONTENT}`} component={HiddenContentPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.BUY}`} component={BuyPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.RECEIVE}`} component={ReceivePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SEND}`} component={SendPage} />
