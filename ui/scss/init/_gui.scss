@@ -285,10 +285,6 @@ img {
   color: var(--color-text);
   margin-top: var(--spacing-s);
 
-  &:not(:last-child) {
-    margin-bottom: var(--spacing-m);
-  }
-
   @media (min-width: $breakpoint-small) {
     font-size: var(--font-small);
   }

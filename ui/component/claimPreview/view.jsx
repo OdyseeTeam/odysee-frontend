@@ -540,6 +540,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     <ClaimPreviewTitle uri={uri} />
                   </NavLink>
                 )}
+                {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
               </div>
               <div className="claim-tile__info">
                 {!isChannelUri && signingChannel && (
@@ -550,7 +551,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                   </div>
                 )}
                 <ClaimPreviewSubtitle uri={uri} type={type} showAtSign={isChannelUri} />
-                {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
                 {channelSubscribers}
 
                 {type !== 'small' && (
@@ -571,6 +571,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                   </>
                 )}
               </div>
+              {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
 
               {!type && (
                 <div className="description__wrapper">

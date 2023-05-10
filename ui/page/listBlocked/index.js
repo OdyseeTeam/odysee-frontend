@@ -14,7 +14,6 @@ import {
 } from 'redux/selectors/comments';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
-import { selectLanguage } from 'redux/selectors/settings';
 import ListBlocked from './view';
 
 const select = (state) => ({
@@ -29,7 +28,6 @@ const select = (state) => ({
   delegatorsById: selectModerationDelegatorsById(state),
   myChannelClaimIds: selectMyChannelClaimIds(state),
   fetchingModerationBlockList: selectFetchingModerationBlockList(state),
-  appLanguage: selectLanguage(state),
 });
 
 const perform = (dispatch) => ({

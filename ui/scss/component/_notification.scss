@@ -383,10 +383,9 @@ $contentMaxWidth: 60rem;
 
 .notification__extra {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  align-self: flex-start;
   margin-right: var(--spacing-m);
-  flex-direction: row-reverse;
+  height: 100%;
 
   @media (min-width: $breakpoint-small) {
     margin-left: var(--spacing-s);

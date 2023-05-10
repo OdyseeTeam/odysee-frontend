@@ -11,11 +11,11 @@
 
 .badge--tag {
   @extend .badge;
-  background-color: var(--color-tag-bg);
+  background-color: var(--color-button-alt-bg);
   color: var(--color-tag);
 
   &:hover {
-    background-color: var(--color-tag-bg-hover);
+    background-color: var(--color-button-primary-bg);
     color: var(--color-tag-hover);
   }
 }

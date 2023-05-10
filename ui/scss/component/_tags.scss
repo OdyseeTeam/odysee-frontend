@@ -1,4 +1,8 @@
 .tags {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: var(--spacing-xs);
   .ul--no-style {
     max-height: 100%;
     overflow-y: scroll !important;
@@ -6,35 +10,10 @@
       background-color: var(--color-border) !important;
     }
   }
-  display: flex;
-  flex-wrap: wrap;
-  min-width: 0;
-
-  .tag {
-    margin-left: 0;
-    margin-bottom: var(--spacing-s);
-    margin-right: var(--spacing-s);
-    color: var(--color-text);
-    background-color: var(--color-header-button);
-
-    .button__label {
-      margin-top: 0;
-    }
-    &:hover {
-      color: var(--color-primary-contrast);
-      background-color: var(--color-primary);
-    }
-  }
 }
 
 .tags--remove {
   @extend .tags;
-  // margin-bottom: var(--spacing-m);
-
-  .tag {
-    margin-top: 0;
-    margin-bottom: var(--spacing-s);
-  }
 }
 
 .tags--vertical {
@@ -64,6 +43,17 @@
   @extend .badge;
   @extend .badge--tag;
   font-size: var(--font-xsmall);
+  margin-left: 0;
+  color: var(--color-text);
+  background-color: var(--color-background);
+
+  .button__label {
+    margin-top: 0;
+  }
+  &:hover {
+    color: white !important;
+    background-color: var(--color-hover-primary);
+  }
 }
 
 .tag--remove {
@@ -94,6 +84,7 @@
   max-width: 20rem;
 }
 
+/*
 .tag--blocked-words {
   .tag {
     color: var(--color-tag-words);
@@ -113,3 +104,4 @@
     max-width: 40rem;
   }
 }
+*/

@@ -996,10 +996,10 @@ svg + .button__label {
 }
 
 .button-following {
-  color: var(--color-primary-contrast) !important;
-  background-color: rgba(125, 125, 125, 0.5) !important;
+  color: var(--color-text) !important;
+  background-color: var(--color-background) !important;
   .icon {
-    stroke: var(--color-primary-contrast) !important;
+    stroke: var(--color-text) !important;
   }
   @media (min-width: $breakpoint-small) {
     .button__label {

@@ -188,8 +188,9 @@
 
         .channel-thumbnail {
           margin: var(--spacing-xxs);
+          margin-right: var(--spacing-xs);
           margin-left: 0px;
-          margin-top: 0px;
+          margin-top: 2px;
           width: 2.5rem;
           height: 2.5rem;
 
@@ -1198,6 +1199,11 @@ $control-bar-icon-size: 30px;
   .vjs-control-bar {
     position: absolute;
     z-index: 3;
+  }
+  .file-viewer__overlay-actions {
+    a:first-of-type {
+      margin-right: var(--spacing-s);
+    }
   }
 }
 

@@ -20,7 +20,7 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
 

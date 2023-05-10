@@ -89,8 +89,7 @@ select {
   &:hover,
   &:focus-visible {
     color: var(--color-primary-contrast);
-    background-color: var(--color-primary);
-    background-image: var(--select-toggle-background-hover);
+    box-shadow: 0 0 0 2px var(--color-primary) inset;
   }
   option {
     color: var(--color-text);
@@ -254,10 +253,7 @@ input-submit {
     label {
       cursor: pointer;
       &::before {
-        background-color: var(--color-primary);
-      }
-      &::after {
-        border-color: var(--color-primary-contrast);
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
     }
   }
@@ -289,11 +285,8 @@ input-submit {
   &:hover {
     label {
       cursor: pointer;
-      &::after {
-        background-color: var(--color-primary-contrast);
-      }
       &::before {
-        background-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
     }
   }
@@ -590,6 +583,7 @@ fieldset-section {
 
 .date-picker-input {
   font-weight: bold;
+  z-index: 9;
 
   .react-datetime-picker__wrapper {
     border: 0;
@@ -746,6 +740,7 @@ fieldset-section {
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus {
     background: var(--color-button-alt-bg-hover);
+    color: var(--color-primary-contrast);
   }
 
   .react-calendar__tile:disabled {
@@ -786,7 +781,7 @@ fieldset-section {
   }
 
   .react-datetime-picker__inputGroup__amPm {
-    background: var(--color-input-bg);
+    // background: var(--color-input-bg);
   }
 
   .react-datetime-picker__inputGroup__leadingZero {

@@ -4,7 +4,6 @@
 .post {
   $card-bg: var(--color-card-background);
   $bg: var(--color-background);
-  @include font-serif;
 
   height: 100%;
   width: 43rem;
@@ -37,6 +36,7 @@
 }
 
 .post__title {
+  @include font-serif;
   font-size: 2rem;
   line-height: 1.2;
   margin-top: 0;
@@ -100,6 +100,10 @@
     color: var(--color-text-subtitle);
     stroke: var(--color-text-subtitle);
   }
+}
+
+.file-render--post-container {
+  @include font-serif;
 }
 
 .post__info--credit-details {

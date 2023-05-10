@@ -96,6 +96,7 @@
   list-style: none;
 
   .menu__button {
+    right: calc(var(--spacing-xs) * -1);
     &[aria-expanded='true'] {
       background-color: var(--color-header-button) !important;
     }
@@ -336,14 +337,6 @@
         flex-flow: row;
       }
 
-      .tag {
-        display: inline-block !important;
-        background-color: var(--color-background);
-        &:hover {
-          background-color: var(--color-primary);
-        }
-      }
-
       @media (max-width: $breakpoint-small) {
         margin-bottom: 0;
         font-size: var(--font-xsmall);
@@ -498,6 +491,17 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
+    .button-following {
+      color: var(--color-primary-contrast) !important;
+      background-color: rgba(125, 125, 125, 0.5) !important;
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
+    a.button {
+      color: var(--color-primary-contrast) !important;
+      background-color: rgba(125, 125, 125, 0.5) !important;
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -522,13 +526,6 @@
 
       .membership-button-wrapper {
         margin-top: 0;
-      }
-
-      .button--alt {
-        padding: var(--spacing-xs) !important;
-        .button__content {
-          height: unset;
-        }
       }
 
       span {
@@ -613,6 +610,14 @@
         button {
           background-color: var(--color-primary);
           color: var(--color-primary-contrast);
+        }
+        a.button {
+          color: var(--color-text);
+          background-color: var(--color-background);
+          &:hover {
+            color: var(--color-primary-contrast);
+            background-color: var(--color-primary);
+          }
         }
       }
     }
@@ -781,10 +786,13 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    font-size: 14px;
+    font-size: var(--font-small);
 
     .claim-preview-metadata {
       .claim-tile__info {
+        .channel-thumbnail {
+          margin-bottom: 5px;
+        }
         .media__subtitle {
           margin-bottom: 2px;
         }
@@ -1113,16 +1121,34 @@
     .claim-preview__channel-staked {
       flex-basis: 2.1rem;
     }
-    .confirming-change {
-      padding-top: unset;
-      flex-basis: 100%;
-    }
   }
   .menu__button {
     top: var(--spacing-xs) !important;
   }
   .card__main-actions {
     border-top: unset;
+  }
+  .confirming-change {
+    display: none;
+  }
+  .claim-preview-info {
+    .confirming-change {
+      display: inline-block;
+      margin-top: 1px;
+      background-color: black;
+      color: white;
+      padding: 1px 0 0 var(--spacing-xxs);
+      margin-right: auto;
+      padding-top: unset;
+      margin-left: var(--spacing-s);
+      border-radius: var(--border-radius);
+      .spinner {
+        margin: 0;
+        .rect {
+          background-color: var(--color-spinner-light);
+        }
+      }
+    }
   }
 }
 
@@ -1819,28 +1845,6 @@ $claim-preview-progress-bar-height: 5px;
   margin-top: auto;
   position: relative;
 
-  .tag {
-    background-color: var(--color-header-button);
-    color: var(--color-text);
-    font-size: var(--font-xsmall);
-
-    @media (max-width: $breakpoint-small) {
-      font-size: var(--font-xxsmall);
-      margin-top: var(--spacing-xxs);
-      padding: 2px var(--spacing-xxs);
-      height: unset;
-
-      .button__content {
-        height: unset;
-      }
-    }
-
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-primary-contrast);
-    }
-  }
-
   & > *:not(:last-child) {
     margin-right: var(--spacing-xxs);
   }
@@ -1858,10 +1862,11 @@ $claim-preview-progress-bar-height: 5px;
 
 .web-upload-item {
   padding: var(--spacing-m);
-  // background-color: rgba(var(--color-header-background-base), 0.6);
+  flex-flow: row;
 
   .claim-preview-metadata {
     width: 100%;
+    flex: 1;
   }
 
   &::before {

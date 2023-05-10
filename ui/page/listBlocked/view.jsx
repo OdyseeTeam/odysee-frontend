@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import { BLOCK_LEVEL } from 'constants/comment';
 import React from 'react';
 import classnames from 'classnames';
-import moment from 'moment/min/moment-with-locales';
+import moment from 'moment';
 import humanizeDuration from 'humanize-duration';
 import BlockList from 'component/blockList';
 import ClaimPreview from 'component/claimPreview';
@@ -50,7 +50,6 @@ function ListBlocked(props: Props) {
     moderatorTimeoutMap,
     moderatorBlockListDelegatorsMap: delegatorsMap,
     fetchingModerationBlockList,
-    appLanguage,
     fetchModBlockedList,
     fetchModAmIList,
     delegatorsById,
@@ -102,7 +101,7 @@ function ListBlocked(props: Props) {
         <div>
           <div className="help">
             <blockquote>
-              {moment(timeoutInfo.blockedAt).locale(appLanguage).format('LLL')}
+              {moment(timeoutInfo.blockedAt).format('LLL')}
               <br />
               {getDurationStr(timeoutInfo.bannedFor)}{' '}
               {__('(Remaining: %duration%) --[timeout ban duration]--', {

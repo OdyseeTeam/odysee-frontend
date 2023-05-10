@@ -173,12 +173,6 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-/*
-.card.livestream__chat {
-  padding: 0 !important;
-}
-*/
-
 .card.livestream__chat {
   margin-left: var(--spacing-m) !important;
   min-width: var(--livestream-comments-width);
@@ -654,6 +648,7 @@ $recent-msg-button__height: 2rem;
       padding-left: 0;
       margin-left: 0;
       margin-right: 0;
+      margin-top: 0;
     }
 
     .livestreamComment__body {
@@ -812,7 +807,6 @@ $recent-msg-button__height: 2rem;
   align-items: center;
   height: 100%;
   width: 100%;
-  padding-top: 1px;
   transition: width 0.2s;
 
   .comment__pin {
@@ -985,7 +979,8 @@ $recent-msg-button__height: 2rem;
     @include handleChannelGif(1.6rem);
 
     .comment__badge {
-      left: 7px;
+      left: 6.5px;
+      z-index: 5;
     }
 
     @media (max-width: $breakpoint-small) {

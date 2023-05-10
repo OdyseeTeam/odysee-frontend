@@ -5,18 +5,19 @@
  *   "progressControl > timeMarker"
  *
  * The TimeMarker component handles:
- *   - whatever mouseTimeDisplay was handling.
- *   - disables the use of "progressControl > seekBar > mouseTimeDisplay".
- *   - display of chapter titles by looking at `player.parsedChapterInfo`.
+ *   - whatever mouseTimeDisplay was handling but at a different z-order.
+ *   - the display of chapter titles by looking at `player.chaptersInfo`.
  *
- * The change in z-order add some flexibility for future tweaks, but it is
+ * The change in z-order adds some flexibility for future tweaks, but it is
  * primarily to detach itself from the seekBar's clipping region.
  */
 
 // @flow
 import videojs from 'video.js';
 import type { Player } from '../../videojs';
+import ProgressNub from './ProgressNub';
 import TimeMarker from './TimeMarker';
+import './ProgressNub.scss';
 import './TimeMarker.scss';
 
 const defaultOptions = {};
@@ -28,6 +29,7 @@ function onPlayerReady(player: Player, options: Options) {
   const pc = cb && cb.getChild('progressControl');
   if (pc) {
     pc.addChild('timeMarker');
+    pc.addChild('progressNub');
   }
 }
 
@@ -36,5 +38,7 @@ function timeMarkerPlugin(options: Options) {
 }
 
 videojs.registerComponent('TimeMarker', TimeMarker);
+videojs.registerComponent('ProgressNub', ProgressNub);
+
 videojs.registerPlugin('timeMarkerPlugin', timeMarkerPlugin);
 export default timeMarkerPlugin;

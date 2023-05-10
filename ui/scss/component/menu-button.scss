@@ -54,8 +54,8 @@ reach-portal {
   display: block;
   white-space: nowrap;
   outline: none;
-  background-color: rgba(var(--color-header-button-base), 0.9) !important;
-  border: 2px solid var(--color-header-background) !important;
+  background-color: var(--color-background) !important;
+  border: 2px solid var(--color-border) !important;
   border-top: none;
   -webkit-backdrop-filter: blur(4px) !important;
   backdrop-filter: blur(4px) !important;
@@ -91,7 +91,7 @@ reach-portal {
 
 [data-reach-menu-item][data-selected] {
   color: var(--color-primary-contrast) !important;
-  background-color: var(--color-primary);
+  background-color: var(--color-navigation-hover);
   box-shadow: none;
 
   .icon {
@@ -236,11 +236,19 @@ reach-portal {
 }
 
 .menu__chat-comment {
-  padding: 0 0 var(--spacing-xxs) 0;
+  padding: var(--spacing-xxs) 0 var(--spacing-xxs) 0;
 }
 
 .menu__list--comments {
   @extend .menu__list;
+}
+
+.MuiList-root {
+  .menu__link:hover {
+    color: white;
+    background-color: var(--color-navigation-hover);
+    border-radius: var(--border-radius);
+  }
 }
 
 .MuiMenuItem-root {
@@ -266,31 +274,10 @@ reach-portal {
   }
 
   &:hover {
-    color: var(--color-primary-contrast);
-    background-color: var(--color-odysee);
-    border-radius: var(--border-radius);
-    box-shadow: none;
-
     .icon {
       stroke: var(--color-primary-contrast);
       margin-right: var(--spacing-s);
     }
-  }
-}
-
-.menu__link-help {
-  @extend .menu__link;
-  display: block;
-  color: var(--color-text);
-  font-size: var(--font-small);
-  padding: 0px;
-  white-space: normal;
-  text-overflow: ellipsis;
-  overflow-x: hidden;
-
-  :hover > & {
-    color: black;
-    color: var(--color-text-help);
   }
 }
 

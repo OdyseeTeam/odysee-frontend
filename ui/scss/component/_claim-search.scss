@@ -205,6 +205,9 @@
     .button-toggle {
       padding: 0 var(--spacing-s) 0 var(--spacing-xs);
     }
+    &.stretch {
+      width: 100%;
+    }
   }
 }
 
@@ -328,16 +331,6 @@
   select,
   .filer-checkbox-wrapper {
     background-color: var(--color-background);
-  }
-
-  select {
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-primary-contrast) !important;
-    }
-    &:focus-visible {
-      color: var(--color-text);
-    }
   }
 
   input[type='text'],

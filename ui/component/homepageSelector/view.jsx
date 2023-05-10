@@ -2,6 +2,7 @@
 import React from 'react';
 import { getLanguageName } from 'constants/languages';
 import { FormField } from 'component/common/form';
+import { getDefaultLanguage } from 'util/default-languages';
 
 type Props = {
   homepage: string,
@@ -13,7 +14,7 @@ function SelectHomepage(props: Props) {
   const { homepage, homepageKeys, setHomepage } = props;
 
   // Don't know why bc3c56b8 resets the code to null when in English.
-  const value = homepage === null ? 'en' : homepage;
+  const value = homepage === null ? getDefaultLanguage() : homepage;
 
   function handleSetHomepage(e) {
     const { value } = e.target;

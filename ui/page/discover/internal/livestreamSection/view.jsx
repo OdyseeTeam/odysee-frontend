@@ -42,7 +42,7 @@ export default function LivestreamSection(props: Props) {
   const isMobile = useIsMobile();
   const isLargeScreen = useIsLargeScreen();
 
-  const initialLiveTileLimit = getTileLimit(isLargeScreen, DEFAULT_LIVESTREAM_TILE_LIMIT);
+  const initialLiveTileLimit = isMobile ? 6 : getTileLimit(isLargeScreen, DEFAULT_LIVESTREAM_TILE_LIMIT);
   const [liveSection, setLiveSection] = React.useState(liveSectionStore || SECTION.COLLAPSED);
   const liveTilesOverLimit = activeLivestreamUris && activeLivestreamUris.length > initialLiveTileLimit;
 
@@ -78,7 +78,11 @@ export default function LivestreamSection(props: Props) {
     return (
       <div className="livestream-list">
         <ClaimListDiscover
-          uris={activeLivestreamUris}
+          uris={
+            liveSection === SECTION.COLLAPSED
+              ? activeLivestreamUris.slice(0, initialLiveTileLimit)
+              : activeLivestreamUris
+          }
           tileLayout={tileLayout}
           headerLabel={<h1 className="page__title">{__('Livestreams')}</h1>}
           useSkeletonScreen={false}
@@ -89,6 +93,34 @@ export default function LivestreamSection(props: Props) {
           loading={false}
           showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
         />
+
+        {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && (
+          <div className="livestream-list--view-more">
+            <Button
+              label={__('Show more livestreams')}
+              button="link"
+              iconRight={ICONS.DOWN}
+              className="claim-grid__title--secondary"
+              onClick={() => {
+                doFetchAllActiveLivestreamsForQuery();
+                setExpandedYPos(window.scrollY);
+                setLiveSection(SECTION.EXPANDED);
+              }}
+            />
+          </div>
+        )}
+
+        {liveTilesOverLimit && liveSection === SECTION.EXPANDED && (
+          <div className="livestream-list--view-more">
+            <Button
+              label={__('Show fewer livestreams')}
+              button="link"
+              iconRight={ICONS.UP}
+              className="claim-grid__title--secondary"
+              onClick={collapseSection}
+            />
+          </div>
+        )}
       </div>
     );
   }

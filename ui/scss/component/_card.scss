@@ -691,7 +691,7 @@
   }
 
   .help {
-    color: var(--color-text);
+    color: rgba(var(--color-text-base), 0.7);
     .icon {
       width: 12px;
       height: 12px;
@@ -881,13 +881,6 @@
     }
   }
 
-  select {
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-primary-contrast);
-    }
-  }
-
   fieldset-section.radio {
     padding-top: var(--spacing-s);
   }
@@ -905,33 +898,10 @@
     label::after {
       top: 8px;
     }
-    &:hover {
-      label {
-        &::before {
-          background-color: var(--color-primary);
-        }
-        &::after {
-          border-color: var(--color-primary-contrast);
-        }
-      }
-    }
   }
 
   .button--secondary {
     background-color: var(--color-background);
-  }
-
-  .tags {
-    .tag {
-      background-color: var(--color-background);
-      color: var(--color-text);
-    }
-  }
-  .tag--blocked-words {
-    .tag {
-      background-color: var(--color-primary);
-      color: var(--color-primary-contrast);
-    }
   }
 
   @media (max-width: $breakpoint-small) {

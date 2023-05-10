@@ -7,7 +7,7 @@ import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
 import ChannelSection from 'component/channelSections/Section';
 import ScheduledStreams from 'component/scheduledStreams';
 import ClaimPreviewTile from 'component/claimPreviewTile';
-import Ad from 'web/component/ad/ad';
+import Ad from 'web/component/ad';
 import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
@@ -219,7 +219,9 @@ function HomeTabSection(props: Props) {
 
   return (
     <div className="home-section-content">
-      {index === 0 && <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />}
+      {!editMode && index === 0 && (
+        <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />
+      )}
       {editMode && (
         <div className="home-section-header-wrapper">
           <div className="home-section-header-option">
