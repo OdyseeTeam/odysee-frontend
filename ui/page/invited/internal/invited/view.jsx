@@ -19,7 +19,7 @@ type Props = {
   referrerSet: ?string,
   referrerSetError: string,
   doChannelSubscribe: (sub: Subscription) => void,
-  history: { push: (string) => void },
+  history: { push: (string) => void, location: { pathname: string } },
   hasUnclaimedRefereeReward: boolean,
   referrerUri: ?string,
   isSubscribed: boolean,
@@ -59,8 +59,15 @@ function Invited(props: Props) {
       })
     ) || '/';
 
+  const referrerCode = getReferrerCodeFromCurrentPath();
+
   function handleDone() {
     history.push(redirectPath);
+  }
+
+  function getReferrerCodeFromCurrentPath() {
+    const splitUriArray = history.location.pathname.split('/');
+    return splitUriArray[splitUriArray.length - 1];
   }
 
   // always follow if it's a channel
@@ -87,10 +94,11 @@ function Invited(props: Props) {
   }, [doClaimRefereeReward, userHasVerifiedEmail, referrerSet]);
 
   React.useEffect(() => {
-    if (referrerSet === undefined && referrerUri) {
-      doUserSetReferrerForUri(referrerUri);
+    const referrer = referrerUri || referrerCode;
+    if (referrerSet === undefined && referrer) {
+        doUserSetReferrerForUri(referrer);
     }
-  }, [referrerUri, doUserSetReferrerForUri, referrerSet]);
+  }, [referrerUri, referrerCode, doUserSetReferrerForUri, referrerSet]);
 
   const cardProps = React.useMemo(() => ({ body: <ClaimPreview uri={referrerUri} type="small" /> }), [referrerUri]);
   const cardChildren = React.useMemo(
