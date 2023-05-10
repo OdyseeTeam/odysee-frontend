@@ -246,6 +246,7 @@
   .card-fixed-bottom {
     left: var(--side-nav-width--micro);
     width: calc(100% - var(--side-nav-width--micro));
+    z-index: 6;
     .card--after-tabs {
       margin-left: auto;
       margin-right: auto;

@@ -491,6 +491,17 @@
     .membership-button-wrapper {
       margin-top: 0;
     }
+    .button-following {
+      color: var(--color-primary-contrast) !important;
+      background-color: rgba(125, 125, 125, 0.5) !important;
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
+    }
+    a.button {
+      color: var(--color-primary-contrast) !important;
+      background-color: rgba(125, 125, 125, 0.5) !important;
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -599,6 +610,14 @@
         button {
           background-color: var(--color-primary);
           color: var(--color-primary-contrast);
+        }
+        a.button {
+          color: var(--color-text);
+          background-color: var(--color-background);
+          &:hover {
+            color: var(--color-primary-contrast);
+            background-color: var(--color-primary);
+          }
         }
       }
     }
@@ -1110,18 +1129,24 @@
     border-top: unset;
   }
   .confirming-change {
-    margin-top: 1px;
-    background-color: black;
-    color: white;
-    padding: 1px 0 0 var(--spacing-xxs);
-    margin-right: auto;
-    padding-top: unset;
-    margin-left: var(--spacing-s);
-    border-radius: var(--border-radius);
-    .spinner {
-      margin: 0;
-      .rect {
-        background-color: var(--color-spinner-light);
+    display: none;
+  }
+  .claim-preview-info {
+    .confirming-change {
+      display: inline-block;
+      margin-top: 1px;
+      background-color: black;
+      color: white;
+      padding: 1px 0 0 var(--spacing-xxs);
+      margin-right: auto;
+      padding-top: unset;
+      margin-left: var(--spacing-s);
+      border-radius: var(--border-radius);
+      .spinner {
+        margin: 0;
+        .rect {
+          background-color: var(--color-spinner-light);
+        }
       }
     }
   }

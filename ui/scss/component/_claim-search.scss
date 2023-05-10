@@ -330,16 +330,6 @@
     background-color: var(--color-background);
   }
 
-  select {
-    &:hover {
-      background-color: var(--color-primary);
-      color: var(--color-primary-contrast) !important;
-    }
-    &:focus-visible {
-      color: var(--color-text);
-    }
-  }
-
   input[type='text'],
   input[type='number'],
   .filer-checkbox-wrapper {

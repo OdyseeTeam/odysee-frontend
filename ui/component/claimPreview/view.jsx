@@ -571,6 +571,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                   </>
                 )}
               </div>
+              {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
 
               {!type && (
                 <div className="description__wrapper">

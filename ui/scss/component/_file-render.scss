@@ -1200,6 +1200,11 @@ $control-bar-icon-size: 30px;
     position: absolute;
     z-index: 3;
   }
+  .file-viewer__overlay-actions {
+    a:first-of-type {
+      margin-right: var(--spacing-s);
+    }
+  }
 }
 
 .video-thumbnail-generator {

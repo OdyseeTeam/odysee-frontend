@@ -60,11 +60,26 @@
         border: 2px solid var(--color-border);
         background: var(--color-header-background) !important;
         padding: var(--spacing-s) !important;
+        border-radius: var(--border-radius);
         .claim-preview-info {
           padding-top: 0;
           span {
             font-size: var(--font-body);
           }
+          .confirming-change {
+            display: none;
+          }
+        }
+        .confirming-change {
+          margin-left: unset;
+          background: unset;
+          margin-top: var(--spacing-m);
+          padding: unset;
+        }
+
+        .claim__menu-button {
+          top: var(--spacing-xxs);
+          right: var(--spacing-xxs);
         }
       }
     }

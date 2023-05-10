@@ -123,11 +123,6 @@
   &:hover {
     background-color: rgba(var(--color-header-button-base), 0.6);
     td {
-      .radio {
-        label::before {
-          cursor: pointer;
-        }
-      }
       label {
         cursor: pointer;
       }
@@ -136,12 +131,10 @@
     input {
       cursor: pointer;
     }
+
     fieldset-section.radio {
       label::before {
-        background-color: var(--color-primary);
-      }
-      label::after {
-        background-color: var(--color-primary-contrast);
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
     }
   }
@@ -154,16 +147,6 @@
 .card--livestream-key {
   border-radius: var(--border-radius);
   margin-top: var(--spacing-l);
-
-  /*
-  fieldset-section:first-of-type {
-    div {
-      label {
-        margin-top: 0;
-      }
-    }
-  }
-  */
 
   @media (max-width: $breakpoint-small) {
     .card__main-actions {

@@ -89,7 +89,7 @@ select {
   &:hover,
   &:focus-visible {
     color: var(--color-primary-contrast);
-    background-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary) inset;
   }
   option {
     color: var(--color-text);
@@ -253,10 +253,7 @@ input-submit {
     label {
       cursor: pointer;
       &::before {
-        background-color: var(--color-primary);
-      }
-      &::after {
-        border-color: var(--color-primary-contrast);
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
     }
   }
@@ -288,11 +285,8 @@ input-submit {
   &:hover {
     label {
       cursor: pointer;
-      &::after {
-        background-color: var(--color-primary-contrast);
-      }
       &::before {
-        background-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
     }
   }
