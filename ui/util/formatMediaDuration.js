@@ -1,31 +1,27 @@
-import moment from 'moment';
+// @flow
 
-export default function formatMediaDuration(duration = 0, config) {
-  const options = {
-    screenReader: false,
-    ...config,
-  };
+export default function formatMediaDuration(duration: number = 0) {
+  const hours = Math.floor(duration / 3600);
+  const minutes = Math.floor((duration % 3600) / 60);
+  const seconds = Math.floor(duration % 60);
 
-  // Optimize for screen readers
-  if (options.screenReader) {
-    return moment.utc(moment.duration(duration, 'seconds').asMilliseconds()).format('HH:mm:ss');
+  const formattedHours = hours < 10 ? `0${hours}` : hours;
+  const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+  const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+
+  if (isNaN(seconds) || seconds === Infinity) {
+    return '--:--';
   }
 
-  // Normal format
-  let date = new Date(null);
-  date.setSeconds(duration);
-
-  let timeString = date.toISOString().substr(11, 8);
-  if (timeString.startsWith('00:')) {
-    timeString = timeString.substr(3);
+  if (hours > 0) {
+    return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+  } else {
+    return `${formattedMinutes}:${formattedSeconds}`;
   }
-
-  return timeString;
 }
 
 // TODO: need a better file location:
 
-// @flow
 export function getChannelSubCountStr(count: ?number, formattedCount?: ?string) {
   if (count === null || count === undefined) {
     return null;
@@ -34,7 +30,6 @@ export function getChannelSubCountStr(count: ?number, formattedCount?: ?string) 
   }
 }
 
-// @flow
 export function getChannelViewCountStr(count: number) {
   return count === 1 ? __('1 upload') : __('%count% uploads', { count });
 }
