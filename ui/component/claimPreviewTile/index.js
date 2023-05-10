@@ -20,7 +20,7 @@ import formatMediaDuration from 'util/formatMediaDuration';
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
-  const mediaDuration = media && media.duration && formatMediaDuration(media.duration, { screenReader: true });
+  const mediaDuration = media && media.duration && formatMediaDuration(media.duration);
   const isLivestream = isStreamPlaceholderClaim(claim);
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
   const isCollection = claim && claim.value_type === 'collection';
