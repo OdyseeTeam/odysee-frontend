@@ -45,7 +45,6 @@
 //  S U B T I T L E
 
 .media__subtitle {
-  // align-self: flex-start;
   color: var(--color-text-subtitle);
   font-size: var(--font-small);
 }
@@ -55,11 +54,6 @@
   align-self: auto;
   align-items: center;
   display: flex;
-
-  .media__subtitle--centered::before {
-    content: '•';
-    margin-right: var(--spacing-s);
-  }
 }
 
 .media__subtitle--between {

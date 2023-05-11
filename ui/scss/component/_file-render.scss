@@ -1285,9 +1285,16 @@ $control-bar-icon-size: 30px;
   flex-direction: row;
   margin-bottom: var(--spacing-s);
 
-  > :first-child {
-    margin-bottom: 0;
-    margin-right: var(--spacing-s);
+  .icon {
+    margin-right: var(--spacing-xs);
+    margin-top: 2px;
+    &:not(.icon:first-of-type) {
+      margin-left: var(--spacing-m);
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-s);
   }
 }
 
