@@ -4,7 +4,7 @@ import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
-import './style.scss';
+import './style.lazy.scss';
 
 type Props = {
   numberOfHiddenClaims: number,

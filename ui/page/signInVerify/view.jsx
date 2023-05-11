@@ -104,40 +104,35 @@ function SignInVerifyPage(props: Props) {
     <Page authPage noFooter>
       <div className="main__sign-up">
         {verificationTried && (
-        <Card
-          title={successful
-            ? __('Log in success!')
-            : needsRecaptcha
-            ? __('Log in')
-            : __('Log in failed')}
-          subtitle={
-            <React.Fragment>
-              <p>
-                {successful
-                  ? __('You can now close this tab.')
-                  : needsRecaptcha
-                  ? null
-                  : __('New verification email has been sent')}
-              </p>
-              {showCaptchaMessage && !successful && (
+          <Card
+            title={successful ? __('Log in success!') : needsRecaptcha ? __('Log in') : __('Log in failed')}
+            subtitle={
+              <React.Fragment>
                 <p>
-                  <I18nMessage
-                    tokens={{
-                      refresh: (
-                        <Button button="link" label={__('refreshing')} onClick={() => window.location.reload()} />
-                      ),
-                    }}
-                  >
-                    Not seeing a captcha? Check your ad blocker or try %refresh%.
-                  </I18nMessage>
+                  {successful
+                    ? __('You can now close this tab.')
+                    : needsRecaptcha
+                    ? null
+                    : __('New verification email has been sent')}
                 </p>
-              )}
-            </React.Fragment>
-          }
-          actions={
-            <>
-              {!successful &&
-                needsRecaptcha && (
+                {showCaptchaMessage && !successful && (
+                  <p>
+                    <I18nMessage
+                      tokens={{
+                        refresh: (
+                          <Button button="link" label={__('refreshing')} onClick={() => window.location.reload()} />
+                        ),
+                      }}
+                    >
+                      Not seeing a captcha? Check your ad blocker or try %refresh%.
+                    </I18nMessage>
+                  </p>
+                )}
+              </React.Fragment>
+            }
+            actions={
+              <>
+                {!successful && needsRecaptcha && (
                   <div className="section__actions">
                     <ReCAPTCHA
                       sitekey="6LePsJgUAAAAAFTuWOKRLnyoNKhm0HA4C3elrFMG"
@@ -148,17 +143,17 @@ function SignInVerifyPage(props: Props) {
                     />
                   </div>
                 )}
-              {successful && (
-                <Button
-                  button="primary"
-                  label={__('Continue to Odysee')}
-                  onClick={() => window.location.assign('/')}
-                />
-              )}
-            </>
-          }
-        />
-      )}
+                {successful && (
+                  <Button
+                    button="primary"
+                    label={__('Continue to Odysee')}
+                    onClick={() => window.location.assign('/')}
+                  />
+                )}
+              </>
+            }
+          />
+        )}
       </div>
     </Page>
   );

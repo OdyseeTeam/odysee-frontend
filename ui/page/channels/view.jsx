@@ -3,7 +3,6 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import Button from 'component/button';
-import YoutubeTransferStatus from 'component/youtubeTransferStatus';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
 import LbcSymbol from 'component/common/lbc-symbol';
@@ -11,7 +10,12 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import HelpLink from 'component/common/help-link';
+import { lazyImport } from 'util/lazyImport';
 import { useHistory } from 'react-router';
+
+const YoutubeTransferStatus = lazyImport(() =>
+  import('component/youtubeTransferStatus' /* webpackChunkName: "youtubeTransferStatus" */)
+);
 
 type Props = {
   // -- redux --
@@ -80,7 +84,11 @@ export default function ChannelsPage(props: Props) {
   return (
     <Page className="channelsPage-wrapper">
       <div className="card-stack">
-        {hasYoutubeChannels && <YoutubeTransferStatus hideChannelLink />}
+        {hasYoutubeChannels && (
+          <React.Suspense fallback={null}>
+            <YoutubeTransferStatus hideChannelLink />
+          </React.Suspense>
+        )}
 
         <ClaimList
           header={

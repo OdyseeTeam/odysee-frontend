@@ -6,7 +6,6 @@ import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'constants/player';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
-import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import SwipeableDrawer from 'component/swipeableDrawer';
@@ -19,8 +18,10 @@ import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
 import 'scss/component/_swipeable-drawer.scss';
-import './style.scss';
 
+const LivestreamScheduledInfo = lazyImport(() =>
+  import('component/livestreamScheduledInfo' /* webpackChunkName: "livestreamScheduledInfo" */)
+);
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
 const VIEW_MODES = {

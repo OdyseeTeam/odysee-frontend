@@ -26,7 +26,7 @@ import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import { getLocalizedNameForCollectionId } from 'util/collections';
-import './style.scss';
+import './style.lazy.scss';
 
 type Props = {
   id: string,

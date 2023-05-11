@@ -190,7 +190,8 @@ function CommentView(props: Props) {
   const totalLikesAndDislikes = likesCount + dislikesCount;
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
-  const slimedToDeath = !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
+  const slimedToDeath =
+    !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const stickerFromMessage = parseSticker(message);
 
   React.useEffect(() => {

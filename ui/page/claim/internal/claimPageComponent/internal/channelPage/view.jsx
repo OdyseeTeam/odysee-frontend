@@ -25,9 +25,9 @@ import I18nMessage from 'component/i18nMessage';
 import TruncatedText from 'component/common/truncated-text';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
+import { lazyImport } from 'util/lazyImport';
 import MembershipBadge from 'component/membershipBadge';
 import JoinMembershipButton from 'component/joinMembershipButton';
-import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 
 import HomeTab from './tabs/homeTab';
 import ContentTab from './tabs/contentTab';
@@ -37,6 +37,10 @@ import AboutTab from './tabs/aboutTab';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import * as CS from 'constants/claim_search';
 import './style.scss';
+
+const HiddenNsfwClaims = lazyImport(() =>
+  import('component/hiddenNsfwClaims' /* webpackChunkName: "hiddenNsfwClaims" */)
+);
 
 const TABS_FOR_CHANNELS_WITH_CONTENT = [
   CHANNEL_PAGE.VIEWS.HOME,
@@ -416,7 +420,9 @@ function ChannelPage(props: Props) {
       </header>
 
       {isMature ? (
-        <HiddenNsfwClaims uri={uri} mature />
+        <React.Suspense fallback={null}>
+          <HiddenNsfwClaims uri={uri} mature />
+        </React.Suspense>
       ) : (isBlocked || isMuted) && !viewBlockedChannel ? (
         <div className="main--empty">
           <Yrbl

@@ -15,7 +15,6 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
-import './style.scss';
 
 import withCreditCard from 'hocs/withCreditCard';
 

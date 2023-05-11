@@ -40,7 +40,8 @@ export default handleActions(
     [ACTIONS.USER_STATE_POPULATE]: (state: BlocklistState, action: { data: { blocked: ?Array<string> } }) => {
       const { blocked } = action.data;
       const sanitizedBlocked = blocked && blocked.filter((e) => typeof e === 'string');
-      const parsedBlocked = sanitizedBlocked && Array.from(new Set(sanitizedBlocked.map((uri) => getOldFormatForLbryUri(uri))));
+      const parsedBlocked =
+        sanitizedBlocked && Array.from(new Set(sanitizedBlocked.map((uri) => getOldFormatForLbryUri(uri))));
       return {
         ...state,
         blockedChannels: parsedBlocked || state.blockedChannels,

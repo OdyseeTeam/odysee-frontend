@@ -7,7 +7,7 @@ import * as SETTINGS from 'constants/settings';
 import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
 import { useHistory } from 'react-router';
-import './style.scss';
+import './style.lazy.scss';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 

@@ -6,7 +6,7 @@ import Icon from 'component/common/icon';
 import moment from 'moment';
 import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
-import './style.scss';
+import './style.lazy.scss';
 
 const CALC_TIME_INTERVAL_MS = 1000;
 
