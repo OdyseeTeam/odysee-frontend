@@ -128,7 +128,8 @@
       .collection-header__actions {
         margin-left: auto;
         margin-bottom: var(--spacing-s);
-        button {
+        .button,
+        .menu__button {
           padding: var(--spacing-s);
           background: rgba(var(--color-background-base), 0.8);
           &:hover {
