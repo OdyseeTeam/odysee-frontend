@@ -94,8 +94,8 @@ type Props = {
   isAChannelMember: boolean,
   commentSettingDisabled: ?boolean,
   userHasMembersOnlyChatPerk: boolean,
-  isLivestreamChatMembersOnly: ?boolean,
-  areCommentsMembersOnly: ?boolean,
+  isLivestreamChatMembersOnly: boolean,
+  areCommentsMembersOnly: boolean,
   hasPremiumPlus: boolean,
 };
 

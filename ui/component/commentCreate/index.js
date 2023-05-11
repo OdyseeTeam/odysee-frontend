@@ -72,8 +72,8 @@ const select = (state, props) => {
     tipChannelName,
     userHasMembersOnlyChatPerk: selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId),
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
-    isLivestreamChatMembersOnly: channelClaimId && selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId),
-    areCommentsMembersOnly: channelClaimId && selectMembersOnlyCommentsForChannelId(state, channelClaimId),
+    isLivestreamChatMembersOnly: Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId)),
+    areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
