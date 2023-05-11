@@ -350,18 +350,16 @@ function handleClaimAction(state: State, action: any): State {
     }
   });
 
-  const byId = resolveDelta(state.byId, byIdDelta);
-
   if (queryClaimIds) {
     queryClaimIds.forEach((claimId) => {
-      if (!byId[claimId]) {
-        Object.assign(byId, { [claimId]: null });
+      if (!(claimId in state.byId) && !(claimId in byIdDelta)) {
+        byIdDelta[claimId] = null;
       }
     });
   }
 
   return Object.assign({}, state, {
-    byId,
+    byId: resolveDelta(state.byId, byIdDelta),
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     channelClaimCounts,
     resolvingUris: Array.from(newResolvingUrls),
