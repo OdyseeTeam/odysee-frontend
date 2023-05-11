@@ -1,10 +1,13 @@
-declare type Comment = {
-  comment: string, // comment body
-  comment_id: string, // sha256 digest
-  claim_id: string, // id linking to the claim this comment
+declare type CommentBody = string;
+declare type CommentId = string;
+
+declare type Comment = {|
+  comment: CommentBody,
+  comment_id: CommentId, // sha256 digest
+  claim_id: ClaimId, // id linking to the claim this comment
   timestamp: number, // integer representing unix-time
   is_hidden: boolean, // claim owner may enable/disable this
-  channel_id: string, // claimId of channel signing this comment
+  channel_id: ChannelId, // claimId of channel signing this comment
   channel_name?: string, // name of channel claim
   channel_url?: string, // full lbry url to signing channel
   signature?: string, // signature of comment by originating channel
@@ -19,7 +22,7 @@ declare type Comment = {
   is_global_mod: boolean,
   is_fiat?: boolean,
   removed?: boolean,
-};
+|};
 
 declare type CommentSubmitParams = {
   comment: string,
@@ -77,29 +80,28 @@ declare type PerChannelSettings = {
 };
 
 // todo: relate individual comments to their commentId
-declare type CommentsState = {
-  commentsByUri: { [string]: string }, // URI -> claimId (TODO: remove)
-  superChatsByUri: { [string]: { totalAmount: number, comments: Array<Comment> } },
-  byId: { [string]: Array<string> }, // ClaimID -> list of fetched comment IDs.
-  totalCommentsById: {}, // ClaimId -> ultimate total (including replies) in commentron.
-  repliesByParentId: { [string]: Array<string> }, // ParentCommentID -> list of fetched replies.
-  repliesTotalPagesByParentId: {}, // ParentCommentID -> total number of reply pages for a parentId in commentron.
-  topLevelCommentsById: { [string]: Array<string> }, // ClaimID -> list of fetched top level comments.
-  topLevelTotalPagesById: { [string]: number }, // ClaimID -> total number of top-level pages in commentron. Based on COMMENT_PAGE_SIZE_TOP_LEVEL.
-  topLevelTotalCommentsById: { [string]: number }, // ClaimID -> total top level comments in commentron.
-  commentById: { [string]: Comment }, // commentId -> Comment
-  fetchedCommentAncestors: { [string]: Array<string> }, // {"fetchedCommentId": ["parentId", "grandParentId", ...]}
-  pinnedCommentsById: {}, // ClaimId -> array of pinned comment IDs
+declare type CommentsState = {|
+  commentsByUri: { [uri: string]: ClaimId }, // (TODO: remove)
+  superChatsByUri: { [uri: string]: { totalAmount: number, comments: Array<Comment> } },
+  byId: { [ClaimId]: Array<CommentId> },
+  totalCommentsById: { [ClaimId]: number }, // ClaimId -> ultimate total (including replies) in commentron.
+  repliesByParentId: { [CommentId]: Array<CommentId> }, // ParentCommentID -> list of fetched replies.
+  repliesTotalPagesByParentId: { [CommentId]: number }, // ParentCommentID -> total number of reply pages for a parentId in commentron.
+  topLevelCommentsById: { [ClaimId]: Array<CommentId> },
+  topLevelTotalPagesById: { [ClaimId]: number }, // ClaimID -> total number of top-level pages in commentron. Based on COMMENT_PAGE_SIZE_TOP_LEVEL.
+  topLevelTotalCommentsById: { [ClaimId]: number }, // ClaimID -> total top level comments in commentron.
+  commentById: { [CommentId]: Comment },
+  fetchedCommentAncestors: { [CommentId]: Array<string> }, // {"fetchedCommentId": ["parentId", "grandParentId", ...]}
+  pinnedCommentsById: { [ClaimId]: Array<CommentId> },
   isLoading: boolean,
   isLoadingById: boolean,
-  isLoadingByParentId: { [string]: boolean },
+  isLoadingByParentId: { [CommentId]: boolean },
   isCommenting: boolean,
-  myComments: ?Set<string>,
   isFetchingReacts: boolean,
   myReactsByCommentId: ?{ [string]: Array<string> }, // {"CommentId:MyChannelId": ["like", "dislike", ...]}
   othersReactsByCommentId: ?{ [string]: { [string]: number } }, // {"CommentId:MyChannelId": {"like": 2, "dislike": 2, ...}}
   pendingCommentReactions: Array<string>,
-  moderationBlockList: ?Array<string>, // @KP rename to "personalBlockList"?
+  moderationBlockList: ?Array<string>,
   adminBlockList: ?Array<string>,
   moderatorBlockList: ?Array<string>,
   moderatorBlockListDelegatorsMap: { [string]: Array<string> }, // {"blockedUri": ["delegatorUri1", ""delegatorUri2", ...]}
@@ -113,12 +115,12 @@ declare type CommentsState = {
   personalTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
   adminTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
   moderatorTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
-  togglingForDelegatorMap: { [string]: Array<string> }, // {"blockedUri": ["delegatorUri1", ""delegatorUri2", ...]}
-  settingsByChannelId: { [string]: PerChannelSettings }, // ChannelID -> settings
+  togglingForDelegatorMap: { [uri: string]: Array<string> }, // {"blockedUri": ["delegatorUri1", ""delegatorUri2", ...]}
+  settingsByChannelId: { [ChannelId]: PerChannelSettings },
   fetchingSettings: boolean,
   fetchingBlockedWords: boolean,
-  myCommentedChannelIdsById: { [string]: Array<string> }, // [content-claim-id] -> array of own channels IDs that have commented before.
-};
+  myCommentedChannelIdsById: { [ClaimId]: Array<ChannelId> }, // [content-claim-id] -> array of own channels IDs that have commented before.
+|};
 
 // Authorization parameters for calls requiring user authentication
 declare type Authorization = {

@@ -47,8 +47,6 @@ function CollectionGeneralTab(props: Props) {
   } = useHistory();
   const { tags } = formParams;
 
-  console.log('tags: ', tags);
-
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
 
