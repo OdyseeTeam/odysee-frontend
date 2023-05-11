@@ -10,7 +10,6 @@
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  // box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0) inset;
 }
 
 .media__thumb--small {
@@ -165,14 +164,12 @@
 
   .button--file-action {
     background-color: unset;
-    // border-radius:50%;
     .icon {
       transform: rotate(0deg);
       transition: transform 0.2s;
     }
 
     &[aria-expanded='true'] {
-      // background-color: unset !important;
       background-color: var(--color-header-button) !important;
       .icon {
         transform: rotate(90deg);
@@ -303,7 +300,6 @@
 
     .button--file-action {
       display: flex;
-      // background-color: rgba(var(--color-header-background-base), 1);
       margin-right: var(--spacing-xxxs);
       justify-content: center;
       align-items: center;
