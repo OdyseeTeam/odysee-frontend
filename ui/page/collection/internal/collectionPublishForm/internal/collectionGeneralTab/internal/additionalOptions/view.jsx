@@ -63,11 +63,11 @@ function CollectionPublishAdditionalOptions(props: Props) {
 
   return (
     <>
-      <h2 className="card__title">{__('Additional Options')}</h2>
-
       <Card
+        background
         className="card--enable-overflow"
-        actions={
+        title={__('Additional Options')}
+        body={
           <>
             {!hideSection && (
               <div className={classnames({ 'card--disabled': formErrors.name })}>
@@ -154,8 +154,10 @@ function CollectionPublishAdditionalOptions(props: Props) {
               </div>
             )}
 
-            <div className="section__actions">
-              <Button label={hideSection ? __('Show') : __('Hide')} button="link" onClick={toggleHideSection} />
+            <div className="publish-row">
+              <div className="section__actions">
+                <Button label={hideSection ? __('Show') : __('Hide')} button="link" onClick={toggleHideSection} />
+              </div>
             </div>
           </>
         }
