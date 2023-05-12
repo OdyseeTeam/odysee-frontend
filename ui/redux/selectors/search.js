@@ -84,59 +84,51 @@ export const selectRecommendedContentForUri = createCachedSelector(
   selectCostInfoForUri,
   (uri, history, rawRecommendations, claimsByUri, blockedChannels, costInfo) => {
     const claim = claimsByUri[uri];
-    if (!claim) return;
+    if (!claim) {
+      return;
+    }
 
     let recommendedContent;
-    // always grab the claimId - this value won't change for filtering
     const currentClaimId = claim.claim_id;
-
     const searchResult = rawRecommendations;
 
     if (searchResult) {
-      // Filter from recommended: The same claim and blocked channels
-      recommendedContent = searchResult['uris'].filter((searchUri) => {
-        const searchClaim = claimsByUri[searchUri];
+      recommendedContent = searchResult['uris'].filter((recUri) => {
+        const recClaim = claimsByUri[recUri];
 
-        if (!searchClaim) {
+        if (!recClaim) {
           return true;
         }
 
-        const signingChannel = searchClaim && searchClaim.signing_channel;
-        const channelUri = signingChannel && signingChannel.canonical_url;
-        const blockedMatch = blockedChannels.some((blockedUri) => blockedUri.includes(channelUri));
+        const recChannelUri = recClaim?.signing_channel?.canonical_url;
+        const isRecChannelBlocked = blockedChannels.some((blockedUri) => blockedUri.includes(recChannelUri));
 
         let isEqualUri;
         try {
-          const { claimId: searchId } = parseURI(searchUri);
-          isEqualUri = searchId === currentClaimId;
+          const { claimId: recClaimId } = parseURI(recUri);
+          isEqualUri = recClaimId === currentClaimId;
         } catch (e) {}
 
-        return !isEqualUri && !blockedMatch;
+        return !isEqualUri && !isRecChannelBlocked;
       });
 
-      // Claim to play next: playable and free claims not played before in history
       for (let i = 0; i < recommendedContent.length; ++i) {
-        const nextRecommendedUri = recommendedContent[i];
-        const recommendedClaim = claimsByUri[nextRecommendedUri];
-        const isVideo = recommendedClaim && recommendedClaim.value && recommendedClaim.value.stream_type === 'video';
-        const isAudio = recommendedClaim && recommendedClaim.value && recommendedClaim.value.stream_type === 'audio';
+        const nextUri = recommendedContent[i];
+        const nextClaim = claimsByUri[nextUri];
+        const isVideo = nextClaim?.value?.stream_type === 'video';
+        const isAudio = nextClaim?.value?.stream_type === 'audio';
 
-        let historyMatch = false;
+        let watchedBefore = false;
         try {
-          const { claimId: nextRecommendedId } = parseURI(nextRecommendedUri);
-
-          historyMatch = history.some(
-            (historyItem) =>
-              (claimsByUri[historyItem.uri] && claimsByUri[historyItem.uri].claim_id) === nextRecommendedId
-          );
+          const { claimId: nextClaimId } = parseURI(nextUri);
+          watchedBefore = history.some((h) => claimsByUri[h.uri]?.claim_id === nextClaimId);
         } catch (e) {}
 
-        if (!historyMatch && costInfo === 0 && (isVideo || isAudio)) {
-          // Better next-uri found, swap with top entry:
+        if (!watchedBefore && costInfo === 0 && (isVideo || isAudio)) {
           if (i > 0) {
-            const a = recommendedContent[0];
-            recommendedContent[0] = nextRecommendedUri;
-            recommendedContent[i] = a;
+            const top = recommendedContent[0];
+            recommendedContent[0] = nextUri;
+            recommendedContent[i] = top;
           }
           break;
         }
