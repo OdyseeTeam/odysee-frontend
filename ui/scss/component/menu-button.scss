@@ -204,7 +204,7 @@ reach-portal {
   }
 
   .MuiPaper-root {
-    top: calc(var(--header-height) - 10px) !important;
+    top: calc(var(--header-height) - 12px) !important;
     transition: none !important;
     @media (max-width: $breakpoint-small) {
       top: calc(var(--header-height-mobile) - 10px) !important;
