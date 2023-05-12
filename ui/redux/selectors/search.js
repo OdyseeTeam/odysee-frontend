@@ -171,7 +171,9 @@ export const selectRecommendedContentForUri = createCachedSelector(
       const nextClaim = recClaimsByUri[nextUri];
       const isVideo = nextClaim?.value?.stream_type === 'video';
       const isAudio = nextClaim?.value?.stream_type === 'audio';
-      const watchedBefore = history.some((h) => nextClaim.permanent_url === h.uri || nextClaim.canonical_url === h.uri);
+      const watchedBefore = history.some(
+        (h) => nextClaim?.permanent_url === h.uri || nextClaim?.canonical_url === h.uri
+      );
 
       if (!watchedBefore && costInfo === 0 && (isVideo || isAudio)) {
         if (i > 0) {
