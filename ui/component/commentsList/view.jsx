@@ -340,7 +340,7 @@ export default function CommentList(props: Props) {
 
       const rect = spinnerRef.current.getBoundingClientRect(); // $FlowFixMe
       const windowH = window.innerHeight || document.documentElement.clientHeight; // $FlowFixMe
-      const windowW = window.innerWidth || document.documentElement.clientWidth; // $FlowFixMe
+      const windowW = window.innerWidth || document.documentElement.clientWidth;
 
       const isApproachingViewport = yPrefetchPx !== 0 && rect.top < windowH + scaleToDevicePixelRatio(yPrefetchPx);
 
@@ -349,9 +349,7 @@ export default function CommentList(props: Props) {
         rect.height > 0 &&
         rect.bottom >= 0 &&
         rect.right >= 0 &&
-        // $FlowFixMe
         rect.top <= windowH &&
-        // $FlowFixMe
         rect.left <= windowW;
 
       return (isInViewport || isApproachingViewport) && page < topLevelTotalPages;
