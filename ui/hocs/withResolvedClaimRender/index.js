@@ -18,7 +18,6 @@ import { selectContentStates } from 'redux/selectors/content';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 
 import { doResolveUri } from 'redux/actions/claims';
-import { doFetchUriAccessKey } from 'redux/actions/content';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
 
@@ -51,7 +50,6 @@ const perform = {
   doResolveUri,
   doBeginPublish,
   doOpenModal,
-  doFetchUriAccessKey,
 };
 
 export default (Component) => connect(select, perform)(withResolvedClaimRender(Component));

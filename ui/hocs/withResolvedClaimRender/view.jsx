@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 
-import useAppendAccessKeyToUrl from './helper';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -32,7 +31,6 @@ type Props = {
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (name: ?string) => void,
   doOpenModal: (string, {}) => void,
-  doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
 };
 
 /**
@@ -65,7 +63,6 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       doResolveUri,
       doBeginPublish,
       doOpenModal,
-      doFetchUriAccessKey,
 
       ...otherProps
     } = props;
@@ -82,8 +79,6 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       uriAccessKey,
       verifyClaimSignature
     );
-
-    useAppendAccessKeyToUrl(claim, doFetchUriAccessKey);
 
     const LoadingSpinner = React.useMemo(
       () =>
