@@ -24,17 +24,23 @@
   }
 
   .claim-preview-metadata {
+    max-width: calc(100% - var(--file-list-thumbnail-width) - calc(var(--spacing-m) * 3));
     .claim-tile__info {
       margin-top: 0;
+      width: 100%;
       .media__subtitle {
+        width: 100%;
         .button__content {
           margin-top: 0;
+          width: 100%;
           .channel-name {
             margin-top: 0;
+            width: 100%;
             p {
               overflow: hidden;
               text-overflow: ellipsis;
               white-space: nowrap;
+              width: 100%;
             }
           }
         }
