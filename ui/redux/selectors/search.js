@@ -9,7 +9,6 @@ import {
   selectClaimIsNsfwForUri,
   makeSelectPendingClaimForUri,
   selectIsUriResolving,
-  selectCostInfoForUri,
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import { isClaimNsfw } from 'util/claim';
@@ -160,8 +159,8 @@ export const selectRecommendedContentForUri = createCachedSelector(
   selectHistory,
   selectRecommendedContentFilteredForUri,
   selectRecClaimsByIdForUri,
-  selectCostInfoForUri,
-  (claim, history, filteredRecUris, recClaimsByUri, costInfo) => {
+  (state) => state.claims.costInfosById,
+  (claim, history, filteredRecUris, recClaimsByUri, costInfosById) => {
     if (!claim || !filteredRecUris) {
       return;
     }
@@ -169,13 +168,12 @@ export const selectRecommendedContentForUri = createCachedSelector(
     for (let i = 0; i < filteredRecUris.length; ++i) {
       const nextUri = filteredRecUris[i];
       const nextClaim = recClaimsByUri[nextUri];
+      const hasCost = nextClaim && costInfosById[nextClaim.claim_id]?.cost !== 0; // Consider unresolved claim as "no cost". Not a big deal, I think.
       const isVideo = nextClaim?.value?.stream_type === 'video';
       const isAudio = nextClaim?.value?.stream_type === 'audio';
-      const watchedBefore = history.some(
-        (h) => nextClaim?.permanent_url === h.uri || nextClaim?.canonical_url === h.uri
-      );
+      const watched = history.some((h) => nextClaim?.permanent_url === h.uri || nextClaim?.canonical_url === h.uri);
 
-      if (!watchedBefore && costInfo === 0 && (isVideo || isAudio)) {
+      if (!watched && !hasCost && (isVideo || isAudio)) {
         if (i > 0) {
           const recUris = filteredRecUris.slice();
           const top = recUris[0];
