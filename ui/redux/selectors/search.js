@@ -3,6 +3,7 @@ import { selectClientSetting, selectLanguage, selectShowMatureContent } from 're
 import {
   selectClaimsByUri,
   selectClaimForClaimId,
+  selectClaimForUri,
   makeSelectClaimForUri,
   makeSelectClaimForClaimId,
   selectClaimIsNsfwForUri,
@@ -12,6 +13,7 @@ import {
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import { isClaimNsfw } from 'util/claim';
+import { objSelectorEqualityCheck } from 'util/redux-utils';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { createNormalizedSearchKey, getRecommendationSearchKey, getRecommendationSearchOptions } from 'util/search';
@@ -53,16 +55,17 @@ export const makeSelectHasReachedMaxResultsLength = (query: string): ((state: St
     return hasReachedMaxResultsLength[query];
   });
 
+/**
+ * Raw Lighthouse recommendation results for the given uri.
+ */
 export const selectRecommendedContentRawForUri = createCachedSelector(
-  (state, uri) => uri,
-  selectClaimsByUri,
+  selectClaimForUri,
   selectShowMatureContent,
   selectClaimIsNsfwForUri, // (state, uri)
   selectSearchResultByQuery,
   selectLanguage,
   (state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
-  (uri, claimsByUri, matureEnabled, isMature, searchUrisByQuery, languageSetting, searchInLanguage) => {
-    const claim = claimsByUri[uri];
+  (claim, matureEnabled, isMature, searchUrisByQuery, languageSetting, searchInLanguage) => {
     const language = searchInLanguage ? languageSetting : null;
 
     if (claim?.value?.title) {
@@ -75,67 +78,114 @@ export const selectRecommendedContentRawForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
-export const selectRecommendedContentForUri = createCachedSelector(
-  (state, uri) => uri,
-  selectHistory,
-  selectRecommendedContentRawForUri, // (state, uri)
+/**
+ * Intermediate selector to provide a stable subset of selectClaimsByUri.
+ *
+ * Tradeoff:  It is actually still looping every time selectClaimsByUri changes,
+ * but at least we stabilize here to prevent the rest of the chain from looping.
+ *
+ * @signature (state: State, uri: string) => { [ClaimId]: Claim }
+ */
+const selectRecClaimsByIdForUri = createSelector(
   selectClaimsByUri,
+  selectRecommendedContentRawForUri, // (state, uri)
+  (claimsByUri, recommendationsRaw) => {
+    const recClaimsById = {};
+
+    if (recommendationsRaw) {
+      recommendationsRaw.uris.forEach((uri) => {
+        if (claimsByUri[uri]) {
+          recClaimsById[uri] = claimsByUri[uri];
+        }
+      });
+    }
+
+    return recClaimsById;
+  },
+  {
+    memoizeOptions: { maxSize: 3, resultEqualityCheck: objSelectorEqualityCheck },
+  }
+);
+
+/**
+ * Removes blocked content and itself from the recommendations.
+ */
+const selectRecommendedContentFilteredForUri = createCachedSelector(
+  selectClaimForUri,
+  selectRecommendedContentRawForUri,
+  selectRecClaimsByIdForUri,
   selectMutedChannels,
-  selectCostInfoForUri,
-  (uri, history, rawRecommendations, claimsByUri, blockedChannels, costInfo) => {
-    const claim = claimsByUri[uri];
-    if (!claim) {
+  (claim, recommendationsRaw, recClaimsByUri, blockedChannels) => {
+    if (!claim || !recommendationsRaw) {
       return;
     }
 
-    let recommendedContent;
     const currentClaimId = claim.claim_id;
-    const searchResult = rawRecommendations;
 
-    if (searchResult) {
-      recommendedContent = searchResult['uris'].filter((recUri) => {
-        const recClaim = claimsByUri[recUri];
+    return recommendationsRaw.uris.filter((recUri) => {
+      const recClaim = recClaimsByUri[recUri];
+      if (!recClaim) {
+        return true; // Don't filter out unresolved claims (let the placeholders show)
+      }
 
-        if (!recClaim) {
-          return true;
+      const recChannelUri = recClaim?.signing_channel?.canonical_url;
+      const isRecChannelBlocked = blockedChannels.some((blockedUri) => blockedUri.includes(recChannelUri));
+
+      let isEqualUri;
+      try {
+        const { claimId: recClaimId } = parseURI(recUri);
+        isEqualUri = recClaimId === currentClaimId;
+      } catch (e) {}
+
+      return !isEqualUri && !isRecChannelBlocked;
+    });
+  }
+)((state, uri) => String(uri));
+
+/**
+ * Returns the sorted recommendation list for the given uri.
+ *
+ * The sorting changes each time to ensure the next recommended item is fresh
+ * (prevents circular autoplay-next loop).
+ *
+ * TODO: It is still pointless to memo this selector since selectHistory()
+ * will always be invalidated.
+ *
+ * @param state State
+ * @param uri String
+ * @return undefined | Array<uri: string>
+ */
+export const selectRecommendedContentForUri = createCachedSelector(
+  selectClaimForUri,
+  selectHistory,
+  selectRecommendedContentFilteredForUri,
+  selectRecClaimsByIdForUri,
+  selectCostInfoForUri,
+  (claim, history, filteredRecUris, recClaimsByUri, costInfo) => {
+    if (!claim || !filteredRecUris) {
+      return;
+    }
+
+    for (let i = 0; i < filteredRecUris.length; ++i) {
+      const nextUri = filteredRecUris[i];
+      const nextClaim = recClaimsByUri[nextUri];
+      const isVideo = nextClaim?.value?.stream_type === 'video';
+      const isAudio = nextClaim?.value?.stream_type === 'audio';
+      const watchedBefore = history.some((h) => nextClaim.permanent_url === h.uri || nextClaim.canonical_url === h.uri);
+
+      if (!watchedBefore && costInfo === 0 && (isVideo || isAudio)) {
+        if (i > 0) {
+          const recUris = filteredRecUris.slice();
+          const top = recUris[0];
+          recUris[0] = nextUri;
+          recUris[i] = top;
+          return recUris;
         }
-
-        const recChannelUri = recClaim?.signing_channel?.canonical_url;
-        const isRecChannelBlocked = blockedChannels.some((blockedUri) => blockedUri.includes(recChannelUri));
-
-        let isEqualUri;
-        try {
-          const { claimId: recClaimId } = parseURI(recUri);
-          isEqualUri = recClaimId === currentClaimId;
-        } catch (e) {}
-
-        return !isEqualUri && !isRecChannelBlocked;
-      });
-
-      for (let i = 0; i < recommendedContent.length; ++i) {
-        const nextUri = recommendedContent[i];
-        const nextClaim = claimsByUri[nextUri];
-        const isVideo = nextClaim?.value?.stream_type === 'video';
-        const isAudio = nextClaim?.value?.stream_type === 'audio';
-
-        let watchedBefore = false;
-        try {
-          const { claimId: nextClaimId } = parseURI(nextUri);
-          watchedBefore = history.some((h) => claimsByUri[h.uri]?.claim_id === nextClaimId);
-        } catch (e) {}
-
-        if (!watchedBefore && costInfo === 0 && (isVideo || isAudio)) {
-          if (i > 0) {
-            const top = recommendedContent[0];
-            recommendedContent[0] = nextUri;
-            recommendedContent[i] = top;
-          }
-          break;
-        }
+        break;
       }
     }
 
-    return recommendedContent;
+    return filteredRecUris;
   }
 )((state, uri) => String(uri));
 
