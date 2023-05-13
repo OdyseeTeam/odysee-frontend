@@ -39,11 +39,16 @@ type Props = {
   claimRewards: () => void,
 };
 
-class StreamClaimRenderInline extends React.PureComponent<Props> {
+type State = {
+  prevUri?: string,
+};
+
+class StreamClaimRenderInline extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
 
     (this: any).escapeListener = this.escapeListener.bind(this);
+    this.state = { prevUri: undefined };
   }
 
   componentDidMount() {
@@ -61,6 +66,14 @@ class StreamClaimRenderInline extends React.PureComponent<Props> {
     // @endif
   }
 
+  componentDidUpdate() {
+    const { doAnalyticsViewForUri, uri, claimRewards } = this.props;
+    if (uri && uri !== this.state.prevUri) {
+      this.setState({ prevUri: uri });
+      doAnalyticsViewForUri(uri).then(claimRewards);
+    }
+  }
+
   escapeListener(e: SyntheticKeyboardEvent<*>) {
     if (e.keyCode === KEYCODES.ESCAPE) {
       e.preventDefault();
@@ -74,19 +87,8 @@ class StreamClaimRenderInline extends React.PureComponent<Props> {
   }
 
   renderViewer() {
-    const {
-      currentTheme,
-      contentType,
-      downloadPath,
-      fileExtension,
-      streamingUrl,
-      uri,
-      renderMode,
-      doAnalyticsViewForUri,
-      claimRewards,
-    } = this.props;
+    const { currentTheme, contentType, downloadPath, fileExtension, streamingUrl, uri, renderMode } = this.props;
     const source = streamingUrl;
-    doAnalyticsViewForUri(uri).then(claimRewards);
 
     switch (renderMode) {
       case RENDER_MODES.IMAGE:
