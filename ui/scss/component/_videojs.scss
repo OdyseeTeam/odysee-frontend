@@ -383,6 +383,7 @@ button.vjs-big-play-button {
   .vjs-seek-to-live-control {
     @media (max-width: $breakpoint-small) {
       padding-left: 0 !important;
+      margin-left: 0.8em !important;
       .vjs-icon-placeholder {
         &::before {
           font-size: 14px !important;

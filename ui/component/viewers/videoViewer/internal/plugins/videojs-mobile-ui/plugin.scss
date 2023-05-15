@@ -16,7 +16,9 @@
   .vjs-touch-overlay {
     max-height: 100% !important;
   }
-  div:not(.vjs-loading-spinner):not(.vjs-setting-menu):not(.vjs-onoff-button) {
+  div:not(.vjs-loading-spinner):not(.vjs-setting-menu):not(.vjs-onoff-button):not(.vjs-progress-holder):not(
+      .vjs-play-progress
+    ):not(.vjs-load-progress) {
     border-radius: unset;
   }
 }

@@ -1151,9 +1151,27 @@ $control-bar-icon-size: 30px;
         }
       }
     }
-
     .vjs-playback-rate {
       margin-right: -6px !important;
+    }
+    .vjs-volume-panel {
+      .vjs-volume-horizontal {
+        margin-top: 3px !important;
+        margin-left: 0 !important;
+        // height: $control-bar-height !important;
+        @media (max-width: $breakpoint-small) {
+          // height: $control-bar-height-mobile !important;
+        }
+      }
+      &:hover {
+        .vjs-volume-horizontal {
+          margin-top: 3px !important;
+          // height: $control-bar-height !important;
+          @media (max-width: $breakpoint-small) {
+            // height: $control-bar-height-mobile !important;
+          }
+        }
+      }
     }
   }
 
