@@ -257,7 +257,6 @@
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
   padding: 1px;
   padding-left: 0;
-  // border-radius: var(--border-radius) 0 0 0;
   display: flex;
 
   .hyperChat {
@@ -276,8 +275,6 @@
 .livestream-comment__text {
   padding-right: var(--spacing-s);
   padding-bottom: var(--spacing-xxs);
-  // background-color:rgba(var(--color-background-base),0.5);
-  // padding:var(--spacing-xxxs);
 
   .markdown-preview {
     p,

@@ -1,24 +1,22 @@
 // @flow
 import React from 'react';
-
-import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import { useHistory } from 'react-router-dom';
 import { SIMPLE_SITE } from 'config';
 
-import { useHistory } from 'react-router-dom';
-import { COLLECTION_PAGE } from 'constants/urlParams';
-import { FormField, FormUrlName } from 'component/common/form';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
+import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import { COLLECTION_PAGE } from 'constants/urlParams';
+
+import { FormField, FormUrlName } from 'component/common/form';
 import { FormContext } from 'component/common/form-components/form';
 import TagsSelect from 'component/tagsSelect';
-
+import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
 import CollectionPublishAdditionalOptions from './internal/additionalOptions';
 
 import { lazyImport } from 'util/lazyImport';
-import Card from 'component/common/card';
 
 import './style.scss';
-// import { Card } from '@mui/material';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const TAGS_LIMIT = 5;
