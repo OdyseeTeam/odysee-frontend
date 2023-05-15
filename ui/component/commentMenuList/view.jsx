@@ -1,4 +1,5 @@
 // @flow
+import { NavLink } from 'react-router-dom';
 import { getChannelFromClaim } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { MenuList, MenuItem } from '@reach/menu-button';
@@ -206,14 +207,13 @@ function CommentMenuList(props: Props) {
       onClick={(e) => e.stopPropagation()}
     >
       {(isLiveComment || isUserLabel) && (
-        <MenuItem
-          className="comment__menu-option menu__link"
-          onSelect={() => history.push(formatLbryUrlForWeb(authorUri))}
-        >
-          <span className={'button__content'}>
-            <Icon aria-hidden icon={ICONS.CHANNEL} className={'icon'} />
-            {__('Visit')}
-          </span>
+        <MenuItem onSelect={() => history.push(formatLbryUrlForWeb(authorUri))}>
+          <NavLink className="comment__menu-option menu__link" to={formatLbryUrlForWeb(authorUri)}>
+            <span className={'button__content'}>
+              <Icon aria-hidden icon={ICONS.CHANNEL} className={'icon'} />
+              {__('Visit')}
+            </span>
+          </NavLink>
         </MenuItem>
       )}
       {isAuthenticated && isLiveComment && setQuickReply && !commentIsMine && !channelIsMine && (
