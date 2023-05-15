@@ -263,6 +263,10 @@
 }
 
 .modal--send-tip {
+  .section__subtitle {
+    margin-top: Var(--spacing-xs);
+  }
+
   svg.icon--DollarSign {
     width: 16px;
     height: 16px;
