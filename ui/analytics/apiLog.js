@@ -21,7 +21,7 @@ const Lbryio = {
       Lbryio.importPromise
         // $FlowIgnore (null promise will call loadModule)
         .then((Lbryio) => Lbryio.call(resource, action, params, method))
-        .catch((err) => assert(false, 'lbryio did not load', err))
+        .catch((err) => assert(false, `"${resource}/${action}" failed`, err))
     );
   },
 };
