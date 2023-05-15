@@ -6,6 +6,7 @@ import { isNameValid } from 'util/lbryURI';
 import { FormField } from 'component/common/form';
 import NameHelpText from './name-help-text';
 import { useIsMobile } from 'effects/use-screensize';
+import useThrottle from 'effects/use-throttle';
 
 type Props = {
   name: string,
@@ -24,7 +25,7 @@ type Props = {
 
 function PublishName(props: Props) {
   const {
-    name,
+    name: publishFormName,
     uri,
     isStillEditing,
     myClaimForUri,
@@ -35,6 +36,10 @@ function PublishName(props: Props) {
     incognito,
     currentUploads,
   } = props;
+
+  const [name, setName] = useState(publishFormName);
+  const nameThrottled = useThrottle(name, 750);
+
   const [nameError, setNameError] = useState(undefined);
   const [blurred, setBlurred] = React.useState(false);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
@@ -52,8 +57,12 @@ function PublishName(props: Props) {
   }
 
   function handleNameChange(event) {
-    updatePublishForm({ name: event.target.value });
+    setName(event.target.value);
   }
+
+  useEffect(() => {
+    updatePublishForm({ name: nameThrottled });
+  }, [nameThrottled, updatePublishForm]);
 
   useEffect(() => {
     if (!blurred && !name) {
