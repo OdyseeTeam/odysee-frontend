@@ -156,7 +156,7 @@
 
 .hyperchat-level1 {
   background-color: rgba(mix(#de0050, #ffa236, 0%), 0.08);
-  .livestream-comment__hyperchatBanner {
+  .livestream-comment__hyperchat-banner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 0%), transparent);
   }
 }
@@ -164,7 +164,7 @@
 .hyperchat-level2 {
   border: 1px solid mix(#de0050, #ffa236, 25%);
   background-color: rgba(mix(#de0050, #ffa236, 25%), 0.08);
-  .livestream-comment__hyperchatBanner {
+  .livestream-comment__hyperchat-banner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 25%), transparent);
   }
 }
@@ -172,7 +172,7 @@
 .hyperchat-level3 {
   border: 1px solid mix(#de0050, #ffa236, 50%);
   background-color: rgba(mix(#de0050, #ffa236, 50%), 0.08);
-  .livestream-comment__hyperchatBanner {
+  .livestream-comment__hyperchat-banner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 50%), transparent);
   }
 }
@@ -180,7 +180,7 @@
 .hyperchat-level4 {
   border: 1px solid mix(#de0050, #ffa236, 75%);
   background-color: rgba(mix(#de0050, #ffa236, 75%), 0.08);
-  .livestream-comment__hyperchatBanner {
+  .livestream-comment__hyperchat-banner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 75%), transparent);
   }
 }
@@ -188,7 +188,7 @@
 .hyperchat-level5 {
   border: 1px solid mix(#de0050, #ffa236, 100%);
   background-color: rgba(mix(#de0050, #ffa236, 100%), 0.08);
-  .livestream-comment__hyperchatBanner {
+  .livestream-comment__hyperchat-banner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 100%), transparent);
   }
 }
@@ -247,7 +247,7 @@
   }
 }
 
-.livestream-comment__hyperchatBanner {
+.livestream-comment__hyperchat-banner {
   @extend .hyperChat;
 
   border-radius: 0;
