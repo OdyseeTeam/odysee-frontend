@@ -206,7 +206,9 @@
   }
 
   .livestream-comment--minimal {
-    margin-top: 1px;
+    .channel-thumbnail {
+      margin-top: 1px;
+    }
   }
 
   @media (max-width: $breakpoint-small) {
