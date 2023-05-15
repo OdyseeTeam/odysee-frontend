@@ -205,6 +205,10 @@
     flex-shrink: 0;
   }
 
+  .livestream-comment--minimal {
+    margin-top: 1px;
+  }
+
   @media (max-width: $breakpoint-small) {
     margin-left: 0;
   }
