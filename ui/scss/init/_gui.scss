@@ -789,6 +789,9 @@ a {
 }
 
 .channel__selector {
+  button {
+    flex: 1;
+  }
   button:focus-visible {
     background-color: unset !important;
     box-shadow: unset !important;

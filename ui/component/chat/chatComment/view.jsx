@@ -129,19 +129,19 @@ export default function ChatComment(props: Props) {
       })}
     >
       {supportAmount > 0 && (
-        <div className="livestreamComment__hyperchatBanner">
+        <div className="livestream-comment__hyperchat-banner">
           <CreditAmount isFiat={isFiat} amount={supportAmount} hyperChat />
         </div>
       )}
 
-      <div className="livestreamComment__body">
+      <div className="livestream-comment__body">
         {false && supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
         {!isCompact || isPinned ? (
           <>
             <ChannelThumbnail uri={authorUri} xsmall />
 
-            <div className="livestreamComment__info">
-              <div className="livestreamComment__meta-information">
+            <div className="livestream-comment__info">
+              <div className="livestream-comment__meta-information">
                 <Menu>
                   <MenuButton
                     className={classnames('button--uri-indicator comment__author', {
@@ -192,7 +192,7 @@ export default function ChatComment(props: Props) {
                   <OptimizedImage src={stickerUrlFromMessage} waitLoad loading="lazy" />
                 </div>
               ) : (
-                <div className="livestreamComment__text">
+                <div className="livestream-comment__text">
                   {removed ? (
                     <Empty text={__('[Removed]')} />
                   ) : (
@@ -213,7 +213,7 @@ export default function ChatComment(props: Props) {
             </div>
           </>
         ) : (
-          <div className="livestreamComment--minimal">
+          <div className="livestream-comment--minimal">
             {showTimestamps && <DateTime date={timePosted} key={forceUpdate} />}
             {(isStreamer || isModerator || isGlobalMod || odyseeMembership) && (
               <ChannelThumbnail uri={authorUri} xxxsmall />
@@ -256,7 +256,7 @@ export default function ChatComment(props: Props) {
                 <OptimizedImage src={stickerUrlFromMessage} waitLoad loading="lazy" />
               </div>
             ) : (
-              <div className="livestreamComment__text">
+              <div className="livestream-comment__text">
                 {removed ? (
                   <Empty text={__('[Removed]')} />
                 ) : (
@@ -277,7 +277,7 @@ export default function ChatComment(props: Props) {
         )}
       </div>
 
-      <div className="livestreamComment__menu">
+      <div className="livestream-comment__menu">
         <Menu>
           <MenuButton className="menu__button" onClick={(e) => e.stopPropagation()}>
             <Icon size={18} icon={ICONS.MORE_VERTICAL} />

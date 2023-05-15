@@ -203,7 +203,7 @@ $recent-msg-button__height: 2rem;
   resize: none;
   max-width: unset;
 
-  .livestreamComments__wrapper {
+  .livestream-comments__wrapper {
     height: 95vh !important;
   }
 
@@ -253,7 +253,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestreamComments__wrapper {
+.livestream-comments__wrapper {
   display: flex;
   flex-direction: column;
 
@@ -651,7 +651,7 @@ $recent-msg-button__height: 2rem;
       margin-top: 0;
     }
 
-    .livestreamComment__body {
+    .livestream-comment__body {
       margin-left: 0;
 
       .comment__author--creator {
@@ -682,7 +682,7 @@ $recent-msg-button__height: 2rem;
         display: none;
       }
     }
-    .livestreamComment__menu {
+    .livestream-comment__menu {
       top: 8px !important;
       right: 6px !important;
       .menu__button {
@@ -697,7 +697,7 @@ $recent-msg-button__height: 2rem;
     &:hover {
       background-color: var(--color-background);
 
-      .livestreamComment__menu {
+      .livestream-comment__menu {
         .menu__button {
           background: var(--color-header-button);
         }
@@ -760,7 +760,7 @@ $recent-msg-button__height: 2rem;
     padding-left: var(--spacing-xxs);
   }
 
-  .livestreamComment__text {
+  .livestream-comment__text {
     color: var(--color-text);
     .empty__wrap {
       justify-content: left;
@@ -794,14 +794,14 @@ $recent-msg-button__height: 2rem;
       opacity: 0.9;
     }
     @media (min-width: $breakpoint-small) {
-      .livestreamComment__meta-information {
+      .livestream-comment__meta-information {
         width: calc(100% - var(--spacing-m) - 16px);
       }
     }
   }
 }
 
-.livestreamComment__meta-information {
+.livestream-comment__meta-information {
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -849,7 +849,7 @@ $recent-msg-button__height: 2rem;
   .livestream__comment {
     overflow: hidden;
 
-    .livestreamComment__body {
+    .livestream-comment__body {
       margin: 0px;
       width: 100%;
       max-height: 120px;
@@ -860,7 +860,7 @@ $recent-msg-button__height: 2rem;
       }
     }
 
-    .livestreamComment__meta-information {
+    .livestream-comment__meta-information {
       .comment__author {
         width: 100px;
         flex-grow: 1;
@@ -881,7 +881,7 @@ $recent-msg-button__height: 2rem;
   }
 
   .livestream__comment {
-    .livestreamComment__menu {
+    .livestream-comment__menu {
       position: absolute;
       top: 34px !important;
       right: 10px !important;
@@ -1140,14 +1140,14 @@ $recent-msg-button__height: 2rem;
 .livestream__comment--minimal {
   padding: 3px 0;
 
-  .livestreamComment__menu {
+  .livestream-comment__menu {
     top: 1px;
   }
 
   &.livestream__comment--hyperchat {
     padding-top: 0;
     margin-bottom: var(--spacing-xxs);
-    .livestreamComment__body {
+    .livestream-comment__body {
       margin-top: 5px;
       margin-left: 6px;
     }
@@ -1171,12 +1171,12 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestreamComment__meta-information {
+.livestream-comment__meta-information {
   width: 100%;
   min-width: 0;
 }
 
-.livestreamComment--minimal {
+.livestream-comment--minimal {
   width: 100%;
   .date_time {
     float: left;
@@ -1215,7 +1215,7 @@ $recent-msg-button__height: 2rem;
     float: left;
     margin-right: 4px;
   }
-  .livestreamComment__text {
+  .livestream-comment__text {
     width: 100%;
     padding-bottom: 0;
 
@@ -1288,7 +1288,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestreamComment__info {
+.livestream-comment__info {
   overflow: hidden;
   width: 100%;
 
@@ -1359,7 +1359,7 @@ $recent-msg-button__height: 2rem;
   @media (max-width: $breakpoint-small) {
     .livestream__chat--popout {
       border-radius: 0;
-      .livestreamComments__wrapper {
+      .livestream-comments__wrapper {
         height: calc(100vh - 50px) !important;
         /*
         .livestream__comment-create {
@@ -1372,7 +1372,7 @@ $recent-msg-button__height: 2rem;
   @media (min-width: $breakpoint-small) {
     .livestream__chat--popout {
       border-radius: 0;
-      .livestreamComments__wrapper {
+      .livestream-comments__wrapper {
         height: calc(100vh - 55px) !important;
         /*
         .livestream__comment-create {

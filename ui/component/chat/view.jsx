@@ -325,7 +325,7 @@ export default function ChatLayout(props: Props) {
           <div className="card__title-section--small livestreamDiscussion__title">{__('Livestream Chat')}</div>
         </div>
 
-        <div className="livestreamComments__wrapper">
+        <div className="livestream-comments__wrapper">
           <div className="main--empty">
             <Yrbl
               title={__('Chat Hidden')}
@@ -410,7 +410,7 @@ export default function ChatLayout(props: Props) {
         </div>
       )}
 
-      <div className="livestreamComments__wrapper">
+      <div className="livestream-comments__wrapper">
         <div
           className={classnames('livestream-comments__top-actions', {
             'livestream-comments__top-actions--mobile': isMobile,

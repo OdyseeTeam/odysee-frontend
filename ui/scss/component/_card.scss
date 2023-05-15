@@ -945,8 +945,10 @@
 }
 
 .publish-row--no-margin-select {
-  label {
-    margin-top: 0;
+  fieldset-section:first-of-type {
+    label {
+      margin-top: 0;
+    }
   }
 }
 

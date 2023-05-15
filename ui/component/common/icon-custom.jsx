@@ -1169,9 +1169,9 @@ export const icons = {
   [ICONS.FINANCE]: (props: CustomProps) => (
     <svg
       {...props}
-      width="21"
-      height="20"
-      viewBox="0 0 21 20"
+      width="18"
+      height="18"
+      viewBox="0 0 20 20"
       fill="none"
       stroke="currentColor"
       xmlns="http://www.w3.org/2000/svg"

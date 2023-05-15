@@ -304,7 +304,7 @@ export default function WalletSendTip(props: Props) {
       {/* if there is lbc, the main tip/boost gui with the 3 tabs at the top */}
       <Card
         title={titleText}
-        className={'wallet-send-tip-modal'}
+        className="modal--send-tip"
         subtitle={
           <>
             {!claimIsMine && (
