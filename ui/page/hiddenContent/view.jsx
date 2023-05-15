@@ -103,7 +103,6 @@ function HiddenContentPage(props: Props & StateProps & DispatchProps) {
             csOptions={filter === FILTER.UNLISTED ? csOptionsUnlisted : csOptionsScheduled}
             layout="list"
             pagination="infinite"
-            noUpperReleaseTimeLimit
           />
         </>
       ) : (

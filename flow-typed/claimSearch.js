@@ -2,7 +2,6 @@
 
 declare type DoClaimSearchSettings = {|
   useAutoPagination?: boolean,
-  noUpperReleaseTimeLimit?: boolean,
   fetch?: {|
     viewCount?: boolean,
   |}

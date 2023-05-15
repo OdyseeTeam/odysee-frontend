@@ -68,7 +68,6 @@ type Props = {
   empty?: string,
   feeAmount?: string,
   releaseTime?: string,
-  noUpperReleaseTimeLimit?: boolean,
   repostedClaimId?: string,
   scrollAnchor?: string,
   maxPages?: number,
@@ -181,7 +180,6 @@ function ClaimListDiscover(props: Props) {
     mutedAndBlockedChannelIds,
     limitClaimsPerChannel,
     releaseTime,
-    noUpperReleaseTimeLimit,
     scrollAnchor,
     showHiddenByUser = false,
     hasSource,
@@ -738,11 +736,10 @@ function ClaimListDiscover(props: Props) {
       const searchOptions = JSON.parse(optionsStringForEffect);
       const searchSettings = {
         ...(fetchViewCount ? { fetch: { viewCount: true } } : {}),
-        ...(noUpperReleaseTimeLimit ? { noUpperReleaseTimeLimit } : {}),
       };
       doClaimSearch(searchOptions, searchSettings);
     }
-  }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount, noUpperReleaseTimeLimit]);
+  }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh, fetchViewCount]);
 
   const headerToUse = header || (
     <ClaimListHeader

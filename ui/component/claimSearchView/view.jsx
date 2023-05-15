@@ -40,7 +40,6 @@ export type Props = {|
   pagination?: 'infinite' | 'paged',
   header?: string | Node,
   layout?: 'tile' | 'list',
-  noUpperReleaseTimeLimit?: boolean,
 |};
 
 type StateProps = {|
@@ -59,7 +58,6 @@ type DispatchProps = {|
 function ClaimSearchView(props: Props & StateProps & DispatchProps) {
   const {
     csOptions,
-    noUpperReleaseTimeLimit,
     pagination = 'infinite',
     header,
     layout = 'tile',
@@ -78,10 +76,6 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
   const scrollInfoRef = React.useRef<?ScrollInfo>();
   const containerRef = React.useRef<?HTMLDivElement>(null);
   const [page, setPage] = React.useState(1);
-
-  const csSettings = {
-    noUpperReleaseTimeLimit: noUpperReleaseTimeLimit,
-  };
 
   const hasMorePages = React.useMemo(() => {
     if (csResultsMiscInfo && csResultsMiscInfo.page && csResultsMiscInfo.totalPages) {
@@ -153,16 +147,16 @@ function ClaimSearchView(props: Props & StateProps & DispatchProps) {
       if (page !== 1) {
         setPage(1); // Covers the case of results purged while we are mounted.
       }
-      doClaimSearch({ ...csOptions, page: 1 }, csSettings);
+      doClaimSearch({ ...csOptions, page: 1 });
     } else {
       assert(csResultsMiscInfo, 'claimSearchView: previous search info missing', csResultsMiscInfo);
       const prevPage = csResultsMiscInfo && csResultsMiscInfo.page ? csResultsMiscInfo.page : null;
       const pageChanged = prevPage && page !== prevPage;
       if (pageChanged && hasMorePages) {
-        doClaimSearch({ ...csOptions, page: page }, csSettings);
+        doClaimSearch({ ...csOptions, page: page });
       }
     }
-  }, [csOptions, csResults, csResultsMiscInfo, csSettings, doClaimSearch, hasMorePages, page, pagination]);
+  }, [csOptions, csResults, csResultsMiscInfo, doClaimSearch, hasMorePages, page, pagination]);
 
   React.useEffect(() => {
     scrollInfoRef.current = { isFetching, csResults, hasMorePages };

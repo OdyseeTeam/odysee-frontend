@@ -179,7 +179,6 @@ function FileListPublished(props: Props) {
         csOptions={isUnlisted ? csOptions : csOptionsScheduled}
         layout="list"
         pagination="infinite"
-        noUpperReleaseTimeLimit
       />
     );
   }
