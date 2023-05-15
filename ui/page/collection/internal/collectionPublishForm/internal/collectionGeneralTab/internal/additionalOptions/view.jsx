@@ -13,9 +13,6 @@ import { CollectionFormContext } from 'page/collection/internal/collectionPublis
 import Button from 'component/button';
 import Card from 'component/common/card';
 import PublishBidTab from 'component/publishBidField';
-import TagsSearch from 'component/tagsSearch';
-
-const MAX_TAG_SELECT = 5;
 
 type Props = {
   // -- redux --
@@ -36,9 +33,8 @@ function CollectionPublishAdditionalOptions(props: Props) {
   const [hideSection, setHideSection] = React.useState(true);
   const [bidError, setBidError] = React.useState('');
 
-  const { languages, tags } = formParams;
+  const { languages } = formParams;
 
-  const tagNames = new Set(tags.map((tag) => tag.name));
   const languageParam = languages || [];
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
   const secondaryLanguage = Array.isArray(languageParam) && languageParam.length >= 2 && languageParam[1];
@@ -71,29 +67,7 @@ function CollectionPublishAdditionalOptions(props: Props) {
           <>
             {!hideSection && (
               <div className={classnames({ 'card--disabled': formErrors.name })}>
-                <div className="publish-row">
-                  <TagsSearch
-                    suggestMature
-                    disableAutoFocus
-                    limitSelect={MAX_TAG_SELECT}
-                    tagsPassedIn={tags || []}
-                    label={__('Selected Tags')}
-                    onRemove={(clickedTag) => {
-                      // $FlowFixMe
-                      const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                      updateFormParams({ tags: newTags });
-                    }}
-                    onSelect={(newTags) =>
-                      newTags.forEach((newTag) => {
-                        if (!tagNames.has(newTag.name)) {
-                          updateFormParams({ tags: [...tags, newTag] });
-                        }
-                      })
-                    }
-                  />
-                </div>
-
-                <div className="publish-row">
+                <div className="publish-row publish-row--no-margin-select">
                   <FormField
                     name="language_select"
                     type="select"

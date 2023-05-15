@@ -2,21 +2,26 @@
 import React from 'react';
 
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import { SIMPLE_SITE } from 'config';
 
 import { useHistory } from 'react-router-dom';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { FormField, FormUrlName } from 'component/common/form';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import { FormContext } from 'component/common/form-components/form';
+import TagsSelect from 'component/tagsSelect';
 
 import ChannelSelector from 'component/channelSelector';
 import CollectionPublishAdditionalOptions from './internal/additionalOptions';
 
 import { lazyImport } from 'util/lazyImport';
+import Card from 'component/common/card';
 
 import './style.scss';
+// import { Card } from '@mui/material';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
+const TAGS_LIMIT = 5;
 
 type Props = {
   formParams: any,
@@ -42,6 +47,9 @@ function CollectionGeneralTab(props: Props) {
   const {
     location: { search },
   } = useHistory();
+  const { tags } = formParams;
+
+  console.log('tags: ', tags);
 
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
@@ -83,7 +91,7 @@ function CollectionGeneralTab(props: Props) {
   }, [setThumbnailError, thumbError, thumbStatus]);
 
   return (
-    <div className="card card--background collection-edit-wrapper">
+    <div className="card card--background collection-edit__wrapper">
       {publishing && (
         <>
           <ChannelSelector
@@ -92,9 +100,9 @@ function CollectionGeneralTab(props: Props) {
             onChannelSelect={(id) => updateFormParams({ channel_id: id })}
           />
 
-          <div className="collection_name-wrapper">
-            <label>{__('Name')}</label>
-            <div className="collection_name">
+          <div className="collection__name-wrapper">
+            <h2>{__('Name')}</h2>
+            <div className="collection__name">
               <FormUrlName
                 channelName={collectionChannelName}
                 name={name}
@@ -113,8 +121,8 @@ function CollectionGeneralTab(props: Props) {
         </>
       )}
 
-      <div className="collection_title">
-        <label>{__('Title')}</label>
+      <div className="collection__title">
+        <h2>{__('Title')}</h2>
         <FormField
           type="text"
           name="collection_title"
@@ -134,13 +142,50 @@ function CollectionGeneralTab(props: Props) {
         />
       </fieldset-section>
 
+      <h2>{__('Description')}</h2>
       <FormField
         type="markdown"
         name="collection_description"
-        label={__('Description')}
         value={(typeof description === 'string' && description) || ''}
         onChange={(value) => updateFormParams({ description: value || '' })}
         textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
+      />
+
+      <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
+        {__('Tags')}
+      </h2>
+      <Card
+        background
+        body={
+          <div className="publish-row">
+            <TagsSelect
+              suggestMature={!SIMPLE_SITE}
+              disableAutoFocus
+              hideHeader
+              label={__('Selected Tags')}
+              empty={__('No tags added')}
+              limitSelect={TAGS_LIMIT}
+              help={__(
+                "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+              )}
+              placeholder={__('gaming, crypto')}
+              onSelect={(newTags) => {
+                const validatedTags = [];
+                newTags.forEach((newTag) => {
+                  if (!tags.some((tag) => tag.name === newTag.name)) {
+                    validatedTags.push(newTag);
+                  }
+                });
+                updateFormParams({ tags: [...tags, ...validatedTags] });
+              }}
+              onRemove={(clickedTag) => {
+                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                updateFormParams({ tags: newTags });
+              }}
+              tagsChosen={tags}
+            />
+          </div>
+        }
       />
 
       {publishing && (

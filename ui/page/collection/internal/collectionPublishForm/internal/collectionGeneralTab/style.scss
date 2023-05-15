@@ -1,12 +1,13 @@
-.collection-edit-wrapper {
-  .collection_name-wrapper {
-    label {
-      font-size: var(--font-large);
-      font-weight: var(--font-weight-bold);
-    }
-    .collection_name {
+.collection-edit__wrapper {
+  h2 {
+    font-size: var(--font-large);
+    font-weight: var(--font-weight-bold);
+    margin-top: var(--spacing-l);
+  }
+
+  .collection__name-wrapper {
+    .collection__name {
       padding: var(--spacing-s);
-      margin-bottom: var(--spacing-l);
       background-color: var(--color-header-button);
       border-radius: var(--border-radius);
       fieldset-group {
@@ -21,14 +22,9 @@
     }
   }
 
-  .collection_title {
-    label {
-      font-size: var(--font-large);
-      font-weight: var(--font-weight-bold);
-    }
+  .collection__title {
     fieldset-section {
       padding: var(--spacing-s);
-      margin-bottom: var(--spacing-l);
       background-color: var(--color-header-button) !important;
       border-radius: var(--border-radius);
       input {
@@ -40,7 +36,6 @@
   .card--thumbnail,
   .EasyMDEContainer {
     padding: var(--spacing-s);
-    margin-bottom: var(--spacing-l);
   }
   .card--thumbnail {
     background-color: var(--color-header-button);
@@ -61,10 +56,7 @@
   .form-field--SimpleMDE {
     margin-top: 0;
     .form-field__two-column {
-      label {
-        font-size: var(--font-large);
-        font-weight: var(--font-weight-bold);
-      }
+      display: none;
     }
     .EasyMDEContainer {
       background-color: var(--color-header-button);
