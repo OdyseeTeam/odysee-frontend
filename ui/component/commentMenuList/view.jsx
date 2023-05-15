@@ -232,17 +232,11 @@ function CommentMenuList(props: Props) {
       )}
 
       {/* Administration & moderation */}
-      {activeChannelIsCreator &&
-        (!commentIsMine ? (
-          <div className="comment__menu-title">
-            <Icon aria-hidden icon={ICONS.BADGE_STREAMER} className={'icon'} />
-            {__('Creator tools')}
-          </div>
-        ) : (
-          <div className="comment__menu-title no-border">{__("That's you...")}</div>
-        ))}
-      {!activeChannelIsCreator && !commentIsMine && channelIsMine && (
-        <div className="comment__menu-title">{__("That's one of your channels...")}</div>
+      {activeChannelIsCreator && !commentIsMine && (
+        <div className="comment__menu-title">
+          <Icon aria-hidden icon={ICONS.BADGE_STREAMER} className={'icon'} />
+          {__('Creator tools')}
+        </div>
       )}
       {activeChannelIsCreator && isTopLevel && (
         <MenuItem
