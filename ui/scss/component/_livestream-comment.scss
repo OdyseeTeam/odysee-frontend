@@ -69,13 +69,13 @@
   // padding: 0;
 
   &.livestream__comment--minimal {
-    .livestreamComment__menu {
+    .livestream-comment__menu {
       position: absolute;
       right: 0;
     }
   }
 
-  .livestreamComment__menu {
+  .livestream-comment__menu {
     position: relative;
     top: 4px !important;
     right: 4px !important;
@@ -113,7 +113,7 @@
     margin-bottom: var(--spacing-xxs);
   }
 
-  .livestreamComment__body {
+  .livestream-comment__body {
     display: flex;
     align-items: flex-start;
     flex-direction: unset;
@@ -134,7 +134,7 @@
   .date_time {
     opacity: 1;
   }
-  .livestreamComment__menu {
+  .livestream-comment__menu {
     position: absolute;
     top: 2px;
     right: 6px;
@@ -156,7 +156,7 @@
 
 .hyperchat-level1 {
   background-color: rgba(mix(#de0050, #ffa236, 0%), 0.08);
-  .livestreamComment__hyperchatBanner {
+  .livestream-comment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 0%), transparent);
   }
 }
@@ -164,7 +164,7 @@
 .hyperchat-level2 {
   border: 1px solid mix(#de0050, #ffa236, 25%);
   background-color: rgba(mix(#de0050, #ffa236, 25%), 0.08);
-  .livestreamComment__hyperchatBanner {
+  .livestream-comment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 25%), transparent);
   }
 }
@@ -172,7 +172,7 @@
 .hyperchat-level3 {
   border: 1px solid mix(#de0050, #ffa236, 50%);
   background-color: rgba(mix(#de0050, #ffa236, 50%), 0.08);
-  .livestreamComment__hyperchatBanner {
+  .livestream-comment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 50%), transparent);
   }
 }
@@ -180,7 +180,7 @@
 .hyperchat-level4 {
   border: 1px solid mix(#de0050, #ffa236, 75%);
   background-color: rgba(mix(#de0050, #ffa236, 75%), 0.08);
-  .livestreamComment__hyperchatBanner {
+  .livestream-comment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 75%), transparent);
   }
 }
@@ -188,12 +188,12 @@
 .hyperchat-level5 {
   border: 1px solid mix(#de0050, #ffa236, 100%);
   background-color: rgba(mix(#de0050, #ffa236, 100%), 0.08);
-  .livestreamComment__hyperchatBanner {
+  .livestream-comment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 100%), transparent);
   }
 }
 
-.livestreamComment__body {
+.livestream-comment__body {
   display: flex;
   align-items: flex-start;
   margin-left: var(--spacing-s);
@@ -210,7 +210,7 @@
   }
 }
 
-.livestreamComment__menu {
+.livestream-comment__menu {
   position: absolute;
   right: var(--spacing-s);
   top: var(--spacing-xxs);
@@ -241,7 +241,7 @@
   }
 }
 
-.livestreamComment__hyperchatBanner {
+.livestream-comment__hyperchatBanner {
   @extend .hyperChat;
 
   border-radius: 0;
@@ -267,7 +267,7 @@
   }
 }
 
-.livestreamComment__text {
+.livestream-comment__text {
   padding-right: var(--spacing-s);
   padding-bottom: var(--spacing-xxs);
   // background-color:rgba(var(--color-background-base),0.5);
