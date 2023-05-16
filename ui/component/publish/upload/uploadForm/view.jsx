@@ -22,6 +22,7 @@ import PublishDescription from 'component/publish/shared/publishDescription';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
 import PublishFile from 'component/publish/upload/publishFile';
 import PublishProtectedContent from 'component/publishProtectedContent';
 
@@ -93,6 +94,7 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   restrictedToMemberships: ?string,
+  visibility: Visibility,
 };
 
 function UploadForm(props: Props) {
@@ -135,6 +137,7 @@ function UploadForm(props: Props) {
     user,
     ytSignupPending,
     restrictedToMemberships,
+    visibility,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -208,7 +211,7 @@ function UploadForm(props: Props) {
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
   const formValid =
-    restrictedToMemberships !== null &&
+    (restrictedToMemberships !== null || visibility === 'unlisted') &&
     (isOverwritingExistingClaim
       ? false
       : editingURI && !filePath // if we're editing we don't need a file
@@ -501,6 +504,8 @@ function UploadForm(props: Props) {
               </div>
             }
           />
+
+          <PublishVisibility />
 
           <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
 

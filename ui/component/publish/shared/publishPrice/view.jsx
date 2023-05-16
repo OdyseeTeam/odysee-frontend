@@ -34,6 +34,7 @@ type Props = {
   updatePublishForm: ({}) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
+  visibility: Visibility,
 };
 
 function PublishPrice(props: Props) {
@@ -57,15 +58,16 @@ function PublishPrice(props: Props) {
     doTipAccountStatus,
     doCustomerPurchaseCost,
     disabled,
+    visibility,
   } = props;
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [fiatAllowed, setFiatAllowed] = React.useState(true);
-
+  const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
 
-  // If it's only restricted, the price can be added externally and they won't be able to change it
+  // If it's only restricted, the price can be added externally, and they won't be able to change it
   const restrictedWithoutPrice = paywall === PAYWALL.FREE && restrictedToMemberships;
 
   function clamp(value, min, max) {
@@ -332,8 +334,17 @@ function PublishPrice(props: Props) {
         title={__('Price')}
         body={
           <>
+            {expanded && paymentDisallowed && (
+              <div className="publish-price__reason">
+                {__('Payment options are not available for Unlisted or Scheduled content.')}
+              </div>
+            )}
             {expanded && (
-              <div className="settings-row">
+              <div
+                className={classnames('settings-row', {
+                  'settings-row--disabled': paymentDisallowed,
+                })}
+              >
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
                 {getPaywallOptionsRow()}
                 {paywall === PAYWALL.FIAT && (

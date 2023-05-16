@@ -1,7 +1,9 @@
 // Can't use aliases here because we're doing exports/require
 
 import { DOMAIN } from 'config';
-import * as URL from 'constants/urlParams';
+import * as URLParams from 'constants/urlParams';
+import ShortUrl from 'services/shortUrl';
+
 const PAGES = require('../constants/pages');
 const { parseURI, buildURI } = require('../util/lbryURI');
 const COLLECTIONS_CONSTS = require('../constants/collections');
@@ -115,6 +117,7 @@ export const generateEncodedLbryURL = (domain, lbryWebUrl, includeStartTime, sta
   return `${domain}/${encodedPart}`;
 };
 
+// @flow
 export const generateShareUrl = (
   domain,
   lbryUrl,
@@ -122,7 +125,8 @@ export const generateShareUrl = (
   rewardsApproved,
   includeStartTime,
   startTime,
-  listId
+  listId,
+  viewKeySigData: ChannelSignResponse
 ) => {
   let urlParams = new URLSearchParams();
   if (referralCode && rewardsApproved) {
@@ -135,6 +139,11 @@ export const generateShareUrl = (
 
   if (includeStartTime) {
     urlParams.append('t', startTime.toString());
+  }
+
+  if (viewKeySigData) {
+    urlParams.append('signature', viewKeySigData.signature);
+    urlParams.append('signature_ts', viewKeySigData.signing_ts);
   }
 
   const urlParamsString = urlParams.toString();
@@ -153,6 +162,76 @@ export const generateShareUrl = (
 
   const url = `${domain}/${lbryWebUrl}` + (urlParamsString === '' ? '' : `?${urlParamsString}`);
   return url;
+};
+
+// @flow
+export const generateShortShareUrl = async (
+  domain,
+  lbryUrl,
+  referralCode,
+  rewardsApproved,
+  includeStartTime,
+  startTime,
+  listId,
+  uriAccessKey?: UriAccessKey
+) => {
+  type Params = Array<[string, ?string]>;
+
+  const paramsToShorten: Params = [
+    ['signature', uriAccessKey ? uriAccessKey.signature : null],
+    ['signature_ts', uriAccessKey ? uriAccessKey.signature_ts : null],
+    [COLLECTIONS_CONSTS.COLLECTION_ID, listId || null],
+    ['r', referralCode && rewardsApproved ? referralCode : null],
+  ];
+
+  const paramsToRetain: Params = [
+    ['t', includeStartTime ? startTime.toString() : null],
+  ];
+
+  // -- Build base URL with claim gists:
+  const { streamName, streamClaimId, channelName, channelClaimId } = parseURI(lbryUrl);
+
+  const uriParts = {
+    ...(streamName ? { streamName: encodeWithSpecialCharEncode(streamName) } : {}),
+    ...(streamClaimId ? { streamClaimId } : {}),
+    ...(channelName ? { channelName: encodeWithSpecialCharEncode(channelName) } : {}),
+    ...(channelClaimId ? { channelClaimId } : {}),
+  };
+
+  const encodedUrl = buildURI(uriParts, false, false);
+  const lbryWebUrl = encodedUrl.replace(/#/g, ':');
+  const baseUrl = `${domain}/${lbryWebUrl}`;
+
+  // -- Append params that we want to shorten:
+  const urlToShorten = new URL(baseUrl);
+
+  paramsToShorten.forEach((p: Params) => {
+    if (p[1]) {
+      urlToShorten.searchParams.set(p[0], p[1]);
+    }
+  });
+
+  // -- Fetch the short url:
+  const shortUrl = await ShortUrl.createFrom(urlToShorten.toString())
+    .then((res: ShortUrlResponse) => {
+      return res.shortUrl;
+    })
+    .catch((err) => {
+      assert(false, 'ShortUrl api failed, returning original', err);
+      return urlToShorten.toString();
+    });
+
+  // -- Put remaining params that we want in original form:
+  const finalUrl = new URL(shortUrl);
+
+  paramsToRetain.forEach((p: Params) => {
+    if (p[1]) {
+      finalUrl.searchParams.set(p[0], p[1]);
+    }
+  });
+
+  // -- Profit
+  return finalUrl.toString();
 };
 
 export const generateRssUrl = (domain, channelClaim) => {
@@ -190,8 +269,8 @@ export const getPathForPage = (page) => `/$/${page}/`;
 
 export const getModalUrlParam = (modal, modalParams = {}) => {
   const urlParams = new URLSearchParams();
-  urlParams.set(URL.MODAL, modal);
-  urlParams.set(URL.MODAL_PARAMS, encodeURIComponent(JSON.stringify(modalParams)));
+  urlParams.set(URLParams.MODAL, modal);
+  urlParams.set(URLParams.MODAL_PARAMS, encodeURIComponent(JSON.stringify(modalParams)));
 
   const embedUrlParams = urlParams.toString();
 

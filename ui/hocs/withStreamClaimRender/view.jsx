@@ -11,6 +11,7 @@ import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
+import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
 
 type Props = {
@@ -40,6 +41,7 @@ type Props = {
   streamingUrl: any,
   isLivestreamClaim: ?boolean,
   isCurrentClaimLive: ?boolean,
+  scheduledState: ClaimScheduledState,
   playingUri: PlayingUri,
   playingCollectionId: ?string,
   pendingFiatPayment: ?boolean,
@@ -49,7 +51,7 @@ type Props = {
   channelLiveFetched: boolean,
   sourceLoaded: boolean,
   doCheckIfPurchasedClaimId: (claimId: string) => void,
-  doFileGetForUri: (uri: string) => void,
+  doFileGetForUri: (uri: string, opt?: ?FileGetOptions) => void,
   doMembershipMine: () => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
@@ -87,6 +89,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       streamingUrl,
       isLivestreamClaim,
       isCurrentClaimLive,
+      scheduledState,
       playingUri,
       playingCollectionId,
       pendingFiatPayment,
@@ -115,7 +118,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
 
-    const urlParams = search && new URLSearchParams(search);
+    const urlParams = search ? new URLSearchParams(search) : null;
     const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
 
     const collectionId =
@@ -126,6 +129,15 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
     const isAPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
+
+    const fileGetOptions: FileGetOptions = {};
+
+    if (urlParams && urlParams.get('signature') && urlParams.get('signature_ts')) {
+      fileGetOptions.uriAccessKey = {
+        signature: urlParams.get('signature') || '',
+        signature_ts: urlParams.get('signature_ts') || '',
+      };
+    }
 
     // check if there is a time or autoplay parameter, if so force autoplay
     const urlTimeParam = href && href.indexOf('t=') > -1;
@@ -255,7 +267,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
 
       if (!isLivestreamClaim) {
-        doFileGetForUri(uri);
+        doFileGetForUri(uri, fileGetOptions);
       }
       if (shouldStartFloating || !check) {
         doStartFloatingPlayingUri(playingOptions);
@@ -298,6 +310,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
               <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
             </>
           ) : null}
+          {scheduledState === 'scheduled' && <ScheduledInfo uri={uri} />}
         </ClaimCoverRender>
       );
     }

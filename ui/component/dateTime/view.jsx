@@ -5,6 +5,13 @@ import React from 'react';
 
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
 
+// ----------------------------------------------------------------------------
+// NOTE
+// Use <DateTimeClaim> to display a claim's timestamp.
+// This component will be simplified to a simple (no claim) date-time
+// component soon...
+// ----------------------------------------------------------------------------
+
 type State = {
   lastRenderTime: Date,
 };

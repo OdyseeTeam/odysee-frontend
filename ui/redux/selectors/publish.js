@@ -8,6 +8,7 @@ import {
   selectClaimsByUri,
   selectCollectionClaimPublishUpdateMetadataForId,
 } from 'redux/selectors/claims';
+import { CHANNEL_ANONYMOUS } from 'constants/claim';
 import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
 import {
   selectCollectionForId,
@@ -195,4 +196,9 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   }
 
   return collectionClaimUploadParams;
+};
+
+export const selectIsNonPublicVisibilityAllowed = (state: State) => {
+  const channel = selectPublishFormValue(state, 'channel');
+  return channel && channel !== CHANNEL_ANONYMOUS;
 };

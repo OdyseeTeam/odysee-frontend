@@ -5,6 +5,7 @@ import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
+import { isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { buildURI } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -29,6 +30,7 @@ type Props = {
   renderMode: string,
   costInfo: ?{ cost: number },
   hasChannels: boolean,
+  uriAccessKey: ?UriAccessKey,
   isLivestreamClaim: boolean,
   isPostClaim?: boolean,
   streamingUrl: ?string,
@@ -43,6 +45,7 @@ type Props = {
   isFiatRequired: boolean,
   isFiatPaid: ?boolean,
   isTierUnlocked: boolean,
+  scheduledState: ClaimScheduledState,
 };
 
 export default function FileActions(props: Props) {
@@ -54,6 +57,7 @@ export default function FileActions(props: Props) {
     renderMode,
     hasChannels,
     hideRepost,
+    uriAccessKey,
     isLivestreamClaim,
     isPostClaim,
     streamingUrl,
@@ -68,6 +72,7 @@ export default function FileActions(props: Props) {
     isFiatRequired,
     isFiatPaid,
     isTierUnlocked,
+    scheduledState,
   } = props;
 
   const {
@@ -82,13 +87,21 @@ export default function FileActions(props: Props) {
   const channelName = signingChannel && signingChannel.name;
   const fileName = value && value.source && value.source.name;
   const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
+  const isUnlistedOrPrivate = isClaimUnlisted(claim) || isClaimPrivate(claim);
 
   const webShareable = costInfo && costInfo.cost === 0 && RENDER_MODES.WEB_SHAREABLE_MODES.includes(renderMode);
   const urlParams = new URLSearchParams(search);
   const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
-  const unauthorizedToDownload = isFiatRequired || isProtectedContent;
-  const showDownload = !isLivestreamClaim && !disableDownloadButton && !isMature && !unauthorizedToDownload;
+  const showDownload =
+    !isLivestreamClaim &&
+    !disableDownloadButton &&
+    !isMature &&
+    !isFiatRequired &&
+    !isProtectedContent &&
+    scheduledState === 'non-scheduled' &&
+    !isUnlistedOrPrivate;
+
   const showRepost = !hideRepost && !isLivestreamClaim;
 
   // We want to use the short form uri for editing
@@ -120,10 +133,10 @@ export default function FileActions(props: Props) {
 
   React.useEffect(() => {
     if (downloadClicked && streamingUrl) {
-      webDownloadClaim(streamingUrl, fileName);
+      webDownloadClaim(streamingUrl, fileName, false, uriAccessKey);
       setDownloadClicked(false);
     }
-  }, [downloadClicked, streamingUrl, fileName]);
+  }, [downloadClicked, streamingUrl, fileName, uriAccessKey]);
 
   function handleRepostClick() {
     if (!hasChannels) {

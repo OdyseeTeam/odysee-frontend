@@ -76,6 +76,7 @@ type Props = {
   creatorsMemberships: Array<Membership>,
   chatCommentsRestrictedToChannelMembers: boolean,
   isAChannelMember: boolean,
+  scheduledState: ClaimScheduledState,
 };
 
 export default function CommentList(props: Props) {
@@ -113,6 +114,7 @@ export default function CommentList(props: Props) {
     doFetchChannelMembershipsForChannelIds,
     chatCommentsRestrictedToChannelMembers,
     isAChannelMember,
+    scheduledState,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -392,6 +394,11 @@ export default function CommentList(props: Props) {
     changeSort,
     handleRefresh: refreshComments,
   };
+
+  if (scheduledState === 'scheduled') {
+    // Not ready yet, so hide it.
+    return null;
+  }
 
   return (
     <Card

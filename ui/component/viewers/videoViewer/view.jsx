@@ -29,6 +29,7 @@ import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
+import { isClaimUnlisted } from 'util/claim';
 import { platform } from 'util/platform';
 import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
@@ -619,6 +620,7 @@ function VideoViewer(props: Props) {
           isPurchasableContent={isPurchasableContent}
           isRentableContent={isRentableContent}
           isProtectedContent={isProtectedContent}
+          isUnlisted={isClaimUnlisted(claim)}
           doSetVideoSourceLoaded={doSetVideoSourceLoaded}
         />
       </div>

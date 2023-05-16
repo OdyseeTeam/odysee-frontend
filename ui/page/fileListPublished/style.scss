@@ -1,0 +1,23 @@
+.flp__header {
+  display: flex;
+  margin-bottom: var(--spacing-m);
+}
+
+.flp__refresh {
+  margin-left: auto;
+}
+
+.flp__advisory {
+  display: flex;
+  margin: var(--spacing-m) 0;
+  padding: var(--spacing-s);
+  font-size: var(--font-small);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-card-background-highlighted);
+  color: var(--color-text);
+
+  p {
+    margin-left: var(--spacing-s);
+  }
+}

@@ -3,6 +3,7 @@ import {
   selectClaimForUri,
   selectClaimIsMine,
   selectFetchingMyChannels,
+  selectScheduledStateForUri,
   selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import {
@@ -63,6 +64,7 @@ const select = (state, props) => {
     topLevelComments: selectTopLevelCommentsForUri(state, uri),
     topLevelTotalPages: makeSelectTopLevelTotalPagesForUri(uri)(state),
     totalComments: selectTotalCommentsCountForUri(state, uri),
+    scheduledState: selectScheduledStateForUri(state, uri),
   };
 };
 

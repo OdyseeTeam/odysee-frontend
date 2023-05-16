@@ -24,6 +24,12 @@ $INDENT: var(--spacing-xl);
   }
 }
 
+.publish-price__reason {
+  padding: var(--spacing-m) var(--spacing-m);
+  font-size: var(--font-small);
+  color: var(--color-text-warning);
+}
+
 .publish-price__row {
   display: flex;
   flex-direction: column;

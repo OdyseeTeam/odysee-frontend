@@ -3,21 +3,22 @@ import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
+import { isClaimAllowedForCollection } from 'util/collections';
 
 type Props = {
   uri: string,
-  // redux
-  streamType: Claim,
+  // --- internal ---
+  claim: ?StreamClaim,
   isSaved: boolean,
   doOpenModal: (id: string, {}) => void,
 };
 
 function ClaimCollectionAddButton(props: Props) {
-  const { uri, streamType, isSaved, doOpenModal } = props;
+  const { uri, claim, isSaved, doOpenModal } = props;
 
-  const isPlayable = streamType === 'video' || streamType === 'audio';
-
-  if (!isPlayable) return null;
+  if (!isClaimAllowedForCollection(claim)) {
+    return null;
+  }
 
   return (
     <FileActionButton

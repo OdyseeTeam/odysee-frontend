@@ -11,78 +11,122 @@ import Spinner from 'component/spinner';
 import { generateDownloadUrl, generateNewestUrl } from 'util/web';
 import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { hmsToSeconds, secondsToHms } from 'util/time';
 import {
   generateLbryContentUrl,
   generateLbryWebUrl,
   generateEncodedLbryURL,
-  generateShareUrl,
+  generateShortShareUrl,
   generateRssUrl,
 } from 'util/url';
-import { URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
+import { URL as SITE_URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
 
-const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
+const SHARE_DOMAIN = SHARE_DOMAIN_URL || SITE_URL;
 const IOS = !!navigator.platform && /iPad|iPhone|iPod/.test(navigator.platform);
 const SUPPORTS_SHARE_API = typeof navigator.share !== 'undefined';
 
 // Twitter share
 const TWITTER_INTENT_API = 'https://twitter.com/intent/tweet?';
 
-type Props = {
+// ****************************************************************************
+// ****************************************************************************
+
+type SpinnerStateProps = {|
+  uri: string,
+  claim: StreamClaim,
+  inviteStatusFetched: boolean,
+|};
+
+type SpinnerDispatchProps = {|
+  doFetchInviteStatus: (boolean) => void,
+  doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
+|};
+
+type SocialShareStateProps = {|
   claim: StreamClaim,
   title: ?string,
   webShareable: boolean,
-  inviteStatusFetched: boolean,
   referralCode: string,
   user: any,
   position: number,
   collectionId?: number,
-  doFetchInviteStatus: (boolean) => void,
   disableDownloadButton: boolean,
   isMature: boolean,
   isMembershipProtected: boolean,
   isFiatRequired: boolean,
-};
+  uriAccessKey: ?UriAccessKey,
+|};
 
-function SocialShare(props: Props) {
+// ****************************************************************************
+// withLoadingSpinner
+// ****************************************************************************
+
+const FETCHING_ACCESS_KEY = -1;
+
+function withSpinner(Component: (props: any) => React$Element<any>) {
+  return function LoadingSpinner(props: SpinnerStateProps & SpinnerDispatchProps) {
+    const { uri, claim, inviteStatusFetched, doFetchInviteStatus, doFetchUriAccessKey } = props;
+    const [accessKey, setAccessKey] = React.useState(FETCHING_ACCESS_KEY);
+
+    React.useEffect(() => {
+      if (!inviteStatusFetched) {
+        doFetchInviteStatus(false);
+      }
+    }, [inviteStatusFetched, doFetchInviteStatus]);
+
+    React.useEffect(() => {
+      doFetchUriAccessKey(uri)
+        .then((accessKey: ?UriAccessKey) => setAccessKey(accessKey))
+        .catch();
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+    }, []);
+
+    if (!claim) {
+      return null;
+    } else if (!inviteStatusFetched || accessKey === FETCHING_ACCESS_KEY) {
+      return (
+        <div className="main--empty">
+          <Spinner />
+        </div>
+      );
+    }
+
+    const componentProps = { ...props, uriAccessKey: accessKey };
+
+    return <Component {...componentProps} />;
+  };
+}
+
+// ****************************************************************************
+// SocialShare
+// ****************************************************************************
+
+function SocialShare(props: SocialShareStateProps) {
   const {
     claim,
     title,
-    inviteStatusFetched,
     referralCode,
     user,
     webShareable,
     position,
     collectionId,
-    doFetchInviteStatus,
     disableDownloadButton,
     isMature,
     isMembershipProtected,
     isFiatRequired,
+    uriAccessKey,
   } = props;
+
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
   const [showClaimLinks, setShowClaimLinks] = React.useState(false);
   const [includeStartTime, setincludeStartTime]: [boolean, any] = React.useState(false);
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
+  const showAdditionalShareOptions =
+    !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) === 'non-scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
-
-  React.useEffect(() => {
-    if (!inviteStatusFetched) {
-      doFetchInviteStatus(false);
-    }
-  }, [inviteStatusFetched, doFetchInviteStatus]);
-
-  if (!claim) {
-    return null;
-  } else if (!inviteStatusFetched) {
-    return (
-      <div className="main--empty">
-        <Spinner />
-      </div>
-    );
-  }
 
   const { canonical_url: canonicalUrl, permanent_url: permanentUrl, name, claim_id: claimId } = claim;
   const isChannel = claim.value_type === 'channel';
@@ -103,15 +147,7 @@ function SocialShare(props: Props) {
     startTimeSeconds,
     includedCollectionId
   );
-  const shareUrl: string = generateShareUrl(
-    SHARE_DOMAIN,
-    lbryUrl,
-    referralCode,
-    rewardsApproved,
-    includeStartTime,
-    startTimeSeconds,
-    includedCollectionId
-  );
+  const [shareUrl, setShareUrl] = React.useState('');
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
   const claimLinkElements: Array<Node> = getClaimLinkElements();
 
@@ -170,6 +206,44 @@ function SocialShare(props: Props) {
     return elements;
   }
 
+  React.useEffect(() => {
+    if (shareUrl) {
+      const url = new URL(shareUrl);
+
+      if (includeStartTime) {
+        url.searchParams.set('t', startTimeSeconds.toString());
+      } else {
+        url.searchParams.delete('t');
+      }
+
+      setShareUrl(url.toString());
+    }
+  }, [includeStartTime, shareUrl, startTimeSeconds]);
+
+  React.useEffect(() => {
+    generateShortShareUrl(
+      SHARE_DOMAIN,
+      lbryUrl,
+      referralCode,
+      rewardsApproved,
+      includeStartTime,
+      startTimeSeconds,
+      includedCollectionId,
+      uriAccessKey
+    )
+      .then((result) => setShareUrl(result))
+      .catch((err) => assert(false, 'SocialShare', err));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+  }, []);
+
+  if (!shareUrl) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
+  }
+
   return (
     <React.Fragment>
       <CopyableText copyable={shareUrl} />
@@ -202,116 +276,119 @@ function SocialShare(props: Props) {
           />
         </div>
       )}
-      <div className="section__actions">
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.TWITTER}
-          title={__('Share on Twitter')}
-          href={tweetIntent}
-        />
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.FACEBOOK}
-          title={__('Share on Facebook')}
-          target="_blank"
-          href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
-        />
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.REDDIT}
-          title={__('Share on Reddit')}
-          target="_blank"
-          href={`https://reddit.com/submit?url=${encodedLbryURL}`}
-        />
-        {!isMobile ? (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.WHATSAPP}
-            title={__('Share on WhatsApp')}
-            target="_blank"
-            href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
-          />
-        ) : (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.WHATSAPP}
-            title={__('Share on WhatsApp')}
-            href={`whatsapp://send?text=${encodedLbryURL}`}
-          />
-        )}
-        {!IOS ? (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.TELEGRAM}
-            title={__('Share on Telegram')}
-            target="_blank"
-            href={`https://t.me/share/url?url=${encodedLbryURL}`}
-          />
-        ) : (
-          // Only ios client supports share urls
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.TELEGRAM}
-            title={__('Share on Telegram')}
-            href={`tg://msg_url?url=${encodedLbryURL}&amp;text=text`}
-          />
-        )}
-        {webShareable && !isCollection && (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.EMBED}
-            title={__('Embed this content')}
-            onClick={() => {
-              setShowEmbed(!showEmbed);
-              setShowClaimLinks(false);
-            }}
-          />
-        )}
-        {claimLinkElements.length > 0 && (
-          <Button
-            className="share"
-            iconSize={24}
-            icon={ICONS.SHARE_LINK}
-            title={__('Links')}
-            onClick={() => {
-              setShowClaimLinks(!showClaimLinks);
-              setShowEmbed(false);
-            }}
-          />
-        )}
-      </div>
-
-      {SUPPORTS_SHARE_API && isMobile && (
-        <div className="section__actions">
-          <Button icon={ICONS.SHARE} button="primary" label={__('Share via...')} onClick={handleWebShareClick} />
-        </div>
+      {showAdditionalShareOptions && (
+        <>
+          <div className="section__actions">
+            <Button
+              className="share"
+              iconSize={24}
+              icon={ICONS.TWITTER}
+              title={__('Share on Twitter')}
+              href={tweetIntent}
+            />
+            <Button
+              className="share"
+              iconSize={24}
+              icon={ICONS.FACEBOOK}
+              title={__('Share on Facebook')}
+              target="_blank"
+              href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
+            />
+            <Button
+              className="share"
+              iconSize={24}
+              icon={ICONS.REDDIT}
+              title={__('Share on Reddit')}
+              target="_blank"
+              href={`https://reddit.com/submit?url=${encodedLbryURL}`}
+            />
+            {!isMobile ? (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.WHATSAPP}
+                title={__('Share on WhatsApp')}
+                target="_blank"
+                href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
+              />
+            ) : (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.WHATSAPP}
+                title={__('Share on WhatsApp')}
+                href={`whatsapp://send?text=${encodedLbryURL}`}
+              />
+            )}
+            {!IOS ? (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.TELEGRAM}
+                title={__('Share on Telegram')}
+                target="_blank"
+                href={`https://t.me/share/url?url=${encodedLbryURL}`}
+              />
+            ) : (
+              // Only ios client supports share urls
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.TELEGRAM}
+                title={__('Share on Telegram')}
+                href={`tg://msg_url?url=${encodedLbryURL}&amp;text=text`}
+              />
+            )}
+            {webShareable && !isCollection && (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.EMBED}
+                title={__('Embed this content')}
+                onClick={() => {
+                  setShowEmbed(!showEmbed);
+                  setShowClaimLinks(false);
+                }}
+              />
+            )}
+            {claimLinkElements.length > 0 && (
+              <Button
+                className="share"
+                iconSize={24}
+                icon={ICONS.SHARE_LINK}
+                title={__('Links')}
+                onClick={() => {
+                  setShowClaimLinks(!showClaimLinks);
+                  setShowEmbed(false);
+                }}
+              />
+            )}
+          </div>
+          {SUPPORTS_SHARE_API && isMobile && (
+            <div className="section__actions">
+              <Button icon={ICONS.SHARE} button="primary" label={__('Share via...')} onClick={handleWebShareClick} />
+            </div>
+          )}
+          {showEmbed &&
+            (!isChannel ? (
+              <EmbedTextArea
+                label={__('Embedded')}
+                claim={claim}
+                includeStartTime={includeStartTime}
+                startTime={startTimeSeconds}
+                referralCode={referralCode}
+              />
+            ) : (
+              <>
+                <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
+                <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
+              </>
+            ))}
+          {showClaimLinks && <div className="section">{claimLinkElements}</div>}
+        </>
       )}
-      {showEmbed &&
-        (!isChannel ? (
-          <EmbedTextArea
-            label={__('Embedded')}
-            claim={claim}
-            includeStartTime={includeStartTime}
-            startTime={startTimeSeconds}
-            referralCode={referralCode}
-          />
-        ) : (
-          <>
-            <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
-            <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
-          </>
-        ))}
-      {showClaimLinks && <div className="section">{claimLinkElements}</div>}
     </React.Fragment>
   );
 }
 
-export default SocialShare;
+export default withSpinner(SocialShare);

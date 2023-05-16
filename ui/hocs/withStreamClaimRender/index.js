@@ -12,6 +12,7 @@ import {
   selectIsStreamPlaceholderForUri,
   selectPendingFiatPaymentForUri,
   selectSdkFeePendingForUri,
+  selectScheduledStateForUri,
   // selectClaimWasPurchasedForUri,
   // selectIsFiatPaidForUri,
 } from 'redux/selectors/claims';
@@ -58,6 +59,7 @@ const select = (state, props) => {
     streamingUrl: selectStreamingUrlForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
+    scheduledState: selectScheduledStateForUri(state, uri),
     playingUri: selectPlayingUri(state),
     playingCollectionId: selectPlayingCollectionId(state),
     pendingFiatPayment: selectPendingFiatPaymentForUri(state, uri),

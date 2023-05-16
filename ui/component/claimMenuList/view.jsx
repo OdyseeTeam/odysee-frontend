@@ -12,11 +12,13 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-import { generateShareUrl, generateRssUrl, generateLbryContentUrl } from 'util/url';
+import { generateShareUrl, generateRssUrl, generateLbryContentUrl, generateShortShareUrl } from 'util/url';
 import { useHistory } from 'react-router';
+import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
+import { isClaimAllowedForCollection } from 'util/collections';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 
@@ -50,6 +52,7 @@ type Props = {
   claimInCollection: boolean,
   collectionId: string,
   isMyCollection: boolean,
+  isUnlisted: boolean,
   isLivestreamClaim?: boolean,
   isPostClaim?: boolean,
   fypId?: string,
@@ -71,6 +74,7 @@ type Props = {
   collectionEmpty: boolean,
   doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
   isContentProtectedAndLocked: boolean,
+  doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
 };
 
 function ClaimMenuList(props: Props) {
@@ -97,6 +101,7 @@ function ClaimMenuList(props: Props) {
     hasClaimInFavorites,
     collectionId,
     isMyCollection,
+    isUnlisted,
     isLivestreamClaim,
     isPostClaim,
     fypId,
@@ -118,6 +123,7 @@ function ClaimMenuList(props: Props) {
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
     isContentProtectedAndLocked,
+    doFetchUriAccessKey,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -148,15 +154,9 @@ function ClaimMenuList(props: Props) {
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl);
   const rssUrl: string = isChannel ? generateRssUrl(SHARE_DOMAIN, claim) : '';
   const isCollectionClaim = claim && claim.value_type === 'collection';
-  // $FlowFixMe
-  const isPlayable =
-    contentClaim &&
-    // $FlowFixMe
-    contentClaim.value &&
-    // $FlowFixMe
-    contentClaim.value.stream_type &&
-    // $FlowFixMe
-    (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
+
+  // $FlowFixMe: claims not typed right
+  const showCollectionContext = isClaimAllowedForCollection(contentClaim);
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
     const itemUrl = contentClaim?.permanent_url;
@@ -256,7 +256,33 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleCopyLink() {
-    copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
+    const claimId = claim?.claim_id;
+    const channelId = getChannelIdFromClaim(claim);
+    if (claimIsMine && isUnlisted && channelId && claimId) {
+      doFetchUriAccessKey(uri)
+        .then((accessKey: ?UriAccessKey) => {
+          if (accessKey === null) {
+            throw new Error();
+          } else {
+            generateShortShareUrl(SHARE_DOMAIN, lbryUrl, null, null, false, null, null, accessKey)
+              .then((result) => {
+                copyToClipboard(result, 'Unlisted link copied.', 'Failed to copy link.');
+              })
+              .catch((err) => {
+                assert(false, 'ClaimMenuList', err);
+              });
+          }
+        })
+        .catch(() => {
+          doToast({
+            message: __('Failed to generate unlisted URL.'),
+            subMessage: __('Please try again later.'),
+            duration: 'long',
+          });
+        });
+    } else {
+      copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
+    }
   }
 
   function handleReportContent() {
@@ -345,7 +371,7 @@ function ClaimMenuList(props: Props) {
               )}
             </>
           ) : (
-            isPlayable && (
+            showCollectionContext && (
               <>
                 {/* QUEUE */}
                 {contentClaim && <ButtonAddToQueue uri={contentClaim.permanent_url} menuItem />}
@@ -537,7 +563,6 @@ function ClaimMenuList(props: Props) {
           >
             <NavLink
               className="menu__link"
-              // $FlowFixMe
               to={{ pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '' }}
               target={isEmbed && '_blank'}
             >

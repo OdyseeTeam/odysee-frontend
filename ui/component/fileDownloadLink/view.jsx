@@ -3,6 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import React, { useState } from 'react';
 import Button from 'component/button';
+import { isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { webDownloadClaim } from 'util/downloadClaim';
 
 type Props = {
@@ -23,6 +24,7 @@ type Props = {
   streamingUrl: ?string,
   contentRestrictedFromUser: boolean,
   isProtectedContent: boolean,
+  uriAccessKey: ?UriAccessKey,
 };
 
 function FileDownloadLink(props: Props) {
@@ -44,19 +46,21 @@ function FileDownloadLink(props: Props) {
     streamingUrl,
     contentRestrictedFromUser,
     isProtectedContent,
+    uriAccessKey,
   } = props;
 
   const [didClickDownloadButton, setDidClickDownloadButton] = useState(false);
   const fileName = claim && claim.value && claim.value.source && claim.value.source.name;
+  const isPrivateOrUnlisted = isClaimUnlisted(claim) || isClaimPrivate(claim);
 
   // @if TARGET='web'
   // initiate download when streamingUrl is available
   React.useEffect(() => {
     if (didClickDownloadButton && streamingUrl) {
-      webDownloadClaim(streamingUrl, fileName, isProtectedContent);
+      webDownloadClaim(streamingUrl, fileName, isProtectedContent, uriAccessKey);
       setDidClickDownloadButton(false);
     }
-  }, [streamingUrl, didClickDownloadButton, fileName, isProtectedContent]);
+  }, [streamingUrl, didClickDownloadButton, fileName, isProtectedContent, uriAccessKey]);
   // @endif
 
   function handleDownload(e) {
@@ -121,7 +125,7 @@ function FileDownloadLink(props: Props) {
         onClick={handleDownload}
         aria-hidden={!focusable}
         tabIndex={focusable ? 0 : -1}
-        disabled={contentRestrictedFromUser}
+        disabled={contentRestrictedFromUser || isPrivateOrUnlisted}
       />
     </>
   );

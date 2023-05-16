@@ -1,0 +1,15 @@
+.file-visibility {
+  margin-left: var(--spacing-s);
+  padding: 0 var(--spacing-xs);
+  border-radius: 3px;
+  border: 1px solid var(--color-border);
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  background-color: var(--color-visibility-label);
+  max-height: 1.3rem;
+  white-space: nowrap;
+
+  svg {
+    margin-right: var(--spacing-xxs);
+  }
+}

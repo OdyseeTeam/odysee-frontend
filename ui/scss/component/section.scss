@@ -366,6 +366,11 @@
   }
 }
 
+.settings-row--disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 /*
 .card__main-actions.settings-row {
   @media (max-width: $breakpoint-small) {

@@ -77,6 +77,7 @@ function HomeTabSection(props: Props) {
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
   const featuredChannel = featuredChannels && featuredChannels.find((list) => list.id === section.claim_id);
   const hasFeaturedClaim = singleClaimUri || (claimSearchResults && claimSearchResults[0]) || section.claim_id;
+  const scheduledChanIds = React.useMemo(() => [channelClaimId], [channelClaimId]);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
@@ -220,7 +221,7 @@ function HomeTabSection(props: Props) {
   return (
     <div className="home-section-content">
       {!editMode && index === 0 && (
-        <ScheduledStreams channelIds={[channelClaimId]} tileLayout={false} showHideSetting={false} />
+        <ScheduledStreams name="homeTab" channelIds={scheduledChanIds} tileLayout={false} showHideSetting={false} />
       )}
       {editMode && (
         <div className="home-section-header-wrapper">

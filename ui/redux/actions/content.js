@@ -7,9 +7,12 @@ import * as PAGES from 'constants/pages';
 import { COL_TYPES } from 'constants/collections';
 import { push } from 'connected-react-router';
 import { doOpenModal, doAnalyticsViewForUri } from 'redux/actions/app';
+import { getChannelIdFromClaim, isClaimUnlisted } from 'util/claim';
+import { toHex } from 'util/hex';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import {
   makeSelectClaimForUri,
+  selectClaimIsMine,
   selectClaimIsMineForUri,
   selectClaimWasPurchasedForUri,
   selectPermanentUrlForUri,
@@ -652,3 +655,48 @@ export const doSetShowAutoplayCountdownForUri =
   ({ uri, show }: { uri: ?string, show: ?boolean }) =>
   (dispatch: Dispatch) =>
     uri && dispatch({ type: ACTIONS.SHOW_AUTOPLAY_COUNTDOWN, data: { uri, show } });
+
+/**
+ * Signs the claim ID to produce the access key for unlisted claims.
+ * Cached result could be returned.
+ *
+ * The result is returned through the promise as a convenience (anti-pattern?).
+ *
+ * @param uri
+ * @returns {undefined|null|UriAccessKey} = undefined="claim does not require a key"; null="API failed";
+ */
+export function doFetchUriAccessKey(uri: string) {
+  return async (dispatch: Dispatch, getState: GetState): Promise<?UriAccessKey> => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    const claimIsMine = selectClaimIsMine(state, claim);
+    const isUnlisted = isClaimUnlisted(claim);
+    const cachedKey: ?UriAccessKey = state.content.uriAccessKeys[uri];
+
+    if (cachedKey) {
+      return cachedKey;
+    }
+
+    if (!claim) {
+      assert(false, 'uri not resolved?', uri);
+      return null;
+    }
+
+    if (!claimIsMine || !isUnlisted) {
+      return undefined;
+    }
+
+    const claimId = claim.claim_id;
+    const channelId = getChannelIdFromClaim(claim);
+
+    try {
+      const sigData: ChannelSignResponse = await Lbry.channel_sign({ channel_id: channelId, hexdata: toHex(claimId) });
+      const accessKey: UriAccessKey = { signature: sigData.signature, signature_ts: sigData.signing_ts };
+      dispatch({ type: ACTIONS.SAVE_URI_ACCESS_KEY, data: { uri, accessKey } });
+      return accessKey;
+    } catch {
+      assert(false, 'Failed to sign claim id', uri);
+      return null;
+    }
+  };
+}

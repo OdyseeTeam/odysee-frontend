@@ -18,7 +18,9 @@ type Props = {
   uploadThumbnailStatus: string,
   thumbnail: string,
   thumbnailError: boolean,
+  releaseTimeError: ?string,
   restrictedToMemberships: ?string,
+  visibility: Visibility,
 };
 
 function PublishFormErrors(props: Props) {
@@ -33,9 +35,11 @@ function PublishFormErrors(props: Props) {
     uploadThumbnailStatus,
     thumbnail,
     thumbnailError,
+    releaseTimeError,
     waitForFile,
     overMaxBitrate,
     restrictedToMemberships,
+    visibility,
   } = props;
   // These are extra help
   // If there is an error it will be presented as an inline error as well
@@ -46,7 +50,7 @@ function PublishFormErrors(props: Props) {
   return (
     <div className="error__text">
       {waitForFile && <div>{__('Choose a replay file, or select None')}</div>}
-      {restrictedToMemberships === null && (
+      {visibility !== 'unlisted' && restrictedToMemberships === null && (
         <div>
           {__(
             "You selected to restrict this content but didn't choose any memberships, please choose a membership tier to restrict, or uncheck the restriction box"
@@ -66,6 +70,7 @@ function PublishFormErrors(props: Props) {
         thumbnailError && !thumbnailUploaded && <div>{__('Thumbnail is invalid.')}</div>
       )}
       {editingURI && !isStillEditing && !filePath && <div>{__('Please reselect a file after changing the URL')}</div>}
+      {releaseTimeError && <div>{__(releaseTimeError)}</div>}
     </div>
   );
 }

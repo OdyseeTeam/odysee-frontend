@@ -1,8 +1,9 @@
 // @flow
 import React from 'react';
-import DateTime from 'component/dateTime';
+import DateTimeClaim from 'component/dateTimeClaim';
 import FileViewCount from 'component/fileViewCount';
 import FileActions from 'component/fileActions';
+import FileVisibility from 'component/fileVisibility';
 import ClaimPreviewReset from 'component/claimPreviewReset';
 import LivestreamDateTime from 'component/livestreamDateTime';
 import * as ICONS from 'constants/icons';
@@ -22,9 +23,11 @@ function FileSubtitle(props: Props) {
       <div className="media__subtitle--between">
         <div className="file__viewdate">
           <Icon icon={ICONS.TIME} />
-          {isLivestreamClaim ? <LivestreamDateTime uri={uri} /> : <DateTime uri={uri} type="date" />}
+          {isLivestreamClaim && <LivestreamDateTime uri={uri} />}
+          {!isLivestreamClaim && <DateTimeClaim uri={uri} format="date-only" disableFromNowFormat />}
           <Icon icon={ICONS.INVITE} />
           {contentUnlocked && <FileViewCount uri={uri} />}
+          <FileVisibility uri={uri} />
         </div>
 
         <FileActions uri={uri} hideRepost={isLivestreamClaim} livestream={isLivestreamClaim} />

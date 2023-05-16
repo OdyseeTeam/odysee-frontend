@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import { Modal } from 'modal/modal';
+import FileVisibility from 'component/fileVisibility';
 import SocialShare from 'component/socialShare';
 import Card from 'component/common/card';
 
@@ -18,7 +19,12 @@ class ModalSocialShare extends React.PureComponent<Props> {
       <Modal isOpen onAborted={closeModal} type="card">
         <Card
           className="card--share"
-          title={__('Share')}
+          title={
+            <>
+              {__('Share')}
+              <FileVisibility uri={uri} />
+            </>
+          }
           actions={<SocialShare uri={uri} webShareable={webShareable} collectionId={collectionId} />}
         />
       </Modal>

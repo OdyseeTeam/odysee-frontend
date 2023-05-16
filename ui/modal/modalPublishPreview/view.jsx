@@ -63,6 +63,8 @@ type Props = {
   tiersWithExclusiveLivestream: MembershipTiers,
   myMembershipTiers: MembershipTiers,
   restrictingTiers: string,
+  visibility: Visibility,
+  scheduledShow: boolean,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
@@ -108,6 +110,8 @@ const ModalPublishPreview = (props: Props) => {
     tiersWithExclusiveLivestream,
     myMembershipTiers,
     restrictingTiers,
+    visibility,
+    scheduledShow,
   } = props;
 
   const livestream =
@@ -338,6 +342,24 @@ const ModalPublishPreview = (props: Props) => {
     return null;
   }
 
+  function hideTierRestrictions() {
+    return !tiers || !restrictingTiers || visibility === 'unlisted';
+  }
+
+  function getVisibilityValue() {
+    switch (visibility) {
+      case 'public':
+        return __('Public');
+      case 'scheduled':
+        return __(scheduledShow ? 'Scheduled (show in Upcoming section)' : 'Scheduled (hide from Upcoming section)');
+      case 'unlisted':
+        return __('Unlisted');
+      default:
+        assert(false);
+        return '';
+    }
+  }
+
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
@@ -394,11 +416,12 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(__('Channel'), getChannelValue(channel))}
                     {createRow(__('URL'), formattedUri)}
                     {createRow(__('Deposit'), getDeposit())}
-                    {createRow(getPriceLabel(), getPriceValue())}
+                    {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
-                    {releaseTime && createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime))}
+                    {createRow(__('Visibility'), getVisibilityValue())}
+                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime), !releaseTime)}
                     {createRow(__('License'), getLicense())}
-                    {createRow(__('Restricted to'), getTierRestrictionValue(), !tiers || !restrictingTiers)}
+                    {createRow(__('Restricted to'), getTierRestrictionValue(), hideTierRestrictions())}
                     {createRow(__('Tags'), getTagsValue(tags))}
                   </tbody>
                 </table>

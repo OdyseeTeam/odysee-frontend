@@ -21,6 +21,7 @@ const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anon
 // @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
   editingURI: undefined,
+  claimToEdit: undefined,
   fileText: '',
   filePath: undefined,
   fileDur: 0,
@@ -47,6 +48,7 @@ const defaultState: PublishState = {
   description: '',
   language: '',
   releaseTime: undefined,
+  releaseTimeDisabled: false,
   releaseTimeError: undefined,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
@@ -68,16 +70,89 @@ const defaultState: PublishState = {
   isMarkdownPost: false,
   isLivestreamPublish: false,
   replaySource: 'keep',
+  visibility: 'public',
+  scheduledShow: false,
 };
 
 export const publishReducer = handleActions(
   {
-    [ACTIONS.UPDATE_PUBLISH_FORM]: (state, action): PublishState => {
+    [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: DoUpdatePublishForm): PublishState => {
       const { data } = action;
-      return {
-        ...state,
-        ...data,
-      };
+      const auto = {};
+
+      // --- Resolve PublishState based on the incoming changes ---------------
+      // data -> incoming changes (partial PublishState)
+      // state -> current PublishState
+      // auto -> any related states that needs to be adjusted per new input
+      // ----------------------------------------------------------------------
+
+      const getValue = (stateName: string) => (data.hasOwnProperty(stateName) ? data[stateName] : state[stateName]);
+
+      // -- releaseTimeDisabled
+      if (data.hasOwnProperty('visibility')) {
+        switch (data.visibility) {
+          case 'public':
+          case 'scheduled':
+            auto.releaseTimeDisabled = false;
+            break;
+          case 'private':
+          case 'unlisted':
+            auto.releaseTimeDisabled = false; // true;
+            break;
+          default:
+            assert(null, `unhandled visibility: "${data.visibility}"`);
+            auto.releaseTimeDisabled = false;
+            break;
+        }
+      }
+
+      // -- channel
+      const channel = data.hasOwnProperty('channel') ? data.channel : state.channel;
+      if (channel === undefined) {
+        auto.visibility = 'public';
+      }
+
+      // -- releaseTimeError
+      const currentTs = Date.now() / 1000;
+      const visibility = getValue('visibility');
+      const releaseTime = getValue('releaseTime');
+      const isEditing = Boolean(getValue('editingURI'));
+      const isLivestream = getValue('isLivestreamPublish');
+
+      auto.releaseTimeError = '';
+
+      switch (visibility) {
+        case 'public':
+        case 'private':
+        case 'unlisted':
+          if (releaseTime && releaseTime - 30 > currentTs && !isLivestream) {
+            auto.releaseTimeError = 'Cannot set to a future date.';
+          }
+          break;
+        case 'scheduled':
+          if (releaseTime) {
+            if (releaseTime + 5 < currentTs) {
+              auto.releaseTimeError = 'Please set to a future date.';
+            }
+          } else {
+            if (isEditing) {
+              assert(state.claimToEdit?.value?.release_time, 'scheduled claim without release_time');
+              const originalTs = state.claimToEdit?.value?.release_time || 0;
+              if (originalTs < currentTs) {
+                auto.releaseTimeError = 'Please set to a future date.';
+              }
+            } else {
+              auto.releaseTimeError = 'Set a scheduled release date.';
+            }
+          }
+          break;
+        default:
+          assert(null, `unhandled visibility: "${visibility}"`);
+          break;
+      }
+
+      // Finalize
+      return { ...state, ...data, ...auto };
     },
     [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
       ...defaultState,

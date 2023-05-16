@@ -54,6 +54,7 @@ type Props = {
   thumbnail: ?string,
   thumbnailError: ?boolean,
   uploadThumbnailStatus: ?string,
+  releaseTimeError: ?string,
   thumbnailPath: ?string,
   description: ?string,
   language: string,
@@ -98,6 +99,7 @@ type Props = {
   remoteFileUrl?: string,
   urlSource?: string,
   restrictedToMemberships: ?string,
+  visibility: Visibility,
 };
 
 function LivestreamForm(props: Props) {
@@ -105,6 +107,7 @@ function LivestreamForm(props: Props) {
   const {
     thumbnail,
     thumbnailError,
+    releaseTimeError,
     name,
     editingURI,
     myClaimForUri,
@@ -141,6 +144,7 @@ function LivestreamForm(props: Props) {
     remoteFileUrl,
     urlSource,
     restrictedToMemberships,
+    visibility,
   } = props;
 
   const isMobile = useIsMobile();
@@ -188,7 +192,7 @@ function LivestreamForm(props: Props) {
   const waitingForFile = waitForFile && !remoteUrl && !filePath;
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
-    restrictedToMemberships !== null &&
+    (restrictedToMemberships !== null || visibility === 'unlisted') &&
     name &&
     isNameValid(name) &&
     title &&
@@ -198,6 +202,7 @@ function LivestreamForm(props: Props) {
     !bidError &&
     !emptyPostError &&
     !(thumbnailError && !thumbnailUploaded) &&
+    !releaseTimeError &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;

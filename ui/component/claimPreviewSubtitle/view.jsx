@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import UriIndicator from 'component/uriIndicator';
-import DateTime from 'component/dateTime';
+import DateTimeClaim from 'component/dateTimeClaim';
 import LivestreamDateTime from 'component/livestreamDateTime';
 import Button from 'component/button';
 import FileViewCountInline from 'component/fileViewCountInline';
@@ -72,7 +72,7 @@ function ClaimPreviewSubtitle(props: Props) {
                 ) : (
                   <span className="claim-extra-info">
                     <FileViewCountInline uri={uri} />
-                    <DateTime timeAgo uri={uri} />
+                    <DateTimeClaim uri={uri} />
                   </span>
                 ))}
             </>

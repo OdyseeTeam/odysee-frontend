@@ -255,6 +255,11 @@
     }
   }
 
+  .ratio-wrapper--disabled {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
   .icon--DollarSign {
     stroke-width: 1.5;
     transform: scale(0.8);

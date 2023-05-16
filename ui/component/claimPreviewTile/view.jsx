@@ -7,12 +7,13 @@ import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
 import TruncatedText from 'component/common/truncated-text';
-import DateTime from 'component/dateTime';
+import DateTimeClaim from 'component/dateTimeClaim';
 import LivestreamDateTime from 'component/livestreamDateTime';
 import ChannelThumbnail from 'component/channelThumbnail';
 import FileViewCountInline from 'component/fileViewCountInline';
 // import SubscribeButton from 'component/subscribeButton';
 import useGetThumbnail from 'effects/use-get-thumbnail';
+import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
@@ -93,15 +94,8 @@ function ClaimPreviewTile(props: Props) {
   const isCollection = claim && claim.value_type === 'collection';
   const isStream = claim && claim.value_type === 'stream';
   const isAbandoned = !isResolvingUri && !claim;
-  // $FlowFixMe
-  const isPlayable =
-    claim &&
-    // $FlowFixMe
-    claim.value &&
-    // $FlowFixMe
-    claim.value.stream_type &&
-    // $FlowFixMe
-    (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
+  // $FlowFixMe: claims not typed right
+  const showCollectionContext = isClaimAllowedForCollection(claim);
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
   const canonicalUrl = claim && claim.canonical_url;
@@ -153,7 +147,7 @@ function ClaimPreviewTile(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  function handleClick(e) {
+  function handleClick() {
     if (navigateUrl && !isEmbed) {
       history.push(navigateUrl);
     }
@@ -205,7 +199,7 @@ function ClaimPreviewTile(props: Props) {
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
           {!isChannel && (
             <React.Fragment>
-              {((fypId && isStream) || isPlayable) && (
+              {((fypId && isStream) || showCollectionContext) && (
                 <div className="claim-preview__hover-actions-grid">
                   {fypId && isStream && (
                     <div className="claim-preview__hover-actions">
@@ -213,7 +207,7 @@ function ClaimPreviewTile(props: Props) {
                     </div>
                   )}
 
-                  {isPlayable && (
+                  {showCollectionContext && (
                     <>
                       <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
                       <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
@@ -271,7 +265,7 @@ function ClaimPreviewTile(props: Props) {
                     <div className="claim-tile__about--counts">
                       <FileViewCountInline uri={uri} />
                       {isLivestream && <LivestreamDateTime uri={uri} />}
-                      {!isLivestream && <DateTime timeAgo uri={uri} />}
+                      {!isLivestream && <DateTimeClaim uri={uri} />}
                     </div>
                   </div>
                 </React.Fragment>

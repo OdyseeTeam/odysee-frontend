@@ -1,0 +1,24 @@
+.cs-view__has-more {
+  display: block;
+  text-align: center;
+  border-radius: var(--border-radius);
+
+  &:hover {
+    cursor: pointer;
+    background-color: var(--color-navigation-hover);
+  }
+
+  svg {
+    display: inline-block;
+  }
+}
+
+.cs-view__no-results {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 var(--spacing-m);
+  margin: var(--spacing-l) 0;
+  color: var(--color-text-empty);
+  font-style: italic;
+}

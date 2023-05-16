@@ -1,6 +1,8 @@
 // @flow
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+
+import './style.scss';
 import FileThumbnail from 'component/fileThumbnail';
 import MarkdownPreview from 'component/common/markdown-preview';
 import ClaimMenuList from 'component/claimMenuList';
@@ -8,10 +10,9 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import ClaimPreviewSubtitle from 'component/claimPreviewSubtitle';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
+import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
-
-import './style.scss';
 
 type Props = {
   uri: string,
@@ -28,6 +29,9 @@ type Props = {
 
 function FeaturedSection(props: Props) {
   const { uri, claimId, claim, geoRestriction, description, doResolveClaimId, doFetchViewCount } = props;
+
+  // $FlowFixMe: claims not typed right
+  const showCollectionContext = isClaimAllowedForCollection(claim);
 
   React.useEffect(() => {
     if (!uri && claimId) {
@@ -54,10 +58,12 @@ function FeaturedSection(props: Props) {
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
       <div className="claim-preview claim-preview-featured">
         <FileThumbnail uri={uri} thumbnail={claim.value.thumbnail?.url} forceReload>
-          <div className="claim-preview__hover-actions-grid">
-            <FileWatchLaterLink focusable={false} uri={uri} />
-            <ButtonAddToQueue focusable={false} uri={uri} />
-          </div>
+          {showCollectionContext && (
+            <div className="claim-preview__hover-actions-grid">
+              <FileWatchLaterLink focusable={false} uri={uri} />
+              <ButtonAddToQueue focusable={false} uri={uri} />
+            </div>
+          )}
           <PreviewOverlayProperties uri={uri} small={false} xsmall={false} />
         </FileThumbnail>
         <div className="claim-preview__text">

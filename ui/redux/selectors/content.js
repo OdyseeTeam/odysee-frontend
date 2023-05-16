@@ -9,6 +9,7 @@ import {
   selectPendingPurchaseForUri,
   selectIsAnonymousFiatContentForUri,
   selectClaimIsNsfwForUri,
+  selectScheduledStateForUri,
 } from 'redux/selectors/claims';
 import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
 import { selectBalance } from 'redux/selectors/wallet';
@@ -24,6 +25,10 @@ const HISTORY_ITEMS_PER_PAGE = 50;
 type State = { claims: any, content: ContentState, user: UserState, memberships: any, router: any };
 
 export const selectState = (state: State) => state.content || {};
+
+export function selectContentStates(state: State): ContentState {
+  return state.content;
+}
 
 export const selectPlayingUri = (state: State) => selectState(state).playingUri;
 export const selectHasUriPlaying = (state: State) => Boolean(selectPlayingUri(state).uri);
@@ -328,12 +333,21 @@ export const selectInsufficientCreditsForUri = (state: State, uri: string) => {
 };
 
 export const selectCanViewFileForUri = (state: State, uri: string) => {
+  if (state.user.user?.global_mod) {
+    return true;
+  }
+
+  const scheduledButNotReady = selectScheduledStateForUri(state, uri) === 'scheduled';
+  if (scheduledButNotReady) {
+    const claimIsMine = selectClaimIsMineForUri(state, uri);
+    return !!claimIsMine;
+  }
+
   const pendingPurchase = selectPendingPurchaseForUri(state, uri);
   const isAnonymousFiatContent = selectIsAnonymousFiatContentForUri(state, uri);
   const pendingUnlockedRestrictions = selectPendingUnlockedRestrictionsForUri(state, uri);
 
   const canViewFile = !pendingPurchase && !pendingUnlockedRestrictions && !isAnonymousFiatContent;
-
   return canViewFile;
 };
 

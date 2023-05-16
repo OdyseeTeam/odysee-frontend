@@ -723,13 +723,14 @@ export function doClearClaimSearch() {
 }
 
 export function doClaimSearch(
-  options: ClaimSearchOptions = {
+  csOptions: ClaimSearchOptions = {
     no_totals: true,
     page_size: 10,
     page: 1,
   },
   settings?: DoClaimSearchSettings
 ) {
+  const options = csOptions;
   const query = createNormalizedClaimSearchKey(options);
 
   return async (dispatch: Dispatch, getState: GetState) => {
@@ -785,7 +786,10 @@ export function doClaimSearch(
           resolveInfo,
           urls,
           append: options.page && options.page !== 1,
+          page: options.page,
           pageSize: options.page_size,
+          totalItems: data.total_items,
+          totalPages: data.total_pages,
         },
       });
 

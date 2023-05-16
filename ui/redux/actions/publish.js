@@ -39,6 +39,8 @@ import {
   PURCHASE_TAG_OLD,
   RENTAL_TAG,
   RENTAL_TAG_OLD,
+  SCHEDULED_TAGS,
+  VISIBILITY_TAGS,
 } from 'constants/tags';
 
 function resolveClaimTypeForAnalytics(claim) {
@@ -133,6 +135,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   PUBLISH.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
   PUBLISH.tags.fiatPaywall(tagSet, publishData);
   PUBLISH.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
+  PUBLISH.tags.visibility(tagSet, publishData);
 
   publishPayload.tags = Array.from(tagSet);
 
@@ -140,7 +143,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     publishPayload.locations = myClaimForUriEditing.value.locations;
   }
 
-  if (paywall === PAYWALL.SDK) {
+  if (paywall === PAYWALL.SDK && publishData.visibility === 'public') {
     if (fee && fee.currency && Number(fee.amount) > 0) {
       publishPayload.fee_currency = fee.currency;
       publishPayload.fee_amount = creditsToString(fee.amount);
@@ -166,19 +169,30 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
  */
 const PUBLISH = {
   releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim, publishData: UpdatePublishState) => {
-    const visibility = 'public';
     const isEditing = Boolean(claimToEdit);
-    const claimOriginalTs = isEditing ? Number(claimToEdit?.value?.release_time || claimToEdit?.timestamp) : undefined;
+    const past = {};
 
-    switch (visibility) {
+    if (isEditing && claimToEdit) {
+      const tags = claimToEdit.value?.tags || [];
+
+      past.wasHidden = tags.includes(VISIBILITY_TAGS.UNLISTED) || tags.includes(VISIBILITY_TAGS.PRIVATE);
+      past.wasScheduled = tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE);
+      past.timestamp = claimToEdit.timestamp;
+      past.release_time = claimToEdit.value?.release_time;
+      past.creation_timestamp = claimToEdit.meta?.creation_timestamp;
+    }
+
+    switch (publishData.visibility) {
       case 'public':
+      case 'private':
+      case 'unlisted':
         if (isEditing) {
           if (publishData.isLivestreamPublish && publishData.replaySource !== 'keep') {
-            return claimOriginalTs;
+            return Number(past.release_time || past.timestamp);
           }
 
           if (userEnteredTs === undefined) {
-            return claimOriginalTs;
+            return past.wasScheduled ? past.creation_timestamp : Number(past.release_time || past.timestamp);
           } else {
             return userEnteredTs;
           }
@@ -190,8 +204,21 @@ const PUBLISH = {
           }
         }
 
+      case 'scheduled':
+        if (isEditing) {
+          if (userEnteredTs === undefined) {
+            return past.wasHidden ? past.creation_timestamp : Number(past.release_time || past.timestamp);
+          } else {
+            return userEnteredTs;
+          }
+        } else {
+          // The reducer enforces '>Now' through releaseTimeError, but double-check in case UI broke:
+          assert(userEnteredTs, 'New scheduled publish cannot have undefined release time');
+          return userEnteredTs;
+        }
+
       default:
-        assert(false, `unhandled: "${visibility}"`);
+        assert(false, `unhandled: "${publishData.visibility}"`);
         break;
     }
   },
@@ -214,8 +241,15 @@ const PUBLISH = {
     },
 
     fiatPaywall: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      const { paywall, fiatPurchaseEnabled, fiatPurchaseFee, fiatRentalEnabled, fiatRentalFee, fiatRentalExpiration } =
-        publishData;
+      const {
+        paywall,
+        fiatPurchaseEnabled,
+        fiatPurchaseFee,
+        fiatRentalEnabled,
+        fiatRentalFee,
+        fiatRentalExpiration,
+        visibility,
+      } = publishData;
 
       const refSet = new Set(tagSet);
       refSet.forEach((t) => {
@@ -230,6 +264,11 @@ const PUBLISH = {
           tagSet.delete(t);
         }
       });
+
+      if (visibility !== 'public') {
+        // Payment options disabled.
+        return;
+      }
 
       if (paywall === PAYWALL.FIAT) {
         // Purchase
@@ -254,11 +293,39 @@ const PUBLISH = {
     },
 
     membershipRestrictions: (tagSet: Set<string>, publishData: UpdatePublishState, channel_id: ?string) => {
-      // $FlowFixMe - handle restrictedToMemberships
-      if (publishData.restrictedToMemberships && channel_id) {
-        tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
-      } else {
-        tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
+      tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
+
+      if (publishData.visibility !== 'unlisted') {
+        // $FlowFixMe - handle restrictedToMemberships
+        if (publishData.restrictedToMemberships && channel_id) {
+          tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
+        }
+      }
+    },
+
+    visibility: (tagSet: Set<string>, publishData: UpdatePublishState) => {
+      const { visibility } = publishData;
+
+      tagSet.delete(VISIBILITY_TAGS.PRIVATE);
+      tagSet.delete(VISIBILITY_TAGS.UNLISTED);
+      tagSet.delete(SCHEDULED_TAGS.SHOW);
+      tagSet.delete(SCHEDULED_TAGS.HIDE);
+
+      switch (visibility) {
+        case 'public':
+          break; // Nothing to do
+        case 'private':
+          tagSet.add(VISIBILITY_TAGS.PRIVATE);
+          break;
+        case 'unlisted':
+          tagSet.add(VISIBILITY_TAGS.UNLISTED);
+          break;
+        case 'scheduled':
+          tagSet.add(publishData.scheduledShow ? SCHEDULED_TAGS.SHOW : SCHEDULED_TAGS.HIDE);
+          break;
+        default:
+          assert(false, `unhandled: "${visibility}"`);
+          break;
       }
     },
   },
@@ -653,6 +720,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     let state = getState();
     const myClaimForUri = selectMyClaimForUri(state);
     const { claim_id } = myClaimForUri || {};
+    //         ^--- can we just use 'claim.claim_id'?
 
     // $FlowFixMe (TODO: Lots of undefined states. If truely used, please define them)
     const publishData: UpdatePublishState = {
@@ -671,6 +739,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       nsfw: isClaimNsfw(claim),
       tags: tags ? tags.map((tag) => ({ name: tag })) : [],
       streamType: stream_type,
+      claimToEdit: { ...claim },
     };
 
     // Make sure custom licenses are mapped properly
@@ -749,6 +818,25 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
           publishData.tags = [];
         }
       }
+    }
+
+    // -- Visibility restrictions
+    if (tags) {
+      if (tags.includes(VISIBILITY_TAGS.UNLISTED)) {
+        publishData.visibility = 'unlisted';
+      } else if (tags.includes(VISIBILITY_TAGS.PRIVATE)) {
+        publishData.visibility = 'private';
+      } else if (tags.includes(SCHEDULED_TAGS.HIDE)) {
+        publishData.visibility = 'scheduled';
+        publishData.scheduledShow = false;
+      } else if (tags.includes(SCHEDULED_TAGS.SHOW)) {
+        publishData.visibility = 'scheduled';
+        publishData.scheduledShow = true;
+      } else {
+        publishData.visibility = 'public';
+      }
+    } else {
+      publishData.visibility = 'public';
     }
 
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });

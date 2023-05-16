@@ -11,6 +11,8 @@ import { createCachedSelector } from 're-reselect';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import {
   isClaimNsfw,
+  isClaimUnlisted,
+  getClaimScheduledState,
   filterClaims,
   getChannelIdFromClaim,
   isStreamPlaceholderClaim,
@@ -29,6 +31,10 @@ import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { removeInternalStringTags } from 'util/tags';
 
 type State = { claims: any, user: UserState };
+
+export function selectClaimsStates(state: State) {
+  return state.claims || {};
+}
 
 const selectState = (state: State) => state.claims || {};
 
@@ -553,6 +559,24 @@ export const selectDateForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
+export type ClaimTsList = {|
+  released: ?number,
+  created: ?number,
+  updated: ?number,
+|};
+
+export const selectTimestampsForUri = createCachedSelector(
+  selectClaimForUri, // (state, uri, ?returnRepost)
+  (claim) => {
+    const list: ClaimTsList = {
+      released: claim?.value?.release_time,
+      created: claim?.meta?.creation_timestamp,
+      updated: claim?.timestamp,
+    };
+    return list;
+  }
+)((state, uri) => String(uri));
+
 export const makeSelectAmountForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     return claim && claim.amount;
@@ -859,6 +883,10 @@ export const selectTagsForUri = createCachedSelector(selectMetadataForUri, (meta
   return metadata && metadata.tags ? removeInternalStringTags(metadata.tags) : [];
 })((state, uri) => String(uri));
 
+export const selectTagsRawForUri = (state: State, uri: string) => {
+  return selectMetadataForUri(state, uri)?.tags;
+};
+
 export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return parsePurchaseTag(metadata?.tags);
 })((state, uri) => String(uri));
@@ -1155,4 +1183,14 @@ export const selectPendingPurchaseForUri = (state: State, uri: string) => {
   const pendingSdkPayment = selectSdkFeePendingForUri(state, uri);
 
   return pendingFiatPayment || pendingSdkPayment;
+};
+
+export const selectScheduledStateForUri = (state: State, uri: string): ClaimScheduledState => {
+  const claim = selectClaimForUri(state, uri);
+  return getClaimScheduledState(claim);
+};
+
+export const selectIsUriUnlisted = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  return isClaimUnlisted(claim);
 };

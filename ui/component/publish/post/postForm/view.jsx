@@ -20,6 +20,7 @@ import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
 import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -89,6 +90,7 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   restrictedToMemberships: ?string,
+  visibility: Visibility,
 };
 
 function PostForm(props: Props) {
@@ -131,6 +133,7 @@ function PostForm(props: Props) {
     claimInitialRewards,
     hasClaimedInitialRewards,
     restrictedToMemberships,
+    visibility,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -168,8 +171,9 @@ function PostForm(props: Props) {
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
+  // TODO: formValidLessFile should be a selector
   const formValidLessFile =
-    restrictedToMemberships !== null &&
+    (restrictedToMemberships !== null || visibility === 'unlisted') &&
     name &&
     isNameValid(name) &&
     title &&
@@ -179,6 +183,7 @@ function PostForm(props: Props) {
     !releaseTimeError &&
     !emptyPostError &&
     !(thumbnailError && !thumbnailUploaded) &&
+    !releaseTimeError &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
@@ -445,6 +450,8 @@ function PostForm(props: Props) {
           />
 
           <PublishProtectedContent claim={myClaimForUri} location={'post'} />
+
+          <PublishVisibility />
 
           <PublishPrice disabled={formDisabled} />
 
