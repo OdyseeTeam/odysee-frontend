@@ -42,6 +42,12 @@ Lbryio.call = (resource, action, params = {}, method = 'post') => {
         let error;
         if (json.error) {
           error = new Error(json.error);
+        } else if (json.success === false) {
+          if (json.data) {
+            error = new Error(json.data);
+          } else {
+            error = new Error('Unknown API error signature');
+          }
         } else {
           error = new Error('Unknown API error signature');
         }
