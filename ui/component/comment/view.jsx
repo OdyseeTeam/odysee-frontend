@@ -293,6 +293,8 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     push({ pathname, search: urlParams.toString() });
   }
 
+  const handleShowMore = React.useCallback(() => setPage((prev) => prev + 1), []);
+
   const linkedCommentRef = React.useCallback(
     (node) => {
       if (node) commentElemRef.current = node;
@@ -554,7 +556,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
               numDirectReplies={numDirectReplies}
-              onShowMore={() => setPage(page + 1)}
+              onShowMore={handleShowMore}
               hasMore={page < totalReplyPages && threadLevel > 0}
               threadDepthLevel={threadDepthLevel}
             />
