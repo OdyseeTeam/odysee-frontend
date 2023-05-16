@@ -57,6 +57,7 @@ import { doSignOutCleanup } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 
 const { lbrySettings: config, version: appVersion } = p;
 
@@ -508,9 +509,13 @@ export function doAnalyticsViewForUri(uri: string) {
     const claim = selectClaimForUri(state, uri);
     const { txid, nout, claim_id: claimId } = claim;
     const claimIsMine = selectClaimIsMineForUri(state, uri);
+
+    const isUnlistedOrScheduled =
+      getClaimScheduledState(claim) === 'scheduled' || isClaimUnlisted(claim) || isClaimPrivate(claim);
+    const isGlobalMod = Boolean(selectUser(state)?.global_mod);
     const outpoint = `${txid}:${nout}`;
 
-    if (claimIsMine) {
+    if (claimIsMine || (isGlobalMod && isUnlistedOrScheduled)) {
       return Promise.resolve();
     }
 
