@@ -124,7 +124,6 @@ export function doCommentList(
               totalFilteredItems: total_filtered_items,
               totalPages: total_pages,
               claimId,
-              creatorClaimId,
               uri,
             },
           });
@@ -144,17 +143,9 @@ export function doCommentList(
 
         switch (message) {
           case 'comments are disabled by the creator':
-            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { creatorClaimId, disabled: true } });
+            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
           case 'channel does not have permissions to comment on this claim':
-            return dispatch({
-              type: ACTIONS.COMMENT_LIST_COMPLETED,
-              data: {
-                creatorClaimId,
-                disabled: true,
-                restrictedToMembersOnly: true,
-                claimId,
-              },
-            });
+            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
           case FETCH_API_FAILED_TO_FETCH:
             dispatch(doToast({ isError: true, message: __('Failed to fetch comments.') }));
             return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });

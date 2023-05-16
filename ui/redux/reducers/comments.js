@@ -272,18 +272,7 @@ export default handleActions(
     },
 
     [ACTIONS.COMMENT_LIST_COMPLETED]: (state: CommentsState, action: any) => {
-      const {
-        comments,
-        parentId,
-        totalItems,
-        totalFilteredItems,
-        totalPages,
-        claimId,
-        uri,
-        disabled,
-        creatorClaimId,
-        // restrictedToMembersOnly,
-      } = action.data;
+      const { comments, parentId, totalItems, totalFilteredItems, totalPages, claimId, uri, disabled } = action.data;
 
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
@@ -296,19 +285,6 @@ export default handleActions(
       const pinnedCommentsById = Object.assign({}, state.pinnedCommentsById);
       const repliesTotalPagesByParentId = Object.assign({}, state.repliesTotalPagesByParentId);
       const isLoadingByParentId = Object.assign({}, state.isLoadingByParentId);
-      const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
-
-      // save an array of claim ids of members-only chats to check during list
-      let membersOnlyChats = settingsByChannelId[creatorClaimId]?.livestream_chat_members_only || false;
-      // if (restrictedToMembersOnly) {
-      //   membersOnlyChats.push(claimId);
-      // }
-
-      settingsByChannelId[creatorClaimId] = {
-        ...(settingsByChannelId[creatorClaimId] || {}),
-        // comments_enabled: !disabled,
-        livestream_chat_members_only: membersOnlyChats,
-      };
 
       if (parentId) {
         isLoadingByParentId[parentId] = false;
@@ -375,7 +351,6 @@ export default handleActions(
         commentsByUri,
         isLoading: false,
         isLoadingByParentId,
-        settingsByChannelId,
       };
     },
 
