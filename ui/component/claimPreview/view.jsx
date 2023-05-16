@@ -433,6 +433,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
+  console.log('hideJoin: ', hideJoin);
+
   return (
     <WrapperElement
       ref={ref}
@@ -556,7 +558,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {type !== 'small' && (
                   <>
                     <div className="claim-preview__tags">
-                      {/* type && <JoinButton /> */}
                       {claim && (
                         <React.Fragment>
                           {typeof properties === 'function'
@@ -585,7 +586,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
               // claim &&
               // !renderActions(claim) && (
               <div className="claim-preview__actions">
-                <JoinButton />
+                {!hideJoin && <JoinButton />}
                 {!pending && (
                   <>
                     {/* renderActions && claim && renderActions(claim) */}
