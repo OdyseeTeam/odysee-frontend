@@ -22,6 +22,35 @@ type State = { claims: any, comments: CommentsState, user: UserState };
 
 const selectState = (state) => state.comments || {};
 
+// ****************************************************************************
+// commentById proxy
+// ****************************************************************************
+
+const gCommentByIdProxy = {};
+
+/**
+ * Passes the latest 'commentById', wrapped in a never-changing object reference.
+ *
+ * Do not use this on its own as it will not spark an update when the underlying
+ * value changes (it breaks the immutability paradigm of React-Redux). Use it in
+ * conjunction with another synced selector that contains the keys.
+ *
+ * The purpose of this is to:
+ * (1) avoid additional key-to-object translations
+ * (2) not make components render just because an unrelated value within
+ * commentById was updated.
+ *
+ * @param state
+ * @returns {{}}
+ */
+export function selectProxiedCommentById(state: State) {
+  gCommentByIdProxy.commentById = state.comments.commentById;
+  return gCommentByIdProxy;
+}
+
+// ****************************************************************************
+// ****************************************************************************
+
 export const selectCommentsById = (state: State) => selectState(state).commentById || {};
 export const selectCommentIdsByClaimId = (state: State) => selectState(state).byId;
 export const selectIsFetchingComments = (state: State) => selectState(state).isLoading;
@@ -237,19 +266,16 @@ export const selectCommentsForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
-export const selectTopLevelCommentsForUri = createCachedSelector(
-  (state, uri) => uri,
-  (state, uri, maxCount) => maxCount,
-  selectTopLevelCommentsByClaimId,
+export const selectTopLevelCommentIdsForUri = createCachedSelector(
   selectClaimIdForUri,
+  (state: State) => state.comments.topLevelCommentsById,
+  (state: State, uri) => uri,
+  (state: State, uri, maxCount) => maxCount,
   ...Object.values(filterCommentsDepOnList),
-  (uri, maxCount = -1, byClaimId, claimId, ...filterInputs) => {
-    const comments = byClaimId && byClaimId[claimId];
-    if (comments) {
-      return filterComments(maxCount > 0 ? comments.slice(0, maxCount) : comments, claimId, filterInputs);
-    } else {
-      return [];
-    }
+  (claimId, topLevelCommentIds, uri, maxCount = -1, ...filterInputs) => {
+    const truncate = maxCount > 0 && Boolean(topLevelCommentIds);
+    const commentIds = truncate ? topLevelCommentIds.slice(0, maxCount) : topLevelCommentIds;
+    return filterComments(commentIds, claimId, filterInputs);
   }
 )((state, uri, maxCount = -1) => `${String(uri)}:${maxCount}`);
 
@@ -281,17 +307,18 @@ export const selectRepliesForParentId = createCachedSelector(
 /**
  * filterComments
  *
- * @param comments List of comments to filter.
+ * @param commentIds List of comment IDs to filter.
  * @param claimId The claim that `comments` reside in.
  * @param filterInputs Values returned by filterCommentsDepOnList.
  */
-const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs: any) => {
+const filterComments = (commentIds: Array<CommentId>, claimId?: string, filterInputs: any) => {
   const filterProps = filterInputs.reduce((acc, cur, i) => {
     acc[filterCommentsPropKeys[i]] = cur;
     return acc;
   }, {});
 
   const {
+    commentByIdProxy,
     claimsById,
     myClaimIds,
     myChannelClaimIds,
@@ -304,8 +331,12 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
     locale,
   } = filterProps;
 
-  return comments
-    ? comments.filter((comment) => {
+  const commentById = commentByIdProxy.commentById;
+
+  return commentIds
+    ? commentIds.filter((id) => {
+        const comment = commentById[id];
+
         if (!comment) {
           // It may have been recently deleted after being blocked
           return false;
@@ -420,11 +451,12 @@ export const selectChannelMentionData = createCachedSelector(
   (state, uri) => uri,
   selectClaimIdsByUri,
   selectClaimsById,
-  selectTopLevelCommentsForUri,
+  selectProxiedCommentById,
+  selectTopLevelCommentIdsForUri,
   selectSubscriptionUris,
   selectMentionSearchResults,
   selectMentionQuery,
-  (uri, claimIdsByUri, claimsById, topLevelComments, subscriptionUris, searchUris, query) => {
+  (uri, claimIdsByUri, claimsById, commentByIdProxy, topLevelCommentIds, subscriptionUris, searchUris, query) => {
     let canonicalCreatorUri;
     const commentorUris = [];
     const canonicalCommentors = [];
@@ -435,9 +467,11 @@ export const selectChannelMentionData = createCachedSelector(
       const claimId = claimIdsByUri[uri];
       const claim = claimsById[claimId];
       const channelFromClaim = claim && getChannelFromClaim(claim);
+      const commentById = commentByIdProxy.commentById;
       canonicalCreatorUri = channelFromClaim && channelFromClaim.canonical_url;
 
-      topLevelComments.forEach(({ channel_url: uri }) => {
+      topLevelCommentIds.forEach((id: CommentId) => {
+        const uri = commentById[id]?.channel_url;
         // Check: if there are duplicate commentors
         if (!commentorUris.includes(uri)) {
           // Update: commentorUris

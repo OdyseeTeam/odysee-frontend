@@ -46,7 +46,8 @@ export type Props = {|
 |};
 
 type StateProps = {|
-  topLevelComments: Array<Comment>,
+  commentByIdProxy: { commentById: { [CommentId]: Comment } },
+  topLevelCommentIds: Array<CommentId>,
   pinnedComments: Array<Comment>,
   allCommentIds: Array<CommentId>,
   threadComment: ?Comment, // comment object for 'threadCommentId'
@@ -93,10 +94,11 @@ type DispatchProps = {|
 
 export default function CommentList(props: Props & StateProps & DispatchProps) {
   const {
+    commentByIdProxy,
     allCommentIds,
     uri,
     pinnedComments,
-    topLevelComments,
+    topLevelCommentIds,
     topLevelTotalPages,
     claimId,
     channelId,
@@ -129,6 +131,8 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     scheduledState,
   } = props;
 
+  const commentById = commentByIdProxy.commentById;
+
   const threadRedirect = React.useRef(false);
 
   const {
@@ -139,7 +143,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen();
 
-  const currentFetchedPage = Math.ceil(topLevelComments.length / COMMENT_PAGE_SIZE_TOP_LEVEL);
+  const currentFetchedPage = Math.ceil(topLevelCommentIds.length / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const spinnerRef = React.useRef();
   const commentListRef = React.useRef();
   const DEFAULT_SORT = ENABLE_COMMENT_REACTIONS ? SORT_BY.POPULARITY : SORT_BY.NEWEST;
@@ -172,8 +176,8 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
   // get commenter claim ids for checking premium status
   const commenterClaimIds = React.useMemo(() => {
-    return topLevelComments.map((comment) => comment.channel_id);
-  }, [topLevelComments]);
+    return topLevelCommentIds.map((id) => commentById[id]?.channel_id);
+  }, [topLevelCommentIds, commentById]);
 
   React.useEffect(() => {
     if (commenterClaimIds.length > 0 && channelId) {
@@ -334,7 +338,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
   // Infinite scroll
   useEffect(() => {
-    if (topLevelComments.length === 0) return;
+    if (topLevelCommentIds.length === 0) return;
 
     function shouldFetchNextPage(page, topLevelTotalPages, yPrefetchPx = 1000) {
       if (!spinnerRef || !spinnerRef.current) return false;
@@ -379,7 +383,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       }
     }
   }, [
-    topLevelComments,
+    topLevelCommentIds,
     hasDefaultExpansion,
     didInitialPageFetch,
     isFetchingComments,
@@ -460,8 +464,8 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
                     <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
                   ))}
 
-                {topLevelComments.map((c) => (
-                  <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+                {topLevelCommentIds.map((id) => (
+                  <CommentView key={id} comment={commentById[id]} disabled={notAuthedToChat} {...commentProps} />
                 ))}
               </>
             )}

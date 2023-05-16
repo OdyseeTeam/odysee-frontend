@@ -10,7 +10,7 @@ import {
   selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import {
-  selectTopLevelCommentsForUri,
+  selectTopLevelCommentIdsForUri,
   selectTopLevelTotalPagesForUri,
   selectIsFetchingComments,
   selectIsFetchingTopLevelComments,
@@ -23,6 +23,7 @@ import {
   selectPinnedCommentsForUri,
   selectCommentForCommentId,
   selectCommentAncestorsForId,
+  selectProxiedCommentById,
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
 import { doPopOutInlinePlayer } from 'redux/actions/content';
@@ -46,6 +47,8 @@ const select = (state, props) => {
 
   return {
     activeChannelId,
+    commentByIdProxy: selectProxiedCommentById(state),
+    topLevelCommentIds: selectTopLevelCommentIdsForUri(state, uri),
     allCommentIds: selectCommentIdsForUri(state, uri),
     channelId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
@@ -65,7 +68,6 @@ const select = (state, props) => {
     pinnedComments: selectPinnedCommentsForUri(state, uri),
     threadComment,
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
-    topLevelComments: selectTopLevelCommentsForUri(state, uri),
     topLevelTotalPages: selectTopLevelTotalPagesForUri(state, uri),
     totalComments: selectTotalCommentsCountForUri(state, uri),
     scheduledState: selectScheduledStateForUri(state, uri),
