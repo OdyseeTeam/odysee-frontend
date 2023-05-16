@@ -12,9 +12,9 @@ const AllSelector = (props: Props) => {
   const { isSelected } = props;
 
   return (
-    <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
+    <div className={classnames('channel-selector__item', { 'channel-selector__item--selected': isSelected })}>
       <Icon sectionIcon icon={ICONS.MORE} />
-      <div className="channel__list-text">{__('All Channels')}</div>
+      <div className="channel-selector__text">{__('All Channels')}</div>
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );

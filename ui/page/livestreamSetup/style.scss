@@ -15,14 +15,14 @@
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 
-  .channel__selector {
+  .channel-selector {
     button {
-      .channel__list-item {
+      .channel-selector__item {
         background-color: var(--color-background);
       }
       &:hover,
       &[aria-expanded='true'] {
-        .channel__list-item {
+        .channel-selector__item {
           background-color: var(--color-primary);
         }
       }

@@ -18,7 +18,7 @@ const ChannelListItem = (props: Props) => {
   const { uri, odyseeMembership, isSelected = false } = props;
 
   return (
-    <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
+    <div className={classnames('channel-selector__item', { 'channel-selector__item--selected': isSelected })}>
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
       {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}

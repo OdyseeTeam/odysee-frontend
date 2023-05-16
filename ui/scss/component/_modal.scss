@@ -209,7 +209,7 @@
     }
 
     [data-reach-menu-button] {
-      .channel__list-item--selected {
+      .channel-selector__item--selected {
         background-color: var(--color-header-button) !important;
         color: var(--color-text);
         .claim-preview__title {
@@ -217,7 +217,7 @@
         }
       }
       &:hover {
-        .channel__list-item--selected {
+        .channel-selector__item--selected {
           background-color: var(--color-primary) !important;
         }
       }

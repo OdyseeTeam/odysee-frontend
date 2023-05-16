@@ -788,14 +788,14 @@ a {
   }
 }
 
-.channel__selector {
+.channel-selector {
   button {
     flex: 1;
   }
   button:focus-visible {
     background-color: unset !important;
     box-shadow: unset !important;
-    .channel__list-item {
+    .channel-selector__item {
       background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
       box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
     }

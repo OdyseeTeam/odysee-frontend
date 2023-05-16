@@ -109,9 +109,9 @@ function ChannelSelector(props: Props) {
   return (
     <>
       <div
-        className={classnames('channel__selector', {
-          'channel__selector--publish': isPublishMenu,
-          'channel__selector--tabHeader': isTabHeader,
+        className={classnames('channel-selector', {
+          'channel-selector--publish': isPublishMenu,
+          'channel-selector--tabHeader': isTabHeader,
           disabled: disabled,
         })}
       >
@@ -138,7 +138,7 @@ function ChannelSelector(props: Props) {
             </MenuButton>
           )}
 
-          <MenuList className="menu__list channel__list">
+          <MenuList className="menu__list channel-selector">
             {showAllOption && (
               <MenuItem onSelect={allOptionProps?.onSelectAll}>
                 <AllSelector />
@@ -159,9 +159,9 @@ function ChannelSelector(props: Props) {
             )}
 
             <MenuItem onSelect={() => push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
-              <div className="channel__list-item">
+              <div className="channel-selector__item">
                 <Icon sectionIcon icon={ICONS.CHANNEL} />
-                <div className="channel__list-text">{__('Create a new channel')}</div>
+                <div className="channel-selector__text">{__('Create a new channel')}</div>
               </div>
             </MenuItem>
           </MenuList>

@@ -10,8 +10,8 @@ const LoadingSelector = (props: Props) => {
   const { isSelected } = props;
 
   return (
-    <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
-      <div className="channel__list-text">{__('Loading channels...')}</div>
+    <div className={classnames('channel-selector__item', { 'channel-selector__item--selected': isSelected })}>
+      <div className="channel-selector__text">{__('Loading channels...')}</div>
     </div>
   );
 };
