@@ -65,9 +65,7 @@ type Props = {
     page: number,
     pageSize: number,
     sortBy: number,
-    isLivestream?: boolean,
-    isProtected?: boolean,
-    requesterChannelId?: ?string
+    isLivestream?: boolean
   ) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
@@ -266,19 +264,8 @@ export default function CommentList(props: Props) {
         }
       }
 
-      fetchTopLevelComments(
-        uri,
-        undefined,
-        page,
-        COMMENT_PAGE_SIZE_TOP_LEVEL,
-        sort,
-        false,
-        // protected comments params
-        chatCommentsRestrictedToChannelMembers,
-        activeChannelId
-      );
+      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [currentFetchedPage, fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId, uri]);
 
   React.useEffect(() => {
