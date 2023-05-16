@@ -14,7 +14,7 @@ const AllSelector = (props: Props) => {
   return (
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
       <Icon sectionIcon icon={ICONS.MORE} />
-      <h2 className="channel__list-text">{__('All Channels')}</h2>
+      <div className="channel__list-text">{__('All Channels')}</div>
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );

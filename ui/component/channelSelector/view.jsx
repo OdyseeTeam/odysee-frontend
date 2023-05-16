@@ -161,7 +161,7 @@ function ChannelSelector(props: Props) {
             <MenuItem onSelect={() => push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
               <div className="channel__list-item">
                 <Icon sectionIcon icon={ICONS.CHANNEL} />
-                <h2 className="channel__list-text">{__('Create a new channel')}</h2>
+                <div className="channel__list-text">{__('Create a new channel')}</div>
               </div>
             </MenuItem>
           </MenuList>

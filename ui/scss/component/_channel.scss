@@ -394,37 +394,6 @@ $actions-z-index: 2;
     margin-top: var(--spacing-m);
   }
 
-  /*
-  input,
-  select {
-    background-color: var(--color-background);
-  }
-  */
-  /*
-  .tags {
-    .tag {
-      background-color: var(--color-background);
-    }
-  }
-  .tags__input-wrapper {
-    .tag__input {
-      background-color: var(--color-background);
-    }
-  }
-  */
-
-  /*
-  .button--alt {
-    background-color: var(--color-background);
-    &:hover {
-      background-color: var(--color-primary);
-      .icon {
-        stroke: var(--color-primary-contrast);
-      }
-    }
-  }
-  */
-
   @media (max-width: $breakpoint-small) {
     .tab__panel {
       margin-bottom: calc(var(--spacing-xxl) * 3);
@@ -880,10 +849,7 @@ $actions-z-index: 2;
       .claim-preview__title {
         margin-right: var(--spacing-xs);
       }
-      .claim-preview__title,
-      .channel__list-text {
-        margin-bottom: -3px;
-      }
+
       .comment__badge {
         svg {
           width: 1.4rem;
@@ -1013,7 +979,6 @@ $actions-z-index: 2;
   }
 
   .claim-preview__title {
-    margin-bottom: -3px;
     margin-right: var(--spacing-xs);
   }
 
@@ -1035,7 +1000,6 @@ $actions-z-index: 2;
 }
 
 .channel__list-text {
-  font-weight: var(--font-weight-bold);
   color: var(--color-menu-icon);
 }
 

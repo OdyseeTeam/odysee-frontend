@@ -14,7 +14,7 @@ const IncognitoSelector = (props: Props) => {
   return (
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
       <Icon sectionIcon icon={ICONS.ANONYMOUS} />
-      <h2 className="channel__list-text">{__('Anonymous')}</h2>
+      <div className="channel__list-text">{__('Anonymous')}</div>
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );
