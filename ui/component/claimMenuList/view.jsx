@@ -12,7 +12,7 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-import { generateShareUrl, generateRssUrl, generateLbryContentUrl, generateShortShareUrl } from 'util/url';
+import { generateShareUrl, generateRssUrl, generateLbryContentUrl, generateShareUrlMaybeShortened } from 'util/url';
 import { useHistory } from 'react-router';
 import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
@@ -264,7 +264,7 @@ function ClaimMenuList(props: Props) {
           if (accessKey === null) {
             throw new Error();
           } else {
-            generateShortShareUrl(SHARE_DOMAIN, lbryUrl, null, null, false, null, null, accessKey)
+            generateShareUrlMaybeShortened(SHARE_DOMAIN, lbryUrl, null, null, false, null, null, accessKey)
               .then((result) => {
                 copyToClipboard(result, 'Unlisted link copied.', 'Failed to copy link.');
               })
