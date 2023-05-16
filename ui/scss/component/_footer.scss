@@ -8,6 +8,11 @@
   padding: var(--spacing-xl);
   font-size: var(--font-small);
 
+  opacity: 0;
+  animation: fadeIn 2s;
+  animation-delay: 2s;
+  animation-fill-mode: forwards;
+
   @media (max-width: $breakpoint-small) {
     max-width: 100%;
     padding: var(--spacing-m);
