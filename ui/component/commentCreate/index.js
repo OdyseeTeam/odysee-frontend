@@ -21,7 +21,6 @@ import { doToast } from 'redux/actions/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
   selectMyCommentedChannelIdsForId,
-  selectSettingsByChannelId,
   selectCommentsDisabledSettingForChannelId,
   selectLivestreamChatMembersOnlyForChannelId,
   selectMembersOnlyCommentsForChannelId,
@@ -67,7 +66,7 @@ const select = (state, props) => {
     myChannelClaimIds: selectMyChannelClaimIds(state),
     myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
     preferredCurrency: selectPreferredCurrency(state),
-    settingsByChannelId: selectSettingsByChannelId(state),
+    channelSettings: state.comments.settingsByChannelId[channelClaimId],
     supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
     tipChannelName,
     userHasMembersOnlyChatPerk: selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId),
