@@ -316,6 +316,7 @@ const VideoJsEvents = ({
     // player.on('ended', onEnded);
 
     if (isLivestreamClaim) {
+      window.liveSeeking = true;
       player.liveTracker.on('liveedgechange', () => {
         if (player.paused()) {
           // when liveedge changes, add the window variable so that the timeout isn't triggered
@@ -326,9 +327,13 @@ const VideoJsEvents = ({
           if (window.liveEdgePaused) delete window.liveEdgePaused;
         }
 
-        player.liveTracker.seekToLiveEdge();
+        if (window.liveSeeking) {
+          player.liveTracker.seekToLiveEdge();
+        }
       });
       player.on('timeupdate', liveEdgeRestoreSpeed);
+    } else {
+      window.liveSeeking = false;
     }
   }
 
