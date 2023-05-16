@@ -433,8 +433,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  console.log('hideJoin: ', hideJoin);
-
   return (
     <WrapperElement
       ref={ref}
