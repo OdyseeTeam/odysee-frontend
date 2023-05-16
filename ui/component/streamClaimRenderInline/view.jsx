@@ -52,9 +52,13 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
   }
 
   componentDidMount() {
-    const { renderMode, embedded } = this.props;
+    const { renderMode, embedded, doAnalyticsViewForUri, uri, claimRewards, streamingUrl } = this.props;
     analytics.event.playerLoaded(renderMode, embedded);
 
+    if (uri && streamingUrl) {
+      this.setState({ prevUri: uri });
+      doAnalyticsViewForUri(uri).then(claimRewards);
+    }
     // @if TARGET='app'
     window.addEventListener('keydown', this.escapeListener, true);
     // @endif
@@ -67,8 +71,8 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
   }
 
   componentDidUpdate() {
-    const { doAnalyticsViewForUri, uri, claimRewards } = this.props;
-    if (uri && uri !== this.state.prevUri) {
+    const { doAnalyticsViewForUri, uri, claimRewards, streamingUrl } = this.props;
+    if (uri && streamingUrl && uri !== this.state.prevUri) {
       this.setState({ prevUri: uri });
       doAnalyticsViewForUri(uri).then(claimRewards);
     }
