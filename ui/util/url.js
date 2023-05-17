@@ -164,7 +164,8 @@ export const generateShareUrl = (
   return url;
 };
 
-export const generateShareUrlMaybeShortened = async (
+// @flow
+export const generateShortShareUrl = async (
   domain,
   lbryUrl,
   referralCode,
@@ -172,8 +173,7 @@ export const generateShareUrlMaybeShortened = async (
   includeStartTime,
   startTime,
   listId,
-  uriAccessKey?: UriAccessKey,
-  shouldShorten
+  uriAccessKey?: UriAccessKey
 ) => {
   type Params = Array<[string, ?string]>;
 
@@ -184,7 +184,9 @@ export const generateShareUrlMaybeShortened = async (
     ['r', referralCode && rewardsApproved ? referralCode : null],
   ];
 
-  const paramsToRetain: Params = [['t', includeStartTime ? startTime.toString() : null]];
+  const paramsToRetain: Params = [
+    ['t', includeStartTime ? startTime.toString() : null],
+  ];
 
   // -- Build base URL with claim gists:
   const { streamName, streamClaimId, channelName, channelClaimId } = parseURI(lbryUrl);
@@ -208,10 +210,6 @@ export const generateShareUrlMaybeShortened = async (
       urlToShorten.searchParams.set(p[0], p[1]);
     }
   });
-
-  if (!shouldShorten) {
-    return urlToShorten.toString();
-  }
 
   // -- Fetch the short url:
   const shortUrl = await ShortUrl.createFrom(urlToShorten.toString())

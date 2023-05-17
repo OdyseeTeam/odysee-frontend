@@ -17,7 +17,8 @@ import {
   generateLbryContentUrl,
   generateLbryWebUrl,
   generateEncodedLbryURL,
-  generateShareUrlMaybeShortened,
+  generateShareUrl,
+  generateShortShareUrl,
   generateRssUrl,
 } from 'util/url';
 import { URL as SITE_URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
@@ -123,9 +124,8 @@ function SocialShare(props: SocialShareStateProps) {
   const [showClaimLinks, setShowClaimLinks] = React.useState(false);
   const [includeStartTime, setincludeStartTime]: [boolean, any] = React.useState(false);
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
-  const isUnlisted = isClaimUnlisted(claim);
   const showAdditionalShareOptions =
-    !isUnlisted && !isClaimPrivate(claim) && getClaimScheduledState(claim) === 'non-scheduled';
+    !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) === 'non-scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
 
@@ -148,7 +148,19 @@ function SocialShare(props: SocialShareStateProps) {
     startTimeSeconds,
     includedCollectionId
   );
-  const [shareUrl, setShareUrl] = React.useState('');
+  const [shareUrl, setShareUrl] = React.useState(() => {
+    return uriAccessKey
+      ? ''
+      : generateShareUrl(
+          SHARE_DOMAIN,
+          lbryUrl,
+          referralCode,
+          rewardsApproved,
+          includeStartTime,
+          startTimeSeconds,
+          includedCollectionId
+        );
+  });
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
   const claimLinkElements: Array<Node> = getClaimLinkElements();
 
@@ -222,19 +234,20 @@ function SocialShare(props: SocialShareStateProps) {
   }, [includeStartTime, shareUrl, startTimeSeconds]);
 
   React.useEffect(() => {
-    generateShareUrlMaybeShortened(
-      SHARE_DOMAIN,
-      lbryUrl,
-      referralCode,
-      rewardsApproved,
-      includeStartTime,
-      startTimeSeconds,
-      includedCollectionId,
-      uriAccessKey,
-      isUnlisted
-    )
-      .then((result) => setShareUrl(result))
-      .catch((err) => assert(false, 'SocialShare', err));
+    if (uriAccessKey) {
+      generateShortShareUrl(
+        SHARE_DOMAIN,
+        lbryUrl,
+        referralCode,
+        rewardsApproved,
+        includeStartTime,
+        startTimeSeconds,
+        includedCollectionId,
+        uriAccessKey
+      )
+        .then((result) => setShareUrl(result))
+        .catch((err) => assert(false, 'SocialShare', err));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
 
