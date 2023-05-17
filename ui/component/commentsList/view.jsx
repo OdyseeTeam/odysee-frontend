@@ -382,11 +382,11 @@ export default function CommentList(props: Props) {
   const commentProps = {
     isTopLevel: true,
     uri,
-    claimIsMine,
     linkedCommentId,
     threadCommentId,
     threadDepthLevel,
   };
+
   const actionButtonsProps = {
     uri,
     totalComments,
@@ -442,10 +442,15 @@ export default function CommentList(props: Props) {
           >
             {readyToDisplayComments && (
               <>
-                {pinnedComments && !threadCommentId && (
-                  <CommentElements comments={pinnedComments} disabled={notAuthedToChat} {...commentProps} />
-                )}
-                <CommentElements comments={topLevelComments} disabled={notAuthedToChat} {...commentProps} />
+                {pinnedComments &&
+                  !threadCommentId &&
+                  pinnedComments.map((c) => (
+                    <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+                  ))}
+
+                {topLevelComments.map((c) => (
+                  <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+                ))}
               </>
             )}
           </ul>
@@ -493,19 +498,6 @@ export default function CommentList(props: Props) {
     />
   );
 }
-
-type CommentProps = {
-  comments: Array<Comment>,
-  disabled?: boolean,
-};
-
-const CommentElements = (commentProps: CommentProps) => {
-  const { comments, disabled, ...commentsProps } = commentProps;
-
-  return comments.map((comment) => (
-    <CommentView key={comment.comment_id} comment={comment} disabled={disabled} {...commentsProps} />
-  ));
-};
 
 type ActionButtonsProps = {
   uri: string,

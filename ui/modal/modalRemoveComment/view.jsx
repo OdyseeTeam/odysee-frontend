@@ -34,6 +34,7 @@ function ModalRemoveComment(props: Props) {
   function getCommentPreview(comment: ?Comment) {
     return comment ? (
       <div className="section comment-preview non-clickable">
+        {/* $FlowIgnore: null comment handled */}
         <Comment comment={comment} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />
       </div>
     ) : null;

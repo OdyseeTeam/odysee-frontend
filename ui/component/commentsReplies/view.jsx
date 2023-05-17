@@ -15,7 +15,6 @@ type Props = {
   onShowMore?: () => void,
   // redux
   fetchedReplies: Array<Comment>,
-  claimIsMine: boolean,
   threadLevel: number,
   isFetching: boolean,
 };
@@ -24,7 +23,6 @@ export default function CommentsReplies(props: Props) {
   const {
     uri,
     fetchedReplies,
-    claimIsMine,
     linkedCommentId,
     threadCommentId,
     numDirectReplies,
@@ -41,10 +39,11 @@ export default function CommentsReplies(props: Props) {
       <ul className="comment__replies">
         {fetchedReplies.map((comment) => (
           <Comment
+            // $FlowIgnore
             key={comment.comment_id}
             uri={uri}
+            // $FlowIgnore
             comment={comment}
-            claimIsMine={claimIsMine}
             linkedCommentId={linkedCommentId}
             threadCommentId={threadCommentId}
             supportDisabled={supportDisabled}
