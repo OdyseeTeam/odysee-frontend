@@ -782,6 +782,7 @@ export default function ReportContent(props: Props) {
   function getCommentPreviews(comment: ?Comment) {
     return comment ? (
       <div className="section non-clickable">
+        {/* $FlowIgnore: null comment handled */}
         <Comment comment={comment} isTopLevel hideActions hideContextMenu />
       </div>
     ) : null;

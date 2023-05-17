@@ -52,51 +52,58 @@ import { lazyImport } from 'util/lazyImport';
 const AUTO_EXPAND_ALL_REPLIES = false;
 const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
-type Props = {
+// ****************************************************************************
+// ****************************************************************************
+
+export type Props = {|
   comment: Comment,
-  myChannelIds: ?Array<string>,
-  forceDisplayDeadComment?: boolean,
-  doClearPlayingUri: () => void,
   uri: string,
-  claim: StreamClaim,
-  claimIsMine: boolean, // if you control the claim which this comment was posted on
-  updateComment: (string, string) => void,
-  fetchReplies: (string, string, number, number, number) => void,
-  totalReplyPages: number,
-  commentModBlock: (string) => void,
+  forceDisplayDeadComment?: boolean,
   linkedCommentId?: string,
-  threadCommentId?: string,
-  linkedCommentAncestors: { [string]: Array<string> },
-  hasChannels: boolean,
-  commentingEnabled: boolean,
-  doToast: ({ message: string }) => void,
+  threadCommentId?: ?string,
   isTopLevel?: boolean,
   hideActions?: boolean,
   hideContextMenu?: boolean,
-  othersReacts: ?{
-    like: number,
-    dislike: number,
-  },
-  commentIdentityChannel: any,
-  activeChannelClaim: ?ChannelClaim,
-  playingUri: PlayingUri,
-  stakedLevel: number,
-  supportDisabled: boolean,
-  setQuickReply: (any) => void,
-  quickReply: any,
-  odyseeMembership: ?string,
-  creatorMembership: ?string,
-  fetchedReplies: Array<Comment>,
-  repliesFetching: boolean,
+  supportDisabled?: boolean,
+  setQuickReply?: (any) => void,
+  quickReply?: any,
   threadLevel?: number,
   threadDepthLevel?: number,
-  authorTitle: string,
-  channelAge?: any,
   disabled?: boolean,
-  doClearPlayingSource: () => void,
-};
+|};
 
-function CommentView(props: Props) {
+type StateProps = {|
+  fetchedReplies: Array<Comment>,
+  othersReacts: ?{ like: number, dislike: number },
+  linkedCommentAncestors: { [string]: Array<string> },
+  totalReplyPages: number,
+  repliesFetching: boolean,
+  activeChannelClaim: ?ChannelClaim,
+  claim: StreamClaim,
+  authorTitle: ?string,
+  channelAge?: any,
+  myChannelIds: ?Array<string>,
+  hasChannels: boolean,
+  odyseeMembership: ?string,
+  creatorMembership: ?string,
+  commentingEnabled: boolean,
+  playingUri: PlayingUri,
+  stakedLevel: number,
+|};
+
+type DispatchProps = {|
+  doClearPlayingUri: () => void,
+  doClearPlayingSource: () => void,
+  updateComment: (string, string) => void,
+  fetchReplies: (string, string, number, number, number) => void,
+  doToast: (ToastParams) => void,
+|};
+
+// ****************************************************************************
+// Comment
+// ****************************************************************************
+
+function CommentView(props: Props & StateProps & DispatchProps) {
   const {
     comment,
     myChannelIds,

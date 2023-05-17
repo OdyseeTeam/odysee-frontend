@@ -1,8 +1,10 @@
+// @flow
+import type { Props } from './view';
+import Comment from './view';
 import { connect } from 'react-redux';
 import {
   selectStakedLevelForChannelUri,
   selectClaimForUri,
-  selectThumbnailForUri,
   selectHasChannels,
   selectMyClaimIdsRaw,
   selectTitleForUri,
@@ -26,7 +28,6 @@ import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { getChannelIdFromClaim } from 'util/claim';
-import Comment from './view';
 
 const select = (state, props) => {
   const { comment, uri } = props;
@@ -43,7 +44,6 @@ const select = (state, props) => {
   return {
     myChannelIds: selectMyClaimIdsRaw(state),
     claim,
-    thumbnail: channel_url && selectThumbnailForUri(state, channel_url),
     commentingEnabled: Boolean(selectUserVerifiedEmail(state)),
     othersReacts: selectOthersReactsForComment(state, reactionKey),
     activeChannelClaim,
@@ -53,10 +53,10 @@ const select = (state, props) => {
     linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channel_id),
-    creatorMembership: selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId, channel_id),
+    creatorMembership: selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId || '', channel_id) || '',
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
-    authorTitle: selectTitleForUri(state, channel_url),
+    authorTitle: channel_url ? selectTitleForUri(state, channel_url) : null,
     channelAge,
   };
 };
@@ -69,4 +69,4 @@ const perform = {
   doToast,
 };
 
-export default connect(select, perform)(Comment);
+export default connect<_, Props, _, _, _, _>(select, perform)(Comment);

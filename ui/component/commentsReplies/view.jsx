@@ -4,27 +4,37 @@ import Comment from 'component/comment';
 import React from 'react';
 import Spinner from 'component/spinner';
 
-type Props = {
+// ****************************************************************************
+// ****************************************************************************
+
+export type Props = {|
   uri: string,
+  parentId: CommentId,
   linkedCommentId?: string,
-  threadCommentId?: string,
+  threadCommentId?: ?string,
   numDirectReplies: number, // Total replies for parentId as reported by 'comment[replies]'. Includes blocked items.
   hasMore: boolean,
-  supportDisabled: boolean,
+  supportDisabled?: boolean,
   threadDepthLevel?: number,
   onShowMore?: () => void,
-  // redux
-  fetchedReplies: Array<Comment>,
-  claimIsMine: boolean,
   threadLevel: number,
-  isFetching: boolean,
-};
+|};
 
-export default function CommentsReplies(props: Props) {
+type StateProps = {|
+  fetchedReplies: Array<Comment>,
+  isFetching: boolean,
+|};
+
+type DispatchProps = {||};
+
+// ****************************************************************************
+// CommentsReplies
+// ****************************************************************************
+
+export default function CommentsReplies(props: Props & StateProps & DispatchProps) {
   const {
     uri,
     fetchedReplies,
-    claimIsMine,
     linkedCommentId,
     threadCommentId,
     numDirectReplies,
@@ -41,10 +51,11 @@ export default function CommentsReplies(props: Props) {
       <ul className="comment__replies">
         {fetchedReplies.map((comment) => (
           <Comment
+            // $FlowIgnore
             key={comment.comment_id}
             uri={uri}
+            // $FlowIgnore
             comment={comment}
-            claimIsMine={claimIsMine}
             linkedCommentId={linkedCommentId}
             threadCommentId={threadCommentId}
             supportDisabled={supportDisabled}
