@@ -17,6 +17,7 @@ import {
   generateLbryContentUrl,
   generateLbryWebUrl,
   generateEncodedLbryURL,
+  generateShareUrl,
   generateShortShareUrl,
   generateRssUrl,
 } from 'util/url';
@@ -147,7 +148,19 @@ function SocialShare(props: SocialShareStateProps) {
     startTimeSeconds,
     includedCollectionId
   );
-  const [shareUrl, setShareUrl] = React.useState('');
+  const [shareUrl, setShareUrl] = React.useState(() => {
+    return uriAccessKey
+      ? ''
+      : generateShareUrl(
+          SHARE_DOMAIN,
+          lbryUrl,
+          referralCode,
+          rewardsApproved,
+          includeStartTime,
+          startTimeSeconds,
+          includedCollectionId
+        );
+  });
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
   const claimLinkElements: Array<Node> = getClaimLinkElements();
 
@@ -221,18 +234,20 @@ function SocialShare(props: SocialShareStateProps) {
   }, [includeStartTime, shareUrl, startTimeSeconds]);
 
   React.useEffect(() => {
-    generateShortShareUrl(
-      SHARE_DOMAIN,
-      lbryUrl,
-      referralCode,
-      rewardsApproved,
-      includeStartTime,
-      startTimeSeconds,
-      includedCollectionId,
-      uriAccessKey
-    )
-      .then((result) => setShareUrl(result))
-      .catch((err) => assert(false, 'SocialShare', err));
+    if (uriAccessKey) {
+      generateShortShareUrl(
+        SHARE_DOMAIN,
+        lbryUrl,
+        referralCode,
+        rewardsApproved,
+        includeStartTime,
+        startTimeSeconds,
+        includedCollectionId,
+        uriAccessKey
+      )
+        .then((result) => setShareUrl(result))
+        .catch((err) => assert(false, 'SocialShare', err));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
 
