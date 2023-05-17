@@ -104,8 +104,27 @@ $INDENT: var(--spacing-xl);
   font-size: var(--font-base);
   align-items: center;
   .button {
-    font-size: var(--font-body);
-    margin-right: var(--spacing-xs);
+    padding: 0;
+    background: unset !important;
+    height: unset;
+    margin-right: var(--spacing-xxs);
+    .button__content span {
+      color: var(--color-primary);
+      margin: unset;
+    }
+    .icon {
+      margin-top: -2px;
+      stroke: var(--color-primary);
+      margin-right: var(--spacing-xxs);
+    }
+    &:hover {
+      .button__content span {
+        color: var(--color-secondary);
+      }
+      .icon {
+        stroke: var(--color-secondary) !important;
+      }
+    }
   }
 }
 
