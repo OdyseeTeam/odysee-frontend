@@ -11,7 +11,7 @@ import {
   selectIsUriResolving,
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
-import { isClaimNsfw } from 'util/claim';
+import { isClaimNsfw, isClaimUnlisted } from 'util/claim';
 import { objSelectorEqualityCheck } from 'util/redux-utils';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
@@ -129,6 +129,7 @@ const selectRecommendedContentFilteredForUri = createCachedSelector(
 
       const recChannelUri = recClaim?.signing_channel?.canonical_url;
       const isRecChannelBlocked = blockedChannels.some((blockedUri) => blockedUri.includes(recChannelUri));
+      const isUnlisted = isClaimUnlisted(recClaim);
 
       let isEqualUri;
       try {
@@ -136,7 +137,7 @@ const selectRecommendedContentFilteredForUri = createCachedSelector(
         isEqualUri = recClaimId === currentClaimId;
       } catch (e) {}
 
-      return !isEqualUri && !isRecChannelBlocked;
+      return !isEqualUri && !isRecChannelBlocked && !isUnlisted;
     });
   }
 )((state, uri) => String(uri));
