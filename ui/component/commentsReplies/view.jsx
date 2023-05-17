@@ -21,7 +21,7 @@ export type Props = {|
 |};
 
 type StateProps = {|
-  fetchedReplies: Array<Comment>,
+  fetchedReplies: Array<CommentId>,
   isFetching: boolean,
 |};
 
@@ -49,11 +49,11 @@ export default function CommentsReplies(props: Props & StateProps & DispatchProp
   return !numDirectReplies ? null : (
     <div className="comment__replies-container">
       <ul className="comment__replies">
-        {fetchedReplies.map((comment) => (
+        {fetchedReplies.map((id) => (
           <CommentView
-            key={comment.comment_id}
+            key={id}
             uri={uri}
-            comment={comment}
+            commentId={id}
             linkedCommentId={linkedCommentId}
             threadCommentId={threadCommentId}
             supportDisabled={supportDisabled}

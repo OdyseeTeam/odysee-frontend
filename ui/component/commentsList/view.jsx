@@ -48,7 +48,7 @@ export type Props = {|
 type StateProps = {|
   commentByIdProxy: { commentById: { [CommentId]: Comment } },
   topLevelCommentIds: Array<CommentId>,
-  pinnedComments: Array<Comment>,
+  pinnedCommentIds: Array<CommentId>,
   allCommentIds: Array<CommentId>,
   threadComment: ?Comment, // comment object for 'threadCommentId'
   totalComments: number,
@@ -97,7 +97,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     commentByIdProxy,
     allCommentIds,
     uri,
-    pinnedComments,
+    pinnedCommentIds,
     topLevelCommentIds,
     topLevelTotalPages,
     claimId,
@@ -458,14 +458,14 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
           >
             {readyToDisplayComments && (
               <>
-                {pinnedComments &&
+                {pinnedCommentIds &&
                   !threadCommentId &&
-                  pinnedComments.map((c) => (
-                    <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+                  pinnedCommentIds.map((id) => (
+                    <CommentView key={id} commentId={id} disabled={notAuthedToChat} {...commentProps} />
                   ))}
 
                 {topLevelCommentIds.map((id) => (
-                  <CommentView key={id} comment={commentById[id]} disabled={notAuthedToChat} {...commentProps} />
+                  <CommentView key={id} commentId={id} disabled={notAuthedToChat} {...commentProps} />
                 ))}
               </>
             )}

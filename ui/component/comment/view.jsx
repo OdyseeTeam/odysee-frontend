@@ -56,7 +56,7 @@ const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpa
 // ****************************************************************************
 
 export type Props = {|
-  comment: Comment,
+  commentId: CommentId,
   uri?: string,
   forceDisplayDeadComment?: boolean,
   linkedCommentId?: string,
@@ -73,7 +73,8 @@ export type Props = {|
 |};
 
 type StateProps = {|
-  fetchedReplies: Array<Comment>,
+  commentByIdProxy: { commentById: { [CommentId]: Comment } },
+  replyIds: Array<CommentId>,
   othersReacts: ?{ like: number, dislike: number },
   linkedCommentAncestors: { [string]: Array<string> },
   totalReplyPages: number,
@@ -105,7 +106,7 @@ type DispatchProps = {|
 
 function CommentView(props: Props & StateProps & DispatchProps) {
   const {
-    comment,
+    commentId,
     myChannelIds,
     forceDisplayDeadComment = false,
     doClearPlayingUri,
@@ -131,7 +132,8 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     quickReply,
     odyseeMembership,
     creatorMembership,
-    fetchedReplies,
+    commentByIdProxy,
+    replyIds,
     repliesFetching,
     threadLevel = 0,
     threadDepthLevel = 0,
@@ -141,13 +143,14 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     disabled,
   } = props;
 
+  const commentById = commentByIdProxy.commentById;
+  const comment = commentById[commentId];
   const commentElemRef = React.useRef();
 
   const {
     channel_url: authorUri,
     channel_name: author,
     channel_id: channelId,
-    comment_id: commentId,
     comment: message,
     is_fiat: isFiat,
     is_global_mod: isGlobalMod,
@@ -157,6 +160,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     replies: numDirectReplies,
     timestamp,
   } = comment;
+
   const claimName = authorTitle || author;
 
   const timePosted = timestamp * 1000;
@@ -544,7 +548,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
         </div>
 
         {showReplies &&
-          (repliesFetching && (!fetchedReplies || fetchedReplies.length === 0) ? (
+          (repliesFetching && (!replyIds || replyIds.length === 0) ? (
             <div className="empty empty--centered-tight">
               <Spinner type="small" />
             </div>

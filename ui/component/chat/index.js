@@ -1,12 +1,12 @@
 import { connect } from 'react-redux';
-import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
+// import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { doResolveUris } from 'redux/actions/claims';
 import { selectClaimForUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doCommentList, doHyperChatList } from 'redux/actions/comments';
 import {
-  selectTopLevelCommentsForUri,
+  // selectTopLevelCommentsForUri,
   selectHyperChatsForUri,
-  selectPinnedCommentsForUri,
+  // selectPinnedCommentsForUri,
   selectLivestreamChatMembersOnlyForChannelId,
 } from 'redux/selectors/comments';
 import {
@@ -29,10 +29,12 @@ const select = (state, props) => {
   const claimId = claim && claim.claim_id;
   const channelId = getChannelIdFromClaim(claim);
 
+  // @KP TODO
+
   return {
     claimId,
-    comments: selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
-    pinnedComments: selectPinnedCommentsForUri(state, uri),
+    comments: [], // selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
+    pinnedComments: [], // selectPinnedCommentsForUri(state, uri),
     superChats: selectHyperChatsForUri(state, uri),
     channelId,
     channelTitle: getChannelTitleFromClaim(claim),

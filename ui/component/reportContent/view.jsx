@@ -782,7 +782,7 @@ export default function ReportContent(props: Props) {
   function getCommentPreviews(comment: ?Comment) {
     return comment ? (
       <div className="section non-clickable">
-        <CommentView comment={comment} isTopLevel hideActions hideContextMenu />
+        <CommentView commentId={comment.comment_id} isTopLevel hideActions hideContextMenu />
       </div>
     ) : null;
   }

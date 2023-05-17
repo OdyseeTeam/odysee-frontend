@@ -16,6 +16,7 @@ import {
 import { isClaimNsfw, getChannelFromClaim } from 'util/claim';
 import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
 import { getCommentsListTitle } from 'util/comments';
+import { Container } from 'util/container';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 
 type State = { claims: any, comments: CommentsState, user: UserState };
@@ -76,21 +77,11 @@ export const selectOthersReactsForComment = (state: State, id: string) => {
   return state.comments.othersReactsByCommentId && state.comments.othersReactsByCommentId[id];
 };
 
-export const selectPinnedCommentsForUri = createCachedSelector(
+export const selectPinnedCommentIdsForUri = createCachedSelector(
   selectClaimIdForUri,
-  (state: State) => state.comments.commentById,
   (state: State) => state.comments.pinnedCommentsById,
-  (claimId, byId, pinnedCommentsById) => {
-    const pinnedCommentIds = pinnedCommentsById && pinnedCommentsById[claimId];
-    const pinnedComments = [];
-
-    if (pinnedCommentIds) {
-      pinnedCommentIds.forEach((commentId) => {
-        pinnedComments.push(byId[commentId]);
-      });
-    }
-
-    return pinnedComments;
+  (claimId, pinnedCommentsById) => {
+    return pinnedCommentsById[claimId] || Container.Arr.EMPTY;
   }
 )((state, uri) => String(uri));
 
@@ -133,45 +124,7 @@ export const selectHasAdminChannel = createSelector(selectState, (state) => {
   // return Object.values(state.moderationDelegatorsById).some((x) => x.global);
 });
 
-export const selectCommentsByClaimId = createSelector(selectState, selectCommentsById, (state, byId) => {
-  const byClaimId = state.byId || {};
-  const comments = {};
-
-  // replace every comment_id in the list with the actual comment object
-  Object.keys(byClaimId).forEach((claimId: string) => {
-    const commentIds = byClaimId[claimId];
-
-    comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
-    for (let i = 0; i < commentIds.length; i++) {
-      comments[claimId][i] = byId[commentIds[i]];
-    }
-  });
-
-  return comments;
-});
-
 export const selectSuperchatsByUri = (state: State) => selectState(state).superChatsByUri;
-
-export const selectTopLevelCommentsByClaimId = createSelector(
-  (state) => selectState(state).topLevelCommentsById,
-  selectCommentsById,
-  (topLevelCommentsById, byId) => {
-    const byClaimId = topLevelCommentsById || {};
-    const comments = {};
-
-    // replace every comment_id in the list with the actual comment object
-    Object.keys(byClaimId).forEach((claimId) => {
-      const commentIds = byClaimId[claimId];
-
-      comments[claimId] = Array(commentIds === null ? 0 : commentIds.length);
-      for (let i = 0; i < commentIds.length; i++) {
-        comments[claimId][i] = byId[commentIds[i]];
-      }
-    });
-
-    return comments;
-  }
-);
 
 export const selectCommentForCommentId = createSelector(
   (state, commentId) => commentId,
@@ -194,6 +147,7 @@ export const selectCommentIdsForUri = (state: State, uri: string) => {
 };
 
 const filterCommentsDepOnList = {
+  commentByIdProxy: selectProxiedCommentById,
   claimsById: selectClaimsById,
   myClaimIds: selectMyClaimIdsRaw,
   myChannelClaimIds: selectMyChannelClaimIds,
@@ -255,24 +209,18 @@ export const selectFeaturedChannelsForChannelId = createCachedSelector(
   }
 )((state, channelId) => String(channelId));
 
-export const selectCommentsForUri = createCachedSelector(
-  (state, uri) => uri,
-  selectCommentsByClaimId,
-  selectClaimIdForUri,
-  ...Object.values(filterCommentsDepOnList),
-  (uri, byClaimId, claimId, ...filterInputs) => {
-    const comments = byClaimId && byClaimId[claimId];
-    return filterComments(comments, claimId, filterInputs);
-  }
-)((state, uri) => String(uri));
+const selectTopLevelCommentIdsForUriRaw = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  return state.comments.topLevelCommentsById[claimId];
+};
 
 export const selectTopLevelCommentIdsForUri = createCachedSelector(
   selectClaimIdForUri,
-  (state: State) => state.comments.topLevelCommentsById,
+  selectTopLevelCommentIdsForUriRaw,
   (state: State, uri) => uri,
-  (state: State, uri, maxCount) => maxCount,
+  (state: State, uri, maxCount) => maxCount || -1,
   ...Object.values(filterCommentsDepOnList),
-  (claimId, topLevelCommentIds, uri, maxCount = -1, ...filterInputs) => {
+  (claimId, topLevelCommentIds, uri, maxCount, ...filterInputs) => {
     const truncate = maxCount > 0 && Boolean(topLevelCommentIds);
     const commentIds = truncate ? topLevelCommentIds.slice(0, maxCount) : topLevelCommentIds;
     return filterComments(commentIds, claimId, filterInputs);
@@ -285,22 +233,10 @@ export const selectTopLevelTotalPagesForUri = (state: State, uri: string) => {
 };
 
 export const selectRepliesForParentId = createCachedSelector(
-  (state, id) => id,
-  (state) => selectState(state).repliesByParentId,
-  selectCommentsById,
+  (state: State, id) => state.comments.repliesByParentId[id],
   ...Object.values(filterCommentsDepOnList),
-  (id, repliesByParentId, commentsById, ...filterInputs) => {
-    // const claimId = byUri[uri]; // just parentId (id)
-    const replyIdsForParent = repliesByParentId[id] || [];
-    if (!replyIdsForParent.length) return [];
-
-    const comments = [];
-    replyIdsForParent.forEach((cid) => {
-      comments.push(commentsById[cid]);
-    });
-    // const comments = byParentId && byParentId[id];
-
-    return filterComments(comments, undefined, filterInputs);
+  (replyIds, ...filterInputs) => {
+    return filterComments(replyIds, undefined, filterInputs);
   }
 )((state, id: string) => String(id));
 
@@ -311,7 +247,11 @@ export const selectRepliesForParentId = createCachedSelector(
  * @param claimId The claim that `comments` reside in.
  * @param filterInputs Values returned by filterCommentsDepOnList.
  */
-const filterComments = (commentIds: Array<CommentId>, claimId?: string, filterInputs: any) => {
+const filterComments = (commentIds: ?Array<CommentId>, claimId?: string, filterInputs: any) => {
+  if (!commentIds || commentIds.length === 0) {
+    return Container.Arr.EMPTY;
+  }
+
   const filterProps = filterInputs.reduce((acc, cur, i) => {
     acc[filterCommentsPropKeys[i]] = cur;
     return acc;
@@ -333,7 +273,7 @@ const filterComments = (commentIds: Array<CommentId>, claimId?: string, filterIn
 
   const commentById = commentByIdProxy.commentById;
 
-  return commentIds
+  const filtered = commentIds
     ? commentIds.filter((id) => {
         const comment = commentById[id];
 
@@ -389,6 +329,12 @@ const filterComments = (commentIds: Array<CommentId>, claimId?: string, filterIn
         return !mutedChannels.includes(comment.channel_url);
       })
     : [];
+
+  if (filtered.length === commentIds.length) {
+    return commentIds;
+  } else {
+    return Container.Arr.useStableEmpty(filtered);
+  }
 };
 
 export const makeSelectTotalReplyPagesForParentId = (parentId: string) =>

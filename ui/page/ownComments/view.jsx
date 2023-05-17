@@ -23,7 +23,8 @@ function scaleToDevicePixelRatio(value) {
 
 type Props = {
   activeChannelClaim: ?ChannelClaim,
-  allComments: ?Array<Comment>,
+  commentByIdProxy: { commentById: { [CommentId]: Comment } },
+  allCommentIds: ?Array<CommentId>,
   totalComments: number,
   isFetchingComments: boolean,
   claimsById: any,
@@ -34,13 +35,15 @@ type Props = {
 export default function OwnComments(props: Props) {
   const {
     activeChannelClaim,
-    allComments,
+    commentByIdProxy,
+    allCommentIds,
     totalComments,
     isFetchingComments,
     claimsById,
     doCommentReset,
     doCommentListOwn,
   } = props;
+
   const spinnerRef = React.useRef();
   const [page, setPage] = React.useState(0);
   const [activeChannelId, setActiveChannelId] = React.useState('');
@@ -49,11 +52,13 @@ export default function OwnComments(props: Props) {
   // the list until we've gone through the initial reset.
   const wasResetAndReady = useFetched(isFetchingComments);
 
+  const commentById = commentByIdProxy.commentById;
   const totalPages = Math.ceil(totalComments / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const moreBelow = page < totalPages;
 
-  function getCommentsElem(comments: Array<Comment>) {
-    return comments.map((comment) => {
+  function getCommentsElem(commentIds: Array<CommentId>) {
+    return commentIds.map((id) => {
+      const comment = commentById[id];
       const contentClaim = claimsById[comment.claim_id];
       const isChannel = contentClaim && contentClaim.value_type === 'channel';
       const isLivestream = Boolean(contentClaim && contentClaim.value_type === 'stream' && !contentClaim.value.source);
@@ -76,7 +81,7 @@ export default function OwnComments(props: Props) {
               )}
               {!contentClaim && <Empty text={__('Content or channel was deleted.')} />}
             </div>
-            <CommentView uri={contentClaim?.canonical_url} isTopLevel hideActions comment={comment} />
+            <CommentView uri={contentClaim?.canonical_url} isTopLevel hideActions commentId={id} />
           </div>
         </div>
       );
@@ -179,7 +184,7 @@ export default function OwnComments(props: Props) {
         }
         body={
           <>
-            {wasResetAndReady && <ul className="comments">{allComments && getCommentsElem(allComments)}</ul>}
+            {wasResetAndReady && <ul className="comments">{allCommentIds && getCommentsElem(allCommentIds)}</ul>}
             {(isFetchingComments || moreBelow) && (
               <div className="main--empty" ref={spinnerRef}>
                 <Spinner type="small" />

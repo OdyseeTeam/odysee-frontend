@@ -34,7 +34,7 @@ function ModalRemoveComment(props: Props) {
   function getCommentPreview(comment: ?Comment) {
     return comment ? (
       <div className="section comment-preview non-clickable">
-        <CommentView comment={comment} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />
+        <CommentView commentId={comment.comment_id} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />
       </div>
     ) : null;
   }

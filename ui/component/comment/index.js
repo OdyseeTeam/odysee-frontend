@@ -19,6 +19,7 @@ import {
   makeSelectTotalReplyPagesForParentId,
   selectIsFetchingCommentsForParentId,
   selectRepliesForParentId,
+  selectProxiedCommentById,
 } from 'redux/selectors/comments';
 import {
   selectOdyseeMembershipForChannelId,
@@ -30,7 +31,11 @@ import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
-  const { comment, uri } = props;
+  const commentByIdProxy = selectProxiedCommentById(state);
+  const commentById = commentByIdProxy.commentById;
+
+  const { commentId, uri } = props;
+  const comment = commentById[commentId];
   const { comment_id, channel_url, channel_id } = comment || {};
 
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -42,6 +47,7 @@ const select = (state, props) => {
   const channelAge = selectDateForUri(state, channel_url);
 
   return {
+    commentByIdProxy,
     myChannelIds: selectMyClaimIdsRaw(state),
     claim,
     commentingEnabled: Boolean(selectUserVerifiedEmail(state)),
@@ -55,7 +61,7 @@ const select = (state, props) => {
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channel_id) || '',
     creatorMembership: selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId || '', channel_id) || '',
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
-    fetchedReplies: selectRepliesForParentId(state, comment_id),
+    replyIds: selectRepliesForParentId(state, comment_id),
     authorTitle: channel_url ? selectTitleForUri(state, channel_url) : null,
     channelAge,
   };

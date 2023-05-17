@@ -3,7 +3,8 @@ import { doCommentListOwn, doCommentReset } from 'redux/actions/comments';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
   selectIsFetchingComments,
-  selectCommentsForUri,
+  selectCommentIdsForUri,
+  selectProxiedCommentById,
   selectTotalCommentsCountForUri,
 } from 'redux/selectors/comments';
 import { selectClaimsById } from 'redux/selectors/claims';
@@ -16,7 +17,8 @@ const select = (state) => {
 
   return {
     activeChannelClaim,
-    allComments: selectCommentsForUri(state, uri),
+    commentByIdProxy: selectProxiedCommentById(state),
+    allCommentIds: selectCommentIdsForUri(state, uri),
     totalComments: selectTotalCommentsCountForUri(state, uri),
     isFetchingComments: selectIsFetchingComments(state),
     claimsById: selectClaimsById(state),
