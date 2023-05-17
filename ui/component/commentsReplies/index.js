@@ -1,6 +1,8 @@
+// @flow
+import type { Props } from './view';
+import CommentsReplies from './view';
 import { connect } from 'react-redux';
 import { selectIsFetchingCommentsForParentId, selectRepliesForParentId } from 'redux/selectors/comments';
-import CommentsReplies from './view';
 
 const select = (state, props) => {
   const { parentId } = props;
@@ -11,4 +13,4 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select)(CommentsReplies);
+export default connect<_, Props, _, _, _, _>(select, {})(CommentsReplies);
