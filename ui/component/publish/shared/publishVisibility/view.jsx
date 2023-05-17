@@ -39,7 +39,7 @@ const PublishVisibility = (props: Props) => {
         title={__('Visibility')}
         className="card--enable-overflows"
         body={
-          <>
+          <div className="publish-row">
             <fieldset-section>
               <FormField
                 type="radio"
@@ -91,7 +91,7 @@ const PublishVisibility = (props: Props) => {
                 <PublishReleaseDate minDate={new Date(Date.now() + 30 * MS.MINUTE)} />
               </div>
             )}
-          </>
+          </div>
         }
       />
     </div>
