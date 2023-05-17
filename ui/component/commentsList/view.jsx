@@ -34,31 +34,43 @@ function scaleToDevicePixelRatio(value) {
   return Math.ceil(value * devicePixelRatio);
 }
 
-type Props = {
-  allCommentIds: any,
-  pinnedComments: Array<Comment>,
-  topLevelComments: Array<Comment>,
-  topLevelTotalPages: number,
+// ****************************************************************************
+// ****************************************************************************
+
+export type Props = {|
   uri: string,
-  claimId?: string,
-  channelId?: string,
-  claimIsMine: boolean,
+  linkedCommentId?: string,
+  commentsAreExpanded?: boolean,
+  threadCommentId: ?string,
+  notInDrawer?: boolean,
+|};
+
+type StateProps = {|
+  topLevelComments: Array<Comment>,
+  pinnedComments: Array<Comment>,
+  allCommentIds: Array<CommentId>,
+  threadComment: ?Comment, // comment object for 'threadCommentId'
+  totalComments: number,
+  topLevelTotalPages: number,
+  threadCommentAncestors: ?Array<string>,
+  linkedCommentAncestors: ?Array<string>,
+  myReactsByCommentId: ?{ [string]: Array<string> }, // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
+  othersReactsById: ?{ [string]: { [REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]: number } },
+  commentsEnabledSetting: ?boolean,
+  claimId: ?string,
+  channelId: ?string,
+  claimIsMine: ?boolean,
+  activeChannelId: ?string,
   isFetchingComments: boolean,
   isFetchingTopLevelComments: boolean,
   isFetchingReacts: boolean,
-  linkedCommentId?: string,
-  totalComments: number,
   fetchingChannels: boolean,
-  myReactsByCommentId: ?{ [string]: Array<string> }, // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
-  othersReactsById: ?{ [string]: { [REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]: number } },
-  activeChannelId: ?string,
-  commentsEnabledSetting: ?boolean,
-  commentsAreExpanded?: boolean,
-  threadCommentId: ?string,
-  threadComment: ?Comment,
-  notInDrawer?: boolean,
-  threadCommentAncestors: ?Array<string>,
-  linkedCommentAncestors: ?Array<string>,
+  chatCommentsRestrictedToChannelMembers: boolean,
+  isAChannelMember: boolean,
+  scheduledState: ClaimScheduledState,
+|};
+
+type DispatchProps = {|
   fetchTopLevelComments: (
     uri: string,
     parentId: ?string,
@@ -67,19 +79,19 @@ type Props = {
     sortBy: number,
     isLivestream?: boolean
   ) => void,
-  fetchComment: (commentId: string) => void,
-  fetchReacts: (commentIds: Array<string>) => Promise<any>,
-  resetComments: (claimId: string) => void,
+  fetchComment: (CommentId) => void,
+  fetchReacts: (Array<CommentId>) => Promise<any>,
+  resetComments: (ClaimId) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
-  doPopOutInlinePlayer: (param: { source: string }) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
-  creatorsMemberships: Array<Membership>,
-  chatCommentsRestrictedToChannelMembers: boolean,
-  isAChannelMember: boolean,
-  scheduledState: ClaimScheduledState,
-};
+  doPopOutInlinePlayer: (param: { source: string }) => void,
+|};
 
-export default function CommentList(props: Props) {
+// ****************************************************************************
+// CommentList
+// ****************************************************************************
+
+export default function CommentList(props: Props & StateProps & DispatchProps) {
   const {
     allCommentIds,
     uri,
