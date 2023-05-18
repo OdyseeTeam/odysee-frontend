@@ -184,9 +184,7 @@ export const generateShortShareUrl = async (
     ['r', referralCode && rewardsApproved ? referralCode : null],
   ];
 
-  const paramsToRetain: Params = [
-    ['t', includeStartTime ? startTime.toString() : null],
-  ];
+  const paramsToRetain: Params = [['t', includeStartTime ? startTime.toString() : null]];
 
   // -- Build base URL with claim gists:
   const { streamName, streamClaimId, channelName, channelClaimId } = parseURI(lbryUrl);

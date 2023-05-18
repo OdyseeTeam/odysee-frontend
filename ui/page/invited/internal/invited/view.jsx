@@ -96,7 +96,7 @@ function Invited(props: Props) {
   React.useEffect(() => {
     const referrer = referrerUri || referrerCode;
     if (referrerSet === undefined && referrer) {
-        doUserSetReferrerForUri(referrer);
+      doUserSetReferrerForUri(referrer);
     }
   }, [referrerUri, referrerCode, doUserSetReferrerForUri, referrerSet]);
 
