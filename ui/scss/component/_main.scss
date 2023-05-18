@@ -769,6 +769,15 @@ body {
   @extend .main--auth-page;
   max-width: 40rem;
 
+  .card__title-section {
+    width: 100%;
+    .card__title-text {
+      width: 100%;
+      .card__title {
+        width: 100%;
+      }
+    }
+  }
   .form-field__two-column {
     display: flex;
     .comment__char-count-mde {
