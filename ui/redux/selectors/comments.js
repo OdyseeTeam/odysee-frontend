@@ -26,7 +26,6 @@ export const selectCommentsById = (state: State) => selectState(state).commentBy
 export const selectCommentIdsByClaimId = (state: State) => selectState(state).byId;
 export const selectIsFetchingComments = (state: State) => selectState(state).isLoading;
 export const selectIsFetchingCommentsByParentId = (state: State) => selectState(state).isLoadingByParentId;
-const selectTotalCommentsById = (state: State) => selectState(state).totalCommentsById;
 export const selectIsFetchingReacts = (state: State) => selectState(state).isFetchingReacts;
 
 export const selectMyReacts = (state: State) => state.comments.myReactsByCommentId;
@@ -47,26 +46,6 @@ export const selectOthersReacts = (state: State) => state.comments.othersReactsB
 export const selectOthersReactsForComment = (state: State, id: string) => {
   return state.comments.othersReactsByCommentId && state.comments.othersReactsByCommentId[id];
 };
-
-// previously this used a mapping from claimId -> Array<Comments>
-/* export const selectCommentsById = createSelector(
- selectState,
- state => state.byId || {}
- ); */
-export const selectCommentsByUri = createSelector(selectState, (state) => {
-  const byUri = state.commentsByUri || {};
-  const comments = {};
-  Object.keys(byUri).forEach((uri) => {
-    const claimId = byUri[uri];
-    if (claimId === null) {
-      comments[uri] = null;
-    } else {
-      comments[uri] = claimId;
-    }
-  });
-
-  return comments;
-});
 
 export const selectPinnedCommentsForUri = createCachedSelector(
   selectClaimIdForUri,
@@ -387,10 +366,8 @@ export const makeSelectTotalReplyPagesForParentId = (parentId: string) =>
   });
 
 export const selectTotalCommentsCountForUri = (state: State, uri: string) => {
-  const commentIdsByUri = selectCommentsByUri(state);
-  const totalCommentsById = selectTotalCommentsById(state);
-  const claimId = commentIdsByUri[uri];
-  return totalCommentsById[claimId] || 0;
+  const claimId = selectClaimIdForUri(state, uri);
+  return state.comments.totalCommentsById[claimId] || 0;
 };
 
 export const selectCommentsListTitleForUri = (state: State, uri: string) => {
