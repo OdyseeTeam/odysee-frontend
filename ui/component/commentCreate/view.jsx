@@ -51,7 +51,7 @@ type Props = {
   isReply: boolean,
   isLivestream?: boolean,
   parentId: string,
-  settingsByChannelId: { [channelId: string]: PerChannelSettings },
+  channelSettings: ?PerChannelSettings,
   shouldFetchComment: boolean,
   supportDisabled: boolean,
   uri: string,
@@ -94,8 +94,8 @@ type Props = {
   isAChannelMember: boolean,
   commentSettingDisabled: ?boolean,
   userHasMembersOnlyChatPerk: boolean,
-  isLivestreamChatMembersOnly: ?boolean,
-  areCommentsMembersOnly: ?boolean,
+  isLivestreamChatMembersOnly: boolean,
+  areCommentsMembersOnly: boolean,
   hasPremiumPlus: boolean,
 };
 
@@ -134,7 +134,7 @@ export function CommentCreate(props: Props) {
     parentId,
     preferredCurrency,
     setQuickReply,
-    settingsByChannelId,
+    channelSettings,
     shouldFetchComment,
     supportDisabled,
     textInjection,
@@ -188,7 +188,6 @@ export function CommentCreate(props: Props) {
     isFetchingChannels ||
     hasNothingToSumbit ||
     disableInput;
-  const channelSettings = channelClaimId ? settingsByChannelId[channelClaimId] : undefined;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;

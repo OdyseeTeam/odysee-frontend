@@ -25,7 +25,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   allComments: ?Array<Comment>,
   totalComments: number,
-  topLevelTotalPages: number,
   isFetchingComments: boolean,
   claimsById: any,
   doCommentReset: (claimId: string) => void,

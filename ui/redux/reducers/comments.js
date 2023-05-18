@@ -14,10 +14,6 @@ const defaultState: CommentsState = {
   topLevelCommentsById: {},
   topLevelTotalPagesById: {},
   topLevelTotalCommentsById: {},
-  // TODO:
-  // Remove commentsByUri
-  // It is not needed and doesn't provide anything but confusion
-  commentsByUri: {}, // URI -> claimId
   fetchedCommentAncestors: {},
   superChatsByUri: {},
   pinnedCommentsById: {},
@@ -95,19 +91,14 @@ export default handleActions(
     }),
 
     [ACTIONS.COMMENT_CREATE_COMPLETED]: (state: CommentsState, action: any): CommentsState => {
-      const {
-        comment,
-        claimId,
-        uri,
-        livestream,
-      }: { comment: Comment, claimId: string, uri: string, livestream: boolean } = action.data;
+      const { comment, claimId, livestream }: { comment: Comment, claimId: string, uri: string, livestream: boolean } =
+        action.data;
 
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
       const totalCommentsById = Object.assign({}, state.totalCommentsById);
       const topLevelCommentsById = Object.assign({}, state.topLevelCommentsById); // was byId {ClaimId -> [commentIds...]}
       const repliesByParentId = Object.assign({}, state.repliesByParentId); // {ParentCommentID -> [commentIds...] } list of reply comments
-      const commentsByUri = Object.assign({}, state.commentsByUri);
       const comments = byId[claimId] || [];
       const newCommentIds = comments.slice();
 
@@ -137,7 +128,6 @@ export default handleActions(
           }
         } else {
           if (!topLevelCommentsById[claimId]) {
-            commentsByUri[uri] = claimId;
             topLevelCommentsById[claimId] = [comment.comment_id];
           } else {
             topLevelCommentsById[claimId].unshift(comment.comment_id);
@@ -162,7 +152,6 @@ export default handleActions(
         commentById,
         byId,
         totalCommentsById,
-        commentsByUri,
         isLoading: false,
         isCommenting: false,
         myCommentedChannelIdsById: myCommentedChannelIdsById || state.myCommentedChannelIdsById,
@@ -272,43 +261,18 @@ export default handleActions(
     },
 
     [ACTIONS.COMMENT_LIST_COMPLETED]: (state: CommentsState, action: any) => {
-      const {
-        comments,
-        parentId,
-        totalItems,
-        totalFilteredItems,
-        totalPages,
-        claimId,
-        uri,
-        disabled,
-        creatorClaimId,
-        // restrictedToMembersOnly,
-      } = action.data;
+      const { comments, parentId, totalItems, totalFilteredItems, totalPages, claimId, disabled } = action.data;
 
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
       const topLevelCommentsById = Object.assign({}, state.topLevelCommentsById); // was byId {ClaimId -> [commentIds...]}
       const topLevelTotalCommentsById = Object.assign({}, state.topLevelTotalCommentsById);
       const topLevelTotalPagesById = Object.assign({}, state.topLevelTotalPagesById);
-      const commentsByUri = Object.assign({}, state.commentsByUri);
       const repliesByParentId = Object.assign({}, state.repliesByParentId);
       const totalCommentsById = Object.assign({}, state.totalCommentsById);
       const pinnedCommentsById = Object.assign({}, state.pinnedCommentsById);
       const repliesTotalPagesByParentId = Object.assign({}, state.repliesTotalPagesByParentId);
       const isLoadingByParentId = Object.assign({}, state.isLoadingByParentId);
-      const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
-
-      // save an array of claim ids of members-only chats to check during list
-      let membersOnlyChats = settingsByChannelId[creatorClaimId]?.livestream_chat_members_only || false;
-      // if (restrictedToMembersOnly) {
-      //   membersOnlyChats.push(claimId);
-      // }
-
-      settingsByChannelId[creatorClaimId] = {
-        ...(settingsByChannelId[creatorClaimId] || {}),
-        // comments_enabled: !disabled,
-        livestream_chat_members_only: membersOnlyChats,
-      };
 
       if (parentId) {
         isLoadingByParentId[parentId] = false;
@@ -357,7 +321,6 @@ export default handleActions(
           }
 
           immConcatToArrayInObject(byId, claimId, commentIds);
-          commentsByUri[uri] = claimId;
         }
       }
 
@@ -372,10 +335,8 @@ export default handleActions(
         repliesTotalPagesByParentId,
         byId,
         commentById,
-        commentsByUri,
         isLoading: false,
         isLoadingByParentId,
-        settingsByChannelId,
       };
     },
 
@@ -522,7 +483,6 @@ export default handleActions(
 
     [ACTIONS.COMMENT_RECEIVED]: (state: CommentsState, action: any) => {
       const { uri, claimId, comment } = action.data;
-      const commentsByUri = Object.assign({}, state.commentsByUri);
       const commentsByClaimId = Object.assign({}, state.byId);
       const allCommentsById = Object.assign({}, state.commentById);
       const topLevelCommentsById = Object.assign({}, state.topLevelCommentsById);
@@ -530,7 +490,6 @@ export default handleActions(
       const commentsForId = topLevelCommentsById[claimId];
 
       allCommentsById[comment.comment_id] = comment;
-      commentsByUri[uri] = claimId;
 
       if (commentsForId) {
         const newCommentsForId = commentsForId.slice();
@@ -585,7 +544,6 @@ export default handleActions(
         ...state,
         byId: commentsByClaimId,
         commentById: allCommentsById,
-        commentsByUri,
         topLevelCommentsById,
         superChatsByUri,
       };

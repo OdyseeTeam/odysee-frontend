@@ -11,7 +11,7 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectTopLevelCommentsForUri,
-  makeSelectTopLevelTotalPagesForUri,
+  selectTopLevelTotalPagesForUri,
   selectIsFetchingComments,
   selectIsFetchingTopLevelComments,
   selectIsFetchingReacts,
@@ -66,7 +66,7 @@ const select = (state, props) => {
     threadComment,
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
     topLevelComments: selectTopLevelCommentsForUri(state, uri),
-    topLevelTotalPages: makeSelectTopLevelTotalPagesForUri(uri)(state),
+    topLevelTotalPages: selectTopLevelTotalPagesForUri(state, uri),
     totalComments: selectTotalCommentsCountForUri(state, uri),
     scheduledState: selectScheduledStateForUri(state, uri),
   };

@@ -81,7 +81,6 @@ declare type PerChannelSettings = {
 
 // todo: relate individual comments to their commentId
 declare type CommentsState = {|
-  commentsByUri: { [uri: string]: ClaimId }, // (TODO: remove)
   superChatsByUri: { [uri: string]: { totalAmount: number, comments: Array<Comment> } },
   byId: { [ClaimId]: Array<CommentId> },
   totalCommentsById: { [ClaimId]: number }, // ClaimId -> ultimate total (including replies) in commentron.

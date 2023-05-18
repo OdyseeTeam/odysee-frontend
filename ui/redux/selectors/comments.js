@@ -25,9 +25,7 @@ const selectState = (state) => state.comments || {};
 export const selectCommentsById = (state: State) => selectState(state).commentById || {};
 export const selectCommentIdsByClaimId = (state: State) => selectState(state).byId;
 export const selectIsFetchingComments = (state: State) => selectState(state).isLoading;
-export const selectIsFetchingCommentsById = (state: State) => selectState(state).isLoadingById;
 export const selectIsFetchingCommentsByParentId = (state: State) => selectState(state).isLoadingByParentId;
-const selectTotalCommentsById = (state: State) => selectState(state).totalCommentsById;
 export const selectIsFetchingReacts = (state: State) => selectState(state).isFetchingReacts;
 
 export const selectMyReacts = (state: State) => state.comments.myReactsByCommentId;
@@ -49,33 +47,11 @@ export const selectOthersReactsForComment = (state: State, id: string) => {
   return state.comments.othersReactsByCommentId && state.comments.othersReactsByCommentId[id];
 };
 
-// previously this used a mapping from claimId -> Array<Comments>
-/* export const selectCommentsById = createSelector(
- selectState,
- state => state.byId || {}
- ); */
-export const selectCommentsByUri = createSelector(selectState, (state) => {
-  const byUri = state.commentsByUri || {};
-  const comments = {};
-  Object.keys(byUri).forEach((uri) => {
-    const claimId = byUri[uri];
-    if (claimId === null) {
-      comments[uri] = null;
-    } else {
-      comments[uri] = claimId;
-    }
-  });
-
-  return comments;
-});
-
-export const selectPinnedCommentsById = (state: State) => selectState(state).pinnedCommentsById;
 export const selectPinnedCommentsForUri = createCachedSelector(
   selectClaimIdForUri,
-  selectCommentsById,
-  selectPinnedCommentsById,
-  (state, uri) => uri,
-  (claimId, byId, pinnedCommentsById, uri) => {
+  (state: State) => state.comments.commentById,
+  (state: State) => state.comments.pinnedCommentsById,
+  (claimId, byId, pinnedCommentsById) => {
     const pinnedCommentIds = pinnedCommentsById && pinnedCommentsById[claimId];
     const pinnedComments = [];
 
@@ -112,9 +88,7 @@ export const selectBlockingByUri = (state: State) => selectState(state).blocking
 export const selectUnBlockingByUri = (state: State) => selectState(state).unBlockingByUri;
 export const selectFetchingModerationBlockList = (state: State) => selectState(state).fetchingModerationBlockList;
 export const selectModerationDelegatesById = (state: State) => selectState(state).moderationDelegatesById;
-export const selectIsFetchingModerationDelegates = (state: State) => selectState(state).fetchingModerationDelegates;
 export const selectModerationDelegatorsById = (state: State) => selectState(state).moderationDelegatorsById;
-export const selectIsFetchingModerationDelegators = (state: State) => selectState(state).fetchingModerationDelegators;
 
 export const selectHasAdminChannel = createSelector(selectState, (state) => {
   const myChannelIds = Object.keys(state.moderationDelegatorsById);
@@ -175,23 +149,6 @@ export const selectCommentForCommentId = createSelector(
   selectCommentsById,
   (commentId, comments) => comments[commentId]
 );
-
-export const selectRepliesByParentId = createSelector(selectState, selectCommentsById, (state, byId) => {
-  const byParentId = state.repliesByParentId || {};
-  const comments = {};
-
-  // replace every comment_id in the list with the actual comment object
-  Object.keys(byParentId).forEach((id) => {
-    const commentIds = byParentId[id];
-
-    comments[id] = Array(commentIds === null ? 0 : commentIds.length);
-    for (let i = 0; i < commentIds.length; i++) {
-      comments[id][i] = byId[commentIds[i]];
-    }
-  });
-
-  return comments;
-});
 
 export const selectFetchedCommentAncestors = (state: State) => selectState(state).fetchedCommentAncestors;
 
@@ -296,11 +253,10 @@ export const selectTopLevelCommentsForUri = createCachedSelector(
   }
 )((state, uri, maxCount = -1) => `${String(uri)}:${maxCount}`);
 
-export const makeSelectTopLevelTotalPagesForUri = (uri: string) =>
-  createSelector(selectState, selectCommentsByUri, (state, byUri) => {
-    const claimId = byUri[uri];
-    return state.topLevelTotalPagesById[claimId] || 0;
-  });
+export const selectTopLevelTotalPagesForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  return state.comments.topLevelTotalPagesById[claimId] || 0;
+};
 
 export const selectRepliesForParentId = createCachedSelector(
   (state, id) => id,
@@ -410,10 +366,8 @@ export const makeSelectTotalReplyPagesForParentId = (parentId: string) =>
   });
 
 export const selectTotalCommentsCountForUri = (state: State, uri: string) => {
-  const commentIdsByUri = selectCommentsByUri(state);
-  const totalCommentsById = selectTotalCommentsById(state);
-  const claimId = commentIdsByUri[uri];
-  return totalCommentsById[claimId] || 0;
+  const claimId = selectClaimIdForUri(state, uri);
+  return state.comments.totalCommentsById[claimId] || 0;
 };
 
 export const selectCommentsListTitleForUri = (state: State, uri: string) => {
@@ -433,11 +387,6 @@ export const makeSelectChannelIsBlocked = (uri: string) =>
 
 export const makeSelectChannelIsAdminBlocked = (uri: string) =>
   createSelector(selectAdminBlockList, (list) => {
-    return list ? list.includes(uri) : false;
-  });
-
-export const makeSelectChannelIsModeratorBlocked = (uri: string) =>
-  createSelector(selectModeratorBlockList, (list) => {
     return list ? list.includes(uri) : false;
   });
 
@@ -465,11 +414,6 @@ export const selectHyperChatDataForUri = (state: State, uri: string) => {
 export const selectHyperChatsForUri = (state: State, uri: string) => {
   const hyperChatData = selectHyperChatDataForUri(state, uri);
   return hyperChatData ? hyperChatData.comments : undefined;
-};
-
-export const selectSuperChatTotalAmountForUri = (state: State, uri: string) => {
-  const hyperChatData = selectHyperChatDataForUri(state, uri);
-  return hyperChatData ? hyperChatData.totalAmount : 0;
 };
 
 export const selectChannelMentionData = createCachedSelector(
