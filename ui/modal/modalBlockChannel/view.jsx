@@ -164,7 +164,7 @@ export default function ModalBlockChannel(props: Props) {
       <div className="block-modal--active-channel">
         <ChannelThumbnail xsmall noLazyLoad uri={activeChannelClaim.permanent_url} />
         <div className="block-modal--active-channel-label">
-          {__('Interacting as', { channelName: activeChannelClaim.name })}
+          {__('Interacting as')}
           <span>{activeChannelClaim.name}</span>
         </div>
       </div>
