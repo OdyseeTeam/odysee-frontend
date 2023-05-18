@@ -274,11 +274,10 @@ export const selectTopLevelCommentsForUri = createCachedSelector(
   }
 )((state, uri, maxCount = -1) => `${String(uri)}:${maxCount}`);
 
-export const makeSelectTopLevelTotalPagesForUri = (uri: string) =>
-  createSelector(selectState, selectCommentsByUri, (state, byUri) => {
-    const claimId = byUri[uri];
-    return state.topLevelTotalPagesById[claimId] || 0;
-  });
+export const selectTopLevelTotalPagesForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  return state.comments.topLevelTotalPagesById[claimId] || 0;
+};
 
 export const selectRepliesForParentId = createCachedSelector(
   (state, id) => id,
