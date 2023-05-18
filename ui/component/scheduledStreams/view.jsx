@@ -83,7 +83,7 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
       <div className="claim-grid__header">
         <div className="button__content">
           <span className="icon__wrapper">
-            <Icon icon={ICONS.VIDEO} />
+            <Icon icon={ICONS.TIME} />
           </span>
           <span className="claim-grid__title">{__('Upcoming')}</span>
           {showHideSetting && (

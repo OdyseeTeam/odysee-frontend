@@ -358,7 +358,7 @@ function HomeTabSection(props: Props) {
       {isLoading && (
         <div className="home-section-content">
           <div className="section">
-            <label className="home-section-title">{__('Loading...')}</label>
+            <h2 className="home-section-title">{__('Loading...')}</h2>
             <section className="claim-grid">
               {new Array(12).fill(0).map((x, i) => (
                 <ClaimPreviewTile key={i} placeholder="loading" pulse />
@@ -375,7 +375,7 @@ function HomeTabSection(props: Props) {
           <div className="section">
             {section.type !== 'featured' ? (
               <>
-                <label className="home-section-title">{collectionName || getTitle() || __('Loading...')}</label>
+                <h2 className="home-section-title">{collectionName || getTitle() || __('Loading...')}</h2>
                 <label className="show-more" onClick={() => handleViewMore(section)}>
                   {__('View More')}
                   <Icon icon={ICONS.ARROW_RIGHT} />

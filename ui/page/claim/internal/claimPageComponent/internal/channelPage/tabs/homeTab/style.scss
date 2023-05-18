@@ -12,6 +12,8 @@
   }
 
   .home-section-title {
+    display: inline-block;
+    font-size: var(--font-large);
     margin-bottom: var(--spacing-s);
     margin-top: 0;
   }
@@ -321,7 +323,6 @@
 
   .livestream__channel-link {
     padding-bottom: var(--spacing-m);
-    margin-bottom: var(--spacing-l) !important;
     border-bottom: unset;
   }
 }

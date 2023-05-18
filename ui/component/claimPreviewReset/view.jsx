@@ -31,8 +31,8 @@ const ClaimPreviewReset = (props: Props) => {
   };
 
   return (
-    <p className={'claimPreviewReset'}>
-      <span className={'claimPreviewReset__hint'}>
+    <p className={'claim-preview-reset'}>
+      <span className={'claim-preview-reset__hint'}>
         <Icon icon={ICONS.INFO} />
         {__(
           "If you're having trouble starting a stream or if your stream shows that you're live but aren't, try a reset. If the problem persists, please reach out at %SITE_HELP_EMAIL%.",
@@ -42,7 +42,7 @@ const ClaimPreviewReset = (props: Props) => {
       <Button
         button="primary"
         label={__('Reset stream')}
-        className={'claimPreviewReset__button'}
+        className={'claim-preview-reset__button'}
         onClick={handleClick}
       />
     </p>

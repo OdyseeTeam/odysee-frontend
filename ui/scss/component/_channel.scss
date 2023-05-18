@@ -266,6 +266,8 @@ $actions-z-index: 2;
 
   label {
     margin-top: var(--spacing-m);
+    font-size: var(--font-body);
+    font-weight: var(--font-weight-bold);
   }
 
   .media__info-text,

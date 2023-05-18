@@ -922,10 +922,10 @@ video {
     }
   }
   label {
-    font-size: var(--font-large);
-    font-weight: var(--font-weight-bold);
+    font-size: var(--font-large) !important;
+    font-weight: var(--font-weight-bold) !important;
     flex: 1;
-    margin: 0;
+    margin: 0 !important;
   }
 
   button {
