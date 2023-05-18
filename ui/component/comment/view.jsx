@@ -101,6 +101,26 @@ type DispatchProps = {|
 |};
 
 // ****************************************************************************
+// withNullCheck
+// ****************************************************************************
+
+function withNullCheck(Component: (props: any) => React$Element<any>) {
+  return function NullCheck(props: Props & StateProps & DispatchProps) {
+    const { commentId, commentByIdProxy } = props;
+
+    const commentById = commentByIdProxy.commentById;
+    const comment = commentById[commentId];
+
+    if (comment) {
+      return <Component {...props} />;
+    } else {
+      assert(false, 'Outdated comment detected', { commentId });
+      return null;
+    }
+  };
+}
+
+// ****************************************************************************
 // Comment
 // ****************************************************************************
 
@@ -570,4 +590,4 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   );
 }
 
-export default CommentView;
+export default withNullCheck(CommentView);
