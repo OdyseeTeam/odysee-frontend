@@ -391,7 +391,7 @@ async function getHtml(ctx) {
 
     if (claim) {
       const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
-        userAgent: ctx.request.header['user-agent'],
+        userAgent: userAgent,
       });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
@@ -428,7 +428,7 @@ async function getHtml(ctx) {
         claimUri,
         claim,
         {
-          userAgent: ctx.request.header['user-agent'],
+          userAgent: userAgent,
         },
         referrerQuery
       );
