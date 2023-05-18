@@ -1,6 +1,6 @@
 // @flow
 import type { Props } from './view';
-import Comment from './view';
+import CommentView from './view';
 import { connect } from 'react-redux';
 import {
   selectStakedLevelForChannelUri,
@@ -69,4 +69,4 @@ const perform = {
   doToast,
 };
 
-export default connect<_, Props, _, _, _, _>(select, perform)(Comment);
+export default connect<_, Props, _, _, _, _>(select, perform)(CommentView);

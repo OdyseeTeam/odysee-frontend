@@ -6,7 +6,7 @@ import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
 import Card from 'component/common/card';
 import ClaimPreview from 'component/claimPreview';
-import Comment from 'component/comment';
+import CommentView from 'component/comment';
 import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import ErrorText from 'component/common/error-text';
@@ -782,8 +782,7 @@ export default function ReportContent(props: Props) {
   function getCommentPreviews(comment: ?Comment) {
     return comment ? (
       <div className="section non-clickable">
-        {/* $FlowIgnore: null comment handled */}
-        <Comment comment={comment} isTopLevel hideActions hideContextMenu />
+        <CommentView comment={comment} isTopLevel hideActions hideContextMenu />
       </div>
     ) : null;
   }

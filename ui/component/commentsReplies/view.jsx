@@ -1,6 +1,6 @@
 // @flow
 import Button from 'component/button';
-import Comment from 'component/comment';
+import CommentView from 'component/comment';
 import React from 'react';
 import Spinner from 'component/spinner';
 
@@ -50,11 +50,9 @@ export default function CommentsReplies(props: Props & StateProps & DispatchProp
     <div className="comment__replies-container">
       <ul className="comment__replies">
         {fetchedReplies.map((comment) => (
-          <Comment
-            // $FlowIgnore
+          <CommentView
             key={comment.comment_id}
             uri={uri}
-            // $FlowIgnore
             comment={comment}
             linkedCommentId={linkedCommentId}
             threadCommentId={threadCommentId}

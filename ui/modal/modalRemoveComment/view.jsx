@@ -2,7 +2,7 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
-import Comment from 'component/comment';
+import CommentView from 'component/comment';
 import Card from 'component/common/card';
 
 type Props = {
@@ -34,8 +34,7 @@ function ModalRemoveComment(props: Props) {
   function getCommentPreview(comment: ?Comment) {
     return comment ? (
       <div className="section comment-preview non-clickable">
-        {/* $FlowIgnore: null comment handled */}
-        <Comment comment={comment} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />
+        <CommentView comment={comment} isTopLevel hideActions hideContextMenu forceDisplayDeadComment />
       </div>
     ) : null;
   }
