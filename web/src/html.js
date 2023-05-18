@@ -357,6 +357,8 @@ async function getHtml(ctx) {
     ctx.request.url = encodeURIComponent(escapeHtmlProperty(decodeURIComponent(ctx.request.url)));
   }
 
+  const userAgent = ctx && ctx.request && ctx.request.header ? ctx.request.header['user-agent'] : undefined;
+
   const invitePath = `/$/${PAGES.INVITE}/`;
   const embedPath = `/$/${PAGES.EMBED}/`;
 
@@ -368,7 +370,7 @@ async function getHtml(ctx) {
       const invitePageMetadata = await buildClaimOgMetadata(inviteChannelUrl, claim, {
         title: `Join ${claim.name} on ${SITE_NAME}`,
         description: `Join ${claim.name} on ${SITE_NAME}, a content wonderland owned by everyone (and no one).`,
-        userAgent: ctx.request.header['user-agent'],
+        userAgent: userAgent,
       });
 
       return insertToHead(html, invitePageMetadata);
