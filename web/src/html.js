@@ -59,6 +59,7 @@ function truncateDescription(description, maxChars = 200) {
   description = description[0].trim();
 
   const chars = [...description];
+  // Use slice array instead of substring to prevent breaking emojis
   let truncated = chars.slice(0, maxChars).join('');
   return chars.length > maxChars ? truncated + '...' : truncated;
 }
