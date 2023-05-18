@@ -8,7 +8,7 @@ import Spinner from 'component/spinner';
 // ****************************************************************************
 
 export type Props = {|
-  uri: string,
+  uri?: string,
   parentId: CommentId,
   linkedCommentId?: string,
   threadCommentId?: ?string,

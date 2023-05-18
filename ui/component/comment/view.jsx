@@ -57,7 +57,7 @@ const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpa
 
 export type Props = {|
   comment: Comment,
-  uri: string,
+  uri?: string,
   forceDisplayDeadComment?: boolean,
   linkedCommentId?: string,
   threadCommentId?: ?string,
@@ -202,7 +202,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   const stickerFromMessage = parseSticker(message);
 
   React.useEffect(() => {
-    if (threadLevel === 0 && comment.replies) {
+    if (threadLevel === 0 && comment.replies && uri) {
       fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
       setShowReplies(true);
     }
@@ -213,9 +213,11 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   let channelOwnerOfContent;
   try {
-    const { channelName } = parseURI(uri);
-    if (channelName) {
-      channelOwnerOfContent = channelName;
+    if (uri) {
+      const { channelName } = parseURI(uri);
+      if (channelName) {
+        channelOwnerOfContent = channelName;
+      }
     }
   } catch (e) {}
 
@@ -240,7 +242,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   }, [author, authorUri, editedMessage, isEditing, setEditing]);
 
   useEffect(() => {
-    if (page > 0) {
+    if (uri && page > 0) {
       fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
     }
   }, [page, uri, commentId, fetchReplies]);
