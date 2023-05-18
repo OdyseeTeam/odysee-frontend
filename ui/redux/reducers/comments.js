@@ -554,7 +554,7 @@ export default handleActions(
       isLoading: true,
     }),
     [ACTIONS.COMMENT_ABANDON_COMPLETED]: (state: CommentsState, action: any) => {
-      const { comment_id } = action.data;
+      const { comment_id, claim_id } = action.data;
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
       const repliesByParentId = Object.assign({}, state.repliesByParentId); // {ParentCommentID -> [commentIds...] } list of reply comments
@@ -574,6 +574,15 @@ export default handleActions(
             break;
           }
         }
+      }
+
+      // Update topLevelCommentsById
+      let topLevelCommentsById;
+      if (state.topLevelCommentsById[claim_id] && state.topLevelCommentsById[claim_id].includes(comment_id)) {
+        topLevelCommentsById = {
+          ...state.topLevelCommentsById,
+          [claim_id]: state.topLevelCommentsById[claim_id].filter((x) => x !== comment_id),
+        };
       }
 
       // Update replies
@@ -600,6 +609,7 @@ export default handleActions(
         byId,
         totalCommentsById,
         repliesByParentId,
+        topLevelCommentsById: topLevelCommentsById || state.topLevelCommentsById,
         isLoading: false,
       };
     },

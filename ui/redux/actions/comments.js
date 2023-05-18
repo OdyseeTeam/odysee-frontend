@@ -919,6 +919,7 @@ export function doCommentAbandon(
             type: ACTIONS.COMMENT_ABANDON_COMPLETED,
             data: {
               comment_id: commentId,
+              claim_id: result.claim_id,
             },
           });
 
