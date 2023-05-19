@@ -76,10 +76,11 @@ function HomeTab(props: Props) {
           // $FlowIgnore
           newHome[index] = {
             type: e.change.value,
-            file_type: e.change.value === 'content' ? CS.FILE_TYPES : undefined,
+            file_type:
+              e.change.value === 'content' ? CS.FILE_TYPES : e.change.value === 'reposts' ? CS.CLAIM_REPOST : undefined,
             order_by: CS.ORDER_BY_NEW_VALUE,
             claim_id: undefined,
-            rows: e.change.value === 'content' ? 2 : 1,
+            rows: e.change.value === 'content' || e.change.value === 'reposts' ? 2 : 1,
           };
         } else if (e.change.field === 'file_type') {
           // $FlowIgnore

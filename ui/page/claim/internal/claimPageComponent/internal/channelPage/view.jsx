@@ -353,6 +353,10 @@ function ChannelPage(props: Props) {
       case 'channels':
         onTabChange(3, true);
         break;
+      case 'reposts':
+        setFilters({ order_by: getOrderBy() });
+        onTabChange(1, true);
+        break;
     }
   }
 
