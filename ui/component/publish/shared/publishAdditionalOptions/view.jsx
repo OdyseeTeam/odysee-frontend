@@ -53,15 +53,6 @@ function PublishAdditionalOptions(props: Props) {
     setHideSection(!hideSection);
   }
 
-  React.useEffect(() => {
-    if (licenseType === 'copyright') {
-      updatePublishForm({
-        otherLicenseDescription: 'All rights reserved',
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [licenseType]);
-
   return (
     <>
       <Card
