@@ -103,11 +103,6 @@ function PublishFile(props: Props) {
     }
   }, [currentFileType, mode, isStillEditing, updatePublishForm]);
 
-  useEffect(() => {
-    updatePublishForm({ title: title });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset title when file changes
-  }, [filePath]);
-
   /*
   const normalizeUrlForProtocol = (url) => {
     if (url.startsWith('https://')) {
