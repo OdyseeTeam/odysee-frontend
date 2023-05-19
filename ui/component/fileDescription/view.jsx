@@ -50,7 +50,7 @@ export default function FileDescription(props: Props) {
             <MarkdownPreview className="markdown-preview--description" content={description} simpleLinks />
           )}
           <ClaimTags uri={uri} type="large" />
-          <FileDetails uri={uri} />
+          {expanded && <FileDetails uri={uri} />}
         </div>
       </div>
 
