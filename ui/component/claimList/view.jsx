@@ -420,7 +420,6 @@ export default function ClaimList(props: Props) {
                       };
                       const isActive = activeUri && uri === activeUri;
 
-                      if (uri.includes('upcoming')) console.log('props: ', props);
                       return (
                         <li
                           ref={(node) =>
