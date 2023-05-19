@@ -339,7 +339,7 @@ function ChannelForm(props: Props) {
         </header>
 
         <Tabs index={tabIndex}>
-          <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+          <div className={classnames('tab__wrapper', { 'tab__wrapper--fixed': scrollPast })}>
             <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <ChannelThumbnail
                 className={classnames('channel__thumbnail--channel-page', {

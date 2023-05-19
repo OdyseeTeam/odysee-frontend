@@ -22,6 +22,7 @@ type Props = {
   iconOnly: boolean,
   hasEdits: Collection,
   xsmall?: boolean,
+  isLivestream?: boolean,
   // -- redux --
   isLivestreamActive: ?boolean,
   isUnlisted: boolean,
@@ -40,6 +41,7 @@ export default function PreviewOverlayProperties(props: Props) {
     iconOnly,
     hasEdits,
     xsmall,
+    isLivestream,
     // -- redux --
     isLivestreamActive,
     isUnlisted,
@@ -72,7 +74,7 @@ export default function PreviewOverlayProperties(props: Props) {
       {isLivestreamActive ? (
         Number.isInteger(livestreamViewerCount) ? (
           <span className="livestream__viewer-count">
-            {livestreamViewerCount} <Icon icon={ICONS.EYE} />
+            {livestreamViewerCount} <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
           </span>
         ) : (
           __('LIVE')
@@ -99,7 +101,8 @@ export default function PreviewOverlayProperties(props: Props) {
           )}
           {isCollection && claim && !iconOnly && <div>{claimLength}</div>}
           {!iconOnly && isStream && <VideoDuration uri={uri} />}
-          {isStream && <FileType uri={uri} small={small} />}
+          {isStream && !isLivestream && <FileType uri={uri} small={small} />}
+          {isLivestream && <Icon icon={ICONS.LIVESTREAM} size={13} />}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
           {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />

@@ -95,7 +95,7 @@ export default function LivestreamSection(props: Props) {
         />
 
         {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && (
-          <div className="livestream-list--view-more">
+          <div className="upcoming-list__view-more">
             <Button
               label={__('Show more livestreams')}
               button="link"
@@ -111,7 +111,7 @@ export default function LivestreamSection(props: Props) {
         )}
 
         {liveTilesOverLimit && liveSection === SECTION.EXPANDED && (
-          <div className="livestream-list--view-more">
+          <div className="upcoming-list__view-more">
             <Button
               label={__('Show fewer livestreams')}
               button="link"
@@ -141,7 +141,7 @@ export default function LivestreamSection(props: Props) {
       />
 
       {liveTilesOverLimit && liveSection === SECTION.COLLAPSED && (
-        <div className="livestream-list--view-more">
+        <div className="upcoming-list__view-more">
           <Button
             label={__('Show more livestreams')}
             button="link"
@@ -157,7 +157,7 @@ export default function LivestreamSection(props: Props) {
       )}
 
       {liveTilesOverLimit && liveSection === SECTION.EXPANDED && (
-        <div className="livestream-list--view-more">
+        <div className="upcoming-list__view-more">
           <Button
             label={__('Show fewer livestreams')}
             button="link"

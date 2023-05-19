@@ -504,11 +504,14 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                         <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
                       </div>
                     )}
-                    {(!isLivestream || isLivestreamActive) && (
-                      <div className="claim-preview__file-property-overlay">
-                        <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} />
-                      </div>
-                    )}
+                    <div className="claim-preview__file-property-overlay">
+                      <PreviewOverlayProperties
+                        uri={uri}
+                        small={type === 'small'}
+                        xsmall={smallThumbnail}
+                        isLivestream={isLivestream}
+                      />
+                    </div>
                     {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
                     <ClaimPreviewProgress uri={uri} />
                   </FileThumbnail>
@@ -517,7 +520,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 <>
                   <FileThumbnail thumbnail={thumbnailUrl} uri={uri}>
                     <div className="claim-preview__file-property-overlay">
-                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} pending />
+                      <PreviewOverlayProperties
+                        uri={uri}
+                        small={type === 'small'}
+                        xsmall={smallThumbnail}
+                        pending
+                        isLivestream={isLivestream}
+                      />
                     </div>
                   </FileThumbnail>
                 </>
@@ -580,14 +589,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             </div>
 
             {type !== 'small' && (!pending || !type) && isChannelUri && (
-              // renderActions &&
-              // claim &&
-              // !renderActions(claim) && (
               <div className="claim-preview__actions">
                 {!hideJoin && <JoinButton />}
                 {!pending && (
                   <>
-                    {/* renderActions && claim && renderActions(claim) */}
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (
                       actions
                     ) : (
