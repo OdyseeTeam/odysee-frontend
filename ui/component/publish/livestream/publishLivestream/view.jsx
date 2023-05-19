@@ -100,13 +100,6 @@ function PublishLivestream(props: Props) {
     updatePublishForm({ filePath: '' });
   }, [mode, isStillEditing, updatePublishForm]);
 
-  // Reset title when form gets cleared
-  useEffect(() => {
-    updatePublishForm({ title: title });
-    // ^ TODO: logic these should be at the reducer/action.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Reset title when form gets cleared
-  }, [filePath]);
-
   // Initialize default file source state for each mode.
   useEffect(() => {
     switch (mode) {
