@@ -82,7 +82,7 @@ declare type PublishState = {|
   licenseType: ?string,
   otherLicenseDescription: string,
   licenseUrl: string,
-  tags: Array<string>,
+  tags: Array<{ name: string }>,
   publishing: boolean,
   publishSuccess: boolean,
   publishError: ?boolean,
