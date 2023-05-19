@@ -82,7 +82,6 @@ type Props = {
   // Add back type
   updatePublishForm: (any) => void,
   checkAvailability: (string) => void,
-  ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
@@ -128,7 +127,6 @@ function LivestreamForm(props: Props) {
     tags,
     publish,
     checkAvailability,
-    ytSignupPending,
     modal,
     enablePublishPreview,
     activeChannelClaim,
@@ -465,7 +463,6 @@ function LivestreamForm(props: Props) {
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    ytSignupPending ||
     previewing;
 
   // replays use 'exclusive content' perk, livestreams use 'exclusive livestreams'
