@@ -20,8 +20,6 @@ import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectHistory } from 'redux/selectors/content';
 import * as SETTINGS from 'constants/settings';
 
-type State = { claims: any, search: SearchState, user: UserState };
-
 export const selectState = (state: State): SearchState => state.search;
 
 // $FlowFixMe - 'searchQuery' is never populated. Something lost in a merge?

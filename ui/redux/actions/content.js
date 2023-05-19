@@ -403,7 +403,7 @@ export function doPlayUri(
   cb?: () => void,
   hideFailModal?: boolean = false
 ) {
-  return async (dispatch: Dispatch, getState: () => any) => {
+  return async (dispatch: Dispatch, getState: () => State) => {
     const state = getState();
 
     const isMine = selectClaimIsMineForUri(state, uri);
@@ -425,6 +425,7 @@ export function doPlayUri(
     };
 
     function beginGetFile() {
+      // $FlowFixMe: handle undefined cost gracefully
       dispatch(doPurchaseUriWrapper(uri, cost, cb));
     }
 
@@ -445,6 +446,7 @@ export function doPlayUri(
         !isMine &&
         !fileInfo &&
         !claimWasPurchased &&
+        // $FlowFixMe please
         (!instantPurchaseMax || !instantPurchaseEnabled || cost > instantPurchaseMax)
       ) {
         if (!hideFailModal) dispatch(doOpenModal(MODALS.AFFIRM_PURCHASE, { uri }));

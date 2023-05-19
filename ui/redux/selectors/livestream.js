@@ -17,8 +17,6 @@ import {
 } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 
-type State = { livestream: any, claims: any, user: any, comments: any };
-
 const selectState = (state: State) => state.livestream || {};
 
 // -- selectState(state) --

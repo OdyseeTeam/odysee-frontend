@@ -18,9 +18,7 @@ import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
 import { getCommentsListTitle } from 'util/comments';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 
-type State = { claims: any, comments: CommentsState, user: UserState };
-
-const selectState = (state) => state.comments || {};
+const selectState = (state: State) => state.comments || {};
 
 export const selectCommentsById = (state: State) => selectState(state).commentById || {};
 export const selectCommentIdsByClaimId = (state: State) => selectState(state).byId;

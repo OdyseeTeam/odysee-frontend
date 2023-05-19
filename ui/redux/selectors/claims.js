@@ -30,8 +30,6 @@ import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { removeInternalStringTags } from 'util/tags';
 
-type State = { claims: any, user: UserState };
-
 export function selectClaimsStates(state: State) {
   return state.claims || {};
 }
@@ -48,7 +46,6 @@ export const selectClaimsById = (state: State) => {
 };
 
 export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || {};
-export const selectCurrentChannelPage = (state: State) => selectState(state).currentChannelPage || 1;
 export const selectCreatingChannel = (state: State) => selectState(state).creatingChannel;
 export const selectCreateChannelError = (state: State) => selectState(state).createChannelError;
 export const selectRepostLoading = (state: State) => selectState(state).repostLoading;
@@ -1034,14 +1031,6 @@ export const selectStakedLevelForChannelUri = createCachedSelector(selectTotalSt
   }
   return level;
 })((state, uri) => String(uri));
-
-export const selectCreatingCollectionIds = (state: State) => selectState(state).creatingCollectionIds;
-export const selectUpdatingCollectionIds = (state: State) => selectState(state).updatingCollectionIds;
-
-export const selectIsCreatingCollectionForId = (state: State, collectionId: string) =>
-  new Set(selectCreatingCollectionIds(state)).has(collectionId);
-export const selectIsUpdatingCollectionForId = (state: State, collectionId: string) =>
-  new Set(selectUpdatingCollectionIds(state)).has(collectionId);
 
 export const selectIsMyChannelCountOverLimit = createSelector(
   selectMyChannelClaimIds,
