@@ -370,3 +370,23 @@
     margin-bottom: var(--spacing-s);
   }
 }
+
+.file-detail {
+  @extend .help;
+  font-size: var(--font-xxsmall);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-s);
+
+  &:not(:last-child) {
+    margin-bottom: var(--spacing-s);
+  }
+}
+
+.file-detail__label {
+  color: var(--color-text);
+}
+
+.file-detail__value {
+  color: var(--color-text-subtitle);
+}
