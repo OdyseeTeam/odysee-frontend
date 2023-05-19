@@ -26,12 +26,14 @@ const select = (state, props) => {
       : props.section.file_type
       ? [props.section.file_type]
       : undefined;
+  const claimType =
+    props.section.type === 'playlists' ? 'collection' : props.section.type === 'reposts' ? 'repost' : 'stream';
   const options = {
     page_size: props.section.type !== 'featured' ? (hasPremiumPlus ? 12 : 11) : 1,
     page: 1,
     channel_ids: [props.channelClaimId],
-    stream_types: stream_types,
-    claim_type: props.section.type === 'playlists' ? 'collection' : 'stream',
+    stream_types: props.section.type !== 'reposts' ? stream_types : undefined,
+    claim_type: claimType,
     order_by: props.section.order_by || ['effective_amount'],
     not_tags:
       props.section.type === 'playlists'
@@ -42,11 +44,13 @@ const select = (state, props) => {
     index: props.index,
     has_source: true,
   };
+  if (props.section.type === 'reposts') console.log('options: ', options);
   const searchKey = createNormalizedClaimSearchKey(options);
 
   const requiresSearch =
     props.section.type === 'content' ||
     props.section.type === 'playlists' ||
+    props.section.type === 'reposts' ||
     (props.section.type === 'featured' && !props.section.claim_id);
   const fetchingClaimSearch = requiresSearch ? selectFetchingClaimSearchByQuery(state)[searchKey] : undefined;
   const claimSearchResults =

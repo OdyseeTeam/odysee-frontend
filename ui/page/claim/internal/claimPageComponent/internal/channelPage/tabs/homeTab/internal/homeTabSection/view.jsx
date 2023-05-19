@@ -207,6 +207,8 @@ function HomeTabSection(props: Props) {
           featuredChannels.find((list) => list.id === section.claim_id) &&
           featuredChannels.find((list) => list.id === section.claim_id).value.title
         );
+      case 'reposts':
+        return __('Reposts');
     }
   }
 
@@ -244,7 +246,7 @@ function HomeTabSection(props: Props) {
               <option value="channels" disabled={!featuredChannels}>
                 {__('Channels')}
               </option>
-              {/* <option value="reposts">{__('Reposts')}</option> */}
+              <option value="reposts">{__('Reposts')}</option>
             </select>
           </div>
           {section.type === 'content' && (
