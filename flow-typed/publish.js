@@ -41,7 +41,7 @@ declare type PublishState = {|
                              // We can eventually remove editingURI and just
                              // derive that from a selector.
   fileText: ?string,
-  filePath: ?string,
+  filePath: ?string | WebFile,
   remoteFileUrl: ?string,
   paywall: Paywall,
   fileDur: number,
@@ -59,8 +59,9 @@ declare type PublishState = {|
   fiatRentalExpiration: Duration,
   fiatRentalEnabled: boolean,
   title: string,
-  thumbnail_url: string,
-  thumbnailPath: string,
+  thumbnail: string, // Manually-entered thumbnail url.
+  thumbnail_url: string, // URL for successful thumbnail upload.
+  thumbnailPath: string, // File path for the thumbnail that will be uploaded.
   uploadThumbnailStatus: string,
   thumbnailError: ?boolean,
   description: string,

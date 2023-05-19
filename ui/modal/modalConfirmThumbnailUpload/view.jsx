@@ -8,7 +8,7 @@ type Props = {
   upload: (WebFile, (string) => void) => void,
   cb: (string) => void,
   closeModal: () => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
 };
 
 class ModalConfirmThumbnailUpload extends React.PureComponent<Props> {

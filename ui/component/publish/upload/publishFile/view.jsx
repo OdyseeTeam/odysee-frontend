@@ -37,7 +37,7 @@ type Props = {
   fileSource: string,
   myClaimForUri: ?StreamClaim,
   activeChannelClaim: ?ChannelClaim,
-  doUpdatePublishForm: ({}) => void,
+  doUpdatePublishForm: (UpdatePublishState) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
 
@@ -204,6 +204,7 @@ function PublishFile(props: Props) {
   }, [claimChannelId, activeChannelName]);
 
   function updateFileInfo(duration, size, isvid) {
+    // $FlowFixMe please...
     updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
   }
 
@@ -310,6 +311,7 @@ function PublishFile(props: Props) {
     // See: https://github.com/facebook/flow/issues/3470
     if (event.target instanceof FileReader) {
       const text = event.target.result;
+      // $FlowFixMe please...
       updatePublishForm({ fileText: text });
       setPublishMode(PUBLISH_MODES.POST);
     }

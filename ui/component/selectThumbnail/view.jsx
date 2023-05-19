@@ -25,7 +25,7 @@ type Props = {
   thumbnailParamStatus: string,
   optional?: boolean,
   openModal: (id: string, {}) => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   updateThumbnailParams: ({}) => void,
   resetThumbnailStatus: () => void,
 };
@@ -119,7 +119,9 @@ function SelectThumbnail(props: Props) {
         }
         onLoad={() =>
           publishForm
-            ? updatePublishForm({ thumbnailError: !isUrlInput || (thumbnail && thumbnail.startsWith('data:image')) })
+            ? updatePublishForm({
+                thumbnailError: !isUrlInput || (thumbnail ? thumbnail.startsWith('data:image') : false),
+              })
             : updateThumbnailParams({ thumbnail_error: !isUrlInput })
         }
       />

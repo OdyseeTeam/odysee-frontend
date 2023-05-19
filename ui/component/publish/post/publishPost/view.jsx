@@ -14,7 +14,7 @@ type Props = {
   // --- redux ---
   title: ?string,
   balance: number,
-  doUpdatePublishForm: ({}) => void,
+  doUpdatePublishForm: (UpdatePublishState) => void,
 };
 
 function PublishPost(props: Props) {

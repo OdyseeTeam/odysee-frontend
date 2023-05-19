@@ -13,7 +13,7 @@ type Props = {
   bid: ?string,
   bidError: ?string,
   editingURI: ?string,
-  filePath: ?string,
+  filePath: ?string | WebFile,
   isStillEditing: boolean,
   uploadThumbnailStatus: string,
   thumbnail: string,

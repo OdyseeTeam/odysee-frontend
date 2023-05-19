@@ -44,6 +44,14 @@ export const selectPublishFormValues = createSelector(
   (state) => state.settings,
   selectIsStillEditing,
   (publishState, settingsState, isStillEditing) => {
+    // === TODO: FIX_LANGUAGE_STATE ===
+    // This is not the best place to transform the language state, as it causes
+    // a new object to be returned each time. This selector should be 1:1 with
+    // the store.
+    // -- Alternative --
+    // Leave the 'language' state as undefined and display that as "Default"
+    // in the View. Later, when creating the SDK payload, do the logic below.
+
     const { languages, ...formValues } = publishState;
     const language = languages && languages.length && languages[0];
     const { clientSettings } = settingsState;

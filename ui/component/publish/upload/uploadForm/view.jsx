@@ -53,7 +53,7 @@ type Props = {
   title: ?string,
   thumbnail: ?string,
   thumbnailError: ?boolean,
-  uploadThumbnailStatus: ?string,
+  uploadThumbnailStatus: string,
   thumbnailPath: ?string,
   description: ?string,
   language: string,
@@ -79,8 +79,7 @@ type Props = {
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
-  // Add back type
-  updatePublishForm: (any) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   checkAvailability: (string) => void,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,

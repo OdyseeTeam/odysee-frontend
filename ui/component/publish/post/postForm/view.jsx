@@ -40,7 +40,7 @@ type Props = {
   disabled: boolean,
   tags: Array<Tag>,
   publish: DoPublishDesktop,
-  filePath: string | File,
+  filePath: string | WebFile,
   fileText: string,
   bid: ?number,
   bidError: ?string,
@@ -75,7 +75,7 @@ type Props = {
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
   // Add back type
-  updatePublishForm: (any) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   checkAvailability: (string) => void,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,

@@ -31,7 +31,7 @@ type Props = {
   fee: Fee,
   restrictedToMemberships: ?string,
   chargesEnabled: ?boolean,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
   visibility: Visibility,

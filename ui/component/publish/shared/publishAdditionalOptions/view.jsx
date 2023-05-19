@@ -25,7 +25,7 @@ type Props = {
   otherLicenseDescription: ?string,
   licenseUrl: ?string,
   disabled: boolean,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   useLBRYUploader: boolean,
   needsYTAuth: boolean,
   showSchedulingOptions: boolean,
@@ -72,6 +72,7 @@ function PublishAdditionalOptions(props: Props) {
                       type="select"
                       name="content_language"
                       value={language}
+                      // $FlowFixMe @see FIX_LANGUAGE_STATE
                       onChange={(event) => updatePublishForm({ languages: [event.target.value] })}
                     >
                       {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
