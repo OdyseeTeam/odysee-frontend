@@ -82,7 +82,6 @@ type Props = {
   // Add back type
   updatePublishForm: (any) => void,
   checkAvailability: (string) => void,
-  ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
@@ -135,7 +134,6 @@ function UploadForm(props: Props) {
     updatePublishForm,
     uploadThumbnailStatus,
     user,
-    ytSignupPending,
     restrictedToMemberships,
     visibility,
   } = props;
@@ -426,7 +424,6 @@ function UploadForm(props: Props) {
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    ytSignupPending ||
     previewing;
 
   // Editing claim uri
