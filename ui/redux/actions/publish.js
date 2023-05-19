@@ -117,7 +117,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     bid: creditsToString(bid),
     languages: [language],
     thumbnail_url: thumbnail,
-    release_time: PUBLISH.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,
+    release_time: PAYLOAD.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,
     blocking: true,
     preview: false,
     ...(remoteFileUrl ? { remote_url: remoteFileUrl } : {}),
@@ -131,11 +131,11 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
 
   const tagSet = new Set(tags.map((t) => t.name));
 
-  PUBLISH.tags.useLbryUploader(tagSet, publishData);
-  PUBLISH.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
-  PUBLISH.tags.fiatPaywall(tagSet, publishData);
-  PUBLISH.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
-  PUBLISH.tags.visibility(tagSet, publishData);
+  PAYLOAD.tags.useLbryUploader(tagSet, publishData);
+  PAYLOAD.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
+  PAYLOAD.tags.fiatPaywall(tagSet, publishData);
+  PAYLOAD.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
+  PAYLOAD.tags.visibility(tagSet, publishData);
 
   publishPayload.tags = Array.from(tagSet);
 
@@ -167,7 +167,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
 /**
  * Helper functions to resolve SDK's publish payload.
  */
-const PUBLISH = {
+const PAYLOAD = {
   releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim, publishData: UpdatePublishState) => {
     const isEditing = Boolean(claimToEdit);
     const past = {};

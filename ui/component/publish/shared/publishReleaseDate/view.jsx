@@ -76,7 +76,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
 
       case DEFAULT:
       case RESET_TO_ORIGINAL:
-        // PUBLISH.releaseTime() will do the right thing based on various scenarios.
+        // PAYLOAD.releaseTime() will do the right thing based on various scenarios.
         updatePublishForm({ releaseTime: undefined });
         break;
 

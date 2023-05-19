@@ -67,7 +67,7 @@ declare type PublishState = {
   // releaseTime:
   //   The user-entered value, whether valid or not. The UI can gray out for
   //   some scenarios, but value should be retained for un-graying.
-  //   @see PUBLISH.releaseTime() for full logic for "undefined".
+  //   @see PAYLOAD.releaseTime() for full logic for "undefined".
   releaseTime: ?number,
   // releaseTimeDisabled:
   //   Indicates that the user's setting will have no effect in the current
