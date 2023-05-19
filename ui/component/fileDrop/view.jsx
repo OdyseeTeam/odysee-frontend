@@ -13,7 +13,7 @@ type Props = {
   modal: { id: string, modalProps: {} },
   filePath: string | WebFile,
   clearPublish: () => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   openModal: (id: string, { files: Array<WebFile> }) => void,
   // React router
   history: {

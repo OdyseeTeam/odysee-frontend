@@ -14,7 +14,7 @@ type Props = {
   myClaimForUri: ?StreamClaim,
   isResolvingUri: boolean,
   amountNeededForTakeover: number,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
 };
 
 function PublishBid(props: Props) {

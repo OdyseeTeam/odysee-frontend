@@ -41,6 +41,7 @@ const defaultState: PublishState = {
   fiatRentalExpiration: { value: 1, unit: 'weeks' },
   fiatRentalEnabled: false,
   title: '',
+  thumbnail: '',
   thumbnail_url: '',
   thumbnailPath: '',
   uploadThumbnailStatus: THUMBNAIL_STATUSES.API_DOWN,

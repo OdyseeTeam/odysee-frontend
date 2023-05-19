@@ -31,7 +31,7 @@ type StateProps = {|
 |};
 
 type DispatchProps = {|
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
 |};
 
 const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {

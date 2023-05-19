@@ -45,7 +45,7 @@ const PublishPrice = lazyImport(() =>
 type Props = {
   tags: Array<Tag>,
   publish: DoPublishDesktop,
-  filePath: string | File,
+  filePath: string | WebFile,
   fileText: string,
   bid: ?number,
   bidError: ?string,
@@ -80,7 +80,7 @@ type Props = {
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
   // Add back type
-  updatePublishForm: (any) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   checkAvailability: (string) => void,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
@@ -405,6 +405,7 @@ function LivestreamForm(props: Props) {
   }, [publishMode]);
 
   useEffect(() => {
+    // $FlowFixMe please
     updatePublishForm({ channel: activeChannelName });
   }, [activeChannelName, updatePublishForm, isLivestreamMode]);
 

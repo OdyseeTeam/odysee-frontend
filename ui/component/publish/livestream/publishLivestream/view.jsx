@@ -40,7 +40,7 @@ type Props = {
   size: number,
   duration: number,
   isVid: boolean,
-  doUpdatePublishForm: ({}) => void,
+  doUpdatePublishForm: (UpdatePublishState) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
 
@@ -185,6 +185,7 @@ function PublishLivestream(props: Props) {
   }, [bitRateIsOverMax]);
 
   function updateFileInfo(duration, size, isvid) {
+    // $FlowFixMe please
     updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
   }
 

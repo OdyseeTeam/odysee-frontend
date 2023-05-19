@@ -553,7 +553,6 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
 
 export const doBeginPublish = (name: string) => (dispatch: Dispatch) => {
   dispatch(doClearPublish());
-  // $FlowFixMe
   // dispatch(doPrepareEdit({ name }));
   // dispatch(push(`/$/${PAGES.UPLOAD}`));
 };
@@ -797,7 +796,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     }
 
     // Membership restrictions
-    // $FlowFixMe (please remove and fix this warning. I think someone ended up passing the whole Tag structure)
     const publishDataTags = new Set(publishData.tags && publishData.tags.map((tag) => tag.name));
     if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
       if (channelId) {
@@ -812,7 +810,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
         publishData['restrictedToMemberships'] = protectedMembershipIds && protectedMembershipIds.join(',');
       } else {
         if (publishData.tags) {
-          // $FlowFixMe
           publishData.tags = publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG);
         } else {
           publishData.tags = [];
@@ -904,7 +901,6 @@ export const doPublish =
       return success(response);
       // }
 
-      // $FlowFixMe
       // publishPayload.permanent_url = response.outputs[0].permanent_url;
       //
       // return LbryFirst.upload(publishPayload)
