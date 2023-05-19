@@ -205,6 +205,8 @@ function ClaimMenuList(props: Props) {
         uriObject.channelName = signingChannelName;
       }
       const editUri = buildURI(uriObject);
+      // TODO: move the logic to create `editUri` into doPrepareEdit since
+      // `claim` is passed in.
 
       prepareEdit(claim, editUri, claimType);
     } else {

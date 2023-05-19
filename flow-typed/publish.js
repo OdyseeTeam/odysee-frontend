@@ -32,13 +32,14 @@ declare type PublishParams = {
 };
 
 // Redux slice. Includes both form data and some UI states
-declare type PublishState = {
-  editingURI: ?string,
-  // claimToEdit:
-  //   A copy of the claim being edited for reference. We want this because
-  //   reducers can't access other slices to find the claim through editingURI.
-  //   We can eventually remove editingURI and just derive that in a selector.
-  claimToEdit: ?StreamClaim,
+declare type PublishState = {|
+  uri?: ?string, // An edit's uri that is presented to the user. (TODO: remove this)
+  editingURI: ?string, // An edit's uri with full info (claim id and all).
+  claimToEdit: ?StreamClaim, // A copy of the claim being edited for reference.
+                             // We want this because reducers can't access other
+                             // slices to find the claim through editingURI.
+                             // We can eventually remove editingURI and just
+                             // derive that from a selector.
   fileText: ?string,
   filePath: ?string,
   remoteFileUrl: ?string,
@@ -64,37 +65,38 @@ declare type PublishState = {
   thumbnailError: ?boolean,
   description: string,
   language: string,
-  // releaseTime:
-  //   The user-entered value, whether valid or not. The UI can gray out for
-  //   some scenarios, but value should be retained for un-graying.
-  //   @see PAYLOAD.releaseTime() for full logic for "undefined".
-  releaseTime: ?number,
-  // releaseTimeDisabled:
-  //   Indicates that the user's setting will have no effect in the current
-  //   scenario. Basically, gray it out.
-  releaseTimeDisabled: boolean,
+  releaseTime: ?number, // The user-entered value, whether valid or not. The UI
+                        // can gray out for some scenarios, but value should be
+                        // retained for un-graying. @see PAYLOAD.releaseTime()
+                        // for full logic for "undefined".
+  releaseTimeDisabled: boolean, // Indicates that the user's setting will have
+                                // no effect in the current scenario (grayed out)
   releaseTimeError: ?string,
+  nsfw: boolean,
   channel: string,
   channelId: ?string,
   name: string,
   nameError: ?string,
   bid: number,
   bidError: ?string,
+  licenseType: ?string,
   otherLicenseDescription: string,
   licenseUrl: string,
   tags: Array<string>,
+  publishing: boolean,
+  publishSuccess: boolean,
+  publishError: ?boolean,
   optimize: boolean,
   useLBRYUploader: boolean,
   currentUploads: { [key: string]: FileUploadItem },
   isMarkdownPost: boolean,
   isLivestreamPublish: boolean,
-  publishError?: boolean,
   replaySource: 'keep' | 'choose' | 'upload',
   visibility: Visibility,
   scheduledShow: boolean,
-};
+|};
 
-// Redux slice, optional version. Used to selectively update certains states.
+// Redux slice, optional version. Used to selectively update certain states.
 declare type UpdatePublishState = $Shape<PublishState>;
 
 declare type DoUpdatePublishForm = {
