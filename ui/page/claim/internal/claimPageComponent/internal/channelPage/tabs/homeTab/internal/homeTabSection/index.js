@@ -44,7 +44,6 @@ const select = (state, props) => {
     index: props.index,
     has_source: true,
   };
-  if (props.section.type === 'reposts') console.log('options: ', options);
   const searchKey = createNormalizedClaimSearchKey(options);
 
   const requiresSearch =

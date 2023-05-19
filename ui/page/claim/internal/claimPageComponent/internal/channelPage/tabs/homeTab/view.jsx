@@ -94,7 +94,6 @@ function HomeTab(props: Props) {
         newHome[index][e.change.field] = [e.change.value];
       }
     }
-    console.log('newHome: ', newHome);
     setHome(newHome);
   }
 
