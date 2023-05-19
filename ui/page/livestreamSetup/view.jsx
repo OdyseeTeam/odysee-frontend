@@ -245,7 +245,7 @@ export default function LivestreamSetupPage(props: Props) {
     <Page>
       {balance < 0.01 && <YrblWalletEmpty />}
       <h1 className="page__title page__title--margin">
-        <Icon icon={ICONS.VIDEO} />
+        <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
         <label>
           {formTitle}
           {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />}

@@ -191,7 +191,7 @@ function SideNavigation(props: Props) {
     {
       title: 'Go Live',
       link: `/$/${PAGES.LIVESTREAM}`,
-      icon: ICONS.VIDEO,
+      icon: ICONS.LIVESTREAM_MONOCHROME,
       hideForUnauth: true,
     },
     {
