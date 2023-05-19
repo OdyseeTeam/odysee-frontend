@@ -22,8 +22,6 @@ import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/c
 const RECENT_HISTORY_AMOUNT = 10;
 const HISTORY_ITEMS_PER_PAGE = 50;
 
-type State = { claims: any, content: ContentState, user: UserState, memberships: any, router: any };
-
 export const selectState = (state: State) => state.content || {};
 
 export function selectContentStates(state: State): ContentState {

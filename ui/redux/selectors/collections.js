@@ -25,8 +25,6 @@ import {
 import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
-type State = { claims: any, user: any, content: any, collections: CollectionState, memberships: any, router: any };
-
 const selectState = (state: State) => state.collections || {};
 
 export const selectSavedCollectionIds = (state: State) => selectState(state).savedIds;

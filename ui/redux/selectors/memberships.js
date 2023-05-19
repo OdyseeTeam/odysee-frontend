@@ -17,8 +17,6 @@ import { getChannelIdFromClaim } from 'util/claim';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
-type State = { claims: any, user: any, memberships: any };
-
 const selectState = (state: State) => state.memberships || {};
 
 export const selectMembershipMineData = (state: State) => selectState(state).membershipMineByCreatorId;

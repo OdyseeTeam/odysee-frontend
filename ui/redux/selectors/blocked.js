@@ -3,11 +3,7 @@ import { createSelector } from 'reselect';
 import { Container } from 'util/container';
 import { parseURI } from 'util/lbryURI';
 
-type State = { blocked: BlocklistState, comments: CommentsState, user: UserState };
-
 const selectState = (state: State) => state.blocked || {};
-
-export const selectBlockedState = (state: State): BlocklistState => state.blocked;
 
 export const selectMutedChannels = (state: State) => selectState(state).blockedChannels;
 export const selectGeoBlockLists = (state: State) => selectState(state).geoBlockedList;
