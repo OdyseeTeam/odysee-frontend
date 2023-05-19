@@ -921,6 +921,7 @@ export const doPublish =
 // Calls file_list until any reflecting files are done
 export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
+  // $FlowFixMe: checkingReflector does not exist!
   const { checkingReflector } = state.claims;
   let reflectorCheckInterval;
 
