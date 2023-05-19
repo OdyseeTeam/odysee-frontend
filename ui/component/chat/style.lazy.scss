@@ -337,12 +337,6 @@ $recent-msg-button__height: 2rem;
   &::-webkit-scrollbar-track {
     background: var(--color-header-background);
   }
-
-  .livestream__comment {
-    &:hover {
-      background-color: rgba(var(--color-header-button-base), 0.2);
-    }
-  }
 }
 
 .livestream__comments--mobile {
@@ -509,7 +503,6 @@ $recent-msg-button__height: 2rem;
 
   .section__actions {
     margin-top: var(--spacing-xs);
-    // margin-bottom: var(--spacing-xxxs);
     margin-bottom: 4px;
     min-height: 50px;
     .comment-create__min-amount-notice {
@@ -521,7 +514,6 @@ $recent-msg-button__height: 2rem;
 
   @media (max-width: $breakpoint-small) {
     padding: 0px;
-    // margin-left:-6.5px;
     margin-left: calc(var(--spacing-xxs) * -1);
     width: calc(100% + (var(--spacing-xxs) * 2));
 
@@ -558,20 +550,12 @@ $recent-msg-button__height: 2rem;
   padding-left: var(--spacing-s);
   font-size: var(--font-small);
   background: var(--color-header-button);
-  // margin-bottom: var(--spacing-xs);
   overflow: hidden;
   padding-top: 1px;
-
-  // overflow-x: scroll;
   padding-bottom: var(--spacing-xs) !important;
   &::-webkit-scrollbar {
     width: 0px;
     height: 4px;
-  }
-
-  @media (min-width: $breakpoint-small) {
-    // padding: 0 var(--spacing-xs);
-    // padding-bottom:0;
   }
 }
 
@@ -654,10 +638,6 @@ $recent-msg-button__height: 2rem;
     .livestream-comment__body {
       margin-left: 0;
 
-      .comment__author--creator {
-        background-color: var(--color-primary);
-        color: var(--color-primary-contrast) !important;
-      }
       .comment__badge {
         margin-bottom: -2px;
         .icon--BadgeStreamer {
@@ -666,11 +646,18 @@ $recent-msg-button__height: 2rem;
       }
       .comment__pin {
         flex: unset;
+        width: unset;
         font-weight: var(--font-weight-bold);
         margin: var(--spacing-xs);
         margin-right: 0;
         margin-left: auto;
         margin-bottom: 2px;
+        background-color: var(--color-header-button);
+
+        padding-top: 1px;
+        .icon {
+          margin-bottom: -3px;
+        }
         @media (max-width: $breakpoint-small) {
           margin: 0;
           margin-top: var(--spacing-xxs);
@@ -678,6 +665,7 @@ $recent-msg-button__height: 2rem;
           margin-bottom: -6px;
         }
       }
+
       .date_time {
         display: none;
       }
@@ -695,8 +683,7 @@ $recent-msg-button__height: 2rem;
     }
 
     &:hover {
-      background-color: var(--color-background);
-
+      background-color: var(--color-background) !important;
       .livestream-comment__menu {
         .menu__button {
           background: var(--color-header-button);
@@ -724,15 +711,6 @@ $recent-msg-button__height: 2rem;
           transform: rotate(90deg);
         }
       }
-    }
-  }
-
-  .comment__pin {
-    width: unset;
-    margin-right: calc(var(--spacing-s) + var(--spacing-xs));
-    padding-top: 1px;
-    .icon {
-      margin-bottom: -3px;
     }
   }
 
@@ -810,18 +788,16 @@ $recent-msg-button__height: 2rem;
   transition: width 0.2s;
 
   .comment__pin {
-    background: var(--color-header-background);
     padding: 0 3px 0 2px;
     font-weight: var(--font-weight-bold);
     border-radius: 10px var(--border-radius) var(--border-radius) 10px;
     margin-left: 0;
-    border: 2px solid var(--color-border);
     margin-top: -1px;
     flex: 1;
     white-space: nowrap;
     svg {
       margin-bottom: -1px;
-      background: var(--color-border);
+      background: var(--color-background);
       border-radius: 50%;
       padding: 1px;
       padding-left: 2px;
@@ -1317,7 +1293,7 @@ $recent-msg-button__height: 2rem;
     }
     .icon--Premium,
     .icon--PremiumPlus {
-      margin-bottom: -5px;
+      margin-bottom: -5.5px;
     }
     .icon--Membership {
       color: var(--color-text);
@@ -1336,7 +1312,6 @@ $recent-msg-button__height: 2rem;
 .main--popout-chat {
   // @extend .main;
   position: relative;
-  // width: calc(100% - 2 * var(--spacing-l));
   max-width: var(--page-max-width);
   z-index: 0;
   margin-right: auto;

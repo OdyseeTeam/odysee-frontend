@@ -12,7 +12,7 @@
   }
 
   &:not(.livestream__comment--hyperchat):hover {
-    background-color: rgba(var(--color-header-background-base), 0.3);
+    background-color: rgba(var(--color-header-button-base), 0.3);
 
     .date_time {
       opacity: 0.5;
