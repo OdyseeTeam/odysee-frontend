@@ -25,7 +25,6 @@ import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -135,11 +134,6 @@ function PostForm(props: Props) {
   } = props;
 
   const inEditMode = Boolean(editingURI);
-  const { replace, location } = useHistory();
-  const urlParams = new URLSearchParams(location.search);
-  const TYPE_PARAM = 'type';
-  const uploadType = urlParams.get(TYPE_PARAM);
-  const _uploadType = uploadType && uploadType.toLowerCase();
 
   const mode = PUBLISH_MODES.POST;
 
@@ -319,15 +313,6 @@ function PostForm(props: Props) {
       updatePublishForm({ channel: activeChannelName });
     }
   }, [activeChannelName, incognito, updatePublishForm]);
-
-  // if we have a type urlparam, update it? necessary?
-  useEffect(() => {
-    if (!_uploadType) return;
-    const newParams = new URLSearchParams();
-    newParams.set(TYPE_PARAM, mode.toLowerCase());
-    replace({ search: newParams.toString() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, _uploadType]);
 
   // @if TARGET='web'
   function createWebFile() {
