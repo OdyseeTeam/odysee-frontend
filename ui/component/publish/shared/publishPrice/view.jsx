@@ -9,6 +9,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import FormFieldDurationCombo from 'component/formFieldDurationCombo';
 import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import usePersistedState from 'effects/use-persisted-state';
 import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
 import './style.lazy.scss';
@@ -18,7 +19,6 @@ const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until curren
 
 type Props = {
   disabled: boolean,
-  isMarkdownPost: boolean,
   // --- redux ---
   fileMime: ?string,
   streamType: ?string,
@@ -34,6 +34,7 @@ type Props = {
   updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
+  type: PublishType,
   visibility: Visibility,
 };
 
@@ -41,7 +42,6 @@ function PublishPrice(props: Props) {
   const {
     fileMime,
     streamType,
-    isMarkdownPost,
     // Purchase
     fiatPurchaseEnabled,
     fiatPurchaseFee,
@@ -58,6 +58,7 @@ function PublishPrice(props: Props) {
     doTipAccountStatus,
     doCustomerPurchaseCost,
     disabled,
+    type,
     visibility,
   } = props;
 
@@ -317,13 +318,13 @@ function PublishPrice(props: Props) {
       return false;
     }
 
-    const isFiatAllowed = isMarkdownPost || isFiatWhitelistedFileType();
+    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType();
     setFiatAllowed(isFiatAllowed);
 
     if (paywall === PAYWALL.FIAT && !isFiatAllowed) {
       updatePublishForm({ paywall: PAYWALL.FREE });
     }
-  }, [fileMime, paywall, isMarkdownPost, updatePublishForm, streamType]);
+  }, [fileMime, paywall, type, updatePublishForm, streamType]);
 
   return (
     <div className="publish-price">

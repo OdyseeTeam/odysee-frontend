@@ -307,9 +307,9 @@ function UploadForm(props: Props) {
   // set isMarkdownPost in publish form if so, also update isLivestreamPublish
   useEffect(() => {
     updatePublishForm({
-      isMarkdownPost: false,
       isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
     });
+    // TODO --^ replace with `type`
   }, [mode, updatePublishForm]);
 
   useEffect(() => {

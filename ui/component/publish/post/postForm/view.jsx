@@ -83,7 +83,6 @@ type Props = {
   user: ?User,
   permanentUrl: ?string,
   remoteUrl: ?string,
-  isMarkdownPost: boolean,
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
@@ -125,7 +124,6 @@ function PostForm(props: Props) {
     // user,
     permanentUrl,
     // remoteUrl,
-    isMarkdownPost,
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
@@ -301,10 +299,12 @@ function PostForm(props: Props) {
   // set isMarkdownPost in publish form if so, also update isLivestreamPublish
   useEffect(() => {
     updatePublishForm({
-      isMarkdownPost: true,
       isLivestreamPublish: false,
     });
-  }, [mode, updatePublishForm, isMarkdownPost]);
+    // ^--- this should be redundant since 'type' exists and is consistently
+    // updated by doBeginPublish/doPrepareEdit. There are also ways to
+    // differentiate between Livestream Create vs. Replay-Upload.
+  }, [mode, updatePublishForm]);
 
   useEffect(() => {
     if (incognito) {
