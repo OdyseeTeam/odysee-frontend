@@ -20,6 +20,7 @@ const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anon
 
 // @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
+  type: 'file',
   editingURI: undefined,
   claimToEdit: undefined,
   fileText: '',
@@ -157,6 +158,7 @@ export const publishReducer = handleActions(
     },
     [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
       ...defaultState,
+      type: state.type,
       uri: undefined,
       channel: state.channel,
       bid: state.bid,

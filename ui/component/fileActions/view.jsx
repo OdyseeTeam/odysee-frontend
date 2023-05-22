@@ -36,7 +36,7 @@ type Props = {
   streamingUrl: ?string,
   disableDownloadButton: boolean,
   doOpenModal: (id: string, { uri: string, claimIsMine?: boolean, isSupport?: boolean }) => void,
-  doPrepareEdit: (claim: Claim, uri: string, claimType: string) => void,
+  doPrepareEdit: (claim: Claim, uri: string) => void,
   doToast: (data: { message: string }) => void,
   doDownloadUri: (uri: string) => void,
   isMature: boolean,
@@ -197,8 +197,7 @@ export default function FileActions(props: Props) {
                     <MenuItem
                       className="comment__menu-option"
                       onSelect={() => {
-                        doPrepareEdit(claim, editUri, claimType);
-                        // push(`/$/${PAGES.UPLOAD}`);
+                        doPrepareEdit(claim, editUri);
                       }}
                     >
                       <div className="menu__link">

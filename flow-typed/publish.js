@@ -1,5 +1,6 @@
 // @flow
 
+declare type PublishType = 'file' | 'post' | 'livestream';
 declare type Paywall = 'free' | 'fiat' | 'sdk';
 declare type Visibility = 'public' | 'unlisted' | 'private' | 'scheduled';
 
@@ -33,6 +34,7 @@ declare type PublishParams = {
 
 // Redux slice. Includes both form data and some UI states
 declare type PublishState = {|
+  type: PublishType;
   uri?: ?string, // An edit's uri that is presented to the user. (TODO: remove this)
   editingURI: ?string, // An edit's uri with full info (claim id and all).
   claimToEdit: ?StreamClaim, // A copy of the claim being edited for reference.

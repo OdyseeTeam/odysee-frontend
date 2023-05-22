@@ -1,9 +1,7 @@
 import { connect } from 'react-redux';
 import TopPage from './view';
-import { doClearPublish } from 'redux/actions/publish';
+import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
-import { push } from 'connected-react-router';
-import * as PAGES from 'constants/pages';
 
 const select = (state, props) => {
   const { search } = props.location;
@@ -16,10 +14,7 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
-  beginPublish: (name) => {
-    dispatch(doClearPublish());
-    dispatch(push(`/$/${PAGES.UPLOAD}`));
-  },
+  beginPublish: (a, b, c) => dispatch(doBeginPublish(a, b, c)),
   doOpenModal: (id, props) => dispatch(doOpenModal(id, props)),
 });
 

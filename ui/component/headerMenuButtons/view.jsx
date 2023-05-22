@@ -5,6 +5,7 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import React from 'react';
@@ -15,11 +16,11 @@ type HeaderMenuButtonProps = {
   authenticated: boolean,
   user: ?User,
   authRedirect?: string,
-  clearPublish: () => void,
+  doBeginPublish: (PublishType, ?string) => void,
 };
 
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
-  const { authenticated, user, authRedirect, clearPublish } = props;
+  const { authenticated, user, authRedirect, doBeginPublish } = props;
 
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
@@ -30,7 +31,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   return authenticated ? (
     <div className="header__buttons">
       <Tooltip title={__('Upload')}>
-        <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.UPLOAD}`}>
+        <Button className="header__navigationItem--icon" onClick={() => doBeginPublish(PUBLISH_TYPES.FILE)}>
           <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
         </Button>
       </Tooltip>
@@ -39,15 +40,14 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           <Button
             className="header__navigationItem--icon"
             {...uploadProps}
-            onClick={() => clearPublish()}
-            navigate={`/$/${PAGES.LIVESTREAM}`}
+            onClick={() => doBeginPublish(PUBLISH_TYPES.LIVESTREAM)}
           >
             <Icon size={18} icon={ICONS.GOLIVE} aria-hidden />
           </Button>
         </Tooltip>
       )}
       <Tooltip title={__('Post an article')}>
-        <Button className="header__navigationItem--icon" onClick={() => clearPublish()} navigate={`/$/${PAGES.POST}`}>
+        <Button className="header__navigationItem--icon" onClick={() => doBeginPublish(PUBLISH_TYPES.POST)}>
           <Icon size={18} icon={ICONS.POST} aria-hidden />
         </Button>
       </Tooltip>
