@@ -9,7 +9,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
@@ -29,7 +29,6 @@ import PublishProtectedContent from 'component/publishProtectedContent';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
@@ -85,7 +84,6 @@ type Props = {
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
-  user: ?User,
   permanentUrl: ?string,
   remoteUrl: ?string,
   isClaimingInitialRewards: boolean,
@@ -132,31 +130,11 @@ function UploadForm(props: Props) {
     title,
     updatePublishForm,
     uploadThumbnailStatus,
-    user,
     restrictedToMemberships,
     visibility,
   } = props;
 
   const inEditMode = Boolean(editingURI);
-  const { replace, location } = useHistory();
-  const urlParams = new URLSearchParams(location.search);
-  const TYPE_PARAM = 'type';
-  const uploadType = urlParams.get(TYPE_PARAM);
-  const _uploadType = uploadType && uploadType.toLowerCase();
-
-  const enableLivestream = ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled;
-
-  const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
-    if (inEditMode) {
-      return mode === PUBLISH_MODES.FILE;
-    } else if (_uploadType) {
-      return mode === _uploadType && (mode !== PUBLISH_MODES.LIVESTREAM || enableLivestream);
-    }
-  });
-
-  const MODE_TO_I18N_STR = {
-    [PUBLISH_MODES.FILE]: SIMPLE_SITE ? 'Video/Audio' : 'File',
-  };
 
   const formTitle = !editingURI ? __('Upload a file') : __('Edit Upload');
 
@@ -342,15 +320,6 @@ function UploadForm(props: Props) {
     }
   }, [activeChannelName, incognito, updatePublishForm]);
 
-  // if we have a type urlparam, update it? necessary?
-  useEffect(() => {
-    if (!_uploadType) return;
-    const newParams = new URLSearchParams();
-    newParams.set(TYPE_PARAM, mode.toLowerCase());
-    replace({ search: newParams.toString() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, _uploadType]);
-
   // @if TARGET='web'
   function createWebFile() {
     if (fileText) {
@@ -456,20 +425,6 @@ function UploadForm(props: Props) {
               setOverMaxBitrate={setOverMaxBitrate}
               channelId={claimChannelId}
               channelName={activeChannelName}
-              header={
-                <>
-                  {AVAILABLE_MODES.map((modeName) => (
-                    <Button
-                      key={String(modeName)}
-                      icon={modeName}
-                      iconSize={18}
-                      label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
-                      button="alt"
-                      className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
-                    />
-                  ))}
-                </>
-              }
             />
           </div>
         }

@@ -19,7 +19,6 @@ import {
 import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { selectUser } from 'redux/selectors/user';
 import UploadForm from './view';
 
 const select = (state) => {
@@ -29,7 +28,6 @@ const select = (state) => {
 
   return {
     ...selectPublishFormValues(state),
-    user: selectUser(state),
     // The winning claim for a short lbry uri
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, permanentUrl),
     isPostClaim,

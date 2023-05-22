@@ -27,7 +27,6 @@ import PublishLivestream from 'component/publish/livestream/publishLivestream';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { lazyImport } from 'util/lazyImport';
@@ -148,11 +147,6 @@ function LivestreamForm(props: Props) {
   const isMobile = useIsMobile();
 
   const inEditMode = Boolean(editingURI);
-  const { replace, location } = useHistory();
-  const urlParams = new URLSearchParams(location.search);
-  const TYPE_PARAM = 'type';
-  const uploadType = urlParams.get(TYPE_PARAM);
-  const _uploadType = uploadType && uploadType.toLowerCase();
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
 
   const mode = PUBLISH_MODES.LIVESTREAM;
@@ -408,15 +402,6 @@ function LivestreamForm(props: Props) {
     // $FlowFixMe please
     updatePublishForm({ channel: activeChannelName });
   }, [activeChannelName, updatePublishForm, isLivestreamMode]);
-
-  // if we have a type urlparam, update it? necessary?
-  useEffect(() => {
-    if (!_uploadType) return;
-    const newParams = new URLSearchParams();
-    newParams.set(TYPE_PARAM, mode.toLowerCase());
-    replace({ search: newParams.toString() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, _uploadType]);
 
   async function handlePublish() {
     let outputFile = filePath;
