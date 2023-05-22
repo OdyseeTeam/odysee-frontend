@@ -75,8 +75,10 @@ function ContentTab(props: Props) {
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearching, setIsSearching] = React.useState(false);
+  const [orderBy, setOrderBy] = React.useState(undefined);
+
   const {
-    location: { pathname, search },
+    location: { search },
   } = useHistory();
 
   // In Channel Page, ignore the global settings for these 2:
@@ -89,7 +91,7 @@ function ContentTab(props: Props) {
     membersOnly: { hideMembersOnly, setHideMembersOnly },
   };
 
-  const url = `${pathname}${search}`;
+  // const url = `${pathname}${search}`;
   const claimId = claim && claim.claim_id;
   const showFilters =
     !claimType ||
@@ -108,8 +110,14 @@ function ContentTab(props: Props) {
   }
 
   React.useEffect(() => {
+    const urlParams = new URLSearchParams(search).get('order');
+    // let test =  urlParams.get('order');
+    setOrderBy(urlParams);
+  }, [search]);
+
+  React.useEffect(() => {
     setSearchQuery('');
-  }, [url]);
+  }, [claimId]);
 
   return (
     <Fragment>
@@ -212,6 +220,7 @@ function ContentTab(props: Props) {
                 claimId={claimId}
                 showMature={showMature}
                 tileLayout={tileLayout}
+                orderBy={orderBy}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
               />

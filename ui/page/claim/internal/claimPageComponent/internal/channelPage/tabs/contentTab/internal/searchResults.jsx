@@ -2,6 +2,7 @@
 import React from 'react';
 import ClaimList from 'component/claimList';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
+import * as CS from 'constants/claim_search';
 import { lighthouse } from 'redux/actions/search';
 
 type Props = {
@@ -9,17 +10,29 @@ type Props = {
   claimId: ?string,
   showMature: ?boolean,
   tileLayout: boolean,
+  orderBy?: ?string,
   onResults?: (results: ?Array<string>) => void,
   doResolveUris: (Array<string>, boolean) => void,
 };
 
 export function SearchResults(props: Props) {
-  const { searchQuery, claimId, showMature, tileLayout, onResults, doResolveUris } = props;
+  const { searchQuery, claimId, showMature, tileLayout, orderBy, onResults, doResolveUris } = props;
 
   const [page, setPage] = React.useState(1);
   const [searchResults, setSearchResults] = React.useState(undefined);
   const [isSearching, setIsSearching] = React.useState(false);
   const noMoreResults = React.useRef(false);
+  const [sortBy, setSortBy] = React.useState(1);
+
+  React.useEffect(() => {
+    setSortBy(
+      !orderBy || orderBy === CS.ORDER_BY_TRENDING
+        ? ``
+        : orderBy === CS.ORDER_BY_TOP
+        ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
+        : `&sort_by=${CS.ORDER_BY_NEW_VALUE[0]}`
+    );
+  }, [orderBy]);
 
   React.useEffect(() => {
     setPage(1);
@@ -44,6 +57,7 @@ export function SearchResults(props: Props) {
           `from=${SEARCH_PAGE_SIZE * (page - 1)}` +
             `&s=${encodeURIComponent(searchQuery)}` +
             `&channel_id=${encodeURIComponent(claimId)}` +
+            sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
             `&size=${SEARCH_PAGE_SIZE}`
         )
@@ -72,7 +86,7 @@ export function SearchResults(props: Props) {
     }, DEBOUNCE_WAIT_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, claimId, page, showMature, doResolveUris]);
+  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy]);
 
   if (!searchResults) {
     return null;
