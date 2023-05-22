@@ -59,6 +59,8 @@ declare type GenericClaim = {
   },
 };
 
+declare type ClaimUri = string; // can be permanent or canonical
+
 declare type ClaimId = string;
 
 declare type ClaimIds = Array<ClaimId>;

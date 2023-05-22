@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { doClaimSearch, doResolveClaimId, doResolveUris } from 'redux/actions/claims';
+import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import {
   selectClaimSearchByQuery,
@@ -55,6 +56,8 @@ const select = (state, props) => {
   const claimSearchResults =
     requiresSearch && !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined;
 
+  const activeLivestream = selectActiveLivestreamForChannel(state, props.channelClaimId);
+
   return {
     requiresSearch,
     fetchingClaimSearch,
@@ -74,6 +77,7 @@ const select = (state, props) => {
     singleClaimUri:
       props.section.type === 'featured' && props.section.claim_id && selectClaimUriForId(state, props.section.claim_id),
     featuredChannels: selectFeaturedChannelsForChannelId(state, props.channelClaimId),
+    activeLivestreamUri: activeLivestream?.uri,
     hasPremiumPlus,
   };
 };
