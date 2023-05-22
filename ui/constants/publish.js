@@ -6,3 +6,5 @@ export const PAYWALL = Object.freeze({
   FIAT: 'fiat',
   SDK: 'sdk',
 });
+
+export const NO_FILE = '---';
