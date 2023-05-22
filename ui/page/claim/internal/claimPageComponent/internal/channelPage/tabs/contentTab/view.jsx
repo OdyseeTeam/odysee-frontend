@@ -106,6 +106,7 @@ function ContentTab(props: Props) {
 
   function handleInputChange(e) {
     const { value } = e.target;
+
     setSearchQuery(value);
   }
 
@@ -182,7 +183,7 @@ function ContentTab(props: Props) {
             tileLayout={tileLayout}
             uris={isSearching ? [] : null}
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-            channelIds={[claimId]}
+            channelIds={!searchQuery && [claimId]}
             claimType={claimType}
             feeAmount={undefined}
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}
@@ -211,6 +212,15 @@ function ContentTab(props: Props) {
                     type="text"
                     placeholder={__('Search')}
                   />
+                  {searchQuery && (
+                    <Button
+                      icon={ICONS.REMOVE}
+                      aria-label={__('Clear')}
+                      button="alt"
+                      className="wunderbar__clear"
+                      onClick={() => setSearchQuery('')}
+                    />
+                  )}
                 </Form>
               )
             }

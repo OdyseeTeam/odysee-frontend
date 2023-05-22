@@ -55,7 +55,7 @@ export function SearchResults(props: Props) {
       lighthouse
         .search(
           `from=${SEARCH_PAGE_SIZE * (page - 1)}` +
-            `&s=${encodeURIComponent(searchQuery)}` +
+            `&s=${'%22' + encodeURIComponent(searchQuery) + '%22'}` +
             `&channel_id=${encodeURIComponent(claimId)}` +
             sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
