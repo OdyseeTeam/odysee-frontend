@@ -8,3 +8,8 @@ export const PAYWALL = Object.freeze({
 });
 
 export const NO_FILE = '---';
+
+export const BITRATE = Object.freeze({
+  RECOMMENDED: 9500000,
+  MAX: 19500000,
+});

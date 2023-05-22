@@ -1,11 +1,11 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
+import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
 import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
-import { sanitizeName } from 'util/lbryURI';
 import Spinner from 'component/spinner';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
@@ -24,23 +24,23 @@ type Props = {
   disabled: boolean,
   livestreamData: Array<LivestreamReplayItem>,
   isCheckingLivestreams: boolean,
-  setOverMaxBitrate: (boolean) => void,
   fileSource: string,
   changeFileSource: (string) => void,
   inEditMode: boolean,
   replaySource?: string,
   setReplaySource: (string) => void,
   // --- redux ---
-  name: ?string,
   title: ?string,
   filePath: string | WebFile,
+  fileBitrate: number,
+  fileSizeTooBig: boolean,
   isStillEditing: boolean,
   balance: number,
   publishing: boolean,
-  size: number,
   duration: number,
   isVid: boolean,
   doUpdatePublishForm: (UpdatePublishState) => void,
+  doUpdateFile: (file: WebFile, clearName: boolean) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
 
@@ -48,20 +48,19 @@ function PublishLivestream(props: Props) {
   const {
     uri,
     mode,
-    name,
     title,
     balance,
     filePath,
+    fileBitrate,
+    fileSizeTooBig,
     isStillEditing,
     doUpdatePublishForm: updatePublishForm,
-    doToast,
-    size,
+    doUpdateFile,
     duration,
     isVid,
     disabled,
     livestreamData,
     isCheckingLivestreams,
-    setOverMaxBitrate,
     fileSource,
     changeFileSource,
     inEditMode,
@@ -81,14 +80,7 @@ function PublishLivestream(props: Props) {
 
   const replayTitleLabel = !inEditMode ? __('Select Replay') : __('Use Replay');
 
-  const RECOMMENDED_BITRATE = 9500000;
-  const MAX_BITRATE = 19500000;
-  const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
-  const bitRate = getBitrate(size, duration);
-  const bitRateIsOverMax = bitRate > MAX_BITRATE;
-  const [oversized, setOversized] = useState(false);
-  const [currentFile, setCurrentFile] = useState(null);
 
   const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
     SITE_NAME,
@@ -154,118 +146,14 @@ function PublishLivestream(props: Props) {
     updatePublishForm({ title: event.target.value });
   }
 
-  function getBitrate(size, duration) {
-    const s = Number(size);
-    const d = Number(duration);
-    if (s && d) {
-      return (s * 8) / d;
-    } else {
-      return 0;
-    }
-  }
-
-  useEffect(() => {
-    if (!filePath || filePath === '') {
-      setCurrentFile('');
-      setOversized(false);
-      setOverMaxBitrate(false);
-      updateFileInfo(0, 0, false);
-    } else if (typeof filePath !== 'string') {
-      // Update currentFile file
-      if (filePath.name !== currentFile && filePath.path !== currentFile) {
-        handleFileChange(filePath);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [filePath, currentFile, doToast, updatePublishForm]);
-
-  useEffect(() => {
-    setOverMaxBitrate(bitRateIsOverMax);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [bitRateIsOverMax]);
-
-  function updateFileInfo(duration, size, isvid) {
-    // $FlowFixMe please
-    updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
-  }
-
-  /*
-  function autofillTitle(file) {
-    const newTitle = (file && file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || name || '';
-    if (!title) updatePublishForm({ title: newTitle });
-  }
-  */
   function handleFileChange(file: WebFile, clearName = true) {
-    window.URL = window.URL || window.webkitURL;
-    setOversized(false);
-    setOverMaxBitrate(false);
-
-    // select file, start to select a new one, then cancel
-    if (!file) {
-      if (isStillEditing || !clearName) {
-        updatePublishForm({ filePath: '' });
-      } else {
-        updatePublishForm({ filePath: '', name: '' });
-      }
-      return;
-    }
-
-    // if video, extract duration so we can warn about bitrateif (typeof file !== 'string') {
-    const contentType = file.type && file.type.split('/');
-    const isVideo = contentType && contentType[0] === 'video';
-    const isMp4 = contentType && contentType[1] === 'mp4';
-
-    if (isVideo) {
-      if (isMp4) {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-        video.onloadedmetadata = () => {
-          updateFileInfo(video.duration, file.size, isVideo);
-          window.URL.revokeObjectURL(video.src);
-        };
-        video.onerror = () => {
-          updateFileInfo(0, file.size, isVideo);
-        };
-        video.src = window.URL.createObjectURL(file);
-      } else {
-        updateFileInfo(0, file.size, isVideo);
-      }
-    } else {
-      updateFileInfo(0, file.size, isVideo);
-    }
     updatePublishForm({ isLivestreamPublish: false });
-
-    // Strip off extention and replace invalid characters
-    let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
-
-    // @if TARGET='web'
-    // we only need to enforce file sizes on 'web'
-    if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
-      setOversized(true);
-      doToast({ message: __(UPLOAD_SIZE_MESSAGE), isError: true });
-      updatePublishForm({ filePath: '' });
-      return;
-    }
-    // @endif
-
-    const publishFormParams: { filePath: string | WebFile, name?: string, optimize?: boolean } = {
-      // if electron, we'll set filePath to the path string because SDK is handling publishing.
-      // File.path will be undefined from web due to browser security, so it will default to the File Object.
-      filePath: file.path || file,
-    };
-
-    if (!isStillEditing) {
-      publishFormParams.name = sanitizeName(fileName);
-    }
-
-    // File path is not supported on web for security reasons so we use the name instead.
-    setCurrentFile(file.path || file.name);
-    updatePublishForm(publishFormParams);
+    doUpdateFile(file, clearName);
   }
 
   function getUploadMessage() {
     // @if TARGET='web'
-    if (oversized) {
+    if (fileSizeTooBig) {
       return (
         <p className="help--error">
           <Icon icon={ICONS.INFO} />
@@ -276,11 +164,11 @@ function PublishLivestream(props: Props) {
     }
     // @endif
 
-    if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
+    if (fileBitrate > BITRATE.RECOMMENDED) {
       return (
         <p className="help--warning">
           <Icon icon={ICONS.INFO} />
-          {bitRateIsOverMax
+          {fileBitrate > BITRATE.MAX
             ? __(
                 'Your video has a bitrate over ~16 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
               )
@@ -534,7 +422,7 @@ function PublishLivestream(props: Props) {
                   </label>
                   <FileSelector
                     disabled={replaySource !== 'upload'}
-                    currentPath={currentFile}
+                    currentPath={typeof filePath === 'string' ? filePath : filePath?.name}
                     onFileChosen={handleFileChange}
                     accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*' : undefined}
                     placeholder={__('Select video replay file to upload')}

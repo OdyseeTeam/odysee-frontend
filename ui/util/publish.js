@@ -16,6 +16,16 @@ import {
 import { creditsToString } from 'util/format-credits';
 import { TO_SECONDS } from 'util/stripe';
 
+export function getVideoBitrate(size, duration) {
+  const s = Number(size);
+  const d = Number(duration);
+  if (s && d) {
+    return (s * 8) / d;
+  } else {
+    return 0;
+  }
+}
+
 export function handleBidChange(bid, amount, balance, setBidError, setParam) {
   const totalAvailableBidAmount = (parseFloat(amount) || 0.0) + (parseFloat(balance) || 0.0);
 
