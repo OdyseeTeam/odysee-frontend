@@ -3,7 +3,7 @@ import * as ERRORS from 'constants/errors';
 import * as MODALS from 'constants/modal_types';
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
-import { PAYWALL } from 'constants/publish';
+import { NO_FILE, PAYWALL } from 'constants/publish';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
@@ -14,7 +14,6 @@ import {
   selectMyActiveClaims,
   selectMyClaims,
   selectMyChannelClaims,
-  // selectMyClaimsWithoutChannels,
   selectReflectingById,
 } from 'redux/selectors/claims';
 import { selectPublishFormValue, selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
@@ -25,23 +24,12 @@ import { doOpenModal } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-import { creditsToString } from 'util/format-credits';
+import { resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
 import { isClaimNsfw, getChannelIdFromClaim } from 'util/claim';
-import {
-  LBRY_FIRST_TAG,
-  SCHEDULED_LIVESTREAM_TAG,
-  MEMBERS_ONLY_CONTENT_TAG,
-  // RESTRICTED_CHAT_COMMENTS_TAG,
-  PURCHASE_TAG,
-  PURCHASE_TAG_OLD,
-  RENTAL_TAG,
-  RENTAL_TAG_OLD,
-  SCHEDULED_TAGS,
-  VISIBILITY_TAGS,
-} from 'constants/tags';
+import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 
 function resolveClaimTypeForAnalytics(claim) {
   if (!claim) {
@@ -64,272 +52,6 @@ function resolveClaimTypeForAnalytics(claim) {
       return claim.value_type;
   }
 }
-
-export const NO_FILE = '---';
-
-function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) {
-  const {
-    name,
-    bid,
-    filePath,
-    description,
-    language,
-    releaseTime,
-    licenseUrl,
-    licenseType,
-    otherLicenseDescription,
-    thumbnail,
-    channel,
-    title,
-    paywall,
-    fee,
-    tags,
-    optimize,
-    isLivestreamPublish,
-    remoteFileUrl,
-  } = publishData;
-
-  // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
-  const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
-
-  let publishingLicense;
-  switch (licenseType) {
-    case COPYRIGHT:
-    case OTHER:
-      publishingLicense = otherLicenseDescription;
-      break;
-    default:
-      publishingLicense = licenseType;
-  }
-
-  // get the claim id from the channel name, we will use that instead
-  const namedChannelClaim = myChannels ? myChannels.find((myChannel) => myChannel.name === channel) : null;
-  const channelId = namedChannelClaim ? namedChannelClaim.claim_id : '';
-
-  const nowTimeStamp = Number(Math.round(Date.now() / 1000));
-  const { claim_id: claimId } = myClaimForUri || {};
-
-  const publishPayload: PublishParams = {
-    name,
-    title,
-    description,
-    locations: [],
-    bid: creditsToString(bid),
-    languages: [language],
-    thumbnail_url: thumbnail,
-    release_time: PAYLOAD.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,
-    blocking: true,
-    preview: false,
-    ...(remoteFileUrl ? { remote_url: remoteFileUrl } : {}),
-    ...(claimId ? { claim_id: claimId } : {}), // 'stream_update' support
-    ...(optimize ? { optimize_file: true } : {}),
-    ...(thumbnail ? { thumbnail_url: thumbnail } : {}),
-    ...(channelId ? { channel_id: channelId } : {}),
-    ...(licenseUrl ? { license_url: licenseUrl } : {}),
-    ...(publishingLicense ? { license: publishingLicense } : {}),
-  };
-
-  const tagSet = new Set(tags.map((t) => t.name));
-
-  PAYLOAD.tags.useLbryUploader(tagSet, publishData);
-  PAYLOAD.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
-  PAYLOAD.tags.fiatPaywall(tagSet, publishData);
-  PAYLOAD.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
-  PAYLOAD.tags.visibility(tagSet, publishData);
-
-  publishPayload.tags = Array.from(tagSet);
-
-  if (myClaimForUriEditing && myClaimForUriEditing.value && myClaimForUriEditing.value.locations) {
-    publishPayload.locations = myClaimForUriEditing.value.locations;
-  }
-
-  if (paywall === PAYWALL.SDK && publishData.visibility === 'public') {
-    if (fee && fee.currency && Number(fee.amount) > 0) {
-      publishPayload.fee_currency = fee.currency;
-      publishPayload.fee_amount = creditsToString(fee.amount);
-    }
-  }
-
-  // Only pass file on new uploads, not metadata only edits.
-  // The sdk will figure it out
-  if (filePath && !isLivestreamPublish) {
-    publishPayload.file_path = filePath;
-  }
-
-  if (preview) {
-    publishPayload.preview = true;
-    publishPayload.optimize_file = false;
-  }
-
-  return publishPayload;
-}
-
-/**
- * Helper functions to resolve SDK's publish payload.
- */
-const PAYLOAD = {
-  releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim, publishData: UpdatePublishState) => {
-    const isEditing = Boolean(claimToEdit);
-    const past = {};
-
-    if (isEditing && claimToEdit) {
-      const tags = claimToEdit.value?.tags || [];
-
-      past.wasHidden = tags.includes(VISIBILITY_TAGS.UNLISTED) || tags.includes(VISIBILITY_TAGS.PRIVATE);
-      past.wasScheduled = tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE);
-      past.timestamp = claimToEdit.timestamp;
-      past.release_time = claimToEdit.value?.release_time;
-      past.creation_timestamp = claimToEdit.meta?.creation_timestamp;
-    }
-
-    switch (publishData.visibility) {
-      case 'public':
-      case 'private':
-      case 'unlisted':
-        if (isEditing) {
-          if (publishData.isLivestreamPublish && publishData.replaySource !== 'keep') {
-            return Number(past.release_time || past.timestamp);
-          }
-
-          if (userEnteredTs === undefined) {
-            return past.wasScheduled ? past.creation_timestamp : Number(past.release_time || past.timestamp);
-          } else {
-            return userEnteredTs;
-          }
-        } else {
-          if (userEnteredTs === undefined) {
-            return nowTs;
-          } else {
-            return userEnteredTs;
-          }
-        }
-
-      case 'scheduled':
-        if (isEditing) {
-          if (userEnteredTs === undefined) {
-            return past.wasHidden ? past.creation_timestamp : Number(past.release_time || past.timestamp);
-          } else {
-            return userEnteredTs;
-          }
-        } else {
-          // The reducer enforces '>Now' through releaseTimeError, but double-check in case UI broke:
-          assert(userEnteredTs, 'New scheduled publish cannot have undefined release time');
-          return userEnteredTs;
-        }
-
-      default:
-        assert(false, `unhandled: "${publishData.visibility}"`);
-        break;
-    }
-  },
-
-  tags: {
-    useLbryUploader: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      if (publishData.useLBRYUploader) {
-        tagSet.add(LBRY_FIRST_TAG);
-      }
-    },
-
-    scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime, nowTime) => {
-      const { isLivestreamPublish } = publishData;
-      // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
-      if (isLivestreamPublish && releaseTime && releaseTime > nowTime) {
-        tagSet.add(SCHEDULED_LIVESTREAM_TAG);
-      } else {
-        tagSet.delete(SCHEDULED_LIVESTREAM_TAG);
-      }
-    },
-
-    fiatPaywall: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      const {
-        paywall,
-        fiatPurchaseEnabled,
-        fiatPurchaseFee,
-        fiatRentalEnabled,
-        fiatRentalFee,
-        fiatRentalExpiration,
-        visibility,
-      } = publishData;
-
-      const refSet = new Set(tagSet);
-      refSet.forEach((t) => {
-        if (
-          t === RENTAL_TAG ||
-          t === PURCHASE_TAG ||
-          t.startsWith(`${RENTAL_TAG}:`) ||
-          t.startsWith(`${PURCHASE_TAG}:`) ||
-          t.startsWith(RENTAL_TAG_OLD) ||
-          t.startsWith(PURCHASE_TAG_OLD)
-        ) {
-          tagSet.delete(t);
-        }
-      });
-
-      if (visibility !== 'public') {
-        // Payment options disabled.
-        return;
-      }
-
-      if (paywall === PAYWALL.FIAT) {
-        // Purchase
-        if (fiatPurchaseEnabled && fiatPurchaseFee?.currency && Number(fiatPurchaseFee.amount) > 0) {
-          tagSet.add(PURCHASE_TAG);
-          tagSet.add(`${PURCHASE_TAG}:${fiatPurchaseFee.amount.toFixed(2)}`);
-        }
-
-        // Rental
-        if (
-          fiatRentalEnabled &&
-          fiatRentalFee?.currency &&
-          Number(fiatRentalFee.amount) > 0 &&
-          fiatRentalExpiration?.unit &&
-          Number(fiatRentalExpiration.value) > 0
-        ) {
-          const seconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
-          tagSet.add(RENTAL_TAG);
-          tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}`);
-        }
-      }
-    },
-
-    membershipRestrictions: (tagSet: Set<string>, publishData: UpdatePublishState, channel_id: ?string) => {
-      tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
-
-      if (publishData.visibility !== 'unlisted') {
-        // $FlowFixMe - handle restrictedToMemberships
-        if (publishData.restrictedToMemberships && channel_id) {
-          tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
-        }
-      }
-    },
-
-    visibility: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      const { visibility } = publishData;
-
-      tagSet.delete(VISIBILITY_TAGS.PRIVATE);
-      tagSet.delete(VISIBILITY_TAGS.UNLISTED);
-      tagSet.delete(SCHEDULED_TAGS.SHOW);
-      tagSet.delete(SCHEDULED_TAGS.HIDE);
-
-      switch (visibility) {
-        case 'public':
-          break; // Nothing to do
-        case 'private':
-          tagSet.add(VISIBILITY_TAGS.PRIVATE);
-          break;
-        case 'unlisted':
-          tagSet.add(VISIBILITY_TAGS.UNLISTED);
-          break;
-        case 'scheduled':
-          tagSet.add(publishData.scheduledShow ? SCHEDULED_TAGS.SHOW : SCHEDULED_TAGS.HIDE);
-          break;
-        default:
-          assert(false, `unhandled: "${visibility}"`);
-          break;
-      }
-    },
-  },
-};
 
 export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) => {
   return (dispatch: Dispatch, getState: () => State) => {
@@ -866,7 +588,7 @@ export const doPublish =
     // get redux publish form
     const publishData = selectPublishFormValues(state);
 
-    const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, previewFn);
+    const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, Boolean(previewFn));
 
     const { restrictedToMemberships, name } = publishData;
 
