@@ -1,9 +1,11 @@
 // @flow
 import * as ERRORS from 'constants/errors';
+import * as RENDER_MODES from 'constants/file_render_modes';
 import * as MODALS from 'constants/modal_types';
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
 import { NO_FILE, PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
@@ -16,6 +18,7 @@ import {
   selectMyChannelClaims,
   selectReflectingById,
 } from 'redux/selectors/claims';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectPublishFormValue, selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
 import { doError } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
@@ -28,8 +31,14 @@ import { resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
-import { isClaimNsfw, getChannelIdFromClaim } from 'util/claim';
+import { isClaimNsfw, getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+
+const PUBLISH_PATH_MAP = Object.freeze({
+  file: PAGES.UPLOAD,
+  post: PAGES.POST,
+  livestream: PAGES.LIVESTREAM,
+});
 
 function resolveClaimTypeForAnalytics(claim) {
   if (!claim) {
@@ -273,10 +282,27 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
   });
 };
 
-export const doBeginPublish = (name: string) => (dispatch: Dispatch) => {
-  dispatch(doClearPublish());
-  // dispatch(doPrepareEdit({ name }));
-  // dispatch(push(`/$/${PAGES.UPLOAD}`));
+export const doBeginPublish = (type: PublishType, name: string = '', customPath: string = '') => {
+  return (dispatch: Dispatch) => {
+    assert(PUBLISH_PATH_MAP[type], 'invalid type', type);
+
+    dispatch(doClearPublish());
+
+    dispatch({
+      type: ACTIONS.UPDATE_PUBLISH_FORM,
+      data: {
+        type,
+        ...(name ? { name } : {}),
+      },
+    });
+
+    if (customPath) {
+      dispatch(push(customPath));
+    } else {
+      const path = PUBLISH_PATH_MAP[type] || PUBLISH_PATH_MAP.file;
+      dispatch(push(`/$/${path}`));
+    }
+  };
 };
 
 export const doClearPublish = () => (dispatch: Dispatch) => {
@@ -420,6 +446,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     const { name, amount, value = {} } = claim;
     const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
     const channelId = (claim && claim.signing_channel && claim.signing_channel.claim_id) || null;
+
     const {
       author,
       description,
@@ -443,8 +470,17 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     const { claim_id } = myClaimForUri || {};
     //         ^--- can we just use 'claim.claim_id'?
 
+    const isPostClaim = makeSelectFileRenderModeForUri(claim?.permanent_url)(state) === RENDER_MODES.MARKDOWN;
+    const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+    const type: PublishType = isLivestreamClaim
+      ? PUBLISH_TYPES.LIVESTREAM
+      : isPostClaim
+      ? PUBLISH_TYPES.POST
+      : PUBLISH_TYPES.FILE;
+
     // $FlowFixMe (TODO: Lots of undefined states. If truely used, please define them)
     const publishData: UpdatePublishState = {
+      type,
       claim_id: claim_id,
       name,
       bid: Number(amount),
@@ -559,18 +595,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     }
 
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
-
-    switch (claimType) {
-      case 'post':
-        dispatch(push(`/$/${PAGES.POST}`));
-        break;
-      case 'livestream':
-        dispatch(push(`/$/${PAGES.LIVESTREAM}`));
-        break;
-      default:
-        dispatch(push(`/$/${PAGES.UPLOAD}`));
-        break;
-    }
+    dispatch(push(`/$/${PUBLISH_PATH_MAP[type]}`));
   };
 };
 

@@ -155,6 +155,7 @@ type Props = {
   doClearPurchasedUriSuccess: () => void,
   doOpenModal: (id: string, ?{}) => void,
   doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
+  doBeginPublish: (PublishType) => void,
 };
 
 function SideNavigation(props: Props) {
@@ -182,6 +183,7 @@ function SideNavigation(props: Props) {
     doClearPurchasedUriSuccess,
     doOpenModal,
     doResolveUris,
+    doBeginPublish,
   } = props;
 
   const isLargeScreen = useIsLargeScreen();
@@ -190,21 +192,21 @@ function SideNavigation(props: Props) {
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
       title: 'Go Live',
-      link: `/$/${PAGES.LIVESTREAM}`,
       icon: ICONS.VIDEO,
       hideForUnauth: true,
+      onClick: () => doBeginPublish('livestream'),
     },
     {
       title: 'Upload',
-      link: `/$/${PAGES.UPLOAD}`,
       icon: ICONS.PUBLISH,
       hideForUnauth: true,
+      onClick: () => doBeginPublish('file'),
     },
     {
       title: 'Post',
-      link: `/$/${PAGES.POST}`,
       icon: ICONS.POST,
       hideForUnauth: true,
+      onClick: () => doBeginPublish('post'),
     },
   ];
 

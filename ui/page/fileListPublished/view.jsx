@@ -2,7 +2,6 @@
 import type { DoFetchClaimListMine } from 'redux/actions/claims';
 
 import './style.scss';
-import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect } from 'react';
 import Button from 'component/button';
@@ -37,7 +36,7 @@ const METHOD = {
 type Props = {
   uploadCount: number,
   checkPendingPublishes: () => void,
-  clearPublish: () => void,
+  doBeginPublish: (PublishType, ?string) => void,
   fetchClaimListMine: DoFetchClaimListMine,
   fetching: boolean,
   urls: Array<string>,
@@ -53,7 +52,7 @@ function FileListPublished(props: Props) {
   const {
     uploadCount,
     checkPendingPublishes,
-    clearPublish,
+    doBeginPublish,
     fetchClaimListMine,
     fetching,
     urls,
@@ -230,9 +229,8 @@ function FileListPublished(props: Props) {
                     <div className="section__actions">
                       <Button
                         button="primary"
-                        navigate={`/$/${PAGES.UPLOAD}`}
                         label={__('Upload Something New')}
-                        onClick={() => clearPublish()}
+                        onClick={() => doBeginPublish('file')}
                       />
                     </div>
                   )

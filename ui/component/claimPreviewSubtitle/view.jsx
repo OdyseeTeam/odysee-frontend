@@ -19,7 +19,7 @@ type Props = {
   // --- redux ---
   claim: ?StreamClaim,
   pending?: boolean,
-  beginPublish: (?string) => void,
+  doBeginPublish: (PublishType, ?string) => void,
   isLivestream: boolean,
   lang: string,
   fetchSubCount: (string) => void,
@@ -28,7 +28,7 @@ type Props = {
 
 // previews used in channel overview and homepage (and other places?)
 function ClaimPreviewSubtitle(props: Props) {
-  const { pending, uri, claim, type, beginPublish, isLivestream, fetchSubCount, subCount, showAtSign, lang } = props;
+  const { pending, uri, claim, type, doBeginPublish, isLivestream, fetchSubCount, subCount, showAtSign, lang } = props;
 
   const isEmbed = React.useContext(EmbedContext);
 
@@ -82,7 +82,11 @@ function ClaimPreviewSubtitle(props: Props) {
         <React.Fragment>
           <div>{__('Upload something and claim this spot!')}</div>
           <div className="card__actions">
-            <Button onClick={() => beginPublish(name)} button="primary" label={__('Publish to %uri%', { uri })} />
+            <Button
+              onClick={() => doBeginPublish('file', name)}
+              button="primary"
+              label={__('Publish to %uri%', { uri })}
+            />
           </div>
         </React.Fragment>
       )}

@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
+import { doBeginPublish } from 'redux/actions/publish';
 import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
 import {
   selectLastActiveSubscriptions,
@@ -41,4 +42,5 @@ export default connect(select, {
   doClearPurchasedUriSuccess,
   doOpenModal,
   doResolveUris,
+  doBeginPublish,
 })(SideNavigation);
