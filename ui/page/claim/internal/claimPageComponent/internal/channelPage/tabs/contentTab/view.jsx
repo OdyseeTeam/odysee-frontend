@@ -91,7 +91,6 @@ function ContentTab(props: Props) {
     membersOnly: { hideMembersOnly, setHideMembersOnly },
   };
 
-  // const url = `${pathname}${search}`;
   const claimId = claim && claim.claim_id;
   const showFilters =
     !claimType ||
@@ -112,7 +111,6 @@ function ContentTab(props: Props) {
 
   React.useEffect(() => {
     const urlParams = new URLSearchParams(search).get('order');
-    // let test =  urlParams.get('order');
     setOrderBy(urlParams);
   }, [search]);
 
