@@ -333,12 +333,6 @@ function SideNavigation(props: Props) {
     return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, hideSort, ...theRest }) => theRest);
   }
 
-  function handleClick(event) {
-    setTimeout(() => {
-      if (event) event.stopPropagation();
-    }, 0);
-  }
-
   function getLink(props: SideNavLink) {
     const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
     const { title, icon, extra } = passedProps;
@@ -360,7 +354,6 @@ function SideNavigation(props: Props) {
             'navigation-link--highlighted': icon === ICONS.NOTIFICATION && unseenCount > 0,
           })}
           activeClass="navigation-link--active"
-          onClick={handleClick}
         />
         {extra && extra}
       </li>
