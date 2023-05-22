@@ -92,7 +92,6 @@ declare type PublishState = {|
   optimize: boolean,
   useLBRYUploader: boolean,
   currentUploads: { [key: string]: FileUploadItem },
-  isMarkdownPost: boolean,
   isLivestreamPublish: boolean,
   replaySource: 'keep' | 'choose' | 'upload',
   visibility: Visibility,

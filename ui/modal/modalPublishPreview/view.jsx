@@ -18,14 +18,15 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import { NO_FILE, PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import * as STRIPE from 'constants/stripe';
 import { TO_SECONDS } from 'util/stripe';
 import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
 
 type Props = {
+  type: PublishType,
   filePath: string | WebFile,
-  isMarkdownPost: boolean,
   optimize: boolean,
   title: ?string,
   description: ?string,
@@ -69,8 +70,8 @@ type Props = {
 // class ModalPublishPreview extends React.PureComponent<Props> {
 const ModalPublishPreview = (props: Props) => {
   const {
+    type,
     filePath,
-    isMarkdownPost,
     optimize,
     title,
     description,
@@ -174,7 +175,7 @@ const ModalPublishPreview = (props: Props) => {
         : (!livestream || !isLivestreamClaim) && remoteFile
         ? __('Publish Replay')
         : __('Create Livestream');
-    } else if (isMarkdownPost) {
+    } else if (type === PUBLISH_TYPES.POST) {
       return __('Confirm Post');
     } else {
       return __('Confirm Upload');
@@ -406,7 +407,7 @@ const ModalPublishPreview = (props: Props) => {
               <div className="section">
                 <table className="table table--condensed table--publish-preview">
                   <tbody>
-                    {!livestream && !isMarkdownPost && createRow(__('File'), getFilePathName(filePath))}
+                    {!livestream && type !== PUBLISH_TYPES.POST && createRow(__('File'), getFilePathName(filePath))}
                     {livestream && remoteFile && createRow(__('Replay'), __('Remote File Selected'))}
                     {livestream && filePath && createRow(__('Replay'), __('Manual Upload'))}
                     {isOptimizeAvail && createRow(__('Transcode'), optimize ? __('Yes') : __('No'))}

@@ -386,7 +386,6 @@ function LivestreamForm(props: Props) {
 
   useEffect(() => {
     updatePublishForm({
-      isMarkdownPost: false,
       isLivestreamPublish: true,
     });
   }, [mode, updatePublishForm]);

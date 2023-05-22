@@ -69,7 +69,6 @@ const defaultState: PublishState = {
   optimize: false,
   useLBRYUploader: false,
   currentUploads: {},
-  isMarkdownPost: false,
   isLivestreamPublish: false,
   replaySource: 'keep',
   visibility: 'public',
