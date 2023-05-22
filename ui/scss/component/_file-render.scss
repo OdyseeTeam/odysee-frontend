@@ -864,26 +864,6 @@ $control-bar-icon-size: 30px;
         opacity: 0.9;
       }
     }
-
-    .vjs-chromecast-button,
-    .vjs-airplay-button {
-      margin-left: var(--spacing-xs);
-      margin-right: 2px;
-      .vjs-icon-placeholder {
-        $chromecast-icon-size: 25px;
-        margin-top: 3px;
-        width: $chromecast-icon-size;
-        height: $chromecast-icon-size;
-      }
-
-      @media (max-width: $breakpoint-small) {
-        .vjs-icon-placeholder {
-          margin-top: 2px;
-          width: 26px;
-          height: 26px;
-        }
-      }
-    }
   }
 
   .vjs-control-bar {
