@@ -12,6 +12,7 @@ import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import { Container } from 'util/container';
 
 type Props = {
   channelClaimId: any,
@@ -33,6 +34,7 @@ type Props = {
   publishedCollections: CollectionGroup,
   singleClaimUri: string,
   featuredChannels: any,
+  activeLivestreamUri: ?ClaimUri,
   hasPremiumPlus: boolean,
   // --- perform ---
   doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => void,
@@ -61,6 +63,7 @@ function HomeTabSection(props: Props) {
     singleClaimUri,
     hasPremiumPlus,
     featuredChannels,
+    activeLivestreamUri,
     doClaimSearch,
     doResolveClaimId,
     doResolveUris,
@@ -78,6 +81,11 @@ function HomeTabSection(props: Props) {
   const featuredChannel = featuredChannels && featuredChannels.find((list) => list.id === section.claim_id);
   const hasFeaturedClaim = singleClaimUri || (claimSearchResults && claimSearchResults[0]) || section.claim_id;
   const scheduledChanIds = React.useMemo(() => [channelClaimId], [channelClaimId]);
+
+  const liveUris = React.useMemo(() => {
+    // This follows `contentTab` where it assumes only 1 livestream per channel.
+    return activeLivestreamUri ? [activeLivestreamUri] : Container.Arr.EMPTY;
+  }, [activeLivestreamUri]);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
@@ -223,7 +231,13 @@ function HomeTabSection(props: Props) {
   return (
     <div className="home-section-content">
       {!editMode && index === 0 && (
-        <ScheduledStreams name="homeTab" channelIds={scheduledChanIds} tileLayout={false} showHideSetting={false} />
+        <ScheduledStreams
+          name="homeTab"
+          channelIds={scheduledChanIds}
+          tileLayout={false}
+          showHideSetting={false}
+          liveUris={liveUris}
+        />
       )}
       {editMode && (
         <div className="home-section-header-wrapper">
