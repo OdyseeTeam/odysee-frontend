@@ -30,6 +30,7 @@ import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import Spinner from 'component/spinner';
+import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
@@ -46,6 +47,7 @@ type Props = {
   publish: DoPublishDesktop,
   filePath: string | File,
   fileText: string,
+  fileBitrate: number,
   bid: ?number,
   bidError: ?string,
   editingURI: ?string,
@@ -108,6 +110,7 @@ function UploadForm(props: Props) {
     enablePublishPreview,
     filePath,
     fileText,
+    fileBitrate,
     hasClaimedInitialRewards,
     incognito,
     isClaimingInitialRewards,
@@ -148,7 +151,6 @@ function UploadForm(props: Props) {
   const [prevFileText, setPrevFileText] = React.useState('');
 
   const [waitForFile, setWaitForFile] = useState(false);
-  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
 
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
@@ -174,7 +176,7 @@ function UploadForm(props: Props) {
     name &&
     isNameValid(name) &&
     title &&
-    !overMaxBitrate &&
+    fileBitrate < BITRATE.MAX &&
     bid &&
     thumbnail &&
     !bidError &&
@@ -422,7 +424,6 @@ function UploadForm(props: Props) {
               inProgress={isInProgress}
               setPrevFileText={setPrevFileText}
               setWaitForFile={setWaitForFile}
-              setOverMaxBitrate={setOverMaxBitrate}
               channelId={claimChannelId}
               channelName={activeChannelName}
             />
@@ -510,7 +511,7 @@ function UploadForm(props: Props) {
         </div>
         <span className="help">
           {!formDisabled && !formValid ? (
-            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
+            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
           ) : (
             <I18nMessage
               tokens={{

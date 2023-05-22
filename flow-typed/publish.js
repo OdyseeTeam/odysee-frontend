@@ -50,6 +50,8 @@ declare type PublishState = {|
   fileSize: number,
   fileVid: boolean,
   fileMime: string,
+  fileBitrate: number,
+  fileSizeTooBig: boolean,
   streamType: ?string,
   fee: {
     amount: number,

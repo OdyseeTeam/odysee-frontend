@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import { BITRATE } from 'constants/publish';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
@@ -46,6 +47,7 @@ type Props = {
   publish: DoPublishDesktop,
   filePath: string | WebFile,
   fileText: string,
+  fileBitrate: number,
   bid: ?number,
   bidError: ?string,
   editingURI: ?string,
@@ -118,6 +120,7 @@ function LivestreamForm(props: Props) {
     updatePublishForm,
     filePath,
     fileText,
+    fileBitrate,
     publishing,
     publishSuccess,
     publishError,
@@ -159,7 +162,6 @@ function LivestreamForm(props: Props) {
   const [prevName, setPrevName] = React.useState(false);
 
   const [waitForFile, setWaitForFile] = useState(false);
-  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
 
   const [livestreamData, setLivestreamData] = React.useState([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
@@ -188,7 +190,7 @@ function LivestreamForm(props: Props) {
     name &&
     isNameValid(name) &&
     title &&
-    !overMaxBitrate &&
+    fileBitrate < BITRATE.MAX &&
     bid &&
     thumbnail &&
     !bidError &&
@@ -524,7 +526,6 @@ function LivestreamForm(props: Props) {
                 inProgress={isInProgress}
                 livestreamData={livestreamData}
                 setWaitForFile={setWaitForFile}
-                setOverMaxBitrate={setOverMaxBitrate}
                 isCheckingLivestreams={isCheckingLivestreams}
                 checkLivestreams={fetchLivestreams}
                 channelId={claimChannelId}
@@ -616,12 +617,7 @@ function LivestreamForm(props: Props) {
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (
-              <PublishFormErrors
-                title={title}
-                mode={mode}
-                waitForFile={waitingForFile}
-                overMaxBitrate={overMaxBitrate}
-              />
+              <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
             ) : (
               <I18nMessage
                 tokens={{

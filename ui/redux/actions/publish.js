@@ -7,7 +7,7 @@ import * as PAGES from 'constants/pages';
 import { NO_FILE, PAYWALL } from 'constants/publish';
 import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
-import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
 import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
@@ -19,7 +19,12 @@ import {
   selectReflectingById,
 } from 'redux/selectors/claims';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { selectPublishFormValue, selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
+import {
+  selectPublishFormValue,
+  selectPublishFormValues,
+  selectMyClaimForUri,
+  selectIsStillEditing,
+} from 'redux/selectors/publish';
 import { doError } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
 import analytics from 'analytics';
@@ -27,7 +32,8 @@ import { doOpenModal } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-import { resolvePublishPayload } from 'util/publish';
+import { sanitizeName } from 'util/lbryURI';
+import { getVideoBitrate, resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
@@ -315,6 +321,127 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (di
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { ...publishFormValue },
   });
+
+export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const { name, title } = state.publish;
+    const isStillEditing = selectIsStillEditing(state);
+
+    if (!file) {
+      // This also handles the case of trying to select another file but canceling half way.
+      if (isStillEditing || !clearName) {
+        dispatch({
+          type: ACTIONS.UPDATE_PUBLISH_FORM,
+          data: { filePath: '' },
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.UPDATE_PUBLISH_FORM,
+          data: { filePath: '', name: '' },
+        });
+      }
+      // TODO: Shouldn't it clear the other file-related attributes too?
+      return;
+    }
+
+    assert(typeof file !== 'string');
+
+    const contentType = file.type && file.type.split('/');
+    const isVideo = contentType ? contentType[0] === 'video' : false;
+    const isMp4 = contentType ? contentType[1] === 'mp4' : false;
+
+    let isTextPost = false;
+    if (contentType && contentType[0] === 'text') {
+      isTextPost = contentType[1] === 'plain' || contentType[1] === 'markdown';
+      // setCurrentFileType(contentType);
+    } else if (file.name) {
+      // If user's machine is missing a valid content type registration
+      // for markdown content: text/markdown, file extension will be used instead
+      const extension = file.name.split('.').pop();
+      const MARKDOWN_FILE_EXTENSIONS = ['txt', 'md', 'markdown'];
+      isTextPost = MARKDOWN_FILE_EXTENSIONS.includes(extension);
+    }
+
+    const formUpdates: UpdatePublishState = {
+      fileSize: file.size,
+      fileMime: file.type,
+      fileVid: isVideo,
+      fileBitrate: 0,
+      fileSizeTooBig: false,
+    };
+
+    // --- Async data ---
+    if (isVideo) {
+      if (isMp4) {
+        window.URL = window.URL || window.webkitURL;
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+          dispatch({
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: { fileDur: video.duration, fileBitrate: getVideoBitrate(file.size, video.duration) },
+          });
+          window.URL.revokeObjectURL(video.src);
+        };
+        video.onerror = () => {
+          dispatch({
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: { fileDur: 0, fileBitrate: 0 },
+          });
+        };
+        video.src = window.URL.createObjectURL(file);
+      } else {
+        formUpdates.fileDur = 0;
+      }
+    } else {
+      formUpdates.fileDur = 0;
+
+      if (isTextPost) {
+        const reader = new FileReader();
+        reader.addEventListener('load', (event: ProgressEvent) => {
+          // See: https://github.com/facebook/flow/issues/3470
+          if (event.target instanceof FileReader) {
+            const text = event.target.result;
+            dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: { fileText: text } });
+            // setPublishMode(PUBLISH_MODES.POST);
+          }
+        });
+        reader.readAsText(file);
+        // setCurrentFileType('text/markdown');
+      }
+    }
+
+    // --- File Size ---
+    // @if TARGET='web'
+    // we only need to enforce file sizes on 'web'
+    const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
+    if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
+      formUpdates.fileSizeTooBig = true;
+    }
+    // @endif
+
+    // --- Name and title ---
+    // Strip off extension and replace invalid characters
+    const fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
+
+    if (!title) {
+      formUpdates.title = fileName; // Autofill only if empty title.
+    }
+
+    if (!isStillEditing) {
+      formUpdates.name = sanitizeName(fileName);
+    }
+
+    // --- File Path ---
+    // If electron, we'll set filePath to the path string because SDK is handling publishing.
+    // File.path will be undefined from web due to browser security, so it will default to the File Object.
+    formUpdates.filePath = file.path || file;
+
+    // --- Finalize ---
+    dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: formUpdates });
+  };
+};
 
 export const doUploadThumbnail =
   (filePath?: string, thumbnailBlob?: File, fsAdapter?: any, fs?: any, path?: any, cb?: (string) => void) =>

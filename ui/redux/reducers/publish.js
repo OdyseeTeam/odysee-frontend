@@ -29,6 +29,8 @@ const defaultState: PublishState = {
   fileSize: 0,
   fileVid: false,
   fileMime: '',
+  fileBitrate: 0,
+  fileSizeTooBig: false,
   streamType: '',
   remoteFileUrl: undefined,
   paywall: PAYWALL.FREE,
