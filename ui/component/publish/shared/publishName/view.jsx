@@ -61,6 +61,13 @@ function PublishName(props: Props) {
   }
 
   useEffect(() => {
+    // Form was cleared
+    if (publishFormName === '') {
+      setName('');
+    }
+  }, [publishFormName]);
+
+  useEffect(() => {
     updatePublishForm({ name: nameThrottled || '' });
   }, [nameThrottled, updatePublishForm]);
 
