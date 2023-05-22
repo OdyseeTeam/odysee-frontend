@@ -291,7 +291,10 @@ export const publishReducer = handleActions(
     },
     [ACTIONS.REHYDRATE]: (state: PublishState, action) => {
       if (action && action.payload && action.payload.publish) {
-        const newPublish = { ...action.payload.publish };
+        const newPublish = {
+          ...action.payload.publish,
+          filePath: undefined, // File is not serializable, so can't rehydrate.
+        };
 
         // Cleanup for 'publish::currentUploads'
         if (newPublish.currentUploads) {
