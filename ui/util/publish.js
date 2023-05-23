@@ -13,6 +13,7 @@ import {
   SCHEDULED_TAGS,
   VISIBILITY_TAGS,
 } from 'constants/tags';
+import { isStreamPlaceholderClaim } from 'util/claim';
 import { creditsToString } from 'util/format-credits';
 import { TO_SECONDS } from 'util/stripe';
 
@@ -211,6 +212,7 @@ const PAYLOAD = {
       past.timestamp = claimToEdit.timestamp;
       past.release_time = claimToEdit.value?.release_time;
       past.creation_timestamp = claimToEdit.meta?.creation_timestamp;
+      past.isStreamPlaceholder = isStreamPlaceholderClaim(claimToEdit);
     }
 
     switch (publishData.visibility) {
@@ -218,8 +220,10 @@ const PAYLOAD = {
       case 'private':
       case 'unlisted':
         if (isEditing) {
-          if (publishData.isLivestreamPublish && publishData.replaySource !== 'keep') {
-            return Number(past.release_time || past.timestamp);
+          if (past.isStreamPlaceholder && publishData.replaySource !== 'keep') {
+            // "Choose Replay" or "Upload Replay"
+            const originalTs = Number(past.release_time || past.timestamp);
+            return originalTs > nowTs ? nowTs : originalTs;
           }
 
           if (userEnteredTs === undefined) {
