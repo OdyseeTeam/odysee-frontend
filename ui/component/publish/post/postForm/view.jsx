@@ -431,9 +431,9 @@ function PostForm(props: Props) {
             }
           />
 
-          <PublishProtectedContent claim={myClaimForUri} location={'post'} />
-
           <PublishVisibility />
+
+          <PublishProtectedContent claim={myClaimForUri} location={'post'} />
 
           <PublishPrice disabled={formDisabled} />
 
