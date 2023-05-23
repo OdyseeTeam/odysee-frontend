@@ -91,6 +91,22 @@ export const selectHomepageData = (state) => {
   return homepages ? homepages[homepageCode] || homepages['en'] || {} : undefined;
 };
 
+export const selectHomepageCategoryChannelIds = createSelector(selectHomepageData, (homepage) => {
+  let channels = [];
+  if (homepage && homepage.categories) {
+    for (let category in homepage.categories) {
+      if (homepage.categories[category].channelIds) {
+        for (let channel of homepage.categories[category].channelIds) {
+          if (!channels.includes(channel)) {
+            channels.push(channel);
+          }
+        }
+      }
+    }
+  }
+  return channels;
+});
+
 export const selectHomepageMeme = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);

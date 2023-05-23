@@ -51,7 +51,7 @@ export default function MarkdownPostPage(props: Props) {
       {!commentSettingDisabled && contentUnlocked && (
         <div className="file-page__post-comments">
           <React.Suspense fallback={null}>
-            {!hasPremiumPlus && <Ad type="aboveComments" />}
+            {!hasPremiumPlus && <Ad type="aboveComments" uri={uri} />}
             <CommentsList
               uri={uri}
               linkedCommentId={linkedCommentId}

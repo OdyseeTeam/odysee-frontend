@@ -27,7 +27,7 @@ type Props = {
 function AdTileB(props: Props) {
   const { provider, device, shouldShowAds } = props;
   const [isActive, setIsActive] = React.useState(false);
-  // const ref = React.useRef();
+
   React.useEffect(() => {
     if (shouldShowAds && !DISABLE_VIDEO_AD) {
       let script;
