@@ -19,34 +19,14 @@ type Props = {
   uri?: string,
   tileLayout?: boolean,
   shouldShowAds: boolean,
-  homepageData?: ?any,
-  claim: any,
+  channelIdWhitelist?: ?any,
+  channelId: any,
 };
 
 function Ad(props: Props) {
-  const { type, uri, tileLayout, shouldShowAds, homepageData, claim } = props;
-  const { categories } = homepageData || {};
+  const { type, uri, tileLayout, shouldShowAds, channelIdWhitelist, channelId } = props;
   const device = useIsMobile() ? 'mobile' : 'desktop';
-  const channelId =
-    claim && claim.value_type === 'channel' ? claim.claim_id : claim ? claim.signing_channel?.claim_id : undefined;
-
-  const channeldWhitelist = React.useMemo(() => {
-    if (claim && categories) {
-      let channels = [];
-      for (let category in categories) {
-        if (categories[category].channelIds) {
-          for (let channel of categories[category].channelIds) {
-            if (!channels.includes(channel)) {
-              channels.push(channel);
-            }
-          }
-        }
-      }
-      return channels;
-    }
-  }, [categories, claim]);
-
-  const provider = channeldWhitelist && channeldWhitelist.includes(channelId) ? 'publir' : 'revcontent';
+  const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'publir' : 'revcontent';
 
   React.useEffect(() => {
     if (shouldShowAds && AD_CONFIG.PUBLIR.active) {
