@@ -19,11 +19,34 @@ type Props = {
   uri?: string,
   tileLayout?: boolean,
   shouldShowAds: boolean,
+  homepageData?: any,
+  claim: boolean,
 };
 
 function Ad(props: Props) {
-  const { type, uri, tileLayout, shouldShowAds } = props;
+  const { type, uri, tileLayout, shouldShowAds, homepageData, claim } = props;
+  const { categories } = homepageData;
   const device = useIsMobile() ? 'mobile' : 'desktop';
+  const channelId =
+    claim && claim.value_type === 'channel' ? claim.claim_id : claim ? claim.signing_channel?.claim_id : undefined;
+
+  const channeldWhitelist = React.useMemo(() => {
+    if (claim && categories) {
+      let channels = [];
+      for (let category in categories) {
+        if (categories[category].channelIds) {
+          for (let channel of categories[category].channelIds) {
+            if (!channels.includes(channel)) {
+              channels.push(channel);
+            }
+          }
+        }
+      }
+      return channels;
+    }
+  }, [categories, claim]);
+
+  const provider = channeldWhitelist && channeldWhitelist.includes(channelId) ? 'publir' : 'revcontent';
 
   React.useEffect(() => {
     if (shouldShowAds && AD_CONFIG.PUBLIR.active) {
@@ -58,9 +81,11 @@ function Ad(props: Props) {
   return (
     <>
       {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
-      {type === 'tileB' && <AdTileB provider="publir" device={device} />}
+      {type === 'tileB' && <AdTileB provider={provider} device={device} />}
       {type === 'sticky' && <AdSticky uri={uri} />}
-      {type === 'aboveComments' && <AdAboveComments provider="publir" device={device} shouldShowAds={shouldShowAds} />}
+      {type === 'aboveComments' && (
+        <AdAboveComments provider={provider} device={device} shouldShowAds={shouldShowAds} />
+      )}
     </>
   );
 }
