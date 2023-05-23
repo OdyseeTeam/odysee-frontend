@@ -20,7 +20,7 @@ type Props = {
   tileLayout?: boolean,
   shouldShowAds: boolean,
   homepageData?: any,
-  claim: boolean,
+  claim: any,
 };
 
 function Ad(props: Props) {
