@@ -9,8 +9,8 @@ import { useIsMobile } from 'effects/use-screensize';
 const AD_CONFIG = Object.freeze({
   PUBLIR: {
     active: true,
-    path: 'https://cdn.jsdelivr.net/npm/prebid.js@7.13/dist/not-for-prod/',
-    file: 'prebid.js',
+    path: 'https://a.publir.com/platform/common/',
+    file: 'prebid736.js',
   },
 });
 
