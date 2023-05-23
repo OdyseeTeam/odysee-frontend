@@ -22,17 +22,12 @@ export function SearchResults(props: Props) {
   const [searchResults, setSearchResults] = React.useState(undefined);
   const [isSearching, setIsSearching] = React.useState(false);
   const noMoreResults = React.useRef(false);
-  const [sortBy, setSortBy] = React.useState(1);
-
-  React.useEffect(() => {
-    setSortBy(
-      !orderBy || orderBy === CS.ORDER_BY_TRENDING
-        ? ``
-        : orderBy === CS.ORDER_BY_TOP
-        ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
-        : `&sort_by=${CS.ORDER_BY_NEW_VALUE[0]}`
-    );
-  }, [orderBy]);
+  const sortBy =
+    !orderBy || orderBy === CS.ORDER_BY_TRENDING
+      ? ``
+      : orderBy === CS.ORDER_BY_TOP
+      ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
+      : `&sort_by=${CS.ORDER_BY_NEW_VALUE[0]}`;
 
   React.useEffect(() => {
     setPage(1);
@@ -73,7 +68,11 @@ export function SearchResults(props: Props) {
 
           // De-dup (LH will return some duplicates) and concat results
           setSearchResults((prev) => (page === 1 ? urls : Array.from(new Set((prev || []).concat(urls)))));
-          noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
+          console.log('-------------');
+          console.log('test: ', !urls || urls.length < SEARCH_PAGE_SIZE);
+          console.log('SEARCH_PAGE_SIZE: ', SEARCH_PAGE_SIZE);
+          console.log('page: ', page);
+          // noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
         })
         .catch(() => {
           setPage(1);
