@@ -25,11 +25,12 @@ import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
 
 type Props = {
+  publishPayload: PublishParams,
+  previewResponse: PublishResponse,
+  // --- internal ---
   type: PublishType,
   filePath: string | WebFile,
   optimize: boolean,
-  title: ?string,
-  description: ?string,
   channel: ?string,
   bid: ?number,
   uri: ?string,
@@ -41,14 +42,12 @@ type Props = {
   fiatRentalFee: Price,
   fiatRentalExpiration: Duration,
   language: string,
-  releaseTime: ?number,
   licenseType: string,
   otherLicenseDescription: ?string,
   licenseUrl: ?string,
   tags: Array<Tag>,
   isVid: boolean,
   ffmpegStatus: any,
-  previewResponse: PublishResponse,
   publish: DoPublishDesktop,
   closeModal: () => void,
   enablePublishPreview: boolean,
@@ -70,11 +69,12 @@ type Props = {
 // class ModalPublishPreview extends React.PureComponent<Props> {
 const ModalPublishPreview = (props: Props) => {
   const {
+    publishPayload: payload,
+    previewResponse,
+
     type,
     filePath,
     optimize,
-    title,
-    description,
     channel,
     bid,
     uri,
@@ -88,14 +88,12 @@ const ModalPublishPreview = (props: Props) => {
     fiatRentalExpiration,
 
     language,
-    releaseTime,
     licenseType,
     otherLicenseDescription,
     licenseUrl,
     tags,
     isVid,
     ffmpegStatus = {},
-    previewResponse,
     enablePublishPreview,
     setEnablePublishPreview,
     isStillEditing,
@@ -113,6 +111,8 @@ const ModalPublishPreview = (props: Props) => {
     visibility,
     scheduledShow,
   } = props;
+
+  const { description, release_time: releaseTime, title } = payload;
 
   const livestream =
     (uri && isLivestreamClaim) ||

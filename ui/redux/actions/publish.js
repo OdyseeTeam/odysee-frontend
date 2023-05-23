@@ -70,12 +70,8 @@ function resolveClaimTypeForAnalytics(claim) {
 
 export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) => {
   return (dispatch: Dispatch, getState: () => State) => {
-    const publishPreviewFn = (previewResponse) => {
-      dispatch(
-        doOpenModal(MODALS.PUBLISH_PREVIEW, {
-          previewResponse,
-        })
-      );
+    const publishPreviewFn = (publishPayload, previewResponse) => {
+      dispatch(doOpenModal(MODALS.PUBLISH_PREVIEW, { publishPayload, previewResponse }));
     };
 
     const noFileParam = !filePath || filePath === NO_FILE;
@@ -757,7 +753,7 @@ export const doPublish =
     if (previewFn) {
       return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
         // $FlowIgnore
-        return previewFn(previewResponse);
+        return previewFn(publishPayload, previewResponse);
       }, fail);
     }
 
