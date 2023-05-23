@@ -326,6 +326,24 @@ function PublishPrice(props: Props) {
     }
   }, [fileMime, paywall, type, updatePublishForm, streamType]);
 
+  if (paymentDisallowed) {
+    return (
+      <div className="publish-price">
+        <Card
+          background
+          isBodyList
+          className="card--enable-overflows"
+          title={__('Price')}
+          body={
+            <div className="publish-price__reason">
+              {__('Payment options are not available for Unlisted or Scheduled content.')}
+            </div>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="publish-price">
       <Card
@@ -335,11 +353,6 @@ function PublishPrice(props: Props) {
         title={__('Price')}
         body={
           <>
-            {expanded && paymentDisallowed && (
-              <div className="publish-price__reason">
-                {__('Payment options are not available for Unlisted or Scheduled content.')}
-              </div>
-            )}
             {expanded && (
               <div
                 className={classnames('settings-row', {

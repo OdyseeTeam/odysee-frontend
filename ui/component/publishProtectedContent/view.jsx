@@ -183,21 +183,31 @@ function PublishProtectedContent(props: Props) {
   }
 
   if (membershipsToUse && membershipsToUse.length > 0) {
+    if (visibility === 'unlisted') {
+      return (
+        <Card
+          background
+          isBodyList
+          title={__('Restrict Content')}
+          body={
+            <div className="publish-row publish-row-tiers">
+              <div className="publish-row__reason">
+                {__('Membership restrictions are not available for Unlisted content.')}
+              </div>
+            </div>
+          }
+        />
+      );
+    }
+
     return (
       <>
         <Card
           background
           isBodyList
           title={__('Restrict Content')}
-          className={classnames('', { 'card--disabled': visibility === 'unlisted' })}
           body={
             <div className="publish-row publish-row-tiers">
-              {visibility === 'unlisted' && (
-                <div className="publish-row__reason">
-                  {__('Membership restrictions are not available for Unlisted content.')}
-                </div>
-              )}
-
               <FormField
                 type="checkbox"
                 disabled={paywall !== PAYWALL.FREE}
