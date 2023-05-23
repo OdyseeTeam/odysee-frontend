@@ -76,7 +76,7 @@
     .claim-preview-metadata {
       .claim-preview__title {
         .truncated-text {
-          width: calc(100% - var(--file-list-thumbnail-width) - (var(--spacing-xxs) * 2) - var(--spacing-s));
+          // width: calc(100% - var(--file-list-thumbnail-width) - (var(--spacing-xxs) * 2) - var(--spacing-s));
         }
       }
       .claim-tile__info {
@@ -84,9 +84,11 @@
           .button__content {
             .channel-name {
               p {
+                /*
                 width: calc(
                   100% - var(--file-list-thumbnail-width) - (var(--spacing-xxs) * 2) - (var(--spacing-s) * 2)
                 );
+                */
               }
             }
           }
