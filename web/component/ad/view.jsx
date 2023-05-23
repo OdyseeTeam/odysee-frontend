@@ -25,7 +25,7 @@ type Props = {
 
 function Ad(props: Props) {
   const { type, uri, tileLayout, shouldShowAds, homepageData, claim } = props;
-  const { categories } = homepageData;
+  const { categories } = homepageData || undefined;
   const device = useIsMobile() ? 'mobile' : 'desktop';
   const channelId =
     claim && claim.value_type === 'channel' ? claim.claim_id : claim ? claim.signing_channel?.claim_id : undefined;
