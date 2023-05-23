@@ -13,6 +13,7 @@ import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
 import { PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 
 // This is the old key formula. Retain it for now to allow users to delete
 // any pending uploads. Can be removed from January 2022 onwards.
@@ -120,7 +121,7 @@ export const publishReducer = handleActions(
       const visibility = getValue('visibility');
       const releaseTime = getValue('releaseTime');
       const isEditing = Boolean(getValue('editingURI'));
-      const isLivestream = getValue('isLivestreamPublish');
+      const isLivestream = getValue('type') === PUBLISH_TYPES.LIVESTREAM;
 
       auto.releaseTimeError = '';
 
