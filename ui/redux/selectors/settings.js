@@ -91,8 +91,7 @@ export const selectHomepageData = (state) => {
   return homepages ? homepages[homepageCode] || homepages['en'] || {} : undefined;
 };
 
-export const selectHomepageCategoryChannelIds = (state) => {
-  const homepage = selectHomepageData(state);
+export const selectHomepageCategoryChannelIds = createSelector(selectHomepageData, (homepage) => {
   let channels = [];
   if (homepage && homepage.categories) {
     for (let category in homepage.categories) {
@@ -106,7 +105,7 @@ export const selectHomepageCategoryChannelIds = (state) => {
     }
   }
   return channels;
-};
+});
 
 export const selectHomepageMeme = (state) => {
   const homepageCode = selectHomepageCode(state);
