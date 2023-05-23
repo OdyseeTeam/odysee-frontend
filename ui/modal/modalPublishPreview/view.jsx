@@ -25,11 +25,12 @@ import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
 
 type Props = {
+  publishPayload: PublishParams,
+  previewResponse: PublishResponse,
+  // --- internal ---
   type: PublishType,
   filePath: string | WebFile,
   optimize: boolean,
-  title: ?string,
-  description: ?string,
   channel: ?string,
   bid: ?number,
   uri: ?string,
@@ -48,7 +49,6 @@ type Props = {
   tags: Array<Tag>,
   isVid: boolean,
   ffmpegStatus: any,
-  previewResponse: PublishResponse,
   publish: DoPublishDesktop,
   closeModal: () => void,
   enablePublishPreview: boolean,
@@ -70,11 +70,12 @@ type Props = {
 // class ModalPublishPreview extends React.PureComponent<Props> {
 const ModalPublishPreview = (props: Props) => {
   const {
+    publishPayload: payload,
+    previewResponse,
+
     type,
     filePath,
     optimize,
-    title,
-    description,
     channel,
     bid,
     uri,
@@ -88,14 +89,13 @@ const ModalPublishPreview = (props: Props) => {
     fiatRentalExpiration,
 
     language,
-    releaseTime,
+    releaseTime: rtStore,
     licenseType,
     otherLicenseDescription,
     licenseUrl,
     tags,
     isVid,
     ffmpegStatus = {},
-    previewResponse,
     enablePublishPreview,
     setEnablePublishPreview,
     isStillEditing,
@@ -114,6 +114,16 @@ const ModalPublishPreview = (props: Props) => {
     scheduledShow,
   } = props;
 
+  const { description, release_time: rtPayload, title } = payload;
+
+  const releaseTimeInfo = React.useMemo(() => {
+    return {
+      userEntered: rtStore !== undefined,
+      value: rtPayload,
+      valueIsInFuture: rtPayload && moment(rtPayload * 1000).isAfter(),
+    };
+  }, [rtPayload, rtStore]);
+
   const livestream =
     (uri && isLivestreamClaim) ||
     //   $FlowFixMe
@@ -122,7 +132,6 @@ const ModalPublishPreview = (props: Props) => {
 
   const formattedTitle = truncateWithEllipsis(title, 128);
   const formattedUri = truncateWithEllipsis(uri, 128);
-  const releasesInFuture = releaseTime && moment(releaseTime * 1000).isAfter();
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
@@ -170,7 +179,7 @@ const ModalPublishPreview = (props: Props) => {
         return __('Confirm Edit');
       }
     } else if (livestream || isLivestreamClaim || remoteFile) {
-      return releasesInFuture
+      return releaseTimeInfo.valueIsInFuture
         ? __('Schedule Livestream')
         : (!livestream || !isLivestreamClaim) && remoteFile
         ? __('Publish Replay')
@@ -300,12 +309,12 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function getReleaseTimeLabel() {
-    return releasesInFuture ? __('Scheduled for') : __('Release date');
+    return releaseTimeInfo.valueIsInFuture ? __('Scheduled for') : __('Release date');
   }
 
-  function getReleaseTimeValue(time) {
-    if (time) {
-      return moment(new Date(time * 1000)).format('LLL');
+  function getReleaseTimeValue() {
+    if (releaseTimeInfo.value) {
+      return moment(new Date(releaseTimeInfo.value * 1000)).format('LLL');
     } else {
       return '';
     }
@@ -419,7 +428,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
                     {createRow(__('Visibility'), getVisibilityValue())}
-                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime), !releaseTime)}
+                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(), !releaseTimeInfo.userEntered)}
                     {createRow(__('License'), getLicense())}
                     {createRow(__('Restricted to'), getTierRestrictionValue(), hideTierRestrictions())}
                     {createRow(__('Tags'), getTagsValue(tags))}
