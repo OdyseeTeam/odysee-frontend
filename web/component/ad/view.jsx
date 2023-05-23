@@ -19,7 +19,7 @@ type Props = {
   uri?: string,
   tileLayout?: boolean,
   shouldShowAds: boolean,
-  homepageData?: any,
+  homepageData?: ?any,
   claim: any,
 };
 
