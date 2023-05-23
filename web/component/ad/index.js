@@ -7,9 +7,10 @@ import Ad from './view';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
+  const shouldShowAds = selectShouldShowAds(state);
   return {
-    shouldShowAds: selectShouldShowAds(state),
-    channelIdWhitelist: selectHomepageCategoryChannelIds(state),
+    shouldShowAds,
+    channelIdWhitelist: shouldShowAds ? selectHomepageCategoryChannelIds(state) : [],
     channelId: getChannelIdFromClaim(claim),
   };
 };
