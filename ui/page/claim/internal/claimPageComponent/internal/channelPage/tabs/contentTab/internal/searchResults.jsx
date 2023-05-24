@@ -21,6 +21,7 @@ export function SearchResults(props: Props) {
   const SEARCH_PAGE_SIZE = 24;
   const [page, setPage] = React.useState(1);
   const [searchResults, setSearchResults] = React.useState(undefined);
+  const [isSearchingState, setIsSearchingState] = React.useState(false);
   const isSearching = React.useRef(false);
   const noMoreResults = React.useRef(false);
   const sortBy =
@@ -45,11 +46,13 @@ export function SearchResults(props: Props) {
   React.useEffect(() => {
     if (noMoreResults.current) return;
     isSearching.current = true;
+
     const timer = setTimeout(() => {
       if (searchQuery.trim().length < 3 || !claimId) {
         return setSearchResults(null);
       }
 
+      setIsSearchingState(true);
       lighthouse
         .search(
           `from=${SEARCH_PAGE_SIZE * (page - 1)}` +
@@ -80,6 +83,7 @@ export function SearchResults(props: Props) {
         })
         .finally(() => {
           isSearching.current = false;
+          setIsSearchingState(false);
         });
     }, DEBOUNCE_WAIT_DURATION_MS);
 
@@ -93,11 +97,12 @@ export function SearchResults(props: Props) {
   return (
     <ClaimList
       uris={searchResults}
-      loading={isSearching.current}
+      loading={isSearchingState}
       onScrollBottom={() => setPage((prev) => (noMoreResults.current ? prev : isSearching.current ? prev : prev + 1))}
       page={page}
       pageSize={SEARCH_PAGE_SIZE}
       tileLayout={tileLayout}
+      useLoadingSpinner={isSearchingState}
     />
   );
 }

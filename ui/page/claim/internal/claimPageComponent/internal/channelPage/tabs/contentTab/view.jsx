@@ -80,6 +80,7 @@ function ContentTab(props: Props) {
   const {
     location: { search },
   } = useHistory();
+  const urlParams = new URLSearchParams(search).get('order');
 
   // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
@@ -110,9 +111,8 @@ function ContentTab(props: Props) {
   }
 
   React.useEffect(() => {
-    const urlParams = new URLSearchParams(search).get('order');
     setOrderBy(urlParams);
-  }, [search]);
+  }, [search, urlParams]);
 
   React.useEffect(() => {
     setSearchQuery('');
