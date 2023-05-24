@@ -179,7 +179,7 @@ function ContentTab(props: Props) {
             hideFilters={!showFilters}
             hideAdvancedFilter={!showFilters}
             tileLayout={tileLayout}
-            uris={isSearching ? [] : null}
+            uris={searchQuery.length > 2 || isSearching ? [] : null}
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
             channelIds={searchQuery.length < 3 && [claimId]}
             claimType={claimType}
@@ -235,7 +235,7 @@ function ContentTab(props: Props) {
             }
             isChannel
             channelIsMine={channelIsMine}
-            empty={isSearching ? ' ' : empty}
+            empty={isSearching || searchQuery.length > 2 ? ' ' : empty}
             notTags={claimType === 'collection' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined}
             csOptionsHook={tagSearchCsOptionsHook}
             contentType={filters && filters.file_type}

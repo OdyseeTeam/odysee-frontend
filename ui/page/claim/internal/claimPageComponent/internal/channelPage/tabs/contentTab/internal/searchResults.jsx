@@ -20,7 +20,7 @@ export function SearchResults(props: Props) {
 
   const [page, setPage] = React.useState(1);
   const [searchResults, setSearchResults] = React.useState(undefined);
-  const [isSearching, setIsSearching] = React.useState(false);
+  const isSearching = React.useRef(false);
   const noMoreResults = React.useRef(false);
   const sortBy =
     !orderBy || orderBy === CS.ORDER_BY_TRENDING
@@ -30,8 +30,10 @@ export function SearchResults(props: Props) {
       : `&sort_by=${CS.ORDER_BY_NEW_VALUE[0]}`;
 
   React.useEffect(() => {
+    noMoreResults.current = false;
+    setSearchResults(null);
     setPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, sortBy]);
 
   React.useEffect(() => {
     if (onResults) {
@@ -40,12 +42,12 @@ export function SearchResults(props: Props) {
   }, [searchResults, onResults]);
 
   React.useEffect(() => {
+    if (noMoreResults.current) return;
+    isSearching.current = true;
     const timer = setTimeout(() => {
       if (searchQuery.trim().length < 3 || !claimId) {
         return setSearchResults(null);
       }
-
-      setIsSearching(true);
 
       lighthouse
         .search(
@@ -68,11 +70,7 @@ export function SearchResults(props: Props) {
 
           // De-dup (LH will return some duplicates) and concat results
           setSearchResults((prev) => (page === 1 ? urls : Array.from(new Set((prev || []).concat(urls)))));
-          console.log('-------------');
-          console.log('test: ', !urls || urls.length < SEARCH_PAGE_SIZE);
-          console.log('SEARCH_PAGE_SIZE: ', SEARCH_PAGE_SIZE);
-          console.log('page: ', page);
-          // noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
+          noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
         })
         .catch(() => {
           setPage(1);
@@ -80,7 +78,7 @@ export function SearchResults(props: Props) {
           noMoreResults.current = false;
         })
         .finally(() => {
-          setIsSearching(false);
+          isSearching.current = false;
         });
     }, DEBOUNCE_WAIT_DURATION_MS);
 
@@ -94,12 +92,11 @@ export function SearchResults(props: Props) {
   return (
     <ClaimList
       uris={searchResults}
-      loading={isSearching}
-      onScrollBottom={() => setPage((prev) => (noMoreResults.current ? prev : prev + 1))}
+      loading={isSearching.current}
+      onScrollBottom={() => setPage((prev) => (noMoreResults.current ? prev : isSearching.current ? prev : prev + 1))}
       page={page}
       pageSize={SEARCH_PAGE_SIZE}
       tileLayout={tileLayout}
-      useLoadingSpinner
     />
   );
 }
