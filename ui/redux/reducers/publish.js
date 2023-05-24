@@ -22,6 +22,8 @@ const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anon
 // @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
   type: 'file',
+  liveCreateType: 'new_placeholder',
+  liveEditType: 'use_replay',
   editingURI: undefined,
   claimToEdit: undefined,
   fileText: '',
@@ -72,8 +74,6 @@ const defaultState: PublishState = {
   optimize: false,
   useLBRYUploader: false,
   currentUploads: {},
-  isLivestreamPublish: false,
-  replaySource: 'keep',
   visibility: 'public',
   scheduledShow: false,
 };

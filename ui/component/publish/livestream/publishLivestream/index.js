@@ -9,6 +9,8 @@ const select = (state) => ({
   filePath: selectPublishFormValue(state, 'filePath'),
   fileBitrate: state.publish.fileBitrate,
   fileSizeTooBig: state.publish.fileSizeTooBig,
+  liveCreateType: state.publish.liveCreateType,
+  liveEditType: state.publish.liveEditType,
   isStillEditing: selectIsStillEditing(state),
   balance: selectBalance(state),
   publishing: selectPublishFormValue(state, 'publishing'),

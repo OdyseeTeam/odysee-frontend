@@ -296,16 +296,6 @@ function PostForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
-  // set isMarkdownPost in publish form if so, also update isLivestreamPublish
-  useEffect(() => {
-    updatePublishForm({
-      isLivestreamPublish: false,
-    });
-    // ^--- this should be redundant since 'type' exists and is consistently
-    // updated by doBeginPublish/doPrepareEdit. There are also ways to
-    // differentiate between Livestream Create vs. Replay-Upload.
-  }, [mode, updatePublishForm]);
-
   useEffect(() => {
     if (incognito) {
       updatePublishForm({ channel: undefined });

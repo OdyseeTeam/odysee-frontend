@@ -1,13 +1,11 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
 import { BITRATE } from 'constants/publish';
-import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
 import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
-import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
 import Empty from 'component/common/empty';
@@ -20,21 +18,18 @@ import Icon from 'component/common/icon';
 
 type Props = {
   uri: ?string,
-  mode: ?string,
   disabled: boolean,
   livestreamData: Array<LivestreamReplayItem>,
   isCheckingLivestreams: boolean,
-  fileSource: string,
-  changeFileSource: (string) => void,
   inEditMode: boolean,
-  replaySource?: string,
-  setReplaySource: (string) => void,
   // --- redux ---
   title: ?string,
   filePath: string | WebFile,
   fileBitrate: number,
   fileSizeTooBig: boolean,
   isStillEditing: boolean,
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   balance: number,
   publishing: boolean,
   duration: number,
@@ -47,12 +42,13 @@ type Props = {
 function PublishLivestream(props: Props) {
   const {
     uri,
-    mode,
     title,
     balance,
     filePath,
     fileBitrate,
     fileSizeTooBig,
+    liveCreateType,
+    liveEditType,
     isStillEditing,
     doUpdatePublishForm: updatePublishForm,
     doUpdateFile,
@@ -61,11 +57,7 @@ function PublishLivestream(props: Props) {
     disabled,
     livestreamData,
     isCheckingLivestreams,
-    fileSource,
-    changeFileSource,
     inEditMode,
-    setReplaySource,
-    replaySource,
   } = props;
 
   const livestreamDataStr = JSON.stringify(livestreamData);
@@ -87,26 +79,8 @@ function PublishLivestream(props: Props) {
     limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
   });
 
-  // Reset filePath if publish mode changed
-  useEffect(() => {
-    updatePublishForm({ filePath: '' });
-  }, [mode, isStillEditing, updatePublishForm]);
-
-  // Initialize default file source state for each mode.
-  useEffect(() => {
-    switch (mode) {
-      case PUBLISH_MODES.LIVESTREAM:
-        if (inEditMode) {
-          changeFileSource(SOURCE_SELECT);
-        } else {
-          changeFileSource(SOURCE_NONE);
-        }
-        break;
-      case PUBLISH_MODES.FILE:
-        changeFileSource(SOURCE_UPLOAD);
-        break;
-    }
-  }, [mode, hasLivestreamData]); // eslint-disable-line react-hooks/exhaustive-deps
+  const showReplaySelector = liveCreateType === 'choose_replay' || liveCreateType === 'edit_placeholder';
+  assert(inEditMode ? liveCreateType === 'edit_placeholder' : true, liveCreateType);
 
   const normalizeUrlForProtocol = (url) => {
     if (url && url.startsWith('https://')) {
@@ -124,19 +98,11 @@ function PublishLivestream(props: Props) {
   useEffect(() => {
     const livestreamData = JSON.parse(livestreamDataStr);
     if (selectedFileIndex !== null && livestreamData && livestreamData.length) {
-      if (replaySource !== 'upload') {
-        updatePublishForm({
-          remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
-          isLivestreamPublish: true,
-        });
-      } else {
-        updatePublishForm({
-          remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
-          isLivestreamPublish: false,
-        });
-      }
+      updatePublishForm({
+        remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
+      });
     }
-  }, [replaySource, selectedFileIndex, updatePublishForm, livestreamDataStr]);
+  }, [liveEditType, selectedFileIndex, updatePublishForm, livestreamDataStr]);
 
   function handlePaginateReplays(page) {
     setCurrentPage(page);
@@ -147,7 +113,6 @@ function PublishLivestream(props: Props) {
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
-    updatePublishForm({ isLivestreamPublish: false });
     doUpdateFile(file, clearName);
   }
 
@@ -208,15 +173,11 @@ function PublishLivestream(props: Props) {
     // @endif
   }
 
-  function updateReplayOption(value) {
-    setReplaySource(value);
-    if (value !== 'choose') {
+  React.useEffect(() => {
+    if (liveEditType !== 'use_replay') {
       setSelectedFileIndex(null);
     }
-    if (value !== 'upload') {
-      updatePublishForm({ filePath: '' });
-    }
-  }
+  }, [liveEditType, updatePublishForm]);
 
   return (
     <Card
@@ -253,15 +214,15 @@ function PublishLivestream(props: Props) {
                           label={__('Update only')}
                           key="reuse-replay"
                           type="radio"
-                          checked={replaySource === 'keep'}
-                          onClick={() => updateReplayOption('keep')}
+                          checked={liveEditType === 'update_only'}
+                          onClick={() => updatePublishForm({ liveEditType: 'update_only' })}
                         />
                       )}
                     </label>
                   </fieldset-section>
                 </fieldset-group>
               )}
-              {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
+              {showReplaySelector && hasLivestreamData && !isCheckingLivestreams && (
                 <>
                   <label style={{ marginTop: 0 }}>
                     {inEditMode && (
@@ -270,14 +231,14 @@ function PublishLivestream(props: Props) {
                         label={replayTitleLabel}
                         key="show-replays"
                         type="radio"
-                        checked={replaySource === 'choose'}
-                        onClick={() => updateReplayOption('choose')}
+                        checked={liveEditType === 'use_replay'}
+                        onClick={() => updatePublishForm({ liveEditType: 'use_replay' })}
                       />
                     )}
                   </label>
                   <div
                     className={classnames('replay-picker__container', {
-                      disabled: inEditMode && replaySource !== 'choose',
+                      disabled: inEditMode && liveEditType !== 'use_replay',
                     })}
                   >
                     <fieldset-section>
@@ -369,28 +330,28 @@ function PublishLivestream(props: Props) {
                   </div>
                 </>
               )}
-              {(fileSource === SOURCE_SELECT || inEditMode) && !hasLivestreamData && !isCheckingLivestreams && (
+              {showReplaySelector && !hasLivestreamData && !isCheckingLivestreams && (
                 <>
-                  <label className="disabled">
+                  <label className="disabled" style={{ marginTop: 0 }}>
                     {inEditMode && (
                       <FormField
                         name="show-replays"
                         label={replayTitleLabel}
                         key="show-replays"
                         type="radio"
-                        checked={replaySource === 'choose'}
-                        onClick={() => updateReplayOption('choose')}
+                        checked={liveEditType === 'use_replay'}
+                        onClick={() => updatePublishForm({ liveEditType: 'use_replay' })}
                       />
                     )}
                   </label>
-                  <div className="main--empty empty disabled">
+                  <div className="empty--centered-tight disabled">
                     <Empty text={__('No replays found.')} />
                   </div>
                 </>
               )}
-              {(fileSource === SOURCE_SELECT || inEditMode) && isCheckingLivestreams && (
+              {showReplaySelector && isCheckingLivestreams && (
                 <>
-                  <label className="disabled">
+                  <label className="disabled" style={{ marginTop: 0 }}>
                     {inEditMode && (
                       <FormField
                         name="replay-source"
@@ -398,12 +359,12 @@ function PublishLivestream(props: Props) {
                         value="choose"
                         key="show-replays-spin"
                         type="radio"
-                        checked={replaySource === 'choose'}
-                        onClick={() => updateReplayOption('choose')}
+                        checked={liveEditType === 'use_replay'}
+                        onClick={() => updatePublishForm({ liveEditType: 'use_replay' })}
                       />
                     )}
                   </label>
-                  <div className="main--empty empty">
+                  <div className="main empty--centered-tight">
                     <Spinner small />
                   </div>
                 </>
@@ -416,12 +377,12 @@ function PublishLivestream(props: Props) {
                       name="replay-source"
                       label={__('Upload Replay')}
                       type="radio"
-                      checked={replaySource === 'upload'}
-                      onClick={() => updateReplayOption('upload')}
+                      checked={liveEditType === 'upload_replay'}
+                      onClick={() => updatePublishForm({ liveEditType: 'upload_replay' })}
                     />
                   </label>
                   <FileSelector
-                    disabled={replaySource !== 'upload'}
+                    disabled={liveEditType !== 'upload_replay'}
                     currentPath={typeof filePath === 'string' ? filePath : filePath?.name}
                     onFileChosen={handleFileChange}
                     accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*' : undefined}

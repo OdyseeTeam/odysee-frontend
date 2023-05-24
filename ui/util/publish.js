@@ -99,6 +99,9 @@ export function resolvePublishPayload(
   preview: boolean
 ) {
   const {
+    type,
+    liveCreateType,
+    liveEditType,
     name,
     bid,
     filePath,
@@ -115,7 +118,6 @@ export function resolvePublishPayload(
     fee,
     tags,
     optimize,
-    isLivestreamPublish,
     remoteFileUrl,
   } = publishData;
 
@@ -150,7 +152,6 @@ export function resolvePublishPayload(
     release_time: PAYLOAD.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,
     blocking: true,
     preview: false,
-    ...(remoteFileUrl ? { remote_url: remoteFileUrl } : {}),
     ...(claimId ? { claim_id: claimId } : {}), // 'stream_update' support
     ...(optimize ? { optimize_file: true } : {}),
     ...(thumbnail ? { thumbnail_url: thumbnail } : {}),
@@ -183,9 +184,23 @@ export function resolvePublishPayload(
 
   // Only pass file on new uploads, not metadata only edits.
   // The sdk will figure it out
-  if (filePath && !isLivestreamPublish) {
-    // $FlowFixMe please
-    publishPayload.file_path = filePath;
+  if (filePath) {
+    if (
+      type !== 'livestream' ||
+      (type === 'livestream' && liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay')
+    ) {
+      // $FlowFixMe please
+      publishPayload.file_path = filePath;
+    }
+  }
+
+  if (remoteFileUrl) {
+    if (
+      type === 'livestream' &&
+      (liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay'))
+    ) {
+      publishPayload.remote_url = remoteFileUrl;
+    }
   }
 
   if (preview) {
@@ -202,11 +217,12 @@ export function resolvePublishPayload(
 const PAYLOAD = {
   releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim, publishData: UpdatePublishState) => {
     const isEditing = Boolean(claimToEdit);
+    const { liveEditType } = publishData;
+
     const past = {};
 
     if (isEditing && claimToEdit) {
       const tags = claimToEdit.value?.tags || [];
-
       past.wasHidden = tags.includes(VISIBILITY_TAGS.UNLISTED) || tags.includes(VISIBILITY_TAGS.PRIVATE);
       past.wasScheduled = tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE);
       past.timestamp = claimToEdit.timestamp;
@@ -220,8 +236,7 @@ const PAYLOAD = {
       case 'private':
       case 'unlisted':
         if (isEditing) {
-          if (past.isStreamPlaceholder && publishData.replaySource !== 'keep') {
-            // "Choose Replay" or "Upload Replay"
+          if (past.isStreamPlaceholder && (liveEditType === 'use_replay' || liveEditType === 'upload_replay')) {
             const originalTs = Number(past.release_time || past.timestamp);
             return originalTs > nowTs ? nowTs : originalTs;
           }
@@ -266,11 +281,16 @@ const PAYLOAD = {
     },
 
     scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime, nowTime) => {
-      const { isLivestreamPublish } = publishData;
-      // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
-      if (isLivestreamPublish && releaseTime && releaseTime > nowTime) {
+      const { liveCreateType, liveEditType } = publishData;
+      const isPlaceholderClaim =
+        liveCreateType === 'new_placeholder' ||
+        (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only');
+
+      if (isPlaceholderClaim && releaseTime && releaseTime > nowTime) {
+        // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
         tagSet.add(SCHEDULED_LIVESTREAM_TAG);
       } else {
+        // Clear it if the claim is converted to a regular video.
         tagSet.delete(SCHEDULED_LIVESTREAM_TAG);
       }
     },

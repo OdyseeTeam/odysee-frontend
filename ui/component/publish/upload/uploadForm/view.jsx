@@ -306,14 +306,6 @@ function UploadForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
-  // set isMarkdownPost in publish form if so, also update isLivestreamPublish
-  useEffect(() => {
-    updatePublishForm({
-      isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
-    });
-    // TODO --^ replace with `type`
-  }, [mode, updatePublishForm]);
-
   useEffect(() => {
     if (incognito) {
       updatePublishForm({ channel: undefined });
