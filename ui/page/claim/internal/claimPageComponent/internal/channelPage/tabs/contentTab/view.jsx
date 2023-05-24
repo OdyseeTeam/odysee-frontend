@@ -75,12 +75,12 @@ function ContentTab(props: Props) {
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearching, setIsSearching] = React.useState(false);
-  const [orderBy, setOrderBy] = React.useState(undefined);
 
   const {
     location: { search },
   } = useHistory();
   const urlParams = new URLSearchParams(search).get('order');
+  const orderBy = urlParams;
 
   // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
@@ -109,10 +109,6 @@ function ContentTab(props: Props) {
 
     setSearchQuery(value);
   }
-
-  React.useEffect(() => {
-    setOrderBy(urlParams);
-  }, [search, urlParams]);
 
   React.useEffect(() => {
     setSearchQuery('');
