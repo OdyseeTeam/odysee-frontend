@@ -29,7 +29,6 @@ type Props = {
   useLBRYUploader: boolean,
   needsYTAuth: boolean,
   showSchedulingOptions: boolean,
-  isLivestream?: Boolean,
   visibility: Visibility,
 };
 

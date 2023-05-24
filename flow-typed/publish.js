@@ -1,6 +1,9 @@
 // @flow
 
 declare type PublishType = 'file' | 'post' | 'livestream';
+declare type LiveCreateType = 'new_placeholder' | 'choose_replay' | 'edit_placeholder';
+declare type LiveEditType = 'update_only' | 'use_replay' | 'upload_replay';
+
 declare type Paywall = 'free' | 'fiat' | 'sdk';
 declare type Visibility = 'public' | 'unlisted' | 'private' | 'scheduled';
 
@@ -35,6 +38,8 @@ declare type PublishParams = {
 // Redux slice. Includes both form data and some UI states
 declare type PublishState = {|
   type: PublishType;
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   uri?: ?string, // An edit's uri that is presented to the user. (TODO: remove this)
   editingURI: ?string, // An edit's uri with full info (claim id and all).
   claimToEdit: ?StreamClaim, // A copy of the claim being edited for reference.
@@ -94,8 +99,6 @@ declare type PublishState = {|
   optimize: boolean,
   useLBRYUploader: boolean,
   currentUploads: { [key: string]: FileUploadItem },
-  isLivestreamPublish: boolean,
-  replaySource: 'keep' | 'choose' | 'upload',
   visibility: Visibility,
   scheduledShow: boolean,
 |};

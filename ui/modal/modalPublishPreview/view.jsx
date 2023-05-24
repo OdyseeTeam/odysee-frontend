@@ -29,6 +29,8 @@ type Props = {
   previewResponse: PublishResponse,
   // --- internal ---
   type: PublishType,
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   filePath: string | WebFile,
   optimize: boolean,
   channel: ?string,
@@ -58,7 +60,7 @@ type Props = {
   publishSuccess: boolean,
   publishing: boolean,
   isLivestreamClaim: boolean,
-  remoteFile: string,
+  remoteFile: ?string,
   tiersWithExclusiveContent: MembershipTiers,
   tiersWithExclusiveLivestream: MembershipTiers,
   myMembershipTiers: MembershipTiers,
@@ -74,7 +76,8 @@ const ModalPublishPreview = (props: Props) => {
     previewResponse,
 
     type,
-    filePath,
+    liveCreateType,
+    liveEditType,
     optimize,
     channel,
     bid,
@@ -105,7 +108,6 @@ const ModalPublishPreview = (props: Props) => {
     publish,
     closeModal,
     isLivestreamClaim,
-    remoteFile,
     tiersWithExclusiveContent,
     tiersWithExclusiveLivestream,
     myMembershipTiers,
@@ -114,7 +116,7 @@ const ModalPublishPreview = (props: Props) => {
     scheduledShow,
   } = props;
 
-  const { description, release_time: rtPayload, title } = payload;
+  const { description, file_path: filePath, remote_url, release_time: rtPayload, title } = payload;
 
   const releaseTimeInfo = React.useMemo(() => {
     return {
@@ -159,7 +161,7 @@ const ModalPublishPreview = (props: Props) => {
     return str;
   }
 
-  function getFilePathName(filePath: string | WebFile) {
+  function getFilePathName(filePath: ?string | WebFile) {
     if (!filePath) {
       return NO_FILE;
     }
@@ -178,10 +180,10 @@ const ModalPublishPreview = (props: Props) => {
       } else {
         return __('Confirm Edit');
       }
-    } else if (livestream || isLivestreamClaim || remoteFile) {
+    } else if (livestream || isLivestreamClaim || remote_url) {
       return releaseTimeInfo.valueIsInFuture
         ? __('Schedule Livestream')
-        : (!livestream || !isLivestreamClaim) && remoteFile
+        : (!livestream || !isLivestreamClaim) && remote_url
         ? __('Publish Replay')
         : __('Create Livestream');
     } else if (type === PUBLISH_TYPES.POST) {
@@ -369,6 +371,18 @@ const ModalPublishPreview = (props: Props) => {
     }
   }
 
+  function getReplayValue() {
+    // Include both to detect errors visually
+    return `${__(filePath ? getFilePathName(filePath) : '')}${__(remote_url ? 'Remote File Selected' : '')}`;
+  }
+
+  function hideReplayRow() {
+    const show =
+      type === 'livestream' &&
+      (liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType !== 'update_only'));
+    return !show;
+  }
+
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
@@ -417,8 +431,7 @@ const ModalPublishPreview = (props: Props) => {
                 <table className="table table--condensed table--publish-preview">
                   <tbody>
                     {!livestream && type !== PUBLISH_TYPES.POST && createRow(__('File'), getFilePathName(filePath))}
-                    {livestream && remoteFile && createRow(__('Replay'), __('Remote File Selected'))}
-                    {livestream && filePath && createRow(__('Replay'), __('Manual Upload'))}
+                    {createRow(__('Replay'), getReplayValue(), hideReplayRow())}
                     {isOptimizeAvail && createRow(__('Transcode'), optimize ? __('Yes') : __('No'))}
                     {createRow(__('Title'), formattedTitle)}
                     {createRow(__('Description'), getDescription())}
