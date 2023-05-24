@@ -119,7 +119,6 @@ function LivestreamForm(props: Props) {
     resetThumbnailStatus,
     updatePublishForm,
     filePath,
-    fileText,
     fileBitrate,
     publishing,
     publishSuccess,
@@ -152,7 +151,6 @@ function LivestreamForm(props: Props) {
   const inEditMode = Boolean(editingURI);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
 
-  const mode = PUBLISH_MODES.LIVESTREAM;
   const [publishMode, setPublishMode] = React.useState('New');
   const [replaySource, setReplaySource] = React.useState('keep');
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
@@ -167,9 +165,7 @@ function LivestreamForm(props: Props) {
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
   const TAGS_LIMIT = 5;
-  const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
-  const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
-  const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
+  const formDisabled = publishing;
   const isInProgress = filePath || editingURI || name || title;
   // Editing content info
   const fileMimeType =
@@ -194,7 +190,6 @@ function LivestreamForm(props: Props) {
     bid &&
     thumbnail &&
     !bidError &&
-    !emptyPostError &&
     !(thumbnailError && !thumbnailUploaded) &&
     !releaseTimeError &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
@@ -304,7 +299,6 @@ function LivestreamForm(props: Props) {
     }
   }
 
-  const isLivestreamMode = mode === PUBLISH_MODES.LIVESTREAM;
   let submitLabel;
 
   if (isClaimingInitialRewards) {
@@ -390,7 +384,7 @@ function LivestreamForm(props: Props) {
     updatePublishForm({
       isLivestreamPublish: true,
     });
-  }, [mode, updatePublishForm]);
+  }, [updatePublishForm]);
 
   useEffect(() => {
     if (publishMode === 'New') {
@@ -402,35 +396,18 @@ function LivestreamForm(props: Props) {
   useEffect(() => {
     // $FlowFixMe please
     updatePublishForm({ channel: activeChannelName });
-  }, [activeChannelName, updatePublishForm, isLivestreamMode]);
+  }, [activeChannelName, updatePublishForm]);
 
   async function handlePublish() {
     let outputFile = filePath;
-    let runPublish = false;
 
-    // Publish file
-    if (mode === PUBLISH_MODES.FILE || isLivestreamMode) {
-      runPublish = true;
-    }
-
-    if (runPublish) {
-      if (enablePublishPreview) {
-        setPreviewing(true);
-        publish(outputFile, true);
-      } else {
-        publish(outputFile, false);
-      }
+    if (enablePublishPreview) {
+      setPreviewing(true);
+      publish(outputFile, true);
+    } else {
+      publish(outputFile, false);
     }
   }
-
-  // When accessing to publishing, make sure to reset file input attributes
-  // since we can't restore from previous user selection (like we do
-  // with other properties such as name, title, etc.) for security reasons.
-  useEffect(() => {
-    if (mode === PUBLISH_MODES.FILE) {
-      updatePublishForm({ filePath: '', fileDur: 0, fileSize: 0 });
-    }
-  }, [mode, updatePublishForm]);
 
   // File Source Selector State.
   const [fileSource, setFileSource] = useState();
@@ -604,7 +581,7 @@ function LivestreamForm(props: Props) {
             />
 
             <PublishAdditionalOptions
-              isLivestream={isLivestreamMode}
+              isLivestream
               disabled={disabled}
               showSchedulingOptions={publishMode === 'New' || (publishMode === 'Edit' && replaySource)}
             />
@@ -617,7 +594,7 @@ function LivestreamForm(props: Props) {
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (
-              <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
+              <PublishFormErrors title={title} waitForFile={waitingForFile} />
             ) : (
               <I18nMessage
                 tokens={{
