@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import ClaimList from 'component/claimList';
-import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
+import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
 import * as CS from 'constants/claim_search';
 import { lighthouse } from 'redux/actions/search';
 
@@ -18,6 +18,7 @@ type Props = {
 export function SearchResults(props: Props) {
   const { searchQuery, claimId, showMature, tileLayout, orderBy, onResults, doResolveUris } = props;
 
+  const SEARCH_PAGE_SIZE = 24;
   const [page, setPage] = React.useState(1);
   const [searchResults, setSearchResults] = React.useState(undefined);
   const isSearching = React.useRef(false);
@@ -52,7 +53,7 @@ export function SearchResults(props: Props) {
       lighthouse
         .search(
           `from=${SEARCH_PAGE_SIZE * (page - 1)}` +
-            `&s=${'%22' + encodeURIComponent(searchQuery) + '%22'}` +
+            `&s=${encodeURIComponent(searchQuery)}` +
             `&channel_id=${encodeURIComponent(claimId)}` +
             sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
