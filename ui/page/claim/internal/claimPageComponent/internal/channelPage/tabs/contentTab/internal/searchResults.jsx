@@ -25,11 +25,11 @@ export function SearchResults(props: Props) {
   const isSearching = React.useRef(false);
   const noMoreResults = React.useRef(false);
   const sortBy =
-    !orderBy || orderBy === CS.ORDER_BY_TRENDING
-      ? ``
+    !orderBy || orderBy === CS.ORDER_BY_NEW
+      ? `&sort_by=${CS.ORDER_BY_NEW_VALUE[0]}`
       : orderBy === CS.ORDER_BY_TOP
       ? `&sort_by=${CS.ORDER_BY_TOP_VALUE[0]}`
-      : `&sort_by=${CS.ORDER_BY_NEW_VALUE[0]}`;
+      : ``;
 
   React.useEffect(() => {
     noMoreResults.current = false;
