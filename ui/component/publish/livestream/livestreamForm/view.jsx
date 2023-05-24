@@ -159,19 +159,13 @@ function LivestreamForm(props: Props) {
   // A new file needs to be provided
   const [prevName, setPrevName] = React.useState(false);
 
-  const [waitForFile, setWaitForFile] = useState(false);
+  const [waitForFile] = useState(false);
 
   const [livestreamData, setLivestreamData] = React.useState([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
   const TAGS_LIMIT = 5;
   const formDisabled = publishing;
-  const isInProgress = filePath || editingURI || name || title;
-  // Editing content info
-  const fileMimeType =
-    myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
-      ? myClaimForUri.value.source.media_type
-      : undefined;
   const claimChannelId =
     (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
     (activeChannelClaim && activeChannelClaim.claim_id);
@@ -498,15 +492,9 @@ function LivestreamForm(props: Props) {
                 changeFileSource={changeFileSource}
                 uri={permanentUrl}
                 mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
-                fileMimeType={fileMimeType}
                 disabled={publishing}
-                inProgress={isInProgress}
                 livestreamData={livestreamData}
-                setWaitForFile={setWaitForFile}
                 isCheckingLivestreams={isCheckingLivestreams}
-                checkLivestreams={fetchLivestreams}
-                channelId={claimChannelId}
-                channelName={activeChannelName}
                 setReplaySource={setReplaySource}
                 replaySource={replaySource}
               />
