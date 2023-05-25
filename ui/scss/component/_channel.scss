@@ -8,7 +8,7 @@ $actions-z-index: 2;
     margin-top: calc(var(--spacing-xs) * -1);
   }
 
-  .upcoming-livestreams {
+  .upcoming-list {
     margin-bottom: var(--spacing-m);
   }
 
@@ -36,7 +36,7 @@ $actions-z-index: 2;
       }
     }
   }
-  .tab__wrapper-fixed {
+  .tab__wrapper--fixed {
     background-color: var(--color-header-background);
     -webkit-backdrop-filter: blur(4px);
     backdrop-filter: blur(4px);

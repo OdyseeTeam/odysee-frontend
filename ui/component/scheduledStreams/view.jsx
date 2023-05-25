@@ -107,11 +107,11 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
   }, [doClaimSearch, scheduledOptions]);
 
   return (
-    <div className={'mb-m mt-m md:mb-xl upcoming-livestreams'} style={{ display: list.total > 0 ? 'block' : 'none' }}>
+    <div className={'mb-m mt-m md:mb-xl upcoming-list'} style={{ display: list.total > 0 ? 'block' : 'none' }}>
       <Header />
       <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />
       {list.total > upcomingMax && !showAllUpcoming && (
-        <div className="livestream-list--view-more">
+        <div className="upcoming-list__view-more">
           <Button
             label={__('Show more upcoming content')}
             button="link"
@@ -124,7 +124,7 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
         </div>
       )}
       {showAllUpcoming && (
-        <div className="livestream-list--view-more">
+        <div className="upcoming-list__view-more">
           <Button
             label={__('Show less upcoming content')}
             button="link"

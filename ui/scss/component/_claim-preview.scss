@@ -1748,10 +1748,15 @@ $claim-preview-progress-bar-height: 5px;
 
   .claim-preview__file-property-overlay {
     opacity: 0.9; // The original 0.7 is not visible over bright thumbnails
-    color: var(--color-white-alt);
-    background-color: var(--color-live);
     .claim-preview__overlay-properties {
       color: white;
+    }
+    .livestream__viewer-count {
+      color: var(--color-white-alt);
+      background-color: var(--color-live);
+      border-radius: calc(var(--border-radius) / 2);
+      height: 1.2rem;
+      padding: 0 var(--spacing-xxxs);
     }
   }
 
