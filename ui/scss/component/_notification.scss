@@ -392,6 +392,13 @@ $contentMaxWidth: 60rem;
     margin-top: 0;
     flex-direction: row;
   }
+  @media (max-width: $breakpoint-small) {
+    .notification__markSeen {
+      margin-left: 0;
+      margin-right: var(--spacing-xxs);
+      margin-top: 15px;
+    }
+  }
 }
 
 .notification__markSeen {
