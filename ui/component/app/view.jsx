@@ -23,7 +23,6 @@ import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
-import AdBlockTester from 'web/component/adBlockTester';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import Ad from 'web/component/ad';
 import {
@@ -552,7 +551,6 @@ function App(props: Props) {
         />
       ) : (
         <AppContext.Provider value={{ uri }}>
-          <AdBlockTester />
           {!hasPremiumPlus && !embedPath && <Ad type="sticky" uri={uri} />}
           <Router uri={uri} />
           <ModalRouter />
@@ -572,8 +570,6 @@ function App(props: Props) {
             {getStatusNag()}
             {useDebugLog && <DebugLog />}
           </React.Suspense>
-
-          <AdBlockTester />
         </AppContext.Provider>
       )}
     </div>

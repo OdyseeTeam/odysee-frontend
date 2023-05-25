@@ -27,6 +27,7 @@ function Ad(props: Props) {
   const { type, uri, tileLayout, shouldShowAds, channelIdWhitelist, channelId } = props;
   const device = useIsMobile() ? 'mobile' : 'desktop';
   const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'publir' : 'revcontent';
+  const [scriptLoaded, setScriptLoaded] = React.useState(false);
 
   React.useEffect(() => {
     if (shouldShowAds && AD_CONFIG.PUBLIR.active) {
@@ -46,6 +47,8 @@ function Ad(props: Props) {
           document.body.appendChild(script);
         }
 
+        setScriptLoaded(true);
+
         return () => {
           // $FlowIgnore
           if (script) document.body.removeChild(script);
@@ -54,11 +57,7 @@ function Ad(props: Props) {
     }
   }, [shouldShowAds]);
 
-  if (!shouldShowAds) {
-    return null;
-  }
-
-  return (
+  return shouldShowAds && scriptLoaded ? (
     <>
       {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
       {type === 'tileB' && <AdTileB provider={provider} device={device} />}
@@ -67,7 +66,7 @@ function Ad(props: Props) {
         <AdAboveComments provider={provider} device={device} shouldShowAds={shouldShowAds} />
       )}
     </>
-  );
+  ) : null;
 }
 
 export default Ad;

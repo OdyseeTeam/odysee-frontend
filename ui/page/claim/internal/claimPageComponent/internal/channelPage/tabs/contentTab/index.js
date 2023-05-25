@@ -13,7 +13,6 @@ import * as SETTINGS from 'constants/settings';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { withRouter } from 'react-router';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
-import { selectAdBlockerFound } from 'redux/selectors/app';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { getChannelIdFromClaim } from 'util/claim';
 import ContentTab from './view';
@@ -35,7 +34,6 @@ const select = (state, props) => {
     showMature: selectShowMatureContent(state),
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
-    adBlockerFound: selectAdBlockerFound(state),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };

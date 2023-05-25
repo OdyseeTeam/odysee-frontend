@@ -91,7 +91,7 @@ const defaultState: AppState = {
   activeChannel: undefined,
   incognito: false,
   gdprConsentList: undefined,
-  adBlockerFound: undefined,
+  adBlockerFound: false, // disable until a solid detection method if found
   appDrawerOpen: false,
   mainPlayerDimensions: { height: undefined, width: undefined },
   videoSourceLoaded: undefined,
@@ -339,6 +339,7 @@ reducers[ACTIONS.SET_GDPR_CONSENT_LIST] = (state, action) => {
 };
 
 reducers[ACTIONS.SET_AD_BLOCKER_FOUND] = (state, action) => {
+  assert(false, 'If used again, please restore default to undefined');
   return {
     ...state,
     adBlockerFound: action.data,
