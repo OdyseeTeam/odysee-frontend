@@ -101,7 +101,7 @@ function PublishLivestream(props: Props) {
         remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
       });
     }
-  }, [liveEditType, selectedFileIndex, updatePublishForm, livestreamDataStr]);
+  }, [selectedFileIndex, updatePublishForm, livestreamDataStr]);
 
   function handlePaginateReplays(page) {
     setCurrentPage(page);

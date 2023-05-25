@@ -155,6 +155,17 @@ export const publishReducer = handleActions(
           break;
       }
 
+      // -- remoteFileUrl
+      if (!data.hasOwnProperty('remoteFileUrl')) {
+        const nonReplayChosen = data.hasOwnProperty('liveEditType') && data.liveEditType !== 'use_replay';
+        const activeChannelChanged = data.hasOwnProperty('channelClaimId');
+
+        if (nonReplayChosen || activeChannelChanged) {
+          // Purge remoteFileUrl selection on these cases.
+          auto.remoteFileUrl = undefined;
+        }
+      }
+
       // Finalize
       return { ...state, ...data, ...auto };
     },
@@ -295,6 +306,7 @@ export const publishReducer = handleActions(
         const newPublish = {
           ...action.payload.publish,
           filePath: undefined, // File is not serializable, so can't rehydrate.
+          remoteFileUrl: undefined, // Clear for now until the component is able to re-populate on load.
         };
 
         // Cleanup for 'publish::currentUploads'
