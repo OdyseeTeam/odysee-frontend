@@ -91,7 +91,6 @@ type Props = {
   isLivestreamClaim: boolean,
   isPostClaim: boolean,
   permanentUrl: ?string,
-  remoteUrl: ?string,
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
@@ -137,7 +136,6 @@ function LivestreamForm(props: Props) {
     // user,
     balance,
     permanentUrl,
-    remoteUrl,
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
@@ -178,7 +176,7 @@ function LivestreamForm(props: Props) {
   // const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
-  const waitingForFile = waitForFile && !remoteUrl && !filePath;
+  const waitingForFile = waitForFile && !remoteFileUrl && !filePath;
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
     (restrictedToMemberships !== null || visibility === 'unlisted') &&
@@ -203,7 +201,10 @@ function LivestreamForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  const disabled = !title || !name || (liveCreateType === 'choose_replay' && !remoteFileUrl);
+  const requiresReplayUrl =
+    liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay');
+
+  const disabled = !title || !name || (requiresReplayUrl && !remoteFileUrl);
   const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
@@ -405,6 +406,7 @@ function LivestreamForm(props: Props) {
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    (requiresReplayUrl && !remoteFileUrl) ||
     previewing;
 
   // replays use 'exclusive content' perk, livestreams use 'exclusive livestreams'
