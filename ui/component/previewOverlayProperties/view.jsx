@@ -105,7 +105,7 @@ export default function PreviewOverlayProperties(props: Props) {
           {isCollection && claim && !iconOnly && <div>{claimLength}</div>}
           {!iconOnly && isStream && <VideoDuration uri={uri} />}
           {isStream && !isLivestream && <FileType uri={uri} small={small} />}
-          {isLivestream && <Icon icon={ICONS.LIVESTREAM_MONOCHROME} size={13} />}
+          {isLivestream && <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
           {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />
