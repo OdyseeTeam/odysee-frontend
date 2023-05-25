@@ -406,11 +406,9 @@ $contentMaxWidth: 60rem;
     margin-top: 4px;
   }
   @media (max-width: $breakpoint-small) {
-    .notification__markSeen {
-      margin-left: 0;
-      margin-right: var(--spacing-xxs);
-      margin-top: 15px;
-    }
+    margin-left: 0;
+    margin-right: var(--spacing-xxs);
+    margin-top: 15px;
   }
 }
 
