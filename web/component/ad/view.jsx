@@ -9,8 +9,8 @@ import { useIsMobile } from 'effects/use-screensize';
 const AD_CONFIG = Object.freeze({
   PUBLIR: {
     active: true,
-    path: 'https://cdn.jsdelivr.net/npm/prebid.js@7.13/dist/not-for-prod/',
-    file: 'prebid.js',
+    path: 'https://a.publir.com/platform/common/',
+    file: 'prebid736.js',
   },
 });
 
@@ -19,11 +19,14 @@ type Props = {
   uri?: string,
   tileLayout?: boolean,
   shouldShowAds: boolean,
+  channelIdWhitelist?: ?any,
+  channelId: any,
 };
 
 function Ad(props: Props) {
-  const { type, uri, tileLayout, shouldShowAds } = props;
+  const { type, uri, tileLayout, shouldShowAds, channelIdWhitelist, channelId } = props;
   const device = useIsMobile() ? 'mobile' : 'desktop';
+  const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'publir' : 'revcontent';
 
   React.useEffect(() => {
     if (shouldShowAds && AD_CONFIG.PUBLIR.active) {
@@ -58,9 +61,11 @@ function Ad(props: Props) {
   return (
     <>
       {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
-      {type === 'tileB' && <AdTileB provider="publir" device={device} />}
+      {type === 'tileB' && <AdTileB provider={provider} device={device} />}
       {type === 'sticky' && <AdSticky uri={uri} />}
-      {type === 'aboveComments' && <AdAboveComments provider="publir" device={device} shouldShowAds={shouldShowAds} />}
+      {type === 'aboveComments' && (
+        <AdAboveComments provider={provider} device={device} shouldShowAds={shouldShowAds} />
+      )}
     </>
   );
 }

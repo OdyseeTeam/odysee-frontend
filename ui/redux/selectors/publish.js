@@ -1,3 +1,4 @@
+// @flow
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { parseURI, buildURI, sanitizeName } from 'util/lbryURI';
@@ -60,7 +61,7 @@ export const selectPublishFormValues = createSelector(
   }
 );
 
-export const selectPublishFormValue = (state, item) => selectState(state)[item];
+export const selectPublishFormValue = (state: State, item: string) => selectState(state)[item];
 
 export const selectMyClaimForUri = createCachedSelector(
   selectPublishFormValues,
@@ -145,16 +146,16 @@ export const selectTakeOverAmount = createSelector(
   }
 );
 
-export const selectCurrentUploads = (state) => selectState(state).currentUploads;
+export const selectCurrentUploads = (state: State) => selectState(state).currentUploads;
 
 export const selectUploadCount = createSelector(
   selectCurrentUploads,
   (currentUploads) => currentUploads && Object.keys(currentUploads).length
 );
 
-export const selectIsScheduled = (state) => selectState(state).tags.some((t) => t.name === SCHEDULED_LIVESTREAM_TAG);
+export const selectIsScheduled = (state: State) =>
+  selectState(state).tags.some((t) => t.name === SCHEDULED_LIVESTREAM_TAG);
 
-// @flow
 export const selectCollectionClaimUploadParamsForId = (state: State, collectionId: string) => {
   const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
   const collection = selectCollectionForId(state, collectionId);
@@ -184,6 +185,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
 
   const collectionClaimMetadata = selectCollectionClaimPublishUpdateMetadataForId(state, collectionId);
 
+  // $FlowFixMe please
   const collectionClaimUploadParams: CollectionPublishCreateParams & CollectionPublishUpdateParams = {
     channel_id: activeChannelId,
     ...(collectionClaimMetadata || {}),
@@ -192,6 +194,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   const hasEdits = selectCollectionHasEditsForId(state, collectionId);
 
   if (hasEdits) {
+    // $FlowFixMe please
     Object.assign(collectionClaimUploadParams, privateCollectionParams);
   }
 

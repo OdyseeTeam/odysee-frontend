@@ -135,7 +135,7 @@ export function isClaimAllowedForCollection(claim: ?StreamClaim) {
     if (isPlayable) {
       if (!isClaimUnlisted(claim) && !isClaimPrivate(claim)) {
         const ss: ClaimScheduledState = getClaimScheduledState(claim);
-        return ss === 'non-scheduled';
+        return ss === 'non-scheduled' || ss === 'started';
       }
     }
   }

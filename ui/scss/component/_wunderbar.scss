@@ -417,3 +417,20 @@
 [data-reach-combobox-option]:last-of-type {
   margin-bottom: var(--spacing-xs);
 }
+
+.wunderbar__clear {
+  background: unset !important;
+  position: absolute;
+  right: var(--spacing-xs);
+  padding: 0;
+  .icon {
+    transform: rotate(0deg);
+    transition: transform 0.2s;
+  }
+  &:hover {
+    .icon {
+      stroke: var(--color-primary);
+      transform: rotate(90deg);
+    }
+  }
+}

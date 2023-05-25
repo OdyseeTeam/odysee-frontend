@@ -75,9 +75,12 @@ function ContentTab(props: Props) {
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState('');
   const [isSearching, setIsSearching] = React.useState(false);
+
   const {
-    location: { pathname, search },
+    location: { search },
   } = useHistory();
+  const urlParams = new URLSearchParams(search).get('order');
+  const orderBy = urlParams;
 
   // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
@@ -89,7 +92,6 @@ function ContentTab(props: Props) {
     membersOnly: { hideMembersOnly, setHideMembersOnly },
   };
 
-  const url = `${pathname}${search}`;
   const claimId = claim && claim.claim_id;
   const showFilters =
     !claimType ||
@@ -104,12 +106,13 @@ function ContentTab(props: Props) {
 
   function handleInputChange(e) {
     const { value } = e.target;
+
     setSearchQuery(value);
   }
 
   React.useEffect(() => {
     setSearchQuery('');
-  }, [url]);
+  }, [claimId]);
 
   return (
     <Fragment>
@@ -172,9 +175,9 @@ function ContentTab(props: Props) {
             hideFilters={!showFilters}
             hideAdvancedFilter={!showFilters}
             tileLayout={tileLayout}
-            uris={isSearching ? [] : null}
+            uris={searchQuery.length > 2 || isSearching ? [] : null}
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-            channelIds={[claimId]}
+            channelIds={searchQuery.length < 3 && [claimId]}
             claimType={claimType}
             feeAmount={undefined}
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}
@@ -203,6 +206,15 @@ function ContentTab(props: Props) {
                     type="text"
                     placeholder={__('Search')}
                   />
+                  {searchQuery && (
+                    <Button
+                      icon={ICONS.REMOVE}
+                      aria-label={__('Clear')}
+                      button="alt"
+                      className="wunderbar__clear"
+                      onClick={() => setSearchQuery('')}
+                    />
+                  )}
                 </Form>
               )
             }
@@ -212,13 +224,14 @@ function ContentTab(props: Props) {
                 claimId={claimId}
                 showMature={showMature}
                 tileLayout={tileLayout}
+                orderBy={orderBy}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
               />
             }
             isChannel
             channelIsMine={channelIsMine}
-            empty={isSearching ? ' ' : empty}
+            empty={isSearching || searchQuery.length > 2 ? ' ' : empty}
             notTags={claimType === 'collection' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined}
             csOptionsHook={tagSearchCsOptionsHook}
             contentType={filters && filters.file_type}

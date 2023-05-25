@@ -478,7 +478,7 @@ function LivestreamForm(props: Props) {
         <Card className="publish-livestream-header">
           <Button
             key={'New'}
-            icon={ICONS.LIVESTREAM}
+            icon={ICONS.LIVESTREAM_MONOCHROME}
             iconSize={18}
             label={__('New Livestream')}
             button="alt"

@@ -332,7 +332,7 @@ const PAYLOAD = {
 };
 
 export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) => {
-  return (dispatch: Dispatch, getState: () => {}) => {
+  return (dispatch: Dispatch, getState: () => State) => {
     const publishPreviewFn = (previewResponse) => {
       dispatch(
         doOpenModal(MODALS.PUBLISH_PREVIEW, {

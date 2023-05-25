@@ -288,16 +288,6 @@ $control-bar-popup-font-size: 0.8rem;
   display: none;
 }
 
-.vjs-chromecast-button {
-  .vjs-icon-placeholder {
-    width: 22px;
-    height: 22px;
-  }
-  @media (max-width: $breakpoint-small) {
-    width: 2.5rem !important;
-  }
-}
-
 .video-js-parent .vjs-tech-chromecast {
   .vjs-tech-chromecast-poster {
     &::after {
@@ -462,13 +452,8 @@ button.vjs-big-play-button {
     line-height: 1rem !important;
   }
 }
-.vjs-chromecast-button,
-.vjs-airplay-button {
-  order: 16 !important;
-}
-
 .vjs-setting-button {
-  order: 17 !important;
+  order: 16 !important;
   max-width: 48px;
   .vjs-icon-placeholder {
     &::before {
@@ -479,11 +464,27 @@ button.vjs-big-play-button {
     max-width: 40px;
   }
 }
+.vjs-chromecast-button,
+.vjs-airplay-button {
+  order: 17 !important;
 
+  .vjs-icon-placeholder {
+    margin-top: 3px;
+    width: 25px;
+    height: 25px;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .vjs-icon-placeholder {
+      margin-top: 2px;
+      width: 26px;
+      height: 26px;
+    }
+  }
+}
 .vjs-button--theater-mode {
   order: 18 !important;
 }
-
 .vjs-fullscreen-control {
   order: 19 !important;
 }

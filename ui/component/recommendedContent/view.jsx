@@ -83,7 +83,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const InjectedAd =
     injectAds && !blacklistTriggered && !hasPremiumPlus
       ? {
-          node: <Ad type="tileB" />,
+          node: <Ad type="tileB" uri={uri} />,
           index: isMobile ? 0 : 3,
         }
       : null;
