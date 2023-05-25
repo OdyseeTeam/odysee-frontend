@@ -19,12 +19,10 @@ type Props = {
   noFallback?: boolean,
   // --- redux ---
   shouldShowAds: boolean,
-  doSetAdBlockerFound: (boolean) => void,
 };
 
 function AdTileA(props: Props) {
-  const { tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
-  const ref = React.useRef();
+  const { tileLayout, shouldShowAds, noFallback } = props;
 
   React.useEffect(() => {
     if (shouldShowAds && !DISABLE_VIDEO_AD) {
@@ -43,21 +41,12 @@ function AdTileA(props: Props) {
     }
   }, [shouldShowAds]);
 
-  React.useEffect(() => {
-    if (ref.current) {
-      const mountedStyle = getComputedStyle(ref.current);
-      doSetAdBlockerFound(mountedStyle?.display === 'none');
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-  }, []);
-
   if (shouldShowAds) {
     return (
       <li className="claim-preview--tile">
         <div
           className="rc_tile"
           id="rc-widget-fceddd"
-          ref={ref}
           data-rc-widget
           data-widget-host="habitat"
           data-endpoint="//trends.revcontent.com"
