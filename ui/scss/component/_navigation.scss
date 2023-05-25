@@ -81,13 +81,14 @@
     }
   }
 
+  @media (max-width: $breakpoint-medium) {
+    width: calc(var(--side-nav-width) + 6px);
+  }
+
   @media (max-width: $breakpoint-small) {
     top: var(--header-height-mobile);
     height: calc(100vh - var(--header-height-mobile));
-  }
-
-  @media (max-width: $breakpoint-medium) {
-    width: calc(var(--side-nav-width) + 6px);
+    width: var(--side-nav-width);
   }
 
   @media (pointer: coarse) {
@@ -396,6 +397,7 @@
       font-size: var(--font-xxsmall);
       font-weight: var(--font-weight-base);
       margin-left: 0;
+      max-width: 100%;
     }
   }
 
