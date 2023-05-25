@@ -217,7 +217,7 @@ function ClaimPreviewTile(props: Props) {
               )}
 
               <div className="claim-preview__file-property-overlay">
-                <PreviewOverlayProperties uri={uri} properties={properties} isLivestream={isLivestream} />
+                <PreviewOverlayProperties uri={uri} properties={properties} />
               </div>
               <ClaimPreviewProgress uri={uri} />
             </React.Fragment>

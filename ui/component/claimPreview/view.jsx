@@ -505,12 +505,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                       </div>
                     )}
                     <div className="claim-preview__file-property-overlay">
-                      <PreviewOverlayProperties
-                        uri={uri}
-                        small={type === 'small'}
-                        xsmall={smallThumbnail}
-                        isLivestream={isLivestream}
-                      />
+                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} />
                     </div>
                     {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
                     <ClaimPreviewProgress uri={uri} />
@@ -520,13 +515,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 <>
                   <FileThumbnail thumbnail={thumbnailUrl} uri={uri}>
                     <div className="claim-preview__file-property-overlay">
-                      <PreviewOverlayProperties
-                        uri={uri}
-                        small={type === 'small'}
-                        xsmall={smallThumbnail}
-                        pending
-                        isLivestream={isLivestream}
-                      />
+                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} pending />
                     </div>
                   </FileThumbnail>
                 </>
