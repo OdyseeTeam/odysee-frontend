@@ -91,7 +91,6 @@ type Props = {
   location: { search: string, pathname: string },
 
   expandFilters: boolean,
-  setFilters: any,
 
   // --- select ---
   followedTags?: Array<Tag>,
