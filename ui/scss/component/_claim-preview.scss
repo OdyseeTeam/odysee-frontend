@@ -1587,6 +1587,14 @@
   .file-price {
     padding: 0.1rem;
   }
+
+  .livestream__viewer-count {
+    color: var(--color-white-alt);
+    background-color: var(--color-live);
+    border-radius: calc(var(--border-radius) / 2);
+    height: 1.2rem;
+    padding: 0 var(--spacing-xxxs);
+  }
 }
 
 $claim-preview-progress-bar-height: 5px;
@@ -1750,13 +1758,6 @@ $claim-preview-progress-bar-height: 5px;
     opacity: 0.9; // The original 0.7 is not visible over bright thumbnails
     .claim-preview__overlay-properties {
       color: white;
-    }
-    .livestream__viewer-count {
-      color: var(--color-white-alt);
-      background-color: var(--color-live);
-      border-radius: calc(var(--border-radius) / 2);
-      height: 1.2rem;
-      padding: 0 var(--spacing-xxxs);
     }
   }
 

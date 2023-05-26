@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import FilePrice from 'component/filePrice';
 import VideoDuration from 'component/videoDuration';
+import LivestreamDateTime from 'component/livestreamDateTime';
 import FileType from 'component/fileType';
 import ClaimType from 'component/claimType';
 import * as COL from 'constants/collections';
@@ -105,7 +106,14 @@ export default function PreviewOverlayProperties(props: Props) {
           {isCollection && claim && !iconOnly && <div>{claimLength}</div>}
           {!iconOnly && isStream && <VideoDuration uri={uri} />}
           {isStream && !isLivestream && <FileType uri={uri} small={small} />}
-          {isLivestream && <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />}
+          {isLivestream && (
+            <>
+              <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
+              <span className="livestream__viewer-count">
+                <LivestreamDateTime uri={uri} />
+              </span>
+            </>
+          )}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
           {isUnlisted && <Icon icon={ICONS.COPY_LINK} size={13} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />
