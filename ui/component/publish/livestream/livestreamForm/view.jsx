@@ -203,8 +203,9 @@ function LivestreamForm(props: Props) {
 
   const requiresReplayUrl =
     liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay');
+  const requiresFile = liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay';
 
-  const disabled = !title || !name || (requiresReplayUrl && !remoteFileUrl);
+  const disabled = !title || !name || (requiresReplayUrl && !remoteFileUrl) || (requiresFile && !filePath);
   const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
@@ -407,6 +408,7 @@ function LivestreamForm(props: Props) {
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
     (requiresReplayUrl && !remoteFileUrl) ||
+    (requiresFile && !filePath) ||
     previewing;
 
   // replays use 'exclusive content' perk, livestreams use 'exclusive livestreams'
