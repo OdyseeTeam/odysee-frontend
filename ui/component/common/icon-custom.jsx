@@ -1957,19 +1957,6 @@ export const icons = {
           <stop offset={0.776} stopColor="#6e8ede" />
           <stop offset={1} stopColor="#57eaba" />
         </linearGradient>
-        <circle
-          id="prefix__XMLID_508_"
-          cx={-566.6}
-          cy={1525.4}
-          r={4}
-          fill="none"
-          strokeWidth={2.468}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit={10}
-        />
-        <path id="prefix__XMLID_507_" d="M-573.7 1518.3c-1.8 1.8-2.9 4.3-2.9 7.1 0 2.6 1 4.9 2.5 6.7l.4-13.8z" />
-        <path id="prefix__XMLID_506_" d="M-559.6 1532.1c1.8-1.8 2.9-4.3 2.9-7.1 0-2.6-1-4.9-2.5-6.7l-.4 13.8z" />
       </g>
       <path
         id="prefix__XMLID_20_"
@@ -2184,73 +2171,6 @@ export const icons = {
         r={6}
         fill="none"
         stroke="#ffa100"
-        strokeWidth={2.94}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeMiterlimit={10}
-      />
-    </svg>
-  ),
-  [ICONS.LIVESTREAM_MONOCHROME]: (props: CustomProps) => (
-    <svg
-      id="prefix__Layer_1"
-      xmlns="http://www.w3.org/2000/svg"
-      x={0}
-      y={0}
-      fill="currentColor"
-      stroke="currentColor"
-      width={props.size || '18'}
-      height={props.size || '16'}
-      viewBox="0 0 36 36"
-      xmlSpace="preserve"
-      {...props}
-    >
-      <g id="prefix__XMLID_505_">
-        <linearGradient
-          id="prefix__XMLID_410_"
-          gradientUnits="userSpaceOnUse"
-          x1={-571.815}
-          y1={1525.406}
-          x2={-561.413}
-          y2={1525.406}
-        >
-          <stop offset={0.02} stopColor="#ffc200" />
-          <stop offset={0.387} stopColor="#ff31bd" />
-          <stop offset={0.625} stopColor="#8e31bd" />
-          <stop offset={0.776} stopColor="#6e8ede" />
-          <stop offset={1} stopColor="#57eaba" />
-        </linearGradient>
-        <circle
-          id="prefix__XMLID_508_"
-          cx={-566.6}
-          cy={1525.4}
-          r={4}
-          fill="none"
-          strokeWidth={2.468}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeMiterlimit={10}
-        />
-        <path id="prefix__XMLID_507_" d="M-573.7 1518.3c-1.8 1.8-2.9 4.3-2.9 7.1 0 2.6 1 4.9 2.5 6.7l.4-13.8z" />
-        <path id="prefix__XMLID_506_" d="M-559.6 1532.1c1.8-1.8 2.9-4.3 2.9-7.1 0-2.6-1-4.9-2.5-6.7l-.4 13.8z" />
-      </g>
-      <path
-        id="prefix__XMLID_20_"
-        d="M21.4 5.2h0c7.1 0 12.8 5.7 12.8 12.8v0c0 7.1-5.7 12.8-12.8 12.8H8.7V18c0-7.1 5.7-12.8 12.7-12.8z"
-        fill="none"
-        strokeWidth={2.94}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeMiterlimit={10}
-      />
-      <path id="prefix__XMLID_19_" d="M26.9 13.8h2.8v3.8h-2.8z" />
-      <path id="prefix__XMLID_18_" d="M20 13.8h2.8v3.8H20z" />
-      <circle
-        id="prefix__XMLID_17_"
-        cx={8.8}
-        cy={17.8}
-        r={6}
-        fill="none"
         strokeWidth={2.94}
         strokeLinecap="round"
         strokeLinejoin="round"
