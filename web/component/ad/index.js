@@ -1,9 +1,11 @@
+// @flow
+import type { Props } from './view';
+import Ad from './view';
 import { connect } from 'react-redux';
 import { selectShouldShowAds } from 'redux/selectors/app';
 import { selectHomepageCategoryChannelIds } from 'redux/selectors/settings';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { getChannelIdFromClaim } from 'util/claim';
-import Ad from './view';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -15,4 +17,4 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select)(Ad);
+export default connect<_, Props, _, _, _, _>(select, {})(Ad);

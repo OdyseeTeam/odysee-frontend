@@ -2,32 +2,37 @@
 import React from 'react';
 import PremiumPlusTile from 'component/premiumPlusTile';
 
-const DISABLE_VIDEO_AD = false;
-
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
   url: 'https://assets.revcontent.com/master/delivery.js',
 });
 
 // ****************************************************************************
+// ****************************************************************************
+
+export type Props = {|
+  tileLayout?: boolean,
+  noFallback?: boolean,
+|};
+
+type StateProps = {|
+  shouldShowAds: boolean,
+|};
+
+type DispatchProps = {|
+  doSetAdBlockerFound: (boolean) => void,
+|};
+
+// ****************************************************************************
 // Ads
 // ****************************************************************************
 
-type Props = {
-  tileLayout?: boolean,
-  className?: string,
-  noFallback?: boolean,
-  // --- redux ---
-  shouldShowAds: boolean,
-  doSetAdBlockerFound: (boolean) => void,
-};
-
-function AdTileA(props: Props) {
+function AdTileA(props: Props & StateProps & DispatchProps) {
   const { tileLayout, shouldShowAds, noFallback, doSetAdBlockerFound } = props;
   const ref = React.useRef();
 
   React.useEffect(() => {
-    if (shouldShowAds && !DISABLE_VIDEO_AD) {
+    if (shouldShowAds) {
       let script;
       try {
         script = document.createElement('script');

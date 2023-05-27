@@ -14,16 +14,27 @@ const AD_CONFIG = Object.freeze({
   },
 });
 
-type Props = {
-  type: string,
-  uri?: string,
+// ****************************************************************************
+// ****************************************************************************
+
+export type Props = {|
+  type: 'tileA' | 'tileB' | 'sticky' | 'aboveComments',
+  uri?: ClaimUri,
   tileLayout?: boolean,
+|};
+
+type StateProps = {|
   shouldShowAds: boolean,
   channelIdWhitelist?: ?any,
-  channelId: any,
-};
+  channelId: ?ChannelId,
+|};
 
-function Ad(props: Props) {
+type DispatchProps = {||};
+
+// ****************************************************************************
+// ****************************************************************************
+
+function Ad(props: Props & StateProps & DispatchProps) {
   const { type, uri, tileLayout, shouldShowAds, channelIdWhitelist, channelId } = props;
   const device = useIsMobile() ? 'mobile' : 'desktop';
   const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'publir' : 'revcontent';
