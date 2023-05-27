@@ -556,14 +556,10 @@ function App(props: Props) {
           {!hasPremiumPlus && !embedPath && <Ad type="sticky" uri={uri} />}
           <Router uri={uri} />
           <ModalRouter />
-
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
-
           {!embedPath && <VideoRenderFloating />}
-
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
-
             <YoutubeWelcome />
             {!shouldHideNag && <NagContinueFirstRun />}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
@@ -572,8 +568,6 @@ function App(props: Props) {
             {getStatusNag()}
             {useDebugLog && <DebugLog />}
           </React.Suspense>
-
-          <AdBlockTester />
         </AppContext.Provider>
       )}
     </div>
