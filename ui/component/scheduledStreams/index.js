@@ -16,6 +16,7 @@ import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
 import { SCHEDULED_TAGS } from 'constants/tags';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
+import { Container } from 'util/container';
 
 const selectOptions = createSelector(
   (state) => state.comments.moderationBlockList,
@@ -60,7 +61,6 @@ const select = (state, props) => {
   const loKey = livestreamOptions ? createNormalizedClaimSearchKey(livestreamOptions) : '';
   const soKey = scheduledOptions ? createNormalizedClaimSearchKey(scheduledOptions) : '';
 
-  // Note: ensure new props are compared in areStatePropsEqual below.
   return {
     livestreamOptions,
     scheduledOptions,
@@ -81,14 +81,13 @@ export default connect<_, Props, _, _, _, _>(select, perform, null, {
       (prev.livestreamUris !== undefined && next.livestreamUris === undefined) ||
       (prev.scheduledUris !== undefined && next.scheduledUris === undefined)
     ) {
+      // When transitioning to a new query, freeze the update to avoid things
+      // from jumping around. Eventually, the query would result in either a
+      // [..] or null, which then sparks another render. This assumes we don't
+      // want to show any loading indicator.
       return true;
     } else {
-      return (
-        prev.livestreamOptions === next.livestreamOptions &&
-        prev.scheduledOptions === next.scheduledOptions &&
-        prev.livestreamUris === next.livestreamUris &&
-        prev.scheduledUris === next.scheduledUris
-      );
+      return Container.Obj.shallowCompare(next, prev);
     }
   },
 })(ScheduledStreams);
