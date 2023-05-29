@@ -1,9 +1,6 @@
 // @flow
 import React from 'react';
-import { importPublir } from '../util/importPublir';
-
-const PublirAdsProvider = importPublir('PublirAdsProvider');
-const AdSlot = importPublir('AdSlot');
+import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/';
 
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
@@ -72,11 +69,9 @@ function AdAboveComments(props: Props) {
         />
       )}
       {provider === 'publir' && (
-        <React.Suspense fallback={null}>
-          <PublirAdsProvider publisherId="1391">
-            <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
-          </PublirAdsProvider>
-        </React.Suspense>
+        <PublirAdsProvider publisherId="1391">
+          <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
+        </PublirAdsProvider>
       )}
     </>
   );

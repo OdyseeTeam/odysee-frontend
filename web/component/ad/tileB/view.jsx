@@ -1,10 +1,7 @@
 // @flow
 import React from 'react';
+import { PublirAdsProvider, AdSlot } from '../publir-react-plugin/';
 import classnames from 'classnames';
-import { importPublir } from '../util/importPublir';
-
-const PublirAdsProvider = importPublir('PublirAdsProvider');
-const AdSlot = importPublir('AdSlot');
 
 const DISABLE_VIDEO_AD = false;
 
@@ -67,11 +64,9 @@ function AdTileB(props: Props) {
         />
       )}
       {provider === 'publir' && (
-        <React.Suspense fallback={null}>
-          <PublirAdsProvider publisherId="1391">
-            <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
-          </PublirAdsProvider>
-        </React.Suspense>
+        <PublirAdsProvider publisherId="1391">
+          <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
+        </PublirAdsProvider>
       )}
     </>
   );
