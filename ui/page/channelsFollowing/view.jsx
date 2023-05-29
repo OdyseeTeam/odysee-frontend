@@ -10,6 +10,7 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import Page from 'component/page';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
+import { filterActiveLivestreamUris } from 'util/livestream';
 import { tagSearchCsOptionsHook } from 'util/search';
 import ScheduledStreams from 'component/scheduledStreams';
 import useComponentDidMount from 'effects/use-component-did-mount';
@@ -18,7 +19,8 @@ import usePersistedState from 'effects/use-persisted-state';
 type Props = {
   channelIds: Array<string>,
   tileLayout: boolean,
-  activeLivestreamUris: ?Array<string>,
+  activeLivestreamByCreatorId: LivestreamByCreatorId,
+  livestreamViewersById: LivestreamViewersById,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,
@@ -28,7 +30,8 @@ function ChannelsFollowingPage(props: Props) {
   const {
     channelIds,
     tileLayout,
-    activeLivestreamUris,
+    activeLivestreamByCreatorId: al,
+    livestreamViewersById: lv,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
     hideScheduledLivestreams,
@@ -36,6 +39,10 @@ function ChannelsFollowingPage(props: Props) {
 
   const hasSubscribedChannels = channelIds.length > 0;
   const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
+
+  const activeLivestreamUris = React.useMemo(() => {
+    return filterActiveLivestreamUris(channelIds, null, al, lv);
+  }, [channelIds, lv, al]);
 
   useComponentDidMount(() => {
     doFetchAllActiveLivestreamsForQuery();
