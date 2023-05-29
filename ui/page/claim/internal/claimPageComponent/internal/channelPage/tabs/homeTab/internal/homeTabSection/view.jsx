@@ -164,8 +164,9 @@ function HomeTabSection(props: Props) {
                 return __('Trending Videos');
               case 'effective_amount':
                 return __('Top Videos');
+              default:
+                return __('Videos');
             }
-            break;
           case CS.FILE_AUDIO:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
@@ -174,8 +175,9 @@ function HomeTabSection(props: Props) {
                 return __('Trending Audio');
               case 'effective_amount':
                 return __('Top Audio');
+              default:
+                return __('Audio');
             }
-            break;
           case CS.FILE_IMAGE:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
@@ -184,8 +186,9 @@ function HomeTabSection(props: Props) {
                 return __('Trending Images');
               case 'effective_amount':
                 return __('Top Images');
+              default:
+                return __('Images');
             }
-            break;
           case CS.FILE_DOCUMENT:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
@@ -194,8 +197,9 @@ function HomeTabSection(props: Props) {
                 return __('Trending Posts');
               case 'effective_amount':
                 return __('Top Posts');
+              default:
+                return __('Posts');
             }
-            break;
           default:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
