@@ -147,13 +147,13 @@ type Props = {
   homepageOrderApplyToSidebar: boolean,
   hasMembership: ?boolean,
   subscriptionUris: Array<string>,
-  claimsByUri: { [string]: Claim },
   // --- perform ---
   doClearClaimSearch: () => void,
   doSignOut: () => void,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
   doClearPurchasedUriSuccess: () => void,
   doOpenModal: (id: string, ?{}) => void,
+  doGetDisplayedSubs: (filter: string) => Promise<Array<Subscription>>,
   doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
 };
 
@@ -175,12 +175,12 @@ function SideNavigation(props: Props) {
     homepageOrderApplyToSidebar,
     hasMembership,
     subscriptionUris,
-    claimsByUri,
     doClearClaimSearch,
     doSignOut,
     doFetchLastActiveSubs,
     doClearPurchasedUriSuccess,
     doOpenModal,
+    doGetDisplayedSubs,
     doResolveUris,
   } = props;
 
@@ -306,6 +306,8 @@ function SideNavigation(props: Props) {
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
 
   const [subscriptionFilter, setSubscriptionFilter] = React.useState('');
+  const [displayedSubs, setDisplayedSubs] = React.useState([]);
+  const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptionUris?.length > 0;
 
   let displayedFollowedTags = followedTags;
   if (showTagSection && followedTags.length > SIDEBAR_SUBS_DISPLAYED && !expandTags) {
@@ -361,28 +363,7 @@ function SideNavigation(props: Props) {
   }
 
   function getSubscriptionSection() {
-    const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptions && subscriptions.length > 0;
     if (showSubsSection) {
-      let displayedSubscriptions = [];
-      if (subscriptionFilter) {
-        const filter = subscriptionFilter.toLowerCase();
-
-        subscriptions &&
-          subscriptions.map((subscription) => {
-            if (
-              claimsByUri[subscription?.uri] &&
-              (claimsByUri[subscription?.uri].name.toLowerCase().includes(filter) ||
-                // $FlowIgnore
-                claimsByUri[subscription?.uri].value?.title?.toLowerCase().includes(filter))
-            ) {
-              displayedSubscriptions.push(subscription);
-            }
-          });
-      } else {
-        displayedSubscriptions =
-          lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
-      }
-
       if (lastActiveSubs === undefined) {
         return null; // Don't show yet, just wait to save some renders
       }
@@ -401,8 +382,8 @@ function SideNavigation(props: Props) {
               <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
             </li>
           )}
-          {displayedSubscriptions.map((subscription) => (
-            <SubscriptionListItem key={subscription.uri} subscription={subscription} />
+          {displayedSubs.map((sub) => (
+            <SubscriptionListItem key={sub.uri} subscription={sub} />
           ))}
           {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
@@ -415,7 +396,7 @@ function SideNavigation(props: Props) {
               />
             </li>
           )}
-          {!!subscriptionFilter && !displayedSubscriptions.length && (
+          {!!subscriptionFilter && !displayedSubs.length && (
             <li>
               <div className="navigation-item">
                 <div className="empty empty--centered">{__('No results')}</div>
@@ -557,6 +538,12 @@ function SideNavigation(props: Props) {
       doFetchLastActiveSubs();
     }
   }, [doFetchLastActiveSubs, sidebarOpen]);
+
+  React.useEffect(() => {
+    if (showSubsSection) {
+      doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
+    }
+  }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
 
   // --- Resolve subscriptions
   React.useEffect(() => {

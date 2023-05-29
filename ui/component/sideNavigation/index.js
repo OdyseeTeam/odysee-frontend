@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
+import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
 import {
   selectLastActiveSubscriptions,
@@ -18,6 +19,43 @@ import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships'
 
 import SideNavigation from './view';
 
+// ****************************************************************************
+// doGetDisplayedSubs
+// ****************************************************************************
+
+function doGetDisplayedSubs(filter) {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const claimsByUri = selectClaimsByUri(state);
+    const subs = selectSubscriptions(state);
+    const lastActiveSubs = selectLastActiveSubscriptions(state);
+    let filteredSubs = [];
+
+    if (subs) {
+      if (filter) {
+        const f = filter.toLowerCase();
+
+        subs.forEach((sub) => {
+          const claim = claimsByUri[sub?.uri];
+          if (claim) {
+            if (claim.name.toLowerCase().includes(f) || claim.value?.title?.toLowerCase().includes(f)) {
+              filteredSubs.push(sub);
+            }
+          }
+        });
+      } else {
+        filteredSubs = lastActiveSubs?.length > 0 ? lastActiveSubs : subs.slice(0, SIDEBAR_SUBS_DISPLAYED);
+      }
+    }
+
+    return filteredSubs;
+  };
+}
+
+// ****************************************************************************
+// SideNavigation
+// ****************************************************************************
+
 const select = (state) => ({
   subscriptions: selectSubscriptions(state),
   lastActiveSubs: selectLastActiveSubscriptions(state),
@@ -31,7 +69,6 @@ const select = (state) => ({
   homepageOrderApplyToSidebar: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR),
   hasMembership: selectUserHasValidOdyseeMembership(state),
   subscriptionUris: selectSubscriptionUris(state) || [],
-  claimsByUri: selectClaimsByUri(state),
 });
 
 export default connect(select, {
@@ -40,5 +77,6 @@ export default connect(select, {
   doFetchLastActiveSubs,
   doClearPurchasedUriSuccess,
   doOpenModal,
+  doGetDisplayedSubs,
   doResolveUris,
 })(SideNavigation);
