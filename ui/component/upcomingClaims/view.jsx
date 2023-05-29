@@ -34,10 +34,10 @@ type DispatchProps = {|
 |};
 
 // ****************************************************************************
-// ScheduledStreams
+// UpcomingClaims
 // ****************************************************************************
 
-const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
+const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   const {
     tileLayout,
     liveUris = [],
@@ -141,4 +141,4 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
   );
 };
 
-export default ScheduledStreams;
+export default UpcomingClaims;

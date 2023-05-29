@@ -19,7 +19,7 @@ import Yrbl from 'component/yrbl';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
-import ScheduledStreams from 'component/scheduledStreams';
+import UpcomingClaims from 'component/upcomingClaims';
 import Ad from 'web/component/ad';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
@@ -305,7 +305,7 @@ function HomePage(props: Props) {
                     subscribedChannelIds.length > 0 &&
                     id === 'FOLLOWING' &&
                     !hideScheduledLivestreams && (
-                      <ScheduledStreams
+                      <UpcomingClaims
                         name="homepage_following"
                         channelIds={subscribedChannelIds}
                         tileLayout

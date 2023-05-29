@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { objSelectorEqualityCheck } from 'util/redux-utils';
 import type { Props } from './view';
-import ScheduledStreams from './view';
+import UpcomingClaims from './view';
 
 import { doClaimSearch } from 'redux/actions/claims';
 import { doSetClientSetting } from 'redux/actions/settings';
@@ -50,7 +50,7 @@ const selectOptions = createSelector(
 );
 
 // *****************************************************************************
-// ScheduledStreams
+// UpcomingClaims
 // *****************************************************************************
 
 const select = (state, props) => {
@@ -90,4 +90,4 @@ export default connect<_, Props, _, _, _, _>(select, perform, null, {
       return Container.Obj.shallowCompare(next, prev);
     }
   },
-})(ScheduledStreams);
+})(UpcomingClaims);

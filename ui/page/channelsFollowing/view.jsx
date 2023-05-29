@@ -11,7 +11,7 @@ import Page from 'component/page';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import { tagSearchCsOptionsHook } from 'util/search';
-import ScheduledStreams from 'component/scheduledStreams';
+import UpcomingClaims from 'component/upcomingClaims';
 import useComponentDidMount from 'effects/use-component-did-mount';
 import usePersistedState from 'effects/use-persisted-state';
 
@@ -48,7 +48,7 @@ function ChannelsFollowingPage(props: Props) {
       {!fetchingActiveLivestreams && (
         <>
           {!hideScheduledLivestreams && (
-            <ScheduledStreams
+            <UpcomingClaims
               name="channels_following"
               channelIds={channelIds}
               tileLayout={tileLayout}
