@@ -60,6 +60,7 @@ const select = (state, props) => {
   const loKey = livestreamOptions ? createNormalizedClaimSearchKey(livestreamOptions) : '';
   const soKey = scheduledOptions ? createNormalizedClaimSearchKey(scheduledOptions) : '';
 
+  // Note: ensure new props are compared in areStatePropsEqual below.
   return {
     livestreamOptions,
     scheduledOptions,
@@ -74,4 +75,20 @@ const perform = (dispatch) => ({
   doShowSnackBar: (message) => dispatch(doToast({ isError: false, message })),
 });
 
-export default connect<_, Props, _, _, _, _>(select, perform)(ScheduledStreams);
+export default connect<_, Props, _, _, _, _>(select, perform, null, {
+  areStatePropsEqual: (next: any, prev: any) => {
+    if (
+      (prev.livestreamUris !== undefined && next.livestreamUris === undefined) ||
+      (prev.scheduledUris !== undefined && next.scheduledUris === undefined)
+    ) {
+      return true;
+    } else {
+      return (
+        prev.livestreamOptions === next.livestreamOptions &&
+        prev.scheduledOptions === next.scheduledOptions &&
+        prev.livestreamUris === next.livestreamUris &&
+        prev.scheduledUris === next.scheduledUris
+      );
+    }
+  },
+})(ScheduledStreams);
