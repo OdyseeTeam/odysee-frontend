@@ -1,7 +1,8 @@
 // @flow
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { createCachedSelector } from 're-reselect';
+import { createSelector } from 'reselect';
+import { objSelectorEqualityCheck } from 'util/redux-utils';
 import type { Props } from './view';
 import ScheduledStreams from './view';
 
@@ -16,7 +17,7 @@ import { SCHEDULED_TAGS } from 'constants/tags';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
 
-const selectOptions = createCachedSelector(
+const selectOptions = createSelector(
   (state) => state.comments.moderationBlockList,
   (state) => selectMutedAndBlockedChannelIds(state),
   (state, name, channelIds) => channelIds,
@@ -41,8 +42,11 @@ const selectOptions = createCachedSelector(
       ...(isLivestream ? { has_no_source: true } : { has_source: true }),
       ...(isLivestream && limitPerChannel ? { limit_claims_per_channel: limitPerChannel } : {}),
     };
+  },
+  {
+    memoizeOptions: { maxSize: 10, resultEqualityCheck: objSelectorEqualityCheck },
   }
-)((state, name, channelIds, isLivestream, limitPerChannel) => `${name}:${isLivestream ? 'l' : 's'}`);
+);
 
 // *****************************************************************************
 // ScheduledStreams
