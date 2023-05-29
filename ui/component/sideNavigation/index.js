@@ -57,7 +57,6 @@ function doGetDisplayedSubs(filter) {
 // ****************************************************************************
 
 const select = (state) => ({
-  subscriptions: selectSubscriptions(state),
   lastActiveSubs: selectLastActiveSubscriptions(state),
   followedTags: selectFollowedTags(state),
   email: selectUserVerifiedEmail(state),

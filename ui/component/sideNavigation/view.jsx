@@ -135,7 +135,6 @@ type Props = {
   isOnFilePage: boolean,
   setSidebarOpen: (boolean) => void,
   // --- select ---
-  subscriptions: Array<Subscription>,
   lastActiveSubs: ?Array<Subscription>,
   followedTags: Array<Tag>,
   email: ?string,
@@ -163,7 +162,6 @@ function SideNavigation(props: Props) {
     setSidebarOpen,
     isMediumScreen,
     isOnFilePage,
-    subscriptions,
     lastActiveSubs,
     followedTags,
     email,
@@ -377,7 +375,7 @@ function SideNavigation(props: Props) {
               navigate={!subscriptionFilter ? `/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}` : ''}
             />
           )}
-          {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
               <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
             </li>
@@ -385,7 +383,7 @@ function SideNavigation(props: Props) {
           {displayedSubs.map((sub) => (
             <SubscriptionListItem key={sub.uri} subscription={sub} />
           ))}
-          {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
               <Button
                 icon={ICONS.MORE}
