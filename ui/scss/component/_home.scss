@@ -39,9 +39,8 @@
   }
 }
 
-.upcoming-grid {
-  min-height: 342px;
-  height: 342px;
+.upcoming-grid,
+.upcoming-list {
   transition: min-height 0.2s, height 0.2s;
   .button__content {
     &:hover {
@@ -56,12 +55,18 @@
       }
     }
   }
-  .claim-grid__header {
-    margin-top: 0;
-  }
-  .claim-grid {
+  .claim-grid,
+  .claim-list {
     transition: opacity 0.2s;
     opacity: 1;
+  }
+}
+
+.upcoming-grid {
+  min-height: 342px;
+  height: 342px;
+  .claim-grid__header {
+    margin-top: 0;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -89,7 +94,8 @@
 .upcoming-grid--closed {
   min-height: 0;
   height: 0;
-  .claim-grid {
+  .claim-grid,
+  .claim-list {
     opacity: 0;
   }
 }
