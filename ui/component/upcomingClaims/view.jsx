@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import classnames from 'classnames';
 import ClaimList from 'component/claimList';
 import Icon from 'component/common/icon';
 import ClaimPreviewTile from 'component/claimPreviewTile';
@@ -20,6 +21,7 @@ export type Props = {|
   loading?: boolean,
   onLoad?: (number) => void,
   showHideSetting?: boolean,
+  hideUpcoming?: boolean,
 |};
 
 type StateProps = {|
@@ -32,7 +34,7 @@ type StateProps = {|
 type DispatchProps = {|
   doClaimSearch: (ClaimSearchOptions) => void,
   setClientSetting: (string, boolean | string | number, boolean) => void,
-  doShowSnackBar: (string) => void,
+  // doShowSnackBar: (string) => void,
 |};
 
 // ****************************************************************************
@@ -50,8 +52,9 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
     scheduledUris,
     doClaimSearch,
     setClientSetting,
-    doShowSnackBar,
+    // doShowSnackBar,
     showHideSetting = true,
+    hideUpcoming,
   } = props;
 
   const isMobileScreen = useIsMobile();
@@ -76,9 +79,9 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
     };
   }, [liveUris, livestreamUris, scheduledUris, upcomingMax]);
 
-  const hideScheduledStreams = () => {
-    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, true, true);
-    doShowSnackBar(__('Scheduled streams hidden, you can re-enable them in settings.'));
+  const hideScheduled = (e) => {
+    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, e, true);
+    // doShowSnackBar(__('Scheduled streams hidden, you can re-enable them in settings.'));
   };
 
   const Header = () => {
@@ -89,8 +92,26 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
             <Icon icon={ICONS.TIME} />
           </span>
           <span className="claim-grid__title">{__('Upcoming')}</span>
-          {showHideSetting && (
-            <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'hide-livestreams'} />
+
+          {showHideSetting && !hideUpcoming && (
+            <div className="upcoming-grid__visibility" onClick={() => hideScheduled(true)}>
+              <Icon icon={ICONS.EYE_OFF} />
+              <span>{__('Hide')}</span>
+            </div>
+          )}
+          {showHideSetting && hideUpcoming && list.total > 0 && (
+            <div className="upcoming-grid__visibility" onClick={() => hideScheduled(false)}>
+              <Icon icon={ICONS.EYE} />
+              {list.total > 0 ? <span>{__('Show')}</span> : <span>{__('Empty')}</span>}
+              <div className="upcoming-grid__counter">{list.total}</div>
+            </div>
+          )}
+          {showHideSetting && hideUpcoming && list.total === 0 && (
+            <div className="upcoming-grid__visibility--empty">
+              <Icon icon={ICONS.EYE} />
+              <span>{__('Empty')}</span>
+              <div className="upcoming-grid__counter">{list.total}</div>
+            </div>
           )}
         </div>
       </div>
@@ -110,7 +131,13 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   }, [doClaimSearch, scheduledOptions]);
 
   return (
-    <div className={'mb-m mt-m md:mb-xl upcoming-list'}>
+    <div
+      className={classnames('mb-m mt-m md:mb-xl', {
+        'upcoming-grid': showHideSetting,
+        'upcoming-list': !showHideSetting,
+        'upcoming-grid--closed': hideUpcoming,
+      })}
+    >
       <Header />
       {loading && (
         <section className="claim-grid">
@@ -120,7 +147,9 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
         </section>
       )}
 
-      {!loading && <ClaimList uris={list.uris} loading={loading} tileLayout={tileLayout} showNoSourceClaims />}
+      {!loading && list.total > 0 && (
+        <ClaimList uris={list.uris} loading={loading} tileLayout={tileLayout} showNoSourceClaims />
+      )}
       {list.total > upcomingMax && !showAllUpcoming && (
         <div className="upcoming-list__view-more">
           <Button

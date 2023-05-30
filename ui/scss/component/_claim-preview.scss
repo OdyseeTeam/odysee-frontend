@@ -1351,7 +1351,6 @@
   flex-direction: column;
   margin-top: var(--spacing-s);
   padding-bottom: var(--spacing-l);
-  //border-bottom: 1px solid var(--color-border);
 
   @media (max-width: $breakpoint-small) {
     &:not(:first-of-type) {

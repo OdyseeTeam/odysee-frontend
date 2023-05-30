@@ -39,7 +39,7 @@ type Props = {
   homepageFetched: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
-  hideScheduledLivestreams: boolean,
+  // hideScheduledLivestreams: boolean,
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
   userHasOdyseeMembership: ?boolean,
@@ -61,7 +61,7 @@ function HomePage(props: Props) {
     homepageFetched,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
-    hideScheduledLivestreams,
+    // hideScheduledLivestreams,
     homepageOrder,
     doOpenModal,
     userHasOdyseeMembership,
@@ -300,19 +300,16 @@ function HomePage(props: Props) {
             } else {
               return (
                 <React.Fragment key={id}>
-                  {authenticated &&
-                    subscribedChannelIds.length > 0 &&
-                    id === 'FOLLOWING' &&
-                    !hideScheduledLivestreams && (
-                      <UpcomingClaims
-                        name="homepage_following"
-                        channelIds={subscribedChannelIds}
-                        tileLayout
-                        liveUris={cache[id].livestreamUris}
-                        limitClaimsPerChannel={2}
-                        loading={fetchingActiveLivestreams}
-                      />
-                    )}
+                  {authenticated && subscribedChannelIds.length > 0 && id === 'FOLLOWING' && (
+                    <UpcomingClaims
+                      name="homepage_following"
+                      channelIds={subscribedChannelIds}
+                      tileLayout
+                      liveUris={cache[id].livestreamUris}
+                      limitClaimsPerChannel={2}
+                      loading={fetchingActiveLivestreams}
+                    />
+                  )}
                   {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
                 </React.Fragment>
               );

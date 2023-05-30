@@ -2,15 +2,17 @@
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import * as SETTINGS from 'constants/settings';
 import { objSelectorEqualityCheck } from 'util/redux-utils';
 import type { Props } from './view';
 import UpcomingClaims from './view';
 
 import { doClaimSearch } from 'redux/actions/claims';
 import { doSetClientSetting } from 'redux/actions/settings';
-import { doToast } from 'redux/actions/notifications';
+// import { doToast } from 'redux/actions/notifications';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { selectClaimSearchByQuery } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
 
 import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
 import { SCHEDULED_TAGS } from 'constants/tags';
@@ -66,13 +68,14 @@ const select = (state, props) => {
     scheduledOptions,
     livestreamUris: csByQuery[loKey],
     scheduledUris: csByQuery[soKey],
+    hideUpcoming: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   };
 };
 
 const perform = (dispatch) => ({
   doClaimSearch: (csOptions: ClaimSearchOptions) => dispatch(doClaimSearch(csOptions)),
   setClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
-  doShowSnackBar: (message) => dispatch(doToast({ isError: false, message })),
+  // doShowSnackBar: (message) => dispatch(doToast({ isError: false, message })),
 });
 
 export default connect<_, Props, _, _, _, _>(select, perform, null, {
