@@ -9,7 +9,6 @@ import UpcomingClaims from './view';
 
 import { doClaimSearch } from 'redux/actions/claims';
 import { doSetClientSetting } from 'redux/actions/settings';
-// import { doToast } from 'redux/actions/notifications';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { selectClaimSearchByQuery } from 'redux/selectors/claims';
 import { selectClientSetting } from 'redux/selectors/settings';
@@ -75,7 +74,6 @@ const select = (state, props) => {
 const perform = (dispatch) => ({
   doClaimSearch: (csOptions: ClaimSearchOptions) => dispatch(doClaimSearch(csOptions)),
   setClientSetting: (key, value, pushPrefs) => dispatch(doSetClientSetting(key, value, pushPrefs)),
-  // doShowSnackBar: (message) => dispatch(doToast({ isError: false, message })),
 });
 
 export default connect<_, Props, _, _, _, _>(select, perform, null, {
