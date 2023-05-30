@@ -57,7 +57,7 @@
   }
   .claim-grid,
   .claim-list {
-    transition: opacity 0.2s;
+    transition: opacity 0.2s, display 0.2;
     opacity: 1;
   }
 }
@@ -97,6 +97,8 @@
   .claim-grid,
   .claim-list {
     opacity: 0;
+    height: 0;
+    overflow: hidden;
   }
 }
 
