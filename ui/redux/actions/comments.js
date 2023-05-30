@@ -59,7 +59,8 @@ export function doCommentList(
     const { claim_id: claimId } = claim || {};
 
     if (!claimId) {
-      return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: 'unable to find claim for uri' });
+      dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: 'unable to find claim for uri' });
+      return;
     }
 
     dispatch({ type: ACTIONS.COMMENT_LIST_STARTED, data: { parentId } });
@@ -76,12 +77,14 @@ export function doCommentList(
     let myChannelClaim;
     if (isProtected) {
       if (!myChannelClaims) {
-        return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
+        dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
+        return;
       }
 
       myChannelClaim = myChannelClaims.find((x) => x.claim_id === activeChannelId);
       if (!myChannelClaim) {
-        return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
+        dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
+        return;
       }
 
       channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
@@ -112,46 +115,53 @@ export function doCommentList(
         : {}),
     })
       .then((result: CommentListResponse) => {
-        const { items: comments, total_items, total_filtered_items, total_pages } = result;
-
-        const returnResult = () => {
-          dispatch({
-            type: ACTIONS.COMMENT_LIST_COMPLETED,
-            data: {
-              comments,
-              parentId,
-              totalItems: total_items,
-              totalFilteredItems: total_filtered_items,
-              totalPages: total_pages,
-              claimId,
-              uri,
-            },
-          });
-          return result;
-        };
-
-        // Batch resolve comment authors
-        const commentChannelIds = comments && comments.map((comment) => comment.channel_id || '');
-        if (commentChannelIds && actions?.resolveCommenters) {
-          return dispatch(doResolveClaimIds(commentChannelIds)).finally(() => returnResult());
+        if (actions?.resolveCommenters) {
+          const { items: comments } = result;
+          const commentChannelIds = comments && comments.map((comment) => comment.channel_id || '');
+          if (commentChannelIds) {
+            return dispatch(doResolveClaimIds(commentChannelIds, false))
+              .then(() => result)
+              .catch((err) => {
+                assert(false, 'doCommentList: ignoring resolve errors', err);
+                return result;
+              });
+          }
         }
-
-        return returnResult();
+        return result;
+      })
+      .then((result: CommentListResponse) => {
+        const { items: comments, total_items, total_filtered_items, total_pages } = result;
+        dispatch({
+          type: ACTIONS.COMMENT_LIST_COMPLETED,
+          data: {
+            comments,
+            parentId,
+            totalItems: total_items,
+            totalFilteredItems: total_filtered_items,
+            totalPages: total_pages,
+            claimId,
+            uri,
+          },
+        });
       })
       .catch((error) => {
         const { message } = error;
 
         switch (message) {
           case 'comments are disabled by the creator':
-            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
+            dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
+            break;
           case 'channel does not have permissions to comment on this claim':
-            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
+            dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
+            break;
           case FETCH_API_FAILED_TO_FETCH:
             dispatch(doToast({ isError: true, message: __('Failed to fetch comments.') }));
-            return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
+            dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
+            break;
           default:
             dispatch(doToast({ isError: true, message: `${message}` }));
             dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
+            break;
         }
       });
   };
