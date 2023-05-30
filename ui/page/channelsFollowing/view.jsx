@@ -23,7 +23,6 @@ type Props = {
   livestreamViewersById: LivestreamViewersById,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
-  hideScheduledLivestreams: boolean,
 };
 
 function ChannelsFollowingPage(props: Props) {
@@ -34,7 +33,6 @@ function ChannelsFollowingPage(props: Props) {
     livestreamViewersById: lv,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
-    hideScheduledLivestreams,
   } = props;
 
   const hasSubscribedChannels = channelIds.length > 0;
@@ -54,15 +52,13 @@ function ChannelsFollowingPage(props: Props) {
     <Page noFooter fullWidthPage={tileLayout} className="main__channelsFollowing">
       {!fetchingActiveLivestreams && (
         <>
-          {!hideScheduledLivestreams && (
-            <UpcomingClaims
-              name="channels_following"
-              channelIds={channelIds}
-              tileLayout={tileLayout}
-              liveUris={activeLivestreamUris}
-              limitClaimsPerChannel={2}
-            />
-          )}
+          <UpcomingClaims
+            name="channels_following"
+            channelIds={channelIds}
+            tileLayout={tileLayout}
+            liveUris={activeLivestreamUris}
+            limitClaimsPerChannel={2}
+          />
 
           <ClaimListDiscover
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}

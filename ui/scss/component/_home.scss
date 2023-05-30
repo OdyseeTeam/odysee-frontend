@@ -42,6 +42,7 @@
 .upcoming-grid {
   min-height: 342px;
   height: 342px;
+  margin-bottom: var(--spacing-l) !important;
   transition: min-height 0.2s, height 0.2s;
   .button__content {
     &:hover {
@@ -56,9 +57,26 @@
       }
     }
   }
+  .claim-grid__header {
+    // margin-bottom:0;
+  }
   .claim-grid {
     transition: opacity 0.2s;
     opacity: 1;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    min-height: unset;
+    height: unset;
+  }
+}
+
+.upcoming-grid--extended {
+  min-height: calc(342px * 2);
+  height: calc(342px * 2);
+  @media (max-width: $breakpoint-small) {
+    min-height: unset;
+    height: unset;
   }
 }
 

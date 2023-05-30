@@ -2,6 +2,8 @@
   text-align: center;
   font-weight: bold;
   line-height: 1;
+  margin-top: var(--spacing-l);
+  margin-bottom: var(--spacing-l);
 
   > .button {
     white-space: initial;
@@ -12,29 +14,11 @@
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;
+    font-size: var(--font-large);
     text-shadow: 0 0 0 transparent;
     transition: text-shadow 3s;
     &:hover {
       text-shadow: 0 0 20px #e60073;
     }
-  }
-
-  @media (min-width: $breakpoint-small) {
-    font-size: 1.2rem;
-  }
-  @media (min-width: 1200px) {
-    margin-top: var(--spacing-s);
-    margin-bottom: -3rem;
-    .button__content {
-      font-size: var(--font-large);
-    }
-    span {
-      margin-top: -2rem;
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    margin-top: var(--spacing-s);
-    margin-bottom: var(--spacing-m);
   }
 }

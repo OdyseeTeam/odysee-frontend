@@ -217,7 +217,7 @@ function HomePage(props: Props) {
 
       return (
         <>
-          {index === cache.topGrid && <Meme meme={homepageMeme} />}
+          {index === cache.topGrid && id !== 'FOLLOWING' && <Meme meme={homepageMeme} />}
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
@@ -301,14 +301,17 @@ function HomePage(props: Props) {
               return (
                 <React.Fragment key={id}>
                   {authenticated && subscribedChannelIds.length > 0 && id === 'FOLLOWING' && (
-                    <UpcomingClaims
-                      name="homepage_following"
-                      channelIds={subscribedChannelIds}
-                      tileLayout
-                      liveUris={cache[id].livestreamUris}
-                      limitClaimsPerChannel={2}
-                      loading={fetchingActiveLivestreams}
-                    />
+                    <>
+                      {index === cache.topGrid && <Meme meme={homepageMeme} />}
+                      <UpcomingClaims
+                        name="homepage_following"
+                        channelIds={subscribedChannelIds}
+                        tileLayout
+                        liveUris={cache[id].livestreamUris}
+                        limitClaimsPerChannel={2}
+                        loading={fetchingActiveLivestreams}
+                      />
+                    </>
                   )}
                   {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
                 </React.Fragment>

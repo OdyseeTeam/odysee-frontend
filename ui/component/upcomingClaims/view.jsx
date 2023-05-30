@@ -5,7 +5,7 @@ import ClaimList from 'component/claimList';
 import Icon from 'component/common/icon';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import * as ICONS from 'constants/icons';
-import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
+import { useIsMobile, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import Button from 'component/button';
 import * as SETTINGS from 'constants/settings';
 
@@ -58,15 +58,17 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   } = props;
 
   const isMobileScreen = useIsMobile();
+  const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
 
   const upcomingMax = React.useMemo(() => {
-    if (showAllUpcoming) return -1;
-    if (isLargeScreen) return 6;
-    if (isMobileScreen) return 3;
-    return 4;
-  }, [showAllUpcoming, isMobileScreen, isLargeScreen]);
+    let multiply = 1;
+    if (showAllUpcoming) multiply = 2;
+    if (isLargeScreen) return 6 * multiply;
+    if (isMobileScreen || isMediumScreen) return 3 * multiply;
+    return 4 * multiply;
+  }, [showAllUpcoming, isMobileScreen, isMediumScreen, isLargeScreen]);
 
   const list = React.useMemo(() => {
     let uris = (livestreamUris || []).concat(scheduledUris || []);
@@ -135,6 +137,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
       className={classnames('mb-m mt-m md:mb-xl', {
         'upcoming-grid': showHideSetting,
         'upcoming-list': !showHideSetting,
+        'upcoming-grid--extended': showAllUpcoming,
         'upcoming-grid--closed': hideUpcoming,
       })}
     >
@@ -147,9 +150,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
         </section>
       )}
 
-      {!loading && list.total > 0 && (
-        <ClaimList uris={list.uris} loading={loading} tileLayout={tileLayout} showNoSourceClaims />
-      )}
+      {!loading && list.total > 0 && <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />}
       {list.total > upcomingMax && !showAllUpcoming && (
         <div className="upcoming-list__view-more">
           <Button
@@ -170,10 +171,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
             button="link"
             iconRight={ICONS.ARROW_RIGHT}
             className="claim-grid__title--secondary"
-            onClick={() => {
-              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-              setShowAllUpcoming(false);
-            }}
+            onClick={() => setShowAllUpcoming(false)}
           />
         </div>
       )}
