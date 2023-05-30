@@ -2,6 +2,7 @@
 import React from 'react';
 import ClaimList from 'component/claimList';
 import Icon from 'component/common/icon';
+import ClaimPreviewTile from 'component/claimPreviewTile';
 import * as ICONS from 'constants/icons';
 import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
 import Button from 'component/button';
@@ -16,6 +17,7 @@ export type Props = {|
   tileLayout: boolean,
   liveUris?: ?Array<string>, // ones that have gone live (not upcoming anymore)
   limitClaimsPerChannel?: number,
+  loading?: boolean,
   onLoad?: (number) => void,
   showHideSetting?: boolean,
 |};
@@ -41,6 +43,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   const {
     tileLayout,
     liveUris = [],
+    loading,
     livestreamOptions,
     scheduledOptions,
     livestreamUris,
@@ -107,9 +110,17 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   }, [doClaimSearch, scheduledOptions]);
 
   return (
-    <div className={'mb-m mt-m md:mb-xl upcoming-list'} style={{ display: list.total > 0 ? 'block' : 'none' }}>
+    <div className={'mb-m mt-m md:mb-xl upcoming-list'}>
       <Header />
-      <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />
+      {loading && (
+        <section className="claim-grid">
+          {new Array(upcomingMax).fill(1).map((x, i) => (
+            <ClaimPreviewTile key={i} placeholder="loading" pulse />
+          ))}
+        </section>
+      )}
+
+      {!loading && <ClaimList uris={list.uris} loading={loading} tileLayout={tileLayout} showNoSourceClaims />}
       {list.total > upcomingMax && !showAllUpcoming && (
         <div className="upcoming-list__view-more">
           <Button

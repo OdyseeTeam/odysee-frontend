@@ -300,8 +300,7 @@ function HomePage(props: Props) {
             } else {
               return (
                 <React.Fragment key={id}>
-                  {!fetchingActiveLivestreams &&
-                    authenticated &&
+                  {authenticated &&
                     subscribedChannelIds.length > 0 &&
                     id === 'FOLLOWING' &&
                     !hideScheduledLivestreams && (
@@ -311,6 +310,7 @@ function HomePage(props: Props) {
                         tileLayout
                         liveUris={cache[id].livestreamUris}
                         limitClaimsPerChannel={2}
+                        loading={fetchingActiveLivestreams}
                       />
                     )}
                   {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}

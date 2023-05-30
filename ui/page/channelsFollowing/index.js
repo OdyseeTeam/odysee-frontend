@@ -2,7 +2,11 @@ import { connect } from 'react-redux';
 
 import * as SETTINGS from 'constants/settings';
 
-import { selectIsFetchingActiveLivestreams, selectFilteredActiveLivestreamUris } from 'redux/selectors/livestream';
+import {
+  selectIsFetchingActiveLivestreams,
+  selectActiveLivestreamByCreatorId,
+  selectViewersById,
+} from 'redux/selectors/livestream';
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import { selectClientSetting } from 'redux/selectors/settings';
 
@@ -18,7 +22,8 @@ const select = (state) => {
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
     fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
     hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
-    activeLivestreamUris: selectFilteredActiveLivestreamUris(state, channelIds),
+    activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
+    livestreamViewersById: selectViewersById(state),
   };
 };
 
