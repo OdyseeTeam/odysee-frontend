@@ -35,6 +35,10 @@ declare type CommentSubmitParams = {
   is_protected?: boolean,
 };
 
+declare type DoCommentListActions = {|
+  resolveCommenters?: boolean,
+|};
+
 // ****************************************************************************
 // Sections
 // ****************************************************************************

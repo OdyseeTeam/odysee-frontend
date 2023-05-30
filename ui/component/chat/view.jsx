@@ -44,7 +44,7 @@ type Props = {
     page: number,
     pageSize: number,
     sortBy: ?number,
-    isLivestream: boolean
+    actions: ?DoCommentListActions
   ) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: ClaimIds) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
@@ -222,7 +222,7 @@ export default function ChatLayout(props: Props) {
 
   React.useEffect(() => {
     if (claimId && contentUnlocked) {
-      doCommentList(uri, undefined, 1, 75, undefined, true);
+      doCommentList(uri, undefined, 1, 75, undefined, { resolveCommenters: false });
       doHyperChatList(uri);
     }
   }, [claimId, contentUnlocked, doCommentList, doHyperChatList, uri]);

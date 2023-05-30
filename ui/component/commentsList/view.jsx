@@ -77,7 +77,7 @@ type DispatchProps = {|
     page: number,
     pageSize: number,
     sortBy: number,
-    isLivestream?: boolean
+    actions: ?DoCommentListActions
   ) => void,
   fetchComment: (CommentId) => void,
   fetchReacts: (Array<CommentId>) => Promise<any>,
@@ -278,7 +278,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
         }
       }
 
-      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false);
+      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, { resolveCommenters: true });
     }
   }, [currentFetchedPage, fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId, uri]);
 

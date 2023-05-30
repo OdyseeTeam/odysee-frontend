@@ -50,7 +50,7 @@ export function doCommentList(
   page: number = 1,
   pageSize: number = 99999,
   sortBy: ?number = SORT_BY.NEWEST,
-  isLivestream?: boolean
+  actions: ?DoCommentListActions = null
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -132,7 +132,7 @@ export function doCommentList(
 
         // Batch resolve comment authors
         const commentChannelIds = comments && comments.map((comment) => comment.channel_id || '');
-        if (commentChannelIds && !isLivestream) {
+        if (commentChannelIds && actions?.resolveCommenters) {
           return dispatch(doResolveClaimIds(commentChannelIds)).finally(() => returnResult());
         }
 

@@ -95,7 +95,7 @@ type DispatchProps = {|
   doClearPlayingUri: () => void,
   doClearPlayingSource: () => void,
   updateComment: (string, string) => void,
-  fetchReplies: (string, string, number, number, number) => void,
+  fetchReplies: (string, string, number, number, number, DoCommentListActions) => void,
   doToast: (ToastParams) => void,
 |};
 
@@ -203,7 +203,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   React.useEffect(() => {
     if (threadLevel === 0 && comment.replies && uri) {
-      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
+      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST, { resolveCommenters: true });
       setShowReplies(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only?
@@ -243,7 +243,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   useEffect(() => {
     if (uri && page > 0) {
-      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
+      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST, { resolveCommenters: true });
     }
   }, [page, uri, commentId, fetchReplies]);
 
