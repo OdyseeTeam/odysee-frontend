@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import type { Node } from 'react';
+import type { HomepageCat } from 'util/buildHomepage';
 import classnames from 'classnames';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -14,14 +15,10 @@ import NotificationBubble from 'component/notificationBubble';
 import DebouncedInput from 'component/common/debounced-input';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
-import { GetLinksData } from 'util/buildHomepage';
+import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
 import MembershipBadge from 'component/membershipBadge';
-
-// TODO: move to selector for memoization
-import { getSortedRowData } from 'page/home/helper';
 
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
@@ -126,7 +123,15 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 // ****************************************************************************
 // ****************************************************************************
 
-type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+// type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
+// prettier-ignore
+type SidebarCat = $Diff<HomepageCat, {
+  pinnedUrls?: Array<string>,
+  pinnedClaimIds?: Array<string>,
+  hideSort?: boolean,
+  hideByDefault?: boolean,
+}>;
 
 type Props = {
   uploadCount: number,
@@ -135,15 +140,13 @@ type Props = {
   isOnFilePage: boolean,
   setSidebarOpen: (boolean) => void,
   // --- select ---
+  sidebarCategories: Array<SidebarCat>,
   lastActiveSubs: ?Array<Subscription>,
   followedTags: Array<Tag>,
   email: ?string,
   purchaseSuccess: boolean,
   unseenCount: number,
   user: ?User,
-  homepageData: any,
-  homepageOrder: HomepageOrder,
-  homepageOrderApplyToSidebar: boolean,
   hasMembership: ?boolean,
   subscriptionUris: Array<string>,
   // --- perform ---
@@ -162,15 +165,13 @@ function SideNavigation(props: Props) {
     setSidebarOpen,
     isMediumScreen,
     isOnFilePage,
+    sidebarCategories: categories,
     lastActiveSubs,
     followedTags,
     email,
     purchaseSuccess,
     unseenCount,
     user,
-    homepageData,
-    homepageOrder,
-    homepageOrderApplyToSidebar,
     hasMembership,
     subscriptionUris,
     doClearClaimSearch,
@@ -181,9 +182,6 @@ function SideNavigation(props: Props) {
     doGetDisplayedSubs,
     doResolveUris,
   } = props;
-
-  const isLargeScreen = useIsLargeScreen();
-  const categories = getSidebarCategories(isLargeScreen);
 
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
@@ -315,24 +313,6 @@ function SideNavigation(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  function getSidebarCategories(isLargeScreen) {
-    const rowData = GetLinksData(homepageData, isLargeScreen);
-    let categories = rowData;
-
-    if (homepageOrderApplyToSidebar) {
-      const sortedRowData: Array<RowDataItem> = getSortedRowData(
-        Boolean(email),
-        hasMembership,
-        homepageOrder,
-        homepageData,
-        rowData
-      );
-      categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
-    }
-
-    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, hideSort, ...theRest }) => theRest);
-  }
-
   function getLink(props: SideNavLink) {
     const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
     const { title, icon, extra } = passedProps;
@@ -356,6 +336,22 @@ function SideNavigation(props: Props) {
           activeClass="navigation-link--active"
         />
         {extra && extra}
+      </li>
+    );
+  }
+
+  function getCategoryLink(props: SidebarCat) {
+    const { title, route, link, icon } = props;
+    return (
+      <li key={route || link || title}>
+        <Button
+          icon={icon}
+          navigate={route || link}
+          label={__(title)}
+          title={__(title)}
+          className="navigation-link"
+          activeClass="navigation-link--active"
+        />
       </li>
     );
   }
@@ -673,8 +669,7 @@ function SideNavigation(props: Props) {
                       actionTooltip={__('Sort and customize your homepage')}
                     />
                   )}
-                  {/* $FlowFixMe: GetLinksData type needs an update */}
-                  {categories.map((linkProps) => getLink(linkProps))}
+                  {categories.map((linkProps) => getCategoryLink(linkProps))}
                 </>
               )}
             </ul>
