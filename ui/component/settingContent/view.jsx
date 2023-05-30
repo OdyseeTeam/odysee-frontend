@@ -24,7 +24,6 @@ type Props = {
   hideMembersOnlyContent: boolean,
   hideReposts: ?boolean,
   showNsfw: boolean,
-  hideScheduledLivestreams: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
@@ -39,7 +38,6 @@ export default function SettingContent(props: Props) {
     hideMembersOnlyContent,
     hideReposts,
     showNsfw,
-    hideScheduledLivestreams,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
@@ -77,15 +75,6 @@ export default function SettingContent(props: Props) {
                   }
                   setClientSetting(SETTINGS.HIDE_REPOSTS, !hideReposts);
                 }}
-              />
-            </SettingsRow>
-
-            <SettingsRow title={__('Hide Scheduled Livestreams')} subtitle={__(HELP.HIDE_SCHEDULED_LIVESTREAMS)}>
-              <FormField
-                type="checkbox"
-                name="hide_scheduled_livestreams"
-                onChange={() => setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, !hideScheduledLivestreams)}
-                checked={hideScheduledLivestreams}
               />
             </SettingsRow>
 
