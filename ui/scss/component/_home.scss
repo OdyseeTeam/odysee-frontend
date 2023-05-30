@@ -42,7 +42,6 @@
 .upcoming-grid {
   min-height: 342px;
   height: 342px;
-  margin-bottom: var(--spacing-l) !important;
   transition: min-height 0.2s, height 0.2s;
   .button__content {
     &:hover {
@@ -58,7 +57,7 @@
     }
   }
   .claim-grid__header {
-    // margin-bottom:0;
+    margin-top: 0;
   }
   .claim-grid {
     transition: opacity 0.2s;
@@ -68,6 +67,13 @@
   @media (max-width: $breakpoint-small) {
     min-height: unset;
     height: unset;
+    margin-bottom: var(--spacing-xl) !important;
+  }
+}
+
+.homePage-wrapper {
+  .upcoming-grid {
+    margin-bottom: var(--spacing-l) !important;
   }
 }
 
