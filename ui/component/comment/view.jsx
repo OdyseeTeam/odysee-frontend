@@ -203,7 +203,10 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   React.useEffect(() => {
     if (threadLevel === 0 && comment.replies && uri) {
-      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST, { resolveCommenters: true });
+      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST, {
+        resolveCommenters: true,
+        fetchReactions: true,
+      });
       setShowReplies(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only?
@@ -243,7 +246,10 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   useEffect(() => {
     if (uri && page > 0) {
-      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST, { resolveCommenters: true });
+      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST, {
+        resolveCommenters: true,
+        fetchReactions: true,
+      });
     }
   }, [page, uri, commentId, fetchReplies]);
 

@@ -1,4 +1,5 @@
 // @flow
+import { ENABLE_COMMENT_REACTIONS } from 'config';
 import * as ACTIONS from 'constants/action_types';
 import * as REACTION_TYPES from 'constants/reactions';
 import * as PAGES from 'constants/pages';
@@ -123,6 +124,21 @@ export function doCommentList(
               .then(() => result)
               .catch((err) => {
                 assert(false, 'doCommentList: ignoring resolve errors', err);
+                return result;
+              });
+          }
+        }
+        return result;
+      })
+      .then((result: CommentListResponse) => {
+        if (actions?.fetchReactions && ENABLE_COMMENT_REACTIONS) {
+          const { items: comments } = result;
+          if (comments) {
+            const commentIds = comments.map((c) => c.comment_id || '');
+            return dispatch(doCommentReactList(commentIds))
+              .then(() => result)
+              .catch((err) => {
+                assert(false, 'doCommentList: ignoring reaction errors', err);
                 return result;
               });
           }

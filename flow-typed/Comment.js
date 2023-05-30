@@ -37,6 +37,7 @@ declare type CommentSubmitParams = {
 
 declare type DoCommentListActions = {|
   resolveCommenters?: boolean,
+  fetchReactions?: boolean,
 |};
 
 // ****************************************************************************

@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import {
   selectClaimForUri,
   selectClaimIsMine,
-  selectFetchingMyChannels,
   selectScheduledStateForUri,
   selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
@@ -14,19 +13,14 @@ import {
   selectTopLevelTotalPagesForUri,
   selectIsFetchingComments,
   selectIsFetchingTopLevelComments,
-  selectIsFetchingReacts,
   selectTotalCommentsCountForUri,
-  selectOthersReacts,
-  selectMyReacts,
-  selectCommentIdsForUri,
   selectCommentsEnabledSettingForChannelId,
   selectPinnedCommentsForUri,
   selectCommentForCommentId,
   selectCommentAncestorsForId,
 } from 'redux/selectors/comments';
-import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
+import { doCommentReset, doCommentList, doCommentById } from 'redux/actions/comments';
 import { doPopOutInlinePlayer } from 'redux/actions/content';
-import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { getChannelIdFromClaim } from 'util/claim';
 import {
   doFetchOdyseeMembershipForChannelIds,
@@ -40,28 +34,20 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
 
-  const activeChannelClaim = selectActiveChannelClaim(state);
   const threadComment = selectCommentForCommentId(state, threadCommentId);
-  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
   return {
-    activeChannelId,
-    allCommentIds: selectCommentIdsForUri(state, uri),
     channelId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
     claimId: claim && claim.claim_id,
     claimIsMine: selectClaimIsMine(state, claim),
-    fetchingChannels: selectFetchingMyChannels(state),
     // $FlowFixMe
     isAChannelMember: selectUserHasValidMembershipForCreatorId(state, channelId),
     isFetchingComments: selectIsFetchingComments(state),
-    isFetchingReacts: selectIsFetchingReacts(state),
     isFetchingTopLevelComments: selectIsFetchingTopLevelComments(state),
     linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
     // $FlowFixMe
     commentsEnabledSetting: selectCommentsEnabledSettingForChannelId(state, channelId),
-    myReactsByCommentId: selectMyReacts(state),
-    othersReactsById: selectOthersReacts(state),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
     threadComment,
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
@@ -75,7 +61,6 @@ const select = (state, props) => {
 const perform = {
   fetchTopLevelComments: doCommentList,
   fetchComment: doCommentById,
-  fetchReacts: doCommentReactList,
   resetComments: doCommentReset,
   doFetchOdyseeMembershipForChannelIds,
   doFetchChannelMembershipsForChannelIds,

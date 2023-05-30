@@ -9,7 +9,6 @@ import { ENABLE_COMMENT_REACTIONS } from 'config';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import { getCommentsListTitle } from 'util/comments';
 import * as ICONS from 'constants/icons';
-import * as REACTION_TYPES from 'constants/reactions';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import classnames from 'classnames';
@@ -48,23 +47,17 @@ export type Props = {|
 type StateProps = {|
   topLevelComments: Array<Comment>,
   pinnedComments: Array<Comment>,
-  allCommentIds: Array<CommentId>,
   threadComment: ?Comment, // comment object for 'threadCommentId'
   totalComments: number,
   topLevelTotalPages: number,
   threadCommentAncestors: ?Array<string>,
   linkedCommentAncestors: ?Array<string>,
-  myReactsByCommentId: ?{ [string]: Array<string> }, // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
-  othersReactsById: ?{ [string]: { [REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]: number } },
   commentsEnabledSetting: ?boolean,
   claimId: ?string,
   channelId: ?string,
   claimIsMine: ?boolean,
-  activeChannelId: ?string,
   isFetchingComments: boolean,
   isFetchingTopLevelComments: boolean,
-  isFetchingReacts: boolean,
-  fetchingChannels: boolean,
   chatCommentsRestrictedToChannelMembers: boolean,
   isAChannelMember: boolean,
   scheduledState: ClaimScheduledState,
@@ -80,7 +73,6 @@ type DispatchProps = {|
     actions: ?DoCommentListActions
   ) => void,
   fetchComment: (CommentId) => void,
-  fetchReacts: (Array<CommentId>) => Promise<any>,
   resetComments: (ClaimId) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
@@ -93,7 +85,6 @@ type DispatchProps = {|
 
 export default function CommentList(props: Props & StateProps & DispatchProps) {
   const {
-    allCommentIds,
     uri,
     pinnedComments,
     topLevelComments,
@@ -103,13 +94,8 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     claimIsMine,
     isFetchingComments,
     isFetchingTopLevelComments,
-    isFetchingReacts,
     linkedCommentId,
     totalComments,
-    fetchingChannels,
-    myReactsByCommentId,
-    othersReactsById,
-    activeChannelId,
     commentsEnabledSetting,
     commentsAreExpanded,
     threadCommentId,
@@ -119,7 +105,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     linkedCommentAncestors,
     fetchTopLevelComments,
     fetchComment,
-    fetchReacts,
     resetComments,
     doFetchOdyseeMembershipForChannelIds,
     doPopOutInlinePlayer,
@@ -150,7 +135,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
   const [debouncedUri, setDebouncedUri] = React.useState();
 
-  const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
   const moreBelow = page < topLevelTotalPages;
   const title = getCommentsListTitle(totalComments);
   const threadDepthLevel = isMobile ? 3 : 10;
@@ -163,12 +147,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     });
   }
   const threadTopLevelComment = threadCommentAncestors && threadCommentAncestors[threadCommentAncestors.length - 1];
-
-  // Display comments immediately if not fetching reactions
-  // If not, wait to show comments until reactions are fetched
-  const [readyToDisplayComments, setReadyToDisplayComments] = React.useState(
-    Boolean(othersReactsById) || !ENABLE_COMMENT_REACTIONS
-  );
 
   // get commenter claim ids for checking premium status
   const commenterClaimIds = React.useMemo(() => {
@@ -278,7 +256,10 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
         }
       }
 
-      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, { resolveCommenters: true });
+      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, {
+        resolveCommenters: true,
+        fetchReactions: true,
+      });
     }
   }, [currentFetchedPage, fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId, uri]);
 
@@ -288,39 +269,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [threadCommentId]);
-
-  // Fetch reacts
-  useEffect(() => {
-    if (totalFetchedComments > 0 && ENABLE_COMMENT_REACTIONS && !fetchingChannels && !isFetchingReacts) {
-      let idsForReactionFetch;
-
-      if (!othersReactsById || !myReactsByCommentId) {
-        idsForReactionFetch = allCommentIds;
-      } else {
-        idsForReactionFetch = allCommentIds.filter((commentId) => {
-          const key = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
-          return !othersReactsById[key] || (activeChannelId && !myReactsByCommentId[key]);
-        });
-      }
-
-      if (idsForReactionFetch.length !== 0) {
-        fetchReacts(idsForReactionFetch)
-          .then(() => {
-            setReadyToDisplayComments(true);
-          })
-          .catch(() => setReadyToDisplayComments(true));
-      }
-    }
-  }, [
-    activeChannelId,
-    allCommentIds,
-    fetchReacts,
-    fetchingChannels,
-    isFetchingReacts,
-    myReactsByCommentId,
-    othersReactsById,
-    totalFetchedComments,
-  ]);
 
   // Scroll to linked-comment
   useEffect(() => {
@@ -368,7 +316,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       setInitialPageFetch(true);
     }
 
-    if (hasDefaultExpansion && !isFetchingComments && readyToDisplayComments && moreBelow) {
+    if (hasDefaultExpansion && !isFetchingComments && moreBelow) {
       const commentsInDrawer = Boolean(document.querySelector('.MuiDrawer-root .card--enable-overflow'));
       const scrollingElement = commentsInDrawer ? document.querySelector('.card--enable-overflow') : window;
 
@@ -386,7 +334,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     isMobile,
     moreBelow,
     page,
-    readyToDisplayComments,
     topLevelTotalPages,
     uri,
   ]);
@@ -452,19 +399,15 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
               'comments--contracted': isMediumScreen && !expandedComments && totalComments > 1,
             })}
           >
-            {readyToDisplayComments && (
-              <>
-                {pinnedComments &&
-                  !threadCommentId &&
-                  pinnedComments.map((c) => (
-                    <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
-                  ))}
+            {pinnedComments &&
+              !threadCommentId &&
+              pinnedComments.map((c) => (
+                <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+              ))}
 
-                {topLevelComments.map((c) => (
-                  <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
-                ))}
-              </>
-            )}
+            {topLevelComments.map((c) => (
+              <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+            ))}
           </ul>
 
           {!hasDefaultExpansion && (
@@ -498,9 +441,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
             </div>
           )}
 
-          {(threadCommentId
-            ? !readyToDisplayComments
-            : isFetchingTopLevelComments || (hasDefaultExpansion && moreBelow)) && (
+          {(isFetchingTopLevelComments || (hasDefaultExpansion && moreBelow)) && (
             <div className="main--empty" ref={spinnerRef}>
               <Spinner type="small" />
             </div>
