@@ -1,6 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-import { handleActions } from 'util/redux-utils';
+import { handleActions, makeTrackedObj } from 'util/redux-utils';
 import { BLOCK_LEVEL } from 'constants/comment';
 import { isURIEqual } from 'util/lbryURI';
 
@@ -265,7 +265,7 @@ export default handleActions(
 
       const commentById = Object.assign({}, state.commentById);
       const byId = Object.assign({}, state.byId);
-      const topLevelCommentsById = Object.assign({}, state.topLevelCommentsById); // was byId {ClaimId -> [commentIds...]}
+      const topLevelCommentsById = makeTrackedObj(state.topLevelCommentsById);
       const topLevelTotalCommentsById = Object.assign({}, state.topLevelTotalCommentsById);
       const topLevelTotalPagesById = Object.assign({}, state.topLevelTotalPagesById);
       const repliesByParentId = Object.assign({}, state.repliesByParentId);
@@ -326,7 +326,7 @@ export default handleActions(
 
       return {
         ...state,
-        topLevelCommentsById,
+        topLevelCommentsById: topLevelCommentsById.resolve(),
         topLevelTotalCommentsById,
         topLevelTotalPagesById,
         repliesByParentId,
