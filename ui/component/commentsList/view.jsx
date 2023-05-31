@@ -7,6 +7,7 @@ import {
 } from 'constants/comment';
 import { ENABLE_COMMENT_REACTIONS } from 'config';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import useTraceRenders from 'effects/use-trace-renders';
 import { getCommentsListTitle } from 'util/comments';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -113,6 +114,8 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
     isAChannelMember,
     scheduledState,
   } = props;
+
+  useTraceRenders(props, 'CL');
 
   const threadRedirect = React.useRef(false);
 
