@@ -1,6 +1,7 @@
 // @flow
 import { ENABLE_COMMENT_REACTIONS } from 'config';
 import * as ACTIONS from 'constants/action_types';
+import { MS } from 'constants/date-time';
 import * as REACTION_TYPES from 'constants/reactions';
 import * as PAGES from 'constants/pages';
 import { SORT_BY, BLOCK_LEVEL } from 'constants/comment';
@@ -482,7 +483,7 @@ export function doCommentReactList(commentIds: Array<string>) {
     };
 
     if (activeChannelClaim) {
-      const signatureData = await channelSignName(activeChannelClaim.claim_id, activeChannelClaim.name);
+      const signatureData = await channelSignName(activeChannelClaim.claim_id, activeChannelClaim.name, true);
       if (!signatureData) {
         return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
       }
@@ -1069,20 +1070,57 @@ export function doCommentUpdate(comment_id: string, comment: string) {
   }
 }
 
-async function channelSignName(channelClaimId: string, channelName: string) {
-  let signedObject;
+// ****************************************************************************
+// ****************************************************************************
+// If this method is valid, can probably move to Lbry class.
 
+type ChannelSignCache = {
+  [ChannelId]: {|
+    [rawData: string]: {|
+      signedObject: ChannelSignResponse,
+      timestamp: number,
+    |},
+  |},
+};
+
+const gChannelSignCache: ChannelSignCache = {};
+
+const isCacheValid = (channelId: ChannelId, data: string) => {
+  const cached = gChannelSignCache[channelId] && gChannelSignCache[channelId][data];
+  return cached && Date.now() - cached.timestamp < 5 * MS.MINUTE;
+};
+
+// ****************************************************************************
+// ****************************************************************************
+
+async function channelSignName(channelClaimId: string, channelName: string, useCache: boolean = false) {
   try {
-    signedObject = await Lbry.channel_sign({
-      channel_id: channelClaimId,
-      hexdata: toHex(channelName),
-    });
+    let signedObject: ?ChannelSignResponse;
 
-    signedObject['claim_id'] = channelClaimId;
-    signedObject['name'] = channelName;
+    if (useCache && isCacheValid(channelClaimId, channelName)) {
+      // --- return cached ---
+      signedObject = gChannelSignCache[channelClaimId][channelName].signedObject;
+    } else {
+      // --- sign ---
+      signedObject = await Lbry.channel_sign({
+        channel_id: channelClaimId,
+        hexdata: toHex(channelName),
+      });
+      // -- store in cache ---
+      gChannelSignCache[channelClaimId] = {
+        ...gChannelSignCache[channelClaimId],
+        [channelName]: {
+          signedObject: signedObject,
+          timestamp: Date.now(),
+        },
+      };
+    }
+
+    // --- add additional data (?)
+    return { ...signedObject, claim_id: channelClaimId, name: channelName };
   } catch (e) {}
 
-  return signedObject;
+  return undefined;
 }
 
 async function channelSignData(channelClaimId: string, data: string) {
