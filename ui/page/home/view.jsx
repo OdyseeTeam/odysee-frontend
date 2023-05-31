@@ -181,8 +181,22 @@ function HomePage(props: Props) {
       } else return null;
     } else if (id === 'PORTALS') {
       return <Portals key={id} homepageData={homepageData} authenticated={authenticated} />;
+    } else if (id === 'UPCOMING') {
+      return (
+        <>
+          <Meme meme={homepageMeme} />
+          <UpcomingClaims
+            name="homepage_following"
+            channelIds={subscribedChannelIds}
+            tileLayout
+            liveUris={cache[id].livestreamUris}
+            limitClaimsPerChannel={2}
+            loading={fetchingActiveLivestreams}
+            showHideSetting={false}
+          />
+        </>
+      );
     }
-    console.log(id);
 
     const tilePlaceholder = (
       <ul className="claim-grid">
@@ -216,9 +230,11 @@ function HomePage(props: Props) {
         return title === 'Recent From Following' ? 'Following' : title;
       }
 
+      console.log('cache.topGrid: ', cache.topGrid);
+
       return (
         <>
-          {index === cache.topGrid && id !== 'FOLLOWING' && <Meme meme={homepageMeme} />}
+          {index === cache.topGrid && <Meme meme={homepageMeme} />}
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
@@ -267,8 +283,6 @@ function HomePage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
-  console.log('sortedRowData: ', sortedRowData);
-
   return (
     <Page className="homePage-wrapper" fullWidthPage>
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
@@ -298,24 +312,7 @@ function HomePage(props: Props) {
       {homepageFetched &&
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-            if (id !== 'UPCOMING') {
-              return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
-            } else {
-              return (
-                <React.Fragment key={id}>
-                  {index === cache.topGrid && <Meme meme={homepageMeme} />}
-                  <UpcomingClaims
-                    name="homepage_following"
-                    channelIds={subscribedChannelIds}
-                    tileLayout
-                    liveUris={cache[id].livestreamUris}
-                    limitClaimsPerChannel={2}
-                    loading={fetchingActiveLivestreams}
-                    showHideSetting={false}
-                  />
-                </React.Fragment>
-              );
-            }
+            return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
           }
         )}
     </Page>

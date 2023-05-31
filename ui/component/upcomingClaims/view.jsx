@@ -81,7 +81,6 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
 
   const hideScheduled = (e) => {
     setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, e, true);
-    // doShowSnackBar(__('Scheduled streams hidden, you can re-enable them in settings.'));
   };
 
   const Header = () => {

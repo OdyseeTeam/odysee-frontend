@@ -56,7 +56,7 @@ export function getSortedRowData(
         } else if (key === 'UPCOMING') {
           let followingIndex = sortedRowData.indexOf('FOLLOWING');
           if (followingIndex !== -1) sortedRowData.splice(followingIndex, 0, { id: 'UPCOMING', title: undefined });
-          else sortedRowData.push({ id: 'UPCOMING', title: undefined });
+          else sortedRowData.push({ id: 'UPCOMING', title: 'Upcoming' });
         }
       });
 

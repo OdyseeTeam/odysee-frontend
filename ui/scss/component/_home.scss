@@ -43,16 +43,9 @@
 .upcoming-list {
   transition: min-height 0.2s, height 0.2s;
   .button__content {
+    width: 100%;
     &:hover {
-      .claim-grid__title {
-        color: unset;
-      }
-      .icon__wrapper {
-        background-color: var(--color-text);
-        .icon {
-          stroke: var(--color-background);
-        }
-      }
+      cursor: pointer;
     }
   }
   .claim-grid,
@@ -105,20 +98,21 @@
 .upcoming-grid__visibility {
   display: flex;
   align-items: center;
-  background-color: var(--color-text);
+  background-color: var(--color-header-button);
   border-radius: var(--border-radius);
-  padding: 0 var(--spacing-xxs);
-  height: var(--spacing-l);
+  padding: 0 var(--spacing-m);
+  height: var(--height-button);
+  margin-left: auto;
 
   .icon {
-    stroke: var(--color-background);
+    stroke: var(--color-text);
     margin-right: var(--spacing-xs);
   }
 
   span {
     font-size: var(--font-small);
     font-weight: var(--font-weight-bold);
-    color: var(--color-background);
+    color: var(--color-text);
     margin-top: 2px;
   }
   &:hover {
