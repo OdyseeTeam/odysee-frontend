@@ -230,15 +230,16 @@ function HomePage(props: Props) {
         return title === 'Recent From Following' ? 'Following' : title;
       }
 
-      console.log('cache.topGrid: ', cache.topGrid);
-
       return (
         <>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {index === cache.topGrid && <CustomizeHomepage />}
+              {index === cache.topGrid ||
+                (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING' && (
+                  <CustomizeHomepage />
+                ))}
             </div>
           )}
         </>
