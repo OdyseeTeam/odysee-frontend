@@ -73,6 +73,15 @@ export default function CommentReactions(props: Props) {
     }
     return count;
   };
+
+  const getCountStrForReact = (type) => {
+    if (othersReacts === undefined || myReacts === undefined) {
+      return ' ';
+    }
+
+    return getCountForReact(type);
+  };
+
   const shouldHide = !canCreatorReact && hideCreatorLike;
   const creatorLiked = getCountForReact(REACTION_TYPES.CREATOR_LIKE) > 0;
   const likeIcon = SIMPLE_SITE
@@ -118,7 +127,7 @@ export default function CommentReactions(props: Props) {
           'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.LIKE),
         })}
         onClick={handleCommentLike}
-        label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.LIKE)}</span>}
+        label={<span className="comment__reaction-count">{getCountStrForReact(REACTION_TYPES.LIKE)}</span>}
       />
       <Button
         requiresAuth={IS_WEB}
@@ -129,7 +138,7 @@ export default function CommentReactions(props: Props) {
           'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.DISLIKE),
         })}
         onClick={handleCommentDislike}
-        label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.DISLIKE)}</span>}
+        label={<span className="comment__reaction-count">{getCountStrForReact(REACTION_TYPES.DISLIKE)}</span>}
       />
 
       {!shouldHide && ENABLE_CREATOR_REACTIONS && (canCreatorReact || creatorLiked) && (

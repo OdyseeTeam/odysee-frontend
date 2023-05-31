@@ -135,7 +135,7 @@ export function doCommentList(
           const { items: comments } = result;
           if (comments) {
             const commentIds = comments.map((c) => c.comment_id || '');
-            return dispatch(doCommentReactList(commentIds))
+            return dispatch(doCommentReactListThrottled(commentIds))
               .then(() => result)
               .catch((err) => {
                 assert(false, 'doCommentList: ignoring reaction errors', err);
@@ -512,6 +512,32 @@ export function doCommentReactList(commentIds: Array<string>) {
           data: error,
         });
       });
+  };
+}
+
+let gCommentIds = [];
+let gTimeoutRef = null;
+let gLastExecMs = 0;
+
+export function doCommentReactListThrottled(commentIds: Array<CommentId>, delayMs: number = 500) {
+  return async (dispatch: Dispatch) => {
+    const nowMs = Date.now();
+    const deltaMs = nowMs - gLastExecMs;
+    gLastExecMs = nowMs;
+
+    if (deltaMs >= delayMs) {
+      // --- First call, or hasn't been called for a while ---
+      dispatch(doCommentReactList(commentIds));
+      gCommentIds = [];
+    } else {
+      // --- Throttle repeated calls ---
+      clearTimeout(gTimeoutRef);
+      gCommentIds = gCommentIds.concat(commentIds);
+      gTimeoutRef = setTimeout(() => {
+        dispatch(doCommentReactList(gCommentIds));
+        gCommentIds = [];
+      }, delayMs - deltaMs);
+    }
   };
 }
 
