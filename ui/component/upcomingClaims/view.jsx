@@ -34,7 +34,6 @@ type StateProps = {|
 type DispatchProps = {|
   doClaimSearch: (ClaimSearchOptions) => void,
   setClientSetting: (string, boolean | string | number, boolean) => void,
-  // doShowSnackBar: (string) => void,
 |};
 
 // ****************************************************************************
@@ -52,7 +51,6 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
     scheduledUris,
     doClaimSearch,
     setClientSetting,
-    // doShowSnackBar,
     showHideSetting = true,
     hideUpcoming,
   } = props;
@@ -88,7 +86,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
 
   const Header = () => {
     return (
-      <div className="claim-grid__header">
+      <div className="claim-grid__header" onClick={() => hideScheduled(!hideUpcoming)}>
         <div className="button__content">
           <span className="icon__wrapper">
             <Icon icon={ICONS.TIME} />
@@ -158,9 +156,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
             button="link"
             iconRight={ICONS.ARROW_RIGHT}
             className="claim-grid__title--secondary"
-            onClick={() => {
-              setShowAllUpcoming(true);
-            }}
+            onClick={() => setShowAllUpcoming(true)}
           />
         </div>
       )}

@@ -182,6 +182,7 @@ function HomePage(props: Props) {
     } else if (id === 'PORTALS') {
       return <Portals key={id} homepageData={homepageData} authenticated={authenticated} />;
     }
+    console.log(id);
 
     const tilePlaceholder = (
       <ul className="claim-grid">
@@ -266,6 +267,8 @@ function HomePage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
+  console.log('sortedRowData: ', sortedRowData);
+
   return (
     <Page className="homePage-wrapper" fullWidthPage>
       {sortedRowData.length === 0 && authenticated && homepageFetched && (
@@ -295,25 +298,21 @@ function HomePage(props: Props) {
       {homepageFetched &&
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-            if (id !== 'FOLLOWING') {
+            if (id !== 'UPCOMING') {
               return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
             } else {
               return (
                 <React.Fragment key={id}>
-                  {authenticated && subscribedChannelIds.length > 0 && id === 'FOLLOWING' && (
-                    <>
-                      {index === cache.topGrid && <Meme meme={homepageMeme} />}
-                      <UpcomingClaims
-                        name="homepage_following"
-                        channelIds={subscribedChannelIds}
-                        tileLayout
-                        liveUris={cache[id].livestreamUris}
-                        limitClaimsPerChannel={2}
-                        loading={fetchingActiveLivestreams}
-                      />
-                    </>
-                  )}
-                  {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
+                  {index === cache.topGrid && <Meme meme={homepageMeme} />}
+                  <UpcomingClaims
+                    name="homepage_following"
+                    channelIds={subscribedChannelIds}
+                    tileLayout
+                    liveUris={cache[id].livestreamUris}
+                    limitClaimsPerChannel={2}
+                    loading={fetchingActiveLivestreams}
+                    showHideSetting={false}
+                  />
                 </React.Fragment>
               );
             }

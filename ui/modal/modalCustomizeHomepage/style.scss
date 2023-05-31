@@ -62,11 +62,30 @@
   }
 
   .homepage-sort__entry--special {
-    background-color: rgba(var(--color-primary-dynamic), 0.8);
+    background-color: rgba(var(--color-primary-dynamic), 0.7);
     color: var(--color-primary-contrast);
     .checkbox {
-      padding-top: 5px;
-      padding-bottom: 6px;
+      label {
+        padding-top: 6px;
+        padding-bottom: 5px;
+        align-self: center;
+        &:before {
+          margin-top: -1px;
+        }
+        &:after {
+          margin-top: 4px;
+        }
+      }
+      &:hover {
+        label {
+          &:before {
+            box-shadow: unset;
+          }
+          &:after {
+            // margin-top:4px;
+          }
+        }
+      }
     }
     label {
       color: var(--color-primary-contrast);

@@ -14,6 +14,7 @@ const Lazy = {
 
 const NON_CATEGORY = Object.freeze({
   BANNER: { label: 'Banner' },
+  UPCOMING: { label: 'Upcoming' },
   FOLLOWING: { label: 'Following' },
   PORTALS: { label: 'Portals' },
   FYP: { label: 'Recommended' },
@@ -62,6 +63,10 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
           activeOrder.unshift(key);
         } else if (key === 'PORTALS') {
           activeOrder.splice(2, 0, key);
+        } else if (key === 'UPCOMING') {
+          let followingIndex = activeOrder.indexOf('FOLLOWING');
+          if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
+          else activeOrder.push(key);
         } else {
           activeOrder.push(key);
         }
@@ -211,7 +216,9 @@ export default function HomepageSort(props: Props) {
               </div>
             )}
             {bin.list.map((item, index) => (
-              <>{item !== 'BANNER' && <DraggableItem key={item} item={item} index={index} />}</>
+              <React.Fragment key={index}>
+                {item !== 'BANNER' && <DraggableItem key={item} item={item} index={index} />}
+              </React.Fragment>
             ))}
             {provided.placeholder}
           </div>
