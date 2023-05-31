@@ -73,6 +73,22 @@
   .upcoming-grid {
     margin-bottom: var(--spacing-l) !important;
   }
+  .upcoming-list {
+    .button__content {
+      &:hover {
+        cursor: unset;
+        .claim-grid__title {
+          color: var(--color-text);
+        }
+        .icon__wrapper {
+          background-color: var(--color-text);
+          .icon {
+            stroke: var(--color-background);
+          }
+        }
+      }
+    }
+  }
 }
 
 .upcoming-grid--extended {

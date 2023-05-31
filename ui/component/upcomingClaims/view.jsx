@@ -85,7 +85,12 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
 
   const Header = () => {
     return (
-      <div className="claim-grid__header" onClick={() => hideScheduled(!hideUpcoming)}>
+      <div
+        className="claim-grid__header"
+        onClick={() => {
+          showHideSetting && hideScheduled(!hideUpcoming);
+        }}
+      >
         <div className="button__content">
           <span className="icon__wrapper">
             <Icon icon={ICONS.TIME} />
