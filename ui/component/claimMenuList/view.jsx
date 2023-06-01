@@ -338,14 +338,16 @@ function ClaimMenuList(props: Props) {
     };
 
     const ToggleLastUsedCollectionMenuItem = () => {
-      return lastUsedCollection && lastUsedCollectionIsNotBuiltin && !hasClaimInLastUsedCollection ? (
+      return lastUsedCollection && lastUsedCollectionIsNotBuiltin ? (
         <MenuItem
           className="comment__menu-option"
           onSelect={() => handleAdd(hasClaimInLastUsedCollection, lastUsedCollection.name, lastUsedCollection.id)}
         >
           <div className="menu__link">
-            {<Icon aria-hidden icon={ICONS.ADD} />}
-            {__('Add to %collection%', { collection: lastUsedCollection.name })}
+            {!hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.ADD} />}
+            {hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.DELETE} />}
+            {!hasClaimInLastUsedCollection && __('Add to %collection%', { collection: lastUsedCollection.name })}
+            {hasClaimInLastUsedCollection && __('In %collection%', { collection: lastUsedCollection.name })}
           </div>
         </MenuItem>
       ) : null;
