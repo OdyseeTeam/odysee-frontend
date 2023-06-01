@@ -114,7 +114,6 @@ function ContentTab(props: Props) {
     setSearchQuery('');
   }, [claimId]);
 
-  console.log('scheduledChanIds: ', scheduledChanIds);
   return (
     <Fragment>
       <GeoRestrictionInfo uri={uri} />
