@@ -7,9 +7,13 @@ import { toCapitalCase } from 'util/string';
 import { CUSTOM_HOMEPAGE } from 'config';
 
 export type HomepageCat = {
+  id?: string,
   name: string,
   icon: string,
   label: string,
+  title: string,
+  link: string,
+  route: ?string,
   channelIds?: Array<string>,
   daysOfContent?: number,
   channelLimit?: string,

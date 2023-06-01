@@ -137,9 +137,6 @@ function HomePage(props: Props) {
     return cache;
   }, [homepageFetched, sortedRowData, subscribedChannelIds, al, lv]);
 
-  console.log('cache: ', cache.topGrid);
-  console.log('sortedRowData: ', sortedRowData.length - 1);
-
   type SectionHeaderProps = {
     title: string,
     navigate?: string,

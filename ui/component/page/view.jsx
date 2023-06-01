@@ -67,7 +67,9 @@ function Page(props: Props) {
     renderMode === 'video' || renderMode === 'audio' || renderMode === 'unsupported' ? videoTheaterMode : false;
   const isMediumScreen = useIsMediumScreen();
   const isMobile = useIsMobile();
+
   const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', false);
+  const openSidebar = React.useCallback((open) => setSidebarOpen(open), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const urlPath = `lbry://${(pathname + hash).slice(1).replace(/:/g, '#')}`;
   let isOnFilePage = false;
@@ -96,7 +98,7 @@ function Page(props: Props) {
           backout={backout}
           sidebarOpen={sidebarOpen}
           isAbsoluteSideNavHidden={isAbsoluteSideNavHidden}
-          setSidebarOpen={setSidebarOpen}
+          setSidebarOpen={openSidebar}
         />
       )}
 
@@ -115,7 +117,7 @@ function Page(props: Props) {
             !noSideNavigation && (
               <SideNavigation
                 sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
+                setSidebarOpen={openSidebar}
                 isMediumScreen={isMediumScreen}
                 isOnFilePage={isOnFilePage}
               />

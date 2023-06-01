@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import type { Node } from 'react';
+import type { HomepageCat } from 'util/buildHomepage';
 import classnames from 'classnames';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -14,19 +15,14 @@ import NotificationBubble from 'component/notificationBubble';
 import DebouncedInput from 'component/common/debounced-input';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
-import { GetLinksData } from 'util/buildHomepage';
+import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
 import MembershipBadge from 'component/membershipBadge';
 
-// TODO: move to selector for memoization
-import { getSortedRowData } from 'page/home/helper';
-
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
 type SideNavLink = {
-  id?: string,
   title: string,
   icon: string,
   link?: string,
@@ -127,7 +123,16 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 // ****************************************************************************
 // ****************************************************************************
 
-type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+// type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
+// prettier-ignore
+type SidebarCat = $Diff<HomepageCat, {
+  id?: string,
+  pinnedUrls?: Array<string>,
+  pinnedClaimIds?: Array<string>,
+  hideSort?: boolean,
+  hideByDefault?: boolean,
+}>;
 
 type Props = {
   uploadCount: number,
@@ -136,25 +141,22 @@ type Props = {
   isOnFilePage: boolean,
   setSidebarOpen: (boolean) => void,
   // --- select ---
-  subscriptions: Array<Subscription>,
+  sidebarCategories: Array<SidebarCat>,
   lastActiveSubs: ?Array<Subscription>,
   followedTags: Array<Tag>,
   email: ?string,
   purchaseSuccess: boolean,
   unseenCount: number,
   user: ?User,
-  homepageData: any,
-  homepageOrder: HomepageOrder,
-  homepageOrderApplyToSidebar: boolean,
   hasMembership: ?boolean,
   subscriptionUris: Array<string>,
-  claimsByUri: { [string]: Claim },
   // --- perform ---
   doClearClaimSearch: () => void,
   doSignOut: () => void,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
   doClearPurchasedUriSuccess: () => void,
   doOpenModal: (id: string, ?{}) => void,
+  doGetDisplayedSubs: (filter: string) => Promise<Array<Subscription>>,
   doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
 };
 
@@ -164,29 +166,23 @@ function SideNavigation(props: Props) {
     setSidebarOpen,
     isMediumScreen,
     isOnFilePage,
-    subscriptions,
+    sidebarCategories: categories,
     lastActiveSubs,
     followedTags,
     email,
     purchaseSuccess,
     unseenCount,
     user,
-    homepageData,
-    homepageOrder,
-    homepageOrderApplyToSidebar,
     hasMembership,
     subscriptionUris,
-    claimsByUri,
     doClearClaimSearch,
     doSignOut,
     doFetchLastActiveSubs,
     doClearPurchasedUriSuccess,
     doOpenModal,
+    doGetDisplayedSubs,
     doResolveUris,
   } = props;
-
-  const isLargeScreen = useIsLargeScreen();
-  const categories = getSidebarCategories(isLargeScreen);
 
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
@@ -307,6 +303,8 @@ function SideNavigation(props: Props) {
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
 
   const [subscriptionFilter, setSubscriptionFilter] = React.useState('');
+  const [displayedSubs, setDisplayedSubs] = React.useState([]);
+  const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptionUris?.length > 0;
 
   let displayedFollowedTags = followedTags;
   if (showTagSection && followedTags.length > SIDEBAR_SUBS_DISPLAYED && !expandTags) {
@@ -316,33 +314,11 @@ function SideNavigation(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
-  function getSidebarCategories(isLargeScreen) {
-    const rowData = GetLinksData(homepageData, isLargeScreen);
-    let categories = rowData;
-
-    if (homepageOrderApplyToSidebar) {
-      const sortedRowData: Array<RowDataItem> = getSortedRowData(
-        Boolean(email),
-        hasMembership,
-        homepageOrder,
-        homepageData,
-        rowData
-      );
-      categories = sortedRowData.filter((x) => x.id !== 'FYP' && x.id !== 'BANNER' && x.id !== 'PORTALS');
-    }
-
-    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, hideSort, ...theRest }) => theRest);
-  }
-
   function getLink(props: SideNavLink) {
-    const { hideForUnauth, route, link, id, noI18n, ...passedProps } = props;
+    const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
     const { title, icon, extra } = passedProps;
 
     if (hideForUnauth && !email) {
-      return null;
-    }
-
-    if (id === 'UPCOMING') {
       return null;
     }
 
@@ -365,29 +341,29 @@ function SideNavigation(props: Props) {
     );
   }
 
+  function getCategoryLink(props: SidebarCat) {
+    const { id, title, route, link, icon } = props;
+
+    if (id === 'UPCOMING') {
+      return null;
+    }
+
+    return (
+      <li key={route || link || title}>
+        <Button
+          icon={icon}
+          navigate={route || link}
+          label={__(title)}
+          title={__(title)}
+          className="navigation-link"
+          activeClass="navigation-link--active"
+        />
+      </li>
+    );
+  }
+
   function getSubscriptionSection() {
-    const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptions && subscriptions.length > 0;
     if (showSubsSection) {
-      let displayedSubscriptions = [];
-      if (subscriptionFilter) {
-        const filter = subscriptionFilter.toLowerCase();
-
-        subscriptions &&
-          subscriptions.map((subscription) => {
-            if (
-              claimsByUri[subscription?.uri] &&
-              (claimsByUri[subscription?.uri].name.toLowerCase().includes(filter) ||
-                // $FlowIgnore
-                claimsByUri[subscription?.uri].value?.title?.toLowerCase().includes(filter))
-            ) {
-              displayedSubscriptions.push(subscription);
-            }
-          });
-      } else {
-        displayedSubscriptions =
-          lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
-      }
-
       if (lastActiveSubs === undefined) {
         return null; // Don't show yet, just wait to save some renders
       }
@@ -401,15 +377,15 @@ function SideNavigation(props: Props) {
               navigate={!subscriptionFilter ? `/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}` : ''}
             />
           )}
-          {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
               <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
             </li>
           )}
-          {displayedSubscriptions.map((subscription) => (
-            <SubscriptionListItem key={subscription.uri} subscription={subscription} />
+          {displayedSubs.map((sub) => (
+            <SubscriptionListItem key={sub.uri} subscription={sub} />
           ))}
-          {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
               <Button
                 icon={ICONS.MORE}
@@ -420,7 +396,7 @@ function SideNavigation(props: Props) {
               />
             </li>
           )}
-          {!!subscriptionFilter && !displayedSubscriptions.length && (
+          {!!subscriptionFilter && !displayedSubs.length && (
             <li>
               <div className="navigation-item">
                 <div className="empty empty--centered">{__('No results')}</div>
@@ -563,6 +539,12 @@ function SideNavigation(props: Props) {
     }
   }, [doFetchLastActiveSubs, sidebarOpen]);
 
+  React.useEffect(() => {
+    if (showSubsSection) {
+      doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
+    }
+  }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
+
   // --- Resolve subscriptions
   React.useEffect(() => {
     doResolveUris(subscriptionUris, true);
@@ -693,8 +675,7 @@ function SideNavigation(props: Props) {
                       actionTooltip={__('Sort and customize your homepage')}
                     />
                   )}
-                  {/* $FlowFixMe: GetLinksData type needs an update */}
-                  {categories.map((linkProps) => getLink(linkProps))}
+                  {categories.map((linkProps) => getCategoryLink(linkProps))}
                 </>
               )}
             </ul>
