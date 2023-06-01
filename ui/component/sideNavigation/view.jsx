@@ -26,6 +26,7 @@ import { getSortedRowData } from 'page/home/helper';
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
 type SideNavLink = {
+  id?: string,
   title: string,
   icon: string,
   link?: string,
@@ -334,10 +335,14 @@ function SideNavigation(props: Props) {
   }
 
   function getLink(props: SideNavLink) {
-    const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
+    const { hideForUnauth, route, link, id, noI18n, ...passedProps } = props;
     const { title, icon, extra } = passedProps;
 
     if (hideForUnauth && !email) {
+      return null;
+    }
+
+    if (id === 'UPCOMING') {
       return null;
     }
 
