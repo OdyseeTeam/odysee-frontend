@@ -115,7 +115,7 @@ function HomePage(props: Props) {
     if (homepageFetched) {
       sortedRowData.forEach((row: RowDataItem, index: number) => {
         // -- Find index of first row with a title if not already:
-        if (cache.topGrid === -1 && Boolean(row.title)) {
+        if (cache.topGrid === -1 && Boolean(row.title) && row.id !== 'UPCOMING') {
           cache.topGrid = index;
         }
         // -- Find Bruce Banner if not already:
