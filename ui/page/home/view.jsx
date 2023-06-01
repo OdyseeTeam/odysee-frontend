@@ -60,7 +60,6 @@ function HomePage(props: Props) {
     homepageFetched,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
-    // hideScheduledLivestreams,
     homepageOrder,
     doOpenModal,
     userHasOdyseeMembership,

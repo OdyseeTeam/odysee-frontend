@@ -87,8 +87,9 @@ export function getSortedRowData(
       }
     } else {
       if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
-      if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
       sortedRowData = pushAllValidCategories(rowData, hasMembership);
+      if (authenticated) sortedRowData.splice(1, 0, { id: 'UPCOMING', title: 'Upcoming' });
+      if (hasPortals) sortedRowData.splice(4, 0, { id: 'PORTALS', title: undefined });
     }
   } else {
     if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });

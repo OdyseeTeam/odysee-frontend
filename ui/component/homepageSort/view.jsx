@@ -16,8 +16,8 @@ const NON_CATEGORY = Object.freeze({
   BANNER: { label: 'Banner' },
   UPCOMING: { label: 'Upcoming' },
   FOLLOWING: { label: 'Following' },
-  PORTALS: { label: 'Portals' },
   FYP: { label: 'Recommended' },
+  PORTALS: { label: 'Portals' },
 });
 
 // ****************************************************************************
@@ -62,7 +62,7 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
         if (key === 'BANNER') {
           activeOrder.unshift(key);
         } else if (key === 'PORTALS') {
-          activeOrder.splice(2, 0, key);
+          activeOrder.splice(4, 0, key);
         } else if (key === 'UPCOMING') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
           if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
@@ -73,6 +73,8 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
       }
     }
   });
+
+  console.log('activeOrder: ', activeOrder);
 
   // Final check to exclude items that were previously moved to Hidden.
   activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
