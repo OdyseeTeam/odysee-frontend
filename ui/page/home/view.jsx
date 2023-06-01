@@ -184,7 +184,7 @@ function HomePage(props: Props) {
     } else if (id === 'UPCOMING') {
       return (
         <>
-          <Meme meme={homepageMeme} />
+          {index === cache.topGrid && <Meme meme={homepageMeme} />}
           <UpcomingClaims
             name="homepage_following"
             channelIds={subscribedChannelIds}
@@ -236,10 +236,10 @@ function HomePage(props: Props) {
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {index === cache.topGrid ||
-                (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING' && (
-                  <CustomizeHomepage />
-                ))}
+              {(index === cache.topGrid ||
+                (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING')) && (
+                <CustomizeHomepage />
+              )}
             </div>
           )}
         </>
