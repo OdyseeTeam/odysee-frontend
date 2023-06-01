@@ -75,6 +75,8 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
     if (liveUris) {
       uris = uris.filter((x) => !liveUris.includes(x));
     }
+    if (uris.length > 12) uris = uris.slice(0, 12);
+
     return {
       uris: upcomingMax > 0 ? uris.slice(0, upcomingMax) : uris,
       total: uris.length,
