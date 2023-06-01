@@ -21,7 +21,6 @@ const select = (state) => {
     channelIds,
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
     fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
-    hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
     activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
     livestreamViewersById: selectViewersById(state),
   };
