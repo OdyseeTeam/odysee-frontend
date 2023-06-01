@@ -19,9 +19,9 @@ export type Props = {|
   liveUris?: ?Array<string>, // ones that have gone live (not upcoming anymore)
   limitClaimsPerChannel?: number,
   loading?: boolean,
+  isChannelPage?: boolean,
   onLoad?: (number) => void,
   showHideSetting?: boolean,
-  hideUpcoming?: boolean,
 |};
 
 type StateProps = {|
@@ -29,6 +29,7 @@ type StateProps = {|
   scheduledUris: ?Array<string>,
   livestreamOptions: ?ClaimSearchOptions,
   scheduledOptions: ?ClaimSearchOptions,
+  hideUpcoming?: boolean,
 |};
 
 type DispatchProps = {|
@@ -45,6 +46,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
     tileLayout,
     liveUris = [],
     loading,
+    isChannelPage,
     livestreamOptions,
     scheduledOptions,
     livestreamUris,
@@ -133,6 +135,8 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
     }
   }, [doClaimSearch, scheduledOptions]);
 
+  if (isChannelPage && list.total === 0) return null;
+
   return (
     <div
       className={classnames('mb-m mt-m md:mb-xl', {
@@ -155,7 +159,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
       )}
 
       {!loading && list.total > 0 && <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />}
-      {list.total > upcomingMax && !showAllUpcoming && (
+      {list.total > upcomingMax && !showAllUpcoming && !isChannelPage && (
         <div className="upcoming-list__view-more">
           <Button
             label={__('Show more upcoming content')}

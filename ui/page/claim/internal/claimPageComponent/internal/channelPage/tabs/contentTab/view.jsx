@@ -114,6 +114,7 @@ function ContentTab(props: Props) {
     setSearchQuery('');
   }, [claimId]);
 
+  console.log('scheduledChanIds: ', scheduledChanIds);
   return (
     <Fragment>
       <GeoRestrictionInfo uri={uri} />
@@ -135,6 +136,7 @@ function ContentTab(props: Props) {
             activeLivestreamForChannel && activeLivestreamForChannel.uri ? [activeLivestreamForChannel.uri] : []
           }
           showHideSetting={false}
+          isChannelPage
         />
       )}
 

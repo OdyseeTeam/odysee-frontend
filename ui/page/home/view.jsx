@@ -189,7 +189,6 @@ function HomePage(props: Props) {
             channelIds={subscribedChannelIds}
             tileLayout
             liveUris={cache[id].livestreamUris}
-            limitClaimsPerChannel={2}
             loading={fetchingActiveLivestreams}
             showHideSetting={false}
           />

@@ -241,6 +241,7 @@ function HomeTabSection(props: Props) {
           tileLayout={false}
           showHideSetting={false}
           liveUris={liveUris}
+          isChannelPage
         />
       )}
       {editMode && (
