@@ -89,6 +89,9 @@
       }
     }
   }
+  .upcoming-grid--closed {
+    margin-bottom: var(--spacing-xxl);
+  }
 }
 
 .upcoming-grid--extended {
@@ -147,7 +150,14 @@
   @extend .upcoming-grid__visibility;
 
   &:hover {
-    cursor: unset;
+    cursor: default;
+    background-color: var(--color-header-button);
+    .icon {
+      stroke: var(--color-text);
+    }
+    span {
+      color: var(--color-text);
+    }
   }
 }
 
