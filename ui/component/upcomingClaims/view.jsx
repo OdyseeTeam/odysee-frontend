@@ -173,7 +173,10 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
             button="link"
             iconRight={ICONS.ARROW_RIGHT}
             className="claim-grid__title--secondary"
-            onClick={() => setShowAllUpcoming(false)}
+            onClick={() => {
+              if (isMobileScreen) window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+              setShowAllUpcoming(false);
+            }}
           />
         </div>
       )}
