@@ -137,6 +137,9 @@ function HomePage(props: Props) {
     return cache;
   }, [homepageFetched, sortedRowData, subscribedChannelIds, al, lv]);
 
+  console.log('cache: ', cache.topGrid);
+  console.log('sortedRowData: ', sortedRowData.length - 1);
+
   type SectionHeaderProps = {
     title: string,
     navigate?: string,
@@ -183,6 +186,7 @@ function HomePage(props: Props) {
       return (
         <>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}
+          {cache.topGrid === sortedRowData.length - 1 && <CustomizeHomepage />}
           <UpcomingClaims
             name="homepage_following"
             channelIds={subscribedChannelIds}
