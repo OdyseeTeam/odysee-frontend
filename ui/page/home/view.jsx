@@ -183,7 +183,7 @@ function HomePage(props: Props) {
       return (
         <>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}
-          {cache.topGrid === sortedRowData.length - 1 && <CustomizeHomepage />}
+          {cache.topGrid === -1 && <CustomizeHomepage />}
           <UpcomingClaims
             name="homepage_following"
             channelIds={subscribedChannelIds}
