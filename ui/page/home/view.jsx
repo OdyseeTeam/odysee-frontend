@@ -39,7 +39,6 @@ type Props = {
   homepageFetched: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
-  // hideScheduledLivestreams: boolean,
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
   userHasOdyseeMembership: ?boolean,
