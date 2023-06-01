@@ -31,7 +31,7 @@ function FileList(props: Props) {
   };
 
   React.useEffect(() => {
-    if (radio.stops.length) {
+    if (radio.stops?.length) {
       if (!radio.currentId) {
         radio.first();
       } else {
