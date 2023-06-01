@@ -74,8 +74,6 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
     }
   });
 
-  console.log('activeOrder: ', activeOrder);
-
   // Final check to exclude items that were previously moved to Hidden.
   activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
 
