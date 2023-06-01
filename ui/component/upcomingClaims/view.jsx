@@ -110,6 +110,13 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
               <div className="upcoming-grid__counter">{list.total}</div>
             </div>
           )}
+          {!showHideSetting && list.total === 0 && (
+            <div className="upcoming-grid__visibility">
+              <Icon icon={ICONS.EYE} />
+              <span>{__('Empty')}</span>
+              <div className="upcoming-grid__counter">{list.total}</div>
+            </div>
+          )}
           {showHideSetting && hideUpcoming && list.total === 0 && (
             <div className="upcoming-grid__visibility--empty">
               <Icon icon={ICONS.EYE} />
@@ -140,7 +147,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
         'upcoming-grid': showHideSetting && tileLayout,
         'upcoming-list': !showHideSetting || !tileLayout,
         'upcoming-grid--extended': showAllUpcoming,
-        'upcoming-grid--closed': hideUpcoming && showHideSetting,
+        'upcoming-grid--closed': (hideUpcoming && showHideSetting) || (!showHideSetting && list.total === 0),
       })}
     >
       <Header />
