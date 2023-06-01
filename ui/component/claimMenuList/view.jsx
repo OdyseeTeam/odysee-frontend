@@ -93,6 +93,7 @@ function ClaimMenuList(props: Props) {
     channelIsBlocked,
     channelIsAdminBlocked,
     isAdmin,
+    claimInCollection,
     doCommentModBlock,
     doCommentModUnBlock,
     doCommentModBlockAsAdmin,
@@ -154,9 +155,6 @@ function ClaimMenuList(props: Props) {
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl);
   const rssUrl: string = isChannel ? generateRssUrl(SHARE_DOMAIN, claim) : '';
   const isCollectionClaim = claim && claim.value_type === 'collection';
-
-  // $FlowFixMe: claims not typed right
-  const showCollectionContext = isClaimAllowedForCollection(contentClaim);
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
     const itemUrl = contentClaim?.permanent_url;
@@ -293,6 +291,115 @@ function ClaimMenuList(props: Props) {
     push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
   }
 
+  const AddToCollectionContext = () => {
+    const WatchLaterMenuItem = () => {
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(hasClaimInWatchLater, __('Watch Later'), COLLECTIONS_CONSTS.WATCH_LATER_ID)}
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={hasClaimInWatchLater ? ICONS.DELETE : ICONS.TIME} />
+            {hasClaimInWatchLater ? __('In Watch Later') : __('Watch Later')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    const FavoritesMenuItem = () => {
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(hasClaimInFavorites, __('Favorites'), COLLECTIONS_CONSTS.FAVORITES_ID)}
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={hasClaimInFavorites ? ICONS.DELETE : ICONS.STAR} />
+            {hasClaimInFavorites ? __('In Favorites') : __('Favorites')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    const AddToPlaylistMenuItem = () => {
+      // CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() =>
+            openModal(MODALS.COLLECTION_ADD, { uri: contentClaim?.permanent_url, type: COL_TYPES.PLAYLIST })
+          }
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
+            {__('Add to Playlist')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    const ToggleLastUsedCollectionMenuItem = () => {
+      return lastUsedCollection && lastUsedCollectionIsNotBuiltin ? (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(hasClaimInLastUsedCollection, lastUsedCollection.name, lastUsedCollection.id)}
+        >
+          <div className="menu__link">
+            {!hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.ADD} />}
+            {hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.DELETE} />}
+            {!hasClaimInLastUsedCollection && __('Add to %collection%', { collection: lastUsedCollection.name })}
+            {hasClaimInLastUsedCollection && __('In %collection%', { collection: lastUsedCollection.name })}
+          </div>
+        </MenuItem>
+      ) : null;
+    };
+
+    const RemoveFromCollectionMenuItem = () => {
+      // The function doesn't seem to care about the name for the deletion case,
+      // so just blank it for now (lazy to get the value).
+      const collectionName = '';
+
+      assert(claimInCollection, 'This should only be used when editing a collection');
+
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(claimInCollection, collectionName, collectionId)}
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={ICONS.DELETE} />
+            {__('Remove From List')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    // $FlowFixMe: claims not typed right
+    const canAdd = isClaimAllowedForCollection(contentClaim);
+
+    return (
+      <>
+        {isAuthenticated && claimInCollection && (
+          <>
+            <RemoveFromCollectionMenuItem />
+            <hr className="menu__separator" />
+          </>
+        )}
+
+        {canAdd && contentClaim && <ButtonAddToQueue uri={contentClaim.permanent_url} menuItem />}
+
+        {isAuthenticated && canAdd && (
+          <>
+            <WatchLaterMenuItem />
+            <FavoritesMenuItem />
+            <AddToPlaylistMenuItem />
+            <ToggleLastUsedCollectionMenuItem />
+            <hr className="menu__separator" />
+          </>
+        )}
+      </>
+    );
+  };
+
   return (
     <Menu>
       <MenuButton
@@ -373,69 +480,7 @@ function ClaimMenuList(props: Props) {
               )}
             </>
           ) : (
-            showCollectionContext && (
-              <>
-                {/* QUEUE */}
-                {contentClaim && <ButtonAddToQueue uri={contentClaim.permanent_url} menuItem />}
-
-                {isAuthenticated && (
-                  <>
-                    {/* WATCH LATER */}
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() =>
-                        handleAdd(hasClaimInWatchLater, __('Watch Later'), COLLECTIONS_CONSTS.WATCH_LATER_ID)
-                      }
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={hasClaimInWatchLater ? ICONS.DELETE : ICONS.TIME} />
-                        {hasClaimInWatchLater ? __('In Watch Later') : __('Watch Later')}
-                      </div>
-                    </MenuItem>
-                    {/* FAVORITES LIST */}
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() => handleAdd(hasClaimInFavorites, __('Favorites'), COLLECTIONS_CONSTS.FAVORITES_ID)}
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={hasClaimInFavorites ? ICONS.DELETE : ICONS.STAR} />
-                        {hasClaimInFavorites ? __('In Favorites') : __('Favorites')}
-                      </div>
-                    </MenuItem>
-                    {/* CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES */}
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() =>
-                        openModal(MODALS.COLLECTION_ADD, { uri: contentClaim?.permanent_url, type: COL_TYPES.PLAYLIST })
-                      }
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
-                        {__('Add to Playlist')}
-                      </div>
-                    </MenuItem>
-                    {lastUsedCollection && lastUsedCollectionIsNotBuiltin && (
-                      <MenuItem
-                        className="comment__menu-option"
-                        onSelect={() =>
-                          handleAdd(hasClaimInLastUsedCollection, lastUsedCollection.name, lastUsedCollection.id)
-                        }
-                      >
-                        <div className="menu__link">
-                          {!hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.ADD} />}
-                          {hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.DELETE} />}
-                          {!hasClaimInLastUsedCollection &&
-                            __('Add to %collection%', { collection: lastUsedCollection.name })}
-                          {hasClaimInLastUsedCollection &&
-                            __('In %collection%', { collection: lastUsedCollection.name })}
-                        </div>
-                      </MenuItem>
-                    )}
-                    <hr className="menu__separator" />
-                  </>
-                )}
-              </>
-            )
+            <AddToCollectionContext />
           )}
         </>
 
