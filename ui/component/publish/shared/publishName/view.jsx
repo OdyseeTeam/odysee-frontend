@@ -17,7 +17,7 @@ type Props = {
   myClaimForUriCaseInsensitive: ?StreamClaim,
   amountNeededForTakeover: number,
   prepareEdit: ({}, string) => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
   currentUploads: { [key: string]: FileUploadItem },
@@ -61,7 +61,7 @@ function PublishName(props: Props) {
   }
 
   useEffect(() => {
-    updatePublishForm({ name: nameThrottled });
+    updatePublishForm({ name: nameThrottled || '' });
   }, [nameThrottled, updatePublishForm]);
 
   useEffect(() => {
