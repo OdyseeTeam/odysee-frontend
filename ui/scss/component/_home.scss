@@ -41,6 +41,7 @@
 
 .upcoming-grid,
 .upcoming-list {
+  margin-top: -5px;
   transition: min-height 0.2s, height 0.2s;
   .button__content {
     width: 100%;

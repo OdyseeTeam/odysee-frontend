@@ -141,7 +141,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
 
   return (
     <div
-      className={classnames('mb-m mt-m md:mb-xl', {
+      className={classnames('md:mb-xl', {
         'upcoming-grid': showHideSetting && tileLayout,
         'upcoming-list': !showHideSetting || !tileLayout,
         'upcoming-grid--extended': showAllUpcoming,
