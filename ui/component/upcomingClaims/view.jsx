@@ -161,7 +161,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
       )}
 
       {!loading && list.total > 0 && <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />}
-      {list.total > upcomingMax && !showAllUpcoming && !isChannelPage && (
+      {list.total > upcomingMax && !showAllUpcoming && !isChannelPage && !hideUpcoming && (
         <div className="upcoming-list__view-more">
           <Button
             label={__('Show more upcoming content')}
@@ -172,7 +172,8 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
           />
         </div>
       )}
-      {showAllUpcoming && (
+
+      {showAllUpcoming && !hideUpcoming && (
         <div className="upcoming-list__view-more">
           <Button
             label={__('Show less upcoming content')}
