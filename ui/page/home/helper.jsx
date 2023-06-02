@@ -55,7 +55,7 @@ export function getSortedRowData(
           sortedRowData.push({ id: 'PORTALS', title: undefined });
         } else if (key === 'UPCOMING') {
           let followingIndex = sortedRowData.indexOf('FOLLOWING');
-          if (followingIndex !== -1) sortedRowData.splice(followingIndex, 0, { id: 'UPCOMING', title: undefined });
+          if (followingIndex !== -1) sortedRowData.splice(followingIndex, 0, { id: 'UPCOMING', title: 'Upcoming' });
           else sortedRowData.push({ id: 'UPCOMING', title: 'Upcoming' });
         }
       });
