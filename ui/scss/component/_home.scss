@@ -68,6 +68,14 @@
     height: unset;
     margin-bottom: var(--spacing-xl) !important;
   }
+  @media (min-width: $breakpoint-xlarge) {
+    min-height: 400px;
+    height: 400px;
+  }
+  @media (min-width: $breakpoint-xxlarge) {
+    min-height: 500px;
+    height: 500px;
+  }
 }
 
 .homePage-wrapper {
@@ -101,6 +109,14 @@
   @media (max-width: $breakpoint-small) {
     min-height: unset;
     height: unset;
+  }
+  @media (min-width: $breakpoint-xlarge) {
+    min-height: calc(400px * 2);
+    height: calc(400px * 2);
+  }
+  @media (min-width: $breakpoint-xxlarge) {
+    min-height: calc(500px * 2);
+    height: calc(500px * 2);
   }
 }
 
