@@ -19,7 +19,7 @@ import Yrbl from 'component/yrbl';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
-import ScheduledStreams from 'component/scheduledStreams';
+import UpcomingClaims from 'component/upcomingClaims';
 import Ad from 'web/component/ad';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
@@ -39,7 +39,6 @@ type Props = {
   homepageFetched: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
-  hideScheduledLivestreams: boolean,
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
   userHasOdyseeMembership: ?boolean,
@@ -61,7 +60,6 @@ function HomePage(props: Props) {
     homepageFetched,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
-    hideScheduledLivestreams,
     homepageOrder,
     doOpenModal,
     userHasOdyseeMembership,
@@ -117,7 +115,7 @@ function HomePage(props: Props) {
     if (homepageFetched) {
       sortedRowData.forEach((row: RowDataItem, index: number) => {
         // -- Find index of first row with a title if not already:
-        if (cache.topGrid === -1 && Boolean(row.title)) {
+        if (cache.topGrid === -1 && Boolean(row.title) && row.id !== 'UPCOMING') {
           cache.topGrid = index;
         }
         // -- Find Bruce Banner if not already:
@@ -181,6 +179,21 @@ function HomePage(props: Props) {
       } else return null;
     } else if (id === 'PORTALS') {
       return <Portals key={id} homepageData={homepageData} authenticated={authenticated} />;
+    } else if (id === 'UPCOMING') {
+      return (
+        <>
+          {index === cache.topGrid && <Meme meme={homepageMeme} />}
+          {cache.topGrid === -1 && <CustomizeHomepage />}
+          <UpcomingClaims
+            name="homepage_following"
+            channelIds={subscribedChannelIds}
+            tileLayout
+            liveUris={cache[id].livestreamUris}
+            loading={fetchingActiveLivestreams}
+            showHideSetting={false}
+          />
+        </>
+      );
     }
 
     const tilePlaceholder = (
@@ -221,7 +234,10 @@ function HomePage(props: Props) {
           {title && typeof title === 'string' && (
             <div className="homePage-wrapper__section-title">
               <SectionHeader title={__(resolveTitleOverride(title))} navigate={route || link} icon={icon} help={help} />
-              {index === cache.topGrid && <CustomizeHomepage />}
+              {(index === cache.topGrid ||
+                (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING')) && (
+                <CustomizeHomepage />
+              )}
             </div>
           )}
         </>
@@ -295,28 +311,7 @@ function HomePage(props: Props) {
       {homepageFetched &&
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-            if (id !== 'FOLLOWING') {
-              return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
-            } else {
-              return (
-                <React.Fragment key={id}>
-                  {!fetchingActiveLivestreams &&
-                    authenticated &&
-                    subscribedChannelIds.length > 0 &&
-                    id === 'FOLLOWING' &&
-                    !hideScheduledLivestreams && (
-                      <ScheduledStreams
-                        name="homepage_following"
-                        channelIds={subscribedChannelIds}
-                        tileLayout
-                        liveUris={cache[id].livestreamUris}
-                        limitClaimsPerChannel={2}
-                      />
-                    )}
-                  {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
-                </React.Fragment>
-              );
-            }
+            return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
           }
         )}
     </Page>

@@ -53,6 +53,10 @@ export function getSortedRowData(
           sortedRowData.push({ id: 'BANNER', title: undefined });
         } else if (key === 'PORTALS' && hasPortals) {
           sortedRowData.push({ id: 'PORTALS', title: undefined });
+        } else if (key === 'UPCOMING') {
+          let followingIndex = sortedRowData.indexOf('FOLLOWING');
+          if (followingIndex !== -1) sortedRowData.splice(followingIndex, 0, { id: 'UPCOMING', title: 'Upcoming' });
+          else sortedRowData.push({ id: 'UPCOMING', title: 'Upcoming' });
         }
       });
 
@@ -83,8 +87,9 @@ export function getSortedRowData(
       }
     } else {
       if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
-      if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
       sortedRowData = pushAllValidCategories(rowData, hasMembership);
+      if (authenticated) sortedRowData.splice(1, 0, { id: 'UPCOMING', title: 'Upcoming' });
+      if (hasPortals) sortedRowData.splice(4, 0, { id: 'PORTALS', title: undefined });
     }
   } else {
     if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });

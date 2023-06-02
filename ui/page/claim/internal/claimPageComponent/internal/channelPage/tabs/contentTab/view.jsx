@@ -11,7 +11,7 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
-import ScheduledStreams from 'component/scheduledStreams';
+import UpcomingClaims from 'component/upcomingClaims';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
 import { useIsLargeScreen } from 'effects/use-screensize';
@@ -127,7 +127,7 @@ function ContentTab(props: Props) {
       <LivestreamLink uri={uri} />
 
       {!fetching && showScheduledLiveStreams && (
-        <ScheduledStreams
+        <UpcomingClaims
           name="contentTab"
           channelIds={scheduledChanIds}
           tileLayout={false}
@@ -135,6 +135,7 @@ function ContentTab(props: Props) {
             activeLivestreamForChannel && activeLivestreamForChannel.uri ? [activeLivestreamForChannel.uri] : []
           }
           showHideSetting={false}
+          isChannelPage
         />
       )}
 

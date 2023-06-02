@@ -1,9 +1,11 @@
 // @flow
 import React from 'react';
+import classnames from 'classnames';
 import ClaimList from 'component/claimList';
 import Icon from 'component/common/icon';
+import ClaimPreviewTile from 'component/claimPreviewTile';
 import * as ICONS from 'constants/icons';
-import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
+import { useIsMobile, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import Button from 'component/button';
 import * as SETTINGS from 'constants/settings';
 
@@ -16,6 +18,8 @@ export type Props = {|
   tileLayout: boolean,
   liveUris?: ?Array<string>, // ones that have gone live (not upcoming anymore)
   limitClaimsPerChannel?: number,
+  loading?: boolean,
+  isChannelPage?: boolean,
   onLoad?: (number) => void,
   showHideSetting?: boolean,
 |};
@@ -25,69 +29,98 @@ type StateProps = {|
   scheduledUris: ?Array<string>,
   livestreamOptions: ?ClaimSearchOptions,
   scheduledOptions: ?ClaimSearchOptions,
+  hideUpcoming?: boolean,
 |};
 
 type DispatchProps = {|
   doClaimSearch: (ClaimSearchOptions) => void,
   setClientSetting: (string, boolean | string | number, boolean) => void,
-  doShowSnackBar: (string) => void,
 |};
 
 // ****************************************************************************
-// ScheduledStreams
+// UpcomingClaims
 // ****************************************************************************
 
-const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
+const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   const {
     tileLayout,
     liveUris = [],
+    loading,
+    isChannelPage,
     livestreamOptions,
     scheduledOptions,
     livestreamUris,
     scheduledUris,
     doClaimSearch,
     setClientSetting,
-    doShowSnackBar,
     showHideSetting = true,
+    hideUpcoming,
   } = props;
 
   const isMobileScreen = useIsMobile();
+  const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
 
   const upcomingMax = React.useMemo(() => {
-    if (showAllUpcoming) return -1;
-    if (isLargeScreen) return 6;
-    if (isMobileScreen) return 3;
-    return 4;
-  }, [showAllUpcoming, isMobileScreen, isLargeScreen]);
+    let multiply = 1;
+    if (showAllUpcoming) multiply = 2;
+    if (isLargeScreen) return 6 * multiply;
+    if (isMobileScreen || isMediumScreen) return 3 * multiply;
+    return 4 * multiply;
+  }, [showAllUpcoming, isMobileScreen, isMediumScreen, isLargeScreen]);
 
   const list = React.useMemo(() => {
     let uris = (livestreamUris || []).concat(scheduledUris || []);
     if (liveUris) {
       uris = uris.filter((x) => !liveUris.includes(x));
     }
+    if (uris.length > 12) uris = uris.slice(0, 12);
+
     return {
       uris: upcomingMax > 0 ? uris.slice(0, upcomingMax) : uris,
       total: uris.length,
     };
   }, [liveUris, livestreamUris, scheduledUris, upcomingMax]);
 
-  const hideScheduledStreams = () => {
-    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, true, true);
-    doShowSnackBar(__('Scheduled streams hidden, you can re-enable them in settings.'));
+  const hideScheduled = (e) => {
+    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, e, true);
   };
 
   const Header = () => {
     return (
-      <div className="claim-grid__header">
+      <div
+        className="claim-grid__header"
+        onClick={() => {
+          showHideSetting && hideScheduled(!hideUpcoming);
+        }}
+      >
         <div className="button__content">
           <span className="icon__wrapper">
             <Icon icon={ICONS.TIME} />
           </span>
           <span className="claim-grid__title">{__('Upcoming')}</span>
-          {showHideSetting && (
-            <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'hide-livestreams'} />
+
+          {showHideSetting && !hideUpcoming && list.total > 0 && (
+            <div className="upcoming-grid__visibility" onClick={() => hideScheduled(true)}>
+              <Icon icon={ICONS.EYE_OFF} />
+              <span>{__('Hide')}</span>
+            </div>
+          )}
+          {showHideSetting && hideUpcoming && list.total > 0 && (
+            <div className="upcoming-grid__visibility" onClick={() => hideScheduled(false)}>
+              <Icon icon={ICONS.EYE} />
+              {list.total > 0 ? <span>{__('Show')}</span> : <span>{__('Empty')}</span>}
+              <div className="upcoming-grid__counter">
+                {list.total < upcomingMax ? list.total : showAllUpcoming ? upcomingMax : upcomingMax * 2}
+              </div>
+            </div>
+          )}
+          {((showHideSetting && list.total === 0) || (!showHideSetting && list.total === 0)) && (
+            <div className="upcoming-grid__visibility--empty">
+              <span>{__('Empty')}</span>
+              <div className="upcoming-grid__counter">{list.total}</div>
+            </div>
           )}
         </div>
       </div>
@@ -106,24 +139,43 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
     }
   }, [doClaimSearch, scheduledOptions]);
 
+  if (isChannelPage && list.total === 0) return null;
+
   return (
-    <div className={'mb-m mt-m md:mb-xl upcoming-list'} style={{ display: list.total > 0 ? 'block' : 'none' }}>
+    <div
+      className={classnames('md:mb-xl', {
+        'upcoming-grid': showHideSetting && tileLayout,
+        'upcoming-list': !showHideSetting || !tileLayout,
+        'upcoming-grid--extended': showAllUpcoming,
+        'upcoming-grid--closed':
+          (hideUpcoming && showHideSetting) ||
+          (showHideSetting && list.total === 0) ||
+          (!showHideSetting && list.total === 0),
+      })}
+    >
       <Header />
-      <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />
-      {list.total > upcomingMax && !showAllUpcoming && (
+      {loading && (
+        <section className="claim-grid">
+          {new Array(upcomingMax).fill(1).map((x, i) => (
+            <ClaimPreviewTile key={i} placeholder="loading" pulse />
+          ))}
+        </section>
+      )}
+
+      {!loading && list.total > 0 && <ClaimList uris={list.uris} tileLayout={tileLayout} showNoSourceClaims />}
+      {list.total > upcomingMax && !showAllUpcoming && !isChannelPage && !hideUpcoming && (
         <div className="upcoming-list__view-more">
           <Button
             label={__('Show more upcoming content')}
             button="link"
             iconRight={ICONS.ARROW_RIGHT}
             className="claim-grid__title--secondary"
-            onClick={() => {
-              setShowAllUpcoming(true);
-            }}
+            onClick={() => setShowAllUpcoming(true)}
           />
         </div>
       )}
-      {showAllUpcoming && (
+
+      {showAllUpcoming && !hideUpcoming && (
         <div className="upcoming-list__view-more">
           <Button
             label={__('Show less upcoming content')}
@@ -131,7 +183,7 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
             iconRight={ICONS.ARROW_RIGHT}
             className="claim-grid__title--secondary"
             onClick={() => {
-              window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+              if (isMobileScreen) window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
               setShowAllUpcoming(false);
             }}
           />
@@ -141,4 +193,4 @@ const ScheduledStreams = (props: Props & StateProps & DispatchProps) => {
   );
 };
 
-export default ScheduledStreams;
+export default UpcomingClaims;

@@ -13,6 +13,7 @@ import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
+
 import ClaimListDiscover from './view';
 
 function resolveHideMembersOnly(global, override) {

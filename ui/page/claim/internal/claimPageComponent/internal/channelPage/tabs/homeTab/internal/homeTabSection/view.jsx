@@ -5,7 +5,7 @@ import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
 import ChannelSection from 'component/channelSections/Section';
-import ScheduledStreams from 'component/scheduledStreams';
+import UpcomingClaims from 'component/upcomingClaims';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Ad from 'web/component/ad';
 import { lighthouse } from 'redux/actions/search';
@@ -235,12 +235,13 @@ function HomeTabSection(props: Props) {
   return (
     <div className="home-section-content">
       {!editMode && index === 0 && (
-        <ScheduledStreams
+        <UpcomingClaims
           name="homeTab"
           channelIds={scheduledChanIds}
           tileLayout={false}
           showHideSetting={false}
           liveUris={liveUris}
+          isChannelPage
         />
       )}
       {editMode && (

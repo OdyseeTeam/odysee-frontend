@@ -127,6 +127,7 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 
 // prettier-ignore
 type SidebarCat = $Diff<HomepageCat, {
+  id?: string,
   pinnedUrls?: Array<string>,
   pinnedClaimIds?: Array<string>,
   hideSort?: boolean,
@@ -341,7 +342,12 @@ function SideNavigation(props: Props) {
   }
 
   function getCategoryLink(props: SidebarCat) {
-    const { title, route, link, icon } = props;
+    const { id, title, route, link, icon } = props;
+
+    if (id === 'UPCOMING') {
+      return null;
+    }
+
     return (
       <li key={route || link || title}>
         <Button

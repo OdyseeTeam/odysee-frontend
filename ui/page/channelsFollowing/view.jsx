@@ -12,7 +12,7 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import { tagSearchCsOptionsHook } from 'util/search';
-import ScheduledStreams from 'component/scheduledStreams';
+import UpcomingClaims from 'component/upcomingClaims';
 import useComponentDidMount from 'effects/use-component-did-mount';
 import usePersistedState from 'effects/use-persisted-state';
 
@@ -23,7 +23,6 @@ type Props = {
   livestreamViewersById: LivestreamViewersById,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
-  hideScheduledLivestreams: boolean,
 };
 
 function ChannelsFollowingPage(props: Props) {
@@ -34,7 +33,6 @@ function ChannelsFollowingPage(props: Props) {
     livestreamViewersById: lv,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
-    hideScheduledLivestreams,
   } = props;
 
   const hasSubscribedChannels = channelIds.length > 0;
@@ -54,15 +52,12 @@ function ChannelsFollowingPage(props: Props) {
     <Page noFooter fullWidthPage={tileLayout} className="main__channelsFollowing">
       {!fetchingActiveLivestreams && (
         <>
-          {!hideScheduledLivestreams && (
-            <ScheduledStreams
-              name="channels_following"
-              channelIds={channelIds}
-              tileLayout={tileLayout}
-              liveUris={activeLivestreamUris}
-              limitClaimsPerChannel={2}
-            />
-          )}
+          <UpcomingClaims
+            name="channels_following"
+            channelIds={channelIds}
+            tileLayout={tileLayout}
+            liveUris={activeLivestreamUris}
+          />
 
           <ClaimListDiscover
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}

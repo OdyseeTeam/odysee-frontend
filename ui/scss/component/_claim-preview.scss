@@ -1001,6 +1001,7 @@
   padding: var(--spacing-m);
   border-radius: var(--border-radius);
   outline: 2px solid rgba(255, 0, 0, 0.6);
+  margin-bottom: var(--spacing-m);
   .channel-thumbnail {
     width: 3.7rem;
     height: 3.7rem;
@@ -1351,7 +1352,6 @@
   flex-direction: column;
   margin-top: var(--spacing-s);
   padding-bottom: var(--spacing-l);
-  //border-bottom: 1px solid var(--color-border);
 
   @media (max-width: $breakpoint-small) {
     &:not(:first-of-type) {

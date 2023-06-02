@@ -107,17 +107,17 @@ export default function Section(props: Props) {
               </div>
             ))}
           </div>
-          {!showAllItems && (
-            <Button
-              className="channel-section-card__item-overflow"
-              button="link"
-              iconRight={ICONS.ARROW_RIGHT}
-              label={__('See all')}
-              title={__('View full details')}
-              onClick={() => push(`/$/${PAGES.FEATURED_CHANNELS}?${CSQ.CLAIM_ID}=${channelId}&${CSQ.SECTION_ID}=${id}`)}
-            />
-          )}
         </div>
+        {!showAllItems && (
+          <Button
+            className="channel-section-card__item-overflow"
+            button="link"
+            iconRight={ICONS.ARROW_RIGHT}
+            label={__('See all')}
+            title={__('View full details')}
+            onClick={() => push(`/$/${PAGES.FEATURED_CHANNELS}?${CSQ.CLAIM_ID}=${channelId}&${CSQ.SECTION_ID}=${id}`)}
+          />
+        )}
       </div>
     </div>
   );
