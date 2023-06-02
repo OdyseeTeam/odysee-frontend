@@ -118,6 +118,9 @@
     min-height: calc(500px * 2);
     height: calc(500px * 2);
   }
+  &.upcoming-list {
+    height: unset;
+  }
 }
 
 .upcoming-grid--closed {
