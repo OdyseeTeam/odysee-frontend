@@ -17,7 +17,7 @@ type Props = {
   myClaimForUriCaseInsensitive: ?StreamClaim,
   amountNeededForTakeover: number,
   prepareEdit: ({}, string) => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
   currentUploads: { [key: string]: FileUploadItem },
@@ -61,7 +61,15 @@ function PublishName(props: Props) {
   }
 
   useEffect(() => {
-    updatePublishForm({ name: nameThrottled });
+    // Cases: Form was cleared; Sanitized; New file selected
+    if (publishFormName !== name) {
+      setName(publishFormName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one way update only
+  }, [publishFormName]);
+
+  useEffect(() => {
+    updatePublishForm({ name: nameThrottled || '' });
   }, [nameThrottled, updatePublishForm]);
 
   useEffect(() => {
