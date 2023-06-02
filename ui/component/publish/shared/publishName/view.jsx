@@ -61,10 +61,11 @@ function PublishName(props: Props) {
   }
 
   useEffect(() => {
-    // Form was cleared
-    if (publishFormName === '') {
-      setName('');
+    // Cases: Form was cleared; Sanitized; New file selected
+    if (publishFormName !== name) {
+      setName(publishFormName);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one way update only
   }, [publishFormName]);
 
   useEffect(() => {
