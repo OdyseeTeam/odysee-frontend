@@ -559,6 +559,7 @@ export default handleActions(
       const byId = Object.assign({}, state.byId);
       const repliesByParentId = Object.assign({}, state.repliesByParentId); // {ParentCommentID -> [commentIds...] } list of reply comments
       const totalCommentsById = Object.assign({}, state.totalCommentsById);
+      const pinnedCommentsById = Object.assign({}, state.pinnedCommentsById);
 
       const comment = commentById[comment_id];
 
@@ -588,6 +589,13 @@ export default handleActions(
         }
       }
 
+      if (pinnedCommentsById && pinnedCommentsById[claimId]) {
+        const index = pinnedCommentsById[claimId].indexOf(comment.comment_id);
+        if (index > -1) {
+          pinnedCommentsById[claimId].splice(index, 1);
+        }
+      }
+
       if (totalCommentsById.hasOwnProperty(claimId)) {
         totalCommentsById[claimId] = Math.max(0, totalCommentsById[claimId] - 1);
       }
@@ -600,6 +608,7 @@ export default handleActions(
         byId,
         totalCommentsById,
         repliesByParentId,
+        pinnedCommentsById,
         isLoading: false,
       };
     },
