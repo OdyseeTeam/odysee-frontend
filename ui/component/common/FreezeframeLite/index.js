@@ -84,7 +84,11 @@ class FreezeframeLite {
       const { clientWidth, clientHeight } = $image;
       const devicePixelRatio = window.devicePixelRatio || 1.0;
 
-      if (!clientWidth) return null;
+      if (!clientWidth) {
+        $image.classList.add(classes.VISIBLE);
+        $canvas.classList.add(classes.INACTIVE);
+        return null;
+      }
       $canvas.setAttribute('width', clientWidth * devicePixelRatio);
       $canvas.setAttribute('height', clientHeight * devicePixelRatio);
 
