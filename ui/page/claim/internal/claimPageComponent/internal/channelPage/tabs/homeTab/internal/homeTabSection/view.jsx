@@ -78,6 +78,7 @@ function HomeTabSection(props: Props) {
 
   const windowSize = useWindowSize();
   const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
+  const maxChannelsPerRow = windowSize >= 1150 ? 8 : windowSize > 900 ? 6 : 3;
   const featuredChannel = featuredChannels && featuredChannels.find((list) => list.id === section.claim_id);
   const hasFeaturedClaim = singleClaimUri || (claimSearchResults && claimSearchResults[0]) || section.claim_id;
   const scheduledChanIds = React.useMemo(() => [channelClaimId], [channelClaimId]);
@@ -397,10 +398,12 @@ function HomeTabSection(props: Props) {
             {section.type !== 'featured' ? (
               <>
                 <h2 className="home-section-title">{collectionName || getTitle() || __('Loading...')}</h2>
-                <label className="show-more" onClick={() => handleViewMore(section)}>
-                  {__('View More')}
-                  <Icon icon={ICONS.ARROW_RIGHT} />
-                </label>
+                {(!featuredChannel || (featuredChannel && featuredChannel.value.uris.length > maxChannelsPerRow)) && (
+                  <label className="show-more" onClick={() => handleViewMore(section)}>
+                    {__('View More')}
+                    <Icon icon={ICONS.ARROW_RIGHT} />
+                  </label>
+                )}
                 {section.type !== 'channels' ? (
                   <ClaimListDiscover
                     hideFilters
@@ -424,8 +427,8 @@ function HomeTabSection(props: Props) {
                 ) : (
                   featuredChannel && (
                     <ChannelSection
-                      key={'a'}
-                      uris={featuredChannel && featuredChannel.value.uris}
+                      key={'featured-channels'}
+                      uris={featuredChannel && featuredChannel.value.uris.slice(0, maxChannelsPerRow)}
                       channelId={channelClaimId}
                     />
                   )

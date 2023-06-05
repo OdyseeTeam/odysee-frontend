@@ -4,24 +4,21 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import classnames from 'classnames';
 import { useHistory } from 'react-router-dom';
 
-import './style.scss';
-import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ChannelTitle from 'component/channelTitle';
 import Icon from 'component/common/icon';
-
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import { CHANNEL_SECTIONS_QUERIES as CSQ } from 'constants/urlParams';
 import { formatLbryUrlForWeb } from 'util/url';
+import './style.scss';
 
 type Props = {
   id: string,
   title: string,
   uris: Array<string>,
   channelId: ClaimId,
-  showAllItems?: boolean,
   // --- redux ---
   isChannelMine: boolean,
   doOpenModal: (id: string, ?{}) => void,
@@ -29,10 +26,8 @@ type Props = {
 };
 
 export default function Section(props: Props) {
-  const { id, title, uris, channelId, showAllItems, isChannelMine, doOpenModal, doDeleteChannelSection } = props;
-
-  const { push } = useHistory();
-  const items = showAllItems ? uris : uris.slice(0, 10);
+  const { id, title, uris, channelId, isChannelMine, doOpenModal, doDeleteChannelSection } = props;
+  const { push, location } = useHistory();
 
   // **************************************************************************
   // **************************************************************************
@@ -53,6 +48,15 @@ export default function Section(props: Props) {
       <MenuList className="menu__list">
         {isChannelMine && (
           <>
+            {!location.search.includes('sectionId') && (
+              <ContextMenuItem
+                label={'View'}
+                icon={ICONS.EYE}
+                onSelect={() =>
+                  push(`/$/${PAGES.FEATURED_CHANNELS}?${CSQ.CLAIM_ID}=${channelId}&${CSQ.SECTION_ID}=${id}`)
+                }
+              />
+            )}
             <ContextMenuItem label={'Edit'} icon={ICONS.EDIT} onSelect={handleSectionEdit} />
             <ContextMenuItem label={'Delete'} icon={ICONS.DELETE} onSelect={handleSectionDelete} />
           </>
@@ -91,12 +95,8 @@ export default function Section(props: Props) {
       </div>
       <div className="channel-section-card__content">
         <div className="channel-section-card__item-row">
-          <div
-            className={classnames('channel-section-card__item-list', {
-              'channel-section-card__item-list--full': showAllItems,
-            })}
-          >
-            {items.map((uri) => (
+          <div className={classnames('channel-section-card__item-list')}>
+            {uris.map((uri) => (
               <div
                 key={uri}
                 className="channel-section-card__item"
@@ -108,16 +108,6 @@ export default function Section(props: Props) {
             ))}
           </div>
         </div>
-        {!showAllItems && (
-          <Button
-            className="channel-section-card__item-overflow"
-            button="link"
-            iconRight={ICONS.ARROW_RIGHT}
-            label={__('See all')}
-            title={__('View full details')}
-            onClick={() => push(`/$/${PAGES.FEATURED_CHANNELS}?${CSQ.CLAIM_ID}=${channelId}&${CSQ.SECTION_ID}=${id}`)}
-          />
-        )}
       </div>
     </div>
   );

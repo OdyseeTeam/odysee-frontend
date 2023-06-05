@@ -58,11 +58,6 @@
               }
             }
           }
-          &:nth-child(2),
-          &:nth-child(3),
-          &:nth-child(4) {
-            // display:block;
-          }
           .button-collection-manage {
             &:hover {
               background-color: var(--color-primary);
@@ -150,9 +145,6 @@
               color: var(--color-primary);
             }
           }
-        }
-        .channel-section-card__item-overflow {
-          display: none;
         }
       }
     }

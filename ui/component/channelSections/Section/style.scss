@@ -4,16 +4,9 @@
 .channel-section-card {
   width: 100%;
   margin-top: var(--spacing-l);
-  padding: var(--spacing-s);
   border-radius: var(--border-radius);
 
   &:hover {
-    .menu__button {
-      opacity: 1;
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
     .menu__button {
       opacity: 1;
     }
@@ -46,32 +39,26 @@
   justify-content: space-between;
 }
 
-$ITEM_W: 150px;
-$ITEM_H: 120px;
-$ITEM_W_MOBILE: 120px;
-$ITEM_H_MOBILE: 120px;
-
 .channel-section-card__item-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(calc(100% / 9), 1fr));
+  grid-gap: var(--spacing-s);
+  width: 100%;
+  margin-bottom: var(--spacing-l);
 
-  height: $ITEM_H;
-  overflow: hidden;
-
+  @media (max-width: $breakpoint-medium) {
+    grid-template-columns: repeat(auto-fill, minmax(calc(100% / 7), 1fr));
+  }
   @media (max-width: $breakpoint-small) {
-    height: $ITEM_H_MOBILE;
+    grid-template-columns: repeat(auto-fill, minmax(calc(100% / 4), 1fr));
   }
 }
 
-.channel-section-card__item-list--full {
-  height: unset;
-  overflow: unset;
-}
-
 .channel-section-card__item {
-  width: $ITEM_W;
-  height: $ITEM_H;
   display: flex;
+  flex-grow: 1;
+  flex-basis: 0;
+
   flex-direction: column;
   align-items: center;
   padding: var(--spacing-xxs) 0;
@@ -79,6 +66,9 @@ $ITEM_H_MOBILE: 120px;
   cursor: pointer;
 
   .channel-thumbnail {
+    transition: transform 0.2s;
+    transform: scale(1);
+    margin-bottom: var(--spacing-xs);
     margin-right: unset;
   }
 
@@ -93,20 +83,12 @@ $ITEM_H_MOBILE: 120px;
     white-space: nowrap;
   }
 
-  @media (max-width: $breakpoint-small) {
-    width: $ITEM_W_MOBILE;
-    height: $ITEM_H_MOBILE;
-  }
-}
-
-.channel-section-card__item-overflow {
-  margin: 0 var(--spacing-s);
-  align-self: flex-start;
-  text-align: center;
-  height: $ITEM_H;
-  cursor: pointer;
-
-  @media (max-width: $breakpoint-small) {
-    height: $ITEM_H_MOBILE;
+  &:hover {
+    .channel-thumbnail {
+      transform: scale(1.08) !important;
+    }
+    .claim-preview__title {
+      color: var(--color-primary);
+    }
   }
 }

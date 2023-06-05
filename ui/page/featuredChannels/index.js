@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import FeaturedChannelsPage from './view';
-
 import { CHANNEL_SECTIONS_QUERIES as CSQ } from 'constants/urlParams';
 import { doFetchCreatorSettings } from 'redux/actions/comments';
 import {
