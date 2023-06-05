@@ -58,14 +58,7 @@ export default function SectionList(props: Props) {
         {!fetchingCreatorSettings &&
           featuredChannels &&
           featuredChannels.map((fc) => (
-            <Section
-              key={fc.id}
-              id={fc.id}
-              title={fc.value.title}
-              uris={fc.value.uris}
-              channelId={claimId}
-              showAllItems={featuredChannels.length === 1}
-            />
+            <Section key={fc.id} id={fc.id} title={fc.value.title} uris={fc.value.uris} channelId={claimId} />
           ))}
       </div>
     </div>
