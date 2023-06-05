@@ -181,7 +181,7 @@ function HomePage(props: Props) {
       return <Portals key={id} homepageData={homepageData} authenticated={authenticated} />;
     } else if (id === 'UPCOMING') {
       return (
-        <>
+        <React.Fragment key={id}>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}
           {cache.topGrid === -1 && <CustomizeHomepage />}
           <UpcomingClaims
@@ -192,7 +192,7 @@ function HomePage(props: Props) {
             loading={fetchingActiveLivestreams}
             showHideSetting={false}
           />
-        </>
+        </React.Fragment>
       );
     }
 
