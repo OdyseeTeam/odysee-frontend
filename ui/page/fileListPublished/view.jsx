@@ -75,7 +75,7 @@ function FileListPublished(props: Props) {
     };
   }, [page, pageSize]);
 
-  const csOptions: ClaimSearchOptions = React.useMemo(() => {
+  const csOptionsUnlisted: ClaimSearchOptions = React.useMemo(() => {
     return {
       page_size: 20,
       any_tags: [VISIBILITY_TAGS.UNLISTED],
@@ -173,12 +173,19 @@ function FileListPublished(props: Props) {
 
   function getClaimSearchResultsJsx() {
     const isUnlisted = filterBy === FILTER.UNLISTED.key;
-    return (
+    const hasChannels = myChannelIds ? myChannelIds.length > 0 : false;
+
+    return hasChannels ? (
       <ClaimSearchView
         key={isUnlisted ? 'unlisted' : 'scheduled'}
-        csOptions={isUnlisted ? csOptions : csOptionsScheduled}
+        csOptions={isUnlisted ? csOptionsUnlisted : csOptionsScheduled}
         layout="list"
         pagination="infinite"
+      />
+    ) : (
+      <Yrbl
+        title={__('No uploads')}
+        subtitle={__("You haven't uploaded anything yet. This is where you can find them when you do!")}
       />
     );
   }
