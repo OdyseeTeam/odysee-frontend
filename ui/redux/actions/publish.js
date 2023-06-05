@@ -293,7 +293,6 @@ export const doBeginPublish = (type: PublishType, name: string = '', customPath:
     dispatch({
       type: ACTIONS.UPDATE_PUBLISH_FORM,
       data: {
-        type,
         ...(name ? { name } : {}),
       },
     });

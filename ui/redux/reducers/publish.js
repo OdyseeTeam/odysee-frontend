@@ -10,6 +10,7 @@ import {
   tusClearLockedUploads,
 } from 'util/tus';
 import * as ACTIONS from 'constants/action_types';
+import * as PAGES from 'constants/pages';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
 import { PAYWALL } from 'constants/publish';
@@ -78,8 +79,33 @@ const defaultState: PublishState = {
   scheduledShow: false,
 };
 
+const PATHNAME_TO_PUBLISH_TYPE = {
+  [`/$/${PAGES.UPLOAD}`]: 'file',
+  [`/$/${PAGES.POST}`]: 'post',
+  [`/$/${PAGES.LIVESTREAM}`]: 'livestream',
+};
+
 export const publishReducer = handleActions(
   {
+    // eslint-disable-next-line no-useless-computed-key
+    ['@@router/LOCATION_CHANGE']: (state, action) => {
+      const { location } = action.payload;
+      const { pathname } = location || {};
+      const type: ?PublishType = PATHNAME_TO_PUBLISH_TYPE[pathname];
+
+      // `type` used to be set in doBeginPublish, but it gets un-synchronized
+      // when doing `POP`, F5, or direct URL access.
+      // Since the "Submit" button is currently tied to the current page
+      // (i.e. no floating Publish forms), and that all 3 forms share the same
+      // states, we need `type` to always be correct as the reference variable
+      // for the rest of the logic here.
+
+      if (type && type !== state.type) {
+        return { ...state, type };
+      } else {
+        return state;
+      }
+    },
     [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: DoUpdatePublishForm): PublishState => {
       const { data } = action;
       const auto = {};
