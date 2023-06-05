@@ -9,7 +9,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
@@ -29,8 +29,8 @@ import PublishProtectedContent from 'component/publishProtectedContent';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
+import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
@@ -47,13 +47,14 @@ type Props = {
   publish: DoPublishDesktop,
   filePath: string | File,
   fileText: string,
+  fileBitrate: number,
   bid: ?number,
   bidError: ?string,
   editingURI: ?string,
   title: ?string,
   thumbnail: ?string,
   thumbnailError: ?boolean,
-  uploadThumbnailStatus: ?string,
+  uploadThumbnailStatus: string,
   thumbnailPath: ?string,
   description: ?string,
   language: string,
@@ -79,15 +80,12 @@ type Props = {
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
-  // Add back type
-  updatePublishForm: (any) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   checkAvailability: (string) => void,
-  ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
-  user: ?User,
   permanentUrl: ?string,
   remoteUrl: ?string,
   isClaimingInitialRewards: boolean,
@@ -112,6 +110,7 @@ function UploadForm(props: Props) {
     enablePublishPreview,
     filePath,
     fileText,
+    fileBitrate,
     hasClaimedInitialRewards,
     incognito,
     isClaimingInitialRewards,
@@ -134,32 +133,11 @@ function UploadForm(props: Props) {
     title,
     updatePublishForm,
     uploadThumbnailStatus,
-    user,
-    ytSignupPending,
     restrictedToMemberships,
     visibility,
   } = props;
 
   const inEditMode = Boolean(editingURI);
-  const { replace, location } = useHistory();
-  const urlParams = new URLSearchParams(location.search);
-  const TYPE_PARAM = 'type';
-  const uploadType = urlParams.get(TYPE_PARAM);
-  const _uploadType = uploadType && uploadType.toLowerCase();
-
-  const enableLivestream = ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled;
-
-  const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
-    if (inEditMode) {
-      return mode === PUBLISH_MODES.FILE;
-    } else if (_uploadType) {
-      return mode === _uploadType && (mode !== PUBLISH_MODES.LIVESTREAM || enableLivestream);
-    }
-  });
-
-  const MODE_TO_I18N_STR = {
-    [PUBLISH_MODES.FILE]: SIMPLE_SITE ? 'Video/Audio' : 'File',
-  };
 
   const formTitle = !editingURI ? __('Upload a file') : __('Edit Upload');
 
@@ -173,7 +151,6 @@ function UploadForm(props: Props) {
   const [prevFileText, setPrevFileText] = React.useState('');
 
   const [waitForFile, setWaitForFile] = useState(false);
-  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
 
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
@@ -199,7 +176,7 @@ function UploadForm(props: Props) {
     name &&
     isNameValid(name) &&
     title &&
-    !overMaxBitrate &&
+    fileBitrate < BITRATE.MAX &&
     bid &&
     thumbnail &&
     !bidError &&
@@ -329,14 +306,6 @@ function UploadForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
-  // set isMarkdownPost in publish form if so, also update isLivestreamPublish
-  useEffect(() => {
-    updatePublishForm({
-      isMarkdownPost: false,
-      isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
-    });
-  }, [mode, updatePublishForm]);
-
   useEffect(() => {
     if (incognito) {
       updatePublishForm({ channel: undefined });
@@ -344,15 +313,6 @@ function UploadForm(props: Props) {
       updatePublishForm({ channel: activeChannelName });
     }
   }, [activeChannelName, incognito, updatePublishForm]);
-
-  // if we have a type urlparam, update it? necessary?
-  useEffect(() => {
-    if (!_uploadType) return;
-    const newParams = new URLSearchParams();
-    newParams.set(TYPE_PARAM, mode.toLowerCase());
-    replace({ search: newParams.toString() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, _uploadType]);
 
   // @if TARGET='web'
   function createWebFile() {
@@ -426,7 +386,6 @@ function UploadForm(props: Props) {
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    ytSignupPending ||
     previewing;
 
   // Editing claim uri
@@ -457,23 +416,8 @@ function UploadForm(props: Props) {
               inProgress={isInProgress}
               setPrevFileText={setPrevFileText}
               setWaitForFile={setWaitForFile}
-              setOverMaxBitrate={setOverMaxBitrate}
               channelId={claimChannelId}
               channelName={activeChannelName}
-              header={
-                <>
-                  {AVAILABLE_MODES.map((modeName) => (
-                    <Button
-                      key={String(modeName)}
-                      icon={modeName}
-                      iconSize={18}
-                      label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
-                      button="alt"
-                      className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
-                    />
-                  ))}
-                </>
-              }
             />
           </div>
         }
@@ -559,7 +503,7 @@ function UploadForm(props: Props) {
         </div>
         <span className="help">
           {!formDisabled && !formValid ? (
-            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
+            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
           ) : (
             <I18nMessage
               tokens={{

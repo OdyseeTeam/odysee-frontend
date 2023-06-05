@@ -1,5 +1,9 @@
 // @flow
 
+declare type PublishType = 'file' | 'post' | 'livestream';
+declare type LiveCreateType = 'new_placeholder' | 'choose_replay' | 'edit_placeholder';
+declare type LiveEditType = 'update_only' | 'use_replay' | 'upload_replay';
+
 declare type Paywall = 'free' | 'fiat' | 'sdk';
 declare type Visibility = 'public' | 'unlisted' | 'private' | 'scheduled';
 
@@ -33,6 +37,9 @@ declare type PublishParams = {
 
 // Redux slice. Includes both form data and some UI states
 declare type PublishState = {|
+  type: PublishType;
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   uri?: ?string, // An edit's uri that is presented to the user. (TODO: remove this)
   editingURI: ?string, // An edit's uri with full info (claim id and all).
   claimToEdit: ?StreamClaim, // A copy of the claim being edited for reference.
@@ -41,13 +48,15 @@ declare type PublishState = {|
                              // We can eventually remove editingURI and just
                              // derive that from a selector.
   fileText: ?string,
-  filePath: ?string,
+  filePath: ?string | WebFile,
   remoteFileUrl: ?string,
   paywall: Paywall,
   fileDur: number,
   fileSize: number,
   fileVid: boolean,
   fileMime: string,
+  fileBitrate: number,
+  fileSizeTooBig: boolean,
   streamType: ?string,
   fee: {
     amount: number,
@@ -59,8 +68,9 @@ declare type PublishState = {|
   fiatRentalExpiration: Duration,
   fiatRentalEnabled: boolean,
   title: string,
-  thumbnail_url: string,
-  thumbnailPath: string,
+  thumbnail: string, // Manually-entered thumbnail url.
+  thumbnail_url: string, // URL for successful thumbnail upload.
+  thumbnailPath: string, // File path for the thumbnail that will be uploaded.
   uploadThumbnailStatus: string,
   thumbnailError: ?boolean,
   description: string,
@@ -89,9 +99,6 @@ declare type PublishState = {|
   optimize: boolean,
   useLBRYUploader: boolean,
   currentUploads: { [key: string]: FileUploadItem },
-  isMarkdownPost: boolean,
-  isLivestreamPublish: boolean,
-  replaySource: 'keep' | 'choose' | 'upload',
   visibility: Visibility,
   scheduledShow: boolean,
 |};

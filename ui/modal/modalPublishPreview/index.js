@@ -23,7 +23,6 @@ const select = (state, props) => {
     myChannels: selectMyChannelClaims(state),
     isVid: selectPublishFormValue(state, 'fileVid'),
     publishing: selectPublishFormValue(state, 'publishing'),
-    remoteFile: selectPublishFormValue(state, 'remoteFileUrl'),
     tiersWithExclusiveContent: selectMyMembershipTiersWithExclusiveContentPerk(state, channelClaimId),
     tiersWithExclusiveLivestream: selectMyMembershipTiersWithExclusiveLivestreamPerk(state, channelClaimId),
     myMembershipTiers: selectMembershipTiersForCreatorId(state, channelClaimId),

@@ -17,19 +17,22 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
-import { NO_FILE } from 'redux/actions/publish';
-import { PAYWALL } from 'constants/publish';
+import { NO_FILE, PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import * as STRIPE from 'constants/stripe';
 import { TO_SECONDS } from 'util/stripe';
 import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
 
 type Props = {
+  publishPayload: PublishParams,
+  previewResponse: PublishResponse,
+  // --- internal ---
+  type: PublishType,
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   filePath: string | WebFile,
-  isMarkdownPost: boolean,
   optimize: boolean,
-  title: ?string,
-  description: ?string,
   channel: ?string,
   bid: ?number,
   uri: ?string,
@@ -48,7 +51,6 @@ type Props = {
   tags: Array<Tag>,
   isVid: boolean,
   ffmpegStatus: any,
-  previewResponse: PublishResponse,
   publish: DoPublishDesktop,
   closeModal: () => void,
   enablePublishPreview: boolean,
@@ -58,7 +60,7 @@ type Props = {
   publishSuccess: boolean,
   publishing: boolean,
   isLivestreamClaim: boolean,
-  remoteFile: string,
+  remoteFile: ?string,
   tiersWithExclusiveContent: MembershipTiers,
   tiersWithExclusiveLivestream: MembershipTiers,
   myMembershipTiers: MembershipTiers,
@@ -70,11 +72,13 @@ type Props = {
 // class ModalPublishPreview extends React.PureComponent<Props> {
 const ModalPublishPreview = (props: Props) => {
   const {
-    filePath,
-    isMarkdownPost,
+    publishPayload: payload,
+    previewResponse,
+
+    type,
+    liveCreateType,
+    liveEditType,
     optimize,
-    title,
-    description,
     channel,
     bid,
     uri,
@@ -88,14 +92,13 @@ const ModalPublishPreview = (props: Props) => {
     fiatRentalExpiration,
 
     language,
-    releaseTime,
+    releaseTime: rtStore,
     licenseType,
     otherLicenseDescription,
     licenseUrl,
     tags,
     isVid,
     ffmpegStatus = {},
-    previewResponse,
     enablePublishPreview,
     setEnablePublishPreview,
     isStillEditing,
@@ -105,7 +108,6 @@ const ModalPublishPreview = (props: Props) => {
     publish,
     closeModal,
     isLivestreamClaim,
-    remoteFile,
     tiersWithExclusiveContent,
     tiersWithExclusiveLivestream,
     myMembershipTiers,
@@ -113,6 +115,16 @@ const ModalPublishPreview = (props: Props) => {
     visibility,
     scheduledShow,
   } = props;
+
+  const { description, file_path: filePath, remote_url, release_time: rtPayload, title } = payload;
+
+  const releaseTimeInfo = React.useMemo(() => {
+    return {
+      userEntered: rtStore !== undefined,
+      value: rtPayload,
+      valueIsInFuture: rtPayload && moment(rtPayload * 1000).isAfter(),
+    };
+  }, [rtPayload, rtStore]);
 
   const livestream =
     (uri && isLivestreamClaim) ||
@@ -122,7 +134,6 @@ const ModalPublishPreview = (props: Props) => {
 
   const formattedTitle = truncateWithEllipsis(title, 128);
   const formattedUri = truncateWithEllipsis(uri, 128);
-  const releasesInFuture = releaseTime && moment(releaseTime * 1000).isAfter();
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
@@ -150,7 +161,7 @@ const ModalPublishPreview = (props: Props) => {
     return str;
   }
 
-  function getFilePathName(filePath: string | WebFile) {
+  function getFilePathName(filePath: ?string | WebFile) {
     if (!filePath) {
       return NO_FILE;
     }
@@ -169,13 +180,13 @@ const ModalPublishPreview = (props: Props) => {
       } else {
         return __('Confirm Edit');
       }
-    } else if (livestream || isLivestreamClaim || remoteFile) {
-      return releasesInFuture
+    } else if (livestream || isLivestreamClaim || remote_url) {
+      return releaseTimeInfo.valueIsInFuture
         ? __('Schedule Livestream')
-        : (!livestream || !isLivestreamClaim) && remoteFile
+        : (!livestream || !isLivestreamClaim) && remote_url
         ? __('Publish Replay')
         : __('Create Livestream');
-    } else if (isMarkdownPost) {
+    } else if (type === PUBLISH_TYPES.POST) {
       return __('Confirm Post');
     } else {
       return __('Confirm Upload');
@@ -300,12 +311,12 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function getReleaseTimeLabel() {
-    return releasesInFuture ? __('Scheduled for') : __('Release date');
+    return releaseTimeInfo.valueIsInFuture ? __('Scheduled for') : __('Release date');
   }
 
-  function getReleaseTimeValue(time) {
-    if (time) {
-      return moment(new Date(time * 1000)).format('LLL');
+  function getReleaseTimeValue() {
+    if (releaseTimeInfo.value) {
+      return moment(new Date(releaseTimeInfo.value * 1000)).format('LLL');
     } else {
       return '';
     }
@@ -360,6 +371,18 @@ const ModalPublishPreview = (props: Props) => {
     }
   }
 
+  function getReplayValue() {
+    // Include both to detect errors visually
+    return `${__(filePath ? getFilePathName(filePath) : '')}${__(remote_url ? 'Remote File Selected' : '')}`;
+  }
+
+  function hideReplayRow() {
+    const show =
+      type === 'livestream' &&
+      (liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType !== 'update_only'));
+    return !show;
+  }
+
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
@@ -407,9 +430,8 @@ const ModalPublishPreview = (props: Props) => {
               <div className="section">
                 <table className="table table--condensed table--publish-preview">
                   <tbody>
-                    {!livestream && !isMarkdownPost && createRow(__('File'), getFilePathName(filePath))}
-                    {livestream && remoteFile && createRow(__('Replay'), __('Remote File Selected'))}
-                    {livestream && filePath && createRow(__('Replay'), __('Manual Upload'))}
+                    {!livestream && type !== PUBLISH_TYPES.POST && createRow(__('File'), getFilePathName(filePath))}
+                    {createRow(__('Replay'), getReplayValue(), hideReplayRow())}
                     {isOptimizeAvail && createRow(__('Transcode'), optimize ? __('Yes') : __('No'))}
                     {createRow(__('Title'), formattedTitle)}
                     {createRow(__('Description'), getDescription())}
@@ -419,7 +441,7 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
                     {createRow(__('Visibility'), getVisibilityValue())}
-                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTime), !releaseTime)}
+                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(), !releaseTimeInfo.userEntered)}
                     {createRow(__('License'), getLicense())}
                     {createRow(__('Restricted to'), getTierRestrictionValue(), hideTierRestrictions())}
                     {createRow(__('Tags'), getTagsValue(tags))}

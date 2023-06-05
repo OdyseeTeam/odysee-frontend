@@ -53,14 +53,12 @@ type Props = {
   collectionId: string,
   isMyCollection: boolean,
   isUnlisted: boolean,
-  isLivestreamClaim?: boolean,
-  isPostClaim?: boolean,
   fypId?: string,
   doToast: ({ message: string, isError?: boolean, linkText?: string, linkTarget?: string }) => void,
   claimIsMine: boolean,
   // settingsByChannelId: boolean,
   fileInfo: FileListItem,
-  prepareEdit: ({}, string, string) => void,
+  prepareEdit: ({}, string) => void,
   isSubscribed: boolean,
   doChannelSubscribe: (SubscriptionArgs) => void,
   doChannelUnsubscribe: (SubscriptionArgs) => void,
@@ -103,8 +101,6 @@ function ClaimMenuList(props: Props) {
     collectionId,
     isMyCollection,
     isUnlisted,
-    isLivestreamClaim,
-    isPostClaim,
     fypId,
     doToast,
     claimIsMine,
@@ -144,8 +140,6 @@ function ClaimMenuList(props: Props) {
     : isSubscribed
     ? __('Unfollow')
     : __('Follow');
-
-  const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
 
   if (!claim) {
     return null;
@@ -206,7 +200,7 @@ function ClaimMenuList(props: Props) {
       // TODO: move the logic to create `editUri` into doPrepareEdit since
       // `claim` is passed in.
 
-      prepareEdit(claim, editUri, claimType);
+      prepareEdit(claim, editUri);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
       push(`/${channelUrl}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`);

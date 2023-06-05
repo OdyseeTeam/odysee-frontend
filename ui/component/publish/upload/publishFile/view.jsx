@@ -1,17 +1,16 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
-import React, { useState, useEffect } from 'react';
+import { BITRATE } from 'constants/publish';
+import React, { useEffect } from 'react';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
-import { sanitizeName } from 'util/lbryURI';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
-import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from 'component/publish/shared/publishName';
 import classnames from 'classnames';
 import * as PAGES from 'constants/pages';
@@ -27,86 +26,53 @@ type Props = {
   name: ?string,
   title: ?string,
   filePath: string | WebFile,
+  fileBitrate: number,
+  fileSizeTooBig: boolean,
   isStillEditing: boolean,
   balance: number,
-  size: number,
   duration: number,
   isVid: boolean,
-  setPublishMode: (string) => void,
-  setOverMaxBitrate: (boolean) => void,
   fileSource: string,
   myClaimForUri: ?StreamClaim,
   activeChannelClaim: ?ChannelClaim,
-  doUpdatePublishForm: ({}) => void,
-  doToast: ({ message: string, isError?: boolean }) => void,
+  doUpdatePublishForm: (UpdatePublishState) => void,
+  doUpdateFile: (file: WebFile, clearName: boolean) => void,
 };
 
 function PublishFile(props: Props) {
   const {
     uri,
-    mode,
     name,
     title,
     balance,
     filePath,
+    fileBitrate,
+    fileSizeTooBig,
     isStillEditing,
     doUpdatePublishForm: updatePublishForm,
-    doToast,
+    doUpdateFile,
     disabled,
-    size,
     duration,
     isVid,
-    setPublishMode,
-    // setPrevFileText,
-    // setWaitForFile,
-    setOverMaxBitrate,
     fileSource,
     myClaimForUri,
     activeChannelClaim,
-    // inEditMode,
   } = props;
 
-  const RECOMMENDED_BITRATE = 9500000;
-  const MAX_BITRATE = 19500000;
-  const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
-
-  const MARKDOWN_FILE_EXTENSIONS = ['txt', 'md', 'markdown'];
-  const [oversized, setOversized] = useState(false);
-  const [currentFile, setCurrentFile] = useState(null);
-  const [currentFileType, setCurrentFileType] = useState(null);
   const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
     SITE_NAME,
     limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
   });
 
-  const bitRate = getBitrate(size, duration);
-  const bitRateIsOverMax = bitRate > MAX_BITRATE;
-
   const [livestreamData, setLivestreamData] = React.useState([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
+  const currentPath = typeof filePath === 'string' ? filePath : filePath?.name;
 
   const claimChannelId =
     (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
     (activeChannelClaim && activeChannelClaim.claim_id);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
-  // const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
-
-  // Reset filePath if publish mode changed
-  useEffect(() => {
-    if (mode === PUBLISH_MODES.POST) {
-      if (currentFileType !== 'text/markdown' && !isStillEditing) {
-        updatePublishForm({ filePath: '' });
-      }
-    } else if (mode === PUBLISH_MODES.LIVESTREAM) {
-      updatePublishForm({ filePath: '' });
-    }
-  }, [currentFileType, mode, isStillEditing, updatePublishForm]);
-
-  useEffect(() => {
-    updatePublishForm({ title: title });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- reset title when file changes
-  }, [filePath]);
 
   /*
   const normalizeUrlForProtocol = (url) => {
@@ -121,26 +87,6 @@ function PublishFile(props: Props) {
     }
   };
   */
-
-  useEffect(() => {
-    if (!filePath || filePath === '') {
-      setCurrentFile('');
-      setOversized(false);
-      setOverMaxBitrate(false);
-      updateFileInfo(0, 0, false);
-    } else if (typeof filePath !== 'string') {
-      // Update currentFile file
-      if (filePath.name !== currentFile && filePath.path !== currentFile) {
-        handleFileChange(filePath);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [filePath, currentFile, doToast, updatePublishForm]);
-
-  useEffect(() => {
-    setOverMaxBitrate(bitRateIsOverMax);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [bitRateIsOverMax]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
   async function fetchLivestreams(channelId, channelName) {
@@ -208,20 +154,6 @@ function PublishFile(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimChannelId, activeChannelName]);
 
-  function updateFileInfo(duration, size, isvid) {
-    updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
-  }
-
-  function getBitrate(size, duration) {
-    const s = Number(size);
-    const d = Number(duration);
-    if (s && d) {
-      return (s * 8) / d;
-    } else {
-      return 0;
-    }
-  }
-
   function linkReplays() {
     return (
       <p className="help">
@@ -245,7 +177,7 @@ function PublishFile(props: Props) {
 
   function getUploadMessage() {
     // @if TARGET='web'
-    if (oversized) {
+    if (fileSizeTooBig) {
       return (
         <p className="help--error">
           {UPLOAD_SIZE_MESSAGE}{' '}
@@ -255,11 +187,11 @@ function PublishFile(props: Props) {
     }
     // @endif
 
-    if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
+    if (fileBitrate > BITRATE.RECOMMENDED) {
       return (
         <p className="help--warning">
           <Icon icon={ICONS.INFO} />
-          {bitRateIsOverMax
+          {fileBitrate > BITRATE.MAX
             ? __(
                 'Your video has a bitrate over ~16 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
               )
@@ -311,115 +243,12 @@ function PublishFile(props: Props) {
     updatePublishForm({ title: event.target.value });
   }
 
-  function handleFileReaderLoaded(event: ProgressEvent) {
-    // See: https://github.com/facebook/flow/issues/3470
-    if (event.target instanceof FileReader) {
-      const text = event.target.result;
-      updatePublishForm({ fileText: text });
-      setPublishMode(PUBLISH_MODES.POST);
-    }
-  }
-
   function handleFileChange(file: WebFile, clearName = true) {
-    window.URL = window.URL || window.webkitURL;
-    setOversized(false);
-    setOverMaxBitrate(false);
-
-    // $FlowFixMe
-    titleInput.current.input.current.focus();
-
-    // select file, start to select a new one, then cancel
-    if (!file) {
-      if (isStillEditing || !clearName) {
-        updatePublishForm({ filePath: '' });
-      } else {
-        updatePublishForm({ filePath: '', name: '' });
-      }
-      return;
+    if (titleInput.current && titleInput.current.input) {
+      titleInput.current.input.current.focus();
     }
 
-    // if video, extract duration so we can warn about bitrateif (typeof file !== 'string') {
-    const contentType = file.type && file.type.split('/');
-    const isVideo = contentType && contentType[0] === 'video';
-    const isMp4 = contentType && contentType[1] === 'mp4';
-
-    updatePublishForm({ fileMime: file.type });
-
-    let isTextPost = false;
-
-    if (contentType && contentType[0] === 'text') {
-      isTextPost = contentType[1] === 'plain' || contentType[1] === 'markdown';
-      setCurrentFileType(contentType);
-    } else if (file.name) {
-      // If user's machine is missign a valid content type registration
-      // for markdown content: text/markdown, file extension will be used instead
-      const extension = file.name.split('.').pop();
-      isTextPost = MARKDOWN_FILE_EXTENSIONS.includes(extension);
-    }
-
-    if (isVideo) {
-      if (isMp4) {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-        video.onloadedmetadata = () => {
-          updateFileInfo(video.duration, file.size, isVideo);
-          window.URL.revokeObjectURL(video.src);
-        };
-        video.onerror = () => {
-          updateFileInfo(0, file.size, isVideo);
-        };
-        video.src = window.URL.createObjectURL(file);
-      } else {
-        updateFileInfo(0, file.size, isVideo);
-      }
-    } else {
-      updateFileInfo(0, file.size, isVideo);
-    }
-
-    // Strip off extention and replace invalid characters
-    let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
-    autofillTitle(file);
-
-    if (isTextPost) {
-      // Create reader
-      const reader = new FileReader();
-      // Handler for file reader
-      reader.addEventListener('load', handleFileReaderLoaded);
-      // Read file contents
-      reader.readAsText(file);
-      setCurrentFileType('text/markdown');
-    } else {
-      // setPublishMode(PUBLISH_MODES.FILE);
-    }
-
-    // @if TARGET='web'
-    // we only need to enforce file sizes on 'web'
-    if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
-      setOversized(true);
-      doToast({ message: __(UPLOAD_SIZE_MESSAGE), isError: true });
-      updatePublishForm({ filePath: '' });
-      return;
-    }
-    // @endif
-
-    const publishFormParams: { filePath: string | WebFile, name?: string, optimize?: boolean } = {
-      // if electron, we'll set filePath to the path string because SDK is handling publishing.
-      // File.path will be undefined from web due to browser security, so it will default to the File Object.
-      filePath: file.path || file,
-    };
-
-    if (!isStillEditing) {
-      publishFormParams.name = sanitizeName(fileName);
-    }
-
-    // File path is not supported on web for security reasons so we use the name instead.
-    setCurrentFile(file.path || file.name);
-    updatePublishForm(publishFormParams);
-  }
-
-  function autofillTitle(file) {
-    const newTitle = (file && file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || name || '';
-    if (!title) updatePublishForm({ title: newTitle });
+    doUpdateFile(file, clearName);
   }
 
   const titleInput = React.createRef();
@@ -435,7 +264,7 @@ function PublishFile(props: Props) {
             <>
               <FileSelector
                 disabled={disabled}
-                currentPath={currentFile}
+                currentPath={currentPath}
                 onFileChosen={handleFileChange}
                 placeholder={
                   SIMPLE_SITE ? __('Select video, audio or image file to upload') : __('Select a file to upload')

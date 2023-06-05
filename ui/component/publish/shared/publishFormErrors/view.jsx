@@ -3,17 +3,18 @@ import React from 'react';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { isNameValid } from 'util/lbryURI';
 import { INVALID_NAME_ERROR } from 'constants/claim';
+import { BITRATE } from 'constants/publish';
 
 type Props = {
   waitForFile: boolean,
-  overMaxBitrate: boolean,
   // --- redux ---
   title: ?string,
   name: ?string,
   bid: ?string,
   bidError: ?string,
   editingURI: ?string,
-  filePath: ?string,
+  filePath: ?string | WebFile,
+  fileBitrate: number,
   isStillEditing: boolean,
   uploadThumbnailStatus: string,
   thumbnail: string,
@@ -37,7 +38,7 @@ function PublishFormErrors(props: Props) {
     thumbnailError,
     releaseTimeError,
     waitForFile,
-    overMaxBitrate,
+    fileBitrate,
     restrictedToMemberships,
     visibility,
   } = props;
@@ -57,7 +58,9 @@ function PublishFormErrors(props: Props) {
           )}
         </div>
       )}
-      {overMaxBitrate && <div>{__('Bitrate is over the max, please transcode or choose another file.')}</div>}
+      {fileBitrate > BITRATE.MAX && (
+        <div>{__('Bitrate is over the max, please transcode or choose another file.')}</div>
+      )}
       {!title && <div>{__('A title is required')}</div>}
       {!name && <div>{__('A URL is required')}</div>}
       {name && !isNameValid(name) && INVALID_NAME_ERROR}

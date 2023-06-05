@@ -8,7 +8,6 @@ import PublishPrice from './view';
 const select = (state) => ({
   fileMime: selectPublishFormValue(state, 'fileMime'),
   streamType: selectPublishFormValue(state, 'streamType'),
-  isMarkdownPost: selectPublishFormValue(state, 'isMarkdownPost'),
   paywall: selectPublishFormValue(state, 'paywall'),
   fiatPurchaseEnabled: selectPublishFormValue(state, 'fiatPurchaseEnabled'),
   fiatPurchaseFee: selectPublishFormValue(state, 'fiatPurchaseFee'),
@@ -18,6 +17,7 @@ const select = (state) => ({
   fee: selectPublishFormValue(state, 'fee'),
   chargesEnabled: selectAccountChargesEnabled(state),
   restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
+  type: state.publish.type,
   visibility: selectPublishFormValue(state, 'visibility'),
 });
 

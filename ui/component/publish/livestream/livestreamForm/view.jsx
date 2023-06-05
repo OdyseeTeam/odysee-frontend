@@ -12,9 +12,11 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import { BITRATE } from 'constants/publish';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
@@ -26,13 +28,10 @@ import PublishStreamReleaseDate from 'component/publish/shared/publishStreamRele
 import PublishLivestream from 'component/publish/livestream/publishLivestream';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
-import * as PUBLISH_MODES from 'constants/publish_types';
-import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { lazyImport } from 'util/lazyImport';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
-import { SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
 import PublishProtectedContent from 'component/publishProtectedContent';
@@ -43,10 +42,13 @@ const PublishPrice = lazyImport(() =>
 );
 
 type Props = {
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   tags: Array<Tag>,
   publish: DoPublishDesktop,
-  filePath: string | File,
+  filePath: string | WebFile,
   fileText: string,
+  fileBitrate: number,
   bid: ?number,
   bidError: ?string,
   editingURI: ?string,
@@ -80,9 +82,8 @@ type Props = {
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
   // Add back type
-  updatePublishForm: (any) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   checkAvailability: (string) => void,
-  ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
@@ -90,14 +91,12 @@ type Props = {
   isLivestreamClaim: boolean,
   isPostClaim: boolean,
   permanentUrl: ?string,
-  remoteUrl: ?string,
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   setClearStatus: (boolean) => void,
   // disabled?: boolean,
   remoteFileUrl?: string,
-  urlSource?: string,
   restrictedToMemberships: ?string,
   visibility: Visibility,
 };
@@ -105,6 +104,8 @@ type Props = {
 function LivestreamForm(props: Props) {
   // Detect upload type from query in URL
   const {
+    liveCreateType,
+    liveEditType,
     thumbnail,
     thumbnailError,
     releaseTimeError,
@@ -119,7 +120,7 @@ function LivestreamForm(props: Props) {
     resetThumbnailStatus,
     updatePublishForm,
     filePath,
-    fileText,
+    fileBitrate,
     publishing,
     publishSuccess,
     publishError,
@@ -128,7 +129,6 @@ function LivestreamForm(props: Props) {
     tags,
     publish,
     checkAvailability,
-    ytSignupPending,
     modal,
     enablePublishPreview,
     activeChannelClaim,
@@ -136,52 +136,39 @@ function LivestreamForm(props: Props) {
     // user,
     balance,
     permanentUrl,
-    remoteUrl,
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
     setClearStatus,
     remoteFileUrl,
-    urlSource,
     restrictedToMemberships,
     visibility,
   } = props;
 
+  const {
+    location: { search },
+  } = useHistory();
+  const urlParams = new URLSearchParams(search);
+  const createTypeShortcut = urlParams.get('s');
+
   const isMobile = useIsMobile();
 
   const inEditMode = Boolean(editingURI);
-  const { replace, location } = useHistory();
-  const urlParams = new URLSearchParams(location.search);
-  const TYPE_PARAM = 'type';
-  const uploadType = urlParams.get(TYPE_PARAM);
-  const _uploadType = uploadType && uploadType.toLowerCase();
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
 
-  const mode = PUBLISH_MODES.LIVESTREAM;
-  const [publishMode, setPublishMode] = React.useState('New');
-  const [replaySource, setReplaySource] = React.useState('keep');
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
   // Used to check if the url name has changed:
   // A new file needs to be provided
   const [prevName, setPrevName] = React.useState(false);
 
-  const [waitForFile, setWaitForFile] = useState(false);
-  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
+  const [waitForFile] = useState(false);
 
   const [livestreamData, setLivestreamData] = React.useState([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
   const TAGS_LIMIT = 5;
-  const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
-  const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
-  const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
-  const isInProgress = filePath || editingURI || name || title;
-  // Editing content info
-  const fileMimeType =
-    myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
-      ? myClaimForUri.value.source.media_type
-      : undefined;
+  const formDisabled = publishing;
   const claimChannelId =
     (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
     (activeChannelClaim && activeChannelClaim.claim_id);
@@ -189,18 +176,17 @@ function LivestreamForm(props: Props) {
   // const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
-  const waitingForFile = waitForFile && !remoteUrl && !filePath;
+  const waitingForFile = waitForFile && !remoteFileUrl && !filePath;
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
     (restrictedToMemberships !== null || visibility === 'unlisted') &&
     name &&
     isNameValid(name) &&
     title &&
-    !overMaxBitrate &&
+    fileBitrate < BITRATE.MAX &&
     bid &&
     thumbnail &&
     !bidError &&
-    !emptyPostError &&
     !(thumbnailError && !thumbnailUploaded) &&
     !releaseTimeError &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
@@ -215,12 +201,12 @@ function LivestreamForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  const disabled = !title || !name || (publishMode === 'Replay' && !remoteFileUrl);
-  const isClear = !title && !name && !description && !thumbnail;
+  const requiresReplayUrl =
+    liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay');
+  const requiresFile = liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay';
 
-  React.useEffect(() => {
-    updatePublishForm({ replaySource });
-  }, [replaySource, updatePublishForm]);
+  const disabled = !title || !name || (requiresReplayUrl && !remoteFileUrl) || (requiresFile && !filePath);
+  const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
     setClearStatus(isClear);
@@ -310,7 +296,6 @@ function LivestreamForm(props: Props) {
     }
   }
 
-  const isLivestreamMode = mode === PUBLISH_MODES.LIVESTREAM;
   let submitLabel;
 
   if (isClaimingInitialRewards) {
@@ -382,74 +367,31 @@ function LivestreamForm(props: Props) {
   useEffect(() => {
     if (editingURI) {
       resolveUri(editingURI);
-      setPublishMode('Edit');
-    } else if (urlSource) {
-      setPublishMode(urlSource);
-    } else {
-      setPublishMode('New');
-      updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [editingURI, resolveUri]);
 
   useEffect(() => {
-    updatePublishForm({
-      isMarkdownPost: false,
-      isLivestreamPublish: true,
-    });
-  }, [mode, updatePublishForm]);
-
-  useEffect(() => {
-    if (publishMode === 'New') {
-      updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
+    if (createTypeShortcut === 'Replay') {
+      updatePublishForm({ liveCreateType: 'choose_replay' });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [publishMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
+  }, []);
 
   useEffect(() => {
+    // $FlowFixMe please
     updatePublishForm({ channel: activeChannelName });
-  }, [activeChannelName, updatePublishForm, isLivestreamMode]);
-
-  // if we have a type urlparam, update it? necessary?
-  useEffect(() => {
-    if (!_uploadType) return;
-    const newParams = new URLSearchParams();
-    newParams.set(TYPE_PARAM, mode.toLowerCase());
-    replace({ search: newParams.toString() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, _uploadType]);
+  }, [activeChannelName, updatePublishForm]);
 
   async function handlePublish() {
     let outputFile = filePath;
-    let runPublish = false;
 
-    // Publish file
-    if (mode === PUBLISH_MODES.FILE || isLivestreamMode) {
-      runPublish = true;
-    }
-
-    if (runPublish) {
-      if (enablePublishPreview) {
-        setPreviewing(true);
-        publish(outputFile, true);
-      } else {
-        publish(outputFile, false);
-      }
+    if (enablePublishPreview) {
+      setPreviewing(true);
+      publish(outputFile, true);
+    } else {
+      publish(outputFile, false);
     }
   }
-
-  // When accessing to publishing, make sure to reset file input attributes
-  // since we can't restore from previous user selection (like we do
-  // with other properties such as name, title, etc.) for security reasons.
-  useEffect(() => {
-    if (mode === PUBLISH_MODES.FILE) {
-      updatePublishForm({ filePath: '', fileDur: 0, fileSize: 0 });
-    }
-  }, [mode, updatePublishForm]);
-
-  // File Source Selector State.
-  const [fileSource, setFileSource] = useState();
-  const changeFileSource = (state) => setFileSource(state);
 
   if (publishing) {
     return (
@@ -465,11 +407,12 @@ function LivestreamForm(props: Props) {
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    ytSignupPending ||
+    (requiresReplayUrl && !remoteFileUrl) ||
+    (requiresFile && !filePath) ||
     previewing;
 
   // replays use 'exclusive content' perk, livestreams use 'exclusive livestreams'
-  const channelRestrictionToUse = publishMode === 'Replay' ? 'upload' : 'livestream';
+  const channelRestrictionToUse = liveCreateType === 'choose_replay' ? 'upload' : 'livestream';
 
   // Editing claim uri
   return (
@@ -482,36 +425,29 @@ function LivestreamForm(props: Props) {
             iconSize={18}
             label={__('New Livestream')}
             button="alt"
-            onClick={() => {
-              setPublishMode('New');
-            }}
+            onClick={() => updatePublishForm({ liveCreateType: 'new_placeholder' })}
             disabled={editingURI}
-            className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
+            className={classnames('button-toggle', { 'button-toggle--active': liveCreateType === 'new_placeholder' })}
           />
-          {publishMode !== 'Edit' && (
+          {liveCreateType !== 'edit_placeholder' && (
             <Button
               key={'Replay'}
               icon={ICONS.MENU}
               iconSize={18}
               label={__('Choose Replay')}
               button="alt"
-              onClick={() => {
-                setPublishMode('Replay');
-              }}
-              disabled={!hasLivestreamData || publishMode === 'Edit'}
-              className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
+              onClick={() => updatePublishForm({ liveCreateType: 'choose_replay' })}
+              disabled={!hasLivestreamData}
+              className={classnames('button-toggle', { 'button-toggle--active': liveCreateType === 'choose_replay' })}
             />
           )}
-          {publishMode === 'Edit' && (
+          {liveCreateType === 'edit_placeholder' && (
             <Button
               key={'Edit'}
               icon={ICONS.EDIT}
               iconSize={18}
               label={__('Edit / Update')}
               button="alt"
-              onClick={() => {
-                setPublishMode('Edit');
-              }}
               className="button-toggle button-toggle--active"
             />
           )}
@@ -533,22 +469,10 @@ function LivestreamForm(props: Props) {
             <div className="publish-row">
               <PublishLivestream
                 inEditMode={inEditMode}
-                fileSource={publishMode === 'New' || publishMode === 'Edit' ? fileSource : SOURCE_SELECT}
-                changeFileSource={changeFileSource}
                 uri={permanentUrl}
-                mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
-                fileMimeType={fileMimeType}
                 disabled={publishing}
-                inProgress={isInProgress}
                 livestreamData={livestreamData}
-                setWaitForFile={setWaitForFile}
-                setOverMaxBitrate={setOverMaxBitrate}
                 isCheckingLivestreams={isCheckingLivestreams}
-                checkLivestreams={fetchLivestreams}
-                channelId={claimChannelId}
-                channelName={activeChannelName}
-                setReplaySource={setReplaySource}
-                replaySource={replaySource}
               />
             </div>
           }
@@ -566,7 +490,8 @@ function LivestreamForm(props: Props) {
 
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
-            {(publishMode === 'New' || (publishMode === 'Edit' && replaySource === 'keep')) && (
+            {(liveCreateType === 'new_placeholder' ||
+              (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only')) && (
               <Card background title={__('Date')} body={<PublishStreamReleaseDate />} />
             )}
 
@@ -583,7 +508,7 @@ function LivestreamForm(props: Props) {
 
             <PublishProtectedContent claim={myClaimForUri} location={channelRestrictionToUse} />
 
-            {publishMode === 'Replay' && <PublishPrice disabled={disabled} />}
+            {liveCreateType === 'choose_replay' && <PublishPrice disabled={disabled} />}
 
             <Card
               background
@@ -621,9 +546,10 @@ function LivestreamForm(props: Props) {
             />
 
             <PublishAdditionalOptions
-              isLivestream={isLivestreamMode}
+              isLivestream
               disabled={disabled}
-              showSchedulingOptions={publishMode === 'New' || (publishMode === 'Edit' && replaySource)}
+              showSchedulingOptions={liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder'}
+              // ^--- the name is wrong. should be "hide" instead
             />
           </div>
         )}
@@ -634,12 +560,7 @@ function LivestreamForm(props: Props) {
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (
-              <PublishFormErrors
-                title={title}
-                mode={mode}
-                waitForFile={waitingForFile}
-                overMaxBitrate={overMaxBitrate}
-              />
+              <PublishFormErrors title={title} waitForFile={waitingForFile} />
             ) : (
               <I18nMessage
                 tokens={{

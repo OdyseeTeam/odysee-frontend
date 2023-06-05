@@ -41,7 +41,7 @@ const select = (state) => {
     // Need this to make it easier to find the source on previously published content
     isStillEditing: selectIsStillEditing(state),
     filePath: selectPublishFormValue(state, 'filePath'),
-    remoteUrl: selectPublishFormValue(state, 'remoteFileUrl'),
+    remoteFileUrl: selectPublishFormValue(state, 'remoteFileUrl'),
     publishSuccess: selectPublishFormValue(state, 'publishSuccess'),
     totalRewardValue: selectUnclaimedRewardValue(state),
     modal: selectModal(state),

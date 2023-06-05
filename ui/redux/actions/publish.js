@@ -1,11 +1,13 @@
 // @flow
 import * as ERRORS from 'constants/errors';
+import * as RENDER_MODES from 'constants/file_render_modes';
 import * as MODALS from 'constants/modal_types';
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
-import { PAYWALL } from 'constants/publish';
+import { NO_FILE, PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
-import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
 import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
@@ -14,10 +16,15 @@ import {
   selectMyActiveClaims,
   selectMyClaims,
   selectMyChannelClaims,
-  // selectMyClaimsWithoutChannels,
   selectReflectingById,
 } from 'redux/selectors/claims';
-import { selectPublishFormValue, selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import {
+  selectPublishFormValue,
+  selectPublishFormValues,
+  selectMyClaimForUri,
+  selectIsStillEditing,
+} from 'redux/selectors/publish';
 import { doError } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
 import analytics from 'analytics';
@@ -25,23 +32,19 @@ import { doOpenModal } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-import { creditsToString } from 'util/format-credits';
+import { sanitizeName } from 'util/lbryURI';
+import { getVideoBitrate, resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
-import { isClaimNsfw, getChannelIdFromClaim } from 'util/claim';
-import {
-  LBRY_FIRST_TAG,
-  SCHEDULED_LIVESTREAM_TAG,
-  MEMBERS_ONLY_CONTENT_TAG,
-  // RESTRICTED_CHAT_COMMENTS_TAG,
-  PURCHASE_TAG,
-  PURCHASE_TAG_OLD,
-  RENTAL_TAG,
-  RENTAL_TAG_OLD,
-  SCHEDULED_TAGS,
-  VISIBILITY_TAGS,
-} from 'constants/tags';
+import { isClaimNsfw, getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
+import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
+
+const PUBLISH_PATH_MAP = Object.freeze({
+  file: PAGES.UPLOAD,
+  post: PAGES.POST,
+  livestream: PAGES.LIVESTREAM,
+});
 
 function resolveClaimTypeForAnalytics(claim) {
   if (!claim) {
@@ -65,280 +68,10 @@ function resolveClaimTypeForAnalytics(claim) {
   }
 }
 
-export const NO_FILE = '---';
-
-function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) {
-  const {
-    name,
-    bid,
-    filePath,
-    description,
-    language,
-    releaseTime,
-    licenseUrl,
-    licenseType,
-    otherLicenseDescription,
-    thumbnail,
-    channel,
-    title,
-    paywall,
-    fee,
-    tags,
-    optimize,
-    isLivestreamPublish,
-    remoteFileUrl,
-  } = publishData;
-
-  // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
-  const myClaimForUriEditing = myClaimForUri && myClaimForUri.name === name ? myClaimForUri : null;
-
-  let publishingLicense;
-  switch (licenseType) {
-    case COPYRIGHT:
-    case OTHER:
-      publishingLicense = otherLicenseDescription;
-      break;
-    default:
-      publishingLicense = licenseType;
-  }
-
-  // get the claim id from the channel name, we will use that instead
-  const namedChannelClaim = myChannels ? myChannels.find((myChannel) => myChannel.name === channel) : null;
-  const channelId = namedChannelClaim ? namedChannelClaim.claim_id : '';
-
-  const nowTimeStamp = Number(Math.round(Date.now() / 1000));
-  const { claim_id: claimId } = myClaimForUri || {};
-
-  const publishPayload: PublishParams = {
-    name,
-    title,
-    description,
-    locations: [],
-    bid: creditsToString(bid),
-    languages: [language],
-    thumbnail_url: thumbnail,
-    release_time: PAYLOAD.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,
-    blocking: true,
-    preview: false,
-    ...(remoteFileUrl ? { remote_url: remoteFileUrl } : {}),
-    ...(claimId ? { claim_id: claimId } : {}), // 'stream_update' support
-    ...(optimize ? { optimize_file: true } : {}),
-    ...(thumbnail ? { thumbnail_url: thumbnail } : {}),
-    ...(channelId ? { channel_id: channelId } : {}),
-    ...(licenseUrl ? { license_url: licenseUrl } : {}),
-    ...(publishingLicense ? { license: publishingLicense } : {}),
-  };
-
-  const tagSet = new Set(tags.map((t) => t.name));
-
-  PAYLOAD.tags.useLbryUploader(tagSet, publishData);
-  PAYLOAD.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
-  PAYLOAD.tags.fiatPaywall(tagSet, publishData);
-  PAYLOAD.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
-  PAYLOAD.tags.visibility(tagSet, publishData);
-
-  publishPayload.tags = Array.from(tagSet);
-
-  if (myClaimForUriEditing && myClaimForUriEditing.value && myClaimForUriEditing.value.locations) {
-    publishPayload.locations = myClaimForUriEditing.value.locations;
-  }
-
-  if (paywall === PAYWALL.SDK && publishData.visibility === 'public') {
-    if (fee && fee.currency && Number(fee.amount) > 0) {
-      publishPayload.fee_currency = fee.currency;
-      publishPayload.fee_amount = creditsToString(fee.amount);
-    }
-  }
-
-  // Only pass file on new uploads, not metadata only edits.
-  // The sdk will figure it out
-  if (filePath && !isLivestreamPublish) {
-    publishPayload.file_path = filePath;
-  }
-
-  if (preview) {
-    publishPayload.preview = true;
-    publishPayload.optimize_file = false;
-  }
-
-  return publishPayload;
-}
-
-/**
- * Helper functions to resolve SDK's publish payload.
- */
-const PAYLOAD = {
-  releaseTime: (nowTs: number, userEnteredTs: ?number, claimToEdit: ?StreamClaim, publishData: UpdatePublishState) => {
-    const isEditing = Boolean(claimToEdit);
-    const past = {};
-
-    if (isEditing && claimToEdit) {
-      const tags = claimToEdit.value?.tags || [];
-
-      past.wasHidden = tags.includes(VISIBILITY_TAGS.UNLISTED) || tags.includes(VISIBILITY_TAGS.PRIVATE);
-      past.wasScheduled = tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE);
-      past.timestamp = claimToEdit.timestamp;
-      past.release_time = claimToEdit.value?.release_time;
-      past.creation_timestamp = claimToEdit.meta?.creation_timestamp;
-    }
-
-    switch (publishData.visibility) {
-      case 'public':
-      case 'private':
-      case 'unlisted':
-        if (isEditing) {
-          if (publishData.isLivestreamPublish && publishData.replaySource !== 'keep') {
-            return Number(past.release_time || past.timestamp);
-          }
-
-          if (userEnteredTs === undefined) {
-            return past.wasScheduled ? past.creation_timestamp : Number(past.release_time || past.timestamp);
-          } else {
-            return userEnteredTs;
-          }
-        } else {
-          if (userEnteredTs === undefined) {
-            return nowTs;
-          } else {
-            return userEnteredTs;
-          }
-        }
-
-      case 'scheduled':
-        if (isEditing) {
-          if (userEnteredTs === undefined) {
-            return past.wasHidden ? past.creation_timestamp : Number(past.release_time || past.timestamp);
-          } else {
-            return userEnteredTs;
-          }
-        } else {
-          // The reducer enforces '>Now' through releaseTimeError, but double-check in case UI broke:
-          assert(userEnteredTs, 'New scheduled publish cannot have undefined release time');
-          return userEnteredTs;
-        }
-
-      default:
-        assert(false, `unhandled: "${publishData.visibility}"`);
-        break;
-    }
-  },
-
-  tags: {
-    useLbryUploader: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      if (publishData.useLBRYUploader) {
-        tagSet.add(LBRY_FIRST_TAG);
-      }
-    },
-
-    scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime, nowTime) => {
-      const { isLivestreamPublish } = publishData;
-      // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
-      if (isLivestreamPublish && releaseTime && releaseTime > nowTime) {
-        tagSet.add(SCHEDULED_LIVESTREAM_TAG);
-      } else {
-        tagSet.delete(SCHEDULED_LIVESTREAM_TAG);
-      }
-    },
-
-    fiatPaywall: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      const {
-        paywall,
-        fiatPurchaseEnabled,
-        fiatPurchaseFee,
-        fiatRentalEnabled,
-        fiatRentalFee,
-        fiatRentalExpiration,
-        visibility,
-      } = publishData;
-
-      const refSet = new Set(tagSet);
-      refSet.forEach((t) => {
-        if (
-          t === RENTAL_TAG ||
-          t === PURCHASE_TAG ||
-          t.startsWith(`${RENTAL_TAG}:`) ||
-          t.startsWith(`${PURCHASE_TAG}:`) ||
-          t.startsWith(RENTAL_TAG_OLD) ||
-          t.startsWith(PURCHASE_TAG_OLD)
-        ) {
-          tagSet.delete(t);
-        }
-      });
-
-      if (visibility !== 'public') {
-        // Payment options disabled.
-        return;
-      }
-
-      if (paywall === PAYWALL.FIAT) {
-        // Purchase
-        if (fiatPurchaseEnabled && fiatPurchaseFee?.currency && Number(fiatPurchaseFee.amount) > 0) {
-          tagSet.add(PURCHASE_TAG);
-          tagSet.add(`${PURCHASE_TAG}:${fiatPurchaseFee.amount.toFixed(2)}`);
-        }
-
-        // Rental
-        if (
-          fiatRentalEnabled &&
-          fiatRentalFee?.currency &&
-          Number(fiatRentalFee.amount) > 0 &&
-          fiatRentalExpiration?.unit &&
-          Number(fiatRentalExpiration.value) > 0
-        ) {
-          const seconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
-          tagSet.add(RENTAL_TAG);
-          tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}`);
-        }
-      }
-    },
-
-    membershipRestrictions: (tagSet: Set<string>, publishData: UpdatePublishState, channel_id: ?string) => {
-      tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
-
-      if (publishData.visibility !== 'unlisted') {
-        // $FlowFixMe - handle restrictedToMemberships
-        if (publishData.restrictedToMemberships && channel_id) {
-          tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
-        }
-      }
-    },
-
-    visibility: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      const { visibility } = publishData;
-
-      tagSet.delete(VISIBILITY_TAGS.PRIVATE);
-      tagSet.delete(VISIBILITY_TAGS.UNLISTED);
-      tagSet.delete(SCHEDULED_TAGS.SHOW);
-      tagSet.delete(SCHEDULED_TAGS.HIDE);
-
-      switch (visibility) {
-        case 'public':
-          break; // Nothing to do
-        case 'private':
-          tagSet.add(VISIBILITY_TAGS.PRIVATE);
-          break;
-        case 'unlisted':
-          tagSet.add(VISIBILITY_TAGS.UNLISTED);
-          break;
-        case 'scheduled':
-          tagSet.add(publishData.scheduledShow ? SCHEDULED_TAGS.SHOW : SCHEDULED_TAGS.HIDE);
-          break;
-        default:
-          assert(false, `unhandled: "${visibility}"`);
-          break;
-      }
-    },
-  },
-};
-
 export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) => {
   return (dispatch: Dispatch, getState: () => State) => {
-    const publishPreviewFn = (previewResponse) => {
-      dispatch(
-        doOpenModal(MODALS.PUBLISH_PREVIEW, {
-          previewResponse,
-        })
-      );
+    const publishPreviewFn = (publishPayload, previewResponse) => {
+      dispatch(doOpenModal(MODALS.PUBLISH_PREVIEW, { publishPayload, previewResponse }));
     };
 
     const noFileParam = !filePath || filePath === NO_FILE;
@@ -551,11 +284,26 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
   });
 };
 
-export const doBeginPublish = (name: string) => (dispatch: Dispatch) => {
-  dispatch(doClearPublish());
-  // $FlowFixMe
-  // dispatch(doPrepareEdit({ name }));
-  // dispatch(push(`/$/${PAGES.UPLOAD}`));
+export const doBeginPublish = (type: PublishType, name: string = '', customPath: string = '') => {
+  return (dispatch: Dispatch) => {
+    assert(PUBLISH_PATH_MAP[type], 'invalid type', type);
+
+    dispatch(doClearPublish());
+
+    dispatch({
+      type: ACTIONS.UPDATE_PUBLISH_FORM,
+      data: {
+        ...(name ? { name } : {}),
+      },
+    });
+
+    if (customPath) {
+      dispatch(push(customPath));
+    } else {
+      const path = PUBLISH_PATH_MAP[type] || PUBLISH_PATH_MAP.file;
+      dispatch(push(`/$/${path}`));
+    }
+  };
 };
 
 export const doClearPublish = () => (dispatch: Dispatch) => {
@@ -568,6 +316,127 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (di
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { ...publishFormValue },
   });
+
+export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const { name, title } = state.publish;
+    const isStillEditing = selectIsStillEditing(state);
+
+    if (!file) {
+      // This also handles the case of trying to select another file but canceling half way.
+      if (isStillEditing || !clearName) {
+        dispatch({
+          type: ACTIONS.UPDATE_PUBLISH_FORM,
+          data: { filePath: '' },
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.UPDATE_PUBLISH_FORM,
+          data: { filePath: '', name: '' },
+        });
+      }
+      // TODO: Shouldn't it clear the other file-related attributes too?
+      return;
+    }
+
+    assert(typeof file !== 'string');
+
+    const contentType = file.type && file.type.split('/');
+    const isVideo = contentType ? contentType[0] === 'video' : false;
+    const isMp4 = contentType ? contentType[1] === 'mp4' : false;
+
+    let isTextPost = false;
+    if (contentType && contentType[0] === 'text') {
+      isTextPost = contentType[1] === 'plain' || contentType[1] === 'markdown';
+      // setCurrentFileType(contentType);
+    } else if (file.name) {
+      // If user's machine is missing a valid content type registration
+      // for markdown content: text/markdown, file extension will be used instead
+      const extension = file.name.split('.').pop();
+      const MARKDOWN_FILE_EXTENSIONS = ['txt', 'md', 'markdown'];
+      isTextPost = MARKDOWN_FILE_EXTENSIONS.includes(extension);
+    }
+
+    const formUpdates: UpdatePublishState = {
+      fileSize: file.size,
+      fileMime: file.type,
+      fileVid: isVideo,
+      fileBitrate: 0,
+      fileSizeTooBig: false,
+    };
+
+    // --- Async data ---
+    if (isVideo) {
+      if (isMp4) {
+        window.URL = window.URL || window.webkitURL;
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = () => {
+          dispatch({
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: { fileDur: video.duration, fileBitrate: getVideoBitrate(file.size, video.duration) },
+          });
+          window.URL.revokeObjectURL(video.src);
+        };
+        video.onerror = () => {
+          dispatch({
+            type: ACTIONS.UPDATE_PUBLISH_FORM,
+            data: { fileDur: 0, fileBitrate: 0 },
+          });
+        };
+        video.src = window.URL.createObjectURL(file);
+      } else {
+        formUpdates.fileDur = 0;
+      }
+    } else {
+      formUpdates.fileDur = 0;
+
+      if (isTextPost) {
+        const reader = new FileReader();
+        reader.addEventListener('load', (event: ProgressEvent) => {
+          // See: https://github.com/facebook/flow/issues/3470
+          if (event.target instanceof FileReader) {
+            const text = event.target.result;
+            dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: { fileText: text } });
+            // setPublishMode(PUBLISH_MODES.POST);
+          }
+        });
+        reader.readAsText(file);
+        // setCurrentFileType('text/markdown');
+      }
+    }
+
+    // --- File Size ---
+    // @if TARGET='web'
+    // we only need to enforce file sizes on 'web'
+    const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
+    if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
+      formUpdates.fileSizeTooBig = true;
+    }
+    // @endif
+
+    // --- Name and title ---
+    // Strip off extension and replace invalid characters
+    const fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
+
+    if (!title) {
+      formUpdates.title = fileName; // Autofill only if empty title.
+    }
+
+    if (!isStillEditing) {
+      formUpdates.name = sanitizeName(fileName);
+    }
+
+    // --- File Path ---
+    // If electron, we'll set filePath to the path string because SDK is handling publishing.
+    // File.path will be undefined from web due to browser security, so it will default to the File Object.
+    formUpdates.filePath = file.path || file;
+
+    // --- Finalize ---
+    dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: formUpdates });
+  };
+};
 
 export const doUploadThumbnail =
   (filePath?: string, thumbnailBlob?: File, fsAdapter?: any, fs?: any, path?: any, cb?: (string) => void) =>
@@ -699,6 +568,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     const { name, amount, value = {} } = claim;
     const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
     const channelId = (claim && claim.signing_channel && claim.signing_channel.claim_id) || null;
+
     const {
       author,
       description,
@@ -722,8 +592,22 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     const { claim_id } = myClaimForUri || {};
     //         ^--- can we just use 'claim.claim_id'?
 
-    // $FlowFixMe (TODO: Lots of undefined states. If truely used, please define them)
+    const isPostClaim = makeSelectFileRenderModeForUri(claim?.permanent_url)(state) === RENDER_MODES.MARKDOWN;
+    const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+    const type: PublishType = isLivestreamClaim
+      ? PUBLISH_TYPES.LIVESTREAM
+      : isPostClaim
+      ? PUBLISH_TYPES.POST
+      : PUBLISH_TYPES.FILE;
+
+    const liveCreateType: ?LiveCreateType = isLivestreamClaim ? 'edit_placeholder' : undefined;
+    const liveEditType: ?LiveEditType = isLivestreamClaim ? 'use_replay' : undefined; // #2801
+
+    // $FlowFixMe (TODO: Lots of undefined states)
     const publishData: UpdatePublishState = {
+      type,
+      ...(liveCreateType ? { liveCreateType } : {}),
+      ...(liveEditType ? { liveEditType } : {}),
       claim_id: claim_id,
       name,
       bid: Number(amount),
@@ -797,7 +681,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     }
 
     // Membership restrictions
-    // $FlowFixMe (please remove and fix this warning. I think someone ended up passing the whole Tag structure)
     const publishDataTags = new Set(publishData.tags && publishData.tags.map((tag) => tag.name));
     if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
       if (channelId) {
@@ -812,7 +695,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
         publishData['restrictedToMemberships'] = protectedMembershipIds && protectedMembershipIds.join(',');
       } else {
         if (publishData.tags) {
-          // $FlowFixMe
           publishData.tags = publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG);
         } else {
           publishData.tags = [];
@@ -840,18 +722,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     }
 
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
-
-    switch (claimType) {
-      case 'post':
-        dispatch(push(`/$/${PAGES.POST}`));
-        break;
-      case 'livestream':
-        dispatch(push(`/$/${PAGES.LIVESTREAM}`));
-        break;
-      default:
-        dispatch(push(`/$/${PAGES.UPLOAD}`));
-        break;
-    }
+    dispatch(push(`/$/${PUBLISH_PATH_MAP[type]}`));
   };
 };
 
@@ -869,7 +740,7 @@ export const doPublish =
     // get redux publish form
     const publishData = selectPublishFormValues(state);
 
-    const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, previewFn);
+    const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, Boolean(previewFn));
 
     const { restrictedToMemberships, name } = publishData;
 
@@ -892,9 +763,10 @@ export const doPublish =
     }
 
     if (previewFn) {
+      const payloadSnapshot = { ...publishPayload }; // Lbry alters the payload, so make copy for previewFn
       return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
         // $FlowIgnore
-        return previewFn(previewResponse);
+        return previewFn(payloadSnapshot, previewResponse);
       }, fail);
     }
 
@@ -904,7 +776,6 @@ export const doPublish =
       return success(response);
       // }
 
-      // $FlowFixMe
       // publishPayload.permanent_url = response.outputs[0].permanent_url;
       //
       // return LbryFirst.upload(publishPayload)

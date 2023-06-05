@@ -13,7 +13,7 @@ type Props = {
   isStillEditing: boolean,
   fetchStreamingUrl: (string) => void,
   setPrevFileText: (string) => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   // setCurrentFileType: (string) => void,
 };
 

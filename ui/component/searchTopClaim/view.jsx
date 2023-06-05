@@ -19,7 +19,7 @@ type Props = {
   doResolveUris: (Array<string>) => void,
   hideLink?: boolean,
   setChannelActive: (boolean) => void,
-  beginPublish: (?string) => void,
+  beginPublish: (PublishType, ?string) => void,
   pendingIds: Array<string>,
   isResolvingWinningUri: boolean,
   winningClaim: ?Claim,
@@ -121,7 +121,7 @@ export default function SearchTopClaim(props: Props) {
               repost: <Button button="link" onClick={() => doOpenModal(MODALS.REPOST, {})} label={__('Repost')} />,
               publish: (
                 <span>
-                  <Button button="link" onClick={() => beginPublish(name)} label={__('publish')} />
+                  <Button button="link" onClick={() => beginPublish('file', name)} label={__('publish')} />
                 </span>
               ),
             }}

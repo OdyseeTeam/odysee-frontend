@@ -13,7 +13,7 @@ import { PAYWALL } from 'constants/publish';
 type Props = {
   description: ?string,
   disabled: boolean,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   getMembershipTiersForContentClaimId: (type: string) => void,
   claim: Claim,
   protectedMembershipIds: Array<number>,
@@ -78,6 +78,7 @@ function PublishProtectedContent(props: Props) {
       // $FlowFixMe
       if (restrictionCheckbox) restrictionCheckbox.checked = true;
 
+      // $FlowFixMe please define the states ...
       updatePublishForm({
         restrictedToMemberships: commaSeparatedValues,
         channelClaimId: activeChannel.claim_id,
@@ -87,6 +88,7 @@ function PublishProtectedContent(props: Props) {
       const restrictionCheckbox: HTMLInputElement = document.getElementById('toggleRestrictedContent');
       // clear out data unless user has already checked that they are restricting
       if (restrictionCheckbox?.checked !== true) {
+        // $FlowFixMe please define the states ...
         updatePublishForm({
           restrictedToMemberships: commaSeparatedValues,
           channelClaimId: activeChannel.claim_id,
@@ -110,6 +112,7 @@ function PublishProtectedContent(props: Props) {
 
     const commaSeparatedValueString = matchedMemberships && Array.from(matchedMemberships).join(',');
 
+    // $FlowFixMe please define the states ...
     updatePublishForm({
       restrictedToMemberships: commaSeparatedValueString,
       channelClaimId: activeChannel.claim_id,
@@ -119,6 +122,7 @@ function PublishProtectedContent(props: Props) {
   function handleChangeRestriction() {
     // update data to check against during publish
     // backend checks against an empty string so need to use that instead of undefined
+    // $FlowFixMe please define the states ...
     updatePublishForm({ restrictedToMemberships: isRestrictingContent ? '' : null });
 
     setIsRestrictingContent(!isRestrictingContent);
@@ -179,21 +183,31 @@ function PublishProtectedContent(props: Props) {
   }
 
   if (membershipsToUse && membershipsToUse.length > 0) {
+    if (visibility === 'unlisted') {
+      return (
+        <Card
+          background
+          isBodyList
+          title={__('Restrict Content')}
+          body={
+            <div className="publish-row publish-row-tiers">
+              <div className="publish-row__reason">
+                {__('Membership restrictions are not available for Unlisted content.')}
+              </div>
+            </div>
+          }
+        />
+      );
+    }
+
     return (
       <>
         <Card
           background
           isBodyList
           title={__('Restrict Content')}
-          className={classnames('', { 'card--disabled': visibility === 'unlisted' })}
           body={
             <div className="publish-row publish-row-tiers">
-              {visibility === 'unlisted' && (
-                <div className="publish-row__reason">
-                  {__('Membership restrictions are not available for Unlisted content.')}
-                </div>
-              )}
-
               <FormField
                 type="checkbox"
                 disabled={paywall !== PAYWALL.FREE}

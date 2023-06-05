@@ -7,6 +7,7 @@ import Card from 'component/common/card';
 import Yrbl from 'component/yrbl';
 import { parseURI } from 'util/lbryURI';
 import * as MODALS from 'constants/modal_types';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import useIsVisibilityRestricted from 'effects/use-is-visibility-restricted';
 
 type Props = {
@@ -29,7 +30,7 @@ type Props = {
   preferEmbed: boolean,
   verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
-  doBeginPublish: (name: ?string) => void,
+  doBeginPublish: (type: PublishType, name: ?string) => void,
   doOpenModal: (string, {}) => void,
 };
 
@@ -67,7 +68,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       ...otherProps
     } = props;
 
-    const { streamName, channelName, isChannel } = parseURI(uri);
+    const { streamName, /* channelName, */ isChannel } = parseURI(uri);
 
     const claimIsRestricted =
       !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
@@ -122,11 +123,14 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
               title={isChannel ? __('Channel Not Found') : __('No Content Found')}
               subtitle={
                 <div className="section__actions">
-                  <Button
-                    button="primary"
-                    label={__(isChannel ? 'Claim this handle' : 'Publish Something')}
-                    onClick={() => doBeginPublish(channelName)}
-                  />
+                  {!isChannel && (
+                    <Button
+                      button="primary"
+                      // label={__(isChannel ? 'Claim this handle' : 'Publish Something')} -- only support non-channels for now
+                      label={__('Publish Something')}
+                      onClick={() => doBeginPublish(PUBLISH_TYPES.FILE, streamName)}
+                    />
+                  )}
 
                   {!isChannel && (
                     <Button

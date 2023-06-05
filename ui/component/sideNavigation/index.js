@@ -4,6 +4,7 @@ import SideNavigation from './view';
 import * as SETTINGS from 'constants/settings';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import { getSortedRowData } from 'page/home/helper';
+import { doBeginPublish } from 'redux/actions/publish';
 import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
 import {
   selectLastActiveSubscriptions,
@@ -110,4 +111,5 @@ export default connect(select, {
   doOpenModal,
   doGetDisplayedSubs,
   doResolveUris,
+  doBeginPublish,
 })(SideNavigation);

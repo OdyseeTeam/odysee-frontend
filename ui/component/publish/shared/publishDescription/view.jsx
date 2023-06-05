@@ -10,7 +10,7 @@ type Props = {
   disabled: boolean,
   // --- redux ---
   description: ?string,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
 };
 
 function PublishDescription(props: Props) {

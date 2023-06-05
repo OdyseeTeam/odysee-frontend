@@ -10,9 +10,11 @@ import {
   tusClearLockedUploads,
 } from 'util/tus';
 import * as ACTIONS from 'constants/action_types';
+import * as PAGES from 'constants/pages';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
 import { PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 
 // This is the old key formula. Retain it for now to allow users to delete
 // any pending uploads. Can be removed from January 2022 onwards.
@@ -20,6 +22,9 @@ const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anon
 
 // @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
+  type: 'file',
+  liveCreateType: 'new_placeholder',
+  liveEditType: 'use_replay',
   editingURI: undefined,
   claimToEdit: undefined,
   fileText: '',
@@ -28,6 +33,8 @@ const defaultState: PublishState = {
   fileSize: 0,
   fileVid: false,
   fileMime: '',
+  fileBitrate: 0,
+  fileSizeTooBig: false,
   streamType: '',
   remoteFileUrl: undefined,
   paywall: PAYWALL.FREE,
@@ -41,6 +48,7 @@ const defaultState: PublishState = {
   fiatRentalExpiration: { value: 1, unit: 'weeks' },
   fiatRentalEnabled: false,
   title: '',
+  thumbnail: '',
   thumbnail_url: '',
   thumbnailPath: '',
   uploadThumbnailStatus: THUMBNAIL_STATUSES.API_DOWN,
@@ -55,7 +63,7 @@ const defaultState: PublishState = {
   channelId: '',
   name: '',
   nameError: undefined,
-  bid: 0.01,
+  bid: 0.001,
   bidError: undefined,
   licenseType: 'None',
   otherLicenseDescription: 'All rights reserved',
@@ -67,15 +75,37 @@ const defaultState: PublishState = {
   optimize: false,
   useLBRYUploader: false,
   currentUploads: {},
-  isMarkdownPost: false,
-  isLivestreamPublish: false,
-  replaySource: 'keep',
   visibility: 'public',
   scheduledShow: false,
 };
 
+const PATHNAME_TO_PUBLISH_TYPE = {
+  [`/$/${PAGES.UPLOAD}`]: 'file',
+  [`/$/${PAGES.POST}`]: 'post',
+  [`/$/${PAGES.LIVESTREAM}`]: 'livestream',
+};
+
 export const publishReducer = handleActions(
   {
+    // eslint-disable-next-line no-useless-computed-key
+    ['@@router/LOCATION_CHANGE']: (state, action) => {
+      const { location } = action.payload;
+      const { pathname } = location || {};
+      const type: ?PublishType = PATHNAME_TO_PUBLISH_TYPE[pathname];
+
+      // `type` used to be set in doBeginPublish, but it gets un-synchronized
+      // when doing `POP`, F5, or direct URL access.
+      // Since the "Submit" button is currently tied to the current page
+      // (i.e. no floating Publish forms), and that all 3 forms share the same
+      // states, we need `type` to always be correct as the reference variable
+      // for the rest of the logic here.
+
+      if (type && type !== state.type) {
+        return { ...state, type };
+      } else {
+        return state;
+      }
+    },
     [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: DoUpdatePublishForm): PublishState => {
       const { data } = action;
       const auto = {};
@@ -117,7 +147,7 @@ export const publishReducer = handleActions(
       const visibility = getValue('visibility');
       const releaseTime = getValue('releaseTime');
       const isEditing = Boolean(getValue('editingURI'));
-      const isLivestream = getValue('isLivestreamPublish');
+      const isLivestream = getValue('type') === PUBLISH_TYPES.LIVESTREAM;
 
       auto.releaseTimeError = '';
 
@@ -151,11 +181,23 @@ export const publishReducer = handleActions(
           break;
       }
 
+      // -- remoteFileUrl
+      if (!data.hasOwnProperty('remoteFileUrl')) {
+        const nonReplayChosen = data.hasOwnProperty('liveEditType') && data.liveEditType !== 'use_replay';
+        const activeChannelChanged = data.hasOwnProperty('channelClaimId');
+
+        if (nonReplayChosen || activeChannelChanged) {
+          // Purge remoteFileUrl selection on these cases.
+          auto.remoteFileUrl = undefined;
+        }
+      }
+
       // Finalize
       return { ...state, ...data, ...auto };
     },
     [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
       ...defaultState,
+      type: state.type,
       uri: undefined,
       channel: state.channel,
       bid: state.bid,
@@ -287,7 +329,11 @@ export const publishReducer = handleActions(
     },
     [ACTIONS.REHYDRATE]: (state: PublishState, action) => {
       if (action && action.payload && action.payload.publish) {
-        const newPublish = { ...action.payload.publish };
+        const newPublish = {
+          ...action.payload.publish,
+          filePath: undefined, // File is not serializable, so can't rehydrate.
+          remoteFileUrl: undefined, // Clear for now until the component is able to re-populate on load.
+        };
 
         // Cleanup for 'publish::currentUploads'
         if (newPublish.currentUploads) {
