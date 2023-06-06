@@ -414,24 +414,23 @@ function SideNavigation(props: Props) {
   function getFollowedTagsSection() {
     if (showTagSection) {
       return (
-        <>
+        <ul className="navigation__secondary navigation-links">
           {!showMicroMenu && <SectionHeader title={__('Tags')} />}
-          <ul className="navigation__secondary navigation-links">
-            {displayedFollowedTags.map(({ name }, key) => (
-              <li key={name} className="navigation-link__wrapper">
-                <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
-              </li>
-            ))}
-            {followedTags.length > SIDEBAR_SUBS_DISPLAYED && (
-              <Button
-                key="showMore"
-                label={expandTags ? __('Show less') : __('Show more')}
-                className="navigation-link"
-                onClick={() => setExpandTags(!expandTags)}
-              />
-            )}
-          </ul>
-        </>
+
+          {displayedFollowedTags.map(({ name }, key) => (
+            <li key={name} className="navigation-link__wrapper">
+              <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
+            </li>
+          ))}
+          {followedTags.length > SIDEBAR_SUBS_DISPLAYED && (
+            <Button
+              key="showMore"
+              label={expandTags ? __('Show less') : __('Show more')}
+              className="navigation-link"
+              onClick={() => setExpandTags(!expandTags)}
+            />
+          )}
+        </ul>
       );
     }
     return null;
