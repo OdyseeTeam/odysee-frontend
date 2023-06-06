@@ -1346,21 +1346,20 @@ $recent-msg-button__height: 2rem;
     margin-bottom: 35px;
   }
 
-  .MuiAutocomplete-root {
-    // margin:10px;
-    .MuiInputBase-root {
-      position: fixed;
-
-      left: 0;
-      bottom: 0;
-    }
-  }
-
   @media (max-width: $breakpoint-small) {
     .livestream__chat--popout {
       border-radius: 0;
       .livestream-comments__wrapper {
         height: calc(100vh - 50px) !important;
+      }
+    }
+    .chat__comment-create {
+      .MuiAutocomplete-root {
+        .MuiInputBase-root {
+          position: fixed;
+          left: 0;
+          bottom: 0;
+        }
       }
     }
   }
