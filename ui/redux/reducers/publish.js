@@ -144,6 +144,7 @@ export const publishReducer = handleActions(
       }
 
       // -- releaseTimeError
+      // Note: `releaseTime === undefined` means "use original"
       const currentTs = Date.now() / 1000;
       const visibility = getValue('visibility');
       const releaseTime = getValue('releaseTime');
@@ -168,10 +169,11 @@ export const publishReducer = handleActions(
           } else {
             if (isEditing) {
               assert(state.claimToEdit?.value?.release_time, 'scheduled claim without release_time');
-              const originalTs = state.claimToEdit?.value?.release_time || 0;
-              if (originalTs < currentTs) {
-                auto.releaseTimeError = 'Please set to a future date.';
-              }
+              // -- No need to enforce elapsed date when editing --
+              // const originalTs = state.claimToEdit?.value?.release_time || 0;
+              // if (originalTs < currentTs) {
+              //   auto.releaseTimeError = 'Please set to a future date.';
+              // }
             } else {
               auto.releaseTimeError = 'Set a scheduled release date.';
             }
