@@ -2,7 +2,7 @@
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 
-import { getTotalPriceFromSupportersList } from 'util/memberships';
+import { filterMembershipTiersWithPerk, getTotalPriceFromSupportersList } from 'util/memberships';
 
 import {
   selectChannelClaimIdForUri,
@@ -469,44 +469,17 @@ export const selectPriceOfCheapestPlanForClaimId = (state: State, claimId: Claim
 
 export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {
   const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
-
-  if (!membershipTiers) return [];
-
-  const perkName = 'Exclusive content';
-
-  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
-  });
-
-  return tiers;
+  return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Exclusive content') : [];
 };
 
 export const selectMyMembershipTiersWithExclusiveLivestreamPerk = (state: State, activeChannelClaimId: string) => {
   const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
-
-  if (!membershipTiers) return [];
-
-  const perkName = 'Exclusive livestreams';
-
-  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
-  });
-
-  return tiers;
+  return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Exclusive livestreams') : [];
 };
 
 export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, channelId: string) => {
   const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, channelId);
-
-  if (!membershipTiers) return [];
-
-  const perkName = 'Members-only chat';
-
-  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
-  });
-
-  return tiers;
+  return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Members-only chat') : [];
 };
 
 export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(

@@ -9,10 +9,9 @@ import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
 import { PAYWALL } from 'constants/publish';
+import { filterMembershipTiersWithPerk } from 'util/memberships';
 
 type Props = {
-  description: ?string,
-  disabled: boolean,
   updatePublishForm: (UpdatePublishState) => void,
   getMembershipTiersForContentClaimId: (type: string) => void,
   claim: Claim,
@@ -20,9 +19,7 @@ type Props = {
   activeChannel: ChannelClaim,
   incognito: boolean,
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
-  myMembershipTiers: CreatorMemberships,
-  myMembershipTiersWithExclusiveContentPerk: CreatorMemberships,
-  myMembershipTiersWithExclusiveLivestreamPerk: CreatorMemberships,
+  myMembershipTiers: Array<MembershipTier>,
   location: string,
   isStillEditing: boolean,
   paywall: Paywall,
@@ -39,8 +36,6 @@ function PublishProtectedContent(props: Props) {
     protectedMembershipIds,
     getExistingTiers,
     myMembershipTiers,
-    myMembershipTiersWithExclusiveContentPerk,
-    myMembershipTiersWithExclusiveLivestreamPerk,
     location,
     isStillEditing,
     paywall,
@@ -51,13 +46,14 @@ function PublishProtectedContent(props: Props) {
 
   const claimId = claim?.claim_id;
 
-  let membershipsToUse = myMembershipTiersWithExclusiveContentPerk;
-  if (location === 'livestream') membershipsToUse = myMembershipTiersWithExclusiveLivestreamPerk;
+  const membershipsToUse = React.useMemo(() => {
+    const perkName = location === 'livestream' ? 'Exclusive livestreams' : 'Exclusive content';
+    return myMembershipTiers ? filterMembershipTiersWithPerk(myMembershipTiers, perkName) : [];
+  }, [location, myMembershipTiers]);
 
   const membershipsToUseIds =
     membershipsToUse && membershipsToUse.map((membershipTier) => membershipTier?.Membership?.id);
 
-  // run the redux action
   React.useEffect(() => {
     if (claimId) {
       getMembershipTiersForContentClaimId(claimId);
@@ -139,7 +135,7 @@ function PublishProtectedContent(props: Props) {
         }
       }
     }
-  }, [isRestrictingContent]);
+  }, [isRestrictingContent, membershipsToUse]);
 
   useEffect(() => {
     if (activeChannel) {

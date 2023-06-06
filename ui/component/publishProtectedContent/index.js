@@ -4,8 +4,6 @@ import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import {
   selectProtectedContentMembershipsForClaimId,
   selectMembershipTiersForCreatorId,
-  selectMyMembershipTiersWithExclusiveContentPerk,
-  selectMyMembershipTiersWithExclusiveLivestreamPerk,
 } from 'redux/selectors/memberships';
 import { selectIsStillEditing, selectPublishFormValue } from 'redux/selectors/publish';
 import { doMembershipContentforStreamClaimId, doMembershipList } from 'redux/actions/memberships';
@@ -24,14 +22,6 @@ const select = (state, props) => {
     incognito,
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelClaimId, claimId),
     myMembershipTiers: selectMembershipTiersForCreatorId(state, activeChannel?.claim_id),
-    myMembershipTiersWithExclusiveContentPerk: selectMyMembershipTiersWithExclusiveContentPerk(
-      state,
-      activeChannel?.claim_id
-    ),
-    myMembershipTiersWithExclusiveLivestreamPerk: selectMyMembershipTiersWithExclusiveLivestreamPerk(
-      state,
-      activeChannel?.claim_id
-    ),
     isStillEditing: selectIsStillEditing(state),
     paywall: selectPublishFormValue(state, 'paywall'),
     visibility: selectPublishFormValue(state, 'visibility'),
