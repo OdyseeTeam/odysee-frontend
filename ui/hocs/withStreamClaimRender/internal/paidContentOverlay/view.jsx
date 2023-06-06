@@ -52,28 +52,26 @@ export default function PaidContentOvelay(props: Props) {
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds;
   }
 
-  const clickProps = React.useMemo(
-    () =>
-      isEmbed
-        ? { href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri })}` }
-        : { onClick: () => doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri }) },
-    [doOpenModal, isEmbed, uri]
-  );
+  const clickProps = React.useMemo(() => {
+    const modalId = sdkFeeRequired ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
+    return isEmbed
+      ? { href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(modalId, { uri })}` }
+      : { onClick: () => doOpenModal(modalId, { uri }) };
+  }, [doOpenModal, isEmbed, sdkFeeRequired, uri]);
 
-  const ButtonPurchase = React.useMemo(
-    () =>
-      ({ label }: { label: string }) =>
-        (
-          <Button
-            className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
-            icon={fiatIconToUse}
-            button="primary"
-            label={label}
-            {...clickProps}
-          />
-        ),
-    [clickProps, fiatIconToUse, sdkFeeRequired]
-  );
+  const ButtonPurchase = React.useMemo(() => {
+    return ({ label }: { label: string }) => {
+      return (
+        <Button
+          className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
+          icon={sdkFeeRequired ? ICONS.LBC : fiatIconToUse}
+          button="primary"
+          label={label}
+          {...clickProps}
+        />
+      );
+    };
+  }, [clickProps, fiatIconToUse, sdkFeeRequired]);
 
   React.useEffect(() => {
     if (passClickPropsToParent) {
