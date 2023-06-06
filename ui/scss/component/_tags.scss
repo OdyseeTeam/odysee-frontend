@@ -14,6 +14,18 @@
 
 .tags--remove {
   @extend .tags;
+  .tag {
+    &:hover {
+      background-color: var(--color-tag-remove);
+      outline: 1px solid red;
+      .button__label {
+        color: red;
+      }
+      .icon {
+        stroke: red;
+      }
+    }
+  }
 }
 
 .tags--vertical {
@@ -37,6 +49,11 @@
     height: var(--input-height);
     padding: calc(var(--spacing-xxs) + 1px) var(--spacing-s);
   }
+  label {
+    font-size: var(--font-body);
+    font-weight: var(--font-weight-bold);
+    margin-top: var(--spacing-l);
+  }
 }
 
 .tag {
@@ -44,15 +61,15 @@
   @extend .badge--tag;
   font-size: var(--font-xsmall);
   margin-left: 0;
-  color: var(--color-text);
-  background-color: var(--color-background);
+  color: var(--color-tag-text);
+  background-color: var(--color-tag);
 
   .button__label {
     margin-top: 0;
   }
   &:hover {
-    color: white !important;
-    background-color: var(--color-hover-primary);
+    color: var(--color-tag-text-hover) !important;
+    background-color: var(--color-tag-hover);
   }
 }
 

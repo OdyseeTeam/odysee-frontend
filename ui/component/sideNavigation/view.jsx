@@ -415,8 +415,16 @@ function SideNavigation(props: Props) {
     if (showTagSection) {
       return (
         <ul className="navigation__secondary navigation-links">
-          {!showMicroMenu && <SectionHeader title={__('Tags')} />}
-
+          {!showMicroMenu && (
+            <SectionHeader
+              title={__('Tags')}
+              actionTooltip={__('Manage')}
+              navigate={!subscriptionFilter ? `/$/${PAGES.TAGS_FOLLOWING_MANAGE}` : ''}
+            />
+          )}
+          <li key="all" className="navigation-link__wrapper">
+            <Button navigate={`/$/tags`} label={__('View all')} className="navigation-link" />
+          </li>
           {displayedFollowedTags.map(({ name }, key) => (
             <li key={name} className="navigation-link__wrapper">
               <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
