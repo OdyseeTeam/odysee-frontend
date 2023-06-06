@@ -10,6 +10,7 @@ import {
   selectIsAnonymousFiatContentForUri,
   selectClaimIsNsfwForUri,
   selectScheduledStateForUri,
+  selectIsUriUnlisted,
 } from 'redux/selectors/claims';
 import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
 import { selectBalance } from 'redux/selectors/wallet';
@@ -331,11 +332,13 @@ export const selectInsufficientCreditsForUri = (state: State, uri: string) => {
 };
 
 export const selectCanViewFileForUri = (state: State, uri: string) => {
-  if (state.user.user?.global_mod) {
+  const scheduledButNotReady = selectScheduledStateForUri(state, uri) === 'scheduled';
+  const isUnlisted = selectIsUriUnlisted(state, uri);
+
+  if (state.user.user?.global_mod && (scheduledButNotReady || isUnlisted)) {
     return true;
   }
 
-  const scheduledButNotReady = selectScheduledStateForUri(state, uri) === 'scheduled';
   if (scheduledButNotReady) {
     const claimIsMine = selectClaimIsMineForUri(state, uri);
     return !!claimIsMine;
