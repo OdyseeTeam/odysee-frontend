@@ -178,9 +178,20 @@
   @media (min-width: $breakpoint-small) {
     justify-content: flex-start;
   }
+  @media (max-width: $breakpoint-medium) {
+    flex-wrap: unset;
+  }
 
   .claim-search__menu-group:last-of-type {
     margin-right: unset;
+  }
+}
+
+.clh__wrapper {
+  @media (max-width: $breakpoint-small) {
+    .button--alt {
+      margin-top: var(--spacing-xs);
+    }
   }
 }
 
