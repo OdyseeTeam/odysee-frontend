@@ -414,24 +414,31 @@ function SideNavigation(props: Props) {
   function getFollowedTagsSection() {
     if (showTagSection) {
       return (
-        <>
-          {!showMicroMenu && <SectionHeader title={__('Tags')} />}
-          <ul className="navigation__secondary navigation-links">
-            {displayedFollowedTags.map(({ name }, key) => (
-              <li key={name} className="navigation-link__wrapper">
-                <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
-              </li>
-            ))}
-            {followedTags.length > SIDEBAR_SUBS_DISPLAYED && (
-              <Button
-                key="showMore"
-                label={expandTags ? __('Show less') : __('Show more')}
-                className="navigation-link"
-                onClick={() => setExpandTags(!expandTags)}
-              />
-            )}
-          </ul>
-        </>
+        <ul className="navigation__secondary navigation-links">
+          {!showMicroMenu && (
+            <SectionHeader
+              title={__('Tags')}
+              actionTooltip={__('Manage')}
+              navigate={!subscriptionFilter ? `/$/${PAGES.TAGS_FOLLOWING_MANAGE}` : ''}
+            />
+          )}
+          <li key="all" className="navigation-link__wrapper">
+            <Button navigate={`/$/tags`} label={__('View all')} className="navigation-link" />
+          </li>
+          {displayedFollowedTags.map(({ name }, key) => (
+            <li key={name} className="navigation-link__wrapper">
+              <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
+            </li>
+          ))}
+          {followedTags.length > SIDEBAR_SUBS_DISPLAYED && (
+            <Button
+              key="showMore"
+              label={expandTags ? __('Show less') : __('Show more')}
+              className="navigation-link"
+              onClick={() => setExpandTags(!expandTags)}
+            />
+          )}
+        </ul>
       );
     }
     return null;

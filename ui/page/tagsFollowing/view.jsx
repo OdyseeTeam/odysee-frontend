@@ -29,7 +29,7 @@ function TagsFollowingPage(props: Props) {
         tileLayout={tileLayout}
         meta={
           <Button
-            button="secondary"
+            button="alt"
             icon={ICONS.EDIT}
             label={__('Manage')}
             requiresAuth={IS_WEB}

@@ -111,10 +111,11 @@
   --color-navigation-hover-text: var(--color-primary-contrast);
 
   // Tags
-  --color-tag: var(--color-secondary-contrast);
-  --color-tag-bg: var(--color-secondary);
-  --color-tag-hover: var(--color-primary-contrast);
-  --color-tag-bg-hover: var(--color-primary);
+  --color-tag: var(--color-header-button);
+  --color-tag-text: var(--color-text);
+  --color-tag-hover: var(--color-primary);
+  --color-tag-text-hover: var(--color-primary-contrast);
+  --color-tag-remove: rgba(255, 0, 0, 0.2);
 
   // Menu
   --color-menu-background: var(--color-header-background);

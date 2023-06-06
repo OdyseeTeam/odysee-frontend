@@ -54,11 +54,16 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  align-items: center;
 
   animation: 0.4s form-in;
   animation-fill-mode: both;
   animation-timing-function: ease;
+
+  label {
+    font-size: var(--font-body);
+    font-weight: var(--font-weight-bold);
+    margin-top: var(--spacing-m);
+  }
 }
 
 .sr-picker {
@@ -390,6 +395,20 @@ pre {
         }
       }
     }
+  }
+}
+
+.modal {
+  .add-payment-card {
+    padding: 0;
+  }
+  .card__body {
+    .card-meta {
+      margin: 0;
+    }
+  }
+  .card-wrapper {
+    display: none;
   }
 }
 

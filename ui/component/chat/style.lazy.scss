@@ -1329,6 +1329,21 @@ $recent-msg-button__height: 2rem;
   .livestream-hyperchats__wrapper {
     padding-top: 0;
     padding-bottom: 0;
+    .livestream-hyperchat {
+      .channel-thumbnail {
+        margin-left: unset;
+        margin-top: unset;
+        height: 1.6rem;
+        width: 1.6rem;
+      }
+      .credit-amount {
+        margin-right: var(--spacing-xxxs);
+        margin-top: 3px;
+      }
+    }
+  }
+  .livestream__comments {
+    margin-bottom: 35px;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -1336,11 +1351,15 @@ $recent-msg-button__height: 2rem;
       border-radius: 0;
       .livestream-comments__wrapper {
         height: calc(100vh - 50px) !important;
-        /*
-        .livestream__comment-create {
-          padding: 0 var(--spacing-xxs);
+      }
+    }
+    .chat__comment-create {
+      .MuiAutocomplete-root {
+        .MuiInputBase-root {
+          position: fixed;
+          left: 0;
+          bottom: 0;
         }
-        */
       }
     }
   }
@@ -1349,11 +1368,6 @@ $recent-msg-button__height: 2rem;
       border-radius: 0;
       .livestream-comments__wrapper {
         height: calc(100vh - 55px) !important;
-        /*
-        .livestream__comment-create {
-          padding-bottom: var(--spacing-s);
-        }
-        */
       }
     }
   }
