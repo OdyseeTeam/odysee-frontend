@@ -9,7 +9,7 @@ import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
 import { PAYWALL } from 'constants/publish';
-import { filterMembershipTiersWithPerk } from 'util/memberships';
+import { filterMembershipTiersWithPerk, getRestrictivePerkName } from 'util/memberships';
 
 type Props = {
   updatePublishForm: (UpdatePublishState) => void,
@@ -51,34 +51,7 @@ function PublishProtectedContent(props: Props) {
   const claimId = claim?.claim_id;
 
   const perkName = React.useMemo(() => {
-    const EXCLUSIVE_CONTENT = 'Exclusive content';
-    const EXCLUSIVE_LIVESTREAMS = 'Exclusive livestreams';
-
-    switch (type) {
-      case 'file':
-      case 'post':
-        return EXCLUSIVE_CONTENT;
-      case 'livestream':
-        // -- liveCreateType --
-        switch (liveCreateType) {
-          case 'new_placeholder':
-            return EXCLUSIVE_LIVESTREAMS;
-          case 'choose_replay':
-            return EXCLUSIVE_CONTENT;
-          case 'edit_placeholder':
-            // -- liveEditType --
-            switch (liveEditType) {
-              case 'update_only':
-                return EXCLUSIVE_LIVESTREAMS;
-              case 'use_replay':
-              case 'upload_replay':
-                return EXCLUSIVE_CONTENT;
-            }
-        }
-    }
-
-    assert(false, 'unhandled restriction combo', { type, liveCreateType, liveEditType });
-    return EXCLUSIVE_CONTENT;
+    return getRestrictivePerkName(type, liveCreateType, liveEditType);
   }, [liveCreateType, liveEditType, type]);
 
   const membershipsToUse = React.useMemo(() => {
