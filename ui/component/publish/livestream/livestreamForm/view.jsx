@@ -411,9 +411,6 @@ function LivestreamForm(props: Props) {
     (requiresFile && !filePath) ||
     previewing;
 
-  // replays use 'exclusive content' perk, livestreams use 'exclusive livestreams'
-  const channelRestrictionToUse = liveCreateType === 'choose_replay' ? 'upload' : 'livestream';
-
   // Editing claim uri
   return (
     <div className={balance < 0.01 ? 'disabled' : ''}>
@@ -506,7 +503,7 @@ function LivestreamForm(props: Props) {
               livestreamData={livestreamData}
             />
 
-            <PublishProtectedContent claim={myClaimForUri} location={channelRestrictionToUse} />
+            <PublishProtectedContent claim={myClaimForUri} />
 
             {liveCreateType === 'choose_replay' && <PublishPrice disabled={disabled} />}
 

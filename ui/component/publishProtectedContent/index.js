@@ -23,6 +23,9 @@ const select = (state, props) => {
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelClaimId, claimId),
     myMembershipTiers: selectMembershipTiersForCreatorId(state, activeChannel?.claim_id),
     isStillEditing: selectIsStillEditing(state),
+    type: selectPublishFormValue(state, 'type'),
+    liveCreateType: selectPublishFormValue(state, 'liveCreateType'),
+    liveEditType: selectPublishFormValue(state, 'liveEditType'),
     paywall: selectPublishFormValue(state, 'paywall'),
     visibility: selectPublishFormValue(state, 'visibility'),
   };

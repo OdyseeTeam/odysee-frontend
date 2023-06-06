@@ -451,7 +451,7 @@ function UploadForm(props: Props) {
 
           <PublishVisibility />
 
-          <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
+          <PublishProtectedContent claim={myClaimForUri} />
 
           <PublishPrice disabled={formDisabled} />
 

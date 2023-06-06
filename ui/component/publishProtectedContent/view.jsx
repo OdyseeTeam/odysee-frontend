@@ -20,8 +20,10 @@ type Props = {
   incognito: boolean,
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
   myMembershipTiers: Array<MembershipTier>,
-  location: string,
   isStillEditing: boolean,
+  type: PublishType,
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   paywall: Paywall,
   visibility: Visibility,
 };
@@ -36,8 +38,10 @@ function PublishProtectedContent(props: Props) {
     protectedMembershipIds,
     getExistingTiers,
     myMembershipTiers,
-    location,
     isStillEditing,
+    type,
+    liveCreateType,
+    liveEditType,
     paywall,
     visibility,
   } = props;
@@ -46,10 +50,40 @@ function PublishProtectedContent(props: Props) {
 
   const claimId = claim?.claim_id;
 
+  const perkName = React.useMemo(() => {
+    const EXCLUSIVE_CONTENT = 'Exclusive content';
+    const EXCLUSIVE_LIVESTREAMS = 'Exclusive livestreams';
+
+    switch (type) {
+      case 'file':
+      case 'post':
+        return EXCLUSIVE_CONTENT;
+      case 'livestream':
+        // -- liveCreateType --
+        switch (liveCreateType) {
+          case 'new_placeholder':
+            return EXCLUSIVE_LIVESTREAMS;
+          case 'choose_replay':
+            return EXCLUSIVE_CONTENT;
+          case 'edit_placeholder':
+            // -- liveEditType --
+            switch (liveEditType) {
+              case 'update_only':
+                return EXCLUSIVE_LIVESTREAMS;
+              case 'use_replay':
+              case 'upload_replay':
+                return EXCLUSIVE_CONTENT;
+            }
+        }
+    }
+
+    assert(false, 'unhandled restriction combo', { type, liveCreateType, liveEditType });
+    return EXCLUSIVE_CONTENT;
+  }, [liveCreateType, liveEditType, type]);
+
   const membershipsToUse = React.useMemo(() => {
-    const perkName = location === 'livestream' ? 'Exclusive livestreams' : 'Exclusive content';
     return myMembershipTiers ? filterMembershipTiersWithPerk(myMembershipTiers, perkName) : [];
-  }, [location, myMembershipTiers]);
+  }, [perkName, myMembershipTiers]);
 
   const membershipsToUseIds =
     membershipsToUse && membershipsToUse.map((membershipTier) => membershipTier?.Membership?.id);
@@ -215,7 +249,7 @@ function PublishProtectedContent(props: Props) {
               />
 
               {isRestrictingContent && (
-                <div className="tier-list">
+                <div className="tier-list" key={perkName}>
                   {myMembershipTiers.map((membership) => (
                     <FormField
                       disabled={paywall !== PAYWALL.FREE}
