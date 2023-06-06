@@ -825,7 +825,7 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
   .banner_logo {
     display: block;
     float: left;
-    margin-top: 20px;
+    margin-top: var(--spacing-m);
     margin-left: 80px;
     margin-right: 30px;
     width: 150px;
@@ -833,28 +833,6 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     background-image: url('~static/img/cookie.svg');
     background-size: contain;
     background-repeat: no-repeat;
-
-    @media (max-width: $breakpoint-medium) {
-      margin-left: 30px;
-      margin-right: 10px;
-    }
-
-    @media (max-width: $breakpoint-small) {
-      display: none;
-    }
-  }
-
-  @media (max-width: $breakpoint-medium) {
-    #onetrust-policy {
-      margin-right: 60px;
-    }
-
-    #onetrust-button-group-parent {
-      margin-top: 0;
-      #onetrust-button-group {
-        margin-right: 10px !important;
-      }
-    }
   }
 
   #onetrust-policy-title,
@@ -884,6 +862,80 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     #onetrust-pc-btn-handler {
       background-color: var(--color-header-button);
       color: var(--color-text);
+    }
+  }
+
+  @media (max-width: $breakpoint-medium) {
+    .banner_logo {
+      position: sticky;
+      top: var(--spacing-m);
+      margin-left: 30px;
+      margin-right: 10px;
+    }
+
+    #onetrust-policy {
+      margin-right: 60px;
+    }
+
+    #onetrust-button-group-parent {
+      position: sticky;
+      top: var(--spacing-m);
+      margin-top: 0;
+      margin-right: 10px;
+      margin-left: 0;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    border-top: 2px solid black;
+    height: 250px;
+    &:focus {
+      outline: unset;
+    }
+    .banner_logo {
+      display: none;
+    }
+    .ot-sdk-container {
+      width: 100%;
+      padding: var(--spacing-xs);
+
+      #onetrust-policy {
+        margin: 0;
+        margin-top: var(--spacing-xs);
+        #onetrust-policy-text {
+          margin-top: var(--spacing-xs);
+        }
+      }
+    }
+    #onetrust-button-group-parent {
+      position: sticky;
+      bottom: var(--spacing-xs);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      #onetrust-button-group {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-right: 0 !important;
+        #onetrust-accept-btn-handler,
+        #onetrust-reject-all-handler,
+        #onetrust-pc-btn-handler {
+          margin: unset;
+          flex: 1;
+          padding: var(--spacing-xs);
+        }
+        #onetrust-accept-btn-handler,
+        #onetrust-reject-all-handler {
+          flex-basis: calc(50% - (var(--spacing-xxs) / 2));
+          margin-bottom: var(--spacing-xxs);
+        }
+        #onetrust-accept-btn-handler {
+          margin-right: var(--spacing-xxs);
+        }
+        #onetrust-pc-btn-handler {
+          flex-basis: 100%;
+        }
+      }
     }
   }
 }
