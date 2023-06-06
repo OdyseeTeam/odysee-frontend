@@ -825,7 +825,7 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
   .banner_logo {
     display: block;
     float: left;
-    margin-top: 20px;
+    margin-top: var(--spacing-m);
     margin-left: 80px;
     margin-right: 30px;
     width: 150px;
@@ -867,6 +867,8 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
 
   @media (max-width: $breakpoint-medium) {
     .banner_logo {
+      position: sticky;
+      top: var(--spacing-m);
       margin-left: 30px;
       margin-right: 10px;
     }
@@ -876,10 +878,11 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     }
 
     #onetrust-button-group-parent {
+      position: sticky;
+      top: var(--spacing-m);
       margin-top: 0;
-      #onetrust-button-group {
-        margin-right: 10px !important;
-      }
+      margin-right: 10px;
+      margin-left: 0;
     }
   }
 
