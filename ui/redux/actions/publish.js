@@ -601,7 +601,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       : PUBLISH_TYPES.FILE;
 
     const liveCreateType: ?LiveCreateType = isLivestreamClaim ? 'edit_placeholder' : undefined;
-    const liveEditType: ?LiveEditType = isLivestreamClaim ? 'use_replay' : undefined; // #2801
+    const liveEditType: ?LiveEditType = isLivestreamClaim ? 'update_only' : undefined; // Reverted #2801
 
     // $FlowFixMe (TODO: Lots of undefined states)
     const publishData: UpdatePublishState = {
