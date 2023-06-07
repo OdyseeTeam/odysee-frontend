@@ -1,6 +1,5 @@
 // @flow
 import React, { useEffect } from 'react';
-import classnames from 'classnames';
 
 import './style.scss';
 import { FormField } from 'component/common/form';
@@ -92,19 +91,6 @@ function PublishProtectedContent(props: Props) {
     }
   }
 
-  React.useEffect(() => {
-    if (memberRestrictionOn) {
-      const elementsToHide = document.getElementsByClassName('hide-tier');
-
-      if (elementsToHide) {
-        for (const element of elementsToHide) {
-          // $FlowFixMe
-          element.parentElement.style.display = 'none';
-        }
-      }
-    }
-  }, [memberRestrictionOn, membershipsToUse]);
-
   useEffect(() => {
     if (activeChannel) {
       getExistingTiers({
@@ -183,21 +169,23 @@ function PublishProtectedContent(props: Props) {
               />
 
               {memberRestrictionOn && (
-                <div className="tier-list" key={perkName}>
-                  {myMembershipTiers.map((membership) => (
-                    <FormField
-                      disabled={paywall !== PAYWALL.FREE}
-                      key={membership.Membership.id}
-                      type="checkbox"
-                      checked={memberRestrictionTierIds.includes(membership.Membership.id)}
-                      label={membership.Membership.name}
-                      name={membership.Membership.id}
-                      onChange={() => toggleMemberRestrictionTierId(membership.Membership.id)}
-                      className={classnames({
-                        'hide-tier': !membershipsToUseIds.includes(membership.Membership.id),
-                      })}
-                    />
-                  ))}
+                <div className="tier-list">
+                  {myMembershipTiers.map((tier: MembershipTier) => {
+                    const show = membershipsToUseIds.includes(tier.Membership.id);
+                    return show ? (
+                      <FormField
+                        disabled={paywall !== PAYWALL.FREE}
+                        key={tier.Membership.id}
+                        type="checkbox"
+                        checked={memberRestrictionTierIds.includes(tier.Membership.id)}
+                        label={tier.Membership.name}
+                        name={tier.Membership.id}
+                        onChange={() => toggleMemberRestrictionTierId(tier.Membership.id)}
+                      />
+                    ) : (
+                      <div key={tier.Membership.id} className="dummy-tier" />
+                    );
+                  })}
                 </div>
               )}
 
