@@ -67,6 +67,8 @@ declare type PublishState = {|
   fiatRentalFee: Price,
   fiatRentalExpiration: Duration,
   fiatRentalEnabled: boolean,
+  memberRestrictionOn: boolean,
+  memberRestrictionTierIds: Array<number>,
   title: string,
   thumbnail: string, // Manually-entered thumbnail url.
   thumbnail_url: string, // URL for successful thumbnail upload.

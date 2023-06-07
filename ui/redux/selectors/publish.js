@@ -154,6 +154,18 @@ export const selectTakeOverAmount = createSelector(
   }
 );
 
+export const selectIsMemberRestrictionValid = (state: State) => {
+  const { memberRestrictionOn, memberRestrictionTierIds, visibility } = state.publish;
+
+  if (visibility === 'unlisted') {
+    // Member-restrictions are currently disabled for Unlisted.
+    return true;
+  } else {
+    // If on, tiers must be selected
+    return !memberRestrictionOn || memberRestrictionTierIds.length > 0;
+  }
+};
+
 export const selectCurrentUploads = (state: State) => selectState(state).currentUploads;
 
 export const selectUploadCount = createSelector(

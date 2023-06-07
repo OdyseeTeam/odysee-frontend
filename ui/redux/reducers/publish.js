@@ -47,6 +47,8 @@ const defaultState: PublishState = {
   fiatRentalFee: { amount: 1, currency: 'USD' },
   fiatRentalExpiration: { value: 1, unit: 'weeks' },
   fiatRentalEnabled: false,
+  memberRestrictionOn: false,
+  memberRestrictionTierIds: [],
   title: '',
   thumbnail: '',
   thumbnail_url: '',

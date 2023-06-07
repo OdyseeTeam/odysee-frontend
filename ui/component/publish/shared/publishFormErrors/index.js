@@ -10,10 +10,11 @@ const select = (state) => ({
   fileBitrate: selectPublishFormValue(state, 'fileBitrate'),
   editingURI: selectPublishFormValue(state, 'editingURI'),
   uploadThumbnailStatus: selectPublishFormValue(state, 'uploadThumbnailStatus'),
-  restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
   thumbnail: selectPublishFormValue(state, 'thumbnail'),
   thumbnailError: selectPublishFormValue(state, 'thumbnailError'),
   releaseTimeError: selectPublishFormValue(state, 'releaseTimeError'),
+  memberRestrictionOn: selectPublishFormValue(state, 'memberRestrictionOn'),
+  memberRestrictionTierIds: selectPublishFormValue(state, 'memberRestrictionTierIds'),
   visibility: selectPublishFormValue(state, 'visibility'),
   isStillEditing: selectIsStillEditing(state),
 });

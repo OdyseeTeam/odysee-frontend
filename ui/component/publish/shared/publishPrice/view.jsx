@@ -29,7 +29,7 @@ type Props = {
   fiatRentalExpiration: Duration,
   paywall: Paywall,
   fee: Fee,
-  restrictedToMemberships: ?string,
+  restrictedToMemberships: boolean,
   chargesEnabled: ?boolean,
   updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
