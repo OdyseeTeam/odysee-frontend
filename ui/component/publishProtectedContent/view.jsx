@@ -140,6 +140,23 @@ function PublishProtectedContent(props: Props) {
     );
   }
 
+  if (validTierIdsForPerk.length === 0) {
+    return (
+      <Card
+        background
+        isBodyList
+        title={__('Restrict Content')}
+        body={
+          <div className="publish-row publish-row-tiers">
+            <div className="publish-row__reason">
+              {__('The selected channel has no membership tiers with exclusive-content perks for the current setup.')}
+            </div>
+          </div>
+        }
+      />
+    );
+  }
+
   if (validTierIdsForPerk.length > 0) {
     if (visibility === 'unlisted') {
       return (
