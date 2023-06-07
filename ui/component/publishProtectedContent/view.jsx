@@ -52,13 +52,12 @@ function PublishProtectedContent(props: Props) {
     return getRestrictivePerkName(type, liveCreateType, liveEditType);
   }, [liveCreateType, liveEditType, type]);
 
-  const membershipsToUse = React.useMemo(() => {
-    return myMembershipTiers ? filterMembershipTiersWithPerk(myMembershipTiers, perkName) : [];
+  const validTierIdsForPerk = React.useMemo(() => {
+    const validTiers = myMembershipTiers ? filterMembershipTiersWithPerk(myMembershipTiers, perkName) : [];
+    return validTiers.map((tier) => tier?.Membership?.id);
   }, [perkName, myMembershipTiers]);
 
-  const membershipsToUseIds =
-    membershipsToUse && membershipsToUse.map((membershipTier) => membershipTier?.Membership?.id);
-
+  // Fetch tiers for current claim
   React.useEffect(() => {
     if (claimId) {
       getMembershipTiersForContentClaimId(claimId);
@@ -74,6 +73,15 @@ function PublishProtectedContent(props: Props) {
       channelClaimId: activeChannel.claim_id,
     });
   }, [activeChannel, updatePublishForm]);
+
+  // Remove previous selections that are no longer valid.
+  React.useEffect(() => {
+    const filteredTierIds = memberRestrictionTierIds.filter((id) => validTierIdsForPerk.includes(id));
+    if (filteredTierIds.length < memberRestrictionTierIds.length) {
+      updatePublishForm({ memberRestrictionTierIds: filteredTierIds });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-filter when validTierIdsForPerk changes.
+  }, [validTierIdsForPerk]);
 
   function toggleMemberRestrictionOn() {
     updatePublishForm({ memberRestrictionOn: !memberRestrictionOn });
@@ -132,7 +140,7 @@ function PublishProtectedContent(props: Props) {
     );
   }
 
-  if (membershipsToUse && membershipsToUse.length > 0) {
+  if (validTierIdsForPerk.length > 0) {
     if (visibility === 'unlisted') {
       return (
         <Card
@@ -171,7 +179,7 @@ function PublishProtectedContent(props: Props) {
               {memberRestrictionOn && (
                 <div className="tier-list">
                   {myMembershipTiers.map((tier: MembershipTier) => {
-                    const show = membershipsToUseIds.includes(tier.Membership.id);
+                    const show = validTierIdsForPerk.includes(tier.Membership.id);
                     return show ? (
                       <FormField
                         disabled={paywall !== PAYWALL.FREE}
