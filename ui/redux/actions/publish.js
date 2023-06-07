@@ -9,7 +9,10 @@ import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
-import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
+import {
+  selectMembershipTiersForCreatorId,
+  selectProtectedContentMembershipsForClaimId,
+} from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
@@ -78,9 +81,19 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
     const state: State = getState();
     const editingUri = selectPublishFormValue(state, 'editingURI') || '';
     const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
-    const claimToEdit = selectPublishFormValue(state, 'claimToEdit');
-    const memberRestrictionOn = selectPublishFormValue(state, 'memberRestrictionOn');
-    const memberRestrictionTierIds = selectPublishFormValue(state, 'memberRestrictionTierIds');
+
+    const {
+      channelClaimId: activeChannelClaimId,
+      claimToEdit,
+      memberRestrictionOn,
+      memberRestrictionTierIds,
+      name,
+      visibility,
+    } = state.publish;
+
+    const isUnlisted = visibility === 'unlisted';
+    const tiersForActiveChannel = selectMembershipTiersForCreatorId(state, activeChannelClaimId || '');
+    const tierRestrictionAllowed = !!tiersForActiveChannel && tiersForActiveChannel.length > 0 && !isUnlisted;
 
     const claim = makeSelectClaimForUri(editingUri)(state) || {};
     const hasSourceFile = claim.value && claim.value.source;
@@ -90,9 +103,6 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
       const state: State = getState();
       const myClaims = selectMyClaims(state);
       const pendingClaim = successResponse.outputs[0];
-      const publishData = selectPublishFormValues(state);
-
-      const { memberRestrictionOn, memberRestrictionTierIds, name } = publishData;
 
       const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
         const channelClaimId = getChannelIdFromClaim(claimResult);
@@ -103,7 +113,7 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
           // (e.g. no tiers; have tiers but restriction not selected; etc.),
           // presumably to cover the "edit + remove restriction" or other
           // corner-cases. Err on the side of safety, I guess.
-          const tierIds = memberRestrictionOn ? memberRestrictionTierIds : [];
+          const tierIds = tierRestrictionAllowed && memberRestrictionOn ? memberRestrictionTierIds : [];
           dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
         }
       };
@@ -204,16 +214,25 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
   };
 };
 
-export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: () => {}) => {
+export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: GetState) => {
   const publishSuccess = (successResponse, lbryFirstError) => {
     const state = getState();
     const myClaimIds: Set<string> = selectMyActiveClaims(state);
 
     const pendingClaim = successResponse.outputs[0];
     const { permanent_url: url } = pendingClaim;
-    const publishData = selectPublishFormValues(state);
 
-    const { memberRestrictionOn, memberRestrictionTierIds, name } = publishData;
+    const {
+      channelClaimId: activeChannelClaimId,
+      memberRestrictionOn,
+      memberRestrictionTierIds,
+      name,
+      visibility,
+    } = state.publish;
+
+    const isUnlisted = visibility === 'unlisted';
+    const tiersForActiveChannel = selectMembershipTiersForCreatorId(state, activeChannelClaimId || '');
+    const tierRestrictionAllowed = !!tiersForActiveChannel && tiersForActiveChannel.length > 0 && !isUnlisted;
 
     const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
       const channelClaimId = getChannelIdFromClaim(claimResult);
@@ -224,7 +243,7 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
         // (e.g. no tiers; have tiers but restriction not selected; etc.),
         // presumably to cover the "edit + remove restriction" or other
         // corner-cases. Err on the side of safety, I guess.
-        const tierIds = memberRestrictionOn ? memberRestrictionTierIds : [];
+        const tierIds = tierRestrictionAllowed && memberRestrictionOn ? memberRestrictionTierIds : [];
         dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
       }
     };
