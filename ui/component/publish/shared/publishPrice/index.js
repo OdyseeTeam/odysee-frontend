@@ -16,7 +16,7 @@ const select = (state) => ({
   fiatRentalExpiration: selectPublishFormValue(state, 'fiatRentalExpiration'),
   fee: selectPublishFormValue(state, 'fee'),
   chargesEnabled: selectAccountChargesEnabled(state),
-  restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
+  restrictedToMemberships: state.publish.memberRestrictionOn && state.publish.memberRestrictionTierIds.length > 0,
   type: state.publish.type,
   visibility: selectPublishFormValue(state, 'visibility'),
 });

@@ -97,8 +97,7 @@ type Props = {
   setClearStatus: (boolean) => void,
   // disabled?: boolean,
   remoteFileUrl?: string,
-  restrictedToMemberships: ?string,
-  visibility: Visibility,
+  isMemberRestrictionValid: boolean,
 };
 
 function LivestreamForm(props: Props) {
@@ -141,8 +140,7 @@ function LivestreamForm(props: Props) {
     hasClaimedInitialRewards,
     setClearStatus,
     remoteFileUrl,
-    restrictedToMemberships,
-    visibility,
+    isMemberRestrictionValid,
   } = props;
 
   const {
@@ -179,7 +177,7 @@ function LivestreamForm(props: Props) {
   const waitingForFile = waitForFile && !remoteFileUrl && !filePath;
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
-    (restrictedToMemberships !== null || visibility === 'unlisted') &&
+    isMemberRestrictionValid &&
     name &&
     isNameValid(name) &&
     title &&

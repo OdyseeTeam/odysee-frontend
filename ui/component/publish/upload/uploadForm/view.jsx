@@ -91,8 +91,7 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
-  restrictedToMemberships: ?string,
-  visibility: Visibility,
+  isMemberRestrictionValid: boolean,
 };
 
 function UploadForm(props: Props) {
@@ -133,8 +132,7 @@ function UploadForm(props: Props) {
     title,
     updatePublishForm,
     uploadThumbnailStatus,
-    restrictedToMemberships,
-    visibility,
+    isMemberRestrictionValid,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -188,7 +186,7 @@ function UploadForm(props: Props) {
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
   const formValid =
-    (restrictedToMemberships !== null || visibility === 'unlisted') &&
+    isMemberRestrictionValid &&
     (isOverwritingExistingClaim
       ? false
       : editingURI && !filePath // if we're editing we don't need a file

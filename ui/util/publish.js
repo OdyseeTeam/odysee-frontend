@@ -357,8 +357,8 @@ const PAYLOAD = {
       tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
 
       if (publishData.visibility !== 'unlisted') {
-        // $FlowFixMe - handle restrictedToMemberships
-        if (publishData.restrictedToMemberships && channel_id) {
+        const membersOnly = publishData.memberRestrictionOn && publishData.memberRestrictionTierIds.length > 0;
+        if (membersOnly && channel_id) {
           tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
         }
       }
