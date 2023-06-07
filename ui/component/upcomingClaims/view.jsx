@@ -149,8 +149,8 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
         'upcoming-grid--extended': showAllUpcoming,
         'upcoming-grid--closed':
           (hideUpcoming && showHideSetting) ||
-          (showHideSetting && list.total === 0) ||
-          (!showHideSetting && list.total === 0),
+          (showHideSetting && list.total === 0 && !loading) ||
+          (!showHideSetting && list.total === 0 && !loading),
       })}
     >
       <Header />
