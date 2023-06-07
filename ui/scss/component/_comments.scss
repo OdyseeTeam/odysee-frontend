@@ -354,7 +354,8 @@ $thumbnailWidthSmall: 2rem;
       margin-bottom: -2px;
     }
 
-    &.icon--BadgeAdmin {
+    &.icon--BadgeAdmin,
+    &.icon--BadgeMod {
       height: 0.96rem;
       width: 0.96rem;
       margin-bottom: -2px;
