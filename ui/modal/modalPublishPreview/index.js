@@ -2,7 +2,12 @@ import { connect } from 'react-redux';
 import { doHideModal } from 'redux/actions/app';
 import ModalPublishPreview from './view';
 import { selectMembershipTiersForCreatorId } from 'redux/selectors/memberships';
-import { selectPublishFormValue, selectPublishFormValues, selectIsStillEditing } from 'redux/selectors/publish';
+import {
+  selectPublishFormValue,
+  selectPublishFormValues,
+  selectIsStillEditing,
+  selectMemberRestrictionStatus,
+} from 'redux/selectors/publish';
 import { selectMyChannelClaims, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
 import { selectFfmpegStatus, selectClientSetting } from 'redux/selectors/settings';
@@ -20,6 +25,7 @@ const select = (state, props) => {
     isVid: selectPublishFormValue(state, 'fileVid'),
     publishing: selectPublishFormValue(state, 'publishing'),
     myMembershipTiers: selectMembershipTiersForCreatorId(state, channelClaimId),
+    memberRestrictionStatus: selectMemberRestrictionStatus(state),
     isStillEditing: selectIsStillEditing(state),
     ffmpegStatus: selectFfmpegStatus(state),
     enablePublishPreview: selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW),

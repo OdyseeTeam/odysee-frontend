@@ -4,7 +4,7 @@ import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/clai
 import {
   selectPublishFormValues,
   selectIsStillEditing,
-  selectIsMemberRestrictionValid,
+  selectMemberRestrictionStatus,
   selectPublishFormValue,
   selectMyClaimForUri,
 } from 'redux/selectors/publish';
@@ -41,7 +41,7 @@ const select = (state) => {
     filePath: selectPublishFormValue(state, 'filePath'),
     remoteUrl: selectPublishFormValue(state, 'remoteFileUrl'),
     publishSuccess: selectPublishFormValue(state, 'publishSuccess'),
-    isMemberRestrictionValid: selectIsMemberRestrictionValid(state),
+    memberRestrictionStatus: selectMemberRestrictionStatus(state),
     totalRewardValue: selectUnclaimedRewardValue(state),
     modal: selectModal(state),
     enablePublishPreview: selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW),

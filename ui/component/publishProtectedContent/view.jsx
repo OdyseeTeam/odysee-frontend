@@ -8,7 +8,6 @@ import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
 import { PAYWALL } from 'constants/publish';
-import { filterMembershipTiersWithPerk, getRestrictivePerkName } from 'util/memberships';
 
 type Props = {
   updatePublishForm: (UpdatePublishState) => void,
@@ -19,11 +18,9 @@ type Props = {
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
   myMembershipTiers: Array<MembershipTier>,
   isStillEditing: boolean,
-  type: PublishType,
-  liveCreateType: LiveCreateType,
-  liveEditType: LiveEditType,
   memberRestrictionOn: boolean,
   memberRestrictionTierIds: Array<number>,
+  validTierIds: ?Array<number>,
   paywall: Paywall,
   visibility: Visibility,
 };
@@ -37,25 +34,14 @@ function PublishProtectedContent(props: Props) {
     claim,
     getExistingTiers,
     myMembershipTiers,
-    type,
-    liveCreateType,
-    liveEditType,
     memberRestrictionOn,
     memberRestrictionTierIds,
+    validTierIds,
     paywall,
     visibility,
   } = props;
 
   const claimId = claim?.claim_id;
-
-  const perkName = React.useMemo(() => {
-    return getRestrictivePerkName(type, liveCreateType, liveEditType);
-  }, [liveCreateType, liveEditType, type]);
-
-  const validTierIdsForPerk = React.useMemo(() => {
-    const validTiers = myMembershipTiers ? filterMembershipTiersWithPerk(myMembershipTiers, perkName) : [];
-    return validTiers.map((tier) => tier?.Membership?.id);
-  }, [perkName, myMembershipTiers]);
 
   // Fetch tiers for current claim
   React.useEffect(() => {
@@ -76,12 +62,14 @@ function PublishProtectedContent(props: Props) {
 
   // Remove previous selections that are no longer valid.
   React.useEffect(() => {
-    const filteredTierIds = memberRestrictionTierIds.filter((id) => validTierIdsForPerk.includes(id));
-    if (filteredTierIds.length < memberRestrictionTierIds.length) {
-      updatePublishForm({ memberRestrictionTierIds: filteredTierIds });
+    if (validTierIds) {
+      const filteredTierIds = memberRestrictionTierIds.filter((id) => validTierIds.includes(id));
+      if (filteredTierIds.length < memberRestrictionTierIds.length) {
+        updatePublishForm({ memberRestrictionTierIds: filteredTierIds });
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-filter when validTierIdsForPerk changes.
-  }, [validTierIdsForPerk]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-filter when validTierIds changes.
+  }, [validTierIds]);
 
   function toggleMemberRestrictionOn() {
     updatePublishForm({ memberRestrictionOn: !memberRestrictionOn });
@@ -140,7 +128,7 @@ function PublishProtectedContent(props: Props) {
     );
   }
 
-  if (validTierIdsForPerk.length === 0) {
+  if (validTierIds && validTierIds.length === 0) {
     return (
       <Card
         background
@@ -157,7 +145,7 @@ function PublishProtectedContent(props: Props) {
     );
   }
 
-  if (validTierIdsForPerk.length > 0) {
+  if (validTierIds && validTierIds.length > 0) {
     if (visibility === 'unlisted') {
       return (
         <Card
@@ -196,7 +184,7 @@ function PublishProtectedContent(props: Props) {
               {memberRestrictionOn && (
                 <div className="tier-list">
                   {myMembershipTiers.map((tier: MembershipTier) => {
-                    const show = validTierIdsForPerk.includes(tier.Membership.id);
+                    const show = validTierIds && validTierIds.includes(tier.Membership.id);
                     return show ? (
                       <FormField
                         disabled={paywall !== PAYWALL.FREE}

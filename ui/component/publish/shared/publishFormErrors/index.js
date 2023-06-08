@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectPublishFormValue, selectIsStillEditing } from 'redux/selectors/publish';
+import { selectPublishFormValue, selectIsStillEditing, selectMemberRestrictionStatus } from 'redux/selectors/publish';
 import PublishFormErrors from './view';
 
 const select = (state) => ({
@@ -13,9 +13,7 @@ const select = (state) => ({
   thumbnail: selectPublishFormValue(state, 'thumbnail'),
   thumbnailError: selectPublishFormValue(state, 'thumbnailError'),
   releaseTimeError: selectPublishFormValue(state, 'releaseTimeError'),
-  memberRestrictionOn: selectPublishFormValue(state, 'memberRestrictionOn'),
-  memberRestrictionTierIds: selectPublishFormValue(state, 'memberRestrictionTierIds'),
-  visibility: selectPublishFormValue(state, 'visibility'),
+  memberRestrictionStatus: selectMemberRestrictionStatus(state),
   isStillEditing: selectIsStillEditing(state),
 });
 
