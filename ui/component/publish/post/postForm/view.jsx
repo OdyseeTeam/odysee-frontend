@@ -86,7 +86,7 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
-  isMemberRestrictionValid: boolean,
+  memberRestrictionStatus: MemberRestrictionStatus,
 };
 
 function PostForm(props: Props) {
@@ -126,7 +126,7 @@ function PostForm(props: Props) {
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
-    isMemberRestrictionValid,
+    memberRestrictionStatus,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -161,7 +161,7 @@ function PostForm(props: Props) {
 
   // TODO: formValidLessFile should be a selector
   const formValidLessFile =
-    isMemberRestrictionValid &&
+    (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     name &&
     isNameValid(name) &&
     title &&

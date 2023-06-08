@@ -114,6 +114,20 @@ declare type DoUpdatePublishForm = {
   data: UpdatePublishState,
 };
 
+declare type MemberRestrictionStatus = {|
+  // -- Main --
+  isApplicable: boolean, // Whether members-only is applicable to the current state of the Publish form
+  isSelectionValid: boolean, // Whether the current settings should flag a user-error.
+  isRestricting: boolean, // Whether restrictions is going to be applied when the form is sent.
+  // -- Supporting details --
+  details: {|
+    isUnlisted: boolean,
+    isAnonymous: boolean,
+    hasTiers: boolean,
+    hasTiersWithRestrictions: boolean,
+  |},
+|};
+
 declare type TusUploader = any;
 
 declare type FileUploadSdkParams = {

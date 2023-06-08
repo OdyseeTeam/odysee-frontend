@@ -61,8 +61,8 @@ type Props = {
   isLivestreamClaim: boolean,
   remoteFile: ?string,
   myMembershipTiers: MembershipTiers,
-  memberRestrictionOn: boolean,
   memberRestrictionTierIds: Array<number>,
+  memberRestrictionStatus: MemberRestrictionStatus,
   visibility: Visibility,
   scheduledShow: boolean,
 };
@@ -107,8 +107,8 @@ const ModalPublishPreview = (props: Props) => {
     closeModal,
     isLivestreamClaim,
     myMembershipTiers,
-    memberRestrictionOn,
     memberRestrictionTierIds,
+    memberRestrictionStatus,
     visibility,
     scheduledShow,
   } = props;
@@ -135,6 +135,12 @@ const ModalPublishPreview = (props: Props) => {
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
   const confirmBtnText = getConfirmButtonText();
+
+  assert(
+    !memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid,
+    'Something wrong:',
+    memberRestrictionStatus
+  );
 
   // **************************************************************************
   // **************************************************************************
@@ -344,9 +350,7 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function hideTierRestrictions() {
-    return (
-      !myMembershipTiers || !memberRestrictionOn || memberRestrictionTierIds.length === 0 || visibility === 'unlisted'
-    );
+    return !memberRestrictionStatus.isApplicable || !memberRestrictionStatus.isSelectionValid;
   }
 
   function getVisibilityValue() {

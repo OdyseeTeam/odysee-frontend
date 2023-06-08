@@ -9,10 +9,7 @@ import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
-import {
-  selectMembershipTiersForCreatorId,
-  selectProtectedContentMembershipsForClaimId,
-} from 'redux/selectors/memberships';
+import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
@@ -27,6 +24,7 @@ import {
   selectPublishFormValues,
   selectMyClaimForUri,
   selectIsStillEditing,
+  selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
 import { doError } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
@@ -40,7 +38,7 @@ import { getVideoBitrate, resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
-import { isClaimNsfw, getChannelIdFromClaim, isStreamPlaceholderClaim, claimContainsTag } from 'util/claim';
+import { isClaimNsfw, getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 
 const PUBLISH_PATH_MAP = Object.freeze({
@@ -82,18 +80,8 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
     const editingUri = selectPublishFormValue(state, 'editingURI') || '';
     const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
 
-    const {
-      channelClaimId: activeChannelClaimId,
-      claimToEdit,
-      memberRestrictionOn,
-      memberRestrictionTierIds,
-      name,
-      visibility,
-    } = state.publish;
-
-    const isUnlisted = visibility === 'unlisted';
-    const tiersForActiveChannel = selectMembershipTiersForCreatorId(state, activeChannelClaimId || '');
-    const tierRestrictionAllowed = !!tiersForActiveChannel && tiersForActiveChannel.length > 0 && !isUnlisted;
+    const { memberRestrictionTierIds, name } = state.publish;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
 
     const claim = makeSelectClaimForUri(editingUri)(state) || {};
     const hasSourceFile = claim.value && claim.value.source;
@@ -109,11 +97,7 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
 
         // hit backend to save restricted memberships
         if (channelClaimId) {
-          // The previous code sends this request even for irrelevant scenarios
-          // (e.g. no tiers; have tiers but restriction not selected; etc.),
-          // presumably to cover the "edit + remove restriction" or other
-          // corner-cases. Err on the side of safety, I guess.
-          const tierIds = tierRestrictionAllowed && memberRestrictionOn ? memberRestrictionTierIds : [];
+          const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
           dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
         }
       };
@@ -184,10 +168,7 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
       if (message.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
         message = ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL;
 
-        if (
-          (Boolean(claimToEdit) && claimContainsTag(claimToEdit, MEMBERS_ONLY_CONTENT_TAG)) ||
-          (memberRestrictionOn && memberRestrictionTierIds.length > 0)
-        ) {
+        if (memberRestrictionStatus.isRestricting) {
           message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
         }
       }
@@ -222,28 +203,15 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
     const pendingClaim = successResponse.outputs[0];
     const { permanent_url: url } = pendingClaim;
 
-    const {
-      channelClaimId: activeChannelClaimId,
-      memberRestrictionOn,
-      memberRestrictionTierIds,
-      name,
-      visibility,
-    } = state.publish;
-
-    const isUnlisted = visibility === 'unlisted';
-    const tiersForActiveChannel = selectMembershipTiersForCreatorId(state, activeChannelClaimId || '');
-    const tierRestrictionAllowed = !!tiersForActiveChannel && tiersForActiveChannel.length > 0 && !isUnlisted;
+    const { memberRestrictionTierIds, name } = state.publish;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
 
     const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
       const channelClaimId = getChannelIdFromClaim(claimResult);
 
       // hit backend to save restricted memberships
       if (channelClaimId) {
-        // The previous code sends this request even for irrelevant scenarios
-        // (e.g. no tiers; have tiers but restriction not selected; etc.),
-        // presumably to cover the "edit + remove restriction" or other
-        // corner-cases. Err on the side of safety, I guess.
-        const tierIds = tierRestrictionAllowed && memberRestrictionOn ? memberRestrictionTierIds : [];
+        const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
         dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
       }
     };
@@ -783,10 +751,12 @@ export const doPublish =
     // const myClaims = selectMyClaimsWithoutChannels(state);
     // get redux publish form
     const publishData = selectPublishFormValues(state);
+    const { memberRestrictionTierIds, name } = publishData;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
 
-    const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, Boolean(previewFn));
-
-    const { memberRestrictionOn, memberRestrictionTierIds, name } = publishData;
+    const publishPayload =
+      payload ||
+      resolvePublishPayload(publishData, myClaimForUri, myChannels, memberRestrictionStatus, Boolean(previewFn));
 
     const { channel_id: channelClaimId } = publishPayload;
 
@@ -800,7 +770,7 @@ export const doPublish =
           channelClaimId,
           existingClaimId,
           name,
-          memberRestrictionOn ? memberRestrictionTierIds : [],
+          memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [],
           existingClaimId ? undefined : true
         )
       );
