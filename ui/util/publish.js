@@ -236,9 +236,15 @@ const PAYLOAD = {
       case 'private':
       case 'unlisted':
         if (isEditing) {
-          if (past.isStreamPlaceholder && (liveEditType === 'use_replay' || liveEditType === 'upload_replay')) {
-            const originalTs = Number(past.release_time || past.timestamp);
-            return originalTs > nowTs ? nowTs : originalTs;
+          if (past.isStreamPlaceholder) {
+            assert(liveEditType === 'use_replay' || liveEditType === 'upload_replay' || liveEditType === 'update_only');
+
+            if (liveEditType === 'use_replay' || liveEditType === 'upload_replay') {
+              const originalTs = Number(past.release_time || past.timestamp);
+              return originalTs > nowTs ? nowTs : originalTs;
+            } else {
+              return userEnteredTs === undefined ? nowTs : userEnteredTs;
+            }
           }
 
           if (userEnteredTs === undefined) {
