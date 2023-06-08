@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-
+import { SCHEDULED_TAGS } from 'constants/tags';
 import {
   selectClaimIsMine,
   selectClaimForUri,
@@ -9,6 +9,7 @@ import {
 import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
 import { makeSelectFilePartlyDownloaded } from 'redux/selectors/file_info';
 import { selectCollectionHasEditsForId } from 'redux/selectors/collections';
+import { claimContainsTag } from 'util/claim';
 import PreviewOverlayProperties from './view';
 
 const select = (state, props) => {
@@ -26,6 +27,7 @@ const select = (state, props) => {
     claimIsMine: selectClaimIsMine(state, claim),
     isLivestream: isLivestreamClaim,
     isLivestreamActive: isLivestreamClaim && selectIsActiveLivestreamForUri(state, uri),
+    isLivestreamScheduled: claimContainsTag(claim, SCHEDULED_TAGS.LIVE),
     isUnlisted: selectIsUriUnlisted(state, uri),
     livestreamViewerCount: isLivestreamClaim ? selectViewersForId(state, claim.claim_id) : undefined,
   };

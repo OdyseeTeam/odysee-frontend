@@ -155,6 +155,14 @@ export function getClaimTags(claim: ?Claim) {
   return metadata && metadata.tags;
 }
 
+export function claimContainsTag(claim: ?Claim, tag: string) {
+  const metadata = getClaimMetadata(claim);
+  if (metadata && metadata.tags) {
+    return metadata.tags.includes(tag);
+  }
+  return false;
+}
+
 export function isClaimProtected(claim: ?Claim) {
   const tags = getClaimTags(claim);
   return tags && tags.includes(MEMBERS_ONLY_CONTENT_TAG);
