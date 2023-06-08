@@ -28,6 +28,7 @@ type Props = {
   isLivestreamActive: ?boolean,
   isUnlisted: boolean,
   livestreamViewerCount: ?number,
+  isLivestreamScheduled: boolean,
 };
 
 export default function PreviewOverlayProperties(props: Props) {
@@ -47,6 +48,7 @@ export default function PreviewOverlayProperties(props: Props) {
     isLivestreamActive,
     isUnlisted,
     livestreamViewerCount,
+    isLivestreamScheduled,
   } = props;
   const isCollection = claim && claim.value_type === 'collection';
   // $FlowFixMe
@@ -109,9 +111,11 @@ export default function PreviewOverlayProperties(props: Props) {
           {isLivestream && (
             <>
               <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
-              <span className="livestream__viewer-count">
-                <LivestreamDateTime uri={uri} />
-              </span>
+              {isLivestreamScheduled && (
+                <span className="livestream__viewer-count">
+                  <LivestreamDateTime uri={uri} />
+                </span>
+              )}
             </>
           )}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
