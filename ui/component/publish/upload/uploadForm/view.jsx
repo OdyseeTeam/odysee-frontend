@@ -35,6 +35,7 @@ import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(() =>
@@ -77,6 +78,7 @@ type Props = {
   publishError?: boolean,
   balance: number,
   isStillEditing: boolean,
+  claimToEdit: ?Claim,
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
@@ -114,6 +116,7 @@ function UploadForm(props: Props) {
     incognito,
     isClaimingInitialRewards,
     isStillEditing,
+    claimToEdit,
     modal,
     myClaimForUri,
     name,
@@ -162,9 +165,6 @@ function UploadForm(props: Props) {
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
       ? myClaimForUri.value.source.media_type
       : undefined;
-  const claimChannelId =
-    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
-    (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
@@ -496,7 +496,12 @@ function UploadForm(props: Props) {
       <section>
         <div className="section__actions publish__actions">
           <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-          <ChannelSelector disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector
+            disabled={isFormIncomplete}
+            autoSet={Boolean(claimToEdit)}
+            channelToSet={getChannelIdFromClaim(claimToEdit)}
+            isPublishMenu
+          />
         </div>
         <span className="help">
           {!formDisabled && !formValid ? (

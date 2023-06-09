@@ -29,6 +29,7 @@ import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import PublishProtectedContent from 'component/publishProtectedContent';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(() =>
@@ -70,6 +71,7 @@ type Props = {
   balance: number,
   releaseTimeError: ?string,
   isStillEditing: boolean,
+  claimToEdit: ?Claim,
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
@@ -112,6 +114,7 @@ function PostForm(props: Props) {
     publishError,
     clearPublish,
     isStillEditing,
+    claimToEdit,
     tags,
     publish,
     disabled = false,
@@ -153,9 +156,6 @@ function PostForm(props: Props) {
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
       ? myClaimForUri.value.source.media_type
       : undefined;
-  const claimChannelId =
-    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
-    (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
@@ -472,7 +472,12 @@ function PostForm(props: Props) {
             label={submitLabel}
             disabled={isFormIncomplete || !formValid}
           />
-          <ChannelSelector disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector
+            disabled={isFormIncomplete}
+            autoSet={Boolean(claimToEdit)}
+            channelToSet={getChannelIdFromClaim(claimToEdit)}
+            isPublishMenu
+          />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (
