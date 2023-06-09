@@ -402,8 +402,6 @@ function PostForm(props: Props) {
               disabled={disabled || publishing}
               inProgress={isInProgress}
               setPrevFileText={setPrevFileText}
-              channelId={claimChannelId}
-              channelName={activeChannelName}
             />
           </div>
         }

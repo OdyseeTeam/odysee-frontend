@@ -416,8 +416,6 @@ function UploadForm(props: Props) {
               inProgress={isInProgress}
               setPrevFileText={setPrevFileText}
               setWaitForFile={setWaitForFile}
-              channelId={claimChannelId}
-              channelName={activeChannelName}
             />
           </div>
         }
