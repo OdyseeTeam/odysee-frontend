@@ -51,15 +51,6 @@ function PublishProtectedContent(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimId]);
 
-  // Keep track of active channel using `channelClaimId` (??)
-  React.useEffect(() => {
-    if (!activeChannel) return;
-
-    updatePublishForm({
-      channelClaimId: activeChannel.claim_id,
-    });
-  }, [activeChannel, updatePublishForm]);
-
   // Remove previous selections that are no longer valid.
   React.useEffect(() => {
     if (validTierIds) {

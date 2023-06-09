@@ -156,6 +156,7 @@ function UploadForm(props: Props) {
   const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
@@ -306,11 +307,11 @@ function UploadForm(props: Props) {
 
   useEffect(() => {
     if (incognito) {
-      updatePublishForm({ channel: undefined });
+      updatePublishForm({ channel: undefined, channelId: undefined });
     } else if (activeChannelName) {
-      updatePublishForm({ channel: activeChannelName });
+      updatePublishForm({ channel: activeChannelName, channelId: activeChannelId });
     }
-  }, [activeChannelName, incognito, updatePublishForm]);
+  }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
 
   // @if TARGET='web'
   function createWebFile() {
