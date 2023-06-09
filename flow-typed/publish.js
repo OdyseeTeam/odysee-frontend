@@ -87,7 +87,6 @@ declare type PublishState = {|
   nsfw: boolean,
   channel: string,
   channelId: ?string,
-  channelClaimId: ?ChannelId, // TODO: figure out why channelId isn't used instead
   name: string,
   nameError: ?string,
   bid: number,

@@ -171,7 +171,7 @@ export const selectValidTierIdsForCurrentForm = createSelector(
   (state: State) => state.publish.type,
   (state: State) => state.publish.liveCreateType,
   (state: State) => state.publish.liveEditType,
-  (state: State) => state.publish.channelClaimId,
+  (state: State) => state.publish.channelId,
   selectIncognito,
   selectMembershipsListByCreatorId,
   (type, liveCreateType, liveEditType, channelId, incognito, tiersByCreatorId) => {
@@ -194,21 +194,13 @@ export const selectMemberRestrictionStatus = createSelector(
   (state: State) => state.publish.memberRestrictionOn,
   (state: State) => state.publish.memberRestrictionTierIds,
   (state: State) => state.publish.visibility,
-  (state: State) => state.publish.channelClaimId,
+  (state: State) => state.publish.channelId,
   selectIncognito,
   selectMembershipsListByCreatorId,
   selectValidTierIdsForCurrentForm,
-  (
-    memberRestrictionOn,
-    memberRestrictionTierIds,
-    visibility,
-    channelClaimId,
-    incognito,
-    tiersByCreatorId,
-    validTierIds
-  ) => {
+  (memberRestrictionOn, memberRestrictionTierIds, visibility, channelId, incognito, tiersByCreatorId, validTierIds) => {
     const isUnlisted = visibility === 'unlisted';
-    const hasTiers = Boolean(tiersByCreatorId[channelClaimId]);
+    const hasTiers = Boolean(tiersByCreatorId[channelId]);
     const hasTiersWithRestrictions = validTierIds ? validTierIds.length > 0 : false;
     const isApplicable = !isUnlisted && !incognito && hasTiers && hasTiersWithRestrictions;
     const enabled = memberRestrictionOn;

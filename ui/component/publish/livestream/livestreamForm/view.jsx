@@ -153,6 +153,7 @@ function LivestreamForm(props: Props) {
 
   const inEditMode = Boolean(editingURI);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
@@ -376,9 +377,11 @@ function LivestreamForm(props: Props) {
   }, []);
 
   useEffect(() => {
-    // $FlowFixMe please
-    updatePublishForm({ channel: activeChannelName });
-  }, [activeChannelName, updatePublishForm]);
+    updatePublishForm({
+      channel: activeChannelName || undefined,
+      channelId: activeChannelId || undefined,
+    });
+  }, [activeChannelName, activeChannelId, updatePublishForm]);
 
   async function handlePublish() {
     let outputFile = filePath;
