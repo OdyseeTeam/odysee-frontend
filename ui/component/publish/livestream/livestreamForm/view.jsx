@@ -29,6 +29,7 @@ import PublishLivestream from 'component/publish/livestream/publishLivestream';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
+import { getChannelIdFromClaim } from 'util/claim';
 import { toHex } from 'util/hex';
 import { lazyImport } from 'util/lazyImport';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
@@ -78,6 +79,7 @@ type Props = {
   publishError?: boolean,
   balance: number,
   isStillEditing: boolean,
+  claimToEdit: ?Claim,
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
@@ -125,6 +127,7 @@ function LivestreamForm(props: Props) {
     publishError,
     clearPublish,
     isStillEditing,
+    claimToEdit,
     tags,
     publish,
     checkAvailability,
@@ -168,9 +171,6 @@ function LivestreamForm(props: Props) {
 
   const TAGS_LIMIT = 5;
   const formDisabled = publishing;
-  const claimChannelId =
-    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
-    (activeChannelClaim && activeChannelClaim.claim_id);
 
   // const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
@@ -213,11 +213,10 @@ function LivestreamForm(props: Props) {
   }, [isClear]);
 
   useEffect(() => {
-    if (activeChannelClaim && activeChannelClaim.claim_id && activeChannelName) {
-      fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
+    if (activeChannelName && activeChannelId) {
+      fetchLivestreams(activeChannelId, activeChannelName);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claimChannelId, activeChannelName]);
+  }, [activeChannelName, activeChannelId]);
 
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
@@ -449,14 +448,21 @@ function LivestreamForm(props: Props) {
               className="button-toggle button-toggle--active"
             />
           )}
-          {!isMobile && <ChannelSelector hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
+          {!isMobile && (
+            <ChannelSelector
+              hideAnon
+              autoSet={Boolean(claimToEdit)}
+              channelToSet={getChannelIdFromClaim(claimToEdit)}
+              isTabHeader
+            />
+          )}
           <Tooltip title={__('Check for Replays')}>
             <Button
               button="secondary"
               label={__('Check for Replays')}
               disabled={isCheckingLivestreams}
               icon={ICONS.REFRESH}
-              onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
+              onClick={() => fetchLivestreams(activeChannelId, activeChannelName)}
             />
           </Tooltip>
         </Card>
@@ -554,7 +560,13 @@ function LivestreamForm(props: Props) {
         <section>
           <div className="section__actions publish__actions">
             <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-            <ChannelSelector hideAnon disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+            <ChannelSelector
+              hideAnon
+              disabled={isFormIncomplete}
+              autoSet={Boolean(claimToEdit)}
+              channelToSet={getChannelIdFromClaim(claimToEdit)}
+              isPublishMenu
+            />
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (
