@@ -67,6 +67,7 @@
     "express": "^4.17.1",
     "humanize-duration": "^3.27.0",
     "if-env": "^1.0.4",
+    "immer": "^10.0.2",
     "match-sorter": "^6.3.0",
     "moment": "^2.29.4",
     "parse-duration": "^1.0.0",
