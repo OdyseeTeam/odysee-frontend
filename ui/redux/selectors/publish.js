@@ -18,9 +18,7 @@ import {
   selectCollectionHasEditsForId,
   selectCollectionTitleForId,
 } from 'redux/selectors/collections';
-import { selectActiveChannelClaimId, selectIncognito } from 'redux/selectors/app';
-import { selectMembershipsListByCreatorId } from 'redux/selectors/memberships';
-import { filterMembershipTiersWithPerk, getRestrictivePerkName } from 'util/memberships';
+import { selectActiveChannelClaimId } from 'redux/selectors/app';
 
 const selectState = (state) => state.publish || {};
 
@@ -156,86 +154,12 @@ export const selectTakeOverAmount = createSelector(
   }
 );
 
-// ****************************************************************************
-// selectValidTierIdsForCurrentForm
-// ****************************************************************************
-
-/**
- * Based on the current publish form state, return the list of relevant
- * restrictive Tier IDs that the creator can enable for the claim being
- * published.
- *
- * @return ?Array<number>
- */
-export const selectValidTierIdsForCurrentForm = createSelector(
-  (state: State) => state.publish.type,
-  (state: State) => state.publish.liveCreateType,
-  (state: State) => state.publish.liveEditType,
-  (state: State) => state.publish.channelId,
-  selectIncognito,
-  selectMembershipsListByCreatorId,
-  (type, liveCreateType, liveEditType, channelId, incognito, tiersByCreatorId) => {
-    if (incognito || !channelId) {
-      return undefined;
-    }
-
-    const perkName = getRestrictivePerkName(type, liveCreateType, liveEditType);
-    const tiers: Array<MembershipTier> = tiersByCreatorId[channelId] || [];
-    const validTiers = filterMembershipTiersWithPerk(tiers, perkName);
-    return validTiers.map((tier) => tier?.Membership?.id);
-  }
-);
-
-// ****************************************************************************
-// selectMemberRestrictionStatus
-// ****************************************************************************
-
-export const selectMemberRestrictionStatus = createSelector(
-  (state: State) => state.publish.memberRestrictionOn,
-  (state: State) => state.publish.memberRestrictionTierIds,
-  (state: State) => state.publish.visibility,
-  (state: State) => state.publish.channelId,
-  selectIncognito,
-  selectMembershipsListByCreatorId,
-  selectValidTierIdsForCurrentForm,
-  (memberRestrictionOn, memberRestrictionTierIds, visibility, channelId, incognito, tiersByCreatorId, validTierIds) => {
-    const isUnlisted = visibility === 'unlisted';
-    const hasTiers = Boolean(tiersByCreatorId[channelId]);
-    const hasTiersWithRestrictions = validTierIds ? validTierIds.length > 0 : false;
-    const isApplicable = !isUnlisted && !incognito && hasTiers && hasTiersWithRestrictions;
-    const enabled = memberRestrictionOn;
-    const hasSelectedTiers = memberRestrictionTierIds.length > 0;
-    const isSelectionValid = !enabled || (enabled && hasSelectedTiers);
-
-    const status: MemberRestrictionStatus = {
-      isApplicable: isApplicable,
-      isSelectionValid: isSelectionValid,
-      isRestricting: isApplicable && enabled && hasSelectedTiers,
-      details: {
-        isUnlisted: isUnlisted,
-        isAnonymous: incognito,
-        hasTiers: hasTiers,
-        hasTiersWithRestrictions: hasTiersWithRestrictions,
-      },
-    };
-
-    return status;
-  }
-);
-
-// ****************************************************************************
-// TUS/Upload
-// ****************************************************************************
-
 export const selectCurrentUploads = (state: State) => selectState(state).currentUploads;
 
 export const selectUploadCount = createSelector(
   selectCurrentUploads,
   (currentUploads) => currentUploads && Object.keys(currentUploads).length
 );
-
-// ****************************************************************************
-// ****************************************************************************
 
 export const selectIsScheduled = (state: State) =>
   selectState(state).tags.some((t) => t.name === SCHEDULED_LIVESTREAM_TAG);

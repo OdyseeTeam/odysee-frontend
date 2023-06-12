@@ -67,8 +67,6 @@ declare type PublishState = {|
   fiatRentalFee: Price,
   fiatRentalExpiration: Duration,
   fiatRentalEnabled: boolean,
-  memberRestrictionOn: boolean,
-  memberRestrictionTierIds: Array<number>,
   title: string,
   thumbnail: string, // Manually-entered thumbnail url.
   thumbnail_url: string, // URL for successful thumbnail upload.
@@ -87,6 +85,7 @@ declare type PublishState = {|
   nsfw: boolean,
   channel: string,
   channelId: ?string,
+  channelClaimId: ?ChannelId, // TODO: figure out why channelId isn't used instead
   name: string,
   nameError: ?string,
   bid: number,
@@ -112,20 +111,6 @@ declare type DoUpdatePublishForm = {
   type: 'UPDATE_PUBLISH_FORM', // ACTIONS.UPDATE_PUBLISH_FORM,
   data: UpdatePublishState,
 };
-
-declare type MemberRestrictionStatus = {|
-  // -- Main --
-  isApplicable: boolean, // Whether members-only is applicable to the current state of the Publish form
-  isSelectionValid: boolean, // Whether the current settings should flag a user-error.
-  isRestricting: boolean, // Whether restrictions is going to be applied when the form is sent.
-  // -- Supporting details --
-  details: {|
-    isUnlisted: boolean,
-    isAnonymous: boolean,
-    hasTiers: boolean,
-    hasTiersWithRestrictions: boolean,
-  |},
-|};
 
 declare type TusUploader = any;
 

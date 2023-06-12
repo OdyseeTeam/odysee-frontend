@@ -96,7 +96,6 @@ export function resolvePublishPayload(
   publishData: UpdatePublishState,
   myClaimForUri: ?StreamClaim,
   myChannels: ?Array<ChannelClaim>,
-  memberRestrictionStatus: MemberRestrictionStatus,
   preview: boolean
 ) {
   const {
@@ -166,7 +165,7 @@ export function resolvePublishPayload(
   PAYLOAD.tags.useLbryUploader(tagSet, publishData);
   PAYLOAD.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
   PAYLOAD.tags.fiatPaywall(tagSet, publishData);
-  PAYLOAD.tags.membershipRestrictions(tagSet, publishPayload.channel_id, memberRestrictionStatus);
+  PAYLOAD.tags.membershipRestrictions(tagSet, publishData, publishPayload.channel_id);
   PAYLOAD.tags.visibility(tagSet, publishData);
 
   publishPayload.tags = Array.from(tagSet);
@@ -354,20 +353,15 @@ const PAYLOAD = {
       }
     },
 
-    membershipRestrictions: (
-      tagSet: Set<string>,
-      channel_id: ?string,
-      memberRestrictionStatus: MemberRestrictionStatus
-    ) => {
+    membershipRestrictions: (tagSet: Set<string>, publishData: UpdatePublishState, channel_id: ?string) => {
       tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
-      if (channel_id && memberRestrictionStatus.isRestricting) {
-        tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
-      }
 
-      assert(
-        !memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid,
-        'Trying to publish an invalid Tier Restriction selection'
-      );
+      if (publishData.visibility !== 'unlisted') {
+        // $FlowFixMe - handle restrictedToMemberships
+        if (publishData.restrictedToMemberships && channel_id) {
+          tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
+        }
+      }
     },
 
     visibility: (tagSet: Set<string>, publishData: UpdatePublishState) => {

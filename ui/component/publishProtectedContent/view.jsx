@@ -1,5 +1,6 @@
 // @flow
 import React, { useEffect } from 'react';
+import classnames from 'classnames';
 
 import './style.scss';
 import { FormField } from 'component/common/form';
@@ -8,19 +9,21 @@ import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
 import { PAYWALL } from 'constants/publish';
+import { filterMembershipTiersWithPerk } from 'util/memberships';
 
 type Props = {
   updatePublishForm: (UpdatePublishState) => void,
   getMembershipTiersForContentClaimId: (type: string) => void,
   claim: Claim,
+  protectedMembershipIds: Array<number>,
   activeChannel: ChannelClaim,
   incognito: boolean,
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
   myMembershipTiers: Array<MembershipTier>,
   isStillEditing: boolean,
-  memberRestrictionOn: boolean,
-  memberRestrictionTierIds: Array<number>,
-  validTierIds: ?Array<number>,
+  type: PublishType,
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   paywall: Paywall,
   visibility: Visibility,
 };
@@ -32,18 +35,59 @@ function PublishProtectedContent(props: Props) {
     updatePublishForm,
     getMembershipTiersForContentClaimId,
     claim,
+    protectedMembershipIds,
     getExistingTiers,
     myMembershipTiers,
-    memberRestrictionOn,
-    memberRestrictionTierIds,
-    validTierIds,
+    isStillEditing,
+    type,
+    liveCreateType,
+    liveEditType,
     paywall,
     visibility,
   } = props;
 
+  const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
+
   const claimId = claim?.claim_id;
 
-  // Fetch tiers for current claim
+  const perkName = React.useMemo(() => {
+    const EXCLUSIVE_CONTENT = 'Exclusive content';
+    const EXCLUSIVE_LIVESTREAMS = 'Exclusive livestreams';
+
+    switch (type) {
+      case 'file':
+      case 'post':
+        return EXCLUSIVE_CONTENT;
+      case 'livestream':
+        // -- liveCreateType --
+        switch (liveCreateType) {
+          case 'new_placeholder':
+            return EXCLUSIVE_LIVESTREAMS;
+          case 'choose_replay':
+            return EXCLUSIVE_CONTENT;
+          case 'edit_placeholder':
+            // -- liveEditType --
+            switch (liveEditType) {
+              case 'update_only':
+                return EXCLUSIVE_LIVESTREAMS;
+              case 'use_replay':
+              case 'upload_replay':
+                return EXCLUSIVE_CONTENT;
+            }
+        }
+    }
+
+    assert(false, 'unhandled restriction combo', { type, liveCreateType, liveEditType });
+    return EXCLUSIVE_CONTENT;
+  }, [liveCreateType, liveEditType, type]);
+
+  const membershipsToUse = React.useMemo(() => {
+    return myMembershipTiers ? filterMembershipTiersWithPerk(myMembershipTiers, perkName) : [];
+  }, [perkName, myMembershipTiers]);
+
+  const membershipsToUseIds =
+    membershipsToUse && membershipsToUse.map((membershipTier) => membershipTier?.Membership?.id);
+
   React.useEffect(() => {
     if (claimId) {
       getMembershipTiersForContentClaimId(claimId);
@@ -51,32 +95,81 @@ function PublishProtectedContent(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimId]);
 
-  // Remove previous selections that are no longer valid.
+  // $FlowIssue
+  const commaSeparatedValues = (isStillEditing && protectedMembershipIds?.join(',')) || '';
+
+  // if there are already restricted memberships for this content, setup state
   React.useEffect(() => {
-    if (validTierIds) {
-      const filteredTierIds = memberRestrictionTierIds.filter((id) => validTierIds.includes(id));
-      if (filteredTierIds.length < memberRestrictionTierIds.length) {
-        updatePublishForm({ memberRestrictionTierIds: filteredTierIds });
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-filter when validTierIds changes.
-  }, [validTierIds]);
+    if (!activeChannel) return;
+    // we check isStillEditing because otherwise the restriction values will load when a claim matches
+    if (protectedMembershipIds && protectedMembershipIds.length && isStillEditing) {
+      setIsRestrictingContent(true);
+      const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
+      // $FlowFixMe
+      if (restrictionCheckbox) restrictionCheckbox.checked = true;
 
-  function toggleMemberRestrictionOn() {
-    updatePublishForm({ memberRestrictionOn: !memberRestrictionOn });
-  }
-
-  function toggleMemberRestrictionTierId(id: number) {
-    if (memberRestrictionTierIds.includes(id)) {
+      // $FlowFixMe please define the states ...
       updatePublishForm({
-        memberRestrictionTierIds: memberRestrictionTierIds.filter((x) => x !== id),
+        restrictedToMemberships: commaSeparatedValues,
+        channelClaimId: activeChannel.claim_id,
       });
     } else {
-      updatePublishForm({
-        memberRestrictionTierIds: memberRestrictionTierIds.concat(id),
-      });
+      // $FlowFixMe
+      const restrictionCheckbox: HTMLInputElement = document.getElementById('toggleRestrictedContent');
+      // clear out data unless user has already checked that they are restricting
+      if (restrictionCheckbox?.checked !== true) {
+        // $FlowFixMe please define the states ...
+        updatePublishForm({
+          restrictedToMemberships: commaSeparatedValues,
+          channelClaimId: activeChannel.claim_id,
+        });
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+  }, [protectedMembershipIds, activeChannel, isStillEditing]);
+
+  function handleRestrictedMembershipChange(event) {
+    let matchedMemberships;
+    const restrictCheckboxes = document.querySelectorAll('*[id^="restrictToMembership"]');
+
+    for (const checkbox of restrictCheckboxes) {
+      // $FlowFixMe
+      if (checkbox.checked) {
+        matchedMemberships = new Set(matchedMemberships);
+        matchedMemberships.add(Number(checkbox.id.split(':')[1]));
+      }
+    }
+
+    const commaSeparatedValueString = matchedMemberships && Array.from(matchedMemberships).join(',');
+
+    // $FlowFixMe please define the states ...
+    updatePublishForm({
+      restrictedToMemberships: commaSeparatedValueString,
+      channelClaimId: activeChannel.claim_id,
+    });
   }
+
+  function handleChangeRestriction() {
+    // update data to check against during publish
+    // backend checks against an empty string so need to use that instead of undefined
+    // $FlowFixMe please define the states ...
+    updatePublishForm({ restrictedToMemberships: isRestrictingContent ? '' : null });
+
+    setIsRestrictingContent(!isRestrictingContent);
+  }
+
+  React.useEffect(() => {
+    if (isRestrictingContent) {
+      const elementsToHide = document.getElementsByClassName('hide-tier');
+
+      if (elementsToHide) {
+        for (const element of elementsToHide) {
+          // $FlowFixMe
+          element.parentElement.style.display = 'none';
+        }
+      }
+    }
+  }, [isRestrictingContent, membershipsToUse]);
 
   useEffect(() => {
     if (activeChannel) {
@@ -119,24 +212,7 @@ function PublishProtectedContent(props: Props) {
     );
   }
 
-  if (validTierIds && validTierIds.length === 0) {
-    return (
-      <Card
-        background
-        isBodyList
-        title={__('Restrict Content')}
-        body={
-          <div className="publish-row publish-row-tiers">
-            <div className="publish-row__reason">
-              {__('The selected channel has no membership tiers with exclusive-content perks for the current setup.')}
-            </div>
-          </div>
-        }
-      />
-    );
-  }
-
-  if (validTierIds && validTierIds.length > 0) {
+  if (membershipsToUse && membershipsToUse.length > 0) {
     if (visibility === 'unlisted') {
       return (
         <Card
@@ -165,31 +241,30 @@ function PublishProtectedContent(props: Props) {
               <FormField
                 type="checkbox"
                 disabled={paywall !== PAYWALL.FREE}
-                checked={memberRestrictionOn}
+                defaultChecked={isRestrictingContent}
                 label={__('Restrict content to only allow subscribers to certain memberships to view it')}
                 name={'toggleRestrictedContent'}
                 className="restrict-content__checkbox"
-                onChange={toggleMemberRestrictionOn}
+                onChange={handleChangeRestriction}
               />
 
-              {memberRestrictionOn && (
-                <div className="tier-list">
-                  {myMembershipTiers.map((tier: MembershipTier) => {
-                    const show = validTierIds && validTierIds.includes(tier.Membership.id);
-                    return show ? (
-                      <FormField
-                        disabled={paywall !== PAYWALL.FREE}
-                        key={tier.Membership.id}
-                        type="checkbox"
-                        checked={memberRestrictionTierIds.includes(tier.Membership.id)}
-                        label={tier.Membership.name}
-                        name={tier.Membership.id}
-                        onChange={() => toggleMemberRestrictionTierId(tier.Membership.id)}
-                      />
-                    ) : (
-                      <div key={tier.Membership.id} className="dummy-tier" />
-                    );
-                  })}
+              {isRestrictingContent && (
+                <div className="tier-list" key={perkName}>
+                  {myMembershipTiers.map((membership) => (
+                    <FormField
+                      disabled={paywall !== PAYWALL.FREE}
+                      key={membership.Membership.id}
+                      type="checkbox"
+                      // $FlowIssue
+                      defaultChecked={isStillEditing && protectedMembershipIds?.includes(membership.Membership.id)}
+                      label={membership.Membership.name}
+                      name={'restrictToMembership:' + membership.Membership.id}
+                      onChange={handleRestrictedMembershipChange}
+                      className={classnames({
+                        'hide-tier': !membershipsToUseIds.includes(membership.Membership.id),
+                      })}
+                    />
+                  ))}
                 </div>
               )}
 

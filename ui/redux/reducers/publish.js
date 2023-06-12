@@ -47,8 +47,6 @@ const defaultState: PublishState = {
   fiatRentalFee: { amount: 1, currency: 'USD' },
   fiatRentalExpiration: { value: 1, unit: 'weeks' },
   fiatRentalEnabled: false,
-  memberRestrictionOn: false,
-  memberRestrictionTierIds: [],
   title: '',
   thumbnail: '',
   thumbnail_url: '',
@@ -63,6 +61,7 @@ const defaultState: PublishState = {
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
+  channelClaimId: '',
   name: '',
   nameError: undefined,
   bid: 0.001,
@@ -188,9 +187,9 @@ export const publishReducer = handleActions(
       // -- remoteFileUrl
       if (!data.hasOwnProperty('remoteFileUrl')) {
         const nonReplayChosen = data.hasOwnProperty('liveEditType') && data.liveEditType !== 'use_replay';
-        const channelChanged = data.hasOwnProperty('channelId') && data.channelId !== state.channelId;
+        const activeChanChanged = data.hasOwnProperty('channelClaimId') && data.channelClaimId !== state.channelClaimId;
 
-        if (nonReplayChosen || channelChanged) {
+        if (nonReplayChosen || activeChanChanged) {
           // Purge remoteFileUrl selection on these cases.
           auto.remoteFileUrl = undefined;
         }
@@ -204,7 +203,6 @@ export const publishReducer = handleActions(
       type: state.type,
       uri: undefined,
       channel: state.channel,
-      channelId: state.channelId,
       bid: state.bid,
       optimize: state.optimize,
       language: state.language,
