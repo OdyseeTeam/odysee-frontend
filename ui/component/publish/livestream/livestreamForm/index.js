@@ -4,7 +4,6 @@ import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/clai
 import {
   selectPublishFormValues,
   selectIsStillEditing,
-  selectMemberRestrictionStatus,
   selectPublishFormValue,
   selectMyClaimForUri,
 } from 'redux/selectors/publish';
@@ -51,7 +50,7 @@ const select = (state) => {
     incognito: selectIncognito(state),
     isClaimingInitialRewards: selectIsClaimingInitialRewards(state),
     hasClaimedInitialRewards: selectHasClaimedInitialRewards(state),
-    memberRestrictionStatus: selectMemberRestrictionStatus(state),
+    restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
     balance: selectBalance(state),
   };
 };

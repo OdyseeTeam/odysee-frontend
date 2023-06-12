@@ -2627,7 +2627,6 @@
   "You're not able to signup for your own memberships": "You're not able to signup for your own memberships",
   "Please %activate_your_memberships% first to to use this functionality.": "Please %activate_your_memberships% first to to use this functionality.",
   "activate your memberships": "activate your memberships",
-  "The selected channel has no membership tiers with exclusive-content perks for the current setup.": "The selected channel has no membership tiers with exclusive-content perks for the current setup.",
   "Restrict Content": "Restrict Content",
   "Restrict content to only allow subscribers to certain memberships to view it": "Restrict content to only allow subscribers to certain memberships to view it",
   "You selected to restrict this content but didn't choose any memberships, please choose a membership tier to restrict, or uncheck the restriction box": "You selected to restrict this content but didn't choose any memberships, please choose a membership tier to restrict, or uncheck the restriction box",
