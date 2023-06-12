@@ -998,5 +998,10 @@
     input {
       display: none;
     }
+
+    .dummy-tier {
+      // Dummy element to maintain color index
+      display: inline-block;
+    }
   }
 }

@@ -29,6 +29,7 @@ import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import PublishProtectedContent from 'component/publishProtectedContent';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(() =>
@@ -70,6 +71,7 @@ type Props = {
   balance: number,
   releaseTimeError: ?string,
   isStillEditing: boolean,
+  claimToEdit: ?Claim,
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
@@ -86,8 +88,7 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
-  restrictedToMemberships: ?string,
-  visibility: Visibility,
+  memberRestrictionStatus: MemberRestrictionStatus,
 };
 
 function PostForm(props: Props) {
@@ -113,6 +114,7 @@ function PostForm(props: Props) {
     publishError,
     clearPublish,
     isStillEditing,
+    claimToEdit,
     tags,
     publish,
     disabled = false,
@@ -127,8 +129,7 @@ function PostForm(props: Props) {
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
-    restrictedToMemberships,
-    visibility,
+    memberRestrictionStatus,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -149,21 +150,19 @@ function PostForm(props: Props) {
   const formDisabled = emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
       ? myClaimForUri.value.source.media_type
       : undefined;
-  const claimChannelId =
-    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
-    (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
   // TODO: formValidLessFile should be a selector
   const formValidLessFile =
-    (restrictedToMemberships !== null || visibility === 'unlisted') &&
+    (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     name &&
     isNameValid(name) &&
     title &&
@@ -298,11 +297,11 @@ function PostForm(props: Props) {
 
   useEffect(() => {
     if (incognito) {
-      updatePublishForm({ channel: undefined });
+      updatePublishForm({ channel: undefined, channelId: undefined });
     } else if (activeChannelName) {
-      updatePublishForm({ channel: activeChannelName });
+      updatePublishForm({ channel: activeChannelName, channelId: activeChannelId });
     }
-  }, [activeChannelName, incognito, updatePublishForm]);
+  }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
 
   // @if TARGET='web'
   function createWebFile() {
@@ -402,8 +401,6 @@ function PostForm(props: Props) {
               disabled={disabled || publishing}
               inProgress={isInProgress}
               setPrevFileText={setPrevFileText}
-              channelId={claimChannelId}
-              channelName={activeChannelName}
             />
           </div>
         }
@@ -475,7 +472,12 @@ function PostForm(props: Props) {
             label={submitLabel}
             disabled={isFormIncomplete || !formValid}
           />
-          <ChannelSelector disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector
+            disabled={isFormIncomplete}
+            autoSet={Boolean(claimToEdit)}
+            channelToSet={getChannelIdFromClaim(claimToEdit)}
+            isPublishMenu
+          />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (
