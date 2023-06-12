@@ -140,7 +140,7 @@ declare type FileUploadSdkParams = {
   // Temporary values; remove when passing to SDK
   guid: string,
   uploadUrl?: string,
-  sdkRan?: boolean,
+  publishId?: number, // ID to query `stream_create | stream_update` progress
   isMarkdown: boolean,
   channel_id: ?string,
 };
@@ -158,7 +158,7 @@ declare type FileUploadItem = {
   fileFingerprint: string,
   progress: string,
   status?: UploadStatus,
-  sdkRan?: boolean,
+  publishId?: number,
   uploader?: TusUploader | XMLHttpRequest,
   resumable: boolean,
 };

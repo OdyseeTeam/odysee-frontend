@@ -259,7 +259,7 @@ export const publishReducer = handleActions(
       return { ...state, currentUploads };
     },
     [ACTIONS.UPDATE_UPLOAD_PROGRESS]: (state: PublishState, action) => {
-      const { guid, progress, status } = action.data;
+      const { guid, progress, status, publishId } = action.data;
       const key = guid;
       const currentUploads = Object.assign({}, state.currentUploads);
 
@@ -307,7 +307,8 @@ export const publishReducer = handleActions(
             delete currentUploads[key].uploader;
             break;
           case 'notify_ok':
-            currentUploads[key].sdkRan = true;
+            assert(publishId, 'notify_ok received without publishId');
+            currentUploads[key].publishId = publishId;
             break;
           default:
             // Nothing to do for the rest

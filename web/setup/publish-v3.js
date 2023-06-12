@@ -21,6 +21,8 @@ const STATUS_FILE_NOT_FOUND = 404;
 const STATUS_CONFLICT = 409;
 const STATUS_LOCKED = 423;
 
+assert(false, 'This file is deprecated and non-functional. Use publish-v4.js instead.');
+
 /**
  * Checks whether a given status is in the range of the expected category.
  *

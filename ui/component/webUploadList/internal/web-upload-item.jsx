@@ -17,7 +17,7 @@ type Props = {
 
 export default function WebUploadItem(props: Props) {
   const { uploadItem, doPublishResume, doUpdateUploadRemove, doOpenModal } = props;
-  const { params, file, fileFingerprint, progress, status, sdkRan, resumable, uploader } = uploadItem;
+  const { params, file, fileFingerprint, progress, status, publishId, resumable, uploader } = uploadItem;
 
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [showFileSelector, setShowFileSelector] = useState(false);
@@ -137,7 +137,7 @@ export default function WebUploadItem(props: Props) {
     } else {
       // Refreshed or connection broken ...
 
-      if (sdkRan) {
+      if (publishId) {
         // ... '/notify' was already sent and known to be successful. We just
         // need to resume from the '/status' query stage.
         return (
@@ -146,7 +146,7 @@ export default function WebUploadItem(props: Props) {
             button="link"
             onClick={() => {
               setIsCheckingStatus(true);
-              doPublishResume({ ...params, sdkRan });
+              doPublishResume({ ...params, publishId });
             }}
           />
         );
@@ -179,7 +179,7 @@ export default function WebUploadItem(props: Props) {
   function getCancelButton() {
     if (!locked) {
       if (resumable) {
-        if (sdkRan && status === 'error') {
+        if (publishId && status === 'error') {
           return <Button label={__('Remove')} button="link" onClick={handleCancel} />;
         }
 
