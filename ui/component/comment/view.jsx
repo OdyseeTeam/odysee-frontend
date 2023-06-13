@@ -181,7 +181,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     linkedCommentId &&
     linkedCommentAncestors[linkedCommentId] &&
     linkedCommentAncestors[linkedCommentId].includes(commentId);
-  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain;
+  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || (threadLevel === 0 && !!comment.replies);
 
   const [isReplying, setReplying] = React.useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -199,14 +199,6 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   const slimedToDeath =
     !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const stickerFromMessage = parseSticker(message);
-
-  React.useEffect(() => {
-    if (threadLevel === 0 && comment.replies && uri) {
-      fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
-      setShowReplies(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only?
-  }, []);
 
   const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
 
@@ -556,7 +548,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
               threadCommentId={threadCommentId}
               numDirectReplies={numDirectReplies}
               onShowMore={handleShowMore}
-              hasMore={page < totalReplyPages && threadLevel > 0}
+              hasMore={page < totalReplyPages}
               threadDepthLevel={threadDepthLevel}
             />
           ))}
