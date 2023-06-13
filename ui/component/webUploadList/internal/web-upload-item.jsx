@@ -112,6 +112,8 @@ export default function WebUploadItem(props: Props) {
             return __('Stopped. Duplicate session detected.');
           case 'notify_ok':
             return <BusyIndicator message={__('Processing file. Please wait...')} />;
+          case 'notify_failed':
+            return __('Failed to process file. Please try again.');
           default:
             return status;
         }
@@ -129,7 +131,7 @@ export default function WebUploadItem(props: Props) {
       return null;
     }
 
-    if (uploader) {
+    if (uploader && status !== 'notify_failed') {
       // Should still be uploading. Don't show.
       return null;
     } else {
