@@ -20,16 +20,20 @@ function DebugLog(props: Props) {
   }
 
   function getDataElem(info: string | Error) {
+    let cause;
+
     // $FlowFixMe
     if (info instanceof Error && info.cause) {
       if (info.cause instanceof Error) {
-        return <pre>{info.cause.toString()}</pre>;
+        cause = info.cause.toString();
       } else {
         try {
-          return <pre>{JSON.stringify(info.cause)}</pre>;
+          cause = JSON.stringify(info.cause, null, 2);
         } catch {}
       }
     }
+
+    return cause ? <pre>{cause}</pre> : null;
   }
 
   function getStackTraceElem(info: string | Error) {
@@ -39,6 +43,9 @@ function DebugLog(props: Props) {
         return (
           !x.startsWith('Error: ') &&
           !x.includes('ui/asserts.js') &&
+          !x.includes('at doAssert') &&
+          !x.includes('at assert') &&
+          !x.includes('at eval') &&
           !x.includes('/node_modules/') &&
           !x.includes('bindActionCreators.js')
         );

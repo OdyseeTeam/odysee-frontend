@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   background-color: var(--color-card-background-highlighted);
-  height: 30%;
+  height: 40%;
   z-index: 888;
   border-radius: var(--border-radius);
   margin: 0 var(--spacing-l);
@@ -25,6 +25,7 @@
   padding-top: var(--spacing-xs);
 
   pre {
+    margin-left: var(--spacing-l);
     color: var(--color-text-subtitle);
     white-space: pre-wrap;
     font-size: var(--font-small);
