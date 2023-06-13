@@ -153,6 +153,7 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
       // @endif
       // @if TARGET='web'
       if (redirectToLivestream) {
+        dispatch(doClearPublish());
         dispatch(push(`/$/${PAGES.LIVESTREAM}`));
       }
       // @endif
