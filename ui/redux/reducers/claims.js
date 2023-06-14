@@ -583,8 +583,8 @@ reducers[ACTIONS.ABANDON_CLAIM_STARTED] = (state: ClaimsState, action: any): Cla
   });
 };
 
-reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: any): ClaimsState => {
-  const { claims: pendingClaims }: { claims: Array<Claim> } = action.data;
+reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: UpdatePendingClaimsAction): ClaimsState => {
+  const { claims: pendingClaims, options } = action.data;
   const byIdDelta = {};
   const pendingById = Object.assign({}, state.pendingById);
   const byUriDelta = {};
@@ -600,6 +600,15 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: ClaimsState, action: any): Cla
     const oldClaim = state.byId[claimId];
     if (oldClaim && oldClaim.canonical_url) {
       newClaim = mergeClaim(oldClaim, claim);
+
+      if (options) {
+        if (options.overrideTags) {
+          newClaim.value = { ...newClaim.value, tags: claim.value?.tags };
+        }
+        if (options.overrideSigningChannel) {
+          newClaim.signing_channel = claim.signing_channel;
+        }
+      }
     } else {
       newClaim = claim;
     }

@@ -125,12 +125,19 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
       const isMatch = (claim) => claim.claim_id === pendingClaim.claim_id;
       const isEdit = myClaims.some(isMatch);
 
-      actions.push({
-        type: ACTIONS.UPDATE_PENDING_CLAIMS,
-        data: {
-          claims: [pendingClaim],
-        },
-      });
+      actions.push(
+        ({
+          type: ACTIONS.UPDATE_PENDING_CLAIMS,
+          data: {
+            claims: [pendingClaim],
+            options: {
+              overrideTags: true,
+              overrideSigningChannel: true,
+            },
+          },
+        }: UpdatePendingClaimsAction)
+      );
+
       // @if TARGET='app'
       actions.push({
         type: ACTIONS.ADD_FILES_REFLECTING,

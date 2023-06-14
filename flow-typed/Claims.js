@@ -65,3 +65,18 @@ declare type ClaimSearchResultsInfo = {|
   totalItems?: number,
   totalPages?: number,
 |};
+
+// ****************************************************************************
+// Action Creators
+// ****************************************************************************
+
+declare type UpdatePendingClaimsAction = {|
+  type: 'UPDATE_PENDING_CLAIMS',
+  data: {
+    claims: Array<Claim>,
+    options?: {|
+      overrideTags?: boolean,
+      overrideSigningChannel?: boolean,
+    |},
+  },
+|};
