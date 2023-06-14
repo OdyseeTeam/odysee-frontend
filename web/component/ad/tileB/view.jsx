@@ -6,8 +6,6 @@ import { importPublir } from '../util/importPublir';
 const PublirAdsProvider = importPublir('PublirAdsProvider');
 const AdSlot = importPublir('AdSlot');
 
-const DISABLE_VIDEO_AD = false;
-
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
   PUBLIR: {
@@ -32,7 +30,7 @@ function AdTileB(props: Props) {
   const [isActive, setIsActive] = React.useState(false);
 
   React.useEffect(() => {
-    if (shouldShowAds && !DISABLE_VIDEO_AD) {
+    if (shouldShowAds) {
       let script;
       try {
         script = document.createElement('script');
