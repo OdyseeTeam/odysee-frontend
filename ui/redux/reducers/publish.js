@@ -340,7 +340,11 @@ export const publishReducer = handleActions(
           remoteFileUrl: undefined, // Clear for now until the component is able to re-populate on load.
         };
 
-        // Cleanup for 'publish::currentUploads'
+        // Delete obsolete states
+        delete newPublish.channelClaimId;
+        delete newPublish.isLivestreamPublish;
+
+        // -- Cleanup for 'publish::currentUploads'
         if (newPublish.currentUploads) {
           const uploadKeys = Object.keys(newPublish.currentUploads);
           if (uploadKeys.length > 0) {

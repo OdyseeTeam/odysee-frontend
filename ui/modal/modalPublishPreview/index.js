@@ -17,14 +17,14 @@ import { doSetClientSetting } from 'redux/actions/settings';
 const select = (state, props) => {
   const editingUri = selectPublishFormValue(state, 'editingURI');
   const publishFormValues = selectPublishFormValues(state);
-  const channelClaimId = publishFormValues.channelClaimId;
+  const channelId = publishFormValues.channelId;
 
   return {
     ...publishFormValues,
     myChannels: selectMyChannelClaims(state),
     isVid: selectPublishFormValue(state, 'fileVid'),
     publishing: selectPublishFormValue(state, 'publishing'),
-    myMembershipTiers: selectMembershipTiersForCreatorId(state, channelClaimId),
+    myMembershipTiers: selectMembershipTiersForCreatorId(state, channelId),
     memberRestrictionStatus: selectMemberRestrictionStatus(state),
     isStillEditing: selectIsStillEditing(state),
     ffmpegStatus: selectFfmpegStatus(state),
