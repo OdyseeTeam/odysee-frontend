@@ -4,7 +4,7 @@ import Card from 'component/common/card';
 import WebUploadItem from './internal/web-upload-item';
 
 type Props = {
-  currentUploads: { [key: string]: FileUploadItem },
+  currentUploads: { [guid: string]: FileUploadItem },
   uploadCount: number,
   doPublishResume: (any) => void,
   doUpdateUploadRemove: (string, any) => void,

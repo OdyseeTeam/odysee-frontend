@@ -20,7 +20,7 @@ type Props = {
   updatePublishForm: (UpdatePublishState) => void,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
-  currentUploads: { [key: string]: FileUploadItem },
+  currentUploads: { [guid: string]: FileUploadItem },
 };
 
 function PublishName(props: Props) {

@@ -99,7 +99,7 @@ declare type PublishState = {|
   publishError: ?boolean,
   optimize: boolean,
   useLBRYUploader: boolean,
-  currentUploads: { [key: string]: FileUploadItem },
+  currentUploads: { [guid: string]: FileUploadItem },
   visibility: Visibility,
   scheduledShow: boolean,
 |};
@@ -130,8 +130,12 @@ declare type FileUploadSdkParams = {
   channel_id: ?string,
 };
 
-declare type UploadStatus = 'error' | 'retry' | 'notify_ok' | 'notify_failed' | 'conflict';
-// declare type PublishStage = '1_uploading' | '2_upload_done' | '3_sdk_publishing' | '4_skd_publish_done';
+declare type UploadStatus =
+  'error' | // General failure.
+  'retry' | // tus is retrying the upload.
+  'notify_ok' | // SDK request sent without network errors. SDK result needs to be queried.
+  'notify_failed' | // SDK request met an API error (not SDK error).
+  'conflict'; // Trying to upload from multiple tabs.
 
 declare type FileUploadItem = {
   params: FileUploadSdkParams,
