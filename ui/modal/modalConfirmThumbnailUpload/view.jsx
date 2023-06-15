@@ -3,17 +3,30 @@ import React from 'react';
 import { Modal } from 'modal/modal';
 import { DOMAIN } from 'config';
 
-type Props = {
-  file: WebFile,
-  upload: (WebFile, (string) => void) => void,
-  cb: (string) => void,
-  closeModal: () => void,
-  updatePublishForm: (UpdatePublishState) => void,
-};
+// ****************************************************************************
+// ****************************************************************************
 
-class ModalConfirmThumbnailUpload extends React.PureComponent<Props> {
-  upload() {
-    const { upload, updatePublishForm, cb, closeModal, file } = this.props;
+export type Props = {|
+  file: WebFile,
+  cb: (string) => void,
+|};
+
+type StateProps = {||};
+
+type DispatchProps = {|
+  closeModal: () => void,
+  upload: (WebFile, (string) => void) => void,
+  updatePublishForm: (UpdatePublishState) => void,
+|};
+
+// ****************************************************************************
+// ****************************************************************************
+
+function ModalConfirmThumbnailUpload(props: Props & StateProps & DispatchProps) {
+  const { file, cb, closeModal, upload, updatePublishForm } = props;
+  const filePath = file && (file.path || file.name);
+
+  function handleConfirmed() {
     if (file) {
       upload(file, cb);
       updatePublishForm({ thumbnailPath: file.path });
@@ -21,26 +34,21 @@ class ModalConfirmThumbnailUpload extends React.PureComponent<Props> {
     }
   }
 
-  render() {
-    const { closeModal, file } = this.props;
-    const filePath = file && (file.path || file.name);
+  return (
+    <Modal
+      isOpen
+      title={__('Upload thumbnail')}
+      contentLabel={__('Confirm Thumbnail Upload')}
+      type="confirm"
+      confirmButtonLabel={__('Upload')}
+      onConfirmed={handleConfirmed}
+      onAborted={closeModal}
+    >
+      <label>{__('Are you sure you want to upload this thumbnail to %domain%', { domain: DOMAIN })}?</label>
 
-    return (
-      <Modal
-        isOpen
-        title={__('Upload thumbnail')}
-        contentLabel={__('Confirm Thumbnail Upload')}
-        type="confirm"
-        confirmButtonLabel={__('Upload')}
-        onConfirmed={() => this.upload()}
-        onAborted={closeModal}
-      >
-        <label>{__('Are you sure you want to upload this thumbnail to %domain%', { domain: DOMAIN })}?</label>
-
-        <blockquote>{filePath}</blockquote>
-      </Modal>
-    );
-  }
+      <blockquote>{filePath}</blockquote>
+    </Modal>
+  );
 }
 
 export default ModalConfirmThumbnailUpload;
