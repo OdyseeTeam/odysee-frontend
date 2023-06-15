@@ -29,7 +29,6 @@ import PublishLivestream from 'component/publish/livestream/publishLivestream';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
-import { getChannelIdFromClaim } from 'util/claim';
 import { toHex } from 'util/hex';
 import { lazyImport } from 'util/lazyImport';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
@@ -127,7 +126,6 @@ function LivestreamForm(props: Props) {
     publishError,
     clearPublish,
     isStillEditing,
-    claimToEdit,
     tags,
     publish,
     checkAvailability,
@@ -448,14 +446,7 @@ function LivestreamForm(props: Props) {
               className="button-toggle button-toggle--active"
             />
           )}
-          {!isMobile && (
-            <ChannelSelector
-              hideAnon
-              autoSet={Boolean(claimToEdit)}
-              channelToSet={getChannelIdFromClaim(claimToEdit)}
-              isTabHeader
-            />
-          )}
+          {!isMobile && <ChannelSelector hideAnon isTabHeader />}
           <Tooltip title={__('Check for Replays')}>
             <Button
               button="secondary"
@@ -560,13 +551,7 @@ function LivestreamForm(props: Props) {
         <section>
           <div className="section__actions publish__actions">
             <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-            <ChannelSelector
-              hideAnon
-              disabled={isFormIncomplete}
-              autoSet={Boolean(claimToEdit)}
-              channelToSet={getChannelIdFromClaim(claimToEdit)}
-              isPublishMenu
-            />
+            <ChannelSelector hideAnon disabled={isFormIncomplete} isPublishMenu />
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (

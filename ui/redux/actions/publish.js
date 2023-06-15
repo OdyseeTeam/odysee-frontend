@@ -29,7 +29,7 @@ import {
 import { doError } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
 import analytics from 'analytics';
-import { doOpenModal } from 'redux/actions/app';
+import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
@@ -648,8 +648,13 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     } else {
       publishData.licenseType = license;
     }
+
     if (channelName) {
       publishData['channel'] = channelName;
+    }
+
+    if (channelId) {
+      publishData.channelId = channelId;
     }
 
     // Fill purchase/rental details from the claim
@@ -739,6 +744,13 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       }
     } else {
       publishData.visibility = 'public';
+    }
+
+    if (publishData.channelId) {
+      dispatch(doSetActiveChannel(publishData.channelId, false));
+      dispatch(doSetIncognito(false));
+    } else {
+      dispatch(doSetIncognito(true));
     }
 
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });

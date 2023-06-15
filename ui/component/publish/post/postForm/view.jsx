@@ -29,7 +29,6 @@ import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import PublishProtectedContent from 'component/publishProtectedContent';
-import { getChannelIdFromClaim } from 'util/claim';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(() =>
@@ -114,7 +113,6 @@ function PostForm(props: Props) {
     publishError,
     clearPublish,
     isStillEditing,
-    claimToEdit,
     tags,
     publish,
     disabled = false,
@@ -472,12 +470,7 @@ function PostForm(props: Props) {
             label={submitLabel}
             disabled={isFormIncomplete || !formValid}
           />
-          <ChannelSelector
-            disabled={isFormIncomplete}
-            autoSet={Boolean(claimToEdit)}
-            channelToSet={getChannelIdFromClaim(claimToEdit)}
-            isPublishMenu
-          />
+          <ChannelSelector disabled={isFormIncomplete} isPublishMenu />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (
