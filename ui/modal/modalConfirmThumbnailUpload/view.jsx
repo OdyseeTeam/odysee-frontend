@@ -2,6 +2,8 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import { DOMAIN } from 'config';
+import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
+import './style.scss';
 
 // ****************************************************************************
 // ****************************************************************************
@@ -25,6 +27,7 @@ type DispatchProps = {|
 function ModalConfirmThumbnailUpload(props: Props & StateProps & DispatchProps) {
   const { file, cb, closeModal, upload, updatePublishForm } = props;
   const filePath = file && (file.path || file.name);
+  const [imageSrc, setImageSrc] = React.useState('');
 
   function handleConfirmed() {
     if (file) {
@@ -33,6 +36,16 @@ function ModalConfirmThumbnailUpload(props: Props & StateProps & DispatchProps) 
       closeModal();
     }
   }
+
+  React.useEffect(() => {
+    const imgSrc = URL.createObjectURL(file);
+    setImageSrc(imgSrc);
+    return () => {
+      if (imgSrc) {
+        URL.revokeObjectURL(imgSrc);
+      }
+    };
+  }, [file]);
 
   return (
     <Modal
@@ -45,8 +58,15 @@ function ModalConfirmThumbnailUpload(props: Props & StateProps & DispatchProps) 
       onAborted={closeModal}
     >
       <label>{__('Are you sure you want to upload this thumbnail to %domain%', { domain: DOMAIN })}?</label>
-
-      <blockquote>{filePath}</blockquote>
+      <div className="upload-thumbnail-preview">
+        <img
+          className="upload-thumbnail-preview__image"
+          src={imageSrc || ThumbnailBrokenImage}
+          alt={__('Thumbnail Preview')}
+          onError={() => setImageSrc('')}
+        />
+        <div className="upload-thumbnail-preview__filename">{filePath}</div>
+      </div>
     </Modal>
   );
 }
