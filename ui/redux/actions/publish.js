@@ -902,12 +902,13 @@ export const doCheckReflectingFiles = () => (dispatch: Dispatch, getState: GetSt
 export function doUpdateUploadAdd(
   file: File | string,
   params: { [key: string]: any },
-  uploader: TusUploader | XMLHttpRequest
+  uploader: TusUploader | XMLHttpRequest,
+  backend: UploadBackendVersion
 ) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.UPDATE_UPLOAD_ADD,
-      data: { file, params, uploader },
+      data: { file, params, uploader, backend },
     });
   };
 }

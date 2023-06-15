@@ -17,7 +17,7 @@ type Props = {
 
 export default function WebUploadItem(props: Props) {
   const { uploadItem, doPublishResume, doUpdateUploadRemove, doOpenModal } = props;
-  const { params, file, fileFingerprint, progress, status, publishId, resumable, uploader } = uploadItem;
+  const { params, file, fileFingerprint, progress, status, publishId, resumable, uploader, backend } = uploadItem;
 
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [showFileSelector, setShowFileSelector] = useState(false);
@@ -137,10 +137,14 @@ export default function WebUploadItem(props: Props) {
     } else {
       // Refreshed or connection broken ...
 
+      if (backend !== 'v4') {
+        return getLegacyRetryButton();
+      }
+
       if (publishId) {
         // ... '/notify' was already sent and known to be successful. We just
         // need to resume from the '/status' query stage.
-        return (
+        return !isCheckingStatus ? (
           <Button
             label={__('Check Status')}
             button="link"
@@ -149,7 +153,7 @@ export default function WebUploadItem(props: Props) {
               doPublishResume({ ...params, publishId });
             }}
           />
-        );
+        ) : null;
       }
 
       let isFileActive = file instanceof File;
@@ -174,6 +178,16 @@ export default function WebUploadItem(props: Props) {
         />
       );
     }
+  }
+
+  function getLegacyRetryButton() {
+    if (uploadItem.params.sdkRan) {
+      return null;
+    }
+
+    return (
+      <Button label={__('Retry')} button="link" onClick={() => setShowFileSelector(true)} disabled={showFileSelector} />
+    );
   }
 
   function getCancelButton() {

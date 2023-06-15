@@ -141,6 +141,7 @@ declare type FileUploadSdkParams = {
   guid: string,
   uploadUrl?: string,
   publishId?: number, // ID to query `stream_create | stream_update` progress
+  sdkRan?: boolean, // Legacy v3 flag (deprecated)
   isMarkdown: boolean,
   channel_id: ?string,
 };
@@ -152,7 +153,10 @@ declare type UploadStatus =
   'notify_failed' | // SDK request met an API error (not SDK error).
   'conflict'; // Trying to upload from multiple tabs.
 
+declare type UploadBackendVersion = 'v1' | 'v4';
+
 declare type FileUploadItem = {
+  backend?: UploadBackendVersion,
   params: FileUploadSdkParams,
   file: File,
   fileFingerprint: string,

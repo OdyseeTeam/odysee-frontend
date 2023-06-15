@@ -37,7 +37,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
   } else {
     // -- Start or resume TUS upload
     const tusSession = await startTus(file, params.uploadUrl, uploadToken.location, uploadToken.token, {
-      onStart: (tusSession) => dispatch(add(file, params, tusSession)),
+      onStart: (tusSession) => dispatch(add(file, params, tusSession, 'v4')),
       onRetry: () => dispatch(progress({ guid, status: 'retry' })),
       onProgress: (pct: string) => dispatch(progress({ guid, progress: pct })),
       onError: () => dispatch(progress({ guid, status: 'error' })),
