@@ -186,7 +186,7 @@ export const doLocalCollectionCreate =
             items: sourceCollectionItems,
             itemCount: sourceCollectionItems.length,
             description: sourceDescription,
-            thumbnail: { url: thumbnailUrl },
+            ...(thumbnailUrl && { thumbnail: { url: thumbnailUrl } }),
           },
         },
       });
