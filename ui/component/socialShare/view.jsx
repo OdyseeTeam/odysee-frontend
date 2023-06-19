@@ -125,7 +125,7 @@ function SocialShare(props: SocialShareStateProps) {
   const [includeStartTime, setincludeStartTime]: [boolean, any] = React.useState(false);
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
   const showAdditionalShareOptions =
-    !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) === 'non-scheduled';
+    !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) !== 'scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
 
