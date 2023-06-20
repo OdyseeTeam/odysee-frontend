@@ -1,6 +1,7 @@
 // @flow
 import * as React from 'react';
 import Ad from 'web/component/ad';
+import Empty from 'component/common/empty';
 import FileTitleSection from 'component/fileTitleSection';
 import { lazyImport } from 'util/lazyImport';
 
@@ -48,8 +49,10 @@ export default function MarkdownPostPage(props: Props) {
         </React.Suspense>
       </PostWrapper>
 
-      {!commentSettingDisabled && contentUnlocked && (
-        <div className="file-page__post-comments">
+      <div className="file-page__post-comments">
+        {commentSettingDisabled ? (
+          <Empty text={__('The creator of this content has disabled comments.')} />
+        ) : contentUnlocked ? (
           <React.Suspense fallback={null}>
             {!hasPremiumPlus && <Ad type="aboveComments" uri={uri} />}
             <CommentsList
@@ -60,8 +63,8 @@ export default function MarkdownPostPage(props: Props) {
               notInDrawer
             />
           </React.Suspense>
-        </div>
-      )}
+        ) : null}
+      </div>
     </>
   );
 }

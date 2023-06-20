@@ -2,11 +2,13 @@ import { connect } from 'react-redux';
 
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectClaimIsNsfwForUri, selectClaimForUri } from 'redux/selectors/claims';
 import {
   selectUserHasOdyseePremiumPlus,
   selectNoRestrictionOrUserIsMemberForContentClaimId,
 } from 'redux/selectors/memberships';
+import { getChannelIdFromClaim } from 'util/claim';
 
 import MarkdownPostPage from './view';
 
@@ -24,6 +26,7 @@ const select = (state, props) => {
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
+    commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, getChannelIdFromClaim(claim)),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
