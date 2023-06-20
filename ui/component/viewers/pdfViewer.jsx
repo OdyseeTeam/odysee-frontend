@@ -13,7 +13,7 @@ function PdfViewer(props: Props) {
   return (
     <div className="file-viewer file-viewer--document">
       <div className="file-viewer file-viewer--iframe">
-        <IframeReact title={__('File preview')} src={src} />
+        <IframeReact title={__('File preview')} src={src} useDirectFetch />
       </div>
     </div>
   );
