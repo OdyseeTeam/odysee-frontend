@@ -35,6 +35,7 @@ import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(() =>
@@ -77,6 +78,7 @@ type Props = {
   publishError?: boolean,
   balance: number,
   isStillEditing: boolean,
+  claimToEdit: ?Claim,
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
@@ -91,8 +93,7 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
-  restrictedToMemberships: ?string,
-  visibility: Visibility,
+  memberRestrictionStatus: MemberRestrictionStatus,
 };
 
 function UploadForm(props: Props) {
@@ -115,6 +116,7 @@ function UploadForm(props: Props) {
     incognito,
     isClaimingInitialRewards,
     isStillEditing,
+    claimToEdit,
     modal,
     myClaimForUri,
     name,
@@ -133,8 +135,7 @@ function UploadForm(props: Props) {
     title,
     updatePublishForm,
     uploadThumbnailStatus,
-    restrictedToMemberships,
-    visibility,
+    memberRestrictionStatus,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -158,14 +159,12 @@ function UploadForm(props: Props) {
   const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
       ? myClaimForUri.value.source.media_type
       : undefined;
-  const claimChannelId =
-    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
-    (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
@@ -188,7 +187,7 @@ function UploadForm(props: Props) {
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
   const formValid =
-    (restrictedToMemberships !== null || visibility === 'unlisted') &&
+    (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     (isOverwritingExistingClaim
       ? false
       : editingURI && !filePath // if we're editing we don't need a file
@@ -308,11 +307,11 @@ function UploadForm(props: Props) {
 
   useEffect(() => {
     if (incognito) {
-      updatePublishForm({ channel: undefined });
+      updatePublishForm({ channel: undefined, channelId: undefined });
     } else if (activeChannelName) {
-      updatePublishForm({ channel: activeChannelName });
+      updatePublishForm({ channel: activeChannelName, channelId: activeChannelId });
     }
-  }, [activeChannelName, incognito, updatePublishForm]);
+  }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
 
   // @if TARGET='web'
   function createWebFile() {
@@ -416,8 +415,6 @@ function UploadForm(props: Props) {
               inProgress={isInProgress}
               setPrevFileText={setPrevFileText}
               setWaitForFile={setWaitForFile}
-              channelId={claimChannelId}
-              channelName={activeChannelName}
             />
           </div>
         }
@@ -499,7 +496,12 @@ function UploadForm(props: Props) {
       <section>
         <div className="section__actions publish__actions">
           <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-          <ChannelSelector disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector
+            disabled={isFormIncomplete}
+            autoSet={Boolean(claimToEdit)}
+            channelToSet={getChannelIdFromClaim(claimToEdit)}
+            isPublishMenu
+          />
         </div>
         <span className="help">
           {!formDisabled && !formValid ? (

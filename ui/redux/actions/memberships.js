@@ -356,14 +356,14 @@ export const doSaveMembershipRestrictionsForContent =
     channelClaimId: string,
     contentClaimId: string,
     contentClaimName: string,
-    commaSeperatedMembershipIds: string,
+    memberRestrictionTierIds: Array<number>,
     pendingClaim: ?boolean
   ) =>
   async (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
       data: {
-        commaSeperatedMembershipIds,
+        memberRestrictionTierIds,
         contentClaimId,
       },
     });
@@ -374,7 +374,10 @@ export const doSaveMembershipRestrictionsForContent =
       {
         environment: stripeEnvironment,
         claim_id: contentClaimId,
-        membership_ids: commaSeperatedMembershipIds,
+        membership_ids: memberRestrictionTierIds
+          .slice()
+          .sort((a, b) => a - b)
+          .join(','),
         channel_id: channelClaimId,
         claim_name: contentClaimName,
         pending_claim: pendingClaim,

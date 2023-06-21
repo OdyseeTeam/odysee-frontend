@@ -29,7 +29,7 @@ type Props = {
   fiatRentalExpiration: Duration,
   paywall: Paywall,
   fee: Fee,
-  restrictedToMemberships: ?string,
+  memberRestrictionStatus: MemberRestrictionStatus,
   chargesEnabled: ?boolean,
   updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
@@ -52,7 +52,7 @@ function PublishPrice(props: Props) {
     // SDK-LBC
     paywall = PAYWALL.FREE,
     fee,
-    restrictedToMemberships,
+    memberRestrictionStatus,
     chargesEnabled,
     updatePublishForm,
     doTipAccountStatus,
@@ -69,7 +69,7 @@ function PublishPrice(props: Props) {
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
 
   // If it's only restricted, the price can be added externally, and they won't be able to change it
-  const restrictedWithoutPrice = paywall === PAYWALL.FREE && restrictedToMemberships;
+  const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionStatus.isRestricting;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(Number(value), min), max);
