@@ -350,7 +350,7 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function hideTierRestrictions() {
-    return !memberRestrictionStatus.isApplicable || !memberRestrictionStatus.isSelectionValid;
+    return !memberRestrictionStatus.isRestricting;
   }
 
   function getVisibilityValue() {
