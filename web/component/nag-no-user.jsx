@@ -6,7 +6,9 @@ export default function NagNoUser() {
   return (
     <Nag
       type="error"
-      message={__('Could not get a user ID. Account functions will be unavailable. Try again in a bit.')}
+      message={__(
+        'Account functions are currently disabled for a scheduled upgrade. Enjoy the content, and check back later today!'
+      )}
       actionText={__('Refresh')}
       onClick={() => window.location.reload()}
     />

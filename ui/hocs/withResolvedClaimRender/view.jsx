@@ -146,8 +146,9 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
         </Wrapper>
       );
     }
-
-    if (claimIsRestricted && geoRestriction === undefined) {
+    // temp hack for internal apis downtime
+    // eslint-disable-next-line no-constant-condition
+    if (claimIsRestricted && geoRestriction === undefined && false) {
       if (!gblAvailable) {
         return (
           <Wrapper>
