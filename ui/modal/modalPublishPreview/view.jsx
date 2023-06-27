@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import moment from 'moment';
-import classnames from 'classnames';
 import type { DoPublishDesktop } from 'redux/actions/publish';
 
 import './style.scss';
@@ -61,10 +60,9 @@ type Props = {
   publishing: boolean,
   isLivestreamClaim: boolean,
   remoteFile: ?string,
-  tiersWithExclusiveContent: MembershipTiers,
-  tiersWithExclusiveLivestream: MembershipTiers,
   myMembershipTiers: MembershipTiers,
-  restrictingTiers: string,
+  memberRestrictionTierIds: Array<number>,
+  memberRestrictionStatus: MemberRestrictionStatus,
   visibility: Visibility,
   scheduledShow: boolean,
 };
@@ -108,10 +106,9 @@ const ModalPublishPreview = (props: Props) => {
     publish,
     closeModal,
     isLivestreamClaim,
-    tiersWithExclusiveContent,
-    tiersWithExclusiveLivestream,
     myMembershipTiers,
-    restrictingTiers,
+    memberRestrictionTierIds,
+    memberRestrictionStatus,
     visibility,
     scheduledShow,
   } = props;
@@ -138,9 +135,12 @@ const ModalPublishPreview = (props: Props) => {
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
   const confirmBtnText = getConfirmButtonText();
-  const tiers = livestream ? tiersWithExclusiveLivestream : tiersWithExclusiveContent; // See #2285
 
-  const membershipsToUseIds = tiers && tiers.map((membershipTier) => membershipTier?.Membership?.id);
+  assert(
+    !memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid,
+    'Something wrong:',
+    memberRestrictionStatus
+  );
 
   // **************************************************************************
   // **************************************************************************
@@ -323,38 +323,34 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function getTierRestrictionValue() {
-    if (myMembershipTiers && restrictingTiers) {
-      const rt = restrictingTiers.split(',');
-
-      return (
-        <div className="publish-preview__tier-restrictions">
-          {myMembershipTiers.map((tier: MembershipTier) => {
-            const tierId = tier?.Membership?.id || '0';
-            const tierRestrictionOn = rt.includes(tierId.toString());
-
-            return tierRestrictionOn ? (
-              <FormField
-                key={tierId}
-                name={tierId}
-                type="checkbox"
-                defaultChecked
-                label={tier?.Membership?.name || tierId}
-                className={classnames({
-                  'hide-tier': !membershipsToUseIds.includes(tier.Membership.id),
-                })}
-              />
-            ) : (
-              <div key={tierId} className="dummy-tier" />
-            );
-          })}
-        </div>
-      );
+    if (hideTierRestrictions()) {
+      return null;
     }
-    return null;
+
+    return (
+      <div className="publish-preview__tier-restrictions">
+        {myMembershipTiers.map((tier: MembershipTier) => {
+          const tierId = tier?.Membership?.id || '0';
+          const tierSelected = memberRestrictionTierIds.includes(tierId);
+
+          return tierSelected ? (
+            <FormField
+              key={tierId}
+              name={tierId}
+              type="checkbox"
+              defaultChecked
+              label={tier?.Membership?.name || tierId}
+            />
+          ) : (
+            <div key={tierId} className="dummy-tier" />
+          );
+        })}
+      </div>
+    );
   }
 
   function hideTierRestrictions() {
-    return !tiers || !restrictingTiers || visibility === 'unlisted';
+    return !memberRestrictionStatus.isRestricting;
   }
 
   function getVisibilityValue() {
@@ -403,19 +399,6 @@ const ModalPublishPreview = (props: Props) => {
     }
   }, [publishSuccess, publishing, livestream, closeModal]);
   // @endif
-
-  React.useEffect(() => {
-    if (myMembershipTiers) {
-      const elementsToHide = document.getElementsByClassName('hide-tier');
-
-      if (elementsToHide) {
-        for (const element of elementsToHide) {
-          // $FlowFixMe
-          element.parentElement.style.display = 'none';
-        }
-      }
-    }
-  }, [myMembershipTiers]);
 
   // **************************************************************************
   // **************************************************************************

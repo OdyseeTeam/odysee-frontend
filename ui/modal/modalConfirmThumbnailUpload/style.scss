@@ -1,0 +1,35 @@
+@import '~ui/scss/init/breakpoints';
+
+.upload-thumbnail-preview {
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  margin: var(--spacing-s) 0;
+  padding: var(--spacing-s);
+  display: flex;
+
+  @media (max-width: $breakpoint-small) {
+    flex-direction: column;
+  }
+}
+
+.upload-thumbnail-preview__image {
+  min-width: calc(var(--thumbnail-preview-width));
+  min-height: calc(var(--thumbnail-preview-height));
+  width: calc(var(--thumbnail-preview-width));
+  height: calc(var(--thumbnail-preview-height));
+  background-color: var(--color-thumbnail-background);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+  object-fit: contain;
+}
+
+.upload-thumbnail-preview__filename {
+  margin-top: var(--spacing-s);
+  margin-left: var(--spacing-s);
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+
+  @media (max-width: $breakpoint-small) {
+    margin-left: 0;
+  }
+}

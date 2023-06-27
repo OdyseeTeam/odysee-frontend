@@ -24,11 +24,12 @@ import {
   selectPublishFormValues,
   selectMyClaimForUri,
   selectIsStillEditing,
+  selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
 import { doError } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
 import analytics from 'analytics';
-import { doOpenModal } from 'redux/actions/app';
+import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
@@ -75,31 +76,29 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
     };
 
     const noFileParam = !filePath || filePath === NO_FILE;
-    const state = getState();
+    const state: State = getState();
     const editingUri = selectPublishFormValue(state, 'editingURI') || '';
     const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
-    const restrictedToMemberships = selectPublishFormValue(state, 'restrictedToMemberships');
+
+    const { memberRestrictionTierIds, name } = state.publish;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
 
     const claim = makeSelectClaimForUri(editingUri)(state) || {};
     const hasSourceFile = claim.value && claim.value.source;
     const redirectToLivestream = noFileParam && !hasSourceFile && !remoteUrl;
 
     const publishSuccess = (successResponse, lbryFirstError) => {
-      const state = getState();
+      const state: State = getState();
       const myClaims = selectMyClaims(state);
       const pendingClaim = successResponse.outputs[0];
-      const publishData = selectPublishFormValues(state);
-
-      const { restrictedToMemberships, name } = publishData;
 
       const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
         const channelClaimId = getChannelIdFromClaim(claimResult);
 
         // hit backend to save restricted memberships
-        if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
-          dispatch(
-            doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
-          );
+        if (channelClaimId) {
+          const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
+          dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
         }
       };
 
@@ -176,10 +175,10 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
 
       if (message.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
         message = ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL;
-      }
 
-      if (restrictedToMemberships && message === ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL) {
-        message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
+        if (memberRestrictionStatus.isRestricting) {
+          message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
+        }
       }
 
       actions.push(doError({ message, cause: error.cause }));
@@ -204,25 +203,24 @@ export const doPublishDesktop = (filePath: ?string | ?File, preview?: boolean) =
   };
 };
 
-export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: () => {}) => {
+export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: GetState) => {
   const publishSuccess = (successResponse, lbryFirstError) => {
     const state = getState();
     const myClaimIds: Set<string> = selectMyActiveClaims(state);
 
     const pendingClaim = successResponse.outputs[0];
     const { permanent_url: url } = pendingClaim;
-    const publishData = selectPublishFormValues(state);
 
-    const { restrictedToMemberships, name } = publishData;
+    const { memberRestrictionTierIds, name } = state.publish;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
 
     const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
       const channelClaimId = getChannelIdFromClaim(claimResult);
 
       // hit backend to save restricted memberships
-      if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
-        dispatch(
-          doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, restrictedToMemberships)
-        );
+      if (channelClaimId) {
+        const tierIds = memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [];
+        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, name, tierIds));
       }
     };
 
@@ -650,8 +648,13 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     } else {
       publishData.licenseType = license;
     }
+
     if (channelName) {
       publishData['channel'] = channelName;
+    }
+
+    if (channelId) {
+      publishData.channelId = channelId;
     }
 
     // Fill purchase/rental details from the claim
@@ -688,11 +691,18 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       };
     }
 
-    // Membership restrictions
+    // == Tag derivations ==
     const publishDataTags = new Set(publishData.tags && publishData.tags.map((tag) => tag.name));
+
+    // -- Membership restrictions
     if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
       if (channelId) {
-        let protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
+        // Repopulate membership restriction IDs
+        let protectedMembershipIds: Array<number> = selectProtectedContentMembershipsForClaimId(
+          state,
+          channelId,
+          claim.claim_id
+        );
 
         if (protectedMembershipIds === undefined) {
           await dispatch(doMembershipContentforStreamClaimId(claim.claim_id));
@@ -700,8 +710,15 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
           protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
         }
 
-        publishData['restrictedToMemberships'] = protectedMembershipIds && protectedMembershipIds.join(',');
+        if (protectedMembershipIds && protectedMembershipIds.length > 0) {
+          publishData.memberRestrictionOn = true;
+          publishData.memberRestrictionTierIds = protectedMembershipIds;
+        } else {
+          publishData.memberRestrictionOn = false;
+          publishData.memberRestrictionTierIds = [];
+        }
       } else {
+        // ??
         if (publishData.tags) {
           publishData.tags = publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG);
         } else {
@@ -729,6 +746,13 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       publishData.visibility = 'public';
     }
 
+    if (publishData.channelId) {
+      dispatch(doSetActiveChannel(publishData.channelId, false));
+      dispatch(doSetIncognito(false));
+    } else {
+      dispatch(doSetIncognito(true));
+    }
+
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
     dispatch(push(`/$/${PUBLISH_PATH_MAP[type]}`));
   };
@@ -747,10 +771,12 @@ export const doPublish =
     // const myClaims = selectMyClaimsWithoutChannels(state);
     // get redux publish form
     const publishData = selectPublishFormValues(state);
+    const { memberRestrictionTierIds, name } = publishData;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
 
-    const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, Boolean(previewFn));
-
-    const { restrictedToMemberships, name } = publishData;
+    const publishPayload =
+      payload ||
+      resolvePublishPayload(publishData, myClaimForUri, myChannels, memberRestrictionStatus, Boolean(previewFn));
 
     const { channel_id: channelClaimId } = publishPayload;
 
@@ -758,13 +784,13 @@ export const doPublish =
 
     // hit backend to save restricted memberships
     // hit the backend immediately to save the data, we will overwrite it if publish succeeds
-    if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '') && !previewFn) {
+    if (channelClaimId && !previewFn) {
       dispatch(
         doSaveMembershipRestrictionsForContent(
           channelClaimId,
           existingClaimId,
           name,
-          restrictedToMemberships,
+          memberRestrictionStatus.isRestricting ? memberRestrictionTierIds : [],
           existingClaimId ? undefined : true
         )
       );

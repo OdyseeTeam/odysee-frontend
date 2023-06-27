@@ -47,6 +47,8 @@ const defaultState: PublishState = {
   fiatRentalFee: { amount: 1, currency: 'USD' },
   fiatRentalExpiration: { value: 1, unit: 'weeks' },
   fiatRentalEnabled: false,
+  memberRestrictionOn: false,
+  memberRestrictionTierIds: [],
   title: '',
   thumbnail: '',
   thumbnail_url: '',
@@ -61,7 +63,6 @@ const defaultState: PublishState = {
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
-  channelClaimId: '',
   name: '',
   nameError: undefined,
   bid: 0.001,
@@ -187,9 +188,9 @@ export const publishReducer = handleActions(
       // -- remoteFileUrl
       if (!data.hasOwnProperty('remoteFileUrl')) {
         const nonReplayChosen = data.hasOwnProperty('liveEditType') && data.liveEditType !== 'use_replay';
-        const activeChanChanged = data.hasOwnProperty('channelClaimId') && data.channelClaimId !== state.channelClaimId;
+        const channelChanged = data.hasOwnProperty('channelId') && data.channelId !== state.channelId;
 
-        if (nonReplayChosen || activeChanChanged) {
+        if (nonReplayChosen || channelChanged) {
           // Purge remoteFileUrl selection on these cases.
           auto.remoteFileUrl = undefined;
         }
@@ -203,6 +204,7 @@ export const publishReducer = handleActions(
       type: state.type,
       uri: undefined,
       channel: state.channel,
+      channelId: state.channelId,
       bid: state.bid,
       optimize: state.optimize,
       language: state.language,
@@ -338,7 +340,11 @@ export const publishReducer = handleActions(
           remoteFileUrl: undefined, // Clear for now until the component is able to re-populate on load.
         };
 
-        // Cleanup for 'publish::currentUploads'
+        // Delete obsolete states
+        delete newPublish.channelClaimId;
+        delete newPublish.isLivestreamPublish;
+
+        // -- Cleanup for 'publish::currentUploads'
         if (newPublish.currentUploads) {
           const uploadKeys = Object.keys(newPublish.currentUploads);
           if (uploadKeys.length > 0) {
