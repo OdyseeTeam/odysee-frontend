@@ -146,9 +146,8 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
         </Wrapper>
       );
     }
-    // temp hack for internal apis downtime
-    // eslint-disable-next-line no-constant-condition
-    if (claimIsRestricted && geoRestriction === undefined && false) {
+
+    if (claimIsRestricted && geoRestriction === undefined) {
       if (!gblAvailable) {
         return (
           <Wrapper>

@@ -41,9 +41,9 @@ export default function CreatorAnalytics(props: Props) {
     if (stats) {
       let { VideoURITopAllTime, VideoURITopCommentNew, VideoURITopNew } = stats;
       let uris = [];
-      if (VideoURITopAllTime && VideoURITopAllTime.charAt(0) === '@') uris.push(VideoURITopAllTime);
-      if (VideoURITopCommentNew && VideoURITopCommentNew.charAt(0) === '@') uris.push(VideoURITopCommentNew);
-      if (VideoURITopNew && VideoURITopNew.charAt(0) === '@') uris.push(VideoURITopNew);
+      if (VideoURITopAllTime) uris.push(VideoURITopAllTime);
+      if (VideoURITopCommentNew) uris.push(VideoURITopCommentNew);
+      if (VideoURITopNew) uris.push(VideoURITopNew);
       doResolveUris(uris);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
@@ -242,7 +242,7 @@ export default function CreatorAnalytics(props: Props) {
             />
           )}
 
-          {stats.VideoURITopAllTime.charAt(0) === '@' && (
+          {stats.VideoURITopAllTime && (
             <Card
               className="section"
               title={__('Most viewed content all time')}
