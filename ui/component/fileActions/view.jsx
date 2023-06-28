@@ -99,7 +99,7 @@ export default function FileActions(props: Props) {
     !isMature &&
     !isFiatRequired &&
     !isProtectedContent &&
-    scheduledState === 'non-scheduled' &&
+    (scheduledState === 'non-scheduled' || scheduledState === 'started') &&
     !isUnlistedOrPrivate;
 
   const showRepost = !hideRepost && !isLivestreamClaim;
