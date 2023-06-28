@@ -17,7 +17,7 @@ function ClaimRepostButton(props: Props) {
   const { uri, claim, repostedAmount, doOpenModal } = props;
 
   const ss: ClaimScheduledState = getClaimScheduledState(claim);
-  if (ss === 'scheduled' || ss === 'started') {
+  if (ss === 'scheduled') {
     return null;
   }
 
