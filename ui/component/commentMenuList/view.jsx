@@ -208,7 +208,7 @@ function CommentMenuList(props: Props) {
       onClick={(e) => e.stopPropagation()}
     >
       {(isLiveComment || isUserLabel) && (
-        <MenuItem onSelect={() => history.push(formatLbryUrlForWeb(authorUri))}>
+        <MenuItem onSelect={(e) => e.preventDefault()}>
           <NavLink className="comment__menu-option menu__link" to={formatLbryUrlForWeb(authorUri)}>
             <span className={'button__content'}>
               <Icon aria-hidden icon={ICONS.CHANNEL} className={'icon'} />
