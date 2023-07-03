@@ -3,6 +3,7 @@ const { lbryProxy: Lbry } = require('../lbry');
 const { URL, SITE_NAME, PROXY_URL } = require('../../config.js');
 const Mime = require('mime-types');
 const Rss = require('rss');
+const moment = require('moment');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -41,15 +42,7 @@ async function getChannelClaim(name, claimId) {
 
 async function getClaimsFromChannel(claimId, count) {
   // had to hardcode because of imports vs require (requires larger refactor?)
-  const restrictedTags = [
-    'c:disable-download',
-    'c:members-only',
-    'c:purchase',
-    'c:rental',
-    'c:unlisted',
-    'c:scheduled:hide',
-    'c:scheduled:show',
-  ];
+  const restrictedTags = ['c:disable-download', 'c:members-only', 'c:purchase', 'c:rental', 'c:unlisted'];
   const options = {
     channel_ids: [claimId],
     page_size: count,
@@ -58,6 +51,7 @@ async function getClaimsFromChannel(claimId, count) {
     order_by: ['release_time'],
     no_totals: true,
     not_tags: restrictedTags,
+    release_time: `<${Math.floor(moment().startOf('minute').unix())}`,
   };
 
   return await doClaimSearch(options);
