@@ -17,7 +17,8 @@ import {
 // ****************************************************************************
 // ****************************************************************************
 
-const SDK_STATUS_RETRY_INTERVAL_MS = 30000;
+const SDK_STATUS_INITIAL_DELAY_MS = 2000;
+const SDK_STATUS_RETRY_INTERVAL_MS = 10000;
 
 // ****************************************************************************
 // makeV4UploadRequest
@@ -47,6 +48,8 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
       onSuccess: (publishId) => dispatch(progress({ guid, status: 'notify_ok', publishId })),
       onFailure: () => dispatch(progress({ guid, status: 'notify_failed' })),
     });
+    // -- Wait a bit before checking the SDK status
+    await yieldThread(SDK_STATUS_INITIAL_DELAY_MS);
   }
 
   // -- Check SDK status
