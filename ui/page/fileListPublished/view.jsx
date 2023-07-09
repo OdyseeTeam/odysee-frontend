@@ -207,7 +207,7 @@ function FileListPublished(props: Props) {
 
   useEffect(() => {
     if (params && fetchClaimListMine && method === METHOD.CLAIM_LIST) {
-      fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','));
+      fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','), true);
     }
   }, [uploadCount, params, filterBy, fetchClaimListMine, method]);
 
