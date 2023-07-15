@@ -1,19 +1,9 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import { importPublir } from '../util/importPublir';
-
-const PublirAdsProvider = importPublir('PublirAdsProvider');
-const AdSlot = importPublir('AdSlot');
 
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
-  PUBLIR: {
-    slotId: {
-      desktop: 'div-hre-Odysee-3293',
-      mobile: 'div-hre-Odysee-3293',
-    },
-  },
   REVCONTENT: {
     url: 'https://assets.revcontent.com/master/delivery.js',
   },
@@ -26,7 +16,7 @@ type Props = {
 };
 
 function AdTileB(props: Props) {
-  const { provider, device, shouldShowAds } = props;
+  const { provider, shouldShowAds } = props;
   const [isActive, setIsActive] = React.useState(false);
 
   React.useEffect(() => {
@@ -63,13 +53,6 @@ function AdTileB(props: Props) {
           data-endpoint="//trends.revcontent.com"
           data-widget-id="274791"
         />
-      )}
-      {provider === 'publir' && (
-        <React.Suspense fallback={null}>
-          <PublirAdsProvider publisherId="1391">
-            <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
-          </PublirAdsProvider>
-        </React.Suspense>
       )}
     </>
   );

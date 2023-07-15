@@ -1,18 +1,8 @@
 // @flow
 import React from 'react';
-import { importPublir } from '../util/importPublir';
-
-const PublirAdsProvider = importPublir('PublirAdsProvider');
-const AdSlot = importPublir('AdSlot');
 
 // prettier-ignore
 const AD_CONFIG = Object.freeze({
-  PUBLIR: {
-    slotId: {
-      desktop: 'div-hre-Odysee-3291',
-      mobile: 'div-hre-Odysee-3297',
-    },
-  },
   REVCONTENT: {
     url: 'https://assets.revcontent.com/master/delivery.js',
   },
@@ -25,7 +15,7 @@ type Props = {
 };
 
 function AdAboveComments(props: Props) {
-  const { provider, device, shouldShowAds } = props;
+  const { provider, shouldShowAds } = props;
   const adConfig = AD_CONFIG.REVCONTENT;
   const [isActive, setIsActive] = React.useState(false);
 
@@ -70,13 +60,6 @@ function AdAboveComments(props: Props) {
           data-endpoint="//trends.revcontent.com"
           data-widget-id="273461"
         />
-      )}
-      {provider === 'publir' && (
-        <React.Suspense fallback={null}>
-          <PublirAdsProvider publisherId="1391">
-            <AdSlot id={AD_CONFIG.PUBLIR.slotId[device]} />
-          </PublirAdsProvider>
-        </React.Suspense>
       )}
     </>
   );
