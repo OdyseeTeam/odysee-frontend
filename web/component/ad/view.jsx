@@ -26,7 +26,7 @@ export type Props = {|
 
 type StateProps = {|
   shouldShowAds: boolean,
-  channelIdWhitelist?: ?any,
+  // channelIdWhitelist?: ?any,
   channelId: ?ChannelId,
 |};
 
@@ -36,10 +36,12 @@ type DispatchProps = {||};
 // ****************************************************************************
 
 function Ad(props: Props & StateProps & DispatchProps) {
-  const { type, uri, tileLayout, shouldShowAds, channelIdWhitelist, channelId } = props;
+  // const { type, uri, tileLayout, shouldShowAds, channelIdWhitelist, channelId } = props;
+  const { type, uri, tileLayout, shouldShowAds } = props;
   const device = useIsMobile() ? 'mobile' : 'desktop';
   // revcontent default for now, we can remove publir stuff later
-  const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'revcontent' : 'revcontent';
+  // const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'revcontent' : 'revcontent';
+  const provider = 'revcontent';
 
   React.useEffect(() => {
     if (shouldShowAds && AD_CONFIG.PUBLIR.active) {
