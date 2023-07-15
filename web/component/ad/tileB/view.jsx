@@ -11,7 +11,6 @@ const AD_CONFIG = Object.freeze({
 
 type Props = {
   provider: string,
-  device: string,
   shouldShowAds: boolean,
 };
 
