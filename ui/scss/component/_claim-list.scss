@@ -1405,11 +1405,11 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview__list-index {
-  @extend .center-self;
-  width: 15px;
+  align-self: center;
   position: absolute;
   transform: translateX(-23px);
   text-align: end;
+  padding-left: var(--spacing-xs);
 }
 
 .claim-preview__hover-actions-grid {
