@@ -159,5 +159,5 @@ export const selectIsDrawerOpenForType = (state, type) => {
   return appDrawerOpen === type;
 };
 
-export const selectIsReadyToMigrateCordovaToNative = (state) => selectState(state).readyToMigrateCordovaToNative;
+// export const selectIsReadyToMigrateCordovaToNative = (state) => selectState(state).readyToMigrateCordovaToNative;
 export const selectVideoSourceLoadedForUri = (state, uri) => selectVideoSourceLoaded(state) === uri;

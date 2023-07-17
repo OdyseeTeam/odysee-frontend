@@ -44,7 +44,7 @@ import {
   selectModal,
   selectAllowAnalytics,
   selectAppDrawerOpen,
-  selectIsReadyToMigrateCordovaToNative,
+  // selectIsReadyToMigrateCordovaToNative,
 } from 'redux/selectors/app';
 import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -412,7 +412,7 @@ export function doDaemonReady() {
       )
     );
 
-    dispatch(doPrepareMigrateCordovaToNative());
+    // dispatch(doPrepareMigrateCordovaToNative());
 
     dispatch({ type: ACTIONS.DAEMON_READY });
   };
@@ -573,6 +573,7 @@ function reconnect() {
 }
 */
 
+/*
 export function doPrepareMigrateCordovaToNative() {
   console.log('OdyseeAP: Calling doPrepareMigrateCordovaToNative...');
 
@@ -626,6 +627,7 @@ export function doPrepareMigrateCordovaToNative() {
     }
   };
 }
+*/
 
 export function doSignIn() {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -647,7 +649,7 @@ export function doSignIn() {
     dispatch(doBalanceSubscribe());
     dispatch(doFetchChannelListMine());
     dispatch(doMembershipMine());
-    dispatch(doPrepareMigrateCordovaToNative());
+    // dispatch(doPrepareMigrateCordovaToNative());
   };
 }
 

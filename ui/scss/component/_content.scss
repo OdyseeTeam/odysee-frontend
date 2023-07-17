@@ -18,6 +18,9 @@
   position: fixed;
   max-width: 100%;
   top: var(--header-height-mobile);
+  .content__viewer--mobile {
+    top: 0 !important;
+  }
 }
 
 .content__viewer--disable-click {
