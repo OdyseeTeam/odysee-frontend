@@ -1,14 +1,4 @@
 .channel_sections {
-  .channel-section-card__item {
-    &:hover {
-      .claim-preview__title {
-        color: var(--color-text);
-      }
-    }
-  }
-  .channel-thumbnail {
-    margin-bottom: var(--spacing-xxxs);
-  }
   .channel-section-card__menu {
     padding: unset;
     .menu__button {

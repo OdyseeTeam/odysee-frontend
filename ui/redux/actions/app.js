@@ -1,8 +1,12 @@
+// @flow
+
 // @if TARGET='app'
 import { execSync } from 'child_process';
 import isDev from 'electron-is-dev';
 import { ipcRenderer, remote } from 'electron';
 // @endif
+
+import moment from 'moment';
 import path from 'path';
 import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from 'config';
 import * as ACTIONS from 'constants/action_types';
@@ -46,13 +50,17 @@ import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/setti
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from 'redux/actions/sync';
 import { doAuthenticate } from 'redux/actions/user';
+// $FlowFixMe
+import p from 'package.json';
 import { doMembershipMine } from 'redux/actions/memberships';
-import { lbrySettings as config, version as appVersion } from 'package.json';
 import analytics from 'analytics';
 import { doSignOutCleanup } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+
+const { lbrySettings: config, version: appVersion } = p;
 
 // @if TARGET='app'
 const { autoUpdater } = remote.require('electron-updater');
@@ -62,7 +70,7 @@ const Fs = remote.require('fs');
 
 const CHECK_UPGRADE_INTERVAL = 10 * 60 * 1000;
 
-export function doOpenModal(id, modalProps = {}) {
+export function doOpenModal(id: any, modalProps: any = {}) {
   return {
     type: ACTIONS.SHOW_MODAL,
     data: {
@@ -78,7 +86,7 @@ export function doHideModal() {
   };
 }
 
-export function doUpdateDownloadProgress(percent) {
+export function doUpdateDownloadProgress(percent: any) {
   return {
     type: ACTIONS.UPGRADE_DOWNLOAD_PROGRESSED,
     data: {
@@ -94,7 +102,7 @@ export function doSkipUpgrade() {
 }
 
 export function doStartUpgrade() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const upgradeDownloadPath = selectUpgradeDownloadPath(state);
 
@@ -103,7 +111,7 @@ export function doStartUpgrade() {
 }
 
 export function doDownloadUpgrade() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     // @if TARGET='app'
     const state = getState();
     // Make a new directory within temp directory so the filename is guaranteed to be available
@@ -145,7 +153,7 @@ export function doDownloadUpgradeRequested() {
   // This will probably be reorganized once we get auto-update going on Linux and remove
   // the old logic.
 
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     if (['win32', 'darwin'].includes(process.platform) || !!process.env.APPIMAGE) {
       // electron-updater behavior
       dispatch(doOpenModal(MODALS.AUTO_UPDATE_DOWNLOADED));
@@ -157,7 +165,7 @@ export function doDownloadUpgradeRequested() {
 }
 
 export function doClearUpgradeTimer() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
 
     if (selectUpgradeTimer(state)) {
@@ -170,7 +178,7 @@ export function doClearUpgradeTimer() {
 }
 
 export function doAutoUpdate() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.AUTO_UPDATE_DOWNLOADED,
     });
@@ -182,7 +190,7 @@ export function doAutoUpdate() {
 }
 
 export function doAutoUpdateDeclined() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(doClearUpgradeTimer());
 
     dispatch({
@@ -192,7 +200,7 @@ export function doAutoUpdateDeclined() {
 }
 
 export function doCancelUpgrade() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const upgradeDownloadItem = selectUpgradeDownloadItem(state);
 
@@ -214,7 +222,7 @@ export function doCancelUpgrade() {
 }
 
 export function doCheckUpgradeAvailable() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     dispatch({
       type: ACTIONS.CHECK_UPGRADE_START,
@@ -263,7 +271,7 @@ export function doCheckUpgradeAvailable() {
   Initiate a timer that will check for an app upgrade every 10 minutes.
  */
 export function doCheckUpgradeSubscribe() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     const checkUpgradeTimer = setInterval(() => dispatch(doCheckUpgradeAvailable()), CHECK_UPGRADE_INTERVAL);
     dispatch({
       type: ACTIONS.CHECK_UPGRADE_SUBSCRIBE,
@@ -273,25 +281,25 @@ export function doCheckUpgradeSubscribe() {
 }
 
 export function doMinVersionCheck() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     fetch(`${URL}/$/minVersion/v1/get`)
       .then((response) => response.json())
       .then((json) => {
         if (json?.status === 'success' && json?.data && MINIMUM_VERSION) {
           const liveMinimumVersion = Number(json.data);
           if (liveMinimumVersion > MINIMUM_VERSION) {
-            dispatch({ type: ACTIONS.RELOAD_REQUIRED });
+            dispatch({ type: ACTIONS.RELOAD_REQUIRED, data: { reason: 'minVersion', error: liveMinimumVersion } });
           }
         }
       })
       .catch((err) => {
-        console.error(err);
+        assert(false, 'minVersion failed', err);
       });
   };
 }
 
 export function doMinVersionSubscribe() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     if (IGNORE_MINIMUM_VERSION === 'true') {
       return;
     }
@@ -303,7 +311,7 @@ export function doMinVersionSubscribe() {
 }
 
 export function doCheckDaemonVersion() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     // @if TARGET='app'
     Lbry.version().then(({ lbrynet_version: lbrynetVersion }) => {
       // Avoid the incompatible daemon modal if running in dev mode
@@ -331,37 +339,37 @@ export function doCheckDaemonVersion() {
 }
 
 export function doNotifyEncryptWallet() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(doOpenModal(MODALS.WALLET_ENCRYPT));
   };
 }
 
 export function doNotifyDecryptWallet() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(doOpenModal(MODALS.WALLET_DECRYPT));
   };
 }
 
 export function doNotifyUnlockWallet() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(doOpenModal(MODALS.WALLET_UNLOCK));
   };
 }
 
-export function doNotifyForgetPassword(props) {
-  return (dispatch) => {
+export function doNotifyForgetPassword(props: any) {
+  return (dispatch: Dispatch) => {
     dispatch(doOpenModal(MODALS.WALLET_PASSWORD_UNSAVE, props));
   };
 }
 
-export function doAlertError(errorList) {
-  return (dispatch) => {
+export function doAlertError(errorList: any) {
+  return (dispatch: Dispatch) => {
     dispatch(doError(errorList));
   };
 }
 
 export function doAlertWaitingForSync() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const authenticated = selectUserVerifiedEmail(state);
 
@@ -378,6 +386,7 @@ export function doAlertWaitingForSync() {
 }
 
 export function doDaemonReady() {
+  // $FlowIgnore
   return (dispatch, getState) => {
     // const state = getState();
 
@@ -410,7 +419,7 @@ export function doDaemonReady() {
 }
 
 export function doClearCache() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     // Need to update this to work with new version of redux-persist
     // Leaving for now
     // const reducersToClear = whiteListedReducers.filter(reducerKey => reducerKey !== 'tags');
@@ -431,7 +440,7 @@ export function doQuit() {
 }
 
 export function doQuitAnyDaemon() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     // @if TARGET='app'
     Lbry.stop()
       .catch(() => {
@@ -452,8 +461,8 @@ export function doQuitAnyDaemon() {
   };
 }
 
-export function doChangeVolume(volume) {
-  return (dispatch) => {
+export function doChangeVolume(volume: any) {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.VOLUME_CHANGED,
       data: {
@@ -463,8 +472,8 @@ export function doChangeVolume(volume) {
   };
 }
 
-export function doChangeMute(muted) {
-  return (dispatch) => {
+export function doChangeMute(muted: any) {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.VOLUME_MUTED,
       data: {
@@ -486,24 +495,28 @@ export function doToggleSearchExpanded() {
   };
 }
 
-export function doAnalyticsView(uri, timeToStart) {
-  return (dispatch, getState) => {
+export function doAnalyticsViewForUri(uri: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const { txid, nout, claim_id: claimId } = claim;
     const claimIsMine = selectClaimIsMineForUri(state, uri);
+
+    const isUnlistedOrScheduled =
+      getClaimScheduledState(claim) === 'scheduled' || isClaimUnlisted(claim) || isClaimPrivate(claim);
+    const isGlobalMod = Boolean(selectUser(state)?.global_mod);
     const outpoint = `${txid}:${nout}`;
 
-    if (claimIsMine) {
+    if (claimIsMine || (isGlobalMod && isUnlistedOrScheduled)) {
       return Promise.resolve();
     }
 
-    return analytics.apiLog.view(uri, outpoint, claimId, timeToStart);
+    return analytics.apiLog.view(uri, outpoint, claimId);
   };
 }
 
-export function doAnalyticsBuffer(uri, bufferData) {
-  return (dispatch, getState) => {
+export function doAnalyticsBuffer(uri: string, bufferData: any) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const isLivestream = bufferData.isLivestream;
     const state = getState();
     const claim = selectClaimForUri(state, uri);
@@ -516,6 +529,7 @@ export function doAnalyticsBuffer(uri, bufferData) {
     const fileDurationInSeconds = isLivestream ? 0 : (video && video.duration) || (audio && audio.duration);
     const fileSize = isLivestream ? 0 : source.size; // size in bytes
     const fileSizeInBits = isLivestream ? '0' : fileSize * 8;
+    // $FlowFixMe please
     const bitRate = isLivestream ? bufferData.bitrateAsBitsPerSecond : parseInt(fileSizeInBits / fileDurationInSeconds);
     const userId = user && user.id.toString();
     // if there's a logged in user, send buffer event data to watchman
@@ -534,8 +548,8 @@ export function doAnalyticsBuffer(uri, bufferData) {
   };
 }
 
-export function doAnaltyicsPurchaseEvent(fileInfo) {
-  return (dispatch) => {
+export function doAnaltyicsPurchaseEvent(fileInfo: any) {
+  return (dispatch: Dispatch) => {
     let purchasePrice = fileInfo.purchase_receipt && fileInfo.purchase_receipt.amount;
     if (purchasePrice) {
       const purchaseInt = Number(Number(purchasePrice).toFixed(0));
@@ -562,6 +576,7 @@ function reconnect() {
 export function doPrepareMigrateCordovaToNative() {
   console.log('OdyseeAP: Calling doPrepareMigrateCordovaToNative...');
 
+  // $FlowIgnore
   return (dispatch, getState) => {
     console.log('OdyseeAP: Starting prepare to Migrate to Native...');
 
@@ -613,7 +628,7 @@ export function doPrepareMigrateCordovaToNative() {
 }
 
 export function doSignIn() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const user = selectUser(state);
 
@@ -639,6 +654,7 @@ export function doSignIn() {
 function clearBeforeUnloadListeners() {
   const beforeUnloads = Object.values(window.beforeUnloadMap || {});
   beforeUnloads.forEach((x) => {
+    // $FlowIgnore mixed bug
     window.removeEventListener('beforeunload', x.cb);
   });
 }
@@ -677,17 +693,19 @@ function doSignOutAction() {
         .catch((err) => {
           analytics.error(`\`doSignOut\`: ${err.message || err}`);
         })
+        // $FlowFixMe
         .finally(() => location.reload());
     }
   };
 }
 
 export function doSignOut() {
-  return async (dispatch, getState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const pendingActions = Object.values(window.beforeUnloadMap || {});
     if (pendingActions.length > 0) {
       dispatch(
         doOpenModal(MODALS.SIGN_OUT, {
+          // $FlowIgnore mixed bug
           pendingActions: pendingActions.map((x) => x.msg),
           onConfirm: () => {
             clearBeforeUnloadListeners();
@@ -701,7 +719,7 @@ export function doSignOut() {
   };
 }
 
-export function doSetWelcomeVersion(version) {
+export function doSetWelcomeVersion(version: any) {
   return {
     type: ACTIONS.SET_WELCOME_VERSION,
     data: version,
@@ -715,11 +733,12 @@ export function doSetHasNavigated() {
   };
 }
 
-export function doToggle3PAnalytics(allowParam, doNotDispatch) {
-  return (dispatch, getState) => {
+export function doToggle3PAnalytics(allowParam: any, doNotDispatch: any) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const allowState = selectAllowAnalytics(state);
     const allow = allowParam !== undefined && allowParam !== null ? allowParam : allowState;
+    // $FlowFixMe please
     analytics.toggleThirdParty(allow);
     if (!doNotDispatch) {
       return dispatch({
@@ -730,10 +749,10 @@ export function doToggle3PAnalytics(allowParam, doNotDispatch) {
   };
 }
 
-export function doGetAndPopulatePreferences(syncId /* ?: number */) {
+export function doGetAndPopulatePreferences(syncId?: number) {
   const { SDK_SYNC_KEYS } = SHARED_PREFERENCES;
 
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
     const hasVerifiedEmail = selectUserVerifiedEmail(state);
@@ -798,8 +817,8 @@ export function doGetAndPopulatePreferences(syncId /* ?: number */) {
   };
 }
 
-export function doHandleSyncComplete(error, hasNewData, syncId) {
-  return (dispatch, getState) => {
+export function doHandleSyncComplete(error: any, hasNewData: any, syncId: any) {
+  return (dispatch: Dispatch, getState: GetState) => {
     if (!error) {
       if (hasNewData) {
         if (syncInvalidated(getState, syncId)) {
@@ -827,8 +846,8 @@ export function doToggleSplashAnimation() {
   };
 }
 
-export function doSetActiveChannel(claimId, override) {
-  return (dispatch, getState) => {
+export function doSetActiveChannel(claimId: ClaimId, override: boolean) {
+  return (dispatch: Dispatch, getState: GetState) => {
     if (claimId || override) {
       return dispatch({
         type: ACTIONS.SET_ACTIVE_CHANNEL,
@@ -840,7 +859,7 @@ export function doSetActiveChannel(claimId, override) {
   };
 }
 
-export function doSetIncognito(incognitoEnabled) {
+export function doSetIncognito(incognitoEnabled: boolean) {
   return {
     type: ACTIONS.SET_INCOGNITO,
     data: {
@@ -849,14 +868,14 @@ export function doSetIncognito(incognitoEnabled) {
   };
 }
 
-export function doSetAdBlockerFound(found) {
+export function doSetAdBlockerFound(found: boolean) {
   return {
     type: ACTIONS.SET_AD_BLOCKER_FOUND,
     data: found,
   };
 }
 
-export function doSetGdprConsentList(rawList = '') {
+export function doSetGdprConsentList(rawList: string = '') {
   // https://community.cookiepro.com/s/article/UUID-66bcaaf1-c7ca-5f32-6760-c75a1337c226?language=en_US
   const list = rawList.split(',').filter(Boolean);
 
@@ -866,8 +885,8 @@ export function doSetGdprConsentList(rawList = '') {
   };
 }
 
-export function doToggleAppDrawer(type) {
-  return (dispatch, getState) => {
+export function doToggleAppDrawer(type: any) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const openDrawer = selectAppDrawerOpen(state);
     const isOpen = openDrawer && openDrawer === type;
@@ -880,5 +899,32 @@ export function doToggleAppDrawer(type) {
   };
 }
 
-export const doSetMainPlayerDimension = (dimensions) => (dispatch) =>
+export const doSetMainPlayerDimension = (dimensions: any) => (dispatch: Dispatch) =>
   dispatch({ type: ACTIONS.SET_MAIN_PLAYER_DIMENSIONS, data: dimensions });
+
+export const doSetVideoSourceLoaded = (uri: string) => (dispatch: Dispatch) =>
+  dispatch({ type: ACTIONS.SET_VIDEO_SOURCE_LOADED, data: uri });
+
+const MOMENT_LOCALE_MAP = {
+  no: 'nn',
+  'zh-Hans': 'zh-cn',
+  'zh-Hant': 'zh-tw',
+};
+
+export function doSetChronoLocale(language: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const lang = MOMENT_LOCALE_MAP[language] || language;
+
+    if (lang === 'en' || (lang && lang.startsWith('en-'))) {
+      moment.locale('en');
+    } else {
+      // $FlowIgnore: allow non-literal string; errors will be handled.
+      import(`moment/locale/${lang}` /* webpackChunkName: "locale-[request]" */)
+        .then(() => moment.locale(lang))
+        .catch((err) => {
+          assert(false, 'Failed to load locale:', err);
+          moment.locale('en');
+        });
+    }
+  };
+}

@@ -11,11 +11,10 @@ import Button from 'component/button';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
-// import Ads from 'web/component/ads';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
-import LivestreamSection from './livestreamSection';
+import LivestreamSection from './internal/livestreamSection';
 import { tagSearchCsOptionsHook } from 'util/search';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
@@ -26,8 +25,6 @@ type Props = {
   followedTags: Array<Tag>,
   repostedUri: string,
   repostedClaim: ?GenericClaim,
-  languageSetting: string,
-  searchInLanguage: boolean,
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   tileLayout: boolean,
@@ -40,12 +37,8 @@ function DiscoverPage(props: Props) {
     location: { search },
     repostedClaim,
     repostedUri,
-    languageSetting,
-    searchInLanguage,
     doResolveUri,
     tileLayout,
-    activeLivestreams,
-    doFetchActiveLivestreams,
     dynamicRouteProps,
   } = props;
 
@@ -83,6 +76,8 @@ function DiscoverPage(props: Props) {
       return (
         <a
           className="help"
+          target="_blank"
+          rel="noreferrer"
           href="https://help.odysee.tv/category-blockchain/category-staking/increase/"
           title={__('Learn more about Credits on %DOMAIN%', { DOMAIN })}
         >
@@ -102,11 +97,7 @@ function DiscoverPage(props: Props) {
           tileLayout={repostedUri ? false : tileLayout}
           channelIds={channelIds}
           excludedChannelIds={excludedChannelIds}
-          activeLivestreams={activeLivestreams}
-          doFetchActiveLivestreams={doFetchActiveLivestreams}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
-          languageSetting={languageSetting}
-          searchInLanguage={searchInLanguage}
           langParam={langParam}
           hideMembersOnlyContent={hideMembersOnlyContent}
         />
@@ -131,24 +122,30 @@ function DiscoverPage(props: Props) {
       headerLabel = __('Reposts of %uri%', { uri: repostedUri });
     } else if (tag && !isCategory) {
       headerLabel = (
-        <span>
+        <h1 className="page__title">
           <Icon icon={ICONS.TAG} size={10} />
-          {(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          <span>
+            #{(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          </span>
 
-          <Button
-            className="claim-search__tags-link"
-            button="link"
-            label={__('Manage Tags')}
-            navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
-          />
-        </span>
+          <span>
+            <Button
+              className="claim-search__tags-link"
+              button="link"
+              label={__('Manage Tags')}
+              navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
+            />
+          </span>
+        </h1>
       );
     } else {
       headerLabel = (
-        <span>
-          <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
-          {(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}
-        </span>
+        <>
+          <h1 className="page__title">
+            <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
+            <label>{(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}</label>
+          </h1>
+        </>
       );
     }
     return headerLabel;
@@ -161,9 +158,9 @@ function DiscoverPage(props: Props) {
       !hasPremiumPlus && {
         node: (index, lastVisibleIndex, pageSize) => {
           if (pageSize && index < pageSize) {
-            return index === lastVisibleIndex ? <Ads small type="video" tileLayout={tileLayout} /> : null;
+            return index === lastVisibleIndex ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
           } else {
-            return index % (pageSize * 2) === 0 ? <Ads small type="video" tileLayout={tileLayout} /> : null;
+            return index % (pageSize * 2) === 0 ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
           }
         },
       }
@@ -211,11 +208,7 @@ function DiscoverPage(props: Props) {
   // **************************************************************************
 
   return (
-    <Page
-      noFooter
-      fullWidthPage={tileLayout}
-      className={classnames('main__discover', { 'hide-ribbon': hideRepostRibbon })}
-    >
+    <Page noFooter fullWidthPage={tileLayout} className={classnames({ 'hide-ribbon': hideRepostRibbon })}>
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
         <ClaimListDiscover
           pins={getPins(dynamicRouteProps)}

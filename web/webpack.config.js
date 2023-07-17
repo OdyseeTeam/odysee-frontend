@@ -1,7 +1,7 @@
-const { WEBPACK_WEB_PORT, LBRY_WEB_API, BRANDED_SITE } = require('../config.js');
+const { BRANDED_SITE, CUSTOM_HOMEPAGE, LBRY_WEB_API, WEBPACK_WEB_PORT } = require('../config.js');
 const path = require('path');
 const fs = require('fs');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const baseConfig = require('../webpack.base.config.js');
 const serviceWorkerConfig = require('./webpack.sw.config.js');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -69,13 +69,23 @@ const copyWebpackCommands = [
     force: true,
   },
   {
+    from: `${STATIC_ROOT}/tosdr.txt`,
+    to: `${output.PATH}/tosdr.txt`,
+    force: true,
+  },
+  {
     from: `${STATIC_ROOT}/img/favicon.png`,
     to: `${output.PATH}/public/favicon.png`,
     force: true,
   },
   {
-    from: `${STATIC_ROOT}/img/favicon-spaceman.png`,
-    to: `${output.PATH}/public/favicon-spaceman.png`,
+    from: `${STATIC_ROOT}/img/favicon_128.png`,
+    to: `${output.PATH}/public/favicon_128.png`,
+    force: true,
+  },
+  {
+    from: `${STATIC_ROOT}/img/favicon_notification_128.png`,
+    to: `${output.PATH}/public/favicon_notification_128.png`,
     force: true,
   },
   {
@@ -102,11 +112,7 @@ const copyWebpackCommands = [
     from: `${STATIC_ROOT}/../custom/homepages/v2/announcement`,
     to: `${output.PATH}/announcement`,
   },
-  {
-    from: `${STATIC_ROOT}/img/spaceman_pattern.png`,
-    to: `${output.PATH}/public/img/spaceman_pattern.png`,
-  },
-];
+].filter((f) => fs.existsSync(f.from));
 
 const CUSTOM_OG_PATH = `${CUSTOM_ROOT}/v2-og.png`;
 if (fs.existsSync(CUSTOM_OG_PATH)) {
@@ -139,14 +145,16 @@ if (!isProduction) {
 
 const plugins = [
   new WriteFilePlugin(),
-  new CopyWebpackPlugin(copyWebpackCommands),
+  new CopyWebpackPlugin({ patterns: copyWebpackCommands }),
   new DefinePlugin({
     IS_WEB: JSON.stringify(true),
     'process.env.SDK_API_URL': JSON.stringify(process.env.SDK_API_URL || LBRY_WEB_API),
     'process.env.BUILD_REV': JSON.stringify(BUILD_REV),
   }),
   new ProvidePlugin({
-    __: ['i18n.js', '__'],
+    Buffer: ['buffer', 'Buffer'],
+    process: 'process/browser',
+    __: [path.resolve(path.join(__dirname, '../ui/i18n')), '__'],
   }),
 ];
 
@@ -170,10 +178,14 @@ if (isProduction && hasSentryToken) {
   );
 }
 
-// ****************************************************************************
-// webConfig
-// ****************************************************************************
-
+/**
+ *****************************************************************************
+ * webConfig
+ *****************************************************************************
+ * @typedef { import('webpack').Configuration } Configuration
+ *
+ * @type {Configuration}
+ */
 const webConfig = {
   target: 'web',
   entry: {
@@ -183,12 +195,19 @@ const webConfig = {
     filename: '[name].js',
     path: path.join(__dirname, `${output.DIR}/public`),
     publicPath: '/public/',
-    chunkFilename: '[name]-[chunkhash].js',
+    chunkFilename: ({ chunk }) => {
+      return chunk.name && chunk.name.startsWith('locale-')
+        ? 'locales/[name]-[contenthash].js'
+        : '[name]-[contenthash].js';
+    },
+    assetModuleFilename: 'img/[name][ext]',
   },
   devServer: {
     port: WEBPACK_WEB_PORT,
-    contentBase: path.join(__dirname, DIST.DIR),
-    disableHostCheck: true, // to allow debugging with ngrok
+    allowedHosts: 'all', // to allow debugging with ngrok
+    static: {
+      directory: path.join(__dirname, DIST.DIR),
+    },
   },
   module: {
     rules: [
@@ -210,7 +229,8 @@ const webConfig = {
         exclude: /node_modules/,
         options: {
           TARGET: 'web',
-          BRANDED_SITE: BRANDED_SITE,
+          BRANDED_SITE,
+          CUSTOM_HOMEPAGE,
           ppOptions: {
             type: 'js',
           },
@@ -220,7 +240,15 @@ const webConfig = {
   },
   resolve: {
     modules: [UI_ROOT, __dirname],
-
+    fallback: {
+      crypto: require.resolve('crypto-browserify'),
+      http: require.resolve('stream-http'),
+      https: require.resolve('https-browserify'),
+      os: require.resolve('os-browserify/browser'),
+      path: require.resolve('path-browserify'),
+      stream: require.resolve('stream-browserify'),
+      vm: false,
+    },
     alias: {
       // lbryinc: '../extras/lbryinc',
       $web: WEB_PLATFORM_ROOT,

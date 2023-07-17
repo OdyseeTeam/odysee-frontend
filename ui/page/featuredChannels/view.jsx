@@ -30,7 +30,7 @@ function FeaturedChannelsPage(props: Props) {
 
   React.useEffect(() => {
     if (!creatorSettingsFetched && claimId) {
-      doFetchCreatorSettings(claimId);
+      doFetchCreatorSettings(claimId).catch(() => {});
     }
   }, [claimId, creatorSettingsFetched, doFetchCreatorSettings]);
 
@@ -59,7 +59,7 @@ function FeaturedChannelsPage(props: Props) {
 
   return (
     <Page>
-      <Section key={fc.id} id={fc.id} title={fc.value.title} uris={fc.value.uris} channelId={claimId} showAllItems />
+      <Section key={fc.id} id={fc.id} title={fc.value.title} uris={fc.value.uris} channelId={claimId} />
     </Page>
   );
 }

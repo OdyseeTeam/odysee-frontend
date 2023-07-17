@@ -12,6 +12,8 @@ import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc
 import { getChannelFromClaim } from 'util/claim';
 import { isURIEqual } from 'util/lbryURI';
 
+const ALL_CLEAR_STATE = Object.freeze({});
+
 export const selectBanStateForUri = createCachedSelector(
   selectClaimForUri,
   selectBlacklistedOutpointMap,
@@ -19,13 +21,12 @@ export const selectBanStateForUri = createCachedSelector(
   selectMutedChannels,
   selectModerationBlockList,
   (claim, blackListedOutpointMap, filteredOutpointMap, mutedChannelUris, personalBlocklist) => {
-    const banState = {};
-
     if (!claim) {
-      return banState;
+      return ALL_CLEAR_STATE;
     }
 
     const channelClaim = getChannelFromClaim(claim);
+    const banState = {};
 
     // This will be replaced once blocking is done at the wallet server level.
     if (blackListedOutpointMap) {
@@ -63,6 +64,6 @@ export const selectBanStateForUri = createCachedSelector(
       }
     }
 
-    return banState;
+    return Object.keys(banState).length === 0 ? ALL_CLEAR_STATE : banState;
   }
 )((state, uri) => String(uri));

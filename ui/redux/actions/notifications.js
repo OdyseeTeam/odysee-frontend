@@ -45,7 +45,7 @@ export function doDismissError() {
   };
 }
 
-export function doNotificationList(types?: Array<string>, resolve: boolean = true) {
+export function doNotificationList(types?: ?Array<string>, resolve: boolean = true) {
   return async (dispatch: Dispatch) => {
     dispatch({ type: ACTIONS.NOTIFICATION_LIST_STARTED });
 
@@ -199,5 +199,12 @@ export function doUpdateVisibleNagIds(id: string, shown: boolean) {
       type: shown ? ACTIONS.NAG_SHOWN : ACTIONS.NAG_DISMISSED,
       data: id,
     });
+  };
+}
+
+export function doClearDebugLog() {
+  return {
+    type: ACTIONS.DEBUG_LOG,
+    data: { clear: true },
   };
 }

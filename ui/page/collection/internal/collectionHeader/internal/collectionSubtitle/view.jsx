@@ -4,7 +4,7 @@ import React from 'react';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 
-import { formatCredits } from 'util/format-credits';
+import { getFormattedCreditsAmount } from 'util/format-credits';
 
 import ClaimDescription from 'component/claimDescription';
 import ClaimAuthor from 'component/claimAuthor';
@@ -37,8 +37,6 @@ const CollectionTitle = (props: Props) => {
   const { uri, collectionDescription, collectionCount, sourceId, hasClaim, claimAmount } = props;
 
   const [expand, setExpand] = React.useState(EXPAND.NONE);
-
-  const formattedAmount = formatCredits(claimAmount, 2, true);
 
   function handleExpand(newExpand) {
     if (expand === newExpand) {
@@ -76,7 +74,9 @@ const CollectionTitle = (props: Props) => {
               />
 
               <Button button="link" className="dim" onClick={() => handleExpand(EXPAND.CREDIT_DETAILS)}>
-                <LbcSymbol postfix={expand === EXPAND.CREDIT_DETAILS ? __('Hide') : formattedAmount} />
+                <LbcSymbol
+                  postfix={expand === EXPAND.CREDIT_DETAILS ? __('Hide') : getFormattedCreditsAmount(claimAmount)}
+                />
               </Button>
 
               <ClaimSupportsLiquidateButton uri={uri} />

@@ -1,6 +1,5 @@
 // @flow
 import * as React from 'react';
-import { LOADING_BAR_COLOR } from 'config';
 import LoadingBar from 'react-top-loading-bar';
 
 function LoadingBarOneOff(props: any) {
@@ -12,7 +11,7 @@ function LoadingBarOneOff(props: any) {
     }
   }, []);
 
-  return <LoadingBar color={LOADING_BAR_COLOR} ref={loadingBarRef} />;
+  return <LoadingBar className="loading-bar" ref={loadingBarRef} />;
 }
 
 export default LoadingBarOneOff;

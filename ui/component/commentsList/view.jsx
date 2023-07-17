@@ -13,7 +13,6 @@ import * as REACTION_TYPES from 'constants/reactions';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import classnames from 'classnames';
-import CommentCreate from 'component/commentCreate';
 import CommentView from 'component/comment';
 import debounce from 'util/debounce';
 import Empty from 'component/common/empty';
@@ -22,8 +21,10 @@ import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
 import { useHistory } from 'react-router-dom';
 import CommentListMenu from './internal/commentListMenu';
+import { lazyImport } from 'util/lazyImport';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
 function scaleToDevicePixelRatio(value) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
@@ -33,53 +34,64 @@ function scaleToDevicePixelRatio(value) {
   return Math.ceil(value * devicePixelRatio);
 }
 
-type Props = {
-  allCommentIds: any,
-  pinnedComments: Array<Comment>,
-  topLevelComments: Array<Comment>,
-  topLevelTotalPages: number,
+// ****************************************************************************
+// ****************************************************************************
+
+export type Props = {|
   uri: string,
-  claimId?: string,
-  channelId?: string,
-  claimIsMine: boolean,
+  linkedCommentId?: string,
+  commentsAreExpanded?: boolean,
+  threadCommentId: ?string,
+  notInDrawer?: boolean,
+|};
+
+type StateProps = {|
+  topLevelComments: Array<Comment>,
+  pinnedComments: Array<Comment>,
+  allCommentIds: Array<CommentId>,
+  threadComment: ?Comment, // comment object for 'threadCommentId'
+  totalComments: number,
+  topLevelTotalPages: number,
+  threadCommentAncestors: ?Array<string>,
+  linkedCommentAncestors: ?Array<string>,
+  myReactsByCommentId: ?{ [string]: Array<string> }, // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
+  othersReactsById: ?{ [string]: { [REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]: number } },
+  commentsEnabledSetting: ?boolean,
+  claimId: ?string,
+  channelId: ?string,
+  claimIsMine: ?boolean,
+  activeChannelId: ?string,
   isFetchingComments: boolean,
   isFetchingTopLevelComments: boolean,
   isFetchingReacts: boolean,
-  linkedCommentId?: string,
-  totalComments: number,
   fetchingChannels: boolean,
-  myReactsByCommentId: ?{ [string]: Array<string> }, // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
-  othersReactsById: ?{ [string]: { [REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]: number } },
-  activeChannelId: ?string,
-  commentsEnabledSetting: ?boolean,
-  commentsAreExpanded?: boolean,
-  threadCommentId: ?string,
-  threadComment: ?Comment,
-  notInDrawer?: boolean,
-  threadCommentAncestors: ?Array<string>,
-  linkedCommentAncestors: ?Array<string>,
+  chatCommentsRestrictedToChannelMembers: boolean,
+  isAChannelMember: boolean,
+  scheduledState: ClaimScheduledState,
+|};
+
+type DispatchProps = {|
   fetchTopLevelComments: (
     uri: string,
     parentId: ?string,
     page: number,
     pageSize: number,
     sortBy: number,
-    isLivestream?: boolean,
-    isProtected?: boolean,
-    requesterChannelId?: ?string
+    isLivestream?: boolean
   ) => void,
-  fetchComment: (commentId: string) => void,
-  fetchReacts: (commentIds: Array<string>) => Promise<any>,
-  resetComments: (claimId: string) => void,
+  fetchComment: (CommentId) => void,
+  fetchReacts: (Array<CommentId>) => Promise<any>,
+  resetComments: (ClaimId) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
-  doPopOutInlinePlayer: (param: { source: string }) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
-  creatorsMemberships: Array<Membership>,
-  chatCommentsRestrictedToChannelMembers: boolean,
-  isAChannelMember: boolean,
-};
+  doPopOutInlinePlayer: (param: { source: string }) => void,
+|};
 
-export default function CommentList(props: Props) {
+// ****************************************************************************
+// CommentList
+// ****************************************************************************
+
+export default function CommentList(props: Props & StateProps & DispatchProps) {
   const {
     allCommentIds,
     uri,
@@ -114,6 +126,7 @@ export default function CommentList(props: Props) {
     doFetchChannelMembershipsForChannelIds,
     chatCommentsRestrictedToChannelMembers,
     isAChannelMember,
+    scheduledState,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -265,17 +278,7 @@ export default function CommentList(props: Props) {
         }
       }
 
-      fetchTopLevelComments(
-        uri,
-        undefined,
-        page,
-        COMMENT_PAGE_SIZE_TOP_LEVEL,
-        sort,
-        false,
-        // protected comments params
-        chatCommentsRestrictedToChannelMembers,
-        activeChannelId
-      );
+      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false);
     }
   }, [currentFetchedPage, fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId, uri]);
 
@@ -283,6 +286,7 @@ export default function CommentList(props: Props) {
     if (threadCommentId) {
       refreshComments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [threadCommentId]);
 
   // Fetch reacts
@@ -337,7 +341,7 @@ export default function CommentList(props: Props) {
 
       const rect = spinnerRef.current.getBoundingClientRect(); // $FlowFixMe
       const windowH = window.innerHeight || document.documentElement.clientHeight; // $FlowFixMe
-      const windowW = window.innerWidth || document.documentElement.clientWidth; // $FlowFixMe
+      const windowW = window.innerWidth || document.documentElement.clientWidth;
 
       const isApproachingViewport = yPrefetchPx !== 0 && rect.top < windowH + scaleToDevicePixelRatio(yPrefetchPx);
 
@@ -346,9 +350,7 @@ export default function CommentList(props: Props) {
         rect.height > 0 &&
         rect.bottom >= 0 &&
         rect.right >= 0 &&
-        // $FlowFixMe
         rect.top <= windowH &&
-        // $FlowFixMe
         rect.left <= windowW;
 
       return (isInViewport || isApproachingViewport) && page < topLevelTotalPages;
@@ -392,11 +394,11 @@ export default function CommentList(props: Props) {
   const commentProps = {
     isTopLevel: true,
     uri,
-    claimIsMine,
     linkedCommentId,
     threadCommentId,
     threadDepthLevel,
   };
+
   const actionButtonsProps = {
     uri,
     totalComments,
@@ -404,6 +406,11 @@ export default function CommentList(props: Props) {
     changeSort,
     handleRefresh: refreshComments,
   };
+
+  if (scheduledState === 'scheduled') {
+    // Not ready yet, so hide it.
+    return null;
+  }
 
   return (
     <Card
@@ -447,10 +454,15 @@ export default function CommentList(props: Props) {
           >
             {readyToDisplayComments && (
               <>
-                {pinnedComments && !threadCommentId && (
-                  <CommentElements comments={pinnedComments} disabled={notAuthedToChat} {...commentProps} />
-                )}
-                <CommentElements comments={topLevelComments} disabled={notAuthedToChat} {...commentProps} />
+                {pinnedComments &&
+                  !threadCommentId &&
+                  pinnedComments.map((c) => (
+                    <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+                  ))}
+
+                {topLevelComments.map((c) => (
+                  <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
+                ))}
               </>
             )}
           </ul>
@@ -498,19 +510,6 @@ export default function CommentList(props: Props) {
     />
   );
 }
-
-type CommentProps = {
-  comments: Array<Comment>,
-  disabled?: boolean,
-};
-
-const CommentElements = (commentProps: CommentProps) => {
-  const { comments, disabled, ...commentsProps } = commentProps;
-
-  return comments.map((comment) => (
-    <CommentView key={comment.comment_id} comment={comment} disabled={disabled} {...commentsProps} />
-  ));
-};
 
 type ActionButtonsProps = {
   uri: string,

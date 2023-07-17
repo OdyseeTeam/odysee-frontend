@@ -215,8 +215,8 @@
 @mixin handleClaimTileGifThumbnail($width) {
   .ff-canvas,
   .freezeframe-img {
-    height: calc(#{$width} * (9 / 16)) !important;
-    width: $width;
+    // height: calc(#{$width} * (9 / 16)) !important;
+    // width: $width;
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
@@ -225,8 +225,8 @@
 @mixin handleClaimListGifThumbnail($width) {
   .ff-canvas,
   .freezeframe-img {
-    height: calc(#{$width} * (9 / 16)) !important;
-    width: $width;
+    // height: calc(#{$width} * (9 / 16)) !important;
+    // width: $width;
   }
 }
 
@@ -237,8 +237,10 @@
   .ff-canvas,
   .freezeframe-img {
     border-radius: 50%;
-    height: $size !important;
-    width: $size !important;
+    width: 100%;
+    height: 100%;
+    // height: $size !important;
+    // width: $size !important;
   }
 }
 
@@ -250,7 +252,6 @@
   label {
     padding: var(--spacing-xxxs) var(--spacing-s);
     border-radius: var(--border-radius);
-
     &::before,
     &::after {
       display: none;
@@ -333,7 +334,7 @@
       background-color: rgba(var(--color-membership-6), 0.2);
 
       &:hover {
-        background-color: rgba(var(--color-membership-6), 1);
+        background-color: rgba(var(--color-membership-6), 0.4);
       }
     }
     input[type='checkbox']:checked + label {

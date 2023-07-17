@@ -8,17 +8,25 @@
   padding: var(--spacing-xl);
   font-size: var(--font-small);
 
+  opacity: 0;
+  animation: fadeIn 2s;
+  animation-delay: 2s;
+  animation-fill-mode: forwards;
+
   @media (max-width: $breakpoint-small) {
     max-width: 100%;
     padding: var(--spacing-m);
     padding-left: var(--spacing-s);
-    align-items: flex-start;
+    margin-bottom: var(--spacing-xl);
   }
 }
 
 .footer__links {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 
   .navigation-link {
     font-size: var(--font-small);

@@ -36,6 +36,7 @@ const defaultState: CollectionState = {
     type: COLS.COL_TYPES.PLAYLIST,
   },
   resolvedIds: undefined,
+  thumbnailClaimsFetchingCollectionIds: [],
 };
 
 const collectionsReducer = handleActions(
@@ -88,22 +89,33 @@ const collectionsReducer = handleActions(
       const newEditList = Object.assign({}, state.edited);
       const newUnpublishedList = Object.assign({}, state.unpublished);
       const newUpdatedList = Object.assign({}, state.updated);
+      const newUnsavedChangesList = Object.assign({}, state.unsavedChanges);
       if (newEditList[collectionId]) delete newEditList[collectionId];
       if (newUnpublishedList[collectionId]) delete newUnpublishedList[collectionId];
       if (newUpdatedList[collectionId]) delete newUpdatedList[collectionId];
+      if (newUnsavedChangesList[collectionId]) delete newUnsavedChangesList[collectionId];
 
-      return { ...state, edited: newEditList, unpublished: newUnpublishedList, updated: newUpdatedList };
+      return {
+        ...state,
+        edited: newEditList,
+        unpublished: newUnpublishedList,
+        updated: newUpdatedList,
+        unsavedChanges: newUnsavedChangesList,
+      };
     },
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {
       const { id, collectionKey } = action.data;
 
       const collectionsByIdForKey = Object.assign({}, state[collectionKey]);
-      delete collectionsByIdForKey[id];
+      if (collectionsByIdForKey[id]) delete collectionsByIdForKey[id];
 
       return {
         ...state,
         [collectionKey]: collectionsByIdForKey,
-        lastUsedCollection: state.lastUsedCollection === id ? undefined : state.lastUsedCollection,
+        lastUsedCollection:
+          state.lastUsedCollection === id && collectionKey !== COLS.KEYS.UNSAVED_CHANGES
+            ? null
+            : state.lastUsedCollection,
       };
     },
 
@@ -137,13 +149,8 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
-      const {
-        builtinCollections,
-        savedCollectionIds,
-        unpublishedCollections,
-        editedCollections,
-        updatedCollections,
-      } = action.data;
+      const { builtinCollections, savedCollectionIds, unpublishedCollections, editedCollections, updatedCollections } =
+        action.data;
 
       return {
         ...state,
@@ -207,6 +214,23 @@ const collectionsReducer = handleActions(
       }
 
       return { ...state, collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds) };
+    },
+
+    [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_START]: (state, action) => {
+      const collectionIds = action.data;
+
+      const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
+      newThumbnailClaimsFetchingCollectionIds.add(collectionIds);
+
+      return { ...state, thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds) };
+    },
+    [ACTIONS.COLLECTION_THUMBNAIL_CLAIMS_RESOLVE_COMPLETE]: (state, action) => {
+      const collectionIds = action.data;
+
+      const newThumbnailClaimsFetchingCollectionIds = new Set(state.thumbnailClaimsFetchingCollectionIds);
+      newThumbnailClaimsFetchingCollectionIds.delete(collectionIds);
+
+      return { ...state, thumbnailClaimsFetchingCollectionIds: Array.from(newThumbnailClaimsFetchingCollectionIds) };
     },
   },
   defaultState

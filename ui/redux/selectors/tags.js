@@ -1,8 +1,6 @@
 // @flow
 import { createSelector } from 'reselect';
 
-type State = { tags: TagState };
-
 const selectState = (state: State) => state.tags || {};
 
 export const selectKnownTagsByName = (state: State): KnownTags => selectState(state).knownTags;

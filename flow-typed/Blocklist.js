@@ -1,6 +1,7 @@
 declare type BlocklistState = {
   blockedChannels: Array<string>,
   geoBlockedList: ?GBL,
+  gblFetchFailed: ?boolean,
 };
 
 declare type BlocklistAction = {

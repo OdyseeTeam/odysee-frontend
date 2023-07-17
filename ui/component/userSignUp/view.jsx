@@ -15,11 +15,15 @@ import { YOUTUBE_STATUSES } from 'lbryinc';
 import REWARDS from 'rewards';
 import UserVerify from 'component/userVerify';
 import Spinner from 'component/spinner';
-import YoutubeTransferStatus from 'component/youtubeTransferStatus';
 import useFetched from 'effects/use-fetched';
 import Confetti from 'react-confetti';
 import usePrevious from 'effects/use-previous';
+import { lazyImport } from 'util/lazyImport';
 import { SHOW_TAGS_INTRO } from 'config';
+
+const YoutubeTransferStatus = lazyImport(() =>
+  import('component/youtubeTransferStatus' /* webpackChunkName: "youtubeTransferStatus" */)
+);
 
 const REDIRECT_PARAM = 'redirect';
 const REDIRECT_IMMEDIATELY_PARAM = 'immediate';
@@ -135,6 +139,7 @@ function UserSignUp(props: Props) {
     if (previousHasVerifiedEmail === false && hasVerifiedEmail && prefsReady) {
       setSettingAndSync(SETTINGS.FIRST_RUN_STARTED, true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [hasVerifiedEmail, previousHasVerifiedEmail, prefsReady]);
 
   React.useEffect(() => {
@@ -220,7 +225,9 @@ function UserSignUp(props: Props) {
     ),
     showYoutubeTransfer && (
       <div>
-        <YoutubeTransferStatus /> <Confetti recycle={false} style={{ position: 'fixed' }} />
+        <React.Suspense fallback={null}>
+          <YoutubeTransferStatus /> <Confetti recycle={false} style={{ position: 'fixed' }} />
+        </React.Suspense>
       </div>
     ),
     showLoadingSpinner && (

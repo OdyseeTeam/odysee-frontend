@@ -1,0 +1,66 @@
+.collection-edit__wrapper {
+  h2 {
+    font-size: var(--font-large);
+    font-weight: var(--font-weight-bold);
+    margin-top: var(--spacing-l);
+  }
+
+  .collection__name-wrapper {
+    .collection__name {
+      padding: var(--spacing-s);
+      background-color: var(--color-header-button);
+      border-radius: var(--border-radius);
+      fieldset-group {
+        label {
+          display: none;
+        }
+      }
+
+      input {
+        background-color: var(--color-background);
+      }
+    }
+  }
+
+  .collection__title {
+    fieldset-section {
+      padding: var(--spacing-s);
+      background-color: var(--color-header-button) !important;
+      border-radius: var(--border-radius);
+      input {
+        background-color: var(--color-background);
+      }
+    }
+  }
+
+  .card--thumbnail,
+  .EasyMDEContainer {
+    padding: var(--spacing-s);
+  }
+  .card--thumbnail {
+    background-color: var(--color-header-button);
+    border-radius: var(--border-radius);
+    fieldset-section {
+      input {
+        background-color: var(--color-background);
+      }
+      button {
+        background-color: var(--color-primary);
+        .button__label {
+          color: var(--color-primary-contrast);
+        }
+      }
+    }
+  }
+
+  .form-field--SimpleMDE {
+    margin-top: 0;
+    .form-field__two-column {
+      display: none;
+    }
+    .EasyMDEContainer {
+      background-color: var(--color-header-button);
+      border-radius: var(--border-radius);
+    }
+  }
+}

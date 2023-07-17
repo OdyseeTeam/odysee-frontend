@@ -25,7 +25,7 @@ function PublishName(props: Props) {
   const { name, bid } = params;
 
   React.useEffect(() => {
-    if (name && isNameValid(name)) doResolveUri(buildURI({ streamName: name }), true);
+    if (name && isNameValid(name)) doResolveUri(buildURI({ streamName: name }, true), true);
   }, [doResolveUri, name]);
 
   return (

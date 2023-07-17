@@ -1,12 +1,8 @@
 // @flow
 import React from 'react';
-
 import { ODYSEE_CHANNEL } from 'constants/channels';
-
 import * as ICONS from 'constants/icons';
-
 import usePersistedState from 'effects/use-persisted-state';
-
 import Page from 'component/page';
 import Spinner from 'component/spinner';
 import Card from 'component/common/card';
@@ -16,6 +12,7 @@ import ChannelSelector from 'component/channelSelector';
 import HelpText from './internal/help-text';
 import ClearMembershipDataButton from 'component/clearMembershipData';
 import PremiumOption from './internal/premiumOption';
+import './style.scss';
 
 type Props = {
   // -- redux --
@@ -51,9 +48,8 @@ const OdyseeMembershipPage = (props: Props) => {
   const stillWaitingFromBackend = membershipOptions === undefined || !mineFetched;
 
   const urlSearchParams = new URLSearchParams(window.location.search);
-  const params = Object.fromEntries(urlSearchParams.entries());
-
-  const { interval, plan: planValue } = params;
+  const interval = urlSearchParams.get('interval') || undefined;
+  const planValue = urlSearchParams.get('plan') || undefined;
 
   // add a bit of a delay otherwise it's a bit jarring
   const timeoutValue = 300;

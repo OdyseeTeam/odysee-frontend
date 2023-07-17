@@ -1,6 +1,4 @@
 // @flow
-import 'scss/component/_header.scss';
-
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';

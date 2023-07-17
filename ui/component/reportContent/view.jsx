@@ -1,10 +1,12 @@
 // @flow
+import type { SendContentReportFn } from 'services/reportContent';
+
 import React from 'react';
 import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
 import Card from 'component/common/card';
 import ClaimPreview from 'component/claimPreview';
-import Comment from 'component/comment';
+import CommentView from 'component/comment';
 import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import ErrorText from 'component/common/error-text';
@@ -62,31 +64,27 @@ type Props = {
   // --- urlParams ---
   claimId: string,
   commentId?: string,
-  // --- redux ---
+  // --- internal ---
   claim: StreamClaim,
   comment?: Comment,
-  isReporting: boolean,
-  error: string,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
+  sendContentReport: SendContentReportFn,
   doClaimSearch: (any) => Promise<any>,
   doCommentById: (string, boolean) => Promise<any>,
-  doReportContent: (string, string) => void,
 };
 
 export default function ReportContent(props: Props) {
   const {
-    isReporting,
-    error,
     activeChannelClaim,
     incognito,
     claimId,
     commentId,
     claim,
     comment,
+    sendContentReport,
     doClaimSearch,
     doCommentById,
-    doReportContent,
   } = props;
 
   const [input, setInput] = React.useState({ ...DEFAULT_INPUT_DATA });
@@ -94,6 +92,9 @@ export default function ReportContent(props: Props) {
   const [timestampInvalid, setTimestampInvalid] = React.useState(false);
   const [isResolvingClaim, setIsResolvingClaim] = React.useState(false);
   const [isResolvingComment, setIsResolvingComment] = React.useState(false);
+  const [isReporting, setIsReporting] = React.useState();
+  const [error, setError] = React.useState();
+
   const { goBack } = useHistory();
 
   // Resolve claim if URL is entered directly or if page is reloaded.
@@ -124,6 +125,7 @@ export default function ReportContent(props: Props) {
   // On mount, pause player and get the timestamp, if applicable.
   React.useEffect(() => {
     if (window.player) {
+      // TODO: should create a doPlayerPause() thunk action instead of getting from window.
       window.player.pause();
 
       const seconds = window.player.currentTime();
@@ -217,7 +219,26 @@ export default function ReportContent(props: Props) {
         break;
     }
 
-    doReportContent(input.category, params.join('&'));
+    setError('');
+    setIsReporting(true);
+
+    sendContentReport(input.category, params.join('&'))
+      .then((response) => {
+        if (response) {
+          response
+            .json()
+            .then((json) => {
+              if (!json.success) {
+                setError(json.error);
+              }
+            })
+            .catch(() => setError('Server error: Invalid response'));
+        } else {
+          setError('Server error: No response');
+        }
+      })
+      .catch(() => setError('Failed to send report.'))
+      .finally(() => setIsReporting(false));
   }
 
   function updateInput(field: string, value: any) {
@@ -761,7 +782,7 @@ export default function ReportContent(props: Props) {
   function getCommentPreviews(comment: ?Comment) {
     return comment ? (
       <div className="section non-clickable">
-        <Comment comment={comment} isTopLevel hideActions hideContextMenu />
+        <CommentView comment={comment} isTopLevel hideActions hideContextMenu />
       </div>
     ) : null;
   }

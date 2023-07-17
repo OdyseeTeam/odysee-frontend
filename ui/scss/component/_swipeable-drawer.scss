@@ -5,10 +5,12 @@
   left: 0;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
-  background-color: var(--mui-background);
+  background-color: var(--color-background);
   border-top: 1px solid var(--color-border);
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
+  top: -120px;
+  height: 120px;
 
   .button--close {
     top: 2px !important;
@@ -28,6 +30,7 @@
   position: absolute;
   top: 8px;
   left: calc(50% - 15px);
+  background-color: var(--color-text);
 }
 
 .MuiDrawer-root > .MuiPaper-root {
@@ -40,20 +43,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--spacing-s) var(--spacing-xxs);
-  padding-bottom: var(--spacing-xxxs);
-  //padding-top:var(--spacing-xxxs);
   font-size: var(--font-small);
-}
 
-.swipeable-drawer__header--with-subtitle {
-  padding: var(--spacing-xxs);
-  padding-top: 4px;
+  h2:not(.card__title) {
+    padding: var(--spacing-s);
+    margin-top: var(--spacing-s);
+  }
 }
 
 .swipeable-drawer__menu {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 
   svg {
     margin-left: var(--spacing-xxs);
@@ -97,9 +97,8 @@
   border-radius: 0 !important;
   &.button--primary {
     padding-left: var(--spacing-xxs);
-    // border-top:1px solid var(--color-border);
-    // border-bottom:1px solid var(--color-border);
-    background-color: var(--color-header-background) !important;
+    background-color: var(--color-header-button) !important;
+    border-radius: var(--border-radius) !important;
     .button__content {
       .icon {
         stroke: var(--color-text);
@@ -115,5 +114,31 @@
     bottom: 0;
     top: unset;
     margin: 0px;
+    border-top: 1px solid var(--color-header-button);
+    z-index: 9999;
+  }
+}
+
+.chat-card--drawer-header {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+
+  .chat-card--drawer-header-mode {
+    padding: var(--spacing-s);
+    margin-top: var(--spacing-m);
+
+    .button-toggle {
+      padding: 0 var(--spacing-s);
+      height: var(--height-button-mobile);
+    }
+  }
+  .menu__button {
+    opacity: 1;
+    margin-right: var(--spacing-xs);
+  }
+
+  button:last-of-type {
+    margin-left: auto;
   }
 }

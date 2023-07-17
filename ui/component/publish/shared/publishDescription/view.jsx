@@ -10,7 +10,7 @@ type Props = {
   disabled: boolean,
   // --- redux ---
   description: ?string,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
 };
 
 function PublishDescription(props: Props) {
@@ -22,8 +22,6 @@ function PublishDescription(props: Props) {
 
   return (
     <>
-      {disabled && <h2 className="card__title card__title-disabled">{__('Description')}</h2>}
-      {!disabled && <h2 className="card__title">{__('Description')}</h2>}
       <Card
         className="card--description"
         actions={

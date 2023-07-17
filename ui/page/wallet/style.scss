@@ -1,0 +1,16 @@
+@import '~ui/scss/init/breakpoints';
+
+.transactionsPage-wrapper {
+  .credit-amount {
+    font-size: var(--font-body);
+  }
+  .card__actions {
+    align-items: end;
+  }
+  .empty {
+    .spinner {
+      border: unset;
+      background: unset;
+    }
+  }
+}

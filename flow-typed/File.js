@@ -47,7 +47,7 @@ declare type FileState = {
 };
 
 declare type PurchaseUriCompleted = {
-  type: ACTIONS.PURCHASE_URI_COMPLETED,
+  type: 'PURCHASE_URI_COMPLETED', // ACTIONS.PURCHASE_URI_COMPLETED,
   data: {
     uri: string,
     streamingUrl: string,
@@ -55,7 +55,7 @@ declare type PurchaseUriCompleted = {
 };
 
 declare type PurchaseUriFailed = {
-  type: ACTIONS.PURCHASE_URI_FAILED,
+  type: 'PURCHASE_URI_FAILED', // ACTIONS.PURCHASE_URI_FAILED,
   data: {
     uri: string,
     error: any,
@@ -63,7 +63,7 @@ declare type PurchaseUriFailed = {
 };
 
 declare type PurchaseUriStarted = {
-  type: ACTIONS.PURCHASE_URI_STARTED,
+  type: 'PURCHASE_URI_STARTED', // ACTIONS.PURCHASE_URI_STARTED,
   data: {
     uri: string,
     streamingUrl: string,
@@ -71,8 +71,12 @@ declare type PurchaseUriStarted = {
 };
 
 declare type DeletePurchasedUri = {
-  type: ACTIONS.CLEAR_PURCHASED_URI_SUCCESS,
+  type: 'CLEAR_PURCHASED_URI_SUCCESS', // ACTIONS.CLEAR_PURCHASED_URI_SUCCESS,
   data: {
     uri: string,
   },
+};
+
+declare type FileGetOptions = {
+  uriAccessKey?: UriAccessKey,
 };

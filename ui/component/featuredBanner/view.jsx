@@ -7,7 +7,7 @@ import * as SETTINGS from 'constants/settings';
 import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
 import { useHistory } from 'react-router';
-import './style.scss';
+import './style.lazy.scss';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
@@ -58,8 +58,13 @@ export default function FeaturedBanner(props: Props) {
     if (uri.includes('odysee.com')) {
       uri = uri.substring(uri.indexOf('odysee.com') + 10);
     }
+    let search;
+    if (uri.includes('?lid=')) {
+      search = uri.substring(uri.indexOf('?lid='));
+    }
     return {
       pathname: uri,
+      search: search || undefined,
     };
   }
 
@@ -161,29 +166,31 @@ export default function FeaturedBanner(props: Props) {
             );
           })}
       </div>
-      <div className="banner-browse left" onClick={() => setIndex(index > 1 ? index - 1 : featured.items.length)}>
-        ‹
-      </div>
-      <div className="banner-browse right" onClick={() => setIndex(index < featured.items.length ? index + 1 : 1)}>
-        ›
-      </div>
-      <div className="banner-active-indicator">
-        {featured &&
-          featured.items.map((item, i) => {
-            return (
-              <div
-                key={i}
-                className={i + 1 === index ? 'banner-active-indicator-active' : ''}
-                onClick={() => setIndex(i + 1)}
-              />
-            );
-          })}
-      </div>
-      {authenticated && (
-        <div className="featured-banner-remove" onClick={() => removeBanner()}>
-          <Icon icon={ICONS.REMOVE} />
+      <div className="banner-controls">
+        <div className="banner-browse left" onClick={() => setIndex(index > 1 ? index - 1 : featured.items.length)}>
+          ‹
         </div>
-      )}
+        <div className="banner-browse right" onClick={() => setIndex(index < featured.items.length ? index + 1 : 1)}>
+          ›
+        </div>
+        <div className="banner-active-indicator">
+          {featured &&
+            featured.items.map((item, i) => {
+              return (
+                <div
+                  key={i}
+                  className={i + 1 === index ? 'banner-active-indicator-active' : ''}
+                  onClick={() => setIndex(i + 1)}
+                />
+              );
+            })}
+        </div>
+        {authenticated && (
+          <div className="featured-banner-remove" onClick={() => removeBanner()}>
+            <Icon icon={ICONS.REMOVE} />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

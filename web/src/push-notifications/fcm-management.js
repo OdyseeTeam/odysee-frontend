@@ -3,12 +3,14 @@
  * This module is responsible for persisting information about push notification
  * registrations to local storage.
  */
+import { LocalStorage } from 'util/storage';
+
 const registrations = (): Array<string> => {
-  return JSON.parse(localStorage.getItem('fcm') || '[]');
+  return JSON.parse(LocalStorage.getItem('fcm') || '[]');
 };
 
 const updateRegistrations = (data) => {
-  localStorage.setItem('fcm', JSON.stringify(data));
+  LocalStorage.setItem('fcm', JSON.stringify(data));
 };
 
 export const addRegistration = (userId: number) => {
@@ -17,7 +19,7 @@ export const addRegistration = (userId: number) => {
 };
 
 export const removeRegistration = (userId: number) => {
-  console.log('registrations(): ', registrations())
+  console.log('registrations(): ', registrations());
   const data = registrations().filter((id) => id !== userId);
   updateRegistrations(data);
 };

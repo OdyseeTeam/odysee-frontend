@@ -25,6 +25,7 @@ import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguag
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetGdprConsentList } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
+import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import App from './view';
 
 const select = (state) => ({
@@ -47,6 +48,7 @@ const select = (state) => ({
   defaultChannelClaim: selectDefaultChannelClaim(state),
   nagsShown: selectAnyNagsShown(state),
   announcement: selectHomepageAnnouncement(state),
+  hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
 });
 
 const perform = {

@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { makeSelectClaimForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectIsStreamPlaceholderForUri, selectClaimForUri } from 'redux/selectors/claims';
 import FileType from './view';
 
 const select = (state, props) => ({
-  claim: makeSelectClaimForUri(props.uri)(state),
+  claim: selectClaimForUri(state, props.uri),
   isLivestream: selectIsStreamPlaceholderForUri(state, props.uri),
 });
 

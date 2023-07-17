@@ -36,6 +36,7 @@ export default function useGetThumbnail(
     if (shouldFetchFileInfo) {
       getFile(repostSrcUri || uri);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [shouldFetchFileInfo, repostSrcUri, uri]);
 
   React.useEffect(() => {

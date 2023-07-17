@@ -1,5 +1,5 @@
 // @flow
-import { MATURE_TAGS } from 'constants/tags';
+import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import { parseURI } from 'util/lbryURI';
 
 const matureTagMap = MATURE_TAGS.reduce((acc, tag) => ({ ...acc, [tag]: true }), {});
@@ -16,7 +16,7 @@ export const isClaimNsfw = (claim: Claim): boolean => {
   const tags = claim.value.tags || [];
   for (let i = 0; i < tags.length; i += 1) {
     const tag = tags[i].toLowerCase();
-    if (matureTagMap[tag]) {
+    if (matureTagMap.hasOwnProperty(tag)) {
       return true;
     }
   }
@@ -24,7 +24,7 @@ export const isClaimNsfw = (claim: Claim): boolean => {
   return false;
 };
 
-export function createNormalizedClaimSearchKey(options: { page?: number, release_time?: string }) {
+export function createNormalizedClaimSearchKey(options: ClaimSearchOptions) {
   // Ignore page because we don't care what the last page searched was, we want everything
   // Ignore release_time because that will change depending on when you call claim_search ex: release_time: ">12344567"
   const { page: optionToIgnoreForQuery, release_time: anotherToIgnore, ...rest } = options;
@@ -148,6 +148,50 @@ export function getChannelPermanentUrlFromClaim(claim: ?Claim) {
 export function getClaimMetadata(claim: ?Claim) {
   const metadata = claim && claim.value;
   return metadata || (claim === undefined ? undefined : null);
+}
+
+export function getClaimTags(claim: ?Claim) {
+  const metadata = getClaimMetadata(claim);
+  return metadata && metadata.tags;
+}
+
+export function claimContainsTag(claim: ?Claim, tag: string) {
+  const metadata = getClaimMetadata(claim);
+  if (metadata && metadata.tags) {
+    return metadata.tags.includes(tag);
+  }
+  return false;
+}
+
+export function isClaimProtected(claim: ?Claim) {
+  const tags = getClaimTags(claim);
+  return tags && tags.includes(MEMBERS_ONLY_CONTENT_TAG);
+}
+
+export function isClaimUnlisted(claim: ?Claim) {
+  const tags = getClaimTags(claim);
+  return tags ? tags.includes(VISIBILITY_TAGS.UNLISTED) : false;
+}
+
+export function isClaimPrivate(claim: ?Claim) {
+  const tags = getClaimTags(claim);
+  return tags ? tags.includes(VISIBILITY_TAGS.PRIVATE) : false;
+}
+
+export function getClaimScheduledState(claim: ?Claim): ClaimScheduledState {
+  const tags = getClaimTags(claim);
+  if (tags && (tags.includes(SCHEDULED_TAGS.SHOW) || tags.includes(SCHEDULED_TAGS.HIDE))) {
+    // $FlowFixMe
+    const releaseTime = claim?.value?.release_time;
+    if (releaseTime) {
+      return Date.now() > releaseTime * 1000 ? 'started' : 'scheduled';
+    } else {
+      assert(false, 'scheduled claim without a release date');
+      return 'scheduled';
+    }
+  }
+
+  return 'non-scheduled';
 }
 
 export function getClaimTitle(claim: ?Claim) {

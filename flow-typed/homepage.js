@@ -11,6 +11,17 @@ declare type HomepageData = {
   default: (any) => any,
 };
 
+declare type HomepagesDb = {
+  [string]: {
+    categories: {},
+    portals: {},
+    featured: {},
+    meme: string,
+    discover: Array<string>,
+    announcement: string,
+  }
+};
+
 declare type RowDataItem = {
   id: string,
   title: any,

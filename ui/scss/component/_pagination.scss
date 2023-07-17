@@ -1,7 +1,13 @@
 .pagination {
-  @extend .ul--no-style;
-  display: flex;
+  display: flex !important;
   align-items: center;
+  .ul--no-style {
+    max-height: 100%;
+    overflow-y: scroll !important;
+    &::-webkit-scrollbar {
+      background-color: var(--color-border) !important;
+    }
+  }
 
   + .form-field {
     margin-left: var(--spacing-m);
@@ -18,6 +24,7 @@
 
   border-radius: 50%;
   text-align: center;
+  list-style-type: none;
 
   &:not(.pagination__item--selected):hover {
     background-color: var(--color-button-secondary-bg);
@@ -27,7 +34,8 @@
     color: var(--color-button-secondary-text);
 
     &:hover {
-      background-color: var(--color-button-secondary-bg-hover);
+      background-color: var(--color-primary);
+      color: var(--color-primary-contrast);
     }
   }
 
@@ -67,7 +75,7 @@
   line-height: 1.5;
   position: relative;
   padding-top: var(--spacing-s);
-  background-color: var(--color-header-background);
+  background-color: var(--color-header-button);
   margin-bottom: 0px !important;
 
   @media (max-width: $breakpoint-small) {
@@ -76,11 +84,13 @@
 }
 
 .pagination__item--selected {
-  background-color: var(--color-button-secondary-bg);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast) !important;
 }
 
 .paginate-channel {
   width: 5rem;
   border-top-left-radius: var(--border-radius);
   border-bottom-left-radius: var(--border-radius);
+  background-color: var(--color-header-button);
 }

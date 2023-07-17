@@ -7,6 +7,8 @@ import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import usePersistedState from 'effects/use-persisted-state';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 import './style.scss';
 
 var accept = '.png, .jpg, .jpeg, .gif';
@@ -17,7 +19,7 @@ type Props = {
   assetName: string,
   currentValue: ?string,
   otherValue: ?string,
-  onUpdate: (string, boolean) => void,
+  onUpdate: (any, any) => void,
   recommended: string,
   title: string,
   onDone?: () => void,
@@ -34,6 +36,7 @@ function SelectAsset(props: Props) {
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
+  const [imageTitle, setImageTitle] = React.useState();
 
   React.useEffect(() => {
     if (useUrl) {
@@ -50,7 +53,9 @@ function SelectAsset(props: Props) {
 
     const onSuccess = (thumbnailUrl) => {
       setUploadStatus(STATUS.READY);
-      onUpdate(thumbnailUrl, !useUrl);
+
+      if (assetName !== 'Image') onUpdate(thumbnailUrl, !useUrl);
+      else onUpdate(thumbnailUrl, imageTitle);
 
       if (onDone) {
         onDone();
@@ -104,22 +109,22 @@ function SelectAsset(props: Props) {
   const currentPlaceholder = pathSelected ? imagePreview : currentValue;
   const ChannelPreview = () => {
     return (
-      <div className="channel-preview-wrapper">
+      <div className="channel-preview__wrapper">
         <div
-          className="channel-preview-header"
+          className="channel-preview__header"
           style={{
             backgroundImage:
               'url(' + (assetName === 'Cover Image' ? String(currentPlaceholder) : String(otherValue)) + ')',
           }}
         />
-        <div className="channel-preview-tabs" />
-        <div className="channel-preview-thumbnail">
+        <div className="channel-preview__tabs" />
+        <div className="channel-preview__thumbnail">
           {otherValue && <img src={assetName === 'Cover Image' ? String(otherValue) : String(currentPlaceholder)} />}
         </div>
-        <div className="channel-preview-grid">
+        <div className="channel-preview__grid">
           {Array.from(Array(6), (e, i) => {
             return (
-              <div className="channel-preview-grid-tile">
+              <div className="channel-preview__grid-tile" key={i}>
                 <div />
                 <div />
                 <div />
@@ -141,18 +146,39 @@ function SelectAsset(props: Props) {
       <fieldset-section>
         {uploadErrorMsg && <div className="error__text">{uploadErrorMsg}</div>}
         {useUrl ? (
-          <FormField
-            autoFocus
-            type={'text'}
-            name={'thumbnail'}
-            label={label}
-            placeholder={`https://example.com/image.png`}
-            value={url}
-            onChange={(e) => {
-              setUrl(e.target.value);
-              onUpdate(e.target.value, !useUrl);
-            }}
-          />
+          <>
+            <FormField
+              autoFocus
+              type={'text'}
+              name={'thumbnail'}
+              label={label}
+              placeholder={`https://example.com/image.png`}
+              value={url}
+              onChange={(e) => {
+                setUrl(e.target.value);
+                assetName !== 'Image' && onUpdate(e.target.value, !useUrl);
+              }}
+            />
+            {assetName === 'Image' && (
+              <div className="image-upload-wrapper">
+                <FormField
+                  type={'text'}
+                  name={'thumbnail'}
+                  label={__('Title (optional)')}
+                  placeholder={__('Describe your image...')}
+                  value={imageTitle}
+                  onChange={(e) => {
+                    setImageTitle(e.target.value);
+                  }}
+                />
+                <div className="preview-image__wrapper">
+                  <div className="preview-image__container">
+                    {url ? <img className="preview-image" src={String(url)} /> : <Icon icon={ICONS.IMAGE} />}
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <>
             <FileSelector
@@ -180,6 +206,29 @@ function SelectAsset(props: Props) {
               }}
               accept={accept}
             />
+            {assetName === 'Image' && (
+              <div className="image-upload__wrapper">
+                <FormField
+                  type={'text'}
+                  name={'thumbnail'}
+                  label={__('Title (optional)')}
+                  placeholder={__('Describe your image...')}
+                  value={imageTitle}
+                  onChange={(e) => {
+                    setImageTitle(e.target.value);
+                  }}
+                />
+                <div className="preview-image__wrapper">
+                  <div className="preview-image__container">
+                    {currentPlaceholder ? (
+                      <img className="preview-image" src={String(currentPlaceholder)} />
+                    ) : (
+                      <Icon icon={ICONS.IMAGE} />
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             {(assetName === 'Cover Image' || assetName === 'Thumbnail') && <ChannelPreview />}
           </>
         )}
@@ -197,11 +246,14 @@ function SelectAsset(props: Props) {
             onClick={() => {
               if (!useUrl) {
                 doUploadAsset();
+              } else if (useUrl && assetName === 'Image') {
+                onUpdate(url, imageTitle);
               }
             }}
           />
         )}
         <FormField
+          className="toggle-upload-checkbox"
           name="toggle-upload"
           type="checkbox"
           label={__('Use a URL')}

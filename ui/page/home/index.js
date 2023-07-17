@@ -1,12 +1,16 @@
 import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import { doOpenModal } from 'redux/actions/app';
-import { doFetchActiveLivestreams } from 'redux/actions/livestream';
-import { selectActiveLivestreams, selectFetchingActiveLivestreams } from 'redux/selectors/livestream';
+import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
+import {
+  selectIsFetchingActiveLivestreams,
+  selectActiveLivestreamByCreatorId,
+  selectViewersById,
+} from 'redux/selectors/livestream';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUserHasValidOdyseeMembership, selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
-import { selectSubscriptions } from 'redux/selectors/subscriptions';
+import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import {
   selectShowMatureContent,
   selectHomepageData,
@@ -18,22 +22,23 @@ import HomePage from './view';
 
 const select = (state) => ({
   followedTags: selectFollowedTags(state),
-  subscribedChannels: selectSubscriptions(state),
+  subscribedChannelIds: selectSubscriptionIds(state),
   authenticated: selectUserVerifiedEmail(state),
   showNsfw: selectShowMatureContent(state),
-  homepageData: selectHomepageData(state),
+  homepageData: selectHomepageData(state) || {},
   homepageMeme: selectHomepageMeme(state),
   homepageFetched: selectHomepageFetched(state),
-  activeLivestreams: selectActiveLivestreams(state),
-  fetchingActiveLivestreams: selectFetchingActiveLivestreams(state),
+  fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   userHasOdyseeMembership: selectUserHasValidOdyseeMembership(state),
   hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
+  activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
+  livestreamViewersById: selectViewersById(state),
 });
 
 const perform = (dispatch) => ({
-  doFetchActiveLivestreams: () => dispatch(doFetchActiveLivestreams()),
+  doFetchAllActiveLivestreamsForQuery: () => dispatch(doFetchAllActiveLivestreamsForQuery()),
   doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
 });
 

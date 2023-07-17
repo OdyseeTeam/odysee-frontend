@@ -82,12 +82,18 @@ class FreezeframeLite {
     return new Promise((resolve) => {
       const { $canvas, $image, $container } = freeze;
       const { clientWidth, clientHeight } = $image;
+      const devicePixelRatio = window.devicePixelRatio || 1.0;
 
-      $canvas.setAttribute('width', clientWidth);
-      $canvas.setAttribute('height', clientHeight);
+      if (!clientWidth) {
+        $image.classList.add(classes.VISIBLE);
+        $canvas.classList.add(classes.INACTIVE);
+        return null;
+      }
+      $canvas.setAttribute('width', clientWidth * devicePixelRatio);
+      $canvas.setAttribute('height', clientHeight * devicePixelRatio);
 
       const context = $canvas.getContext('2d');
-      context.drawImage($image, 0, 0, clientWidth, clientHeight);
+      context.drawImage($image, 0, 0, clientWidth * devicePixelRatio, clientHeight * devicePixelRatio);
 
       $canvas.classList.add(classes.CANVAS_READY);
 

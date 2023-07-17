@@ -3,6 +3,7 @@ const { lbryProxy: Lbry } = require('../lbry');
 const { URL, SITE_NAME, PROXY_URL } = require('../../config.js');
 const Mime = require('mime-types');
 const Rss = require('rss');
+const moment = require('moment');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -40,6 +41,8 @@ async function getChannelClaim(name, claimId) {
 }
 
 async function getClaimsFromChannel(claimId, count) {
+  // had to hardcode because of imports vs require (requires larger refactor?)
+  const restrictedTags = ['c:disable-download', 'c:members-only', 'c:purchase', 'c:rental', 'c:unlisted'];
   const options = {
     channel_ids: [claimId],
     page_size: count,
@@ -47,6 +50,8 @@ async function getClaimsFromChannel(claimId, count) {
     claim_type: 'stream',
     order_by: ['release_time'],
     no_totals: true,
+    not_tags: restrictedTags,
+    release_time: `<${Math.floor(moment().startOf('minute').unix())}`,
   };
 
   return await doClaimSearch(options);
@@ -96,20 +101,20 @@ async function generateEnclosureForClaimContent(claim, streamUrl) {
 
     case 'audio':
       return {
-        url: streamUrl + ((fileExt === '.mpga' ? '.mp3' : fileExt) || '.mp3'),
+        url: streamUrl.replace('/v4/', '/v3/') + ((fileExt === '.mpga' ? '.mp3' : fileExt) || '.mp3'),
         type: (value.source && value.source.media_type) || 'audio/mpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
     case 'image':
       return {
-        url: streamUrl + (fileExt || '.jpeg'),
+        url: streamUrl.replace('/v4/', '/v3/') + (fileExt || '.jpeg'),
         type: (value.source && value.source.media_type) || 'image/jpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
     case 'document':
     case 'software':
       return {
-        url: streamUrl,
+        url: streamUrl.replace('/v4/', '/v3/'),
         type: (value.source && value.source.media_type) || undefined,
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };

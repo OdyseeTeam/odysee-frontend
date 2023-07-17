@@ -9,6 +9,9 @@ import { useHistory } from 'react-router-dom';
 import CollectionPublishForm from './internal/collectionPublishForm';
 import CollectionHeader from './internal/collectionHeader';
 import Spinner from 'component/spinner';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import '../playlists/style.scss';
 
 type Props = {
   // -- path match --
@@ -21,6 +24,8 @@ type Props = {
   isPrivate: boolean,
   hasPrivate: boolean,
   doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void,
+  doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
 };
 
 export const CollectionPageContext = React.createContext<any>();
@@ -37,6 +42,8 @@ const CollectionPage = (props: Props) => {
     isPrivate,
     hasPrivate,
     doResolveClaimId,
+    doCollectionEdit,
+    doRemoveFromUnsavedChangesCollectionsForCollectionId,
   } = props;
 
   const {
@@ -67,6 +74,16 @@ const CollectionPage = (props: Props) => {
     const newUrlParams = new URLSearchParams();
     newUrlParams.append(COLLECTION_PAGE.QUERIES.VIEW, COLLECTION_PAGE.VIEWS.PUBLIC);
     push(`/$/${PAGES.PLAYLIST}/${collectionId}?${newUrlParams.toString()}`);
+  }
+
+  function saveChanges() {
+    doCollectionEdit(collectionId, { isPreview: false });
+    setShowEdit(false);
+  }
+
+  function clearChanges() {
+    doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
+    setShowEdit(false);
   }
 
   React.useEffect(() => {
@@ -107,11 +124,11 @@ const CollectionPage = (props: Props) => {
   }
 
   return (
-    <Page className="playlists-page-wrapper">
+    <Page className="playlists-page__wrapper">
       <div className="section card-stack">
         <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader
-            collectionId={collectionId}
+            collection={collection}
             showEdit={showEdit}
             setShowEdit={setShowEdit}
             unavailableUris={unavailableUris}
@@ -121,11 +138,27 @@ const CollectionPage = (props: Props) => {
           <CollectionItemsList
             collectionId={collectionId}
             showEdit={showEdit}
+            isEditPreview
             unavailableUris={unavailableUris}
             showNullPlaceholder
           />
         </CollectionPageContext.Provider>
       </div>
+      {showEdit && (
+        <div className="card-fixed-bottom">
+          <Card
+            className="card--after-tabs tab__panel"
+            actions={
+              <>
+                <div className="section__actions">
+                  <Button button="primary" label={__('Save')} onClick={saveChanges} />
+                  <Button button="link" label={__('Cancel')} onClick={clearChanges} />
+                </div>
+              </>
+            }
+          />
+        </div>
+      )}
     </Page>
   );
 };

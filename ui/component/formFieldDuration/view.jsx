@@ -7,7 +7,7 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 
 // prettier-ignore
-const TOOLTIP = 'Units:\n • s:  seconds\n • m:  minutes \n • h:  hours\n • d:  days\n • b:  months\n • month:  months\n • y:  years';
+const TOOLTIP = 'Units:\n • s:  seconds\n • m:  minutes \n • h:  hours\n • d:  days\n • month:  months\n • y:  years';
 const ONE_HUNDRED_YEARS_IN_SECONDS = 3154000000;
 
 type Props = {

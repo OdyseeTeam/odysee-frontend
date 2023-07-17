@@ -1,8 +1,6 @@
 // @flow
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 
-type State = { claims: any, user: UserState, stripe: StripeState };
-
 const selectState = (state: State) => state.stripe || {};
 
 export const selectCanReceiveFiatTipsById = (state: State) => selectState(state).canReceiveFiatTipsById || {};

@@ -112,7 +112,7 @@ export function doClaimRewardType(rewardType, options = {}) {
       });
 
       if (options.notifyError) {
-        dispatch(doToast({ message: resolveApiMessage(error.message), isError: true }));
+        dispatch(doToast({ message: resolveApiMessage(error?.message || error), isError: true }));
       }
 
       if (options.callback) {

@@ -3,19 +3,23 @@ import React from 'react';
 import Page from 'component/page';
 import { useParams } from 'react-router-dom';
 import ClaimListDiscover from 'component/claimListDiscover';
-import Portals from 'component/portals';
+import { lazyImport } from 'util/lazyImport';
+import Ad from 'web/component/ad';
 import './style.scss';
+
+const Portals = lazyImport(() => import('component/portals' /* webpackChunkName: "portals" */));
 
 type Props = {
   portals: any,
   homepageData: any,
   showViews: boolean,
+  hasPremiumPlus: boolean,
 };
 
 export const PortalContext = React.createContext<any>();
 
 function PortalPage(props: Props) {
-  const { portals, homepageData, showViews } = props;
+  const { portals, homepageData, showViews, hasPremiumPlus } = props;
   const [portal, setIndex] = React.useState(undefined);
   const [displayedTiles, setDisplayedTiles] = React.useState(0);
 
@@ -63,6 +67,11 @@ function PortalPage(props: Props) {
             showHeader={false}
             loadedCallback={setDisplayedTiles}
             fetchViewCount={showViews}
+            injectedItem={
+              !hasPremiumPlus && {
+                node: <Ad type="tileA" tileLayout />,
+              }
+            }
           />
         </div>
         {homepageData && displayedTiles >= portal.claimIds.videos.length - 3 && (

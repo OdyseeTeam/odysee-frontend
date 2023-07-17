@@ -1,0 +1,268 @@
+@import 'videojs-font/scss/videojs-icons.scss';
+@import '../../variable.scss';
+@import '~ui/scss/init/breakpoints';
+
+.vjs-setting-button {
+  .vjs-icon-placeholder {
+    @extend .vjs-icon-cog;
+
+    display: block;
+    height: 100%;
+    transform: rotate(0deg);
+    transition: 0.2s transform;
+
+    &:before {
+      font-size: 1em;
+      display: block;
+    }
+  }
+
+  &[aria-expanded='true'] {
+    .vjs-icon-placeholder {
+      transform: rotate(30deg);
+    }
+  }
+}
+
+.vjs-setting-menu {
+  @include visibility-transition-menu-style('.vjs-lock-showing');
+
+  border-radius: var(--border-radius);
+
+  &::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+
+  .vjs-menu-content {
+    will-change: transform, width, height;
+    transition: 0.3s transform ease, 0.3s width ease, 0.3s height ease;
+    overflow: hidden;
+  }
+
+  .vjs-menu-item {
+    display: flex;
+    align-items: center;
+  }
+
+  &.vjs-menu li.vjs-selected,
+  &.vjs-menu li.vjs-selected:focus,
+  &.vjs-menu li.vjs-selected:hover,
+  .js-focus-visible .vjs-menu li.vjs-selected:hover {
+    background-color: var(--color-primary);
+    border-radius: var(--border-radius);
+    color: var(--color-primary-contrast);
+  }
+}
+
+.vjs-menu.vjs-settings-sub-menu {
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+  &.vjs-hidden {
+    visibility: hidden;
+    display: block !important;
+  }
+}
+
+// .vjs-setting-menu-label,
+// .vjs-setting-menu-value {
+//   // display: table-cell;
+//   // vertical-align: middle;
+// }
+
+.vjs-setting-menu-item {
+  &:after {
+    content: '';
+    width: 0.65em;
+    height: 0.65em;
+    display: inline-block;
+    border-right: 0.15em solid;
+    border-bottom: 0.15em solid;
+    transform: rotate(-45deg);
+    // content: "";
+    // position: absolute;
+    // right: 0.2em;
+    // width: 0.65em;
+    // height: 0.65em;
+    // margin-top: 0.375em;
+    // display: block;
+    // border-right: 0.15em solid;
+    // border-bottom: 0.15em solid;
+    // transform: rotate(-45deg);
+  }
+}
+
+.vjs-settings-sub-menu-item {
+  // width: 100%;
+  > div {
+    width: 1em;
+    margin-right: 0.5em;
+    &:before {
+      content: '';
+      display: block;
+      margin: auto;
+      // position: absolute;
+      // left: 0.2em;
+    }
+  }
+}
+
+.vjs-menu-item.vjs-settings-sub-menu-title {
+  background-color: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  padding: 0.6em 1em;
+  &:after {
+    content: 'Hi, i am padding';
+    visibility: hidden;
+    display: block;
+    height: 6px;
+    width: 0;
+  }
+  > div {
+    &:before {
+      margin-left: var(--spacing-s);
+      margin-bottom: 0.2em;
+      width: 0.65em;
+      height: 0.65em;
+      border-left: 0.15em solid;
+      border-bottom: 0.15em solid;
+      transform: rotate(45deg);
+    }
+  }
+}
+
+.vjs-settings-sub-menu-option {
+  &.vjs-selected > div {
+    &:before {
+      $size: 0.85em;
+      margin: auto;
+      // @include tick($size); -- disable annoying checkmark for now
+    }
+  }
+}
+
+.vjs-setting-onoff-item {
+  $dotSize: 1.2em;
+
+  .vjs-onoff-button {
+    width: $dotSize * 1.8;
+    height: $dotSize * 0.8;
+    float: right;
+    background-color: #ddd;
+    transition: background 0.2s;
+    border-radius: 50px;
+    position: relative;
+    &:before {
+      content: '';
+      border-radius: 50%;
+      height: 0;
+      width: $dotSize;
+      height: $dotSize;
+      display: block;
+      box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.5);
+      background: #fff;
+      position: absolute;
+      top: -$dotSize * 0.1;
+      transform: translateX(0px);
+      transition: 0.3s transform ease;
+    }
+  }
+
+  .vjs-cell {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .vjs-menu-item-text {
+    float: left;
+  }
+
+  &.vjs-active {
+    .vjs-onoff-button {
+      background-color: var(--color-primary);
+      transition: background 0.5s;
+
+      &:before {
+        transform: translateX(#{$dotSize * 0.8});
+      }
+    }
+  }
+}
+
+.vjs-menu .vjs-menu-content .vjs-menu-item {
+  &.vjs-setting-onoff-item,
+  &.vjs-setting-menu-item {
+    min-width: 225px;
+  }
+}
+
+@media (min-width: $small-dimension + 1) {
+  .vjs-menu.vjs-setting-menu {
+    right: var(--spacing-m);
+    bottom: calc(#{$control-bar-height} + var(--spacing-s));
+    z-index: 1000;
+    max-height: calc(90% - #{$control-bar-height});
+    overflow-y: auto;
+
+    .vjs-menu-item {
+      .vjs-icon-placeholder {
+        display: none;
+      }
+    }
+  }
+
+  .vjs-settings-sub-menu-item {
+    padding-right: 1.5em !important;
+  }
+
+  .vjs-menu-item.vjs-settings-sub-menu-title {
+    margin-bottom: 0.3em;
+  }
+
+  .vjs-setting-menu-value {
+    text-align: right;
+    padding-right: 0.8em;
+    font-size: var(--font-xsmall);
+    //color: var(--color-text-subtitle);
+  }
+}
+
+@media (max-width: $small-dimension) {
+  .vjs-setting-menu-ready {
+    &.vjs-setting-menu {
+      max-height: none;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+
+      .vjs-menu-item {
+        .vjs-icon-placeholder {
+          width: 1em;
+          margin-right: 0.5em;
+        }
+      }
+    }
+
+    .vjs-close-setting-menu {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .vjs-setting-menu-value {
+      padding-right: 0.8em;
+    }
+  }
+}
+
+#{$control-bar-hidden},
+#{$control-bar-hidden--loose} {
+  // Control-Bar, you jump, I jump.
+  .vjs-setting-menu {
+    opacity: 0 !important;
+  }
+}

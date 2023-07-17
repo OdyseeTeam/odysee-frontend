@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine, selectIsUriUnlisted } from 'redux/selectors/claims';
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
@@ -33,7 +33,7 @@ import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { doEnableCollectionShuffle, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
+import { doEnableCollectionShuffle, doFetchUriAccessKey, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 import { isStreamPlaceholderClaim } from 'util/claim';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import ClaimPreview from './view';
@@ -79,6 +79,7 @@ const select = (state, props) => {
     isAdmin: selectHasAdminChannel(state),
     claimInCollection: selectCollectionForIdHasClaimUrl(state, collectionId, contentPermanentUri),
     isMyCollection: selectCollectionIsMine(state, collectionId),
+    isUnlisted: selectIsUriUnlisted(state, uri),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
     lastUsedCollection,
@@ -92,22 +93,22 @@ const select = (state, props) => {
   };
 };
 
-const perform = (dispatch) => ({
-  prepareEdit: (publishData, uri, claimType) => dispatch(doPrepareEdit(publishData, uri, claimType)),
-  doToast: (props) => dispatch(doToast(props)),
-  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  doChannelMute: (channelUri) => dispatch(doChannelMute(channelUri)),
-  doChannelUnmute: (channelUri) => dispatch(doChannelUnmute(channelUri)),
-  doCommentModBlock: (channelUri) => dispatch(doCommentModBlock(channelUri)),
-  doCommentModUnBlock: (channelUri) => dispatch(doCommentModUnBlock(channelUri)),
-  doCommentModBlockAsAdmin: (a, b, c) => dispatch(doCommentModBlockAsAdmin(a, b, c)),
-  doCommentModUnBlockAsAdmin: (commenterUri, blockerId) =>
-    dispatch(doCommentModUnBlockAsAdmin(commenterUri, blockerId)),
-  doChannelSubscribe: (subscription) => dispatch(doChannelSubscribe(subscription)),
-  doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
-  doEnableCollectionShuffle: (params) => dispatch(doEnableCollectionShuffle(params)),
-  doRemovePersonalRecommendation: (uri) => dispatch(doRemovePersonalRecommendation(uri)),
-  doPlaylistAddAndAllowPlaying: (params) => dispatch(doPlaylistAddAndAllowPlaying(params)),
-});
+const perform = {
+  prepareEdit: doPrepareEdit,
+  doToast,
+  openModal: doOpenModal,
+  doChannelMute,
+  doChannelUnmute,
+  doCommentModBlock,
+  doCommentModUnBlock,
+  doCommentModBlockAsAdmin,
+  doCommentModUnBlockAsAdmin,
+  doChannelSubscribe,
+  doChannelUnsubscribe,
+  doEnableCollectionShuffle,
+  doRemovePersonalRecommendation,
+  doPlaylistAddAndAllowPlaying,
+  doFetchUriAccessKey,
+};
 
 export default connect(select, perform)(ClaimPreview);

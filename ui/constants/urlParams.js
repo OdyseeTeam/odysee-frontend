@@ -30,3 +30,6 @@ export const CHANNEL_SECTIONS_QUERIES = Object.freeze({
   CLAIM_ID: 'claimId',
   SECTION_ID: 'sectionId',
 });
+
+export const MODAL = 'modal';
+export const MODAL_PARAMS = 'modal_params';

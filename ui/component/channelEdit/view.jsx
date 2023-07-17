@@ -107,7 +107,6 @@ function ChannelForm(props: Props) {
   const languageParam = params.languages;
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
   const secondaryLanguage = Array.isArray(languageParam) && languageParam.length >= 2 && languageParam[1];
-
   const submitLabel = React.useMemo(() => {
     if (isClaimingInitialRewards) {
       return __('Claiming credits...');
@@ -340,7 +339,7 @@ function ChannelForm(props: Props) {
         </header>
 
         <Tabs index={tabIndex}>
-          <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+          <div className={classnames('tab__wrapper', { 'tab__wrapper--fixed': scrollPast })}>
             <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <ChannelThumbnail
                 className={classnames('channel__thumbnail--channel-page', {
@@ -385,10 +384,11 @@ function ChannelForm(props: Props) {
           </div>
           <TabPanels>
             <TabPanel>
-              <h2 className="card__title">{__('General')}</h2>
               <Card
+                background
+                title={__('General')}
                 body={
-                  <>
+                  <div className="publish-row publish-row--no-margin">
                     {isNewChannel && (
                       <Button
                         button="primary"
@@ -399,7 +399,10 @@ function ChannelForm(props: Props) {
                     )}
 
                     {isNewChannel && (
-                      <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
+                      <fieldset-group
+                        class="fieldset-group--smushed fieldset-group--disabled-prefix"
+                        style={{ marginTop: 'var(--spacing-m)' }}
+                      >
                         <fieldset-section>
                           <label htmlFor="channel_name">{__('Name')}</label>
                           <div className="form-field__prefix">@</div>
@@ -418,14 +421,16 @@ function ChannelForm(props: Props) {
                       </fieldset-group>
                     )}
 
-                    <FormField
-                      type="text"
-                      name="channel_title2"
-                      label={__('Title')}
-                      placeholder={__('My Awesome Channel')}
-                      value={params.title}
-                      onChange={(e) => setParams({ ...params, title: e.target.value })}
-                    />
+                    <fieldset-section style={{ marginTop: 'var(--spacing-m)' }}>
+                      <FormField
+                        type="text"
+                        name="channel_title2"
+                        label={__('Title')}
+                        placeholder={__('My Awesome Channel')}
+                        value={params.title}
+                        onChange={(e) => setParams({ ...params, title: e.target.value })}
+                      />
+                    </fieldset-section>
                     <FormField
                       type="markdown"
                       name="content_description2"
@@ -435,14 +440,15 @@ function ChannelForm(props: Props) {
                       onChange={(text) => setParams({ ...params, description: text })}
                       textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
                     />
-                  </>
+                  </div>
                 }
               />
 
-              <h2 className="card__title">{__('Contact')}</h2>
               <Card
+                background
+                title={__('Contact')}
                 body={
-                  <>
+                  <div className="publish-row publish-row--no-margin">
                     <FormField
                       type="text"
                       name="content_email2"
@@ -461,59 +467,66 @@ function ChannelForm(props: Props) {
                       value={params.website}
                       onChange={(e) => setParams({ ...params, website: e.target.value })}
                     />
-                  </>
-                }
-              />
-              <h2 className="card__title">{__('Tags')}</h2>
-              <Card
-                className="channelpage-edit-tags"
-                body={
-                  <TagsSearch
-                    suggestMature={!SIMPLE_SITE}
-                    disableAutoFocus
-                    disableControlTags
-                    limitSelect={MAX_TAG_SELECT}
-                    tagsPassedIn={params.tags || []}
-                    label={__('Selected Tags')}
-                    onRemove={(clickedTag) => {
-                      const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                      setParams({ ...params, tags: newTags });
-                    }}
-                    onSelect={(newTags) => {
-                      newTags.forEach((newTag) => {
-                        if (!params.tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
-                          setParams({ ...params, tags: [...params.tags, newTag] });
-                        } else {
-                          // If it already exists and the user types it in, remove it
-                          setParams({ ...params, tags: params.tags.filter((tag) => tag.name !== newTag.name) });
-                        }
-                      });
-                    }}
-                  />
+                  </div>
                 }
               />
 
-              <h2 className="card__title">{__('Languages')}</h2>
               <Card
+                background
+                title={__('Tags')}
+                className="card--tags"
                 body={
-                  <>
-                    <FormField
-                      name="language_select"
-                      type="select"
-                      label={__('Primary Language')}
-                      onChange={(event) => handleLanguageChange(0, event.target.value)}
-                      value={primaryLanguage}
-                      helper={__('Your main content language')}
-                    >
-                      <option key={'pri-langNone'} value={PUBLISH.LANG_NONE}>
-                        {__('None selected')}
-                      </option>
-                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
-                        <option key={langKey} value={langKey}>
-                          {langName}
+                  <div className="publish-row">
+                    <TagsSearch
+                      suggestMature={!SIMPLE_SITE}
+                      disableAutoFocus
+                      disableControlTags
+                      limitSelect={MAX_TAG_SELECT}
+                      tagsPassedIn={params.tags || []}
+                      label={__('Selected Tags')}
+                      onRemove={(clickedTag) => {
+                        const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                        setParams({ ...params, tags: newTags });
+                      }}
+                      onSelect={(newTags) => {
+                        newTags.forEach((newTag) => {
+                          if (!params.tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
+                            setParams({ ...params, tags: [...params.tags, newTag] });
+                          } else {
+                            // If it already exists and the user types it in, remove it
+                            setParams({ ...params, tags: params.tags.filter((tag) => tag.name !== newTag.name) });
+                          }
+                        });
+                      }}
+                    />
+                  </div>
+                }
+              />
+
+              <Card
+                background
+                title={__('Languages')}
+                body={
+                  <div className="publish-row">
+                    <fieldset-section style={{ marginTop: 'calc(var(--spacing-m) * -1)' }}>
+                      <FormField
+                        name="language_select"
+                        type="select"
+                        label={__('Primary Language')}
+                        onChange={(event) => handleLanguageChange(0, event.target.value)}
+                        value={primaryLanguage}
+                        helper={__('Your main content language')}
+                      >
+                        <option key={'pri-langNone'} value={PUBLISH.LANG_NONE}>
+                          {__('None selected')}
                         </option>
-                      ))}
-                    </FormField>
+                        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                          <option key={langKey} value={langKey}>
+                            {langName}
+                          </option>
+                        ))}
+                      </FormField>
+                    </fieldset-section>
                     <FormField
                       name="language_select2"
                       type="select"
@@ -532,41 +545,47 @@ function ChannelForm(props: Props) {
                         </option>
                       ))}
                     </FormField>
-                  </>
+                  </div>
                 }
               />
             </TabPanel>
             <TabPanel>
-              <h2 className="card__title">{__('Credit Details')}</h2>
               <Card
+                background
+                title={__('Credit Details')}
                 body={
-                  <FormField
-                    className="form-field--price-amount"
-                    type="number"
-                    name="content_bid2"
-                    step="any"
-                    label={<LbcSymbol postfix={__('Deposit')} size={14} />}
-                    value={params.amount}
-                    error={bidError}
-                    min="0.0"
-                    disabled={false}
-                    onChange={(event) => handleBidChange(parseFloat(event.target.value))}
-                    placeholder={0.1}
-                    helper={
-                      <>
-                        {__('Increasing your deposit can help your channel be discovered more easily.')}
-                        <WalletSpendableBalanceHelp inline />
-                      </>
-                    }
-                  />
+                  <div className="publish-row publish-row--no-margin">
+                    <FormField
+                      className="form-field--price-amount"
+                      type="number"
+                      name="content_bid2"
+                      step="any"
+                      label={<LbcSymbol postfix={__('Deposit')} size={14} />}
+                      value={params.amount}
+                      error={bidError}
+                      min="0.0"
+                      disabled={false}
+                      onChange={(event) => handleBidChange(parseFloat(event.target.value))}
+                      placeholder={0.1}
+                      helper={
+                        <>
+                          {__('Increasing your deposit can help your channel be discovered more easily.')}
+                          <WalletSpendableBalanceHelp inline />
+                        </>
+                      }
+                    />
+                  </div>
                 }
               />
               {!isNewChannel && (
                 <>
-                  <h2 className="card__title">{__('Delete Channel')}</h2>
                   <Card
+                    background
+                    title={__('Delete Channel')}
                     body={
-                      <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                      <div className="publish-row">
+                        <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                      </div>
                     }
                   />
                 </>

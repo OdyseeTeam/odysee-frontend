@@ -25,11 +25,11 @@ type Props = {
   otherLicenseDescription: ?string,
   licenseUrl: ?string,
   disabled: boolean,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   useLBRYUploader: boolean,
   needsYTAuth: boolean,
   showSchedulingOptions: boolean,
-  isLivestream?: Boolean,
+  visibility: Visibility,
 };
 
 function PublishAdditionalOptions(props: Props) {
@@ -42,78 +42,69 @@ function PublishAdditionalOptions(props: Props) {
     updatePublishForm,
     showSchedulingOptions,
     disabled,
+    visibility,
   } = props;
+
   const [hideSection, setHideSection] = useState(disabled);
+  const showReleaseDate = !showSchedulingOptions && (visibility === 'public' || visibility === 'unlisted');
 
   function toggleHideSection() {
     setHideSection(!hideSection);
   }
 
-  React.useEffect(() => {
-    if (licenseType === 'copyright') {
-      updatePublishForm({
-        otherLicenseDescription: 'All rights reserved',
-      });
-    }
-  }, [licenseType]);
-
   return (
     <>
-      <h2 className="card__title">{__('Additional Options')}</h2>
       <Card
-        className="card--enable-overflow card--publish-section card--additional-options"
-        actions={
+        background
+        className="card--enable-overflow"
+        title={__('Additional Options')}
+        body={
           <React.Fragment>
             {!hideSection && !disabled && (
-              <>
+              <div className="settings-row">
                 <div className={classnames({ 'card--disabled': !name })}>
                   <div className="section">
-                    <div className="publish-row">{!showSchedulingOptions && <PublishReleaseDate />}</div>
+                    {showReleaseDate && <PublishReleaseDate />}
+                    <FormField
+                      className={!showReleaseDate && 'publish-row--no-margin-select'}
+                      label={__('Language')}
+                      type="select"
+                      name="content_language"
+                      value={language}
+                      // $FlowFixMe @see FIX_LANGUAGE_STATE
+                      onChange={(event) => updatePublishForm({ languages: [event.target.value] })}
+                    >
+                      {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                        <option key={langKey} value={langKey}>
+                          {langName}
+                        </option>
+                      ))}
+                    </FormField>
 
-                    <div className="publish-row">
-                      <FormField
-                        label={__('Language')}
-                        type="select"
-                        name="content_language"
-                        value={language}
-                        onChange={(event) => updatePublishForm({ languages: [event.target.value] })}
-                      >
-                        {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
-                          <option key={langKey} value={langKey}>
-                            {langName}
-                          </option>
-                        ))}
-                      </FormField>
-                    </div>
-
-                    <div className="publish-row">
-                      <LicenseType
-                        licenseType={licenseType}
-                        otherLicenseDescription={otherLicenseDescription}
-                        licenseUrl={licenseUrl}
-                        handleLicenseChange={(newLicenseType, newLicenseUrl) =>
-                          updatePublishForm({
-                            licenseType: newLicenseType,
-                            licenseUrl: newLicenseUrl,
-                          })
-                        }
-                        handleLicenseDescriptionChange={(event) =>
-                          updatePublishForm({
-                            otherLicenseDescription: event.target.value,
-                          })
-                        }
-                        handleLicenseUrlChange={(event) => updatePublishForm({ licenseUrl: event.target.value })}
-                      />
-                    </div>
+                    <LicenseType
+                      licenseType={licenseType}
+                      otherLicenseDescription={otherLicenseDescription}
+                      licenseUrl={licenseUrl}
+                      handleLicenseChange={(newLicenseType, newLicenseUrl) =>
+                        updatePublishForm({
+                          licenseType: newLicenseType,
+                          licenseUrl: newLicenseUrl,
+                        })
+                      }
+                      handleLicenseDescriptionChange={(event) =>
+                        updatePublishForm({
+                          otherLicenseDescription: event.target.value,
+                        })
+                      }
+                      handleLicenseUrlChange={(event) => updatePublishForm({ licenseUrl: event.target.value })}
+                    />
                   </div>
                 </div>
-                <div className="publish-row">
-                  <PublishBid />
-                </div>
-              </>
+                <PublishBid />
+              </div>
             )}
 
-            <div className="section__actions">
+            <div className="publish-row publish-row--more">
               <Button label={hideSection ? __('Show') : __('Hide')} button="link" onClick={toggleHideSection} />
             </div>
           </React.Fragment>

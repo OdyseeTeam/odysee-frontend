@@ -9,7 +9,7 @@
 }
 
 // fix badge becoming red when hovered
-div[role='menuitem'] .channel__list-item .comment__badge svg,
+div[role='menuitem'] .channel-selector__item .comment__badge svg,
 .comment__badge svg {
   stroke: unset !important;
 }

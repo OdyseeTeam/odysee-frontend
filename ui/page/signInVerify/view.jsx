@@ -30,6 +30,7 @@ function SignInVerifyPage(props: Props) {
   const userSubmittedEmail = urlParams.get('email');
   const verificationToken = urlParams.get('verification_token');
   const needsRecaptcha = urlParams.get('needs_recaptcha') === 'true';
+  const [verificationTried, setVerificationTried] = useState(needsRecaptcha || verificationApiHistory.called);
 
   const successful = isAuthenticationSuccess || verificationApiHistory.successful;
 
@@ -44,6 +45,7 @@ function SignInVerifyPage(props: Props) {
     if (!authToken || !userSubmittedEmail || !verificationToken) {
       onAuthError(__('Invalid or expired sign-in link.'));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [authToken, userSubmittedEmail, verificationToken, doToast, push]);
 
   React.useEffect(() => {
@@ -98,53 +100,66 @@ function SignInVerifyPage(props: Props) {
       .catch(() => {
         verificationApiHistory.successful = false;
         onAuthError(__('Invalid captcha response or other authentication error.'));
+      })
+      .finally(() => {
+        setVerificationTried(true);
       });
   }
 
   return (
     <Page authPage noFooter>
       <div className="main__sign-up">
-        <Card
-          title={successful ? __('Log in success!') : __('Log in')}
-          subtitle={
-            <React.Fragment>
-              <p>
-                {successful
-                  ? __('You can now close this tab.')
-                  : needsRecaptcha
-                  ? null
-                  : __('Welcome back! You are automatically being signed in.')}
-              </p>
-              {showCaptchaMessage && !successful && (
+        {verificationTried && (
+          <Card
+            title={successful ? __('Log in success!') : needsRecaptcha ? __('Log in') : __('Log in failed')}
+            subtitle={
+              <React.Fragment>
                 <p>
-                  <I18nMessage
-                    tokens={{
-                      refresh: (
-                        <Button button="link" label={__('refreshing')} onClick={() => window.location.reload()} />
-                      ),
-                    }}
-                  >
-                    Not seeing a captcha? Check your ad blocker or try %refresh%.
-                  </I18nMessage>
+                  {successful
+                    ? __('You can now close this tab.')
+                    : needsRecaptcha
+                    ? null
+                    : __('New verification email has been sent')}
                 </p>
-              )}
-            </React.Fragment>
-          }
-          actions={
-            !successful &&
-            needsRecaptcha && (
-              <div className="section__actions">
-                <ReCAPTCHA
-                  sitekey="6LePsJgUAAAAAFTuWOKRLnyoNKhm0HA4C3elrFMG"
-                  onChange={onCaptchaChange}
-                  asyncScriptOnLoad={onCaptchaReady}
-                  onExpired={onAuthError}
-                  onErrored={onAuthError}
-                />
-              </div>
-            )
-          }
-        />
+                {showCaptchaMessage && !successful && (
+                  <p>
+                    <I18nMessage
+                      tokens={{
+                        refresh: (
+                          <Button button="link" label={__('refreshing')} onClick={() => window.location.reload()} />
+                        ),
+                      }}
+                    >
+                      Not seeing a captcha? Check your ad blocker or try %refresh%.
+                    </I18nMessage>
+                  </p>
+                )}
+              </React.Fragment>
+            }
+            actions={
+              <>
+                {!successful && needsRecaptcha && (
+                  <div className="section__actions">
+                    <ReCAPTCHA
+                      sitekey="6LePsJgUAAAAAFTuWOKRLnyoNKhm0HA4C3elrFMG"
+                      onChange={onCaptchaChange}
+                      asyncScriptOnLoad={onCaptchaReady}
+                      onExpired={onAuthError}
+                      onErrored={onAuthError}
+                    />
+                  </div>
+                )}
+                {successful && (
+                  <Button
+                    button="primary"
+                    label={__('Continue to Odysee')}
+                    onClick={() => window.location.assign('/')}
+                  />
+                )}
+              </>
+            }
+          />
+        )}
       </div>
     </Page>
   );

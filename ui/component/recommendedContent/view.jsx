@@ -4,8 +4,9 @@ import { v4 as Uuidv4 } from 'uuid';
 import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
-import Spinner from 'component/spinner';
+// import Spinner from 'component/spinner';
 // import Ads from 'web/component/ads';
+import ClaimPreview from 'component/claimPreview';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';
@@ -14,6 +15,7 @@ import classnames from 'classnames';
 import RecSys from 'recsys';
 // import { getClaimMetadata } from 'util/claim';
 import LangFilterIndicator from 'component/langFilterIndicator';
+import './style.scss';
 
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
@@ -85,7 +87,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const InjectedAd =
     injectAds && !blacklistTriggered && !hasPremiumPlus
       ? {
-          node: <Ads small type="video" className="ads__claim-item--recommended" noFallback />,
+          node: <Ad type="tileB" uri={uri} />,
           index: isMobile ? 0 : 3,
         }
       : null;
@@ -157,9 +159,11 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
       body={
         <div>
           {isSearching && (
-            <div className="empty empty--centered-tight">
-              <Spinner type="small" />
-            </div>
+            <>
+              {new Array(20).fill(1).map((x, i) => (
+                <ClaimPreview key={i} placeholder="loading" type="small" />
+              ))}
+            </>
           )}
           {viewMode === VIEW_ALL_RELATED && (
             <ClaimList

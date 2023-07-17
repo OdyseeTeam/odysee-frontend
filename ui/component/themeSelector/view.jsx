@@ -26,15 +26,8 @@ type Props = {
 };
 
 export default function ThemeSelector(props: Props) {
-  const {
-    currentTheme,
-    themes,
-    automaticDarkModeEnabled,
-    darkModeTimes,
-    clock24h,
-    setClientSetting,
-    setDarkTime,
-  } = props;
+  const { currentTheme, themes, automaticDarkModeEnabled, darkModeTimes, clock24h, setClientSetting, setDarkTime } =
+    props;
 
   const startHours = ['18', '19', '20', '21'];
   const endHours = ['5', '6', '7', '8'];
@@ -82,7 +75,7 @@ export default function ThemeSelector(props: Props) {
         </FormField>
       </fieldset-section>
 
-      <fieldset-section>
+      <fieldset-section class="theme-checkbox">
         <FormField
           type="checkbox"
           name="automatic_dark_mode"

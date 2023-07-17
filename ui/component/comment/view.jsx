@@ -39,9 +39,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import CommentReactions from 'component/commentReactions';
 import CommentsReplies from 'component/commentsReplies';
 import { useHistory } from 'react-router';
-import CommentCreate from 'component/commentCreate';
 import CommentMenuList from 'component/commentMenuList';
-import UriIndicator from 'component/uriIndicator';
 import CreditAmount from 'component/common/credit-amount';
 import OptimizedImage from 'component/optimizedImage';
 import { getChannelFromClaim } from 'util/claim';
@@ -49,53 +47,62 @@ import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
 import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
+import { lazyImport } from 'util/lazyImport';
 
-const AUTO_EXPAND_ALL_REPLIES = false;
+const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
-type Props = {
+// ****************************************************************************
+// ****************************************************************************
+
+export type Props = {|
   comment: Comment,
-  myChannelIds: ?Array<string>,
+  uri?: string,
   forceDisplayDeadComment?: boolean,
-  doClearPlayingUri: () => void,
-  uri: string,
-  claim: StreamClaim,
-  claimIsMine: boolean, // if you control the claim which this comment was posted on
-  updateComment: (string, string) => void,
-  fetchReplies: (string, string, number, number, number) => void,
-  totalReplyPages: number,
-  commentModBlock: (string) => void,
   linkedCommentId?: string,
-  threadCommentId?: string,
-  linkedCommentAncestors: { [string]: Array<string> },
-  hasChannels: boolean,
-  commentingEnabled: boolean,
-  doToast: ({ message: string }) => void,
+  threadCommentId?: ?string,
   isTopLevel?: boolean,
   hideActions?: boolean,
   hideContextMenu?: boolean,
-  othersReacts: ?{
-    like: number,
-    dislike: number,
-  },
-  commentIdentityChannel: any,
-  activeChannelClaim: ?ChannelClaim,
-  playingUri: PlayingUri,
-  stakedLevel: number,
-  supportDisabled: boolean,
-  setQuickReply: (any) => void,
-  quickReply: any,
-  odyseeMembership: ?string,
-  creatorMembership: ?string,
-  fetchedReplies: Array<Comment>,
-  repliesFetching: boolean,
+  supportDisabled?: boolean,
+  setQuickReply?: (any) => void,
+  quickReply?: any,
   threadLevel?: number,
   threadDepthLevel?: number,
-  channelAge?: any,
   disabled?: boolean,
-  doClearPlayingSource: () => void,
-};
+|};
 
-function CommentView(props: Props) {
+type StateProps = {|
+  fetchedReplies: Array<Comment>,
+  othersReacts: ?{ like: number, dislike: number },
+  linkedCommentAncestors: { [string]: Array<string> },
+  totalReplyPages: number,
+  repliesFetching: boolean,
+  activeChannelClaim: ?ChannelClaim,
+  claim: StreamClaim,
+  authorTitle: ?string,
+  channelAge?: any,
+  myChannelIds: ?Array<string>,
+  hasChannels: boolean,
+  odyseeMembership: ?string,
+  creatorMembership: ?string,
+  commentingEnabled: boolean,
+  playingUri: PlayingUri,
+  stakedLevel: number,
+|};
+
+type DispatchProps = {|
+  doClearPlayingUri: () => void,
+  doClearPlayingSource: () => void,
+  updateComment: (string, string) => void,
+  fetchReplies: (string, string, number, number, number) => void,
+  doToast: (ToastParams) => void,
+|};
+
+// ****************************************************************************
+// Comment
+// ****************************************************************************
+
+function CommentView(props: Props & StateProps & DispatchProps) {
   const {
     comment,
     myChannelIds,
@@ -128,6 +135,7 @@ function CommentView(props: Props) {
     threadLevel = 0,
     threadDepthLevel = 0,
     doClearPlayingSource,
+    authorTitle,
     channelAge,
     disabled,
   } = props;
@@ -148,6 +156,7 @@ function CommentView(props: Props) {
     replies: numDirectReplies,
     timestamp,
   } = comment;
+  const claimName = authorTitle || author;
 
   const timePosted = timestamp * 1000;
   const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
@@ -172,7 +181,7 @@ function CommentView(props: Props) {
     linkedCommentId &&
     linkedCommentAncestors[linkedCommentId] &&
     linkedCommentAncestors[linkedCommentId].includes(commentId);
-  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES;
+  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || (threadLevel === 0 && !!comment.replies);
 
   const [isReplying, setReplying] = React.useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -185,18 +194,21 @@ function CommentView(props: Props) {
   const likesCount = (othersReacts && othersReacts.like) || 0;
   const dislikesCount = (othersReacts && othersReacts.dislike) || 0;
   const totalLikesAndDislikes = likesCount + dislikesCount;
-  const slimedToDeath = totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
+  const slimedToDeath =
+    !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
   const stickerFromMessage = parseSticker(message);
 
   const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
 
   let channelOwnerOfContent;
   try {
-    const { channelName } = parseURI(uri);
-    if (channelName) {
-      channelOwnerOfContent = channelName;
+    if (uri) {
+      const { channelName } = parseURI(uri);
+      if (channelName) {
+        channelOwnerOfContent = channelName;
+      }
     }
   } catch (e) {}
 
@@ -221,7 +233,7 @@ function CommentView(props: Props) {
   }, [author, authorUri, editedMessage, isEditing, setEditing]);
 
   useEffect(() => {
-    if (page > 0) {
+    if (uri && page > 0) {
       fetchReplies(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST);
     }
   }, [page, uri, commentId, fetchReplies]);
@@ -280,6 +292,8 @@ function CommentView(props: Props) {
     }
   }
 
+  const handleShowMore = React.useCallback(() => setPage((prev) => prev + 1), []);
+
   const linkedCommentRef = React.useCallback(
     (node) => {
       if (node) commentElemRef.current = node;
@@ -335,15 +349,31 @@ function CommentView(props: Props) {
               {!author ? (
                 <span className="comment__author">{__('Anonymous')}</span>
               ) : (
-                <UriIndicator
-                  className={classnames('comment__author', {
-                    'comment__author--creator': commentByOwnerOfContent,
-                  })}
-                  link
-                  uri={authorUri}
-                  comment
-                  showAtSign
-                />
+                <Menu>
+                  <MenuButton
+                    className={classnames('button--uri-indicator comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {claimName}
+                  </MenuButton>
+
+                  <CommentMenuList
+                    uri={uri}
+                    commentId={commentId}
+                    authorUri={authorUri}
+                    commentIsMine={commentIsMine}
+                    isPinned={isPinned}
+                    isTopLevel={isTopLevel}
+                    isUserLabel
+                    handleEditComment={() => handleEditComment(true)}
+                    setQuickReply={setQuickReply}
+                    className={classnames('comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                  />
+                </Menu>
               )}
               {isSprout && <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={14} />}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
@@ -417,7 +447,7 @@ function CommentView(props: Props) {
                 <div className="comment__message">
                   {slimedToDeath && !displayDeadComment ? (
                     <div onClick={() => setDisplayDeadComment(true)} className="comment__dead">
-                      {__('This comment was slimed to death.')} <Icon icon={ICONS.SLIME_ACTIVE} />
+                      {__('This comment was slimed to death. (Click to view)')} <Icon icon={ICONS.SLIME_ACTIVE} />
                     </div>
                   ) : stickerFromMessage ? (
                     <div className="sticker__comment">
@@ -525,7 +555,7 @@ function CommentView(props: Props) {
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
               numDirectReplies={numDirectReplies}
-              onShowMore={() => setPage(page + 1)}
+              onShowMore={handleShowMore}
               hasMore={page < totalReplyPages}
               threadDepthLevel={threadDepthLevel}
             />

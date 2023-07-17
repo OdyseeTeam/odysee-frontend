@@ -4,19 +4,16 @@ import { withRouter } from 'react-router';
 import {
   selectClaimSearchByQuery,
   selectFetchingClaimSearchByQuery,
-  selectClaimsByUri,
-  selectById,
   selectClaimSearchByQueryLastPageReached,
 } from 'redux/selectors/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import * as SETTINGS from 'constants/settings';
-import { doFetchViewCount } from 'lbryinc';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import { createNormalizedClaimSearchKey } from 'util/claim';
-import { CsOptions } from 'util/claim-search';
+import { CsOptHelper } from 'util/claim-search';
 import * as CS from 'constants/claim_search';
 
 import ClaimListDiscover from './view';
@@ -48,8 +45,6 @@ const select = (state, props) => {
   return {
     claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
     claimSearchLastPageReached: selectClaimSearchByQueryLastPageReached(state)[searchKey],
-    claimsByUri: selectClaimsByUri(state),
-    claimsById: selectById(state),
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     showNsfw,
     hideReposts,
@@ -60,7 +55,6 @@ const select = (state, props) => {
 
 const perform = {
   doClaimSearch,
-  doFetchViewCount,
   doFetchOdyseeMembershipForChannelIds,
   doResolveClaimIds,
   doResolveUris,
@@ -100,6 +94,7 @@ function resolveSearchOptions(props) {
   const urlParams = new URLSearchParams(location.search);
   const feeAmountInUrl = urlParams.get('fee_amount');
   const feeAmountParam = feeAmountInUrl || feeAmount;
+  const notTagInput: NotTagInput = { notTags, showNsfw, hideMembersOnly };
 
   let streamTypesParam;
   if (streamTypes) {
@@ -116,7 +111,7 @@ function resolveSearchOptions(props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     any_tags: tags || [],
-    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnly),
+    not_tags: CsOptHelper.not_tags(notTagInput),
     any_languages: languages,
     channel_ids: channelIds || [],
     not_channel_ids: mutedAndBlockedChannelIds,

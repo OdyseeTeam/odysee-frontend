@@ -1,32 +1,39 @@
 // @flow
 import React from 'react';
-import DateTime from 'component/dateTime';
+import DateTimeClaim from 'component/dateTimeClaim';
 import FileViewCount from 'component/fileViewCount';
 import FileActions from 'component/fileActions';
+import FileVisibility from 'component/fileVisibility';
 import ClaimPreviewReset from 'component/claimPreviewReset';
 import LivestreamDateTime from 'component/livestreamDateTime';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 
 type Props = {
   uri: string,
-  livestream?: boolean,
+  isLivestreamClaim?: boolean,
   isLive?: boolean,
   contentUnlocked: boolean,
 };
 
 function FileSubtitle(props: Props) {
-  const { uri, livestream = false, isLive = false, contentUnlocked } = props;
+  const { uri, isLivestreamClaim = false, isLive = false, contentUnlocked } = props;
   return (
     <>
       <div className="media__subtitle--between">
         <div className="file__viewdate">
-          {livestream && isLive && <LivestreamDateTime uri={uri} />}
-          {!livestream && <DateTime uri={uri} type="date" />}
-          {contentUnlocked && <FileViewCount uri={uri} livestream={livestream} isLive={isLive} />}
+          <Icon icon={ICONS.TIME} />
+          {isLivestreamClaim && <LivestreamDateTime uri={uri} />}
+          {!isLivestreamClaim && <DateTimeClaim uri={uri} format="date-only" disableFromNowFormat />}
+          <Icon icon={ICONS.INVITE} />
+          {contentUnlocked && <FileViewCount uri={uri} />}
+          <FileVisibility uri={uri} />
         </div>
 
-        <FileActions uri={uri} hideRepost={livestream} livestream={livestream} />
+        <FileActions uri={uri} hideRepost={isLivestreamClaim} livestream={isLivestreamClaim} />
       </div>
-      {livestream && isLive && <ClaimPreviewReset uri={uri} />}
+
+      {isLivestreamClaim && isLive && <ClaimPreviewReset uri={uri} />}
     </>
   );
 }

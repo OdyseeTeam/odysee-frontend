@@ -11,7 +11,6 @@ type Props = {
   sdkPaid: boolean,
   fiatPaid: boolean,
   costInfo?: ?{ includesData: boolean, cost: number },
-  fetching: boolean,
   showFullPrice: boolean,
   type?: 'default' | 'filepage' | 'modal' | 'thumbnail',
   uri: string,
@@ -23,25 +22,10 @@ type Props = {
   hideFree?: boolean, // hide the file price if it's free
   isFiat?: boolean,
   showLBC?: boolean,
-  doFetchCostInfoForUri: (string) => void,
 };
 
 class FilePrice extends React.PureComponent<Props> {
   static defaultProps = { showFullPrice: false };
-
-  componentDidMount() {
-    this.fetchCost(this.props);
-  }
-
-  componentDidUpdate() {
-    this.fetchCost(this.props);
-  }
-
-  fetchCost = (props: Props) => {
-    const { costInfo, uri, fetching, claim, doFetchCostInfoForUri } = props;
-
-    if (uri && costInfo === undefined && !fetching && claim) doFetchCostInfoForUri(uri);
-  };
 
   render() {
     const {
@@ -72,7 +56,6 @@ class FilePrice extends React.PureComponent<Props> {
       'filePrice--thumbnail': type === 'thumbnail',
       'filePrice--modal': type === 'modal',
       'filePrice--fiat': fiatRequired,
-      'filePrice--skewedBg': true,
     });
 
     if (fiatRequired) {

@@ -9,32 +9,42 @@ import {
 } from 'redux/selectors/claims';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
-import {
-  selectNextUriForUriInPlayingCollectionForId,
-  selectPreviousUriForUriInPlayingCollectionForId,
-  selectIndexForUriInPlayingCollectionForId,
-} from 'redux/selectors/collections';
+import { selectNextUriForUriInPlayingCollectionForId } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
-import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsView } from 'redux/actions/app';
+import {
+  doChangeVolume,
+  doChangeMute,
+  doAnalyticsBuffer,
+  doAnalyticsViewForUri,
+  doSetVideoSourceLoaded,
+} from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
-import { savePosition, clearPosition, doUriInitiatePlay, doSetContentHistoryItem } from 'redux/actions/content';
-import { makeSelectIsPlayerFloating, selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
-import { selectRecommendedContentForUri } from 'redux/selectors/search';
+import {
+  savePosition,
+  clearPosition,
+  doPlayNextUri,
+  doSetContentHistoryItem,
+  doSetShowAutoplayCountdownForUri,
+} from 'redux/actions/content';
+import { selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
 import VideoViewer from './view';
 import { withRouter } from 'react-router';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import { parseURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 
+import withPlaybackUris from 'hocs/withPlaybackUris';
+
 const select = (state, props) => {
-  const { search, pathname, hash } = props.location;
+  const { location } = props;
+  const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
   const autoplay = urlParams.get('autoplay');
   const uri = props.uri;
-
   const urlPath = `lbry://${(pathname + hash).slice(1)}`;
   let startTime;
   try {
@@ -53,9 +63,6 @@ const select = (state, props) => {
   const isMarkdownOrComment = playingUri.source === 'markdown' || playingUri.source === 'comment';
 
   const nextPlaylistUri = collectionId && selectNextUriForUriInPlayingCollectionForId(state, collectionId, uri);
-  const previousPlaylistUri = collectionId && selectPreviousUriForUriInPlayingCollectionForId(state, collectionId, uri);
-  const recomendedContent = selectRecommendedContentForUri(state, uri);
-  const nextRecommendedUri = recomendedContent && recomendedContent[0];
 
   return {
     position,
@@ -63,8 +70,6 @@ const select = (state, props) => {
     internalFeature,
     collectionId,
     nextPlaylistUri,
-    nextRecommendedUri,
-    previousListUri: previousPlaylistUri,
     isMarkdownOrComment,
     autoplayIfEmbedded: Boolean(autoplay),
     autoplayNext: !isMarkdownOrComment && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT),
@@ -73,19 +78,18 @@ const select = (state, props) => {
     videoPlaybackRate: selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE),
     thumbnail: selectThumbnailForUri(state, uri),
     claim,
-    homepageData: selectHomepageData(state),
+    homepageData: selectHomepageData(state) || {},
     authenticated: selectUserVerifiedEmail(state),
     shareTelemetry: IS_WEB || selectDaemonSettings(state).share_usage_data,
-    isFloating: makeSelectIsPlayerFloating(props.location)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
-    currentPlaylistItemIndex: selectIndexForUriInPlayingCollectionForId(state, collectionId, uri),
     isPurchasableContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    recomendedContent: selectRecommendedContentForUri(state, props.uri),
   };
 };
 
@@ -98,11 +102,13 @@ const perform = (dispatch) => ({
   toggleVideoTheaterMode: () => dispatch(toggleVideoTheaterMode()),
   toggleAutoplayNext: () => dispatch(toggleAutoplayNext()),
   setVideoPlaybackRate: (rate) => dispatch(doSetClientSetting(SETTINGS.VIDEO_PLAYBACK_RATE, rate)),
-  doPlayUri: (params) => dispatch(doUriInitiatePlay(params, true, true)),
-  doAnalyticsView: (uri, timeToStart) => dispatch(doAnalyticsView(uri, timeToStart)),
+  doPlayNextUri: (params) => dispatch(doPlayNextUri(params)),
+  doAnalyticsViewForUri: (uri) => dispatch(doAnalyticsViewForUri(uri)),
   claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
   doToast: (props) => dispatch(doToast(props)),
   doSetContentHistoryItem: (uri) => dispatch(doSetContentHistoryItem(uri)),
+  doSetShowAutoplayCountdownForUri: (params) => dispatch(doSetShowAutoplayCountdownForUri(params)),
+  doSetVideoSourceLoaded: (uri) => dispatch(doSetVideoSourceLoaded(uri)),
 });
 
-export default withRouter(connect(select, perform)(VideoViewer));
+export default withPlaybackUris(withRouter(connect(select, perform)(VideoViewer)));

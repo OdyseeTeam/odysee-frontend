@@ -1,4 +1,5 @@
 // @flow
+import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import Page from 'component/page';
@@ -118,7 +119,10 @@ export default function NotificationsPage(props: Props) {
 
       {ready && (
         <div className="claim-list__header">
-          <h1 className="card__title">{__('Notifications')}</h1>
+          <h1 className="page__title">
+            <Icon icon={ICONS.NOTIFICATION} />
+            <label>{__('Notifications')}</label>
+          </h1>
           <div className="claim-list__alt-controls--wrap">
             {fetching && <Spinner type="small" delayed />}
 

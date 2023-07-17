@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { selectHasClaimForId } from 'redux/selectors/claims';
+import { selectHasClaimForId, selectClaimIsPendingForId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectBrokenUrlsForCollectionId,
@@ -10,6 +10,7 @@ import {
 } from 'redux/selectors/collections';
 
 import { doResolveClaimId } from 'redux/actions/claims';
+import { doCollectionEdit, doRemoveFromUnsavedChangesCollectionsForCollectionId } from 'redux/actions/collections';
 
 import CollectionPage from './view';
 
@@ -26,11 +27,14 @@ const select = (state, props) => {
     isCollectionMine: selectCollectionIsMine(state, collectionId),
     hasPrivate: selectHasPrivateCollectionForId(state, collectionId),
     isPrivate: selectIsCollectionPrivateForId(state, collectionId),
+    isClaimPending: selectClaimIsPendingForId(state, collectionId),
   };
 };
 
 const perform = {
   doResolveClaimId,
+  doCollectionEdit,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId,
 };
 
 export default connect(select, perform)(CollectionPage);

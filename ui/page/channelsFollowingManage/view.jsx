@@ -10,7 +10,9 @@ import Page from 'component/page';
 import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
+import useComponentDidMount from 'effects/use-component-did-mount';
 import useClaimListInfiniteScroll from 'effects/use-claimList-infinite-scroll';
+import './style.scss';
 
 function getFilteredUris(uris, filterQuery) {
   if (filterQuery) {
@@ -59,12 +61,12 @@ export default function ChannelsFollowingManage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only need to respond to 'filterQuery'
   }, [filterQuery]);
 
-  React.useEffect(() => {
+  useComponentDidMount(() => {
     doFetchLastActiveSubs(true);
-  }, []);
+  });
 
   return (
-    <Page className="followManage-wrapper" noFooter>
+    <Page noFooter>
       <div className="card__title-section">
         <div className="card__title"> {__('Followed Channels')}</div>
       </div>
@@ -86,7 +88,7 @@ export default function ChannelsFollowingManage(props: Props) {
               <div className="card__title-section">
                 <div className="card__subtitle"> {__('Recently Active')}</div>
               </div>
-              <div className="followManage-wrapper__activeSubs">
+              <div className="following__recently-active">
                 {lastActiveSubs.map((sub) => {
                   return (
                     <div key={sub.uri} className="navigation-link__wrapper navigation__subscription">

@@ -40,23 +40,27 @@ type Props = {
   channelsOnly?: boolean,
   noTopSuggestion?: boolean,
   noBottomLinks?: boolean,
+  subscriptions: Array<Subscription>,
   customSelectAction?: (string) => void,
   // --- redux ---
   searchInLanguage: boolean,
   languageSetting: string,
   showMature: boolean,
-  doResolveUris: (string) => void,
+  claimsByUri: { [string]: Claim },
+  subscriptionUris: Array<string>,
   navigateToSearchPage: (string) => void,
   doShowSnackBar: (string) => void,
   doCloseMobileSearch: () => void,
+  doResolveUris: (uris: Array<string>) => Promise<any>,
 };
 
 export default function WunderBarSuggestions(props: Props) {
   const {
     navigateToSearchPage,
     doShowSnackBar,
-    doResolveUris,
     showMature,
+    claimsByUri,
+    subscriptionUris,
     isMobile,
     doCloseMobileSearch,
     channelsOnly,
@@ -65,7 +69,9 @@ export default function WunderBarSuggestions(props: Props) {
     customSelectAction,
     searchInLanguage,
     languageSetting,
+    doResolveUris,
   } = props;
+
   const inputRef: ElementRef<any> = React.useRef();
   const viewResultsRef: ElementRef<any> = React.useRef();
   const exploreTagRef: ElementRef<any> = React.useRef();
@@ -240,6 +246,7 @@ export default function WunderBarSuggestions(props: Props) {
 
     return () => {
       if (inputRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- wrong, but unused code
         inputRef.current.removeEventListener('keydown', overrideHomeEndHandling);
       }
     };
@@ -297,6 +304,7 @@ export default function WunderBarSuggestions(props: Props) {
       window.removeEventListener('keydown', handleKeyDown);
       // @if TARGET='app'
       if (inputRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- wrong, but unused code
         inputRef.current.removeEventListener('dblclick', handleDoubleClick);
       }
       // @endif
@@ -310,6 +318,7 @@ export default function WunderBarSuggestions(props: Props) {
   }, [inputRef, isMobile]);
 
   const stringifiedResults = JSON.stringify(results);
+
   React.useEffect(() => {
     if (stringifiedResults) {
       const arrayResults = JSON.parse(stringifiedResults);
@@ -318,6 +327,35 @@ export default function WunderBarSuggestions(props: Props) {
       }
     }
   }, [doResolveUris, stringifiedResults]);
+
+  const [subscriptionResults, setSubscriptionResults] = React.useState([]);
+
+  React.useEffect(() => {
+    if (subscriptionUris && term && term.length > 1) {
+      let subscriptionResults = [];
+      subscriptionUris.map((uri) => {
+        if (
+          claimsByUri[uri] &&
+          subscriptionResults.indexOf(claimsByUri[uri].permanent_url) === -1 &&
+          (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) ||
+            // $FlowIgnore
+            claimsByUri[uri].value?.title?.toLowerCase().includes(term.toLowerCase()))
+        ) {
+          subscriptionResults.push(claimsByUri[uri].permanent_url);
+        }
+      });
+      setSubscriptionResults(subscriptionResults.slice(0, isMobile ? 5 : 10));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+  }, [term]);
+
+  React.useEffect(() => {
+    if (results && subscriptionResults) {
+      subscriptionResults.map((subscription) => {
+        if (results.indexOf(subscription) !== -1) results.splice(results.indexOf(subscription), 1);
+      });
+    }
+  }, [subscriptionResults, results]);
 
   return (
     <>
@@ -348,7 +386,7 @@ export default function WunderBarSuggestions(props: Props) {
                     </ComboboxOption>
                     <ComboboxOption value={`${TAG_SEARCH_PREFIX}${term}`} className="wunderbar__more-results">
                       <Button ref={exploreTagRef} className="wunderbar__tag-search" button="link">
-                        {__('Explore')}
+                        {__('Search tag')}
                         <div className="tag">{term.split(' ').join('')}</div>
                       </Button>
                     </ComboboxOption>
@@ -361,10 +399,15 @@ export default function WunderBarSuggestions(props: Props) {
 
                 <div className="wunderbar__label">{__('Search Results')}</div>
 
+                {subscriptionResults.length > 0 &&
+                  subscriptionResults.map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)}
+
                 {showPlaceholder && term.length > LIGHTHOUSE_MIN_CHARACTERS ? <Spinner type="small" /> : null}
 
                 {!showPlaceholder && results
-                  ? results.slice(0, isMobile ? 20 : 5).map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)
+                  ? results
+                      .slice(0, isMobile ? 20 - subscriptionResults.length : 10 - subscriptionResults.length)
+                      .map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)
                   : null}
               </ComboboxList>
             </ComboboxPopover>

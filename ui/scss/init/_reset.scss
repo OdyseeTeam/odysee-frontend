@@ -1,4 +1,4 @@
-@import 'init/breakpoints';
+@import './breakpoints';
 
 html {
   box-sizing: border-box;
@@ -28,7 +28,6 @@ html {
   cursor: not-allowed;
 }
 
-[for],
 [role='button'],
 [type='button'],
 [type='checkbox'],
@@ -53,6 +52,7 @@ textarea {
 }
 
 button,
+.button,
 input,
 select,
 textarea {
@@ -67,6 +67,10 @@ textarea {
 
   &:disabled {
     cursor: default;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    font-size: var(--font-base);
   }
 }
 
@@ -172,8 +176,6 @@ textarea {
     width: 100%;
     min-height: var(--spacing-xxl);
     padding: var(--spacing-s);
-    // border-color should be added in apps for blur/focus
-    // border: 1px solid;
   }
 }
 

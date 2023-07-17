@@ -14,16 +14,15 @@ function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autopla
     urlParams.append('r', escapeHtmlProperty(referralLink));
   }
 
+  if (newestType) {
+    urlParams.append('feature', newestType);
+  }
+
   if (autoplay) {
     urlParams.append('autoplay', true);
   }
 
-  let embedUrl;
-  if (newestType) {
-    embedUrl = `${URL}/$/embed/${escapeHtmlProperty(uriPath)}?feature=${newestType}`;
-  } else {
-    embedUrl = `${URL}/$/embed/${escapeHtmlProperty(uriPath)}`;
-  }
+  const embedUrl = `${URL}/$/embed/${escapeHtmlProperty(uriPath)}`;
   const embedUrlParams = urlParams.toString() ? `?${urlParams.toString()}` : '';
 
   return `${embedUrl}${embedUrlParams}`;

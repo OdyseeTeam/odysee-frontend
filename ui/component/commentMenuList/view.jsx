@@ -1,24 +1,24 @@
 // @flow
+import { NavLink } from 'react-router-dom';
 import { getChannelFromClaim } from 'util/claim';
-import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { MenuList, MenuItem } from '@reach/menu-button';
 import { parseURI } from 'util/lbryURI';
 import { URL } from 'config';
 import { useHistory } from 'react-router';
+import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
+import * as PAGES from 'constants/pages';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import classnames from 'classnames';
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
-import { NavLink } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 
 type Props = {
   uri: ?string,
   authorUri: string, // full LBRY Channel URI: lbry://@channel#123...
-  authorName?: string,
   commentId: string, // sha256 digest identifying the comment
   isTopLevel: boolean,
   isPinned: boolean,
@@ -28,6 +28,7 @@ type Props = {
   disableRemove?: boolean,
   supportAmount?: any,
   isLiveComment: boolean,
+  isUserLabel: boolean,
   // --- select ---
   claim: ?Claim,
   claimIsMine: boolean,
@@ -35,7 +36,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   playingUri: PlayingUri,
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
-  authorTitle: string,
   authorCanonicalUri: ?string,
   authorId: string,
   // --- perform ---
@@ -57,7 +57,6 @@ function CommentMenuList(props: Props) {
     claim,
     claimIsMine,
     authorUri,
-    authorName,
     authorId,
     commentIsMine,
     channelIsMine,
@@ -67,13 +66,13 @@ function CommentMenuList(props: Props) {
     isPinned,
     playingUri,
     moderationDelegatorsById,
-    authorTitle,
     authorCanonicalUri,
     isAuthenticated,
     disableEdit,
     disableRemove,
     supportAmount,
     isLiveComment,
+    isUserLabel,
     doToast,
     handleEditComment,
     openModal,
@@ -91,6 +90,7 @@ function CommentMenuList(props: Props) {
   const {
     location: { pathname, search },
   } = useHistory();
+  const history = useHistory();
 
   const contentChannelClaim = getChannelFromClaim(claim);
   const contentChannelPermanentUrl = contentChannelClaim && contentChannelClaim.permanent_url;
@@ -203,18 +203,19 @@ function CommentMenuList(props: Props) {
   return (
     <MenuList
       className={classnames('menu__list', {
-        'menu__chat-comment': isLiveComment,
+        'menu__chat-comment': isLiveComment || isUserLabel,
       })}
       onClick={(e) => e.stopPropagation()}
     >
-      {isLiveComment && (
-        <div className="comment__menu-target">
-          <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
-          <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>
-            {authorTitle || authorName}
-            <Icon icon={ICONS.COPY_LINK} />
+      {(isLiveComment || isUserLabel) && (
+        <MenuItem onSelect={(e) => e.preventDefault()}>
+          <NavLink className="comment__menu-option menu__link" to={formatLbryUrlForWeb(authorUri)}>
+            <span className={'button__content'}>
+              <Icon aria-hidden icon={ICONS.CHANNEL} className={'icon'} />
+              {__('Visit')}
+            </span>
           </NavLink>
-        </div>
+        </MenuItem>
       )}
       {isAuthenticated && isLiveComment && setQuickReply && !commentIsMine && !channelIsMine && (
         <>
@@ -232,17 +233,11 @@ function CommentMenuList(props: Props) {
       )}
 
       {/* Administration & moderation */}
-      {activeChannelIsCreator &&
-        (!commentIsMine ? (
-          <div className="comment__menu-title">
-            <Icon aria-hidden icon={ICONS.BADGE_STREAMER} className={'icon'} />
-            {__('Creator tools')}
-          </div>
-        ) : (
-          <div className="comment__menu-title no-border">{__("That's you...")}</div>
-        ))}
-      {!activeChannelIsCreator && !commentIsMine && channelIsMine && (
-        <div className="comment__menu-title">{__("That's one of your channels...")}</div>
+      {activeChannelIsCreator && !commentIsMine && (
+        <div className="comment__menu-title">
+          <Icon aria-hidden icon={ICONS.BADGE_STREAMER} className={'icon'} />
+          {__('Creator tools')}
+        </div>
       )}
       {activeChannelIsCreator && isTopLevel && (
         <MenuItem
@@ -317,6 +312,17 @@ function CommentMenuList(props: Props) {
               <span className="comment__menu-help">{__('Hide this channel for you only.')}</span>
             )}
           </MenuItem>
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={() =>
+              history.push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claim ? claim.claim_id : ''}&commentId=${commentId}`)
+            }
+          >
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.REPORT} />
+              {__('Report Comment')}
+            </div>
+          </MenuItem>
         </>
       )}
       {isLiveComment && !commentIsMine && channelIsMine && (
@@ -339,7 +345,8 @@ function CommentMenuList(props: Props) {
         <div className="comment__menu-active">
           <ChannelThumbnail xsmall noLazyLoad uri={activeChannelClaim.permanent_url} />
           <div className="comment__menu-channel">
-            {__('Interacting as %channelName%', { channelName: activeChannelClaim.name })}
+            {__('Interacting as')}
+            <span>{activeChannelClaim.name}</span>
           </div>
         </div>
       )}

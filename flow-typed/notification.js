@@ -1,5 +1,4 @@
 // @flow
-import * as ACTIONS from 'constants/action_types';
 
 /*
   Toasts:
@@ -18,7 +17,7 @@ declare type ToastParams = {
   isError?: boolean,
   duration?: 'default' | 'long',
   actionText?: string,
-  action?: () => void,
+  action?: () => void | any,
   secondaryActionText?: string,
   secondaryAction?: () => void,
 };
@@ -29,8 +28,17 @@ declare type Toast = {
 };
 
 declare type DoToast = {
-  type: ACTIONS.CREATE_TOAST,
+  type: 'CREATE_TOAST', // ACTIONS.CREATE_TOAST,
   data: Toast,
+};
+
+declare type DoDebugLog = {
+  type: 'DEBUG_LOG',
+  data: {
+    info?: string | Error,
+    append?: boolean, // clear-and-add if false
+    clear?: boolean,
+  };
 };
 
 /*
@@ -51,19 +59,19 @@ declare type Notification = {
 };
 
 declare type DoNotification = {
-  type: ACTIONS.CREATE_NOTIFICATION,
+  type: 'CREATE_NOTIFICATION', // ACTIONS.CREATE_NOTIFICATION,
   data: Notification,
 };
 
 declare type DoEditNotification = {
-  type: ACTIONS.EDIT_NOTIFICATION,
+  type: 'EDIT_NOTIFICATION', // ACTIONS.EDIT_NOTIFICATION,
   data: {
     notification: Notification,
   },
 };
 
 declare type DoDeleteNotification = {
-  type: ACTIONS.DELETE_NOTIFICATION,
+  type: 'DELETE_NOTIFICATION', // ACTIONS.DELETE_NOTIFICATION,
   data: {
     id: string, // The id to delete
   },
@@ -81,12 +89,12 @@ declare type ErrorNotification = {
 };
 
 declare type DoError = {
-  type: ACTIONS.CREATE_ERROR,
+  type: 'CREATE_ERROR', // ACTIONS.CREATE_ERROR,
   data: ErrorNotification,
 };
 
 declare type DoDismissError = {
-  type: ACTIONS.DISMISS_ERROR,
+  type: 'DISMISS_ERROR', // ACTIONS.DISMISS_ERROR,
 };
 
 /*
@@ -94,9 +102,13 @@ declare type DoDismissError = {
 */
 declare type NotificationState = {
   notifications: Array<Notification>,
+  notificationsFiltered: Array<Notification>,
+  notificationCategories: any,
+  fetchingNotifications: boolean,
   errors: Array<ErrorNotification>,
   toasts: Array<Toast>,
   nagIds: Array<string>,
+  debugLog: Array<string | Error>,
 };
 
 declare type WebNotification = {

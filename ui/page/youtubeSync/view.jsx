@@ -12,9 +12,13 @@ import { INVALID_NAME_ERROR } from 'constants/claim';
 import { isNameValid } from 'util/lbryURI';
 import { Lbryio } from 'lbryinc';
 import { useHistory } from 'react-router';
-import YoutubeTransferStatus from 'component/youtubeTransferStatus';
 import Nag from 'component/nag';
+import { lazyImport } from 'util/lazyImport';
 import { getDefaultLanguage, sortLanguageMap } from 'util/default-languages';
+
+const YoutubeTransferStatus = lazyImport(() =>
+  import('component/youtubeTransferStatus' /* webpackChunkName: "youtubeTransferStatus" */)
+);
 
 const STATUS_TOKEN_PARAM = 'status_token';
 const ERROR_MESSAGE_PARAM = 'error_message';
@@ -52,6 +56,7 @@ export default function YoutubeSync(props: Props) {
     }
 
     replace(`?${urlParamsInEffect.toString()}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [pathname, search]);
 
   React.useEffect(() => {
@@ -113,7 +118,9 @@ export default function YoutubeSync(props: Props) {
     <Wrapper>
       <div className="main__channel-creation">
         {hasYoutubeChannels && !addingNewChannel ? (
-          <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} />
+          <React.Suspense fallback={null}>
+            <YoutubeTransferStatus alwaysShow addNewChannel={handleNewChannel} />
+          </React.Suspense>
         ) : (
           <Card
             title={__('Sync your YouTube channel to %site_name%', { site_name: IS_WEB ? SITE_NAME : 'LBRY' })}

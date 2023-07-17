@@ -22,15 +22,6 @@ $SKEW_AMOUNT: 10deg;
   }
 }
 
-.filePrice--skewedBg {
-  transform: skew($SKEW_AMOUNT);
-
-  .icon,
-  .credit-amount {
-    transform: skew(-$SKEW_AMOUNT);
-  }
-}
-
 .filePrice--fiat {
   background-color: var(--color-fiat-payment);
 
@@ -63,30 +54,29 @@ $SKEW_AMOUNT: 10deg;
 }
 
 .filePrice--filepage {
-  padding: 0 var(--spacing-s);
+  padding-left: var(--spacing-s);
+  padding-right: var(--spacing-s);
+  margin-top: var(--spacing-s);
   height: 2.4rem;
-
+  border-radius: var(--border-radius);
   opacity: 0;
   animation: fadeIn 1.5s;
   animation-fill-mode: forwards;
 
+  .credit-amount {
+    font-size: var(--font-body) !important;
+    font-weight: var(--font-weight-bold);
+    padding-right: 0;
+    svg {
+      margin-right: var(--spacing-s);
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
+    margin-top: 0;
     padding: 0 var(--spacing-xs);
     height: 2rem;
   }
-
-  .credit-amount {
-    @media (max-width: $breakpoint-small) {
-      margin-right: 0 !important;
-    }
-  }
-}
-
-.filePrice--filepage.filePrice--skewedBg {
-  // Buy some space to avoid clipping.
-  // Not sure why it's not needed for claim thumbnails.
-  margin-left: calc(var(--spacing-s) / 2);
-  margin-right: calc(var(--spacing-s) / 2);
 }
 
 .filePrice--modal {
@@ -116,19 +106,26 @@ $SKEW_AMOUNT: 10deg;
 .filePrice--key {
   background-color: var(--color-purchased);
 
+  .credit-amount {
+    p {
+      color: black !important;
+    }
+  }
   .icon--Key {
     margin-left: var(--spacing-m);
     margin-right: var(--spacing-m);
+    stroke: black !important;
+    color: black !important;
+    stroke-width: 2;
 
     @media (max-width: $breakpoint-small) {
       margin-left: var(--spacing-s);
       margin-right: var(--spacing-s);
     }
   }
-
   .icon {
-    stroke: black;
-    stroke-width: 2;
+    stroke: black !important;
+    color: black !important;
   }
 }
 
@@ -171,5 +168,80 @@ $SKEW_AMOUNT: 10deg;
     & > *:not(:last-child) {
       margin-bottom: calc(var(--spacing-xxs) / 2);
     }
+  }
+}
+
+.file-page__media-actions {
+  .card__header--between {
+    flex-wrap: nowrap;
+    .card__title-actions-container {
+      overflow: visible;
+      .card__title-actions {
+        align-self: normal;
+      }
+    }
+  }
+}
+
+.paid-content-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.paid-content-overlay__body {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: var(--border-radius);
+
+  .purchase-button:not(.purchase-button--fee) {
+    background-color: var(--color-fiat-payment) !important;
+  }
+}
+
+.paid-content-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  .paid-content-prompt__notice {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-fiat-payment);
+    background-color: rgba(var(--color-fiat-payment-decimal), 0.2);
+    color: var(--color-text);
+    padding: var(--spacing-xs) var(--spacing-s);
+    margin-bottom: var(--spacing-s);
+    font-size: var(--font-small);
+  }
+
+  .paid-content-prompt__price {
+    font-size: var(--font-body);
+    margin-bottom: var(--spacing-s);
+
+    .icon {
+      margin-right: var(--spacing-xs);
+      margin-bottom: -2px;
+    }
+  }
+}
+
+.paid-content-prompt--overlay {
+  align-items: center;
+
+  .paid-content-prompt__notice {
+    font-size: var(--font-base);
   }
 }

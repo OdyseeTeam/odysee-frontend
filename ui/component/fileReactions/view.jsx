@@ -18,6 +18,7 @@ type Props = {
   dislikeCount: number,
   myReaction: ?string,
   isLivestreamClaim?: boolean,
+  scheduledState: ClaimScheduledState,
   doFetchReactions: (claimId: ?string) => void,
   doReactionLike: (uri: string) => void,
   doReactionDislike: (uri: string) => void,
@@ -31,6 +32,7 @@ export default function FileReactions(props: Props) {
     likeCount,
     dislikeCount,
     isLivestreamClaim,
+    scheduledState,
     doFetchReactions,
     doReactionLike,
     doReactionDislike,
@@ -58,7 +60,11 @@ export default function FileReactions(props: Props) {
   }, [claimId, doFetchReactions, isLivestreamClaim]);
 
   return (
-    <div className="ratio-wrapper">
+    <div
+      className={classnames('ratio-wrapper', {
+        'ratio-wrapper--disabled': scheduledState === 'scheduled',
+      })}
+    >
       <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike(uri)} />
       <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike(uri)} />
       <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />

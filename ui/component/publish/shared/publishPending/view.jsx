@@ -29,7 +29,7 @@ const PublishPending = (props: Props) => {
   } else {
     return (
       <div className="confirming-change">
-        {__('Confirming...')} <Spinner type="small" />
+        {__('Confirming')} <Spinner type="small" />
       </div>
     );
   }

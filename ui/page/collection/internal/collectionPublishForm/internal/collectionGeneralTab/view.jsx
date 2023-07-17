@@ -1,17 +1,25 @@
 // @flow
 import React from 'react';
-
-import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
-
 import { useHistory } from 'react-router-dom';
-import { COLLECTION_PAGE } from 'constants/urlParams';
-import { FormField, FormUrlName } from 'component/common/form';
-import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
-import { FormContext } from 'component/common/form-components/form';
+import { SIMPLE_SITE } from 'config';
 
+import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
+import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import { COLLECTION_PAGE } from 'constants/urlParams';
+
+import { FormField, FormUrlName } from 'component/common/form';
+import { FormContext } from 'component/common/form-components/form';
+import TagsSelect from 'component/tagsSelect';
+import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
-import SelectThumbnail from 'component/selectThumbnail';
 import CollectionPublishAdditionalOptions from './internal/additionalOptions';
+
+import { lazyImport } from 'util/lazyImport';
+
+import './style.scss';
+
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
+const TAGS_LIMIT = 5;
 
 type Props = {
   formParams: any,
@@ -37,6 +45,7 @@ function CollectionGeneralTab(props: Props) {
   const {
     location: { search },
   } = useHistory();
+  const { tags } = formParams;
 
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
@@ -78,7 +87,7 @@ function CollectionGeneralTab(props: Props) {
   }, [setThumbnailError, thumbError, thumbStatus]);
 
   return (
-    <>
+    <div className="card card--background collection-edit__wrapper">
       {publishing && (
         <>
           <ChannelSelector
@@ -87,28 +96,37 @@ function CollectionGeneralTab(props: Props) {
             onChannelSelect={(id) => updateFormParams({ channel_id: id })}
           />
 
-          <FormUrlName
-            channelName={collectionChannelName}
-            name={name}
-            autoFocus={!hasClaim}
-            disabled={hasClaim}
-            onChange={(e) => updateFormParams({ name: e.target.value || '' })}
-          />
+          <div className="collection__name-wrapper">
+            <h2>{__('Name')}</h2>
+            <div className="collection__name">
+              <FormUrlName
+                channelName={collectionChannelName}
+                name={name}
+                autoFocus={!hasClaim}
+                disabled={hasClaim}
+                onChange={(e) => updateFormParams({ name: e.target.value || '' })}
+              />
 
-          <span className="form-field__help">
-            {!hasClaim ? __("This won't be able to be changed in the future.") : __('This field cannot be changed.')}
-          </span>
+              <span className="form-field__help">
+                {!hasClaim
+                  ? __("This won't be able to be changed in the future.")
+                  : __('This field cannot be changed.')}
+              </span>
+            </div>
+          </div>
         </>
       )}
 
-      <FormField
-        type="text"
-        name="collection_title"
-        label={__('Title')}
-        placeholder={__('My Awesome Playlist')}
-        value={title || ''}
-        onChange={(e) => updateFormParams({ title: e.target.value || '' })}
-      />
+      <div className="collection__title">
+        <h2>{__('Title')}</h2>
+        <FormField
+          type="text"
+          name="collection_title"
+          placeholder={__('My Awesome Playlist')}
+          value={title || ''}
+          onChange={(e) => updateFormParams({ title: e.target.value || '' })}
+        />
+      </div>
 
       <fieldset-section>
         <SelectThumbnail
@@ -120,13 +138,50 @@ function CollectionGeneralTab(props: Props) {
         />
       </fieldset-section>
 
+      <h2>{__('Description')}</h2>
       <FormField
         type="markdown"
         name="collection_description"
-        label={__('Description')}
         value={(typeof description === 'string' && description) || ''}
         onChange={(value) => updateFormParams({ description: value || '' })}
         textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
+      />
+
+      <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
+        {__('Tags')}
+      </h2>
+      <Card
+        background
+        body={
+          <div className="publish-row">
+            <TagsSelect
+              suggestMature={!SIMPLE_SITE}
+              disableAutoFocus
+              hideHeader
+              label={__('Selected Tags')}
+              empty={__('No tags added')}
+              limitSelect={TAGS_LIMIT}
+              help={__(
+                "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+              )}
+              placeholder={__('gaming, crypto')}
+              onSelect={(newTags) => {
+                const validatedTags = [];
+                newTags.forEach((newTag) => {
+                  if (!tags.some((tag) => tag.name === newTag.name)) {
+                    validatedTags.push(newTag);
+                  }
+                });
+                updateFormParams({ tags: [...tags, ...validatedTags] });
+              }}
+              onRemove={(clickedTag) => {
+                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                updateFormParams({ tags: newTags });
+              }}
+              tagsChosen={tags}
+            />
+          </div>
+        }
       />
 
       {publishing && (
@@ -134,7 +189,7 @@ function CollectionGeneralTab(props: Props) {
           <CollectionPublishAdditionalOptions />
         </fieldset-section>
       )}
-    </>
+    </div>
   );
 }
 

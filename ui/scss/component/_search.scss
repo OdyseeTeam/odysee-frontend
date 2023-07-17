@@ -134,6 +134,7 @@
   }
 }
 
+/*
 .recommended-content__toggles {
   margin-top: var(--spacing-xs);
   display: flex;
@@ -151,9 +152,10 @@
     }
   }
 }
+*/
 
 .search__channel {
-  margin-bottom: var(--spacing-l);
+  // margin-bottom: var(--spacing-l);
 
   fieldset-section {
     margin-top: 0;
@@ -172,7 +174,6 @@
   top: 100%;
   left: 0;
   right: 0;
-  // background: #21252980;
   background: rgba(var(--color-header-background-base), 0.9);
   color: var(--color-text);
 
@@ -191,102 +192,6 @@
 }
 
 .searchPage-wrapper {
-  .search__header {
-    .claim-preview__wrapper--channel {
-      .claim-preview__repost-author {
-        margin-top: calc(var(--spacing-m) * -1) !important;
-        margin-left: calc(var(--spacing-m) * -1) !important;
-        .claim-preview__repost-ribbon {
-          span {
-            margin-left: 0;
-            color: white;
-            &:hover {
-              opacity: 0.8;
-            }
-          }
-        }
-      }
-      .claim__menu-button {
-        right: calc(var(--spacing-m) - 8px) !important;
-      }
-      &:hover {
-        background-color: rgba(var(--color-header-background-base), 0.9);
-      }
-    }
-    .claim-preview__wrapper {
-      .claim-preview__repost-author {
-        top: 0 !important;
-        left: 0 !important;
-        span {
-          display: inline-block;
-          margin-left: 12px;
-          margin-top: -4px;
-          width: 92px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        @media (max-width: $breakpoint-small) {
-          .icon {
-            margin-top: 3px;
-          }
-          span {
-            font-size: var(--font-xxxsmall);
-            width: 78px;
-            margin-top: 1px;
-            margin-left: 10px;
-          }
-        }
-      }
-      @media (max-width: $breakpoint-small) {
-        .claim-preview__text {
-          overflow: visible;
-          .claim-preview__actions {
-            overflow: visible;
-
-            .claim-preview__primary-actions {
-              margin-bottom: 0;
-              margin-left: calc((4rem + (2 * var(--spacing-xs))) * -1);
-            }
-          }
-        }
-      }
-    }
-  }
-
-  .claim-preview__wrapper {
-    background-color: rgba(var(--color-header-background-base), 0.6);
-    .claim-tile__info {
-      margin-top: 0;
-      padding-bottom: var(--spacing-xxxs);
-      .claim-preview-metadata-sub-upload {
-        margin-top: 3px;
-      }
-    }
-  }
-
-  .claim-preview__wrapper--channel {
-    position: relative;
-    border-radius: var(--border-radius);
-    background: rgba(var(--color-header-background-base), 0.6);
-    padding: var(--spacing-m) !important;
-
-    .claim__menu-button {
-      // right: calc(var(--spacing-m) - 8px) !important;
-      margin-top: var(--spacing-xxs);
-
-      .icon {
-        stroke: var(--color-text);
-      }
-
-      &:hover {
-        .icon {
-          stroke: var(--color-primary);
-        }
-      }
-    }
-  }
-
   .ads__claim-item {
     margin-top: 0;
     margin-bottom: var(--spacing-xxs);

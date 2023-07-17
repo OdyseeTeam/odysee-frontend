@@ -22,7 +22,7 @@ class FileDetails extends PureComponent<Props> {
       return <span className="empty">{__('Empty claim or metadata info.')}</span>;
     }
 
-    const { languages, license } = metadata;
+    const { languages, license, license_url } = metadata;
 
     const mediaType = contentType || 'unknown';
     const fileSize =
@@ -40,15 +40,6 @@ class FileDetails extends PureComponent<Props> {
 
     return (
       <>
-        <div className="media__details">
-          <span>{__('URL')}</span>
-          <span>{claim.canonical_url}</span>
-        </div>
-        <div className="media__details">
-          <span>{__('Claim ID')}</span>
-          <span>{claim.claim_id}</span>
-        </div>
-
         {!SIMPLE_SITE && (
           <>
             {languages && (
@@ -90,10 +81,23 @@ class FileDetails extends PureComponent<Props> {
           </>
         )}
 
-        {fileSize && (
-          <div className="media__details">
-            <span>{fileSize}</span>
-          </div>
+        {SIMPLE_SITE && (
+          <>
+            {license !== 'None' && (
+              <div className="file-detail">
+                <span className="file-detail__label">{__('License')}</span>
+                <span className="file-detail__value">{license}</span>
+                {license_url && <span className="file-detail__value">{license_url}</span>}
+              </div>
+            )}
+
+            {fileSize && (
+              <div className="file-detail">
+                <span className="file-detail__label">{__('File size')}</span>
+                <span className="file-detail__value">{fileSize}</span>
+              </div>
+            )}
+          </>
         )}
       </>
     );

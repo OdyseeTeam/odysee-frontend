@@ -21,7 +21,6 @@ import { doToast } from 'redux/actions/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
   selectMyCommentedChannelIdsForId,
-  selectSettingsByChannelId,
   selectCommentsDisabledSettingForChannelId,
   selectLivestreamChatMembersOnlyForChannelId,
   selectMembersOnlyCommentsForChannelId,
@@ -31,7 +30,10 @@ import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
-import { selectUserIsMemberOfMembersOnlyChatForCreatorId } from 'redux/selectors/memberships';
+import {
+  selectUserHasOdyseePremiumPlus,
+  selectUserIsMemberOfMembersOnlyChatForCreatorId,
+} from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -44,8 +46,11 @@ const select = (state, props) => {
   const tipChannelName = channel ? channel.name : name;
 
   const activeChannelClaim = selectActiveChannelClaim(state);
-  const { claim_id: activeChannelClaimId, name: activeChannelName, canonical_url: activeChannelUrl } =
-    activeChannelClaim || {};
+  const {
+    claim_id: activeChannelClaimId,
+    name: activeChannelName,
+    canonical_url: activeChannelUrl,
+  } = activeChannelClaim || {};
 
   return {
     activeChannelClaimId,
@@ -61,13 +66,14 @@ const select = (state, props) => {
     myChannelClaimIds: selectMyChannelClaimIds(state),
     myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
     preferredCurrency: selectPreferredCurrency(state),
-    settingsByChannelId: selectSettingsByChannelId(state),
+    channelSettings: state.comments.settingsByChannelId[channelClaimId],
     supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
     tipChannelName,
     userHasMembersOnlyChatPerk: selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId),
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
-    isLivestreamChatMembersOnly: channelClaimId && selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId),
-    areCommentsMembersOnly: channelClaimId && selectMembersOnlyCommentsForChannelId(state, channelClaimId),
+    isLivestreamChatMembersOnly: Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId)),
+    areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
+    hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 

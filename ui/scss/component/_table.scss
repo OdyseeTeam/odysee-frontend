@@ -32,11 +32,6 @@
     color: var(--color-text-help);
     padding-bottom: var(--spacing-xxxs);
     text-align: left;
-
-    @media (max-width: $breakpoint-small) {
-      // padding-left: var(--spacing-xs) !important;
-      // padding-right: var(--spacing-xs) !important;
-    }
   }
 }
 
@@ -74,7 +69,7 @@ td {
 }
 
 .table__item--align-right {
-  text-align: right;
+  text-align: right !important;
 
   * {
     text-align: right;
@@ -209,8 +204,16 @@ td {
 .table--lbc-details {
   @extend .table--details;
 
-  td:nth-of-type(2) {
-    text-align: right;
+  background-color: var(--color-header-button);
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-s);
+
+  td {
+    padding-left: var(--spacing-s) !important;
+    padding-right: var(--spacing-s) !important;
+    &:nth-of-type(2) {
+      text-align: right;
+    }
   }
 
   @media (max-width: $breakpoint-small) {

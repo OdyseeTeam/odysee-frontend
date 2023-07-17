@@ -20,7 +20,7 @@ export default function WalletFiatBalance(props: Props) {
 
   return (
     <Card
-      title={<>Cash Balance</>}
+      title={<>{__('Cash Balance')}</>}
       subtitle={__('You can view your balance and transaction history on Stripe from the Bank Accounts section.')}
       actions={
         <>

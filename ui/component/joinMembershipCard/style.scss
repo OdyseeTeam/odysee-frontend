@@ -1,0 +1,313 @@
+.modal--card-internal {
+  .card--join-membership {
+    .button--link {
+      margin-left: 0 !important;
+    }
+
+    .join-membership__modal-tabs {
+      &:hover {
+        button.button-toggle {
+          opacity: 1;
+        }
+      }
+
+      button.button-toggle {
+        opacity: 0.6;
+        margin-right: var(--spacing-xxxs);
+        margin-bottom: var(--spacing-xxxs);
+        border-radius: var(--border-radius);
+        transition: opacity 0.2s;
+        .button__label {
+          color: rgba(var(--color-text-base), 0.7) !important;
+        }
+        .icon {
+          display: none;
+        }
+        &:hover {
+          .button__label {
+            color: white !important;
+          }
+        }
+
+        &.no-access-button {
+          .icon {
+            display: inline-block;
+            // border:2px solid red !important;
+            background-color: black !important;
+            border-radius: 50%;
+            padding: 4px;
+            stroke: red !important;
+            stroke-width: 4px;
+            transform: scale(1.4);
+            overflow: visible;
+          }
+          &:hover {
+            .icon {
+              stroke: red !important;
+            }
+          }
+        }
+        &.access-button {
+          .icon {
+            display: inline-block;
+            background-color: black !important;
+            border-radius: 50%;
+            padding: 4px;
+            stroke: #91f92d !important;
+            stroke-width: 4px;
+            transform: scale(1.4);
+            overflow: visible;
+          }
+          &:hover {
+            .icon {
+              stroke: #91f92d !important;
+            }
+          }
+        }
+
+        &:nth-of-type(1) {
+          background-color: rgba(var(--color-membership-1), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-1), 0.6) !important;
+          &:hover {
+            background-color: rgba(var(--color-membership-1), 1) !important;
+          }
+        }
+        &:nth-of-type(2) {
+          background-color: rgba(var(--color-membership-2), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-2), 0.6) !important;
+          &:hover {
+            background-color: rgba(var(--color-membership-2), 1) !important;
+          }
+        }
+        &:nth-of-type(3) {
+          background-color: rgba(var(--color-membership-3), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-3), 0.6) !important;
+          &:hover {
+            background-color: rgba(var(--color-membership-3), 1) !important;
+          }
+        }
+        &:nth-of-type(4) {
+          background-color: rgba(var(--color-membership-4), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-4), 0.6) !important;
+          &:hover {
+            background-color: rgba(var(--color-membership-4), 1) !important;
+          }
+        }
+        &:nth-of-type(5) {
+          background-color: rgba(var(--color-membership-5), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-5), 0.6) !important;
+          &:hover {
+            background-color: rgba(var(--color-membership-5), 1) !important;
+          }
+        }
+        &:nth-of-type(6) {
+          background-color: rgba(var(--color-membership-6), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-6), 0.6) !important;
+          &:hover {
+            background-color: rgba(var(--color-membership-6), 1) !important;
+          }
+        }
+      }
+      button.button-toggle--active {
+        opacity: 1;
+        .button__label {
+          color: white !important;
+        }
+        &:nth-of-type(1) {
+          background-color: rgba(var(--color-membership-1), 1) !important;
+        }
+        &:nth-of-type(2) {
+          background-color: rgba(var(--color-membership-2), 1) !important;
+        }
+        &:nth-of-type(3) {
+          background-color: rgba(var(--color-membership-3), 1) !important;
+        }
+        &:nth-of-type(4) {
+          background-color: rgba(var(--color-membership-4), 1) !important;
+        }
+        &:nth-of-type(5) {
+          background-color: rgba(var(--color-membership-5), 1) !important;
+        }
+        &:nth-of-type(6) {
+          background-color: rgba(var(--color-membership-6), 1) !important;
+        }
+      }
+    }
+
+    &.membership-tier1 {
+      .dot {
+        background-color: rgba(var(--color-membership-1), 1);
+      }
+      *::selection {
+        background: rgba(var(--color-membership-1), 1) !important;
+      }
+      .membership-tier__perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-1), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-1), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-1), 1) !important;
+          }
+        }
+      }
+    }
+    &.membership-tier2 {
+      .dot {
+        background-color: rgba(var(--color-membership-2), 1);
+      }
+      *::selection {
+        background: rgba(var(--color-membership-2), 1) !important;
+      }
+      .membership-tier__perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-2), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-2), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-2), 1) !important;
+          }
+        }
+      }
+    }
+    &.membership-tier3 {
+      .dot {
+        background-color: rgba(var(--color-membership-3), 1);
+      }
+      *::selection {
+        background: rgba(var(--color-membership-3), 1) !important;
+      }
+      .membership-tier__perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-3), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-3), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-3), 1) !important;
+          }
+        }
+      }
+    }
+    &.membership-tier4 {
+      .dot {
+        background-color: rgba(var(--color-membership-4), 1);
+      }
+      *::selection {
+        background: rgba(var(--color-membership-4), 1) !important;
+      }
+      .membership-tier__perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-4), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-4), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-4), 1) !important;
+          }
+        }
+      }
+    }
+    &.membership-tier5 {
+      .dot {
+        background-color: rgba(var(--color-membership-5), 1);
+      }
+      *::selection {
+        background: rgba(var(--color-membership-5), 1) !important;
+      }
+      .membership-tier__perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-5), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-5), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-5), 1) !important;
+          }
+        }
+      }
+    }
+    &.membership-tier6 {
+      .dot {
+        background-color: rgba(var(--color-membership-6), 1);
+      }
+      *::selection {
+        background: rgba(var(--color-membership-6), 1) !important;
+      }
+      .membership-tier__perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-6), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-6), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-6), 1) !important;
+          }
+        }
+      }
+    }
+
+    .join-membership__empty {
+      *::selection {
+        background: var(--color-primary) !important;
+      }
+      .button--primary {
+        background-color: var(--color-primary) !important;
+      }
+    }
+  }
+
+  .membership-tier__header {
+    display: none;
+  }
+  .membership-tier__infos {
+    margin-top: var(--spacing-m);
+    span {
+      opacity: 0.8;
+    }
+    .membership-tier__perks {
+      margin-bottom: 0 !important;
+    }
+  }
+  .join-membership__modal-action {
+    margin-top: var(--spacing-l);
+  }
+}

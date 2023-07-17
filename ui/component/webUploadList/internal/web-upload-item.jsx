@@ -226,7 +226,11 @@ export default function WebUploadItem(props: Props) {
   }, [locked, showFileSelector]);
 
   return (
-    <li className={'web-upload-item claim-preview claim-preview--inactive card--inline'}>
+    <li
+      className={
+        'claim-preview__wrapper claim-preview__wrapper--row web-upload-item claim-preview claim-preview--inactive card--inline'
+      }
+    >
       <FileThumbnail thumbnail={params.thumbnail_url} />
       <div className={'claim-preview-metadata'}>
         <div className="claim-preview-info">

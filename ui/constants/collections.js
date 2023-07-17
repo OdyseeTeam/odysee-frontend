@@ -10,6 +10,10 @@ export const THUMBNAIL_PREVIEW_AMOUNT = 3;
 export const COLLECTION_ID = 'lid';
 export const COLLECTION_INDEX = 'linx';
 
+export const FILTER_TYPE_KEY = 'filterType';
+
+export const SEARCH_TERM_KEY = 'search';
+
 export const COL_TYPES = Object.freeze({
   PLAYLIST: 'playlist',
   CHANNELS: 'channelList',
@@ -26,7 +30,8 @@ export const FAVORITES_NAME = 'Favorites';
 export const QUEUE_ID = 'queue';
 export const QUEUE_NAME = 'Queue';
 
-export const BUILTIN_PLAYLISTS = [WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID];
+export const BUILTIN_PLAYLISTS_NO_QUEUE = [WATCH_LATER_ID, FAVORITES_ID];
+export const BUILTIN_PLAYLISTS = [...BUILTIN_PLAYLISTS_NO_QUEUE, QUEUE_ID];
 // export const FAVORITE_CHANNELS_ID = 'favoriteChannels';
 // export const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID, FAVORITE_CHANNELS_ID];
 
@@ -36,6 +41,7 @@ export const KEYS = Object.freeze({
   UPDATED: 'updated',
   UNPUBLISHED: 'unpublished',
   SAVED: 'savedIds',
+  UNSAVED_CHANGES: 'unsavedChanges',
 });
 
 export const SECTION_TAGS = Object.freeze({

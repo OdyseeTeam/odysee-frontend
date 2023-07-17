@@ -1,0 +1,69 @@
+@import '~ui/scss/init/breakpoints';
+
+.publish-visibility {
+  margin-bottom: var(--spacing-l);
+
+  .card__body {
+    .publish-visibility__scheduled {
+      .checkbox {
+        label {
+          padding-left: calc(var(--height-checkbox) + var(--spacing-xs));
+        }
+      }
+    }
+  }
+  fieldset-section.radio {
+    padding-top: var(--spacing-s);
+  }
+
+  fieldset-section.radio:first-of-type {
+    padding-top: 0;
+  }
+  fieldset-section.radio:last-of-type {
+    padding-bottom: 0;
+  }
+}
+
+$RADIO_HELP_INDENT: calc(var(--spacing-l) + 3px); // @FixMe
+
+p.publish-visibility__radio-help {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  margin-left: $RADIO_HELP_INDENT;
+  margin-top: 0;
+}
+
+p.publish-visibility__warning {
+  color: var(--color-text-warning);
+  font-size: var(--font-xsmall);
+  margin-top: 0;
+  margin-left: $RADIO_HELP_INDENT;
+}
+
+p.publish-visibility__caution {
+  color: var(--color-text-warning);
+  border: 1px solid var(--color-text-warning);
+  padding: var(--spacing-s);
+  border-radius: var(--border-radius);
+  font-size: var(--font-small);
+  margin: var(--spacing-s) var(--spacing-l) 0 $RADIO_HELP_INDENT;
+}
+
+.publish-visibility__scheduled {
+  margin-top: var(--spacing-s);
+  margin-left: $RADIO_HELP_INDENT;
+
+  .form-field-date-picker {
+    margin-top: var(--spacing-xs);
+
+    @media (max-width: $breakpoint-small) {
+      .form-field-date-picker__controls {
+        flex-wrap: wrap;
+      }
+    }
+  }
+}
+
+.form-field-date-picker__error {
+  margin-top: 2px;
+}

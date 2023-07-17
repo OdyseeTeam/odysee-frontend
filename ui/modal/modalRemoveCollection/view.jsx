@@ -20,16 +20,8 @@ type Props = {
 };
 
 function ModalRemoveCollection(props: Props) {
-  const {
-    simplify,
-    hasClaim,
-    collectionId,
-    collectionName,
-    redirect,
-    collectionKey,
-    doHideModal,
-    doCollectionDelete,
-  } = props;
+  const { simplify, hasClaim, collectionId, collectionName, redirect, collectionKey, doHideModal, doCollectionDelete } =
+    props;
 
   const { replace } = useHistory();
 
@@ -49,7 +41,12 @@ function ModalRemoveCollection(props: Props) {
         <>
           <p>{__('This will permanently delete the list.')}</p>
           <p>{__('Type "%list_name%" to confirm.', { list_name: collectionName })}</p>
-          <FormField value={confirmName} type={'text'} onChange={(e) => setConfirmName(e.target.value)} />
+          <FormField
+            value={confirmName}
+            type={'text'}
+            onChange={(e) => setConfirmName(e.target.value)}
+            style={{ marginBottom: 'var(--spacing-s)' }}
+          />
           <FormField
             name="keep-private"
             type="checkbox"

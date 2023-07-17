@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { selectCountForCollectionId, selectCollectionHasEditsForId } from 'redux/selectors/collections';
+import { selectCountForCollectionId } from 'redux/selectors/collections';
 
 import CollectionItemCount from './view';
 
@@ -9,7 +9,6 @@ const select = (state, props) => {
 
   return {
     collectionCount: selectCountForCollectionId(state, collectionId),
-    hasEdits: selectCollectionHasEditsForId(state, collectionId),
   };
 };
 

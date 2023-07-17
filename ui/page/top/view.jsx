@@ -12,7 +12,7 @@ import { SIMPLE_SITE } from 'config';
 
 type Props = {
   name: string,
-  beginPublish: (string) => void,
+  beginPublish: (PublishType, ?string) => void,
   doOpenModal: (string, {}) => void,
 };
 
@@ -41,7 +41,7 @@ function TopPage(props: Props) {
         meta={
           <div className="search__top-links">
             <Button button="secondary" onClick={() => doOpenModal(MODALS.REPOST, {})} label={__('Repost Here')} />
-            <Button button="secondary" onClick={() => beginPublish(queryName)} label={__('Publish Here')} />
+            <Button button="secondary" onClick={() => beginPublish('file', queryName)} label={__('Publish Here')} />
           </div>
         }
         includeSupportAction

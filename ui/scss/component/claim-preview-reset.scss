@@ -1,17 +1,19 @@
 @import '../init/breakpoints';
 
-.claimPreviewReset {
+.claim-preview-reset {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--color-text-subtitle);
   font-size: var(--font-small);
   flex-direction: column;
-  background-color: var(--color-header-background);
+  // border: 1px solid var(--color-error);
+  border: 1px solid var(--color-primary);
+
   border-radius: var(--border-radius);
   padding: var(--spacing-xxs);
   padding-left: var(--spacing-s);
   margin-top: var(--spacing-s);
+  background-color: rgba(var(--color-primary-static), 0.1);
 
   .icon {
     margin-right: var(--spacing-xxxs);
@@ -25,7 +27,7 @@
   }
 }
 
-.claimPreviewReset__hint {
+.claim-preview-reset__hint {
   display: inline-block;
   color: var(--color-text);
   @media (min-width: $breakpoint-xsmall) {
@@ -36,7 +38,7 @@
   }
 }
 
-.claimPreviewReset__button {
+.claim-preview-reset__button {
   width: 100%;
   .button__content {
     justify-content: center;
@@ -51,7 +53,7 @@
 }
 
 .file-page__media-actions {
-  .claimPreviewReset {
+  .claim-preview-reset {
     margin-bottom: var(--spacing-s);
     @media (max-width: $breakpoint-small) {
       margin-top: 0;

@@ -5,6 +5,13 @@ import React from 'react';
 
 const DEFAULT_MIN_UPDATE_DELTA_MS = 60 * 1000;
 
+// ----------------------------------------------------------------------------
+// NOTE
+// Use <DateTimeClaim> to display a claim's timestamp.
+// This component will be simplified to a simple (no claim) date-time
+// component soon...
+// ----------------------------------------------------------------------------
+
 type State = {
   lastRenderTime: Date,
 };
@@ -64,11 +71,11 @@ class DateTime extends React.Component<Props, State> {
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
     return (
-      <span className="date_time" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
+      <span className="date_time" title={timeAgo && moment(date).format(`LL ${clockFormat}`)}>
         {date
           ? timeAgo
             ? getTimeAgoStr(date, showFutureDate, genericSeconds)
-            : moment(date).format(type === 'date' ? 'MMMM Do, YYYY' : clockFormat)
+            : moment(date).format(type === 'date' ? 'LL' : clockFormat)
           : '...'}
       </span>
     );

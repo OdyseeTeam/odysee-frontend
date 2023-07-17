@@ -14,11 +14,11 @@ export default function useStream(url) {
 
   React.useEffect(() => {
     if (url && isMounted.current) {
-      https.get(url, response => {
+      https.get(url, (response) => {
         if (isMounted && response.statusCode >= 200 && response.statusCode < 300) {
           let chunks = [];
           // Handle stream chunk recived
-          response.on('data', function(chunk) {
+          response.on('data', function (chunk) {
             if (isMounted.current) {
               chunks.push(chunk);
             } else {

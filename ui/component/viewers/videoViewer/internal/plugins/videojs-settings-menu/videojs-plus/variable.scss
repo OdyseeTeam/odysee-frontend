@@ -1,0 +1,102 @@
+$control-bar-height: 2.5em;
+$control-bar-button-height: $control-bar-height * 0.72;
+$control-bar-horizontal-padding: 0.75em;
+$control-bar-hidden: '.vjs-user-inactive.vjs-playing:not(.vjs-keep-control-showing)';
+$control-bar-hidden--loose: '.vjs-user-inactive.vjs-playing';
+
+$control-bar-button-width: $control-bar-height * 0.9;
+
+@mixin disable-volume-level() {
+  .vjs-volume-control {
+    display: none;
+  }
+  .vjs-volume-panel {
+    min-width: $control-bar-button-width !important;
+  }
+}
+
+$smaller-font-size: 0.875em;
+
+// It doesn't seems like `small-dimension` is fully fleshed out,
+// Just treat everything the same for now, as I think mobile popups need to be
+// implemented as modals anyways ("coming soon").
+// The variable is retained here for future reference and to reduce churn.
+$small-dimension: 1px; // 480px;
+
+@mixin floating-black-transparent-background() {
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.7);
+  background-color: rgba(28, 28, 28, 0.9);
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+@mixin visibility-transition-menu-style($class) {
+  visibility: hidden;
+
+  $opacity-duration: 0.3s;
+  will-change: visibility;
+
+  &#{$class} {
+    visibility: visible;
+  }
+
+  @media (max-width: $small-dimension) {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: none;
+    text-shadow: none;
+    box-shadow: none;
+    transition: visibility 0s linear $opacity-duration;
+
+    .vjs-menu-content {
+      position: absolute;
+      bottom: 0;
+      width: 100% !important;
+      color: #333;
+      background-color: #fff;
+      transform: translateY(100%);
+      transition: 0.3s transform ease, 0.3s height ease;
+    }
+
+    .vjs-menu-item {
+      width: 100% !important;
+    }
+
+    &#{$class} {
+      transition: visibility 0s linear 0s;
+
+      .vjs-close-menu-layer {
+        opacity: 1;
+      }
+
+      .vjs-menu-content {
+        transform: translateY(0);
+      }
+    }
+  }
+}
+
+@mixin tick($size: 0.8em) {
+  content: '';
+  width: calc($size / 2);
+  height: $size;
+  display: block;
+  margin-left: var(--spacing-s);
+  margin-top: -0.4em;
+  border-right: 0.15em solid;
+  border-bottom: 0.15em solid;
+  transform: rotate(45deg);
+}
+
+@mixin square($size) {
+  width: $size;
+  height: $size;
+}
+
+@function strip-unit($number) {
+  @if type-of($number) == 'number' and not unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+
+  @return $number;
+}

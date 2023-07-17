@@ -59,6 +59,7 @@ export default function NotificationSettingsPage(props: Props) {
           setError(true);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   function handleChangeTag(name, newIsEnabled) {

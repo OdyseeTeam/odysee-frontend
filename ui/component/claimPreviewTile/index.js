@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import {
-  makeSelectClaimForUri,
+  selectClaimForUri,
   selectIsUriResolving,
   selectTitleForUri,
   selectDateForUri,
@@ -8,10 +8,9 @@ import {
   selectClaimIsMine,
 } from 'redux/selectors/claims';
 import { doFileGetForUri } from 'redux/actions/file';
-import { doResolveUri } from 'redux/actions/claims';
 import { selectViewCountForUri, selectBanStateForUri } from 'lbryinc';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
+import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { selectShowMatureContent } from 'redux/selectors/settings';
 import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
@@ -19,9 +18,9 @@ import ClaimPreviewTile from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
 
 const select = (state, props) => {
-  const claim = props.uri && makeSelectClaimForUri(props.uri)(state);
+  const claim = props.uri && selectClaimForUri(state, props.uri);
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
-  const mediaDuration = media && media.duration && formatMediaDuration(media.duration, { screenReader: true });
+  const mediaDuration = media && media.duration && formatMediaDuration(media.duration);
   const isLivestream = isStreamPlaceholderClaim(claim);
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -40,14 +39,12 @@ const select = (state, props) => {
     isMature: claim ? isClaimNsfw(claim) : false,
     isLivestream,
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
-    livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
     viewCount: selectViewCountForUri(state, props.uri),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
   };
 };
 
 const perform = (dispatch) => ({
-  resolveUri: (uri) => dispatch(doResolveUri(uri)),
   getFile: (uri) => dispatch(doFileGetForUri(uri)),
 });
 

@@ -12,6 +12,7 @@ type Props = {
   collectionUris: Array<Collection>,
   dragHandleProps?: any,
   uri: string,
+  isEditPreview?: boolean,
   editCollection: (CollectionEditParams) => void,
   altEditCollection: (CollectionEditParams) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
@@ -25,6 +26,7 @@ export default function CollectionButtons(props: Props) {
     collectionUris,
     dragHandleProps,
     uri,
+    isEditPreview,
     editCollection,
     altEditCollection,
     doDisablePlayerDrag,
@@ -37,11 +39,11 @@ export default function CollectionButtons(props: Props) {
     : !altCollection
     ? 0
     : altCollection.length - 1;
-  const collectionIndex = Number(foundIndex) || Number(altIndex);
+  const collectionIndex = Number(altIndex) || Number(foundIndex);
 
   function handleOnClick(change) {
     if (!altCollection) {
-      editCollection(change);
+      editCollection({ isPreview: isEditPreview, ...change });
     } else {
       altEditCollection(change);
     }
@@ -121,7 +123,7 @@ export default function CollectionButtons(props: Props) {
             icon={ICONS.DELETE}
             onClick={() => {
               if (!altCollection) {
-                editCollection({ uris: [uri], remove: true });
+                editCollection({ uris: [uri], remove: true, isPreview: isEditPreview });
               } else {
                 altEditCollection({ delete: { index: collectionIndex } });
                 setConfirmDelete(false);

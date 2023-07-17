@@ -18,10 +18,11 @@ type Props = {
   onRemove?: (channelUri: string) => void,
   // --- perform ---
   doToast: ({ message: string }) => void,
+  doResolveUris: (uris: Array<string>) => void,
 };
 
 export default function SearchChannelField(props: Props) {
-  const { label, labelAddNew, labelFoundAction, values, onAdd, onRemove, doToast } = props;
+  const { label, labelAddNew, labelFoundAction, values, onAdd, onRemove, doToast, doResolveUris } = props;
 
   const [searchTerm, setSearchTerm] = React.useState('');
   const [searchTermError, setSearchTermError] = React.useState('');
@@ -117,12 +118,14 @@ export default function SearchChannelField(props: Props) {
           setSearchUri('');
         } else if (isChannel && channelName && isNameValid(channelName)) {
           setSearchUri(uri);
+          doResolveUris([uri]);
         }
       } catch (e) {
         setSearchTermError(e.message);
         setSearchUri('');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [searchTerm, setSearchTermError]);
 
   return (
@@ -168,6 +171,7 @@ export default function SearchChannelField(props: Props) {
             <ClaimPreview
               uri={searchUri}
               hideMenu
+              hideJoin
               hideRepostLabel
               disableNavigation
               showNullPlaceholder

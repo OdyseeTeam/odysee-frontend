@@ -12,6 +12,7 @@
   --height-badge: 24px;
 
   // Spacing
+  --spacing-xxxxs: calc(2rem / 10); // 0.2
   --spacing-xxxs: calc(2rem / 6); // 0.33
   --spacing-xxs: calc(2rem / 5); // 0.4
   --spacing-xs: calc(2rem / 4); // 0.5
@@ -65,11 +66,11 @@
   --text-link-padding: 4px;
 
   // Tabs
-  --tab-indicator-size: 0.5rem;
+  --tab-indicator-size: 0.1rem;
 
   // Header
   // This is tied to the floating player so it knows where to attach to
-  // ui/component/fileRenderFloating/view.jsx
+  // ui/component/videoRenderFloating/view.jsx
   --header-height: 60px;
   --header-height-mobile: 56px;
 

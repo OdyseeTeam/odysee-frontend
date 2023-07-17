@@ -1,10 +1,10 @@
 // @flow
-import './style.scss';
 import AdditionalFilters from './internal/additionalFilters';
 import TagSearch from './internal/tagSearch/tagSearch';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
+import * as PAGES from 'constants/pages';
 import type { Node } from 'react';
 import classnames from 'classnames';
 import React from 'react';
@@ -16,6 +16,7 @@ import Button from 'component/button';
 import { toCapitalCase } from 'util/string';
 import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
+import { useIsMobile } from 'effects/use-screensize';
 import debounce from 'util/debounce';
 
 type Props = {
@@ -38,6 +39,7 @@ type Props = {
   tileLayout: boolean,
   scrollAnchor?: string,
   contentType: string,
+  meta?: Node,
   setPage: (number) => void,
   // --- redux ---
   doSetClientSetting: (string, boolean, ?boolean) => void,
@@ -65,6 +67,7 @@ function ClaimListHeader(props: Props) {
     tileLayout,
     doSetClientSetting,
     contentType,
+    meta,
     setPage,
     hideFilters,
     searchInLanguage,
@@ -72,9 +75,10 @@ function ClaimListHeader(props: Props) {
     scrollAnchor,
   } = props;
 
+  const isMobile = useIsMobile();
   const filterCtx = React.useContext(ClaimSearchFilterContext);
   const { push, location } = useHistory();
-  const { search } = location;
+  const { search, pathname } = location;
   const [expanded, setExpanded] = usePersistedState(`expanded-${location.pathname}`, false);
   const urlParams = new URLSearchParams(search);
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
@@ -87,12 +91,22 @@ function ClaimListHeader(props: Props) {
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount || CS.FEE_AMOUNT_ANY;
   const showDuration = !(claimType && claimType === CS.CLAIM_CHANNEL && claimType === CS.CLAIM_COLLECTION);
+  const isDiscoverPage = pathname.includes(PAGES.DISCOVER);
+  const isRabbitHolePage = pathname.includes(PAGES.RABBIT_HOLE) || pathname.includes(PAGES.WILD_WEST);
+  const showHideAnonymous = isDiscoverPage || isRabbitHolePage;
+  const [hideAnonymous, setHideAnonymous] = usePersistedState(`hideAnonymous-${location.pathname}`, false);
 
-  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
-  const [durationMinutes, setDurationMinutes] = usePersistedState(`durUserMinutes-${location.pathname}`, 5);
-  const [minutes, setMinutes] = React.useState(durationMinutes);
-  const setDurationMinutesDebounced = React.useCallback(
-    debounce((m) => setDurationMinutes(m), 750),
+  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION.ALL], 'durUser', null);
+  const [minDurationMinutes, setMinDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
+  const [maxDurationMinutes, setMaxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
+  const [minMinutes, setMinMinutes] = React.useState(minDurationMinutes);
+  const [maxMinutes, setMaxMinutes] = React.useState(maxDurationMinutes);
+  const setMinDurationMinutesDebounced = React.useCallback(
+    debounce((m) => setMinDurationMinutes(m), 750),
+    []
+  );
+  const setMaxDurationMinutesDebounced = React.useCallback(
+    debounce((m) => setMaxDurationMinutes(m), 750),
     []
   );
 
@@ -189,7 +203,7 @@ function ClaimListHeader(props: Props) {
         }
         break;
       case CS.DURATION_KEY:
-        if (delta.value === CS.DURATION_ALL) {
+        if (delta.value === CS.DURATION.ALL) {
           newUrlParams.delete(CS.DURATION_KEY);
         } else {
           newUrlParams.set(CS.DURATION_KEY, delta.value);
@@ -229,58 +243,90 @@ function ClaimListHeader(props: Props) {
   return (
     <>
       <div className="claim-search__wrapper clh__wrapper">
-        <div className="claim-search__top">
-          {!hideFilters && (
+        <div className="claim-search__header">
+          <div className="claim-search__top">
+            {!hideFilters && (
+              <div className="claim-search__menu-group">
+                {CS.ORDER_BY_TYPES.map((type) => (
+                  <Button
+                    key={type}
+                    button="alt"
+                    onClick={(e) =>
+                      handleChange({
+                        key: CS.ORDER_BY_KEY,
+                        value: type,
+                      })
+                    }
+                    className={classnames(`button-toggle button-toggle--${type}`, {
+                      'button-toggle--active': orderParam === type,
+                    })}
+                    disabled={orderBy}
+                    icon={toCapitalCase(type)}
+                    iconSize={toCapitalCase(type) === ICONS.NEW ? 20 : undefined}
+                    label={__(toCapitalCase(type))}
+                  />
+                ))}
+              </div>
+            )}
             <div className="claim-search__menu-group">
-              {CS.ORDER_BY_TYPES.map((type) => (
-                <Button
-                  key={type}
-                  button="alt"
-                  onClick={(e) =>
-                    handleChange({
-                      key: CS.ORDER_BY_KEY,
-                      value: type,
-                    })
-                  }
-                  className={classnames(`button-toggle button-toggle--${type}`, {
-                    'button-toggle--active': orderParam === type,
-                  })}
-                  disabled={orderBy}
-                  icon={toCapitalCase(type)}
-                  iconSize={toCapitalCase(type) === ICONS.NEW ? 20 : undefined}
-                  label={__(toCapitalCase(type))}
-                />
-              ))}
+              {tileLayout !== undefined && !hideLayoutButton && (
+                <>
+                  <Button
+                    onClick={() => {
+                      doSetClientSetting(SETTINGS.TILE_LAYOUT, true);
+                    }}
+                    button="alt"
+                    className={classnames(`button-toggle button-toggle--top`, {
+                      'button-toggle--active': tileLayout,
+                    })}
+                    aria-label={__('Change to tile layout')}
+                    icon={ICONS.VIEW_TILES}
+                  />
+                  <Button
+                    onClick={() => {
+                      doSetClientSetting(SETTINGS.TILE_LAYOUT, false);
+                    }}
+                    button="alt"
+                    className={classnames(`button-toggle button-toggle--top`, {
+                      'button-toggle--active': !tileLayout,
+                    })}
+                    aria-label={__('Change to list layout')}
+                    icon={ICONS.VIEW_LIST}
+                  />
+                </>
+              )}
             </div>
-          )}
-          <div className="claim-search__menu-group">
-            {!hideAdvancedFilter && (
-              <Button
-                button="alt"
-                aria-label={__('More')}
-                className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
-                  'button-toggle--custom': isFiltered(),
-                  'button-toggle--active': expanded,
-                })}
-                icon={ICONS.SLIDERS}
-                onClick={() => setExpanded(!expanded)}
-              />
-            )}
+            <>
+              {showHideAnonymous && (
+                <div className="claim-search__menu-group hide-anonymous-checkbox">
+                  <FormField
+                    label={__('Hide anonymous')}
+                    name="hide_anonymous"
+                    type="checkbox"
+                    checked={hideAnonymous}
+                    onChange={() => setHideAnonymous(!hideAnonymous)}
+                  />
+                </div>
+              )}
+            </>
+            <div className="claim-search__menu-group stretch">
+              {!hideAdvancedFilter && (
+                <Button
+                  button="alt"
+                  aria-label={__('More')}
+                  className={classnames(`button-toggle button-toggle--top button-toggle--more`, {
+                    'button-toggle--custom': isFiltered(),
+                    'button-toggle--active button-toggle--bottom-arrow': expanded,
+                  })}
+                  icon={ICONS.SLIDERS}
+                  onClick={() => setExpanded(!expanded)}
+                />
+              )}
 
-            {tileLayout !== undefined && !hideLayoutButton && (
-              <Button
-                onClick={() => {
-                  doSetClientSetting(SETTINGS.TILE_LAYOUT, !tileLayout);
-                }}
-                button="alt"
-                className="button-toggle"
-                aria-label={tileLayout ? __('Change to list layout') : __('Change to tile layout')}
-                icon={ICONS.LAYOUT}
-              />
-            )}
-
-            {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
+              {filterCtx?.liftUpTagSearch && <TagSearch standalone urlParams={urlParams} handleChange={handleChange} />}
+            </div>
           </div>
+          {meta && !isMobile && <div className="section__actions--no-margin">{meta}</div>}
         </div>
 
         <div
@@ -385,11 +431,13 @@ function ClaimListHeader(props: Props) {
                       disabled={
                         !(
                           contentTypeParam === null ||
+                          contentTypeParam === CS.FILE_AUDIO ||
+                          contentTypeParam === CS.FILE_VIDEO ||
                           streamTypeParam === CS.FILE_AUDIO ||
                           streamTypeParam === CS.FILE_VIDEO
                         )
                       }
-                      value={durationParam || CS.DURATION_ALL}
+                      value={durationParam || CS.DURATION.ALL}
                       onChange={(e) =>
                         handleChange({
                           key: CS.DURATION_KEY,
@@ -398,29 +446,42 @@ function ClaimListHeader(props: Props) {
                       }
                     >
                       {CS.DURATION_TYPES.map((dur) => (
-                        <option key={dur} value={dur}>
+                        <option key={String(dur)} value={dur}>
                           {/* i18fixme */}
-                          {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
-                          {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
-                          {dur === CS.DURATION_ALL && __('Any')}
-                          {dur === CS.DURATION_GT_EQ && __('Longer than')}
-                          {dur === CS.DURATION_LT_EQ && __('Shorter than')}
+                          {dur === CS.DURATION.SHORT && __('Short (< 4 minutes)')}
+                          {dur === CS.DURATION.LONG && __('Long (> 20 min)')}
+                          {dur === CS.DURATION.ALL && __('Any')}
+                          {dur === CS.DURATION.CUSTOM && __('Custom')}
                         </option>
                       ))}
                     </FormField>
                   </div>
-                  {(durationParam === CS.DURATION_GT_EQ || durationParam === CS.DURATION_LT_EQ) && (
-                    <div className={'claim-search__input-container'}>
-                      <FormField
-                        label={__('Minutes')}
-                        type="number"
-                        name="duration__minutes"
-                        value={minutes}
-                        onChange={(e) => {
-                          setMinutes(e.target.value);
-                          setDurationMinutesDebounced(e.target.value);
-                        }}
-                      />
+                  {durationParam === CS.DURATION.CUSTOM && (
+                    <div className="claim-search__duration-inputs-container">
+                      <div className="claim-search__input-container">
+                        <FormField
+                          label={__('Min Minutes')}
+                          type="number"
+                          name="min_duration__minutes"
+                          value={minMinutes}
+                          onChange={(e) => {
+                            setMinMinutes(e.target.value);
+                            setMinDurationMinutesDebounced(e.target.value);
+                          }}
+                        />
+                      </div>
+                      <div className="claim-search__input-container">
+                        <FormField
+                          label={__('Max Minutes')}
+                          type="number"
+                          name="max_duration__minutes"
+                          value={maxMinutes}
+                          onChange={(e) => {
+                            setMaxMinutes(e.target.value);
+                            setMaxDurationMinutesDebounced(e.target.value);
+                          }}
+                        />
+                      </div>
                     </div>
                   )}
                 </>
@@ -527,15 +588,18 @@ function ClaimListHeader(props: Props) {
               )}
             </div>
             <div className="claim-search__menus">
-              <div className="claim-search__input-container">
-                <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
-              </div>
+              {filterCtx.repost && (
+                <div className="claim-search__input-container">
+                  <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
+                </div>
+              )}
               <div className="claim-search__input-container">
                 {!filterCtx?.liftUpTagSearch && <TagSearch urlParams={urlParams} handleChange={handleChange} />}
               </div>
             </div>
           </div>
         </div>
+        {meta && isMobile && <div className="section__actions--no-margin">{meta}</div>}
       </div>
 
       {hasMatureTags && hiddenNsfwMessage}

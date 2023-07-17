@@ -8,8 +8,7 @@ import GeoRestictionInfo from 'component/geoRestictionInfo';
 import ClaimAuthor from 'component/claimAuthor';
 import FileTitle from 'component/fileTitle';
 import FileActions from 'component/fileActions';
-import FileRenderInitiator from 'component/fileRenderInitiator';
-import FileRenderInline from 'component/fileRenderInline';
+import StreamClaimRenderInline from 'component/streamClaimRenderInline';
 import FileValues from 'component/fileValues';
 import FileViewCount from 'component/fileViewCount';
 import ClaimTags from 'component/claimTags';
@@ -17,8 +16,7 @@ import DateTime from 'component/dateTime';
 import Button from 'component/button';
 import LbcSymbol from 'component/common/lbc-symbol';
 import classnames from 'classnames';
-import ProtectedContentOverlay from 'component/protectedContentOverlay';
-import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
+import './style.lazy.scss';
 
 const EXPAND = {
   NONE: 'none',
@@ -92,8 +90,6 @@ function PostViewer(props: Props) {
         </div>
       </div>
 
-      <PreorderAndPurchaseContentButton uri={uri} />
-
       {expand === EXPAND.CREDIT_DETAILS && (
         <div className="section post__info--credit-details">
           <FileValues uri={uri} />
@@ -110,9 +106,7 @@ function PostViewer(props: Props) {
       <ClaimAuthor uri={uri} />
 
       <div className="file-render--post-container">
-        <ProtectedContentOverlay uri={uri} />
-        <FileRenderInitiator uri={uri} />
-        <FileRenderInline uri={uri} />
+        <StreamClaimRenderInline uri={uri} />
       </div>
       <FileActions uri={uri} />
     </div>

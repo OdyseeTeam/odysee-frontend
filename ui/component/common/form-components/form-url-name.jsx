@@ -38,14 +38,14 @@ export const FormUrlName = (props: Props) => {
   return (
     <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
       <fieldset-section>
-        <label htmlFor="collection_name">{__('Name')}</label>
+        <label htmlFor="collection__name">{__('Name')}</label>
         <div className="form-field__prefix">{!channelName ? `${DOMAIN}/` : `${DOMAIN}/${channelName}/`}</div>
       </fieldset-section>
 
       <FormField
         {...formFieldParams}
         type="text"
-        name="collection_name"
+        name="collection__name"
         placeholder={__('MyAwesomePlaylist')}
         value={name || ''}
         error={nameError}

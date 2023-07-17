@@ -26,7 +26,7 @@ const defaultOptions = {};
 
 function logError(msg) {
   // @if process.env.LOG_VIDEOJS_I18N='true'
-  console.error(msg);
+  console.error(msg); // eslint-disable-line no-console
   // @endif
 }
 

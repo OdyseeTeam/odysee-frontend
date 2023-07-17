@@ -1,4 +1,6 @@
 // @flow
+import moment from 'moment';
+
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
@@ -9,6 +11,8 @@ import { createCachedSelector } from 're-reselect';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import {
   isClaimNsfw,
+  isClaimUnlisted,
+  getClaimScheduledState,
   filterClaims,
   getChannelIdFromClaim,
   isStreamPlaceholderClaim,
@@ -26,7 +30,9 @@ import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { removeInternalStringTags } from 'util/tags';
 
-type State = { claims: any, user: UserState };
+export function selectClaimsStates(state: State) {
+  return state.claims || {};
+}
 
 const selectState = (state: State) => state.claims || {};
 
@@ -40,7 +46,6 @@ export const selectClaimsById = (state: State) => {
 };
 
 export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || {};
-export const selectCurrentChannelPage = (state: State) => selectState(state).currentChannelPage || 1;
 export const selectCreatingChannel = (state: State) => selectState(state).creatingChannel;
 export const selectCreateChannelError = (state: State) => selectState(state).createChannelError;
 export const selectRepostLoading = (state: State) => selectState(state).repostLoading;
@@ -211,9 +216,16 @@ export const selectChannelNameForUri = (state: State, uri: string) =>
 
 export const selectHasClaimForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim; // null/undefined here
+
   return Boolean(claim);
 };
-export const selectHasClaimForId = (state: State, id: ClaimId) => selectClaimForId(state, id);
+export const selectHasClaimForId = (state: State, id: ClaimId) => {
+  const claim = selectClaimForId(state, id);
+  if (!claim) return claim; // null/undefined here
+
+  return Boolean(claim);
+};
 
 export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
   // This selector assumes that `uri` is never null and is valid. It
@@ -507,6 +519,24 @@ export const selectTitleForUri = (state: State, uri: string) => {
   return metadata && metadata.title;
 };
 
+export const selectReleaseTimeForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim;
+
+  return claim?.value?.release_time;
+};
+
+export const selectMomentReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
+  const releaseTime: moment = moment.unix(claimReleaseTime || 0);
+  return releaseTime;
+});
+
+export const selectClaimReleaseInFutureForUri = (state: State, uri: string) =>
+  selectMomentReleaseTimeForUri(state, uri).isAfter();
+
+export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
+  selectMomentReleaseTimeForUri(state, uri).isBefore();
+
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {
@@ -523,6 +553,24 @@ export const selectDateForUri = createCachedSelector(
     }
     const dateObj = new Date(timestamp);
     return dateObj;
+  }
+)((state, uri) => String(uri));
+
+export type ClaimTsList = {|
+  released: ?number,
+  created: ?number,
+  updated: ?number,
+|};
+
+export const selectTimestampsForUri = createCachedSelector(
+  selectClaimForUri, // (state, uri, ?returnRepost)
+  (claim) => {
+    const list: ClaimTsList = {
+      released: claim?.value?.release_time,
+      created: claim?.meta?.creation_timestamp,
+      updated: claim?.timestamp,
+    };
+    return list;
   }
 )((state, uri) => String(uri));
 
@@ -836,6 +884,10 @@ export const selectTagsForUri = createCachedSelector(selectMetadataForUri, (meta
   return metadata && metadata.tags ? removeInternalStringTags(metadata.tags) : [];
 })((state, uri) => String(uri));
 
+export const selectTagsRawForUri = (state: State, uri: string) => {
+  return selectMetadataForUri(state, uri)?.tags;
+};
+
 export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return parsePurchaseTag(metadata?.tags);
 })((state, uri) => String(uri));
@@ -984,14 +1036,6 @@ export const selectStakedLevelForChannelUri = createCachedSelector(selectTotalSt
   return level;
 })((state, uri) => String(uri));
 
-export const selectCreatingCollectionIds = (state: State) => selectState(state).creatingCollectionIds;
-export const selectUpdatingCollectionIds = (state: State) => selectState(state).updatingCollectionIds;
-
-export const selectIsCreatingCollectionForId = (state: State, collectionId: string) =>
-  new Set(selectCreatingCollectionIds(state)).has(collectionId);
-export const selectIsUpdatingCollectionForId = (state: State, collectionId: string) =>
-  new Set(selectUpdatingCollectionIds(state)).has(collectionId);
-
 export const selectIsMyChannelCountOverLimit = createSelector(
   selectMyChannelClaimIds,
   selectYoutubeChannels,
@@ -1008,6 +1052,10 @@ export const selectIsMyChannelCountOverLimit = createSelector(
   }
 );
 
+/**
+ * selectGeoRestrictionForUri
+ * @returns {undefined|null|GeoConfig} undefined = pending fetch; null = no restrictions; GeoConfig = blocked reason
+ */
 export const selectGeoRestrictionForUri = createCachedSelector(
   selectClaimForUri,
   selectGeoBlockLists,
@@ -1018,7 +1066,7 @@ export const selectGeoRestrictionForUri = createCachedSelector(
 )((state, uri) => String(uri));
 
 export const selectClaimRepostedAmountForUri = (state: State, uri: string) => {
-  const claim = selectClaimForUri(state);
+  const claim = selectClaimForUri(state, uri);
   return getClaimRepostedAmount(claim);
 };
 
@@ -1062,6 +1110,26 @@ export const selectIsFiatRequiredForUri = (state: State, uri: string) => {
   return Boolean(selectPurchaseTagForUri(state, uri)) || Boolean(selectRentalTagForUri(state, uri));
 };
 
+export const selectPendingFiatPaymentForUri = (state: State, uri: string) => {
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  const fiatRequired = selectIsFiatRequiredForUri(state, uri);
+  const fiatPaid = selectIsFiatPaidForUri(state, uri);
+  const isFetchingPurchases = selectIsFetchingPurchases(state);
+
+  const pendingFiatPayment = !claimIsMine && fiatRequired && (!fiatPaid || isFetchingPurchases);
+
+  return pendingFiatPayment;
+};
+
+export const selectIsAnonymousFiatContentForUri = (state: State, uri: string) => {
+  const fiatRequired = selectIsFiatRequiredForUri(state, uri);
+  const channelClaimId = selectChannelClaimIdForUri(state, uri);
+
+  const isAnonymousFiatContent = fiatRequired && !channelClaimId;
+
+  return isAnonymousFiatContent;
+};
+
 export const selectIsFiatPaidForUri = (state: State, uri: string) => {
   const claimId = (selectClaimForUri(state, uri) || {}).claim_id;
   if (claimId) {
@@ -1083,4 +1151,39 @@ export const selectClaimHasSupportsForUri = (state: State, uri: string) => {
   const hasSupport = claim && claim.meta && claim.meta.support_amount && Number(claim.meta.support_amount) > 0;
 
   return hasSupport;
+};
+
+export const selectCostInfoForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  if (!claimId) return claimId;
+
+  return state.claims.costInfosById[claimId];
+};
+
+export const selectSdkFeePendingForUri = (state: State, uri: string) => {
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  const costInfo = selectCostInfoForUri(state, uri);
+  const sdkFeePending = costInfo === undefined || (costInfo && costInfo.cost !== 0);
+  const sdkPaid = selectClaimWasPurchasedForUri(state, uri);
+
+  const pendingSdkPayment = !claimIsMine && sdkFeePending && !sdkPaid;
+
+  return pendingSdkPayment;
+};
+
+export const selectPendingPurchaseForUri = (state: State, uri: string) => {
+  const pendingFiatPayment = selectPendingFiatPaymentForUri(state, uri);
+  const pendingSdkPayment = selectSdkFeePendingForUri(state, uri);
+
+  return pendingFiatPayment || pendingSdkPayment;
+};
+
+export const selectScheduledStateForUri = (state: State, uri: string): ClaimScheduledState => {
+  const claim = selectClaimForUri(state, uri);
+  return getClaimScheduledState(claim);
+};
+
+export const selectIsUriUnlisted = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  return isClaimUnlisted(claim);
 };

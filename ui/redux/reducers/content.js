@@ -1,19 +1,21 @@
+/**
+ * Content, a.k.a. "player" states.
+ */
+
 // @flow
 import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
+
 const defaultState: ContentState = {
   primaryUri: null, // Top level content uri triggered from the file page
   playingUri: { uri: undefined, collection: {} },
-  channelClaimCounts: {},
+  uriAccessKeys: {},
   positions: {},
   history: [],
-  recommendationId: {},
-  recommendationParentId: {},
-  recommendationUrls: {},
-  recommendationClicks: {},
   lastViewedAnnouncement: [],
   recsysEntries: {},
+  autoplayCountdownUri: null,
 };
 
 reducers[ACTIONS.SET_PRIMARY_URI] = (state, action) =>
@@ -23,6 +25,23 @@ reducers[ACTIONS.SET_PRIMARY_URI] = (state, action) =>
 
 reducers[ACTIONS.SET_PLAYING_URI] = (state, action) =>
   Object.assign({}, state, { playingUri: { ...action.data, primaryUri: state.primaryUri } });
+
+reducers[ACTIONS.SAVE_URI_ACCESS_KEY] = (state: ContentState, action: SaveUriAccessKeyAction) => {
+  const { uri, accessKey: newKey } = action.data;
+
+  const cachedKey = state.uriAccessKeys[uri];
+  if (cachedKey && cachedKey.signature === newKey.signature && cachedKey.signature_ts === newKey.signature_ts) {
+    return state;
+  }
+
+  return {
+    ...state,
+    uriAccessKeys: {
+      ...state.uriAccessKeys,
+      [uri]: { ...newKey },
+    },
+  };
+};
 
 reducers[ACTIONS.SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
@@ -113,12 +132,10 @@ reducers[ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT] = (state, action) => {
 
 reducers[ACTIONS.SET_RECSYS_ENTRIES] = (state, action) => ({ ...state, recsysEntries: action.data });
 
-// reducers[LBRY_REDUX_ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
-//   return {
-//     ...state,
-//     playingUri: null,
-//   };
-// };
+reducers[ACTIONS.SHOW_AUTOPLAY_COUNTDOWN] = (state, action) => {
+  const { uri, show } = action.data;
+  return { ...state, autoplayCountdownUri: show ? uri : null };
+};
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state, action) => {
   const { lastViewedAnnouncement } = action.data;

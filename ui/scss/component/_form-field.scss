@@ -5,8 +5,7 @@ select,
 .date-picker-input {
   height: var(--height-input);
   border-radius: var(--border-radius);
-  color: var(--color-input);
-  border-color: var(--color-input-border);
+  color: var(--color-text);
   background-color: var(--color-input-bg);
   padding-right: var(--spacing-s);
   padding-left: var(--spacing-s);
@@ -30,23 +29,27 @@ select,
     background-color: var(--color-secondary);
   }
 }
+input {
+  &:hover {
+    box-shadow: 0 0 0 2px var(--color-primary) inset;
+  }
+}
+
+.MuiInputBase-root {
+  &:hover {
+    outline: 2px solid var(--color-primary) !important;
+    outline-offset: -2px;
+  }
+}
 
 @media (min-width: $breakpoint-small) {
   textarea {
     height: var(--height-input);
     border-radius: var(--border-radius);
-    // border: 1px solid;
     color: var(--color-input);
-    // border-color: var(--color-input-border);
     background-color: var(--color-input-bg);
     padding-right: var(--spacing-s);
     padding-left: var(--spacing-s);
-
-    /*
-    &:focus {
-      @include focus;
-    }
-    */
 
     &::placeholder {
       color: var(--color-input-placeholder);
@@ -83,6 +86,14 @@ select {
   padding-right: var(--spacing-xl);
   padding-left: var(--spacing-s);
   font-weight: bold;
+  &:hover,
+  &:focus-visible {
+    color: var(--color-text);
+    box-shadow: 0 0 0 2px var(--color-primary) inset;
+  }
+  option {
+    color: var(--color-text);
+  }
 }
 
 fieldset-group {
@@ -104,15 +115,6 @@ form,
 .radio,
 .form-field--SimpleMDE,
 .form-field__help {
-  + fieldset-section,
-  + fieldset-group,
-  + form,
-  + .checkbox,
-  + .radio,
-  + .form-field--SimpleMDE {
-    margin-top: var(--spacing-l);
-  }
-
   + .form-field__help {
     margin-top: var(--spacing-s);
   }
@@ -129,9 +131,6 @@ form,
 
 fieldset-section {
   background-color: unset !important;
-  select:focus-visible {
-    background-color: var(--color-header-background) !important;
-  }
 
   option {
     background-color: var(--color-header-background);
@@ -172,8 +171,6 @@ input-submit {
   & > *:nth-child(2) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    // border: 1px solid var(--color-border);
-    border-left: none;
   }
 }
 
@@ -202,17 +199,11 @@ input-submit {
     display: inline-block;
     margin: 0;
     font-size: var(--font-base);
-    padding-left: calc(var(--height-checkbox) + 10px);
+    padding-left: calc(var(--height-checkbox) + var(--spacing-s));
     min-height: var(--height-checkbox);
 
     &::before {
-      background-color: var(--color-input-toggle-bg);
-    }
-
-    &:hover {
-      &::before {
-        background-color: var(--color-input-toggle-bg-hover);
-      }
+      background-color: var(--color-header-button);
     }
   }
 
@@ -240,23 +231,31 @@ input-submit {
   label::before {
     height: var(--height-checkbox);
     width: var(--height-checkbox);
-    border: 1px solid var(--color-input-border);
     border-radius: var(--border-radius);
     left: 0px;
-    top: -1px;
   }
 
   // Checkmark of the fake checkbox
   label::after {
     height: 6px;
     width: 12px;
-    border-left: 2px solid;
-    border-bottom: 2px solid;
-    border-color: var(--color-primary);
-    border-left-color: var(--color-primary);
+    border-left: 2px solid var(--color-primary);
+    border-bottom: 2px solid var(--color-primary);
     transform: rotate(-45deg);
     left: 6px;
-    top: 6px;
+    top: 8px;
+  }
+
+  &:hover {
+    input {
+      box-shadow: unset;
+    }
+    label {
+      cursor: pointer;
+      &::before {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
   }
 }
 
@@ -269,10 +268,8 @@ input-submit {
   label::before {
     height: var(--height-radio);
     width: var(--height-radio);
-    border: 1px solid var(--color-input-border);
     border-radius: calc(var(--height-radio) * 0.5);
     left: 0px;
-    top: -1px;
   }
 
   // Checkmark of the fake radio
@@ -282,7 +279,16 @@ input-submit {
     border-radius: 50%;
     background-color: var(--color-primary);
     left: 6px;
-    top: 5px;
+    top: 6px;
+  }
+
+  &:hover {
+    label {
+      cursor: pointer;
+      &::before {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
   }
 }
 
@@ -364,14 +370,10 @@ fieldset-group {
 
       &:nth-of-type(2) {
         &:not(input.paginate-channel) {
-          // yuck
           input,
           select {
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
-          }
-          label {
-            margin-left: var(--spacing-s);
           }
         }
       }
@@ -426,12 +428,9 @@ fieldset-group {
         height: var(--height-input);
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
-        border-color: var(--color-input-border);
         border-right-color: var(--color-input-prefix-border);
-        //color: white;
         background-color: var(--color-border);
-        color: var(--color-text);
-        // box-shadow: 0px 0px 0px 2px rgba(var(--color-text-base), 0.1) inset;
+        color: rgba(var(--color-text-base), 0.7);
       }
     }
 
@@ -439,18 +438,8 @@ fieldset-group {
       width: 100%;
 
       label {
-        // Overwrite the input's label to wrap instead. This is usually
-        // an error message, which could be long in other languages.
         width: 100%;
         white-space: normal;
-      }
-
-      input {
-        border-left: 0;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        border-color: var(--color-input-border);
-        padding-left: var(--spacing-xs);
       }
     }
   }
@@ -497,7 +486,8 @@ fieldset-group {
 
 .form-field__help {
   @extend .help;
-  color: var(--color-text);
+  opacity: 0.8;
+  color: rgba(var(--color-text-base), 0.8);
 }
 
 .form-field__help + .checkbox,
@@ -527,14 +517,11 @@ fieldset-group {
 
 .form-field__hint {
   opacity: 0.8;
-  font-size: var(--font-xsmall);
+  font-size: var(--font-small);
   color: var(--color-input-label);
 }
 
 .form-field__textarea-info {
-  //display: flex;
-  //flex-wrap: wrap;
-  //align-items: right;
   justify-content: space-between;
   margin-top: var(--spacing-xxs);
   margin-bottom: var(--spacing-s);
@@ -596,17 +583,21 @@ fieldset-section {
 
 .date-picker-input {
   font-weight: bold;
+  z-index: 9;
 
   .react-datetime-picker__wrapper {
     border: 0;
+    input {
+      background-color: unset;
+    }
   }
 }
 
 .form-field-date-picker {
-  margin-bottom: var(--spacing-l);
   font-size: var(--font-base);
 
   label {
+    margin-top: 0;
     display: block;
   }
 
@@ -749,6 +740,7 @@ fieldset-section {
   .react-calendar__tile:enabled:hover,
   .react-calendar__tile:enabled:focus {
     background: var(--color-button-alt-bg-hover);
+    color: var(--color-primary-contrast);
   }
 
   .react-calendar__tile:disabled {
@@ -789,7 +781,7 @@ fieldset-section {
   }
 
   .react-datetime-picker__inputGroup__amPm {
-    background: var(--color-input-bg);
+    // background: var(--color-input-bg);
   }
 
   .react-datetime-picker__inputGroup__leadingZero {
@@ -807,6 +799,11 @@ fieldset-section {
   }
 }
 
+.form-field-date-picker--disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
 .form-field-date-picker__header {
   display: flex;
 
@@ -816,7 +813,7 @@ fieldset-section {
 }
 
 .form-field-date-picker__error {
-  color: var(--color-error);
+  color: var(--color-text-error);
   align-self: center;
 
   span {
@@ -833,6 +830,12 @@ fieldset-section {
   }
 }
 
+.form-field-date-picker__past-value {
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  margin-top: var(--spacing-xxxs);
+}
+
 .form-field-calendar {
   border-radius: var(--border-radius);
   border: 1px solid var(--color-border);
@@ -844,4 +847,71 @@ fieldset-section {
 
 #yt_sync_channel {
   width: unset;
+}
+
+.clh-tag-search {
+  .button-toggle {
+    border-radius: var(--border-radius);
+  }
+
+  .button-toggle--active {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  input::placeholder {
+    font-size: var(--font-small);
+  }
+
+  .clh-tag-search__clear {
+    position: absolute;
+    background: unset;
+    right: var(--spacing-xxxs);
+    .icon {
+      transform: rotate(0deg);
+      transition: transform 0.2s;
+    }
+    &:hover {
+      background: unset;
+      .icon {
+        stroke: var(--color-primary);
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .clh-tag-search__clear--hidden {
+    display: none;
+  }
+}
+
+.clh-tag-search--standalone {
+  width: 100%;
+  margin-left: var(--spacing-xs);
+}
+
+.clh-tag-search__input_group {
+  position: relative;
+  display: flex;
+  width: 100%;
+  fieldset-section {
+    width: 100%;
+  }
+  input::placeholder {
+    font-size: var(--font-body);
+  }
+  .icon {
+    position: absolute;
+    left: var(--spacing-s);
+    top: calc(50% - 8px);
+  }
+}
+
+.clh-tag-search__input {
+  width: 100%;
+  padding-left: 36px;
+  padding-right: 30px;
+}
+
+.clh-tag-search__input--hidden {
+  display: none;
 }

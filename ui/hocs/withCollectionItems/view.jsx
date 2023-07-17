@@ -41,10 +41,8 @@ const withCollectionItems = (Component: FunctionalComponentParam) => {
     }, [collectionId, doResolveClaimId, isPrivate]);
 
     React.useEffect(() => {
-      if (collectionItems === undefined) {
-        doFetchItemsInCollection({ collectionId });
-      }
-    }, [collectionId, collectionItems, doFetchItemsInCollection]);
+      doFetchItemsInCollection({ collectionId });
+    }, [collectionId, doFetchItemsInCollection]);
 
     if (collectionItems === undefined) {
       return (

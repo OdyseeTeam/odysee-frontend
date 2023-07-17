@@ -13,6 +13,7 @@
     "__static": true,
     "i18n": true,
     "__": true,
+    "assert": true,
     "app": true,
     "IS_WEB": true,
     "WEBPACK_PORT": true
@@ -47,13 +48,13 @@
     "promise/param-names": 0,
     "react/jsx-indent": 0,
     "react/jsx-no-comment-textnodes": 0,
-    "react-hooks/exhaustive-deps": "warn",
+    "react-hooks/exhaustive-deps": "error",
     "react-hooks/rules-of-hooks": "error",
     "react/no-unescaped-entities": 0,
     "space-before-function-paren": [
-      "warn",
+      "error",
       {
-        "anonymous": "never",
+        "anonymous": "always",
         "named": "never",
         "asyncArrow": "always"
       }

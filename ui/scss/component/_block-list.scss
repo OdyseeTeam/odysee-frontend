@@ -5,6 +5,22 @@
         align-items: unset;
       }
     }
+    .description__wrapper,
+    .claim-preview__tags {
+      display: none;
+    }
+    .claim-tile__info {
+      .media__subtitle {
+        width: 100%;
+      }
+      .section__actions {
+        margin: 0;
+        .button {
+          margin: 0;
+          margin-left: var(--spacing-s);
+        }
+      }
+    }
   }
 }
 
@@ -18,13 +34,17 @@
   .section__actions {
     flex-wrap: wrap;
   }
+
+  .claim-tile__info {
+    flex-direction: column;
+  }
 }
 
 .block-list--delegator {
   padding: var(--spacing-s);
   background-color: rgba(var(--color-background-base), 0.6);
   border-radius: var(--border-radius);
-  border: 1px solid var(--color-border);
+  flex: 1;
 
   .button--alt,
   .button--secondary {
@@ -97,4 +117,13 @@
   max-width: 10rem;
   white-space: pre-line;
   margin-right: var(--spacing-s);
+  span {
+    display: block;
+    color: var(--color-text);
+    max-width: 150px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-top: -2px;
+  }
 }

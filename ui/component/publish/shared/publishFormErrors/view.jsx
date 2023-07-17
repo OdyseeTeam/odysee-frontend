@@ -3,22 +3,24 @@ import React from 'react';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { isNameValid } from 'util/lbryURI';
 import { INVALID_NAME_ERROR } from 'constants/claim';
+import { BITRATE } from 'constants/publish';
 
 type Props = {
   waitForFile: boolean,
-  overMaxBitrate: boolean,
   // --- redux ---
   title: ?string,
   name: ?string,
   bid: ?string,
   bidError: ?string,
   editingURI: ?string,
-  filePath: ?string,
+  filePath: ?string | WebFile,
+  fileBitrate: number,
   isStillEditing: boolean,
   uploadThumbnailStatus: string,
   thumbnail: string,
   thumbnailError: boolean,
-  restrictedToMemberships: ?string,
+  releaseTimeError: ?string,
+  memberRestrictionStatus: MemberRestrictionStatus,
 };
 
 function PublishFormErrors(props: Props) {
@@ -33,27 +35,25 @@ function PublishFormErrors(props: Props) {
     uploadThumbnailStatus,
     thumbnail,
     thumbnailError,
+    releaseTimeError,
+    memberRestrictionStatus,
     waitForFile,
-    overMaxBitrate,
-    restrictedToMemberships,
+    fileBitrate,
   } = props;
   // These are extra help
   // If there is an error it will be presented as an inline error as well
 
   const isUploadingThumbnail = uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
+  const missingTiers = memberRestrictionStatus.isApplicable && !memberRestrictionStatus.isSelectionValid;
 
   return (
     <div className="error__text">
       {waitForFile && <div>{__('Choose a replay file, or select None')}</div>}
-      {restrictedToMemberships === null && (
-        <div>
-          {__(
-            "You selected to restrict this content but didn't choose any memberships, please choose a membership tier to restrict, or uncheck the restriction box"
-          )}
-        </div>
+      {missingTiers && <div>{__(HELP.NO_TIERS_SELECTED)}</div>}
+      {fileBitrate > BITRATE.MAX && (
+        <div>{__('Bitrate is over the max, please transcode or choose another file.')}</div>
       )}
-      {overMaxBitrate && <div>{__('Bitrate is over the max, please transcode or choose another file.')}</div>}
       {!title && <div>{__('A title is required')}</div>}
       {!name && <div>{__('A URL is required')}</div>}
       {name && !isNameValid(name) && INVALID_NAME_ERROR}
@@ -66,8 +66,14 @@ function PublishFormErrors(props: Props) {
         thumbnailError && !thumbnailUploaded && <div>{__('Thumbnail is invalid.')}</div>
       )}
       {editingURI && !isStillEditing && !filePath && <div>{__('Please reselect a file after changing the URL')}</div>}
+      {releaseTimeError && <div>{__(releaseTimeError)}</div>}
     </div>
   );
 }
+
+// prettier-ignore
+const HELP = {
+  NO_TIERS_SELECTED: "You selected to restrict this content but didn't choose any memberships, please choose a membership tier to restrict, or uncheck the restriction box",
+};
 
 export default PublishFormErrors;

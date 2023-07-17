@@ -34,14 +34,8 @@ type Props = {
 };
 
 export default function RecommendedPersonal(props: Props) {
-  const {
-    header,
-    onLoad,
-    userId,
-    personalRecommendations,
-    userHasOdyseeMembership,
-    doFetchPersonalRecommendations,
-  } = props;
+  const { header, onLoad, userId, personalRecommendations, userHasOdyseeMembership, doFetchPersonalRecommendations } =
+    props;
 
   const ref = React.useRef();
   const [markedGid, setMarkedGid] = React.useState('');
@@ -123,7 +117,7 @@ export default function RecommendedPersonal(props: Props) {
             <ClaimPreviewTile key={i} placeholder />
           ))}
         </ul>
-        <div className="livestream-list--view-more" style={{ visibility: 'hidden' }}>
+        <div className="upcoming-list__view-more" style={{ visibility: 'hidden' }}>
           <Button
             label='"View More" dummy to reduce layout shift'
             button="link"
@@ -176,7 +170,7 @@ export default function RecommendedPersonal(props: Props) {
       />
 
       {view !== VIEW.ALL_VISIBLE && (
-        <div className="livestream-list--view-more">
+        <div className="upcoming-list__view-more">
           <Button
             label={view === VIEW.COLLAPSED ? __('Show more') : __('Show less')}
             button="link"

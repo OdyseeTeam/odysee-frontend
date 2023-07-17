@@ -4,13 +4,12 @@
 .media__thumb {
   @include thumbnail;
   position: relative;
-  border-radius: var(--border-radius-thumbnail);
+  border-radius: var(--border-radius);
   object-fit: cover;
   background-color: var(--color-placeholder-background);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-  box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0.1) inset;
 }
 
 .media__thumb--small {
@@ -45,7 +44,6 @@
 //  S U B T I T L E
 
 .media__subtitle {
-  align-self: flex-start;
   color: var(--color-text-subtitle);
   font-size: var(--font-small);
 }
@@ -55,11 +53,6 @@
   align-self: auto;
   align-items: center;
   display: flex;
-
-  .media__subtitle--centered::before {
-    content: '•';
-    margin-right: var(--spacing-s);
-  }
 }
 
 .media__subtitle--between {
@@ -127,6 +120,17 @@
   }
 }
 
+.mediaInfo__description {
+  .claim__tags {
+    .tag {
+      background-color: rgba(var(--color-header-button-base), 1);
+      &:hover {
+        background-color: var(--color-primary);
+      }
+    }
+  }
+}
+
 .media__info-text--fade {
   // -webkit-mask-image: -webkit-gradient(linear, left 30%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
   overflow-wrap: anywhere;
@@ -152,7 +156,6 @@
   @include font-sans;
   position: relative;
   display: flex;
-  // flex-wrap: wrap;
   margin-top: 0;
 
   > *:not(:last-child) {
@@ -161,6 +164,17 @@
 
   .button--file-action {
     background-color: unset;
+    .icon {
+      transform: rotate(0deg);
+      transition: transform 0.2s;
+    }
+
+    &[aria-expanded='true'] {
+      background-color: var(--color-header-button) !important;
+      .icon {
+        transform: rotate(90deg);
+      }
+    }
   }
 
   .button {
@@ -267,6 +281,11 @@
     }
   }
 
+  .ratio-wrapper--disabled {
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
   .icon--DollarSign {
     stroke-width: 1.5;
     transform: scale(0.8);
@@ -312,7 +331,6 @@
 
     .button--file-action {
       display: flex;
-      background-color: rgba(var(--color-header-background-base), 1);
       margin-right: var(--spacing-xxxs);
       justify-content: center;
       align-items: center;
@@ -350,7 +368,6 @@
       margin-top: var(--spacing-xxxs);
       .button {
         flex: auto;
-        background-color: var(--color-header-background);
         margin-right: var(--spacing-xxs);
         .button__content {
           justify-content: center;
@@ -378,4 +395,24 @@
   &:not(:last-child) {
     margin-bottom: var(--spacing-s);
   }
+}
+
+.file-detail {
+  @extend .help;
+  font-size: var(--font-xxsmall);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-s);
+
+  &:not(:last-child) {
+    margin-bottom: var(--spacing-s);
+  }
+}
+
+.file-detail__label {
+  color: var(--color-text);
+}
+
+.file-detail__value {
+  color: var(--color-text-subtitle);
 }

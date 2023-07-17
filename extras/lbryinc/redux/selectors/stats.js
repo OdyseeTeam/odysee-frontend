@@ -1,8 +1,6 @@
 // @flow
 import { selectClaimIdForUri } from 'redux/selectors/claims';
 
-type State = { claims: any, stats: any, user: UserState };
-
 const selectState = (state: State) => state.stats || {};
 export const selectViewCount = (state: State) => selectState(state).viewCountById;
 export const selectSubCount = (state: State) => selectState(state).subCountById;

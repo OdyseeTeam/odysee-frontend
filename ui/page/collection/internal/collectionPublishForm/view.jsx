@@ -11,13 +11,15 @@ import { Form, Submit, FormErrors } from 'component/common/form';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 
 import Button from 'component/button';
-import CollectionDeleteButton from 'component/collectionDeleteButton';
+// import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionItemsList from 'component/collectionItemsList';
 import Spinner from 'component/spinner';
 import BusyIndicator from 'component/common/busy-indicator';
 import Tooltip from 'component/common/tooltip';
 import CollectionGeneralTab from './internal/collectionGeneralTab';
 import withCollectionItems from 'hocs/withCollectionItems';
+import ErrorBubble from 'component/common/error-bubble';
+import './style.scss';
 
 export const PAGE_TAB_QUERY = `tab`;
 
@@ -30,23 +32,26 @@ type Props = {
   collectionId: string,
   onDoneForId: (string) => void,
   // -- redux -
-  uri: ?string,
+  // uri: ?string,
   hasClaim: boolean,
   collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams,
   isClaimPending: boolean,
   activeChannelClaim: ?ChannelClaim,
   collectionHasEdits: boolean,
+  collectionHasUnSavedEdits: boolean,
+  hasUnavailableClaims: boolean,
   doCollectionPublish: (CollectionPublishCreateParams, string) => Promise<any>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
   doClearEditsForCollectionId: (id: string) => void,
   doOpenModal: (id: string, props: {}) => void,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
 };
 
 export const CollectionFormContext = React.createContext<any>();
 
 const CollectionPublishForm = (props: Props) => {
   const {
-    uri,
+    // uri,
     collectionId,
     onDoneForId,
     // -- redux -
@@ -55,10 +60,13 @@ const CollectionPublishForm = (props: Props) => {
     isClaimPending,
     activeChannelClaim,
     collectionHasEdits,
+    collectionHasUnSavedEdits,
+    hasUnavailableClaims,
     doCollectionPublish,
     doCollectionEdit,
     doClearEditsForCollectionId,
     doOpenModal,
+    doRemoveFromUnsavedChangesCollectionsForCollectionId,
   } = props;
 
   const initialParams = React.useRef(collectionParams);
@@ -86,6 +94,7 @@ const CollectionPublishForm = (props: Props) => {
   const hasChanges =
     (publishing && !hasClaim) ||
     collectionHasEdits ||
+    collectionHasUnSavedEdits ||
     JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
   const publishingClaimWithNoChanges = publishing && hasClaim && !collectionHasEdits && !hasChanges;
 
@@ -93,16 +102,7 @@ const CollectionPublishForm = (props: Props) => {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
   }
 
-  function handleSubmitForm() {
-    if (!hasChanges) return goBack();
-
-    if (editing) {
-      // $FlowFixMe
-      doCollectionEdit(collectionId, formParams);
-
-      return onDoneForId(collectionId);
-    }
-
+  function handlePublish() {
     setPublishPending(true);
 
     const successCb = (pendingClaim) => {
@@ -119,6 +119,37 @@ const CollectionPublishForm = (props: Props) => {
     doCollectionPublish(formParams, collectionId)
       .then(successCb)
       .catch(() => setPublishPending(false));
+  }
+
+  function handleSubmitForm() {
+    if (!hasChanges) return goBack();
+
+    if (editing) {
+      // $FlowFixMe
+      doCollectionEdit(collectionId, formParams);
+
+      return onDoneForId(collectionId);
+    }
+
+    if (hasUnavailableClaims) {
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Confirm Publish'),
+        subtitle: __(
+          'You are about to publish this playlist with unavailable items that will be removed (all other items will be unaffected). This action is permanent and cannot be undone.'
+        ),
+        onConfirm: (closeModal) => {
+          handlePublish();
+          closeModal();
+        },
+      });
+    } else {
+      handlePublish();
+    }
+  }
+
+  function handleCancelButton() {
+    doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
+    goBack();
   }
 
   function onTabChange(newTabIndex) {
@@ -147,6 +178,9 @@ const CollectionPublishForm = (props: Props) => {
 
       initialParams.current = collectionParams;
       collectionResetPending.current = false;
+    } else if (collectionParams) {
+      // Keep claims in formParams up to date
+      updateFormParams({ claims: collectionParams.claims });
     }
   }, [collectionParams]);
 
@@ -189,11 +223,24 @@ const CollectionPublishForm = (props: Props) => {
 
             <TabPanel>
               {tabIndex === TAB.ITEMS && (
-                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit />
+                <CollectionItemsList
+                  collectionId={collectionId}
+                  empty={__('This playlist has no items.')}
+                  showEdit
+                  isEditPreview
+                />
               )}
             </TabPanel>
           </TabPanels>
         </Tabs>
+
+        {hasUnavailableClaims && publishing && (
+          <ErrorBubble>
+            {__(
+              'This playlist has unavailable items and they will not be published. Make sure you want to continue before uploading.'
+            )}
+          </ErrorBubble>
+        )}
 
         <div className="section__actions">
           <Submit
@@ -201,12 +248,12 @@ const CollectionPublishForm = (props: Props) => {
             disabled={publishingClaimWithNoChanges || publishPending}
             label={publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit')}
           />
-          <Button button="link" label={__('Cancel')} onClick={goBack} />
+          <Button button="link" label={__('Cancel')} onClick={handleCancelButton} />
 
           {collectionHasEdits && (
             <Tooltip title={__('Delete all edits from this published playlist')}>
               <Button
-                button="close"
+                button="alt"
                 icon={ICONS.REFRESH}
                 label={__('Clear Updates')}
                 onClick={() =>
@@ -234,10 +281,6 @@ const CollectionPublishForm = (props: Props) => {
             ? __('After submitting, it will take a few minutes for your changes to be live for everyone.')
             : __('After saving, all changes will remain private')}
         </p>
-
-        <div className="section__actions">
-          <CollectionDeleteButton uri={uri} collectionId={collectionId} />
-        </div>
       </CollectionFormContext.Provider>
     </Form>
   );

@@ -1,8 +1,6 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-
-import './style.scss';
 import FeeBreakdown from './internal/feeBreakdown';
 import Button from 'component/button';
 import { FormField, FormFieldPrice } from 'component/common/form';
@@ -11,15 +9,16 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import FormFieldDurationCombo from 'component/formFieldDurationCombo';
 import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import usePersistedState from 'effects/use-persisted-state';
 import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
+import './style.lazy.scss';
 
 const FEE = { MIN: 1, MAX: 999.99 };
 const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until currency approach is determined.
 
 type Props = {
   disabled: boolean,
-  isMarkdownPost: boolean,
   // --- redux ---
   fileMime: ?string,
   streamType: ?string,
@@ -30,18 +29,19 @@ type Props = {
   fiatRentalExpiration: Duration,
   paywall: Paywall,
   fee: Fee,
-  restrictedToMemberships: ?string,
+  memberRestrictionStatus: MemberRestrictionStatus,
   chargesEnabled: ?boolean,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
+  type: PublishType,
+  visibility: Visibility,
 };
 
 function PublishPrice(props: Props) {
   const {
     fileMime,
     streamType,
-    isMarkdownPost,
     // Purchase
     fiatPurchaseEnabled,
     fiatPurchaseFee,
@@ -52,22 +52,24 @@ function PublishPrice(props: Props) {
     // SDK-LBC
     paywall = PAYWALL.FREE,
     fee,
-    restrictedToMemberships,
+    memberRestrictionStatus,
     chargesEnabled,
     updatePublishForm,
     doTipAccountStatus,
     doCustomerPurchaseCost,
     disabled,
+    type,
+    visibility,
   } = props;
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [fiatAllowed, setFiatAllowed] = React.useState(true);
-
+  const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
 
-  // If it's only restricted, the price can be added externally and they won't be able to change it
-  const restrictedWithoutPrice = paywall === PAYWALL.FREE && restrictedToMemberships;
+  // If it's only restricted, the price can be added externally, and they won't be able to change it
+  const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionStatus.isRestricting;
 
   function clamp(value, min, max) {
     return Math.min(Math.max(Number(value), min), max);
@@ -169,11 +171,7 @@ function PublishPrice(props: Props) {
 
   function getTncRow() {
     return (
-      <div
-        className={classnames('publish-price__row', {
-          'publish-price__row--indented': true,
-        })}
-      >
+      <div className="publish-price__row">
         <div className="publish-price__grp-1 publish-price__tnc">
           <I18nMessage
             tokens={{
@@ -198,7 +196,6 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
-          'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">
@@ -236,7 +233,6 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
-          'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">
@@ -283,7 +279,6 @@ function PublishPrice(props: Props) {
       <div
         className={classnames('publish-price__row', {
           'publish-price__row--disabled': restrictedWithoutPrice,
-          'publish-price__row--indented': true,
         })}
       >
         <div className="publish-price__grp-1">
@@ -323,38 +318,60 @@ function PublishPrice(props: Props) {
       return false;
     }
 
-    const isFiatAllowed = isMarkdownPost || isFiatWhitelistedFileType();
+    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType();
     setFiatAllowed(isFiatAllowed);
 
     if (paywall === PAYWALL.FIAT && !isFiatAllowed) {
       updatePublishForm({ paywall: PAYWALL.FREE });
     }
-  }, [fileMime, paywall, isMarkdownPost, updatePublishForm, streamType]);
+  }, [fileMime, paywall, type, updatePublishForm, streamType]);
+
+  if (paymentDisallowed) {
+    return (
+      <div className="publish-price">
+        <Card
+          background
+          isBodyList
+          className="card--enable-overflows"
+          title={__('Price')}
+          body={
+            <div className="publish-price__reason">
+              {__('Payment options are not available for Unlisted or Scheduled content.')}
+            </div>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="publish-price">
-      <h2 className="publish-price__title">{__('Price')}</h2>
       <Card
-        className={classnames('card--enable-overflow card--publish-section card--additional-options', {
-          'card--disabled': disabled,
-        })}
-        actions={
+        background
+        isBodyList
+        className="card--enable-overflows"
+        title={__('Price')}
+        body={
           <>
             {expanded && (
-              <>
+              <div
+                className={classnames('settings-row', {
+                  'settings-row--disabled': paymentDisallowed,
+                })}
+              >
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
                 {getPaywallOptionsRow()}
                 {paywall === PAYWALL.FIAT && (
-                  <>
+                  <div className="publish-price__group">
                     {getPurchaseRow()}
                     {getRentalRow()}
                     {getTncRow()}
-                  </>
+                  </div>
                 )}
-                {paywall === PAYWALL.SDK && getLbcPurchaseRow()}
-              </>
+                {paywall === PAYWALL.SDK && <div className="publish-price__group">{getLbcPurchaseRow()}</div>}
+              </div>
             )}
-            <div className="publish-price__row">
+            <div className="publish-row publish-row--more">
               <Button
                 label={__(expanded ? 'Hide' : 'Show')}
                 button="link"

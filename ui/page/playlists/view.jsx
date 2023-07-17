@@ -11,6 +11,7 @@ import BuiltinPlaylists from './internal/builtin-playlists';
 import Page from 'component/page';
 import CollectionsListMine from './internal/collectionsListMine';
 import Spinner from 'component/spinner';
+import './style.scss';
 
 type Props = {
   // -- redux --
@@ -22,13 +23,8 @@ type Props = {
 };
 
 const PlaylistsPage = (props: Props) => {
-  const {
-    areBuiltinCollectionsEmpty,
-    hasCollections,
-    isFetchingCollections,
-    doOpenModal,
-    doFetchCollectionListMine,
-  } = props;
+  const { areBuiltinCollectionsEmpty, hasCollections, isFetchingCollections, doOpenModal, doFetchCollectionListMine } =
+    props;
 
   const { push } = useHistory();
 
@@ -95,7 +91,7 @@ const PlaylistsPage = (props: Props) => {
 };
 
 const Wrapper = ({ children }: { children: any }) => (
-  <Page className="playlists-page-wrapper">
+  <Page className="playlists-page__wrapper">
     <div className="claim-grid__wrapper">
       <BuiltinPlaylists />
 

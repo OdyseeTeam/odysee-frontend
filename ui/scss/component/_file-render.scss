@@ -1,35 +1,14 @@
 .membership-button-wrapper.inline {
-  margin: var(--spacing-s);
-  margin-bottom: 0;
-  margin-left: 0;
-
   @media (max-width: $breakpoint-small) {
     margin-top: var(--spacing-xxs);
     margin-bottom: var(--spacing-s);
-    margin-right: var(--spacing-s);
+    margin-right: 0;
     margin-left: 0;
   }
 }
 
 .file-page {
   .card-stack {
-    .claim-preview {
-      &:hover {
-        .claim-preview__title {
-          color: var(--color-text);
-        }
-      }
-      .claim-preview__title {
-        &:hover {
-          color: var(--color-link);
-        }
-      }
-    }
-
-    .claim-preview__primary-actions {
-      margin-right: 0;
-    }
-
     @media (max-width: $breakpoint-small) {
       .card {
         .card__first-pane {
@@ -54,36 +33,17 @@
                 overflow: visible;
               }
               .claim-preview__actions {
-                width: calc(100% + calc(2.5rem + var(--spacing-m)));
+                width: calc(100% + calc(2.7rem + var(--spacing-s)));
+                margin-left: calc(-2.7rem + calc(var(--spacing-s) * -1));
                 flex-direction: row;
-                margin-left: calc(-2.5rem + calc(var(--spacing-m) * -1));
 
                 .membership-button-wrapper {
                   width: 50%;
-                  margin-top: var(--spacing-xxs);
                   margin-bottom: 0;
-                  margin-right: var(--spacing-xxs);
                   .button--membership,
                   .button--membership-active {
                     width: 100%;
                   }
-                }
-                .claim-preview__primary-actions {
-                  width: 50%;
-                  margin-right: 0;
-                  .button-group {
-                    width: 100%;
-                    .button {
-                      &:first-of-type {
-                        width: 100%;
-                      }
-                    }
-                  }
-                }
-
-                @media (max-width: $breakpoint-small) {
-                  width: calc(100% + calc(2.7rem + var(--spacing-s)));
-                  margin-left: calc(-2.7rem + calc(var(--spacing-s) * -1));
                 }
 
                 @media (max-width: $breakpoint-xsmall) {
@@ -95,8 +55,7 @@
           }
         }
       }
-    }
-    @media (max-width: $breakpoint-small) {
+
       .membership-button-wrapper {
         margin-left: var(--spacing-xs) !important;
       }
@@ -137,11 +96,16 @@
         }
       }
     }
+
+    @media (max-width: $breakpoint-small) {
+      .claim__menu-button {
+        margin-top: -6px;
+        right: 0;
+      }
+    }
   }
 
   .file-page__video-container + .card,
-  // .file-render + .card,
-  // .content__cover + .card,
   .card + .file-render,
   .card + .file-page__video-container,
   .card + .content__cover {
@@ -186,14 +150,12 @@
     }
   }
 
-  // Temporary fix
   .card__main-actions {
     .claim-tile__info {
       display: unset;
       margin-top: -2px;
       padding-bottom: 0;
       .media__subtitle {
-        padding-bottom: 3px;
         .claim-preview__channel-sub-count {
           font-size: var(--font-xsmall) !important;
           @media (max-width: $breakpoint-small) {
@@ -226,8 +188,9 @@
 
         .channel-thumbnail {
           margin: var(--spacing-xxs);
+          margin-right: var(--spacing-xs);
           margin-left: 0px;
-          margin-top: 0px;
+          margin-top: 2px;
           width: 2.5rem;
           height: 2.5rem;
 
@@ -267,31 +230,8 @@
         flex: 1;
         overflow: hidden;
 
-        span {
-          font-size: var(--font-xxsmall);
-        }
-      }
-
-      .claim-preview__actions {
-        margin: 0;
-        align-self: flex-start;
-
-        .button-group {
-          margin: 0;
-        }
-
-        .button--alt {
-          padding: var(--spacing-xs);
-          height: unset;
-
-          .button__content {
-            height: unset;
-          }
-        }
-
-        span {
-          font-size: var(--font-xsmall);
-          font-weight: var(--font-weight-bold);
+        .claim-preview__title {
+          font-size: var(--font-small);
         }
       }
     }
@@ -300,7 +240,33 @@
 
 .file-page__video-container {
   position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
   max-height: var(--desktop-portrait-player-max-height);
+
+  .content__cover,
+  .content__loading {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    max-height: var(--desktop-portrait-player-max-height);
+  }
+  .content__loading {
+    aspect-ratio: 16 / 9;
+  }
+}
+.main--theater-mode {
+  .file-page__video-container {
+    aspect-ratio: 16 / 9;
+    max-height: var(--desktop-portrait-player-max-height);
+  }
+}
+
+.content__viewer--theater-mode {
+  &.content__viewer--inline {
+    max-height: unset !important;
+  }
 }
 
 .file-page__pdf-wrapper {
@@ -321,6 +287,10 @@
 .file-render--video {
   background-color: black;
   border-radius: var(--border-radius);
+
+  .file-viewer {
+    position: relative;
+  }
 
   &:after {
     content: '';
@@ -362,6 +332,22 @@
   border-radius: 0;
   position: fixed;
   max-height: none;
+  border-radius: var(--border-radius);
+  .video-js.vjs-layout-small {
+    .vjs-volume-control {
+      display: block !important;
+    }
+  }
+  .vjs-button--autoplay-next {
+    display: none;
+  }
+}
+
+.claim-link {
+  .file-render--embed,
+  .vjs-tech {
+    position: relative !important;
+  }
 }
 
 .file-render__img-container {
@@ -370,6 +356,9 @@
   background-color: var(--color-placeholder-background);
   border-radius: var(--border-radius);
   position: relative;
+  .file-render {
+    height: unset;
+  }
 }
 
 .file-render--post-container {
@@ -509,6 +498,10 @@
 .file-viewer__overlay-secondary {
   color: var(--color-text-subtitle);
   margin-bottom: var(--spacing-m);
+
+  @media (max-width: $breakpoint-small) {
+    margin-bottom: 0;
+  }
 }
 .file-viewer__overlay-actions {
   .button + .button {
@@ -530,10 +523,6 @@
   }
 }
 
-.file-viewer--is-playing:not(:hover) .file-viewer__embedded-header {
-  display: none;
-}
-
 .file-viewer__embedded-header {
   position: absolute;
   display: grid;
@@ -541,7 +530,7 @@
   width: 100%;
   top: 0;
   opacity: 1;
-  z-index: 2;
+  z-index: 6;
   font-size: var(--font-large);
   overflow-x: hidden;
   overflow-y: hidden;
@@ -549,6 +538,7 @@
   white-space: nowrap;
   border-top-left-radius: var(--border-radius);
   border-top-right-radius: var(--border-radius);
+  padding: var(--spacing-xxs);
 
   .button {
     padding: var(--spacing-xxs);
@@ -568,10 +558,37 @@
   .icon--Key {
     margin-right: var(--spacing-m);
   }
+}
 
-  @media (min-width: $breakpoint-small) {
-    padding: 0 var(--spacing-l);
+.file-viewer__embedded-header-hide {
+  .file-viewer__embedded-header {
+    animation-name: hide-embedded-header;
+    animation-duration: 0.6s;
+    animation-delay: 2.5s;
+    animation-fill-mode: forwards;
   }
+}
+
+.file-render--video.file-render--embed {
+  &:hover {
+    .file-viewer__embedded-header {
+      opacity: 1 !important;
+    }
+  }
+}
+
+@keyframes hide-embedded-header {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.embed__wrapper .file-viewer__embedded-header {
+  border-radius: 0 !important;
+  width: 100vw;
 }
 
 .file-viewer__embedded-gradient {
@@ -622,7 +639,6 @@
   }
 
   .CodeMirror .CodeMirror-lines {
-    // is there really a .CodeMirror inside a .CodeMirror?
     padding: var(--spacing-s) 0;
   }
 
@@ -651,12 +667,10 @@
 // ****************************************************************************
 
 // DRY: we'll soon move vjs items to videojs.scss, so just duplicate these for now.
-// $control-bar-height: 48px;
 $control-bar-height: 48px;
 $control-bar-height-mobile: 44px;
 $control-bar-font-size: 0.9rem;
 $control-bar-popup-font-size: 0.8rem;
-// $control-bar-icon-size: 1.9rem;
 $control-bar-icon-size: 30px;
 
 .video-js-parent {
@@ -664,7 +678,6 @@ $control-bar-icon-size: 30px;
   width: 100%;
 }
 
-// By default no video js play button
 .vjs-big-play-button {
   display: none;
 }
@@ -713,7 +726,6 @@ $control-bar-icon-size: 30px;
 
     .vjs-current-time {
       padding-right: 0;
-      // margin-right: 0.4rem;
       @media (max-width: $breakpoint-small) {
         margin-right: 0.2rem;
       }
@@ -729,7 +741,6 @@ $control-bar-icon-size: 30px;
       padding-left: 0;
       margin-left: var(--spacing-xs);
       @media (max-width: $breakpoint-small) {
-        // margin-left: 0.2rem;
         margin-left: var(--spacing-xs) !important;
       }
     }
@@ -737,7 +748,6 @@ $control-bar-icon-size: 30px;
 
   // control-bar: menu, button and icon
   .vjs-control-bar {
-    // margin-bottom:-4px;
     .vjs-menu-button {
       font-size: $control-bar-font-size;
       line-height: $control-bar-height;
@@ -771,9 +781,9 @@ $control-bar-icon-size: 30px;
             font-weight: var(--font-weight-bold);
             border-radius: 4px;
             margin-top: -1px;
-            //padding-top: 1px;
             padding-top: 0;
             line-height: 13px;
+            white-space: nowrap;
           }
         }
       }
@@ -784,7 +794,6 @@ $control-bar-icon-size: 30px;
             span {
               margin-left: 20%;
               margin-right: 20%;
-              // font-size: 0.5rem;
             }
           }
         }
@@ -802,7 +811,6 @@ $control-bar-icon-size: 30px;
     }
 
     div.vjs-playback-rate {
-      // margin-left: var(--spacing-xs);
       margin-right: calc(var(--spacing-xs) * -1);
       .vjs-playback-rate-value {
         font-size: $control-bar-font-size;
@@ -837,6 +845,7 @@ $control-bar-icon-size: 30px;
       }
       @media (max-width: $breakpoint-small) {
         width: 3em;
+        right: 0;
       }
     }
     button.vjs-chapters-button {
@@ -855,34 +864,12 @@ $control-bar-icon-size: 30px;
         opacity: 0.9;
       }
     }
-
-    .vjs-chromecast-button,
-    .vjs-airplay-button {
-      margin-left: var(--spacing-xs);
-      margin-right: 2px;
-      .vjs-icon-placeholder {
-        $chromecast-icon-size: 25px;
-        margin-top: 3px;
-        width: $chromecast-icon-size;
-        height: $chromecast-icon-size;
-      }
-
-      @media (max-width: $breakpoint-small) {
-        .vjs-icon-placeholder {
-          margin-top: 2px;
-          width: 26px;
-          height: 26px;
-        }
-      }
-    }
   }
 
-  // control-bar: general padding
   .vjs-control-bar {
     .vjs-button--play-previous:first-child,
     .vjs-play-control:first-child {
       margin-left: var(--spacing-s);
-      margin-right: var(--spacing-xs);
       @media (max-width: $breakpoint-small) {
         margin-left: 0;
       }
@@ -890,7 +877,6 @@ $control-bar-icon-size: 30px;
 
     .vjs-fullscreen-control {
       margin-right: var(--spacing-s);
-      margin-left: var(--spacing-xs);
       @media (max-width: $breakpoint-small) {
         width: 2.5rem;
         margin-right: 0;
@@ -1068,7 +1054,6 @@ $control-bar-icon-size: 30px;
     @extend .button--icon;
     @extend .button--play;
     border: none;
-    /*position: static;*/
     z-index: 2;
 
     .vjs-icon-placeholder {
@@ -1111,7 +1096,8 @@ $control-bar-icon-size: 30px;
     margin-left: var(--spacing-s);
 
     @media (min-width: $breakpoint-small) {
-      margin-left: calc(var(--spacing-m) + var(--spacing-s));
+      margin-top: calc(var(--spacing-l) + var(--spacing-s));
+      margin-left: var(--spacing-xxxs);
     }
   }
 
@@ -1122,17 +1108,102 @@ $control-bar-icon-size: 30px;
       max-height: none;
     }
   }
+
+  .vjs-control-bar {
+    .vjs-control:not(.vjs-progress-control):not(.vjs-button--autoplay-next):not(.vjs-volume-horizontal) {
+      width: 3em;
+    }
+    .vjs-button {
+      margin-left: 2px !important;
+      margin-right: 2px !important;
+    }
+    .vjs-snapshot-button,
+    .vjs-button--theater-mode {
+      display: none;
+    }
+    .vjs-quality-selector {
+      text-align: center;
+      .vjs-icon-placeholder {
+        text-align: center;
+        span {
+          span {
+            margin-left: 4%;
+            margin-right: 4%;
+          }
+        }
+      }
+    }
+    .vjs-playback-rate {
+      margin-right: -6px !important;
+    }
+    .vjs-volume-panel {
+      .vjs-volume-horizontal {
+        margin-top: 3px !important;
+        margin-left: 0 !important;
+        // height: $control-bar-height !important;
+        @media (max-width: $breakpoint-small) {
+          // height: $control-bar-height-mobile !important;
+        }
+      }
+      &:hover {
+        .vjs-volume-horizontal {
+          margin-top: 3px !important;
+          // height: $control-bar-height !important;
+          @media (max-width: $breakpoint-small) {
+            // height: $control-bar-height-mobile !important;
+          }
+        }
+      }
+    }
+  }
+
+  &.file-render--video {
+    aspect-ratio: 16 / 9;
+  }
+
+  .vjs-control-bar {
+    .vjs-progress-control.vjs-control {
+      margin: 1px var(--spacing-s) 7px !important;
+      width: calc(100% - var(--spacing-s) * 2) !important;
+    }
+    .vjs-paused {
+      margin-left: 3px !important;
+    }
+    .vjs-playing {
+      margin-left: 6px !important;
+      margin-right: -1px !important;
+    }
+    .vjs-fullscreen-control {
+      margin-right: 7px !important;
+    }
+    .vjs-volume-horizontal {
+      margin-left: 1em !important;
+    }
+    .vjs-volume-panel-horizontal.vjs-hover {
+      width: 10em !important;
+    }
+  }
+
+  .vjs-menu {
+    left: -3em !important;
+    width: 8.7em !important;
+
+    &.vjs-setting-menu {
+      left: unset !important;
+      width: unset !important;
+    }
+  }
 }
 
 .file-viewer--ended-embed {
-  .vjs-big-play-button {
-    display: none !important; // yes this is dumb, but this was broken and the above CSS was overriding
+  .vjs-control-bar {
+    position: absolute;
+    z-index: 3;
   }
-
   .file-viewer__overlay-actions {
-    display: grid;
-    grid-template-columns: repeat(3, auto);
-    grid-gap: 1rem;
+    a:first-of-type {
+      margin-right: var(--spacing-s);
+    }
   }
 }
 
@@ -1214,14 +1285,233 @@ $control-bar-icon-size: 30px;
   flex-direction: row;
   margin-bottom: var(--spacing-s);
 
-  > :first-child {
-    margin-bottom: 0;
-    margin-right: var(--spacing-s);
+  .icon {
+    margin-right: var(--spacing-xs);
+    margin-top: 2px;
+    &:not(.icon:first-of-type) {
+      margin-left: var(--spacing-m);
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-s);
   }
 }
 
 .file-page__image {
   img {
     cursor: pointer;
+  }
+}
+
+.inline-player__wrapper {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--border-radius) !important;
+
+  .paid-content-overlay,
+  .protected-content-overlay {
+    .button__content {
+      display: flex !important;
+    }
+  }
+}
+
+.paid-content-overlay,
+.protected-content-overlay {
+  .button {
+    border: 1px solid white;
+    transition: all 0.2s;
+    opacity: 0.9;
+    &:hover {
+      transform: scale(1.08);
+      opacity: 1;
+    }
+  }
+}
+
+.recommendation-overlay-wrapper {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  border-radius: var(--border-radius);
+  animation: blendin 1s forwards;
+  padding: 3% 10%;
+  padding-bottom: 80px;
+
+  @media (max-width: $breakpoint-small) {
+    padding: 4% 18%;
+    padding-bottom: 90px;
+    .vjs-icon-placeholder {
+      z-index: 1000;
+    }
+  }
+
+  .recommendation-overlay-grid {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    gap: var(--spacing-xxs);
+    grid-template-columns: repeat(3, 1fr);
+
+    .claim-preview--tile {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      animation: grow 0.6s forwards;
+
+      &:active {
+        pointer-events: none;
+      }
+
+      a {
+        pointer-events: none;
+      }
+      .claim-tile__header {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        padding: var(--spacing-s);
+        padding-bottom: var(--spacing-m);
+        padding-top: 0;
+        background: linear-gradient(180deg, rgba(13, 13, 13, 0.9) 50%, rgba(13, 13, 13, 0) 100%);
+        display: none;
+      }
+      .claim-preview__hover-actions,
+      .menu__button {
+        display: none;
+      }
+
+      .claim-tile__info {
+        position: absolute;
+        padding-bottom: 0;
+        bottom: 0;
+        width: 100%;
+        padding: var(--spacing-m) var(--spacing-s);
+        background: linear-gradient(0deg, rgba(13, 13, 13, 0.9) 50%, rgba(13, 13, 13, 0) 100%);
+        display: none;
+      }
+
+      .claim-preview__file-property-overlay {
+        display: none;
+        margin: var(--spacing-xxs);
+      }
+
+      &:hover {
+        .claim-tile__info {
+          display: flex;
+          .channel-name,
+          .date_time {
+            color: white;
+          }
+        }
+        .claim-tile__header {
+          display: flex;
+          .claim-preview__title {
+            color: white;
+          }
+        }
+        .claim-preview__file-property-overlay {
+          display: block;
+        }
+        .media__thumb {
+          box-shadow: unset;
+        }
+      }
+    }
+  }
+}
+
+.content__viewer--theater-mode {
+  .recommendation-overlay-wrapper {
+    padding: 4% 24% 6% 24%;
+
+    @media (orientation: portrait) {
+      padding: 5% 10% !important;
+      padding-bottom: 7% !important;
+    }
+  }
+}
+
+.content__viewer--floating {
+  .recommendation-overlay-wrapper {
+    padding: 6% 20% 14% 20%;
+
+    .recommendation-overlay-grid {
+      .claim-preview--tile {
+        pointer-events: none;
+        &:hover {
+          .claim-tile__info,
+          .claim-tile__header,
+          .claim-preview__file-property-overlay {
+            display: none;
+          }
+        }
+      }
+      div {
+        transition: background-size 0.2s;
+        &:hover {
+          cursor: pointer !important;
+          .media__thumb {
+            background-size: 108%;
+          }
+        }
+      }
+    }
+  }
+}
+
+.content__viewer--mobile {
+  .recommendation-overlay-wrapper {
+    border-radius: 0;
+    .recommendation-overlay-grid {
+      div:nth-child(5) {
+        .claim-preview--tile {
+          opacity: 0;
+          pointer-events: none;
+        }
+        background-size: 40%;
+        background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>');
+        background-position: center center;
+        background-repeat: no-repeat;
+      }
+    }
+  }
+  &.content__viewer--floating {
+    .recommendation-overlay-wrapper {
+      display: none;
+    }
+  }
+}
+
+.content__viewer--portrait {
+  .recommendation-overlay-wrapper {
+    padding: 52% 4% 52% 4%;
+  }
+}
+
+.vjs-control-bar {
+  z-index: 2;
+  display: flex !important;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+@keyframes blendin {
+  from {
+    background-color: rgba(0, 0, 0, 0);
+  }
+  to {
+    background-color: rgba(0, 0, 0, 1);
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
   }
 }

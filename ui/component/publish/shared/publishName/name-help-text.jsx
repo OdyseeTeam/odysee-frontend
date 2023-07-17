@@ -14,7 +14,7 @@ type Props = {
   uri: ?string,
   myClaimForUri: ?StreamClaim,
   myClaimForUriCaseInsensitive: ?StreamClaim,
-  currentUploads: { [key: string]: FileUploadItem },
+  currentUploads: { [guid: string]: FileUploadItem },
   isStillEditing: boolean,
   onEditMyClaim: (any, string) => void,
 };

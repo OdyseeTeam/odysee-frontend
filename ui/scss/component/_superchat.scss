@@ -1,5 +1,5 @@
 .hyperChat {
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius) var(--border-radius) var(--border-radius) 0;
   background-color: linear-gradient(to right, var(--color-hyperchat), var(--color-hyperchat-3));
   padding: 4px var(--spacing-xs);
   padding-bottom: 2px !important;

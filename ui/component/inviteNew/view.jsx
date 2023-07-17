@@ -42,11 +42,13 @@ function InviteNew(props: Props) {
         analytics.apiLog.publish(matchingChannel);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
     [setReferralSource]
   );
 
   const topChannel =
     channels &&
+    channels.length > 0 &&
     channels.reduce((top, channel) => {
       const topClaimCount = (top && top.meta && top.meta.claims_in_channel) || 0;
       const currentClaimCount = (channel && channel.meta && channel.meta.claims_in_channel) || 0;

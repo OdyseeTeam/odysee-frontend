@@ -2,15 +2,18 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
-import { parseURI } from 'util/lbryURI';
 import moment from 'moment';
 import { toCapitalCase } from 'util/string';
 import { CUSTOM_HOMEPAGE } from 'config';
 
 export type HomepageCat = {
+  id?: string,
   name: string,
   icon: string,
   label: string,
+  title: string,
+  link: string,
+  route: ?string,
   channelIds?: Array<string>,
   daysOfContent?: number,
   channelLimit?: string,
@@ -39,7 +42,7 @@ function getLimitPerChannel(size, isChannel) {
 export function getAllIds(all: any) {
   const idsSet: Set<string> = new Set();
   (Object.values(all): any).forEach((cat) => {
-    if (cat.channelIds) {
+    if (cat?.channelIds) {
       cat.channelIds.forEach((id) => idsSet.add(id));
     }
   });
@@ -124,7 +127,7 @@ export function GetLinksData(
   authenticated?: boolean,
   showPersonalizedChannels?: boolean,
   showPersonalizedTags?: boolean,
-  subscribedChannels?: Array<Subscription>,
+  subscribedChannelIds?: Array<ClaimId>,
   followedTags?: Array<Tag>,
   showIndividualTags?: boolean,
   showNsfw?: boolean
@@ -137,7 +140,7 @@ export function GetLinksData(
   let rowData: Array<RowDataItem> = [];
   const individualTagDataItems: Array<RowDataItem> = [];
 
-  if (isHomepage && showPersonalizedChannels && subscribedChannels) {
+  if (isHomepage && showPersonalizedChannels && subscribedChannelIds) {
     const RECENT_FROM_FOLLOWING = {
       id: 'FOLLOWING',
       title: __('Recent From Following'),
@@ -147,15 +150,12 @@ export function GetLinksData(
       options: {
         orderBy: CS.ORDER_BY_NEW,
         releaseTime:
-          subscribedChannels.length > 20
+          subscribedChannelIds.length > 20
             ? `>${Math.floor(moment().subtract(9, 'months').startOf('week').unix())}`
             : `>${Math.floor(moment().subtract(1, 'year').startOf('week').unix())}`,
-        pageSize: getPageSize(subscribedChannels.length > 3 ? (subscribedChannels.length > 6 ? 12 : 8) : 4),
+        pageSize: getPageSize(subscribedChannelIds.length > 3 ? (subscribedChannelIds.length > 6 ? 12 : 8) : 4),
         streamTypes: null,
-        channelIds: subscribedChannels.map((subscription: Subscription) => {
-          const { channelClaimId } = parseURI(subscription.uri);
-          if (channelClaimId) return channelClaimId;
-        }),
+        channelIds: subscribedChannelIds,
       },
     };
     // $FlowFixMe flow thinks this might not be Array<string>

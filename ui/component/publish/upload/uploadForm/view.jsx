@@ -1,4 +1,5 @@
 // @flow
+import type { DoPublishDesktop } from 'redux/actions/publish';
 
 /*
   On submit, this component calls publish, which dispatches doPublishDesktop.
@@ -8,46 +9,52 @@
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
+import { lazyImport } from 'util/lazyImport';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
-import ChannelSelect from 'component/channelSelector';
+import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publish/shared/publishDescription';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
-import PublishPrice from 'component/publish/shared/publishPrice';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
 import PublishFile from 'component/publish/upload/publishFile';
 import PublishProtectedContent from 'component/publishProtectedContent';
 
-import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
+import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
+const PublishPrice = lazyImport(() =>
+  import('component/publish/shared/publishPrice' /* webpackChunkName: "publish" */)
+);
+
 type Props = {
   disabled: boolean,
   tags: Array<Tag>,
-  publish: (source?: string | File, ?boolean) => void,
+  publish: DoPublishDesktop,
   filePath: string | File,
   fileText: string,
+  fileBitrate: number,
   bid: ?number,
   bidError: ?string,
   editingURI: ?string,
   title: ?string,
   thumbnail: ?string,
   thumbnailError: ?boolean,
-  uploadThumbnailStatus: ?string,
+  uploadThumbnailStatus: string,
   thumbnailPath: ?string,
   description: ?string,
   language: string,
@@ -70,24 +77,22 @@ type Props = {
   publishError?: boolean,
   balance: number,
   isStillEditing: boolean,
+  claimToEdit: ?Claim,
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
-  // Add back type
-  updatePublishForm: (any) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   checkAvailability: (string) => void,
-  ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
-  user: ?User,
   permanentUrl: ?string,
   remoteUrl: ?string,
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
-  restrictedToMemberships: ?string,
+  memberRestrictionStatus: MemberRestrictionStatus,
 };
 
 function UploadForm(props: Props) {
@@ -105,6 +110,7 @@ function UploadForm(props: Props) {
     enablePublishPreview,
     filePath,
     fileText,
+    fileBitrate,
     hasClaimedInitialRewards,
     incognito,
     isClaimingInitialRewards,
@@ -117,6 +123,7 @@ function UploadForm(props: Props) {
     publishError,
     publishSuccess,
     publishing,
+    releaseTimeError,
     remoteUrl,
     resetThumbnailStatus,
     resolveUri,
@@ -126,33 +133,10 @@ function UploadForm(props: Props) {
     title,
     updatePublishForm,
     uploadThumbnailStatus,
-    user,
-    ytSignupPending,
-    restrictedToMemberships,
+    memberRestrictionStatus,
   } = props;
 
   const inEditMode = Boolean(editingURI);
-  const { replace, location } = useHistory();
-  const urlParams = new URLSearchParams(location.search);
-  const TYPE_PARAM = 'type';
-  const uploadType = urlParams.get(TYPE_PARAM);
-  const _uploadType = uploadType && uploadType.toLowerCase();
-
-  const enableLivestream = ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled;
-
-  // $FlowFixMe
-  const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
-    // $FlowFixMe
-    if (inEditMode) {
-      return mode === PUBLISH_MODES.FILE;
-    } else if (_uploadType) {
-      return mode === _uploadType && (mode !== PUBLISH_MODES.LIVESTREAM || enableLivestream);
-    }
-  });
-
-  const MODE_TO_I18N_STR = {
-    [PUBLISH_MODES.FILE]: SIMPLE_SITE ? 'Video/Audio' : 'File',
-  };
 
   const formTitle = !editingURI ? __('Upload a file') : __('Edit Upload');
 
@@ -166,7 +150,6 @@ function UploadForm(props: Props) {
   const [prevFileText, setPrevFileText] = React.useState('');
 
   const [waitForFile, setWaitForFile] = useState(false);
-  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
 
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
@@ -174,14 +157,12 @@ function UploadForm(props: Props) {
   const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
       ? myClaimForUri.value.source.media_type
       : undefined;
-  const claimChannelId =
-    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
-    (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
@@ -192,18 +173,19 @@ function UploadForm(props: Props) {
     name &&
     isNameValid(name) &&
     title &&
-    !overMaxBitrate &&
+    fileBitrate < BITRATE.MAX &&
     bid &&
     thumbnail &&
     !bidError &&
     !emptyPostError &&
+    !releaseTimeError &&
     !(thumbnailError && !thumbnailUploaded) &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
   const formValid =
-    restrictedToMemberships !== null &&
+    (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     (isOverwritingExistingClaim
       ? false
       : editingURI && !filePath // if we're editing we don't need a file
@@ -235,6 +217,7 @@ function UploadForm(props: Props) {
       setPreviewing(false);
       updatePublishForm({ publishError: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishError]);
 
   let submitLabel;
@@ -294,13 +277,13 @@ function UploadForm(props: Props) {
     // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
     let uri;
     try {
-      uri = name && buildURI({ streamName: name, activeChannelName });
+      uri = name && buildURI({ streamName: name, activeChannelName }, true);
     } catch (e) {}
 
     if (activeChannelName && name) {
       // resolve without the channel name so we know the winning bid for it
       try {
-        const uriLessChannel = buildURI({ streamName: name });
+        const uriLessChannel = buildURI({ streamName: name }, true);
         resolveUri(uriLessChannel);
       } catch (e) {}
     }
@@ -320,30 +303,13 @@ function UploadForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
-  // set isMarkdownPost in publish form if so, also update isLivestreamPublish
-  useEffect(() => {
-    updatePublishForm({
-      isMarkdownPost: false,
-      isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
-    });
-  }, [mode, updatePublishForm]);
-
   useEffect(() => {
     if (incognito) {
-      updatePublishForm({ channel: undefined });
+      updatePublishForm({ channel: undefined, channelId: undefined });
     } else if (activeChannelName) {
-      updatePublishForm({ channel: activeChannelName });
+      updatePublishForm({ channel: activeChannelName, channelId: activeChannelId });
     }
-  }, [activeChannelName, incognito, updatePublishForm]);
-
-  // if we have a type urlparam, update it? necessary?
-  useEffect(() => {
-    if (!_uploadType) return;
-    const newParams = new URLSearchParams();
-    newParams.set(TYPE_PARAM, mode.toLowerCase());
-    replace({ search: newParams.toString() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, _uploadType]);
+  }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
 
   // @if TARGET='web'
   function createWebFile() {
@@ -394,15 +360,6 @@ function UploadForm(props: Props) {
     }
   }
 
-  // When accessing to publishing, make sure to reset file input attributes
-  // since we can't restore from previous user selection (like we do
-  // with other properties such as name, title, etc.) for security reasons.
-  useEffect(() => {
-    if (mode === PUBLISH_MODES.FILE) {
-      updatePublishForm({ filePath: '', fileDur: 0, fileSize: 0 });
-    }
-  }, [mode, updatePublishForm]);
-
   // FIle Source Selector State.
   const [fileSource, setFileSource] = useState();
   const changeFileSource = (state) => setFileSource(state);
@@ -426,107 +383,122 @@ function UploadForm(props: Props) {
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    ytSignupPending ||
     previewing;
 
   // Editing claim uri
   return (
     <div className="card-stack">
-      <h1 className="page__title">
+      <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.PUBLISH} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && (
+            <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
+          )}
         </label>
       </h1>
 
-      <PublishFile
-        inEditMode={inEditMode}
-        fileSource={fileSource}
-        changeFileSource={changeFileSource}
-        uri={permanentUrl}
-        mode={mode}
-        fileMimeType={fileMimeType}
-        disabled={disabled || publishing}
-        inProgress={isInProgress}
-        setPrevFileText={setPrevFileText}
-        setWaitForFile={setWaitForFile}
-        setOverMaxBitrate={setOverMaxBitrate}
-        channelId={claimChannelId}
-        channelName={activeChannelName}
-        header={
-          <>
-            {AVAILABLE_MODES.map((modeName) => (
-              <Button
-                key={String(modeName)}
-                icon={modeName}
-                iconSize={18}
-                label={__(MODE_TO_I18N_STR[String(modeName)] || '---')}
-                button="alt"
-                onClick={() => {
-                  // $FlowFixMe
-                  // setMode(modeName);
-                }}
-                className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
-              />
-            ))}
-          </>
+      <Card
+        background
+        body={
+          <div className="publish-row">
+            <PublishFile
+              inEditMode={inEditMode}
+              fileSource={fileSource}
+              changeFileSource={changeFileSource}
+              uri={permanentUrl}
+              mode={mode}
+              fileMimeType={fileMimeType}
+              disabled={disabled || publishing}
+              inProgress={isInProgress}
+              setPrevFileText={setPrevFileText}
+              setWaitForFile={setWaitForFile}
+            />
+          </div>
         }
       />
 
-      {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+      {mode !== PUBLISH_MODES.POST && (
+        <Card
+          background
+          title={__('Description')}
+          body={
+            <div className="publish-row">
+              <PublishDescription disabled={formDisabled} />
+            </div>
+          }
+        />
+      )}
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
-          <Card actions={<SelectThumbnail />} />
+          <Card
+            background
+            title={__('Thumbnail')}
+            body={
+              <div className="publish-row">
+                <SelectThumbnail />
+              </div>
+            }
+          />
 
-          <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
+          <PublishVisibility />
+
+          <PublishProtectedContent claim={myClaimForUri} />
 
           <PublishPrice disabled={formDisabled} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
           </h2>
-          <TagsSelect
-            suggestMature={!SIMPLE_SITE}
-            disableAutoFocus
-            hideHeader
-            label={__('Selected Tags')}
-            empty={__('No tags added')}
-            limitSelect={TAGS_LIMIT}
-            help={__(
-              "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-            )}
-            placeholder={__('gaming, crypto')}
-            onSelect={(newTags) => {
-              const validatedTags = [];
-              newTags.forEach((newTag) => {
-                if (!tags.some((tag) => tag.name === newTag.name)) {
-                  validatedTags.push(newTag);
-                }
-              });
-              updatePublishForm({ tags: [...tags, ...validatedTags] });
-            }}
-            onRemove={(clickedTag) => {
-              const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePublishForm({ tags: newTags });
-            }}
-            tagsChosen={tags}
+
+          <Card
+            background
+            body={
+              <div className="publish-row">
+                <TagsSelect
+                  suggestMature={!SIMPLE_SITE}
+                  disableAutoFocus
+                  hideHeader
+                  label={__('Selected Tags')}
+                  empty={__('No tags added')}
+                  limitSelect={TAGS_LIMIT}
+                  help={__(
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                  )}
+                  placeholder={__('gaming, crypto')}
+                  onSelect={(newTags) => {
+                    const validatedTags = [];
+                    newTags.forEach((newTag) => {
+                      if (!tags.some((tag) => tag.name === newTag.name)) {
+                        validatedTags.push(newTag);
+                      }
+                    });
+                    updatePublishForm({ tags: [...tags, ...validatedTags] });
+                  }}
+                  onRemove={(clickedTag) => {
+                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                    updatePublishForm({ tags: newTags });
+                  }}
+                  tagsChosen={tags}
+                />
+              </div>
+            }
           />
 
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
         </div>
       )}
       <section>
-        <div className="section__actions">
+        <div className="section__actions publish__actions">
           <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-          <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector disabled={isFormIncomplete} isPublishMenu />
         </div>
         <span className="help">
           {!formDisabled && !formValid ? (
-            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
+            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
           ) : (
             <I18nMessage
               tokens={{

@@ -6,21 +6,20 @@ import withCollectionItems from 'hocs/withCollectionItems';
 
 // prettier-ignore
 const Lazy = {
-  // $FlowFixMe
   DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
-  // $FlowFixMe
   Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
 };
 
 type Props = {
   collectionId: string,
+  isEditPreview?: boolean,
   // -- redux --
   collectionUrls: ?Array<string>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
 };
 
 const CollectionItemsList = (props: Props) => {
-  const { collectionId, collectionUrls, doCollectionEdit, ...claimListProps } = props;
+  const { collectionId, isEditPreview, collectionUrls, doCollectionEdit, ...claimListProps } = props;
 
   function handleOnDragEnd(result: any) {
     const { source, destination } = result;
@@ -30,7 +29,7 @@ const CollectionItemsList = (props: Props) => {
     const { index: from } = source;
     const { index: to } = destination;
 
-    doCollectionEdit(collectionId, { order: { from, to } });
+    doCollectionEdit(collectionId, { order: { from, to }, isPreview: isEditPreview });
   }
 
   return (
@@ -41,6 +40,7 @@ const CollectionItemsList = (props: Props) => {
             <ClaimList
               collectionId={collectionId}
               uris={collectionUrls}
+              isEditPreview={isEditPreview}
               droppableProvided={DroppableProvided}
               {...claimListProps}
             />

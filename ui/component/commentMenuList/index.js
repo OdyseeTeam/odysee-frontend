@@ -4,7 +4,7 @@ import { doCommentPin, doCommentModAddDelegate } from 'redux/actions/comments';
 import { doOpenModal, doSetActiveChannel } from 'redux/actions/app';
 import { doClearPlayingUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
-import { selectClaimIsMine, selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
+import { selectClaimIsMine, selectClaimForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectModerationDelegatorsById } from 'redux/selectors/comments';
 import { selectPlayingUri } from 'redux/selectors/content';
@@ -25,7 +25,6 @@ const select = (state, props) => {
     channelIsMine: selectClaimIsMine(state, authorClaim),
     playingUri: selectPlayingUri(state),
     moderationDelegatorsById: selectModerationDelegatorsById(state),
-    authorTitle: selectTitleForUri(state, props.authorUri),
     authorCanonicalUri,
     authorId,
   };

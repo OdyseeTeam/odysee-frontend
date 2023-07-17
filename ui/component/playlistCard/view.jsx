@@ -22,18 +22,21 @@ import LoopButton from './internal/loopButton';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import usePersistedState from 'effects/use-persisted-state';
-import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
+import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { getLocalizedNameForCollectionId } from 'util/collections';
+import './style.lazy.scss';
 
 type Props = {
-  id: ?string,
+  id: string,
   playingItemUrl: string,
   playingCurrentPlaylist: boolean,
   isMyCollection: boolean,
   collectionUrls: Array<Claim>,
   collectionName: string,
   isPrivateCollection: boolean,
+  hasEdits: boolean,
   publishedCollectionName: string | boolean,
   playingItemIndex: ?number,
   collectionLength: number,
@@ -51,11 +54,14 @@ type Props = {
   doOpenModal: (id: string, props: {}) => void,
   doClearQueueList: () => void,
   doToggleCollectionSavedForId: (id: string) => void,
+  thumbnailFromClaim: string,
 };
 
 export default function PlaylistCard(props: Props) {
-  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty } = props;
+  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength, collectionEmpty, id } =
+    props;
 
+  const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
   const [showEdit, setShowEdit] = React.useState(false);
 
   if (!hasCollectionById) return null;
@@ -70,7 +76,7 @@ export default function PlaylistCard(props: Props) {
           fixed
           icon={ICONS.PLAYLIST_PLAYBACK}
           label={
-            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName + currentIndexLabel
+            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName + currentIndexLabel
           }
           type={DRAWERS.PLAYLIST}
         />
@@ -80,24 +86,19 @@ export default function PlaylistCard(props: Props) {
           type={DRAWERS.PLAYLIST}
           title={
             // returns the card title element
-            <PlaylistCardComponent
-              {...playlistCardProps}
-              className="playlist-card--drawer-header"
-              colorHeader={false}
-              titleOnly
-            />
+            <PlaylistCardComponent {...playlistCardProps} className="playlist-card--drawer-header" titleOnly />
           }
           hasSubtitle
         >
           {/* returns the card body element */}
-          <PlaylistCardComponent {...playlistCardProps} className="playlist-card" bodyOnly />
+          <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" bodyOnly />
         </SwipeableDrawer>
       </>
     );
   }
 
   // returns the full card element
-  return <PlaylistCardComponent {...playlistCardProps} className="playlist-card" />;
+  return <PlaylistCardComponent {...playlistCardProps} className="playlist__wrapper" />;
 }
 
 type PlaylistCardProps = Props & {
@@ -116,6 +117,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     id,
     playingItemUrl,
     isPrivateCollection,
+    hasEdits,
     publishedCollectionName,
     doCollectionEdit,
     playingItemIndex,
@@ -136,11 +138,14 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     doClearQueueList,
     doToggleCollectionSavedForId,
     collectionSavedForId,
+    thumbnailFromClaim,
     ...cardProps
   } = props;
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen() && !isMobile;
+
+  const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
 
   const activeItemRef = React.useRef();
   const scrollRestorePending = React.useRef();
@@ -153,6 +158,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
+
+  const backgroundImage = thumbnailFromClaim
+    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    : undefined;
 
   function closePlaylist() {
     if (collectionEmpty) {
@@ -283,7 +292,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             },
           },
 
-          '.playlist-card': {
+          '.playlist__wrapper': {
             '.claim-list': {
               'li:last-child': {
                 marginBottom:
@@ -345,20 +354,54 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
           bodyOnly ? undefined : (
             <NavLink
               to={`/$/${PAGES.PLAYLIST}/${id || ''}`}
-              className={classnames('a--styled', { 'align-end': isFloating })}
+              className={classnames('playlist__title', { 'align-end': isFloating })}
             >
               {isFloating ? (
                 <>
                   <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
-                  <span className="text-ellipsis">
-                    {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName}
-                  </span>
+                  <div className="playlist__title-text">
+                    <span className="text-ellipsis">
+                      {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
+                    </span>
+                  </div>
                 </>
               ) : (
                 <>
                   <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
-                  <span className="text-ellipsis">{collectionName}</span>
+                  <div className="playlist__title-text">
+                    <div className="playlist__title-text-list">
+                      <span className="text-ellipsis">{usedCollectionName}</span>
+                    </div>
+                    {bodyOnly ? undefined : (
+                      <>
+                        <div className="sub">
+                          {isPrivateCollection ? (
+                            <I18nMessage
+                              tokens={{
+                                lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} />,
+                              }}
+                            >
+                              Private %lock_icon%
+                            </I18nMessage>
+                          ) : (
+                            <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
+                          )}
+
+                          {currentIndexLabel}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </>
+              )}
+
+              {hasEdits && (
+                <Icon
+                  title={__('Pending edits')}
+                  icon={ICONS.PUBLISH}
+                  color="red"
+                  style={{ marginLeft: 'var(--spacing-xxs)' }}
+                />
               )}
             </NavLink>
           )
@@ -386,23 +429,6 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             </>
           )
         }
-        subtitle={
-          bodyOnly ? undefined : (
-            <>
-              {isPrivateCollection ? (
-                <I18nMessage
-                  tokens={{ lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} /> }}
-                >
-                  Private %lock_icon%
-                </I18nMessage>
-              ) : (
-                <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
-              )}
-
-              {currentIndexLabel}
-            </>
-          )
-        }
         body={
           !bodyOpen || titleOnly ? undefined : (
             <CollectionItemsList
@@ -427,6 +453,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             />
           )
         }
+        backgroundImage={backgroundImage}
       />
     </>
   );

@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri } from 'redux/selectors/claims';
 import ClaimEffectiveAmount from './view';
 
 const select = (state, props) => ({
-  claim: makeSelectClaimForUri(props.uri, true)(state),
+  claim: selectClaimForUri(state, props.uri, true),
 });
 
 export default connect(select)(ClaimEffectiveAmount);

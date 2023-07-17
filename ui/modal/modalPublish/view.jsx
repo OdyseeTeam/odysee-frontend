@@ -9,21 +9,15 @@ import Nag from 'component/nag';
 
 type Props = {
   closeModal: () => void,
-  clearPublish: () => void,
   navigate: (string) => void,
   uri: string,
   isEdit: boolean,
-  filePath: ?string,
+  filePath: ?string | ?File,
   lbryFirstError: ?string,
   claim: Claim,
 };
 
 class ModalPublishSuccess extends React.PureComponent<Props> {
-  componentDidMount() {
-    const { clearPublish } = this.props;
-    clearPublish();
-  }
-
   render() {
     const { closeModal, navigate, uri, isEdit, filePath, lbryFirstError, claim } = this.props;
     //   $FlowFixMe

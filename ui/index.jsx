@@ -5,9 +5,9 @@ import SnackBar from 'component/snackBar';
 // @if TARGET='app'
 import SplashScreen from 'component/splash';
 import * as ACTIONS from 'constants/action_types';
+import moment from 'moment';
 // @endif
 import { ipcRenderer, remote, shell } from 'electron';
-import moment from 'moment';
 import * as MODALS from 'constants/modal_types';
 import React, { Fragment, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
@@ -23,7 +23,14 @@ import {
 import Lbry, { apiCall } from 'lbry';
 import { isURIValid } from 'util/lbryURI';
 import { setSearchApi } from 'redux/actions/search';
-import { doSetLanguage, doFetchLanguage, doUpdateIsNightAsync, doFetchHomepages } from 'redux/actions/settings';
+import {
+  doSetLanguage,
+  doFetchLanguage,
+  doFetchDevStrings,
+  doFetchHomepages,
+  doUpdateIsNightAsync,
+  doLoadBuiltInHomepageData,
+} from 'redux/actions/settings';
 import { doFetchUserLocale } from 'redux/actions/user';
 import { Lbryio, doBlackListedOutpointsSubscribe, doFilteredOutpointsSubscribe } from 'lbryinc';
 import rewards from 'rewards';
@@ -53,8 +60,6 @@ import apiPublishCallViaWeb from 'web/setup/publish';
 import { doSendPastRecsysEntries } from 'redux/actions/content';
 
 analytics.init();
-
-window.l = console.log;
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -235,12 +240,14 @@ function AppWrapper() {
   useEffect(() => {
     if (readyToLaunch && persistDone) {
       app.store.dispatch(doDaemonReady());
+      app.store.dispatch(doLoadBuiltInHomepageData());
+      app.store.dispatch(doFetchHomepages());
 
       const timer = setTimeout(() => {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
-        app.store.dispatch(doFetchHomepages());
+
         app.store.dispatch(doUpdateIsNightAsync());
         app.store.dispatch(doBlackListedOutpointsSubscribe());
         app.store.dispatch(doFilteredOutpointsSubscribe());
@@ -249,6 +256,7 @@ function AppWrapper() {
 
       const nonCriticalTimer = setTimeout(() => {
         app.store.dispatch(doMinVersionSubscribe());
+        app.store.dispatch(doFetchDevStrings());
       }, 5000);
 
       analytics.event.startup(Date.now());
