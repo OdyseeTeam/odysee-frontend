@@ -126,6 +126,35 @@ export default function WebUploadItem(props: Props) {
     }
   }
 
+  function getProgressSubText() {
+    if (locked) {
+      return null;
+    }
+
+    if (!uploader) {
+      return null;
+    }
+
+    if (resumable) {
+      if (status) {
+        switch (status) {
+          case 'notify_ok':
+            if (file?.size && file.size > 500000000) {
+              return 'Check back later, larger files take longer to process.';
+            } else {
+              return null;
+            }
+          default:
+            return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   function getRetryButton() {
     if (!resumable || locked) {
       return null;
@@ -231,6 +260,7 @@ export default function WebUploadItem(props: Props) {
             <span className="claim-upload__progress--inner-text">{getProgressElem()}</span>
           </div>
         </div>
+        <div className="claim-upload__progress-sub-text">{getProgressSubText()}</div>
       </>
     );
   }

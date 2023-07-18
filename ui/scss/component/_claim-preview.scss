@@ -1310,6 +1310,12 @@
   color: var(--color-text-subtitle);
 }
 
+.claim-upload__progress-sub-text {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  font-style: italic;
+}
+
 .claim-upload__progress--outer {
   width: 100%;
   margin-top: var(--spacing-s);
