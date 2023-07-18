@@ -18,9 +18,6 @@
   position: fixed;
   max-width: 100%;
   top: var(--header-height-mobile);
-  .content__viewer--mobile {
-    top: 0 !important;
-  }
 }
 
 .content__viewer--disable-click {
@@ -31,6 +28,10 @@
   max-height: var(--inline-player-max-height);
   border-radius: var(--border-radius);
   border: none;
+
+  .content__viewer--inline {
+    top: 0 !important;
+  }
 
   @media (max-width: $breakpoint-small) {
     max-height: var(--mobile-player-max-height);
