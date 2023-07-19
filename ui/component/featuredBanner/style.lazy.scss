@@ -2,11 +2,10 @@
 
 .featured-banner-wrapper {
   position: relative;
-  width: calc(100% + 80px);
+  width: calc(100% + calc(var(--spacing-xs) * 2));
   margin-top: -32px;
-  margin-left: -40px;
-  margin-right: -40px;
-  // padding-bottom: 32px;
+  margin-left: calc(var(--spacing-xs) * -1);
+  margin-right: calc(var(--spacing-xs) * -1);
   padding-top: 20%;
   background: black;
   margin-bottom: var(--spacing-l);
@@ -18,6 +17,12 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+
+  @media (min-width: $breakpoint-medium) {
+    width: calc(100% + 80px);
+    margin-left: -40px;
+    margin-right: -40px;
+  }
 
   .featured-banner-rotator {
     position: absolute;
@@ -38,12 +43,16 @@
   .featured-banner-remove {
     position: absolute;
     top: var(--spacing-m);
-    right: 40px;
+    right: var(--spacing-xs);
     background-color: var(--color-primary);
     padding: 0.3rem;
     border-radius: var(--border-radius);
     display: flex;
     opacity: 0;
+
+    @media (min-width: $breakpoint-medium) {
+      right: 40px;
+    }
 
     svg {
       width: 1rem;
@@ -111,10 +120,16 @@
     font-size: 38px;
 
     &.left {
-      left: 40px;
+      left: var(--spacing-xs);
+      @media (min-width: $breakpoint-medium) {
+        left: 40px;
+      }
     }
     &.right {
-      right: 40px;
+      right: var(--spacing-xs);
+      @media (min-width: $breakpoint-medium) {
+        right: 40px;
+      }
     }
 
     &:hover {
