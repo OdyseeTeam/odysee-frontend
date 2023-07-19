@@ -28,7 +28,7 @@ export default function FeaturedBanner(props: Props) {
   const [pause, setPause] = React.useState(false);
   const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
-  const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
+  const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : 900;
   const { push } = useHistory();
 
   React.useEffect(() => {

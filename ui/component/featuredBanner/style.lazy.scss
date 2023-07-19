@@ -152,7 +152,6 @@
 
   @media (max-width: $breakpoint-small) {
     margin-top: calc(var(--spacing-xs) * -1);
-    margin-bottom: var(--spacing-s);
     .banner-browse,
     .featured-banner-remove {
       opacity: 1;
