@@ -28,6 +28,7 @@ export const FORCE_CONTENT_TYPE_PLAYER = [
   'audio/ogg',
   'application/x-ext-ogg',
   'application/x-ext-m4a',
+  'application/octet-stream',
 ];
 
 export const FORCE_CONTENT_TYPE_COMIC = [

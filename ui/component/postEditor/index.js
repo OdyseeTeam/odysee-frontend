@@ -12,9 +12,9 @@ const select = (state, props) => ({
   isStillEditing: selectIsStillEditing(state),
 });
 
-const perform = (dispatch) => ({
-  updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
-  fetchStreamingUrl: (uri) => dispatch(doPlayUri(uri)),
-});
+const perform = {
+  updatePublishForm: doUpdatePublishForm,
+  fetchStreamingUrl: doPlayUri,
+};
 
 export default connect(select, perform)(PostEditor);
