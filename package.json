@@ -22,7 +22,7 @@
   "scripts": {
     "compile:electron": "node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.electron.config.js",
     "compile:web": "yarn copyenv && cd web && webpack --config webpack.config.js",
-    "compile:cordova": "rm ./web/dist/*.json; rm ./web/dist/*.js; rm ./web/dist/public/*.js; yarn compile:web && rm ../odysee-android-cordova/www/*.js*; rm -r ../odysee-android-cordova/www/public; cp -r ./web/dist/* ../odysee-android-cordova/www",
+    "compile:cordova": "rm ./web/dist/*.json; rm ./web/dist/*.js; rm ./web/dist/public/*.json; rm ./web/dist/public/*.js; rm ./web/dist/public/*.css; rm ./web/dist/public/*.map; rm ./web/dist/public/*.txt; rm ./web/dist/public/*.js; yarn compile:web && rm ../odysee-android-cordova/www/*.js*; rm -r ../odysee-android-cordova/www/public; cp -r ./web/dist/* ../odysee-android-cordova/www",
     "compile": "cross-env NODE_ENV=production yarn compile:electron && cross-env NODE_ENV=production yarn compile:web",
     "copyenv": "copyfiles ./.env* web/",
     "dev": "yarn dev:electron",
