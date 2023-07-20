@@ -2,8 +2,8 @@
 import * as tus from 'tus-js-client';
 import { v4 as uuid } from 'uuid';
 import { generateError } from './publish-error';
-import { makeUploadRequest } from './publish-v1';
-import { makeResumableUploadRequest as makeUploadRequestV3 } from './publish-v3';
+import { makeUploadRequest as makeV1UploadRequest } from './publish-v1';
+import { makeV4UploadRequest } from './publish-v4';
 
 // A modified version of Lbry.apiCall that allows
 // to perform calling methods at arbitrary urls
@@ -16,11 +16,11 @@ export default function apiPublishCallViaWeb(
   resolve: Function,
   reject: Function
 ) {
-  const { file_path: filePath, preview, remote_url: remoteUrl, sdkRan } = params;
+  const { file_path: filePath, preview, remote_url: remoteUrl, publishId } = params;
   const isMarkdown = filePath ? typeof filePath === 'object' && filePath.type === 'text/markdown' : false;
   params.isMarkdown = isMarkdown;
 
-  if (!filePath && !remoteUrl && !sdkRan) {
+  if (!filePath && !remoteUrl && !publishId) {
     const { claim_id: claimId, isMarkdown, ...otherParams } = params;
     return apiCall(method, otherParams, resolve, reject);
   }
@@ -46,29 +46,41 @@ export default function apiPublishCallViaWeb(
   }
 
   const useV1 = remoteUrl || isMarkdown || preview || !tus.isSupported;
-  const makeRequest = useV1 ? makeUploadRequest : makeUploadRequestV3;
 
-  return makeRequest(token, params, fileField, preview)
-    .then((xhr) => {
-      let error;
+  if (useV1) {
+    return makeV1UploadRequest(token, params, fileField, preview)
+      .then((xhr) => {
+        let error;
 
-      if (preview && xhr === null) {
-        return resolve(null);
-      }
-
-      if (xhr && xhr.response) {
-        if (xhr.status >= 200 && xhr.status < 300 && !xhr.response.error) {
-          return resolve(xhr.response.result);
-        } else if (xhr.response.error) {
-          error = generateError(xhr.response.error.message, params, xhr);
-        } else {
-          error = generateError(__('Upload likely timed out. Try a smaller file while we work on this.'), params, xhr);
+        if (preview && xhr === null) {
+          return resolve(null);
         }
-      }
 
-      if (error) {
-        return Promise.reject(error);
-      }
-    })
-    .catch(reject);
+        if (xhr && xhr.response) {
+          if (xhr.status >= 200 && xhr.status < 300 && !xhr.response.error) {
+            return resolve(xhr.response.result);
+          } else if (xhr.response.error) {
+            error = generateError(xhr.response.error.message, params, xhr);
+          } else {
+            error = generateError(
+              __('Upload likely timed out. Try a smaller file while we work on this.'),
+              params,
+              xhr
+            );
+          }
+        }
+
+        if (error) {
+          return Promise.reject(error);
+        }
+      })
+      .catch(reject);
+  } else {
+    return makeV4UploadRequest(token, params, fileField)
+      .then((result) => resolve(result))
+      .catch((err) => {
+        assert(false, `${err.message}`, err.cause || err);
+        reject(err);
+      });
+  }
 }

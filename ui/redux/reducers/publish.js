@@ -244,7 +244,7 @@ export const publishReducer = handleActions(
       };
     },
     [ACTIONS.UPDATE_UPLOAD_ADD]: (state: PublishState, action) => {
-      const { file, params, uploader } = action.data;
+      const { file, params, uploader, backend } = action.data;
       const currentUploads = Object.assign({}, state.currentUploads);
 
       currentUploads[params.guid] = {
@@ -253,13 +253,14 @@ export const publishReducer = handleActions(
         progress: '0',
         params,
         uploader,
+        backend,
         resumable: !(uploader instanceof XMLHttpRequest),
       };
 
       return { ...state, currentUploads };
     },
     [ACTIONS.UPDATE_UPLOAD_PROGRESS]: (state: PublishState, action) => {
-      const { guid, progress, status } = action.data;
+      const { guid, progress, status, publishId } = action.data;
       const key = guid;
       const currentUploads = Object.assign({}, state.currentUploads);
 
@@ -307,7 +308,8 @@ export const publishReducer = handleActions(
             delete currentUploads[key].uploader;
             break;
           case 'notify_ok':
-            currentUploads[key].sdkRan = true;
+            assert(publishId, 'notify_ok received without publishId');
+            currentUploads[key].publishId = publishId;
             break;
           default:
             // Nothing to do for the rest
@@ -334,6 +336,7 @@ export const publishReducer = handleActions(
     },
     [ACTIONS.REHYDRATE]: (state: PublishState, action) => {
       if (action && action.payload && action.payload.publish) {
+        // -- Cleanup for 'publish'
         const newPublish = {
           ...action.payload.publish,
           filePath: undefined, // File is not serializable, so can't rehydrate.
@@ -361,6 +364,12 @@ export const publishReducer = handleActions(
                 // longer functional, will be re-created). An empty 'uploader'
                 // also tells the GUI that we just rebooted.
                 delete newPublish.currentUploads[key].uploader;
+
+                if (newPublish.currentUploads[key].backend !== 'v4') {
+                  // Remove the v3 uploadUrl, since it's no longer valid.
+                  // We'll upload from scratch to v4 transparently.
+                  delete newPublish.currentUploads[key].params.uploadUrl;
+                }
               }
             });
           } else {
