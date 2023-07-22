@@ -675,6 +675,7 @@ function doSignOutAction() {
         .then(() => {
           if (window.cordova) {
             window.odysee.functions.killToken();
+            /*
             window.cordova.exec(
               () => {
                 dispatch({
@@ -686,6 +687,7 @@ function doSignOutAction() {
               'removeAccount',
               []
             );
+            */
           }
         })
         .then(() => {
