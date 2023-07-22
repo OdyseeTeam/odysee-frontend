@@ -83,16 +83,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const isMedium = useIsMediumScreen();
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
 
-  /*
-  const InjectedAd =
-    injectAds && !blacklistTriggered && !hasPremiumPlus
-      ? {
-          node: <Ad type="tileB" uri={uri} />,
-          index: isMobile ? 0 : 3,
-        }
-      : null;
-      */
-
   // Assume this component always resides in a page where the `uri` matches
   // e.g. never in a floating popup. With that, we can grab the FYP ID from
   // the search param directly. Otherwise, the parent component would need to
