@@ -53,8 +53,9 @@ export default function AdSticky(props: Props) {
   }
 
   React.useEffect(() => {
+    const reset = 6;
     if (isHidden) setLoads(loads + 1);
-    if (loads >= 2) {
+    if (loads >= reset) {
       setIsHidden(false);
       setLoads(0);
     }

@@ -18,12 +18,9 @@ import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
-// import { getLivestreamUris } from 'util/livestream';
-// import ScheduledStreams from 'component/scheduledStreams';
-// import { splitBySeparator } from 'util/lbryURI';
-// import Ads from 'web/component/ads';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
+import Ad from 'web/component/ad';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
 
@@ -42,12 +39,10 @@ type Props = {
   homepageFetched: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
-  // hideScheduledLivestreams: boolean,
-  // adBlockerFound: ?boolean,
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
   userHasOdyseeMembership: ?boolean,
-  // hasPremiumPlus: boolean,
+  hasPremiumPlus: boolean,
   currentTheme: string,
   activeLivestreamByCreatorId: LivestreamByCreatorId,
   livestreamViewersById: LivestreamViewersById,
@@ -65,12 +60,10 @@ function HomePage(props: Props) {
     homepageFetched,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
-    // hideScheduledLivestreams,
-    // adBlockerFound,
     homepageOrder,
     doOpenModal,
     userHasOdyseeMembership,
-    // hasPremiumPlus,
+    hasPremiumPlus,
     activeLivestreamByCreatorId: al, // yup, unreadable name, but we are just relaying here.
     livestreamViewersById: lv,
   } = props;
@@ -219,14 +212,12 @@ function HomePage(props: Props) {
         hasSource
         prefixUris={cache[id].livestreamUris}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        /*
         injectedItem={
-          index === 0 && {
-            node: <Ads small type="video" tileLayout />,
-            replace: adBlockerFound === false && isLargeScreen,
+          index === cache.topGrid &&
+          !hasPremiumPlus && {
+            node: <Ad type="tileA" tileLayout />,
           }
         }
-        */
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />
@@ -280,12 +271,6 @@ function HomePage(props: Props) {
                 label={__('View More')}
               />
             )}
-            {
-              // isMobileScreen && <AdsBanner key={`${currentTheme}:${title}`} />
-            }
-            {
-              // !isMobileScreen && (index === 0 || index % 2 === 0) && <AdsBanner key={`${currentTheme}:${title}`} />
-            }
           </>
         )}
       </div>
