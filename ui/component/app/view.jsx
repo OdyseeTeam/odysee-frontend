@@ -408,7 +408,7 @@ function App(props: Props) {
       }
     }
 
-    if (inIframe() || !locale || !locale.gdpr_required || window.cordova) {
+    if (inIframe() || !locale || !locale.gdpr_required) {
       return;
     }
 
