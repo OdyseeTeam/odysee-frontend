@@ -6,7 +6,7 @@ import classnames from 'classnames';
 const AD_CONFIG = Object.freeze({
   url: 'https://assets.revcontent.com/master/delivery.js',
   sticky: 'https://x.revcontent.com/rc_sticky_all.js',
-  id: '274420',
+  id: '277801'
 });
 
 type Props = {

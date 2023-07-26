@@ -50,11 +50,11 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
       <li className="claim-preview--tile">
         <div
           className="rc_tile"
-          id="rc-widget-fceddd"
+          id="rc-widget-88bf8d"
           data-rc-widget
           data-widget-host="habitat"
           data-endpoint="//trends.revcontent.com"
-          data-widget-id="273434"
+          data-widget-id="277803"
         />
       </li>
     );

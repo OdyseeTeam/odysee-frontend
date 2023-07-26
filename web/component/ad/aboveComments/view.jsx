@@ -53,11 +53,11 @@ function AdAboveComments(props: Props) {
       {provider === 'revcontent' && (
         <div
           className="rc_aboveComments"
-          id="rc-widget-1d564a"
+          id="rc-widget-269628"
           data-rc-widget
           data-widget-host="habitat"
           data-endpoint="//trends.revcontent.com"
-          data-widget-id="273461"
+          data-widget-id="277804"
         />
       )}
     </>
