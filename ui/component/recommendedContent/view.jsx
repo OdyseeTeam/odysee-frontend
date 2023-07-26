@@ -1,26 +1,25 @@
 // @flow
 import { v4 as Uuidv4 } from 'uuid';
-// import { SHOW_ADS, AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION } from 'config';
+import { SHOW_ADS, AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION } from 'config';
 import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
-// import Spinner from 'component/spinner';
-// import Ads from 'web/component/ads';
 import ClaimPreview from 'component/claimPreview';
+import Ad from 'web/component/ad';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';
 import { FYP_ID } from 'constants/urlParams';
 import classnames from 'classnames';
 import RecSys from 'recsys';
-// import { getClaimMetadata } from 'util/claim';
 import LangFilterIndicator from 'component/langFilterIndicator';
+import { getClaimMetadata } from 'util/claim';
 import './style.scss';
 
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
-// const BLOCKED_WORDS: ?Array<string> = AD_KEYWORD_BLOCKLIST && AD_KEYWORD_BLOCKLIST.toLowerCase().split(',');
-// const CHECK_DESCRIPTION: boolean = AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION === 'true';
+const BLOCKED_WORDS: ?Array<string> = AD_KEYWORD_BLOCKLIST && AD_KEYWORD_BLOCKLIST.toLowerCase().split(',');
+const CHECK_DESCRIPTION: boolean = AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION === 'true';
 
 type Props = {
   uri: string,
@@ -33,7 +32,7 @@ type Props = {
   claimId: string,
   metadata: any,
   location: UrlLocation,
-  // userHasPremiumPlus: boolean,
+  hasPremiumPlus: boolean,
 };
 
 export default React.memo<Props>(function RecommendedContent(props: Props) {
@@ -46,13 +45,12 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     searchInLanguage,
     claim,
     location,
-    // userHasPremiumPlus,
+    hasPremiumPlus,
   } = props;
 
   const claimId: ?string = claim && claim.claim_id;
-  // const injectAds = SHOW_ADS && IS_WEB && !userHasPremiumPlus;
+  const injectAds = SHOW_ADS && IS_WEB && !hasPremiumPlus;
 
-  /*
   function claimContainsBlockedWords(claim: ?StreamClaim) {
     if (BLOCKED_WORDS) {
       const hasBlockedWords = (str) => BLOCKED_WORDS.some((bw) => str.includes(bw));
@@ -72,9 +70,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     }
     return false;
   }
-  */
 
-  // const blacklistTriggered = React.useMemo(() => injectAds && claimContainsBlockedWords(claim), [injectAds, claim]);
+  const blacklistTriggered = React.useMemo(() => injectAds && claimContainsBlockedWords(claim), [injectAds, claim]);
 
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
   const signingChannel = claim && claim.signing_channel;
@@ -82,6 +79,14 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const isMobile = useIsMobile();
   const isMedium = useIsMediumScreen();
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
+
+  const InjectedAd =
+    injectAds && !blacklistTriggered && !hasPremiumPlus
+      ? {
+          node: <Ad type="tileB" uri={uri} />,
+          index: isMobile ? 0 : 3,
+        }
+      : null;
 
   // Assume this component always resides in a page where the `uri` matches
   // e.g. never in a floating popup. With that, we can grab the FYP ID from
@@ -160,10 +165,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               type="small"
               loading={isSearching}
               uris={recommendedContentUris}
-              hideMenu={isMobile}
-              // TODO: Since 'triggerBlacklist' is handled by clients of <Ads> instead of internally by <Ads>, we don't
-              // need that parameter and can just not mount it when 'true', instead of mount-then-hide.
-              // injectedItem={injectAds && <Ads small type={'video'} triggerBlacklist={triggerBlacklist} />}
+              injectedItem={InjectedAd}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />
@@ -181,8 +183,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               hideFilters
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
-              hideMenu={isMobile}
-              // injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} />}
+              injectedItem={InjectedAd}
               empty={__('No related content found')}
             />
           )}

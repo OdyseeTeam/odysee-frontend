@@ -46,11 +46,11 @@ function AdTileB(props: Props) {
           className={classnames('rc_tileB', {
             'show-rc_tile': isActive,
           })}
-          id="rc-widget-952c79"
+          id="rc-widget-88bf8d"
           data-rc-widget
           data-widget-host="habitat"
           data-endpoint="//trends.revcontent.com"
-          data-widget-id="274791"
+          data-widget-id="277803"
         />
       )}
     </>
