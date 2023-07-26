@@ -61,19 +61,21 @@ export function doFetchInviteStatus(shouldCallRewardList = true) {
 export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, domain) {
   const payload = { app_version: appVersion, domain };
 
-  payload.app_id = window.odysee.build.googlePlay
-    ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
-    : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
-  Lbry.version().then((version) => {
-    payload.daemon_version = version.lbrynet_version;
-    payload.operating_system = 'android';
-    payload.platform = 'android';
-    Lbryio.call('install', 'new', payload);
+  if (window.cordova) {
+    payload.app_id = window.odysee.build.googlePlay
+      ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
+      : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
+    Lbry.version().then((version) => {
+      payload.daemon_version = version.lbrynet_version;
+      payload.operating_system = 'android';
+      payload.platform = 'android';
+      Lbryio.call('install', 'new', payload);
 
-    if (callbackForUsersWhoAreSharingData) {
-      callbackForUsersWhoAreSharingData(status);
-    }
-  });
+      if (callbackForUsersWhoAreSharingData) {
+        callbackForUsersWhoAreSharingData(status);
+      }
+    });
+  }
 }
 
 function checkAuthBusy() {

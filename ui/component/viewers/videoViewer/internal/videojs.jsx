@@ -523,7 +523,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             };
             window.odysee.chromecast.setMediaPayload(payload);
           }
-        } else {
+        } else if (vjsPlayer && vjsPlayer.claimSrcOriginal && vjsPlayer.claimSrcOriginal.src) {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
           if (window.cordova) {
             let payload = {
