@@ -1,6 +1,5 @@
 // @flow
-
-import { isSupported } from 'firebase/messaging';
+// import { isSupported } from 'firebase/messaging';
 
 export const isPushSupported = async (): Promise<boolean> => {
   if ('serviceWorker' in navigator) {
@@ -9,8 +8,10 @@ export const isPushSupported = async (): Promise<boolean> => {
       // $FlowIssue[incompatible-type]
       const activeRegistrations: Array<ServiceWorkerRegistration> = await navigator.serviceWorker.getRegistrations();
       const swRegistered = activeRegistrations.length > 0;
-      const firebaseSupported = await isSupported();
-      const notificationFeature = 'Notification' in window;
+      // const firebaseSupported = await isSupported();
+      const firebaseSupported = true;
+      // const notificationFeature = 'Notification' in window;
+      const notificationFeature = 'initNotifications' in window;
       return swRegistered && firebaseSupported && notificationFeature;
     } catch (e) {}
   }

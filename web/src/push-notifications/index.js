@@ -17,7 +17,9 @@ let messaging = null;
 let pushSystem = null;
 
 (async () => {
-  const supported = await isPushSupported();
+  await isPushSupported();
+
+  /*
   if (supported) {
     const app = initializeApp(firebaseConfig);
     messaging = getMessaging(app);
@@ -31,9 +33,14 @@ let pushSystem = null;
       validate,
     };
   }
+  */
   if (window.cordova) {
+    console.log('initializeApp Firebase A');
     const app = initializeApp(firebaseConfig);
-    messaging = getMessaging(app);
+    try {
+      messaging = getMessaging(app);
+    } catch (e) {}
+
     pushSystem = {
       supported: true,
       subscribe,
@@ -43,6 +50,7 @@ let pushSystem = null;
       disconnect,
       validate,
     };
+    console.log('initializeApp Firebase B');
   }
 })();
 
