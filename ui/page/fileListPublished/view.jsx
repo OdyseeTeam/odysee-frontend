@@ -159,6 +159,7 @@ function FileListPublished(props: Props) {
             <ClaimList
               noEmpty
               persistedStorageKey="claim-list-published"
+              showHiddenByUser
               uris={fetching ? [] : urls}
               loading={fetching}
             />
