@@ -1,5 +1,4 @@
 // @flow
-import * as tus from 'tus-js-client';
 import { v4 as uuid } from 'uuid';
 import { generateError } from './publish-error';
 import { makeUploadRequest as makeV1UploadRequest } from './publish-v1';
@@ -33,19 +32,13 @@ export default function apiPublishCallViaWeb(
     fileField = new File([dummyContent], 'dummy.md', { type: 'text/markdown' });
   }
 
-  // Putting a dummy value here, the server is going to process the POSTed file
-  // and set the file_path itself
-  if (fileField) {
-    params.file_path = '__POST_FILE__';
-  }
-
   // Add a random ID to serve as the redux key.
   // If it already exists, then it is a resumed session.
   if (!params.guid) {
     params.guid = uuid();
   }
 
-  const useV1 = remoteUrl || isMarkdown || preview || !tus.isSupported;
+  const useV1 = false; // remoteUrl || isMarkdown || preview || !tus.isSupported;
 
   if (useV1) {
     return makeV1UploadRequest(token, params, fileField, preview)
