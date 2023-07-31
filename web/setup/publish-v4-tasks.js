@@ -76,7 +76,7 @@ export function startTus(
     // --- Create tus session ---
     const tusSession = new tus.Upload(file, {
       ...(uploadUrl ? { uploadUrl: uploadUrl } : { endpoint: uploadLocation }),
-      chunkSize: 1024 * 1024, // 25MB
+      chunkSize: 1024 * 1024, // 1MB
       retryDelays: [0, 3000, 5000, 10000, 20000], // v3 uses: [8000, 15000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,

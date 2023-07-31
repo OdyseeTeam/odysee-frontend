@@ -142,8 +142,8 @@ function Page(props: Props) {
               'main--settings-page': settingsPage,
               'main--markdown': isMarkdown,
               'main--theater-mode': isOnFilePage && theaterMode && !livestream && !isMarkdown && !isMobile,
-              'main--livestream': livestream && !theaterMode,
-              'main--livestream--theater-mode': livestream && theaterMode,
+              // 'main--livestream': livestream && !theaterMode,
+              'main--livestream--theater-mode': livestream,
               'main--popout-chat': isPopoutWindow,
             })}
           >
