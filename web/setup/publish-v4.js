@@ -20,6 +20,7 @@ import {
 
 const SDK_STATUS_INITIAL_DELAY_MS = 2000;
 const SDK_STATUS_RETRY_INTERVAL_MS = 10000;
+const MAX_PREVIEW_RETRIES = 2;
 
 // ****************************************************************************
 // makeV4UploadRequest
@@ -69,25 +70,44 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
   }
 
   // Check SDK status
-  while (true) {
-    const status: PublishStatus = await checkPublishStatus(token, publishId);
+  if (params.preview) {
+    let attempt = 0;
+    while (true) {
+      const status: PublishStatus = await checkPublishStatus(token, publishId);
 
-    switch (status.status) {
-      case 'success':
+      if (status.status === 'success') {
         dispatch(remove(guid));
         return status.sdkResult;
-      case 'pending':
-        await yieldThread(SDK_STATUS_RETRY_INTERVAL_MS);
-        break;
-      case 'not_found':
-        dispatch(progress({ guid, status: 'error' }));
-        throw new Error('The upload does not exist.');
-      case 'error':
-        dispatch(progress({ guid, status: 'error' }));
-        throw status.error;
-      default:
-        dispatch(progress({ guid, status: 'error' }));
-        throw new Error('Unhandled status');
+      } else {
+        if (++attempt < MAX_PREVIEW_RETRIES) {
+          await yieldThread(7000);
+        } else {
+          dispatch(remove(guid));
+          return null; // Give up getting LBC estimate
+        }
+      }
+    }
+  } else {
+    while (true) {
+      const status: PublishStatus = await checkPublishStatus(token, publishId);
+
+      switch (status.status) {
+        case 'success':
+          dispatch(remove(guid));
+          return status.sdkResult;
+        case 'pending':
+          await yieldThread(SDK_STATUS_RETRY_INTERVAL_MS);
+          break;
+        case 'not_found':
+          dispatch(progress({ guid, status: 'error' }));
+          throw new Error('The upload does not exist.');
+        case 'error':
+          dispatch(progress({ guid, status: 'error' }));
+          throw status.error;
+        default:
+          dispatch(progress({ guid, status: 'error' }));
+          throw new Error('Unhandled status');
+      }
     }
   }
 }
