@@ -3,7 +3,7 @@ import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 
-type MembershipsState = {
+export type MembershipsState = {
   membershipMineByCreatorId: ?MembershipMineDataByCreatorId,
   membershipMineFetching: boolean,
   membershipListByCreatorId: { [creatorId: string]: MembershipTiers },

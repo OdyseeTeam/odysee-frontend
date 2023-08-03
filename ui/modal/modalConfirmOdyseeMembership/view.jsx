@@ -13,6 +13,7 @@ import Button from 'component/button';
 import BusyIndicator from 'component/common/busy-indicator';
 
 import withCreditCard from 'hocs/withCreditCard';
+import './style.scss';
 
 type Props = {
   membership: CreatorMembership,

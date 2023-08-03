@@ -16,13 +16,14 @@ import { getChannelSubCountStr } from 'util/formatMediaDuration';
 type Props = {
   claim: ?ChannelClaim,
   fetchingChannels: boolean,
+  doResolveUris: (uris: Array<string>) => void,
 };
 
 const UNAUTHENTICATED_ERROR = 'unauthenticated';
 const GENERIC_ERROR = 'error';
 
 export default function CreatorAnalytics(props: Props) {
-  const { claim } = props;
+  const { claim, doResolveUris } = props;
   const history = useHistory();
   const [stats, setStats] = React.useState();
   const [error, setError] = React.useState();
@@ -35,6 +36,18 @@ export default function CreatorAnalytics(props: Props) {
   React.useEffect(() => {
     setStats(null);
   }, [claimId]);
+
+  React.useEffect(() => {
+    if (stats) {
+      let { VideoURITopAllTime, VideoURITopCommentNew, VideoURITopNew } = stats;
+      let uris = [];
+      if (VideoURITopAllTime) uris.push(VideoURITopAllTime);
+      if (VideoURITopCommentNew) uris.push(VideoURITopCommentNew);
+      if (VideoURITopNew) uris.push(VideoURITopNew);
+      doResolveUris(uris);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+  }, [stats]);
 
   const channelForEffect = JSON.stringify(claim);
   React.useEffect(() => {
@@ -158,31 +171,6 @@ export default function CreatorAnalytics(props: Props) {
             />
           </div>
 
-          {/* <Card
-            iconColor
-            className="section"
-            title={<span>{__('%lbc_received% LBRY Credits Earned', { lbc_received: stats.AllLBCReceived })}</span>}
-            icon={ICONS.REWARDS}
-            subtitle={
-              <React.Fragment>
-                <div className="card__data-subtitle">
-                  <span>
-                    {'+'}{' '}
-                    {__('%lbc_received_changed% this week', {
-                      lbc_received_changed: stats.LBCReceivedChange || 0,
-                    })}
-                  </span>
-                  {stats.LBCReceivedChange > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
-                </div>
-                <p className="help">
-                  {__(
-                    "Earnings may also include any LBC you've sent yourself or added as support. We are working on making this more accurate. Check your wallet page for the correct total balance."
-                  )}
-                </p>
-              </React.Fragment>
-            }
-          /> */}
-
           {stats.VideoURITopNew ? (
             <Card
               className="section"
@@ -254,26 +242,28 @@ export default function CreatorAnalytics(props: Props) {
             />
           )}
 
-          <Card
-            className="section"
-            title={__('Most viewed content all time')}
-            body={
-              <React.Fragment>
-                <div className="card--inline">
-                  <ClaimPreview uri={stats.VideoURITopAllTime} />
-                </div>
-                <div className="section__subtitle card__data-subtitle">
-                  <span>
-                    {__('%all_time_top_views% views - %all_time_views_weekly_change% this week', {
-                      all_time_top_views: stats.VideoViewsTopAllTime,
-                      all_time_views_weekly_change: stats.VideoViewChangeTopAllTime,
-                    })}
-                  </span>
-                  {stats.VideoViewChangeTopAllTime > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
-                </div>
-              </React.Fragment>
-            }
-          />
+          {stats.VideoURITopAllTime && (
+            <Card
+              className="section"
+              title={__('Most viewed content all time')}
+              body={
+                <React.Fragment>
+                  <div className="card--inline">
+                    <ClaimPreview uri={stats.VideoURITopAllTime} />
+                  </div>
+                  <div className="section__subtitle card__data-subtitle">
+                    <span>
+                      {__('%all_time_top_views% views - %all_time_views_weekly_change% this week', {
+                        all_time_top_views: stats.VideoViewsTopAllTime,
+                        all_time_views_weekly_change: stats.VideoViewChangeTopAllTime,
+                      })}
+                    </span>
+                    {stats.VideoViewChangeTopAllTime > 0 && <Icon icon={ICONS.TRENDING} iconColor="green" size={18} />}
+                  </div>
+                </React.Fragment>
+              }
+            />
+          )}
         </div>
       )}
     </React.Fragment>

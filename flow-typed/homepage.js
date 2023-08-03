@@ -11,6 +11,17 @@ declare type HomepageData = {
   default: (any) => any,
 };
 
+declare type HomepagesDb = {
+  [string]: {
+    categories: {},
+    portals: {},
+    featured: {},
+    meme: string,
+    discover: Array<string>,
+    announcement: string,
+  }
+};
+
 declare type RowDataItem = {
   id: string,
   title: any,
@@ -21,9 +32,11 @@ declare type RowDataItem = {
   pinnedUrls?: Array<string>,
   pinnedClaimIds?: Array<string>, // takes precedence over pinnedUrls
   hideByDefault?: boolean,
+  hideSort?: boolean,
   options?: {
     channelIds?: Array<string>,
     excludedChannelIds?: Array<string>,
+    orderBy?: string,
     limitClaimsPerChannel?: number,
     pageSize?: number,
     releaseTime?: string,

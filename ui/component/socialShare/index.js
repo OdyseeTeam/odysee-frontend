@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { doFetchInviteStatus } from 'redux/actions/user';
+import { doFetchUriAccessKey } from 'redux/actions/content';
 import {
   selectClaimForUri,
   selectTitleForUri,
@@ -33,6 +34,7 @@ const select = (state, props) => {
 
 const perform = {
   doFetchInviteStatus,
+  doFetchUriAccessKey,
 };
 
 export default connect(select, perform)(SocialShare);

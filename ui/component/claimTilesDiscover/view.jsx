@@ -4,7 +4,6 @@ import React, { useRef } from 'react';
 import Button from 'component/button';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
-import useFetchViewCount from 'effects/use-fetch-view-count';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
 
@@ -59,15 +58,12 @@ type Props = {
   location: { search: string },
   claimSearchResults: Array<string>,
   claimSearchLastPageReached: ?boolean,
-  claimsByUri: { [string]: any },
-  claimsById: { [string]: any },
   fetchingClaimSearch: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
   optionsStringified: string,
   // --- perform ---
-  doClaimSearch: ({}) => void,
-  doFetchViewCount: (claimIdCsv: string) => void,
+  doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
@@ -78,8 +74,6 @@ function ClaimTilesDiscover(props: Props) {
     doClaimSearch,
     claimSearchResults,
     claimSearchLastPageReached,
-    claimsByUri,
-    claimsById,
     fetchViewCount,
     fetchingClaimSearch,
     hasNoSource,
@@ -89,7 +83,6 @@ function ClaimTilesDiscover(props: Props) {
     prefixUris,
     injectedItem,
     showNoSourceClaims,
-    doFetchViewCount,
     pageSize = 8,
     optionsStringified,
     channelIds,
@@ -106,7 +99,7 @@ function ClaimTilesDiscover(props: Props) {
   const prevUris = React.useRef();
   const claimSearchUris = claimSearchResults || [];
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
-  const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
+  const resolvedPinUris = useResolvePins({ pins, doResolveClaimIds, doResolveUris });
   const uriBuffer = useRef([]);
 
   const timedOut = claimSearchResults === null;
@@ -127,20 +120,27 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
+  /**
+   * Injects pinned URLs into `uris` in-place.
+   * i.e. don't use immutable functions like concat().
+   */
   function injectPinUrls(uris, pins, resolvedPinUris) {
-    if (!pins || !uris || uris.length <= 2) {
+    if (!pins || !uris) {
       return;
     }
 
     if (resolvedPinUris) {
       resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
+          // remove the duplicate pin; we'll put it back at 2nd slot later.
           uris.splice(uris.indexOf(pin), 1);
         } else {
+          // remove to make space for the pin (maintain total count).
           uris.pop();
         }
       });
 
+      // add the pins on uris starting from the 2nd index
       uris.splice(2, 0, ...resolvedPinUris);
     }
   }
@@ -164,8 +164,6 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
-  useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
-
   React.useEffect(() => {
     if (channelIds) {
       doFetchOdyseeMembershipForChannelIds(channelIds);
@@ -175,9 +173,10 @@ function ClaimTilesDiscover(props: Props) {
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
-      doClaimSearch(searchOptions);
+      const searchSettings = fetchViewCount ? { fetch: { viewCount: true } } : null;
+      doClaimSearch(searchOptions, searchSettings);
     }
-  }, [doClaimSearch, shouldPerformSearch, optionsStringified]);
+  }, [doClaimSearch, shouldPerformSearch, optionsStringified, fetchViewCount]);
 
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------

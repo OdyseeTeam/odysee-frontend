@@ -1,30 +1,30 @@
 .tags {
-  @extend .ul--no-style;
   display: flex;
   flex-wrap: wrap;
   min-width: 0;
-
-  .tag {
-    margin-left: 0;
-    margin-bottom: var(--spacing-s);
-    margin-right: var(--spacing-s);
-    color: var(--color-text);
-    background-color: var(--color-header-background);
-
-    &:hover {
-      color: var(--color-primary-contrast);
-      background-color: var(--color-primary);
+  gap: var(--spacing-xs);
+  .ul--no-style {
+    max-height: 100%;
+    overflow-y: scroll !important;
+    &::-webkit-scrollbar {
+      background-color: var(--color-border) !important;
     }
   }
 }
 
 .tags--remove {
   @extend .tags;
-  margin-bottom: var(--spacing-m);
-
   .tag {
-    margin-top: 0;
-    margin-bottom: var(--spacing-s);
+    &:hover {
+      background-color: var(--color-tag-remove);
+      outline: 1px solid red;
+      .button__label {
+        color: red;
+      }
+      .icon {
+        stroke: red;
+      }
+    }
   }
 }
 
@@ -44,13 +44,15 @@
 }
 
 .tags__input-wrapper {
-  // Nested style needed for more specificity
   .tag__input {
     @extend .tag--remove;
     height: var(--input-height);
     padding: calc(var(--spacing-xxs) + 1px) var(--spacing-s);
-    background-color: var(--color-input-bg);
-    margin-bottom: var(--spacing-m);
+  }
+  label {
+    font-size: var(--font-body);
+    font-weight: var(--font-weight-bold);
+    margin-top: var(--spacing-l);
   }
 }
 
@@ -58,6 +60,17 @@
   @extend .badge;
   @extend .badge--tag;
   font-size: var(--font-xsmall);
+  margin-left: 0;
+  color: var(--color-tag-text);
+  background-color: var(--color-tag);
+
+  .button__label {
+    margin-top: 0;
+  }
+  &:hover {
+    color: var(--color-tag-text-hover) !important;
+    background-color: var(--color-tag-hover);
+  }
 }
 
 .tag--remove {
@@ -88,6 +101,7 @@
   max-width: 20rem;
 }
 
+/*
 .tag--blocked-words {
   .tag {
     color: var(--color-tag-words);
@@ -107,3 +121,4 @@
     max-width: 40rem;
   }
 }
+*/

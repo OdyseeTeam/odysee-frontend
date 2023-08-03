@@ -12,7 +12,7 @@ import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
-import FileRenderFloating from 'component/fileRenderFloating';
+import VideoRenderFloating from 'component/videoRenderFloating';
 import { withRouter } from 'react-router';
 // import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
@@ -24,9 +24,9 @@ import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
-import AdBlockTester from 'web/component/adBlockTester';
-import AdsSticky from 'web/component/adsSticky';
+// import AdBlockTester from 'web/component/adBlockTester';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
+// import Ad from 'web/component/ad';
 import {
   useDegradedPerformance,
   STATUS_OK,
@@ -37,6 +37,7 @@ import {
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
 
+const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
 const NagDegradedPerformance = lazyImport(() =>
@@ -66,8 +67,6 @@ type Props = {
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string, hostname: string, reload: () => void },
   history: { push: (string) => void, location: { pathname: string }, replace: (string) => void },
-  fetchChannelListMine: () => void,
-  fetchCollectionListMine: () => void,
   signIn: () => void,
   setLanguage: (string) => void,
   fetchLanguage: (string) => void,
@@ -85,7 +84,6 @@ type Props = {
   syncFatalError: boolean,
   activeChannelClaim: ?ChannelClaim,
   myChannelClaimIds: ?Array<string>,
-  // hasPremiumPlus: ?boolean,
   setIncognito: (boolean) => void,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
@@ -97,6 +95,7 @@ type Props = {
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetGdprConsentList: (csv: string) => void,
+  hasPremiumPlus: boolean,
 };
 
 export const AppContext = React.createContext<any>();
@@ -107,8 +106,6 @@ function App(props: Props) {
     user,
     locale,
     location,
-    fetchChannelListMine,
-    fetchCollectionListMine,
     signIn,
     isReloadRequired,
     uploadCount,
@@ -130,7 +127,6 @@ function App(props: Props) {
     activeChannelClaim,
     setIncognito,
     fetchModBlockedList,
-    // hasPremiumPlus,
     fetchModAmIList,
     defaultChannelClaim,
     nagsShown,
@@ -169,6 +165,7 @@ function App(props: Props) {
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
   const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox();
+  const useDebugLog = process.env.NODE_ENV !== 'production' || process.env.IS_TEST_INSTANCE === 'true';
   const connectionStatus = useConnectionStatus();
 
   const urlPath = pathname + hash;
@@ -200,7 +197,7 @@ function App(props: Props) {
     // here queryString and startTime are "removed" from the buildURI process
     // to build only the uri itself
     const { queryString, startTime, ...parsedUri } = parseURI(path);
-    uri = buildURI({ ...parsedUri });
+    uri = buildURI({ ...parsedUri }, true);
   } catch (e) {
     const match = path.match(/[#/:]/);
 
@@ -279,7 +276,7 @@ function App(props: Props) {
     if (!uploadCount) return;
 
     const msg = 'Unfinished uploads.';
-    const handleUnload = (event) => tusUnlockAndNotify();
+    const handleUnload = () => tusUnlockAndNotify();
     const handleBeforeUnload = (event) => {
       event.preventDefault();
       event.returnValue = __(msg); // without setting this to something it doesn't work in some browsers.
@@ -322,21 +319,9 @@ function App(props: Props) {
   }, [sanitizedReferrerParam, referredRewardAvailable]);
 
   useEffect(() => {
-    // @if TARGET='app'
-    fetchChannelListMine(); // This is fetched after a user is signed in on web
-    fetchCollectionListMine();
-    // @endif
-  }, [fetchChannelListMine, fetchCollectionListMine]);
-
-  useEffect(() => {
     // $FlowFixMe
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
-
-  useEffect(() => {
-    // $FlowFixMe
-    document.body.style.overflowY = currentModal ? 'hidden' : '';
-  }, [currentModal]);
 
   useEffect(() => {
     if (hasNoChannels) {
@@ -365,7 +350,7 @@ function App(props: Props) {
     if (!languages.includes(language)) {
       fetchLanguage(language);
 
-      if (document && document.documentElement && LANGUAGES[language].length >= 3) {
+      if (document && document.documentElement && LANGUAGES[language] && LANGUAGES[language].length >= 3) {
         document.documentElement.dir = LANGUAGES[language][2];
       }
     }
@@ -398,10 +383,8 @@ function App(props: Props) {
   //     const script = document.createElement('script');
   //     script.src = imaLibraryPath;
   //     script.async = true;
-  //     // $FlowFixMe
   //     document.body.appendChild(script);
   //     return () => {
-  //       // $FlowFixMe
   //       document.body.removeChild(script);
   //     };
   //   }
@@ -422,11 +405,10 @@ function App(props: Props) {
       }
     }
 
-    if (inIframe() || !locale || !locale.gdpr_required || window.cordova) {
+    if (inIframe() || !locale || !locale.gdpr_required) {
       return;
     }
 
-    // $FlowFixMe
     const useProductionOneTrust = process.env.NODE_ENV === 'production' && hostname === 'odysee.com';
 
     const script = document.createElement('script');
@@ -445,7 +427,7 @@ function App(props: Props) {
     window.gdprCallback = () => {
       doSetGdprConsentList(window.OnetrustActiveGroups);
       if (window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
-        const ad = document.getElementsByClassName('OUTBRAIN')[0];
+        const ad = document.getElementsByClassName('rev-shifter')[0];
         if (ad && !window.nagsShown) ad.classList.add('VISIBLE');
       }
     };
@@ -475,7 +457,7 @@ function App(props: Props) {
       const ad = document.getElementsByClassName('VISIBLE')[0];
       if (ad) ad.classList.remove('VISIBLE');
     } else {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      const ad = document.getElementsByClassName('rev-shifter')[0];
       if (ad) ad.classList.add('VISIBLE');
     }
   }, [nagsShown]);
@@ -505,13 +487,14 @@ function App(props: Props) {
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
       doOpenAnnouncements();
     }
-  }, [announcement, isAuthenticated, pathname, prefsReady]);
+  }, [announcement, isAuthenticated, pathname, prefsReady, doOpenAnnouncements]);
 
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
       console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
       doSetLastViewedAnnouncement('clear');
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   // Keep this at the end to ensure initial setup effects are run first
@@ -572,20 +555,17 @@ function App(props: Props) {
         <AppContext.Provider value={{ uri }}>
           <Router uri={uri} />
           <ModalRouter />
-
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
-
-          <FileRenderFloating />
-
+          {!embedPath && <VideoRenderFloating />}
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
-
             <YoutubeWelcome />
             {!shouldHideNag && <NagContinueFirstRun />}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
             )}
             {getStatusNag()}
+            {useDebugLog && <DebugLog />}
           </React.Suspense>
         </AppContext.Provider>
       )}

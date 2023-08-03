@@ -1,0 +1,73 @@
+.invite-page__wrapper {
+  .card__subtitle {
+    min-height: 50px;
+  }
+  .card__first-pane {
+    margin-top: var(--spacing-l);
+  }
+
+  .column {
+    flex: 1;
+    .card {
+      width: 100%;
+    }
+  }
+
+  label {
+    font-size: var(--font-body);
+    margin-top: var(--spacing-m);
+  }
+  input-submit {
+    button {
+      background: var(--color-primary);
+      .icon {
+        stroke: var(--color-primary-contrast);
+      }
+    }
+  }
+
+  .credit-amount {
+    font-size: var(--font-body);
+  }
+
+  thead {
+    th {
+      border-bottom: unset;
+    }
+  }
+
+  tbody {
+    background-color: var(--color-header-button);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    padding: var(--spacing-s);
+    tr:first-of-type {
+      td:first-child {
+        border-radius: var(--border-radius) 0 0 0;
+      }
+      td:last-child {
+        border-radius: 0 var(--border-radius) 0 0;
+      }
+    }
+    tr:last-of-type {
+      td:first-child {
+        border-radius: 0 0 0 var(--border-radius);
+      }
+      td:last-child {
+        border-radius: 0 0 var(--border-radius) 0;
+      }
+    }
+    tr:hover {
+      background-color: var(--color-header-button);
+    }
+    td {
+      svg {
+        margin-left: var(--spacing-xs);
+        margin-bottom: -2px;
+        background-color: var(--color-text);
+        border-radius: 50%;
+        color: var(--color-text-inverse);
+      }
+    }
+  }
+}

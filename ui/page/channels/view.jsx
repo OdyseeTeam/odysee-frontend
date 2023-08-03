@@ -1,17 +1,21 @@
 // @flow
-import * as ICONS from 'constants/icons';
 import React from 'react';
 import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import Button from 'component/button';
-import YoutubeTransferStatus from 'component/youtubeTransferStatus';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
 import LbcSymbol from 'component/common/lbc-symbol';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import HelpLink from 'component/common/help-link';
-import ChannelSelector from 'component/channelSelector';
+import { lazyImport } from 'util/lazyImport';
 import { useHistory } from 'react-router';
+
+const YoutubeTransferStatus = lazyImport(() =>
+  import('component/youtubeTransferStatus' /* webpackChunkName: "youtubeTransferStatus" */)
+);
 
 type Props = {
   // -- redux --
@@ -79,29 +83,35 @@ export default function ChannelsPage(props: Props) {
 
   return (
     <Page className="channelsPage-wrapper">
-      <h1 className="section__title section__title--margin-bottom">{__('Active channel')}</h1>
-      <span className="section__subtitle ">{__('Select your default active channel')}</span>
-      <ChannelSelector storeSelection />
-
       <div className="card-stack">
-        {hasYoutubeChannels && <YoutubeTransferStatus hideChannelLink />}
-
-        <Button
-          button="primary"
-          label={__('Sync YouTube Channel')}
-          icon={ICONS.YOUTUBE}
-          navigate={`/$/${PAGES.YOUTUBE_SYNC}`}
-        />
+        {hasYoutubeChannels && (
+          <React.Suspense fallback={null}>
+            <YoutubeTransferStatus hideChannelLink />
+          </React.Suspense>
+        )}
 
         <ClaimList
-          header={<h1 className="section__title">{__('Your channels')}</h1>}
+          header={
+            <h1 className="page__title">
+              <Icon icon={ICONS.CHANNEL} />
+              <label>{__('Your channels')}</label>
+            </h1>
+          }
           headerAltControls={
-            <Button
-              button="secondary"
-              icon={ICONS.CHANNEL}
-              label={__('New Channel')}
-              navigate={`/$/${PAGES.CHANNEL_NEW}`}
-            />
+            <>
+              <Button
+                button="secondary"
+                label={__('Sync YouTube Channel')}
+                icon={ICONS.YOUTUBE}
+                navigate={`/$/${PAGES.YOUTUBE_SYNC}`}
+              />
+              <Button
+                button="secondary"
+                icon={ICONS.CHANNEL}
+                label={__('New Channel')}
+                navigate={`/$/${PAGES.CHANNEL_NEW}`}
+              />
+            </>
           }
           loading={fetchingChannels}
           uris={channelUrls}
@@ -135,11 +145,9 @@ export default function ChannelsPage(props: Props) {
               return (
                 <span className="claim-preview__custom-properties">
                   <span className="help--inline">
-                    {__('Earnings per view')} <HelpLink href="https://help.odysee.tv/category-monetization/" />
-                  </span>
-
-                  <span>
+                    {__('Earnings per view: ')}
                     <LbcSymbol postfix={channelRewardData.view_rate.toFixed(2)} />
+                    <HelpLink href="https://help.odysee.tv/category-monetization/" />
                   </span>
                 </span>
               );

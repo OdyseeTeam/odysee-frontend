@@ -1,0 +1,214 @@
+@import '~ui/scss/init/breakpoints';
+
+.playlist__wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+
+  padding: 1px;
+  background-color: rgba(var(--color-header-button-base), 0.4);
+  border-radius: var(--border-radius);
+
+  @media (min-width: $breakpoint-medium) {
+    width: 32rem;
+    margin-left: var(--spacing-l);
+  }
+
+  .background {
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50%;
+    width: 120%;
+    height: 120%;
+    opacity: 0.2;
+    filter: blur(12px);
+    -webkit-filter: blur(12px);
+    transition: background 0.2s;
+  }
+
+  .card__header--bg-color {
+    background-color: rgba(var(--color-header-button-base), 0.6);
+  }
+
+  .card__title {
+    .playlist__title {
+      display: flex;
+      align-items: center;
+      color: var(--color-text);
+      width: 100%;
+
+      & > *:first-child {
+        background-color: var(--color-background);
+        padding: 10px;
+        width: 2.4rem;
+        height: 2.4rem;
+        border-radius: 50%;
+        padding-bottom: 10px;
+      }
+
+      .playlist__title-text {
+        .playlist__title-text-list {
+          padding-top: 2px;
+          margin-bottom: -2px;
+        }
+        .sub {
+          opacity: 0.8;
+          font-size: var(--font-xsmall);
+        }
+      }
+
+      .icon--UploadCloud {
+        flex: 1;
+        margin-top: 3px;
+        margin-left: auto;
+        margin-bottom: auto;
+      }
+    }
+  }
+  .playlist-card-actions {
+    margin-top: var(--spacing-xs);
+  }
+
+  @media (min-width: $breakpoint-small) {
+    max-height: calc(44rem + 1px);
+  }
+
+  .card__header--slim {
+    padding: var(--spacing-xxs);
+    /*
+    @media (max-width: $breakpoint-small) {
+      padding: 0;
+    }
+    */
+  }
+
+  .card__body {
+    max-height: 20rem;
+    overflow: scroll;
+  }
+
+  .card__header--between {
+    padding-bottom: var(--spacing-s);
+    .card__title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .card__title-section {
+      display: unset !important;
+      padding: unset;
+      max-width: 80%;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
+    }
+  }
+
+  .card__body {
+    background-color: rgba(var(--color-header-background-base), 0.9);
+    max-height: 100%;
+    overflow-y: hidden;
+    display: flex;
+    .claim-list {
+      max-height: 100%;
+      width: 100%;
+      overflow-y: hidden;
+
+      .ul--no-style {
+        max-height: 100%;
+        overflow-y: scroll !important;
+        overflow-x: hidden;
+        &::-webkit-scrollbar {
+          background-color: var(--color-border) !important;
+        }
+      }
+    }
+  }
+
+  .claim-preview__wrapper {
+    padding: var(--spacing-xxs) var(--spacing-s) !important;
+    border-radius: unset;
+  }
+
+  .playlist-card-actions {
+    grid-column-start: 1;
+    grid-column-end: end;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+
+    button {
+      background-color: var(--color-background) !important;
+    }
+  }
+
+  .card__subtitle--small {
+    font-size: var(--font-small);
+    margin-bottom: var(--spacing-xxxs);
+  }
+  .button.button-toggle {
+    background-color: var(--color-background);
+    &:hover {
+      background-color: var(--color-primary) !important;
+    }
+  }
+  .button-toggle--active {
+    background-color: var(--color-button-toggle-bg-active) !important;
+    &:hover {
+      background-color: var(--color-primary) !important;
+      cursor: pointer;
+    }
+  }
+  .playlist-card-actions {
+    .button-toggle--active {
+      background-color: var(--color-button-toggle-bg-active) !important;
+      &:hover {
+        background-color: var(--color-primary) !important;
+        cursor: pointer;
+      }
+    }
+  }
+}
+
+.playlist-card--drawer-header {
+  @extend .playlist__wrapper;
+  padding-right: 0px;
+  padding-left: 0px;
+  padding-top: var(--spacing-m);
+  max-width: 80%;
+
+  @media (max-width: $breakpoint-small) {
+    max-width: 100%;
+  }
+}
+
+.content__wrapper--floating {
+  .playlist__wrapper {
+    max-height: 370px;
+    margin-left: 0;
+    .card__header--grid {
+      .card__title {
+        .playlist__title {
+          .icon:not(.icon--UploadCloud) {
+            flex-shrink: 0;
+            background-color: var(--color-text);
+            color: var(--color-text-inverse);
+            width: 1.4rem;
+            height: 1.4rem;
+            padding: 4px;
+            padding-right: 0;
+          }
+        }
+      }
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    border-radius: unset !important;
+  }
+}

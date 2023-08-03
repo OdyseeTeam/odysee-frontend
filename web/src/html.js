@@ -55,11 +55,12 @@ function insertToHead(fullHtml, htmlToInsert, buildRev = '') {
 }
 
 function truncateDescription(description, maxChars = 200) {
-  // Get list of single-codepoint strings
+  description = description.trim().split('\n');
+  description = description[0].trim();
+
   const chars = [...description];
   // Use slice array instead of substring to prevent breaking emojis
   let truncated = chars.slice(0, maxChars).join('');
-  // Format truncated string
   return chars.length > maxChars ? truncated + '...' : truncated;
 }
 
@@ -98,6 +99,7 @@ function buildOgMetadata(overrideOptions = {}) {
   const head =
     `<title>${SITE_TITLE}</title>\n` +
     `<meta name="description" content="${cleanDescription}" />\n` +
+    `<meta name="theme-color" content="#ca004b">\n` +
     `<meta property="og:url" content="${url}" />\n` +
     `<meta property="og:title" content="${cleanTitle || OG_HOMEPAGE_TITLE || SITE_TITLE}" />\n` +
     `<meta property="og:site_name" content="${SITE_NAME || SITE_TITLE}"/>\n` +
@@ -162,6 +164,7 @@ function buildBasicOgMetadata() {
 //
 async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
+  const { userAgent } = overrideOptions;
   const { claimName } = parseURI(uri);
   const { meta, value, signing_channel } = claim;
   const fee = value && value.fee && (Number(value.fee.amount) || 0);
@@ -193,11 +196,14 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     imageThumbnail = await fetchStreamUrl(claim.name, claim.claim_id);
   }
 
-  const claimThumbnail =
+  let claimThumbnail =
     escapeHtmlProperty(thumbnail) ||
     getThumbnailCardCdnUrl(imageThumbnail) ||
     getThumbnailCardCdnUrl(OG_IMAGE_URL) ||
     `${URL}/public/v2-og.png`;
+  if (userAgent && userAgent.includes('Discordbot')) {
+    claimThumbnail = claimThumbnail.substring(claimThumbnail.lastIndexOf('https://'));
+  }
 
   const getOgType = (streamType, liveStream) => {
     if (liveStream) return 'video.other';
@@ -228,21 +234,19 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   if (tags && tags.length > 0) {
     head += `<meta name="keywords" content="${escapeHtmlProperty(tags.toString())}"/>`;
   }
+  head += `<meta name="theme-color" content="#ca004b">`;
 
-  head += `<meta name="twitter:image" content="${claimThumbnail}"/>`;
-  head += `<meta name="twitter:player:image" content="${claimThumbnail}"/>`;
-  head += `<meta name="twitter:site" content="@OdyseeTeam"/>`;
   head += `<meta property="og:description" content="${cleanDescription}"/>`;
   head += `<meta property="og:image" content="${claimThumbnail}"/>`;
   head += `<meta property="og:image:secure_url" content="${claimThumbnail}"/>`;
+  head += `<meta property="og:image:width"  content="${mediaWidth}"/>`;
+  head += `<meta property="og:image:height"  content="${mediaHeight}"/>`;
   head += `<meta property="og:locale" content="${claimLanguage}"/>`;
   head += `<meta property="og:site_name" content="${SITE_NAME}"/>`;
   head += `<meta property="og:type" content="${getOgType(value?.stream_type, liveStream)}"/>`;
   head += `<meta property="og:title" content="${title}"/>`;
-  head += `<meta name="twitter:title" content="${title}"/>`;
   head += `<meta property="og:url" content="${claimPath}"/>`;
-  head += `<meta name="twitter:url" content="${claimPath}"/>`;
-  head += `<meta property="fb:app_id" content="1673146449633983" />`;
+
   head += `<link rel="canonical" content="${claimPath}"/>`;
   head += `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
     claimPath
@@ -255,13 +259,12 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     const videoUrl = generateEmbedUrlEncoded(claim.canonical_url);
     head += `<meta property="og:video" content="${videoUrl}" />`;
     head += `<meta property="og:video:secure_url" content="${videoUrl}" />`;
-    // type text/html since we use embeds
     head += `<meta property="og:video:type" content="text/html" />`;
     if (channel) {
       head += `<meta name="og:video:series" content="${channel}"/>`;
     }
-    head += `<meta name="twitter:card" content="player"/>`;
-    head += `<meta name="twitter:player" content="${videoUrl}" />`;
+    head += `<meta property="og:video:width" content="${mediaWidth}"/>`;
+    head += `<meta property="og:video:height" content="${mediaHeight}"/>`;
     if (releaseTime) {
       var release = new Date(releaseTime * 1000).toISOString();
       head += `<meta property="og:video:release_date" content="${release}"/>`;
@@ -269,10 +272,21 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     if (mediaDuration) {
       head += `<meta property="og:video:duration" content="${mediaDuration}"/>`;
     }
-    head += `<meta property="og:video:width" content="${mediaWidth}"/>`;
-    head += `<meta property="og:video:height" content="${mediaHeight}"/>`;
+
+    head += `<meta name="twitter:title" content="${title}"/>`;
+    head += `<meta name="twitter:image" content="${claimThumbnail}"/>`;
+    head += `<meta name="twitter:player:image" content="${claimThumbnail}"/>`;
+    head += `<meta name="twitter:site" content="@OdyseeTeam"/>`;
+    head += `<meta name="twitter:url" content="${claimPath}"/>`;
+    if (userAgent && userAgent.includes('Discordbot')) {
+      head += `<meta name="twitter:card" content="summary_large_image"/>`;
+    } else {
+      head += `<meta name="twitter:card" content="player"/>`;
+    }
+    head += `<meta name="twitter:player" content="${videoUrl}" />`;
     head += `<meta name="twitter:player:width" content="${mediaWidth}">`;
     head += `<meta name="twitter:player:height" content="${mediaHeight}">`;
+    head += `<meta property="fb:app_id" content="1673146449633983" />`;
   } else {
     head += `<meta name="twitter:card" content="summary_large_image"/>`;
   }
@@ -343,6 +357,8 @@ async function getHtml(ctx) {
     ctx.request.url = encodeURIComponent(escapeHtmlProperty(decodeURIComponent(ctx.request.url)));
   }
 
+  const userAgent = ctx && ctx.request && ctx.request.header ? ctx.request.header['user-agent'] : undefined;
+
   const invitePath = `/$/${PAGES.INVITE}/`;
   const embedPath = `/$/${PAGES.EMBED}/`;
 
@@ -354,6 +370,7 @@ async function getHtml(ctx) {
       const invitePageMetadata = await buildClaimOgMetadata(inviteChannelUrl, claim, {
         title: `Join ${claim.name} on ${SITE_NAME}`,
         description: `Join ${claim.name} on ${SITE_NAME}, a content wonderland owned by everyone (and no one).`,
+        userAgent: userAgent,
       });
 
       return insertToHead(html, invitePageMetadata);
@@ -373,7 +390,9 @@ async function getHtml(ctx) {
     const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
     if (claim) {
-      const ogMetadata = await buildClaimOgMetadata(claimUri, claim);
+      const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
+        userAgent: userAgent,
+      });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }
@@ -395,7 +414,7 @@ async function getHtml(ctx) {
 
     try {
       parsedUri = parseURI(normalizeClaimUrl(requestPath.slice(1)));
-      claimUri = buildURI({ ...parsedUri, startTime: undefined });
+      claimUri = buildURI({ ...parsedUri, startTime: undefined }, true);
     } catch (err) {
       ctx.status = 404;
       return err.message;
@@ -405,7 +424,14 @@ async function getHtml(ctx) {
     const referrerQuery = escapeHtmlProperty(getParameterByName('r', ctx.request.url));
 
     if (claim) {
-      const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);
+      const ogMetadata = await buildClaimOgMetadata(
+        claimUri,
+        claim,
+        {
+          userAgent: userAgent,
+        },
+        referrerQuery
+      );
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }

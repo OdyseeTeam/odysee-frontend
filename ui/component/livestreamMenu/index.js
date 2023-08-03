@@ -13,7 +13,7 @@ const select = (state, props) => {
 
   const claim = selectClaimForUri(state, uri);
   const claimId = claim && claim.claim_id;
-  const { claim_id: channelId } = getChannelFromClaim(claim);
+  const { claim_id: channelId } = getChannelFromClaim(claim) || {};
 
   return {
     claimId,

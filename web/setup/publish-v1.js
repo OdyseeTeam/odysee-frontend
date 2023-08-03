@@ -84,7 +84,7 @@ export function makeUploadRequest(
     };
 
     if (!isPreview) {
-      window.store.dispatch(doUpdateUploadAdd(file, params, xhr));
+      window.store.dispatch(doUpdateUploadAdd(file, params, xhr, 'v1'));
     }
 
     xhr.send(body);

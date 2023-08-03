@@ -3,6 +3,7 @@ import { selectClientSetting, selectLanguage, selectShowMatureContent } from 're
 import {
   selectClaimsByUri,
   selectClaimForClaimId,
+  selectClaimForUri,
   makeSelectClaimForUri,
   makeSelectClaimForClaimId,
   selectClaimIsNsfwForUri,
@@ -11,15 +12,13 @@ import {
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import { isClaimNsfw } from 'util/claim';
+import { objSelectorEqualityCheck } from 'util/redux-utils';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { createNormalizedSearchKey, getRecommendationSearchKey, getRecommendationSearchOptions } from 'util/search';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectHistory } from 'redux/selectors/content';
-import { selectAllCostInfoByUri } from 'lbryinc';
 import * as SETTINGS from 'constants/settings';
-
-type State = { claims: any, search: SearchState, user: UserState };
 
 export const selectState = (state: State): SearchState => state.search;
 
@@ -53,16 +52,17 @@ export const makeSelectHasReachedMaxResultsLength = (query: string): ((state: St
     return hasReachedMaxResultsLength[query];
   });
 
+/**
+ * Raw Lighthouse recommendation results for the given uri.
+ */
 export const selectRecommendedContentRawForUri = createCachedSelector(
-  (state, uri) => uri,
-  selectClaimsByUri,
+  selectClaimForUri,
   selectShowMatureContent,
   selectClaimIsNsfwForUri, // (state, uri)
   selectSearchResultByQuery,
   selectLanguage,
   (state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
-  (uri, claimsByUri, matureEnabled, isMature, searchUrisByQuery, languageSetting, searchInLanguage) => {
-    const claim = claimsByUri[uri];
+  (claim, matureEnabled, isMature, searchUrisByQuery, languageSetting, searchInLanguage) => {
     const language = searchInLanguage ? languageSetting : null;
 
     if (claim?.value?.title) {
@@ -75,78 +75,122 @@ export const selectRecommendedContentRawForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
-export const selectRecommendedContentForUri = createCachedSelector(
-  (state, uri) => uri,
-  selectHistory,
-  selectRecommendedContentRawForUri, // (state, uri)
+/**
+ * Intermediate selector to provide a stable subset of selectClaimsByUri.
+ *
+ * Tradeoff:  It is actually still looping every time selectClaimsByUri changes,
+ * but at least we stabilize here to prevent the rest of the chain from looping.
+ *
+ * @signature (state: State, uri: string) => { [ClaimId]: Claim }
+ */
+const selectRecClaimsByIdForUri = createSelector(
   selectClaimsByUri,
-  selectMutedChannels,
-  selectAllCostInfoByUri,
-  (uri, history, rawRecommendations, claimsByUri, blockedChannels, costInfoByUri) => {
-    const claim = claimsByUri[uri];
-    if (!claim) return;
+  selectRecommendedContentRawForUri, // (state, uri)
+  (claimsByUri, recommendationsRaw) => {
+    const recClaimsById = {};
 
-    let recommendedContent;
-    // always grab the claimId - this value won't change for filtering
+    if (recommendationsRaw) {
+      recommendationsRaw.uris.forEach((uri) => {
+        if (claimsByUri[uri]) {
+          recClaimsById[uri] = claimsByUri[uri];
+        }
+      });
+    }
+
+    return recClaimsById;
+  },
+  {
+    memoizeOptions: { maxSize: 3, resultEqualityCheck: objSelectorEqualityCheck },
+  }
+);
+
+/**
+ * Removes blocked content and itself from the recommendations.
+ */
+const selectRecommendedContentFilteredForUri = createCachedSelector(
+  selectClaimForUri,
+  selectRecommendedContentRawForUri,
+  selectRecClaimsByIdForUri,
+  selectMutedChannels,
+  (claim, recommendationsRaw, recClaimsByUri, blockedChannels) => {
+    if (!claim || !recommendationsRaw) {
+      return;
+    }
+
     const currentClaimId = claim.claim_id;
 
-    const searchResult = rawRecommendations;
+    return recommendationsRaw.uris.filter((recUri) => {
+      const recClaim = recClaimsByUri[recUri];
+      if (!recClaim) {
+        return true; // Don't filter out unresolved claims (let the placeholders show)
+      }
 
-    if (searchResult) {
-      // Filter from recommended: The same claim and blocked channels
-      recommendedContent = searchResult['uris'].filter((searchUri) => {
-        const searchClaim = claimsByUri[searchUri];
+      const recChannelUri = recClaim?.signing_channel?.canonical_url;
+      const isRecChannelBlocked = blockedChannels.some((blockedUri) => blockedUri.includes(recChannelUri));
 
-        if (!searchClaim) {
-          return true;
+      let isEqualUri;
+      try {
+        const { claimId: recClaimId } = parseURI(recUri);
+        isEqualUri = recClaimId === currentClaimId;
+      } catch (e) {}
+
+      return !isEqualUri && !isRecChannelBlocked;
+    });
+  }
+)((state, uri) => String(uri));
+
+/**
+ * Returns the sorted recommendation list for the given uri.
+ *
+ * The sorting changes each time to ensure the next recommended item is fresh
+ * (prevents circular autoplay-next loop).
+ *
+ * TODO: It is still pointless to memo this selector since selectHistory()
+ * will always be invalidated.
+ *
+ * @param state State
+ * @param uri String
+ * @return undefined | Array<uri: string>
+ */
+export const selectRecommendedContentForUri = createCachedSelector(
+  selectClaimForUri,
+  selectHistory,
+  selectRecommendedContentFilteredForUri,
+  selectRecClaimsByIdForUri,
+  (state) => state.claims.costInfosById,
+  (claim, history, filteredRecUris, recClaimsByUri, costInfosById) => {
+    if (!claim || !filteredRecUris) {
+      return;
+    }
+
+    for (let i = 0; i < filteredRecUris.length; ++i) {
+      const nextUri = filteredRecUris[i];
+      const nextClaim = recClaimsByUri[nextUri];
+      const hasCost = nextClaim && costInfosById[nextClaim.claim_id]?.cost !== 0; // Consider unresolved claim as "no cost". Not a big deal, I think.
+      const isVideo = nextClaim?.value?.stream_type === 'video';
+      const isAudio = nextClaim?.value?.stream_type === 'audio';
+      const watched = history.some((h) => nextClaim?.permanent_url === h.uri || nextClaim?.canonical_url === h.uri);
+
+      if (!watched && !hasCost && (isVideo || isAudio)) {
+        if (i > 0) {
+          const recUris = filteredRecUris.slice();
+          const top = recUris[0];
+          recUris[0] = nextUri;
+          recUris[i] = top;
+          return recUris;
         }
-
-        const signingChannel = searchClaim && searchClaim.signing_channel;
-        const channelUri = signingChannel && signingChannel.canonical_url;
-        const blockedMatch = blockedChannels.some((blockedUri) => blockedUri.includes(channelUri));
-
-        let isEqualUri;
-        try {
-          const { claimId: searchId } = parseURI(searchUri);
-          isEqualUri = searchId === currentClaimId;
-        } catch (e) {}
-
-        return !isEqualUri && !blockedMatch;
-      });
-
-      // Claim to play next: playable and free claims not played before in history
-      for (let i = 0; i < recommendedContent.length; ++i) {
-        const nextRecommendedUri = recommendedContent[i];
-        const costInfo = costInfoByUri[nextRecommendedUri] && costInfoByUri[nextRecommendedUri].cost;
-        const recommendedClaim = claimsByUri[nextRecommendedUri];
-        const isVideo = recommendedClaim && recommendedClaim.value && recommendedClaim.value.stream_type === 'video';
-        const isAudio = recommendedClaim && recommendedClaim.value && recommendedClaim.value.stream_type === 'audio';
-
-        let historyMatch = false;
-        try {
-          const { claimId: nextRecommendedId } = parseURI(nextRecommendedUri);
-
-          historyMatch = history.some(
-            (historyItem) =>
-              (claimsByUri[historyItem.uri] && claimsByUri[historyItem.uri].claim_id) === nextRecommendedId
-          );
-        } catch (e) {}
-
-        if (!historyMatch && costInfo === 0 && (isVideo || isAudio)) {
-          // Better next-uri found, swap with top entry:
-          if (i > 0) {
-            const a = recommendedContent[0];
-            recommendedContent[0] = nextRecommendedUri;
-            recommendedContent[i] = a;
-          }
-          break;
-        }
+        break;
       }
     }
 
-    return recommendedContent;
+    return filteredRecUris;
   }
 )((state, uri) => String(uri));
+
+export const selectNextRecommendedContentForUri = (state: State, uri: string) => {
+  const recommendedContent = selectRecommendedContentForUri(state, uri);
+  return recommendedContent && recommendedContent[0];
+};
 
 export const selectRecommendedMetaForClaimId = createCachedSelector(
   selectClaimForClaimId,

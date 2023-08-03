@@ -11,7 +11,7 @@ const FYP_SECTION: RowDataItem = {
   link: `/$/${PAGES.FYP}`,
 };
 
-function pushAllValidCategories(rowData: Array<RowDataItem>, hasMembership: ?boolean) {
+function pushAllValidCategories(rowData: Array<RowDataItem>, isAuthenticated: ?boolean) {
   const x: Array<RowDataItem> = [];
 
   rowData.forEach((data: RowDataItem) => {
@@ -19,7 +19,7 @@ function pushAllValidCategories(rowData: Array<RowDataItem>, hasMembership: ?boo
       x.push(data);
     }
 
-    if (data.id === 'FOLLOWING' && hasMembership) {
+    if (data.id === 'FOLLOWING' && isAuthenticated) {
       x.push(FYP_SECTION);
     }
   });
@@ -31,9 +31,12 @@ export function getSortedRowData(
   authenticated: boolean,
   hasMembership: ?boolean,
   homepageOrder: HomepageOrder,
+  homepageData: any,
   rowData: Array<RowDataItem>
 ) {
   let sortedRowData: Array<RowDataItem> = [];
+  const hasBanner = Boolean(homepageData.featured);
+  const hasPortals = Boolean(homepageData.portals);
 
   if (authenticated) {
     if (homepageOrder.active) {
@@ -46,6 +49,14 @@ export function getSortedRowData(
         } else if (key === 'FYP') {
           // Special-case injection (not part of category definition):
           sortedRowData.push(FYP_SECTION);
+        } else if (key === 'BANNER' && hasBanner) {
+          sortedRowData.push({ id: 'BANNER', title: undefined });
+        } else if (key === 'PORTALS' && hasPortals) {
+          sortedRowData.push({ id: 'PORTALS', title: undefined });
+        } else if (key === 'UPCOMING') {
+          let followingIndex = sortedRowData.indexOf('FOLLOWING');
+          if (followingIndex !== -1) sortedRowData.splice(followingIndex, 0, { id: 'UPCOMING', title: 'Upcoming' });
+          else sortedRowData.push({ id: 'UPCOMING', title: 'Upcoming' });
         }
       });
 
@@ -57,10 +68,32 @@ export function getSortedRowData(
           }
         }
       });
+
+      if (
+        homepageOrder.active &&
+        !homepageOrder.active.includes('BANNER') &&
+        homepageOrder.hidden &&
+        !homepageOrder.hidden.includes('BANNER')
+      ) {
+        sortedRowData.unshift({ id: 'BANNER', title: undefined });
+      }
+      if (
+        homepageOrder.active &&
+        !homepageOrder.active.includes('PORTALS') &&
+        homepageOrder.hidden &&
+        !homepageOrder.hidden.includes('PORTALS')
+      ) {
+        sortedRowData.splice(2, 0, { id: 'PORTALS', title: undefined });
+      }
     } else {
+      if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
       sortedRowData = pushAllValidCategories(rowData, hasMembership);
+      if (authenticated) sortedRowData.splice(1, 0, { id: 'UPCOMING', title: 'Upcoming' });
+      if (hasPortals) sortedRowData.splice(4, 0, { id: 'PORTALS', title: undefined });
     }
   } else {
+    if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
+    if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
     sortedRowData = pushAllValidCategories(rowData, hasMembership);
   }
 

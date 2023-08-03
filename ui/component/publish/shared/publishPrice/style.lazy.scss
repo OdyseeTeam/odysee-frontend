@@ -1,0 +1,140 @@
+@import '~ui/scss/init/breakpoints';
+
+$DISABLED_OPACITY: 0.2;
+$INDENT: var(--spacing-xl);
+
+.publish-price__title {
+  font-size: var(--font-large);
+  font-weight: var(--font-weight-bold);
+}
+
+.publish-price__group {
+  background-color: var(--color-background);
+  padding: var(--spacing-s);
+  border-radius: var(--border-radius);
+
+  input,
+  select {
+    background-color: var(--color-header-button);
+  }
+  .checkbox {
+    label::before {
+      background-color: var(--color-header-button);
+    }
+  }
+}
+
+.publish-price__reason {
+  padding: var(--spacing-m) var(--spacing-m);
+  font-size: var(--font-small);
+  color: var(--color-text-warning);
+}
+
+.publish-price__row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-m);
+
+  fieldset-section:first-of-type {
+    padding: 0;
+  }
+  .checkbox {
+    label {
+      // font-size: var(--font-body);
+      padding-left: calc(var(--height-checkbox) + var(--spacing-xs)) !important;
+    }
+  }
+  .input--currency-select {
+    padding: 0;
+    label {
+      margin-left: 0 !important;
+    }
+  }
+
+  label {
+    margin-top: 0;
+  }
+
+  svg {
+    margin-bottom: 0; // Remove LBC icon offset
+  }
+}
+
+.publish-price__row--disabled {
+  pointer-events: none;
+
+  .publish-price__grp-1,
+  .publish-price__grp-2 {
+    opacity: $DISABLED_OPACITY; // Set at column level so the border won't be dimmed.
+  }
+}
+
+.publish-price__grp-1 {
+  margin-bottom: var(--spacing-s);
+
+  &:only-child {
+    margin-bottom: 0;
+  }
+
+  fieldset-section.radio:last-of-type {
+    padding-bottom: 0;
+  }
+}
+
+.publish-price__grp-2 {
+  select {
+    width: 150px; // lock all dropdowns to same width
+  }
+}
+
+.publish-price__grp-2--disabled {
+  pointer-events: none;
+  opacity: $DISABLED_OPACITY;
+}
+
+.publish-price__subtitle {
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+}
+
+.publish-price__bank-driver {
+  display: flex;
+  color: var(--color-text-subtitle);
+  margin-left: calc(var(--height-checkbox) + var(--spacing-s));
+  font-size: var(--font-base);
+  align-items: center;
+  .button {
+    padding: 0;
+    background: unset !important;
+    height: unset;
+    margin-right: var(--spacing-xxs);
+    .button__content span {
+      color: var(--color-primary);
+      margin: unset;
+    }
+    .icon {
+      margin-top: -2px;
+      stroke: var(--color-primary);
+      margin-right: var(--spacing-xxs);
+    }
+    &:hover {
+      .button__content span {
+        color: var(--color-secondary);
+      }
+      .icon {
+        stroke: var(--color-secondary) !important;
+      }
+    }
+  }
+}
+
+.publish-price__fees {
+  font-size: var(--font-xxsmall);
+  color: var(--color-text-subtitle);
+  font-style: italic;
+}
+
+.publish-price__tnc {
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+}

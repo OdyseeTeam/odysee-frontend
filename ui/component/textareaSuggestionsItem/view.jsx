@@ -31,7 +31,7 @@ export default function TextareaSuggestionsItem(props: Props) {
     const { name: value, url, unicode } = emote;
 
     return (
-      <div {...autocompleteProps} dispatch={undefined}>
+      <div {...autocompleteProps}>
         {unicode ? (
           <div className="emote">
             <Twemoji emoji={unicode} />
@@ -53,7 +53,7 @@ export default function TextareaSuggestionsItem(props: Props) {
     const value = claimLabel;
 
     return (
-      <div {...autocompleteProps} dispatch={undefined}>
+      <div {...autocompleteProps}>
         <ChannelThumbnail xsmall uri={uri} />
 
         <div className="textarea-suggestion__label">

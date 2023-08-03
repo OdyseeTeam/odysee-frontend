@@ -9,6 +9,7 @@ import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import ThumbnailMissingImage from './thumbnail-missing.png';
 import ThumbnailBrokenImage from './thumbnail-broken.png';
+import './style.lazy.scss';
 
 type Props = {
   filePath: ?string,
@@ -24,7 +25,7 @@ type Props = {
   thumbnailParamStatus: string,
   optional?: boolean,
   openModal: (id: string, {}) => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   updateThumbnailParams: ({}) => void,
   resetThumbnailStatus: () => void,
 };
@@ -119,7 +120,9 @@ function SelectThumbnail(props: Props) {
         }
         onLoad={() =>
           publishForm
-            ? updatePublishForm({ thumbnailError: !isUrlInput || (thumbnail && thumbnail.startsWith('data:image')) })
+            ? updatePublishForm({
+                thumbnailError: !isUrlInput || (thumbnail ? thumbnail.startsWith('data:image') : false),
+              })
             : updateThumbnailParams({ thumbnail_error: !isUrlInput })
         }
       />
@@ -128,7 +131,7 @@ function SelectThumbnail(props: Props) {
 
   return (
     <>
-      <h2 className="card__title">{optional ? __('Thumbnail (Optional)') : __('Thumbnail')}</h2>
+      {optional && <h2 className="card__title">{__('Thumbnail (Optional)')}</h2>}
       {status !== THUMBNAIL_STATUSES.IN_PROGRESS && (
         <div className="column card--thumbnail">
           {thumbPreview}

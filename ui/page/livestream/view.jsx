@@ -7,7 +7,7 @@ import LivestreamLayout from 'component/livestreamLayout';
 import moment from 'moment';
 import Page from 'component/page';
 import React from 'react';
-import useFetchLiveStatus from 'effects/use-fetch-live';
+// import useFetchLiveStatus from 'effects/use-fetch-live';
 import Spinner from 'component/spinner';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
@@ -15,7 +15,7 @@ const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName:
 type Props = {
   activeLivestreamForChannel: any,
   activeLivestreamInitialized: boolean,
-  channelClaimId: ?string,
+  // channelClaimId: ?string,
   chatDisabled: boolean,
   claim: StreamClaim,
   uri: string,
@@ -24,7 +24,7 @@ type Props = {
   doSetPrimaryUri: (uri: ?string) => void,
   doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: ?string) => void,
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
-  doFetchChannelLiveStatus: (string) => void,
+  // doFetchChannelLiveStatus: (string) => void,
   theaterMode?: Boolean,
   doMembershipContentforStreamClaimId: (type: string) => void,
   contentUnlocked: boolean,
@@ -36,7 +36,7 @@ export default function LivestreamPage(props: Props) {
   const {
     activeLivestreamForChannel,
     activeLivestreamInitialized,
-    channelClaimId,
+    // channelClaimId,
     chatDisabled,
     claim,
     uri,
@@ -45,7 +45,7 @@ export default function LivestreamPage(props: Props) {
     doSetPrimaryUri,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
-    doFetchChannelLiveStatus,
+    // doFetchChannelLiveStatus,
     theaterMode,
     doMembershipContentforStreamClaimId,
     contentUnlocked,
@@ -63,7 +63,7 @@ export default function LivestreamPage(props: Props) {
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
   const claimId = claim && claim.claim_id;
   const isCurrentClaimLive = isChannelBroadcasting && activeLivestreamForChannel.claimId === claimId;
-  const livestreamChannelId = channelClaimId || '';
+  // const livestreamChannelId = channelClaimId || '';
 
   const releaseTime: moment = moment.unix(claim?.value?.release_time || 0);
 
@@ -111,7 +111,7 @@ export default function LivestreamPage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unmount -> leave page
   }, []);
 
-  useFetchLiveStatus(isStreamPlaying ? undefined : livestreamChannelId, doFetchChannelLiveStatus);
+  // useFetchLiveStatus(isStreamPlaying ? undefined : livestreamChannelId, doFetchChannelLiveStatus);
 
   React.useEffect(() => {
     setActiveStreamUri(!isCurrentClaimLive && isChannelBroadcasting ? activeLivestreamForChannel.claimUri : false);

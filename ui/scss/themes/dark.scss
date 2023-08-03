@@ -16,9 +16,11 @@
   --color-fire: #c91800;
   --color-fire-outside: #ff9b20;
   --color-slime: #7bc45e;
+  --color-shadow: #000000;
+  --color-hover-primary: rgba(121, 121, 121, 0.4);
 
   // Structure
-  --color-background-base: 32, 32, 32;
+  --color-background-base: 17, 17, 17;
   --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: #0c0d0e95;
   --color-border-base: 68, 68, 68;
@@ -33,7 +35,7 @@
   --color-text-subtitle: var(--color-blockquote);
   --color-text-empty: var(--color-text-subtitle);
   --color-text-help: var(--color-primary-contrast);
-  --color-text-warning: #212529;
+  --color-text-warning: #f77937;
   --color-text-error: #da0004;
   --color-error: var(--color-danger-alt);
   --color-blockquote: rgba(var(--color-text-base), 0.6);
@@ -52,22 +54,21 @@
   --color-button-primary-background: var(--color-background);
   --color-button-primary-background-hover: var(--color-primary);
 
-  --color-button-secondary-bg: rgba(var(--color-header-background-base), 0.8);
-  // --color-button-secondary-border: #191919;
+  --color-button-secondary-bg: var(--color-header-button);
   --color-button-secondary-text: rgba(var(--color-text-base), 0.9);
-  --color-button-secondary-bg-hover: rgba(var(--color-header-background-base), 1);
+  --color-button-secondary-bg-hover: var(--color-primary);
   --color-button-secondary-text-hover: var(--color-text);
 
-  --color-button-alt-bg: var(--color-header-background);
+  --color-button-alt-bg: var(--color-header-button);
   --color-button-alt-text: var(--color-text);
-  --color-button-alt-bg-hover: rgba(var(--color-header-background-base), 0.5);
+  --color-button-alt-bg-hover: var(--color-primary);
   --color-button-alt-text-hover: var(--color-text);
 
-  --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.5);
+  --color-button-toggle-bg: var(--color-header-button);
   --color-button-toggle-text: rgba(var(--color-text-base), 1);
-  --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.9);
+  --color-button-toggle-bg-hover: var(--color-hover-primary);
   --color-button-toggle-text-hover: var(--color-text);
-  --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
+  --color-button-toggle-bg-active: #a60a43;
   --color-button-toggle-text-active: var(--color-text);
 
   // --color-button-alt-text: #e2e9f0;
@@ -81,7 +82,7 @@
   --color-input: #f4f4f5;
   --color-input-label: var(--color-text);
   --color-input-placeholder: #f4f4f5;
-  --color-input-bg: var(--color-header-background);
+  --color-input-bg: var(--color-header-button);
   --color-input-bg-secondary: #333333;
   --color-input-bg-selected: var(--color-primary);
   --color-input-border: var(--color-border);
@@ -90,21 +91,23 @@
   --color-input-toggle-bg-hover: rgba(var(--color-primary-dynamic), 0.03);
   --color-input-prefix-bg: var(--color-primary);
   --color-input-prefix-border: var(--color-gray-4);
-  --select-toggle-background: url("data:image/svg+xml,%3Csvg viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg' fill='%23ffffff'%3E%3Cpath d='M17.172, 31.172c1.562, -1.562 4.095, -1.562 5.656, 0l25.172, 25.171l25.172, -25.171c1.562, -1.562 4.095, -1.562 5.656, 0c1.562, 1.562 1.562, 4.095 0, 5.656l-28, 28c-1.562, 1.562 -4.095, 1.562 -5.656, 0l-28, -28c-0.781, -0.781 -1.172, -1.805 -1.172, -2.828c0, -1.023 0.391, -2.047 1.172, -2.828Z'/%3E%3C/svg%3E%0A");
+  --select-toggle-background: url("data:image/svg+xml,%3Csvg viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg' fill='%23FFF'%3E%3Cpath d='M17.172, 31.172c1.562, -1.562 4.095, -1.562 5.656, 0l25.172, 25.171l25.172, -25.171c1.562, -1.562 4.095, -1.562 5.656, 0c1.562, 1.562 1.562, 4.095 0, 5.656l-28, 28c-1.562, 1.562 -4.095, 1.562 -5.656, 0l-28, -28c-0.781, -0.781 -1.172, -1.805 -1.172, -2.828c0, -1.023 0.391, -2.047 1.172, -2.828Z'/%3E%3C/svg%3E%0A");
+  --select-toggle-background-hover: url("data:image/svg+xml,%3Csvg viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg' fill='%23FFF'%3E%3Cpath d='M17.172, 31.172c1.562, -1.562 4.095, -1.562 5.656, 0l25.172, 25.171l25.172, -25.171c1.562, -1.562 4.095, -1.562 5.656, 0c1.562, 1.562 1.562, 4.095 0, 5.656l-28, 28c-1.562, 1.562 -4.095, 1.562 -5.656, 0l-28, -28c-0.781, -0.781 -1.172, -1.805 -1.172, -2.828c0, -1.023 0.391, -2.047 1.172, -2.828Z'/%3E%3C/svg%3E%0A");
 
   // Navigation
-  --color-navigation-icon: #76808a;
-  --color-navigation-link: #b9c3ce;
+  --color-navigation-icon: var(--color-navigation-link);
+  --color-navigation-link: #bfbfbf;
   --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: var(--color-primary-contrast);
-  --color-navigation-hover: rgba(var(--color-background-base), 0.6);
-  --color-navigation-hover-text: var(--color-primary);
+  --color-navigation-hover: var(--color-hover-primary);
+  --color-navigation-hover-text: var(--color-primary-contrast);
 
   // Tags
-  --color-tag: var(--color-secondary-contrast);
-  --color-tag-bg: var(--color-secondary);
-  --color-tag-hover: var(--color-primary-contrast);
-  --color-tag-bg-hover: var(--color-primary);
+  --color-tag: var(--color-header-button);
+  --color-tag-text: var(--color-text);
+  --color-tag-hover: var(--color-primary);
+  --color-tag-text-hover: var(--color-primary-contrast);
+  --color-tag-remove: rgba(255, 0, 0, 0.2);
 
   // Menu
   --color-menu-background: var(--color-header-background);
@@ -124,7 +127,6 @@
   --color-tabs-background: var(--color-header-background);
   --color-tab-divider: var(--color-primary);
   --color-modal-background: var(--color-card-background);
-  --color-notice: #58563b;
   --color-purchased: #ffd580;
   --color-purchased-alt: var(--color-purchased);
   --color-purchased-text: black;
@@ -132,11 +134,12 @@
   --color-tooltip-bg: #2f3337;
   --color-tooltip-text: var(--color-text);
   --color-focus: #e91e6329;
-  --color-placeholder-background: var(--color-header-background);
+  --color-placeholder-background: var(--color-header-button);
   --color-spinner-light: white;
   --color-spinner-dark: #212529;
   --color-login-graphic-background: var(--color-background);
   --color-support-button: #64f064;
+  --color-visibility-label: #241c30;
 
   // Editor
   --color-editor-cursor: var(--color-text);
@@ -164,8 +167,16 @@
   --color-scrollbar-track-bg: transparent;
   --color-body-scrollbar-track-bg: rgba(0, 0, 0, 0.5);
 
-  --background-shade: linear-gradient(-180deg, rgba(25, 25, 25, 0.3) 2%, #202020),
-    radial-gradient(circle at 50% 117%, rgba(25, 25, 25, 0.4) 0, #202020 100%);
+  --background-shade: linear-gradient(
+      -180deg,
+      rgba(var(--color-background-base), 1) 2%,
+      rgba(var(--color-background-base), 0.8)
+    ),
+    radial-gradient(
+      circle at 90% 97%,
+      rgba(var(--color-background-base), 0.4) 0,
+      rgba(var(--color-background-base), 1) 70%
+    );
 
   --mui-background: #000;
 }

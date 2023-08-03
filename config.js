@@ -12,11 +12,14 @@ const config = {
   LBRY_WEB_PUBLISH_API: process.env.LBRY_WEB_PUBLISH_API,
   LBRY_WEB_PUBLISH_API_V2: process.env.LBRY_WEB_PUBLISH_API_V2,
   LBRY_WEB_PUBLISH_API_V3: process.env.LBRY_WEB_PUBLISH_API_V3,
+  LBRY_WEB_PUBLISH_API_V4: process.env.LBRY_WEB_PUBLISH_API_V4,
   LBRY_API_URL: process.env.LBRY_API_URL, // api.odysee.com',
   LBRY_WEB_BUFFER_API: process.env.LBRY_WEB_BUFFER_API,
   SEARCH_SERVER_API: process.env.SEARCH_SERVER_API,
   SEARCH_SERVER_API_ALT: process.env.SEARCH_SERVER_API_ALT,
   COMMENT_SERVER_API: process.env.COMMENT_SERVER_API,
+  LIVESTREAM_SERVER_API: process.env.LIVESTREAM_SERVER_API,
+  SHORT_URL_API: process.env.SHORT_URL_API,
   SOCKETY_SERVER_API: process.env.SOCKETY_SERVER_API,
   LOCALE_API: process.env.LOCALE_API,
   WELCOME_VERSION: process.env.WELCOME_VERSION,
@@ -72,7 +75,7 @@ const config = {
   WEB_PUBLISH_SIZE_LIMIT_GB: process.env.WEB_PUBLISH_SIZE_LIMIT_GB,
   LOADING_BAR_COLOR: process.env.LOADING_BAR_COLOR,
   SIMPLE_SITE: process.env.SIMPLE_SITE === 'true',
-  SHOW_ADS: process.env.SHOW_ADS === 'false',
+  SHOW_ADS: process.env.SHOW_ADS === 'true',
   KNOWN_APP_DOMAINS: process.env.KNOWN_APP_DOMAINS ? process.env.KNOWN_APP_DOMAINS.split(',') : [],
   STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,
   ENABLE_UI_NOTIFICATIONS: process.env.ENABLE_UI_NOTIFICATIONS === 'true',
@@ -95,6 +98,7 @@ config.PROXY_URL = `${config.SDK_API_PATH}/proxy`;
 
 config.URL_DEV = `http://localhost:${config.WEBPACK_WEB_PORT}`;
 config.URL_LOCAL = `http://localhost:${config.WEB_SERVER_PORT}`;
-config.FAVICON = `/public/favicon-spaceman.png`;
+config.FAVICON = `/public/favicon_128.png`;
+config.FAVICON_NOTIFICATION = `/public/favicon_notification_128.png`;
 
 module.exports = config;

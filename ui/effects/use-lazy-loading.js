@@ -31,8 +31,12 @@ export default function useLazyLoading(
     if (target.dataset.src) {
       // $FlowFixMe
       target.src = target.dataset.src;
-      setSrcLoadedFn(true);
-      // No fallback handling here (clients have access to 'onerror' on the image ref).
+      target.onload = () => setSrcLoadedFn(true);
+
+      // We don't handle onerror() here and simply let srcLoaded hanging for
+      // flexibility since we have various clients of this hook.
+      // If the client needs to do something special when error'd, they can add
+      // an onerror() to elementRef on their side.
       return;
     }
 
@@ -46,6 +50,8 @@ export default function useLazyLoading(
         tmpImage.src = target.dataset.backgroundImage;
       }
       target.style.backgroundImage = `url(${target.dataset.backgroundImage})`;
+    } else {
+      target.style.backgroundImage = `url(${backgroundFallback})`;
     }
   }
 
@@ -78,6 +84,7 @@ export default function useLazyLoading(
 
     // $FlowFixMe
     lazyLoadingObserver.observe(elementRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- PLEASE FIX
   }, deps);
 
   return srcLoaded;

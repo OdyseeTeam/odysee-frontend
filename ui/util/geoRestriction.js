@@ -2,13 +2,12 @@
 import { getChannelIdFromClaim, isChannelClaim, isStreamPlaceholderClaim } from 'util/claim';
 
 /**
- * Returns the geo restriction for the given claim, or null if not restricted.
+ * Returns the geo restriction for the given claim.
  *
  * @param claim
  * @param locale
  * @param geoBlockLists
- * @returns {{id: string, trigger?: string, reason?: string, message?:
- *   string}|null}
+ * @returns {undefined|null|GeoConfig} undefined = pending fetch; null = no restrictions; GeoConfig = blocked reason
  */
 export function getGeoRestrictionForClaim(claim: ?StreamClaim, locale: LocaleInfo, geoBlockLists: ?GBL) {
   if (locale && geoBlockLists && claim) {
@@ -40,10 +39,12 @@ export function getGeoRestrictionForClaim(claim: ?StreamClaim, locale: LocaleInf
       return (
         specials.find((x: GeoRestriction) => (x.id === 'EU-ONLY' || x.id === 'EU-GOOGLE') && locale.is_eu_member) ||
         countries.find((x: GeoRestriction) => x.id === locale.country) ||
-        continents.find((x: GeoRestriction) => x.id === locale.continent)
+        continents.find((x: GeoRestriction) => x.id === locale.continent) ||
+        null
       );
     }
+    return null;
+  } else {
+    return undefined;
   }
-
-  return null;
 }

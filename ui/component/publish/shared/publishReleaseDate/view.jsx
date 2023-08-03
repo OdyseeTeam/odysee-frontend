@@ -1,5 +1,7 @@
 // @flow
-import React, { useEffect } from 'react';
+import React from 'react';
+import classnames from 'classnames';
+
 import Button from 'component/button';
 import DateTimePicker from 'react-datetime-picker';
 
@@ -14,114 +16,73 @@ function dateToLinuxTimestamp(date: Date) {
 const NOW = 'now';
 const DEFAULT = 'default';
 const RESET_TO_ORIGINAL = 'reset-to-original';
-const FUTURE_DATE_ERROR = 'Cannot set to a future date.';
 
-type Props = {
-  allowDefault: ?boolean,
-  showNowBtn: ?boolean,
-  useMaxDate: ?boolean,
-  // --- redux:
+export type Props = {|
+  minDate?: Date,
+|};
+
+type StateProps = {|
+  claimToEdit: ?StreamClaim,
   releaseTime: ?number,
-  releaseTimeEdited: ?number,
+  releaseTimeDisabled: boolean,
+  releaseTimeError: ?string,
   clock24h: boolean,
-  updatePublishForm: ({}) => void,
-};
+  appLanguage: ?string,
+|};
 
-const PublishReleaseDate = (props: Props) => {
+type DispatchProps = {|
+  updatePublishForm: (UpdatePublishState) => void,
+|};
+
+const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
   const {
+    minDate,
+    claimToEdit,
     releaseTime,
-    releaseTimeEdited,
+    releaseTimeDisabled,
+    releaseTimeError,
     clock24h,
+    appLanguage,
     updatePublishForm,
-    allowDefault = true,
-    showNowBtn = true,
-    useMaxDate = true,
   } = props;
-  const maxDate = useMaxDate ? new Date() : undefined;
-  const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : undefined);
-  const [error, setError] = React.useState([]);
 
-  const isNew = releaseTime === undefined;
-  const isEdit = !isNew || allowDefault === false;
-
-  // const showEditBtn = isNew && releaseTimeEdited === undefined && allowDefault !== false;
-  const showEditBtn = false;
-  const showDefaultBtn = isNew && releaseTimeEdited !== undefined && allowDefault !== false;
-  // const showDatePicker = isEdit || releaseTimeEdited !== undefined;
+  const showDefaultBtn = releaseTime !== undefined;
   const showDatePicker = true;
+  const isEdit = Boolean(claimToEdit);
 
-  const updateError = (action, error) => {
-    switch (action) {
-      case 'remove':
-        setError((prev) => prev.filter((x) => x !== error));
-        break;
+  const [forceRender, setForceRender] = React.useState(0);
 
-      case 'clear':
-        setError([]);
-        break;
-
-      case 'add':
-        setError((prev) => {
-          const nextError = prev.slice();
-          if (!nextError.includes(error)) {
-            nextError.push(error);
-            return nextError;
-          }
-          return prev;
-        });
-        break;
-    }
-  };
+  let claimDateStr;
+  if (isEdit) {
+    const date = new Date((claimToEdit?.value?.release_time || claimToEdit?.timestamp || 0) * 1000);
+    claimDateStr = date.toLocaleString(appLanguage || 'en');
+  }
 
   const onDateTimePickerChanged = (value) => {
-    const isValueInFuture = maxDate && value && value.getTime() > maxDate.getTime();
-    if (isValueInFuture) {
-      updateError('add', FUTURE_DATE_ERROR);
-      return;
-    }
-
-    updateError('remove', FUTURE_DATE_ERROR);
-
-    if (value) {
-      newDate(value);
-    } else {
-      // "!value" should never happen since we now hide the "clear" button,
-      // but retained the logic here anyway.
-      if (releaseTime) {
-        newDate(RESET_TO_ORIGINAL);
-      } else {
-        newDate(NOW);
-      }
+    if (value instanceof Date) {
+      updatePublishForm({ releaseTime: dateToLinuxTimestamp(value) });
     }
   };
 
   function newDate(value: string | Date) {
-    updateError('clear', FUTURE_DATE_ERROR);
-
     switch (value) {
       case NOW:
-        const newDate = new Date();
-        setDate(newDate);
-        updatePublishForm({ releaseTimeEdited: dateToLinuxTimestamp(newDate) });
+        let newDate = new Date();
+        if (minDate && newDate < minDate) {
+          newDate = new Date(minDate.getTime());
+        }
+        updatePublishForm({ releaseTime: dateToLinuxTimestamp(newDate) });
         break;
 
       case DEFAULT:
-        setDate(undefined);
-        updatePublishForm({ releaseTimeEdited: undefined });
-        break;
-
       case RESET_TO_ORIGINAL:
-        if (releaseTime) {
-          setDate(linuxTimestampToDate(releaseTime));
-          updatePublishForm({ releaseTimeEdited: undefined });
-        }
+        // PAYLOAD.releaseTime() will do the right thing based on various scenarios.
+        updatePublishForm({ releaseTime: undefined });
         break;
 
       default:
-        if (value instanceof Date) {
-          setDate(value);
-          updatePublishForm({ releaseTimeEdited: dateToLinuxTimestamp(value) });
-        }
+        console.assert(false, 'unhandled case'); // eslint-disable-line no-console
+        updatePublishForm({ releaseTime: undefined });
         break;
     }
   }
@@ -130,56 +91,37 @@ const PublishReleaseDate = (props: Props) => {
     if (event.target.name === 'minute' || event.target.name === 'day') {
       const validity = event?.target?.validity;
       if (validity.rangeOverflow || validity.rangeUnderflow) {
-        updateError('add', event.target.name);
-      } else if (error.includes(event.target.name)) {
-        updateError('remove', event.target.name);
+        setForceRender(Date.now());
+      } else if (releaseTimeError === event.target.name) {
+        setForceRender(Date.now());
       }
     }
   }
 
-  useEffect(() => {
-    return () => {
-      updatePublishForm({ releaseTimeEdited: undefined });
-    };
-  }, []);
-
-  useEffect(() => {
-    updatePublishForm({ releaseTimeError: error.join(';') });
-  }, [error]);
-
   return (
-    <div className="form-field-date-picker">
+    <div
+      className={classnames('form-field-date-picker', {
+        'form-field-date-picker--disabled': releaseTimeDisabled,
+      })}
+    >
       <label>{__('Release date')}</label>
       <div className="form-field-date-picker__controls">
         {showDatePicker && (
           <DateTimePicker
+            key={forceRender}
+            locale={appLanguage}
             className="date-picker-input"
             calendarClassName="form-field-calendar"
             onBlur={handleBlur}
             onChange={onDateTimePickerChanged}
-            value={date}
+            value={releaseTime ? linuxTimestampToDate(releaseTime) : undefined}
             format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
             disableClock
             clearIcon={null}
+            minDate={minDate}
           />
         )}
-        {showEditBtn && (
-          <Button
-            button="link"
-            label={__('Edit')}
-            aria-label={__('Set custom release date')}
-            onClick={() => newDate(NOW)}
-          />
-        )}
-        {showDatePicker && isEdit && releaseTime && (
-          <Button
-            button="link"
-            label={__('Reset')}
-            aria-label={__('Reset to original (previous) publish date')}
-            onClick={() => newDate(RESET_TO_ORIGINAL)}
-          />
-        )}
-        {showDatePicker && showNowBtn && (
+        {showDatePicker && (
           <Button
             button="link"
             label={__('Now')}
@@ -190,18 +132,16 @@ const PublishReleaseDate = (props: Props) => {
         {showDefaultBtn && (
           <Button
             button="link"
-            label={__('Default')}
-            aria-label={__('Remove custom release date')}
+            label={isEdit ? __('Reset') : __('Default')}
+            aria-label={isEdit ? __('Reset to original (previous) publish date') : __('Remove custom release date')}
             onClick={() => newDate(DEFAULT)}
           />
         )}
-        {error.length > 0 && (
-          <span className="form-field-date-picker__error">
-            {error.includes(FUTURE_DATE_ERROR) && <span>{__(FUTURE_DATE_ERROR)}</span>}
-            {(!error.includes(FUTURE_DATE_ERROR) || error.length > 1) && <span>{__('Invalid date/time.')}</span>}
-          </span>
-        )}
+        {releaseTimeError && <span className="form-field-date-picker__error">{releaseTimeError}</span>}
       </div>
+      {claimDateStr && (
+        <div className="form-field-date-picker__past-value">{__('Previous:  %date%', { date: claimDateStr })}</div>
+      )}
     </div>
   );
 };

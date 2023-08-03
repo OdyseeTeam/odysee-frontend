@@ -1,5 +1,9 @@
 // @flow
 import React from 'react';
+
+// $FlowFixMe
+import { Global } from '@emotion/react';
+
 import { Form } from 'component/common/form';
 import { useHistory } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
@@ -8,6 +12,8 @@ import ConfirmationPage from './internal/confirmationPage';
 import PreviewPage from './internal/previewPage';
 import Spinner from 'component/spinner';
 import classnames from 'classnames';
+import { ModalContext } from 'contexts/modal';
+import './style.scss';
 
 type Props = {
   uri: string,
@@ -25,6 +31,8 @@ type Props = {
   unlockableTierIds: Array<number>,
   cheapestMembership: ?CreatorMembership,
   isLivestream: ?boolean,
+  purchasedChannelMembership: MembershipTier & CreatorMembership,
+  membershipMine: any,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doToast: (params: { message: string }) => void,
@@ -47,10 +55,14 @@ const JoinMembershipCard = (props: Props) => {
     unlockableTierIds,
     cheapestMembership,
     isLivestream,
+    purchasedChannelMembership,
+    membershipMine,
     doMembershipList,
     doMembershipBuy,
     doToast,
   } = props;
+
+  const isUrlParamModal = React.useContext(ModalContext)?.isUrlParamModal;
 
   const isPurchasing = React.useRef(false);
 
@@ -131,6 +143,21 @@ const JoinMembershipCard = (props: Props) => {
   const pageProps = React.useMemo(() => {
     return { uri, selectedTier, selectedMembershipIndex };
   }, [selectedMembershipIndex, selectedTier, uri]);
+
+  React.useEffect(() => {
+    if (isUrlParamModal && purchasedChannelMembership) {
+      // -- close url param modal when already has membership --
+      doHideModal();
+    }
+  }, [doHideModal, isUrlParamModal, membershipMine, purchasedChannelMembership]);
+
+  if (
+    isUrlParamModal &&
+    (membershipMine === undefined || creatorMemberships === undefined || purchasedChannelMembership)
+  ) {
+    // -- hide modal until a pendingPurchase condition is found to show it --
+    return <Global styles={{ '.ReactModalPortal': { display: 'none' } }} />;
+  }
 
   if (window.pendingMembership || creatorMemberships === undefined) {
     return (

@@ -27,14 +27,5 @@ export default function ClaimAbandonButton(props: Props) {
     doOpenModal(MODALS.CONFIRM_CLAIM_REVOKE, { claim: claim, cb: abandonActionCallback });
   }
 
-  return (
-    <Button
-      disabled={!claim}
-      label={buttonLabel}
-      button="alt"
-      iconColor="red"
-      icon={ICONS.DELETE}
-      onClick={abandonClaim}
-    />
-  );
+  return <Button disabled={!claim} label={buttonLabel} button="secondary" icon={ICONS.DELETE} onClick={abandonClaim} />;
 }

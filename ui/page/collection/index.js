@@ -1,16 +1,16 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 
-import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
-
+import { selectHasClaimForId, selectClaimIsPendingForId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
-  selectUrlsForCollectionId,
-  selectIsResolvingCollectionForId,
   selectBrokenUrlsForCollectionId,
-  selectMyEditedCollections,
+  selectCollectionIsMine,
+  selectHasPrivateCollectionForId,
+  selectIsCollectionPrivateForId,
 } from 'redux/selectors/collections';
-import { doFetchItemsInCollection } from 'redux/actions/collections';
+
+import { doResolveClaimId } from 'redux/actions/claims';
+import { doCollectionEdit, doRemoveFromUnsavedChangesCollectionsForCollectionId } from 'redux/actions/collections';
 
 import CollectionPage from './view';
 
@@ -19,22 +19,22 @@ const select = (state, props) => {
   const { params } = match;
   const { collectionId } = params;
 
-  const claim = collectionId && makeSelectClaimForClaimId(collectionId)(state);
-  const uri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
-
   return {
     collectionId,
-    uri,
+    hasClaim: selectHasClaimForId(state, collectionId),
     collection: selectCollectionForId(state, collectionId),
-    collectionUrls: selectUrlsForCollectionId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
-    editedCollections: selectMyEditedCollections(state),
-    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
+    isCollectionMine: selectCollectionIsMine(state, collectionId),
+    hasPrivate: selectHasPrivateCollectionForId(state, collectionId),
+    isPrivate: selectIsCollectionPrivateForId(state, collectionId),
+    isClaimPending: selectClaimIsPendingForId(state, collectionId),
   };
 };
 
 const perform = {
-  doFetchItemsInCollection,
+  doResolveClaimId,
+  doCollectionEdit,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId,
 };
 
-export default withRouter(connect(select, perform)(CollectionPage));
+export default connect(select, perform)(CollectionPage);

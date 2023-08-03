@@ -31,10 +31,12 @@ type Props = {
   moderatorTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
   moderatorBlockListDelegatorsMap: { [string]: Array<string> },
   fetchingModerationBlockList: boolean,
+  appLanguage: string,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
   delegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
   myChannelClaimIds: ?Array<string>,
+  doResolveUris: (uris: Array<string>) => void,
 };
 
 function ListBlocked(props: Props) {
@@ -52,6 +54,7 @@ function ListBlocked(props: Props) {
     fetchModAmIList,
     delegatorsById,
     myChannelClaimIds,
+    doResolveUris,
   } = props;
   const [viewMode, setViewMode] = usePersistedState('blocked-muted:display', VIEW.BLOCKED);
 
@@ -66,7 +69,13 @@ function ListBlocked(props: Props) {
     myChannelClaimIds &&
     myChannelClaimIds.some((id) => delegatorsById[id] && Object.keys(delegatorsById[id].delegators).length > 0);
 
+  const list = getList(viewMode);
+
   // **************************************************************************
+
+  React.useEffect(() => {
+    doResolveUris(list || []);
+  }, [list, doResolveUris]);
 
   function getList(view) {
     switch (view) {
@@ -92,7 +101,7 @@ function ListBlocked(props: Props) {
         <div>
           <div className="help">
             <blockquote>
-              {moment(timeoutInfo.blockedAt).format('MMMM Do, YYYY @ HH:mm')}
+              {moment(timeoutInfo.blockedAt).format('LLL')}
               <br />
               {getDurationStr(timeoutInfo.bannedFor)}{' '}
               {__('(Remaining: %duration%) --[timeout ban duration]--', {
@@ -269,7 +278,7 @@ function ListBlocked(props: Props) {
 
           <BlockList
             key={viewMode}
-            uris={getList(viewMode)}
+            uris={list}
             help={getHelpText(viewMode)}
             titleEmptyList={getEmptyListTitle(viewMode)}
             subtitle={getEmptyListSubtitle(viewMode)}

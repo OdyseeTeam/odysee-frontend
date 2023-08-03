@@ -2,7 +2,7 @@
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 
-import { getTotalPriceFromSupportersList } from 'util/memberships';
+import { filterMembershipTiersWithPerk, getTotalPriceFromSupportersList } from 'util/memberships';
 
 import {
   selectChannelClaimIdForUri,
@@ -11,12 +11,11 @@ import {
   selectProtectedContentTagForUri,
   selectClaimForId,
   selectClaimIsMineForId,
+  selectClaimIdForUri,
 } from 'redux/selectors/claims';
 import { getChannelIdFromClaim } from 'util/claim';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
-
-type State = { claims: any, user: any, memberships: any };
 
 const selectState = (state: State) => state.memberships || {};
 
@@ -258,6 +257,7 @@ export const selectUserHasOdyseePremiumPlus = createSelector(selectMyValidOdysee
 
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) =>
   selectMembershipForCreatorIdAndChannelId(state, ODYSEE_CHANNEL.ID, channelId);
+
 export const selectOdyseeMembershipIsPremiumPlus = (state: State, channelId: string) =>
   selectOdyseeMembershipForChannelId(state, channelId) === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS;
 
@@ -418,10 +418,23 @@ export const selectNoRestrictionOrUserIsMemberForContentClaimId = (state: State,
 
 export const selectIsProtectedContentLockedFromUserForId = (state: State, claimId: ClaimId) => {
   const protectedContentMemberships = selectContentHasProtectedMembershipIds(state, claimId);
+  if (!protectedContentMemberships) return protectedContentMemberships;
+
   const userHasAccess = selectUserIsMemberOfProtectedContentForId(state, claimId);
   const claimIsMine = selectClaimIsMineForId(state, claimId);
 
   return Boolean(!claimIsMine && protectedContentMemberships && !userHasAccess);
+};
+
+export const selectPendingUnlockedRestrictionsForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  const contentRestrictedFromUser = claimId && selectIsProtectedContentLockedFromUserForId(state, claimId);
+
+  // false means no restrictions, undefined === fetching, true === restricted
+  // so here, pending means it still doesn't have the "false" to call it unlocked
+  const pendingUnlockedRestrictions = contentRestrictedFromUser !== false;
+
+  return pendingUnlockedRestrictions;
 };
 
 export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(
@@ -456,44 +469,17 @@ export const selectPriceOfCheapestPlanForClaimId = (state: State, claimId: Claim
 
 export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {
   const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
-
-  if (!membershipTiers) return [];
-
-  const perkName = 'Exclusive content';
-
-  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
-  });
-
-  return tiers;
+  return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Exclusive content') : [];
 };
 
 export const selectMyMembershipTiersWithExclusiveLivestreamPerk = (state: State, activeChannelClaimId: string) => {
   const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, activeChannelClaimId);
-
-  if (!membershipTiers) return [];
-
-  const perkName = 'Exclusive livestreams';
-
-  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
-  });
-
-  return tiers;
+  return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Exclusive livestreams') : [];
 };
 
 export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, channelId: string) => {
   const membershipTiers: MembershipTiers = selectMembershipTiersForCreatorId(state, channelId);
-
-  if (!membershipTiers) return [];
-
-  const perkName = 'Members-only chat';
-
-  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
-  });
-
-  return tiers;
+  return membershipTiers ? filterMembershipTiersWithPerk(membershipTiers, 'Members-only chat') : [];
 };
 
 export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(

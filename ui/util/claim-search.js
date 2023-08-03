@@ -1,18 +1,81 @@
 // @flow
+import type { Duration } from 'constants/claim_search';
+
+import * as CS from 'constants/claim_search';
 import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
 
 /**
- * Helper functions to derive the ClaimSearch option payload.
+ * Common logic to generate ClaimSearch option payload.
  */
-export const CsOptions = {
-  not_tags: (notTags: ?Array<string>, showNsfw: ?boolean, hideMembersOnlyContent: ?boolean) => {
-    const not_tags = !showNsfw ? MATURE_TAGS.slice() : [];
-    if (notTags) {
-      not_tags.push(...notTags);
+export const CsOptHelper = {
+  not_tags: (input?: NotTagInput = {}) => {
+    const not_tags = input.showNsfw ? [] : MATURE_TAGS.slice();
+
+    if (input.notTags) {
+      not_tags.push(...input.notTags);
     }
-    if (hideMembersOnlyContent) {
+
+    if (input.hideMembersOnly) {
       not_tags.push(MEMBERS_ONLY_CONTENT_TAG);
     }
+
     return not_tags;
+  },
+
+  /**
+   * duration
+   *
+   * @param contentType
+   * @param duration Duration type
+   * @param durationVal Only applicable is 'duration === all';
+   * @param minMinutes Only for 'duration === custom'
+   * @param maxMinutes Only for 'duration === custom'
+   * @returns {?string|Array<string>}
+   */
+  duration: (
+    contentType: ?string,
+    duration: Duration,
+    durationVal?: string,
+    minMinutes?: number,
+    maxMinutes?: number
+  ) => {
+    if (
+      contentType !== CS.FILE_VIDEO &&
+      contentType !== CS.FILE_AUDIO &&
+      contentType !== null && // Any
+      contentType !== undefined // Any
+    ) {
+      return undefined;
+    }
+
+    let x: ?string | Array<string>;
+
+    switch (duration) {
+      case CS.DURATION.ALL:
+        x = durationVal || undefined;
+        break;
+      case CS.DURATION.SHORT:
+        x = '<=240';
+        break;
+      case CS.DURATION.LONG:
+        x = '>=1200';
+        break;
+      case CS.DURATION.CUSTOM:
+        if (minMinutes || maxMinutes) {
+          x = [];
+          if (minMinutes) {
+            x.push(`>=${minMinutes * 60}`);
+          }
+          if (maxMinutes) {
+            x.push(`<=${maxMinutes * 60}`);
+          }
+        }
+        break;
+      default:
+        assert(false, 'invalid duration type', duration);
+        break;
+    }
+
+    return x;
   },
 };

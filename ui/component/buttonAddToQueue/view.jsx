@@ -18,7 +18,7 @@ type Props = {
   playingCollectionUrls: ?Array<string>,
   doToast: (props: { message: string }) => void,
   doCollectionEdit: (id: string, CollectionEditParams) => void,
-  doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
+  doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
   doSetPlayingUri: (props: any) => void,
 };
 
@@ -34,7 +34,7 @@ function ButtonAddToQueue(props: Props) {
     playingCollectionUrls,
     doToast,
     doCollectionEdit,
-    doUriInitiatePlay,
+    doStartFloatingPlayingUri,
     doSetPlayingUri,
   } = props;
 
@@ -63,7 +63,7 @@ function ButtonAddToQueue(props: Props) {
         if (!hasPlayingUriInQueue) doSetPlayingUri({ ...playingUri, ...paramsToAdd });
       } else {
         // There is nothing playing and added a video to queue -> the first item will play on the floating player with the list open
-        doUriInitiatePlay({ uri, ...paramsToAdd }, true, true);
+        doStartFloatingPlayingUri({ uri, ...paramsToAdd });
       }
     }
   }

@@ -1,9 +1,12 @@
 /* eslint-disable */
 import videojs from 'video.js';
-import { version as VERSION } from './package.json';
+import p from 'package.json';
 import ConcreteButton from './ConcreteButton';
 import ConcreteMenuItem from './ConcreteMenuItem';
 import * as QUALITY_OPTIONS from 'constants/player';
+import { VJS_EVENTS } from 'constants/player';
+
+const { version: VERSION } = p;
 
 // Default options for the plugin.
 const defaults = {};
@@ -46,27 +49,42 @@ class HlsQualitySelectorPlugin {
 
     // Listen for source changes
     this.player.on('loadedmetadata', (e) => {
-      const { qualityToSet, switchedFromDefaultQuality, claimSrcVhs } = this.player;
+      const { claimSrcVhs } = this.player;
+
+      const initialQuality = this.createIOSQualityList() || this._initialQuality;
 
       // if there was a quality option selected to default to, set it using the setQuality function
       // as if it was being clicked on, on loadedmetadata
-      if (qualityToSet && !switchedFromDefaultQuality && claimSrcVhs) {
-        this.setQuality(this.player.qualityToSet);
+      if (initialQuality && !this._initialQualityHandled && claimSrcVhs) {
+        this.setQuality(initialQuality);
 
         // Add this attribute to the video player so later it can be checked and avoid switching again
         // Since this is only for initial load, based on the default quality setting
-        this.player.switchedFromDefaultQuality = true;
+        this._initialQualityHandled = true;
       }
       this.updatePlugin();
     });
   }
 
   updatePlugin() {
+    if (videojs.browser.IS_IOS && this.player.isLivestream) {
+      this._qualityButton.hide();
+      return;
+    }
+
     if (this.player.claimSrcVhs || this.player.isLivestream) {
       this._qualityButton.show();
     } else {
       this._qualityButton.hide();
     }
+  }
+
+  updateConfig() {
+    this.config = {
+      ...this.config,
+      defaultQuality: this.player.appState.defaultQuality,
+      originalVideoHeight: this.player.appState.originalVideoHeight,
+    };
   }
 
   /**
@@ -93,6 +111,8 @@ class HlsQualitySelectorPlugin {
    */
   bindPlayerEvents() {
     this.player.qualityLevels().on('addqualitylevel', this.onAddQualityLevel.bind(this));
+    this.player.on(VJS_EVENTS.SRC_CHANGED, this.updateConfig.bind(this));
+    this.player.on(VJS_EVENTS.PLAYER_CLOSED, this.playerClosed.bind(this));
   }
 
   /**
@@ -122,11 +142,13 @@ class HlsQualitySelectorPlugin {
   }
 
   resolveOriginalQualityLabel(abbreviatedForm, includeResolution) {
-    if (includeResolution && this.config.originalHeight) {
+    const { originalVideoHeight: videoHeight } = this.config;
+
+    if (includeResolution && videoHeight) {
       return abbreviatedForm
-        ? __('Orig (%quality%) --[Video quality popup. Short form.]--', { quality: this.config.originalHeight + 'p' })
+        ? __('Orig (%quality%) --[Video quality popup. Short form.]--', { quality: videoHeight + 'p' })
         : __('Original (%quality%) --[Video quality popup. Long form.]--', {
-            quality: this.config.originalHeight + 'p',
+            quality: videoHeight + 'p',
           });
     } else {
       // The allocated space for the button is fixed and happened to fit
@@ -170,6 +192,51 @@ class HlsQualitySelectorPlugin {
     const player = this.player;
 
     return new ConcreteMenuItem(player, item, this._qualityButton, this);
+  }
+
+  playerClosed() {
+    this._qualityButton.hide();
+    delete this._initialQuality;
+    delete this._initialQualityHandled;
+  }
+
+  createIOSQualityList() {
+    // iOS doesn't have MSE to support manual quality selection. But the
+    // native one sucks, so we provide "Auto" and "Original" so that users
+    // can at least try with full resolution. 'addqualitylevel' will never
+    // hit, so this change will be final.
+    if (!videojs.browser.IS_IOS || this.player.isLivestream) {
+      return null;
+    }
+
+    const player = this.player;
+    const { defaultQuality } = this.config;
+    const levelItems = [];
+
+    const selectOriginal = defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false;
+
+    levelItems.push(
+      this.getQualityMenuItem.call(this, {
+        label: this.resolveOriginalQualityLabel(false, false),
+        value: QUALITY_OPTIONS.ORIGINAL,
+        selected: false, // selectOriginal,
+      })
+    );
+
+    levelItems.push(
+      this.getQualityMenuItem.call(this, {
+        label: QUALITY_OPTIONS.AUTO,
+        value: QUALITY_OPTIONS.AUTO,
+        selected: false, // !selectOriginal,
+      })
+    );
+
+    if (this._qualityButton) {
+      this._qualityButton.createItems = () => levelItems;
+      this._qualityButton.update();
+    }
+
+    return selectOriginal ? QUALITY_OPTIONS.ORIGINAL : QUALITY_OPTIONS.AUTO;
   }
 
   /**
@@ -242,7 +309,7 @@ class HlsQualitySelectorPlugin {
           selected: defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false,
         })
       );
-      if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !player.switchedFromDefaultQuality) {
+      if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !this._initialQualityHandled) {
         this.swapSrcTo(QUALITY_OPTIONS.ORIGINAL);
       }
     }
@@ -256,7 +323,7 @@ class HlsQualitySelectorPlugin {
     );
 
     // initial button inner text based on default quality setting, or next lowest
-    if (!this.player.switchedFromDefaultQuality) {
+    if (!this._initialQualityHandled) {
       this.setButtonInnerText(
         nextLowestQualityItemObj ? nextLowestQualityItemObj.label : defaultQuality || QUALITY_OPTIONS.AUTO
       );
@@ -270,10 +337,12 @@ class HlsQualitySelectorPlugin {
     }
 
     if (defaultQuality) {
-      this.player.qualityToSet =
+      this._initialQuality =
         nextLowestQualityItemObj?.value ||
         (defaultQuality === QUALITY_OPTIONS.ORIGINAL && QUALITY_OPTIONS.ORIGINAL) ||
         QUALITY_OPTIONS.AUTO;
+    } else {
+      delete this._initialQuality;
     }
   }
 
@@ -298,26 +367,22 @@ class HlsQualitySelectorPlugin {
     });
     this.player.load();
 
-    console.assert(mode === 'vhs' || mode === QUALITY_OPTIONS.ORIGINAL, 'Unexpected input');
+    assert(mode === 'vhs' || mode === QUALITY_OPTIONS.ORIGINAL, 'Unexpected input');
   }
 
   /**
    * Sets quality (based on media height)
    *
    * @param {number} height - A number representing HLS playlist.
+   * @param {boolean} fromUser - true if the change is from the user (click), false if called internally.
    */
-  setQuality(height) {
-    const qualityList = this.player.qualityLevels();
-    const { initialQualityChange, setInitialQualityChange, doToast } = this.config;
-
-    if (!initialQualityChange) {
-      doToast({
-        message: __('You can also change your default quality on settings.'),
-        linkText: __('Settings'),
-        linkTarget: '/settings',
-      });
-      setInitialQualityChange(true);
+  setQuality(height, fromUser = false) {
+    if (this.setQualityIOS(height)) {
+      this.player.trigger(fromUser ? 'hlsQualitySelector:changed:user' : 'hlsQualitySelector:changed:internal');
+      return;
     }
+
+    const qualityList = this.player.qualityLevels();
 
     // Set quality on plugin
     this._currentQuality = height;
@@ -360,6 +425,40 @@ class HlsQualitySelectorPlugin {
     }
 
     this._qualityButton.unpressButton();
+    this.player.trigger(fromUser ? 'hlsQualitySelector:changed:user' : 'hlsQualitySelector:changed:internal');
+  }
+
+  /**
+   *
+   * @param height
+   * @returns {boolean} true if completely overridden and handled (no more action needed), false otherwise.
+   */
+  setQualityIOS(height) {
+    if (!videojs.browser.IS_IOS || this.player.isLivestream) {
+      return false;
+    }
+
+    assert(height === QUALITY_OPTIONS.AUTO || height === QUALITY_OPTIONS.ORIGINAL);
+
+    this._currentQuality = height;
+
+    if (this.config.displayCurrentQuality) {
+      this.setButtonInnerText(height === QUALITY_OPTIONS.ORIGINAL ? QUALITY_OPTIONS.ORIGINAL : QUALITY_OPTIONS.AUTO);
+    }
+
+    if (height === QUALITY_OPTIONS.ORIGINAL) {
+      if (this.player.currentSrc() !== this.player.claimSrcOriginal.src) {
+        console.log('swaping to original');
+        setTimeout(() => this.swapSrcTo(QUALITY_OPTIONS.ORIGINAL));
+      }
+    } else {
+      if (!this.player.isLivestream && this.player.currentSrc() !== this.player.claimSrcVhs.src) {
+        setTimeout(() => this.swapSrcTo('vhs'));
+      }
+    }
+
+    this._qualityButton.unpressButton();
+    return true;
   }
 
   /**
@@ -399,11 +498,17 @@ const onPlayerReady = (player, options) => {
  * depending on how the plugin is invoked. This may or may not be important
  * to you; if not, remove the wait for "ready"!
  *
+ * ====================================
+ * --Spewed events--
+ *   "hlsQualitySelector:changed:internal" - Selection changed from internal event, e.g. new video loaded.
+ *   "hlsQualitySelector:changed:user"     - Selection changed by the user.
+ * ====================================
+ *
  * @function hlsQualitySelector
  * @param    {Object} [options={}]
  *           An object of options left to the plugin author to define.
  */
-const hlsQualitySelector = function (options) {
+const hlsQualitySelector = function (options: HlsQualitySelectorOptions) {
   this.ready(() => {
     onPlayerReady(this, videojs.mergeOptions(defaults, options));
   });

@@ -16,6 +16,8 @@ import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
 
+const FALLBACK = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
+
 type Props = {
   uri?: string,
   tileLayout?: boolean,
@@ -25,11 +27,13 @@ type Props = {
   claim: ?StreamClaim,
   className?: string,
   small?: boolean,
-  forcePlaceholder?: boolean,
+  // forcePlaceholder?: boolean,
+  forceReload?: boolean,
   // -- redux --
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
-  doResolveUri: (uri: string) => void,
+  thumbnailFromSecondaryClaim: ?string,
+  // doResolveUri: (uri: string) => void,
 };
 
 function FileThumbnail(props: Props) {
@@ -41,24 +45,24 @@ function FileThumbnail(props: Props) {
     allowGifs = false,
     className,
     small,
-    forcePlaceholder,
+    // forcePlaceholder,
+    forceReload,
     // -- redux --
     hasResolvedClaim,
     thumbnailFromClaim,
-    doResolveUri,
+    thumbnailFromSecondaryClaim,
+    // doResolveUri,
   } = props;
 
   const isMobile = useIsMobile();
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
-  const thumbnail = passedThumbnail || thumbnailFromClaim;
-  const isGif = thumbnail && thumbnail.endsWith('gif');
+  const thumbnail =
+    passedThumbnail ||
+    (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
 
-  React.useEffect(() => {
-    if (hasResolvedClaim === false && uri && !passedThumbnail) {
-      doResolveUri(uri);
-    }
-  }, [hasResolvedClaim, passedThumbnail, doResolveUri, uri]);
+  const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
+  const isGif = thumbnail && thumbnail.endsWith('gif');
 
   if (!allowGifs && isGif) {
     const url = getImageProxyUrl(thumbnail);
@@ -80,9 +84,7 @@ function FileThumbnail(props: Props) {
     );
   }
 
-  const fallback = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
-
-  let url = thumbnail || (hasResolvedClaim ? MISSING_THUMB_DEFAULT : '');
+  let url = thumbnail;
   // Pass image urls through a compression proxy
   if (thumbnail) {
     if (isGif) {
@@ -97,11 +99,17 @@ function FileThumbnail(props: Props) {
     }
   }
 
-  const thumbnailUrl = url ? url.replace(/'/g, "\\'") : '';
+  const thumbnailUrl = url && url.replace(/'/g, "\\'");
 
-  if (hasResolvedClaim || thumbnailUrl || (forcePlaceholder && !uri)) {
+  if (!gettingThumbnail && thumbnailUrl !== undefined) {
     return (
-      <Thumb small={small} thumb={thumbnailUrl || MISSING_THUMB_DEFAULT} fallback={fallback} className={className}>
+      <Thumb
+        small={small}
+        thumb={thumbnailUrl || MISSING_THUMB_DEFAULT}
+        fallback={FALLBACK}
+        className={className}
+        forceReload={forceReload}
+      >
         <PreviewOverlayProtectedContent uri={uri} />
         {children}
       </Thumb>

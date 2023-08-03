@@ -5,7 +5,8 @@ const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 
 // see https://spec.lbry.com/#urls
-export const regexInvalidURI = /[ =&#:$@%?;/\\\n"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
+export const regexInvalidURI =
+  /[ =&#:$@%?;/\\\n"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/u;
 export const regexAddress = /^(b|r)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$/;
 const regexPartProtocol = '^((?:lbry://)?)';
 const regexPartStreamOrChannelName = '([^:$#/]*)';
@@ -170,6 +171,7 @@ function parseURIModifier(modSeperator: ?string, modValue: ?string) {
       // validate the new claimId length and characters again after stripping off the pathHash
       [claimId] = parseURIModifier(modSeperator, claimId);
     } else {
+      console.log({ modSeperator, modValue, src: window?.location?.href }); // eslint-disable-line no-console
       throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
     }
   }
@@ -190,7 +192,7 @@ const errorHistory = [];
 function logErrorOnce(err: string) {
   if (!errorHistory.includes(err)) {
     errorHistory.push(err);
-    console.error(err);
+    console.error(err); // eslint-disable-line no-console
   }
 }
 
@@ -198,8 +200,19 @@ function logErrorOnce(err: string) {
  * Takes an object in the same format returned by parse() and builds a URI.
  *
  * The channelName key will accept names with or without the @ prefix.
+ *
+ * @param UrlObj
+ * @param suppressErrors If used in a try-catch or IsURIValid is used to validate the output, set to TRUE to suppress development error; asserts on valid input otherwise.
+ * @param includeProto
+ * @param protoDefault
+ * @returns {string}
  */
-export function buildURI(UrlObj: LbryUrlObj, includeProto: boolean = true, protoDefault: string = 'lbry://'): string {
+export function buildURI(
+  UrlObj: LbryUrlObj,
+  suppressErrors: boolean = false,
+  includeProto: boolean = true,
+  protoDefault: string = 'lbry://'
+): string {
   const {
     streamName,
     streamClaimId,
@@ -214,22 +227,28 @@ export function buildURI(UrlObj: LbryUrlObj, includeProto: boolean = true, proto
   } = UrlObj;
   const { claimId, claimName, contentName } = deprecatedParts;
 
-  // @ifndef IGNORE_BUILD_URI_WARNINGS
-  if (!isProduction) {
-    if (claimId) {
-      logErrorOnce("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead");
+  if (!suppressErrors) {
+    // @ifndef IGNORE_BUILD_URI_WARNINGS
+    if (!isProduction) {
+      if (claimId) {
+        logErrorOnce("'claimId' should no longer be used. Use 'streamClaimId' or 'channelClaimId' instead");
+      }
+      if (claimName) {
+        logErrorOnce("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead");
+      }
+      if (contentName) {
+        logErrorOnce("'contentName' should no longer be used. Use 'streamName' instead");
+      }
     }
-    if (claimName) {
-      logErrorOnce("'claimName' should no longer be used. Use 'streamClaimName' or 'channelClaimName' instead");
-    }
-    if (contentName) {
-      logErrorOnce("'contentName' should no longer be used. Use 'streamName' instead");
-    }
-  }
-  // @endif
+    // @endif
 
-  if (!claimName && !channelName && !streamName) {
-    console.error("'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.");
+    if (!claimName && !channelName && !streamName) {
+      assert(
+        false,
+        "'claimName', 'channelName', and 'streamName' are all empty. One must be present to build a url.",
+        UrlObj
+      );
+    }
   }
 
   const formattedChannelName = channelName && (channelName.startsWith('@') ? channelName : `@${channelName}`);
@@ -328,11 +347,14 @@ export function convertToShareLink(URL: string) {
       secondaryBidPosition,
       secondaryClaimSequence,
     },
+    false,
     true,
     'https://open.lbry.com/'
   );
 }
 
+// WARNING: do not use this to parse a permanent URI. '*' is a valid character.
+// Function retained here just in case.
 export function splitBySeparator(uri: string) {
   const protocolLength = 7;
   return uri.startsWith('lbry://') ? uri.slice(protocolLength).split(/[#:*]/) : uri.split(/#:\*\$/);
@@ -347,4 +369,8 @@ export function isURIEqual(uriA: string, uriB: string) {
 export function sanitizeName(name: string) {
   const INVALID_URI_CHARS = new RegExp(regexInvalidURI, 'gu');
   return name.replace(INVALID_URI_CHARS, '-');
+}
+
+export function getOldFormatForLbryUri(uri: string) {
+  return uri.replace(/:/g, '#').replace('#', ':');
 }

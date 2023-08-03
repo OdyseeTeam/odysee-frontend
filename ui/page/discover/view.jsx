@@ -11,11 +11,10 @@ import Button from 'component/button';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
-// import Ads from 'web/component/ads';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
-import LivestreamSection from './livestreamSection';
+import LivestreamSection from './internal/livestreamSection';
 import { tagSearchCsOptionsHook } from 'util/search';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
@@ -26,8 +25,6 @@ type Props = {
   followedTags: Array<Tag>,
   repostedUri: string,
   repostedClaim: ?GenericClaim,
-  languageSetting: string,
-  searchInLanguage: boolean,
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   tileLayout: boolean,
@@ -40,17 +37,14 @@ function DiscoverPage(props: Props) {
     location: { search },
     repostedClaim,
     repostedUri,
-    languageSetting,
-    searchInLanguage,
     doResolveUri,
     tileLayout,
-    activeLivestreams,
-    doFetchActiveLivestreams,
     dynamicRouteProps,
   } = props;
 
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
   const isCategory = Boolean(dynamicRouteProps);
+  const hideFilter = dynamicRouteProps?.hideSort || undefined;
 
   const urlParams = new URLSearchParams(search);
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
@@ -65,7 +59,8 @@ function DiscoverPage(props: Props) {
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
   const tag = (tags && tags[0]) || null;
-  const channelIds = dynamicRouteProps?.options?.channelIds || undefined;
+  const routedChannelIds = dynamicRouteProps?.options?.channelIds;
+  const channelIds = routedChannelIds && routedChannelIds.length > 0 ? routedChannelIds : undefined;
   const excludedChannelIds = dynamicRouteProps?.options?.excludedChannelIds || undefined;
 
   const claimSearchFilters = {
@@ -81,6 +76,8 @@ function DiscoverPage(props: Props) {
       return (
         <a
           className="help"
+          target="_blank"
+          rel="noreferrer"
           href="https://help.odysee.tv/category-blockchain/category-staking/increase/"
           title={__('Learn more about Credits on %DOMAIN%', { DOMAIN })}
         >
@@ -94,17 +91,13 @@ function DiscoverPage(props: Props) {
 
   function getSubSection() {
     const includeLivestreams = !tagsQuery;
-    if (includeLivestreams) {
+    if (includeLivestreams && (isWildWest || (channelIds && channelIds.length > 0))) {
       return (
         <LivestreamSection
           tileLayout={repostedUri ? false : tileLayout}
           channelIds={channelIds}
           excludedChannelIds={excludedChannelIds}
-          activeLivestreams={activeLivestreams}
-          doFetchActiveLivestreams={doFetchActiveLivestreams}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
-          languageSetting={languageSetting}
-          searchInLanguage={searchInLanguage}
           langParam={langParam}
           hideMembersOnlyContent={hideMembersOnlyContent}
         />
@@ -129,53 +122,41 @@ function DiscoverPage(props: Props) {
       headerLabel = __('Reposts of %uri%', { uri: repostedUri });
     } else if (tag && !isCategory) {
       headerLabel = (
-        <span>
+        <h1 className="page__title">
           <Icon icon={ICONS.TAG} size={10} />
-          {(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          <span>
+            #{(tag === CS.TAGS_ALL && __('All Content')) || (tag === CS.TAGS_FOLLOWED && __('Followed Tags')) || tag}
+          </span>
 
-          <Button
-            className="claim-search__tags-link"
-            button="link"
-            label={__('Manage Tags')}
-            navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
-          />
-        </span>
+          <span>
+            <Button
+              className="claim-search__tags-link"
+              button="link"
+              label={__('Manage Tags')}
+              navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
+            />
+          </span>
+        </h1>
       );
     } else {
       headerLabel = (
-        <span>
-          <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
-          {(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}
-        </span>
+        <>
+          <h1 className="page__title">
+            <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
+            <label>{(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}</label>
+          </h1>
+        </>
       );
     }
     return headerLabel;
   }
-
-  /*
-  function getAds() {
-    return (
-      !isWildWest &&
-      !hasPremiumPlus && {
-        node: (index, lastVisibleIndex, pageSize) => {
-          if (pageSize && index < pageSize) {
-            return index === lastVisibleIndex ? <Ads small type="video" tileLayout={tileLayout} /> : null;
-          } else {
-            return index % (pageSize * 2) === 0 ? <Ads small type="video" tileLayout={tileLayout} /> : null;
-          }
-        },
-      }
-    );
-  }
-  */
 
   function getDefaultOrderBy() {
     // We were passing undefined to 'ClaimListDiscover::defaultOrderBy', so we
     // don't know what the fallback actually is for our remaining logic (i.e.
     // getReleaseTime()) to work correctly.
     // Make it explicit here rather than depending on the component's default.
-
-    return isWildWest || tags ? CS.ORDER_BY_TRENDING : CS.ORDER_BY_TOP;
+    return isWildWest || tags ? CS.ORDER_BY_TRENDING : dynamicRouteProps?.options?.orderBy || CS.ORDER_BY_TOP;
   }
 
   function getReleaseTime() {
@@ -210,15 +191,11 @@ function DiscoverPage(props: Props) {
   // **************************************************************************
 
   return (
-    <Page
-      noFooter
-      fullWidthPage={tileLayout}
-      className={classnames('main__discover', { 'hide-ribbon': hideRepostRibbon })}
-    >
+    <Page noFooter fullWidthPage={tileLayout} className={classnames({ 'hide-ribbon': hideRepostRibbon })}>
       <ClaimSearchFilterContext.Provider value={claimSearchFilters}>
         <ClaimListDiscover
           pins={getPins(dynamicRouteProps)}
-          hideFilters={isWildWest ? true : undefined}
+          hideFilters={isWildWest ? true : hideFilter}
           header={repostedUri ? <span /> : undefined}
           subSection={getSubSection()}
           tileLayout={repostedUri ? false : tileLayout}
@@ -230,12 +207,6 @@ function DiscoverPage(props: Props) {
           tags={tags}
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
           repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-          // injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
-          // Assume wild west page if no dynamicRouteProps
-          // Not a very good solution, but just doing it for now
-          // until we are sure this page will stay around
-          // TODO: find a better way to determine discover / wild west vs other modes release times
-          // for now including && !tags so that
           releaseTime={getReleaseTime()}
           feeAmount={undefined}
           channelIds={channelIds}

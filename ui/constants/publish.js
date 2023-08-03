@@ -6,3 +6,10 @@ export const PAYWALL = Object.freeze({
   FIAT: 'fiat',
   SDK: 'sdk',
 });
+
+export const NO_FILE = '---';
+
+export const BITRATE = Object.freeze({
+  RECOMMENDED: 9500000,
+  MAX: 19500000,
+});

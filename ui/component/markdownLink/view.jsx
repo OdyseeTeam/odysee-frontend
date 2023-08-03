@@ -129,7 +129,6 @@ function MarkdownLink(props: Props) {
           </MenuButton>
 
           <CommentMenuList
-            authorName={children}
             uri={lbryUrlFromLink || decodedUri}
             authorUri={lbryUrlFromLink || decodedUri}
             commentIsMine={isMe(activeChannelClaim && activeChannelClaim.short_url, lbryUrlFromLink || decodedUri)}

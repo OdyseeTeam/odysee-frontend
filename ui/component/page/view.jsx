@@ -3,7 +3,7 @@ import { lazyImport } from 'util/lazyImport';
 import { MAIN_CLASS } from 'constants/classnames';
 import { parseURI } from 'util/lbryURI';
 import { useHistory } from 'react-router';
-import { useIsMobile, useIsMediumScreen, useIsMobileLandscape } from 'effects/use-screensize';
+import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import classnames from 'classnames';
 import Header from 'component/header';
 import React from 'react';
@@ -25,7 +25,6 @@ type Props = {
     title: string,
     simpleTitle: string, // Just use the same value as `title` if `title` is already short (~< 10 chars), unless you have a better idea for title overlfow on mobile
   },
-  chatDisabled: boolean,
   children: Node | Array<Node>,
   className: ?string,
   filePage: boolean,
@@ -35,7 +34,6 @@ type Props = {
   noFooter: boolean,
   noHeader: boolean,
   noSideNavigation: boolean,
-  rightSide?: Node,
   settingsPage?: boolean,
   renderMode: String,
   videoTheaterMode: boolean,
@@ -47,7 +45,6 @@ function Page(props: Props) {
     authPage = false,
     authRedirect,
     backout,
-    chatDisabled,
     children,
     className,
     filePage = false,
@@ -57,7 +54,6 @@ function Page(props: Props) {
     noFooter = false,
     noHeader = false,
     noSideNavigation = false,
-    rightSide,
     settingsPage,
     renderMode,
     videoTheaterMode,
@@ -72,8 +68,9 @@ function Page(props: Props) {
     renderMode === 'video' || renderMode === 'audio' || renderMode === 'unsupported' ? videoTheaterMode : false;
   const isMediumScreen = useIsMediumScreen();
   const isMobile = useIsMobile();
-  const isLandscapeRotated = useIsMobileLandscape();
+
   const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', false);
+  const openSidebar = React.useCallback((open) => setSidebarOpen(open), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const urlPath = `lbry://${(pathname + hash).slice(1).replace(/:/g, '#')}`;
   let isOnFilePage = false;
@@ -102,7 +99,7 @@ function Page(props: Props) {
           backout={backout}
           sidebarOpen={sidebarOpen}
           isAbsoluteSideNavHidden={isAbsoluteSideNavHidden}
-          setSidebarOpen={setSidebarOpen}
+          setSidebarOpen={openSidebar}
         />
       )}
 
@@ -121,7 +118,7 @@ function Page(props: Props) {
             !noSideNavigation && (
               <SideNavigation
                 sidebarOpen={sidebarOpen}
-                setSidebarOpen={setSidebarOpen}
+                setSidebarOpen={openSidebar}
                 isMediumScreen={isMediumScreen}
                 isOnFilePage={isOnFilePage}
               />
@@ -145,14 +142,12 @@ function Page(props: Props) {
               'main--settings-page': settingsPage,
               'main--markdown': isMarkdown,
               'main--theater-mode': isOnFilePage && theaterMode && !livestream && !isMarkdown && !isMobile,
-              'main--livestream': livestream && !chatDisabled && !theaterMode,
-              'main--livestream--theater-mode': livestream && !chatDisabled && theaterMode,
+              // 'main--livestream': livestream && !theaterMode,
+              'main--livestream--theater-mode': livestream,
               'main--popout-chat': isPopoutWindow,
             })}
           >
             {children}
-
-            {(!isMobile || isLandscapeRotated) && (!livestream || !chatDisabled) && rightSide}
           </main>
 
           {!noFooter && (

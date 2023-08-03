@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { doSignOut } from 'redux/actions/app';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { selectUser, selectUserEmail, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doSetClientSetting } from 'redux/actions/settings';
@@ -14,7 +13,6 @@ const select = (state) => ({
   automaticDarkModeEnabled: selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED),
 
   user: selectUser(state),
-  myChannelClaimIds: selectMyChannelClaimIds(state),
   activeChannelClaim: selectActiveChannelClaim(state),
   authenticated: selectUserVerifiedEmail(state),
   email: selectUserEmail(state),

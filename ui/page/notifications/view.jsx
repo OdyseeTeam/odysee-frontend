@@ -1,4 +1,5 @@
 // @flow
+import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import Page from 'component/page';
@@ -11,7 +12,6 @@ import Yrbl from 'component/yrbl';
 import * as NOTIFICATIONS from 'constants/notifications';
 import useFetched from 'effects/use-fetched';
 import { RULE } from 'constants/notifications';
-// import BrowserNotificationBanner from '$web/component/browserNotificationBanner';
 
 type Props = {
   notifications: Array<Notification>,
@@ -116,7 +116,10 @@ export default function NotificationsPage(props: Props) {
     <Page className="notification-page">
       {ready && (
         <div className="claim-list__header">
-          <h1 className="card__title">{__('Notifications')}</h1>
+          <h1 className="page__title">
+            <Icon icon={ICONS.NOTIFICATION} />
+            <label>{__('Notifications')}</label>
+          </h1>
           <div className="claim-list__alt-controls--wrap">
             {fetching && <Spinner type="small" delayed />}
 

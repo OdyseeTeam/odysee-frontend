@@ -7,7 +7,9 @@ import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COLLECTION_PAGE } from 'constants/urlParams';
 import { isChannelClaim } from 'util/claim';
+import { isClaimAllowedForCollection } from 'util/collections';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { getChannelSubCountStr } from 'util/formatMediaDuration';
@@ -39,6 +41,7 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
+import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 
 const AbandonedChannelPreview = lazyImport(() =>
@@ -87,7 +90,6 @@ type Props = {
   hideMenu?: boolean,
   isLivestream?: boolean,
   isLivestreamActive: boolean,
-  livestreamViewerCount: ?number,
   collectionId?: string,
   isCollectionMine: boolean,
   disableNavigation?: boolean, // DEPRECATED - use 'nonClickable'. Remove this when channel-finder is consolidated (#810)
@@ -95,9 +97,9 @@ type Props = {
   date?: any,
   indexInContainer?: number, // The index order of this component within 'containerId'.
   channelSubCount?: number,
-  swipeLayout: boolean,
   lang: string,
   showEdit?: boolean,
+  isEditPreview?: boolean,
   dragHandleProps?: any,
   unavailableUris?: Array<string>,
   inWatchHistory?: boolean,
@@ -105,9 +107,11 @@ type Props = {
   showIndexes?: boolean,
   playItemsOnClick?: boolean,
   disableClickNavigation?: boolean,
+  firstCollectionItemUrl: ?string,
   doClearContentHistoryUri: (uri: string) => void,
-  doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
+  doPlayNextUri: (params: { uri: string }) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
+  thumbnailFromClaim: string,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -163,15 +167,14 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     // repostUrl,
     isLivestream,
     isLivestreamActive,
-    livestreamViewerCount,
     collectionId,
     isCollectionMine,
     disableNavigation,
     indexInContainer,
     channelSubCount,
-    swipeLayout = false,
     lang,
     showEdit,
+    isEditPreview,
     dragHandleProps,
     unavailableUris,
     inWatchHistory,
@@ -179,10 +182,14 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     showIndexes,
     playItemsOnClick,
     disableClickNavigation,
+    firstCollectionItemUrl,
     doClearContentHistoryUri,
-    doUriInitiatePlay,
+    doPlayNextUri,
     doDisablePlayerDrag,
+    thumbnailFromClaim,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
 
   const isMobile = useIsMobile();
 
@@ -190,8 +197,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     location: { pathname, search },
   } = history;
 
+  const urlParams = new URLSearchParams(search);
   const playlistPreviewItem = unavailableUris !== undefined || showIndexes;
   const isCollection = claim && claim.value_type === 'collection';
+  const isCollectionOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const listId = collectionId || collectionClaimId;
   const WrapperElement = wrapperElement || 'li';
@@ -200,6 +209,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const abandoned = !isResolvingUri && !claim;
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
+
+  const backgroundImage = thumbnailFromClaim
+    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    : undefined;
 
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const channelSubscribers = React.useMemo(() => {
@@ -217,18 +230,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
         </Tooltip>
       </div>
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [channelSubCount]);
-  const isValid = uri && isURIValid(uri, false);
 
-  // $FlowFixMe
-  const isPlayable =
-    claim &&
-    // $FlowFixMe
-    claim.value &&
-    // $FlowFixMe
-    claim.value.stream_type &&
-    // $FlowFixMe
-    (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
+  // $FlowFixMe: claims not typed right
+  const showCollectionContext = isClaimAllowedForCollection(claim);
   const isChannelUri = isChannelClaim(claim, uri);
   const signingChannel = claim && claim.signing_channel;
   const repostedChannelUri =
@@ -264,16 +270,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   const handleNavLinkClick = (e) => {
     if (playItemsOnClick && claim) {
-      doUriInitiatePlay(
-        {
-          uri: claim?.canonical_url || uri,
-          collection: { collectionId },
-          source: collectionId === 'queue' ? collectionId : undefined,
-        },
-        true,
-        disableClickNavigation
-      );
+      doPlayNextUri({ uri: claim?.canonical_url || uri });
     }
+
     if (onClick) {
       onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
     }
@@ -286,7 +285,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       search: disableClickNavigation ? search : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
     },
     onClick: handleNavLinkClick,
-    onAuxClick: handleNavLinkClick,
+    // if items play on click, don't play on auxClick
+    onAuxClick: playItemsOnClick ? undefined : handleNavLinkClick,
   };
 
   let shouldHide =
@@ -329,23 +329,15 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       onClick(e, claim, indexInContainer);
     }
 
-    if (claim && !pending && !disableNavigation && !disableClickNavigation) {
+    if (playItemsOnClick && claim) {
+      return doPlayNextUri({ uri: claim?.canonical_url || uri });
+    }
+
+    if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {
       history.push({
         pathname: navigateUrl,
         search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
       });
-    }
-
-    if (playItemsOnClick && claim) {
-      doUriInitiatePlay(
-        {
-          uri: claim?.canonical_url || uri,
-          collection: { collectionId },
-          source: collectionId === 'queue' ? collectionId : undefined,
-        },
-        true,
-        disableClickNavigation
-      );
     }
   }
 
@@ -355,10 +347,12 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   }
 
   useEffect(() => {
-    if (isValid && !isResolvingUri && shouldFetch && uri) {
-      resolveUri(uri);
+    if (!isResolvingUri && shouldFetch && uri) {
+      if (isURIValid(uri, false)) {
+        resolveUri(uri);
+      }
     }
-  }, [isValid, uri, isResolvingUri, shouldFetch, resolveUri]);
+  }, [uri, isResolvingUri, shouldFetch, resolveUri]);
 
   const JoinButton = React.useMemo(
     () => () =>
@@ -380,11 +374,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null;
   }
 
-  if (geoRestriction && !claimIsMine) {
+  if (claim && geoRestriction && !claimIsMine) {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  if (placeholder === 'loading' || (uri && !claim && isResolvingUri)) {
+  if (placeholder === 'loading' || (uri && claim === undefined)) {
     return (
       <ClaimPreviewLoading
         isChannel={isChannelUri}
@@ -433,35 +427,33 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null; // Ignore 'showNullPlaceholder'
   }
 
-  let liveProperty = null;
-  if (isLivestreamActive === true) {
-    if (livestreamViewerCount) {
-      liveProperty = (claim) => (
-        <span className="livestream__viewer-count">
-          {livestreamViewerCount} <Icon icon={ICONS.EYE} />
-        </span>
-      );
-    } else {
-      liveProperty = (claim) => <>LIVE</>;
-    }
-  }
-
   return (
     <WrapperElement
       ref={ref}
       role="link"
       onClick={pending || type === 'inline' ? undefined : handleOnClick}
       className={classnames('claim-preview__wrapper', {
+        'claim-preview__wrapper--row': !type,
         'claim-preview__wrapper--channel': isChannelUri && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
-        'claim-preview__wrapper--small': type === 'small',
-        'claim-preview__live': isLivestreamActive,
-        'claim-preview__active': active,
+        'claim-preview__wrapper--recommendation': type === 'small',
+        'claim-preview__wrapper--playlist-row': type === 'small' && collectionId,
+        'claim-preview__wrapper--live': isLivestreamActive,
+        'claim-preview__wrapper--active': active,
         'non-clickable': nonClickable,
       })}
     >
       <>
-        {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
+        {!type && (
+          <div
+            className="claim-preview__background"
+            style={
+              backgroundImage && {
+                backgroundImage: 'url(' + backgroundImage + ')',
+              }
+            }
+          />
+        )}
 
         <div
           className={classnames('claim-preview', {
@@ -473,55 +465,60 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'claim-preview--visited': !isChannelUri && !claimIsMine && hasVisitedUri,
             'claim-preview--pending': pending,
             'claim-preview--collection-editing': isMyCollection && showEdit,
-            'swipe-list__item': swipeLayout,
           })}
         >
+          {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
           {showIndexes && (
             <span className="card__subtitle card__subtitle--small-no-margin claim-preview__list-index">
               {indexInContainer + 1}
             </span>
           )}
 
-          {isMyCollection && showEdit && (
+          {isMyCollection && showEdit && !isCollectionOnPublicView && (
             <CollectionEditButtons
               uri={uri}
               collectionId={listId}
+              isEditPreview={isEditPreview}
               dragHandleProps={dragHandleProps}
               doDisablePlayerDrag={doDisablePlayerDrag}
             />
           )}
 
           {isChannelUri && claim ? (
-            <UriIndicator focusable={false} uri={uri} link>
+            <UriIndicator focusable={false} uri={uri} link external={isEmbed}>
               <ChannelThumbnail uri={uri} small={type === 'inline'} checkMembership={false} />
             </UriIndicator>
           ) : (
             <>
               {!pending ? (
-                <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
-                  <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail} uri={uri}>
-                    {isPlayable && !smallThumbnail && (
+                <NavLink aria-hidden tabIndex={-1} {...navLinkProps} target={isEmbed && '_blank'}>
+                  <FileThumbnail
+                    thumbnail={thumbnailUrl}
+                    small={smallThumbnail}
+                    uri={uri}
+                    secondaryUri={firstCollectionItemUrl}
+                  >
+                    {showCollectionContext && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
                         <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
                         <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
                       </div>
                     )}
-                    {(!isLivestream || isLivestreamActive) && (
-                      <div className="claim-preview__file-property-overlay">
-                        <PreviewOverlayProperties
-                          uri={uri}
-                          small={type === 'small'}
-                          xsmall={smallThumbnail}
-                          properties={liveProperty}
-                        />
-                      </div>
-                    )}
+                    <div className="claim-preview__file-property-overlay">
+                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} />
+                    </div>
                     {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
                     <ClaimPreviewProgress uri={uri} />
                   </FileThumbnail>
                 </NavLink>
               ) : (
-                <FileThumbnail thumbnail={thumbnailUrl} uri={uri} />
+                <>
+                  <FileThumbnail thumbnail={thumbnailUrl} uri={uri}>
+                    <div className="claim-preview__file-property-overlay">
+                      <PreviewOverlayProperties uri={uri} small={type === 'small'} xsmall={smallThumbnail} pending />
+                    </div>
+                  </FileThumbnail>
+                </>
               )}
             </>
           )}
@@ -532,61 +529,72 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {pending ? (
                   <ClaimPreviewTitle uri={uri} />
                 ) : (
-                  <NavLink aria-label={ariaLabelData} aria-current={active ? 'page' : null} {...navLinkProps}>
+                  <NavLink
+                    aria-label={ariaLabelData}
+                    aria-current={active ? 'page' : null}
+                    {...navLinkProps}
+                    target={isEmbed && '_blank'}
+                  >
                     <ClaimPreviewTitle uri={uri} />
                   </NavLink>
                 )}
+                {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
               </div>
-              <div className="claim-tile__info" uri={uri}>
+              <div className="claim-tile__info">
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
-                    <UriIndicator focusable={false} uri={uri} link hideAnonymous>
+                    <UriIndicator focusable={false} uri={uri} link hideAnonymous external={isEmbed}>
                       <ChannelThumbnail uri={signingChannel.permanent_url} xsmall checkMembership={false} />
                     </UriIndicator>
                   </div>
                 )}
                 <ClaimPreviewSubtitle uri={uri} type={type} showAtSign={isChannelUri} />
-                {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
                 {channelSubscribers}
-              </div>
-            </div>
-            {type !== 'small' && (
-              <div className="claim-preview__actions">
-                {type && <JoinButton />}
 
+                {type !== 'small' && (
+                  <>
+                    <div className="claim-preview__tags">
+                      {claim && (
+                        <React.Fragment>
+                          {typeof properties === 'function'
+                            ? properties(claim)
+                            : properties !== undefined
+                            ? properties
+                            : !isMobile && <ClaimTags uri={uri} type={type} />}
+                        </React.Fragment>
+                      )}
+                    </div>
+                    {isChannelUri && renderActions && claim && renderActions(claim)}
+                  </>
+                )}
+              </div>
+              {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
+
+              {!type && (
+                <div className="description__wrapper">
+                  <div className="description">{claim?.value?.description || __('No description available.')}</div>
+                </div>
+              )}
+            </div>
+
+            {type !== 'small' && (!pending || !type) && isChannelUri && (
+              <div className="claim-preview__actions">
+                {!hideJoin && <JoinButton />}
                 {!pending && (
                   <>
-                    {renderActions && claim && renderActions(claim)}
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (
                       actions
                     ) : (
                       <>
-                        <div className="claim-preview__primary-actions">
-                          {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                            <>
-                              <SubscribeButton
-                                uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                              />
-                            </>
-                          )}
-
-                          {includeSupportAction && <ClaimSupportButton uri={uri} />}
-                        </div>
+                        {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                          <SubscribeButton
+                            uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                          />
+                        )}
+                        {includeSupportAction && type && <ClaimSupportButton uri={uri} />}
                       </>
                     )}
                   </>
-                )}
-
-                {!type && <JoinButton />}
-
-                {claim && (
-                  <React.Fragment>
-                    {typeof properties === 'function'
-                      ? properties(claim)
-                      : properties !== undefined
-                      ? properties
-                      : !isMobile && <ClaimTags uri={uri} type={type} />}
-                  </React.Fragment>
                 )}
               </div>
             )}

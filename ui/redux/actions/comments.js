@@ -26,6 +26,7 @@ import {
   selectMyCommentedChannelIdsForId,
   selectLivestreamChatMembersOnlyForChannelId,
   selectMembersOnlyCommentsForChannelId,
+  selectSettingsForChannelId,
 } from 'redux/selectors/comments';
 import { makeSelectNotificationForCommentId } from 'redux/selectors/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -83,7 +84,7 @@ export function doCommentList(
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
       }
 
-      channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
+      channelSignature = await ChannelSign.sign(myChannelClaim.claim_id, myChannelClaim.name, true);
       if (!channelSignature) {
         console.error('Failed to sign channel name.'); // eslint-disable-line
         return;
@@ -123,7 +124,6 @@ export function doCommentList(
               totalFilteredItems: total_filtered_items,
               totalPages: total_pages,
               claimId,
-              creatorClaimId,
               uri,
             },
           });
@@ -143,17 +143,9 @@ export function doCommentList(
 
         switch (message) {
           case 'comments are disabled by the creator':
-            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { creatorClaimId, disabled: true } });
+            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
           case 'channel does not have permissions to comment on this claim':
-            return dispatch({
-              type: ACTIONS.COMMENT_LIST_COMPLETED,
-              data: {
-                creatorClaimId,
-                disabled: true,
-                restrictedToMembersOnly: true,
-                claimId,
-              },
-            });
+            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { disabled: true } });
           case FETCH_API_FAILED_TO_FETCH:
             dispatch(doToast({ isError: true, message: __('Failed to fetch comments.') }));
             return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
@@ -171,6 +163,8 @@ export function doCommentListOwn(
   pageSize: number = 10,
   sortBy: number = SORT_BY.NEWEST_NO_PINS
 ) {
+  assert(pageSize <= 50, `claim_search can't resolve > 50 (pageSize=${pageSize})`);
+
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const myChannelClaims = selectMyChannelClaims(state);
@@ -185,15 +179,11 @@ export function doCommentListOwn(
       return;
     }
 
-    const channelSignature = await channelSignName(channelClaim.claim_id, channelClaim.name);
+    const channelSignature = await ChannelSign.sign(channelClaim.claim_id, channelClaim.name, true);
     if (!channelSignature) {
       console.error('Failed to sign channel name.'); // eslint-disable-line
       return;
     }
-
-    // @if process.env.NODE_ENV!='production'
-    console.assert(pageSize <= 50, `claim_search can't resolve > 50 (pageSize=${pageSize})`);
-    // @endif
 
     dispatch({
       type: ACTIONS.COMMENT_LIST_STARTED,
@@ -318,7 +308,7 @@ export function doFetchMyCommentedChannels(claimId: ?string) {
       return;
     }
 
-    return Promise.all(myChannelClaims.map((x) => channelSignName(x.claim_id, x.name))).then((signatures) => {
+    return Promise.all(myChannelClaims.map((x) => ChannelSign.sign(x.claim_id, x.name, true))).then((signatures) => {
       const params = [];
       const commentedChannelIds = [];
 
@@ -357,7 +347,7 @@ export function doFetchMyCommentedChannels(claimId: ?string) {
           });
         })
         .catch((err) => {
-          console.log({ err });
+          assert(false, 'doFetchMyCommentedChannels failed', err);
         });
     });
   };
@@ -407,7 +397,7 @@ export function doHyperChatList(uri: string) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
       }
 
-      channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
+      channelSignature = await ChannelSign.sign(myChannelClaim.claim_id, myChannelClaim.name, true);
       if (!channelSignature) {
         console.error('Failed to sign channel name.'); // eslint-disable-line
         return;
@@ -466,7 +456,7 @@ export function doCommentReactList(commentIds: Array<string>) {
     };
 
     if (activeChannelClaim) {
-      const signatureData = await channelSignName(activeChannelClaim.claim_id, activeChannelClaim.name);
+      const signatureData = await ChannelSign.sign(activeChannelClaim.claim_id, activeChannelClaim.name, true);
       if (!signatureData) {
         return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
       }
@@ -506,7 +496,7 @@ function doFetchAllReactionsForId(commentIds: Array<string>, channelClaims: ?Arr
     return Promise.reject(null);
   }
 
-  return Promise.all(channelClaims.map((x) => channelSignName(x.claim_id, x.name)))
+  return Promise.all(channelClaims.map((x) => ChannelSign.sign(x.claim_id, x.name, true)))
     .then((channelSignatures) => {
       const params = [];
       channelSignatures.forEach((sigData, i) => {
@@ -603,7 +593,7 @@ export function doCommentReact(commentId: string, type: string) {
     let checkIfAlreadyReacted = false;
     let rejectReaction = false;
 
-    const signatureData = await channelSignName(activeChannelClaim.claim_id, activeChannelClaim.name);
+    const signatureData = await ChannelSign.sign(activeChannelClaim.claim_id, activeChannelClaim.name, true);
     if (!signatureData) {
       return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
     }
@@ -794,7 +784,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       dispatch(doSeeNotifications([notification.id]));
     }
 
-    const signatureData = await channelSignData(activeChannelClaim.claim_id, comment);
+    const signatureData = await ChannelSign.sign(activeChannelClaim.claim_id, comment, false);
     if (!signatureData) {
       return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
     }
@@ -844,7 +834,7 @@ export function doCommentPin(commentId: string, claimId: string, remove: boolean
       return;
     }
 
-    const signedCommentId = await channelSignData(activeChannel.claim_id, commentId);
+    const signedCommentId = await ChannelSign.sign(activeChannel.claim_id, commentId, false);
     if (!signedCommentId) {
       return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
     }
@@ -911,7 +901,7 @@ export function doCommentAbandon(
       type: ACTIONS.COMMENT_ABANDON_STARTED,
     });
 
-    const commentIdSignature = await channelSignData(deleterClaim.claim_id, commentId);
+    const commentIdSignature = await ChannelSign.sign(deleterClaim.claim_id, commentId, false);
 
     return Comments.comment_abandon({
       comment_id: commentId,
@@ -975,7 +965,7 @@ export function doCommentUpdate(comment_id: string, comment: string) {
         return dispatch(doToast({ isError: true, message: __('No active channel selected.') }));
       }
 
-      const signedComment = await channelSignData(activeChannelClaim.claim_id, comment);
+      const signedComment = await ChannelSign.sign(activeChannelClaim.claim_id, comment, false);
       if (!signedComment) {
         return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
       }
@@ -1027,34 +1017,84 @@ export function doCommentUpdate(comment_id: string, comment: string) {
   }
 }
 
-async function channelSignName(channelClaimId: string, channelName: string) {
-  let signedObject;
+// ****************************************************************************
+// ChannelSign
+// ****************************************************************************
 
-  try {
-    signedObject = await Lbry.channel_sign({
-      channel_id: channelClaimId,
-      hexdata: toHex(channelName),
-    });
+type ChannelSignCache = {
+  [ChannelId]: {|
+    [data: string]: {|
+      signedObject: ChannelSignResponse,
+      timestamp: number,
+    |},
+  |},
+};
 
-    signedObject['claim_id'] = channelClaimId;
-    signedObject['name'] = channelName;
-  } catch (e) {}
+class ChannelSign {
+  static _CACHE_DURATION_MINUTES = 30;
+  static _cache: ChannelSignCache = {};
 
-  return signedObject;
-}
+  static _isCacheValid(channelId: ChannelId, data: string) {
+    const cached = ChannelSign._cache[channelId] && ChannelSign._cache[channelId][data];
+    return cached && Date.now() - cached.timestamp < ChannelSign._CACHE_DURATION_MINUTES * 60 * 1000;
+  }
 
-async function channelSignData(channelClaimId: string, data: string) {
-  let signedObject;
-
-  try {
-    signedObject = await Lbry.channel_sign({
+  static async _sign(channelClaimId: ChannelId, data: string) {
+    return await Lbry.channel_sign({
       channel_id: channelClaimId,
       hexdata: toHex(data),
     });
-  } catch (e) {}
+  }
 
-  return signedObject;
+  static async sign(channelClaimId: ChannelId, data: string, useCache: boolean) {
+    let signedObject: ?ChannelSignResponse;
+
+    try {
+      if (useCache) {
+        if (ChannelSign._isCacheValid(channelClaimId, data)) {
+          // Retrieve
+          return ChannelSign._cache[channelClaimId][data].signedObject;
+        } else {
+          // Sign
+          signedObject = await ChannelSign._sign(channelClaimId, data);
+          // Store
+          ChannelSign._cache[channelClaimId] = {
+            ...ChannelSign._cache[channelClaimId],
+            [data]: {
+              signedObject: signedObject,
+              timestamp: Date.now(),
+            },
+          };
+        }
+      } else {
+        // Sign
+        signedObject = await ChannelSign._sign(channelClaimId, data);
+      }
+    } catch (err) {}
+
+    return signedObject;
+  }
 }
+
+// ****************************************************************************
+// ****************************************************************************
+
+/**
+ * channel_sign convenience wrapper that includes `claim_id` and `name` in the
+ * output, primarily to relay them to the `Promise.all` handler.
+ */
+async function channelSignName(channelClaimId: string, channelName: string, useCache: boolean = false) {
+  const signedObject = await ChannelSign.sign(channelClaimId, channelName, useCache);
+
+  if (signedObject) {
+    return { ...signedObject, claim_id: channelClaimId, name: channelName };
+  } else {
+    return signedObject;
+  }
+}
+
+// ****************************************************************************
+// ****************************************************************************
 
 function safeParseURI(uri) {
   try {
@@ -1153,7 +1193,7 @@ function doCommentModToggleBlock(
 
     const commentAction = unblock ? Comments.moderation_unblock : Comments.moderation_block;
 
-    return Promise.all(blockerChannelClaims.map((x) => channelSignName(x.claim_id, x.name)))
+    return Promise.all(blockerChannelClaims.map((x) => channelSignName(x.claim_id, x.name, true)))
       .then((response) => {
         channelSignatures = response;
         // $FlowFixMe
@@ -1403,7 +1443,7 @@ export function doFetchModBlockedList() {
 
     let channelSignatures = [];
 
-    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name)))
+    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, true)))
       .then((response) => {
         channelSignatures = response;
         // $FlowFixMe
@@ -1594,7 +1634,7 @@ export function doCommentModAddDelegate(
   showToast: boolean = false
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
-    const signature = await channelSignData(creatorChannelClaim.claim_id, creatorChannelClaim.name);
+    const signature = await ChannelSign.sign(creatorChannelClaim.claim_id, creatorChannelClaim.name, false);
     if (!signature) {
       doFailedSignatureToast(dispatch, creatorChannelClaim.name);
       return;
@@ -1633,7 +1673,7 @@ export function doCommentModRemoveDelegate(
   creatorChannelClaim: ChannelClaim
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
-    const signature = await channelSignData(creatorChannelClaim.claim_id, creatorChannelClaim.name);
+    const signature = await ChannelSign.sign(creatorChannelClaim.claim_id, creatorChannelClaim.name, false);
     if (!signature) {
       doFailedSignatureToast(dispatch, creatorChannelClaim.name);
       return;
@@ -1655,7 +1695,7 @@ export function doCommentModListDelegates(channelClaim: ChannelClaim) {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_STARTED });
 
-    const signature = await channelSignData(channelClaim.claim_id, channelClaim.name);
+    const signature = await ChannelSign.sign(channelClaim.claim_id, channelClaim.name, false);
     if (!signature) {
       doFailedSignatureToast(dispatch, channelClaim.name);
       dispatch({ type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED });
@@ -1696,7 +1736,7 @@ export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
 
     let channelSignatures = [];
 
-    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name)))
+    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, true)))
       .then((response) => {
         channelSignatures = response;
         // $FlowFixMe
@@ -1755,7 +1795,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
     if (myChannels) {
       const index = myChannels.findIndex((myChannel) => myChannel.claim_id === channelId);
       if (index > -1) {
-        signedName = await channelSignName(channelId, myChannels[index].name);
+        signedName = await channelSignName(channelId, myChannels[index].name, true);
       }
     }
 
@@ -1811,7 +1851,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
  */
 export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: PerChannelSettings) => {
   return async (dispatch: Dispatch, getState: GetState) => {
-    const channelSignature = await channelSignName(channelClaim.claim_id, channelClaim.name);
+    const channelSignature = await ChannelSign.sign(channelClaim.claim_id, channelClaim.name, true);
     if (!channelSignature) {
       devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
       return;
@@ -1823,87 +1863,113 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
       signature: channelSignature.signature,
       signing_ts: channelSignature.signing_ts,
       ...settings,
-    }).catch((err) => {
-      dispatch(doToast({ message: err.message, isError: true }));
-    });
+    })
+      .then((res) => {
+        // 'res' actually contains the new settings already, but I'm lazy to
+        // replicate partial code, so just do a full fetch to update our store.
+        dispatch(doFetchCreatorSettings(channelClaim.claim_id));
+      })
+      .catch((err) => {
+        dispatch(
+          doToast({
+            message: __('Failed to update settings.'),
+            subMessage: err?.message,
+            isError: true,
+          })
+        );
+      });
   };
 };
 
-export const doToggleMembersOnlyCommentsSettingForClaimId = (claimId: ClaimId) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
+export const doDeleteChannelSection = (channelId: string, sectionId: string) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const channelClaim = selectClaimForClaimId(state, channelId);
+    const channelSettings = selectSettingsForChannelId(state, channelId);
+    const sections: ?Sections = channelSettings && channelSettings.channel_sections;
+    const entries = (sections && sections.entries.slice()) || [];
 
-  const claim = selectClaimForClaimId(state, claimId);
-  const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
-  const channelSignature = await channelSignName(channelId, channelName);
+    const index = entries.findIndex((x) => x.id === sectionId);
+    if (index > -1 && channelClaim) {
+      entries.splice(index, 1);
+      dispatch(doUpdateCreatorSettings(channelClaim, { channel_sections: { ...sections, entries } }));
+    }
 
-  if (!channelSignature) {
-    devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
-    return;
-  }
-
-  const areCommentsMembersOnly = selectMembersOnlyCommentsForChannelId(state, channelId);
-  const value = !areCommentsMembersOnly;
-
-  return Comments.setting_update({
-    channel_name: channelName,
-    channel_id: channelId,
-    signature: channelSignature.signature,
-    signing_ts: channelSignature.signing_ts,
-    comments_members_only: value,
-    active_claim_id: claimId,
-  })
-    .then(() =>
-      dispatch({
-        type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
-        data: { responseData: { CommentsMembersOnly: value }, creatorId: channelId },
-      })
-    )
-    .catch((err) => {
-      dispatch(doToast({ message: err.message, isError: true }));
-      throw new Error(err);
-    });
+    // TODO: errors?
+  };
 };
 
-export const doToggleLiveChatMembersOnlySettingForClaimId = (claimId: ClaimId) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
+export const doToggleMembersOnlyCommentsSettingForClaimId =
+  (claimId: ClaimId) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
 
-  const claim = selectClaimForClaimId(state, claimId);
-  const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
-  const channelSignature = await channelSignName(channelId, channelName);
+    const claim = selectClaimForClaimId(state, claimId);
+    const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
+    const channelSignature = await ChannelSign.sign(channelId, channelName, true);
 
-  if (!channelSignature) {
-    devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
-    return;
-  }
+    if (!channelSignature) {
+      devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
+      return;
+    }
 
-  const isLivestreamChatMembersOnly = selectLivestreamChatMembersOnlyForChannelId(state, channelId);
-  const value = !isLivestreamChatMembersOnly;
+    const areCommentsMembersOnly = selectMembersOnlyCommentsForChannelId(state, channelId);
+    const value = !areCommentsMembersOnly;
 
-  return Comments.setting_update({
-    channel_name: channelName,
-    channel_id: channelId,
-    signature: channelSignature.signature,
-    signing_ts: channelSignature.signing_ts,
-    livestream_chat_members_only: value,
-    active_claim_id: claimId,
-  })
-    .then(() =>
-      dispatch({
-        type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
-        data: { responseData: { LivestreamChatMembersOnly: value }, creatorId: channelId },
-      })
-    )
-    .catch((err) => {
-      dispatch(doToast({ message: err.message, isError: true }));
-      throw new Error(err);
-    });
-};
+    return Comments.setting_update({
+      channel_name: channelName,
+      channel_id: channelId,
+      signature: channelSignature.signature,
+      signing_ts: channelSignature.signing_ts,
+      comments_members_only: value,
+      active_claim_id: claimId,
+    })
+      .then(() =>
+        dispatch({
+          type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+          data: { responseData: { CommentsMembersOnly: value }, creatorId: channelId },
+        })
+      )
+      .catch((err) => {
+        dispatch(doToast({ message: err.message, isError: true }));
+        throw new Error(err);
+      });
+  };
+
+export const doToggleLiveChatMembersOnlySettingForClaimId =
+  (claimId: ClaimId) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+
+    const claim = selectClaimForClaimId(state, claimId);
+    const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
+    const channelSignature = await ChannelSign.sign(channelId, channelName, true);
+
+    if (!channelSignature) {
+      devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
+      return;
+    }
+
+    const isLivestreamChatMembersOnly = selectLivestreamChatMembersOnlyForChannelId(state, channelId);
+    const value = !isLivestreamChatMembersOnly;
+
+    return Comments.setting_update({
+      channel_name: channelName,
+      channel_id: channelId,
+      signature: channelSignature.signature,
+      signing_ts: channelSignature.signing_ts,
+      livestream_chat_members_only: value,
+      active_claim_id: claimId,
+    })
+      .then(() =>
+        dispatch({
+          type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+          data: { responseData: { LivestreamChatMembersOnly: value }, creatorId: channelId },
+        })
+      )
+      .catch((err) => {
+        dispatch(doToast({ message: err.message, isError: true }));
+        throw new Error(err);
+      });
+  };
 
 export const doCommentWords = (channelClaim: ChannelClaim, words: Array<string>, isUnblock: boolean) => {
   return async (dispatch: Dispatch, getState: GetState) => {

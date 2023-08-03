@@ -18,6 +18,7 @@ import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 import BidHelpText from 'component/publish/shared/publishBid/bid-help-text';
 import Spinner from 'component/spinner';
 import { REPOST_PARAMS } from 'page/repost/view';
+import './style.scss';
 
 type Props = {
   doToast: ({ message: string }) => void,
@@ -192,6 +193,7 @@ function RepostCreate(props: Props) {
     if (repostTakeoverAmount) {
       setAutoRepostBid(repostTakeoverAmount);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO: should include setAutoRepostBid + useCallback
   }, [enteredRepostAmount, passedRepostAmount]);
 
   // repost bid error
@@ -207,7 +209,7 @@ function RepostCreate(props: Props) {
       rBidError = __('Your deposit must be higher');
     }
     setRepostBidError(rBidError);
-  }, [setRepostBidError, repostBidError, repostBid]);
+  }, [balance, setRepostBidError, repostBidError, repostBid]);
 
   // setContentUri given enteredUri
   React.useEffect(() => {
@@ -236,7 +238,7 @@ function RepostCreate(props: Props) {
         setContentUri(``);
       }
     }
-  }, [enteredContent, setContentUri, setContentError, parseURI, isNameValid]);
+  }, [enteredContent, setContentUri, setContentError]);
 
   // setRepostName
   React.useEffect(() => {
@@ -252,7 +254,7 @@ function RepostCreate(props: Props) {
         setRepostUri(enteredRepostName);
       }
     }
-  }, [enteredRepostName, setRepostUri, parseURI]);
+  }, [enteredRepostName, setRepostUri]);
 
   const repostClaimId = contentClaimId || enteredClaimId;
 

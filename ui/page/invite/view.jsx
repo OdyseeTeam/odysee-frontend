@@ -6,6 +6,7 @@ import InviteNew from 'component/inviteNew';
 import InviteList from 'component/inviteList';
 import Page from 'component/page';
 import RewardAuthIntro from 'component/rewardAuthIntro';
+import './style.scss';
 
 type Props = {
   isPending: boolean,
@@ -30,7 +31,7 @@ class InvitePage extends React.PureComponent<Props> {
     const { isPending, isFailed, authenticated } = this.props;
 
     return (
-      <Page>
+      <Page className="invite-page__wrapper">
         {!authenticated ? (
           <RewardAuthIntro
             title={__('Log in to %SITE_NAME% to earn rewards From Inviting Your Friends', { SITE_NAME })}

@@ -1,6 +1,8 @@
 @import '~ui/scss/init/breakpoints';
 @import '~ui/scss/init/mixins';
-@import '~ui/scss/init/breakpoints';
+
+$list-height: 40vh;
+$list-height--mobile: 30vh;
 
 .channel-finder {
   padding: var(--spacing-m) 0;
@@ -22,9 +24,6 @@
 .channel-finder__bottom {
   padding-left: var(--spacing-xs);
 }
-
-$list-height: 40vh;
-$list-height--mobile: 30vh;
 
 .channel-finder__suggestion-list {
   width: 50%;
@@ -104,6 +103,10 @@ $list-height--mobile: 30vh;
       color: unset;
     }
   }
+}
+
+.entry--hidden {
+  display: none;
 }
 
 .entry--no-hover-highlight {

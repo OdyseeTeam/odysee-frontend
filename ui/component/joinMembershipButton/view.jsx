@@ -1,8 +1,7 @@
 // @flow
 import React from 'react';
 
-import { ChannelPageContext } from 'page/channel/view';
-import { parseURI } from 'util/lbryURI';
+import { ChannelPageContext } from 'contexts/channel';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 
@@ -18,12 +17,13 @@ const DEFAULT_PROPS = { button: 'alt', icon: ICONS.MEMBERSHIP };
 type Props = {
   uri: string,
   // -- redux --
-  permanentUrl?: string,
   validUserMembershipForChannel: ?any,
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
   creatorTiers: ?CreatorMemberships,
   isOdyseeChannel: boolean,
+  channelName: ?string,
+  channelClaimId: ?string,
   doOpenModal: (id: string, {}) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
 };
@@ -31,11 +31,12 @@ type Props = {
 const JoinMembershipButton = (props: Props) => {
   const {
     uri,
-    permanentUrl,
     validUserMembershipForChannel,
     creatorHasMemberships,
     creatorMembershipsFetched,
     isOdyseeChannel,
+    channelName,
+    channelClaimId,
     doOpenModal,
     doMembershipList,
     creatorTiers,
@@ -48,11 +49,10 @@ const JoinMembershipButton = (props: Props) => {
   const membershipName = validUserMembershipForChannel?.MembershipDetails?.name;
 
   React.useEffect(() => {
-    if (!creatorMembershipsFetched) {
-      const { channelName, channelClaimId } = parseURI(permanentUrl || '');
-      doMembershipList({ channel_name: `@${channelName || ''}`, channel_id: channelClaimId || '' }).catch((e) => {});
+    if (!creatorMembershipsFetched && channelName && channelClaimId) {
+      doMembershipList({ channel_name: `@${channelName}`, channel_id: channelClaimId }).catch((e) => {});
     }
-  }, [creatorMembershipsFetched, doMembershipList, permanentUrl]);
+  }, [channelClaimId, channelName, creatorMembershipsFetched, doMembershipList]);
 
   if (isOdyseeChannel) return null;
 

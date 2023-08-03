@@ -1,6 +1,5 @@
 // @flow
-import { Lbryio } from 'lbryinc';
-import * as Sentry from '@sentry/browser';
+import * as Sentry from '@sentry/react';
 import { apiLog } from 'analytics/apiLog';
 import { events } from 'analytics/events';
 import { sentryWrapper } from 'analytics/sentryWrapper';
@@ -12,20 +11,31 @@ import type { Watchman } from 'analytics/watchman';
 const isProduction = process.env.NODE_ENV === 'production';
 let gAnalyticsEnabled = false;
 
-type Analytics = {
+// ****************************************************************************
+// ****************************************************************************
+
+export type Analytics = {
   init: () => void,
-  setState: (enable: boolean) => void,
+  setState: (enable: boolean) => void, // Enables/disables logging.
   setUser: (Object) => void,
-  // --------------------------------
-  apiLog: ApiLog,
-  event: Events,
-  video: Watchman,
-  error: (string) => Promise<any>,
-  sentryError: ({} | string, {}) => Promise<any>,
-  // log: will replace `sentryError` (and maybe also `error`) when done. Now in beta stage.
-  // error::string does not include the stacktrace while error::Error does.
+  apiLog: ApiLog, // Legacy logging interface that uses internal-apis.
+  event: Events, // General event-logging. Currently inactive.
+  video: Watchman, // AV-playback logging through Watchman.
+  error: (string) => Promise<any>, // Logging using internal-apis.
+  sentryError: ({} | string, {}) => Promise<any>, // Deprecated, only used for React ErrorBoundary. Use log() instead.
+
+  /**
+   * The primary logging interface.
+   *
+   * @param error The string-form does not include the stacktrace; Error-form does.
+   * @param options Additional information and logging options.
+   * @param label Specific label to use for the event (easier to find in dashboard).
+   */
   log: (error: Error | string, options?: LogOptions, label?: string) => Promise<?LogId>,
 };
+
+// ****************************************************************************
+// ****************************************************************************
 
 const analytics: Analytics = {
   init: () => {
@@ -42,15 +52,7 @@ const analytics: Analytics = {
   event: events,
   video: watchman,
   error: (message) => {
-    return new Promise((resolve) => {
-      if (gAnalyticsEnabled && isProduction) {
-        return Lbryio.call('event', 'desktop_error', { error_message: message }).then(() => {
-          resolve(true);
-        });
-      } else {
-        resolve(false);
-      }
-    });
+    return analytics.apiLog.desktopError(message);
   },
   log: (error: Error | string, options?: LogOptions, label?: string) => {
     return sentryWrapper.log(error, { ...options }, label);
@@ -60,6 +62,8 @@ const analytics: Analytics = {
       if (gAnalyticsEnabled && isProduction) {
         Sentry.withScope((scope) => {
           scope.setExtras(errorInfo);
+          scope.setTag('_origin', 'react-error-boundary');
+          scope.setLevel('fatal');
           const eventId = Sentry.captureException(error);
           resolve(eventId);
         });
@@ -70,7 +74,7 @@ const analytics: Analytics = {
   },
   setUser: (userId) => {
     analytics.event.setUser(userId);
-    // Pass on to other submodules as needed...
+    // Pass on to other submodules if needed...
   },
   toggleThirdParty: (enabled: boolean): void => {
     // Retained to keep things compiling. We don't do third-party analytics,

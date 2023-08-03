@@ -28,8 +28,8 @@ body {
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-xs);
     margin-top: var(--header-height-mobile);
+    padding: 0;
   }
 
   @media (min-width: $breakpoint-large) {
@@ -52,29 +52,19 @@ body {
 
 .sidebar--pusher {
   animation-timing-function: var(--resizing-animation-function);
-  transition: transform var(--resizing-animation-timing);
-  transform-origin: top center;
+  padding-left: var(--side-nav-width--micro);
   position: absolute;
+  width: 100%;
 
   @media (max-width: $breakpoint-small) {
-    transform: translateX(0);
-    width: calc(100% - var(--spacing-m));
-  }
-
-  @media (min-width: $breakpoint-small) {
-    transform: translateX(var(--side-nav-width--micro));
-    width: calc(100% - ((var(--side-nav-width--micro))));
+    position: relative;
+    padding-left: 0;
+    margin-left: calc(var(--spacing-xs) * -1);
   }
 }
 
 .sidebar--pusher--filepage {
   width: 100%;
-}
-
-.sidebar--pusher--open {
-  @media (min-width: $breakpoint-medium) {
-    transform: scaleX(0.9) translateX(calc(5.4 * var(--spacing-l))) scaleY(0.9);
-  }
 }
 
 .main-wrapper__inner--auth {
@@ -99,6 +89,8 @@ body {
 
   @media (max-width: $breakpoint-small) {
     width: 100%;
+    padding: 0 var(--spacing-xs);
+    margin-top: var(--spacing-m);
   }
 }
 
@@ -133,15 +125,6 @@ body {
       max-width: 100%;
     }
 
-    .claim-preview__wrapper--inline {
-      .media__subtitle {
-        padding-bottom: 0;
-        a.button {
-          display: inline-block !important;
-        }
-      }
-    }
-
     .date_time {
       font-size: var(--font-small);
     }
@@ -163,26 +146,6 @@ body {
     @media (max-width: $breakpoint-medium) {
       section + .empty__wrap {
         margin: var(--spacing-m);
-      }
-      .claim-preview__wrapper--inline {
-        .claim-preview-metadata {
-          .claim-tile__info {
-            margin-top: 0;
-          }
-        }
-        .media__subtitle {
-          padding-bottom: 1;
-          a.button {
-            display: inline-block !important;
-          }
-        }
-        .button--alt {
-          padding: var(--spacing-s);
-        }
-        .button-following {
-          padding-left: var(--spacing-m);
-          padding-right: var(--spacing-m);
-        }
       }
     }
     @media (max-width: $breakpoint-small) {
@@ -207,11 +170,6 @@ body {
     }
   }
 
-  .media__subtitle--centered::before {
-    content: '•';
-    margin-right: var(--spacing-s);
-  }
-
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -221,112 +179,8 @@ body {
     }
   }
 
-  .file-page__post-comments {
-    margin-top: var(--spacing-l);
-
-    opacity: 0;
-    animation: fadeIn 2s;
-    animation-delay: 2s;
-    animation-fill-mode: forwards;
-
-    @media (min-width: $breakpoint-small) {
-      padding: var(--spacing-m);
-    }
-
-    @media (max-width: $breakpoint-small) {
-      margin-top: 0;
-      .card {
-        padding: 0;
-        .card__first-pane {
-          .button--alt[aria-label='Refresh'] {
-            top: -1px;
-            float: right;
-            margin-right: 0;
-          }
-          .comment__sort {
-            .button--alt[aria-label='Refresh'] {
-              top: unset;
-              float: unset;
-              margin-right: unset;
-            }
-          }
-        }
-      }
-    }
-  }
-
   .file-page__info {
     margin-top: var(--spacing-m);
-  }
-
-  .file-page__recommended {
-    width: 32rem;
-    margin-left: var(--spacing-l);
-
-    .card__first-pane {
-      .card__header--between {
-        .card__title-section {
-          display: none !important;
-        }
-      }
-      .card__body.card__body--list {
-        border-top: unset;
-      }
-    }
-
-    .card__header--between {
-      align-items: unset;
-      .card__title-section--body-list {
-        margin-top: auto;
-      }
-    }
-
-    .claim-preview-metadata {
-      .claim-tile__info {
-        margin-top: 0;
-        .media__subtitle {
-          .button__content {
-            margin-top: 0;
-            .channel-name {
-              margin-top: 0;
-              p {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-              }
-            }
-          }
-          span,
-          .date_time {
-            margin-top: 0px;
-          }
-        }
-      }
-      .claim-preview__title {
-        .truncated-text {
-          -webkit-line-clamp: 2 !important;
-        }
-      }
-      .channel-thumbnail {
-        display: none;
-        width: 1.4rem;
-        height: 1.4rem;
-      }
-    }
-
-    @media (max-width: $breakpoint-medium) {
-      width: 100%;
-      margin-left: 0;
-      margin-top: var(--spacing-l);
-    }
-
-    @media (max-width: $breakpoint-small) {
-      .card__header--between {
-        padding: var(--spacing-xxs);
-        padding-bottom: var(--spacing-s);
-        padding-left: 0;
-      }
-    }
   }
 
   .file-page__recommended-collection {
@@ -365,16 +219,7 @@ body {
         }
       }
 
-      @media (min-width: $breakpoint-medium) {
-        // max-width: 15rem;
-      }
-
-      @media (max-width: $breakpoint-medium) {
-        // max-width: 50rem;
-      }
-
       @media (max-width: $breakpoint-small) {
-        // display: inline-block;
         max-width: unset;
         width: 100%;
         .button--file-action {
@@ -412,7 +257,6 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
-    // margin-top: var(--spacing-s);
     flex-direction: column;
     padding-top: 0;
     margin: 0;
@@ -445,7 +289,7 @@ body {
     gap: var(--spacing-l);
 
     .file-page__recommended,
-    .playlist-card {
+    .playlist__wrapper {
       margin-left: 0px;
       height: 100%;
       width: 100%;
@@ -454,11 +298,6 @@ body {
   }
 }
 
-.file-page__secondary-content {
-  @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
-    padding-right: calc(var(--spacing-s) + 12px) !important;
-  }
-}
 .card__title-section--body-list {
   display: unset !important;
   div {
@@ -482,7 +321,7 @@ body {
 
 .main--theater-mode {
   padding-left: 0;
-  padding-right: 0;
+  padding-right: var(--body-scrollbar-width);
   margin-left: 0;
   margin-right: 0;
   margin-top: 0;
@@ -501,10 +340,6 @@ body {
     flex-direction: column;
     margin-left: auto;
     margin-right: auto;
-  }
-
-  .file-page__video-container {
-    max-height: unset;
   }
 
   .file-page__recommended {
@@ -561,12 +396,32 @@ body {
     }
   }
 
+  @media (min-width: 1750px) {
+    padding: 0;
+    width: 100%;
+    max-width: var(--page-max-width--filepage);
+    position: relative;
+    display: grid;
+
+    $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
+    grid-template-columns: minmax($file-min-width, 0) 1fr;
+
+    justify-content: space-between;
+    justify-items: end;
+    gap: var(--spacing-m);
+
+    .livestream__chat {
+      margin: 0 !important;
+    }
+  }
+
   @media (max-width: $breakpoint-medium) {
     padding: 0 var(--spacing-s);
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: 0;
+    padding: var(--spacing-s);
+    padding-top: 0;
 
     .card {
       margin: 0;
@@ -599,16 +454,12 @@ body {
     margin-right: var(--spacing-s);
   }
 
+  .file-page__secondary-content {
+    margin-top: var(--spacing-m);
+  }
+
   .chat-resize {
     display: none !important;
-  }
-
-  .livestreamDiscussion__header {
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-  }
-
-  .livestream__comment-create {
-    border-radius: 0 0 var(--border-radius) var(--border-radius);
   }
 
   .file-page__media-actions {
@@ -647,10 +498,6 @@ body {
     margin-right: auto;
   }
 
-  .file-page__video-container {
-    max-height: unset;
-  }
-
   .file-page__recommended {
     @media (max-width: $breakpoint-medium) {
       width: 100%;
@@ -674,42 +521,6 @@ body {
 .main--full-width {
   @extend .main;
   max-width: none;
-}
-
-.main--popout-chat {
-  @extend .main;
-  margin: 0 !important;
-  padding: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-
-  .livestream-hyperchats__wrapper {
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  @media (max-width: $breakpoint-small) {
-    .livestream__chat--popout {
-      border-radius: 0;
-      .livestreamComments__wrapper {
-        height: calc(100vh - 50px) !important;
-        .livestream__comment-create {
-          padding: 0 var(--spacing-xxs);
-        }
-      }
-    }
-  }
-  @media (min-width: $breakpoint-small) {
-    .livestream__chat--popout {
-      border-radius: 0;
-      .livestreamComments__wrapper {
-        height: calc(100vh - 55px) !important;
-        .livestream__comment-create {
-          padding-bottom: var(--spacing-s);
-        }
-      }
-    }
-  }
 }
 
 .main--auth-page {
@@ -736,11 +547,9 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
-  .section__actions {
-    margin-left: var(--spacing-s);
-  }
-
   @media (max-width: $breakpoint-small) {
+    padding: 0 var(--spacing-xs);
+
     .section__header--actions {
       .section__actions--inline:last-of-type {
         .button__label {
@@ -748,103 +557,7 @@ body {
         }
       }
     }
-  }
-  .card__body--list {
-    background-color: rgba(var(--color-header-background-base), 0.4);
 
-    border-radius: var(--border-radius);
-    border-top: unset;
-
-    .settings-row {
-      padding: var(--spacing-s);
-      border-bottom: 1px solid var(--color-border);
-
-      .settings-row__value {
-        .button__content {
-          &:hover {
-            color: var(--color-secondary);
-          }
-        }
-      }
-      .fieldset-group--smushed {
-        label {
-          margin-left: 0;
-        }
-        fieldset-section:last-of-type {
-          margin-left: 2px;
-        }
-      }
-    }
-    .settings-row:first-of-type {
-      margin-top: var(--spacing-xxxs);
-    }
-    .settings-row:last-of-type {
-      border-bottom: unset;
-    }
-
-    .card__main-actions {
-      border-top: unset;
-    }
-
-    input,
-    select {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-      &:hover {
-        background-color: var(--color-input-toggle-bg-hover);
-      }
-      &:focus-visible {
-        background-color: var(--color-input-toggle-bg-hover) !important;
-        box-shadow: 0 0 0 2px var(--color-primary) inset;
-      }
-    }
-
-    .checkbox,
-    .radio {
-      label {
-        &::before {
-          top: unset;
-          border: unset;
-          box-shadow: 0 0 0 2px var(--color-border) inset;
-        }
-        &::after {
-          top: 6px;
-        }
-      }
-    }
-    .checkbox {
-      label {
-        &::after {
-          top: 8px !important;
-        }
-      }
-    }
-  }
-
-  .button--secondary {
-    background-color: var(--color-header-button) !important;
-    .button__content {
-      .icon {
-        stroke: var(--color-text) !important;
-      }
-      .button__label {
-        color: var(--color-text) !important;
-      }
-    }
-    &:hover {
-      background-color: var(--color-primary) !important;
-      .button__content {
-        .icon {
-          stroke: var(--color-primary-contrast) !important;
-        }
-        .button__label {
-          color: var(--color-primary-contrast) !important;
-        }
-      }
-    }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    padding: 0 0;
     .wunderbar__wrapper {
       margin-right: 0;
       .wunderbar {
@@ -865,47 +578,8 @@ body {
     color: var(--color-primary);
   }
 
-  .card__title-section {
-    padding-bottom: 0;
-  }
   .card__title-section:not(:first-child) {
     padding-top: var(--spacing-l);
-  }
-
-  .section__actions--between:first-child {
-    margin-top: var(--spacing-s);
-  }
-  .section__actions--between {
-    border-top: unset;
-    margin-top: 0;
-    padding-top: var(--spacing-s);
-    padding-bottom: var(--spacing-s);
-    margin-left: auto;
-    position: relative;
-
-    .settings-row__value {
-      align-self: start;
-    }
-
-    .settings-row__title {
-      color: rgba(var(--color-text-base), 0.9);
-    }
-    .settings-row__subtitle {
-      color: rgba(var(--color-text-base), 0.6);
-    }
-
-    &:hover:not(.opacity-30) {
-      .settings-row__title {
-        color: rgba(var(--color-text-base), 1);
-      }
-    }
-  }
-
-  .tags--remove {
-    .button {
-      background-color: var(--color-header-background);
-      color: var(--color-text);
-    }
   }
 
   .claim-preview__wrapper--channel {
@@ -960,8 +634,8 @@ body {
   flex-direction: column;
   .claim-preview__wrapper {
     .claim-tile__info {
-      margin-top: 0;
-      padding-bottom: var(--spacing-xxxs);
+      margin-top: -4px;
+      padding-bottom: unset;
       .claim-preview-metadata-sub-upload {
         margin-top: 3px;
       }
@@ -970,12 +644,15 @@ body {
       }
     }
     .claim-preview__actions {
-      .claim-preview__primary-actions {
-        margin: 0;
-      }
       .membership-button-wrapper {
         margin: 0;
-        margin-right: var(--spacing-s);
+      }
+    }
+    .claim-preview--channel {
+      .claim-preview__text {
+        .claim-preview__actions {
+          margin-left: calc((2.5rem + var(--spacing-xxs)) * -1) !important;
+        }
       }
     }
 
@@ -988,38 +665,17 @@ body {
         flex-direction: column;
         .claim-preview__actions {
           overflow: visible;
-          margin-left: calc((2rem + (2 * var(--spacing-s))) * -1);
+          margin-left: calc((2rem + (2 * var(--spacing-xxs))) * -1);
           margin-top: var(--spacing-s);
-          width: calc(100% + (2rem + (2 * var(--spacing-s))));
+          width: calc(100% + (2rem + (2 * var(--spacing-xxs))));
           .membership-button-wrapper {
-            margin-right: var(--spacing-xxs);
             margin-bottom: 0;
             width: 50%;
             .button {
               width: 100%;
             }
           }
-          .claim-preview__primary-actions {
-            width: 50%;
-            .button-group {
-              width: 100%;
-              .button:first-of-type {
-                width: 100%;
-              }
-            }
-          }
         }
-      }
-    }
-  }
-  .post__info--grouped {
-    .button__content {
-      color: var(--color-primary);
-      .icon {
-        color: var(--color-text-subtitle);
-      }
-      &:hover {
-        color: var(--color-secondary);
       }
     }
   }
@@ -1041,24 +697,15 @@ body {
     }
   }
 
-  .file-page__post-comments {
-    p {
-      .button--uri-indicator {
-        .channel-name {
-          font-size: var(--font-small);
-          @media (max-width: $breakpoint-small) {
-            font-size: var(--font-xsmall);
-          }
-        }
-      }
-    }
-  }
-
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
     .claim-preview__wrapper {
       .claim-tile__info {
-        margin-top: var(--spacing-xxxs) !important;
+        margin-top: var(--spacing-xs) !important;
+      }
+      .channel-thumbnail {
+        width: 2rem !important;
+        height: 2rem !important;
       }
     }
   }
@@ -1075,7 +722,6 @@ body {
 
     > :first-child {
       position: fixed;
-      // background-color: var(--color-background);
       width: calc(40% - var(--spacing-l));
       margin-top: var(--spacing-xl);
     }
@@ -1135,6 +781,15 @@ body {
   @extend .main--auth-page;
   max-width: 40rem;
 
+  .card__title-section {
+    width: 100%;
+    .card__title-text {
+      width: 100%;
+      .card__title {
+        width: 100%;
+      }
+    }
+  }
   .form-field__two-column {
     display: flex;
     .comment__char-count-mde {
@@ -1252,8 +907,19 @@ body {
   }
 
   .card__title {
-    font-size: 0.93rem;
     font-weight: var(--font-weight-bold);
+  }
+
+  div:not(.checkbox) {
+    label {
+      font-size: var(--font-body);
+    }
+  }
+  .checkbox {
+    margin-bottom: var(--spacing-l);
+  }
+  input {
+    margin-bottom: var(--spacing-m);
   }
 
   .card__main-actions {
@@ -1276,47 +942,11 @@ body {
       }
     }
   }
-}
 
-// Temp hacks until 'section__actions--no-margin' is generic again.
-.main__discover {
-  .section__actions--no-margin {
-    @media (max-width: $breakpoint-small) {
-      width: unset; // It was being set to '100%' at the base level.
-    }
-  }
-
-  .claim-preview {
-    .claim-preview__text {
-      overflow: hidden;
-    }
-    .claim-preview-metadata {
-      .claim-tile__info {
-        .media__subtitle {
-          width: calc(100% - 2.1rem);
-          .button {
-            display: inline;
-            @media (max-width: $breakpoint-small) {
-              .button__content {
-                width: 100%;
-                .channel-name {
-                  width: 100%;
-                  p {
-                    width: 99%;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                  }
-                }
-              }
-            }
-          }
-          span:not(.channel-name) {
-            font-size: var(--font-xsmall);
-          }
-        }
-      }
-    }
+  fieldset-group,
+  fieldset-section,
+  .checkbox {
+    margin-bottom: var(--spacing-m);
   }
 }
 
@@ -1324,9 +954,22 @@ body {
 .main__channelsFollowing {
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
-      text-align: left; // It was forced to 'right' at the base level.
-      .button--secondary {
-        width: unset; // It was being set to '100%' at the base level.
+      display: flex;
+      // width: 100%;
+      .button {
+        flex: 1;
+      }
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
+    .claim-search__top {
+      flex-wrap: unset;
+      .claim-search__menu-group {
+        flex: 1;
+        &:last-of-type {
+          justify-content: flex-end;
+        }
       }
     }
   }

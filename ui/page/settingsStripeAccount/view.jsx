@@ -67,6 +67,7 @@ const StripeAccountConnection = (props: Props) => {
             {chargesEnabled ? __('Bank account connected') : __('Connect a bank account')}
           </div>
         }
+        background
         isBodyList
         body={
           chargesEnabled ? (
@@ -116,7 +117,7 @@ const StripeAccountConnection = (props: Props) => {
             <>
               <Button
                 button="secondary"
-                label={__('View Transactions')}
+                label={__('View Tips')}
                 icon={ICONS.SETTINGS}
                 navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
               />

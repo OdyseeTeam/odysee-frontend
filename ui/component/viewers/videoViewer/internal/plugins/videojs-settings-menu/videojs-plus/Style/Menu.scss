@@ -1,0 +1,66 @@
+@import '../variable.scss';
+@import '~ui/scss/init/breakpoints';
+
+.vjs-menu .vjs-menu-content {
+  padding: 0.3em 0;
+  margin: 0;
+  font-size: $smaller-font-size;
+  color: #fff;
+  .vjs-menu-item {
+    .vjs-menu-item-text {
+      display: inline-block;
+    }
+
+    &.vjs-checkbox.vjs-selected {
+      &:after {
+        @include tick();
+      }
+    }
+  }
+}
+
+.vjs-workinghover {
+  .vjs-menu-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.vjs-menu {
+  position: absolute;
+  @include floating-black-transparent-background();
+}
+
+.vjs-setting-menu.vjs-menu li {
+  list-style: none;
+  margin: var(--spacing-xxs);
+  padding: var(--spacing-xxs) var(--spacing-xs);
+
+  border-radius: var(--border-radius);
+  &.vjs-settings-sub-menu-title {
+    border-radius: 0;
+    padding: 0 var(--spacing-xs) var(--spacing-xxs) var(--spacing-xxs);
+  }
+
+  line-height: 1.35em;
+  font-size: var(--font-small);
+  text-align: left;
+  outline: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  text-transform: unset; // Negate default "vjs-menu li" = lowercase
+  .vjs-menu-item-text {
+    text-transform: unset; // Negate our ".file-render vjs-icon-placeholder" = uppercase.
+  }
+
+  .vjs-icon-placeholder {
+    font-size: 1.5em;
+  }
+
+  &.vjs-settings-sub-menu-option {
+    @media (max-width: $breakpoint-small) {
+      margin: calc(var(--spacing-xxs) / 2) var(--spacing-xxs);
+      padding: calc(var(--spacing-xxs) / 2) var(--spacing-xxs);
+    }
+  }
+}

@@ -10,69 +10,31 @@ import {
   tusClearLockedUploads,
 } from 'util/tus';
 import * as ACTIONS from 'constants/action_types';
+import * as PAGES from 'constants/pages';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
 import { PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 
 // This is the old key formula. Retain it for now to allow users to delete
 // any pending uploads. Can be removed from January 2022 onwards.
 const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anonymous'}`;
 
-type PublishState = {
-  editingURI: ?string,
-  fileText: ?string,
-  filePath: ?string,
-  remoteFileUrl: ?string,
-  paywall: Paywall,
-  fileDur: number,
-  fileSize: number,
-  fileVid: boolean,
-  fileMime: string,
-  streamType: ?string,
-  fee: {
-    amount: number,
-    currency: string,
-  },
-  fiatPurchaseFee: Price,
-  fiatPurchaseEnabled: boolean,
-  fiatRentalFee: Price,
-  fiatRentalExpiration: Duration,
-  fiatRentalEnabled: boolean,
-  title: string,
-  thumbnail_url: string,
-  thumbnailPath: string,
-  uploadThumbnailStatus: string,
-  thumbnailError: ?boolean,
-  description: string,
-  language: string,
-  releaseTime: ?number,
-  releaseTimeEdited: ?number,
-  releaseAnytime: boolean,
-  channel: string,
-  channelId: ?string,
-  name: string,
-  nameError: ?string,
-  bid: number,
-  bidError: ?string,
-  otherLicenseDescription: string,
-  licenseUrl: string,
-  tags: Array<string>,
-  optimize: boolean,
-  useLBRYUploader: boolean,
-  currentUploads: { [key: string]: FileUploadItem },
-  isMarkdownPost: boolean,
-  isLivestreamPublish: boolean,
-  publishError?: boolean,
-};
-
+// @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
+  type: 'file',
+  liveCreateType: 'new_placeholder',
+  liveEditType: 'use_replay',
   editingURI: undefined,
+  claimToEdit: undefined,
   fileText: '',
   filePath: undefined,
   fileDur: 0,
   fileSize: 0,
   fileVid: false,
   fileMime: '',
+  fileBitrate: 0,
+  fileSizeTooBig: false,
   streamType: '',
   remoteFileUrl: undefined,
   paywall: PAYWALL.FREE,
@@ -85,7 +47,10 @@ const defaultState: PublishState = {
   fiatRentalFee: { amount: 1, currency: 'USD' },
   fiatRentalExpiration: { value: 1, unit: 'weeks' },
   fiatRentalEnabled: false,
+  memberRestrictionOn: false,
+  memberRestrictionTierIds: [],
   title: '',
+  thumbnail: '',
   thumbnail_url: '',
   thumbnailPath: '',
   uploadThumbnailStatus: THUMBNAIL_STATUSES.API_DOWN,
@@ -93,15 +58,14 @@ const defaultState: PublishState = {
   description: '',
   language: '',
   releaseTime: undefined,
-  releaseTimeEdited: undefined,
-  releaseTimeError: false,
-  releaseAnytime: false,
+  releaseTimeDisabled: false,
+  releaseTimeError: undefined,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
   name: '',
   nameError: undefined,
-  bid: 0.01,
+  bid: 0.001,
   bidError: undefined,
   licenseType: 'None',
   otherLicenseDescription: 'All rights reserved',
@@ -113,23 +77,134 @@ const defaultState: PublishState = {
   optimize: false,
   useLBRYUploader: false,
   currentUploads: {},
-  isMarkdownPost: false,
-  isLivestreamPublish: false,
+  visibility: 'public',
+  scheduledShow: false,
+};
+
+const PATHNAME_TO_PUBLISH_TYPE = {
+  [`/$/${PAGES.UPLOAD}`]: 'file',
+  [`/$/${PAGES.POST}`]: 'post',
+  [`/$/${PAGES.LIVESTREAM}`]: 'livestream',
 };
 
 export const publishReducer = handleActions(
   {
-    [ACTIONS.UPDATE_PUBLISH_FORM]: (state, action): PublishState => {
+    // eslint-disable-next-line no-useless-computed-key
+    ['@@router/LOCATION_CHANGE']: (state, action) => {
+      const { location } = action.payload;
+      const { pathname } = location || {};
+      const type: ?PublishType = PATHNAME_TO_PUBLISH_TYPE[pathname];
+
+      // `type` used to be set in doBeginPublish, but it gets un-synchronized
+      // when doing `POP`, F5, or direct URL access.
+      // Since the "Submit" button is currently tied to the current page
+      // (i.e. no floating Publish forms), and that all 3 forms share the same
+      // states, we need `type` to always be correct as the reference variable
+      // for the rest of the logic here.
+
+      if (type && type !== state.type) {
+        return { ...state, type };
+      } else {
+        return state;
+      }
+    },
+    [ACTIONS.UPDATE_PUBLISH_FORM]: (state: PublishState, action: DoUpdatePublishForm): PublishState => {
       const { data } = action;
-      return {
-        ...state,
-        ...data,
-      };
+      const auto = {};
+
+      // --- Resolve PublishState based on the incoming changes ---------------
+      // data -> incoming changes (partial PublishState)
+      // state -> current PublishState
+      // auto -> any related states that needs to be adjusted per new input
+      // ----------------------------------------------------------------------
+
+      const getValue = (stateName: string) => (data.hasOwnProperty(stateName) ? data[stateName] : state[stateName]);
+
+      // -- releaseTimeDisabled
+      if (data.hasOwnProperty('visibility')) {
+        switch (data.visibility) {
+          case 'public':
+          case 'scheduled':
+            auto.releaseTimeDisabled = false;
+            break;
+          case 'private':
+          case 'unlisted':
+            auto.releaseTimeDisabled = false; // true;
+            break;
+          default:
+            assert(null, `unhandled visibility: "${data.visibility}"`);
+            auto.releaseTimeDisabled = false;
+            break;
+        }
+      }
+
+      // -- channel
+      const channel = data.hasOwnProperty('channel') ? data.channel : state.channel;
+      if (channel === undefined) {
+        auto.visibility = 'public';
+      }
+
+      // -- releaseTimeError
+      // Note: `releaseTime === undefined` means "use original"
+      const currentTs = Date.now() / 1000;
+      const visibility = getValue('visibility');
+      const releaseTime = getValue('releaseTime');
+      const isEditing = Boolean(getValue('editingURI'));
+      const isLivestream = getValue('type') === PUBLISH_TYPES.LIVESTREAM;
+
+      auto.releaseTimeError = '';
+
+      switch (visibility) {
+        case 'public':
+        case 'private':
+        case 'unlisted':
+          if (releaseTime && releaseTime - 30 > currentTs && !isLivestream) {
+            auto.releaseTimeError = 'Cannot set to a future date.';
+          }
+          break;
+        case 'scheduled':
+          if (releaseTime) {
+            if (releaseTime + 5 < currentTs) {
+              auto.releaseTimeError = 'Please set to a future date.';
+            }
+          } else {
+            if (isEditing) {
+              assert(state.claimToEdit?.value?.release_time, 'scheduled claim without release_time');
+              // -- No need to enforce elapsed date when editing --
+              // const originalTs = state.claimToEdit?.value?.release_time || 0;
+              // if (originalTs < currentTs) {
+              //   auto.releaseTimeError = 'Please set to a future date.';
+              // }
+            } else {
+              auto.releaseTimeError = 'Set a scheduled release date.';
+            }
+          }
+          break;
+        default:
+          assert(null, `unhandled visibility: "${visibility}"`);
+          break;
+      }
+
+      // -- remoteFileUrl
+      if (!data.hasOwnProperty('remoteFileUrl')) {
+        const nonReplayChosen = data.hasOwnProperty('liveEditType') && data.liveEditType !== 'use_replay';
+        const channelChanged = data.hasOwnProperty('channelId') && data.channelId !== state.channelId;
+
+        if (nonReplayChosen || channelChanged) {
+          // Purge remoteFileUrl selection on these cases.
+          auto.remoteFileUrl = undefined;
+        }
+      }
+
+      // Finalize
+      return { ...state, ...data, ...auto };
     },
     [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
       ...defaultState,
+      type: state.type,
       uri: undefined,
       channel: state.channel,
+      channelId: state.channelId,
       bid: state.bid,
       optimize: state.optimize,
       language: state.language,
@@ -259,9 +334,17 @@ export const publishReducer = handleActions(
     },
     [ACTIONS.REHYDRATE]: (state: PublishState, action) => {
       if (action && action.payload && action.payload.publish) {
-        const newPublish = { ...action.payload.publish };
+        const newPublish = {
+          ...action.payload.publish,
+          filePath: undefined, // File is not serializable, so can't rehydrate.
+          remoteFileUrl: undefined, // Clear for now until the component is able to re-populate on load.
+        };
 
-        // Cleanup for 'publish::currentUploads'
+        // Delete obsolete states
+        delete newPublish.channelClaimId;
+        delete newPublish.isLivestreamPublish;
+
+        // -- Cleanup for 'publish::currentUploads'
         if (newPublish.currentUploads) {
           const uploadKeys = Object.keys(newPublish.currentUploads);
           if (uploadKeys.length > 0) {

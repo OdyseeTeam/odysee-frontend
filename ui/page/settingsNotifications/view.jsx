@@ -13,7 +13,6 @@ import { useHistory } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
-// import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
 
 type Props = {
   osNotificationsEnabled: boolean,
@@ -59,6 +58,7 @@ export default function NotificationSettingsPage(props: Props) {
           setError(true);
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
   function handleChangeTag(name, newIsEnabled) {

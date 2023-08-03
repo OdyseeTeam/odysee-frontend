@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import twemoji from 'twemoji';
+// import twemoji from 'twemoji';
 import Tooltip from 'component/common/tooltip';
 
 type Props = {
@@ -18,6 +18,7 @@ type Props = {
   icon?: string,
   className?: string,
   isPageTitle?: boolean,
+  noTitleWrap?: boolean,
   isBodyList?: boolean,
   defaultExpand?: boolean,
   nag?: Node,
@@ -25,6 +26,9 @@ type Props = {
   onClick?: () => void,
   children?: Node,
   secondPane?: Node,
+  slimHeader?: boolean,
+  background?: boolean,
+  backgroundImage?: string,
   singlePane?: boolean,
   headerActions?: Node,
   gridHeader?: boolean,
@@ -43,15 +47,20 @@ function Card(props: Props) {
     className,
     isPageTitle = false,
     isBodyList = false,
+    // noTitleWrap = false,
     smallTitle = false,
     defaultExpand,
     nag,
     onClick,
     children,
     secondPane,
+    slimHeader,
+    background,
+    backgroundImage,
     singlePane,
     headerActions,
     accessStatus,
+    gridHeader,
   } = props;
 
   const [expanded, setExpanded] = useState(defaultExpand);
@@ -62,6 +71,7 @@ function Card(props: Props) {
       role={onClick ? 'button' : undefined}
       className={classnames(className, 'card', {
         'card__multi-pane': Boolean(secondPane),
+        'card--background': background,
       })}
       id={id}
       onClick={(e) => {
@@ -71,11 +81,21 @@ function Card(props: Props) {
         }
       }}
     >
+      {backgroundImage && (
+        <div
+          className="background"
+          style={{
+            backgroundImage:
+              'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + backgroundImage + ')',
+          }}
+        />
+      )}
       <FirstPaneWrapper singlePane={singlePane}>
         {(title || subtitle) && (
           <div
             className={classnames('card__header--between', {
-              // 'card__header--nowrap': noTitleWrap,
+              'card__header--slim': slimHeader,
+              'card__header--grid': gridHeader,
             })}
           >
             <div className={classnames('card__title-section', { 'card__title-section--body-list': isBodyList })}>
@@ -170,6 +190,7 @@ type TitleProps = {
 const TitleWrapper = (props: TitleProps) => {
   const { isPageTitle, smallTitle, children, accessStatus } = props;
 
+  /*
   const Twemoji = ({ emoji }) => (
     <span
       dangerouslySetInnerHTML={{
@@ -180,6 +201,7 @@ const TitleWrapper = (props: TitleProps) => {
       }}
     />
   );
+  */
 
   const AccessIndicator = (par: any) => {
     return (
@@ -197,6 +219,7 @@ const TitleWrapper = (props: TitleProps) => {
     );
   };
 
+  /*
   function transformer(children) {
     for (let child in children?.props?.children) {
       if (typeof children?.props?.children[child] === 'string') {
@@ -205,11 +228,20 @@ const TitleWrapper = (props: TitleProps) => {
     }
     return children;
   }
+  */
+  function transformer(children) {
+    for (let child in children?.props?.children) {
+      if (typeof children?.props?.children[child] === 'string') {
+        return children?.props?.children[child];
+      }
+    }
+    return children;
+  }
 
   return isPageTitle ? (
     <h1 className="card__title">
       {accessStatus && <AccessIndicator status={accessStatus} />}
-      {transformer(children)}
+      <font dangerouslySetInnerHTML={{ __html: transformer(children) }} />
     </h1>
   ) : (
     <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{children}</h2>

@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import { MISSING_THUMB_DEFAULT } from 'config';
 
 export default function useGetThumbnail(
   uri: string,
@@ -15,7 +14,6 @@ export default function useGetThumbnail(
   const isImage = claim && claim.value && claim.value.stream_type === 'image';
   // $FlowFixMe
   const isFree = claim && claim.value && (!claim.value.fee || Number(claim.value.fee.amount) <= 0);
-  const isCollection = claim && claim.value_type === 'collection';
   const thumbnailInClaim = claim && claim.value && claim.value.thumbnail && claim.value.thumbnail.url;
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
   let shouldFetchFileInfo = false;
@@ -28,8 +26,8 @@ export default function useGetThumbnail(
     } else if (!shouldHide) {
       shouldFetchFileInfo = true;
     }
-  } else if (isCollection) {
-    thumbnailToUse = MISSING_THUMB_DEFAULT;
+  } else {
+    thumbnailToUse = null;
   }
 
   const [thumbnail, setThumbnail] = React.useState(thumbnailToUse);
@@ -38,6 +36,7 @@ export default function useGetThumbnail(
     if (shouldFetchFileInfo) {
       getFile(repostSrcUri || uri);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [shouldFetchFileInfo, repostSrcUri, uri]);
 
   React.useEffect(() => {

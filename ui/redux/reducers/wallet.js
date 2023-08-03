@@ -14,7 +14,7 @@ type ActionResult = {
   result: any,
 };
 
-type WalletState = {
+export type WalletState = {
   balance: any,
   totalBalance: any,
   reservedBalance: any,
@@ -325,12 +325,8 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED]: (state: WalletState, action: any): WalletState => {
-      const {
-        claimId,
-        type,
-        txid,
-        effective,
-      }: { claimId: string, type: string, txid: string, effective: string } = action.data;
+      const { claimId, type, txid, effective }: { claimId: string, type: string, txid: string, effective: string } =
+        action.data;
       const pendingtxs = Object.assign({}, state.pendingSupportTransactions);
 
       pendingtxs[claimId] = { txid, type, effective };

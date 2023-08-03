@@ -1,19 +1,24 @@
 import { connect } from 'react-redux';
-import { selectIsUriResolving, selectTitleForUri, selectClaimIdForUri } from 'redux/selectors/claims';
 import {
-  selectUrlsForCollectionId,
-  selectNameForCollectionId,
+  selectIsResolvingForId,
+  selectTitleForUri,
+  selectClaimIdForUri,
+  selectClaimForClaimId,
+  selectThumbnailForUri,
+  selectClaimIsPendingForId,
+} from 'redux/selectors/claims';
+import {
+  selectCollectionTitleForId,
   selectCountForCollectionId,
-  selectIsResolvingCollectionForId,
+  selectAreCollectionItemsFetchingForId,
   selectFirstItemUrlForCollection,
   selectUpdatedAtForCollectionId,
   selectCreatedAtForCollectionId,
-  selectPublishedCollectionClaimForId,
   selectIsCollectionBuiltInForId,
-  selectCollectionHasEditsForId,
   selectThumbnailForCollectionId,
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
+  selectCollectionHasEditsForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -21,7 +26,7 @@ import CollectionPreview from './view';
 const select = (state, props) => {
   const { collectionId: propCollectionId, uri } = props;
   const collectionId = propCollectionId || (uri && selectClaimIdForUri(state, uri));
-  const claim = selectPublishedCollectionClaimForId(state, collectionId);
+  const claim = selectClaimForClaimId(state, collectionId);
   const channel = getChannelFromClaim(claim);
   const collectionUri = uri || (claim && (claim.canonical_url || claim.permanent_url)) || null;
   let channelTitle = null;
@@ -33,27 +38,30 @@ const select = (state, props) => {
       channelTitle = name;
     }
   }
+  const firstCollectionItemUrl = selectFirstItemUrlForCollection(state, collectionId);
 
   return {
     collectionId,
     uri: collectionUri,
     collectionCount: selectCountForCollectionId(state, collectionId),
-    collectionName: selectNameForCollectionId(state, collectionId),
-    collectionItemUrls: selectUrlsForCollectionId(state, collectionId), // ForId || ForUri
+    collectionName: selectCollectionTitleForId(state, collectionId),
     collectionType: selectCollectionTypeForId(state, collectionId),
-    isResolvingCollectionClaims: selectIsResolvingCollectionForId(state, collectionId),
-    isResolvingUri: collectionUri && selectIsUriResolving(state, collectionUri),
+    isFetchingItems: selectAreCollectionItemsFetchingForId(state, collectionId),
+    isResolvingCollection: selectIsResolvingForId(state, collectionId),
+    claimIsPending: selectClaimIsPendingForId(state, collectionId),
     title: collectionUri && selectTitleForUri(state, collectionUri),
     channel,
     channelTitle,
     hasClaim: Boolean(claim),
-    firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
+    firstCollectionItemUrl,
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
     collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
-    hasEdits: selectCollectionHasEditsForId(state, collectionId),
     thumbnail: selectThumbnailForCollectionId(state, collectionId),
     isEmpty: selectCollectionIsEmptyForId(state, collectionId),
+    thumbnailFromClaim: selectThumbnailForUri(state, collectionUri),
+    thumbnailFromSecondaryClaim: selectThumbnailForUri(state, firstCollectionItemUrl, true),
+    collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
   };
 };
 

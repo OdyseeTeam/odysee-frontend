@@ -8,6 +8,7 @@ import Page from 'component/page';
 import SettingAccount from 'component/settingAccount';
 import SettingAppearance from 'component/settingAppearance';
 import SettingContent from 'component/settingContent';
+import SettingPlayer from 'component/settingPlayer';
 import SettingSystem from 'component/settingSystem';
 import SettingUnauthenticated from 'component/settingUnauthenticated';
 import Spinner from 'component/spinner';
@@ -94,6 +95,7 @@ class SettingsPage extends React.PureComponent<Props> {
             <SettingAppearance />
             <SettingAccount />
             <SettingContent />
+            <SettingPlayer />
             <SettingSystem />
           </div>
         )}

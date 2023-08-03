@@ -1,3 +1,5 @@
+/* eslint-disable space-before-function-paren */
+
 /**
  * @file playlist.js
  *

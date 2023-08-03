@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import Comment from './view';
+import CommentReactions from './view';
 import { selectClaimIsMine, selectClaimForUri } from 'redux/selectors/claims';
 import { doResolveUri } from 'redux/actions/claims';
 import { doToast } from 'redux/actions/notifications';
@@ -28,4 +28,4 @@ const perform = (dispatch) => ({
   doToast: (params) => dispatch(doToast(params)),
 });
 
-export default connect(select, perform)(Comment);
+export default connect(select, perform)(CommentReactions);

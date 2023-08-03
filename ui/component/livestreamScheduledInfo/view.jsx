@@ -1,28 +1,35 @@
 // @flow
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import moment from 'moment';
-import 'scss/component/livestream-scheduled-info.scss';
 import I18nMessage from 'component/i18nMessage';
 import { getTimeAgoStr } from 'util/time';
+import './style.lazy.scss';
+
+const CALC_TIME_INTERVAL_MS = 1000;
 
 type Props = {
+  // -- redux --
   releaseTimeMs: number,
 };
 
 export default function LivestreamScheduledInfo(props: Props) {
   const { releaseTimeMs } = props;
-  const [startDateFromNow, setStartDateFromNow] = useState('');
-  const [inPast, setInPast] = useState('pending');
 
-  useEffect(() => {
+  const [startDateFromNow, setStartDateFromNow] = React.useState();
+  const [inPast, setInPast] = React.useState();
+
+  const startDate = React.useMemo(() => moment(releaseTimeMs).format('LLL'), [releaseTimeMs]);
+
+  React.useEffect(() => {
     const calcTime = () => {
       const zeroDurationStr = '---';
       const timeAgoStr = getTimeAgoStr(releaseTimeMs, true, true, zeroDurationStr);
+      const isZeroDuration = timeAgoStr === zeroDurationStr;
 
-      if (timeAgoStr === zeroDurationStr) {
+      if (isZeroDuration) {
         setInPast(true);
       } else {
         setStartDateFromNow(timeAgoStr);
@@ -30,27 +37,31 @@ export default function LivestreamScheduledInfo(props: Props) {
       }
     };
 
-    const intervalId = setInterval(calcTime, 1000);
+    calcTime();
+
+    const intervalId = setInterval(calcTime, CALC_TIME_INTERVAL_MS);
+
     return () => clearInterval(intervalId);
   }, [releaseTimeMs]);
 
-  const startDate = moment(releaseTimeMs).format('MMMM Do, h:mm a');
+  if (!startDateFromNow) return null;
 
   return (
-    inPast !== 'pending' && (
-      <div className={'livestream-scheduled'}>
-        <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
-        <p className={'livestream-scheduled__time'}>
-          {!inPast && (
-            <span>
+    <div className="livestream-scheduled">
+      <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
+      <p className="livestream-scheduled__time">
+        <span>
+          {!inPast ? (
+            <>
               <I18nMessage tokens={{ time_date: startDateFromNow }}>Live %time_date%</I18nMessage>
               <br />
-              <span className={'livestream-scheduled__date'}>{startDate}</span>
-            </span>
+              <span className="livestream-scheduled__date">{startDate}</span>
+            </>
+          ) : (
+            __('Starting Soon')
           )}
-          {inPast && <span>{__('Starting Soon')}</span>}
-        </p>
-      </div>
-    )
+        </span>
+      </p>
+    </div>
   );
 }

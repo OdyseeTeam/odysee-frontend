@@ -1,6 +1,7 @@
 // @flow
 import React, { useEffect } from 'react';
 import { FormField } from 'component/common/form';
+import debounce from 'util/debounce';
 
 type Props = {
   uri: ?string,
@@ -13,7 +14,7 @@ type Props = {
   isStillEditing: boolean,
   fetchStreamingUrl: (string) => void,
   setPrevFileText: (string) => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   // setCurrentFileType: (string) => void,
 };
 
@@ -37,6 +38,13 @@ function PostEditor(props: Props) {
 
   const [ready, setReady] = React.useState(!editing);
   const [loading, setLoading] = React.useState(false);
+
+  const updateFileText = React.useCallback(
+    debounce((value) => {
+      updatePublishForm({ fileText: value });
+    }, 750),
+    []
+  );
 
   useEffect(() => {
     if (editing && uri) {
@@ -106,7 +114,7 @@ function PostEditor(props: Props) {
       placeholder={__('My content for this post...')}
       value={ready ? fileText : __('Loading...')}
       disabled={!ready || disabled}
-      onChange={(value) => updatePublishForm({ fileText: value })}
+      onChange={updateFileText}
     />
   );
 }

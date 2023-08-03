@@ -14,7 +14,6 @@ import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
 
 const Draggable = React.lazy(() =>
-  // $FlowFixMe
   import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))
 );
 
@@ -58,8 +57,8 @@ type Props = {
   noEmpty?: boolean,
   maxClaimRender?: number,
   loadedCallback?: (number) => void,
-  swipeLayout: boolean,
   showEdit?: boolean,
+  isEditPreview?: boolean,
   droppableProvided?: any,
   unavailableUris?: Array<string>,
   inWatchHistory?: boolean,
@@ -69,7 +68,6 @@ type Props = {
   disableClickNavigation?: boolean,
   setActiveListItemRef?: any,
   setListRef?: any,
-  onHidden: (string) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
@@ -89,8 +87,8 @@ export default function ClaimList(props: Props) {
     type,
     header,
     onScrollBottom,
-    pageSize,
     page,
+    pageSize,
     showHiddenByUser,
     showUnresolvedClaims,
     includeSupportAction,
@@ -109,8 +107,8 @@ export default function ClaimList(props: Props) {
     noEmpty,
     maxClaimRender,
     loadedCallback,
-    swipeLayout = false,
     showEdit,
+    isEditPreview,
     droppableProvided,
     unavailableUris,
     inWatchHistory,
@@ -120,7 +118,6 @@ export default function ClaimList(props: Props) {
     disableClickNavigation,
     setActiveListItemRef,
     setListRef,
-    onHidden,
     doDisablePlayerDrag,
     restoreScrollPos,
     setHasActive,
@@ -222,8 +219,8 @@ export default function ClaimList(props: Props) {
       showNoSourceClaims={showNoSourceClaims}
       customShouldHide={customShouldHide}
       onClick={handleClaimClicked}
-      swipeLayout={swipeLayout}
       showEdit={showEdit}
+      isEditPreview={isEditPreview}
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
       wrapperElement={draggableProvided ? 'div' : undefined}
       unavailableUris={unavailableUris}
@@ -277,9 +274,13 @@ export default function ClaimList(props: Props) {
         // currentActiveItem.current !== node prevents re-scrolling during the same render
         // so it should only auto scroll when the active item switches, the button to scroll is clicked
         // or the list itself changes (switch between floating player vs file page)
-        if (isActive && setActiveListItemRef && currentActiveItem.current !== node) {
+        if (
+          isActive &&
+          setActiveListItemRef &&
+          currentActiveItem.current !== node.getAttribute('data-rbd-draggable-id')
+        ) {
           setActiveListItemRef(node);
-          currentActiveItem.current = node;
+          currentActiveItem.current = node.getAttribute('data-rbd-draggable-id');
         }
       }
     },
@@ -288,7 +289,7 @@ export default function ClaimList(props: Props) {
 
   return tileLayout && !header ? (
     <>
-      <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
+      <section ref={listRef} className="claim-grid">
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
             if (uri) {
@@ -312,8 +313,6 @@ export default function ClaimList(props: Props) {
                       collectionId={collectionId}
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
-                      swipeLayout={swipeLayout}
-                      onHidden={onHidden}
                     />
                   )}
                 </React.Fragment>
@@ -365,9 +364,8 @@ export default function ClaimList(props: Props) {
       {(urisLength > 0 || droppableProvided) && (
         <ul
           className={classnames('ul--no-style', {
-            card: !(tileLayout || swipeLayout || type === 'small'),
+            card: !(tileLayout || type === 'small'),
             'claim-list--card-body': tileLayout,
-            'swipe-list': swipeLayout,
           })}
           {...(droppableProvided && droppableProvided.droppableProps)}
           ref={listRefCb}
@@ -378,14 +376,14 @@ export default function ClaimList(props: Props) {
                 <React.Suspense fallback={null} key={uri}>
                   <Draggable draggableId={uri} index={index}>
                     {(draggableProvided, draggableSnapshot) => {
-                      // Restrict dragging to vertical axis
-                      // https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919
-                      let transform = draggableProvided.draggableProps.style.transform;
+                      const dp = draggableProvided.draggableProps;
+                      // Restrict dragging to vertical axis (https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919)
+                      let transform = dp.style ? dp.style.transform : undefined;
                       if (draggableSnapshot.isDragging && transform) {
                         transform = transform.replace(/\(.+,/, '(0,');
                       }
 
-                      // doDisablePlayerDrag is a function brought by fileRenderFloating if is floating
+                      // doDisablePlayerDrag is a function brought by videoRenderFloating if is floating
                       const isDraggingFromFloatingPlayer = draggableSnapshot.isDragging && doDisablePlayerDrag;
                       const isDraggingFromMobile = draggableSnapshot.isDragging && isMobile;
                       const topForDrawer = Number(
@@ -400,19 +398,24 @@ export default function ClaimList(props: Props) {
                         Number(
                           playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
                         );
-                      if (playerElem && navigator.userAgent.toLowerCase().includes('firefox')) {
-                        playerTop -= playerElem.offsetHeight;
-                      }
 
+                      assert(dp.style, 'Invalid style detected. Please fix Flow warnings below.');
+
+                      // prettier-ignore
                       const style = {
                         ...draggableProvided.draggableProps.style,
                         transform,
                         top: isDraggingFromFloatingPlayer
+                          // $FlowIgnore
                           ? draggableProvided.draggableProps.style.top - playerInfo?.offsetTop - Number(playerTop)
                           : isDraggingFromMobile
+                          // $FlowIgnore
                           ? draggableProvided.draggableProps.style.top - topForDrawer
+                          // $FlowIgnore
                           : draggableProvided.draggableProps.style.top,
+                        // $FlowIgnore
                         left: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.left,
+                        // $FlowIgnore
                         right: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.right,
                       };
                       const isActive = activeUri && uri === activeUri;
@@ -448,12 +451,9 @@ export default function ClaimList(props: Props) {
       )}
 
       {restoreScrollPos && (
-        <Button
-          button="secondary"
-          className="claim-list__scroll-to-recent"
-          label={__('Scroll to Playing')}
-          onClick={restoreScrollPos}
-        />
+        <div className="claim-list__scroll-to-recent">
+          <Button button="secondary" label={__('Scroll to Playing')} onClick={restoreScrollPos} />
+        </div>
       )}
 
       {!timedOut && urisLength === 0 && !loading && !noEmpty && (

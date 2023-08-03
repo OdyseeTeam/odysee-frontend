@@ -1,9 +1,11 @@
 // @flow
 import { formatLbryChannelName } from 'util/url';
-import ChatLayout from 'component/chat';
+import { lazyImport } from 'util/lazyImport';
 import Page from 'component/page';
 import React from 'react';
 import Yrbl from 'component/yrbl';
+
+const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
 type Props = {
   claim: StreamClaim,

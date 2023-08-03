@@ -16,6 +16,7 @@ import Card from 'component/common/card';
 import Plastic from 'react-plastic';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
+import './style.scss';
 
 const stripePromise = loadStripe(STRIPE_PUBLIC_KEY);
 const CARD_NAME_REGEX = /[0-9!@#$%^&*()_+=[\]{};:"\\|,<>?~]/;
@@ -156,8 +157,8 @@ const SettingsStripeCard = (props: Props) => {
           />
         )}
         <Card
-          title={isModal ? undefined : __('Card Details')}
           className="add-payment-card"
+          title={isModal ? undefined : __('Card Details')}
           body={
             <>
               <Plastic
@@ -166,70 +167,62 @@ const SettingsStripeCard = (props: Props) => {
                 expiry={cardDetails.expiryMonth + '/' + cardDetails.expiryYear}
                 number={'____________' + cardDetails.lastFour}
               />
-              <br />
-              <Button
-                className="view-transactions__button"
-                button="secondary"
-                label={__('View Transactions')}
-                icon={ICONS.SETTINGS}
-                navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`}
-                style={{ marginLeft: '10px' }}
-              />
-              <Button
-                className="remove-card__button"
-                button="secondary"
-                label={__('Remove Card')}
-                icon={ICONS.DELETE}
-                onClick={(e) =>
-                  doOpenModal(MODALS.CONFIRM, {
-                    title: __('Confirm Remove Card'),
-                    subtitle: __('Remove the current card in your account?'),
-                    onConfirm: (closeModal, setIsBusy) => {
-                      setIsBusy(true);
-                      doRemoveCardForPaymentMethodId(cardDetails.paymentMethodId).then(() => {
-                        setIsBusy(false);
-                        doToast({ message: __('Successfully removed card.') });
-                        closeModal();
-                      });
-                    },
-                  })
-                }
-              />
+              <div className="card-meta">
+                <Button
+                  button="secondary"
+                  label={__('View Tips')}
+                  icon={ICONS.SETTINGS}
+                  navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`}
+                />
+                <Button
+                  className="remove-card__button"
+                  button="secondary"
+                  label={__('Remove Card')}
+                  icon={ICONS.DELETE}
+                  onClick={(e) =>
+                    doOpenModal(MODALS.CONFIRM, {
+                      title: __('Confirm Remove Card'),
+                      subtitle: __('Remove the current card in your account?'),
+                      onConfirm: (closeModal, setIsBusy) => {
+                        setIsBusy(true);
+                        doRemoveCardForPaymentMethodId(cardDetails.paymentMethodId).then(() => {
+                          setIsBusy(false);
+                          doToast({ message: __('Successfully removed card.') });
+                          closeModal();
+                        });
+                      },
+                    })
+                  }
+                />
+
+                <label>{__('Currency To Use')}:</label>
+                <fieldset-section>
+                  <FormField
+                    name="currency_selector"
+                    type="select"
+                    onChange={(e) => doSetPreferredCurrency(e.target.value)}
+                    value={preferredCurrency}
+                  >
+                    {Object.values(STRIPE.CURRENCIES).map((currency) => (
+                      <option key={String(currency)} value={String(currency)}>
+                        {String(currency)}
+                      </option>
+                    ))}
+                  </FormField>
+                </fieldset-section>
+
+                <label>{__('View billing history on Stripe')}</label>
+                <Button
+                  className="stripe-billing-history__button"
+                  button="secondary"
+                  label={__('Visit Stripe')}
+                  navigate={`${STRIPE.STRIPE_BILLING_URL}?prefilled_email=${encodeURIComponent(cardDetails?.email)}`}
+                />
+              </div>
             </>
           }
         />
         <br />
-
-        {/* currency to use toggler (USD/EUR) */}
-        <div className="currency-to-use-div">
-          <h1 className="currency-to-use-header">{__('Currency To Use')}:</h1>
-
-          <fieldset-section>
-            <FormField
-              className="currency-to-use-selector"
-              name="currency_selector"
-              type="select"
-              onChange={(e) => doSetPreferredCurrency(e.target.value)}
-              value={preferredCurrency}
-            >
-              {Object.values(STRIPE.CURRENCIES).map((currency) => (
-                <option key={String(currency)} value={String(currency)}>
-                  {String(currency)}
-                </option>
-              ))}
-            </FormField>
-          </fieldset-section>
-        </div>
-
-        <div className="stripe-billing-history">
-          <h2 className="stripe-billing-history__header">{__('View billing history on Stripe')}</h2>
-          <Button
-            className="stripe-billing-history__button"
-            button="secondary"
-            label={__('Visit Stripe')}
-            navigate={`${STRIPE.STRIPE_BILLING_URL}?prefilled_email=${encodeURIComponent(cardDetails?.email)}`}
-          />
-        </div>
       </div>
     );
   }

@@ -7,11 +7,12 @@ import { selectClaimSavedForUrl } from 'redux/selectors/collections';
 const select = (state, props) => {
   const { uri } = props;
 
-  const { permanent_url: permanentUrl, value } = selectClaimForUri(state, uri) || {};
-  const { stream_type: streamType } = value || {};
+  const claim = selectClaimForUri(state, uri);
+  const { permanent_url: permanentUrl } = claim || {};
 
   return {
-    streamType,
+    claim,
+    uri: permanentUrl,
     isSaved: permanentUrl && selectClaimSavedForUrl(state, permanentUrl),
   };
 };

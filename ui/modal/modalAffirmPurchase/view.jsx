@@ -68,6 +68,7 @@ function ModalAffirmPurchase(props: Props) {
         clearTimeout(timeout);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [success, uri]);
 
   React.useEffect(() => {

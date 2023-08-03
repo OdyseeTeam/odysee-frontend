@@ -41,6 +41,12 @@ Lbryio.call = (resource, action, params = {}, method = 'post') => {
         let error;
         if (json.error) {
           error = new Error(json.error);
+        } else if (json.success === false) {
+          if (json.data) {
+            error = new Error(json.data);
+          } else {
+            error = new Error('Unknown API error signature');
+          }
         } else {
           error = new Error('Unknown API error signature');
         }
@@ -159,7 +165,7 @@ Lbryio.authenticate = (domain, language) => {
           if (user) {
             return user;
           }
-          
+
           return new Promise((res, rej) => {
             Lbryio.call(
               'user',
@@ -213,7 +219,7 @@ Lbryio.getStripeToken = () =>
 Lbryio.getExchangeRates = () => {
   if (!Lbryio.exchangeLastFetched || Date.now() - Lbryio.exchangeLastFetched > EXCHANGE_RATE_TIMEOUT) {
     Lbryio.exchangePromise = new Promise((resolve, reject) => {
-      Lbryio.call('lbc', 'exchange_rate', {}, 'get', true)
+      Lbryio.call('lbc', 'exchange_rate', {}, 'post', true)
         .then(({ lbc_usd: LBC_USD, lbc_btc: LBC_BTC, btc_usd: BTC_USD }) => {
           const rates = { LBC_USD, LBC_BTC, BTC_USD };
           resolve(rates);

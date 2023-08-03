@@ -10,7 +10,7 @@ type Props = {
   claim: ?Claim,
   channelName: ?string,
   claimIsMine: boolean,
-  doPrepareEdit: (claim: Claim, uri: string, claimType: string) => void,
+  doPrepareEdit: (claim: Claim, uri: string) => void,
 };
 
 function ClaimPublishButton(props: Props) {
@@ -36,7 +36,7 @@ function ClaimPublishButton(props: Props) {
       title={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')}
       label={claimType === 'livestream' ? __('Update or Publish Replay') : __('Edit')}
       icon={ICONS.EDIT}
-      onClick={!claim ? undefined : () => doPrepareEdit(claim, editUri, claimType)}
+      onClick={!claim ? undefined : () => doPrepareEdit(claim, editUri)}
     />
   );
 }

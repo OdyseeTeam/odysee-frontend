@@ -1,13 +1,17 @@
+// @flow
+import type { Props } from './view';
+import CommentsList from './view';
 import { connect } from 'react-redux';
 import {
   selectClaimForUri,
   selectClaimIsMine,
   selectFetchingMyChannels,
+  selectScheduledStateForUri,
   selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import {
   selectTopLevelCommentsForUri,
-  makeSelectTopLevelTotalPagesForUri,
+  selectTopLevelTotalPagesForUri,
   selectIsFetchingComments,
   selectIsFetchingTopLevelComments,
   selectIsFetchingReacts,
@@ -29,7 +33,6 @@ import {
   doFetchChannelMembershipsForChannelIds,
 } from 'redux/actions/memberships';
 import { selectUserHasValidMembershipForCreatorId } from 'redux/selectors/memberships';
-import CommentsList from './view';
 
 const select = (state, props) => {
   const { uri, threadCommentId, linkedCommentId } = props;
@@ -49,11 +52,13 @@ const select = (state, props) => {
     claimId: claim && claim.claim_id,
     claimIsMine: selectClaimIsMine(state, claim),
     fetchingChannels: selectFetchingMyChannels(state),
+    // $FlowFixMe
     isAChannelMember: selectUserHasValidMembershipForCreatorId(state, channelId),
     isFetchingComments: selectIsFetchingComments(state),
     isFetchingReacts: selectIsFetchingReacts(state),
     isFetchingTopLevelComments: selectIsFetchingTopLevelComments(state),
     linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
+    // $FlowFixMe
     commentsEnabledSetting: selectCommentsEnabledSettingForChannelId(state, channelId),
     myReactsByCommentId: selectMyReacts(state),
     othersReactsById: selectOthersReacts(state),
@@ -61,8 +66,9 @@ const select = (state, props) => {
     threadComment,
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
     topLevelComments: selectTopLevelCommentsForUri(state, uri),
-    topLevelTotalPages: makeSelectTopLevelTotalPagesForUri(uri)(state),
+    topLevelTotalPages: selectTopLevelTotalPagesForUri(state, uri),
     totalComments: selectTotalCommentsCountForUri(state, uri),
+    scheduledState: selectScheduledStateForUri(state, uri),
   };
 };
 
@@ -76,4 +82,4 @@ const perform = {
   doPopOutInlinePlayer,
 };
 
-export default connect(select, perform)(CommentsList);
+export default connect<_, Props, _, _, _, _>(select, perform)(CommentsList);

@@ -2,14 +2,19 @@
 import React from 'react';
 import { useHistory } from 'react-router';
 import WalletBalance from 'component/walletBalance';
-import TxoList from 'component/txoList';
+import TxoList from './txoList';
 import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import Spinner from 'component/spinner';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import './style.scss';
 
 const TAB_QUERY = 'tab';
+
+const CURRENCY_QUERY_PARAM = 'currency';
+const CREDITS_QUERY_PARAM_VALUE = 'credits';
+const FIAT_QUERY_PARAM_VALUE = 'fiat';
 
 const TABS = {
   LBRY_CREDITS_TAB: 'credits',
@@ -33,6 +38,8 @@ const WalletPage = (props: Props) => {
   const urlParams = new URLSearchParams(search);
 
   const currentView = urlParams.get(TAB_QUERY) || TABS.LBRY_CREDITS_TAB;
+  const currencyValue = urlParams.get(CURRENCY_QUERY_PARAM);
+  const transactionType = urlParams.get('transactionType');
 
   let tabIndex;
   switch (currentView) {
@@ -40,10 +47,15 @@ const WalletPage = (props: Props) => {
       tabIndex = 0;
       break;
     case TABS.PAYMENT_HISTORY:
-      tabIndex = 1;
-      break;
-    case TABS.ACCOUNT_HISTORY:
-      tabIndex = 2;
+      if (currencyValue === CREDITS_QUERY_PARAM_VALUE) {
+        tabIndex = 1;
+      } else if (currencyValue === FIAT_QUERY_PARAM_VALUE) {
+        if (transactionType === 'tips') {
+          tabIndex = 2;
+        } else {
+          tabIndex = 3;
+        }
+      }
       break;
     default:
       tabIndex = 0;
@@ -56,9 +68,11 @@ const WalletPage = (props: Props) => {
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.LBRY_CREDITS_TAB}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}`;
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${CREDITS_QUERY_PARAM_VALUE}`;
     } else if (newTabIndex === 2) {
-      url += `${TAB_QUERY}=${TABS.ACCOUNT_HISTORY}`;
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}&transactionType=tips`;
+    } else if (newTabIndex === 3) {
+      url += `${TAB_QUERY}=${TABS.PAYMENT_HISTORY}&${CURRENCY_QUERY_PARAM}=${FIAT_QUERY_PARAM_VALUE}&transactionType=rentals-purchases`;
     } else {
       url += `${TAB_QUERY}=${TABS.LBRY_CREDITS_TAB}`;
     }
@@ -77,14 +91,16 @@ const WalletPage = (props: Props) => {
         <Tabs onChange={onTabChange} index={tabIndex}>
           <TabList className="tabs__list--collection-edit-page">
             <Tab>{__('Balance')}</Tab>
-            <Tab>{__('Transactions')}</Tab>
+            <Tab>{__('Credits')}</Tab>
+            <Tab>{__('Tips')}</Tab>
+            <Tab>{__('Rentals/Purchases')}</Tab>
           </TabList>
           <TabPanels>
             {/* balances for lbc and fiat */}
             <TabPanel>
               <WalletBalance />
             </TabPanel>
-            {/* transactions panel */}
+            {/* credits tab */}
             <TabPanel>
               <div className="section card-stack">
                 <div className="lbc-transactions">
@@ -96,6 +112,44 @@ const WalletPage = (props: Props) => {
                   {!loading && (
                     <>
                       {showIntro && <YrblWalletEmpty includeWalletLink />}
+                      <div className="card-stack">
+                        <TxoList search={search} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </TabPanel>
+            {/* tips tab */}
+            <TabPanel>
+              <div className="section card-stack">
+                <div className="lbc-transactions">
+                  {loading && (
+                    <div className="main--empty">
+                      <Spinner delayed />
+                    </div>
+                  )}
+                  {!loading && (
+                    <>
+                      <div className="card-stack">
+                        <TxoList search={search} />
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            </TabPanel>
+            {/* rentals/purchases tab */}
+            <TabPanel>
+              <div className="section card-stack">
+                <div className="lbc-transactions">
+                  {loading && (
+                    <div className="main--empty">
+                      <Spinner delayed />
+                    </div>
+                  )}
+                  {!loading && (
+                    <>
                       <div className="card-stack">
                         <TxoList search={search} />
                       </div>

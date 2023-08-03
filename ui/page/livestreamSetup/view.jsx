@@ -20,6 +20,7 @@ import LivestreamForm from 'component/publish/livestream/livestreamForm';
 import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
+import './style.scss';
 
 type Props = {
   hasChannels: boolean,
@@ -61,7 +62,6 @@ export default function LivestreamSetupPage(props: Props) {
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const urlTab = urlParams.get('t');
-  const urlSource = urlParams.get('s');
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
 
@@ -81,7 +81,7 @@ export default function LivestreamSetupPage(props: Props) {
   const pendingLength = pendingClaims.length;
   const totalLivestreamClaims = pendingClaims.concat(myLivestreamClaims);
   const helpText = (
-    <div className="section__subtitle">
+    <div className="publish-row">
       <p>
         {__(
           `Create a Livestream by first submitting your livestream details and waiting for approval confirmation. This can be done well in advance and will take a few minutes.`
@@ -103,7 +103,7 @@ export default function LivestreamSetupPage(props: Props) {
         <li>{__(`Tune: Zerolatency`)}</li>
       </ul>
       <p>
-        {__(`If using other streaming software, make sure the bitrate is below 4500 kbps or the stream will not work.`)}
+        {__(`If using other streaming software, make sure the bitrate is below 7000 kbps or the stream will not work.`)}
       </p>
       <p>{__(`For streaming from your mobile device, we recommend PRISM Live Studio from the app store.`)}</p>
       <p>
@@ -212,7 +212,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Button
           key={'Publish'}
           iconSize={18}
-          label={'Publish'}
+          label={__('Publish')}
           button="alt"
           onClick={() => {
             setTab('Publish');
@@ -223,7 +223,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Button
           key={'Setup'}
           iconSize={18}
-          label={'Local Setup'}
+          label={__('Local Setup')}
           button="alt"
           onClick={() => {
             setTab('Setup');
@@ -241,13 +241,13 @@ export default function LivestreamSetupPage(props: Props) {
   }
 
   return (
-    <Page className="uploadPage-wrapper">
+    <Page>
       {balance < 0.01 && <YrblWalletEmpty />}
-      <h1 className="page__title">
-        <Icon icon={ICONS.VIDEO} />
+      <h1 className="page__title page__title--margin">
+        <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />}
         </label>
       </h1>
       <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />
@@ -282,13 +282,16 @@ export default function LivestreamSetupPage(props: Props) {
               {!fetchingChannels && channelId && (
                 <>
                   <Card
+                    background
                     className={classnames('section card--livestream-key', {
                       disabled: !streamKey || totalLivestreamClaims.length === 0,
                     })}
-                    actions={
-                      <>
+                    style={{ marginTop: 'var(--spacing-s)' }}
+                    body={
+                      <div className="publish-row publish-row--no-margin">
                         <CopyableText
                           primaryButton
+                          className="publish-row--no-margin"
                           enableInputMask={!streamKey || totalLivestreamClaims.length === 0}
                           name="stream-server"
                           label={__('Stream server')}
@@ -304,13 +307,13 @@ export default function LivestreamSetupPage(props: Props) {
                           copyable={!streamKey || totalLivestreamClaims.length === 0 ? LIVESTREAM_RTMP_URL : streamKey}
                           snackMessage={__('Copied stream key.')}
                         />
-                      </>
+                      </div>
                     }
                   />
                   {totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
-                        <div className="section card--livestream-past">
+                        <div className="section">
                           <ClaimList
                             header={__('Your pending livestreams uploads')}
                             uris={pendingClaims.map((claim) => claim.permanent_url)}
@@ -327,7 +330,7 @@ export default function LivestreamSetupPage(props: Props) {
                               />
                             </div>
                           )}
-                          <div className="section card--livestream-past">
+                          <div className="section livestreams__past">
                             <ClaimList
                               header={
                                 <ListHeader
@@ -381,7 +384,8 @@ export default function LivestreamSetupPage(props: Props) {
                       }
                     />
                   )}
-                  <Card className="card--livestream-instructions" title="Instructions" actions={helpText} />
+
+                  <Card background title="Instructions" body={helpText} />
 
                   {/* Debug Stuff */}
                   {streamKey && false && activeChannelClaim && (
@@ -440,9 +444,7 @@ export default function LivestreamSetupPage(props: Props) {
           )}
         </div>
       )}
-      {tab === 'Publish' && (
-        <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} urlSource={urlSource} />
-      )}
+      {tab === 'Publish' && <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />}
     </Page>
   );
 }

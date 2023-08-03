@@ -1,11 +1,9 @@
 // @flow
 import { v4 as Uuidv4 } from 'uuid';
-// import { SHOW_ADS, AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION } from 'config';
 import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Spinner from 'component/spinner';
-// import Ads from 'web/component/ads';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';
@@ -31,7 +29,6 @@ type Props = {
   claimId: string,
   metadata: any,
   location: UrlLocation,
-  // userHasPremiumPlus: boolean,
 };
 
 export default React.memo<Props>(function RecommendedContent(props: Props) {
@@ -44,35 +41,9 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     searchInLanguage,
     claim,
     location,
-    // userHasPremiumPlus,
   } = props;
 
   const claimId: ?string = claim && claim.claim_id;
-  // const injectAds = SHOW_ADS && IS_WEB && !userHasPremiumPlus;
-
-  /*
-  function claimContainsBlockedWords(claim: ?StreamClaim) {
-    if (BLOCKED_WORDS) {
-      const hasBlockedWords = (str) => BLOCKED_WORDS.some((bw) => str.includes(bw));
-      const metadata = getClaimMetadata(claim);
-      // $FlowFixMe - flow does not support chaining yet, but we know for sure these fields are '?string'.
-      const title = metadata?.title?.toLowerCase();
-      // $FlowFixMe
-      const description = metadata?.description?.toLowerCase();
-      // $FlowFixMe
-      const name = claim?.name?.toLowerCase();
-
-      return Boolean(
-        (title && hasBlockedWords(title)) ||
-          (name && hasBlockedWords(name)) ||
-          (CHECK_DESCRIPTION && description && hasBlockedWords(description))
-      );
-    }
-    return false;
-  }
-  */
-
-  // const blacklistTriggered = React.useMemo(() => injectAds && claimContainsBlockedWords(claim), [injectAds, claim]);
 
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
   const signingChannel = claim && claim.signing_channel;
@@ -80,16 +51,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const isMobile = useIsMobile();
   const isMedium = useIsMediumScreen();
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
-
-  /*
-  const InjectedAd =
-    injectAds && !blacklistTriggered && !hasPremiumPlus
-      ? {
-          node: <Ads small type="video" className="ads__claim-item--recommended" noFallback />,
-          index: isMobile ? 0 : 3,
-        }
-      : null;
-      */
 
   // Assume this component always resides in a page where the `uri` matches
   // e.g. never in a floating popup. With that, we can grab the FYP ID from
@@ -167,9 +128,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               loading={isSearching}
               uris={recommendedContentUris}
               hideMenu={isMobile}
-              // TODO: Since 'triggerBlacklist' is handled by clients of <Ads> instead of internally by <Ads>, we don't
-              // need that parameter and can just not mount it when 'true', instead of mount-then-hide.
-              // injectedItem={injectAds && <Ads small type={'video'} triggerBlacklist={triggerBlacklist} />}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />
@@ -188,7 +146,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
               hideMenu={isMobile}
-              // injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} />}
               empty={__('No related content found')}
             />
           )}

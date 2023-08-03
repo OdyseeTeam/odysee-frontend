@@ -1,0 +1,40 @@
+// ============================================================================
+// .vjs-progress-control .vjs-time-marker
+// ============================================================================
+
+.video-js .vjs-progress-control .vjs-time-marker {
+  display: none;
+  position: absolute;
+  height: 100%;
+  z-index: 1;
+}
+
+.video-js .vjs-progress-control:hover .vjs-time-marker {
+  display: block;
+}
+
+.video-js.vjs-user-inactive .vjs-progress-control .vjs-time-marker {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 1s, opacity 1s;
+}
+
+// @todo: Might need to handle .vjs-workinghover
+
+// ============================================================================
+// .vjs-time-marker .vjs-time-tooltip
+// ============================================================================
+
+.video-js .vjs-progress-control {
+  .vjs-time-marker {
+    .vjs-time-tooltip {
+      font-size: 1em;
+      padding-bottom: 4px;
+      background-color: #000;
+      background-color: rgba(#000, 0.8);
+      color: white;
+      white-space: nowrap;
+      border-radius: var(--border-radius);
+    }
+  }
+}

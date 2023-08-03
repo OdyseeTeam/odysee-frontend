@@ -22,7 +22,6 @@ type Props = {
   nsfw: boolean,
   isNsfwBlocked: boolean,
   livestream?: boolean,
-  isLive?: boolean,
   // redux
   channelClaimId?: string,
   title?: string,
@@ -37,7 +36,6 @@ export default function FileTitleSection(props: Props) {
     nsfw,
     isNsfwBlocked,
     livestream = false,
-    isLive = false,
     subCount,
     channelClaimId,
     title,
@@ -70,7 +68,7 @@ export default function FileTitleSection(props: Props) {
       body={
         <>
           <ClaimInsufficientCredits uri={uri} />
-          <FileSubtitle uri={uri} isLive={isLive} livestream={livestream} />
+          <FileSubtitle uri={uri} />
         </>
       }
       actions={

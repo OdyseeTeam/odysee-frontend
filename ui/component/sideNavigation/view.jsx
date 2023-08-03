@@ -1,9 +1,8 @@
 // @flow
 import React from 'react';
 import type { Node } from 'react';
+import type { HomepageCat } from 'util/buildHomepage';
 import classnames from 'classnames';
-
-import './style.scss';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
@@ -16,14 +15,10 @@ import NotificationBubble from 'component/notificationBubble';
 import DebouncedInput from 'component/common/debounced-input';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
-import { GetLinksData } from 'util/buildHomepage';
+import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
 import MembershipBadge from 'component/membershipBadge';
-
-// TODO: move to selector for memoization
-import { getSortedRowData } from 'page/home/helper';
 
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
@@ -128,77 +123,87 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 // ****************************************************************************
 // ****************************************************************************
 
-type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+// type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
+// prettier-ignore
+type SidebarCat = $Diff<HomepageCat, {
+  id?: string,
+  pinnedUrls?: Array<string>,
+  pinnedClaimIds?: Array<string>,
+  hideSort?: boolean,
+  hideByDefault?: boolean,
+}>;
 
 type Props = {
-  subscriptions: Array<Subscription>,
+  uploadCount: number,
+  sidebarOpen: boolean,
+  isMediumScreen: boolean,
+  isOnFilePage: boolean,
+  setSidebarOpen: (boolean) => void,
+  // --- select ---
+  sidebarCategories: Array<SidebarCat>,
   lastActiveSubs: ?Array<Subscription>,
   followedTags: Array<Tag>,
   email: ?string,
-  uploadCount: number,
-  doSignOut: () => void,
-  sidebarOpen: boolean,
-  setSidebarOpen: (boolean) => void,
-  isMediumScreen: boolean,
-  isOnFilePage: boolean,
-  unseenCount: number,
   purchaseSuccess: boolean,
-  doClearPurchasedUriSuccess: () => void,
+  unseenCount: number,
   user: ?User,
-  homepageData: any,
-  homepageOrder: HomepageOrder,
-  homepageOrderApplyToSidebar: boolean,
-  doClearClaimSearch: () => void,
   hasMembership: ?boolean,
+  subscriptionUris: Array<string>,
+  // --- perform ---
+  doClearClaimSearch: () => void,
+  doSignOut: () => void,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
+  doClearPurchasedUriSuccess: () => void,
   doOpenModal: (id: string, ?{}) => void,
+  doGetDisplayedSubs: (filter: string) => Promise<Array<Subscription>>,
+  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
+  doBeginPublish: (PublishType) => void,
 };
 
 function SideNavigation(props: Props) {
   const {
-    subscriptions,
-    lastActiveSubs,
-    doSignOut,
-    email,
-    purchaseSuccess,
-    doClearPurchasedUriSuccess,
     sidebarOpen,
     setSidebarOpen,
     isMediumScreen,
     isOnFilePage,
-    unseenCount,
-    homepageData,
-    homepageOrder,
-    homepageOrderApplyToSidebar,
-    user,
+    sidebarCategories: categories,
+    lastActiveSubs,
     followedTags,
-    doClearClaimSearch,
+    email,
+    purchaseSuccess,
+    unseenCount,
+    user,
     hasMembership,
+    subscriptionUris,
+    doClearClaimSearch,
+    doSignOut,
     doFetchLastActiveSubs,
+    doClearPurchasedUriSuccess,
     doOpenModal,
+    doGetDisplayedSubs,
+    doResolveUris,
+    doBeginPublish,
   } = props;
-
-  const isLargeScreen = useIsLargeScreen();
-  const categories = getSidebarCategories(isLargeScreen);
 
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
       title: 'Go Live',
-      link: `/$/${PAGES.LIVESTREAM}`,
-      icon: ICONS.VIDEO,
+      icon: ICONS.GOLIVE,
       hideForUnauth: true,
+      onClick: () => doBeginPublish('livestream'),
     },
     {
       title: 'Upload',
-      link: `/$/${PAGES.UPLOAD}`,
       icon: ICONS.PUBLISH,
       hideForUnauth: true,
+      onClick: () => doBeginPublish('file'),
     },
     {
       title: 'Post',
-      link: `/$/${PAGES.POST}`,
       icon: ICONS.POST,
       hideForUnauth: true,
+      onClick: () => doBeginPublish('post'),
     },
   ];
 
@@ -291,13 +296,17 @@ function SideNavigation(props: Props) {
 
   const shouldRenderLargeMenu = (menuCanCloseCompletely && !isAbsolute) || sidebarOpen;
 
+  const sideNavigationRef = React.useRef(null);
+
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
-  const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
-  const showOverlay = isAbsolute && sidebarOpen;
+  const showPushMenu = !menuCanCloseCompletely;
+  const showOverlay = sidebarOpen;
 
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
 
   const [subscriptionFilter, setSubscriptionFilter] = React.useState('');
+  const [displayedSubs, setDisplayedSubs] = React.useState([]);
+  const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptionUris?.length > 0;
 
   let displayedFollowedTags = followedTags;
   if (showTagSection && followedTags.length > SIDEBAR_SUBS_DISPLAYED && !expandTags) {
@@ -306,18 +315,6 @@ function SideNavigation(props: Props) {
 
   // **************************************************************************
   // **************************************************************************
-
-  function getSidebarCategories(isLargeScreen) {
-    const rowData = GetLinksData(homepageData, isLargeScreen);
-    let categories = rowData;
-
-    if (homepageOrderApplyToSidebar) {
-      const sortedRowData: Array<RowDataItem> = getSortedRowData(Boolean(email), hasMembership, homepageOrder, rowData);
-      categories = sortedRowData.filter((x) => x.id !== 'FYP');
-    }
-
-    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, ...theRest }) => theRest);
-  }
 
   function getLink(props: SideNavLink) {
     const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
@@ -346,18 +343,29 @@ function SideNavigation(props: Props) {
     );
   }
 
-  function getSubscriptionSection() {
-    const showSubsSection = shouldRenderLargeMenu && isPersonalized && subscriptions && subscriptions.length > 0;
-    if (showSubsSection) {
-      let displayedSubscriptions;
-      if (subscriptionFilter) {
-        const filter = subscriptionFilter.toLowerCase();
-        displayedSubscriptions = subscriptions.filter((sub) => sub.channelName.toLowerCase().includes(filter));
-      } else {
-        displayedSubscriptions =
-          lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
-      }
+  function getCategoryLink(props: SidebarCat) {
+    const { id, title, route, link, icon } = props;
 
+    if (id === 'UPCOMING') {
+      return null;
+    }
+
+    return (
+      <li key={route || link || title}>
+        <Button
+          icon={icon}
+          navigate={route || link}
+          label={__(title)}
+          title={__(title)}
+          className="navigation-link"
+          activeClass="navigation-link--active"
+        />
+      </li>
+    );
+  }
+
+  function getSubscriptionSection() {
+    if (showSubsSection) {
       if (lastActiveSubs === undefined) {
         return null; // Don't show yet, just wait to save some renders
       }
@@ -371,15 +379,15 @@ function SideNavigation(props: Props) {
               navigate={!subscriptionFilter ? `/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}` : ''}
             />
           )}
-          {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
               <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
             </li>
           )}
-          {displayedSubscriptions.map((subscription) => (
-            <SubscriptionListItem key={subscription.uri} subscription={subscription} />
+          {displayedSubs.map((sub) => (
+            <SubscriptionListItem key={sub.uri} subscription={sub} />
           ))}
-          {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
+          {subscriptionUris.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
               <Button
                 icon={ICONS.MORE}
@@ -390,7 +398,7 @@ function SideNavigation(props: Props) {
               />
             </li>
           )}
-          {!!subscriptionFilter && !displayedSubscriptions.length && (
+          {!!subscriptionFilter && !displayedSubs.length && (
             <li>
               <div className="navigation-item">
                 <div className="empty empty--centered">{__('No results')}</div>
@@ -406,24 +414,31 @@ function SideNavigation(props: Props) {
   function getFollowedTagsSection() {
     if (showTagSection) {
       return (
-        <>
-          {!showMicroMenu && <SectionHeader title={__('Tags')} />}
-          <ul className="navigation__secondary navigation-links">
-            {displayedFollowedTags.map(({ name }, key) => (
-              <li key={name} className="navigation-link__wrapper">
-                <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
-              </li>
-            ))}
-            {followedTags.length > SIDEBAR_SUBS_DISPLAYED && (
-              <Button
-                key="showMore"
-                label={expandTags ? __('Show less') : __('Show more')}
-                className="navigation-link"
-                onClick={() => setExpandTags(!expandTags)}
-              />
-            )}
-          </ul>
-        </>
+        <ul className="navigation__secondary navigation-links">
+          {!showMicroMenu && (
+            <SectionHeader
+              title={__('Tags')}
+              actionTooltip={__('Manage')}
+              navigate={!subscriptionFilter ? `/$/${PAGES.TAGS_FOLLOWING_MANAGE}` : ''}
+            />
+          )}
+          <li key="all" className="navigation-link__wrapper">
+            <Button navigate={`/$/tags`} label={__('View all')} className="navigation-link" />
+          </li>
+          {displayedFollowedTags.map(({ name }, key) => (
+            <li key={name} className="navigation-link__wrapper">
+              <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
+            </li>
+          ))}
+          {followedTags.length > SIDEBAR_SUBS_DISPLAYED && (
+            <Button
+              key="showMore"
+              label={expandTags ? __('Show less') : __('Show more')}
+              className="navigation-link"
+              onClick={() => setExpandTags(!expandTags)}
+            />
+          )}
+        </ul>
       );
     }
     return null;
@@ -466,9 +481,30 @@ function SideNavigation(props: Props) {
       }
     }
 
-    window.addEventListener('keydown', handleKeydown);
+    function handleOutsideClick(e) {
+      if (sidebarOpen && e) {
+        const navigationButton = document.querySelector('#navigation-button');
+        if (e.target === navigationButton || (navigationButton && navigationButton.contains(e.target))) {
+          if (sideNavigationRef.current === null || sideNavigationRef.current.contains(e.target)) {
+            setSidebarOpen(false);
+          }
+        } else {
+          if (e.target.tagName !== 'INPUT') {
+            setTimeout(() => {
+              setSidebarOpen(false);
+            }, 0);
+          }
+        }
+      }
+    }
 
-    return () => window.removeEventListener('keydown', handleKeydown);
+    window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('mouseup', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('mouseup', handleOutsideClick);
+    };
   }, [sidebarOpen, setSidebarOpen, isAbsolute]);
 
   React.useEffect(() => {
@@ -479,12 +515,13 @@ function SideNavigation(props: Props) {
       }
     }
 
-    const ad = document.getElementsByClassName('OUTBRAIN')[0];
+    // const ad = document.getElementsByClassName('rev-shifter')[0];
+    const ad = document.getElementById('sticky-d-rc');
     if (ad) {
       if (!sidebarOpen || isMobile) {
-        ad.classList.add('LEFT');
-      } else {
         ad.classList.remove('LEFT');
+      } else {
+        ad.classList.add('LEFT');
       }
     }
   }, [sidebarOpen, isMobile]);
@@ -493,7 +530,9 @@ function SideNavigation(props: Props) {
     if (hideMenuFromView || !menuInitialized) {
       const handler = setTimeout(() => {
         setMenuInitialized(true);
-        setCanDisposeMenu(true);
+        if (hideMenuFromView) {
+          setCanDisposeMenu(true);
+        }
       }, 250);
       return () => {
         clearTimeout(handler);
@@ -504,7 +543,21 @@ function SideNavigation(props: Props) {
   }, [hideMenuFromView, menuInitialized]);
 
   React.useEffect(() => {
-    doFetchLastActiveSubs();
+    if (sidebarOpen) {
+      doFetchLastActiveSubs();
+    }
+  }, [doFetchLastActiveSubs, sidebarOpen]);
+
+  React.useEffect(() => {
+    if (showSubsSection) {
+      doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
+    }
+  }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
+
+  // --- Resolve subscriptions
+  React.useEffect(() => {
+    doResolveUris(subscriptionUris, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
 
   // **************************************************************************
@@ -583,6 +636,7 @@ function SideNavigation(props: Props) {
         'navigation__wrapper--micro': showMicroMenu,
         'navigation__wrapper--absolute': isAbsolute,
       })}
+      ref={sideNavigationRef}
     >
       <nav
         aria-label={'Sidebar'}
@@ -636,8 +690,7 @@ function SideNavigation(props: Props) {
                       actionTooltip={__('Sort and customize your homepage')}
                     />
                   )}
-                  {/* $FlowFixMe: GetLinksData type needs an update */}
-                  {categories.map((linkProps) => getLink(linkProps))}
+                  {categories.map((linkProps) => getCategoryLink(linkProps))}
                 </>
               )}
             </ul>

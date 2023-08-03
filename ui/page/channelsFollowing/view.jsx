@@ -5,43 +5,46 @@ import * as CS from 'constants/claim_search';
 import { SIMPLE_SITE } from 'config';
 import React from 'react';
 import ChannelsFollowingDiscoverPage from 'page/channelsFollowingDiscover';
-import LivestreamSection from 'page/discover/livestreamSection';
+import LivestreamSection from 'page/discover/internal/livestreamSection';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Page from 'component/page';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
-import { splitBySeparator } from 'util/lbryURI';
-import { getLivestreamUris } from 'util/livestream';
+import { filterActiveLivestreamUris } from 'util/livestream';
 import { tagSearchCsOptionsHook } from 'util/search';
-import ScheduledStreams from 'component/scheduledStreams';
+import UpcomingClaims from 'component/upcomingClaims';
+import useComponentDidMount from 'effects/use-component-did-mount';
 import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
-  subscribedChannels: Array<Subscription>,
+  channelIds: Array<string>,
   tileLayout: boolean,
-  activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: () => void,
+  activeLivestreamByCreatorId: LivestreamByCreatorId,
+  livestreamViewersById: LivestreamViewersById,
+  doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
-  hideScheduledLivestreams: boolean,
 };
 
 function ChannelsFollowingPage(props: Props) {
   const {
-    subscribedChannels,
+    channelIds,
     tileLayout,
-    activeLivestreams,
-    doFetchActiveLivestreams,
+    activeLivestreamByCreatorId: al,
+    livestreamViewersById: lv,
+    doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
-    hideScheduledLivestreams,
   } = props;
 
-  const hasSubscribedChannels = subscribedChannels.length > 0;
-  const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
+  const hasSubscribedChannels = channelIds.length > 0;
   const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
-  React.useEffect(() => {
-    doFetchActiveLivestreams();
-  }, []);
+  const activeLivestreamUris = React.useMemo(() => {
+    return filterActiveLivestreamUris(channelIds, null, al, lv);
+  }, [channelIds, lv, al]);
+
+  useComponentDidMount(() => {
+    doFetchAllActiveLivestreamsForQuery();
+  });
 
   return !hasSubscribedChannels ? (
     <ChannelsFollowingDiscoverPage />
@@ -49,23 +52,21 @@ function ChannelsFollowingPage(props: Props) {
     <Page noFooter fullWidthPage={tileLayout} className="main__channelsFollowing">
       {!fetchingActiveLivestreams && (
         <>
-          {!hideScheduledLivestreams && (
-            <ScheduledStreams
-              channelIds={channelIds}
-              tileLayout={tileLayout}
-              liveUris={getLivestreamUris(activeLivestreams, channelIds)}
-              limitClaimsPerChannel={2}
-            />
-          )}
+          <UpcomingClaims
+            name="channels_following"
+            channelIds={channelIds}
+            tileLayout={tileLayout}
+            liveUris={activeLivestreamUris}
+          />
 
           <ClaimListDiscover
             streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
             tileLayout={tileLayout}
             headerLabel={
-              <span>
-                <Icon icon={ICONS.SUBSCRIBE} size={10} />
-                {__('Following')}
-              </span>
+              <h1 className="page__title">
+                <Icon icon={ICONS.SUBSCRIBE} />
+                <label>{__('Following')}</label>
+              </h1>
             }
             hideMembersOnly={hideMembersOnly}
             defaultOrderBy={CS.ORDER_BY_NEW}
@@ -74,26 +75,19 @@ function ChannelsFollowingPage(props: Props) {
               <>
                 <Button
                   icon={ICONS.SEARCH}
-                  button="secondary"
+                  button="alt"
                   label={__('Discover Channels')}
                   navigate={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
                 />
                 <Button
                   icon={ICONS.SETTINGS}
-                  button="secondary"
+                  button="alt"
                   label={__('Manage')}
                   navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
                 />
               </>
             }
-            subSection={
-              <LivestreamSection
-                tileLayout={tileLayout}
-                channelIds={channelIds}
-                activeLivestreams={activeLivestreams}
-                doFetchActiveLivestreams={doFetchActiveLivestreams}
-              />
-            }
+            subSection={<LivestreamSection tileLayout={tileLayout} channelIds={channelIds} />}
             hasSource
             csOptionsHook={tagSearchCsOptionsHook}
           />

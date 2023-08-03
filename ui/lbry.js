@@ -11,7 +11,7 @@ const ERR_LOG_METHOD_WHITELIST = ['support_create'];
 
 // Basic LBRY sdk connection config
 // Offers a proxy to call LBRY sdk methods
-const Lbry = {
+const Lbry: LbryTypes = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
@@ -140,10 +140,15 @@ const Lbry = {
   comment_abandon: (params = {}) => daemonCallWithResult('comment_abandon', params),
   comment_update: (params = {}) => daemonCallWithResult('comment_update', params),
 
+  // Desktop only?
+  ffmpeg_find: (params = {}) => daemonCallWithResult('ffmpeg_find', params),
+  settings_get: (params?: {}) => daemonCallWithResult('settings_get', params),
+  settings_set: (params: {}) => daemonCallWithResult('settings_set', params),
+  settings_clear: (params?: {}) => daemonCallWithResult('settings_clear', params),
+
   // Connect to the sdk
   connect: () => {
     if (Lbry.connectPromise === null) {
-      // $FlowFixMe
       Lbry.connectPromise = new Promise((resolve, reject) => {
         let tryNum = 0;
         // Check every half second to see if the daemon is accepting connections
@@ -164,8 +169,6 @@ const Lbry = {
       });
     }
 
-    // Flow thinks this could be empty, but it will always reuturn a promise
-    // $FlowFixMe
     return Lbry.connectPromise;
   },
 

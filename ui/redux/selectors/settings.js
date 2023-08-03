@@ -57,7 +57,7 @@ export const selectThemePath = createSelector(
 
 export const selectHomepageCode = (state) => {
   const hp = selectClientSetting(state, SETTINGS.HOMEPAGE);
-  const homepages = window.homepages || {};
+  const homepages = selectHomepageDb(state) || {};
   return homepages[hp] ? hp : getDefaultHomepageKey();
 };
 
@@ -66,27 +66,62 @@ export const selectLanguage = (state) => {
   return lang || getDefaultLanguage();
 };
 
+/**
+ * Returns the full/raw homepage object that was fetched.
+ */
+export const selectHomepageDb = (state) => {
+  return window.homepages; // TODO: find a better place than window.
+};
+
+/**
+ * Returns an array of homepage codes that we currently support.
+ * e.g. "['en', 'es', 'ru']"
+ */
+export const selectHomepageKeys = (state) => {
+  const db = selectHomepageDb(state) || {};
+  return Object.keys(db);
+};
+
+/**
+ * Returns the data for the currently-selected homepage.
+ */
 export const selectHomepageData = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
-  return homepages ? homepages[homepageCode].categories || homepages['en'].categories || {} : {};
+  const homepages = selectHomepageDb(state);
+  return homepages ? homepages[homepageCode] || homepages['en'] || {} : undefined;
 };
+
+export const selectHomepageCategoryChannelIds = createSelector(selectHomepageData, (homepage) => {
+  let channels = [];
+  if (homepage && homepage.categories) {
+    for (let category in homepage.categories) {
+      if (homepage.categories[category].channelIds) {
+        for (let channel of homepage.categories[category].channelIds) {
+          if (!channels.includes(channel)) {
+            channels.push(channel);
+          }
+        }
+      }
+    }
+  }
+  return channels;
+});
 
 export const selectHomepageMeme = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
+  const homepages = selectHomepageDb(state);
   if (homepages) {
-    const meme = homepages[homepageCode].meme;
+    const meme = homepages[homepageCode]?.meme;
     if (meme && meme.text && meme.url) {
       return meme;
     }
   }
-  return homepages ? homepages['en'].meme || {} : {};
+  return homepages ? homepages['en']?.meme || {} : {};
 };
 
 export const selectHomepageDiscover = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
+  const homepages = selectHomepageDb(state);
   if (homepages) {
     const discover = homepages[homepageCode].discover;
     if (discover) {
@@ -98,14 +133,13 @@ export const selectHomepageDiscover = (state) => {
 
 export const selectHomepageAnnouncement = (state) => {
   const homepageCode = selectHomepageCode(state);
-  const homepages = window.homepages;
+  const homepages = selectHomepageDb(state);
   if (homepages) {
-    const news = homepages[homepageCode].announcement;
-    if (news) {
-      return news;
-    }
+    const news = homepages[homepageCode]?.announcement;
+    const newsFallback = homepages['en']?.announcement;
+    return news || newsFallback || '';
   }
-  return homepages ? homepages['en'].announcement || '' : '';
+  return '';
 };
 
 export const selectInRegionByCode = (state, code) => {
@@ -137,3 +171,5 @@ export const selectPreferredCurrency = (state: State) => {
 
   return preferredCurrency;
 };
+
+export const selectAutoplayNext = (state: State) => Boolean(selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));

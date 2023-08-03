@@ -86,11 +86,6 @@ export const doGetAndSetAccountLink = () => async (dispatch: Dispatch) => {
 export const doCustomerListPaymentHistory = () => async (dispatch: Dispatch) =>
   await Lbryio.call('customer', 'list', { environment: stripeEnvironment }, 'post')
     .then((customerTransactionResponse: StripeTransactions) => {
-      // TODO: remove this once pagination is implemented
-      if (customerTransactionResponse?.length && customerTransactionResponse.length > 100) {
-        customerTransactionResponse.length = 100;
-      }
-
       dispatch({ type: ACTIONS.SET_ACCOUNT_PAYMENT_HISTORY, data: customerTransactionResponse });
     })
     .catch((e) => e);
@@ -129,22 +124,17 @@ export const doCheckIfPurchasedClaimIds = (claimIds: ClaimIds) => {
   };
 };
 
-export const doCustomerPurchaseCost = (cost: number) => (
-  dispatch: Dispatch
-): Promise<StripeCustomerPurchaseCostResponse> => {
-  return Lbryio.call('customer', 'purchase_cost', { environment: stripeEnvironment, amount: cost });
-};
+export const doCustomerPurchaseCost =
+  (cost: number) =>
+  (dispatch: Dispatch): Promise<StripeCustomerPurchaseCostResponse> => {
+    return Lbryio.call('customer', 'purchase_cost', { environment: stripeEnvironment, amount: cost });
+  };
 
 export const doListAccountTransactions = () => async (dispatch: Dispatch) =>
   await Lbryio.call('account', 'list', { environment: stripeEnvironment }, 'post').then(
     (accountListResponse: StripeTransactions) => {
       // reverse so order is from most recent to latest
       if (Number.isInteger(accountListResponse?.length)) accountListResponse.reverse();
-
-      // TODO: remove this once pagination is implemented
-      if (accountListResponse && accountListResponse.length && accountListResponse.length > 100) {
-        accountListResponse.length = 100;
-      }
 
       dispatch({ type: ACTIONS.SET_ACCOUNT_TRANSACTIONS, data: accountListResponse });
     }

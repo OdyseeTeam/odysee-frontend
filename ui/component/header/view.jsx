@@ -35,7 +35,7 @@ type Props = {
   hideCancel: boolean,
   history: {
     goBack: () => void,
-    location: { pathname: string },
+    location: { pathname: string, search: string },
     push: (string) => void,
     replace: (string) => void,
   },
@@ -46,6 +46,7 @@ type Props = {
   user: ?User,
   prefsReady: boolean,
   doClearClaimSearch: () => void,
+  doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
   clearEmailEntry: () => void,
   clearPasswordEntry: () => void,
   openChangelog: ({}) => void,
@@ -61,6 +62,7 @@ const Header = (props: Props) => {
     backout,
     balance,
     emailToVerify,
+    hasNavigated,
     hideBalance,
     hideCancel,
     history,
@@ -71,6 +73,7 @@ const Header = (props: Props) => {
     user,
     prefsReady,
     doClearClaimSearch,
+    doRemoveFromUnsavedChangesCollectionsForCollectionId,
     clearEmailEntry,
     clearPasswordEntry,
     openChangelog,
@@ -79,7 +82,7 @@ const Header = (props: Props) => {
   } = props;
 
   const {
-    location: { pathname },
+    location: { pathname, search },
     goBack,
     push,
   } = history;
@@ -92,6 +95,10 @@ const Header = (props: Props) => {
   const isSignInPage = pathname.includes(PAGES.AUTH_SIGNIN);
   const isPwdResetPage = pathname.includes(PAGES.AUTH_PASSWORD_RESET);
   const iYTSyncPage = pathname.includes(PAGES.YOUTUBE_SYNC);
+  const isPlaylistPage = pathname.includes(PAGES.PLAYLIST);
+
+  const urlParams = new URLSearchParams(search);
+  const returnPath = urlParams.get('redirect');
 
   // For pages that allow for "backing out", shows a backout option instead of the Home logo
   const canBackout = Boolean(backout);
@@ -110,23 +117,32 @@ const Header = (props: Props) => {
 
   const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
 
+  function handleCollectionEditPageCleanUp() {
+    const collectionId = pathname.split('/').pop();
+    doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId);
+  }
+
   const onBackout = React.useCallback(
     (e: any) => {
-      const { hasNavigated } = props;
-      const { replace } = history;
-
       window.removeEventListener('popstate', onBackout);
 
+      if (isPlaylistPage) {
+        handleCollectionEditPageCleanUp();
+      }
+
       if (e.type !== 'popstate') {
-        // if not initiated by pop (back button)
-        if (hasNavigated && !backNavDefault) {
+        if (returnPath) {
+          push(returnPath);
+        } else if (hasNavigated && !backNavDefault) {
+          // if not initiated by pop (back button)
           goBack();
         } else {
-          replace(backNavDefault || `/`);
+          push(backNavDefault || `/`);
         }
       }
     },
-    [backNavDefault, goBack, history, props]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+    [backNavDefault, goBack, hasNavigated, push, returnPath]
   );
 
   React.useEffect(() => {
@@ -217,6 +233,7 @@ const Header = (props: Props) => {
                 <span style={{ position: 'relative' }}>
                   <Button
                     aria-label={sidebarLabel}
+                    id="navigation-button"
                     className="header__navigationItem--icon button-rotate"
                     icon={ICONS.MENU}
                     aria-expanded={sidebarOpen}

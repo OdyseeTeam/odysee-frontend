@@ -1,0 +1,21 @@
+.info-wrapper {
+  margin-top: var(--spacing-m);
+  padding: var(--spacing-m);
+  background-color: var(--color-error);
+  border-radius: var(--border-radius);
+
+  .icon {
+    margin-right: var(--spacing-xxs);
+    margin-bottom: -2px;
+  }
+  label {
+    color: black;
+    margin-top: 0;
+  }
+  p {
+    color: var(--color-text-error);
+  }
+  .button--link {
+    color: var(--color-text-error);
+  }
+}

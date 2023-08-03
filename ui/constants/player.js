@@ -1,3 +1,9 @@
+// --header-height-mobile
+export const HEADER_HEIGHT_MOBILE = 56;
+
+export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
+export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
+
 export const INLINE_PLAYER_WRAPPER_CLASS = 'inline-player__wrapper';
 export const FLOATING_PLAYER_CLASS = 'content__viewer--floating';
 
@@ -11,3 +17,18 @@ export const VIDEO_QUALITY_OPTIONS = [AUTO, ORIGINAL, 144, 240, 360, 480, 720, 1
 
 // Player Position
 export const DEFAULT_INITIAL_FLOATING_POS = { x: window.innerWidth, y: window.innerHeight - 500 };
+
+// Custom videojs component names
+export const VJS_COMP = Object.freeze({
+  AUTOPLAY_NEXT_BUTTON: 'AutoplayNextButton',
+  AUTOPLAY_NEXT_MENU_ITEM: 'AutoPlayNextMenuItem',
+});
+
+// Custom videojs event names
+export const VJS_EVENTS = Object.freeze({
+  // Triggered just before load() is called, with 'player.appState' updated.
+  // Plugins should update per new states.
+  SRC_CHANGED: 'src_changed',
+  // Player removed but not disposed. Plugins should perform cleanup.
+  PLAYER_CLOSED: 'player_closed',
+});

@@ -4,7 +4,7 @@ import { platform } from 'util/platform';
 import { formattedEmote, inlineEmote } from 'util/remark-emote';
 import { formattedLinks, inlineLinks } from 'util/remark-lbry';
 import { formattedTimestamp, inlineTimestamp } from 'util/remark-timestamp';
-import { getThumbnailCdnUrl, getImageProxyUrl } from 'util/thumbnail';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Button from 'component/button';
@@ -259,13 +259,8 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
       // Workaraund of remarkOptions.Fragment
       div: React.Fragment,
       img: (imgProps) => {
-        const isGif = imgProps.src && imgProps.src.endsWith('gif');
-
         const imageCdnUrl =
-          (isGif
-            ? getImageProxyUrl(imgProps.src)
-            : getThumbnailCdnUrl({ thumbnail: imgProps.src, width: 0, height: 0, quality: 85 })) ||
-          MISSING_THUMB_DEFAULT;
+          getThumbnailCdnUrl({ thumbnail: imgProps.src, width: 0, height: 0, quality: 85 }) || MISSING_THUMB_DEFAULT;
         if (noDataStore) {
           return (
             <div className="file-viewer file-viewer--document">

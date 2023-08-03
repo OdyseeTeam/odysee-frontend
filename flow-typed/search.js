@@ -1,5 +1,4 @@
 // @flow
-import * as ACTIONS from 'constants/action_types';
 
 declare type SearchOptions = {
   // :(
@@ -43,7 +42,7 @@ declare type SearchResults = {
 };
 
 declare type SearchSuccess = {
-  type: ACTIONS.SEARCH_SUCCESS,
+  type: 'SEARCH_SUCCESS', // ACTIONS.SEARCH_SUCCESS,
   data: {
     query: string,
     from: number,
@@ -55,7 +54,7 @@ declare type SearchSuccess = {
 };
 
 declare type UpdateSearchOptions = {
-  type: ACTIONS.UPDATE_SEARCH_OPTIONS,
+  type: 'UPDATE_SEARCH_OPTIONS', // ACTIONS.UPDATE_SEARCH_OPTIONS,
   data: SearchOptions,
 };
 

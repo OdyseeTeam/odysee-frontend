@@ -14,7 +14,7 @@ type Props = {
   includeStartTime: boolean,
   startTime: number,
   referralCode: ?string,
-  newestType?: boolean,
+  newestType?: string,
 };
 
 export default function EmbedTextArea(props: Props) {
@@ -65,7 +65,7 @@ export default function EmbedTextArea(props: Props) {
 
       <div className="margin-vertical-medium">
         <FormField
-          name="embed-autoplay"
+          name={'embed-autoplay' + (newestType ? ' ' + newestType : '')}
           type="checkbox"
           label={__('Enable Autoplay')}
           checked={embedAutoplay}

@@ -1,7 +1,4 @@
 // @flow
-
-import 'scss/component/_comment-create.scss';
-
 import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
@@ -15,22 +12,21 @@ import * as MODALS from 'constants/modal_types';
 import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import classnames from 'classnames';
-import CommentSelectors, { SELECTOR_TABS } from './comment-selectors';
+import CommentSelectors, { SELECTOR_TABS } from './internal/comment-selectors';
 import React from 'react';
 import type { ElementRef } from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import { useIsMobile } from 'effects/use-screensize';
-import { StickerReviewBox, StickerActionButton } from './sticker-contents';
-import { TipReviewBox, TipActionButton } from './tip-contents';
-import { FormChannelSelector, HelpText } from './extra-contents';
+import { StickerReviewBox, StickerActionButton } from './internal/sticker-contents';
+import { TipReviewBox, TipActionButton } from './internal/tip-contents';
+import { FormChannelSelector, HelpText } from './internal/extra-contents';
 import ErrorBubble from 'component/common/error-bubble';
-
 import { AppContext } from 'component/app/view';
-
 import withCreditCard from 'hocs/withCreditCard';
-
 import { getStripeEnvironment } from 'util/stripe';
+import './style.lazy.scss';
+
 const stripeEnvironment = getStripeEnvironment();
 
 const TAB_FIAT = 'TabFiat';
@@ -55,7 +51,7 @@ type Props = {
   isReply: boolean,
   isLivestream?: boolean,
   parentId: string,
-  settingsByChannelId: { [channelId: string]: PerChannelSettings },
+  channelSettings: ?PerChannelSettings,
   shouldFetchComment: boolean,
   supportDisabled: boolean,
   uri: string,
@@ -98,8 +94,9 @@ type Props = {
   isAChannelMember: boolean,
   commentSettingDisabled: ?boolean,
   userHasMembersOnlyChatPerk: boolean,
-  isLivestreamChatMembersOnly: ?boolean,
-  areCommentsMembersOnly: ?boolean,
+  isLivestreamChatMembersOnly: boolean,
+  areCommentsMembersOnly: boolean,
+  hasPremiumPlus: boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -137,7 +134,7 @@ export function CommentCreate(props: Props) {
     parentId,
     preferredCurrency,
     setQuickReply,
-    settingsByChannelId,
+    channelSettings,
     shouldFetchComment,
     supportDisabled,
     textInjection,
@@ -147,6 +144,7 @@ export function CommentCreate(props: Props) {
     userHasMembersOnlyChatPerk,
     isLivestreamChatMembersOnly,
     areCommentsMembersOnly,
+    hasPremiumPlus,
   } = props;
 
   const fileUri = React.useContext(AppContext)?.uri;
@@ -190,7 +188,6 @@ export function CommentCreate(props: Props) {
     isFetchingChannels ||
     hasNothingToSumbit ||
     disableInput;
-  const channelSettings = channelClaimId ? settingsByChannelId[channelClaimId] : undefined;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;
@@ -269,14 +266,9 @@ export function CommentCreate(props: Props) {
   function getMembersOnlyCreatorSetting() {
     return (
       channelClaimId &&
-      doFetchCreatorSettings(
-        channelClaimId
-      ).then(
-        ({
-          comments_members_only: commentsMembersOnly,
-          livestream_chat_members_only: liveChatMembersOnly,
-        }: SettingsResponse) => (isLivestream ? liveChatMembersOnly : commentsMembersOnly)
-      )
+      doFetchCreatorSettings(channelClaimId)
+        .then((cs: SettingsResponse) => (isLivestream ? cs.livestream_chat_members_only : cs.comments_members_only))
+        .catch(() => undefined)
     );
   }
 
@@ -325,6 +317,19 @@ export function CommentCreate(props: Props) {
     if (onSlimInputClose) onSlimInputClose();
   }
 
+  function handleImageUpload() {
+    doOpenModal(MODALS.IMAGE_UPLOAD, {
+      onUpdate: (imageUrl, imageTitle) => updateComment(imageUrl, imageTitle),
+      assetName: __('Image'),
+    });
+  }
+
+  function updateComment(imageUrl, imageTitle) {
+    if (!imageTitle) imageTitle = '';
+    let markdown = `![${imageTitle}](${imageUrl})`;
+    setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${markdown} ` : `${markdown} `));
+  }
+
   function handleCancelSupport() {
     if (!isReviewingSupportComment) setTipSelector(false);
     setReviewingSupportComment(false);
@@ -351,6 +356,15 @@ export function CommentCreate(props: Props) {
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
     const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (commentsAreMembersOnly === undefined) {
+      doToast({
+        message: __('Unable to send the comment.'),
+        subMessage: __('Try again later, or refresh the page.'),
+        isError: true,
+      });
+      return;
+    }
+
     if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     // if comment post didn't work, but tip was already made, try again to create comment
@@ -362,21 +376,29 @@ export function CommentCreate(props: Props) {
     }
 
     // !! Beware of stale closure when editing the then-block, including doSubmitTip().
-    doFetchCreatorSettings(channelClaimId).then(() => {
-      const lockedMinAmount = minAmount; // value during closure.
-      const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
+    doFetchCreatorSettings(channelClaimId)
+      .then(() => {
+        const lockedMinAmount = minAmount; // value during closure.
+        const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
 
-      if (lockedMinAmount !== currentMinAmount) {
+        if (lockedMinAmount !== currentMinAmount) {
+          doToast({
+            message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
+            isError: true,
+          });
+          setReviewingSupportComment(false);
+          return;
+        }
+
+        doSubmitTip();
+      })
+      .catch(() => {
         doToast({
-          message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
+          message: __('Unable to send the comment.'),
+          subMessage: __('Try again later, or refresh the page.'),
           isError: true,
         });
-        setReviewingSupportComment(false);
-        return;
-      }
-
-      doSubmitTip();
-    });
+      });
   }
 
   function doSubmitTip() {
@@ -455,6 +477,15 @@ export function CommentCreate(props: Props) {
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
     const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (commentsAreMembersOnly === undefined) {
+      doToast({
+        message: __('Unable to send the comment.'),
+        subMessage: __('Try again later, or refresh the page.'),
+        isError: true,
+      });
+      return;
+    }
+
     if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
@@ -493,7 +524,7 @@ export function CommentCreate(props: Props) {
         if (channelClaimId) {
           // It could be that the creator added a minimum tip setting.
           // Manually update for now until a websocket msg is available.
-          doFetchCreatorSettings(channelClaimId);
+          doFetchCreatorSettings(channelClaimId).catch(() => {});
         }
       });
   }
@@ -518,7 +549,7 @@ export function CommentCreate(props: Props) {
   // Fetch channel constraints if not already.
   React.useEffect(() => {
     if (!channelSettings && channelClaimId) {
-      doFetchCreatorSettings(channelClaimId);
+      doFetchCreatorSettings(channelClaimId).catch(() => {});
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -582,6 +613,7 @@ export function CommentCreate(props: Props) {
     if (myCommentedChannelIds === undefined && claimId && myChannelClaimIds) {
       doFetchMyCommentedChannels(claimId);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimId, myCommentedChannelIds, myChannelClaimIds]);
 
   React.useEffect(() => {
@@ -596,6 +628,7 @@ export function CommentCreate(props: Props) {
       // $FlowFixMe
       return formFieldRef?.current?.input?.current?.focus();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [textInjection]);
 
   const notAuthedToLiveChat = Boolean(
@@ -666,10 +699,10 @@ export function CommentCreate(props: Props) {
 
       <Form
         onSubmit={() => {}}
-        className={classnames('commentCreate', {
-          'commentCreate--reply': isReply,
-          'commentCreate--nestedReply': isNested,
-          'commentCreate--bottom': bottom,
+        className={classnames('comment-create', {
+          'comment-create--reply': isReply,
+          'comment-create--nestedReply': isNested,
+          'comment-create--bottom': bottom,
         })}
       >
         {isReviewingSupportComment ? (
@@ -830,6 +863,16 @@ export function CommentCreate(props: Props) {
                   onChange={() => {}}
                   disabled={notAuthedToLiveChat}
                 />
+
+                {hasPremiumPlus && !isLivestream && (
+                  <Button
+                    button="alt"
+                    icon={ICONS.IMAGE}
+                    title={__('Upload Image')}
+                    onClick={handleImageUpload}
+                    onChange={() => {}}
+                  />
+                )}
 
                 {!supportDisabled && !claimIsMine && (
                   <>

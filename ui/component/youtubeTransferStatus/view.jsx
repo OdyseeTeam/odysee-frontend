@@ -11,6 +11,7 @@ import { buildURI } from 'util/lbryURI';
 import Spinner from 'component/spinner';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
+import './style.lazy.scss';
 
 type Props = {
   youtubeChannels: Array<any>,
@@ -21,6 +22,7 @@ type Props = {
   videosImported: ?Array<number>, // [currentAmountImported, totalAmountToImport]
   alwaysShow: boolean,
   addNewChannel?: boolean,
+  doResolveUris: (uris: Array<string>) => void,
 };
 
 export default function YoutubeTransferStatus(props: Props) {
@@ -33,6 +35,7 @@ export default function YoutubeTransferStatus(props: Props) {
     updateUser,
     alwaysShow = false,
     addNewChannel,
+    doResolveUris,
   } = props;
   const hasChannels = youtubeChannels && youtubeChannels.length > 0;
   const transferEnabled = youtubeChannels.some((status) => status.transferable);
@@ -138,6 +141,7 @@ export default function YoutubeTransferStatus(props: Props) {
                 total_videos: totalVideos,
               } = channel;
               const url = buildURI({ channelName, channelClaimId: claimId });
+              doResolveUris([url]);
               const transferState = getMessage(channel);
               const isWaitingForSync =
                 syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_QUEUED ||
@@ -149,7 +153,7 @@ export default function YoutubeTransferStatus(props: Props) {
               const isNotEligible = syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED;
 
               return (
-                <div key={url} className="card--inline">
+                <div key={url} className="card--inline sync-state">
                   {claimId ? (
                     <ClaimPreview
                       uri={url}

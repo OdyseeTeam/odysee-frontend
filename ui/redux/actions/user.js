@@ -113,6 +113,52 @@ export function doAuthenticate(
   callInstall = true
 ) {
   return (dispatch) => {
+    dispatch({
+      type: ACTIONS.AUTHENTICATION_STARTED,
+    });
+    checkAuthBusy()
+      .then(() => {
+        return Lbryio.authenticate(DOMAIN, getDefaultLanguage());
+      })
+      .then((user) => {
+        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
+        Lbryio.getAuthToken().then((token) => {
+          dispatch({
+            type: ACTIONS.AUTHENTICATION_SUCCESS,
+            data: { user, accessToken: token },
+          });
+
+          dispatch(doMembershipMine());
+
+          if (shareUsageData) {
+            dispatch(doRewardList());
+
+            if (callInstall && !user?.device_types?.includes('web')) {
+              doInstallNew(appVersion, callbackForUsersWhoAreSharingData, DOMAIN);
+            }
+          }
+
+          dispatch(doFetchGeoBlockedList());
+        });
+      })
+      .catch((error) => {
+        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
+
+        dispatch({
+          type: ACTIONS.AUTHENTICATION_FAILURE,
+          data: { error },
+        });
+      });
+  };
+}
+/*
+export function doAuthenticate(
+  appVersion,
+  shareUsageData = true,
+  callbackForUsersWhoAreSharingData,
+  callInstall = true
+) {
+  return (dispatch) => {
     console.log('doAuthenticate');
     dispatch({
       type: ACTIONS.AUTHENTICATION_STARTED,
@@ -150,6 +196,7 @@ export function doAuthenticate(
       });
   };
 }
+*/
 
 export function doUserFetch() {
   return (dispatch) =>

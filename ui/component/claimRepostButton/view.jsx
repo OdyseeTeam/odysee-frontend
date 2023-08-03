@@ -3,16 +3,27 @@ import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
+import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 
 type Props = {
   uri: string,
-  // redux
+  // --- internal ---
+  claim: ?StreamClaim,
   repostedAmount: number,
   doOpenModal: (id: string, {}) => void,
 };
 
 function ClaimRepostButton(props: Props) {
-  const { uri, repostedAmount, doOpenModal } = props;
+  const { uri, claim, repostedAmount, doOpenModal } = props;
+
+  const ss: ClaimScheduledState = getClaimScheduledState(claim);
+  if (ss === 'scheduled') {
+    return null;
+  }
+
+  if (isClaimUnlisted(claim) || isClaimPrivate(claim)) {
+    return null;
+  }
 
   return (
     <FileActionButton

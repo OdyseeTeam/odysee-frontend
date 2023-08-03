@@ -1,6 +1,7 @@
 // @flow
 import analytics from 'analytics';
 import { THUMBNAIL_HEIGHT_POSTER, THUMBNAIL_WIDTH_POSTER } from 'config';
+import { VJS_EVENTS } from 'constants/player';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
 import { platform } from 'util/platform';
 
@@ -25,7 +26,7 @@ const VideoJsEvents = ({
   channelTitle,
   embedded,
   uri,
-  doAnalyticsView,
+  doAnalyticsViewForUri,
   doAnalyticsBuffer,
   claimRewards,
   playerServerRef,
@@ -41,7 +42,7 @@ const VideoJsEvents = ({
   channelTitle: string,
   embedded: boolean,
   uri: string,
-  doAnalyticsView: (string, number) => any,
+  doAnalyticsViewForUri: (string) => any,
   doAnalyticsBuffer: (string, any) => void,
   claimRewards: () => void,
   playerServerRef: any,
@@ -106,9 +107,7 @@ const VideoJsEvents = ({
     }
 
     // hit backend to mark a view
-    doAnalyticsView(uri, timeToStartVideo).then(() => {
-      claimRewards();
-    });
+    doAnalyticsViewForUri(uri).then(claimRewards);
   }
 
   function onInitialPlay() {
@@ -309,7 +308,7 @@ const VideoJsEvents = ({
     });
 
     player.on('playing', removeControlBar);
-    player.on('playerClosed', () => {
+    player.on(VJS_EVENTS.PLAYER_CLOSED, () => {
       player.off('play', onInitialPlay);
       player.off('volumechange', onVolumeChange);
       player.off('error', onError);
@@ -319,10 +318,12 @@ const VideoJsEvents = ({
       player.off('tracking:buffered', doTrackingBuffered);
       player.off('playing', removeControlBar);
       player.off('playing', determineVideoFps);
+      player.off('timeupdate', liveEdgeRestoreSpeed);
     });
     // player.on('ended', onEnded);
 
     if (isLivestreamClaim) {
+      window.liveSeeking = true;
       player.liveTracker.on('liveedgechange', () => {
         if (player.paused()) {
           // when liveedge changes, add the window variable so that the timeout isn't triggered
@@ -333,14 +334,13 @@ const VideoJsEvents = ({
           if (window.liveEdgePaused) delete window.liveEdgePaused;
         }
 
-        setTimeout(() => {
-          // Do not jump ahead if user has paused the player
-          if (window.liveEdgePaused) return;
-
+        if (window.liveSeeking) {
           player.liveTracker.seekToLiveEdge();
-        }, 5 * 1000);
+        }
       });
       player.on('timeupdate', liveEdgeRestoreSpeed);
+    } else {
+      window.liveSeeking = false;
     }
   }
 

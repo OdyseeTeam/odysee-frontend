@@ -3,6 +3,7 @@ import React from 'react';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import ClaimPreview from 'component/claimPreview';
+import CommentView from 'component/comment';
 import Card from 'component/common/card';
 import Empty from 'component/common/empty';
 import Page from 'component/page';
@@ -11,9 +12,6 @@ import { COMMENT_PAGE_SIZE_TOP_LEVEL } from 'constants/comment';
 import * as ICONS from 'constants/icons';
 import useFetched from 'effects/use-fetched';
 import debounce from 'util/debounce';
-import { lazyImport } from 'util/lazyImport';
-
-const Comment = lazyImport(() => import('component/comment' /* webpackChunkName: "comments" */));
 
 function scaleToDevicePixelRatio(value) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
@@ -25,9 +23,8 @@ function scaleToDevicePixelRatio(value) {
 
 type Props = {
   activeChannelClaim: ?ChannelClaim,
-  allComments: Array<Comment>,
+  allComments: ?Array<Comment>,
   totalComments: number,
-  topLevelTotalPages: number,
   isFetchingComments: boolean,
   claimsById: any,
   doCommentReset: (claimId: string) => void,
@@ -55,7 +52,7 @@ export default function OwnComments(props: Props) {
   const totalPages = Math.ceil(totalComments / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const moreBelow = page < totalPages;
 
-  function getCommentsElem(comments) {
+  function getCommentsElem(comments: Array<Comment>) {
     return comments.map((comment) => {
       const contentClaim = claimsById[comment.claim_id];
       const isChannel = contentClaim && contentClaim.value_type === 'channel';
@@ -79,16 +76,7 @@ export default function OwnComments(props: Props) {
               )}
               {!contentClaim && <Empty text={__('Content or channel was deleted.')} />}
             </div>
-            <React.Suspense fallback={null}>
-              <Comment
-                uri={contentClaim?.canonical_url}
-                isTopLevel
-                hideActions
-                comment={comment}
-                commentIsMine
-                numDirectReplies={0} // Don't show replies here
-              />
-            </React.Suspense>
+            <CommentView uri={contentClaim?.canonical_url} isTopLevel hideActions comment={comment} />
           </div>
         </div>
       );
@@ -127,7 +115,7 @@ export default function OwnComments(props: Props) {
 
       const rect = spinnerRef.current.getBoundingClientRect(); // $FlowFixMe
       const windowH = window.innerHeight || document.documentElement.clientHeight; // $FlowFixMe
-      const windowW = window.innerWidth || document.documentElement.clientWidth; // $FlowFixMe
+      const windowW = window.innerWidth || document.documentElement.clientWidth;
 
       const isApproachingViewport = yPrefetchPx !== 0 && rect.top < windowH + scaleToDevicePixelRatio(yPrefetchPx);
 
@@ -136,9 +124,7 @@ export default function OwnComments(props: Props) {
         rect.height > 0 &&
         rect.bottom >= 0 &&
         rect.right >= 0 &&
-        // $FlowFixMe
         rect.top <= windowH &&
-        // $FlowFixMe
         rect.left <= windowW;
 
       return (isInViewport || isApproachingViewport) && page < topLevelTotalPages;

@@ -6,43 +6,64 @@ import CollectionSelectItem from './internal/collectionSelectItem';
 import FormNewCollection from 'component/formNewCollection';
 import * as COLS from 'constants/collections';
 import * as ICONS from 'constants/icons';
+import Spinner from 'component/spinner';
 
 type Props = {
-  builtin: CollectionList,
-  queue: CollectionList,
-  published: CollectionList,
-  unpublished: CollectionList,
+  uri: string,
   closeModal: () => void,
   // -- redux --
-  uri: string,
+  published: CollectionList,
+  unpublished: CollectionList,
+  fetchingMine: ?boolean,
+  doFetchCollectionListMine: () => void,
 };
 
 const ClaimCollectionAdd = (props: Props) => {
-  const { builtin, queue, published, unpublished, closeModal, uri } = props;
+  const { uri, closeModal, published, unpublished, fetchingMine, doFetchCollectionListMine } = props;
 
   const [addNewCollection, setAddNewCollection] = React.useState(false);
+
+  React.useEffect(() => {
+    doFetchCollectionListMine();
+  }, [doFetchCollectionListMine]);
+
+  if (fetchingMine !== false) {
+    return (
+      <Card
+        title={__('Save to...')}
+        singlePane
+        body={
+          <div className="main--empty">
+            <Spinner />
+          </div>
+        }
+      />
+    );
+  }
 
   return (
     <Card
       title={__('Save to...')}
+      className="card--background"
       singlePane
       body={
         <ul className="ul--no-style card__body-scrollable">
-          {[...builtin, ...queue].map(({ id }) => (
+          {COLS.BUILTIN_PLAYLISTS.map((id) => (
             <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={COLS.PLAYLIST_ICONS[id]} />
           ))}
-          {unpublished
+          {Object.values(unpublished)
             // $FlowFixMe
             .sort((a, b) => a.name?.localeCompare(b.name))
+            // $FlowFixMe
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
             ))}
-          {published
-            // $FlowFixMe
-            .sort((a, b) => a.name?.localeCompare(b.name))
-            .map(({ id }) => (
-              <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
-            ))}
+          {published &&
+            Object.values(published)
+              // $FlowFixMe
+              .sort((a, b) => a.name?.localeCompare(b.name))
+              // $FlowFixMe
+              .map(({ id }) => <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />)}
         </ul>
       }
       actions={
@@ -50,7 +71,7 @@ const ClaimCollectionAdd = (props: Props) => {
           <FormNewCollection uri={uri} closeForm={() => setAddNewCollection(false)} />
         ) : (
           <div className="section__actions">
-            <Button button="secondary" label={__('Done')} disabled={addNewCollection} onClick={closeModal} />
+            <Button button="primary" label={__('Done')} disabled={addNewCollection} onClick={closeModal} />
             <Button button="link" label={__('New Playlist')} onClick={() => setAddNewCollection(true)} />
           </div>
         )

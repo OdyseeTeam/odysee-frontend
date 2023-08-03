@@ -151,6 +151,7 @@ export const selectShouldShowAds = (state) => {
 
 export const selectAppDrawerOpen = (state) => selectState(state).appDrawerOpen;
 export const selectMainPlayerDimensions = (state) => selectState(state).mainPlayerDimensions;
+export const selectVideoSourceLoaded = (state) => selectState(state).videoSourceLoaded;
 export const selectHasAppDrawerOpen = (state) => Boolean(selectAppDrawerOpen(state));
 
 export const selectIsDrawerOpenForType = (state, type) => {
@@ -158,4 +159,5 @@ export const selectIsDrawerOpenForType = (state, type) => {
   return appDrawerOpen === type;
 };
 
-export const selectIsReadyToMigrateCordovaToNative = (state) => selectState(state).readyToMigrateCordovaToNative;
+// export const selectIsReadyToMigrateCordovaToNative = (state) => selectState(state).readyToMigrateCordovaToNative;
+export const selectVideoSourceLoadedForUri = (state, uri) => selectVideoSourceLoaded(state) === uri;

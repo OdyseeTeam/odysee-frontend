@@ -2,7 +2,7 @@
 import { handleActions } from 'util/redux-utils';
 import * as ACTIONS from 'constants/action_types';
 
-declare type StatsState = {
+export type StatsState = {
   fetchingViewCount: boolean,
   viewCountError?: Error,
   viewCountById: { [ClaimId]: number },

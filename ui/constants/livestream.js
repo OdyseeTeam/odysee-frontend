@@ -1,11 +1,12 @@
+import { LIVESTREAM_SERVER_API } from 'config';
+
 export const LIVESTREAM_REPLAY_API = 'https://api.live.odysee.com/v1/replays/odysee';
 export const LIVESTREAM_RTMP_URL = 'rtmp://stream.odysee.com/live';
-export const LIVESTREAM_KILL = 'https://api.odysee.live/streams/kill?app=live&';
+export const LIVESTREAM_KILL = `${LIVESTREAM_SERVER_API}/streams/kill?app=live&`;
 
 // new livestream endpoints (old can be removed at some future point)
 export const NEW_LIVESTREAM_RTMP_URL = 'rtmp://publish.odysee.live/live';
-export const NEW_LIVESTREAM_REPLAY_API = 'https://api.odysee.live/replays/list';
-export const NEW_LIVESTREAM_LIVE_API = 'https://api.odysee.live/livestream';
+export const NEW_LIVESTREAM_REPLAY_API = `${LIVESTREAM_SERVER_API}/replays/list`;
 
 export const MAX_LIVESTREAM_COMMENTS = 50;
 

@@ -1,46 +1,25 @@
 // @flow
 import React from 'react';
+
 import ClaimList from 'component/claimList';
-import Spinner from 'component/spinner';
+import withCollectionItems from 'hocs/withCollectionItems';
 
 // prettier-ignore
 const Lazy = {
-  // $FlowFixMe
   DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
-  // $FlowFixMe
   Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
 };
 
 type Props = {
   collectionId: string,
+  isEditPreview?: boolean,
   // -- redux --
-  collection: Collection,
-  isPrivateCollection: boolean,
-  isEditedCollection: boolean,
-  isResolvingCollection: boolean,
-  collectionUrls: Array<string>,
+  collectionUrls: ?Array<string>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
-  doFetchItemsInCollection: (options: { collectionId: string, pageSize?: number }) => void,
 };
 
 const CollectionItemsList = (props: Props) => {
-  const {
-    collectionId,
-    collection,
-    isPrivateCollection,
-    isEditedCollection,
-    collectionUrls,
-    isResolvingCollection,
-    doCollectionEdit,
-    doFetchItemsInCollection,
-    ...claimListProps
-  } = props;
-
-  const { totalItems } = collection || {};
-
-  const urlsReady = collectionUrls && (totalItems === undefined || totalItems === collectionUrls.length);
-  const shouldFetchItems = isPrivateCollection || isEditedCollection || (!urlsReady && collectionId && !collection);
-  const didInitialFetch = React.useRef(!shouldFetchItems);
+  const { collectionId, isEditPreview, collectionUrls, doCollectionEdit, ...claimListProps } = props;
 
   function handleOnDragEnd(result: any) {
     const { source, destination } = result;
@@ -50,37 +29,26 @@ const CollectionItemsList = (props: Props) => {
     const { index: from } = source;
     const { index: to } = destination;
 
-    doCollectionEdit(collectionId, { order: { from, to } });
+    doCollectionEdit(collectionId, { order: { from, to }, isPreview: isEditPreview });
   }
-  React.useEffect(() => {
-    if (shouldFetchItems && !didInitialFetch.current) {
-      doFetchItemsInCollection({ collectionId });
-      didInitialFetch.current = true;
-    }
-  }, [collectionId, doFetchItemsInCollection, shouldFetchItems]);
 
   return (
     <React.Suspense fallback={null}>
-      {isResolvingCollection ? (
-        <div className="main--empty">
-          <Spinner />
-        </div>
-      ) : (
-        <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-          <Lazy.Droppable droppableId="list__ordering">
-            {(DroppableProvided) => (
-              <ClaimList
-                collectionId={collectionId}
-                uris={collectionUrls}
-                droppableProvided={DroppableProvided}
-                {...claimListProps}
-              />
-            )}
-          </Lazy.Droppable>
-        </Lazy.DragDropContext>
-      )}
+      <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+        <Lazy.Droppable droppableId="list__ordering">
+          {(DroppableProvided) => (
+            <ClaimList
+              collectionId={collectionId}
+              uris={collectionUrls}
+              isEditPreview={isEditPreview}
+              droppableProvided={DroppableProvided}
+              {...claimListProps}
+            />
+          )}
+        </Lazy.Droppable>
+      </Lazy.DragDropContext>
     </React.Suspense>
   );
 };
 
-export default CollectionItemsList;
+export default withCollectionItems(CollectionItemsList);

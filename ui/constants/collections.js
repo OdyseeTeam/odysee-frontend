@@ -4,9 +4,15 @@ import * as ICONS from 'constants/icons';
 export const ICON_SIZE = 12;
 export const PLACEHOLDER = 'My Awesome Playlist';
 
+export const THUMBNAIL_PREVIEW_AMOUNT = 3;
+
 // see which of these are used
 export const COLLECTION_ID = 'lid';
 export const COLLECTION_INDEX = 'linx';
+
+export const FILTER_TYPE_KEY = 'filterType';
+
+export const SEARCH_TERM_KEY = 'search';
 
 export const COL_TYPES = Object.freeze({
   PLAYLIST: 'playlist',
@@ -24,17 +30,19 @@ export const FAVORITES_NAME = 'Favorites';
 export const QUEUE_ID = 'queue';
 export const QUEUE_NAME = 'Queue';
 
-export const BUILTIN_PLAYLISTS = [WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID];
+export const BUILTIN_PLAYLISTS_NO_QUEUE = [WATCH_LATER_ID, FAVORITES_ID];
+export const BUILTIN_PLAYLISTS = [...BUILTIN_PLAYLISTS_NO_QUEUE, QUEUE_ID];
 // export const FAVORITE_CHANNELS_ID = 'favoriteChannels';
 // export const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID, FAVORITE_CHANNELS_ID];
 
-export const COL_KEY_BUILTIN = 'builtin';
-export const COL_KEY_EDITED = 'edited';
-export const COL_KEY_UPDATED = 'updated';
-export const COL_KEY_UNPUBLISHED = 'unpublished';
-export const COL_KEY_PUBLISHED = 'published';
-export const COL_KEY_PENDING = 'pending';
-export const COL_KEY_SAVED = 'savedIds';
+export const KEYS = Object.freeze({
+  BUILTIN: 'builtin',
+  EDITED: 'edited',
+  UPDATED: 'updated',
+  UNPUBLISHED: 'unpublished',
+  SAVED: 'savedIds',
+  UNSAVED_CHANGES: 'unsavedChanges',
+});
 
 export const SECTION_TAGS = Object.freeze({
   FEATURED_CHANNELS: '__section__featured__',

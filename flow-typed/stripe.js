@@ -202,6 +202,8 @@ declare type StripeCustomerListParams = {
   claim_id_filter?: string, // csv
 };
 
+declare type StripeTransactionType = 'rental' | 'purchase' | 'tip';
+
 declare type StripeTransaction = {
   name: string,
   currency: string,
@@ -215,6 +217,9 @@ declare type StripeTransaction = {
   received_amount: number,
   created_at: number,
   private_tip: string,
+  type: StripeTransactionType,
+  tipper_channel_claim_id: string,
+  tipper_channel_name: string,
 };
 declare type StripeTransactions = Array<StripeTransaction>;
 

@@ -1,6 +1,7 @@
 // @flow
 import { URL, SHARE_DOMAIN_URL } from 'config';
-import { ChannelPageContext } from 'page/channel/view';
+import { NavLink } from 'react-router-dom';
+import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
@@ -11,16 +12,14 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-import {
-  generateShareUrl,
-  generateRssUrl,
-  generateLbryContentUrl,
-  formatLbryUrlForWeb,
-  generateListSearchUrlParams,
-} from 'util/url';
+// import { generateShareUrl, generateRssUrl, generateLbryContentUrl, generateShortShareUrl } from 'util/url';
+import { generateShareUrl, generateRssUrl, generateLbryContentUrl } from 'util/url';
 import { useHistory } from 'react-router';
+// import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
+import { EmbedContext } from 'contexts/embed';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
+import { isClaimAllowedForCollection } from 'util/collections';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 
@@ -54,34 +53,27 @@ type Props = {
   claimInCollection: boolean,
   collectionId: string,
   isMyCollection: boolean,
-  isLivestreamClaim?: boolean,
-  isPostClaim?: boolean,
+  // isUnlisted: boolean,
   fypId?: string,
   doToast: ({ message: string, isError?: boolean, linkText?: string, linkTarget?: string }) => void,
   claimIsMine: boolean,
+  // settingsByChannelId: boolean,
   fileInfo: FileListItem,
-  prepareEdit: ({}, string, string) => void,
+  prepareEdit: ({}, string) => void,
   isSubscribed: boolean,
   doChannelSubscribe: (SubscriptionArgs) => void,
   doChannelUnsubscribe: (SubscriptionArgs) => void,
   hasEdits: Collection,
   isAuthenticated: boolean,
-  playNextUri: string,
-  resolvedList: boolean,
-  fetchCollectionItems: (string) => void,
-  doToggleShuffleList: (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => void,
+  doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   lastUsedCollection: ?Collection,
   hasClaimInLastUsedCollection: boolean,
   lastUsedCollectionIsNotBuiltin: boolean,
   doRemovePersonalRecommendation: (uri: string) => void,
   collectionEmpty: boolean,
-  doPlaylistAddAndAllowPlaying: (params: {
-    uri: string,
-    collectionName: string,
-    collectionId: string,
-    push: (uri: string) => void,
-  }) => void,
+  doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
   isContentProtectedAndLocked: boolean,
+  doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
 };
 
 function ClaimMenuList(props: Props) {
@@ -100,6 +92,7 @@ function ClaimMenuList(props: Props) {
     channelIsBlocked,
     channelIsAdminBlocked,
     isAdmin,
+    claimInCollection,
     doCommentModBlock,
     doCommentModUnBlock,
     doCommentModBlockAsAdmin,
@@ -108,11 +101,11 @@ function ClaimMenuList(props: Props) {
     hasClaimInFavorites,
     collectionId,
     isMyCollection,
-    isLivestreamClaim,
-    isPostClaim,
+    // isUnlisted,
     fypId,
     doToast,
     claimIsMine,
+    // settingsByChannelId,
     fileInfo,
     prepareEdit,
     isSubscribed,
@@ -120,10 +113,7 @@ function ClaimMenuList(props: Props) {
     doChannelUnsubscribe,
     hasEdits,
     isAuthenticated,
-    playNextUri,
-    resolvedList,
-    fetchCollectionItems,
-    doToggleShuffleList,
+    doEnableCollectionShuffle,
     lastUsedCollection,
     hasClaimInLastUsedCollection,
     lastUsedCollectionIsNotBuiltin,
@@ -131,17 +121,15 @@ function ClaimMenuList(props: Props) {
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
     isContentProtectedAndLocked,
+    // doFetchUriAccessKey,
   } = props;
+
+  const isEmbed = React.useContext(EmbedContext);
 
   const isChannelPage = React.useContext(ChannelPageContext);
 
-  const {
-    push,
-    replace,
-    location: { search },
-  } = useHistory();
+  const { push, replace } = useHistory();
 
-  const [doShuffle, setDoShuffle] = React.useState(false);
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
   const isChannel = !incognitoClaim && !contentSigningChannel;
   const { channelName } = parseURI(contentChannelUri);
@@ -154,28 +142,6 @@ function ClaimMenuList(props: Props) {
     ? __('Unfollow')
     : __('Follow');
 
-  const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
-
-  const fetchItems = React.useCallback(() => {
-    if (collectionId) {
-      fetchCollectionItems(collectionId);
-    }
-  }, [collectionId, fetchCollectionItems]);
-
-  React.useEffect(() => {
-    if (doShuffle && resolvedList) {
-      doToggleShuffleList({ collectionId });
-      if (playNextUri) {
-        const navigateUrl = formatLbryUrlForWeb(playNextUri);
-        push({
-          pathname: navigateUrl,
-          search: generateListSearchUrlParams(collectionId),
-          state: { collectionId, forceAutoplay: true },
-        });
-      }
-    }
-  }, [collectionId, doShuffle, doToggleShuffleList, playNextUri, push, resolvedList]);
-
   if (!claim) {
     return null;
   }
@@ -184,34 +150,12 @@ function ClaimMenuList(props: Props) {
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl);
   const rssUrl: string = isChannel ? generateRssUrl(SHARE_DOMAIN, claim) : '';
   const isCollectionClaim = claim && claim.value_type === 'collection';
-  // $FlowFixMe
-  const isPlayable =
-    contentClaim &&
-    // $FlowFixMe
-    contentClaim.value &&
-    // $FlowFixMe
-    contentClaim.value.stream_type &&
-    // $FlowFixMe
-    (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
-    const itemUrl = contentClaim?.canonical_url;
+    const itemUrl = contentClaim?.permanent_url;
 
     if (itemUrl) {
-      const urlParams = new URLSearchParams(search);
-      urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
-
-      doPlaylistAddAndAllowPlaying({
-        uri: itemUrl,
-        collectionName: name,
-        collectionId,
-        push: (pushUri) =>
-          push({
-            pathname: formatLbryUrlForWeb(pushUri),
-            search: urlParams.toString(),
-            state: { collectionId, forceAutoplay: true },
-          }),
-      });
+      doPlaylistAddAndAllowPlaying({ uri: itemUrl, collectionName: name, collectionId });
     }
   }
 
@@ -254,13 +198,22 @@ function ClaimMenuList(props: Props) {
         uriObject.channelName = signingChannelName;
       }
       const editUri = buildURI(uriObject);
+      // TODO: move the logic to create `editUri` into doPrepareEdit since
+      // `claim` is passed in.
 
-      prepareEdit(claim, editUri, claimType);
+      prepareEdit(claim, editUri);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
       push(`/${channelUrl}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`);
     }
   }
+
+  /*
+  function handleFeature(){
+    const { homepage_settings } = settingsByChannelId[Object.keys(settingsByChannelId)[0]];
+    console.log('homepage_settings: ', homepage_settings)
+  }
+  */
 
   function handleDelete() {
     if (!repostedClaim && !isChannel) {
@@ -320,7 +273,7 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleCopyLink() {
-    // $FlowIgnore
+    // eslint-disable-next-line no-unused-expressions
     () =>
       function (event) {
         event.preventDefault();
@@ -329,9 +282,119 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleReportContent() {
+    const claimId = contentClaim?.claim_id;
     // $FlowFixMe
-    push(`/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim && contentClaim.claim_id}`);
+    push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`);
   }
+
+  const AddToCollectionContext = () => {
+    const WatchLaterMenuItem = () => {
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(hasClaimInWatchLater, __('Watch Later'), COLLECTIONS_CONSTS.WATCH_LATER_ID)}
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={hasClaimInWatchLater ? ICONS.DELETE : ICONS.TIME} />
+            {hasClaimInWatchLater ? __('In Watch Later') : __('Watch Later')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    const FavoritesMenuItem = () => {
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(hasClaimInFavorites, __('Favorites'), COLLECTIONS_CONSTS.FAVORITES_ID)}
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={hasClaimInFavorites ? ICONS.DELETE : ICONS.STAR} />
+            {hasClaimInFavorites ? __('In Favorites') : __('Favorites')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    const AddToPlaylistMenuItem = () => {
+      // CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() =>
+            openModal(MODALS.COLLECTION_ADD, { uri: contentClaim?.permanent_url, type: COL_TYPES.PLAYLIST })
+          }
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
+            {__('Add to Playlist')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    const ToggleLastUsedCollectionMenuItem = () => {
+      return lastUsedCollection && lastUsedCollectionIsNotBuiltin ? (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(hasClaimInLastUsedCollection, lastUsedCollection.name, lastUsedCollection.id)}
+        >
+          <div className="menu__link">
+            {!hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.ADD} />}
+            {hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.DELETE} />}
+            {!hasClaimInLastUsedCollection && __('Add to %collection%', { collection: lastUsedCollection.name })}
+            {hasClaimInLastUsedCollection && __('In %collection%', { collection: lastUsedCollection.name })}
+          </div>
+        </MenuItem>
+      ) : null;
+    };
+
+    const RemoveFromCollectionMenuItem = () => {
+      // The function doesn't seem to care about the name for the deletion case,
+      // so just blank it for now (lazy to get the value).
+      const collectionName = '';
+
+      assert(claimInCollection, 'This should only be used when editing a collection');
+
+      return (
+        <MenuItem
+          className="comment__menu-option"
+          onSelect={() => handleAdd(claimInCollection, collectionName, collectionId)}
+        >
+          <div className="menu__link">
+            <Icon aria-hidden icon={ICONS.DELETE} />
+            {__('Remove From List')}
+          </div>
+        </MenuItem>
+      );
+    };
+
+    // $FlowFixMe: claims not typed right
+    const canAdd = isClaimAllowedForCollection(contentClaim);
+
+    return (
+      <>
+        {isAuthenticated && claimInCollection && (
+          <>
+            <RemoveFromCollectionMenuItem />
+            <hr className="menu__separator" />
+          </>
+        )}
+
+        {canAdd && contentClaim && <ButtonAddToQueue uri={contentClaim.permanent_url} menuItem />}
+
+        {isAuthenticated && canAdd && (
+          <>
+            <WatchLaterMenuItem />
+            <FavoritesMenuItem />
+            <AddToPlaylistMenuItem />
+            <ToggleLastUsedCollectionMenuItem />
+            <hr className="menu__separator" />
+          </>
+        )}
+      </>
+    );
+  };
 
   return (
     <Menu>
@@ -373,13 +436,7 @@ function ClaimMenuList(props: Props) {
                 </a>
               </MenuItem>
               {!collectionEmpty && (
-                <MenuItem
-                  className="comment__menu-option"
-                  onSelect={() => {
-                    if (!resolvedList) fetchItems();
-                    setDoShuffle(true);
-                  }}
-                >
+                <MenuItem className="comment__menu-option" onSelect={() => doEnableCollectionShuffle({ collectionId })}>
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.SHUFFLE} />
                     {__('Shuffle Play')}
@@ -423,67 +480,7 @@ function ClaimMenuList(props: Props) {
               )}
             </>
           ) : (
-            isPlayable && (
-              <>
-                {/* QUEUE */}
-                {contentClaim && <ButtonAddToQueue uri={contentClaim.permanent_url} menuItem />}
-
-                {isAuthenticated && (
-                  <>
-                    {/* WATCH LATER */}
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() =>
-                        handleAdd(hasClaimInWatchLater, __('Watch Later'), COLLECTIONS_CONSTS.WATCH_LATER_ID)
-                      }
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={hasClaimInWatchLater ? ICONS.DELETE : ICONS.TIME} />
-                        {hasClaimInWatchLater ? __('In Watch Later') : __('Watch Later')}
-                      </div>
-                    </MenuItem>
-                    {/* FAVORITES LIST */}
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() => handleAdd(hasClaimInFavorites, __('Favorites'), COLLECTIONS_CONSTS.FAVORITES_ID)}
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={hasClaimInFavorites ? ICONS.DELETE : ICONS.STAR} />
-                        {hasClaimInFavorites ? __('In Favorites') : __('Favorites')}
-                      </div>
-                    </MenuItem>
-                    {/* CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES */}
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() => openModal(MODALS.COLLECTION_ADD, { uri, type: COL_TYPES.PLAYLIST })}
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
-                        {__('Add to Playlist')}
-                      </div>
-                    </MenuItem>
-                    {lastUsedCollection && lastUsedCollectionIsNotBuiltin && (
-                      <MenuItem
-                        className="comment__menu-option"
-                        onSelect={() =>
-                          handleAdd(hasClaimInLastUsedCollection, lastUsedCollection.name, lastUsedCollection.id)
-                        }
-                      >
-                        <div className="menu__link">
-                          {!hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.ADD} />}
-                          {hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.DELETE} />}
-                          {!hasClaimInLastUsedCollection &&
-                            __('Add to %collection%', { collection: lastUsedCollection.name })}
-                          {hasClaimInLastUsedCollection &&
-                            __('In %collection%', { collection: lastUsedCollection.name })}
-                        </div>
-                      </MenuItem>
-                    )}
-                    <hr className="menu__separator" />
-                  </>
-                )}
-              </>
-            )
+            <AddToCollectionContext />
           )}
         </>
 
@@ -557,7 +554,15 @@ function ClaimMenuList(props: Props) {
                   )
                 ) : (
                   <>
-                    {!isChannelPage && !repostedClaim && (
+                    {/* claimIsMine && (
+                      <MenuItem className="comment__menu-option" onSelect={handleFeature}>
+                        <div className="menu__link">
+                          <Icon aria-hidden icon={ICONS.HOME} />
+                          {__('Feature')}
+                        </div>
+                      </MenuItem>
+                    ) */}
+                    {!repostedClaim && (
                       <MenuItem className="comment__menu-option" onSelect={handleEdit}>
                         <div className="menu__link">
                           <Icon aria-hidden icon={ICONS.EDIT} />
@@ -599,11 +604,18 @@ function ClaimMenuList(props: Props) {
         )}
 
         {!claimIsMine && !isMyCollection && (
-          <MenuItem className="comment__menu-option" onSelect={handleReportContent}>
-            <div className="menu__link">
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={isEmbed ? (e) => e.preventDefault() : handleReportContent}
+          >
+            <NavLink
+              className="menu__link"
+              to={{ pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '' }}
+              target={isEmbed && '_blank'}
+            >
               <Icon aria-hidden icon={ICONS.REPORT} />
               {__('Report Content')}
-            </div>
+            </NavLink>
           </MenuItem>
         )}
       </MenuList>

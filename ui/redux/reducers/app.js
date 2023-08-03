@@ -51,6 +51,7 @@ export type AppState = {
   appDrawerOpen: boolean | string,
   mainPlayerDimensions: { height: ?number, width: ?number },
   readyToMigrateCordovaToNative: ?boolean,
+  videoSourceLoaded: ?string,
 };
 
 const defaultState: AppState = {
@@ -95,6 +96,7 @@ const defaultState: AppState = {
   appDrawerOpen: false,
   mainPlayerDimensions: { height: undefined, width: undefined },
   readyToMigrateCordovaToNative: false,
+  videoSourceLoaded: undefined,
 };
 
 // @@router comes from react-router
@@ -349,6 +351,10 @@ reducers[ACTIONS.SET_MAIN_PLAYER_DIMENSIONS] = (state, action) => {
   return { ...state, mainPlayerDimensions: action.data };
 };
 
+reducers[ACTIONS.SET_VIDEO_SOURCE_LOADED] = (state, action) => {
+  return { ...state, videoSourceLoaded: action.data };
+};
+
 reducers[ACTIONS.DRAWER_OPENED] = (state, action) => {
   return {
     ...state,
@@ -380,6 +386,7 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
   };
 };
 
+/*
 reducers[ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_READY] = (state) =>
   Object.assign({}, state, {
     readyToMigrateCordovaToNative: true,
@@ -389,6 +396,7 @@ reducers[ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_NOT_READY] = (state) =>
   Object.assign({}, state, {
     readyToMigrateCordovaToNative: false,
   });
+  */
 
 export default function reducer(state: AppState = defaultState, action: any) {
   const handler = reducers[action.type];

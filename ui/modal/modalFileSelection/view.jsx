@@ -11,10 +11,10 @@ import FileList from 'component/common/file-list';
 type Props = {
   files: Array<WebFile>,
   hideModal: () => void,
-  updatePublishForm: ({}) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   history: {
     location: { pathname: string },
-    push: string => void,
+    push: (string) => void,
   },
 };
 

@@ -1,3 +1,4 @@
+// @flow
 import Lbry from 'lbry';
 import { doWalletReconnect } from 'redux/actions/wallet';
 import * as SETTINGS from 'constants/settings';
@@ -9,12 +10,13 @@ import { doToast } from 'redux/actions/notifications';
 import analytics from 'analytics';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { launcher } from 'util/autoLaunch';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectHomepageDb } from 'redux/selectors/settings';
 import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
-import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal } from 'redux/actions/app';
+import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal, doSetChronoLocale } from 'redux/actions/app';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
 import { getDefaultLanguage } from 'util/default-languages';
+import { postProcessHomepageDb, updateHomepageDb } from 'util/homepages';
 import { LocalStorage } from 'util/storage';
 
 const { URL_DEV } = require('config');
@@ -24,7 +26,7 @@ export const IS_MAC = process.platform === 'darwin';
 const UPDATE_IS_NIGHT_INTERVAL = 5 * 60 * 1000;
 
 export function doFetchDaemonSettings() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     Lbry.settings_get().then((settings) => {
       analytics.setState(settings.share_usage_data);
       dispatch({
@@ -38,7 +40,7 @@ export function doFetchDaemonSettings() {
 }
 
 export function doFindFFmpeg() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.FINDING_FFMPEG_STARTED,
     });
@@ -52,7 +54,7 @@ export function doFindFFmpeg() {
 }
 
 export function doGetDaemonStatus() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     return Lbry.status().then((status) => {
       dispatch({
         type: ACTIONS.DAEMON_STATUS_RECEIVED,
@@ -65,8 +67,8 @@ export function doGetDaemonStatus() {
   };
 }
 
-export function doClearDaemonSetting(key) {
-  return (dispatch, getState) => {
+export function doClearDaemonSetting(key: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
 
@@ -77,6 +79,9 @@ export function doClearDaemonSetting(key) {
     const clearKey = {
       key,
     };
+
+    assert(false, 'Will not work in web');
+
     // not if syncLocked
     Lbry.settings_clear(clearKey).then((defaultSettings) => {
       if (SDK_SYNC_KEYS.includes(key)) {
@@ -101,14 +106,16 @@ export function doClearDaemonSetting(key) {
   };
 }
 // if doPopulate is applying settings, we don't want to cause a loop; doNotDispatch = true.
-export function doSetDaemonSetting(key, value, doNotDispatch = false) {
-  return (dispatch, getState) => {
+export function doSetDaemonSetting(key: string, value: any, doNotDispatch: boolean = false) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
 
     if (!ready) {
       return dispatch(doAlertWaitingForSync());
     }
+
+    assert(false, 'Will not work in web');
 
     const newSettings = {
       key,
@@ -139,15 +146,15 @@ export function doSetDaemonSetting(key, value, doNotDispatch = false) {
   };
 }
 
-export function doSaveCustomWalletServers(servers) {
+export function doSaveCustomWalletServers(servers: string) {
   return {
     type: ACTIONS.SAVE_CUSTOM_WALLET_SERVERS,
     data: servers,
   };
 }
 
-export function doSetClientSetting(key, value, pushPrefs) {
-  return (dispatch, getState) => {
+export function doSetClientSetting(key: string, value: any, pushPrefs?: boolean) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
 
@@ -169,7 +176,7 @@ export function doSetClientSetting(key, value, pushPrefs) {
   };
 }
 
-export const doSetPreferredCurrency = (value) => (dispatch) =>
+export const doSetPreferredCurrency = (value: any) => (dispatch: Dispatch) =>
   dispatch(doSetClientSetting(SETTINGS.PREFERRED_CURRENCY, value, true));
 
 export function doUpdateIsNight() {
@@ -179,16 +186,16 @@ export function doUpdateIsNight() {
 }
 
 export function doUpdateIsNightAsync() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     dispatch(doUpdateIsNight());
 
     setInterval(() => dispatch(doUpdateIsNight()), UPDATE_IS_NIGHT_INTERVAL);
   };
 }
 
-export function doSetDarkTime(value, options) {
+export function doSetDarkTime(value: any, options: any) {
   const { fromTo, time } = options;
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const darkModeTimes = state.settings.clientSettings[SETTINGS.DARK_MODE_TIMES];
     const { hour, min } = darkModeTimes[fromTo];
@@ -210,7 +217,7 @@ export function doSetDarkTime(value, options) {
 
 export function doGetWalletSyncPreference() {
   const SYNC_KEY = 'enable-sync';
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     return Lbry.preference_get({ key: SYNC_KEY }).then((result) => {
       const enabled = result && result[SYNC_KEY];
       if (enabled !== null) {
@@ -221,9 +228,9 @@ export function doGetWalletSyncPreference() {
   };
 }
 
-export function doSetWalletSyncPreference(pref) {
+export function doSetWalletSyncPreference(pref: any) {
   const SYNC_KEY = 'enable-sync';
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     return Lbry.preference_set({ key: SYNC_KEY, value: pref }).then((result) => {
       const enabled = result && result[SYNC_KEY];
       if (enabled !== null) {
@@ -235,7 +242,8 @@ export function doSetWalletSyncPreference(pref) {
 }
 
 export function doPushSettingsToPrefs() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
+    // $FlowFixMe please
     return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.SYNC_CLIENT_SETTINGS,
@@ -246,7 +254,7 @@ export function doPushSettingsToPrefs() {
 }
 
 export function doEnterSettingsPage() {
-  return async (dispatch, getState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
@@ -264,7 +272,7 @@ export function doEnterSettingsPage() {
 }
 
 export function doExitSettingsPage() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
     if (IS_WEB && !hasVerifiedEmail) {
@@ -276,37 +284,44 @@ export function doExitSettingsPage() {
   };
 }
 
-export function doFetchLanguage(language) {
-  return (dispatch, getState) => {
+async function fetchAndStoreLanguage(language: string) {
+  // this should match the behavior/logic in index-web.html
+  const url = `https://odysee.com/app-strings/${language}.json`;
+  return fetch(url)
+    .then((r) => r.json())
+    .then((j) => {
+      window.i18n_messages[language] = j;
+    })
+    .catch((err) => {
+      assert(false, `Failed: "${language}" from (${url})`, err);
+      throw err;
+    });
+}
+
+export function doFetchLanguage(language: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const { settings } = getState();
 
     if (settings.language !== language || (settings.loadedLanguages && !settings.loadedLanguages.includes(language))) {
-      // this should match the behavior/logic in index-web.html
-      fetch('https://lbry.com/i18n/get/lbry-desktop/app-strings/' + language + '.json')
-        .then((r) => r.json())
-        .then((j) => {
-          window.i18n_messages[language] = j;
-          dispatch({
-            type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
-            data: {
-              language,
-            },
-          });
+      return fetchAndStoreLanguage(language)
+        .then(() => {
+          dispatch(doSetChronoLocale(language));
+          dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS, data: { language } });
         })
         .catch((e) => {
-          dispatch({
-            type: ACTIONS.DOWNLOAD_LANGUAGE_FAILURE,
-          });
+          dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_FAILURE });
         });
     }
+  };
+}
 
+export function doFetchDevStrings() {
+  return (dispatch: Dispatch, getState: GetState) => {
     // @if process.env.NODE_ENV!='production'
     if (!window.app_strings) {
       fetch(`${URL_DEV}/app-strings.json`)
         .then((r) => r.json())
-        .then((j) => {
-          window.app_strings = j;
-        })
+        .then((j) => (window.app_strings = j))
         .catch(() => {});
     }
     // @endif
@@ -317,28 +332,41 @@ function populateCategoryTitles(categories) {
   if (categories) {
     window.CATEGORY_PAGE_TITLE = {};
     Object.values(categories).forEach((x) => {
+      // $FlowIgnore mixed bug
       window.CATEGORY_PAGE_TITLE[x.name] = x.label;
     });
   }
 }
 
-function loadBuiltInHomepageData(dispatch) {
-  const homepages = require('homepages');
-  if (homepages) {
-    const v2 = {};
-    const homepageKeys = Object.keys(homepages);
-    homepageKeys.forEach((hp) => {
-      v2[hp] = homepages[hp];
-    });
+export function doLoadBuiltInHomepageData() {
+  return (dispatch: Dispatch) => {
+    // We always fetch fresh homepages on load, but the baked in data is
+    // required for
+    // (1) some homepages need English as fallback (e.g. empty portals).
+    // (2) perceived faster startup
+    //
+    // As a compromise between the above needs vs. wanting a smaller ui.js,
+    // we'll just bake in the English version.
 
-    window.homepages = v2;
-    populateCategoryTitles(window.homepages?.en?.categories);
-    dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
-  }
+    // @if process.env.CUSTOM_HOMEPAGE='true'
+
+    // $FlowIgnore
+    const enHp = require('homepages/odysee-en');
+    if (enHp) {
+      window.homepages = {};
+      const keys = ['en', 'fr', 'es', 'de', 'it', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
+      keys.forEach((hp) => (window.homepages[hp] = undefined));
+      window.homepages['en'] = enHp;
+      populateCategoryTitles(window.homepages?.en?.categories);
+      dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
+    }
+
+    // @endif
+  };
 }
 
 export function doOpenAnnouncements() {
-  return (dispatch) => {
+  return (dispatch: Dispatch) => {
     // There is a weird useEffect in modalRouter that closes all modals on
     // initial mount. Not sure what scenario that covers, so just delay a bit
     // until it is mounted.
@@ -348,41 +376,47 @@ export function doOpenAnnouncements() {
   };
 }
 
-export function doFetchHomepages() {
-  return (dispatch) => {
-    // -- Use this env flag to use local homepage data and meme (faster).
-    // -- Otherwise, it will grab from `/$/api/content/v*/get`.
-    // @if USE_LOCAL_HOMEPAGE_DATA='true'
-    loadBuiltInHomepageData(dispatch);
-    // @endif
+export function doFetchHomepages(hp?: string) {
+  return (dispatch: Dispatch) => {
+    const param = hp ? `?hp=${hp}` : '';
 
-    fetch('https://odysee.com/$/api/content/v2/get')
+    return fetch(`https://odysee.com/$/api/content/v2/get${param}`)
       .then((response) => response.json())
       .then((json) => {
         if (json?.status === 'success' && json?.data) {
-          window.homepages = json.data;
+          window.homepages = updateHomepageDb(window.homepages, json.data, hp);
+          window.homepages = postProcessHomepageDb(window.homepages);
           populateCategoryTitles(window.homepages?.en?.categories);
           dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
         } else {
           dispatch({ type: ACTIONS.FETCH_HOMEPAGES_FAILED });
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log('doFetchHomepages:', e); // eslint-disable-line no-console
         dispatch({ type: ACTIONS.FETCH_HOMEPAGES_FAILED });
       });
   };
 }
 
-export function doSetHomepage(code) {
-  return (dispatch, getState) => {
+export function doSetHomepage(code: string) {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const homepages = selectHomepageDb(state);
+
+    if (code && !homepages[code]) {
+      await dispatch(doFetchHomepages(code));
+    }
+
+    // bc3c56b8: Why reset to null -- makes it look like homepage was deleted.
     const languageCode = code === getDefaultLanguage() ? null : code;
 
     dispatch(doSetClientSetting(SETTINGS.HOMEPAGE, languageCode));
   };
 }
 
-export function doSetLanguage(language) {
-  return (dispatch, getState) => {
+export function doSetLanguage(language: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const { settings } = getState();
     const { daemonSettings } = settings;
     const { share_usage_data: shareSetting } = daemonSettings;
@@ -399,17 +433,10 @@ export function doSetLanguage(language) {
       settings.language !== languageSetting ||
       (settings.loadedLanguages && !settings.loadedLanguages.includes(language))
     ) {
-      // this should match the behavior/logic in index-web.html
-      return fetch('https://lbry.com/i18n/get/lbry-desktop/app-strings/' + language + '.json')
-        .then((r) => r.json())
-        .then((j) => {
-          window.i18n_messages[language] = j;
-          dispatch({
-            type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS,
-            data: {
-              language,
-            },
-          });
+      return fetchAndStoreLanguage(language)
+        .then(() => {
+          dispatch(doSetChronoLocale(language));
+          dispatch({ type: ACTIONS.DOWNLOAD_LANGUAGE_SUCCESS, data: { language } });
         })
         .then(() => {
           dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
@@ -441,8 +468,8 @@ export function doSetLanguage(language) {
   };
 }
 
-export function doSetAutoLaunch(value) {
-  return (dispatch, getState) => {
+export function doSetAutoLaunch(value: any) {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const autoLaunch = selectClientSetting(state, SETTINGS.AUTO_LAUNCH);
 
@@ -491,15 +518,15 @@ export function doSetAutoLaunch(value) {
   };
 }
 
-export function doSetAppToTrayWhenClosed(value) {
-  return (dispatch) => {
+export function doSetAppToTrayWhenClosed(value: any) {
+  return (dispatch: Dispatch) => {
     LocalStorage.setItem(SETTINGS.TO_TRAY_WHEN_CLOSED, value);
     dispatch(doSetClientSetting(SETTINGS.TO_TRAY_WHEN_CLOSED, value));
   };
 }
 
 export function toggleVideoTheaterMode() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const videoTheaterMode = selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE);
 
@@ -508,7 +535,7 @@ export function toggleVideoTheaterMode() {
 }
 
 export function toggleAutoplayNext() {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
     const autoplayNext = selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
@@ -523,8 +550,8 @@ export function toggleAutoplayNext() {
   };
 }
 
-export const doSetDefaultVideoQuality = (value) => (dispatch) =>
+export const doSetDefaultVideoQuality = (value: any) => (dispatch: Dispatch) =>
   dispatch(doSetClientSetting(SETTINGS.DEFAULT_VIDEO_QUALITY, value, true));
 
-export const doSetDefaultChannel = (claimId) => (dispatch) =>
+export const doSetDefaultChannel = (claimId: ClaimId) => (dispatch: Dispatch) =>
   dispatch(doSetClientSetting(SETTINGS.ACTIVE_CHANNEL_CLAIM, claimId, true));

@@ -7,6 +7,7 @@ import FormNewCollection from 'component/formNewCollection';
 type Props = {
   sourceId?: string,
   closeModal: () => void,
+  // -- redux --
   doToast: (params: { message: string }) => void,
 };
 

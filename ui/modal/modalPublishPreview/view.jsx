@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import moment from 'moment';
+import type { DoPublishDesktop } from 'redux/actions/publish';
 
 import './style.scss';
 import Button from 'component/button';
@@ -15,19 +16,22 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
-import { NO_FILE } from 'redux/actions/publish';
-import { PAYWALL } from 'constants/publish';
+import { NO_FILE, PAYWALL } from 'constants/publish';
+import * as PUBLISH_TYPES from 'constants/publish_types';
 import * as STRIPE from 'constants/stripe';
 import { TO_SECONDS } from 'util/stripe';
 import { removeInternalTags } from 'util/tags';
 import { secondsToDhms } from 'util/time';
 
 type Props = {
+  publishPayload: PublishParams,
+  previewResponse: PublishResponse,
+  // --- internal ---
+  type: PublishType,
+  liveCreateType: LiveCreateType,
+  liveEditType: LiveEditType,
   filePath: string | WebFile,
-  isMarkdownPost: boolean,
   optimize: boolean,
-  title: ?string,
-  description: ?string,
   channel: ?string,
   bid: ?number,
   uri: ?string,
@@ -39,15 +43,14 @@ type Props = {
   fiatRentalFee: Price,
   fiatRentalExpiration: Duration,
   language: string,
-  releaseTimeEdited: ?number,
+  releaseTime: ?number,
   licenseType: string,
   otherLicenseDescription: ?string,
   licenseUrl: ?string,
   tags: Array<Tag>,
   isVid: boolean,
   ffmpegStatus: any,
-  previewResponse: PublishResponse,
-  publish: (?string, ?boolean) => void,
+  publish: DoPublishDesktop,
   closeModal: () => void,
   enablePublishPreview: boolean,
   setEnablePublishPreview: (boolean) => void,
@@ -56,21 +59,24 @@ type Props = {
   publishSuccess: boolean,
   publishing: boolean,
   isLivestreamClaim: boolean,
-  remoteFile: string,
-  tiersWithExclusiveContent: MembershipTiers,
-  tiersWithExclusiveLivestream: MembershipTiers,
-  restrictingTiers: string,
-  appLanguage: string,
+  remoteFile: ?string,
+  myMembershipTiers: MembershipTiers,
+  memberRestrictionTierIds: Array<number>,
+  memberRestrictionStatus: MemberRestrictionStatus,
+  visibility: Visibility,
+  scheduledShow: boolean,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
 const ModalPublishPreview = (props: Props) => {
   const {
-    filePath,
-    isMarkdownPost,
+    publishPayload: payload,
+    previewResponse,
+
+    type,
+    liveCreateType,
+    liveEditType,
     optimize,
-    title,
-    description,
     channel,
     bid,
     uri,
@@ -84,14 +90,13 @@ const ModalPublishPreview = (props: Props) => {
     fiatRentalExpiration,
 
     language,
-    releaseTimeEdited,
+    releaseTime: rtStore,
     licenseType,
     otherLicenseDescription,
     licenseUrl,
     tags,
     isVid,
     ffmpegStatus = {},
-    previewResponse,
     enablePublishPreview,
     setEnablePublishPreview,
     isStillEditing,
@@ -101,12 +106,22 @@ const ModalPublishPreview = (props: Props) => {
     publish,
     closeModal,
     isLivestreamClaim,
-    remoteFile,
-    tiersWithExclusiveContent,
-    tiersWithExclusiveLivestream,
-    restrictingTiers,
-    appLanguage,
+    myMembershipTiers,
+    memberRestrictionTierIds,
+    memberRestrictionStatus,
+    visibility,
+    scheduledShow,
   } = props;
+
+  const { description, file_path: filePath, remote_url, release_time: rtPayload, title } = payload;
+
+  const releaseTimeInfo = React.useMemo(() => {
+    return {
+      userEntered: rtStore !== undefined,
+      value: rtPayload,
+      valueIsInFuture: rtPayload && moment(rtPayload * 1000).isAfter(),
+    };
+  }, [rtPayload, rtStore]);
 
   const livestream =
     (uri && isLivestreamClaim) ||
@@ -116,12 +131,16 @@ const ModalPublishPreview = (props: Props) => {
 
   const formattedTitle = truncateWithEllipsis(title, 128);
   const formattedUri = truncateWithEllipsis(uri, 128);
-  const releasesInFuture = releaseTimeEdited && moment(releaseTimeEdited * 1000).isAfter();
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
   const confirmBtnText = getConfirmButtonText();
-  const tiers = livestream ? tiersWithExclusiveLivestream : tiersWithExclusiveContent; // See #2285
+
+  assert(
+    !memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid,
+    'Something wrong:',
+    memberRestrictionStatus
+  );
 
   // **************************************************************************
   // **************************************************************************
@@ -142,7 +161,7 @@ const ModalPublishPreview = (props: Props) => {
     return str;
   }
 
-  function getFilePathName(filePath: string | WebFile) {
+  function getFilePathName(filePath: ?string | WebFile) {
     if (!filePath) {
       return NO_FILE;
     }
@@ -161,13 +180,13 @@ const ModalPublishPreview = (props: Props) => {
       } else {
         return __('Confirm Edit');
       }
-    } else if (livestream || isLivestreamClaim || remoteFile) {
-      return releasesInFuture
+    } else if (livestream || isLivestreamClaim || remote_url) {
+      return releaseTimeInfo.valueIsInFuture
         ? __('Schedule Livestream')
-        : (!livestream || !isLivestreamClaim) && remoteFile
+        : (!livestream || !isLivestreamClaim) && remote_url
         ? __('Publish Replay')
         : __('Create Livestream');
-    } else if (isMarkdownPost) {
+    } else if (type === PUBLISH_TYPES.POST) {
       return __('Confirm Post');
     } else {
       return __('Confirm Upload');
@@ -292,47 +311,72 @@ const ModalPublishPreview = (props: Props) => {
   }
 
   function getReleaseTimeLabel() {
-    return releasesInFuture ? __('Scheduled for') : __('Release date');
+    return releaseTimeInfo.valueIsInFuture ? __('Scheduled for') : __('Release date');
   }
 
-  function getReleaseTimeValue(time) {
-    if (time) {
-      try {
-        return new Date(time * 1000).toLocaleString(appLanguage);
-      } catch {
-        return moment(new Date(time * 1000)).format('MMMM Do, YYYY - h:mm a');
-      }
+  function getReleaseTimeValue() {
+    if (releaseTimeInfo.value) {
+      return moment(new Date(releaseTimeInfo.value * 1000)).format('LLL');
     } else {
       return '';
     }
   }
 
   function getTierRestrictionValue() {
-    if (tiers && restrictingTiers) {
-      const rt = restrictingTiers.split(',');
-
-      return (
-        <div className="publish-preview__tier-restrictions">
-          {tiers.map((tier: MembershipTier) => {
-            const tierId = tier?.Membership?.id || '0';
-            const tierRestrictionOn = rt.includes(tierId.toString());
-
-            return tierRestrictionOn ? (
-              <FormField
-                key={tierId}
-                name={tierId}
-                type="checkbox"
-                defaultChecked
-                label={tier?.Membership?.name || tierId}
-              />
-            ) : (
-              <div key={tierId} className="dummy-tier" />
-            );
-          })}
-        </div>
-      );
+    if (hideTierRestrictions()) {
+      return null;
     }
-    return null;
+
+    return (
+      <div className="publish-preview__tier-restrictions">
+        {myMembershipTiers.map((tier: MembershipTier) => {
+          const tierId = tier?.Membership?.id || '0';
+          const tierSelected = memberRestrictionTierIds.includes(tierId);
+
+          return tierSelected ? (
+            <FormField
+              key={tierId}
+              name={tierId}
+              type="checkbox"
+              defaultChecked
+              label={tier?.Membership?.name || tierId}
+            />
+          ) : (
+            <div key={tierId} className="dummy-tier" />
+          );
+        })}
+      </div>
+    );
+  }
+
+  function hideTierRestrictions() {
+    return !memberRestrictionStatus.isRestricting;
+  }
+
+  function getVisibilityValue() {
+    switch (visibility) {
+      case 'public':
+        return __('Public');
+      case 'scheduled':
+        return __(scheduledShow ? 'Scheduled (show in Upcoming section)' : 'Scheduled (hide from Upcoming section)');
+      case 'unlisted':
+        return __('Unlisted');
+      default:
+        assert(false);
+        return '';
+    }
+  }
+
+  function getReplayValue() {
+    // Include both to detect errors visually
+    return `${__(filePath ? getFilePathName(filePath) : '')}${__(remote_url ? 'Remote File Selected' : '')}`;
+  }
+
+  function hideReplayRow() {
+    const show =
+      type === 'livestream' &&
+      (liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType !== 'update_only'));
+    return !show;
   }
 
   function onConfirmed() {
@@ -369,20 +413,20 @@ const ModalPublishPreview = (props: Props) => {
               <div className="section">
                 <table className="table table--condensed table--publish-preview">
                   <tbody>
-                    {!livestream && !isMarkdownPost && createRow(__('File'), getFilePathName(filePath))}
-                    {livestream && remoteFile && createRow(__('Replay'), __('Remote File Selected'))}
-                    {livestream && filePath && createRow(__('Replay'), __('Manual Upload'))}
+                    {!livestream && type !== PUBLISH_TYPES.POST && createRow(__('File'), getFilePathName(filePath))}
+                    {createRow(__('Replay'), getReplayValue(), hideReplayRow())}
                     {isOptimizeAvail && createRow(__('Transcode'), optimize ? __('Yes') : __('No'))}
                     {createRow(__('Title'), formattedTitle)}
                     {createRow(__('Description'), getDescription())}
                     {createRow(__('Channel'), getChannelValue(channel))}
                     {createRow(__('URL'), formattedUri)}
                     {createRow(__('Deposit'), getDeposit())}
-                    {createRow(getPriceLabel(), getPriceValue())}
+                    {createRow(getPriceLabel(), getPriceValue(), visibility !== 'public')}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
-                    {releaseTimeEdited && createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTimeEdited))}
+                    {createRow(__('Visibility'), getVisibilityValue())}
+                    {createRow(getReleaseTimeLabel(), getReleaseTimeValue(), !releaseTimeInfo.userEntered)}
                     {createRow(__('License'), getLicense())}
-                    {createRow(__('Restricted to'), getTierRestrictionValue(), !tiers || !restrictingTiers)}
+                    {createRow(__('Restricted to'), getTierRestrictionValue(), hideTierRestrictions())}
                     {createRow(__('Tags'), getTagsValue(tags))}
                   </tbody>
                 </table>

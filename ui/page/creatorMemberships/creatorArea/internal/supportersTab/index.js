@@ -1,6 +1,9 @@
 import { connect } from 'react-redux';
+
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectMySupportersList, selectMembershipTiersForCreatorId } from 'redux/selectors/memberships';
+import { doResolveClaimIds } from 'redux/actions/claims';
+
 import SupportersTab from './view';
 
 const select = (state) => {
@@ -12,4 +15,8 @@ const select = (state) => {
   };
 };
 
-export default connect(select)(SupportersTab);
+const perform = {
+  doResolveClaimIds,
+};
+
+export default connect(select, perform)(SupportersTab);

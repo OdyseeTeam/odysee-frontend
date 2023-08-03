@@ -13,6 +13,7 @@ yarn-error.log
 package-lock.json
 .transifexrc
 .idea/
+.yarn/
 .vscode/
 /build/daemon*
 /lbrytv/dist/
@@ -39,3 +40,4 @@ package-lock.json
 .env.desktop
 .env.lbrytv
 analyzeResults*.html
+ecosystem.config.js

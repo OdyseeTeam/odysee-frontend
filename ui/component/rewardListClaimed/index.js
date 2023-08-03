@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectClaimedRewards } from 'redux/selectors/rewards';
 import RewardListClaimed from './view';
 
-const select = state => ({
+const select = (state) => ({
   rewards: selectClaimedRewards(state),
 });
 

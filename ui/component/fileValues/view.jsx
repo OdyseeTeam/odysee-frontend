@@ -33,6 +33,14 @@ class FileValues extends PureComponent<Props> {
     return (
       <table className="table table--condensed table--fixed table--lbc-details">
         <tbody>
+          <tr>
+            <td>{__('LBRY URL')}</td>
+            <td>{claim.canonical_url}</td>
+          </tr>
+          <tr>
+            <td>{__('Claim ID')}</td>
+            <td>{claim.claim_id}</td>
+          </tr>
           {purchaseReceipt && (
             <tr>
               <td> {__('Purchase Amount')}</td>

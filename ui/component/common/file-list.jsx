@@ -31,7 +31,7 @@ function FileList(props: Props) {
   };
 
   React.useEffect(() => {
-    if (radio.stops.length) {
+    if (radio.stops?.length) {
       if (!radio.currentId) {
         radio.first();
       } else {
@@ -46,7 +46,7 @@ function FileList(props: Props) {
 
         if (radio.state) {
           // Find selected element
-          const stop = radio.stops.find(item => item.id === radio.currentId);
+          const stop = radio.stops.find((item) => item.id === radio.currentId);
           const element = stop && stop.ref.current;
           // Only update state if new item is selected
           if (element && element.value !== radio.state) {
@@ -58,6 +58,7 @@ function FileList(props: Props) {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [radio, onChange]);
 
   return (

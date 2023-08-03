@@ -2,6 +2,7 @@
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
+import classnames from 'classnames';
 
 type Props = {
   url: string,
@@ -17,10 +18,11 @@ const ShuffleButton = (props: Props) => {
   return (
     <Button
       button="alt"
-      className="button--alt-no-style button-toggle"
+      className={classnames('button--alt-no-style button-toggle', {
+        'button-toggle--active': shuffle,
+      })}
       title={__('Shuffle')}
       icon={ICONS.SHUFFLE}
-      iconColor={shuffle ? 'blue' : undefined}
       onClick={() => doToggleShuffleList({ currentUri: url, collectionId: id })}
     />
   );

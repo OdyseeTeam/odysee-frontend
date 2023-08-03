@@ -4,6 +4,7 @@ import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/clai
 import {
   selectPublishFormValues,
   selectIsStillEditing,
+  selectMemberRestrictionStatus,
   selectPublishFormValue,
   selectMyClaimForUri,
 } from 'redux/selectors/publish';
@@ -41,7 +42,7 @@ const select = (state) => {
     // Need this to make it easier to find the source on previously published content
     isStillEditing: selectIsStillEditing(state),
     filePath: selectPublishFormValue(state, 'filePath'),
-    remoteUrl: selectPublishFormValue(state, 'remoteFileUrl'),
+    remoteFileUrl: selectPublishFormValue(state, 'remoteFileUrl'),
     publishSuccess: selectPublishFormValue(state, 'publishSuccess'),
     totalRewardValue: selectUnclaimedRewardValue(state),
     modal: selectModal(state),
@@ -50,7 +51,7 @@ const select = (state) => {
     incognito: selectIncognito(state),
     isClaimingInitialRewards: selectIsClaimingInitialRewards(state),
     hasClaimedInitialRewards: selectHasClaimedInitialRewards(state),
-    restrictedToMemberships: selectPublishFormValue(state, 'restrictedToMemberships'),
+    memberRestrictionStatus: selectMemberRestrictionStatus(state),
     balance: selectBalance(state),
   };
 };

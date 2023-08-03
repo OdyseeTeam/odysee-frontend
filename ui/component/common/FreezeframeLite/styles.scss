@@ -13,6 +13,9 @@ $transition-duration: 300ms;
     vertical-align: top;
     opacity: 0;
     border-radius: var(--border-radius);
+    &.ff-visible {
+      opacity: 1;
+    }
   }
 
   .ff-canvas {

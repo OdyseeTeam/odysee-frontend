@@ -1,21 +1,44 @@
 // @flow
-import { Lbryio } from 'lbryinc';
-
 const isProduction = process.env.NODE_ENV === 'production';
 
-type LogPublishParams = {
+const Lbryio = {
+  importPromise: undefined,
+
+  loadModule: () => {
+    if (!Lbryio.importPromise) {
+      Lbryio.importPromise = import('lbryinc')
+        .then((module) => module.Lbryio)
+        .catch((err) => console.log(err)); // eslint-disable-line no-console
+    }
+  },
+
+  call: (resource, action, params = {}, method = 'post') => {
+    if (!Lbryio.importPromise) {
+      Lbryio.loadModule();
+    }
+    return (
+      Lbryio.importPromise
+        // $FlowIgnore (null promise will call loadModule)
+        .then((Lbryio) => Lbryio.call(resource, action, params, method))
+        .catch((err) => assert(false, `"${resource}/${action}" failed`, err))
+    );
+  },
+};
+
+type LogPublishParams = {|
   uri: string,
   claim_id: string,
   outpoint: string,
   channel_claim_id?: string,
-};
+|};
 
-export type ApiLog = {
+export type ApiLog = {|
   setState: (enable: boolean) => void,
   view: (string, string, string, ?number, ?() => void) => Promise<any>,
   search: () => void,
   publish: (ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => void,
-};
+  desktopError: (message: string) => Promise<boolean>,
+|};
 
 let gApiLogOn = false;
 
@@ -24,7 +47,7 @@ export const apiLog: ApiLog = {
     gApiLogOn = enable;
   },
 
-  view: (uri, outpoint, claimId, timeToStart) => {
+  view: (uri, outpoint, claimId) => {
     return new Promise((resolve, reject) => {
       const params: {
         uri: string,
@@ -37,9 +60,15 @@ export const apiLog: ApiLog = {
         claim_id: claimId,
       };
 
+      resolve(Lbryio.call('file', 'view', params));
+      /*
       if (timeToStart && !IS_WEB) {
         params.time_to_start = timeToStart;
+        resolve(Lbryio.call('file', 'view', params));
+      } else {
+        resolve();
       }
+      */
 
       resolve(Lbryio.call('file', 'view', params));
     });
@@ -69,5 +98,17 @@ export const apiLog: ApiLog = {
         if (successCb) successCb(claimResult);
       });
     }
+  },
+
+  desktopError: (message: string) => {
+    return new Promise((resolve) => {
+      if (gApiLogOn && isProduction) {
+        return Lbryio.call('event', 'desktop_error', { error_message: message }).then(() => {
+          resolve(true);
+        });
+      } else {
+        resolve(false);
+      }
+    });
   },
 };

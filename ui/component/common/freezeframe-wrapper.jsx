@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import classnames from 'classnames';
 import Freezeframe from './FreezeframeLite';
 import useLazyLoading from 'effects/use-lazy-loading';
+import { THUMBNAIL_CDN_URL } from 'config';
 
 type Props = {
   src: string,
@@ -15,8 +16,8 @@ const FreezeframeWrapper = (props: Props) => {
 
   const imgRef = React.useRef();
   const freezeframe = React.useRef();
-
   const srcLoaded = useLazyLoading(imgRef);
+  const devicePixelRatio = window.devicePixelRatio || 1.0;
 
   useEffect(() => {
     if (srcLoaded) {
@@ -24,9 +25,19 @@ const FreezeframeWrapper = (props: Props) => {
     }
   }, [srcLoaded]);
 
+  useEffect(() => {
+    if (imgRef.current) {
+      const width = Math.floor(imgRef.current.width * devicePixelRatio);
+      // $FlowIgnore
+      imgRef.current?.setAttribute('src', `${THUMBNAIL_CDN_URL}s:${width}:0/quality:95/plain/${src}`);
+      freezeframe.current = new Freezeframe(imgRef.current);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
+  }, [src, imgRef]);
+
   return (
     <div className={classnames(className, 'freezeframe-wrapper')}>
-      <img ref={imgRef} data-src={src} className="freezeframe-img" />
+      <img ref={imgRef} className="freezeframe-img" />
       {children}
     </div>
   );

@@ -1,4 +1,5 @@
 // @flow
+import type { DoPublishDesktop } from 'redux/actions/publish';
 
 /*
   On submit, this component calls publish, which dispatches doPublishDesktop.
@@ -11,21 +12,19 @@
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
+import { lazyImport } from 'util/lazyImport';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
-import ChannelSelect from 'component/channelSelector';
+import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
-// import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
-import PublishPrice from 'component/publish/shared/publishPrice';
-import SelectThumbnail from 'component/selectThumbnail';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
 import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -33,13 +32,17 @@ import PublishProtectedContent from 'component/publishProtectedContent';
 
 // import usePersistedState from 'effects/use-persisted-state';
 // import * as MODALS from 'constants/modal_types';
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
+const PublishPrice = lazyImport(() =>
+  import('component/publish/shared/publishPrice' /* webpackChunkName: "publish" */)
+);
 
 type Props = {
   // doOpenModal: (id: string, props: {}) => void,
   disabled: boolean,
   tags: Array<Tag>,
-  publish: (source?: string | File, ?boolean) => void,
-  filePath: string | File,
+  publish: DoPublishDesktop,
+  filePath: string | WebFile,
   fileText: string,
   bid: ?number,
   bidError: ?string,
@@ -70,13 +73,13 @@ type Props = {
   balance: number,
   releaseTimeError: ?string,
   isStillEditing: boolean,
+  claimToEdit: ?Claim,
   clearPublish: () => void,
   resolveUri: (string) => void,
   resetThumbnailStatus: () => void,
   // Add back type
-  updatePublishForm: (any) => void,
+  updatePublishForm: (UpdatePublishState) => void,
   checkAvailability: (string) => void,
-  ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
@@ -84,11 +87,10 @@ type Props = {
   user: ?User,
   permanentUrl: ?string,
   remoteUrl: ?string,
-  isMarkdownPost: boolean,
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
-  restrictedToMemberships: ?string,
+  memberRestrictionStatus: MemberRestrictionStatus,
 };
 
 function PostForm(props: Props) {
@@ -119,7 +121,6 @@ function PostForm(props: Props) {
     publish,
     disabled = false,
     checkAvailability,
-    ytSignupPending,
     modal,
     enablePublishPreview,
     activeChannelClaim,
@@ -127,19 +128,13 @@ function PostForm(props: Props) {
     // user,
     permanentUrl,
     // remoteUrl,
-    isMarkdownPost,
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
-    restrictedToMemberships,
+    memberRestrictionStatus,
   } = props;
 
   const inEditMode = Boolean(editingURI);
-  const { replace, location } = useHistory();
-  const urlParams = new URLSearchParams(location.search);
-  const TYPE_PARAM = 'type';
-  const uploadType = urlParams.get(TYPE_PARAM);
-  const _uploadType = uploadType && uploadType.toLowerCase();
 
   const mode = PUBLISH_MODES.POST;
 
@@ -157,20 +152,19 @@ function PostForm(props: Props) {
   const formDisabled = emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
       ? myClaimForUri.value.source.media_type
       : undefined;
-  const claimChannelId =
-    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
-    (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
+  // TODO: formValidLessFile should be a selector
   const formValidLessFile =
-    restrictedToMemberships !== null &&
+    (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     name &&
     isNameValid(name) &&
     title &&
@@ -180,6 +174,7 @@ function PostForm(props: Props) {
     !releaseTimeError &&
     !emptyPostError &&
     !(thumbnailError && !thumbnailUploaded) &&
+    !releaseTimeError &&
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
@@ -216,6 +211,7 @@ function PostForm(props: Props) {
       setPreviewing(false);
       updatePublishForm({ publishError: undefined });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [publishError]);
 
   let submitLabel;
@@ -275,13 +271,13 @@ function PostForm(props: Props) {
     // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
     let uri;
     try {
-      uri = name && buildURI({ streamName: name, activeChannelName });
+      uri = name && buildURI({ streamName: name, activeChannelName }, true);
     } catch (e) {}
 
     if (activeChannelName && name) {
       // resolve without the channel name so we know the winning bid for it
       try {
-        const uriLessChannel = buildURI({ streamName: name });
+        const uriLessChannel = buildURI({ streamName: name }, true);
         resolveUri(uriLessChannel);
       } catch (e) {}
     }
@@ -301,30 +297,13 @@ function PostForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
-  // set isMarkdownPost in publish form if so, also update isLivestreamPublish
-  useEffect(() => {
-    updatePublishForm({
-      isMarkdownPost: true,
-      isLivestreamPublish: false,
-    });
-  }, [mode, updatePublishForm, isMarkdownPost]);
-
   useEffect(() => {
     if (incognito) {
-      updatePublishForm({ channel: undefined });
+      updatePublishForm({ channel: undefined, channelId: undefined });
     } else if (activeChannelName) {
-      updatePublishForm({ channel: activeChannelName });
+      updatePublishForm({ channel: activeChannelName, channelId: activeChannelId });
     }
-  }, [activeChannelName, incognito, updatePublishForm]);
-
-  // if we have a type urlparam, update it? necessary?
-  useEffect(() => {
-    if (!_uploadType) return;
-    const newParams = new URLSearchParams();
-    newParams.set(TYPE_PARAM, mode.toLowerCase());
-    replace({ search: newParams.toString() });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, _uploadType]);
+  }, [activeChannelName, activeChannelId, incognito, updatePublishForm]);
 
   // @if TARGET='web'
   function createWebFile() {
@@ -397,7 +376,6 @@ function PostForm(props: Props) {
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
     !(uploadThumbnailStatus === THUMBNAIL_STATUSES.MANUAL || uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE) ||
     thumbnailError ||
-    ytSignupPending ||
     previewing;
 
   /*
@@ -409,76 +387,100 @@ function PostForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <h1 className="page__title">
+      <h1 className="page__title page__title--margin">
         <Icon icon={ICONS.POST} />
         <label>
           {formTitle}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && (
+            <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label={__('Clear')} />
+          )}
         </label>
       </h1>
 
-      <PublishPost
-        inEditMode={inEditMode}
-        uri={permanentUrl}
-        mode={mode}
-        fileMimeType={fileMimeType}
-        disabled={disabled || publishing}
-        inProgress={isInProgress}
-        setPrevFileText={setPrevFileText}
-        channelId={claimChannelId}
-        channelName={activeChannelName}
+      <Card
+        background
+        body={
+          <div className="publish-row publish-row--no-margin">
+            <PublishPost
+              inEditMode={inEditMode}
+              uri={permanentUrl}
+              mode={mode}
+              fileMimeType={fileMimeType}
+              disabled={disabled || publishing}
+              inProgress={isInProgress}
+              setPrevFileText={setPrevFileText}
+            />
+          </div>
+        }
       />
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
-          <Card actions={<SelectThumbnail />} />
+          <Card
+            background
+            title={__('Thumbnail')}
+            body={
+              <div className="publish-row">
+                <SelectThumbnail />
+              </div>
+            }
+          />
 
-          <PublishProtectedContent claim={myClaimForUri} location={'post'} />
+          <PublishVisibility />
+
+          <PublishProtectedContent claim={myClaimForUri} />
 
           <PublishPrice disabled={formDisabled} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
           </h2>
-          <TagsSelect
-            suggestMature={!SIMPLE_SITE}
-            disableAutoFocus
-            hideHeader
-            label={__('Selected Tags')}
-            empty={__('No tags added')}
-            limitSelect={TAGS_LIMIT}
-            help={__(
-              "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-            )}
-            placeholder={__('gaming, crypto')}
-            onSelect={(newTags) => {
-              const validatedTags = [];
-              newTags.forEach((newTag) => {
-                if (!tags.some((tag) => tag.name === newTag.name)) {
-                  validatedTags.push(newTag);
-                }
-              });
-              updatePublishForm({ tags: [...tags, ...validatedTags] });
-            }}
-            onRemove={(clickedTag) => {
-              const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePublishForm({ tags: newTags });
-            }}
-            tagsChosen={tags}
+          <Card
+            background
+            body={
+              <div className="publish-row">
+                <TagsSelect
+                  suggestMature={!SIMPLE_SITE}
+                  disableAutoFocus
+                  hideHeader
+                  label={__('Selected Tags')}
+                  empty={__('No tags added')}
+                  limitSelect={TAGS_LIMIT}
+                  help={__(
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                  )}
+                  placeholder={__('gaming, crypto')}
+                  onSelect={(newTags) => {
+                    const validatedTags = [];
+                    newTags.forEach((newTag) => {
+                      if (!tags.some((tag) => tag.name === newTag.name)) {
+                        validatedTags.push(newTag);
+                      }
+                    });
+                    updatePublishForm({ tags: [...tags, ...validatedTags] });
+                  }}
+                  onRemove={(clickedTag) => {
+                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                    updatePublishForm({ tags: newTags });
+                  }}
+                  tagsChosen={tags}
+                />
+              </div>
+            }
           />
 
           <PublishAdditionalOptions disabled={formDisabled} />
         </div>
       )}
       <section>
-        <div className="section__actions">
+        <div className="section__actions publish__actions">
           <Button
             button="primary"
             onClick={handlePublish}
             label={submitLabel}
             disabled={isFormIncomplete || !formValid}
           />
-          <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          <ChannelSelector disabled={isFormIncomplete} isPublishMenu />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (
@@ -496,7 +498,7 @@ function PostForm(props: Props) {
                 odysee_community_guidelines: (
                   <Button
                     button="link"
-                    href="https://help.odysee.tv/communityguidelines"
+                    href="https://help.odysee.tv/communityguidelines/"
                     target="_blank"
                     label={__('Community Guidelines')}
                   />

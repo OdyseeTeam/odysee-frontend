@@ -109,24 +109,22 @@ export function doSetSync(oldHash: string, newHash: string, data: any) {
   };
 }
 
-export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
-  const state = getState();
-  const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
-  const getSyncPending = selectGetSyncIsPending(state);
-  const setSyncPending = selectSetSyncIsPending(state);
-  const syncLocked = selectSyncIsLocked(state);
+export const doGetSyncDesktop =
+  (cb?: (any, any) => void, password?: string) => (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
+    const getSyncPending = selectGetSyncIsPending(state);
+    const setSyncPending = selectSetSyncIsPending(state);
+    const syncLocked = selectSyncIsLocked(state);
 
-  return getSavedPassword().then((savedPassword) => {
-    const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : savedPassword;
+    return getSavedPassword().then((savedPassword) => {
+      const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : savedPassword;
 
-    if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
-      return dispatch(doGetSync(passwordArgument, cb));
-    }
-  });
-};
+      if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
+        return dispatch(doGetSync(passwordArgument, cb));
+      }
+    });
+  };
 
 /**
  * doSyncLoop
@@ -185,7 +183,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
       : '';
   if (xAuth && xAuth !== getAuthToken()) {
     window.location.reload();
-    return;
+    return () => {};
   }
   // @endif
 

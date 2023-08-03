@@ -1,8 +1,7 @@
 // @flow
 import { createSelector } from 'reselect';
-import { splitBySeparator } from 'util/lbryURI';
-
-type State = { blocked: BlocklistState };
+import { Container } from 'util/container';
+import { parseURI } from 'util/lbryURI';
 
 const selectState = (state: State) => state.blocked || {};
 
@@ -15,13 +14,22 @@ export const makeSelectChannelIsMuted = (uri: string) =>
   });
 
 export const selectMutedAndBlockedChannelIds = createSelector(
-  selectState,
-  (state) => state.comments,
-  (state, commentsState) => {
-    const mutedUris = state.blockedChannels;
-    const blockedUris = commentsState.moderationBlockList;
-    return Array.from(
-      new Set((mutedUris || []).concat(blockedUris || []).map((uri) => splitBySeparator(uri)[1]))
-    ).sort();
+  (state) => state.blocked.blockedChannels,
+  (state) => state.comments.moderationBlockList,
+  (mutedUris, blockedUris) => {
+    const allUris = (mutedUris || []).concat(blockedUris || []);
+    const uniqueSet = new Set();
+
+    allUris.forEach((u) => {
+      try {
+        uniqueSet.add(parseURI(u).channelClaimId);
+      } catch {}
+    });
+
+    return Container.Arr.useStableEmpty(Array.from(uniqueSet).sort());
   }
 );
+
+export const selectGblAvailable = (state: State) => {
+  return state.blocked.gblFetchFailed === false && state.user.localeFailed === false;
+};
