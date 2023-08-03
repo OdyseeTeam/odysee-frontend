@@ -263,23 +263,6 @@
       }
     }
 
-    .vjs-tech-chromecast {
-      .vjs-tech-chromecast-title-container {
-        display: none;
-      }
-      .vjs-tech-chromecast-poster {
-        .vjs-tech-chromecast-poster-img {
-          width: 26px !important;
-          height: 20px !important;
-        }
-
-        &::after {
-          left: calc(50% - 7px) !important;
-          width: 14px !important;
-        }
-      }
-    }
-
     .vjs-control-bar {
       button,
       span,

@@ -4,8 +4,6 @@ import 'videojs-ima'; // loads directly after contrib-ads
 import 'videojs-vtt-thumbnails';
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
-import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
-import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
 import { VIDEO_PLAYBACK_RATES, VJS_EVENTS } from 'constants/player';
 import * as OVERLAY from './overlays';
@@ -16,9 +14,6 @@ import eventTracking from 'videojs-event-tracking';
 import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-shortcuts';
-// import LbryPlaybackRateMenuButton from './lbry-playback-rate';
-// import LbryVolumeBarClass from './lbry-volume-bar';
-// import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
@@ -28,8 +23,6 @@ import settingsMenu from './plugins/videojs-settings-menu/plugin';
 import timeMarkerPlugin from './plugins/videojs-time-marker/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
 import snapshotButton from './plugins/videojs-snapshot-button/plugin';
-
-// import runAds from './ads';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
@@ -37,7 +30,6 @@ import Lbry from 'lbry';
 import { getStripeEnvironment } from 'util/stripe';
 const canAutoplayVideo = require('./plugins/canAutoplay');
 const stripeEnvironment = getStripeEnvironment();
-// require('@neko/videojs-chromecast')(videojs);
 
 export type Player = {
   // -- custom --
@@ -48,7 +40,6 @@ export type Player = {
   chaptersInfo?: Array<{ seconds: number, label: string }>,
   // -- plugins ---
   mobileUi: (any) => void,
-  chromecast: (any) => void,
   overlay: (any) => void,
   hlsQualitySelector: ?any,
   i18n: (any) => void,
@@ -376,12 +367,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   //   }
   // }, [showQualitySelector]);
 
-  /*
-  useEffect(() => {
-    Chromecast.updateTitles(title, channelTitle);
-  }, [title, channelTitle]);
-  */
-
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function () {
@@ -514,26 +499,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
           vjsPlayer.claimSrcVhs = { type: HLS_FILETYPE, src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
-          if (window.cordova) {
-            let payload = {
-              uri: response.url,
-              claim: claimValues,
-              fileType: 'application/x-mpegURL',
-              channel: channelTitle,
-            };
-            window.odysee.chromecast.setMediaPayload(payload);
-          }
         } else if (vjsPlayer && vjsPlayer.claimSrcOriginal && vjsPlayer.claimSrcOriginal.src) {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
-          if (window.cordova) {
-            let payload = {
-              uri: vjsPlayer.claimSrcOriginal,
-              claim: claimValues,
-              fileType: sourceType,
-              channel: channelTitle,
-            };
-            window.odysee.chromecast.setMediaPayload(payload);
-          }
         }
       }
 

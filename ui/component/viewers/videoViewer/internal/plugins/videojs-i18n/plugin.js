@@ -74,7 +74,6 @@ function resolveCtrlText(e, player) {
         setLabel(ctrlBar, 'PlayNextButton', __('Play Next (SHIFT+N)'));
         setLabel(ctrlBar, 'PlayPreviousButton', __('Play Previous (SHIFT+P)'));
         setLabel(ctrlBar, 'ChaptersButton', __('Chapters'));
-        setLabel(ctrlBar, 'ChromecastButton', __('Open Chromecast menu'));
         setLabel(ctrlBar, 'FullscreenToggle', player.isFullscreen() ? __('Exit Fullscreen (f)') : __('Fullscreen (f)'));
 
         try {
