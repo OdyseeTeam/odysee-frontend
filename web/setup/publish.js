@@ -13,19 +13,11 @@ export default function apiPublishCallViaWeb(
   resolve: Function,
   reject: Function
 ) {
-  const { file_path: filePath, preview, remote_url: remoteUrl, publishId } = params;
+  const { file_path: filePath, remote_url: remoteUrl, publishId } = params;
 
   if (!filePath && !remoteUrl && !publishId) {
     const { claim_id, ...otherParams } = params;
     return apiCall(method, otherParams, resolve, reject);
-  }
-
-  let fileField = filePath;
-
-  if (preview) {
-    // Send dummy file for the preview. The tx-fee calculation does not depend on it.
-    const dummyContent = 'x';
-    fileField = new File([dummyContent], 'dummy.md', { type: 'text/markdown' });
   }
 
   // Add a random ID to serve as the redux key.
@@ -34,7 +26,7 @@ export default function apiPublishCallViaWeb(
     params.guid = uuid();
   }
 
-  return makeV4UploadRequest(token, params, fileField)
+  return makeV4UploadRequest(token, params)
     .then((result) => resolve(result))
     .catch((err) => {
       assert(false, `${err.message}`, err.cause || err);

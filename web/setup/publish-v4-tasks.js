@@ -23,6 +23,23 @@ export function checkPrerequisites(params: FileUploadSdkParams): Promise<boolean
 }
 
 // ****************************************************************************
+// Resolve file
+// ****************************************************************************
+
+export function resolveFileToUpload(params: FileUploadSdkParams): Promise<File | string> {
+  return new Promise((resolve, reject) => {
+    if (params.preview) {
+      // Send dummy file for the preview. The tx-fee calculation does not depend on it.
+      const dummyContent = 'x';
+      resolve(new File([dummyContent], 'dummy.md', { type: 'text/markdown' }));
+    } else {
+      assert(params.file_path, 'file_path is required');
+      resolve(params.file_path);
+    }
+  });
+}
+
+// ****************************************************************************
 // Step: Get upload token from Odysee API
 // ****************************************************************************
 

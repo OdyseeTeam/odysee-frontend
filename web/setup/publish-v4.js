@@ -8,6 +8,7 @@ import {
   createClaim,
   checkPublishStatus,
   yieldThread,
+  resolveFileToUpload,
 } from './publish-v4-tasks';
 import {
   doUpdateUploadAdd as add,
@@ -26,7 +27,7 @@ const MAX_PREVIEW_RETRIES = 2;
 // makeV4UploadRequest
 // ****************************************************************************
 
-export async function makeV4UploadRequest(token: string, params: FileUploadSdkParams, file: File | string) {
+export async function makeV4UploadRequest(token: string, params: FileUploadSdkParams) {
   const { uploadUrl, guid, remote_url, publishId: ignore, ...sdkParams } = params;
   const dispatch = window.store.dispatch;
 
@@ -50,6 +51,9 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
         onFailure: () => dispatch(progress({ guid, status: 'notify_failed' })),
       });
     } else {
+      // Determine the actual file to upload
+      const file = await resolveFileToUpload(params);
+
       // Start or resume TUS upload
       const tusSession = await startTus(file, params.uploadUrl, uploadToken.location, uploadToken.token, {
         onStart: (tusSession) => dispatch(add(file, params, tusSession, 'v4')),
