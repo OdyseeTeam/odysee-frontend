@@ -27,7 +27,7 @@ const MAX_PREVIEW_RETRIES = 2;
 // ****************************************************************************
 
 export async function makeV4UploadRequest(token: string, params: FileUploadSdkParams, file: File | string) {
-  const { uploadUrl, guid, isMarkdown, remote_url, publishId: ignore, ...sdkParams } = params;
+  const { uploadUrl, guid, remote_url, publishId: ignore, ...sdkParams } = params;
   const dispatch = window.store.dispatch;
 
   await checkPrerequisites(params);
