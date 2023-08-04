@@ -13,13 +13,6 @@ export default function apiPublishCallViaWeb(
   resolve: Function,
   reject: Function
 ) {
-  const { file_path: filePath, remote_url: remoteUrl, publishId } = params;
-
-  if (!filePath && !remoteUrl && !publishId) {
-    const { claim_id, ...otherParams } = params;
-    return apiCall(method, otherParams, resolve, reject);
-  }
-
   // Add a random ID to serve as the redux key.
   // If it already exists, then it is a resumed session.
   if (!params.guid) {

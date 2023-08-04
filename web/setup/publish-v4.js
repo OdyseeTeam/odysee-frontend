@@ -9,6 +9,7 @@ import {
   checkPublishStatus,
   yieldThread,
   resolveFileToUpload,
+  isEditingMetaOnly,
 } from './publish-v4-tasks';
 import {
   doUpdateUploadAdd as add,
@@ -41,7 +42,13 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
     // Already uploaded and `stream_create` executed. Just need to query the status.
     dispatch(progress({ guid, status: 'notify_ok', publishId }));
   } else {
-    if (remote_url) {
+    if (isEditingMetaOnly(params)) {
+      // Edit claim
+      publishId = await createClaim(token, null, sdkParams, {
+        onSuccess: (publishId) => dispatch(progress({ guid, status: 'notify_ok', publishId })),
+        onFailure: () => dispatch(progress({ guid, status: 'notify_failed' })),
+      });
+    } else if (remote_url) {
       // Start remote URL upload
       const sdkFilePath = await startRemoteUrl(uploadToken, remote_url);
 

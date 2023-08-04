@@ -10,6 +10,14 @@ const v4_INIT_URL = `${LBRY_WEB_PUBLISH_API_V4}/urls/`;
 type SdkFilePath = string;
 
 // ****************************************************************************
+// isEditingMetaOnly
+// ****************************************************************************
+
+export function isEditingMetaOnly(params: FileUploadSdkParams) {
+  return !params.file_path && !params.remote_url && !params.publishId;
+}
+
+// ****************************************************************************
 // Step: check prerequisites
 // ****************************************************************************
 
@@ -172,12 +180,12 @@ export type CreateClaimCallbacks = {
 
 export function createClaim(
   authToken: string,
-  sdkFilePath: SdkFilePath,
+  sdkFilePath: ?SdkFilePath,
   params: any,
   cb: CreateClaimCallbacks
 ): Promise<PublishId> {
   return new Promise((resolve, reject) => {
-    const sdkParams = { ...params, file_path: sdkFilePath };
+    const sdkParams = { ...params, ...(sdkFilePath ? { file_path: sdkFilePath } : {}) };
 
     fetch(`${LBRY_WEB_PUBLISH_API_V4}/`, {
       method: 'POST',
@@ -187,7 +195,7 @@ export function createClaim(
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
-        method: params.claim_id ? 'stream_update' : 'stream_create',
+        method: params.claim_id || !sdkFilePath ? 'stream_update' : 'stream_create',
         params: sdkParams,
         id: Date.now(),
       }),
