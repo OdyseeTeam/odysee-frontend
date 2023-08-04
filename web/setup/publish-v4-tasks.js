@@ -48,6 +48,7 @@ export function requestUploadToken(authToken: string): Promise<TokenRequestRespo
 // Step: Perform TUS upload/resume
 // ****************************************************************************
 
+const STATUS_NOT_FOUND = 404;
 const STATUS_CONFLICT = 409;
 const STATUS_LOCKED = 423;
 
@@ -92,7 +93,11 @@ export function startTus(
       },
       onShouldRetry: (err, retryAttempt, options) => {
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
-        const shouldRetry = !inStatusCategory(status, 400) || status === STATUS_CONFLICT || status === STATUS_LOCKED;
+        const shouldRetry =
+          !inStatusCategory(status, 400) ||
+          status === STATUS_CONFLICT ||
+          status === STATUS_LOCKED ||
+          status === STATUS_NOT_FOUND;
         if (shouldRetry) {
           cb.onRetry();
         }
