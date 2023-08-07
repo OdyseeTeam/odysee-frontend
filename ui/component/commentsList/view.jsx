@@ -241,7 +241,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
   // Force comments reset
   useEffect(() => {
-    if (page === 0) {
+    if (page >= 0) {
       handleReset();
     }
   }, [handleReset, page]);
