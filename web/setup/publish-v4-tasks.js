@@ -78,7 +78,7 @@ export function startTus(
     const tusSession = new tus.Upload(file, {
       ...(uploadUrl ? { uploadUrl: uploadUrl } : { endpoint: uploadLocation }),
       chunkSize: 25 * 1024 * 1024, // 25MB
-      retryDelays: [0, 3000, 5000, 10000, 20000], // v3 uses: [8000, 15000, 30000],
+      retryDelays: [0, 3000, 5000, 10000, 15000, 15000, 15000, 15000, 15000], // v3 uses: [8000, 15000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
       urlStorage: new NoopUrlStorage(),
