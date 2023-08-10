@@ -250,7 +250,7 @@ export const publishReducer = handleActions(
       currentUploads[params.guid] = {
         file,
         fileFingerprint: file ? serializeFileObj(file) : undefined, // TODO: get hash instead?
-        progress: '0',
+        progress: currentUploads[params?.guid]?.progress || '0',
         params,
         uploader,
         backend,
