@@ -5,17 +5,6 @@ import { LBRY_WEB_PUBLISH_API_V4 } from 'config';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 
 const V4_INIT_UPLOAD = `${LBRY_WEB_PUBLISH_API_V4}/uploads/`;
-const v4_INIT_URL = `${LBRY_WEB_PUBLISH_API_V4}/urls/`;
-
-type SdkFilePath = string;
-
-// ****************************************************************************
-// isEditingMetaOnly
-// ****************************************************************************
-
-export function isEditingMetaOnly(params: FileUploadSdkParams) {
-  return !params.file_path && !params.remote_url && !params.publishId;
-}
 
 // ****************************************************************************
 // Step: check prerequisites
@@ -26,24 +15,10 @@ export function checkPrerequisites(params: FileUploadSdkParams): Promise<boolean
     if (!LBRY_WEB_PUBLISH_API_V4) {
       reject(new Error('LBRY_WEB_PUBLISH_API_V4 is not defined in the environment'));
     }
-    resolve(true);
-  });
-}
-
-// ****************************************************************************
-// Resolve file
-// ****************************************************************************
-
-export function resolveFileToUpload(params: FileUploadSdkParams): Promise<File | string> {
-  return new Promise((resolve, reject) => {
-    if (params.preview) {
-      // Send dummy file for the preview. The tx-fee calculation does not depend on it.
-      const dummyContent = 'x';
-      resolve(new File([dummyContent], 'dummy.md', { type: 'text/markdown' }));
-    } else {
-      assert(params.file_path, 'file_path is required');
-      resolve(params.file_path);
+    if (params.remote_url) {
+      reject(new Error('Publish: v5 does not support remote_url'));
     }
+    resolve(true);
   });
 }
 
@@ -53,9 +28,9 @@ export function resolveFileToUpload(params: FileUploadSdkParams): Promise<File |
 
 export type TokenRequestResponse = { token: string, location: string };
 
-export function requestUploadToken(authToken: string, remoteUrl?: string): Promise<TokenRequestResponse> {
+export function requestUploadToken(authToken: string): Promise<TokenRequestResponse> {
   return new Promise((resolve, reject) => {
-    fetch(remoteUrl ? v4_INIT_URL : V4_INIT_UPLOAD, {
+    fetch(V4_INIT_UPLOAD, {
       method: 'POST',
       headers: {
         [X_LBRY_AUTH_TOKEN]: authToken,
@@ -66,27 +41,6 @@ export function requestUploadToken(authToken: string, remoteUrl?: string): Promi
       .then((json) => validateJson(json, 'upload_token_created', (p) => p.token && p.location))
       .then((payload) => resolve({ token: payload.token, location: payload.location }))
       .catch((err) => reject(v4Error(err, { step: 'getToken' })));
-  });
-}
-
-// ****************************************************************************
-// Step: Start Remote URL publishing
-// ****************************************************************************
-
-export function startRemoteUrl(uploadToken: TokenRequestResponse, remoteUrl: string): Promise<SdkFilePath> {
-  return new Promise((resolve, reject) => {
-    fetch(uploadToken.location, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${uploadToken.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url: remoteUrl }),
-    })
-      .then(convertResponseToJson)
-      .then((json) => validateJson(json, 'url_created', (p) => p.upload_id))
-      .then((payload) => resolve(`${uploadToken.location}${payload.upload_id}`))
-      .catch((err) => reject(v4Error(err, { step: 'startRemoteUrl' })));
   });
 }
 
@@ -180,12 +134,12 @@ export type CreateClaimCallbacks = {
 
 export function createClaim(
   authToken: string,
-  sdkFilePath: ?SdkFilePath,
+  uploadUrl: string,
   params: any,
   cb: CreateClaimCallbacks
 ): Promise<PublishId> {
   return new Promise((resolve, reject) => {
-    const sdkParams = { ...params, ...(sdkFilePath ? { file_path: sdkFilePath } : {}) };
+    const sdkParams = { ...params, file_path: uploadUrl };
 
     fetch(`${LBRY_WEB_PUBLISH_API_V4}/`, {
       method: 'POST',
@@ -195,7 +149,7 @@ export function createClaim(
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
-        method: params.claim_id || !sdkFilePath ? 'stream_update' : 'stream_create',
+        method: params.claim_id ? 'stream_update' : 'stream_create',
         params: sdkParams,
         id: Date.now(),
       }),
@@ -208,7 +162,7 @@ export function createClaim(
       })
       .catch((err) => {
         cb.onFailure();
-        reject(v4Error(err, { step: 'sdk', inputs: { sdkParams } }));
+        reject(v4Error(err, { step: 'sdk', inputs: { uploadUrl, sdkParams } }));
       });
   });
 }

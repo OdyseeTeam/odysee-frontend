@@ -1,5 +1,8 @@
 // @flow
+import * as tus from 'tus-js-client';
 import { v4 as uuid } from 'uuid';
+import { generateError } from './publish-error';
+import { makeUploadRequest as makeV1UploadRequest } from './publish-v1';
 import { makeV4UploadRequest } from './publish-v4';
 
 // A modified version of Lbry.apiCall that allows
@@ -13,16 +16,71 @@ export default function apiPublishCallViaWeb(
   resolve: Function,
   reject: Function
 ) {
+  const { file_path: filePath, preview, remote_url: remoteUrl, publishId } = params;
+  const isMarkdown = filePath ? typeof filePath === 'object' && filePath.type === 'text/markdown' : false;
+  params.isMarkdown = isMarkdown;
+
+  if (!filePath && !remoteUrl && !publishId) {
+    const { claim_id: claimId, isMarkdown, ...otherParams } = params;
+    return apiCall(method, otherParams, resolve, reject);
+  }
+
+  let fileField = filePath;
+
+  if (preview) {
+    // Send dummy file for the preview. The tx-fee calculation does not depend on it.
+    const dummyContent = 'x';
+    fileField = new File([dummyContent], 'dummy.md', { type: 'text/markdown' });
+  }
+
+  // Putting a dummy value here, the server is going to process the POSTed file
+  // and set the file_path itself
+  if (fileField) {
+    params.file_path = '__POST_FILE__';
+  }
+
   // Add a random ID to serve as the redux key.
   // If it already exists, then it is a resumed session.
   if (!params.guid) {
     params.guid = uuid();
   }
 
-  return makeV4UploadRequest(token, params)
-    .then((result) => resolve(result))
-    .catch((err) => {
-      assert(false, `${err.message}`, err.cause || err);
-      reject(err);
-    });
+  const useV1 = remoteUrl || isMarkdown || preview || !tus.isSupported;
+
+  if (useV1) {
+    return makeV1UploadRequest(token, params, fileField, preview)
+      .then((xhr) => {
+        let error;
+
+        if (preview && xhr === null) {
+          return resolve(null);
+        }
+
+        if (xhr && xhr.response) {
+          if (xhr.status >= 200 && xhr.status < 300 && !xhr.response.error) {
+            return resolve(xhr.response.result);
+          } else if (xhr.response.error) {
+            error = generateError(xhr.response.error.message, params, xhr);
+          } else {
+            error = generateError(
+              __('Upload likely timed out. Try a smaller file while we work on this.'),
+              params,
+              xhr
+            );
+          }
+        }
+
+        if (error) {
+          return Promise.reject(error);
+        }
+      })
+      .catch(reject);
+  } else {
+    return makeV4UploadRequest(token, params, fileField)
+      .then((result) => resolve(result))
+      .catch((err) => {
+        assert(false, `${err.message}`, err.cause || err);
+        reject(err);
+      });
+  }
 }
