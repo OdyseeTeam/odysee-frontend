@@ -142,7 +142,6 @@ declare type FileUploadSdkParams = {
   uploadUrl?: string,
   publishId?: number, // ID to query `stream_create | stream_update` progress
   sdkRan?: boolean, // Legacy v3 flag (deprecated)
-  isMarkdown: boolean,
   channel_id: ?string,
 };
 
