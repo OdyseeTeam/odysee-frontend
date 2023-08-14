@@ -195,7 +195,7 @@ export function createClaim(
       },
       body: JSON.stringify({
         jsonrpc: '2.0',
-        method: params.claim_id || !sdkFilePath ? 'stream_update' : 'stream_create',
+        method: params.claim_id ? 'stream_update' : 'stream_create',
         params: sdkParams,
         id: Date.now(),
       }),
