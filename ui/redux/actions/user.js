@@ -510,6 +510,33 @@ export function doUserPasswordSet(newPassword, oldPassword, authToken) {
   };
 }
 
+export function doUserDeleteAccount() {
+  return (dispatch) => {
+    dispatch({
+      type: ACTIONS.USER_DELETION_STARTED,
+    });
+
+    const success = () => {
+      dispatch({
+        type: ACTIONS.USER_DELETION_SUCCESS,
+      });
+    };
+
+    const failure = (error) =>
+      dispatch({
+        type: ACTIONS.USER_DELETION_FAILURE,
+        data: { error },
+      });
+
+    Lbryio.call(
+      'user',
+      'delete',
+      {},
+      'post'
+    ).then(success, failure);
+  };
+}
+
 export function doUserResendVerificationEmail(email) {
   return (dispatch) => {
     dispatch({

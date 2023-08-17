@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { doWalletStatus } from 'redux/actions/wallet';
+import { doOpenModal } from 'redux/actions/app';
 import { selectWalletIsEncrypted } from 'redux/selectors/wallet';
 import {
   doClearCache,
@@ -34,6 +35,7 @@ const perform = (dispatch) => ({
   updateWalletStatus: () => dispatch(doWalletStatus()),
   confirmForgetPassword: (modalProps) => dispatch(doNotifyForgetPassword(modalProps)),
   toggle3PAnalytics: (allow) => dispatch(doToggle3PAnalytics(allow)),
+  doOpenModal: (key, value) => dispatch(doOpenModal(key, value)),
 });
 
 export default connect(select, perform)(SettingSystem);

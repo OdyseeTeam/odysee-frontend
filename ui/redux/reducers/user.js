@@ -36,6 +36,7 @@ const defaultState: UserState = {
   locale: undefined,
   localeFailed: undefined,
   homepageFetched: false,
+  userDeletionSuccess: false,
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>
@@ -370,6 +371,24 @@ reducers[ACTIONS.USER_PASSWORD_SET_FAILURE] = (state, action) =>
   Object.assign({}, state, {
     passwordSetPending: false,
     passwordSetError: action.data.error,
+  });
+
+reducers[ACTIONS.USER_DELETION_STARTED] = (state) =>
+  Object.assign({}, state, {
+    userDeletionPending: true,
+    userDeletionSuccess: defaultState.userDeletionSuccess,
+  });
+
+reducers[ACTIONS.USER_DELETION_SUCCESS] = (state) =>
+  Object.assign({}, state, {
+    userDeletionPending: false,
+    userDeletionSuccess: true,
+  });
+
+reducers[ACTIONS.USER_DELETION_FAILURE] = (state) =>
+  Object.assign({}, state, {
+    userDeletionPending: false,
+    userDeletionSuccess: false,
   });
 
 reducers[ACTIONS.USER_FETCH_LOCALE_DONE] = (state, action) =>
