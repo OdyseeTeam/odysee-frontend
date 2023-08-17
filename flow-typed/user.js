@@ -35,6 +35,7 @@ declare type User = {
   publish_id: ?number,
   is_odysee_user: boolean,
   location: ?string,
+  pending_deletion: ?boolean,
 };
 
 declare type UserState = {
