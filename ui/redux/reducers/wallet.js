@@ -238,8 +238,24 @@ export const walletReducer = handleActions(
       };
     },
 
+    [ACTIONS.SPENT_EVERYTHING_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        spendingEverything: true,
+      };
+    },
+
+    [ACTIONS.SPENT_EVERYTHING_COMPLETED]: (state: WalletState, action) => {
+      const { txid } = action.data;
+      return {
+        ...state,
+        spendingEverything: false,
+        pendingSpendingEverythingTxid: txid,
+      };
+    },
+
     [ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED]: (state: WalletState, action) => {
-      const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid } = state;
+      const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid, pendingSpendingEverythingTxid } = state;
 
       const { txids, remove } = action.data;
 
@@ -247,11 +263,13 @@ export const walletReducer = handleActions(
         const newTxos = pendingTxos.filter((txo) => !txids.includes(txo));
         const newPendingMassClaimTxid = txids.includes(pendingMassClaimTxid) ? undefined : pendingMassClaimTxid;
         const newPendingConsolidateTxid = txids.includes(pendingConsolidateTxid) ? undefined : pendingConsolidateTxid;
+        const newPendingSpendingEverythingTxid = txids.includes(pendingSpendingEverythingTxid) ? undefined : pendingSpendingEverythingTxid;
         return {
           ...state,
           pendingTxos: newTxos,
           pendingMassClaimTxid: newPendingMassClaimTxid,
           pendingConsolidateTxid: newPendingConsolidateTxid,
+          pendingSpendingEverythingTxid: newPendingSpendingEverythingTxid,
         };
       } else {
         const newPendingSet = new Set([...pendingTxos, ...txids]);

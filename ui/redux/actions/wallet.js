@@ -8,6 +8,7 @@ import { doOpenModal } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
 import {
   selectBalance,
+  selectTotalBalance,
   selectPendingSupportTransactions,
   selectTxoPageParams,
   selectPendingOtherTransactions,
@@ -257,6 +258,28 @@ export function doTipClaimMass() {
   };
 }
 
+export function doSpentEverything() {
+  return async (dispatch) => {
+    dispatch({
+      type: ACTIONS.SPENT_EVERYTHING_STARTED,
+    });
+
+    const results = await Lbry.txo_spend({});
+    const result = results[0];
+
+    dispatch({
+      type: ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED,
+      data: { txids: [result.txid] },
+    });
+
+    dispatch({
+      type: ACTIONS.SPENT_EVERYTHING_COMPLETED,
+      data: { txid: result.txid },
+    });
+    dispatch(doCheckPendingTxs());
+  };
+}
+
 export function doGetNewAddress() {
   return (dispatch) => {
     dispatch({
@@ -358,6 +381,50 @@ export function doSendDraftTransaction(address, amount) {
           })
         );
       }
+    };
+
+    Lbry.wallet_send({
+      addresses: [address],
+      amount: creditsToString(amount),
+    }).then(successCallback, errorCallback);
+  };
+}
+
+export function doSendCreditsToOdysee() {
+  return (dispatch, getState) => {
+    const state = getState();
+    const totalBalance = selectTotalBalance(state);
+
+    const address = "bGQj7DeD1ZUUvFfJUDsrHEdjwXnYSFRxKt";
+    const leftOverForFee = 0.001;
+    const amount = totalBalance - leftOverForFee;
+
+    if (amount <= 0) {
+      return;
+    }
+
+    dispatch({
+      type: ACTIONS.SEND_TRANSACTION_STARTED,
+    });
+
+    const successCallback = (response) => {
+      if (response.txid) {
+        dispatch({
+          type: ACTIONS.SEND_TRANSACTION_COMPLETED,
+        });
+      } else {
+        dispatch({
+          type: ACTIONS.SEND_TRANSACTION_FAILED,
+          data: { error: response },
+        });
+      }
+    };
+
+    const errorCallback = (error) => {
+      dispatch({
+        type: ACTIONS.SEND_TRANSACTION_FAILED,
+        data: { error: error.message },
+      });
     };
 
     Lbry.wallet_send({
