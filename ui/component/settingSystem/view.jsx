@@ -16,7 +16,6 @@ import { getPasswordFromCookie } from 'util/saved-passwords';
 
 import * as MODALS from 'constants/modal_types';
 
-
 // @if TARGET='app'
 const IS_MAC = process.platform === 'darwin';
 // @endif
@@ -404,13 +403,13 @@ export default function SettingSystem(props: Props) {
             </SettingsRow>
 
             <SettingsRow
-              title={__("Request account deletion")}
-              subtitle={__("Send account deletion request to Odysee")}
+              title={__('Request account deletion')}
+              subtitle={__('Send account deletion request to Odysee')}
             >
               <Button
                 button="secondary"
                 icon={ALERT}
-                label={"Delete Account"}
+                label={__('Delete Account')}
                 onClick={() => {
                   doOpenModal(MODALS.ACCOUNT_DELETE);
                 }}
