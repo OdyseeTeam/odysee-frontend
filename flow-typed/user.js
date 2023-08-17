@@ -69,6 +69,7 @@ declare type UserState = {
   odyseeMembershipsPerClaimIds: ?{ [string]: string },
   locale: ?LocaleInfo,
   localeFailed: ?boolean,
+  userDeletionSuccess: ?boolean
 };
 
 declare type LocaleInfo = {

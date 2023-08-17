@@ -57,6 +57,7 @@ export type WalletState = {
   pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
   pendingTxos: Array<string>,
   abandonClaimSupportError?: string,
+  pendingSpendingEverythingTxid?: string,
 };
 
 const defaultState = {
@@ -105,6 +106,7 @@ const defaultState = {
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
   pendingTxos: [],
+  pendingSpendingEverythingTxid: null,
 
   abandonClaimSupportError: undefined,
 };
