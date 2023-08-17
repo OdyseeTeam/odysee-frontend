@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import { doWalletStatus } from 'redux/actions/wallet';
 import { selectWalletIsEncrypted } from 'redux/selectors/wallet';
 import {
+  doOpenModal,
   doClearCache,
   doNotifyDecryptWallet,
   doNotifyEncryptWallet,
@@ -9,7 +10,7 @@ import {
   doToggle3PAnalytics,
 } from 'redux/actions/app';
 import { doSetDaemonSetting, doClearDaemonSetting, doFindFFmpeg } from 'redux/actions/settings';
-import { selectAllowAnalytics, doOpenModal } from 'redux/selectors/app';
+import { selectAllowAnalytics } from 'redux/selectors/app';
 import { selectDaemonSettings, selectFfmpegStatus, selectFindingFFmpeg } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
