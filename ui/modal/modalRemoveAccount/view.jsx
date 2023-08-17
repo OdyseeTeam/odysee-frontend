@@ -7,7 +7,6 @@ import { Modal } from 'modal/modal';
 import BusyIndicator from 'component/common/busy-indicator';
 import { FormField } from 'component/common/form';
 
-
 type Props = {
   user: ?User,
   totalBalance: float,
@@ -23,12 +22,13 @@ export default function ModalRemoveAccount(props: Props) {
   const { user, totalBalance, doHideModal, doUserFetch, doSpentEverything, doUserDeleteAccount, doSendCreditsToOdysee } = props;
 
   const [isAlreadyPendingDeletion] = React.useState(user.pending_deletion);
-  const isWalletEmpty = totalBalance <= 0.001;
   const [buttonClicked, setButtonClicked] = React.useState(false);
   const [isBusy, setIsBusy] = React.useState(false);
   const [isForfeitChecked, setIsForfeitChecked] = React.useState(false);
   const [errorOccured, setErrorOccured] = React.useState(false);
+
   const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !isWalletEmpty);
+  const isWalletEmpty = totalBalance <= 0.001;
 
   function forfeitCredits() {
     setIsBusy(true);
