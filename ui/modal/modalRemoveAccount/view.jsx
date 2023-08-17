@@ -8,14 +8,14 @@ import BusyIndicator from 'component/common/busy-indicator';
 import { FormField } from 'component/common/form';
 
 type Props = {
-  user: ?User,
-  totalBalance: float,
+  user: User,
+  totalBalance: number,
   // --- perform ---
   doHideModal: () => void,
   doUserFetch: () => void,
-  doSpentEverything: () => void,
+  doSpentEverything: () => Promise<any>,
   doUserDeleteAccount: () => void,
-  doSendCreditsToOdysee: (string, float) => void,
+  doSendCreditsToOdysee: () => void,
 };
 
 export default function ModalRemoveAccount(props: Props) {

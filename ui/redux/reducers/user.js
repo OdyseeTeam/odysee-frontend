@@ -36,7 +36,7 @@ const defaultState: UserState = {
   locale: undefined,
   localeFailed: undefined,
   homepageFetched: false,
-  userDeletionSuccess: false,
+  userDeletionSuccess: undefined,
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>
