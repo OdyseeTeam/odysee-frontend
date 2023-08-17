@@ -27,8 +27,8 @@ export default function ModalRemoveAccount(props: Props) {
   const [isForfeitChecked, setIsForfeitChecked] = React.useState(false);
   const [errorOccured, setErrorOccured] = React.useState(false);
 
-  const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !isWalletEmpty);
   const isWalletEmpty = totalBalance <= 0.001;
+  const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !isWalletEmpty);
 
   function forfeitCredits() {
     setIsBusy(true);
@@ -60,9 +60,9 @@ export default function ModalRemoveAccount(props: Props) {
     <Modal isOpen type="custom" width="wide">
       <Card
         title={__('Delete account')}
-        subtitle={isBusy ? ""
+        subtitle={isBusy ? ''
           : errorOccured
-          ? __("Sorry, something went wrong when removing content. Account may have still been queued for deletion. Please contact help@odysee.com for possible next steps.")
+          ? __('Sorry, something went wrong when removing content. Account may have still been queued for deletion. Please contact help@odysee.com for possible next steps.')
           : isAlreadyPendingDeletion && !buttonClicked && isWalletEmpty
           ? __('Account has already been queued for deletion.')
           : isAlreadyPendingDeletion && !buttonClicked
@@ -87,7 +87,7 @@ export default function ModalRemoveAccount(props: Props) {
             )}
             <div className="section__actions">
               {isBusy ? (
-                <BusyIndicator message={__("Removing content...")} />
+                <BusyIndicator message={__('Removing content...')} />
               ) : showButton && (
                 <Button
                   button="primary"
