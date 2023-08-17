@@ -254,7 +254,7 @@ export const publishReducer = handleActions(
         params,
         uploader,
         backend,
-        resumable: !(uploader instanceof XMLHttpRequest),
+        resumable: true, // !(uploader instanceof XMLHttpRequest), TODO
       };
 
       return { ...state, currentUploads };
