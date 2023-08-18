@@ -57,6 +57,8 @@ export type WalletState = {
   pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
   pendingTxos: Array<string>,
   abandonClaimSupportError?: string,
+  sendingCreditsToOdysee: boolean,
+  spendingEverything: boolean,
   pendingSpendingEverythingTxid?: string,
 };
 
@@ -106,6 +108,8 @@ const defaultState = {
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
   pendingTxos: [],
+  sendingCreditsToOdysee: false,
+  spendingEverything: false,
   pendingSpendingEverythingTxid: null,
 
   abandonClaimSupportError: undefined,
@@ -253,6 +257,20 @@ export const walletReducer = handleActions(
         ...state,
         spendingEverything: false,
         pendingSpendingEverythingTxid: txid,
+      };
+    },
+
+    [ACTIONS.SEND_CREDITS_TO_ODYSEE_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        sendingCreditsToOdysee: true,
+      };
+    },
+
+    [ACTIONS.SEND_CREDITS_TO_ODYSEE_COMPLETED]: (state: WalletState) => {
+      return {
+        ...state,
+        sendingCreditsToOdysee: false,
       };
     },
 
