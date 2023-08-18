@@ -15,7 +15,7 @@ type Props = {
   doUserFetch: () => void,
   doSpendEverything: () => Promise<any>,
   doUserDeleteAccount: () => void,
-  doSendCreditsToOdysee: () => void,
+  doSendCreditsToOdysee: () => Promise<any>,
 };
 
 export default function ModalRemoveAccount(props: Props) {
