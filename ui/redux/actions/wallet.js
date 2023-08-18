@@ -280,7 +280,6 @@ export function doSpendEverything() {
   };
 }
 
-
 export function doSendCreditsToOdysee() {
   return async (dispatch, getState) => {
     const state = getState();
