@@ -258,7 +258,7 @@ export function doTipClaimMass() {
   };
 }
 
-export function doSpentEverything() {
+export function doSpendEverything() {
   return async (dispatch) => {
     dispatch({
       type: ACTIONS.SPENT_EVERYTHING_STARTED,
