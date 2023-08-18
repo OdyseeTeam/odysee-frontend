@@ -71,13 +71,11 @@ export default function ModalRemoveAccount(props: Props) {
           ? __('Sorry, there may have been an issue when wiping the account. Please check back in few minutes, and try again if content/credits still exist. If the issue persists please contact help@odysee.com for possible next steps.')
           : isAlreadyPendingDeletion && !buttonClicked && isWalletEmpty
           ? __('Account has already been queued for deletion.')
-          : isAlreadyPendingDeletion && !buttonClicked
-          ? __('Account has already been queued for deletion. If you still have content on the account which you want removed, click "Remove content".')
+          : isAlreadyPendingDeletion && !buttonClicked && !isWalletEmpty
+          ? __('Account has already been queued for deletion. If you still have content/credits on the account which you want removed, click "Remove content".')
           : !isAlreadyPendingDeletion && !buttonClicked
           ? __("Remove all content from the account and send a deletion request to Odysee. Removing the content is a permanent action and can't be undone.")
-          : isAlreadyPendingDeletion && buttonClicked
-          ? __('Content removed. It may take few minutes for content to completely disappear.')
-          : __('Account has been queued for deletion. You will receive an email confirmation once the deletion is completed. It may take few minutes for content to completely disappear.')}
+          : __('Account has been queued for deletion, and content has been removed. You will receive an email confirmation once the deletion is completed. It may take few minutes for content to completely disappear.')}
         className="confirm__wrapper"
         actions={
           <>
