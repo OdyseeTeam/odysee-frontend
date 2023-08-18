@@ -13,13 +13,13 @@ type Props = {
   // --- perform ---
   doHideModal: () => void,
   doUserFetch: () => void,
-  doSpentEverything: () => Promise<any>,
+  doSpendEverything: () => Promise<any>,
   doUserDeleteAccount: () => void,
   doSendCreditsToOdysee: () => void,
 };
 
 export default function ModalRemoveAccount(props: Props) {
-  const { user, totalBalance, doHideModal, doUserFetch, doSpentEverything, doUserDeleteAccount, doSendCreditsToOdysee } = props;
+  const { user, totalBalance, doHideModal, doUserFetch, doSpendEverything, doUserDeleteAccount, doSendCreditsToOdysee } = props;
 
   const [isAlreadyPendingDeletion] = React.useState(user.pending_deletion);
   const [buttonClicked, setButtonClicked] = React.useState(false);
@@ -32,7 +32,7 @@ export default function ModalRemoveAccount(props: Props) {
 
   function forfeitCredits() {
     setIsBusy(true);
-    doSpentEverything()
+    doSpendEverything()
       .then(() => {
         setTimeout(() => {
           doSendCreditsToOdysee()
