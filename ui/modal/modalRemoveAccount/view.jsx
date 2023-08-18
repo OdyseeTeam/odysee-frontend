@@ -35,8 +35,14 @@ export default function ModalRemoveAccount(props: Props) {
     doSpentEverything()
       .then(() => {
         setTimeout(() => {
-          doSendCreditsToOdysee();
-          setIsBusy(false);
+          doSendCreditsToOdysee()
+            .then(() => {
+              setIsBusy(false);
+            })
+            .catch(() => {
+              setErrorOccured(true);
+              setIsBusy(false);
+            });
         }, 5000); // Hoping the timeout helps to avoid using outputs already spend in txo_spend
       })
       .catch(() => {
@@ -62,7 +68,7 @@ export default function ModalRemoveAccount(props: Props) {
         title={__('Delete account')}
         subtitle={isBusy ? ''
           : errorOccured
-          ? __('Sorry, something went wrong when removing content. Account may have still been queued for deletion. Please contact help@odysee.com for possible next steps.')
+          ? __('Sorry, there may have been an issue when wiping the account. Please check back in few minutes, and try again if content/credits still exist. If the issue persists please contact help@odysee.com for possible next steps.')
           : isAlreadyPendingDeletion && !buttonClicked && isWalletEmpty
           ? __('Account has already been queued for deletion.')
           : isAlreadyPendingDeletion && !buttonClicked

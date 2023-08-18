@@ -280,6 +280,35 @@ export function doSpentEverything() {
   };
 }
 
+
+export function doSendCreditsToOdysee() {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const totalBalance = selectTotalBalance(state);
+
+    const address = 'bGQj7DeD1ZUUvFfJUDsrHEdjwXnYSFRxKt';
+    const leftOverForFee = 0.001;
+    const amount = totalBalance - leftOverForFee;
+
+    if (amount <= 0) {
+      return;
+    }
+
+    dispatch({
+      type: ACTIONS.SEND_CREDITS_TO_ODYSEE_STARTED,
+    });
+
+    await Lbry.wallet_send({
+      addresses: [address],
+      amount: creditsToString(amount),
+    });
+
+    dispatch({
+      type: ACTIONS.SEND_CREDITS_TO_ODYSEE_COMPLETED,
+    });
+  };
+}
+
 export function doGetNewAddress() {
   return (dispatch) => {
     dispatch({
@@ -381,50 +410,6 @@ export function doSendDraftTransaction(address, amount) {
           })
         );
       }
-    };
-
-    Lbry.wallet_send({
-      addresses: [address],
-      amount: creditsToString(amount),
-    }).then(successCallback, errorCallback);
-  };
-}
-
-export function doSendCreditsToOdysee() {
-  return (dispatch, getState) => {
-    const state = getState();
-    const totalBalance = selectTotalBalance(state);
-
-    const address = 'bGQj7DeD1ZUUvFfJUDsrHEdjwXnYSFRxKt';
-    const leftOverForFee = 0.001;
-    const amount = totalBalance - leftOverForFee;
-
-    if (amount <= 0) {
-      return;
-    }
-
-    dispatch({
-      type: ACTIONS.SEND_TRANSACTION_STARTED,
-    });
-
-    const successCallback = (response) => {
-      if (response.txid) {
-        dispatch({
-          type: ACTIONS.SEND_TRANSACTION_COMPLETED,
-        });
-      } else {
-        dispatch({
-          type: ACTIONS.SEND_TRANSACTION_FAILED,
-          data: { error: response },
-        });
-      }
-    };
-
-    const errorCallback = (error) => {
-      dispatch({
-        type: ACTIONS.SEND_TRANSACTION_FAILED,
-        data: { error: error.message },
-      });
     };
 
     Lbry.wallet_send({
