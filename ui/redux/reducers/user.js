@@ -36,6 +36,7 @@ const defaultState: UserState = {
   locale: undefined,
   localeFailed: undefined,
   homepageFetched: false,
+  userDeletionPending: undefined,
   userDeletionSuccess: undefined,
 };
 
