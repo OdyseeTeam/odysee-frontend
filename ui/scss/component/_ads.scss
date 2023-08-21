@@ -491,10 +491,6 @@
   width: 100%;
   min-height: 124px;
 
-  @media (max-width: $breakpoint-small) {
-    // min-height: 108px;
-  }
-
   &.show-rc_tile {
     .css-widget-item-wrap {
       img {
@@ -690,7 +686,7 @@
         }
 
         @media (max-width: $breakpoint-small) {
-          width: calc(var(--file-list-thumbnail-width) * 1) !important;
+          width: var(--file-list-thumbnail-width) !important;
         }
       }
 
