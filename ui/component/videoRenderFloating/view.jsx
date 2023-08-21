@@ -27,7 +27,7 @@ import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects
 import debounce from 'util/debounce';
 import { isURIEqual } from 'util/lbryURI';
 import AutoplayCountdown from './internal/autoplayCountdown';
-// import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
+import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import ChannelThumbnail from 'component/channelThumbnail';
 import {
   getRootEl,
@@ -65,8 +65,6 @@ type Props = {
   collectionId: string,
   collectionSidebarId: ?string,
   doFetchRecommendedContent: (uri: string) => void,
-  // doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: ?boolean, isFloating: ?boolean) => void,
-  doSetPlayingUri: ({ uri?: ?string }) => void,
   isCurrentClaimLive?: boolean,
   videoAspectRatio: number,
   socketConnection: { connected: ?boolean },
@@ -104,8 +102,6 @@ function VideoRenderFloating(props: Props) {
     collectionSidebarId,
     socketConnection,
     doFetchRecommendedContent,
-    // doUriInitiatePlay,
-    doSetPlayingUri,
     isCurrentClaimLive,
     videoAspectRatio,
     appDrawerOpen,
@@ -309,9 +305,9 @@ function VideoRenderFloating(props: Props) {
       // When the player begins floating, remove the comment source
       // so that it doesn't try to resize again in case of going back
       // to the origin's comment section and fail to position correctly
-      doSetPlayingUri({ ...playingUri, source: null });
+      doClearPlayingSource();
     }
-  }, [doClearPlayingSource, doSetPlayingUri, playingUri, isComment, isFloating]);
+  }, [doClearPlayingSource, isComment, isFloating]);
 
   React.useEffect(() => {
     if (isFloating) doFetchRecommendedContent(uri);
@@ -396,15 +392,6 @@ function VideoRenderFloating(props: Props) {
     }
   }
 
-  function closeMiniPlayer() {
-    if (window.cordova) {
-      window.odysee.functions.killControls(function () {
-        // doSetPlayingUri({ uri: null });
-        doClearPlayingUri();
-      });
-    }
-  }
-
   return (
     <VideoRenderFloatingContext.Provider value={{ draggable }}>
       {!isAutoplayCountdown && ((uri && fileViewerRect && videoAspectRatio) || collectionSidebarId) ? (
@@ -456,113 +443,79 @@ function VideoRenderFloating(props: Props) {
               : {}
           }
         >
-          <div
-            className={classnames([CONTENT_VIEWER_CLASS], {
-              [FLOATING_PLAYER_CLASS]: isFloating,
-              'content__viewer--inline': !isFloating,
-              'content__viewer--secondary': isComment,
-              'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
-              'content__viewer--disable-click': wasDragging,
-              'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
-            })}
-            style={
-              !isFloating && fileViewerRect
-                ? {
-                    width: fileViewerRect.width,
-                    height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : fileViewerRect.height,
-                    left: fileViewerRect.x,
-                    top:
-                      isMobile && !playingUriSource
-                        ? HEADER_HEIGHT_MOBILE
-                        : fileViewerRect.windowOffset + fileViewerRect.top - HEADER_HEIGHT,
+          <div className={classnames('content__wrapper', { 'content__wrapper--floating': isFloating })}>
+            {!isFloating && isComment && <FileViewerEmbeddedTitle uri={uri} />}
+
+            {isFloating && (
+              <Button
+                title={__('Close')}
+                onClick={() => {
+                  if (hasClaimInQueue) {
+                    doOpenModal(MODALS.CONFIRM, {
+                      title: __('Close Player'),
+                      subtitle: __('Are you sure you want to close the player and clear the current Queue?'),
+                      onConfirm: (closeModal) => {
+                        doSetShowAutoplayCountdownForUri({ uri, show: false });
+                        doClearPlayingUri();
+                        doClearQueueList();
+                        closeModal();
+                      },
+                    });
+                  } else {
+                    doClearPlayingUri();
+                    doSetShowAutoplayCountdownForUri({ uri, show: false });
                   }
-                : {}
-            }
-          >
-            <div className={classnames('content__wrapper', { 'content__wrapper--floating': isFloating })}>
-              {isFloating && (
-                <Button
-                  title={__('Close')}
-                  onClick={() => closeMiniPlayer()}
-                  icon={ICONS.REMOVE}
-                  button="primary"
-                  className="content__floating-close"
-                />
-              )}
+                }}
+                icon={ICONS.REMOVE}
+                button="primary"
+                className="content__floating-close"
+              />
+            )}
 
-              {isFloating && (
-                <Button
-                  title={__('Close')}
-                  onClick={() => {
-                    if (hasClaimInQueue) {
-                      doOpenModal(MODALS.CONFIRM, {
-                        title: __('Close Player'),
-                        subtitle: __('Are you sure you want to close the player and clear the current Queue?'),
-                        onConfirm: (closeModal) => {
-                          doSetShowAutoplayCountdownForUri({ uri, show: false });
-                          doClearPlayingUri();
-                          doClearQueueList();
-                          closeModal();
-                        },
-                      });
-                    } else {
-                      doClearPlayingUri();
-                      doSetShowAutoplayCountdownForUri({ uri, show: false });
-                    }
-                  }}
-                  icon={ICONS.REMOVE}
-                  button="primary"
-                  className="content__floating-close"
-                />
-              )}
+            {autoplayCountdownUri && !showStreamPlaceholder && (
+              <div className={classnames('content__autoplay-countdown', { draggable, playing: !isAutoplayCountdown })}>
+                <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
+              </div>
+            )}
 
-              {autoplayCountdownUri && !showStreamPlaceholder && (
-                <div
-                  className={classnames('content__autoplay-countdown', { draggable, playing: !isAutoplayCountdown })}
-                >
-                  <AutoplayCountdown uri={uri} onCancel={() => setCancelledAutoPlayCountdown(true)} />
-                </div>
-              )}
+            {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
+            {uri && (!isAutoplayCountdown || showStreamPlaceholder) && (
+              <FloatingRender uri={uri} draggable={draggable} />
+            )}
 
-              {/* -- Use ref here to not switch video renders while switching from floating/not floating */}
-              {uri && (!isAutoplayCountdown || showStreamPlaceholder) && (
-                <FloatingRender uri={uri} draggable={draggable} />
-              )}
-
-              {isFloating && (
-                <div
-                  className={classnames('content__info', {
-                    draggable: !isMobile,
-                    'content-info__playlist': playingCollection,
-                  })}
-                >
-                  <div className="content-info__text">
-                    <div className="claim-preview__title" title={title || uri}>
-                      <Button
-                        label={title || uri}
-                        navigate={navigateUrl}
-                        button="link"
-                        className="content__floating-link"
-                      />
-                    </div>
-                    <ChannelThumbnail xxsmall uri={channelUrl} />
-                    <UriIndicator link uri={uri} />
+            {isFloating && (
+              <div
+                className={classnames('content__info', {
+                  draggable: !isMobile,
+                  'content-info__playlist': playingCollection,
+                })}
+              >
+                <div className="content-info__text">
+                  <div className="claim-preview__title" title={title || uri}>
+                    <Button
+                      label={title || uri}
+                      navigate={navigateUrl}
+                      button="link"
+                      className="content__floating-link"
+                    />
                   </div>
-
-                  {playingCollection && collectionSidebarId !== collectionId && (
-                    <React.Suspense fallback={null}>
-                      <PlaylistCard
-                        id={collectionId}
-                        uri={uri}
-                        disableClickNavigation
-                        doDisablePlayerDrag={setForceDisable}
-                        isFloating
-                      />
-                    </React.Suspense>
-                  )}
+                  <ChannelThumbnail xxsmall uri={channelUrl} />
+                  <UriIndicator link uri={uri} />
                 </div>
-              )}
-            </div>
+
+                {playingCollection && collectionSidebarId !== collectionId && (
+                  <React.Suspense fallback={null}>
+                    <PlaylistCard
+                      id={collectionId}
+                      uri={uri}
+                      disableClickNavigation
+                      doDisablePlayerDrag={setForceDisable}
+                      isFloating
+                    />
+                  </React.Suspense>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </Draggable>
