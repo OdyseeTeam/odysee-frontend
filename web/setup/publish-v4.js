@@ -45,14 +45,16 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
   } else {
     if (isEditingMetaOnly(params)) {
       // Edit claim
-      dispatch(add('', params, DUMMY_REQUEST, 'v4'));
+      // dispatch(add('', params, DUMMY_REQUEST, 'v4'));
+      dispatch(add('', params, DUMMY_REQUEST));
       publishId = await createClaim(token, null, sdkParams, {
         onSuccess: (publishId) => dispatch(progress({ guid, status: 'notify_ok', publishId })),
         onFailure: () => dispatch(progress({ guid, status: 'notify_failed' })),
       });
     } else if (remote_url) {
       // Start remote URL upload
-      dispatch(add(remote_url, params, DUMMY_REQUEST, 'v4'));
+      // dispatch(add(remote_url, params, DUMMY_REQUEST, 'v4'));
+      dispatch(add(remote_url, params, DUMMY_REQUEST));
       const sdkFilePath = await startRemoteUrl(uploadToken, remote_url);
 
       // Create claim
@@ -66,7 +68,8 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
 
       // Start or resume TUS upload
       const tusSession = await startTus(file, params.uploadUrl, uploadToken.location, uploadToken.token, {
-        onStart: (tusSession) => dispatch(add(file, params, tusSession, 'v4')),
+        // onStart: (tusSession) => dispatch(add(file, params, tusSession, 'v4')),
+        onStart: (tusSession) => dispatch(add(file, params, tusSession)),
         onRetry: () => dispatch(progress({ guid, status: 'retry' })),
         onProgress: (pct: string) => dispatch(progress({ guid, progress: pct })),
         onError: () => dispatch(progress({ guid, status: 'error' })),

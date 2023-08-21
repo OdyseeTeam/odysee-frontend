@@ -797,11 +797,17 @@ export const doPublish =
     }
 
     if (previewFn) {
-      const payloadSnapshot = { ...publishPayload }; // Lbry alters the payload, so make copy for previewFn
-      return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
-        // $FlowIgnore
-        return previewFn(payloadSnapshot, previewResponse);
-      }, fail);
+      const ESTIMATE_PUBLISH_COST = false;
+
+      if (ESTIMATE_PUBLISH_COST) {
+        const payloadSnapshot = { ...publishPayload }; // Lbry alters the payload, so make copy for previewFn
+        return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
+          // $FlowIgnore
+          return previewFn(payloadSnapshot, previewResponse);
+        }, fail);
+      } else {
+        return previewFn(publishPayload, null);
+      }
     }
 
     return Lbry.publish(publishPayload).then((response: PublishResponse) => {
