@@ -5,6 +5,7 @@
 .*/node_modules/@emotion/.*
 .*/malformed_package_json/.*
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
+.*/web/setup/publish-v3.js
 
 [include]
 

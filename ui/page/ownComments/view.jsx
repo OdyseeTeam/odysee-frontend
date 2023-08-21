@@ -146,6 +146,11 @@ export default function OwnComments(props: Props) {
     }
   }, [page, spinnerRef, isFetchingComments, moreBelow, totalPages]);
 
+  // Clear redux when leaving page (because OwnComment is sharing key with CommunityTab)
+  React.useEffect(() => {
+    return () => doCommentReset(activeChannelId);
+  }, [activeChannelId, doCommentReset]);
+
   // **************************************************************************
   // **************************************************************************
 

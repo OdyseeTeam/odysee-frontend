@@ -841,7 +841,7 @@ export const doPurchaseClaimForUri =
     } else if (tags.purchaseTag) {
       tipAmount = tags.purchaseTag;
     } else if (tags.rentalTag) {
-      tipAmount = tags.rentalTag.price;
+      rentTipAmount = tags.rentalTag.price;
     } else if (tags.preorderTag) {
       tipAmount = tags.preorderTag;
     }

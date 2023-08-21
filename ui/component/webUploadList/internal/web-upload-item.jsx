@@ -17,7 +17,7 @@ type Props = {
 
 export default function WebUploadItem(props: Props) {
   const { uploadItem, doPublishResume, doUpdateUploadRemove, doOpenModal } = props;
-  const { params, file, fileFingerprint, progress, status, sdkRan, resumable, uploader } = uploadItem;
+  const { params, file, fileFingerprint, progress, status, publishId, resumable, uploader, backend } = uploadItem;
 
   const [isCheckingStatus, setIsCheckingStatus] = useState(false);
   const [showFileSelector, setShowFileSelector] = useState(false);
@@ -112,6 +112,8 @@ export default function WebUploadItem(props: Props) {
             return __('Stopped. Duplicate session detected.');
           case 'notify_ok':
             return <BusyIndicator message={__('Processing file. Please wait...')} />;
+          case 'notify_failed':
+            return __('Failed to process file. Please try again.');
           default:
             return status;
         }
@@ -120,7 +122,36 @@ export default function WebUploadItem(props: Props) {
         return progressInt === 100 ? __('Processing...') : `${__('Uploading...')} (${progressInt}%)`;
       }
     } else {
-      return __('Uploading...');
+      return file ? __('Uploading...') : __('Updating...');
+    }
+  }
+
+  function getProgressSubText() {
+    if (locked) {
+      return null;
+    }
+
+    if (!uploader) {
+      return null;
+    }
+
+    if (resumable) {
+      if (status) {
+        switch (status) {
+          case 'notify_ok':
+            if (file?.size && file.size > 500000000) {
+              return 'Check back later, larger files take longer to process.';
+            } else {
+              return null;
+            }
+          default:
+            return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 
@@ -129,25 +160,29 @@ export default function WebUploadItem(props: Props) {
       return null;
     }
 
-    if (uploader) {
+    if (uploader && status !== 'notify_failed') {
       // Should still be uploading. Don't show.
       return null;
     } else {
       // Refreshed or connection broken ...
 
-      if (sdkRan) {
+      if (backend !== 'v4') {
+        return getLegacyRetryButton();
+      }
+
+      if (publishId) {
         // ... '/notify' was already sent and known to be successful. We just
         // need to resume from the '/status' query stage.
-        return (
+        return !isCheckingStatus ? (
           <Button
             label={__('Check Status')}
             button="link"
             onClick={() => {
               setIsCheckingStatus(true);
-              doPublishResume({ ...params, sdkRan });
+              doPublishResume({ ...params, publishId });
             }}
           />
-        );
+        ) : null;
       }
 
       let isFileActive = file instanceof File;
@@ -174,10 +209,20 @@ export default function WebUploadItem(props: Props) {
     }
   }
 
+  function getLegacyRetryButton() {
+    if (uploadItem.params.sdkRan) {
+      return null;
+    }
+
+    return (
+      <Button label={__('Retry')} button="link" onClick={() => setShowFileSelector(true)} disabled={showFileSelector} />
+    );
+  }
+
   function getCancelButton() {
     if (!locked) {
       if (resumable) {
-        if (sdkRan && status === 'error') {
+        if (publishId && status === 'error') {
           return <Button label={__('Remove')} button="link" onClick={handleCancel} />;
         }
 
@@ -215,6 +260,7 @@ export default function WebUploadItem(props: Props) {
             <span className="claim-upload__progress--inner-text">{getProgressElem()}</span>
           </div>
         </div>
+        <div className="claim-upload__progress-sub-text">{getProgressSubText()}</div>
       </>
     );
   }
