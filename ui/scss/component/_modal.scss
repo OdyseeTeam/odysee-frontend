@@ -121,7 +121,7 @@
     min-width: auto;
     margin-bottom: 0;
     border-radius: 0;
-    padding: 0;
+    padding: var(--spacing-s);
 
     .card {
       box-shadow: none;
@@ -243,8 +243,9 @@
 }
 
 .error-modal__error-list {
+  font-size: var(--font-small);
   max-width: var(--modal-width);
-  max-height: 400px;
+  max-height: 250px;
   margin-top: var(--spacing-s);
   padding: var(--spacing-s);
 
@@ -258,7 +259,7 @@
   white-space: pre-wrap;
 
   li {
-    margin-bottom: 0;
+    margin-bottom: var(--spacing-m);
   }
 }
 

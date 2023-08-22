@@ -11,6 +11,10 @@
     padding: var(--spacing-xs);
     .rc-feed-row {
       margin-bottom: var(--spacing-xs);
+
+      &:nth-of-type(1) {
+        display: none;
+      }
     }
   }
 
@@ -257,8 +261,6 @@
   }
 }
 
-@import '~ui/scss/init/breakpoints';
-
 .rc_tile {
   border-radius: var(--border-radius);
   padding: 0 !important;
@@ -483,17 +485,11 @@
   }
 }
 
-@import '~ui/scss/init/breakpoints';
-
 .rc_tileB {
   border-radius: var(--border-radius);
   padding: 0 !important;
   width: 100%;
   min-height: 124px;
-
-  @media (max-width: $breakpoint-small) {
-    min-height: 108px;
-  }
 
   &.show-rc_tile {
     .css-widget-item-wrap {
@@ -557,6 +553,7 @@
 
     .rc-photo-container {
       width: 100% !important;
+
       flex-shrink: 0;
       display: inline-block !important;
       margin-right: var(--spacing-s);
@@ -689,7 +686,7 @@
         }
 
         @media (max-width: $breakpoint-small) {
-          width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
+          width: var(--file-list-thumbnail-width) !important;
         }
       }
 

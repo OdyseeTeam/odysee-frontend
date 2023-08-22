@@ -5,6 +5,17 @@ import { LBRY_WEB_PUBLISH_API_V4 } from 'config';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 
 const V4_INIT_UPLOAD = `${LBRY_WEB_PUBLISH_API_V4}/uploads/`;
+const v4_INIT_URL = `${LBRY_WEB_PUBLISH_API_V4}/urls/`;
+
+type SdkFilePath = string;
+
+// ****************************************************************************
+// isEditingMetaOnly
+// ****************************************************************************
+
+export function isEditingMetaOnly(params: FileUploadSdkParams) {
+  return !params.file_path && !params.remote_url && !params.publishId;
+}
 
 // ****************************************************************************
 // Step: check prerequisites
@@ -15,10 +26,24 @@ export function checkPrerequisites(params: FileUploadSdkParams): Promise<boolean
     if (!LBRY_WEB_PUBLISH_API_V4) {
       reject(new Error('LBRY_WEB_PUBLISH_API_V4 is not defined in the environment'));
     }
-    if (params.remote_url) {
-      reject(new Error('Publish: v5 does not support remote_url'));
-    }
     resolve(true);
+  });
+}
+
+// ****************************************************************************
+// Resolve file
+// ****************************************************************************
+
+export function resolveFileToUpload(params: FileUploadSdkParams): Promise<File | string> {
+  return new Promise((resolve, reject) => {
+    if (params.preview) {
+      // Send dummy file for the preview. The tx-fee calculation does not depend on it.
+      const dummyContent = 'x';
+      resolve(new File([dummyContent], 'dummy.md', { type: 'text/markdown' }));
+    } else {
+      assert(params.file_path, 'file_path is required');
+      resolve(params.file_path);
+    }
   });
 }
 
@@ -28,9 +53,9 @@ export function checkPrerequisites(params: FileUploadSdkParams): Promise<boolean
 
 export type TokenRequestResponse = { token: string, location: string };
 
-export function requestUploadToken(authToken: string): Promise<TokenRequestResponse> {
+export function requestUploadToken(authToken: string, remoteUrl?: string): Promise<TokenRequestResponse> {
   return new Promise((resolve, reject) => {
-    fetch(V4_INIT_UPLOAD, {
+    fetch(remoteUrl ? v4_INIT_URL : V4_INIT_UPLOAD, {
       method: 'POST',
       headers: {
         [X_LBRY_AUTH_TOKEN]: authToken,
@@ -45,9 +70,31 @@ export function requestUploadToken(authToken: string): Promise<TokenRequestRespo
 }
 
 // ****************************************************************************
+// Step: Start Remote URL publishing
+// ****************************************************************************
+
+export function startRemoteUrl(uploadToken: TokenRequestResponse, remoteUrl: string): Promise<SdkFilePath> {
+  return new Promise((resolve, reject) => {
+    fetch(uploadToken.location, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${uploadToken.token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: remoteUrl }),
+    })
+      .then(convertResponseToJson)
+      .then((json) => validateJson(json, 'url_created', (p) => p.upload_id))
+      .then((payload) => resolve(`${uploadToken.location}${payload.upload_id}`))
+      .catch((err) => reject(v4Error(err, { step: 'startRemoteUrl' })));
+  });
+}
+
+// ****************************************************************************
 // Step: Perform TUS upload/resume
 // ****************************************************************************
 
+const STATUS_NOT_FOUND = 404;
 const STATUS_CONFLICT = 409;
 const STATUS_LOCKED = 423;
 
@@ -76,8 +123,8 @@ export function startTus(
     // --- Create tus session ---
     const tusSession = new tus.Upload(file, {
       ...(uploadUrl ? { uploadUrl: uploadUrl } : { endpoint: uploadLocation }),
-      chunkSize: 1024 * 1024, // 1MB
-      retryDelays: [0, 3000, 5000, 10000, 20000], // v3 uses: [8000, 15000, 30000],
+      chunkSize: 25 * 1024 * 1024, // 25MB
+      retryDelays: [0, 3000, 5000, 10000, 15000, 15000, 15000, 15000, 15000], // v3 uses: [8000, 15000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
       urlStorage: new NoopUrlStorage(),
@@ -92,7 +139,11 @@ export function startTus(
       },
       onShouldRetry: (err, retryAttempt, options) => {
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
-        const shouldRetry = !inStatusCategory(status, 400) || status === STATUS_CONFLICT || status === STATUS_LOCKED;
+        const shouldRetry =
+          !inStatusCategory(status, 400) ||
+          status === STATUS_CONFLICT ||
+          status === STATUS_LOCKED ||
+          status === STATUS_NOT_FOUND;
         if (shouldRetry) {
           cb.onRetry();
         }
@@ -129,12 +180,12 @@ export type CreateClaimCallbacks = {
 
 export function createClaim(
   authToken: string,
-  uploadUrl: string,
+  sdkFilePath: ?SdkFilePath,
   params: any,
   cb: CreateClaimCallbacks
 ): Promise<PublishId> {
   return new Promise((resolve, reject) => {
-    const sdkParams = { ...params, file_path: uploadUrl };
+    const sdkParams = { ...params, ...(sdkFilePath ? { file_path: sdkFilePath } : {}) };
 
     fetch(`${LBRY_WEB_PUBLISH_API_V4}/`, {
       method: 'POST',
@@ -157,7 +208,7 @@ export function createClaim(
       })
       .catch((err) => {
         cb.onFailure();
-        reject(v4Error(err, { step: 'sdk', inputs: { uploadUrl, sdkParams } }));
+        reject(v4Error(err, { step: 'sdk', inputs: { sdkParams } }));
       });
   });
 }

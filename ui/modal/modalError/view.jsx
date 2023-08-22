@@ -53,7 +53,7 @@ class ModalError extends React.PureComponent<Props> {
       code: __('Error code'),
       message: __('Error message'),
       data: __('Error data'),
-      cause: 'skip',
+      cause: __('Error data'),
     };
 
     const errorInfoList = [];

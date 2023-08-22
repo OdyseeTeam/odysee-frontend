@@ -122,7 +122,36 @@ export default function WebUploadItem(props: Props) {
         return progressInt === 100 ? __('Processing...') : `${__('Uploading...')} (${progressInt}%)`;
       }
     } else {
-      return __('Uploading...');
+      return file ? __('Uploading...') : __('Updating...');
+    }
+  }
+
+  function getProgressSubText() {
+    if (locked) {
+      return null;
+    }
+
+    if (!uploader) {
+      return null;
+    }
+
+    if (resumable) {
+      if (status) {
+        switch (status) {
+          case 'notify_ok':
+            if (file?.size && file.size > 500000000) {
+              return 'Check back later, larger files take longer to process.';
+            } else {
+              return null;
+            }
+          default:
+            return null;
+        }
+      } else {
+        return null;
+      }
+    } else {
+      return null;
     }
   }
 

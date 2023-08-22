@@ -1,9 +1,9 @@
 // @flow
-import * as tus from 'tus-js-client';
+// import * as tus from 'tus-js-client';
 import { v4 as uuid } from 'uuid';
 import { generateError } from './publish-error';
 import { makeUploadRequest as makeV1UploadRequest } from './publish-v1';
-import { makeV4UploadRequest } from './publish-v4';
+// import { makeV4UploadRequest } from './publish-v4';
 
 // A modified version of Lbry.apiCall that allows
 // to perform calling methods at arbitrary urls
@@ -45,10 +45,12 @@ export default function apiPublishCallViaWeb(
     params.guid = uuid();
   }
 
-  const useV1 = remoteUrl || isMarkdown || preview || !tus.isSupported;
+  // const useV1 = remoteUrl || isMarkdown || preview || !tus.isSupported;
+  const useV1 = true;
 
   if (useV1) {
     console.log('Upload V1');
+    if (window.cordova) window.odysee.functions.insomnia(true);
     return makeV1UploadRequest(token, params, fileField, preview)
       .then((xhr) => {
         let error;
@@ -70,18 +72,20 @@ export default function apiPublishCallViaWeb(
             );
           }
         }
-
+        if (window.cordova) window.odysee.functions.insomnia(false);
         if (error) {
           return Promise.reject(error);
         }
       })
       .catch(reject);
   } else {
+    /*
     return makeV4UploadRequest(token, params, fileField)
       .then((result) => resolve(result))
       .catch((err) => {
         assert(false, `${err.message}`, err.cause || err);
         reject(err);
       });
+      */
   }
 }
