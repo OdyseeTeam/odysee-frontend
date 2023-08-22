@@ -48,6 +48,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
 import { lazyImport } from 'util/lazyImport';
+import { Prompt } from 'react-router-dom';
 
 const CommentCreate = lazyImport(() => import('component/commentCreate' /* webpackChunkName: "comments" */));
 
@@ -317,6 +318,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
       })}
       id={commentId}
     >
+      <Prompt when={isEditing} message={'Your comment edits are not saved. Are you sure you want to leave?'} />
       <div className="comment__thumbnail-wrapper">
         {authorUri ? (
           <ChannelThumbnail uri={authorUri} xsmall className="comment__author-thumbnail" checkMembership={false} />

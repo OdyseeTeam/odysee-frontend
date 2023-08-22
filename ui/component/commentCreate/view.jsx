@@ -26,6 +26,7 @@ import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
 import './style.lazy.scss';
+import { Prompt } from 'react-router-dom';
 
 const stripeEnvironment = getStripeEnvironment();
 
@@ -696,7 +697,7 @@ export function CommentCreate(props: Props) {
           action={<Button button="primary" label={__('Join')} onClick={handleJoinMembersOnlyChat} />}
         />
       )}
-
+      <Prompt when={charCount > 0} message={'Your comment has not been submitted. Are you sure you want to leave?'} />
       <Form
         onSubmit={() => {}}
         className={classnames('comment-create', {
