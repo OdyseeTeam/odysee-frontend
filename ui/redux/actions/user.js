@@ -522,10 +522,9 @@ export function doUserDeleteAccount() {
       });
     };
 
-    const failure = (error) =>
+    const failure = () =>
       dispatch({
         type: ACTIONS.USER_DELETION_FAILURE,
-        data: { error },
       });
 
     Lbryio.call(
