@@ -84,7 +84,7 @@ export default function HelpPage(props: Props) {
         subtitle={
           <I18nMessage tokens={{ channel: <strong>#support</strong>, help_email: SITE_HELP_EMAIL }}>
             Email address changes are processed manually on request via email. Email must come from
-            the original email being changed, or we'll need need to verify ownership another way.
+            the original email being changed, or we'll need to verify ownership another way.
           </I18nMessage>
         }
         actions={
