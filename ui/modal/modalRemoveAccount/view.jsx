@@ -29,7 +29,7 @@ export default function ModalRemoveAccount(props: Props) {
   const [isForfeitChecked, setIsForfeitChecked] = React.useState(false);
   const [errorOccurred, setErrorOccurred] = React.useState(false);
 
-  const isWalletEmpty = totalBalance <= 0.0001;
+  const isWalletEmpty = totalBalance <= 0.009;
   const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !isWalletEmpty);
 
   React.useEffect(() => {
