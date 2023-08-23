@@ -119,6 +119,8 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
   }
 });
 
+export const selectUserDeletionSuccess = (state) => selectState(state).userDeletionSuccess;
+
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));
 
 export const selectUserLocale = (state) => selectState(state).locale;
