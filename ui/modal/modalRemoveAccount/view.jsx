@@ -87,7 +87,7 @@ export default function ModalRemoveAccount(props: Props) {
         title={__('Delete account')}
         subtitle={isBusy ? ''
           : errorOccurred
-          ? __('Sorry, there may have been an issue when wiping the account. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.')
+          ? __('Sorry, there may have been an issue when wiping the account and/or sending the deletion request. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.')
           : isAlreadyPendingDeletion && !buttonClicked && isWalletEmpty
           ? __('Account has already been queued for deletion.')
           : isAlreadyPendingDeletion && !buttonClicked && !isWalletEmpty
