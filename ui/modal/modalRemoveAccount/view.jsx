@@ -10,16 +10,18 @@ import { FormField } from 'component/common/form';
 type Props = {
   user: User,
   totalBalance: number,
+  userDeletionSuccess: boolean,
   // --- perform ---
   doHideModal: () => void,
   doUserFetch: () => void,
   doSpendEverything: () => Promise<any>,
   doUserDeleteAccount: () => void,
   doSendCreditsToOdysee: () => Promise<any>,
+  doClearUserDeletionSuccess: () => void,
 };
 
 export default function ModalRemoveAccount(props: Props) {
-  const { user, totalBalance, doHideModal, doUserFetch, doSpendEverything, doUserDeleteAccount, doSendCreditsToOdysee } = props;
+  const { user, totalBalance, userDeletionSuccess, doHideModal, doUserFetch, doSpendEverything, doUserDeleteAccount, doSendCreditsToOdysee, doClearUserDeletionSuccess } = props;
 
   const [isAlreadyPendingDeletion] = React.useState(user.pending_deletion);
   const [buttonClicked, setButtonClicked] = React.useState(false);
@@ -27,17 +29,30 @@ export default function ModalRemoveAccount(props: Props) {
   const [isForfeitChecked, setIsForfeitChecked] = React.useState(false);
   const [errorOccurred, setErrorOccurred] = React.useState(false);
 
-  const isWalletEmpty = totalBalance <= 0.001;
+  const isWalletEmpty = totalBalance <= 0.0001;
   const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !isWalletEmpty);
 
-  function forfeitCredits() {
-    setIsBusy(true);
+  React.useEffect(() => {
+    if (userDeletionSuccess === false) {
+      setErrorOccurred(true);
+    }
+  }, [userDeletionSuccess]);
+
+  function sendDeletionRequest() {
+    if (!isAlreadyPendingDeletion) {
+      doUserDeleteAccount();
+      setTimeout(doUserFetch, 1000);
+    }
+    setIsBusy(false);
+  }
+
+  function forfeitCreditsAndSendDeletionRequest() {
     doSpendEverything()
       .then(() => {
         setTimeout(() => {
           doSendCreditsToOdysee()
             .then(() => {
-              setIsBusy(false);
+              sendDeletionRequest();
             })
             .catch(() => {
               setErrorOccurred(true);
@@ -52,14 +67,18 @@ export default function ModalRemoveAccount(props: Props) {
   }
 
   function handleOnClick() {
+    setIsBusy(true);
     if (!isWalletEmpty) {
-      forfeitCredits();
-    }
-    if (!isAlreadyPendingDeletion) {
-      doUserDeleteAccount();
-      setTimeout(doUserFetch, 1000);
+      forfeitCreditsAndSendDeletionRequest();
+    } else {
+      sendDeletionRequest();
     }
     setButtonClicked(true);
+  }
+
+  function handleOnClose() {
+    doClearUserDeletionSuccess();
+    doHideModal();
   }
 
   return (
@@ -68,7 +87,7 @@ export default function ModalRemoveAccount(props: Props) {
         title={__('Delete account')}
         subtitle={isBusy ? ''
           : errorOccurred
-          ? __('Sorry, there may have been an issue when wiping the account. Please check back in few minutes, and try again if content/credits still exist. If the issue persists please contact help@odysee.com for possible next steps.')
+          ? __('Sorry, there may have been an issue when wiping the account. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.')
           : isAlreadyPendingDeletion && !buttonClicked && isWalletEmpty
           ? __('Account has already been queued for deletion.')
           : isAlreadyPendingDeletion && !buttonClicked && !isWalletEmpty
@@ -105,7 +124,7 @@ export default function ModalRemoveAccount(props: Props) {
               )}
 
               {!(isBusy) && (
-                <Button button="link" label={__('Close')} disabled={isBusy} onClick={doHideModal} />
+                <Button button="link" label={__('Close')} disabled={isBusy} onClick={handleOnClose} />
               )}
             </div>
           </>

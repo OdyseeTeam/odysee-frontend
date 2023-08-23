@@ -392,6 +392,12 @@ reducers[ACTIONS.USER_DELETION_FAILURE] = (state) =>
     userDeletionSuccess: false,
   });
 
+reducers[ACTIONS.USER_DELETION_CLEAR] = (state) =>
+  Object.assign({}, state, {
+    userDeletionPending: false,
+    userDeletionSuccess: defaultState.userDeletionSuccess,
+  });
+
 reducers[ACTIONS.USER_FETCH_LOCALE_DONE] = (state, action) =>
   Object.assign({}, state, {
     locale: action.data,

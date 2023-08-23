@@ -584,6 +584,11 @@ export function doUserEmailVerifyFailure(error) {
   };
 }
 
+export function doClearUserDeletionSuccess() {
+  return {
+    type: ACTIONS.USER_DELETION_CLEAR,
+  };
+}
 export function doUserEmailVerify(verificationToken, recaptcha) {
   return (dispatch, getState) => {
     const email = selectEmailToVerify(getState());
