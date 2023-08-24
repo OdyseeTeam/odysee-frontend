@@ -77,7 +77,6 @@ type StateProps = {|
   linkedCommentAncestors: { [string]: Array<string> },
   totalReplyPages: number,
   repliesFetching: boolean,
-  activeChannelClaim: ?ChannelClaim,
   claim: StreamClaim,
   authorTitle: ?string,
   channelAge?: any,
@@ -88,6 +87,7 @@ type StateProps = {|
   commentingEnabled: boolean,
   playingUri: PlayingUri,
   stakedLevel: number,
+  isCommenterChannelDeleted: boolean,
 |};
 
 type DispatchProps = {|
@@ -125,6 +125,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     othersReacts,
     playingUri,
     stakedLevel,
+    isCommenterChannelDeleted,
     supportDisabled,
     setQuickReply,
     quickReply,
@@ -308,6 +309,10 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     },
     [ROUGH_HEADER_HEIGHT, isMobile]
   );
+
+  if (isCommenterChannelDeleted) {
+    return null;
+  }
 
   return (
     <li
