@@ -46,7 +46,6 @@ const select = (state, props) => {
     claim,
     commentingEnabled: Boolean(selectUserVerifiedEmail(state)),
     othersReacts: selectOthersReactsForComment(state, reactionKey),
-    activeChannelClaim,
     hasChannels: selectHasChannels(state),
     playingUri: selectPlayingUri(state),
     stakedLevel: selectStakedLevelForChannelUri(state, channel_url),

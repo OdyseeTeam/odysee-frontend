@@ -77,7 +77,6 @@ type StateProps = {|
   linkedCommentAncestors: { [string]: Array<string> },
   totalReplyPages: number,
   repliesFetching: boolean,
-  activeChannelClaim: ?ChannelClaim,
   claim: StreamClaim,
   authorTitle: ?string,
   channelAge?: any,
