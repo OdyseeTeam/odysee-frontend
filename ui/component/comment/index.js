@@ -49,6 +49,7 @@ const select = (state, props) => {
     hasChannels: selectHasChannels(state),
     playingUri: selectPlayingUri(state),
     stakedLevel: selectStakedLevelForChannelUri(state, channel_url),
+    isCommenterChannelDeleted: selectClaimForUri(state, channel_url) === null,
     linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channel_id) || '',
