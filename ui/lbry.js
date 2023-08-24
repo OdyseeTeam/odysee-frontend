@@ -79,9 +79,9 @@ const Lbry: LbryTypes = {
   version: () => daemonCallWithResult('version', {}),
 
   // Claim fetching and manipulation
-  resolve: (params) => daemonCallWithResult('resolve', params, searchRequiresAuth),
+  resolve: (params) => daemonCallWithResult('resolve', params, handleAuthentication),
   get: (params) => daemonCallWithResult('get', params),
-  claim_search: (params) => daemonCallWithResult('claim_search', params, searchRequiresAuth),
+  claim_search: (params) => daemonCallWithResult('claim_search', params, handleAuthentication),
   claim_list: (params) => daemonCallWithResult('claim_list', params),
   channel_create: (params) => daemonCallWithResult('channel_create', params),
   channel_update: (params) => daemonCallWithResult('channel_update', params),
@@ -338,15 +338,13 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
 
 function daemonCallWithResult(
   name: string,
-  params: ?{} = {},
-  checkAuthNeededFn: ?(?{}) => boolean = undefined
+  params?: {} = {},
+  paramOverrideHook?: (({}) => {}) | null = null
 ): Promise<any> {
   return new Promise((resolve, reject) => {
-    const skipAuth = checkAuthNeededFn ? !checkAuthNeededFn(params) : false;
-
     apiCall(
       name,
-      skipAuth ? { ...params, [NO_AUTH]: true } : params,
+      paramOverrideHook ? paramOverrideHook(params) : params,
       (result) => {
         resolve(result);
       },
@@ -370,16 +368,22 @@ const lbryProxy = new Proxy(Lbry, {
   },
 });
 
+const SEARCH_OPTIONS_THAT_REQUIRE_AUTH = ['include_purchase_receipt', 'include_is_my_output'];
+
 /**
- * daemonCallWithResult hook that checks if the search option requires the
- * auth-token. This hook works for 'resolve' and 'claim_search'.
+ * daemonCallWithResult param-override hook that adds NO_AUTH to the params if
+ * it was determined that the api call doesn't require auth tokens. This
+ * improves caching on the server side.
+ *
+ * Subsequent processing down the line will remove X_LBRY_AUTH_TOKEN if NO_AUTH
+ * is present. This hook is mainly meant for 'resolve' and 'claim_search'.
  *
  * @param options
- * @returns {boolean}
+ * @returns
  */
-function searchRequiresAuth(options: any) {
-  const KEYS_REQUIRE_AUTH = ['include_purchase_receipt', 'include_is_my_output'];
-  return options && KEYS_REQUIRE_AUTH.some((k) => options.hasOwnProperty(k));
+function handleAuthentication(options: any) {
+  const authRequired = SEARCH_OPTIONS_THAT_REQUIRE_AUTH.some((k) => options.hasOwnProperty(k));
+  return authRequired ? options : { ...options, [NO_AUTH]: true };
 }
 
 export default lbryProxy;
