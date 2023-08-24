@@ -81,7 +81,7 @@ const Lbry: LbryTypes = {
   // Claim fetching and manipulation
   resolve: (params) => daemonCallWithResult('resolve', params, handleAuthentication),
   get: (params) => daemonCallWithResult('get', params),
-  claim_search: (params) => daemonCallWithResult('claim_search', params, handleAuthentication),
+  claim_search: (params) => daemonCallWithResult('claim_search', params, claimSearchParamHook),
   claim_list: (params) => daemonCallWithResult('claim_list', params),
   channel_create: (params) => daemonCallWithResult('channel_create', params),
   channel_update: (params) => daemonCallWithResult('channel_update', params),
@@ -384,6 +384,25 @@ const SEARCH_OPTIONS_THAT_REQUIRE_AUTH = ['include_purchase_receipt', 'include_i
 function handleAuthentication(options: any) {
   const authRequired = SEARCH_OPTIONS_THAT_REQUIRE_AUTH.some((k) => options.hasOwnProperty(k));
   return authRequired ? options : { ...options, [NO_AUTH]: true };
+}
+
+/**
+ * daemonCallWithResult param-override hook for claim_search.
+ * @param options
+ * @returns
+ */
+function claimSearchParamHook(options: any) {
+  // 1. Handle auth vs no_auth
+  const finalOptions = handleAuthentication(options);
+
+  // 2. Limit [not_channel_ids]
+  const LIMIT = 2048 - 1;
+  const ids = finalOptions.not_channel_ids;
+  if (ids && ids.length > LIMIT) {
+    finalOptions.not_channel_ids = ids.slice(0, LIMIT);
+  }
+
+  return finalOptions;
 }
 
 export default lbryProxy;
