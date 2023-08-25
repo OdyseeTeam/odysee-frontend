@@ -23,6 +23,7 @@ import {
 const SDK_STATUS_INITIAL_DELAY_MS = 2000;
 const SDK_STATUS_RETRY_INTERVAL_MS = 10000;
 const MAX_PREVIEW_RETRIES = 2;
+const DUMMY_REQUEST = new XMLHttpRequest(); // TODO
 
 // ****************************************************************************
 // makeV4UploadRequest
@@ -44,12 +45,14 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
   } else {
     if (isEditingMetaOnly(params)) {
       // Edit claim
+      dispatch(add('', params, DUMMY_REQUEST, 'v4'));
       publishId = await createClaim(token, null, sdkParams, {
         onSuccess: (publishId) => dispatch(progress({ guid, status: 'notify_ok', publishId })),
         onFailure: () => dispatch(progress({ guid, status: 'notify_failed' })),
       });
     } else if (remote_url) {
       // Start remote URL upload
+      dispatch(add(remote_url, params, DUMMY_REQUEST, 'v4'));
       const sdkFilePath = await startRemoteUrl(uploadToken, remote_url);
 
       // Create claim

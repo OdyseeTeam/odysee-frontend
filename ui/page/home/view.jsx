@@ -124,12 +124,13 @@ function HomePage(props: Props) {
         }
         // -- Find livestreams related to the category:
         const rowChannelIds = row.options?.channelIds;
+        const rowExcludedChannelIds = row.options?.excludedChannelIds;
         cache[row.id] = {
           livestreamUris:
             row.id === 'FOLLOWING'
-              ? filterActiveLivestreamUris(subscribedChannelIds, null, al, lv)
+              ? filterActiveLivestreamUris(subscribedChannelIds, rowExcludedChannelIds, al, lv)
               : rowChannelIds
-              ? filterActiveLivestreamUris(rowChannelIds, null, al, lv)
+              ? filterActiveLivestreamUris(rowChannelIds, rowExcludedChannelIds, al, lv)
               : null,
         };
       });

@@ -22,7 +22,6 @@ import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import {
   selectPublishFormValue,
   selectPublishFormValues,
-  selectMyClaimForUri,
   selectIsStillEditing,
   selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
@@ -594,9 +593,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     } = value;
 
     let state = getState();
-    const myClaimForUri = selectMyClaimForUri(state);
-    const { claim_id } = myClaimForUri || {};
-    //         ^--- can we just use 'claim.claim_id'?
 
     const isPostClaim = makeSelectFileRenderModeForUri(claim?.permanent_url)(state) === RENDER_MODES.MARKDOWN;
     const isLivestreamClaim = isStreamPlaceholderClaim(claim);
@@ -614,7 +610,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       type,
       ...(liveCreateType ? { liveCreateType } : {}),
       ...(liveEditType ? { liveEditType } : {}),
-      claim_id: claim_id,
+      claim_id: claim.claim_id,
       name,
       bid: Number(amount),
       author,
@@ -760,13 +756,13 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
 
 export const doPublish =
   (success: Function, fail: Function, previewFn?: Function, payload?: FileUploadSdkParams) =>
-  (dispatch: Dispatch, getState: () => {}) => {
+  (dispatch: Dispatch, getState: GetState) => {
     if (!previewFn) {
       dispatch({ type: ACTIONS.PUBLISH_START });
     }
 
     const state = getState();
-    const myClaimForUri = selectMyClaimForUri(state);
+    const myClaimForUri = state.publish.claimToEdit;
     const myChannels = selectMyChannelClaims(state);
     // const myClaims = selectMyClaimsWithoutChannels(state);
     // get redux publish form
@@ -780,7 +776,7 @@ export const doPublish =
 
     const { channel_id: channelClaimId } = publishPayload;
 
-    const existingClaimId = myClaimForUri?.claim_id;
+    const existingClaimId = myClaimForUri?.claim_id || '';
 
     // hit backend to save restricted memberships
     // hit the backend immediately to save the data, we will overwrite it if publish succeeds

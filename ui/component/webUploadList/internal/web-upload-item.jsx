@@ -122,7 +122,7 @@ export default function WebUploadItem(props: Props) {
         return progressInt === 100 ? __('Processing...') : `${__('Uploading...')} (${progressInt}%)`;
       }
     } else {
-      return __('Uploading...');
+      return file ? __('Uploading...') : __('Updating...');
     }
   }
 
