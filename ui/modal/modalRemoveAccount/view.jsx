@@ -19,7 +19,7 @@ type Props = {
   doUserDeleteAccount: () => void,
   doSendCreditsToOdysee: () => Promise<any>,
   doClearUserDeletionSuccess: () => void,
-  doMembershipCancelForMembershipId: () => void,
+  doMembershipCancelForMembershipId: (membershipId: number) => Promise<any>,
 };
 
 export default function ModalRemoveAccount(props: Props) {
