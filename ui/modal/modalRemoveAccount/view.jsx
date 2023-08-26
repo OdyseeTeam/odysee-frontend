@@ -11,6 +11,7 @@ type Props = {
   user: User,
   totalBalance: number,
   userDeletionSuccess: boolean,
+  activeMembershipIds: Array<any>,
   // --- perform ---
   doHideModal: () => void,
   doUserFetch: () => void,
@@ -18,62 +19,127 @@ type Props = {
   doUserDeleteAccount: () => void,
   doSendCreditsToOdysee: () => Promise<any>,
   doClearUserDeletionSuccess: () => void,
+  doMembershipCancelForMembershipId: () => void,
 };
 
 export default function ModalRemoveAccount(props: Props) {
-  const { user, totalBalance, userDeletionSuccess, doHideModal, doUserFetch, doSpendEverything, doUserDeleteAccount, doSendCreditsToOdysee, doClearUserDeletionSuccess } = props;
+  const { user,
+    totalBalance,
+    userDeletionSuccess,
+    activeMembershipIds,
+    doHideModal,
+    doUserFetch,
+    doSpendEverything,
+    doUserDeleteAccount,
+    doSendCreditsToOdysee,
+    doClearUserDeletionSuccess,
+    doMembershipCancelForMembershipId,
+  } = props;
 
   const [isAlreadyPendingDeletion] = React.useState(user.pending_deletion);
+  const [deletionRequestSent, setDeletetionRequestSent] = React.useState(false);
   const [buttonClicked, setButtonClicked] = React.useState(false);
   const [isBusy, setIsBusy] = React.useState(false);
   const [isForfeitChecked, setIsForfeitChecked] = React.useState(false);
   const [errorOccurred, setErrorOccurred] = React.useState(false);
 
-  const isWalletEmpty = totalBalance <= 0.009;
-  const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !isWalletEmpty);
+  const originalActiveMembershipsAmount = React.useRef(activeMembershipIds.length);
+  const hasActiveMemberships = activeMembershipIds.length > 0;
+  const finishedMembershipCancelationsCountRef = React.useRef(0);
+  const [finishedMembershipCancelationsCount, setFinishedMembershipCancelationsCount] = React.useState(finishedMembershipCancelationsCountRef.current);
+  const [someMembershipCancelationFailed, setSomeMembershipCancelationFailed] = React.useState(false);
 
+  const isWalletEmpty = totalBalance <= 0.009;
+  const [forfeitCreditsSuccess, setForfeitCreditsSuccess] = React.useState(isWalletEmpty || undefined);
+  const [cancelingMembershipsSuccess, setCancelingMembershipsSuccess] = React.useState(!hasActiveMemberships || undefined);
+  const preDeletionSuccessChecks = [forfeitCreditsSuccess, cancelingMembershipsSuccess];
+
+  const nothingToWipe = isWalletEmpty && !hasActiveMemberships;
+  const showButton = !buttonClicked && isAlreadyPendingDeletion && !nothingToWipe;
+
+  // Tracks if deletion of the account failed
   React.useEffect(() => {
     if (userDeletionSuccess === false) {
       setErrorOccurred(true);
     }
   }, [userDeletionSuccess]);
 
+  // Tracks if account is ready for deletion, and triggers the deletion
+  React.useEffect(() => {
+    const waitingForPreDeletionSuccessChecksToFinish = preDeletionSuccessChecks.some((check) => check === undefined);
+    if (waitingForPreDeletionSuccessChecksToFinish) {
+      return;
+    }
+    const somethingFailedWhenPrepairingForDeletion = preDeletionSuccessChecks.some((check) => check === false);
+    if (somethingFailedWhenPrepairingForDeletion) {
+      setErrorOccurred(true);
+      setIsBusy(false);
+    } else if (buttonClicked && !deletionRequestSent) {
+      sendDeletionRequest();
+  }
+  }, [preDeletionSuccessChecks, buttonClicked, deletionRequestSent, sendDeletionRequest]);
+
+  // Tracks if all memberships are cancelled succesfully
+  React.useEffect(() => {
+    const allMembershipsCancelationsFinished = finishedMembershipCancelationsCount === originalActiveMembershipsAmount.current;
+    if (!allMembershipsCancelationsFinished) {
+      return;
+    }
+    if (someMembershipCancelationFailed) {
+      setCancelingMembershipsSuccess(false);
+    } else {
+      setCancelingMembershipsSuccess(true);
+    }
+  }, [finishedMembershipCancelationsCount])
+
   function sendDeletionRequest() {
     if (!isAlreadyPendingDeletion) {
       doUserDeleteAccount();
       setTimeout(doUserFetch, 1000);
     }
+    setDeletetionRequestSent(true);
     setIsBusy(false);
   }
 
-  function forfeitCreditsAndSendDeletionRequest() {
+  function cancelMemberships() {
+    activeMembershipIds.forEach((membershipId) => {
+        doMembershipCancelForMembershipId(membershipId)
+         .catch(() => setSomeMembershipCancelationFailed(true))
+         .finally(() => {
+            finishedMembershipCancelationsCountRef.current += 1;
+            setFinishedMembershipCancelationsCount(finishedMembershipCancelationsCountRef.current)
+         })
+      });
+  }
+
+  function forfeitCredits() {
     doSpendEverything()
       .then(() => {
         setTimeout(() => {
           doSendCreditsToOdysee()
             .then(() => {
-              sendDeletionRequest();
+              setForfeitCreditsSuccess(true);
             })
             .catch(() => {
-              setErrorOccurred(true);
-              setIsBusy(false);
+              setForfeitCreditsSuccess(false);
             });
         }, 5000); // Hoping the timeout helps to avoid using outputs already spend in txo_spend
       })
       .catch(() => {
-        setErrorOccurred(true);
-        setIsBusy(false);
+        setForfeitCreditsSuccess(false);
       });
   }
 
   function handleOnClick() {
-    setIsBusy(true);
-    if (!isWalletEmpty) {
-      forfeitCreditsAndSendDeletionRequest();
-    } else {
-      sendDeletionRequest();
-    }
     setButtonClicked(true);
+    setIsBusy(true);
+
+    if (hasActiveMemberships) {
+      cancelMemberships();
+    }
+    if (!isWalletEmpty) {
+      forfeitCredits();
+    }
   }
 
   function handleOnClose() {
@@ -88,9 +154,9 @@ export default function ModalRemoveAccount(props: Props) {
         subtitle={isBusy ? ''
           : errorOccurred
           ? __('Sorry, there may have been an issue when wiping the account and/or sending the deletion request. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.')
-          : isAlreadyPendingDeletion && !buttonClicked && isWalletEmpty
+          : isAlreadyPendingDeletion && nothingToWipe && !buttonClicked
           ? __('Account has already been queued for deletion.')
-          : isAlreadyPendingDeletion && !buttonClicked && !isWalletEmpty
+          : isAlreadyPendingDeletion && !nothingToWipe && !buttonClicked
           ? __('Account has already been queued for deletion. If you still have content/credits on the account which you want removed, click "Remove content".')
           : !isAlreadyPendingDeletion && !buttonClicked
           ? __("Remove all content from the account and send a deletion request to Odysee. Removing the content is a permanent action and can't be undone.")
