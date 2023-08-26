@@ -57,6 +57,15 @@ export default function ModalRemoveAccount(props: Props) {
   const nothingToWipe = isWalletEmpty && !hasActiveMemberships;
   const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !nothingToWipe);
 
+  const sendDeletionRequest = React.useCallback(() => {
+    if (!isAlreadyPendingDeletion) {
+      doUserDeleteAccount();
+      setTimeout(doUserFetch, 1000);
+    }
+    setDeletetionRequestSent(true);
+    setIsBusy(false);
+  }, []);
+
   // Tracks if deletion of the account failed
   React.useEffect(() => {
     if (userDeletionSuccess === false) {
@@ -91,15 +100,6 @@ export default function ModalRemoveAccount(props: Props) {
       setCancelingMembershipsSuccess(true);
     }
   }, [finishedMembershipCancelationsCount, someMembershipCancelationFailed]);
-
-  const sendDeletionRequest = React.useCallback(() => {
-    if (!isAlreadyPendingDeletion) {
-      doUserDeleteAccount();
-      setTimeout(doUserFetch, 1000);
-    }
-    setDeletetionRequestSent(true);
-    setIsBusy(false);
-  });
 
   function cancelMemberships() {
     activeMembershipIds.forEach((membershipId) => {
