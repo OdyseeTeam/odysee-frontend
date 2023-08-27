@@ -19,5 +19,9 @@ export const BLOCK_LEVEL = {
   ADMIN: 'admin',
 };
 
+export const THRESHOLD_MS = {
+  IS_EDITED: 5 * 1000,
+};
+
 export const COMMENT_PAGE_SIZE_TOP_LEVEL = 10;
 export const COMMENT_PAGE_SIZE_REPLIES = 10;

@@ -526,6 +526,10 @@ $thumbnailWidthSmall: 2rem;
   }
 }
 
+.comment__edited {
+  margin-left: var(--spacing-xxxxs);
+}
+
 .comment__menu {
   align-self: flex-end;
   line-height: 1;
