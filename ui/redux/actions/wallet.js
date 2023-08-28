@@ -8,6 +8,7 @@ import { doOpenModal } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
 import {
   selectBalance,
+  selectTotalBalance,
   selectPendingSupportTransactions,
   selectTxoPageParams,
   selectPendingOtherTransactions,
@@ -254,6 +255,56 @@ export function doTipClaimMass() {
       data: { txid: result.txid },
     });
     dispatch(doCheckPendingTxs());
+  };
+}
+
+export function doSpendEverything() {
+  return async (dispatch) => {
+    dispatch({
+      type: ACTIONS.SPENT_EVERYTHING_STARTED,
+    });
+
+    const results = await Lbry.txo_spend({});
+    const result = results[0];
+
+    dispatch({
+      type: ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED,
+      data: { txids: [result.txid] },
+    });
+
+    dispatch({
+      type: ACTIONS.SPENT_EVERYTHING_COMPLETED,
+      data: { txid: result.txid },
+    });
+    dispatch(doCheckPendingTxs());
+  };
+}
+
+export function doSendCreditsToOdysee() {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const totalBalance = selectTotalBalance(state);
+
+    const address = 'bGQj7DeD1ZUUvFfJUDsrHEdjwXnYSFRxKt';
+    const leftOverForFee = 0.005;
+    const amount = totalBalance - leftOverForFee;
+
+    if (amount <= 0) {
+      return;
+    }
+
+    dispatch({
+      type: ACTIONS.SEND_CREDITS_TO_ODYSEE_STARTED,
+    });
+
+    await Lbry.wallet_send({
+      addresses: [address],
+      amount: creditsToString(amount),
+    });
+
+    dispatch({
+      type: ACTIONS.SEND_CREDITS_TO_ODYSEE_COMPLETED,
+    });
   };
 }
 

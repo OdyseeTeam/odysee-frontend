@@ -57,6 +57,9 @@ export type WalletState = {
   pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
   pendingTxos: Array<string>,
   abandonClaimSupportError?: string,
+  sendingCreditsToOdysee: boolean,
+  spendingEverything: boolean,
+  pendingSpendingEverythingTxid?: string,
 };
 
 const defaultState = {
@@ -105,6 +108,9 @@ const defaultState = {
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
   pendingTxos: [],
+  sendingCreditsToOdysee: false,
+  spendingEverything: false,
+  pendingSpendingEverythingTxid: null,
 
   abandonClaimSupportError: undefined,
 };
@@ -238,8 +244,38 @@ export const walletReducer = handleActions(
       };
     },
 
+    [ACTIONS.SPENT_EVERYTHING_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        spendingEverything: true,
+      };
+    },
+
+    [ACTIONS.SPENT_EVERYTHING_COMPLETED]: (state: WalletState, action) => {
+      const { txid } = action.data;
+      return {
+        ...state,
+        spendingEverything: false,
+        pendingSpendingEverythingTxid: txid,
+      };
+    },
+
+    [ACTIONS.SEND_CREDITS_TO_ODYSEE_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        sendingCreditsToOdysee: true,
+      };
+    },
+
+    [ACTIONS.SEND_CREDITS_TO_ODYSEE_COMPLETED]: (state: WalletState) => {
+      return {
+        ...state,
+        sendingCreditsToOdysee: false,
+      };
+    },
+
     [ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED]: (state: WalletState, action) => {
-      const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid } = state;
+      const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid, pendingSpendingEverythingTxid } = state;
 
       const { txids, remove } = action.data;
 
@@ -247,11 +283,15 @@ export const walletReducer = handleActions(
         const newTxos = pendingTxos.filter((txo) => !txids.includes(txo));
         const newPendingMassClaimTxid = txids.includes(pendingMassClaimTxid) ? undefined : pendingMassClaimTxid;
         const newPendingConsolidateTxid = txids.includes(pendingConsolidateTxid) ? undefined : pendingConsolidateTxid;
+        const newPendingSpendingEverythingTxid = txids.includes(pendingSpendingEverythingTxid)
+          ? undefined
+          : pendingSpendingEverythingTxid;
         return {
           ...state,
           pendingTxos: newTxos,
           pendingMassClaimTxid: newPendingMassClaimTxid,
           pendingConsolidateTxid: newPendingConsolidateTxid,
+          pendingSpendingEverythingTxid: newPendingSpendingEverythingTxid,
         };
       } else {
         const newPendingSet = new Set([...pendingTxos, ...txids]);
@@ -325,12 +365,8 @@ export const walletReducer = handleActions(
     },
 
     [ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED]: (state: WalletState, action: any): WalletState => {
-      const {
-        claimId,
-        type,
-        txid,
-        effective,
-      }: { claimId: string, type: string, txid: string, effective: string } = action.data;
+      const { claimId, type, txid, effective }: { claimId: string, type: string, txid: string, effective: string } =
+        action.data;
       const pendingtxs = Object.assign({}, state.pendingSupportTransactions);
 
       pendingtxs[claimId] = { txid, type, effective };

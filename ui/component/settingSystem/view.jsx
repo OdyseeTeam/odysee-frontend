@@ -14,6 +14,8 @@ import SettingWalletServer from 'component/settingWalletServer';
 import Spinner from 'component/spinner';
 import { getPasswordFromCookie } from 'util/saved-passwords';
 
+import * as MODALS from 'constants/modal_types';
+
 // @if TARGET='app'
 const IS_MAC = process.platform === 'darwin';
 // @endif
@@ -53,6 +55,7 @@ type Props = {
   updateWalletStatus: () => void,
   confirmForgetPassword: ({}) => void,
   toggle3PAnalytics: (boolean) => void,
+  doOpenModal: (id: string, ?{}) => void,
 };
 
 export default function SettingSystem(props: Props) {
@@ -72,6 +75,7 @@ export default function SettingSystem(props: Props) {
     updateWalletStatus,
     confirmForgetPassword,
     toggle3PAnalytics,
+    doOpenModal,
   } = props;
 
   const [clearingCache, setClearingCache] = React.useState(false);
@@ -395,6 +399,20 @@ export default function SettingSystem(props: Props) {
                   clearCache();
                 }}
                 disabled={clearingCache}
+              />
+            </SettingsRow>
+
+            <SettingsRow
+              title={__('Request account deletion')}
+              subtitle={__('Send account deletion request to Odysee')}
+            >
+              <Button
+                button="secondary"
+                icon={ALERT}
+                label={__('Delete Account')}
+                onClick={() => {
+                  doOpenModal(MODALS.ACCOUNT_DELETE);
+                }}
               />
             </SettingsRow>
           </>
