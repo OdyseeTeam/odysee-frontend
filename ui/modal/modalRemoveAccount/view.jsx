@@ -84,7 +84,7 @@ export default function ModalRemoveAccount(props: Props) {
     } else if (buttonClicked && !deletionRequestSent && !isAlreadyPendingDeletion) {
       sendDeletionRequest();
   }
-  }, [preDeletionSuccessChecks, buttonClicked, deletionRequestSent, sendDeletionRequest]);
+  }, [preDeletionSuccessChecks, buttonClicked, deletionRequestSent, isAlreadyPendingDeletion, sendDeletionRequest]);
 
   // Tracks if all memberships are cancelled succesfully
   React.useEffect(() => {
