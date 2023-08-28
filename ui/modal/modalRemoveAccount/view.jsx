@@ -37,7 +37,7 @@ export default function ModalRemoveAccount(props: Props) {
   } = props;
 
   const [isAlreadyPendingDeletion] = React.useState(user.pending_deletion);
-  const [deletionRequestSent, setDeletetionRequestSent] = React.useState(false);
+  const [deletionRequestSent, setDeletionRequestSent] = React.useState(false);
   const [buttonClicked, setButtonClicked] = React.useState(false);
   const [isBusy, setIsBusy] = React.useState(false);
   const [isForfeitChecked, setIsForfeitChecked] = React.useState(false);
@@ -45,9 +45,9 @@ export default function ModalRemoveAccount(props: Props) {
 
   const originalActiveMembershipsAmount = React.useRef(activeMembershipIds.length);
   const hasActiveMemberships = activeMembershipIds.length > 0;
-  const finishedMembershipCancelationsCountRef = React.useRef(0);
-  const [finishedMembershipCancelationsCount, setFinishedMembershipCancelationsCount] = React.useState(finishedMembershipCancelationsCountRef.current);
-  const [someMembershipCancelationFailed, setSomeMembershipCancelationFailed] = React.useState(false);
+  const finishedMembershipCancellationsCountRef = React.useRef(0);
+  const [finishedMembershipCancellationsCount, setFinishedMembershipCancellationsCount] = React.useState(finishedMembershipCancellationsCountRef.current);
+  const [someMembershipCancellationFailed, setSomeMembershipCancellationFailed] = React.useState(false);
 
   const isWalletEmpty = totalBalance <= 0.009;
   const [forfeitCreditsSuccess, setForfeitCreditsSuccess] = React.useState(isWalletEmpty || undefined);
@@ -60,7 +60,7 @@ export default function ModalRemoveAccount(props: Props) {
   const sendDeletionRequest = React.useCallback(() => {
     doUserDeleteAccount();
     setTimeout(doUserFetch, 1000);
-    setDeletetionRequestSent(true);
+    setDeletionRequestSent(true);
     setIsBusy(false);
   }, [doUserDeleteAccount, doUserFetch]);
 
@@ -88,24 +88,24 @@ export default function ModalRemoveAccount(props: Props) {
 
   // Tracks if all memberships are cancelled succesfully
   React.useEffect(() => {
-    const allMembershipsCancelationsFinished = finishedMembershipCancelationsCount === originalActiveMembershipsAmount.current;
-    if (!allMembershipsCancelationsFinished) {
+    const allMembershipsCancellationsFinished = finishedMembershipCancellationsCount === originalActiveMembershipsAmount.current;
+    if (!allMembershipsCancellationsFinished) {
       return;
     }
-    if (someMembershipCancelationFailed) {
+    if (someMembershipCancellationFailed) {
       setCancelingMembershipsSuccess(false);
     } else {
       setCancelingMembershipsSuccess(true);
     }
-  }, [finishedMembershipCancelationsCount, someMembershipCancelationFailed]);
+  }, [finishedMembershipCancellationsCount, someMembershipCancellationFailed]);
 
   function cancelMemberships() {
     activeMembershipIds.forEach((membershipId) => {
         doMembershipCancelForMembershipId(membershipId)
-         .catch(() => setSomeMembershipCancelationFailed(true))
+         .catch(() => setSomeMembershipCancellationFailed(true))
          .finally(() => {
-            finishedMembershipCancelationsCountRef.current += 1;
-            setFinishedMembershipCancelationsCount(finishedMembershipCancelationsCountRef.current);
+            finishedMembershipCancellationsCountRef.current += 1;
+            setFinishedMembershipCancellationsCount(finishedMembershipCancellationsCountRef.current);
          });
       });
   }
