@@ -1,10 +1,10 @@
+// @flow
 import { doSpendEverything, doSendCreditsToOdysee } from 'redux/actions/wallet';
 import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
 import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
 
-// @flow
 type Status = 'success' | 'error_occurred';
 
 export function doRemoveAccountSequence() {
@@ -43,7 +43,7 @@ export function doRemoveAccountSequence() {
       }
       if (!state.user.user?.pending_deletion) {
         await dispatch(doUserDeleteAccount());
-        setTimeout(dispatch(doUserFetch(), 1000)); // Note: this will be parallel
+        setTimeout(dispatch(doUserFetch()), 1000); // Note: this will be parallel
       }
       return 'success';
     } catch (err) {
