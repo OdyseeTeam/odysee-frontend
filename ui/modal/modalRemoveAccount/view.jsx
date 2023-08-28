@@ -23,7 +23,8 @@ type Props = {
 };
 
 export default function ModalRemoveAccount(props: Props) {
-  const { user,
+  const {
+    user,
     totalBalance,
     userDeletionSuccess,
     activeMembershipIds,

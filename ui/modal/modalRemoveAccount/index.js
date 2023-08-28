@@ -20,10 +20,10 @@ const select = (state) => {
   });
 
   return {
-  user: selectUser(state),
-  totalBalance: selectTotalBalance(state),
-  userDeletionSuccess: selectUserDeletionSuccess(state),
-  activeMembershipIds: activeMembershipIds,
+    user: selectUser(state),
+    totalBalance: selectTotalBalance(state),
+    userDeletionSuccess: selectUserDeletionSuccess(state),
+    activeMembershipIds: activeMembershipIds,
   };
 };
 
