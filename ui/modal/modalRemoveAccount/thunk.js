@@ -43,7 +43,9 @@ export function doRemoveAccountSequence() {
       }
       if (!state.user.user?.pending_deletion) {
         await dispatch(doUserDeleteAccount());
-        setTimeout(dispatch(doUserFetch()), 1000); // Note: this will be parallel
+        setTimeout(() => {
+          dispatch(doUserFetch());
+        }, 1000); // Note: this will be parallel
       }
       return 'success';
     } catch (err) {
