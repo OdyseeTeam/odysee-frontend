@@ -62,7 +62,7 @@ export default function ModalRemoveAccount(props: Props) {
     setTimeout(doUserFetch, 1000);
     setDeletetionRequestSent(true);
     setIsBusy(false);
-  }, [isAlreadyPendingDeletion, doUserDeleteAccount, doUserFetch]);
+  }, [doUserDeleteAccount, doUserFetch]);
 
   // Tracks if deletion of the account failed
   React.useEffect(() => {
