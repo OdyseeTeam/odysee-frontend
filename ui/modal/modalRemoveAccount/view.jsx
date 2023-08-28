@@ -58,10 +58,8 @@ export default function ModalRemoveAccount(props: Props) {
   const showButton = !buttonClicked && (!isAlreadyPendingDeletion || !nothingToWipe);
 
   const sendDeletionRequest = React.useCallback(() => {
-    if (!isAlreadyPendingDeletion) {
-      doUserDeleteAccount();
-      setTimeout(doUserFetch, 1000);
-    }
+    doUserDeleteAccount();
+    setTimeout(doUserFetch, 1000);
     setDeletetionRequestSent(true);
     setIsBusy(false);
   }, [isAlreadyPendingDeletion, doUserDeleteAccount, doUserFetch]);
@@ -83,7 +81,7 @@ export default function ModalRemoveAccount(props: Props) {
     if (somethingFailedWhenPrepairingForDeletion) {
       setErrorOccurred(true);
       setIsBusy(false);
-    } else if (buttonClicked && !deletionRequestSent) {
+    } else if (buttonClicked && !deletionRequestSent && !isAlreadyPendingDeletion) {
       sendDeletionRequest();
   }
   }, [preDeletionSuccessChecks, buttonClicked, deletionRequestSent, sendDeletionRequest]);
