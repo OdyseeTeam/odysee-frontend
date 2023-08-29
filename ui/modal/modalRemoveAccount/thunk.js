@@ -1,4 +1,5 @@
 // @flow
+import analytics from 'analytics';
 import { doSpendEverything, doSendCreditsToOdysee } from 'redux/actions/wallet';
 import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
@@ -28,6 +29,7 @@ export function doRemoveAccountSequence() {
         try {
           await dispatch(doMembershipCancelForMembershipId(id));
         } catch (err) {
+          analytics.error(`doRemoveAccountSequence: ${err.message || err}`);
           return 'error_occurred';
         }
       }
@@ -49,6 +51,7 @@ export function doRemoveAccountSequence() {
       }
       return 'success';
     } catch (err) {
+      analytics.error(`doRemoveAccountSequence: ${err.message || err}`);
       return 'error_occurred';
     }
   };
