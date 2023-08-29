@@ -275,6 +275,12 @@ function WalletTipAmountSelector(props: Props) {
         (!canReceiveFiatTips
           ? getHelpMessage(__('Only creators that verify cash accounts can receive tips.'))
           : getHelpMessage(__('Send a tip directly from your attached card.')))}
+      {activeTab === TAB_FIAT &&
+        getHelpMessage(
+          __(
+            'IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.'
+          )
+        )}
     </>
   );
 }

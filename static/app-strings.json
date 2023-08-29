@@ -2939,6 +2939,7 @@
   "Oops! Something went wrong.": "Oops! Something went wrong.",
   "It looks like there was a problem with the network connection or one of your extensions is blocking the request.": "It looks like there was a problem with the network connection or one of your extensions is blocking the request.",
   "Please check your internet connection and try again. If the problem persists, email help@odysee.com.": "Please check your internet connection and try again. If the problem persists, email help@odysee.com.",
+  "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.": "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.",
 
   "--end--": "--end--"
 }
