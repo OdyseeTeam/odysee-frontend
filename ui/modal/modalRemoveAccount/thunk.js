@@ -48,7 +48,7 @@ export function doRemoveAccountSequence() {
         throw new Error('`cardDetails` is undefined');
       }
 
-      //Wipe content/credits
+      // Wipe content/credits
       const totalBalance = selectTotalBalance(state);
       const isWalletEmpty = totalBalance <= 0.005; // Allows avoiding some possible issues with txo_spend and sending credits
       if (!isWalletEmpty) {
@@ -57,7 +57,7 @@ export function doRemoveAccountSequence() {
         await dispatch(doSendCreditsToOdysee());
       }
 
-      //Send deletion request
+      // Send deletion request
       if (!state.user.user?.pending_deletion) {
         await dispatch(doUserDeleteAccount());
         setTimeout(() => {
