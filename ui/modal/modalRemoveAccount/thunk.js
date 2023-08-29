@@ -5,11 +5,14 @@ import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
 import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
+import { selectCardDetails } from 'redux/selectors/stripe';
+import { doGetCustomerStatus, doRemoveCardForPaymentMethodId } from 'redux/actions/stripe';
 
 type Status = 'success' | 'error_occurred';
 
 export function doRemoveAccountSequence() {
   return async (dispatch: Dispatch, getState: GetState): Promise<Status> => {
+    await dispatch(doGetCustomerStatus());
     const state = getState();
 
     const activeMemberships = selectMyActiveMembershipsById(state);
@@ -36,6 +39,16 @@ export function doRemoveAccountSequence() {
     }
 
     try {
+      // Remove credit card
+      const cardDetails = selectCardDetails(state);
+      if (cardDetails) {
+        await dispatch(doRemoveCardForPaymentMethodId(cardDetails.paymentMethodId));
+      } else if (cardDetails === undefined) {
+        // Not expecting this part to be ever reached, but would end up here if customerStatus hasn't been fetched, so adding just in case
+        throw new Error('`cardDetails` is undefined');
+      }
+
+      //Wipe content/credits
       const totalBalance = selectTotalBalance(state);
       const isWalletEmpty = totalBalance <= 0.005; // Allows avoiding some possible issues with txo_spend and sending credits
       if (!isWalletEmpty) {
@@ -43,6 +56,8 @@ export function doRemoveAccountSequence() {
         await new Promise((res) => setTimeout(res, 5000)); // Hoping the timeout helps to avoid using outputs already spend in txo_spend
         await dispatch(doSendCreditsToOdysee());
       }
+
+      //Send deletion request
       if (!state.user.user?.pending_deletion) {
         await dispatch(doUserDeleteAccount());
         setTimeout(() => {
