@@ -2,6 +2,7 @@
 import React from 'react';
 import classnames from 'classnames';
 import analytics from 'analytics';
+import ClaimInsufficientCredits from 'component/claimInsufficientCredits';
 import FilePrice from 'component/filePrice';
 import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
@@ -13,6 +14,7 @@ import { isURIEqual } from 'util/lbryURI';
 const ANIMATION_LENGTH = 2500;
 
 type Props = {
+  isInsufficientCredits: boolean,
   closeModal: () => void,
   loadVideo: (string, (GetResponse) => void) => void,
   uri: string,
@@ -25,7 +27,17 @@ type Props = {
 };
 
 function ModalAffirmPurchase(props: Props) {
-  const { closeModal, loadVideo, metadata, uri, analyticsPurchaseEvent, playingUri, setPlayingUri, cancelCb } = props;
+  const {
+    isInsufficientCredits,
+    closeModal,
+    loadVideo,
+    metadata,
+    uri,
+    analyticsPurchaseEvent,
+    playingUri,
+    setPlayingUri,
+    cancelCb,
+  } = props;
   const [success, setSuccess] = React.useState(false);
   const [purchasing, setPurchasing] = React.useState(false);
   const modalTitle = __('Confirm Purchase');
@@ -80,6 +92,14 @@ function ModalAffirmPurchase(props: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
+
+  if (isInsufficientCredits) {
+    return (
+      <Modal type="card" isOpen onAborted={cancelPurchase}>
+        <Card title={__('Insufficient credits')} subtitle={<ClaimInsufficientCredits uri={uri} />} />
+      </Modal>
+    );
+  }
 
   return (
     <Modal type="card" isOpen contentLabel={modalTitle} onAborted={cancelPurchase}>
