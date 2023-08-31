@@ -2951,6 +2951,7 @@
   "Remove all content from the account and forfeit credits left on the account to Odysee" : "Remove all content from the account and forfeit credits left on the account to Odysee",
   "Remove content and send deletion request" : "Remove content and send deletion request",
   "Remove content" : "Remove content",
+  "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.": "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.",
 
   "--end--": "--end--"
 }

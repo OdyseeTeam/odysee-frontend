@@ -1,11 +1,12 @@
 import { connect } from 'react-redux';
 import { doPlayUri, doSetPlayingUri } from 'redux/actions/content';
-import { selectPlayingUri } from 'redux/selectors/content';
+import { selectInsufficientCreditsForUri, selectPlayingUri } from 'redux/selectors/content';
 import { doHideModal, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
 import { makeSelectMetadataForUri } from 'redux/selectors/claims';
 import ModalAffirmPurchase from './view';
 
 const select = (state, props) => ({
+  isInsufficientCredits: selectInsufficientCreditsForUri(state, props.uri),
   metadata: makeSelectMetadataForUri(props.uri)(state),
   playingUri: selectPlayingUri(state),
 });
