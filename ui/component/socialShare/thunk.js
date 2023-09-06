@@ -13,12 +13,13 @@ export type ShareUrlProps = {
 
 export type ShareUrl = {
   url: string,
+  urlNoReferral: string,
 };
 
 export function doGenerateShareUrl(props: ShareUrlProps) {
   return async (dispatch: Dispatch, getState: GetState): Promise<ShareUrl> => {
     const { domain, lbryURI, referralCode, startTimeSeconds, collectionId, uriAccessKey, useShortUrl } = props;
-    let url;
+    let url, urlNoReferral;
 
     if (useShortUrl && uriAccessKey) {
       url = await generateShortShareUrl(
@@ -28,7 +29,19 @@ export function doGenerateShareUrl(props: ShareUrlProps) {
         Boolean(referralCode),
         Boolean(startTimeSeconds),
         startTimeSeconds,
-        collectionId
+        collectionId,
+        uriAccessKey
+      );
+
+      urlNoReferral = await generateShortShareUrl(
+        domain,
+        lbryURI,
+        null,
+        false,
+        Boolean(startTimeSeconds),
+        startTimeSeconds,
+        collectionId,
+        uriAccessKey
       );
     } else {
       url = generateShareUrl(
@@ -40,8 +53,18 @@ export function doGenerateShareUrl(props: ShareUrlProps) {
         startTimeSeconds,
         collectionId
       );
+
+      urlNoReferral = generateShareUrl(
+        domain,
+        lbryURI,
+        null,
+        false,
+        Boolean(startTimeSeconds),
+        startTimeSeconds,
+        collectionId
+      );
     }
 
-    return { url };
+    return { url, urlNoReferral };
   };
 }

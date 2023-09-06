@@ -14,7 +14,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { hmsToSeconds, secondsToHms } from 'util/time';
-import { generateLbryContentUrl, generateLbryWebUrl, generateEncodedLbryURL, generateRssUrl } from 'util/url';
+import { generateLbryContentUrl, generateRssUrl } from 'util/url';
 import { URL as SITE_URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || SITE_URL;
@@ -134,16 +134,7 @@ function SocialShare(props: SocialShareStateProps) {
   const showStartAt = isVideo || isAudio;
   const rewardsApproved = user && user.is_reward_approved;
   const lbryUrl: string = generateLbryContentUrl(canonicalUrl, permanentUrl);
-  const lbryWebUrl: string = generateLbryWebUrl(lbryUrl);
   const rssUrl = isChannel && generateRssUrl(SHARE_DOMAIN, claim);
-  const includedCollectionId = collectionId && includeCollectionId ? collectionId : null;
-  const encodedLbryURL: string = generateEncodedLbryURL(
-    SHARE_DOMAIN,
-    lbryWebUrl,
-    includeStartTime,
-    startTimeSeconds,
-    includedCollectionId
-  );
 
   const [shareUrl, setShareUrl] = React.useState<?ShareUrl>();
 
@@ -208,12 +199,15 @@ function SocialShare(props: SocialShareStateProps) {
   React.useEffect(() => {
     if (shareUrl) {
       const url = new URL(shareUrl.url);
+      const urlNoReferral = new URL(shareUrl.urlNoReferral);
       if (includeStartTime) {
         url.searchParams.set('t', startTimeSeconds.toString());
+        urlNoReferral.searchParams.set('t', startTimeSeconds.toString());
       } else {
         url.searchParams.delete('t');
+        urlNoReferral.searchParams.delete('t');
       }
-      setShareUrl({ url: url.toString() });
+      setShareUrl({ url: url.toString(), urlNoReferral: urlNoReferral.toString() });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `shareUrl` excluded
   }, [includeStartTime, startTimeSeconds]);
@@ -289,7 +283,7 @@ function SocialShare(props: SocialShareStateProps) {
               icon={ICONS.FACEBOOK}
               title={__('Share on Facebook')}
               target="_blank"
-              href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
+              href={`https://facebook.com/sharer/sharer.php?u=${shareUrl.urlNoReferral}`}
             />
             <Button
               className="share"
@@ -297,7 +291,7 @@ function SocialShare(props: SocialShareStateProps) {
               icon={ICONS.REDDIT}
               title={__('Share on Reddit')}
               target="_blank"
-              href={`https://reddit.com/submit?url=${encodedLbryURL}`}
+              href={`https://reddit.com/submit?url=${shareUrl.urlNoReferral}`}
             />
             {!isMobile ? (
               <Button
@@ -306,7 +300,7 @@ function SocialShare(props: SocialShareStateProps) {
                 icon={ICONS.WHATSAPP}
                 title={__('Share on WhatsApp')}
                 target="_blank"
-                href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
+                href={`https://web.whatsapp.com/send?text=${shareUrl.urlNoReferral}`}
               />
             ) : (
               <Button
@@ -314,7 +308,7 @@ function SocialShare(props: SocialShareStateProps) {
                 iconSize={24}
                 icon={ICONS.WHATSAPP}
                 title={__('Share on WhatsApp')}
-                href={`whatsapp://send?text=${encodedLbryURL}`}
+                href={`whatsapp://send?text=${shareUrl.urlNoReferral}`}
               />
             )}
             {!IOS ? (
@@ -324,7 +318,7 @@ function SocialShare(props: SocialShareStateProps) {
                 icon={ICONS.TELEGRAM}
                 title={__('Share on Telegram')}
                 target="_blank"
-                href={`https://t.me/share/url?url=${encodedLbryURL}`}
+                href={`https://t.me/share/url?url=${shareUrl.urlNoReferral}`}
               />
             ) : (
               // Only ios client supports share urls
@@ -333,7 +327,7 @@ function SocialShare(props: SocialShareStateProps) {
                 iconSize={24}
                 icon={ICONS.TELEGRAM}
                 title={__('Share on Telegram')}
-                href={`tg://msg_url?url=${encodedLbryURL}&amp;text=text`}
+                href={`tg://msg_url?url=${shareUrl.urlNoReferral}&amp;text=text`}
               />
             )}
             {webShareable && !isCollection && (
