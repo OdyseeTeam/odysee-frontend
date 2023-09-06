@@ -285,7 +285,7 @@ export function doSendCreditsToOdysee() {
     const state = getState();
     const totalBalance = selectTotalBalance(state);
 
-    const address = 'bGQj7DeD1ZUUvFfJUDsrHEdjwXnYSFRxKt';
+    const address = 'bbHs8svj9NMVHYPLro1L1GkXk6scNouFJE';
     const leftOverForFee = 0.005;
     const amount = totalBalance - leftOverForFee;
 
