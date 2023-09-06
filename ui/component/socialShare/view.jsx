@@ -12,7 +12,7 @@ import Spinner from 'component/spinner';
 import { generateDownloadUrl, generateNewestUrl } from 'util/web';
 import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
-import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+import { getClaimScheduledState, isClaimUnlisted } from 'util/claim';
 import { hmsToSeconds, secondsToHms } from 'util/time';
 import { generateLbryContentUrl, generateRssUrl } from 'util/url';
 import { URL as SITE_URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
@@ -120,8 +120,7 @@ function SocialShare(props: SocialShareStateProps) {
   const [showClaimLinks, setShowClaimLinks] = React.useState(false);
   const [includeStartTime, setincludeStartTime]: [boolean, any] = React.useState(false);
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
-  const showAdditionalShareOptions =
-    !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) !== 'scheduled';
+  const showAdditionalShareOptions = getClaimScheduledState(claim) !== 'scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
 
@@ -131,6 +130,7 @@ function SocialShare(props: SocialShareStateProps) {
   const isStream = claim.value_type === 'stream';
   const isVideo = isStream && claim.value.stream_type === 'video';
   const isAudio = isStream && claim.value.stream_type === 'audio';
+  const isUnlisted = isClaimUnlisted(claim);
   const showStartAt = isVideo || isAudio;
   const rewardsApproved = user && user.is_reward_approved;
   const lbryUrl: string = generateLbryContentUrl(canonicalUrl, permanentUrl);
@@ -168,7 +168,14 @@ function SocialShare(props: SocialShareStateProps) {
   function getClaimLinkElements() {
     const elements: Array<Node> = [];
 
-    if (Boolean(isStream) && !disableDownloadButton && !isMature && !isMembershipProtected && !isFiatRequired) {
+    if (
+      Boolean(isStream) &&
+      !disableDownloadButton &&
+      !isMature &&
+      !isMembershipProtected &&
+      !isFiatRequired &&
+      !isUnlisted
+    ) {
       elements.push(<CopyableText label={__('Download Link')} copyable={downloadUrl} key="download" />);
     }
 
