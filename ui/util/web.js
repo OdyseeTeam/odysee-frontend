@@ -2,7 +2,7 @@ const { URL, THUMBNAIL_CARDS_CDN_URL } = require('../../config');
 
 const CONTINENT_COOKIE = 'continent';
 
-function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autoplay) {
+function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autoplay, uriAccessKey) {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   let urlParams = new URLSearchParams();
 
@@ -20,6 +20,11 @@ function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autopla
 
   if (autoplay) {
     urlParams.append('autoplay', true);
+  }
+
+  if (uriAccessKey) {
+    urlParams.append('signature', uriAccessKey.signature);
+    urlParams.append('signature_ts', uriAccessKey.signature_ts);
   }
 
   const embedUrl = `${URL}/$/embed/${escapeHtmlProperty(uriPath)}`;
