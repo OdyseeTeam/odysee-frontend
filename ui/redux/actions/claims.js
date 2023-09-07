@@ -278,7 +278,7 @@ export function doFetchClaimListMine(
       page_size: pageSize,
       claim_type: claimTypes,
       resolve,
-    }).then((result: StreamListResponse) => {
+    }).then(async (result: StreamListResponse) => {
       dispatch({
         type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -291,6 +291,7 @@ export function doFetchClaimListMine(
       const claimIds: Array<ClaimId> = [];
       const membersOnlyClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
+      const costInfos = new Set();
 
       result.items.forEach((item) => {
         claimIds.push(item.claim_id);
@@ -302,7 +303,15 @@ export function doFetchClaimListMine(
 
         const channelId = getChannelIdFromClaim(item);
         if (channelId) channelClaimIds.add(channelId);
+
+        // $FlowFixMe
+        costInfos.add(getCostInfoForFee(item.claim_id, item.value ? item.value.fee : undefined));
       });
+
+      if (costInfos.size > 0) {
+        const settledCostInfosById = await Promise.all(Array.from(costInfos));
+        dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
+      }
 
       if (membersOnlyClaimIds.size > 0) {
         dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
