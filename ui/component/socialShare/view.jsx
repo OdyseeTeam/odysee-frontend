@@ -368,6 +368,7 @@ function SocialShare(props: SocialShareStateProps) {
                 includeStartTime={includeStartTime}
                 startTime={startTimeSeconds}
                 referralCode={referralCode}
+                uriAccessKey={uriAccessKey}
               />
             ) : (
               <>
