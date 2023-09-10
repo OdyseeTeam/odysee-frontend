@@ -181,8 +181,12 @@ export const doMembershipCancelForMembershipId = (membershipId: number) => async
       return response;
     })
     .catch((e) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
-      throw new Error(e);
+      if (e.message === 'this subscription is no longer active') {
+        dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+      } else {
+        dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+        throw new Error(e);
+      }
     });
 };
 

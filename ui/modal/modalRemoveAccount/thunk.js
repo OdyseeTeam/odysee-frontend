@@ -1,6 +1,6 @@
 // @flow
 import analytics from 'analytics';
-import { doSpendEverything, doSendCreditsToOdysee } from 'redux/actions/wallet';
+import { doUpdateBalance, doSpendEverything, doSendCreditsToOdysee } from 'redux/actions/wallet';
 import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
 import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
@@ -54,6 +54,7 @@ export function doRemoveAccountSequence() {
       if (!isWalletEmpty) {
         await dispatch(doSpendEverything());
         await new Promise((res) => setTimeout(res, 5000)); // Hoping the timeout helps to avoid using outputs already spend in txo_spend
+        await dispatch(doUpdateBalance());
         await dispatch(doSendCreditsToOdysee());
       }
 
