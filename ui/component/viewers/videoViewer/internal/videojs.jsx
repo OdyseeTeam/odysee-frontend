@@ -470,7 +470,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
         playerServerRef.current = response.headers.get('x-powered-by');
-        vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
+        vjsPlayer.claimSrcOriginal = {
+          type: sourceType,
+          src: source.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'),
+        };
 
         // remove query params for secured endpoints (which have query params on end of m3u8 path)
         // replace "cloud" with "secure" in the reponse.url
@@ -482,10 +485,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // change to m3u8 if applicable
         if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
-          vjsPlayer.claimSrcVhs = { type: HLS_FILETYPE, src: response.url };
+          vjsPlayer.claimSrcVhs = {
+            type: HLS_FILETYPE,
+            src: response.url.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'),
+          };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
 
-          contentUrl = response.url;
+          contentUrl = response.url.replace('player', 'player-cdn77').replace('secure', 'player-cdn77');
         } else {
           if (source) vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
