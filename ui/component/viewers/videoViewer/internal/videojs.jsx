@@ -460,9 +460,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             environment: stripeEnvironment,
           });
 
-          vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
+          vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url.replace('cloud', 'secure') });
         } else {
-          vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl });
+          vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl.replace('cloud', 'secure') });
         }
       } else {
         vjsPlayer.isLivestream = false;
@@ -473,7 +473,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
 
         // remove query params for secured endpoints (which have query params on end of m3u8 path)
-        let trimmedUrl = new URL(response.url);
+        // replace "cloud" with "secure" in the reponse.url
+
+        let trimmedUrl = new URL(response.url.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'));
         trimmedUrl.hash = '';
         trimmedUrl.search = '';
         trimmedUrl = trimmedUrl.toString();
