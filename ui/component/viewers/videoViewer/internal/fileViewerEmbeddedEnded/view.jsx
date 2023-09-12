@@ -4,7 +4,7 @@ import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import { formatLbryUrlForWeb } from 'util/url';
 import { withRouter } from 'react-router';
-import { URL, SITE_NAME } from 'config';
+import { URL as APP_URL, SITE_NAME } from 'config';
 import Logo from 'component/logo';
 
 const DEFAULT_PROMPTS = {
@@ -20,10 +20,11 @@ type Props = {
   // -- redux --
   isAuthenticated: boolean,
   preferEmbed: boolean,
+  uriAccessKey: ?UriAccessKey,
 };
 
 function FileViewerEmbeddedEnded(props: Props) {
-  const { uri, doReplay, isAuthenticated, preferEmbed } = props;
+  const { uri, doReplay, isAuthenticated, preferEmbed, uriAccessKey } = props;
 
   const prompts = isAuthenticated
     ? { ...DEFAULT_PROMPTS, tip_auth: 'Always tip your creators' }
@@ -37,7 +38,15 @@ function FileViewerEmbeddedEnded(props: Props) {
   const promptKey = promptKeys[Math.floor(Math.random() * promptKeys.length)];
   // $FlowFixMe
   const prompt = prompts[promptKey];
-  const odyseeLink = `${URL}${formatLbryUrlForWeb(uri)}?src=${promptKey}`;
+  const odyseeLink = (() => {
+    const url = new URL(`${APP_URL}${formatLbryUrlForWeb(uri)}`);
+    url.searchParams.set('src', promptKey);
+    if (uriAccessKey) {
+      url.searchParams.set('signature', uriAccessKey.signature);
+      url.searchParams.set('signature_ts', uriAccessKey.signature_ts);
+    }
+    return url.toString();
+  })();
 
   return (
     <div className="file-viewer__overlay">
@@ -67,7 +76,7 @@ function FileViewerEmbeddedEnded(props: Props) {
                 <Button label={__('Discuss')} iconRight={ICONS.EXTERNAL} button="primary" />
               </a>
               {!isAuthenticated && (
-                <a target="_blank" rel="noopener noreferrer" href={`${URL}/$/signup?src=embed_signup`}>
+                <a target="_blank" rel="noopener noreferrer" href={`${APP_URL}/$/signup?src=embed_signup`}>
                   <Button label={__('Join %SITE_NAME%', { SITE_NAME })} button="secondary" />
                 </a>
               )}

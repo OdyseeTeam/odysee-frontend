@@ -130,13 +130,16 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
     const isAPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
 
+    let uriAccessKey: ?UriAccessKey = null;
     const fileGetOptions: FileGetOptions = {};
 
     if (urlParams && urlParams.get('signature') && urlParams.get('signature_ts')) {
-      fileGetOptions.uriAccessKey = {
+      uriAccessKey = {
         signature: urlParams.get('signature') || '',
         signature_ts: urlParams.get('signature_ts') || '',
       };
+
+      fileGetOptions.uriAccessKey = uriAccessKey;
     }
 
     // check if there is a time or autoplay parameter, if so force autoplay
@@ -301,12 +304,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
           {pendingFiatPayment || sdkFeePending ? (
             <>
-              {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+              {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
               <PaidContentOverlay uri={uri} passClickPropsToParent={setClickProps} />
             </>
           ) : pendingUnlockedRestrictions ? (
             <>
-              {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+              {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
               <ProtectedContentOverlay uri={uri} fileUri={uri} passClickPropsToParent={setClickProps} />
             </>
           ) : null}
@@ -327,14 +330,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         // -- Nothing to show, render cover --
         return (
           <>
-            {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+            {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
             <ClaimCoverRender uri={uri}>{children}</ClaimCoverRender>
           </>
         );
       } else if (isPlayable && !autoplayVideo) {
         return (
           <ClaimCoverRender uri={uri} onClick={handleClick}>
-            {embedded && <FileViewerEmbeddedTitle uri={uri} />}
+            {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
             <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
           </ClaimCoverRender>
         );

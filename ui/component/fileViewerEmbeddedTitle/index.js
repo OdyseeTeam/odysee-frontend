@@ -7,7 +7,7 @@ import {
   selectTitleForUri,
   selectIsStreamPlaceholderForUri,
 } from 'redux/selectors/claims';
-import { selectContentPositionForUri } from 'redux/selectors/content';
+import { selectContentPositionForUri, selectContentStates } from 'redux/selectors/content';
 
 import fileViewerEmbeddedTitle from './view';
 
@@ -18,6 +18,7 @@ const select = (state, props) => {
     title: selectTitleForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     contentPosition: selectContentPositionForUri(state, uri),
+    uriAccessKey: props.uriAccessKey || selectContentStates(state).uriAccessKeys[uri],
     preferEmbed: makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state),
   };
 };
