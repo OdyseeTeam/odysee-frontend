@@ -468,7 +468,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
 
-        const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+        const response = await fetch(source.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'), {
+          method: 'HEAD',
+          cache: 'no-store',
+        });
         playerServerRef.current = response.headers.get('x-powered-by');
         vjsPlayer.claimSrcOriginal = {
           type: sourceType,
