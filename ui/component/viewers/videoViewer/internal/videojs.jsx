@@ -467,15 +467,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
-
-        const response = await fetch(source.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'), {
+        const newsource = source.replace('player', 'player-cdn77').replace('secure', 'player-cdn77')
+        const response = await fetch(newsource, {
           method: 'HEAD',
           cache: 'no-store',
         });
         playerServerRef.current = response.headers.get('x-powered-by');
         vjsPlayer.claimSrcOriginal = {
           type: sourceType,
-          src: source.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'),
+          src: newsource,
         };
 
         // remove query params for secured endpoints (which have query params on end of m3u8 path)
@@ -490,11 +490,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
           vjsPlayer.claimSrcVhs = {
             type: HLS_FILETYPE,
-            src: response.url.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'),
+            src: trimmedUrl,
           };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
 
-          contentUrl = response.url.replace('player', 'player-cdn77').replace('secure', 'player-cdn77');
+          contentUrl = trimmedUrl;
         } else {
           if (source) vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
