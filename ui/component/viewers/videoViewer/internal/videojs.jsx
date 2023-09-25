@@ -451,7 +451,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (isLivestream) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-
+        const newVideoURL = activeLivestreamForChannel.videoUrl.replace('cloud', 'cloud-cdn77');
         // get the protected url if needed
         if (isProtectedContent && activeLivestreamForChannel) {
           const protectedLivestreamResponse = await Lbry.get({
@@ -462,7 +462,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
           vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url.replace('cloud', 'secure') });
         } else {
-          vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl.replace('cloud', 'secure') });
+          vjsPlayer.src({ HLS_FILETYPE, src: newVideoURL });
         }
       } else {
         vjsPlayer.isLivestream = false;
