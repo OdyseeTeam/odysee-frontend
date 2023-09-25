@@ -481,7 +481,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // remove query params for secured endpoints (which have query params on end of m3u8 path)
         // replace "cloud" with "secure" in the reponse.url
 
-        let trimmedUrl = new URL(response.url.replace('player', 'player-cdn77').replace('secure', 'player-cdn77'));
+        let trimmedUrl = new URL(response.url);
         trimmedUrl.hash = '';
         trimmedUrl.search = '';
         trimmedUrl = trimmedUrl.toString();
