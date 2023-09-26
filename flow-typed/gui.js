@@ -13,3 +13,5 @@ declare type Duration = {
   value: number,
   unit: string,
 };
+
+declare type ReloadRequired = "newVersionFound" | "lazyImportFailed";

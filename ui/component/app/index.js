@@ -19,7 +19,7 @@ import {
   selectHomepageAnnouncement,
 } from 'redux/selectors/settings';
 import { selectAnyNagsShown } from 'redux/selectors/notifications';
-import { selectModal, selectActiveChannelClaim, selectIsReloadRequired } from 'redux/selectors/app';
+import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
@@ -34,7 +34,7 @@ const select = (state) => ({
   theme: selectThemePath(state),
   language: selectLanguage(state),
   languages: selectLoadedLanguages(state),
-  isReloadRequired: selectIsReloadRequired(state),
+  reloadRequired: state.app.reloadRequired,
   prefsReady: selectPrefsReady(state),
   syncError: selectGetSyncErrorMessage(state),
   syncIsLocked: selectSyncIsLocked(state),

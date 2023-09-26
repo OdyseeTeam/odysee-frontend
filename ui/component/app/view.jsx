@@ -69,7 +69,7 @@ type Props = {
   signIn: () => void,
   setLanguage: (string) => void,
   fetchLanguage: (string) => void,
-  isReloadRequired: boolean,
+  reloadRequired: ?ReloadRequired,
   uploadCount: number,
   balance: ?number,
   syncIsLocked: boolean,
@@ -106,7 +106,7 @@ function App(props: Props) {
     locale,
     location,
     signIn,
-    isReloadRequired,
+    reloadRequired,
     uploadCount,
     history,
     syncError,
@@ -241,14 +241,13 @@ function App(props: Props) {
           />
         );
       }
-    } else if (isReloadRequired) {
-      return (
-        <Nag
-          message={__('A new version of Odysee is available.')}
-          actionText={__('Refresh')}
-          onClick={() => window.location.reload()}
-        />
-      );
+    } else if (reloadRequired) {
+      const msg =
+        reloadRequired === 'newVersionFound' ? 'A new version of Odysee is available.' : 'Oops! Something went wrong.';
+
+      assert(reloadRequired === 'newVersionFound' || reloadRequired === 'lazyImportFailed');
+
+      return <Nag message={__(msg)} actionText={__('Refresh')} onClick={() => window.location.reload()} />;
     }
   }
 

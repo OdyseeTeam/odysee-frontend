@@ -13,7 +13,7 @@ function componentLoader(lazyComponent, attemptsLeft) {
           if (attemptsLeft === 1) {
             window.store.dispatch({
               type: ACTIONS.RELOAD_REQUIRED,
-              data: { reason: 'lazyImport', error },
+              data: { reason: 'lazyImportFailed', extra: error },
             });
             console.error(error.message); // eslint-disable-line no-console
           } else {

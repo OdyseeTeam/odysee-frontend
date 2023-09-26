@@ -69,11 +69,11 @@ function handleAnalyticsForAction(action: { type: string, data: any }) {
 
     case ACTIONS.RELOAD_REQUIRED:
       {
-        const { reason, error } = action.data;
-        if (typeof error === 'string') {
-          analytics.log(`Reload required: ${reason} @ ${error}`, { level: 'error', fingerprint: [reason] });
+        const { reason, extra } = action.data;
+        if (typeof extra === 'string') {
+          analytics.log(`Reload required: ${reason} @ ${extra}`, { level: 'error', fingerprint: [reason] });
         } else {
-          analytics.log(error, { level: 'error' });
+          analytics.log(extra, { level: 'error', fingerprint: [reason] });
         }
       }
       break;
