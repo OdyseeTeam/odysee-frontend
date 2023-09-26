@@ -197,7 +197,7 @@ const webConfig = {
     chunkFilename: ({ chunk }) => {
       return chunk.name && chunk.name.startsWith('locale-')
         ? 'locales/[name]-[contenthash].js'
-        : '[name]-[contenthash].js';
+        : '[name]-[contenthash]-xyz.js';
     },
     assetModuleFilename: 'img/[name][ext]',
   },
