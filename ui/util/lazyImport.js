@@ -1,8 +1,8 @@
 import React from 'react';
 import * as ACTIONS from 'constants/action_types';
 
-const RETRY_DELAY_MS = 2000;
-const RETRY_ATTEMPTS = 2;
+const RETRY_DELAY_MS = 3000;
+const RETRY_ATTEMPTS = 5;
 
 function componentLoader(lazyComponent, attemptsLeft) {
   return new Promise((resolve, reject) => {
