@@ -1,8 +1,8 @@
 import React from 'react';
 import * as ACTIONS from 'constants/action_types';
 
-const RETRY_DELAY_MS = 2000;
-const RETRY_ATTEMPTS = 2;
+const RETRY_DELAY_MS = 3000;
+const RETRY_ATTEMPTS = 5;
 
 function componentLoader(lazyComponent, attemptsLeft) {
   return new Promise((resolve, reject) => {
@@ -13,7 +13,7 @@ function componentLoader(lazyComponent, attemptsLeft) {
           if (attemptsLeft === 1) {
             window.store.dispatch({
               type: ACTIONS.RELOAD_REQUIRED,
-              data: { reason: 'lazyImport', error },
+              data: { reason: 'lazyImportFailed', extra: error },
             });
             console.error(error.message); // eslint-disable-line no-console
           } else {
