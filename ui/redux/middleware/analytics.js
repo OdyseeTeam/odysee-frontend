@@ -70,10 +70,18 @@ function handleAnalyticsForAction(action: { type: string, data: any }) {
     case ACTIONS.RELOAD_REQUIRED:
       {
         const { reason, extra } = action.data;
-        if (typeof extra === 'string') {
-          analytics.log(`Reload required: ${reason} @ ${extra}`, { level: 'error', fingerprint: [reason] });
-        } else {
-          analytics.log(extra, { level: 'error', fingerprint: [reason] });
+        if (reason === 'newVersionAvailable') {
+          analytics.log('New version nag', {
+            level: 'info',
+            fingerprint: [reason],
+            tags: { reloadReason: reason, newVersion: extra },
+          });
+        } else if (reason === 'lazyImportFailed') {
+          analytics.log(extra, {
+            level: 'fatal',
+            fingerprint: [reason],
+            tags: { reloadReason: reason, reloadExtra: (extra.message || extra || '').replace('\n', '') },
+          });
         }
       }
       break;
