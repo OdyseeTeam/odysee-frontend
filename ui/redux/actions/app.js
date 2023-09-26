@@ -14,6 +14,7 @@ import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
+import { MS } from 'constants/date-time';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
@@ -283,17 +284,32 @@ export function doMinVersionCheck() {
   return (dispatch: Dispatch) => {
     fetch(`${URL}/$/minVersion/v1/get`)
       .then((response) => response.json())
-      .then((json) => {
-        if (json?.status === 'success' && json?.data && MINIMUM_VERSION) {
-          const liveMinimumVersion = Number(json.data);
-          if (liveMinimumVersion > MINIMUM_VERSION) {
-            dispatch({ type: ACTIONS.RELOAD_REQUIRED, data: { reason: 'minVersion', error: liveMinimumVersion } });
-          }
+      .then((json) => (json?.status === 'success' && json?.data ? Number(json.data) : undefined))
+      .then((liveMinimumVersion) => {
+        // • Nag for reload if newer version is available. Skip if recently nagged.
+        const nowMs = Date.now();
+        const lastNagged = Number(LocalStorage.getItem(LS.MINIMUM_VERSION_LAST_NAGGED_MS)) || 0;
+
+        if (liveMinimumVersion > MINIMUM_VERSION && nowMs - lastNagged > 30 * MS.MINUTE) {
+          dispatch({ type: ACTIONS.RELOAD_REQUIRED, data: { reason: 'minVersion', error: liveMinimumVersion } });
+          LocalStorage.setItem(LS.MINIMUM_VERSION_LAST_NAGGED_MS, String(nowMs));
+          return liveMinimumVersion;
         }
       })
-      .catch((err) => {
-        assert(false, 'minVersion failed', err);
-      });
+      .then((version) => {
+        // • Internal: See if server (non-cached) is producing the expected html.
+        if (version) {
+          fetch('https://odysee.com', { cache: 'no-store' })
+            .then((resp) => (resp.ok ? resp.text() : Promise.reject(new Error(`odysee.com: ${resp.status}`))))
+            .then((html) => {
+              if (!html.match(new RegExp(`<script src="/public/ui-${version}\\.(.*)\\.js" async></script>`))) {
+                analytics.error(`[minVerFetch] server mismatch: (live:${version}) (fetched:${html})`);
+              }
+            })
+            .catch((err) => analytics.error(`[minVerFetch] ${err.message || err}`));
+        }
+      })
+      .catch((err) => analytics.error(`[minVerCheck] ${err.message || err}`));
   };
 }
 

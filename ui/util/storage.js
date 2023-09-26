@@ -7,6 +7,7 @@ export const LS = Object.freeze({
   AUTH_IN_PROGRESS: 'authInProgress',
   CHANNEL_LIVE_STATUS: 'channel-live-status',
   GDPR_REQUIRED: 'gdprRequired', // <-- should be using 'locale/get', right?
+  MINIMUM_VERSION_LAST_NAGGED_MS: 'minimumVersionLastNaggedMs',
   SHARE_INTERNAL: 'shareInternal',
   TUS_LOCKED_UPLOADS: 'tusLockedUploads',
   TUS_REFRESH_LOCK: 'tusRefreshLock',
