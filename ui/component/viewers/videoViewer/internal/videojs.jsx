@@ -451,7 +451,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (isLivestream) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-        const newVideoURL = activeLivestreamForChannel.videoUrl.replace('cloud', 'cloud-cdn77');
+        const newVideoURL = activeLivestreamForChannel.videoUrl;
         // get the protected url if needed
         if (isProtectedContent && activeLivestreamForChannel) {
           const protectedLivestreamResponse = await Lbry.get({
@@ -460,14 +460,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             environment: stripeEnvironment,
           });
 
-          vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url.replace('cloud', 'secure') });
+          vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
         } else {
           vjsPlayer.src({ HLS_FILETYPE, src: newVideoURL });
         }
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
-        const newsource = source.replace('player', 'player-cdn77').replace('secure', 'player-cdn77')
+        const newsource = source;
         const response = await fetch(newsource, {
           method: 'HEAD',
           cache: 'no-store',
@@ -479,7 +479,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         };
 
         // remove query params for secured endpoints (which have query params on end of m3u8 path)
-        // replace "cloud" with "secure" in the reponse.url
 
         let trimmedUrl = new URL(response.url);
         trimmedUrl.hash = '';
