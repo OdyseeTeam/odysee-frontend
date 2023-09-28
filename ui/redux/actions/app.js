@@ -283,17 +283,16 @@ export function doMinVersionCheck() {
   return (dispatch: Dispatch) => {
     fetch(`${URL}/$/minVersion/v1/get`)
       .then((response) => response.json())
-      .then((json) => {
-        if (json?.status === 'success' && json?.data && MINIMUM_VERSION) {
-          const liveMinimumVersion = Number(json.data);
-          if (liveMinimumVersion > MINIMUM_VERSION) {
-            dispatch({ type: ACTIONS.RELOAD_REQUIRED, data: { reason: 'newVersionFound', extra: liveMinimumVersion } });
-          }
+      .then((json) => (json?.status === 'success' && json?.data ? Number(json.data) : undefined))
+      .then((liveMinimumVersion) => {
+        if (liveMinimumVersion > MINIMUM_VERSION) {
+          dispatch({
+            type: ACTIONS.RELOAD_REQUIRED,
+            data: { reason: 'newVersionFound', extra: liveMinimumVersion },
+          });
         }
       })
-      .catch((err) => {
-        assert(false, 'minVersion failed', err);
-      });
+      .catch((err) => assert(false, 'minVersion failed', err));
   };
 }
 

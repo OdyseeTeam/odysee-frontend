@@ -70,8 +70,8 @@ function handleAnalyticsForAction(action: { type: string, data: any }) {
     case ACTIONS.RELOAD_REQUIRED:
       {
         const { reason, extra } = action.data;
-        if (reason === 'newVersionAvailable') {
-          analytics.log('New version nag', {
+        if (reason === 'newVersionFound') {
+          analytics.log('Displayed new version nag', {
             level: 'info',
             fingerprint: [reason],
             tags: { reloadReason: reason, newVersion: extra },
