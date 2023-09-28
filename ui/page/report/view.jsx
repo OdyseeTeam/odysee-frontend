@@ -1,3 +1,4 @@
+import analytics from 'analytics';
 import { doToast } from 'redux/actions/notifications';
 import { FormField } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
@@ -31,6 +32,12 @@ class ReportPage extends React.Component {
       // Display global notice
       const action = doToast({ message: __('Message received! Thanks for helping.') });
       window.app.store.dispatch(action);
+    });
+
+    analytics.log(message.length > 80 ? `${message.slice(0, 80)}…` : message, {
+      level: 'info',
+      tags: { origin: '/$/report' },
+      extra: { message: message },
     });
 
     this.setState({ message: '' });
