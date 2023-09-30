@@ -26,7 +26,7 @@ class ReportPage extends React.Component {
 
     this.setState({ submitting: true });
 
-    Lbryio.call('event', 'desktop_error', { error_message: message }).then(() => {
+    Lbryio.call('event', 'desktop_error', { error_message: `UserFeedback: ${message}` }).then(() => {
       this.setState({ submitting: false });
 
       // Display global notice
