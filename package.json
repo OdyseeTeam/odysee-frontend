@@ -71,7 +71,7 @@
     "moment": "^2.29.4",
     "parse-duration": "^1.0.0",
     "player.js": "^0.1.0",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.31",
     "proxy-polyfill": "0.1.6",
     "re-reselect": "^4.0.0",
     "react-beautiful-dnd": "^13.1.0",
