@@ -277,13 +277,7 @@ function SocialShare(props: SocialShareStateProps) {
       {showAdditionalShareOptions && (
         <>
           <div className="section__actions">
-            <Button
-              className="share"
-              iconSize={24}
-              icon={ICONS.TWITTER}
-              title={__('Share on Twitter')}
-              href={tweetIntent}
-            />
+            <Button className="share" iconSize={24} icon={ICONS.TWITTER} title={__('Share on X')} href={tweetIntent} />
             <Button
               className="share"
               iconSize={24}
