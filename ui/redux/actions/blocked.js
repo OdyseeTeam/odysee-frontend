@@ -56,6 +56,6 @@ export function doFetchGeoBlockedList() {
       dispatch({ type: ACTIONS.FETCH_GBL_FAILED, data: error });
     };
 
-    Lbryio.call('geo', 'blocked_list').then(success, failure);
+    Lbryio.call('geo', 'blocked_list', { auth_token: '' }, 'get').then(success, failure);
   };
 }
