@@ -70,6 +70,18 @@ router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
 router.get(`/$/oembed`, oEmbedMiddleware);
 
 router.get('*', async (ctx) => {
+  const requestedUrl = ctx.url;
+
+  if (requestedUrl.startsWith('/public/') && requestedUrl.endsWith('.js')) {
+    // If the file exists, `app.use(serve(DIST_ROOT))` would have handled it.
+    // Handle the non-existent file here, otherwise it'll get resolved to a
+    // claim with the name 'public'.
+    ctx.status = 404;
+    ctx.body = 'Resource not found';
+    ctx.set('Cache-Control', 'no-store');
+    return;
+  }
+
   const html = await getHtml(ctx);
   ctx.body = html;
 });
