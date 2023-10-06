@@ -182,7 +182,6 @@ function SideNavigation(props: Props) {
     doClearPurchasedUriSuccess,
     doOpenModal,
     doGetDisplayedSubs,
-    doResolveUris,
     doBeginPublish,
   } = props;
 
@@ -553,12 +552,6 @@ function SideNavigation(props: Props) {
       doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
     }
   }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
-
-  // --- Resolve subscriptions
-  React.useEffect(() => {
-    doResolveUris(subscriptionUris, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
-  }, []);
 
   // **************************************************************************
   // **************************************************************************
