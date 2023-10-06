@@ -549,6 +549,7 @@ function SideNavigation(props: Props) {
 
   React.useEffect(() => {
     if (showSubsSection) {
+      // Done this way to avoid over-render from claimsByUris[].
       doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
     }
   }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
