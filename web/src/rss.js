@@ -81,7 +81,7 @@ function fetchStreamUrls(claims) {
     const results = claims.map((c) => generateContentUrl(c));
     return results;
   } catch (error) {
-    console.error(error);
+    console.error(error); // eslint-disable-line no-console
     return null;
   }
 }
