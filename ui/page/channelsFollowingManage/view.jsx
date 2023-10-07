@@ -125,6 +125,7 @@ export default function ChannelsFollowingManage(props: Props) {
                 loading={isLoadingPage}
                 useLoadingSpinner
                 showHiddenByUser
+                showUnresolvedClaims
               />
             </>
           )}
