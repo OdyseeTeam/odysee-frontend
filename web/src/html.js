@@ -42,7 +42,7 @@ function insertToHead(fullHtml, htmlToInsert, buildRev = '') {
   const finalIndex = fullHtml.indexOf(FINAL_STR);
 
   if (beginIndex > -1 && finalIndex > -1 && finalIndex > beginIndex) {
-    const uiScript = buildRev ? `<script src="/public/ui-${buildRev}.js" async></script>` : '';
+    const uiScript = buildRev ? `<script src="/public/ui-${buildRev}.js" defer></script>` : '';
 
     return (
       `${fullHtml.slice(0, beginIndex)}` +
