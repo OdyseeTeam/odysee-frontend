@@ -18,7 +18,7 @@ import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectClientSettings, selectHomepageData } from 'redux/selectors/settings';
 import { doOpenModal, doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
-import { selectClaimsByUri, selectPurchaseUriSuccess, selectResolvingUris } from 'redux/selectors/claims';
+import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
 import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
 import { GetLinksData } from 'util/buildHomepage';
 
@@ -60,8 +60,6 @@ const selectSidebarCategories = createSelector(
 
 function doGetDisplayedSubs(filter) {
   return async (dispatch, getState) => {
-    await waitIfResolving(1000, 5, getState);
-
     const state = getState();
     const claimsByUri = selectClaimsByUri(state);
     const subs = selectSubscriptions(state);
@@ -81,20 +79,11 @@ function doGetDisplayedSubs(filter) {
         });
       } else {
         filteredSubs = lastActiveSubs?.length > 0 ? lastActiveSubs : subs.slice(0, SIDEBAR_SUBS_DISPLAYED);
-        filteredSubs = filteredSubs.filter((sub) => claimsByUri[sub?.uri]);
       }
     }
 
     return filteredSubs;
   };
-}
-
-async function waitIfResolving(waitMs, maxAttempts, getState) {
-  let isResolvingUris = selectResolvingUris(getState()).length > 0;
-  for (let waitCount = 0; isResolvingUris && waitCount < maxAttempts; ++waitCount) {
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-    isResolvingUris = selectResolvingUris(getState()).length > 0;
-  }
 }
 
 // ****************************************************************************
