@@ -2952,6 +2952,7 @@
   "Remove content and send deletion request" : "Remove content and send deletion request",
   "Remove content" : "Remove content",
   "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.": "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.",
+  "Note: If some other Odysee account is merged with this one, the merged content will be removed from both accounts.": "Note: If some other Odysee account is merged with this one, the merged content will be removed from both accounts.",
 
   "--end--": "--end--"
 }

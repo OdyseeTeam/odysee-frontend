@@ -42,25 +42,35 @@ export default function ModalRemoveAccount(props: Props) {
       <Card
         title={__('Delete account')}
         subtitle={
-          isBusy
-            ? ''
-            : status === 'error_occurred'
-            ? __(
-                'Sorry, there may have been an issue when wiping the account and/or sending the deletion request. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.'
-              )
-            : isPendingDeletion && isWalletEmpty && !buttonClicked
-            ? __('Account has already been queued for deletion.')
-            : isPendingDeletion && !isWalletEmpty && !buttonClicked
-            ? __(
-                'Account has already been queued for deletion. If you still have content/credits on the account which you want removed, click "Remove content".'
-              )
-            : !isPendingDeletion && !buttonClicked
-            ? __(
-                "Remove all content from the account and send a deletion request to Odysee. Removing the content is a permanent action and can't be undone."
-              )
-            : __(
-                'Account has been queued for deletion, and content has been removed. You will receive an email confirmation once the deletion is completed. It may take few minutes for content to completely disappear.'
-              )
+          <>
+            { isBusy
+              ? ''
+              : status === 'error_occurred'
+              ? __(
+                  'Sorry, there may have been an issue when wiping the account and/or sending the deletion request. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.'
+                )
+              : isPendingDeletion && isWalletEmpty && !buttonClicked
+              ? __('Account has already been queued for deletion.')
+              : isPendingDeletion && !isWalletEmpty && !buttonClicked
+              ? __(
+                  'Account has already been queued for deletion. If you still have content/credits on the account which you want removed, click "Remove content".'
+                )
+              : !isPendingDeletion && !buttonClicked
+              ? __(
+                  "Remove all content from the account and send a deletion request to Odysee. Removing the content is a permanent action and can't be undone."
+                )
+              : __(
+                  'Account has been queued for deletion, and content has been removed. You will receive an email confirmation once the deletion is completed. It may take few minutes for content to completely disappear.'
+                )
+            }
+            { showButton && (
+              <p className="form-field__help">
+                {__(
+                   'Note: If some other Odysee account is merged with this one, the merged content will be removed from both accounts.'
+                )}
+              </p>
+           )}
+          </>
         }
         className="confirm__wrapper"
         actions={
