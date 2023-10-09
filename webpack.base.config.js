@@ -138,8 +138,8 @@ let baseConfig = {
       defaults: true, // load '.env.defaults' as the default values if empty.
     }),
     new MiniCssExtractPlugin({
-      filename: NODE_ENV === 'development' ? '[name].css' : '[name].[contenthash]-xyz.css',
-      chunkFilename: NODE_ENV === 'development' ? '[name].css' : '[name].[contenthash]-xyz.css',
+      filename: NODE_ENV === 'development' ? '[name].css' : '[name].[contenthash]-1009.css',
+      chunkFilename: NODE_ENV === 'development' ? '[name].css' : '[name].[contenthash]-1009.css',
     }),
     ...optInPlugins,
   ],
