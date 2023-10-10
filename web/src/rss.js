@@ -1,9 +1,9 @@
+const { fetchStreamUrl } = require('./fetchStreamUrl');
 const { lbryProxy: Lbry } = require('../lbry');
 const { URL, SITE_NAME, PROXY_URL } = require('../../config.js');
+const Mime = require('mime-types');
 const Rss = require('rss');
 const moment = require('moment');
-const { generateContentUrl } = require('./fetchStreamUrl');
-
 Lbry.setDaemonConnectionString(PROXY_URL);
 
 const NUM_ENTRIES = 500;
@@ -76,14 +76,10 @@ function encodeWithSpecialCharEncode(string) {
  * @param claims Array of freaking claims.
  * @returns {Array<{status, value}> | null}
  */
-function fetchStreamUrls(claims) {
-  try {
-    const results = claims.map((c) => generateContentUrl(c));
-    return results;
-  } catch (error) {
-    console.error(error); // eslint-disable-line no-console
-    return null;
-  }
+async function fetchStreamUrls(claims) {
+  return Promise.allSettled(claims.map((c) => fetchStreamUrl(c.name, c.claim_id)))
+    .then((results) => results)
+    .catch(() => null);
 }
 
 async function generateEnclosureForClaimContent(claim, streamUrl) {
@@ -92,25 +88,25 @@ async function generateEnclosureForClaimContent(claim, streamUrl) {
     return undefined;
   }
 
-  // const fileExt = value.source && value.source.media_type && '.' + Mime.extension(value.source.media_type);
+  const fileExt = value.source && value.source.media_type && '.' + Mime.extension(value.source.media_type);
 
   switch (value.stream_type) {
     case 'video':
       return {
-        url: streamUrl,
+        url: streamUrl + (streamUrl.endsWith('.mp4') ? '' : fileExt || '.mp4'),
         type: (value.source && value.source.media_type) || 'video/mp4',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
 
     case 'audio':
       return {
-        url: streamUrl,
+        url: streamUrl + (streamUrl.endsWith('.mp3') ? '' : fileExt || '.mp3'),
         type: (value.source && value.source.media_type) || 'audio/mpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
     case 'image':
       return {
-        url: streamUrl,
+        url: streamUrl + (streamUrl.endsWith('.jpg') ? '' : fileExt || '.jpg'),
         type: (value.source && value.source.media_type) || 'image/jpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
@@ -270,7 +266,7 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
   });
 
   // --- Parallel pre-fetch of stream url ---
-  const streamUrls = fetchStreamUrls(claimsInChannel);
+  const streamUrls = await fetchStreamUrls(claimsInChannel);
 
   // --- Content ---
   for (let i = 0; i < claimsInChannel.length; ++i) {
@@ -287,6 +283,7 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
       c.value && c.value.release_time ? c.value.release_time * 1000 : c.meta && c.meta.creation_timestamp * 1000;
 
     const claimStreamUrl = streamUrls ? streamUrls[i] : '';
+    const streamUrl = claimStreamUrl.status === 'fulfilled' ? claimStreamUrl.value : '';
 
     feed.item({
       title: title,
@@ -295,7 +292,7 @@ async function generateFeed(feedLink, channelClaim, claimsInChannel) {
       guid: undefined, // defaults to 'url'
       author: undefined, // defaults feed author property
       date: new Date(date),
-      enclosure: await generateEnclosureForClaimContent(c, claimStreamUrl),
+      enclosure: await generateEnclosureForClaimContent(c, streamUrl),
       custom_elements: [
         { 'itunes:title': title },
         { 'itunes:author': channelTitle },
