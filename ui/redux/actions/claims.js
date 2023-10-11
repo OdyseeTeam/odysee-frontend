@@ -278,7 +278,8 @@ export function doFetchClaimListMine(
       page_size: pageSize,
       claim_type: claimTypes,
       resolve,
-    }).then(async (result: StreamListResponse) => {
+    })
+    .then(async (result: StreamListResponse) => {
       dispatch({
         type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
         data: {
@@ -324,6 +325,9 @@ export function doFetchClaimListMine(
       if (fetchViewCount && claimIds.length > 0) {
         dispatch(doFetchViewCount(claimIds.join(',')));
       }
+    })
+    .catch(() => {
+      dispatch({ type: ACTIONS.FETCH_CLAIM_LIST_MINE_FAILED });
     });
   };
 }

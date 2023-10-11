@@ -14,6 +14,7 @@ import {
   selectPendingOtherTransactions,
   selectPendingConsolidateTxid,
   selectPendingMassClaimTxid,
+  selectIsFetchingAccounts,
 } from 'redux/selectors/wallet';
 import { resolveApiMessage } from 'util/api-message';
 import { creditsToString } from 'util/format-credits';
@@ -72,6 +73,27 @@ export function doUpdateBalance() {
     }
 
     return walletBalancePromise;
+  };
+}
+
+export function doFetchAccountList(page = 1, pageSize = 99999) {
+  return (dispatch, getState) => {
+    const state = getState();
+    const isFetching = selectIsFetchingAccounts(state);
+
+    if (isFetching) return;
+
+    dispatch({ type: ACTIONS.FETCH_ACCOUNT_LIST_STARTED });
+
+    const callback = (response) => {
+      dispatch({ type: ACTIONS.FETCH_ACCOUNT_LIST_COMPLETED, data: response.items });
+    };
+
+    const failure = () => {
+      dispatch({ type: ACTIONS.FETCH_ACCOUNT_LIST_FAILED });
+    };
+
+    Lbry.account_list({ page, page_size: pageSize }).then(callback, failure);
   };
 }
 

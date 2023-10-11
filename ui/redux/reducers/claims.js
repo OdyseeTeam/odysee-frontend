@@ -34,6 +34,7 @@ const defaultState: ClaimsState = {
   fetchingMyPurchases: false,
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
+  fetchingMyChannelsSuccess: undefined,
   abandoningById: {},
   pendingById: {},
   reflectingById: {},
@@ -54,6 +55,7 @@ const defaultState: ClaimsState = {
   myClaimsPageNumber: undefined,
   myClaimsPageTotalResults: undefined,
   isFetchingClaimListMine: false,
+  isFetchingClaimListMineSuccess: undefined,
   isFetchingMyPurchases: false,
   isCheckingNameForPublish: false,
   checkingPending: false,
@@ -367,6 +369,7 @@ reducers[ACTIONS.RESOLVE_URIS_FAIL] = (state: ClaimsState, action: any): ClaimsS
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: ClaimsState): ClaimsState =>
   Object.assign({}, state, {
     isFetchingClaimListMine: true,
+    isFetchingClaimListMineSuccess: undefined,
   });
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
@@ -430,6 +433,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
   });
 
   return Object.assign({}, state, {
+    isFetchingClaimListMineSuccess: true,
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),
     resolvedCollectionsById: newResolvedCollectionsById,
@@ -443,8 +447,14 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
   });
 };
 
+reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_FAILED] = (state: ClaimsState): ClaimsState =>
+  Object.assign({}, state, {
+    isFetchingClaimListMine: false,
+    isFetchingClaimListMineSuccess: false,
+  });
+
 reducers[ACTIONS.FETCH_CHANNEL_LIST_STARTED] = (state: ClaimsState): ClaimsState =>
-  Object.assign({}, state, { fetchingMyChannels: true });
+  Object.assign({}, state, { fetchingMyChannels: true, fetchingMyChannelsSuccess: undefined });
 
 reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
@@ -495,6 +505,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: an
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     channelClaimCounts,
     fetchingMyChannels: false,
+    fetchingMyChannelsSuccess: true,
     myChannelClaimsById: newMyChannelClaimsById,
     myClaims: myClaimIds ? Array.from(myClaimIds) : null,
   });
@@ -503,6 +514,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: ClaimsState, action: an
 reducers[ACTIONS.FETCH_CHANNEL_LIST_FAILED] = (state: ClaimsState, action: any): ClaimsState => {
   return Object.assign({}, state, {
     fetchingMyChannels: false,
+    fetchingMyChannelsSuccess: false,
   });
 };
 
