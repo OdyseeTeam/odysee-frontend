@@ -1,3 +1,4 @@
+import { doMembershipList } from 'redux/actions/memberships';
 import { buildURI } from 'util/lbryURI';
 import { connect } from 'react-redux';
 import { doCommentSocketConnectAsCommenter, doCommentSocketDisconnectAsCommenter } from 'redux/actions/websocket';
@@ -32,6 +33,7 @@ const perform = {
   doCommentSocketConnectAsCommenter,
   doCommentSocketDisconnectAsCommenter,
   doResolveUri,
+  doMembershipList,
 };
 
 export default connect(select, perform)(PopoutChatPage);
