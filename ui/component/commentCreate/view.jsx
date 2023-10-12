@@ -263,7 +263,12 @@ export function CommentCreate(props: Props) {
   // Functions
   // **************************************************************************
 
-  function getMembersOnlyCreatorSetting() {
+  function isRestrictedToMembersOnly() {
+    const isAnonymous = claimId && !channelClaimId;
+    if (isAnonymous) {
+      return false;
+    }
+
     return (
       channelClaimId &&
       doFetchCreatorSettings(channelClaimId)
@@ -355,7 +360,7 @@ export function CommentCreate(props: Props) {
     }
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = await isRestrictedToMembersOnly();
     if (commentsAreMembersOnly === undefined) {
       doToast({
         message: __('Unable to send the comment.'),
@@ -476,7 +481,7 @@ export function CommentCreate(props: Props) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = await isRestrictedToMembersOnly();
     if (commentsAreMembersOnly === undefined) {
       doToast({
         message: __('Unable to send the comment.'),
