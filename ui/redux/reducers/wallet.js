@@ -60,6 +60,10 @@ export type WalletState = {
   sendingCreditsToOdysee: boolean,
   spendingEverything: boolean,
   pendingSpendingEverythingTxid?: string,
+  fetchingAccounts: boolean,
+  fetchingAccountsSuccess: ?boolean,
+  accounts: Array<any>,
+  isMerged: ?boolean,
 };
 
 const defaultState = {
@@ -111,6 +115,10 @@ const defaultState = {
   sendingCreditsToOdysee: false,
   spendingEverything: false,
   pendingSpendingEverythingTxid: null,
+  fetchingAccounts: false,
+  fetchingAccountsSuccess: undefined,
+  accounts: [],
+  isMerged: undefined,
 
   abandonClaimSupportError: undefined,
 };
@@ -140,6 +148,37 @@ export const walletReducer = handleActions(
     [ACTIONS.FETCH_TRANSACTIONS_FAILED]: (state: WalletState) => ({
       ...state,
       fetchingTransactions: false,
+    }),
+
+    [ACTIONS.FETCH_ACCOUNT_LIST_STARTED]: (state: WalletState) => ({
+      ...state,
+      fetchingAccounts: true,
+      fetchingAccountsSuccess: undefined,
+    }),
+
+    [ACTIONS.FETCH_ACCOUNT_LIST_COMPLETED]: (state: WalletState, action) => {
+      const accounts = action.data;
+      let nonChannelHoldingAccountsCount = 0;
+      for (let i = 0; i < accounts.length; i++) {
+        const account = accounts[i];
+        if (!account.name.match('Holding Account For Channel')) {
+          nonChannelHoldingAccountsCount++;
+        }
+      }
+
+      return {
+        ...state,
+        fetchingAccounts: false,
+        fetchingAccountsSuccess: true,
+        accounts: action.data,
+        isMerged: nonChannelHoldingAccountsCount > 1,
+      };
+    },
+
+    [ACTIONS.FETCH_ACCOUNT_LIST_FAILED]: (state: WalletState) => ({
+      ...state,
+      fetchingAccounts: false,
+      fetchingAccountsSuccess: false,
     }),
 
     [ACTIONS.FETCH_TXO_PAGE_STARTED]: (state: WalletState, action) => {

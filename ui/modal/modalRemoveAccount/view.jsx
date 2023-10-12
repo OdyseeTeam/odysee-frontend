@@ -10,12 +10,41 @@ import { FormField } from 'component/common/form';
 type Props = {
   isPendingDeletion: ?boolean,
   totalBalance: number,
+  totalClaimsCount: number,
+  isFetchingChannels: boolean,
+  isFetchingChannelsSuccess: ?boolean,
+  isFetchingClaims: boolean,
+  isFetchingClaimsSuccess: ?boolean,
+  isFetchingAccounts: boolean,
+  isFetchingAccountsSuccess: ?boolean,
+  isWalletMerged: ?boolean,
+  channelUrls: ?Array<string>,
   doHideModal: () => void,
   doRemoveAccountSequence: () => Promise<any>,
+  doFetchChannelListMine: () => void,
+  doFetchClaimListMine: (page: number, pageSize: number, resolve: boolean) => void,
+  doFetchAccountList: () => void,
 };
 
 export default function ModalRemoveAccount(props: Props) {
-  const { isPendingDeletion, totalBalance, doHideModal, doRemoveAccountSequence } = props;
+  const {
+    isPendingDeletion,
+    totalBalance,
+    totalClaimsCount,
+    isFetchingChannels,
+    isFetchingChannelsSuccess,
+    isFetchingClaims,
+    isFetchingClaimsSuccess,
+    isFetchingAccounts,
+    isFetchingAccountsSuccess,
+    isWalletMerged,
+    channelUrls,
+    doHideModal,
+    doRemoveAccountSequence,
+    doFetchChannelListMine,
+    doFetchClaimListMine,
+    doFetchAccountList,
+  } = props;
 
   const [buttonClicked, setButtonClicked] = React.useState(false);
   const [status, setStatus] = React.useState(null);
@@ -23,7 +52,24 @@ export default function ModalRemoveAccount(props: Props) {
   const [isForfeitChecked, setIsForfeitChecked] = React.useState(false);
 
   const isWalletEmpty = totalBalance <= 0.005;
-  const showButton = !buttonClicked && (!isPendingDeletion || !isWalletEmpty);
+  const isLoadingAccountInfo = isFetchingChannels || isFetchingAccounts || isFetchingClaims;
+  const isLoadingAccountInfoSuccess = isFetchingChannelsSuccess && isFetchingAccountsSuccess && isFetchingClaimsSuccess;
+  const showButton =
+    !buttonClicked &&
+    (!isPendingDeletion || !isWalletEmpty) &&
+    isLoadingAccountInfoSuccess &&
+    !isLoadingAccountInfo;
+
+  React.useEffect(() => {
+    if (!isPendingDeletion || !isWalletEmpty) {
+      doFetchAccountList();
+      const page = 1,
+        pageSize = 1,
+        resolve = false;
+      doFetchClaimListMine(page, pageSize, resolve);
+      doFetchChannelListMine();
+    }
+  }, [isPendingDeletion, isWalletEmpty, doFetchAccountList, doFetchClaimListMine, doFetchChannelListMine]);
 
   async function handleOnClick() {
     setButtonClicked(true);
@@ -42,25 +88,49 @@ export default function ModalRemoveAccount(props: Props) {
       <Card
         title={__('Delete account')}
         subtitle={
-          isBusy
-            ? ''
-            : status === 'error_occurred'
-            ? __(
-                'Sorry, there may have been an issue when wiping the account and/or sending the deletion request. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.'
-              )
-            : isPendingDeletion && isWalletEmpty && !buttonClicked
-            ? __('Account has already been queued for deletion.')
-            : isPendingDeletion && !isWalletEmpty && !buttonClicked
-            ? __(
-                'Account has already been queued for deletion. If you still have content/credits on the account which you want removed, click "Remove content".'
-              )
-            : !isPendingDeletion && !buttonClicked
-            ? __(
-                "Remove all content from the account and send a deletion request to Odysee. Removing the content is a permanent action and can't be undone."
-              )
-            : __(
-                'Account has been queued for deletion, and content has been removed. You will receive an email confirmation once the deletion is completed. It may take few minutes for content to completely disappear.'
-              )
+          <>
+            {isBusy
+              ? ''
+              : !isLoadingAccountInfo && !isLoadingAccountInfoSuccess
+              ? __(
+                  'Failed to load account info. If the issue persists, please reach out to help@odysee.com for support.'
+                )
+              : status === 'error_occurred'
+              ? __(
+                  'Sorry, there may have been an issue when wiping the account and/or sending the deletion request. Please check back in few minutes, and try again. If the issue persists please contact help@odysee.com for possible next steps.'
+                )
+              : isPendingDeletion && isWalletEmpty && !buttonClicked
+              ? __('Account has already been queued for deletion.')
+              : isPendingDeletion && !isWalletEmpty && !buttonClicked
+              ? __(
+                  'Account has already been queued for deletion. If you still have content/credits on the account which you want removed, click "Remove content".'
+                )
+              : !isPendingDeletion && !buttonClicked
+              ? __(
+                  "Remove all content from the account and send a deletion request to Odysee. Removing the content is a permanent action and can't be undone."
+                )
+              : __(
+                  'Account has been queued for deletion, and content has been removed. You will receive an email confirmation once the deletion is completed. It may take few minutes for content to completely disappear.'
+                )}
+            {showButton && (
+              <div className="help">
+                <p>{__('Credits: %credits%', { credits: totalBalance })}</p>
+                <p>{__('Publications: %claims%', { claims: totalClaimsCount })}</p>
+                {channelUrls && (
+                  <>
+                    <p>{__('Channels:')}</p>
+                    <ul>
+                      {channelUrls.map((url) => {
+                        const name = [].concat(url.match(/@[^#]+/)).pop();
+                        const claimId = [].concat(url.match(/[a-f0-9]+$/)).pop();
+                        return <li key={claimId}>{name}</li>;
+                      })}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )}
+          </>
         }
         className="confirm__wrapper"
         actions={
@@ -75,9 +145,18 @@ export default function ModalRemoveAccount(props: Props) {
                 onChange={() => setIsForfeitChecked(!isForfeitChecked)}
               />
             )}
+            {showButton && isWalletMerged && (
+              <div className="help--warning">
+                <p>
+                  {__(
+                    "We detected multiple wallets on this account. Please make sure this account doesn't have any credits, publications or channels that you don't want to lose. If you aren't sure, please reach out to help@odysee.com for support."
+                  )}
+                </p>
+              </div>
+            )}
             <div className="section__actions">
-              {isBusy ? (
-                <BusyIndicator message={__('Removing content...')} />
+              {isBusy || isLoadingAccountInfo ? (
+                <BusyIndicator message={isBusy ? __('Removing content...') : __('Loading account info...')} />
               ) : (
                 showButton && (
                   <Button

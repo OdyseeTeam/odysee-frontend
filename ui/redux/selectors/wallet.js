@@ -239,3 +239,7 @@ export const selectIsSendingCreditsToOdysee = (state) => selectState(state).send
 export const selectPendingConsolidateTxid = (state) => selectState(state).pendingConsolidateTxid;
 export const selectPendingMassClaimTxid = (state) => selectState(state).pendingMassClaimTxid;
 export const selectUtxoCounts = (state) => selectState(state).utxoCounts;
+
+export const selectIsFetchingAccounts = (state) => selectState(state).fetchingAccounts;
+export const selectIsFetchingAccountsSuccess = (state) => selectState(state).fetchingAccountsSuccess;
+export const selectIsWalletMerged = (state) => selectState(state).isMerged;

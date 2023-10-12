@@ -2952,6 +2952,11 @@
   "Remove content and send deletion request" : "Remove content and send deletion request",
   "Remove content" : "Remove content",
   "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.": "IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.",
+  "Failed to load account info. If the issue persists, please reach out to help@odysee.com for support.": "Failed to load account info. If the issue persists, please reach out to help@odysee.com for support.",
+  "We detected multiple wallets on this account. Please make sure this account doesn't have any credits, publications or channels that you don't want to lose. If you aren't sure, please reach out to help@odysee.com for support.": "We detected multiple wallets on this account. Please make sure this account doesn't have any credits, publications or channels that you don't want to lose. If you aren't sure, please reach out to help@odysee.com for support.",
+  "Credits: %credits%": "Credits: %credits%",
+  "Publications: %claims%": "Publications: %claims%",
+  "Channels:": "Channels",
 
   "--end--": "--end--"
 }
