@@ -69,7 +69,8 @@ export default function ModalRemoveAccount(props: Props) {
       doFetchClaimListMine(page, pageSize, resolve);
       doFetchChannelListMine();
     }
-  }, [isPendingDeletion, isWalletEmpty, doFetchAccountList, doFetchClaimListMine, doFetchChannelListMine]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+  }, []);
 
   async function handleOnClick() {
     setButtonClicked(true);
