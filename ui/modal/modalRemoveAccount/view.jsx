@@ -69,7 +69,7 @@ export default function ModalRemoveAccount(props: Props) {
       doFetchClaimListMine(page, pageSize, resolve);
       doFetchChannelListMine();
     }
-  }, [isPendingDeletion, isWalletEmpty, doFetchAccountList, doFetchClaimListMine, doFetchChannelListMine]);
+  }, []);
 
   async function handleOnClick() {
     setButtonClicked(true);
