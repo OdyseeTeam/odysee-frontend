@@ -86,8 +86,8 @@ function PledgesTab(props: Props) {
                   const supportAmount = membership.Subscription.plan.amount; // in cents or 1/100th EUR
                   const interval = membership.Subscription.plan.interval;
 
-                  const startDate = membership.Subscription.current_period_start * 1000;
-                  const endDate = membership.Subscription.current_period_end * 1000;
+                  const startDate = membership.Subscription.start_date * 1000;
+                  const endDate = membership.Subscription.ended_at * 1000 || Date.now();
                   const amountOfMonths = Math.ceil(moment(endDate).diff(moment(startDate), 'months', true));
                   const timeAgoInMonths =
                     amountOfMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
