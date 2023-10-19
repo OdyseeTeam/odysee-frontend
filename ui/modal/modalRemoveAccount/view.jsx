@@ -92,7 +92,7 @@ export default function ModalRemoveAccount(props: Props) {
           <>
             {isBusy
               ? ''
-              : !isLoadingAccountInfo && !isLoadingAccountInfoSuccess
+              : !isLoadingAccountInfo && !isLoadingAccountInfoSuccess && (!isPendingDeletion || !isWalletEmpty)
               ? __(
                   'Failed to load account info. If the issue persists, please reach out to help@odysee.com for support.'
                 )
