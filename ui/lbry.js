@@ -3,6 +3,7 @@ import analytics from 'analytics';
 import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from 'constants/errors';
 import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
+import { PROXY_URL_NO_CF } from 'config';
 
 require('proxy-polyfill');
 
@@ -15,8 +16,8 @@ const Lbry: LbryTypes = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  alternateConnectionString: '',
-  methodsUsingAlternateConnectionString: [],
+  alternateConnectionString: PROXY_URL_NO_CF,
+  methodsUsingAlternateConnectionString: ['txo_list'],
   apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)

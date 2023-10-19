@@ -9,6 +9,7 @@ const config = {
   WEBPACK_ELECTRON_PORT: process.env.WEBPACK_ELECTRON_PORT,
   WEB_SERVER_PORT: process.env.WEB_SERVER_PORT,
   LBRY_WEB_API: process.env.LBRY_WEB_API, // api.na-backend.odysee.com',
+  LBRY_WEB_API_NO_CF: process.env.LBRY_WEB_API_NO_CF, // naked-api.na-backend.odysee.com', bypasses CF timeout (90 seconds) for longer running calls
   LBRY_WEB_PUBLISH_API: process.env.LBRY_WEB_PUBLISH_API,
   LBRY_WEB_PUBLISH_API_V2: process.env.LBRY_WEB_PUBLISH_API_V2,
   LBRY_WEB_PUBLISH_API_V3: process.env.LBRY_WEB_PUBLISH_API_V3,
@@ -105,6 +106,7 @@ const config = {
 
 config.SDK_API_PATH = `${config.LBRY_WEB_API}/api/v1`;
 config.PROXY_URL = `${config.SDK_API_PATH}/proxy`;
+config.PROXY_URL_NO_CF = `${config.LBRY_WEB_API_NO_CF}/api/v1/proxy`;
 
 config.URL_DEV = `http://localhost:${config.WEBPACK_WEB_PORT}`;
 config.URL_LOCAL = `http://localhost:${config.WEB_SERVER_PORT}`;
