@@ -370,6 +370,7 @@ declare type LbryTypes = {
   daemonConnectionString: string,
   alternateConnectionString: string,
   methodsUsingAlternateConnectionString: Array<string>,
+  methodsWithNoArtificialTimeout: Array<string>,
   apiRequestHeaders: { [key: string]: string },
   setDaemonConnectionString: (string) => void,
   setApiHeader: (string, string) => void,

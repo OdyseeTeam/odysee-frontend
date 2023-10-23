@@ -18,6 +18,7 @@ const Lbry: LbryTypes = {
   daemonConnectionString: 'http://localhost:5279',
   alternateConnectionString: PROXY_URL_NO_CF,
   methodsUsingAlternateConnectionString: ['txo_list'],
+  methodsWithNoArtificialTimeout: ['txo_list'],
   apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
@@ -307,12 +308,19 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     return Promise.reject('Dropped due to successive failures.');
   }
 
-  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
+  const baseConnectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
     ? Lbry.alternateConnectionString
     : Lbry.daemonConnectionString;
 
+  const connectionString = `${baseConnectionString}?m=${method}`;
+
   const SDK_FETCH_TIMEOUT_MS = 60000;
-  return fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString + '?m=' + method, options))
+
+  const fetchPromise = Lbry.methodsWithNoArtificialTimeout.includes(method)
+    ? fetch(connectionString, options)
+    : fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString, options));
+
+  return fetchPromise
     .then((response) => checkAndParse(response, method))
     .then((response) => {
       const error = response.error || (response.result && response.result.error);
