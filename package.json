@@ -135,7 +135,7 @@
     "copyfiles": "^2.4.1",
     "country-data": "^0.0.31",
     "cross-env": "^7.0.3",
-    "crypto-js": "^4.0.0",
+    "crypto-js": "^4.2.0",
     "css-doodle": "^0.7.1",
     "css-loader": "^6.7.1",
     "cssnano": "^6.0.0",
