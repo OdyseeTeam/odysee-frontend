@@ -1,3 +1,4 @@
+// @flow
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
@@ -5,9 +6,12 @@ import Lbry from 'lbry';
 import { getAuthToken } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
 
-export const populateAuthTokenHeader = ({ dispatch }) => {
-  return (next) => (action) => {
+type Store = { dispatch: Dispatch, getState: GetState };
+
+export const populateAuthTokenHeader = (store: Store) => {
+  return (next: any) => (action: any) => {
     // @if TARGET='web'
+    const { dispatch } = store;
 
     switch (action.type) {
       case ACTIONS.USER_FETCH_SUCCESS:
@@ -20,9 +24,11 @@ export const populateAuthTokenHeader = ({ dispatch }) => {
         break;
 
       case ACTIONS.USER_LOGGED_IN_BROADCAST:
+        // $FlowIgnore: href does exist
         const isVerifyPage = location.href.includes(PAGES.AUTH_VERIFY) && !location.href.includes(PAGES.REWARDS_VERIFY);
         const isNewAccount = LocalStorage.getItem(LS.IS_NEW_ACCOUNT) === 'true';
         const xAuth = (Lbry.getApiRequestHeaders() || {})[X_LBRY_AUTH_TOKEN] || '';
+
         if (!xAuth) {
           if (isVerifyPage) {
             if (isNewAccount) {
