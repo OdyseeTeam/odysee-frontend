@@ -96,7 +96,7 @@ const PublishStreamReleaseDate = (props: Props) => {
                 format={clock24h ? 'y-MM-dd HH:mm' : 'y-MM-dd h:mm a'}
                 disableClock
                 clearIcon={null}
-                minDate={moment().add('30', 'minutes').toDate()}
+                minDate={moment().startOf('day').toDate()}
               />
             </div>
           )}
