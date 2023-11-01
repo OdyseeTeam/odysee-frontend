@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { doClaimSearch, doResolveClaimId, doResolveUris } from 'redux/actions/claims';
+import { doFetchThumbnailClaimsForCollectionIds } from 'redux/actions/collections';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import {
@@ -86,6 +87,7 @@ const perform = {
   doClaimSearch,
   doResolveClaimId,
   doResolveUris,
+  doFetchThumbnailClaimsForCollectionIds,
 };
 
 export default connect(select, perform)(HomeTabSection);
