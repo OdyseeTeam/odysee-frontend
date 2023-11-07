@@ -64,7 +64,7 @@ type Props = {
   theme: string,
   user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean },
   locale: ?LocaleInfo,
-  location: { pathname: string, hash: string, search: string, hostname: string, reload: () => void },
+  location: { pathname: string, hash: string, search: string, reload: () => void },
   history: { push: (string) => void, location: { pathname: string }, replace: (string) => void },
   signIn: () => void,
   setLanguage: (string) => void,
@@ -148,7 +148,7 @@ function App(props: Props) {
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
   const [sidebarOpen] = usePersistedState('sidebar', false);
 
-  const { pathname, hash, search, hostname } = location;
+  const { pathname, hash, search } = location;
   const [retryingSync, setRetryingSync] = useState(false);
   const [langRenderKey, setLangRenderKey] = useState(0);
   const [seenSunsestMessage, setSeenSunsetMessage] = usePersistedState('lbrytv-sunset', false);
@@ -409,7 +409,7 @@ function App(props: Props) {
       return;
     }
 
-    const useProductionOneTrust = process.env.NODE_ENV === 'production' && hostname === 'odysee.com';
+    const useProductionOneTrust = process.env.NODE_ENV === 'production' && window?.location?.hostname === 'odysee.com';
 
     const script = document.createElement('script');
     script.src = oneTrustScriptSrc;
