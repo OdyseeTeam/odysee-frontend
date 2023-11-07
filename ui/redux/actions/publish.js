@@ -590,6 +590,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       title,
       tags,
       stream_type,
+      release_time,
     } = value;
 
     let state = getState();
@@ -748,6 +749,8 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     } else {
       dispatch(doSetIncognito(true));
     }
+
+    publishData.releaseTime = Number(release_time);
 
     dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
     dispatch(push(`/$/${PUBLISH_PATH_MAP[type]}`));

@@ -22,7 +22,8 @@ type Props = {
 const PublishStreamReleaseDate = (props: Props) => {
   const { isScheduled, releaseTime, clock24h, appLanguage, updatePublishForm } = props;
 
-  const [publishLater, setPublishLater] = React.useState(isScheduled);
+  const minScheduledTimePassed = releaseTime ? releaseTime < dateToLinuxTimestamp(moment().toDate()) : undefined;
+  const [publishLater, setPublishLater] = React.useState(isScheduled && !minScheduledTimePassed);
 
   const getPlus30MinutesDate = () => {
     return moment().add('1', 'hour').add('30', 'minutes').startOf('hour').toDate();
@@ -49,14 +50,6 @@ const PublishStreamReleaseDate = (props: Props) => {
     : __(
         'Your scheduled streams will appear on your channel page and for your followers. Chat will not be active until 5 minutes before the start time.'
       );
-
-  React.useEffect(() => {
-    if (isScheduled) {
-      // TODO: this is doPrepareEdit's responsibility, not the component's.
-      updatePublishForm({ releaseTime: dateToLinuxTimestamp(getPlus30MinutesDate()) });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-  }, []);
 
   return (
     <>
