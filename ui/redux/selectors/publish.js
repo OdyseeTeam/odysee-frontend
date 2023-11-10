@@ -16,6 +16,7 @@ import {
   selectClaimIdsForCollectionId,
   selectIsCollectionPrivateForId,
   selectCollectionHasEditsForId,
+  selectCollectionHasUnsavedEditsForId,
   selectCollectionTitleForId,
 } from 'redux/selectors/collections';
 import { selectActiveChannelClaimId, selectIncognito } from 'redux/selectors/app';
@@ -276,8 +277,9 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   };
 
   const hasEdits = selectCollectionHasEditsForId(state, collectionId);
+  const hasUnSavedEdits = selectCollectionHasUnsavedEditsForId(state, collectionId);
 
-  if (hasEdits) {
+  if (hasEdits || hasUnSavedEdits) {
     // $FlowFixMe please
     Object.assign(collectionClaimUploadParams, privateCollectionParams);
   }
