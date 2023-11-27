@@ -145,7 +145,8 @@
       'image/jpeg',
       'image/png',
       'image/jpg',
-      'image/gif'
+      'image/gif',
+      'image/webp',
     ],
 
     /**
