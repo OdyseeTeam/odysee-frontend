@@ -401,13 +401,25 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   if ((claim && showNullPlaceholder && shouldHide) || (!claim && playlistPreviewItem)) {
     return (
-      <ClaimPreviewHidden
-        message={!claim && playlistPreviewItem ? __('Deleted content') : __('This content is hidden')}
-        isChannel={isChannelUri}
-        type={type}
-        uri={uri}
-        collectionId={!claim && playlistPreviewItem && collectionId ? collectionId : undefined}
-      />
+      <WrapperElement
+        ref={ref}
+        className={classnames('claim-preview__wrapper', {
+          'claim-preview__wrapper--row': !type,
+          'claim-preview__wrapper--inline': type === 'inline',
+          'claim-preview__wrapper--playlist-row': type === 'small' && collectionId,
+          'claim-preview__wrapper--active': active,
+          'non-clickable': nonClickable,
+        })}
+      >
+        <ClaimPreviewHidden
+          message={!claim && playlistPreviewItem ? __('Deleted content') : __('This content is hidden')}
+          isChannel={isChannelUri}
+          type={type}
+          uri={uri}
+          collectionId={!claim && playlistPreviewItem && collectionId ? collectionId : undefined}
+        />
+        {!hideMenu && <ClaimMenuList uri={uri} collectionId={collectionId} />}
+      </WrapperElement>
     );
   }
 
