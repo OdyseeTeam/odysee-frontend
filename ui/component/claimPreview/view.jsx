@@ -408,7 +408,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           'claim-preview__wrapper--inline': type === 'inline',
           'claim-preview__wrapper--playlist-row': type === 'small' && collectionId,
           'claim-preview__wrapper--active': active,
-          'non-clickable': nonClickable,
+          'non-clickable': !playlistPreviewItem || nonClickable,
         })}
       >
         <ClaimPreviewHidden
@@ -418,7 +418,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           uri={uri}
           collectionId={!claim && playlistPreviewItem && collectionId ? collectionId : undefined}
         />
-        {!hideMenu && <ClaimMenuList uri={uri} collectionId={collectionId} />}
+        {playlistPreviewItem && !hideMenu && <ClaimMenuList uri={uri} collectionId={collectionId} />}
       </WrapperElement>
     );
   }
