@@ -48,7 +48,8 @@ const select = (state, props) => {
   };
   const claim = selectClaimForUri(state, uri, false) || placeholderForDeletedClaim;
   const collectionId = props.collectionId;
-  const repostedClaim = claim && claim.reposted_claim;
+  const repostedClaim = claim?.reposted_claim;
+  const isRepost = Boolean(claim?.reposted_claim || claim?.value?.claim_hash);
   const contentClaim = repostedClaim || claim;
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
@@ -63,7 +64,7 @@ const select = (state, props) => {
 
   return {
     claim,
-    repostedClaim,
+    isRepost,
     contentClaim,
     contentSigningChannel,
     contentChannelUri,
