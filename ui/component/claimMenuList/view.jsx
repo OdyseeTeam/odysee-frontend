@@ -31,7 +31,7 @@ type SubscriptionArgs = {
 type Props = {
   uri: string,
   claim: ?Claim,
-  repostedClaim: ?Claim,
+  isRepost: boolean,
   contentClaim: ?Claim,
   contentSigningChannel: ?Claim,
   contentChannelUri: string,
@@ -79,7 +79,7 @@ function ClaimMenuList(props: Props) {
   const {
     uri,
     claim,
-    repostedClaim,
+    isRepost,
     contentClaim,
     contentSigningChannel,
     contentChannelUri,
@@ -133,7 +133,7 @@ function ClaimMenuList(props: Props) {
   const isChannel = !incognitoClaim && !contentSigningChannel;
   const { channelName } = parseURI(contentChannelUri);
   const showDelete = claimIsMine || (fileInfo && (fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0));
-  const subscriptionLabel = repostedClaim
+  const subscriptionLabel = isRepost
     ? isSubscribed
       ? __('Unfollow @%channelName%', { channelName })
       : __('Follow @%channelName%', { channelName })
@@ -215,7 +215,7 @@ function ClaimMenuList(props: Props) {
   */
 
   function handleDelete() {
-    if (!repostedClaim && !isChannel) {
+    if (!isRepost && !isChannel) {
       openModal(MODALS.CONFIRM_FILE_REMOVE, { uri, doGoBack: false });
     } else {
       openModal(MODALS.CONFIRM_CLAIM_REVOKE, { claim, cb: isChannel && (() => replace(`/$/${PAGES.CHANNELS}`)) });
@@ -556,7 +556,7 @@ function ClaimMenuList(props: Props) {
                         </div>
                       </MenuItem>
                     ) */}
-                    {!repostedClaim && (
+                    {!isRepost && (
                       <MenuItem className="comment__menu-option" onSelect={handleEdit}>
                         <div className="menu__link">
                           <Icon aria-hidden icon={ICONS.EDIT} />
