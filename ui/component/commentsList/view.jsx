@@ -334,8 +334,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
   // Infinite scroll
   useEffect(() => {
-    if (topLevelComments.length === 0) return;
-
     function shouldFetchNextPage(page, topLevelTotalPages, yPrefetchPx = 1000) {
       if (!spinnerRef || !spinnerRef.current) return false;
 
@@ -379,7 +377,6 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
       }
     }
   }, [
-    topLevelComments,
     hasDefaultExpansion,
     didInitialPageFetch,
     isFetchingComments,
