@@ -24,6 +24,7 @@ import {
   selectCommentsDisabledSettingForChannelId,
   selectLivestreamChatMembersOnlyForChannelId,
   selectMembersOnlyCommentsForChannelId,
+  selectFetchingCreatorSettings,
 } from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
@@ -63,6 +64,7 @@ const select = (state, props) => {
     claimIsMine: selectClaimIsMine(state, claim),
     hasChannels: selectHasChannels(state),
     isFetchingChannels: selectFetchingMyChannels(state),
+    isFetchingCreatorSettings: selectFetchingCreatorSettings(state),
     myChannelClaimIds: selectMyChannelClaimIds(state),
     myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
     preferredCurrency: selectPreferredCurrency(state),
