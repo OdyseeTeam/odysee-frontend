@@ -47,6 +47,7 @@ type Props = {
   claimIsMine: boolean,
   embed?: boolean,
   isFetchingChannels: boolean,
+  isFetchingCreatorSettings: boolean,
   isNested: boolean,
   isReply: boolean,
   isLivestream?: boolean,
@@ -123,6 +124,7 @@ export function CommentCreate(props: Props) {
     embed,
     hasChannels,
     isFetchingChannels,
+    isFetchingCreatorSettings,
     isLivestream,
     isNested,
     isReply,
@@ -186,6 +188,7 @@ export function CommentCreate(props: Props) {
     deletedComment ||
     isSubmitting ||
     isFetchingChannels ||
+    isFetchingCreatorSettings ||
     hasNothingToSumbit ||
     disableInput;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
