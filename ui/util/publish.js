@@ -288,10 +288,11 @@ const PAYLOAD = {
     },
 
     scheduledLivestream: (tagSet: Set<string>, publishData: UpdatePublishState, releaseTime, nowTime) => {
-      const { liveCreateType, liveEditType } = publishData;
+      const { type, liveCreateType, liveEditType } = publishData;
       const isPlaceholderClaim =
-        liveCreateType === 'new_placeholder' ||
-        (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only');
+        type === 'livestream' &&
+        (liveCreateType === 'new_placeholder' ||
+          (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only'));
 
       if (isPlaceholderClaim && releaseTime && releaseTime > nowTime) {
         // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
