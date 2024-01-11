@@ -120,25 +120,17 @@ class UserVerify extends React.PureComponent<Props> {
           </div>
 
           <Card
-            icon={ICONS.CHAT}
-            title={__('Verify via chat')}
+            icon={ICONS.HELP}
+            title={__('Verify via email')}
             subtitle={
               <>
                 <p>
-                  {__(
-                    'A moderator can approve you within our discord server. Please review the instructions within #rewards-approval carefully.'
-                  )}
+                  {__('You can request verification of your Odysee account by sending an email to help@odysee.com')}
                 </p>
-                <p>{__('You will be asked to provide proof of identity.')}</p>
+                <p>{__('Verification requests can take a few hours to be approved.')}</p>
               </>
             }
-            actions={
-              <Button
-                href="https://verification.odysee.com"
-                button="primary"
-                label={__('Join the Odysee Rewards Discord')}
-              />
-            }
+            actions={<Button href="https://chat.odysee.com" button="primary" label={__('Join our Discord')} />}
           />
 
           {/*
