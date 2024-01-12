@@ -127,10 +127,10 @@ class UserVerify extends React.PureComponent<Props> {
                 <p>
                   {__('You can request verification of your Odysee account by sending an email to help@odysee.com')}
                 </p>
+                <p>{__('You will be asked to provide proof of identity.')}</p>
                 <p>{__('Verification requests can take a few hours to be approved.')}</p>
               </>
             }
-            actions={<Button href="https://chat.odysee.com" button="primary" label={__('Join our Discord')} />}
           />
 
           {/*
