@@ -103,6 +103,7 @@ declare type DoDismissError = {
 declare type NotificationState = {
   notifications: Array<Notification>,
   notificationsFiltered: Array<Notification>,
+  deletedNotificationIds: Array<number>,
   notificationCategories: any,
   fetchingNotifications: boolean,
   errors: Array<ErrorNotification>,

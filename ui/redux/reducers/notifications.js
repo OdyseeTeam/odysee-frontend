@@ -5,6 +5,7 @@ import { handleActions } from 'util/redux-utils';
 const defaultState: NotificationState = {
   notifications: [],
   notificationsFiltered: [],
+  deletedNotificationIds: [],
   notificationCategories: undefined,
   fetchingNotifications: false,
   toasts: [],
@@ -56,17 +57,23 @@ export default handleActions(
       };
     },
     [ACTIONS.NOTIFICATION_LIST_COMPLETED]: (state, action) => {
+      const { deletedNotificationIds } = state;
       const { filterRule, newNotifications } = action.data;
+
+      const deleteIds = (list, ids) => {
+        return list.filter((n) => !ids.includes(n.id));
+      };
+
       if (filterRule) {
         return {
           ...state,
-          notificationsFiltered: newNotifications,
+          notificationsFiltered: deleteIds(newNotifications, deletedNotificationIds),
           fetchingNotifications: false,
         };
       } else {
         return {
           ...state,
-          notifications: newNotifications,
+          notifications: deleteIds(newNotifications, deletedNotificationIds),
           fetchingNotifications: false,
         };
       }
@@ -133,7 +140,7 @@ export default handleActions(
       };
     },
     [ACTIONS.NOTIFICATION_DELETE_COMPLETED]: (state, action) => {
-      const { notifications, notificationsFiltered } = state;
+      const { notifications, notificationsFiltered, deletedNotificationIds } = state;
       const { notificationId } = action.data;
 
       const deleteId = (list, id) => {
@@ -144,6 +151,7 @@ export default handleActions(
         ...state,
         notifications: deleteId(notifications, notificationId),
         notificationsFiltered: deleteId(notificationsFiltered, notificationId),
+        deletedNotificationIds: deletedNotificationIds.concat(notificationId),
       };
     },
 
