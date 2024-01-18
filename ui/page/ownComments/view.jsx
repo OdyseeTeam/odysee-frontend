@@ -42,6 +42,7 @@ export default function OwnComments(props: Props) {
     doCommentListOwn,
   } = props;
   const spinnerRef = React.useRef();
+  const [isLoadingLong, setIsLoadingLong] = React.useState(false);
   const [page, setPage] = React.useState(0);
   const [activeChannelId, setActiveChannelId] = React.useState('');
 
@@ -101,9 +102,26 @@ export default function OwnComments(props: Props) {
 
   // Fetch own comments
   React.useEffect(() => {
-    if (page !== 0 && activeChannelId) {
-      doCommentListOwn(activeChannelId, page, COMMENT_PAGE_SIZE_TOP_LEVEL);
-    }
+    let timeout;
+
+    const fetchData = async () => {
+      setIsLoadingLong(false);
+
+      if (page !== 0 && activeChannelId) {
+        timeout = setTimeout(() => setIsLoadingLong(true), 10000);
+
+        try {
+          await doCommentListOwn(activeChannelId, page, COMMENT_PAGE_SIZE_TOP_LEVEL);
+        } catch (error) {
+          // Handle any errors here
+        } finally {
+          clearTimeout(timeout); // Clear the timeout if the function finishes or fails
+        }
+      }
+    };
+
+    fetchData();
+    return () => clearTimeout(timeout); // Ensure the timeout is cleared when the component unmounts
   }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Infinite scroll
@@ -188,6 +206,7 @@ export default function OwnComments(props: Props) {
             {(isFetchingComments || moreBelow) && (
               <div className="main--empty" ref={spinnerRef}>
                 <Spinner type="small" />
+                {isLoadingLong && <p>{__('Larger comment histories may take time to load')}</p>}
               </div>
             )}
           </>
