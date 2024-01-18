@@ -56,7 +56,7 @@ function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
   const videoUrl =
     embedUrl + (embedlyReferrer ? `referrer=${encodeURIComponent(escapeHtmlProperty(embedlyReferrer))}` : '');
 
-  const { html, width, height } = generateEmbedIframeData(videoUrl);
+  const { html } = generateEmbedIframeData(videoUrl);
 
   return {
     type: 'video',
@@ -70,8 +70,8 @@ function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
     thumbnail_width: THUMBNAIL_WIDTH,
     thumbnail_height: THUMBNAIL_HEIGHT,
     html: html,
-    width: width,
-    height: height,
+    width: 200, // hardcoded to match youtube, this is min width
+    height: 113, // hardcoded to match youtube, this is min height
   };
 }
 

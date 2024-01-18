@@ -41,11 +41,11 @@ function generateEmbedUrlEncoded(claimUri, startTime, referralLink) {
 }
 
 function generateEmbedIframeData(src) {
-  const width = '560';
-  const height = '315';
-  const html = `<iframe id="odysee-iframe" width="${width}" height="${height}" src="${src}" allowfullscreen></iframe>`;
+  const width = '100%';
+  const ratio = '16 / 9';
+  const html = `<iframe id="odysee-iframe" style="width:${width}; aspect-ratio:${ratio};" src="${src}" allowfullscreen></iframe>`;
 
-  return { html, width, height };
+  return { html };
 }
 
 function generateDownloadUrl(claimName, claimId) {
