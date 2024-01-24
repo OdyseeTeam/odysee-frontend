@@ -7,6 +7,7 @@ import Spinner from 'component/spinner';
 
 type Props = {
   data: any,
+  mimeType?: string,
   label: string,
   tooltip?: string,
   defaultFileName?: string,
@@ -23,10 +24,10 @@ class FileExporter extends React.PureComponent<Props> {
   }
 
   handleDownload() {
-    const { data, defaultFileName } = this.props;
+    const { data, mimeType, defaultFileName } = this.props;
 
     const element = document.createElement('a');
-    const file = new Blob([data], { type: 'text/plain' });
+    const file = new Blob([data], { type: mimeType || 'text/plain' });
     element.href = URL.createObjectURL(file);
     element.download = defaultFileName || 'file.txt';
     // $FlowFixMe
