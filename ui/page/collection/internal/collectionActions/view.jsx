@@ -1,6 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
-import { COL_TYPES, SORT_ORDER } from 'constants/collections';
+import { COL_TYPES, SORT_ORDER, SORT_KEYS } from 'constants/collections';
 import React from 'react';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import FileActionButton from 'component/common/file-action-button';
@@ -27,7 +27,7 @@ type Props = {
   collectionType: string,
   doOpenModal: (id: string, props: {}) => void,
   doToggleCollectionSavedForId: (id: string) => void,
-  doSortCollectionByReleaseTime: (collectionId: string, sortOrder: string) => void,
+  doSortCollectionByKey: (collectionId: string, sortByKey: string, sortOrder: string) => void,
 };
 
 function CollectionActions(props: Props) {
@@ -45,7 +45,7 @@ function CollectionActions(props: Props) {
     collectionType,
     // doOpenModal,
     // doToggleCollectionSavedForId,
-    doSortCollectionByReleaseTime,
+    doSortCollectionByKey,
   } = props;
 
   const {
@@ -84,7 +84,7 @@ function CollectionActions(props: Props) {
                   <MenuItem
                     className="comment__menu-option"
                     onSelect={() => {
-                      doSortCollectionByReleaseTime(collectionId, SORT_ORDER.ASC);
+                      doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.ASC);
                     }}
                   >
                     <div className="menu__link">{__('Newest first')}</div>
@@ -92,10 +92,26 @@ function CollectionActions(props: Props) {
                   <MenuItem
                     className="comment__menu-option"
                     onSelect={() => {
-                      doSortCollectionByReleaseTime(collectionId, SORT_ORDER.DESC);
+                      doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.DESC);
                     }}
                   >
                     <div className="menu__link">{__('Oldest first')}</div>
+                  </MenuItem>
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => {
+                      doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.DESC);
+                    }}
+                  >
+                    <div className="menu__link">{__('A-Z')}</div>
+                  </MenuItem>
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => {
+                      doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.ASC);
+                    }}
+                  >
+                    <div className="menu__link">{__('Z-A')}</div>
                   </MenuItem>
                 </MenuList>
               </Menu>
