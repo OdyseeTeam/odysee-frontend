@@ -452,8 +452,8 @@ export const doFetchThumbnailClaimsForCollectionIds =
     );
   };
 
-export const doSortCollectionByReleaseTime =
-  (collectionId: string, sortOrder: string) => async (dispatch: Dispatch, getState: GetState) => {
+export const doSortCollectionByKey =
+  (collectionId: string, sortByKey: string, sortOrder: string) => async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
     const collection: Collection = selectCollectionForId(state, collectionId);
 
@@ -471,13 +471,25 @@ export const doSortCollectionByReleaseTime =
 
     // $FlowIgnore
     const sortedClaims = resolvedClaims.sort((a, b) => {
-      const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
-      const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
+      if (sortByKey === COLS.SORT_KEYS.RELEASED_AT) {
+        const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
+        const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
+        if (sortOrder === COLS.SORT_ORDER.ASC) {
+          return keyB - keyA;
+        } else if (sortOrder === COLS.SORT_ORDER.DESC) {
+          return keyA - keyB;
+        }
+      }
 
-      if (sortOrder === COLS.SORT_ORDER.ASC) {
-        return keyB - keyA;
-      } else if (sortOrder === COLS.SORT_ORDER.DESC) {
-        return keyA - keyB;
+      if (sortByKey === COLS.SORT_KEYS.NAME) {
+        const keyA = a?.value?.title || a?.meta?.name || 'A';
+        const keyB = b?.value?.title || b?.meta?.name || 'A';
+
+        if (sortOrder === COLS.SORT_ORDER.ASC) {
+          return keyB.localeCompare(keyA, undefined, { numeric: true, sensitivity: 'base' });
+        } else if (sortOrder === COLS.SORT_ORDER.DESC) {
+          return keyA.localeCompare(keyB, undefined, { numeric: true, sensitivity: 'base' });
+        }
       }
     });
 

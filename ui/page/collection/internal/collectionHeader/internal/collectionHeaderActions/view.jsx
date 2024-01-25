@@ -34,7 +34,7 @@ type Props = {
   doOpenModal: (id: string, props: {}) => void,
   // doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   doToggleCollectionSavedForId: (id: string) => void,
-  // doSortCollectionByReleaseTime: (collectionId: string, sortOrder: string) => void,
+  // doSortCollectionByKey: (collectionId: string, sortByKey: string, sortOrder: string) => void,
 };
 
 function CollectionHeaderActions(props: Props) {
@@ -54,7 +54,7 @@ function CollectionHeaderActions(props: Props) {
     doOpenModal,
     // doEnableCollectionShuffle,
     doToggleCollectionSavedForId,
-    // doSortCollectionByReleaseTime,
+    // doSortCollectionByKey,
   } = props;
 
   const {

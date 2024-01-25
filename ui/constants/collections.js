@@ -72,6 +72,7 @@ export const SORT_KEYS = Object.freeze({
   NAME: 'name',
   CREATED_AT: 'createdAt',
   UPDATED_AT: 'updatedAt',
+  RELEASED_AT: 'releasedAt',
   COUNT: 'count',
 });
 
