@@ -70,8 +70,8 @@ function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
     thumbnail_width: THUMBNAIL_WIDTH,
     thumbnail_height: THUMBNAIL_HEIGHT,
     html: html,
-    width: 200, // hardcoded to match youtube, this is min width
-    height: 113, // hardcoded to match youtube, this is min height
+    width: 560, // this is min width
+    height: 315, // this is min height
   };
 }
 
