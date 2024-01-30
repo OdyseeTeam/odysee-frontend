@@ -34,6 +34,9 @@ import { getThumbnailFromClaim } from 'util/claim';
 import { creditsToString } from 'util/format-credits';
 import { doToast } from 'redux/actions/notifications';
 
+import { Lbryio } from 'lbryinc';
+import { selectUser } from 'redux/selectors/user';
+
 const FETCH_BATCH_SIZE = 50;
 
 export const doFetchCollectionListMine =
@@ -243,82 +246,117 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: collectionId });
 };
 
-const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch) => {
-  const sortResults = (resultItems: Array<Claim>) => {
-    const newItems: Array<Claim> = [];
+const doFetchCollectionItems =
+  (items: Array<any>, pageSize?: number, isFromEdit?: boolean) => async (dispatch: Dispatch, getState: GetState) => {
+    const sortResults = (resultItems: Array<Claim>) => {
+      const newItems: Array<Claim> = [];
 
-    items.forEach((item) => {
-      const index = resultItems.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(item));
+      items.forEach((item) => {
+        const index = resultItems.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(item));
 
-      if (index >= 0) newItems.push(resultItems[index]);
-    });
-
-    return newItems;
-  };
-
-  const mergeBatches = (arrayOfResults: Array<any>) => {
-    let resultItems = [];
-
-    arrayOfResults.forEach((result: any) => {
-      // $FlowFixMe
-      const claims = result.items || Object.values(result).map((item) => item.stream || item);
-      resultItems = resultItems.concat(claims);
-    });
-
-    return resultItems;
-  };
-
-  try {
-    const batchSize = pageSize || FETCH_BATCH_SIZE;
-    const uriBatches: Array<Promise<any>> = [];
-    const idBatches: Array<Promise<any>> = [];
-
-    const totalItems = items.length;
-
-    for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
-      const batchInitialIndex = i * batchSize;
-      const batchLength = (i + 1) * batchSize;
-
-      // --> Filter in case null/undefined are collection items
-      const batchItems = items.slice(batchInitialIndex, batchLength).filter(Boolean);
-
-      const uris = new Set([]);
-      const ids = new Set([]);
-      batchItems.forEach((item) => {
-        if (item.startsWith('lbry://')) {
-          uris.add(item);
-        } else {
-          ids.add(item);
-        }
+        if (index >= 0) newItems.push(resultItems[index]);
       });
 
-      if (uris.size > 0) {
-        uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
-      }
-      if (ids.size > 0) {
-        idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
-      }
-    }
-    const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
-    const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
+      return newItems;
+    };
 
-    // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
-    const itemsWereFetching = resultItems.length !== items.length;
+    const mergeBatches = (arrayOfResults: Array<any>) => {
+      let resultItems = [];
 
-    if (resultItems && !itemsWereFetching) {
+      arrayOfResults.forEach((result: any) => {
+        // $FlowFixMe
+        const claims = result.items || Object.values(result).map((item) => item.stream || item);
+        resultItems = resultItems.concat(claims);
+      });
+
       return resultItems;
-    } else {
+    };
+
+    try {
+      const batchSize = pageSize || FETCH_BATCH_SIZE;
+      const uriBatches: Array<Promise<any>> = [];
+      const idBatches: Array<Promise<any>> = [];
+
+      const totalItems = items.length;
+
+      /// Temporary debug
+      const state = getState();
+      const user = selectUser(state);
+      if (isFromEdit && user.id === 645368535) {
+        await Lbryio.call('event', 'desktop_error', {
+          error_message: `Playlist debug: ----------------------------- `,
+        });
+        await Lbryio.call('event', 'desktop_error', {
+          error_message: `Playlist debug:items: ${JSON.stringify(
+            items.map((item) => {
+              const match = item.match(/[a-f0-9]{40}/);
+              const claimId = match && match[0];
+              return claimId || item;
+            })
+          )}`,
+        });
+      }
+      /// ^^^
+      for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
+        const batchInitialIndex = i * batchSize;
+        const batchLength = (i + 1) * batchSize;
+
+        // --> Filter in case null/undefined are collection items
+        const batchItems = items.slice(batchInitialIndex, batchLength).filter(Boolean);
+
+        const uris = new Set([]);
+        const ids = new Set([]);
+        batchItems.forEach((item) => {
+          if (item.startsWith('lbry://')) {
+            uris.add(item);
+          } else {
+            ids.add(item);
+          }
+        });
+
+        if (uris.size > 0) {
+          uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
+        }
+        if (ids.size > 0) {
+          idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
+        }
+      }
+      const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
+      const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
+
+      // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
+      const itemsWereFetching = resultItems.length !== items.length;
+
+      // Temporary debug
+      if (isFromEdit && user.id === 645368535) {
+        await Lbryio.call('event', 'desktop_error', {
+          error_message: `Playlist debug:resultItems: ${JSON.stringify(
+            resultItems.map((item) => {
+              if (!item.claim_id) {
+                return item;
+              }
+              return item.claim_id;
+            })
+          )}`,
+        });
+      }
+      /// ^^^
+      if (resultItems && !itemsWereFetching) {
+        return resultItems;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      await Lbryio.call('event', 'desktop_error', { error_message: `Playlist debug:error: ${e.message || e}` });
       return null;
     }
-  } catch (e) {
-    return null;
-  }
-};
+  };
 
 export const doFetchItemsInCollection =
-  (params: { collectionId: string, pageSize?: number }) => async (dispatch: Dispatch, getState: GetState) => {
+  (params: { collectionId: string, pageSize?: number, isFromEdit?: boolean }) =>
+  async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
-    const { collectionId, pageSize } = params;
+    const { collectionId, pageSize, isFromEdit } = params;
 
     const isAlreadyFetching = selectAreCollectionItemsFetchingForId(state, collectionId);
 
@@ -347,7 +385,8 @@ export const doFetchItemsInCollection =
       const collection = selectCollectionForId(state, collectionId);
 
       if (collection.items.length > 0) {
-        promisedCollectionItemsFetch = collection.items && dispatch(doFetchCollectionItems(collection.items, pageSize));
+        promisedCollectionItemsFetch =
+          collection.items && dispatch(doFetchCollectionItems(collection.items, pageSize, isFromEdit));
       } else {
         return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
       }
@@ -355,7 +394,7 @@ export const doFetchItemsInCollection =
       const claim = selectClaimForClaimId(state, collectionId);
 
       const claimIds = getClaimIdsInCollectionClaim(claim);
-      promisedCollectionItemsFetch = claimIds && dispatch(doFetchCollectionItems(claimIds, pageSize));
+      promisedCollectionItemsFetch = claimIds && dispatch(doFetchCollectionItems(claimIds, pageSize, isFromEdit));
     }
 
     // -- Await results:
@@ -524,7 +563,7 @@ export const doCollectionEdit =
 
     let collectionUrls = selectUrlsForCollectionId(state, collectionId);
     if (collectionUrls === undefined) {
-      await dispatch(doFetchItemsInCollection({ collectionId }));
+      await dispatch(doFetchItemsInCollection({ collectionId, isFromEdit: true }));
       state = getState();
       collectionUrls = selectUrlsForCollectionId(state, collectionId);
     }
