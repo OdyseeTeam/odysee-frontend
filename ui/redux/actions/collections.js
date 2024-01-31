@@ -360,8 +360,22 @@ export const doFetchItemsInCollection =
 
     const isAlreadyFetching = selectAreCollectionItemsFetchingForId(state, collectionId);
 
+    const user = selectUser(state);
+    const shouldLog = user.id === 645368535;
+
+    if (isAlreadyFetching && shouldLog) {
+      await Lbryio.call('event', 'desktop_error', {
+        error_message: `Playlist debug: Already fetching, collectionId: ${collectionId}`,
+      });
+    }
+
     if (isAlreadyFetching) return Promise.resolve();
 
+    if (shouldLog) {
+      await Lbryio.call('event', 'desktop_error', {
+        error_message: `Playlist debug: ITEM_RESOLVE_START, collectionId: ${collectionId}`,
+      });
+    }
     dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_START, data: collectionId });
 
     const isPrivate = selectHasPrivateCollectionForId(state, collectionId);
@@ -376,6 +390,11 @@ export const doFetchItemsInCollection =
     }
 
     if (!isPrivate && hasClaim === null) {
+      if (shouldLog) {
+        await Lbryio.call('event', 'desktop_error', {
+          error_message: `Playlist debug: ITEM_RESOLVE_FAIL (public), collectionId: ${collectionId}`,
+        });
+      }
       return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
 
@@ -388,6 +407,11 @@ export const doFetchItemsInCollection =
         promisedCollectionItemsFetch =
           collection.items && dispatch(doFetchCollectionItems(collection.items, pageSize, isFromEdit));
       } else {
+        if (shouldLog) {
+          await Lbryio.call('event', 'desktop_error', {
+            error_message: `Playlist debug: ITEM_RESOLVE_FAIL (private), collectionId: ${collectionId}`,
+          });
+        }
         return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
       }
     } else {
@@ -403,6 +427,11 @@ export const doFetchItemsInCollection =
     }
 
     if (!collectionItems || collectionItems.length === 0) {
+      if (shouldLog) {
+        await Lbryio.call('event', 'desktop_error', {
+          error_message: `Playlist debug: ITEM_RESOLVE_FAIL (general), collectionId: ${collectionId}`,
+        });
+      }
       return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
 
@@ -413,6 +442,12 @@ export const doFetchItemsInCollection =
       const newItems = collectionItems.map((item) => item.permanent_url);
 
       const newPrivateCollection = { ...collection, items: newItems, key: collectionKey };
+
+      if (shouldLog) {
+        await Lbryio.call('event', 'desktop_error', {
+          error_message: `Playlist debug: ITEM_RESOLVE_SUCCESS (private), collectionId: ${collectionId}`,
+        });
+      }
 
       return dispatch({
         type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
@@ -454,6 +489,11 @@ export const doFetchItemsInCollection =
         ...resolveAuxParams(collectionType, claim),
       };
 
+      if (shouldLog) {
+        await Lbryio.call('event', 'desktop_error', {
+          error_message: `Playlist debug: ITEM_RESOLVE_SUCCESS (public), collectionId: ${collectionId}`,
+        });
+      }
       return dispatch(
         batchActions(
           { type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS, data: { resolvedCollection: newStoreCollectionClaim } },
