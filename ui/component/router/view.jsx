@@ -17,6 +17,10 @@ import Spinner from 'component/spinner';
 
 import HomePage from 'page/home';
 
+import { getPathForPage } from 'util/url';
+
+const PLAYLIST_PATH = getPathForPage(PAGES.PLAYLIST);
+
 const Code2257Page = lazyImport(() => import('web/page/code2257' /* webpackChunkName: "code2257" */));
 const PrivacyPolicyPage = lazyImport(() => import('web/page/privacypolicy' /* webpackChunkName: "privacypolicy" */));
 const TOSPage = lazyImport(() => import('web/page/tos' /* webpackChunkName: "tos" */));
@@ -268,16 +272,18 @@ function AppRouter(props: Props) {
 
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
-      let title = '';
+      let pageTitle = '';
       if (pathname.startsWith('/$/')) {
         const name = pathname.substring(3);
-        if (window.CATEGORY_PAGE_TITLE && window.CATEGORY_PAGE_TITLE[name]) {
-          title = window.CATEGORY_PAGE_TITLE[name];
+        if (pathname.startsWith(PLAYLIST_PATH)) {
+          pageTitle = title;
+        } else if (window.CATEGORY_PAGE_TITLE && window.CATEGORY_PAGE_TITLE[name]) {
+          pageTitle = window.CATEGORY_PAGE_TITLE[name];
         } else {
-          title = PAGE_TITLE[name];
+          pageTitle = PAGE_TITLE[name];
         }
       }
-      return __(title) || SITE_TITLE || 'Odysee';
+      return __(pageTitle) || SITE_TITLE || 'Odysee';
     };
 
     if (uri) {
