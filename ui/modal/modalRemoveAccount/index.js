@@ -15,13 +15,14 @@ import {
   selectIsFetchingAccountsSuccess,
 } from 'redux/selectors/wallet';
 import { doFetchAccountList } from 'redux/actions/wallet';
-import { selectUser } from 'redux/selectors/user';
+import { selectUser, selectHasYoutubeChannels } from 'redux/selectors/user';
 import { doFetchChannelListMine, doFetchClaimListMine } from 'redux/actions/claims';
 import { doRemoveAccountSequence } from './thunk';
 import ModalRemoveAccount from './view';
 
 const select = (state) => ({
   isPendingDeletion: selectUser(state)?.pending_deletion,
+  hasYouTubeChannels: selectHasYoutubeChannels(state),
   totalBalance: selectTotalBalance(state),
   totalClaimsCount: selectMyClaimsPageItemCount(state),
   channelUrls: selectMyChannelClaimUrls(state),

@@ -9,6 +9,7 @@ import { FormField } from 'component/common/form';
 
 type Props = {
   isPendingDeletion: ?boolean,
+  hasYouTubeChannels: boolean,
   totalBalance: number,
   totalClaimsCount: number,
   isFetchingChannels: boolean,
@@ -29,6 +30,7 @@ type Props = {
 export default function ModalRemoveAccount(props: Props) {
   const {
     isPendingDeletion,
+    hasYouTubeChannels,
     totalBalance,
     totalClaimsCount,
     isFetchingChannels,
@@ -55,10 +57,7 @@ export default function ModalRemoveAccount(props: Props) {
   const isLoadingAccountInfo = isFetchingChannels || isFetchingAccounts || isFetchingClaims;
   const isLoadingAccountInfoSuccess = isFetchingChannelsSuccess && isFetchingAccountsSuccess && isFetchingClaimsSuccess;
   const showButton =
-    !buttonClicked &&
-    (!isPendingDeletion || !isWalletEmpty) &&
-    isLoadingAccountInfoSuccess &&
-    !isLoadingAccountInfo;
+    !buttonClicked && (!isPendingDeletion || !isWalletEmpty) && isLoadingAccountInfoSuccess && !isLoadingAccountInfo;
 
   React.useEffect(() => {
     if (!isPendingDeletion || !isWalletEmpty) {
@@ -151,6 +150,16 @@ export default function ModalRemoveAccount(props: Props) {
                 <p>
                   {__(
                     "We detected multiple wallets on this account. Please make sure this account doesn't have any credits, publications or channels that you don't want to lose. If you aren't sure, please reach out to help@odysee.com for support."
+                  )}
+                </p>
+              </div>
+            )}
+            {showButton && hasYouTubeChannels && (
+              <div className="help--warning">
+                <p>{__('YOUTUBE SYNCED CHANNELS!')}</p>
+                <p>
+                  {__(
+                    "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it."
                   )}
                 </p>
               </div>
