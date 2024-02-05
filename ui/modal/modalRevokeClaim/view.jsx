@@ -71,6 +71,9 @@ export default function ModalRevokeClaim(props: Props) {
     } else if (shouldConfirmChannel) {
       return (
         <React.Fragment>
+          <p>
+            {__('This will permanently remove your channel. Content published under this channel will be orphaned.')}
+          </p>
           {hasYouTubeChannels && (
             <div className="help--warning">
               <p>{__('YOUTUBE SYNCED CHANNELS!')}</p>
