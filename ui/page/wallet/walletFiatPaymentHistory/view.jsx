@@ -3,6 +3,7 @@ import React from 'react';
 import Button from 'component/button';
 import Paginate from 'component/common/paginate';
 import moment from 'moment';
+import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import { toCapitalCase } from 'util/string';
 
@@ -73,9 +74,10 @@ const WalletFiatPaymentHistory = (props: Props) => {
   function getClaimLink(transaction) {
     return (
       <Button
-        navigate={'/' + transaction.channel_name + ':' + transaction.source_claim_id}
+        navigate={transaction.target_claim_id ? `/$/${PAGES.SEARCH}?q=${transaction.target_claim_id}` : undefined}
         label={transaction.channel_claim_id === transaction.source_claim_id ? __('Channel') : __('Content')}
         button="link"
+        target="_blank"
       />
     );
   }
