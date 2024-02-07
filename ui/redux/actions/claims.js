@@ -91,6 +91,7 @@ export function doResolveUris(
         const membersOnlyClaimIds = new Set([]);
         const channelClaimIds = new Set([]);
         const costInfos = new Set();
+        const fiatClaimIds = [];
 
         const resolveInfo: {
           [uri: string]: {
@@ -149,6 +150,10 @@ export function doResolveUris(
               const isProtected = isClaimProtected(stream);
               if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
+              if (hasFiatTags(stream) && stream.claim_id) {
+                fiatClaimIds.push(stream.claim_id);
+              }
+
               if (stream.signing_channel) {
                 const channel: ChannelClaim = stream.signing_channel;
 
@@ -176,6 +181,10 @@ export function doResolveUris(
 
         if (membersOnlyClaimIds.size > 0) {
           dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
+        }
+
+        if (fiatClaimIds.length > 0) {
+          dispatch(doCheckIfPurchasedClaimIds(fiatClaimIds));
         }
 
         if (channelClaimIds.size > 0) {
