@@ -37,10 +37,7 @@ const selectOptions = createSelector(
       not_channel_ids: mutedAndBlockedIds,
       not_tags: CsOptHelper.not_tags(),
       order_by: ['^release_time'],
-      release_time: [
-        `>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`,
-        `>${Math.floor(moment().startOf('minute').unix())}`,
-      ],
+      release_time: [`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`],
       ...(isLivestream ? { has_no_source: true } : { has_source: true }),
       ...(isLivestream && limitPerChannel ? { limit_claims_per_channel: limitPerChannel } : {}),
     };
