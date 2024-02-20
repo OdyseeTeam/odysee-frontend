@@ -15,10 +15,13 @@ import {
   selectClaimForId,
   makeSelectMetadataItemForUri,
   selectHasClaimForId,
+  selectResolvingIds,
+  selectResolvingUris,
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectResolvedCollectionForId,
+  selectCollectionHasItemsResolvedForId,
   selectHasPrivateCollectionForId,
   selectIsCollectionPrivateForId,
   selectUrlsForCollectionId,
@@ -243,7 +246,7 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: collectionId });
 };
 
-const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch) => {
+const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch, getState: GetState) => {
   const sortResults = (resultItems: Array<Claim>) => {
     const newItems: Array<Claim> = [];
 
@@ -269,6 +272,7 @@ const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (
   };
 
   try {
+    const state = getState();
     const batchSize = pageSize || FETCH_BATCH_SIZE;
     const uriBatches: Array<Promise<any>> = [];
     const idBatches: Array<Promise<any>> = [];
@@ -303,7 +307,17 @@ const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (
     const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
 
     // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
-    const itemsWereFetching = resultItems.length !== items.length;
+    let itemsWereFetching = resultItems.length !== items.length;
+
+    // Related to above. Collection with deleted items would never get "resolved: true" status.
+    // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
+    if (itemsWereFetching) {
+      const resolvingIds = selectResolvingIds(state);
+      const resolvingUris = selectResolvingUris(state);
+      if (resolvingIds.length === 0 && resolvingUris.length === 0) {
+        itemsWereFetching = false;
+      }
+    }
 
     if (resultItems && !itemsWereFetching) {
       return resultItems;
@@ -522,12 +536,14 @@ export const doCollectionEdit =
 
     const { uris, remove, replace, order, type, isPreview } = params;
 
-    let collectionUrls = selectUrlsForCollectionId(state, collectionId);
-    if (collectionUrls === undefined) {
-      await dispatch(doFetchItemsInCollection({ collectionId }));
-      state = getState();
-      collectionUrls = selectUrlsForCollectionId(state, collectionId);
+    await dispatch(doFetchItemsInCollection({ collectionId }));
+    state = getState();
+    const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    if (!hasItemsResolved) {
+      return dispatch(doToast({ message: __('Failed to resolve collection items. Please try again.'), isError: true }));
     }
+
+    const collectionUrls = selectUrlsForCollectionId(state, collectionId);
 
     const currentUrls = collectionUrls ? collectionUrls.concat() : [];
     const currentUrlsSet = new Set(currentUrls);
