@@ -72,7 +72,7 @@ export type Player = {
   isFullscreen: () => boolean,
   muted: (?boolean) => boolean,
   on: (string, (any) => void) => void,
-  off: (string, (any) => void) => void,
+  off: (string, ?(any) => void) => void,
   one: (string, (any) => void) => void,
   play: () => Promise<any>,
   playbackRate: (?number) => number,
