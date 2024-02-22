@@ -314,7 +314,11 @@ const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (
     if (itemsWereFetching) {
       const resolvingIds = selectResolvingIds(state);
       const resolvingUris = selectResolvingUris(state);
-      if (resolvingIds.length === 0 && resolvingUris.length === 0) {
+      if (uriBatches.length === 0 && idBatches.length > 0 && resolvingIds.length === 0) {
+        itemsWereFetching = false;
+      } else if (idBatches.length === 0 && uriBatches.length > 0 && resolvingUris.length === 0) {
+        itemsWereFetching = false;
+      } else if (resolvingUris.length === 0 && resolvingIds.length === 0) {
         itemsWereFetching = false;
       }
     }
@@ -377,7 +381,7 @@ export const doFetchItemsInCollection =
       collectionItems = await promisedCollectionItemsFetch;
     }
 
-    if (!collectionItems || collectionItems.length === 0) {
+    if (!collectionItems || collectionItems?.length === undefined) {
       return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
 
@@ -533,13 +537,13 @@ export const doCollectionEdit =
     }
 
     const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
-
+    const isPrivateVersion = selectHasPrivateCollectionForId(state, collectionId);
     const { uris, remove, replace, order, type, isPreview } = params;
 
     await dispatch(doFetchItemsInCollection({ collectionId }));
     state = getState();
     const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
-    if (!hasItemsResolved) {
+    if (!hasItemsResolved && !isPrivateVersion) {
       return dispatch(doToast({ message: __('Failed to resolve collection items. Please try again.'), isError: true }));
     }
 
