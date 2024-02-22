@@ -539,7 +539,7 @@ export const doCollectionEdit =
     await dispatch(doFetchItemsInCollection({ collectionId }));
     state = getState();
     const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
-    if (!hasItemsResolved) {
+    if (isPublic && !hasItemsResolved) {
       return dispatch(doToast({ message: __('Failed to resolve collection items. Please try again.'), isError: true }));
     }
 
