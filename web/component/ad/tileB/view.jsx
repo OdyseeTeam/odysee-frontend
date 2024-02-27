@@ -75,7 +75,7 @@ function AdTileB(props: Props) {
               nrp.type = 'text/javascript';
               nrp.async = true;
               nrp.src = AD_CONFIG.rumble.url;
-              node.appendChild(nrp);
+              if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
         </div>
