@@ -63,6 +63,7 @@
   .rc-image-container {
     border-radius: var(--border-radius);
     min-height: unset !important;
+    height: unset !important;
     aspect-ratio: 16 / 9;
   }
 
@@ -500,6 +501,13 @@
       img {
         opacity: 1 !important;
       }
+    }
+  }
+
+  &.rc_tileB--rmbl {
+    iframe {
+      border-radius: var(--border-radius);
+      margin-bottom: var(--spacing-m);
     }
   }
 
