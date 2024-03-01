@@ -1,0 +1,26 @@
+.rmbl_aboveComments {
+  width: 100%;
+  div {
+    display: flex;
+    align-items: end;
+
+    iframe {
+      flex: 1;
+    }
+
+    @media (max-width: 1000px) {
+      iframe {
+        &:nth-of-type(3) {
+          display: none !important;
+        }
+      }
+    }
+    @media (max-width: 650px) {
+      iframe {
+        &:nth-of-type(2) {
+          display: none !important;
+        }
+      }
+    }
+  }
+}
