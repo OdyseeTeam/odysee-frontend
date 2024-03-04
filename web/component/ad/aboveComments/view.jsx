@@ -79,21 +79,21 @@ function AdAboveComments(props: Props) {
               if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
-          <script id="nrp-59" type="text/javascript" className="">
+          <script id="nrp-60" type="text/javascript" className="">
             {(function (node) {
               var nrp = document.createElement('script');
               nrp.type = 'text/javascript';
               nrp.async = true;
-              nrp.src = `https://a.ads.rmbl.ws/warp/59?r=${Math.floor(Math.random() * 99999)}`;
+              nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
               if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
-          <script id="nrp-59" type="text/javascript" className="">
+          <script id="nrp-62" type="text/javascript" className="">
             {(function (node) {
               var nrp = document.createElement('script');
               nrp.type = 'text/javascript';
               nrp.async = true;
-              nrp.src = `https://a.ads.rmbl.ws/warp/59?r=${Math.floor(Math.random() * 99999)}`;
+              nrp.src = `https://a.ads.rmbl.ws/warp/62?r=${Math.floor(Math.random() * 99999)}`;
               if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
