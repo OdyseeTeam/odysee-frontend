@@ -8,7 +8,7 @@ const AD_CONFIG = Object.freeze({
     url: 'https://assets.revcontent.com/master/delivery.js',
   },
   rumble: {
-    url: `https://a.ads.rmbl.ws/warp/59?r=${Math.floor(Math.random() * 99999)}`,
+    url: `https://a.ads.rmbl.ws/warp/62?r=${Math.floor(Math.random() * 99999)}`,
   },
 });
 
@@ -69,7 +69,7 @@ function AdTileB(props: Props) {
             'show-rc_tile': isActive,
           })}
         >
-          <script id="nrp-59" type="text/javascript" className="">
+          <script id="nrp-62" type="text/javascript" className="">
             {(function (node) {
               var nrp = document.createElement('script');
               nrp.type = 'text/javascript';

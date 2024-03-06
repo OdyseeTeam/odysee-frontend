@@ -32,7 +32,7 @@ function Ad(props: Props & StateProps & DispatchProps) {
   const { type, uri, tileLayout, shouldShowAds } = props;
   // const device = useIsMobile() ? 'mobile' : 'desktop';
   // const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'clean' : 'revcontent';
-  const provider = 'revcontent';
+  const provider = 'rumble'; // 'revcontent' | 'rumble'
 
   if (!shouldShowAds) {
     return null;
@@ -43,7 +43,7 @@ function Ad(props: Props & StateProps & DispatchProps) {
       {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
       {type === 'tileB' && <AdTileB provider={provider} shouldShowAds={shouldShowAds} />}
       {type === 'sticky' && <AdSticky uri={uri} />}
-      {type === 'aboveComments' && <AdAboveComments provider={'rumble'} shouldShowAds={shouldShowAds} />}
+      {type === 'aboveComments' && <AdAboveComments provider={provider} shouldShowAds={shouldShowAds} />}
     </AdErrorBoundary>
   );
 }

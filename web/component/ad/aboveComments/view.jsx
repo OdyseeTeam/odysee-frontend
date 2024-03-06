@@ -79,6 +79,7 @@ function AdAboveComments(props: Props) {
               if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
+          {/*
           <script id="nrp-60" type="text/javascript" className="">
             {(function (node) {
               var nrp = document.createElement('script');
@@ -97,6 +98,7 @@ function AdAboveComments(props: Props) {
               if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
+          */}
         </div>
       </div>
     );
