@@ -10,6 +10,7 @@ const AD_CONFIG = Object.freeze({
 });
 
 type Props = {
+  provider?: string,
   // --- redux ---
   isContentClaim: boolean,
   isChannelClaim: boolean,
@@ -21,8 +22,16 @@ type Props = {
 };
 
 export default function AdSticky(props: Props) {
-  const { isContentClaim, isChannelClaim, authenticated, shouldShowAds, homepageData, nagsShown, adBlockerFound } =
-    props;
+  const {
+    provider,
+    isContentClaim,
+    isChannelClaim,
+    authenticated,
+    shouldShowAds,
+    homepageData,
+    nagsShown,
+    adBlockerFound,
+  } = props;
 
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
@@ -52,6 +61,11 @@ export default function AdSticky(props: Props) {
     return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
 
+  function closeRmbl() {
+    // setIsActive(false);
+    setIsHidden(true);
+  }
+
   React.useEffect(() => {
     if (isHidden) setLoads(loads + 1);
     if (loads >= 2) {
@@ -71,7 +85,7 @@ export default function AdSticky(props: Props) {
   React.useEffect(() => {
     let script, scriptId, scriptSticky;
 
-    if (shouldShowAds && !isActive && inAllowedPath && !nagsShown) {
+    if (provider === 'revcontent' && shouldShowAds && !isActive && inAllowedPath && !nagsShown) {
       try {
         let stickyIdCheck = false;
         Array.from(document.getElementsByTagName('script')).findIndex((e) => {
@@ -124,26 +138,60 @@ export default function AdSticky(props: Props) {
           if (scriptSticky) document.body.removeChild(scriptSticky);
         };
       } catch (e) {}
+    } else if (provider === 'rumble') {
+      console.log('tick');
+      if (!isActive && !isHidden) setIsActive(true);
     }
-  }, [shouldShowAds, nagsShown, inAllowedPath, isActive]);
+  }, [provider, isHidden, shouldShowAds, nagsShown, inAllowedPath, isActive]);
 
-  return (
-    <div
-      id="sticky-d-rc"
-      ref={stickyContainer}
-      className={classnames({
-        'show-rc-sticky': isActive && !adBlockerFound && !isHidden,
-        FILE: isContentClaim,
-      })}
-    >
-      <div className="sticky-d-rc">
-        <div className="sticky-d-rc-close">
-          Sponsored<button id="rcStickyClose">X</button>
-        </div>
-        <div className="sticky-d-rc-content">
-          <div id="rc-widget-sticky-d" />
+  if (provider === 'revcontent') {
+    return (
+      <div
+        id="sticky-d-rc"
+        ref={stickyContainer}
+        className={classnames({
+          'show-rc-sticky': isActive && !adBlockerFound && !isHidden,
+          FILE: isContentClaim,
+        })}
+      >
+        <div className="sticky-d-rc">
+          <div className="sticky-d-rc-close">
+            Sponsored<button id="rcStickyClose">X</button>
+          </div>
+          <div className="sticky-d-rc-content">
+            <div id="rc-widget-sticky-d" />
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (provider === 'rumble' && isActive && !isHidden) {
+    return (
+      <div
+        id="rmbl-sticky"
+        className={classnames({
+          'show-rmbl-sticky': isActive && !adBlockerFound && !isHidden,
+          FILE: isContentClaim,
+        })}
+      >
+        <div className="rmbl-sticky">
+          <script id="nrp-61" type="text/javascript" className="">
+            {(function (node) {
+              var nrp = document.createElement('script');
+              nrp.type = 'text/javascript';
+              nrp.async = true;
+              nrp.src = `https://a.ads.rmbl.ws/warp/61?r=${Math.floor(Math.random() * 99999)}`;
+              if (node) node.appendChild(nrp);
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+          </script>
+        </div>
+        <div className="rmbl-sticky-close">
+          <button onClick={() => closeRmbl()}>X</button>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }

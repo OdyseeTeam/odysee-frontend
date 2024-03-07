@@ -40,9 +40,9 @@ function Ad(props: Props & StateProps & DispatchProps) {
 
   return (
     <AdErrorBoundary type={type}>
-      {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
+      {type === 'tileA' && <AdTileA provider={provider} tileLayout={tileLayout} />}
       {type === 'tileB' && <AdTileB provider={provider} shouldShowAds={shouldShowAds} />}
-      {type === 'sticky' && <AdSticky uri={uri} />}
+      {type === 'sticky' && <AdSticky provider={'revcontent'} uri={uri} />}
       {type === 'aboveComments' && <AdAboveComments provider={provider} shouldShowAds={shouldShowAds} />}
     </AdErrorBoundary>
   );

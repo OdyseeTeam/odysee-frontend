@@ -11,6 +11,7 @@ const AD_CONFIG = Object.freeze({
 // ****************************************************************************
 
 export type Props = {|
+  provider?: string,
   tileLayout?: boolean,
   noFallback?: boolean,
 |};
@@ -26,7 +27,7 @@ type DispatchProps = {||};
 // ****************************************************************************
 
 function AdTileA(props: Props & StateProps & DispatchProps) {
-  const { tileLayout, shouldShowAds, noFallback } = props;
+  const { provider, tileLayout, shouldShowAds, noFallback } = props;
 
   React.useEffect(() => {
     if (shouldShowAds) {
@@ -45,7 +46,7 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
     }
   }, [shouldShowAds]);
 
-  if (shouldShowAds) {
+  if (shouldShowAds && provider === 'revconent') {
     return (
       <li className="claim-preview--tile">
         <div
@@ -56,6 +57,26 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
           data-endpoint="//trends.revcontent.com"
           data-widget-id="273434"
         />
+      </li>
+    );
+  } else if (shouldShowAds && provider === 'rumble') {
+    return (
+      <li className="claim-preview--tile">
+        <div className={'rc_tile rc_tile--rmbl'}>
+          <div>
+            <script id="nrp-60" type="text/javascript" className="">
+              {(function (node) {
+                var nrp = document.createElement('script');
+                nrp.type = 'text/javascript';
+                nrp.async = true;
+                nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
+                if (node) node.appendChild(nrp);
+              })(
+                document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode
+              )}
+            </script>
+          </div>
+        </div>
       </li>
     );
   } else if (!noFallback) {
