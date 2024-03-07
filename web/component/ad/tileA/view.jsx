@@ -28,23 +28,33 @@ type DispatchProps = {||};
 
 function AdTileA(props: Props & StateProps & DispatchProps) {
   const { provider, tileLayout, shouldShowAds, noFallback } = props;
+  const [iframe, setIframe] = React.useState(false);
 
   React.useEffect(() => {
-    if (shouldShowAds) {
-      let script;
-      try {
-        script = document.createElement('script');
-        script.src = AD_CONFIG.url;
-        // $FlowIgnore
-        document.body.appendChild(script);
-      } catch (e) {}
+    if (provider === 'revcontent') {
+      if (shouldShowAds) {
+        let script;
+        try {
+          script = document.createElement('script');
+          script.src = AD_CONFIG.url;
+          // $FlowIgnore
+          document.body.appendChild(script);
+        } catch (e) {}
 
-      return () => {
-        // $FlowIgnore
-        if (script) document.body.removeChild(script);
-      };
+        return () => {
+          // $FlowIgnore
+          if (script) document.body.removeChild(script);
+        };
+      }
+    } else if (provider === 'rumble') {
+      const adScript = document.getElementById('nrp-60');
+      const iframeCheck = adScript.parentElement.querySelector('iframe') || null;
+      if (iframeCheck) {
+        const iframeHTML = { __html: iframeCheck.outerHTML };
+        setIframe(iframeHTML);
+      }
     }
-  }, [shouldShowAds]);
+  }, [provider, shouldShowAds]);
 
   if (shouldShowAds && provider === 'revconent') {
     return (
@@ -60,25 +70,33 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
       </li>
     );
   } else if (shouldShowAds && provider === 'rumble') {
-    return (
-      <li className="claim-preview--tile">
-        <div className={'rc_tile rc_tile--rmbl'}>
-          <div>
-            <script id="nrp-60" type="text/javascript" className="">
-              {(function (node) {
-                var nrp = document.createElement('script');
-                nrp.type = 'text/javascript';
-                nrp.async = true;
-                nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
-                if (node) node.appendChild(nrp);
-              })(
-                document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode
-              )}
-            </script>
+    if (!iframe) {
+      return (
+        <li className="claim-preview--tile">
+          <div className={'rc_tile rc_tile--rmbl'}>
+            <div>
+              <script id="nrp-60" type="text/javascript" className="">
+                {(function (node) {
+                  var nrp = document.createElement('script');
+                  nrp.type = 'text/javascript';
+                  nrp.async = true;
+                  nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
+                  if (node) node.appendChild(nrp);
+                })(
+                  document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode
+                )}
+              </script>
+            </div>
           </div>
-        </div>
-      </li>
-    );
+        </li>
+      );
+    } else {
+      return (
+        <li className="claim-preview--tile">
+          <div className={'rc_tile rc_tile--rmbl'} dangerouslySetInnerHTML={iframe} />
+        </li>
+      );
+    }
   } else if (!noFallback) {
     return <PremiumPlusTile tileLayout={tileLayout} />;
   }
