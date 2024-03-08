@@ -27,6 +27,7 @@ type DispatchProps = {||};
 // ****************************************************************************
 // ****************************************************************************
 
+// $FlowIgnore
 const Ad = memo(function Ad(props: Props & StateProps & DispatchProps) {
   const { type, uri, tileLayout, shouldShowAds } = props;
   const provider = 'rumble'; // 'revcontent' | 'rumble'

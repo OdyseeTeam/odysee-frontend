@@ -14,19 +14,23 @@ export type Props = {|
   provider?: string,
   tileLayout?: boolean,
   noFallback?: boolean,
+  shouldShowAds?: boolean,
 |};
 
+/*
 type StateProps = {|
   shouldShowAds: boolean,
 |};
 
 type DispatchProps = {||};
+*/
 
 // ****************************************************************************
 // Ads
 // ****************************************************************************
 
-const AdTileA = memo(function AdTileA(props: Props & StateProps & DispatchProps) {
+// $FlowIgnore
+const AdTileA = memo<Props & StateProps & DispatchProps>(function AdTileA(props: any) {
   // function AdTileA(props: Props & StateProps & DispatchProps) {
   const { provider, tileLayout, shouldShowAds, noFallback } = props;
   const [iframe, setIframe] = React.useState(false);
@@ -34,15 +38,15 @@ const AdTileA = memo(function AdTileA(props: Props & StateProps & DispatchProps)
   const [useFallback, setUseFallback] = React.useState(false);
 
   React.useEffect(() => {
-    if (location.pathname.includes('@') && window.innerWidth > 1600) {
+    // $FlowIgnore
+    if (location && location?.pathname && location.pathname?.includes('@') && window.innerWidth > 1600) {
       setUseFallback(true);
     }
     const handleResize = () => {
-      if (location.pathname.includes('@') && window.innerWidth > 1600) {
+      // $FlowIgnore
+      if (location && location?.pathname && location.pathname?.includes('@') && window.innerWidth > 1600) {
         setUseFallback(true);
-      } else {
-        setUseFallback(false);
-      }
+      } else setUseFallback(false);
     };
 
     if (provider === 'revcontent' || useFallback) {
@@ -63,8 +67,9 @@ const AdTileA = memo(function AdTileA(props: Props & StateProps & DispatchProps)
     } else if (provider === 'rumble') {
       window.addEventListener('resize', handleResize);
       const adScript = document.getElementById('nrp-60');
-      const iframeCheck = adScript.parentElement.querySelector('iframe') || null;
-      if (iframeCheck) {
+      const iframeCheck =
+        (adScript && adScript.parentElement && adScript.parentElement.querySelector('iframe')) || null;
+      if (adScript && iframeCheck) {
         adScript.id = 'static';
         const iframeHTML = { __html: iframeCheck.outerHTML };
         setIframe(iframeHTML);
@@ -100,7 +105,7 @@ const AdTileA = memo(function AdTileA(props: Props & StateProps & DispatchProps)
                   nrp.type = 'text/javascript';
                   nrp.async = true;
                   nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
-                  node.appendChild(nrp);
+                  if (node) node.appendChild(nrp);
                   primaryIframeRef.current = true;
                 })(
                   document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode

@@ -21,6 +21,7 @@ type Props = {
   adBlockerFound: ?boolean,
 };
 
+// $FlowIgnore
 const AdSticky = memo(function AdSticky(props: Props) {
   // export default function AdSticky(props: Props) {
   const {
@@ -143,8 +144,9 @@ const AdSticky = memo(function AdSticky(props: Props) {
       } catch (e) {}
     } else if (provider === 'rumble') {
       const adScript = document.getElementById('nrp-61');
-      const iframeCheck = (adScript && adScript.parentElement.querySelector('iframe')) || null;
-      if (iframeCheck) adScript.id = 'static';
+      const iframeCheck =
+        (adScript && adScript.parentElement && adScript.parentElement.querySelector('iframe')) || null;
+      if (adScript && iframeCheck) adScript.id = 'static';
       if (shouldShowAds && !isActive && !isHidden) setIsActive(true);
     }
   }, [provider, isHidden, shouldShowAds, nagsShown, inAllowedPath, isActive]);
