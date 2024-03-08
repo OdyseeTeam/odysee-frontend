@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { memo, useRef, useState, useEffect } from 'react';
 import classnames from 'classnames';
 
 // prettier-ignore
@@ -21,7 +21,8 @@ type Props = {
   adBlockerFound: ?boolean,
 };
 
-export default function AdSticky(props: Props) {
+const AdSticky = memo(function AdSticky(props: Props) {
+  // export default function AdSticky(props: Props) {
   const {
     provider,
     isContentClaim,
@@ -35,22 +36,24 @@ export default function AdSticky(props: Props) {
 
   // $FlowIgnore
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
-  const [isActive, setIsActive] = React.useState(false);
-  const [isHidden, setIsHidden] = React.useState(false);
-  const [loads, setLoads] = React.useState(1);
-  const stickyContainer = React.useRef<?HTMLDivElement>(null);
+  const [isActive, setIsActive] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
+  const [loads, setLoads] = useState(1);
+  const stickyContainer = useRef<?HTMLDivElement>(null);
 
   const observer = new MutationObserver(callback);
 
   function callback(mutationList) {
-    mutationList.forEach(function (mutation) {
-      if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        // $FlowIgnore
-        if (mutation.target && mutation.target.classList && mutation.target.classList.contains('hidden-rc-sticky')) {
-          setIsHidden(true);
+    if (provider === 'revcontent') {
+      mutationList.forEach(function (mutation) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          // $FlowIgnore
+          if (mutation.target && mutation.target.classList && mutation.target.classList.contains('hidden-rc-sticky')) {
+            setIsHidden(true);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
@@ -66,7 +69,7 @@ export default function AdSticky(props: Props) {
     setIsHidden(true);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isHidden) setLoads(loads + 1);
     if (loads >= 2) {
       setIsHidden(false);
@@ -75,14 +78,14 @@ export default function AdSticky(props: Props) {
     // $FlowIgnore
   }, [location.href]); // eslint-disable-line react-hooks/exhaustive-deps -- no idea
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (stickyContainer && stickyContainer.current) {
       observer.observe(stickyContainer.current, { attributes: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     let script, scriptId, scriptSticky;
 
     if (provider === 'revcontent' && shouldShowAds && !isActive && inAllowedPath && !nagsShown) {
@@ -139,12 +142,14 @@ export default function AdSticky(props: Props) {
         };
       } catch (e) {}
     } else if (provider === 'rumble') {
-      console.log('tick');
-      if (!isActive && !isHidden) setIsActive(true);
+      const adScript = document.getElementById('nrp-61');
+      const iframeCheck = (adScript && adScript.parentElement.querySelector('iframe')) || null;
+      if (iframeCheck) adScript.id = 'static';
+      if (shouldShowAds && !isActive && !isHidden) setIsActive(true);
     }
   }, [provider, isHidden, shouldShowAds, nagsShown, inAllowedPath, isActive]);
 
-  if (provider === 'revcontent') {
+  if (shouldShowAds && provider === 'revcontent') {
     return (
       <div
         id="sticky-d-rc"
@@ -166,10 +171,11 @@ export default function AdSticky(props: Props) {
     );
   }
 
-  if (provider === 'rumble' && isActive && !isHidden) {
+  if (shouldShowAds && provider === 'rumble') {
     return (
       <div
         id="rmbl-sticky"
+        ref={stickyContainer}
         className={classnames({
           'show-rmbl-sticky': isActive && !adBlockerFound && !isHidden,
           FILE: isContentClaim,
@@ -194,4 +200,6 @@ export default function AdSticky(props: Props) {
   }
 
   return null;
-}
+});
+
+export default AdSticky;

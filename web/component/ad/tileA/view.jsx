@@ -1,9 +1,9 @@
 // @flow
-import React from 'react';
+import React, { memo } from 'react';
 import PremiumPlusTile from 'component/premiumPlusTile';
 
 // prettier-ignore
-const AD_CONFIG = Object.freeze({
+const AD_CONFIG: {| url: string |} = Object.freeze({
   url: 'https://assets.revcontent.com/master/delivery.js',
 });
 
@@ -26,12 +26,26 @@ type DispatchProps = {||};
 // Ads
 // ****************************************************************************
 
-function AdTileA(props: Props & StateProps & DispatchProps) {
+const AdTileA = memo(function AdTileA(props: Props & StateProps & DispatchProps) {
+  // function AdTileA(props: Props & StateProps & DispatchProps) {
   const { provider, tileLayout, shouldShowAds, noFallback } = props;
   const [iframe, setIframe] = React.useState(false);
+  const primaryIframeRef = React.useRef(false);
+  const [useFallback, setUseFallback] = React.useState(false);
 
   React.useEffect(() => {
-    if (provider === 'revcontent') {
+    if (location.pathname.includes('@') && window.innerWidth > 1600) {
+      setUseFallback(true);
+    }
+    const handleResize = () => {
+      if (location.pathname.includes('@') && window.innerWidth > 1600) {
+        setUseFallback(true);
+      } else {
+        setUseFallback(false);
+      }
+    };
+
+    if (provider === 'revcontent' || useFallback) {
       if (shouldShowAds) {
         let script;
         try {
@@ -47,16 +61,21 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
         };
       }
     } else if (provider === 'rumble') {
+      window.addEventListener('resize', handleResize);
       const adScript = document.getElementById('nrp-60');
       const iframeCheck = adScript.parentElement.querySelector('iframe') || null;
       if (iframeCheck) {
+        adScript.id = 'static';
         const iframeHTML = { __html: iframeCheck.outerHTML };
         setIframe(iframeHTML);
       }
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
     }
-  }, [provider, shouldShowAds]);
+  }, [provider, shouldShowAds, useFallback]);
 
-  if (shouldShowAds && provider === 'revconent') {
+  if (shouldShowAds && (provider === 'revconent' || useFallback)) {
     return (
       <li className="claim-preview--tile">
         <div
@@ -69,7 +88,7 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
         />
       </li>
     );
-  } else if (shouldShowAds && provider === 'rumble') {
+  } else if (shouldShowAds && provider === 'rumble' && !useFallback) {
     if (!iframe) {
       return (
         <li className="claim-preview--tile">
@@ -81,7 +100,8 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
                   nrp.type = 'text/javascript';
                   nrp.async = true;
                   nrp.src = `https://a.ads.rmbl.ws/warp/60?r=${Math.floor(Math.random() * 99999)}`;
-                  if (node) node.appendChild(nrp);
+                  node.appendChild(nrp);
+                  primaryIframeRef.current = true;
                 })(
                   document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode
                 )}
@@ -102,6 +122,6 @@ function AdTileA(props: Props & StateProps & DispatchProps) {
   }
 
   return null;
-}
+});
 
 export default AdTileA;
