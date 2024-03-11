@@ -401,7 +401,7 @@ function App(props: Props) {
     }
 
     if (inIframe() || !locale || !locale.gdpr_required) {
-      const ad = document.getElementById('sticky-d-rc');
+      const ad = document.getElementById('rmbl-sticky') || document.getElementById('sticky-d-rc');
       if (ad) {
         if (!nagsShown) ad.classList.add('VISIBLE');
         if (!sidebarOpen || isMobile) ad.classList.remove('LEFT');

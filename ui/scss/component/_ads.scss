@@ -292,6 +292,11 @@
     left: 0 !important;
     width: 100% !important;
     border-radius: var(--border-radius) 0 0 0;
+
+    &.FILE:not(.LEFT) {
+      left: 0 !important;
+      width: 100% !important;
+    }
   }
 
   &.show-rmbl-sticky {
@@ -328,7 +333,6 @@
     button {
       background-color: var(--color-primary);
       color: var(--color-text);
-      // margin-left: var(--spacing-s);
       width: 26px;
       border-radius: var(--border-radius);
     }
