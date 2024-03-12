@@ -17,6 +17,7 @@ export type Props = {|
 |};
 
 type StateProps = {|
+  adBlockerFound: boolean,
   shouldShowAds: boolean,
   // channelIdWhitelist?: ?any,
   channelId: ?ChannelId,
@@ -29,10 +30,12 @@ type DispatchProps = {||};
 
 // $FlowIgnore
 const Ad = memo(function Ad(props: Props & StateProps & DispatchProps) {
-  const { type, uri, tileLayout, shouldShowAds } = props;
+  const { type, uri, tileLayout, adBlockerFound, shouldShowAds } = props;
   const provider = 'rumble'; // 'revcontent' | 'rumble'
 
-  if (!shouldShowAds) {
+  if (!shouldShowAds && adBlockerFound !== true) {
+    return null;
+  } else if (adBlockerFound && type !== 'tileA') {
     return null;
   }
 

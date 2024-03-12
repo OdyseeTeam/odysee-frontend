@@ -54,6 +54,11 @@ const AdSticky = memo(function AdSticky(props: Props) {
           }
         }
       });
+    } else if (provider === 'rumble') {
+      // $FlowIgnore
+      stickyContainer.current?.firstElementChild
+        ?.querySelectorAll('iframe:not(:first-child)')
+        .forEach((iframe) => iframe.remove());
     }
   }
 
@@ -66,7 +71,6 @@ const AdSticky = memo(function AdSticky(props: Props) {
   }
 
   function closeRmbl() {
-    // setIsActive(false);
     setIsHidden(true);
   }
 
@@ -143,6 +147,22 @@ const AdSticky = memo(function AdSticky(props: Props) {
         };
       } catch (e) {}
     } else if (provider === 'rumble') {
+      // $FlowIgnore
+      document.body
+        .querySelectorAll('script[src*="warp/59"]')
+        ?.forEach((script, index) => index > 0 && script.remove());
+      // $FlowIgnore
+      document.body
+        .querySelectorAll('script[src*="warp/61"]')
+        ?.forEach((script, index) => index > 0 && script.remove());
+      // $FlowIgnore
+      document.body
+        .querySelectorAll('script[src*="warp/62"]')
+        ?.forEach((script, index) => index > 0 && script.remove());
+      // $FlowIgnore
+      const iframes = stickyContainer.current?.firstElementChild?.querySelectorAll('iframe');
+      if (iframes) iframes.forEach((iframe) => iframe.remove());
+
       const adScript = document.getElementById('nrp-61');
       const iframeCheck =
         (adScript && adScript.parentElement && adScript.parentElement.querySelector('iframe')) || null;
