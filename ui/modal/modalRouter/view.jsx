@@ -10,6 +10,7 @@ import { ModalContext } from 'contexts/modal';
 
 // prettier-ignore
 const MAP = Object.freeze({
+  [MODALS.ACCOUNT_DELETE]: lazyImport(() => import('modal/modalRemoveAccount' /* webpackChunkName: "modalRemoveAccount" */)),
   [MODALS.ADD_CARD]: lazyImport(() => import('modal/modalStripeCard' /* webpackChunkName: "modalStripeCard" */)),
   [MODALS.ANNOUNCEMENTS]: lazyImport(() => import('modal/modalAnnouncements' /* webpackChunkName: "modalAnnouncements" */)),
   [MODALS.AFFIRM_PURCHASE]: lazyImport(() => import('modal/modalAffirmPurchase' /* webpackChunkName: "modalAffirmPurchase" */)),

@@ -31,8 +31,8 @@ type SubscriptionArgs = {
 
 type Props = {
   uri: string,
-  claim: ?Claim,
-  repostedClaim: ?Claim,
+  claim: Claim,
+  isRepost: boolean,
   contentClaim: ?Claim,
   contentSigningChannel: ?Claim,
   contentChannelUri: string,
@@ -80,7 +80,7 @@ function ClaimMenuList(props: Props) {
   const {
     uri,
     claim,
-    repostedClaim,
+    isRepost,
     contentClaim,
     contentSigningChannel,
     contentChannelUri,
@@ -134,7 +134,7 @@ function ClaimMenuList(props: Props) {
   const isChannel = !incognitoClaim && !contentSigningChannel;
   const { channelName } = parseURI(contentChannelUri);
   const showDelete = claimIsMine || (fileInfo && (fileInfo.written_bytes > 0 || fileInfo.blobs_completed > 0));
-  const subscriptionLabel = repostedClaim
+  const subscriptionLabel = isRepost
     ? isSubscribed
       ? __('Unfollow @%channelName%', { channelName })
       : __('Follow @%channelName%', { channelName })
@@ -142,7 +142,7 @@ function ClaimMenuList(props: Props) {
     ? __('Unfollow')
     : __('Follow');
 
-  if (!claim) {
+  if (claim.value_type === 'deleted' && !collectionId) {
     return null;
   }
 
@@ -216,7 +216,7 @@ function ClaimMenuList(props: Props) {
   */
 
   function handleDelete() {
-    if (!repostedClaim && !isChannel) {
+    if (!isRepost && !isChannel) {
       openModal(MODALS.CONFIRM_FILE_REMOVE, { uri, doGoBack: false });
     } else {
       openModal(MODALS.CONFIRM_CLAIM_REVOKE, { claim, cb: isChannel && (() => replace(`/$/${PAGES.CHANNELS}`)) });
@@ -412,211 +412,231 @@ function ClaimMenuList(props: Props) {
       </MenuButton>
 
       <MenuList className="menu__list">
-        {/* FYP */}
-        {fypId && (
-          <>
-            <MenuItem className="comment__menu-option" onSelect={() => doRemovePersonalRecommendation(uri)}>
-              <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.REMOVE} />
-                {__('Not interested')}
-              </div>
-            </MenuItem>
-            <hr className="menu__separator" />
-          </>
-        )}
-
-        <>
-          {/* COLLECTION OPERATIONS */}
-          {collectionId && isCollectionClaim ? (
+        {claim.value_type === 'deleted' && collectionId ? (
+          <AddToCollectionContext />
+        ) : (
+          claim.value_type !== 'deleted' && (
             <>
-              <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}`)}>
-                <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
-                  <Icon aria-hidden icon={ICONS.VIEW} />
-                  {__('View Playlist')}
-                </a>
-              </MenuItem>
-              {!collectionEmpty && (
-                <MenuItem className="comment__menu-option" onSelect={() => doEnableCollectionShuffle({ collectionId })}>
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.SHUFFLE} />
-                    {__('Shuffle Play')}
-                  </div>
-                </MenuItem>
-              )}
-              {isMyCollection && (
+              {/* FYP */}
+              {fypId && (
                 <>
-                  {!collectionEmpty && (
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() =>
-                        push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)
-                      }
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
-                        {hasEdits ? __('Publish') : __('Update')}
-                      </div>
-                    </MenuItem>
-                  )}
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)}
-                  >
+                  <MenuItem className="comment__menu-option" onSelect={() => doRemovePersonalRecommendation(uri)}>
                     <div className="menu__link">
-                      <Icon aria-hidden icon={ICONS.EDIT} />
-                      {__('Edit')}
+                      <Icon aria-hidden icon={ICONS.REMOVE} />
+                      {__('Not interested')}
                     </div>
                   </MenuItem>
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => openModal(MODALS.COLLECTION_DELETE, { collectionId })}
-                  >
-                    <div className="menu__link">
-                      <Icon aria-hidden icon={ICONS.DELETE} />
-                      {__('Delete Playlist')}
-                    </div>
-                  </MenuItem>
+                  <hr className="menu__separator" />
                 </>
               )}
-            </>
-          ) : (
-            <AddToCollectionContext />
-          )}
-        </>
 
-        {contentClaim && isContentProtectedAndLocked && !claimIsMine && (
-          <MenuItem
-            className="comment__menu-option"
-            onSelect={() =>
-              openModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri: contentClaim.permanent_url, shouldNavigate: true })
-            }
-          >
-            <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
-              {__('Join')}
-            </div>
-          </MenuItem>
-        )}
-
-        {isAuthenticated && (
-          <>
-            {window.odysee && !window?.odysee?.build?.googlePlay && !isChannelPage && (
               <>
-                <MenuItem className="comment__menu-option" onSelect={handleSupport}>
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.LBC} />
-                    {__('Support --[button to support a claim]--')}
-                  </div>
-                </MenuItem>
-              </>
-            )}
-
-            {!incognitoClaim && !claimIsMine && !isChannelPage && (
-              <>
-                <hr className="menu__separator" />
-                <MenuItem className="comment__menu-option" onSelect={handleFollow}>
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.SUBSCRIBE} />
-                    {subscriptionLabel}
-                  </div>
-                </MenuItem>
-              </>
-            )}
-
-            {!isMyCollection && (
-              <>
-                {(!claimIsMine || channelIsBlocked) && contentChannelUri ? (
-                  !incognitoClaim && (
-                    <>
-                      <MenuItem className="comment__menu-option" onSelect={handleToggleBlock}>
-                        <div className="menu__link">
-                          <Icon aria-hidden icon={ICONS.BLOCK} />
-                          {channelIsBlocked ? __('Unblock Channel') : __('Block Channel')}
-                        </div>
-                      </MenuItem>
-
-                      {isAdmin && (
-                        <MenuItem className="comment__menu-option" onSelect={handleToggleAdminBlock}>
-                          <div className="menu__link">
-                            <Icon aria-hidden icon={ICONS.GLOBE} />
-                            {channelIsAdminBlocked ? __('Global Unblock Channel') : __('Global Block Channel')}
-                          </div>
-                        </MenuItem>
-                      )}
-
-                      <MenuItem className="comment__menu-option" onSelect={handleToggleMute}>
-                        <div className="menu__link">
-                          <Icon aria-hidden icon={ICONS.MUTE} />
-                          {channelIsMuted ? __('Unmute Channel') : __('Mute Channel')}
-                        </div>
-                      </MenuItem>
-                    </>
-                  )
-                ) : (
+                {/* COLLECTION OPERATIONS */}
+                {collectionId && isCollectionClaim ? (
                   <>
-                    {/* claimIsMine && (
-                      <MenuItem className="comment__menu-option" onSelect={handleFeature}>
+                    <MenuItem
+                      className="comment__menu-option"
+                      onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}`)}
+                    >
+                      <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
+                        <Icon aria-hidden icon={ICONS.VIEW} />
+                        {__('View Playlist')}
+                      </a>
+                    </MenuItem>
+                    {!collectionEmpty && (
+                      <MenuItem
+                        className="comment__menu-option"
+                        onSelect={() => doEnableCollectionShuffle({ collectionId })}
+                      >
                         <div className="menu__link">
-                          <Icon aria-hidden icon={ICONS.HOME} />
-                          {__('Feature')}
-                        </div>
-                      </MenuItem>
-                    ) */}
-                    {!repostedClaim && (
-                      <MenuItem className="comment__menu-option" onSelect={handleEdit}>
-                        <div className="menu__link">
-                          <Icon aria-hidden icon={ICONS.EDIT} />
-                          {__('Edit')}
+                          <Icon aria-hidden icon={ICONS.SHUFFLE} />
+                          {__('Shuffle Play')}
                         </div>
                       </MenuItem>
                     )}
+                    {isMyCollection && (
+                      <>
+                        {!collectionEmpty && (
+                          <MenuItem
+                            className="comment__menu-option"
+                            onSelect={() =>
+                              push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)
+                            }
+                          >
+                            <div className="menu__link">
+                              <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
+                              {hasEdits ? __('Publish') : __('Update')}
+                            </div>
+                          </MenuItem>
+                        )}
+                        <MenuItem
+                          className="comment__menu-option"
+                          onSelect={() =>
+                            push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)
+                          }
+                        >
+                          <div className="menu__link">
+                            <Icon aria-hidden icon={ICONS.EDIT} />
+                            {__('Edit')}
+                          </div>
+                        </MenuItem>
+                        <MenuItem
+                          className="comment__menu-option"
+                          onSelect={() => openModal(MODALS.COLLECTION_DELETE, { collectionId })}
+                        >
+                          <div className="menu__link">
+                            <Icon aria-hidden icon={ICONS.DELETE} />
+                            {__('Delete Playlist')}
+                          </div>
+                        </MenuItem>
+                      </>
+                    )}
                   </>
-                )}
-
-                {showDelete && (
-                  <MenuItem className="comment__menu-option" onSelect={handleDelete}>
-                    <div className="menu__link">
-                      <Icon aria-hidden icon={ICONS.DELETE} />
-                      {__('Delete')}
-                    </div>
-                  </MenuItem>
+                ) : (
+                  <AddToCollectionContext />
                 )}
               </>
-            )}
-            <hr className="menu__separator" />
-          </>
-        )}
 
-        <MenuItem className="comment__menu-option" onSelect={handleCopyLink}>
-          <div className="menu__link">
-            <Icon aria-hidden icon={ICONS.COPY_LINK} />
-            {__('Copy Link')}
-          </div>
-        </MenuItem>
+              {contentClaim && isContentProtectedAndLocked && !claimIsMine && (
+                <MenuItem
+                  className="comment__menu-option"
+                  onSelect={() =>
+                    openModal(MODALS.JOIN_MEMBERSHIP, {
+                      uri,
+                      fileUri: contentClaim.permanent_url,
+                      shouldNavigate: true,
+                    })
+                  }
+                >
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
+                    {__('Join')}
+                  </div>
+                </MenuItem>
+              )}
 
-        {isChannelPage && IS_WEB && rssUrl && (
-          <MenuItem className="comment__menu-option" onSelect={handleCopyRssLink}>
-            <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.RSS} />
-              {__('Copy RSS URL')}
-            </div>
-          </MenuItem>
-        )}
+              {isAuthenticated && (
+                <>
+                  {!isChannelPage && (
+                    <>
+                      <MenuItem className="comment__menu-option" onSelect={handleSupport}>
+                        <div className="menu__link">
+                          <Icon aria-hidden icon={ICONS.LBC} />
+                          {__('Support --[button to support a claim]--')}
+                        </div>
+                      </MenuItem>
+                    </>
+                  )}
 
-        {!claimIsMine && !isMyCollection && (
-          <MenuItem
-            className="comment__menu-option"
-            onSelect={isEmbed ? (e) => e.preventDefault() : handleReportContent}
-          >
-            <NavLink
-              className="menu__link"
-              to={{ pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '' }}
-              target={isEmbed && '_blank'}
-            >
-              <Icon aria-hidden icon={ICONS.REPORT} />
-              {__('Report Content')}
-            </NavLink>
-          </MenuItem>
+                  {!incognitoClaim && !claimIsMine && !isChannelPage && (
+                    <>
+                      <hr className="menu__separator" />
+                      <MenuItem className="comment__menu-option" onSelect={handleFollow}>
+                        <div className="menu__link">
+                          <Icon aria-hidden icon={ICONS.SUBSCRIBE} />
+                          {subscriptionLabel}
+                        </div>
+                      </MenuItem>
+                    </>
+                  )}
+
+                  {!isMyCollection && (
+                    <>
+                      {(!claimIsMine || channelIsBlocked) && contentChannelUri ? (
+                        !incognitoClaim && (
+                          <>
+                            <MenuItem className="comment__menu-option" onSelect={handleToggleBlock}>
+                              <div className="menu__link">
+                                <Icon aria-hidden icon={ICONS.BLOCK} />
+                                {channelIsBlocked ? __('Unblock Channel') : __('Block Channel')}
+                              </div>
+                            </MenuItem>
+
+                            {isAdmin && (
+                              <MenuItem className="comment__menu-option" onSelect={handleToggleAdminBlock}>
+                                <div className="menu__link">
+                                  <Icon aria-hidden icon={ICONS.GLOBE} />
+                                  {channelIsAdminBlocked ? __('Global Unblock Channel') : __('Global Block Channel')}
+                                </div>
+                              </MenuItem>
+                            )}
+
+                            <MenuItem className="comment__menu-option" onSelect={handleToggleMute}>
+                              <div className="menu__link">
+                                <Icon aria-hidden icon={ICONS.MUTE} />
+                                {channelIsMuted ? __('Unmute Channel') : __('Mute Channel')}
+                              </div>
+                            </MenuItem>
+                          </>
+                        )
+                      ) : (
+                        <>
+                          {/* claimIsMine && (
+                        <MenuItem className="comment__menu-option" onSelect={handleFeature}>
+                          <div className="menu__link">
+                            <Icon aria-hidden icon={ICONS.HOME} />
+                            {__('Feature')}
+                          </div>
+                        </MenuItem>
+                      ) */}
+                          {!isRepost && (
+                            <MenuItem className="comment__menu-option" onSelect={handleEdit}>
+                              <div className="menu__link">
+                                <Icon aria-hidden icon={ICONS.EDIT} />
+                                {__('Edit')}
+                              </div>
+                            </MenuItem>
+                          )}
+                        </>
+                      )}
+
+                      {showDelete && (
+                        <MenuItem className="comment__menu-option" onSelect={handleDelete}>
+                          <div className="menu__link">
+                            <Icon aria-hidden icon={ICONS.DELETE} />
+                            {__('Delete')}
+                          </div>
+                        </MenuItem>
+                      )}
+                    </>
+                  )}
+                  <hr className="menu__separator" />
+                </>
+              )}
+
+              <MenuItem className="comment__menu-option" onSelect={handleCopyLink}>
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.COPY_LINK} />
+                  {__('Copy Link')}
+                </div>
+              </MenuItem>
+
+              {isChannelPage && IS_WEB && rssUrl && (
+                <MenuItem className="comment__menu-option" onSelect={handleCopyRssLink}>
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.RSS} />
+                    {__('Copy RSS URL')}
+                  </div>
+                </MenuItem>
+              )}
+
+              {!claimIsMine && !isMyCollection && (
+                <MenuItem
+                  className="comment__menu-option"
+                  onSelect={isEmbed ? (e) => e.preventDefault() : handleReportContent}
+                >
+                  <NavLink
+                    className="menu__link"
+                    to={{ pathname: contentClaim ? `/$/${PAGES.REPORT_CONTENT}?claimId=${contentClaim.claim_id}` : '' }}
+                    target={isEmbed && '_blank'}
+                  >
+                    <Icon aria-hidden icon={ICONS.REPORT} />
+                    {__('Report Content')}
+                  </NavLink>
+                </MenuItem>
+              )}
+            </>
+          )
         )}
       </MenuList>
     </Menu>

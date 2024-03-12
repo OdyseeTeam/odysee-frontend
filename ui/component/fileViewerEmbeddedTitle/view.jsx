@@ -13,21 +13,19 @@ type Props = {
   title: ?string,
   preferEmbed: boolean,
   contentPosition: number,
+  uriAccessKey: ?UriAccessKey,
 };
 
 function FileViewerEmbeddedTitle(props: Props) {
-  const { uri, isLivestreamClaim, title, preferEmbed, contentPosition } = props;
+  const { uri, isLivestreamClaim, title, preferEmbed, contentPosition, uriAccessKey } = props;
 
   const isEmbed = React.useContext(EmbedContext);
 
-  const urlParams = new URLSearchParams();
-
-  if (isEmbed) {
-    urlParams.set('src', 'embed');
-  }
-  if (contentPosition && !isLivestreamClaim) {
-    urlParams.set('t', String(contentPosition));
-  }
+  const urlParams = new URLSearchParams({
+    ...(isEmbed ? { src: 'embed' } : {}),
+    ...(contentPosition && !isLivestreamClaim ? { t: String(contentPosition) } : {}),
+    ...(uriAccessKey ? { signature: uriAccessKey.signature, signature_ts: uriAccessKey.signature_ts } : {}),
+  });
 
   const contentLink =
     (isEmbed ? URL : '') + formatLbryUrlForWeb(uri) + (urlParams.toString() ? `?${urlParams.toString()}` : '');

@@ -40,9 +40,16 @@ import ClaimPreview from './view';
 
 const select = (state, props) => {
   const { uri } = props;
-  const claim = selectClaimForUri(state, uri, false);
+  // This is used to handle deleted content in lists
+  const placeholderForDeletedClaim = {
+    canonical_url: uri,
+    permanent_url: uri,
+    value_type: 'deleted',
+  };
+  const claim = selectClaimForUri(state, uri, false) || placeholderForDeletedClaim;
   const collectionId = props.collectionId;
-  const repostedClaim = claim && claim.reposted_claim;
+  const repostedClaim = claim?.reposted_claim;
+  const isRepost = Boolean(claim?.reposted_claim || claim?.value?.claim_hash);
   const contentClaim = repostedClaim || claim;
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
@@ -57,7 +64,7 @@ const select = (state, props) => {
 
   return {
     claim,
-    repostedClaim,
+    isRepost,
     contentClaim,
     contentSigningChannel,
     contentChannelUri,

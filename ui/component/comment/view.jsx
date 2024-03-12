@@ -20,6 +20,7 @@ import {
   COMMENT_PAGE_SIZE_REPLIES,
   LINKED_COMMENT_QUERY_PARAM,
   THREAD_COMMENT_QUERY_PARAM,
+  THRESHOLD_MS,
 } from 'constants/comment';
 import { FF_MAX_CHARS_IN_COMMENT } from 'constants/form-field';
 import { SITE_NAME, SIMPLE_SITE, ENABLE_COMMENT_REACTIONS } from 'config';
@@ -77,7 +78,6 @@ type StateProps = {|
   linkedCommentAncestors: { [string]: Array<string> },
   totalReplyPages: number,
   repliesFetching: boolean,
-  activeChannelClaim: ?ChannelClaim,
   claim: StreamClaim,
   authorTitle: ?string,
   channelAge?: any,
@@ -88,6 +88,7 @@ type StateProps = {|
   commentingEnabled: boolean,
   playingUri: PlayingUri,
   stakedLevel: number,
+  isCommenterChannelDeleted: boolean,
 |};
 
 type DispatchProps = {|
@@ -125,6 +126,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     othersReacts,
     playingUri,
     stakedLevel,
+    isCommenterChannelDeleted,
     supportDisabled,
     setQuickReply,
     quickReply,
@@ -154,11 +156,11 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     is_pinned: isPinned,
     support_amount: supportAmount,
     replies: numDirectReplies,
-    timestamp,
   } = comment;
   const claimName = authorTitle || author;
 
-  const timePosted = timestamp * 1000;
+  const timePosted = comment.timestamp * 1000;
+  const commentIsEdited = parseInt(comment.signing_ts) - comment.timestamp > THRESHOLD_MS.IS_EDITED / 1000;
   const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
 
   const isMobile = useIsMobile();
@@ -317,6 +319,10 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     [ROUGH_HEADER_HEIGHT, isMobile]
   );
 
+  if (isCommenterChannelDeleted) {
+    return null;
+  }
+
   return (
     <li
       className={classnames('comment', {
@@ -383,7 +389,12 @@ function CommentView(props: Props & StateProps & DispatchProps) {
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}
-                label={<DateTime date={timePosted} timeAgo />}
+                label={
+                  <>
+                    <DateTime date={timePosted} timeAgo />
+                    {commentIsEdited && <span className="comment__edited">{__('(edited)')}</span>}
+                  </>
+                }
               />
 
               {supportAmount > 0 && <CreditAmount isFiat={isFiat} amount={supportAmount} superChatLight size={12} />}

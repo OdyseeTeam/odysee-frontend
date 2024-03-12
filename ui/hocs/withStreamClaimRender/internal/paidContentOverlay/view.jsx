@@ -67,6 +67,7 @@ export default function PaidContentOvelay(props: Props) {
           icon={sdkFeeRequired ? ICONS.LBC : fiatIconToUse}
           button="primary"
           label={label}
+          requiresAuth
           {...clickProps}
         />
       );

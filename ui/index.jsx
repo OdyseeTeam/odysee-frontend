@@ -23,6 +23,7 @@ import {
 import Lbry, { apiCall } from 'lbry';
 import { isURIValid } from 'util/lbryURI';
 import { setSearchApi } from 'redux/actions/search';
+import { doResolveSubscriptions } from 'redux/actions/subscriptions';
 import {
   doSetLanguage,
   doFetchLanguage,
@@ -252,6 +253,7 @@ function AppWrapper() {
         app.store.dispatch(doBlackListedOutpointsSubscribe());
         app.store.dispatch(doFilteredOutpointsSubscribe());
         app.store.dispatch(doFetchUserLocale());
+        app.store.dispatch(doResolveSubscriptions());
       }, 25);
 
       const nonCriticalTimer = setTimeout(() => {

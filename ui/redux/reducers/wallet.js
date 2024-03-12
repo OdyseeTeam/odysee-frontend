@@ -57,6 +57,13 @@ export type WalletState = {
   pendingSupportTransactions: {}, // { claimId: {txid: 123, amount 12.3}, }
   pendingTxos: Array<string>,
   abandonClaimSupportError?: string,
+  sendingCreditsToOdysee: boolean,
+  spendingEverything: boolean,
+  pendingSpendingEverythingTxid?: string,
+  fetchingAccounts: boolean,
+  fetchingAccountsSuccess: ?boolean,
+  accounts: Array<any>,
+  isMerged: ?boolean,
 };
 
 const defaultState = {
@@ -105,6 +112,13 @@ const defaultState = {
   fetchingTxosError: undefined,
   pendingSupportTransactions: {},
   pendingTxos: [],
+  sendingCreditsToOdysee: false,
+  spendingEverything: false,
+  pendingSpendingEverythingTxid: null,
+  fetchingAccounts: false,
+  fetchingAccountsSuccess: undefined,
+  accounts: [],
+  isMerged: undefined,
 
   abandonClaimSupportError: undefined,
 };
@@ -134,6 +148,37 @@ export const walletReducer = handleActions(
     [ACTIONS.FETCH_TRANSACTIONS_FAILED]: (state: WalletState) => ({
       ...state,
       fetchingTransactions: false,
+    }),
+
+    [ACTIONS.FETCH_ACCOUNT_LIST_STARTED]: (state: WalletState) => ({
+      ...state,
+      fetchingAccounts: true,
+      fetchingAccountsSuccess: undefined,
+    }),
+
+    [ACTIONS.FETCH_ACCOUNT_LIST_COMPLETED]: (state: WalletState, action) => {
+      const accounts = action.data;
+      let nonChannelHoldingAccountsCount = 0;
+      for (let i = 0; i < accounts.length; i++) {
+        const account = accounts[i];
+        if (!account.name.match('Holding Account For Channel')) {
+          nonChannelHoldingAccountsCount++;
+        }
+      }
+
+      return {
+        ...state,
+        fetchingAccounts: false,
+        fetchingAccountsSuccess: true,
+        accounts: action.data,
+        isMerged: nonChannelHoldingAccountsCount > 1,
+      };
+    },
+
+    [ACTIONS.FETCH_ACCOUNT_LIST_FAILED]: (state: WalletState) => ({
+      ...state,
+      fetchingAccounts: false,
+      fetchingAccountsSuccess: false,
     }),
 
     [ACTIONS.FETCH_TXO_PAGE_STARTED]: (state: WalletState, action) => {
@@ -238,8 +283,38 @@ export const walletReducer = handleActions(
       };
     },
 
+    [ACTIONS.SPENT_EVERYTHING_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        spendingEverything: true,
+      };
+    },
+
+    [ACTIONS.SPENT_EVERYTHING_COMPLETED]: (state: WalletState, action) => {
+      const { txid } = action.data;
+      return {
+        ...state,
+        spendingEverything: false,
+        pendingSpendingEverythingTxid: txid,
+      };
+    },
+
+    [ACTIONS.SEND_CREDITS_TO_ODYSEE_STARTED]: (state: WalletState) => {
+      return {
+        ...state,
+        sendingCreditsToOdysee: true,
+      };
+    },
+
+    [ACTIONS.SEND_CREDITS_TO_ODYSEE_COMPLETED]: (state: WalletState) => {
+      return {
+        ...state,
+        sendingCreditsToOdysee: false,
+      };
+    },
+
     [ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED]: (state: WalletState, action) => {
-      const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid } = state;
+      const { pendingTxos, pendingMassClaimTxid, pendingConsolidateTxid, pendingSpendingEverythingTxid } = state;
 
       const { txids, remove } = action.data;
 
@@ -247,11 +322,15 @@ export const walletReducer = handleActions(
         const newTxos = pendingTxos.filter((txo) => !txids.includes(txo));
         const newPendingMassClaimTxid = txids.includes(pendingMassClaimTxid) ? undefined : pendingMassClaimTxid;
         const newPendingConsolidateTxid = txids.includes(pendingConsolidateTxid) ? undefined : pendingConsolidateTxid;
+        const newPendingSpendingEverythingTxid = txids.includes(pendingSpendingEverythingTxid)
+          ? undefined
+          : pendingSpendingEverythingTxid;
         return {
           ...state,
           pendingTxos: newTxos,
           pendingMassClaimTxid: newPendingMassClaimTxid,
           pendingConsolidateTxid: newPendingConsolidateTxid,
+          pendingSpendingEverythingTxid: newPendingSpendingEverythingTxid,
         };
       } else {
         const newPendingSet = new Set([...pendingTxos, ...txids]);

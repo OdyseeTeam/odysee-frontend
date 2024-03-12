@@ -37,9 +37,10 @@ type Props = {
   activeLivestreamUri: ?ClaimUri,
   hasPremiumPlus: boolean,
   // --- perform ---
-  doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => void,
+  doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => Promise<any>,
   doResolveClaimId: (claimId: string) => void,
   doResolveUris: (Array<string>) => Promise<any>,
+  doFetchThumbnailClaimsForCollectionIds: (params: { collectionIds: Array<string> }) => void,
 };
 
 function HomeTabSection(props: Props) {
@@ -67,6 +68,7 @@ function HomeTabSection(props: Props) {
     doClaimSearch,
     doResolveClaimId,
     doResolveUris,
+    doFetchThumbnailClaimsForCollectionIds,
   } = props;
 
   const timedOut = claimSearchResults === null;
@@ -92,7 +94,14 @@ function HomeTabSection(props: Props) {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
       const searchSettings = { fetch: { viewCount: true } };
-      doClaimSearch(searchOptions, searchSettings);
+      doClaimSearch(searchOptions, searchSettings).then((res) => {
+        if (section.type === 'playlists' && res) {
+          const streams = Object.values(res);
+          // $FlowIgnore flow bug
+          const claimIds = streams.map((s) => s?.stream?.claim_id);
+          doFetchThumbnailClaimsForCollectionIds({ collectionIds: claimIds });
+        }
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- DOESN'T FEEL RIGHT WITHOUT optionsStringified
   }, [doClaimSearch, shouldPerformSearch]);

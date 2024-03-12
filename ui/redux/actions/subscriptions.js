@@ -4,13 +4,13 @@ import { MS } from 'constants/date-time';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import REWARDS from 'rewards';
 import { Lbryio } from 'lbryinc';
-import { doClaimSearch } from 'redux/actions/claims';
+import { doClaimSearch, doResolveUris } from 'redux/actions/claims';
 import { doClaimRewardType } from 'redux/actions/rewards';
 import { getChannelFromClaim } from 'util/claim';
 import { parseURI } from 'util/lbryURI';
 import { doAlertWaitingForSync } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
-import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
+import { selectSubscriptionIds, selectSubscriptionUris } from 'redux/selectors/subscriptions';
 
 type SubscriptionArgs = {
   channelName: string,
@@ -94,6 +94,14 @@ export function doChannelSubscribe(subscription: SubscriptionArgs, followToast: 
 export function doChannelUnsubscribe(subscription: SubscriptionArgs, followToast: boolean = true) {
   return (dispatch: Dispatch) => {
     return dispatch(doToggleSubscription(subscription, followToast, true));
+  };
+}
+
+export function doResolveSubscriptions() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const subscriptionUris = selectSubscriptionUris(state);
+    dispatch(doResolveUris(subscriptionUris, true));
   };
 }
 

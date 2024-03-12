@@ -14,9 +14,22 @@ jobs:
     name: lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: Borales/actions-yarn@v3.0.0
-      - run: yarn lint
+      - uses: actions/checkout@v3
+
+      - name: Set Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Run "yarn install"
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install
+
+      - name: Run "yarn lint"
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: lint
 
   build:
     needs: ['lint']

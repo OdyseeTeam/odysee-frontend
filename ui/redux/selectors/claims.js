@@ -642,6 +642,7 @@ export const makeSelectAvatarForUri = (uri: string) =>
   });
 
 export const selectIsFetchingClaimListMine = (state: State) => selectState(state).isFetchingClaimListMine;
+export const selectIsFetchingClaimListMineSuccess = (state: State) => selectState(state).isFetchingClaimListMineSuccess;
 
 export const selectMyClaimsPage = createSelector(selectState, (state) => state.myClaimsPageResults || []);
 
@@ -652,7 +653,7 @@ export const selectMyClaimsPageNumber = createSelector(
   (state) => (state.txoPage && state.txoPage.page) || 1
 );
 
-export const selectMyClaimsPageItemCount = (state: State) => selectState(state).myClaimsPageTotalResults || 1;
+export const selectMyClaimsPageItemCount = (state: State) => selectState(state).myClaimsPageTotalResults || 0;
 export const selectFetchingMyClaimsPageError = (state: State) => selectState(state).fetchingClaimListMinePageError;
 
 export const selectMyClaims = createSelector(
@@ -706,6 +707,7 @@ export const selectMyClaimsOutpoints = createSelector(selectMyClaims, (myClaims)
 });
 
 export const selectFetchingMyChannels = (state: State) => selectState(state).fetchingMyChannels;
+export const selectFetchingMyChannelsSuccess = (state: State) => selectState(state).fetchingMyChannelsSuccess;
 
 export const selectMyChannelClaimsById = (state: State) => selectState(state).myChannelClaimsById;
 export const selectMyChannelClaims = createSelector(

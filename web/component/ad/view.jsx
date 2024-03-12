@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { memo } from 'react';
 import AdTileA from './tileA';
 import AdTileB from './tileB';
 import AdSticky from './adSticky';
@@ -17,6 +17,7 @@ export type Props = {|
 |};
 
 type StateProps = {|
+  adBlockerFound: boolean,
   shouldShowAds: boolean,
   // channelIdWhitelist?: ?any,
   channelId: ?ChannelId,
@@ -27,25 +28,25 @@ type DispatchProps = {||};
 // ****************************************************************************
 // ****************************************************************************
 
-function Ad(props: Props & StateProps & DispatchProps) {
-  // const { type, uri, tileLayout, shouldShowAds, channelIdWhitelist, channelId } = props;
-  const { type, uri, tileLayout, shouldShowAds } = props;
-  // const device = useIsMobile() ? 'mobile' : 'desktop';
-  // const provider = channelIdWhitelist && channelIdWhitelist.includes(channelId) ? 'clean' : 'revcontent';
-  const provider = 'revcontent';
+// $FlowIgnore
+const Ad = memo(function Ad(props: Props & StateProps & DispatchProps) {
+  const { type, uri, tileLayout, adBlockerFound, shouldShowAds } = props;
+  const provider = 'revcontent'; // 'revcontent' | 'rumble'
 
-  if (!shouldShowAds) {
+  if (!shouldShowAds && adBlockerFound !== true) {
+    return null;
+  } else if (adBlockerFound && type !== 'tileA') {
     return null;
   }
 
   return (
     <AdErrorBoundary type={type}>
-      {type === 'tileA' && <AdTileA tileLayout={tileLayout} />}
+      {type === 'tileA' && <AdTileA provider={provider} tileLayout={tileLayout} />}
       {type === 'tileB' && <AdTileB provider={provider} shouldShowAds={shouldShowAds} />}
-      {type === 'sticky' && <AdSticky uri={uri} />}
+      {type === 'sticky' && <AdSticky provider={provider} uri={uri} />}
       {type === 'aboveComments' && <AdAboveComments provider={provider} shouldShowAds={shouldShowAds} />}
     </AdErrorBoundary>
   );
-}
+});
 
 export default Ad;

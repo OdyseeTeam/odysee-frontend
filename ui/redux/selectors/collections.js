@@ -357,7 +357,7 @@ export const selectHasPrivateCollectionForId = (state: State, id: string) => {
 
   if (COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id)) return true;
 
-  if (selectCollectionHasEditsForId(state, id)) {
+  if (selectCollectionHasEditsForId(state, id) || selectCollectionHasUnsavedEditsForId(state, id)) {
     const urlParams = new URLSearchParams(window.location.search);
     const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
     if (!isOnPublicView) return true;
@@ -368,7 +368,11 @@ export const selectHasPrivateCollectionForId = (state: State, id: string) => {
 
 // Is private === only private (doesn't include public with private edits)
 export const selectIsCollectionPrivateForId = (state: State, id: string) =>
-  Boolean(selectHasPrivateCollectionForId(state, id) && !selectCollectionHasEditsForId(state, id));
+  Boolean(
+    selectHasPrivateCollectionForId(state, id) &&
+      !selectCollectionHasEditsForId(state, id) &&
+      !selectCollectionHasUnsavedEditsForId(state, id)
+  );
 
 export const selectClaimIdsForCollectionId = createSelector(
   selectHasPrivateCollectionForId,

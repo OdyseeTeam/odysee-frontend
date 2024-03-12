@@ -47,6 +47,7 @@ type Props = {
   claimIsMine: boolean,
   embed?: boolean,
   isFetchingChannels: boolean,
+  isFetchingCreatorSettings: boolean,
   isNested: boolean,
   isReply: boolean,
   isLivestream?: boolean,
@@ -123,6 +124,7 @@ export function CommentCreate(props: Props) {
     embed,
     hasChannels,
     isFetchingChannels,
+    isFetchingCreatorSettings,
     isLivestream,
     isNested,
     isReply,
@@ -186,6 +188,7 @@ export function CommentCreate(props: Props) {
     deletedComment ||
     isSubmitting ||
     isFetchingChannels ||
+    isFetchingCreatorSettings ||
     hasNothingToSumbit ||
     disableInput;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
@@ -263,7 +266,12 @@ export function CommentCreate(props: Props) {
   // Functions
   // **************************************************************************
 
-  function getMembersOnlyCreatorSetting() {
+  function isRestrictedToMembersOnly() {
+    const isAnonymous = claimId && !channelClaimId;
+    if (isAnonymous) {
+      return false;
+    }
+
     return (
       channelClaimId &&
       doFetchCreatorSettings(channelClaimId)
@@ -355,7 +363,7 @@ export function CommentCreate(props: Props) {
     }
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = await isRestrictedToMembersOnly();
     if (commentsAreMembersOnly === undefined) {
       doToast({
         message: __('Unable to send the comment.'),
@@ -476,7 +484,7 @@ export function CommentCreate(props: Props) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = await isRestrictedToMembersOnly();
     if (commentsAreMembersOnly === undefined) {
       doToast({
         message: __('Unable to send the comment.'),

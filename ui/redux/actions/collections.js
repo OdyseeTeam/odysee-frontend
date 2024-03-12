@@ -15,10 +15,13 @@ import {
   selectClaimForId,
   makeSelectMetadataItemForUri,
   selectHasClaimForId,
+  selectResolvingIds,
+  selectResolvingUris,
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectResolvedCollectionForId,
+  selectCollectionHasItemsResolvedForId,
   selectHasPrivateCollectionForId,
   selectIsCollectionPrivateForId,
   selectUrlsForCollectionId,
@@ -243,77 +246,93 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: collectionId });
 };
 
-const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch) => {
-  const sortResults = (resultItems: Array<Claim>) => {
-    const newItems: Array<Claim> = [];
+const doFetchCollectionItems =
+  (items: Array<any>, pageSize?: number) => async (dispatch: Dispatch, getState: GetState) => {
+    const sortResults = (resultItems: Array<Claim>) => {
+      const newItems: Array<Claim> = [];
 
-    items.forEach((item) => {
-      const index = resultItems.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(item));
+      items.forEach((item) => {
+        const index = resultItems.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(item));
 
-      if (index >= 0) newItems.push(resultItems[index]);
-    });
-
-    return newItems;
-  };
-
-  const mergeBatches = (arrayOfResults: Array<any>) => {
-    let resultItems = [];
-
-    arrayOfResults.forEach((result: any) => {
-      // $FlowFixMe
-      const claims = result.items || Object.values(result).map((item) => item.stream || item);
-      resultItems = resultItems.concat(claims);
-    });
-
-    return resultItems;
-  };
-
-  try {
-    const batchSize = pageSize || FETCH_BATCH_SIZE;
-    const uriBatches: Array<Promise<any>> = [];
-    const idBatches: Array<Promise<any>> = [];
-
-    const totalItems = items.length;
-
-    for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
-      const batchInitialIndex = i * batchSize;
-      const batchLength = (i + 1) * batchSize;
-
-      // --> Filter in case null/undefined are collection items
-      const batchItems = items.slice(batchInitialIndex, batchLength).filter(Boolean);
-
-      const uris = new Set([]);
-      const ids = new Set([]);
-      batchItems.forEach((item) => {
-        if (item.startsWith('lbry://')) {
-          uris.add(item);
-        } else {
-          ids.add(item);
-        }
+        if (index >= 0) newItems.push(resultItems[index]);
       });
 
-      if (uris.size > 0) {
-        uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
-      }
-      if (ids.size > 0) {
-        idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
-      }
-    }
-    const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
-    const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
+      return newItems;
+    };
 
-    // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
-    const itemsWereFetching = resultItems.length !== items.length;
+    const mergeBatches = (arrayOfResults: Array<any>) => {
+      let resultItems = [];
 
-    if (resultItems && !itemsWereFetching) {
+      arrayOfResults.forEach((result: any) => {
+        // $FlowFixMe
+        const claims = result.items || Object.values(result).map((item) => item.stream || item);
+        resultItems = resultItems.concat(claims);
+      });
+
       return resultItems;
-    } else {
+    };
+
+    try {
+      const state = getState();
+      const batchSize = pageSize || FETCH_BATCH_SIZE;
+      const uriBatches: Array<Promise<any>> = [];
+      const idBatches: Array<Promise<any>> = [];
+
+      const totalItems = items.length;
+
+      for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
+        const batchInitialIndex = i * batchSize;
+        const batchLength = (i + 1) * batchSize;
+
+        // --> Filter in case null/undefined are collection items
+        const batchItems = items.slice(batchInitialIndex, batchLength).filter(Boolean);
+
+        const uris = new Set([]);
+        const ids = new Set([]);
+        batchItems.forEach((item) => {
+          if (item.startsWith('lbry://')) {
+            uris.add(item);
+          } else {
+            ids.add(item);
+          }
+        });
+
+        if (uris.size > 0) {
+          uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
+        }
+        if (ids.size > 0) {
+          idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
+        }
+      }
+      const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
+      const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
+
+      // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
+      let itemsWereFetching = resultItems.length !== items.length;
+
+      // Related to above. Collection with deleted items would never get "resolved: true" status.
+      // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
+      if (itemsWereFetching) {
+        const resolvingIds = selectResolvingIds(state);
+        const resolvingUris = selectResolvingUris(state);
+        if (uriBatches.length === 0 && idBatches.length > 0 && resolvingIds.length === 0) {
+          itemsWereFetching = false;
+        } else if (idBatches.length === 0 && uriBatches.length > 0 && resolvingUris.length === 0) {
+          itemsWereFetching = false;
+        } else if (resolvingUris.length === 0 && resolvingIds.length === 0) {
+          itemsWereFetching = false;
+        }
+      }
+
+      if (resultItems && !itemsWereFetching) {
+        return resultItems;
+      } else {
+        return null;
+      }
+    } catch (e) {
       return null;
     }
-  } catch (e) {
-    return null;
-  }
-};
+  };
 
 export const doFetchItemsInCollection =
   (params: { collectionId: string, pageSize?: number }) => async (dispatch: Dispatch, getState: GetState) => {
@@ -363,7 +382,7 @@ export const doFetchItemsInCollection =
       collectionItems = await promisedCollectionItemsFetch;
     }
 
-    if (!collectionItems || collectionItems.length === 0) {
+    if (!collectionItems || collectionItems?.length === undefined) {
       return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
 
@@ -452,8 +471,8 @@ export const doFetchThumbnailClaimsForCollectionIds =
     );
   };
 
-export const doSortCollectionByReleaseTime =
-  (collectionId: string, sortOrder: string) => async (dispatch: Dispatch, getState: GetState) => {
+export const doSortCollectionByKey =
+  (collectionId: string, sortByKey: string, sortOrder: string) => async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
     const collection: Collection = selectCollectionForId(state, collectionId);
 
@@ -471,13 +490,25 @@ export const doSortCollectionByReleaseTime =
 
     // $FlowIgnore
     const sortedClaims = resolvedClaims.sort((a, b) => {
-      const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
-      const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
+      if (sortByKey === COLS.SORT_KEYS.RELEASED_AT) {
+        const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
+        const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
+        if (sortOrder === COLS.SORT_ORDER.ASC) {
+          return keyB - keyA;
+        } else if (sortOrder === COLS.SORT_ORDER.DESC) {
+          return keyA - keyB;
+        }
+      }
 
-      if (sortOrder === COLS.SORT_ORDER.ASC) {
-        return keyB - keyA;
-      } else if (sortOrder === COLS.SORT_ORDER.DESC) {
-        return keyA - keyB;
+      if (sortByKey === COLS.SORT_KEYS.NAME) {
+        const keyA = a?.value?.title || a?.meta?.name || 'A';
+        const keyB = b?.value?.title || b?.meta?.name || 'A';
+
+        if (sortOrder === COLS.SORT_ORDER.ASC) {
+          return keyB.localeCompare(keyA, undefined, { numeric: true, sensitivity: 'base' });
+        } else if (sortOrder === COLS.SORT_ORDER.DESC) {
+          return keyA.localeCompare(keyB, undefined, { numeric: true, sensitivity: 'base' });
+        }
       }
     });
 
@@ -507,15 +538,17 @@ export const doCollectionEdit =
     }
 
     const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
-
+    const isPrivateVersion = selectHasPrivateCollectionForId(state, collectionId);
     const { uris, remove, replace, order, type, isPreview } = params;
 
-    let collectionUrls = selectUrlsForCollectionId(state, collectionId);
-    if (collectionUrls === undefined) {
-      await dispatch(doFetchItemsInCollection({ collectionId }));
-      state = getState();
-      collectionUrls = selectUrlsForCollectionId(state, collectionId);
+    await dispatch(doFetchItemsInCollection({ collectionId }));
+    state = getState();
+    const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    if (!hasItemsResolved && !isPrivateVersion) {
+      return dispatch(doToast({ message: __('Failed to resolve collection items. Please try again.'), isError: true }));
     }
+
+    const collectionUrls = selectUrlsForCollectionId(state, collectionId);
 
     const currentUrls = collectionUrls ? collectionUrls.concat() : [];
     const currentUrlsSet = new Set(currentUrls);

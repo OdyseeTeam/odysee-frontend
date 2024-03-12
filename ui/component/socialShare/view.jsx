@@ -1,6 +1,7 @@
 // @flow
 import type { Node } from 'react';
 
+import type { ShareUrlProps, ShareUrl } from './thunk';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
@@ -11,16 +12,9 @@ import Spinner from 'component/spinner';
 import { generateDownloadUrl, generateNewestUrl } from 'util/web';
 import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
-// import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+import { getClaimScheduledState, isClaimUnlisted } from 'util/claim';
 import { hmsToSeconds, secondsToHms } from 'util/time';
-import {
-  generateLbryContentUrl,
-  generateLbryWebUrl,
-  generateEncodedLbryURL,
-  generateShareUrl,
-  generateShortShareUrl,
-  generateRssUrl,
-} from 'util/url';
+import { generateLbryContentUrl, generateRssUrl } from 'util/url';
 import { URL as SITE_URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || SITE_URL;
@@ -57,6 +51,7 @@ type SocialShareStateProps = {|
   isMembershipProtected: boolean,
   isFiatRequired: boolean,
   uriAccessKey: ?UriAccessKey,
+  doGenerateShareUrl: (props: ShareUrlProps) => Promise<ShareUrl>,
 |};
 
 // ****************************************************************************
@@ -117,6 +112,7 @@ function SocialShare(props: SocialShareStateProps) {
     isMembershipProtected,
     isFiatRequired,
     uriAccessKey,
+    doGenerateShareUrl,
   } = props;
 
   const [showEmbed, setShowEmbed] = React.useState(false);
@@ -124,7 +120,7 @@ function SocialShare(props: SocialShareStateProps) {
   const [showClaimLinks, setShowClaimLinks] = React.useState(false);
   const [includeStartTime, setincludeStartTime]: [boolean, any] = React.useState(false);
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
-  // const showAdditionalShareOptions = !isClaimUnlisted(claim) && !isClaimPrivate(claim) && getClaimScheduledState(claim) !== 'scheduled';
+  const showAdditionalShareOptions = getClaimScheduledState(claim) !== 'scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
 
@@ -134,38 +130,20 @@ function SocialShare(props: SocialShareStateProps) {
   const isStream = claim.value_type === 'stream';
   const isVideo = isStream && claim.value.stream_type === 'video';
   const isAudio = isStream && claim.value.stream_type === 'audio';
+  const isUnlisted = isClaimUnlisted(claim);
   const showStartAt = isVideo || isAudio;
   const rewardsApproved = user && user.is_reward_approved;
   const lbryUrl: string = generateLbryContentUrl(canonicalUrl, permanentUrl);
-  const lbryWebUrl: string = generateLbryWebUrl(lbryUrl);
   const rssUrl = isChannel && generateRssUrl(SHARE_DOMAIN, claim);
-  const includedCollectionId = collectionId && includeCollectionId ? collectionId : null;
-  const encodedLbryURL: string = generateEncodedLbryURL(
-    SHARE_DOMAIN,
-    lbryWebUrl,
-    includeStartTime,
-    startTimeSeconds,
-    includedCollectionId
-  );
-  const [shareUrl, setShareUrl] = React.useState(() => {
-    return uriAccessKey
-      ? ''
-      : generateShareUrl(
-          SHARE_DOMAIN,
-          lbryUrl,
-          referralCode,
-          rewardsApproved,
-          includeStartTime,
-          startTimeSeconds,
-          includedCollectionId
-        );
-  });
+
+  const [shareUrl, setShareUrl] = React.useState<?ShareUrl>();
+
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
   const claimLinkElements: Array<Node> = getClaimLinkElements();
 
   // Tweet params
   let tweetIntentParams = {
-    url: shareUrl,
+    url: shareUrl?.url || '',
     text: title || claim.name,
     hashtags: 'Odysee',
   };
@@ -190,7 +168,14 @@ function SocialShare(props: SocialShareStateProps) {
   function getClaimLinkElements() {
     const elements: Array<Node> = [];
 
-    if (Boolean(isStream) && !disableDownloadButton && !isMature && !isMembershipProtected && !isFiatRequired) {
+    if (
+      Boolean(isStream) &&
+      !disableDownloadButton &&
+      !isMature &&
+      !isMembershipProtected &&
+      !isFiatRequired &&
+      !isUnlisted
+    ) {
       elements.push(<CopyableText label={__('Download Link')} copyable={downloadUrl} key="download" />);
     }
 
@@ -220,33 +205,32 @@ function SocialShare(props: SocialShareStateProps) {
 
   React.useEffect(() => {
     if (shareUrl) {
-      const url = new URL(shareUrl);
-
+      const url = new URL(shareUrl.url);
+      const urlNoReferral = new URL(shareUrl.urlNoReferral);
       if (includeStartTime) {
         url.searchParams.set('t', startTimeSeconds.toString());
+        urlNoReferral.searchParams.set('t', startTimeSeconds.toString());
       } else {
         url.searchParams.delete('t');
+        urlNoReferral.searchParams.delete('t');
       }
-
-      setShareUrl(url.toString());
+      setShareUrl({ url: url.toString(), urlNoReferral: urlNoReferral.toString() });
     }
-  }, [includeStartTime, shareUrl, startTimeSeconds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `shareUrl` excluded
+  }, [includeStartTime, startTimeSeconds]);
 
-  React.useEffect(() => {
-    if (uriAccessKey) {
-      generateShortShareUrl(
-        SHARE_DOMAIN,
-        lbryUrl,
-        referralCode,
-        rewardsApproved,
-        includeStartTime,
-        startTimeSeconds,
-        includedCollectionId,
-        uriAccessKey
-      )
-        .then((result) => setShareUrl(result))
-        .catch((err) => assert(false, 'SocialShare', err));
-    }
+  React.useEffect(function initUrls() {
+    doGenerateShareUrl({
+      domain: SHARE_DOMAIN,
+      lbryURI: lbryUrl,
+      referralCode: rewardsApproved ? referralCode : '',
+      startTimeSeconds: includeStartTime && startTimeSeconds ? startTimeSeconds : null,
+      collectionId: collectionId && includeCollectionId ? collectionId : null,
+      uriAccessKey: uriAccessKey,
+      useShortUrl: Boolean(uriAccessKey), // or isUnlisted
+    })
+      .then((result) => setShareUrl(result))
+      .catch((err) => assert(false, 'SocialShare', err));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
   }, []);
 
@@ -260,7 +244,7 @@ function SocialShare(props: SocialShareStateProps) {
 
   return (
     <React.Fragment>
-      <CopyableText copyable={shareUrl} />
+      <CopyableText copyable={shareUrl.url} />
       {showStartAt && (
         <div className="section__checkbox">
           <FormField

@@ -21,11 +21,13 @@ export function doToggleMuteChannel(uri: string, showLink: boolean, unmute: bool
       },
     });
 
-    dispatch(doToast({
-      message: __(!unmute ? 'Channel muted. You will not see them again.' : 'Channel unmuted!'),
-      linkText: __(showLink ? 'See All' : ''),
-      linkTarget: '/settings/block_and_mute',
-    }));
+    dispatch(
+      doToast({
+        message: __(!unmute ? 'Channel muted. You will not see them again.' : 'Channel unmuted!'),
+        linkText: __(showLink ? 'See All' : ''),
+        linkTarget: '/settings/block_and_mute',
+      })
+    );
   };
 }
 
@@ -56,6 +58,6 @@ export function doFetchGeoBlockedList() {
       dispatch({ type: ACTIONS.FETCH_GBL_FAILED, data: error });
     };
 
-    Lbryio.call('geo', 'blocked_list').then(success, failure);
+    Lbryio.call('geo', 'blocked_list', { auth_token: '' }, 'get').then(success, failure);
   };
 }

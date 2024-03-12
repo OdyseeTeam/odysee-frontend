@@ -105,7 +105,7 @@ export default function NotificationsPage(props: Props) {
         }
       }
     }
-  }, [name, notifications, stringifiedNotificationCategories, doNotificationList]);
+  }, [name, stringifiedNotificationCategories, doNotificationList]);
 
   React.useEffect(() => {
     if (!notificationCategories) {

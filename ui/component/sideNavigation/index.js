@@ -11,7 +11,7 @@ import {
   selectSubscriptionUris,
   selectSubscriptions,
 } from 'redux/selectors/subscriptions';
-import { doClearClaimSearch, doResolveUris } from 'redux/actions/claims';
+import { doClearClaimSearch } from 'redux/actions/claims';
 import { doClearPurchasedUriSuccess } from 'redux/actions/file';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
@@ -69,7 +69,6 @@ function doGetDisplayedSubs(filter) {
     if (subs) {
       if (filter) {
         const f = filter.toLowerCase();
-
         subs.forEach((sub) => {
           const claim = claimsByUri[sub?.uri];
           if (claim) {
@@ -110,6 +109,5 @@ export default connect(select, {
   doClearPurchasedUriSuccess,
   doOpenModal,
   doGetDisplayedSubs,
-  doResolveUris,
   doBeginPublish,
 })(SideNavigation);

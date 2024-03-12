@@ -182,7 +182,6 @@ function SideNavigation(props: Props) {
     doClearPurchasedUriSuccess,
     doOpenModal,
     doGetDisplayedSubs,
-    doResolveUris,
     doBeginPublish,
   } = props;
 
@@ -515,8 +514,7 @@ function SideNavigation(props: Props) {
       }
     }
 
-    // const ad = document.getElementsByClassName('rev-shifter')[0];
-    const ad = document.getElementById('sticky-d-rc');
+    const ad = document.getElementById('rmbl-sticky') || document.getElementById('sticky-d-rc');
     if (ad) {
       if (!sidebarOpen || isMobile) {
         ad.classList.remove('LEFT');
@@ -550,15 +548,10 @@ function SideNavigation(props: Props) {
 
   React.useEffect(() => {
     if (showSubsSection) {
+      // Done this way to avoid over-render from claimsByUris[].
       doGetDisplayedSubs(subscriptionFilter).then((result) => setDisplayedSubs(result));
     }
   }, [subscriptionFilter, showSubsSection, doGetDisplayedSubs]);
-
-  // --- Resolve subscriptions
-  React.useEffect(() => {
-    doResolveUris(subscriptionUris, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
-  }, []);
 
   // **************************************************************************
   // **************************************************************************

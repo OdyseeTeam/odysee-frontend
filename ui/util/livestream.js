@@ -106,23 +106,6 @@ export function filterActiveLivestreamUris(
   for (const creatorId in activeLivestreamByCreatorId) {
     const activeLivestream = activeLivestreamByCreatorId[creatorId];
     if (activeLivestream) {
-      if (channelIds) {
-        if (channelIds.includes(creatorId)) {
-          if (excludedChannelIds && !excludedChannelIds.includes(creatorId)) {
-            filtered.push(activeLivestream);
-          }
-        }
-      } else {
-        if (excludedChannelIds && !excludedChannelIds.includes(creatorId)) {
-          filtered.push(activeLivestream);
-        }
-      }
-    }
-  }
-
-  for (const creatorId in activeLivestreamByCreatorId) {
-    const activeLivestream = activeLivestreamByCreatorId[creatorId];
-    if (activeLivestream) {
       const shouldInclude =
         (!channelIds || channelIds.includes(creatorId)) &&
         (!excludedChannelIds || !excludedChannelIds.includes(creatorId));

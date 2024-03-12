@@ -326,6 +326,7 @@ function VideoViewer(props: Props) {
 
   React.useEffect(() => {
     if (playerElem) {
+      playerElem.off('ended');
       playerElem.on('ended', onVideoEnded);
     }
   }, [onVideoEnded, playerElem]);

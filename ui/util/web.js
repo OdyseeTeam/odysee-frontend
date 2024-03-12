@@ -2,7 +2,7 @@ const { URL, THUMBNAIL_CARDS_CDN_URL } = require('../../config');
 
 const CONTINENT_COOKIE = 'continent';
 
-function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autoplay) {
+function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autoplay, uriAccessKey) {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   let urlParams = new URLSearchParams();
 
@@ -22,6 +22,11 @@ function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autopla
     urlParams.append('autoplay', true);
   }
 
+  if (uriAccessKey) {
+    urlParams.append('signature', uriAccessKey.signature);
+    urlParams.append('signature_ts', uriAccessKey.signature_ts);
+  }
+
   const embedUrl = `${URL}/$/embed/${escapeHtmlProperty(uriPath)}`;
   const embedUrlParams = urlParams.toString() ? `?${urlParams.toString()}` : '';
 
@@ -36,11 +41,11 @@ function generateEmbedUrlEncoded(claimUri, startTime, referralLink) {
 }
 
 function generateEmbedIframeData(src) {
-  const width = '560';
-  const height = '315';
-  const html = `<iframe id="odysee-iframe" width="${width}" height="${height}" src="${src}" allowfullscreen></iframe>`;
+  const width = '100%';
+  const ratio = '16 / 9';
+  const html = `<iframe id="odysee-iframe" style="width:${width}; aspect-ratio:${ratio};" src="${src}" allowfullscreen></iframe>`;
 
-  return { html, width, height };
+  return { html };
 }
 
 function generateDownloadUrl(claimName, claimId) {

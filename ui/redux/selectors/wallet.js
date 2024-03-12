@@ -234,6 +234,12 @@ export const selectIsWalletReconnecting = (state) => selectState(state).walletRe
 export const selectIsFetchingUtxoCounts = (state) => selectState(state).fetchingUtxoCounts;
 export const selectIsConsolidatingUtxos = (state) => selectState(state).consolidatingUtxos;
 export const selectIsMassClaimingTips = (state) => selectState(state).massClaimingTips;
+export const selectIsSpendingEverything = (state) => selectState(state).spendingEverything;
+export const selectIsSendingCreditsToOdysee = (state) => selectState(state).sendingCreditsToOdysee;
 export const selectPendingConsolidateTxid = (state) => selectState(state).pendingConsolidateTxid;
 export const selectPendingMassClaimTxid = (state) => selectState(state).pendingMassClaimTxid;
 export const selectUtxoCounts = (state) => selectState(state).utxoCounts;
+
+export const selectIsFetchingAccounts = (state) => selectState(state).fetchingAccounts;
+export const selectIsFetchingAccountsSuccess = (state) => selectState(state).fetchingAccountsSuccess;
+export const selectIsWalletMerged = (state) => selectState(state).isMerged;

@@ -69,11 +69,19 @@ function handleAnalyticsForAction(action: { type: string, data: any }) {
 
     case ACTIONS.RELOAD_REQUIRED:
       {
-        const { reason, error } = action.data;
-        if (typeof error === 'string') {
-          analytics.log(`Reload required: ${reason} @ ${error}`, { level: 'error', fingerprint: [reason] });
-        } else {
-          analytics.log(error, { level: 'error' });
+        const { reason, extra } = action.data;
+        if (reason === 'newVersionFound') {
+          analytics.log('Displayed new version nag', {
+            level: 'info',
+            fingerprint: [reason],
+            tags: { reloadReason: reason, newVersion: extra },
+          });
+        } else if (reason === 'lazyImportFailed') {
+          analytics.log(extra, {
+            level: 'fatal',
+            fingerprint: [reason],
+            tags: { reloadReason: reason, reloadExtra: (extra.message || extra || '').replace('\n', '') },
+          });
         }
       }
       break;

@@ -8,11 +8,13 @@ import { doOpenModal } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
 import {
   selectBalance,
+  selectTotalBalance,
   selectPendingSupportTransactions,
   selectTxoPageParams,
   selectPendingOtherTransactions,
   selectPendingConsolidateTxid,
   selectPendingMassClaimTxid,
+  selectIsFetchingAccounts,
 } from 'redux/selectors/wallet';
 import { resolveApiMessage } from 'util/api-message';
 import { creditsToString } from 'util/format-credits';
@@ -71,6 +73,27 @@ export function doUpdateBalance() {
     }
 
     return walletBalancePromise;
+  };
+}
+
+export function doFetchAccountList(page = 1, pageSize = 99999) {
+  return (dispatch, getState) => {
+    const state = getState();
+    const isFetching = selectIsFetchingAccounts(state);
+
+    if (isFetching) return;
+
+    dispatch({ type: ACTIONS.FETCH_ACCOUNT_LIST_STARTED });
+
+    const callback = (response) => {
+      dispatch({ type: ACTIONS.FETCH_ACCOUNT_LIST_COMPLETED, data: response.items });
+    };
+
+    const failure = () => {
+      dispatch({ type: ACTIONS.FETCH_ACCOUNT_LIST_FAILED });
+    };
+
+    Lbry.account_list({ page, page_size: pageSize }).then(callback, failure);
   };
 }
 
@@ -254,6 +277,56 @@ export function doTipClaimMass() {
       data: { txid: result.txid },
     });
     dispatch(doCheckPendingTxs());
+  };
+}
+
+export function doSpendEverything() {
+  return async (dispatch) => {
+    dispatch({
+      type: ACTIONS.SPENT_EVERYTHING_STARTED,
+    });
+
+    const results = await Lbry.txo_spend({});
+    const result = results[0];
+
+    dispatch({
+      type: ACTIONS.PENDING_CONSOLIDATED_TXOS_UPDATED,
+      data: { txids: [result.txid] },
+    });
+
+    dispatch({
+      type: ACTIONS.SPENT_EVERYTHING_COMPLETED,
+      data: { txid: result.txid },
+    });
+    dispatch(doCheckPendingTxs());
+  };
+}
+
+export function doSendCreditsToOdysee() {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const totalBalance = selectTotalBalance(state);
+
+    const address = 'bbHs8svj9NMVHYPLro1L1GkXk6scNouFJE';
+    const leftOverForFee = 0.005;
+    const amount = totalBalance - leftOverForFee;
+
+    if (amount <= 0) {
+      return;
+    }
+
+    dispatch({
+      type: ACTIONS.SEND_CREDITS_TO_ODYSEE_STARTED,
+    });
+
+    await Lbry.wallet_send({
+      addresses: [address],
+      amount: creditsToString(amount),
+    });
+
+    dispatch({
+      type: ACTIONS.SEND_CREDITS_TO_ODYSEE_COMPLETED,
+    });
   };
 }
 

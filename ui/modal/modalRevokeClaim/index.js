@@ -2,11 +2,13 @@ import { connect } from 'react-redux';
 import { doHideModal } from 'redux/actions/app';
 import { doAbandonTxo, doAbandonClaim, doResolveUri } from 'redux/actions/claims';
 import { doToast } from 'redux/actions/notifications';
+import { selectHasYoutubeChannels } from 'redux/selectors/user';
 import ModalRevokeClaim from './view';
 import { selectTransactionItems } from 'redux/selectors/wallet';
 
 const select = (state) => ({
   transactionItems: selectTransactionItems(state),
+  hasYouTubeChannels: selectHasYoutubeChannels(state),
 });
 
 const perform = (dispatch) => ({

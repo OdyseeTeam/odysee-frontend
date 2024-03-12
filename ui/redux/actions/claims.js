@@ -91,6 +91,7 @@ export function doResolveUris(
         const membersOnlyClaimIds = new Set([]);
         const channelClaimIds = new Set([]);
         const costInfos = new Set();
+        const fiatClaimIds = [];
 
         const resolveInfo: {
           [uri: string]: {
@@ -149,6 +150,10 @@ export function doResolveUris(
               const isProtected = isClaimProtected(stream);
               if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
+              if (hasFiatTags(stream) && stream.claim_id) {
+                fiatClaimIds.push(stream.claim_id);
+              }
+
               if (stream.signing_channel) {
                 const channel: ChannelClaim = stream.signing_channel;
 
@@ -176,6 +181,10 @@ export function doResolveUris(
 
         if (membersOnlyClaimIds.size > 0) {
           dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
+        }
+
+        if (fiatClaimIds.length > 0) {
+          dispatch(doCheckIfPurchasedClaimIds(fiatClaimIds));
         }
 
         if (channelClaimIds.size > 0) {
@@ -278,44 +287,57 @@ export function doFetchClaimListMine(
       page_size: pageSize,
       claim_type: claimTypes,
       resolve,
-    }).then((result: StreamListResponse) => {
-      dispatch({
-        type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
-        data: {
-          result,
-          resolve,
-          setNewPageItems: true,
-        },
-      });
+    })
+      .then(async (result: StreamListResponse) => {
+        dispatch({
+          type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
+          data: {
+            result,
+            resolve,
+            setNewPageItems: true,
+          },
+        });
 
-      const claimIds: Array<ClaimId> = [];
-      const membersOnlyClaimIds = new Set([]);
-      const channelClaimIds = new Set([]);
+        const claimIds: Array<ClaimId> = [];
+        const membersOnlyClaimIds = new Set([]);
+        const channelClaimIds = new Set([]);
+        const costInfos = new Set();
 
-      result.items.forEach((item) => {
-        claimIds.push(item.claim_id);
+        result.items.forEach((item) => {
+          claimIds.push(item.claim_id);
 
-        if (item.value_type !== 'channel' && item.value_type !== 'collection') {
-          const isProtected = isClaimProtected(item);
-          if (isProtected) membersOnlyClaimIds.add(item.claim_id);
+          if (item.value_type !== 'channel' && item.value_type !== 'collection') {
+            const isProtected = isClaimProtected(item);
+            if (isProtected) membersOnlyClaimIds.add(item.claim_id);
+          }
+
+          const channelId = getChannelIdFromClaim(item);
+          if (channelId) channelClaimIds.add(channelId);
+
+          // $FlowFixMe
+          costInfos.add(getCostInfoForFee(item.claim_id, item.value ? item.value.fee : undefined));
+        });
+
+        if (costInfos.size > 0) {
+          const settledCostInfosById = await Promise.all(Array.from(costInfos));
+          dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
         }
 
-        const channelId = getChannelIdFromClaim(item);
-        if (channelId) channelClaimIds.add(channelId);
+        if (membersOnlyClaimIds.size > 0) {
+          dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
+        }
+
+        if (channelClaimIds.size > 0) {
+          dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
+        }
+
+        if (fetchViewCount && claimIds.length > 0) {
+          dispatch(doFetchViewCount(claimIds.join(',')));
+        }
+      })
+      .catch(() => {
+        dispatch({ type: ACTIONS.FETCH_CLAIM_LIST_MINE_FAILED });
       });
-
-      if (membersOnlyClaimIds.size > 0) {
-        dispatch(doMembershipContentForStreamClaimIds(Array.from(membersOnlyClaimIds)));
-      }
-
-      if (channelClaimIds.size > 0) {
-        dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
-      }
-
-      if (fetchViewCount && claimIds.length > 0) {
-        dispatch(doFetchViewCount(claimIds.join(',')));
-      }
-    });
   };
 }
 

@@ -96,7 +96,7 @@ function DiscoverPage(props: Props) {
         <LivestreamSection
           tileLayout={repostedUri ? false : tileLayout}
           channelIds={channelIds}
-          excludedChannelIds={excludedChannelIds}
+          excludedChannelIds={isWildWest ? excludedChannelIds : null}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
           langParam={langParam}
           hideMembersOnlyContent={hideMembersOnlyContent}

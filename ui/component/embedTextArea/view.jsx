@@ -15,10 +15,12 @@ type Props = {
   startTime: number,
   referralCode: ?string,
   newestType?: string,
+  uriAccessKey?: UriAccessKey,
 };
 
 export default function EmbedTextArea(props: Props) {
-  const { doToast, snackMessage, label, claim, includeStartTime, startTime, referralCode, newestType } = props;
+  const { doToast, snackMessage, label, claim, includeStartTime, startTime, referralCode, newestType, uriAccessKey } =
+    props;
 
   const [embedAutoplay, setEmbedAutoplay] = React.useState(false);
 
@@ -30,7 +32,8 @@ export default function EmbedTextArea(props: Props) {
     includeStartTime && startTime,
     referralCode,
     newestType,
-    embedAutoplay
+    embedAutoplay,
+    uriAccessKey
   );
   const { html: embedText } = generateEmbedIframeData(streamUrl);
 

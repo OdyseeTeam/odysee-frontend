@@ -13,13 +13,14 @@ type Props = {
   abandonTxo: (Txo, () => void) => void,
   abandonClaim: (Claim, ?() => void) => void,
   tx: Txo,
+  hasYouTubeChannels: boolean,
   claim: Claim,
   cb: () => void,
   doResolveUri: (string) => void,
 };
 
 export default function ModalRevokeClaim(props: Props) {
-  const { tx, claim, closeModal, abandonTxo, abandonClaim, cb, doResolveUri } = props;
+  const { tx, hasYouTubeChannels, claim, closeModal, abandonTxo, abandonClaim, cb, doResolveUri } = props;
   const { value_type: valueType, type, normalized_name: name, is_my_input: isSupport } = tx || claim;
   const [channelName, setChannelName] = useState('');
 
@@ -73,12 +74,16 @@ export default function ModalRevokeClaim(props: Props) {
           <p>
             {__('This will permanently remove your channel. Content published under this channel will be orphaned.')}
           </p>
-          <p>{__('YOUTUBE SYNCED CHANNELS!')}</p>
-          <p>
-            {__(
-              "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it."
-            )}
-          </p>
+          {hasYouTubeChannels && (
+            <div className="help--warning">
+              <p>{__('YOUTUBE SYNCED CHANNELS!')}</p>
+              <p>
+                {__(
+                  "If something went wrong with the sync, please don't try to fix it by deleting the channel. Instead reach out to us at help@odysee.com to get it fixed. Once deleted we may not be able to sync it again or fix it."
+                )}
+              </p>
+            </div>
+          )}
           <p>{__('Are you sure? Type %name% to confirm that you wish to remove the channel.', { name })}</p>
           <FormField type={'text'} onChange={(e) => setChannelName(e.target.value)} />
         </React.Fragment>

@@ -157,6 +157,8 @@ export const doGetCustomerStatus = () => async (dispatch: Dispatch, getState: Ge
     .catch((error) => {
       if (error === 'internal_apis_down') {
         dispatch(doToast({ message: __(STRIPE.APIS_DOWN_ERROR_RESPONSE), isError: true }));
+      } else if (error.message === 'user as customer is not setup yet') {
+        // probably doesn't need to do a toast message for this
       } else {
         // probably an error from stripe
         dispatch(doToast({ message: __(STRIPE.CARD_SETUP_ERROR_RESPONSE), isError: true }));

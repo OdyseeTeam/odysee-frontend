@@ -8,6 +8,7 @@ import {
   selectClaimIsNsfwForUri,
   selectIsFiatRequiredForUri,
 } from 'redux/selectors/claims';
+import { doGenerateShareUrl } from './thunk';
 import SocialShare from './view';
 import { selectUserInviteReferralCode, selectUser, selectUserInviteStatusFetched } from 'redux/selectors/user';
 import { selectContentPositionForUri } from 'redux/selectors/content';
@@ -35,6 +36,7 @@ const select = (state, props) => {
 const perform = {
   doFetchInviteStatus,
   doFetchUriAccessKey,
+  doGenerateShareUrl,
 };
 
 export default connect(select, perform)(SocialShare);

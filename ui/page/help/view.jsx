@@ -80,11 +80,11 @@ export default function HelpPage(props: Props) {
       />
 
       <Card
-        title={__('Email change and account deletion')}
+        title={__('Email change')}
         subtitle={
           <I18nMessage tokens={{ channel: <strong>#support</strong>, help_email: SITE_HELP_EMAIL }}>
-            Email address changes and account removal are processed manually on request via email. Email must come from
-            the original email being changed, or we'll need need to verify ownership another way.
+            Email address changes are processed manually on request via email. Email must come from the original email
+            being changed, or we'll need to verify ownership another way.
           </I18nMessage>
         }
         actions={

@@ -25,7 +25,6 @@ export const selectUpdateUrl = createSelector(selectPlatform, (platform) => {
 export const selectHasClickedComment = (state) => selectState(state).hasClickedComment;
 export const selectRemoteVersion = (state) => selectState(state).remoteVersion;
 export const selectIsUpgradeAvailable = (state) => selectState(state).isUpgradeAvailable;
-export const selectIsReloadRequired = (state) => selectState(state).isReloadRequired;
 
 export const selectUpgradeFilename = createSelector(selectPlatform, selectRemoteVersion, (platform, version) => {
   switch (platform) {

@@ -550,6 +550,33 @@ export function doUserPasswordSet(newPassword, oldPassword, authToken) {
   };
 }
 
+export function doUserDeleteAccount() {
+  return async (dispatch) => {
+    dispatch({
+      type: ACTIONS.USER_DELETION_STARTED,
+    });
+
+    const success = () => {
+      dispatch({
+        type: ACTIONS.USER_DELETION_COMPLETED,
+      });
+    };
+
+    const failure = (error) => {
+      dispatch({
+        type: ACTIONS.USER_DELETION_COMPLETED,
+      });
+      if (error.message === 'a delete operation is already in progress') {
+        // Don't throw error
+      } else {
+        throw error;
+      }
+    };
+
+    await Lbryio.call('user', 'delete', {}, 'post').then(success, failure);
+  };
+}
+
 export function doUserResendVerificationEmail(email) {
   return (dispatch) => {
     dispatch({

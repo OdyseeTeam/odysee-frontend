@@ -15,6 +15,7 @@ export type SnackBar = {
   linkTarget: string,
   isError: boolean,
 };
+
 export type AppState = {
   isLoaded: boolean,
   modal: ?string,
@@ -34,7 +35,7 @@ export type AppState = {
   checkUpgradeTimer: ?number,
   isUpgradeAvailable: ?boolean,
   isUpgradeSkipped: ?boolean,
-  isReloadRequired: ?boolean,
+  reloadRequired: ?ReloadRequired,
   hasClickedComment: boolean,
   enhancedLayout: boolean,
   splashAnimationEnabled: boolean,
@@ -78,7 +79,7 @@ const defaultState: AppState = {
   checkUpgradeTimer: undefined,
   isUpgradeAvailable: undefined,
   isUpgradeSkipped: undefined,
-  isReloadRequired: undefined,
+  reloadRequired: undefined,
   enhancedLayout: false,
   splashAnimationEnabled: true,
   searchOptionsExpanded: false,
@@ -229,7 +230,7 @@ reducers[ACTIONS.UPGRADE_DOWNLOAD_PROGRESSED] = (state, action) =>
 
 reducers[ACTIONS.RELOAD_REQUIRED] = (state, action) =>
   Object.assign({}, state, {
-    isReloadRequired: true,
+    reloadRequired: action.data.reason,
   });
 
 reducers[ACTIONS.DOWNLOADING_COMPLETED] = (state) => {

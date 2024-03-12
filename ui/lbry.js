@@ -3,6 +3,7 @@ import analytics from 'analytics';
 import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from 'constants/errors';
 import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
+import { PROXY_URL_NO_CF } from 'config';
 
 require('proxy-polyfill');
 
@@ -15,8 +16,9 @@ const Lbry: LbryTypes = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  alternateConnectionString: '',
-  methodsUsingAlternateConnectionString: [],
+  alternateConnectionString: PROXY_URL_NO_CF,
+  methodsUsingAlternateConnectionString: ['txo_list'],
+  methodsWithNoArtificialTimeout: ['txo_list'],
   apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
@@ -79,9 +81,9 @@ const Lbry: LbryTypes = {
   version: () => daemonCallWithResult('version', {}),
 
   // Claim fetching and manipulation
-  resolve: (params) => daemonCallWithResult('resolve', params, searchRequiresAuth),
+  resolve: (params) => daemonCallWithResult('resolve', params, handleAuthentication),
   get: (params) => daemonCallWithResult('get', params),
-  claim_search: (params) => daemonCallWithResult('claim_search', params, searchRequiresAuth),
+  claim_search: (params) => daemonCallWithResult('claim_search', params, claimSearchParamHook),
   claim_list: (params) => daemonCallWithResult('claim_list', params),
   channel_create: (params) => daemonCallWithResult('channel_create', params),
   channel_update: (params) => daemonCallWithResult('channel_update', params),
@@ -306,12 +308,19 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     return Promise.reject('Dropped due to successive failures.');
   }
 
-  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
+  const baseConnectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
     ? Lbry.alternateConnectionString
     : Lbry.daemonConnectionString;
 
+  const connectionString = `${baseConnectionString}?m=${method}`;
+
   const SDK_FETCH_TIMEOUT_MS = 60000;
-  return fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString + '?m=' + method, options))
+
+  const fetchPromise = Lbry.methodsWithNoArtificialTimeout.includes(method)
+    ? fetch(connectionString, options)
+    : fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString, options));
+
+  return fetchPromise
     .then((response) => checkAndParse(response, method))
     .then((response) => {
       const error = response.error || (response.result && response.result.error);
@@ -338,15 +347,13 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
 
 function daemonCallWithResult(
   name: string,
-  params: ?{} = {},
-  checkAuthNeededFn: ?(?{}) => boolean = undefined
+  params?: {} = {},
+  paramOverrideHook?: (({}) => {}) | null = null
 ): Promise<any> {
   return new Promise((resolve, reject) => {
-    const skipAuth = checkAuthNeededFn ? !checkAuthNeededFn(params) : false;
-
     apiCall(
       name,
-      skipAuth ? { ...params, [NO_AUTH]: true } : params,
+      paramOverrideHook ? paramOverrideHook(params) : params,
       (result) => {
         resolve(result);
       },
@@ -370,16 +377,41 @@ const lbryProxy = new Proxy(Lbry, {
   },
 });
 
+const SEARCH_OPTIONS_THAT_REQUIRE_AUTH = ['include_purchase_receipt', 'include_is_my_output'];
+
 /**
- * daemonCallWithResult hook that checks if the search option requires the
- * auth-token. This hook works for 'resolve' and 'claim_search'.
+ * daemonCallWithResult param-override hook that adds NO_AUTH to the params if
+ * it was determined that the api call doesn't require auth tokens. This
+ * improves caching on the server side.
+ *
+ * Subsequent processing down the line will remove X_LBRY_AUTH_TOKEN if NO_AUTH
+ * is present. This hook is mainly meant for 'resolve' and 'claim_search'.
  *
  * @param options
- * @returns {boolean}
+ * @returns
  */
-function searchRequiresAuth(options: any) {
-  const KEYS_REQUIRE_AUTH = ['include_purchase_receipt', 'include_is_my_output'];
-  return options && KEYS_REQUIRE_AUTH.some((k) => options.hasOwnProperty(k));
+function handleAuthentication(options: any) {
+  const authRequired = SEARCH_OPTIONS_THAT_REQUIRE_AUTH.some((k) => options.hasOwnProperty(k));
+  return authRequired ? options : { ...options, [NO_AUTH]: true };
+}
+
+/**
+ * daemonCallWithResult param-override hook for claim_search.
+ * @param options
+ * @returns
+ */
+function claimSearchParamHook(options: any) {
+  // 1. Handle auth vs no_auth
+  const finalOptions = handleAuthentication(options);
+
+  // 2. Limit [not_channel_ids]
+  const LIMIT = 2048 - 1;
+  const ids = finalOptions.not_channel_ids;
+  if (ids && ids.length > LIMIT) {
+    finalOptions.not_channel_ids = ids.slice(0, LIMIT);
+  }
+
+  return finalOptions;
 }
 
 export default lbryProxy;
