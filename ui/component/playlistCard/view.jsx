@@ -159,9 +159,12 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
 
+  /*
+  // Disabled due to it blocking the clicking of the scrollbar
   const backgroundImage = thumbnailFromClaim
     ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
     : undefined;
+  */
 
   function closePlaylist() {
     if (collectionEmpty) {
@@ -453,7 +456,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             />
           )
         }
-        backgroundImage={backgroundImage}
+        // Disabled due to it blocking the clicking of the scrollbar
+        // backgroundImage={backgroundImage}
       />
     </>
   );
