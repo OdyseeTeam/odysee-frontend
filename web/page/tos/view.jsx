@@ -40,8 +40,7 @@ const TOSPage = () => {
               viewing of information, videos, music, data and other materials (<strong>“Content"</strong>). Content is
               distributed to Odysee by publishers and is stored in fragmented shards via a distributed network of
               third-party devices (<strong>“Hosts"</strong>) that utilize Odysee. Odysee also allows publishers to bid
-              on and reserve names (<strong>“Names"</strong>), which can be used as a unique identifier for Content.
-              Please consult Odysee.tech to learn more about the technical architecture of Odysee.{' '}
+              on and reserve names (<strong>“Names"</strong>), which can be used as a unique identifier for Content.{' '}
             </p>
 
             <p>
