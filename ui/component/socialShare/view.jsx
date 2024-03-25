@@ -7,7 +7,7 @@ import * as PAGES from 'constants/pages';
 import React from 'react';
 import Button from 'component/button';
 import CopyableText from 'component/copyableText';
-import EmbedTextArea from 'component/embedTextArea';
+// import EmbedTextArea from 'component/embedTextArea';
 import Spinner from 'component/spinner';
 import { generateDownloadUrl, generateNewestUrl } from 'util/web';
 import { useIsMobile } from 'effects/use-screensize';
@@ -120,7 +120,7 @@ function SocialShare(props: SocialShareStateProps) {
   const [showClaimLinks, setShowClaimLinks] = React.useState(false);
   const [includeStartTime, setincludeStartTime]: [boolean, any] = React.useState(false);
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
-  const showAdditionalShareOptions = getClaimScheduledState(claim) !== 'scheduled';
+  // const showAdditionalShareOptions = getClaimScheduledState(claim) !== 'scheduled';
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
 
@@ -274,111 +274,114 @@ function SocialShare(props: SocialShareStateProps) {
           />
         </div>
       )}
-      {showAdditionalShareOptions && (
-        <>
-          <div className="section__actions">
-            <Button className="share" iconSize={24} icon={ICONS.TWITTER} title={__('Share on X')} href={tweetIntent} />
-            <Button
-              className="share"
-              iconSize={24}
-              icon={ICONS.FACEBOOK}
-              title={__('Share on Facebook')}
-              target="_blank"
-              href={`https://facebook.com/sharer/sharer.php?u=${shareUrl.urlNoReferral}`}
-            />
-            <Button
-              className="share"
-              iconSize={24}
-              icon={ICONS.REDDIT}
-              title={__('Share on Reddit')}
-              target="_blank"
-              href={`https://reddit.com/submit?url=${shareUrl.urlNoReferral}`}
-            />
-            {!isMobile ? (
-              <Button
-                className="share"
-                iconSize={24}
-                icon={ICONS.WHATSAPP}
-                title={__('Share on WhatsApp')}
-                target="_blank"
-                href={`https://web.whatsapp.com/send?text=${shareUrl.urlNoReferral}`}
-              />
-            ) : (
-              <Button
-                className="share"
-                iconSize={24}
-                icon={ICONS.WHATSAPP}
-                title={__('Share on WhatsApp')}
-                href={`whatsapp://send?text=${shareUrl.urlNoReferral}`}
-              />
-            )}
-            {!IOS ? (
-              <Button
-                className="share"
-                iconSize={24}
-                icon={ICONS.TELEGRAM}
-                title={__('Share on Telegram')}
-                target="_blank"
-                href={`https://t.me/share/url?url=${shareUrl.urlNoReferral}`}
-              />
-            ) : (
-              // Only ios client supports share urls
-              <Button
-                className="share"
-                iconSize={24}
-                icon={ICONS.TELEGRAM}
-                title={__('Share on Telegram')}
-                href={`tg://msg_url?url=${shareUrl.urlNoReferral}&amp;text=text`}
-              />
-            )}
-            {webShareable && !isCollection && (
-              <Button
-                className="share"
-                iconSize={24}
-                icon={ICONS.EMBED}
-                title={__('Embed this content')}
-                onClick={() => {
-                  setShowEmbed(!showEmbed);
-                  setShowClaimLinks(false);
-                }}
-              />
-            )}
-            {claimLinkElements.length > 0 && (
-              <Button
-                className="share"
-                iconSize={24}
-                icon={ICONS.SHARE_LINK}
-                title={__('Links')}
-                onClick={() => {
-                  setShowClaimLinks(!showClaimLinks);
-                  setShowEmbed(false);
-                }}
-              />
-            )}
-          </div>
-          {SUPPORTS_SHARE_API && isMobile && (
-            <div className="section__actions">
-              <Button icon={ICONS.SHARE} button="primary" label={__('Share via...')} onClick={handleWebShareClick} />
-            </div>
-          )}
-          {showEmbed &&
-            (!isChannel ? (
-              <EmbedTextArea
-                label={__('Embedded')}
-                claim={claim}
-                includeStartTime={includeStartTime}
-                startTime={startTimeSeconds}
-                referralCode={referralCode}
-                uriAccessKey={uriAccessKey}
-              />
-            ) : (
-              <>
-                <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
-                <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
-              </>
-            ))}
-          {showClaimLinks && <div className="section">{claimLinkElements}</div>}
-        </>
+      <div className="section__actions">
+        <Button
+          className="share"
+          iconSize={24}
+          icon={ICONS.TWITTER}
+          title={__('Share on Twitter')}
+          href={tweetIntent}
+        />
+        <Button
+          className="share"
+          iconSize={24}
+          icon={ICONS.FACEBOOK}
+          title={__('Share on Facebook')}
+          onClick={() =>
+            window.odysee.functions.initBrowser(
+              `https://facebook.com/sharer/sharer.php?u=${shareUrl.urlNoReferral}`,
+              'external'
+            )
+          }
+        />
+        <Button
+          className="share"
+          iconSize={24}
+          icon={ICONS.REDDIT}
+          title={__('Share on Reddit')}
+          onClick={() =>
+            window.odysee.functions.initBrowser(`https://reddit.com/submit?url=${shareUrl.urlNoReferral}`, 'external')
+          }
+        />
+        {!isMobile ? (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.WHATSAPP}
+            title={__('Share on WhatsApp')}
+            onClick={() =>
+              window.odysee.functions.initBrowser(
+                `https://web.whatsapp.com/send?text=${shareUrl.urlNoReferral}`,
+                'external'
+              )
+            }
+          />
+        ) : (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.WHATSAPP}
+            title={__('Share on WhatsApp')}
+            onClick={() =>
+              window.odysee.functions.initBrowser(`whatsapp://send?text=${shareUrl.urlNoReferral}`, 'external')
+            }
+          />
+        )}
+        {!IOS ? (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.TELEGRAM}
+            title={__('Share on Telegram')}
+            onClick={() =>
+              window.odysee.functions.initBrowser(`https://t.me/share/url?url=${shareUrl.urlNoReferral}`, 'external')
+            }
+          />
+        ) : (
+          // Only ios client supports share urls
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.TELEGRAM}
+            title={__('Share on Telegram')}
+            onClick={() =>
+              window.odysee.functions.initBrowser(
+                `tg://msg_url?url=${shareUrl.urlNoReferral}&amp;text=text`,
+                'external'
+              )
+            }
+          />
+        )}
+        {webShareable && !isCollection && (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.EMBED}
+            title={__('Embed this content')}
+            onClick={() => {
+              setShowEmbed(!showEmbed);
+              setShowClaimLinks(false);
+            }}
+          />
+        )}
+        {claimLinkElements.length > 0 && (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.SHARE_LINK}
+            title={__('Links')}
+            onClick={() => {
+              setShowClaimLinks(!showClaimLinks);
+              setShowEmbed(false);
+            }}
+          />
+        )}
+      </div>
+
+      {SUPPORTS_SHARE_API && isMobile && (
+        <div className="section__actions">
+          <Button icon={ICONS.SHARE} button="primary" label={__('Share via...')} onClick={handleWebShareClick} />
+        </div>
       )}
     </React.Fragment>
   );
