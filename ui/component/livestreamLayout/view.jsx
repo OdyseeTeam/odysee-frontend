@@ -14,6 +14,7 @@ import LivestreamMenu from 'component/livestreamMenu';
 import CreditAmount from 'component/common/credit-amount';
 import Button from 'component/button';
 import classnames from 'classnames';
+import Ad from 'web/component/ad';
 
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
@@ -42,6 +43,7 @@ type Props = {
   activeViewers?: number,
   videoTheaterMode: boolean,
   doClearPlayingUri: () => void,
+  hasPremiumPlus: boolean,
 };
 
 export default function LivestreamLayout(props: Props) {
@@ -58,6 +60,7 @@ export default function LivestreamLayout(props: Props) {
     activeViewers,
     videoTheaterMode,
     doClearPlayingUri,
+    hasPremiumPlus,
   } = props;
 
   const isMobile = useIsMobile();
@@ -148,6 +151,7 @@ export default function LivestreamLayout(props: Props) {
 
             <FileTitleSection uri={uri} />
           </div>
+          {!hasPremiumPlus && <Ad type="belowLivestream" uri={uri} />}
         </div>
 
         {(!isMobile || isLandscapeRotated) && videoTheaterMode && livestreamChatEnabled && (

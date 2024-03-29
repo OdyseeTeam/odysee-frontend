@@ -12,6 +12,7 @@ import {
   selectShowScheduledLiveInfoForUri,
   selectActiveStreamUriForClaimUri,
 } from 'redux/selectors/livestream';
+import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import { doClearPlayingUri } from 'redux/actions/content';
 
 import LivestreamLayout from './view';
@@ -32,6 +33,7 @@ const select = (state, props) => {
     showScheduledInfo: selectShowScheduledLiveInfoForUri(state, uri),
     activeStreamUri: selectActiveStreamUriForClaimUri(state, uri),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
+    hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 

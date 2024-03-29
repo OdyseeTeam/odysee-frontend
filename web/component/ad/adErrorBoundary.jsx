@@ -16,7 +16,7 @@ const beforeCapture = (scope) => {
 // ****************************************************************************
 
 export type Props = {|
-  type: 'tileA' | 'tileB' | 'sticky' | 'aboveComments',
+  type: 'tileA' | 'tileB' | 'sticky' | 'aboveComments' | 'belowLivestream',
   children: any,
 |};
 
