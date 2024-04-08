@@ -479,9 +479,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
                       icon={ICONS.REPLY}
                       iconSize={isMobile && 12}
                     />
-                    {ENABLE_COMMENT_REACTIONS && (
-                      <CommentReactions uri={uri} authorUri={authorUri} commentId={commentId} />
-                    )}
+                    {ENABLE_COMMENT_REACTIONS && <CommentReactions uri={uri} commentId={commentId} />}
                   </div>
                 )}
 
