@@ -1,11 +1,12 @@
 import { connect } from 'react-redux';
 import CommentReactions from './view';
-import { selectClaimIsMine, selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimIsMine, selectClaimForUri, makeSelectTagInClaimOrChannelForUri } from 'redux/selectors/claims';
 import { doResolveUri } from 'redux/actions/claims';
 import { doToast } from 'redux/actions/notifications';
 import { selectMyReactsForComment, selectOthersReactsForComment } from 'redux/selectors/comments';
 import { doCommentReact } from 'redux/actions/comments';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { DISABLE_REACTIONS_ALL } from 'constants/tags';
 
 const select = (state, props) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -15,6 +16,7 @@ const select = (state, props) => {
 
   return {
     claim,
+    disableReactions: makeSelectTagInClaimOrChannelForUri(props.authorUri, DISABLE_REACTIONS_ALL)(state),
     claimIsMine: selectClaimIsMine(state, claim),
     myReacts: selectMyReactsForComment(state, reactionKey),
     othersReacts: selectOthersReactsForComment(state, reactionKey),

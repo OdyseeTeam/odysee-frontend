@@ -12,6 +12,7 @@ import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
   myReacts: Array<string>,
+  disableReactions: boolean,
   othersReacts: any,
   react: (string, string) => void,
   commentId: string,
@@ -28,6 +29,7 @@ type Props = {
 export default function CommentReactions(props: Props) {
   const {
     myReacts,
+    disableReactions,
     othersReacts,
     commentId,
     react,
@@ -109,28 +111,32 @@ export default function CommentReactions(props: Props) {
 
   return (
     <>
-      <Button
-        requiresAuth={IS_WEB}
-        title={__('Upvote')}
-        icon={likeIcon}
-        iconSize={isMobile && 12}
-        className={classnames('comment__action button-like', {
-          'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.LIKE),
-        })}
-        onClick={handleCommentLike}
-        label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.LIKE)}</span>}
-      />
-      <Button
-        requiresAuth={IS_WEB}
-        title={__('Downvote')}
-        icon={dislikeIcon}
-        iconSize={isMobile && 12}
-        className={classnames('comment__action button-dislike', {
-          'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.DISLIKE),
-        })}
-        onClick={handleCommentDislike}
-        label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.DISLIKE)}</span>}
-      />
+      {!disableReactions && (
+        <>
+          <Button
+            requiresAuth={IS_WEB}
+            title={__('Upvote')}
+            icon={likeIcon}
+            iconSize={isMobile && 12}
+            className={classnames('comment__action button-like', {
+              'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.LIKE),
+            })}
+            onClick={handleCommentLike}
+            label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.LIKE)}</span>}
+          />
+          <Button
+            requiresAuth={IS_WEB}
+            title={__('Downvote')}
+            icon={dislikeIcon}
+            iconSize={isMobile && 12}
+            className={classnames('comment__action button-dislike', {
+              'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.DISLIKE),
+            })}
+            onClick={handleCommentDislike}
+            label={<span className="comment__reaction-count">{getCountForReact(REACTION_TYPES.DISLIKE)}</span>}
+          />
+        </>
+      )}
 
       {!shouldHide && ENABLE_CREATOR_REACTIONS && (canCreatorReact || creatorLiked) && (
         <Button

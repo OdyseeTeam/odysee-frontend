@@ -218,6 +218,7 @@ export default function Notification(props: Props) {
             />
             <CommentReactions
               uri={notificationTarget}
+              authorUri={channelUrl}
               commentId={notification_parameters.dynamic.hash}
               hideCreatorLike
             />
