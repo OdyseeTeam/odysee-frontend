@@ -16,8 +16,8 @@ const select = (state, props) => {
 
   return {
     claim,
-    disableReactions: makeSelectTagInClaimOrChannelForUri(props.authorUri, DISABLE_REACTIONS_ALL_TAG)(state),
-    disableSlimes: makeSelectTagInClaimOrChannelForUri(props.authorUri, DISABLE_SLIMES_ALL_TAG)(state),
+    disableReactions: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_REACTIONS_ALL_TAG)(state),
+    disableSlimes: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_SLIMES_ALL_TAG)(state),
     claimIsMine: selectClaimIsMine(state, claim),
     myReacts: selectMyReactsForComment(state, reactionKey),
     othersReacts: selectOthersReactsForComment(state, reactionKey),
