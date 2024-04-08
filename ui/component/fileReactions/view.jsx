@@ -19,6 +19,7 @@ type Props = {
   myReaction: ?string,
   isLivestreamClaim?: boolean,
   scheduledState: ClaimScheduledState,
+  disableSlimes: boolean,
   doFetchReactions: (claimId: ?string) => void,
   doReactionLike: (uri: string) => void,
   doReactionDislike: (uri: string) => void,
@@ -33,6 +34,7 @@ export default function FileReactions(props: Props) {
     dislikeCount,
     isLivestreamClaim,
     scheduledState,
+    disableSlimes,
     doFetchReactions,
     doReactionLike,
     doReactionDislike,
@@ -66,8 +68,10 @@ export default function FileReactions(props: Props) {
       })}
     >
       <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike(uri)} />
-      <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike(uri)} />
-      <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />
+      {!disableSlimes && (
+        <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike(uri)} />
+      )}
+      <RatioBar likeCount={likeCount} dislikeCount={disableSlimes ? 0 : dislikeCount} />
     </div>
   );
 }
