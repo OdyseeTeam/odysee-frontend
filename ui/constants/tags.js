@@ -21,8 +21,8 @@ export const PREFERENCE_EMBED = 'c:preference-embed';
 export const SCHEDULED_LIVESTREAM_TAG = 'c:scheduled-livestream'; // Deprecated; use 'SCHEDULED_TAGS.LIVE'
 export const LBRY_FIRST_TAG = 'c:lbry-first';
 export const DISABLE_DOWNLOAD_BUTTON_TAG = 'c:disable-download';
-export const DISABLE_REACTIONS_ALL = 'c:disable-reactions-all';
-export const DISABLE_REACTIONS_VIDEO = 'c:disable-reactions-video';
+export const DISABLE_REACTIONS_ALL_TAG = 'c:disable-reactions-all';
+export const DISABLE_REACTIONS_VIDEO_TAG = 'c:disable-reactions-video';
 
 export const PURCHASE_TAG = 'c:purchase';
 export const RENTAL_TAG = 'c:rental';
@@ -49,8 +49,8 @@ export const CONTROL_TAGS = [
   DISABLE_SUPPORT_TAG,
   PREFERENCE_EMBED,
   DISABLE_DOWNLOAD_BUTTON_TAG,
-  DISABLE_REACTIONS_ALL,
-  DISABLE_REACTIONS_VIDEO,
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
 ];
 
 // System tags are special tags that are not available to the user.
