@@ -20,7 +20,7 @@ import { doOpenModal } from 'redux/actions/app';
 import FileActions from './view';
 import { makeSelectFileRenderModeForUri, selectContentStates } from 'redux/selectors/content';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
-import { DISABLE_DOWNLOAD_BUTTON_TAG, DISABLE_REACTIONS_ALL } from 'constants/tags';
+import { DISABLE_DOWNLOAD_BUTTON_TAG, DISABLE_REACTIONS_ALL, DISABLE_REACTIONS_VIDEO } from 'constants/tags';
 import { isStreamPlaceholderClaim } from 'util/claim';
 import * as RENDER_MODES from 'constants/file_render_modes';
 
@@ -33,7 +33,9 @@ const select = (state, props) => {
 
   return {
     claim,
-    disableFileReactions: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL)(state),
+    disableFileReactions:
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_ALL)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_REACTIONS_VIDEO)(state),
     claimIsMine: selectClaimIsMine(state, claim),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     costInfo: selectCostInfoForUri(state, uri),
