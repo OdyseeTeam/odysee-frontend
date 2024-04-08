@@ -7,7 +7,9 @@ import {
   selectIsStreamPlaceholderForUri,
   selectClaimIsMine,
   selectScheduledStateForUri,
+  makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
+import { DISABLE_SLIMES_VIDEO_TAG, DISABLE_SLIMES_ALL_TAG } from 'constants/tags';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -24,6 +26,9 @@ const select = (state, props) => {
     claimId,
     claimIsMine: selectClaimIsMine(state, claim),
     scheduledState: selectScheduledStateForUri(state, uri),
+    disableSlimes:
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SLIMES_VIDEO_TAG)(state),
   };
 };
 
