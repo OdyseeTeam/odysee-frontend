@@ -21,6 +21,7 @@ export const PREFERENCE_EMBED = 'c:preference-embed';
 export const SCHEDULED_LIVESTREAM_TAG = 'c:scheduled-livestream'; // Deprecated; use 'SCHEDULED_TAGS.LIVE'
 export const LBRY_FIRST_TAG = 'c:lbry-first';
 export const DISABLE_DOWNLOAD_BUTTON_TAG = 'c:disable-download';
+export const DISABLE_REACTIONS_ALL = 'c:disable-reactions-all';
 
 export const PURCHASE_TAG = 'c:purchase';
 export const RENTAL_TAG = 'c:rental';
@@ -43,7 +44,7 @@ export const SCHEDULED_TAGS = Object.freeze({
 });
 
 // Control tags are special tags that are available to the user in some situations.
-export const CONTROL_TAGS = [DISABLE_SUPPORT_TAG, PREFERENCE_EMBED, DISABLE_DOWNLOAD_BUTTON_TAG];
+export const CONTROL_TAGS = [DISABLE_SUPPORT_TAG, PREFERENCE_EMBED, DISABLE_DOWNLOAD_BUTTON_TAG, DISABLE_REACTIONS_ALL];
 
 // System tags are special tags that are not available to the user.
 export const SYSTEM_TAGS = [LBRY_FIRST_TAG, ...Object.values(VISIBILITY_TAGS), ...Object.values(SCHEDULED_TAGS)];

@@ -26,6 +26,7 @@ type Props = {
   hideRepost?: boolean,
   // redux
   claim: StreamClaim,
+  disableFileReactions: boolean,
   claimIsMine: boolean,
   renderMode: string,
   costInfo: ?{ cost: number },
@@ -53,6 +54,7 @@ export default function FileActions(props: Props) {
     uri,
     claimIsMine,
     claim,
+    disableFileReactions,
     costInfo,
     renderMode,
     hasChannels,
@@ -149,7 +151,7 @@ export default function FileActions(props: Props) {
 
   return (
     <div className="media__actions">
-      {ENABLE_FILE_REACTIONS && isAllowedToReact() && <FileReactions uri={uri} />}
+      {ENABLE_FILE_REACTIONS && !disableFileReactions && isAllowedToReact() && <FileReactions uri={uri} />}
 
       {!isAPreorder && !isFiatRequired && <ClaimSupportButton uri={uri} fileAction />}
 
