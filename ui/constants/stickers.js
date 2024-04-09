@@ -13,6 +13,7 @@ const FAIL_BORDER = 'FAIL/PNG/fail_with_border.png';
 const HYPE_BORDER = 'HYPE/PNG/hype_with_border.png';
 const PANTS_1_WITH_FRAME = 'PANTS/PNG/PANTS_1_with_frame.png';
 const PISS = 'PISS/PNG/piss_with_frame.png';
+const PREGNANT_MAN_BLONDE_WHITE_BORDER = 'pregnant%20man/png/Pregnant%20man_white%20border_blondie.png';
 const ROCKET_SPACEMAN_WITH_BORDER = 'ROCKET%20SPACEMAN/PNG/rocket-spaceman_with-border.png';
 const SALTY = 'SALTY/PNG/salty.png';
 const SICK_2_WITH_BORDER = 'SICK/PNG/sick2_with_border.png';
@@ -24,6 +25,17 @@ const THUG_LIFE_WITH_BORDER = 'THUG%20LIFE/PNG/thug_life_with_border_clean.png';
 const WHUUT_WITH_FRAME = 'WHUUT/PNG/whuut_with-frame.png';
 const BULL_RIDE = 'BULL/PNG/bull-ride.png';
 const TRAP = 'TRAP/PNG/trap.png';
+const KANYE_WEST = 'MISC/PNG/kanye_west.png';
+const CHE_GUEVARA = 'MISC/PNG/che_guevara.png';
+const BILL_COSBY = 'MISC/PNG/bill_cosby.png';
+const KURT_COBAIN = 'MISC/PNG/kurt_cobain.png';
+const BILL_CLINTON = 'MISC/PNG/bill_clinton.png';
+const TAYLOR_SWIFT = 'MISC/PNG/taylor_swift.png';
+const EPSTEIN_ISLAND = 'MISC/PNG/epstein_island.png';
+const DONALD_TRUMP = 'MISC/PNG/donald_trump.png';
+const EGG_CARTON = 'MISC/PNG/egg_carton.png';
+const MOUNT_RUSHMORE = 'MISC/PNG/mount_rushmore.png';
+const MONEY_PRINTER = 'MISC/PNG/money_printer.png';
 // const XMAS = 'SEASONAL/PNG/xmas.png';
 const ELIMINATED = 'ELIMINATED/PNG/eliminated.png';
 const TRASH = 'TRASH/PNG/trash.png';
@@ -71,11 +83,23 @@ export const FREE_GLOBAL_STICKERS = [
   buildSticker('HYPE', HYPE_BORDER),
   buildSticker('PANTS_1', PANTS_1_WITH_FRAME),
   buildSticker('DOGE', DOGE),
+  buildSticker('EGG_CARTON', EGG_CARTON),
   // buildSticker('XMAS', XMAS),
   buildSticker('WAITING', WAITING),
   buildSticker('BULL_RIDE', BULL_RIDE),
   buildSticker('ELIMINATED', ELIMINATED),
   buildSticker('BAN', BAN),
+  buildSticker('MONEY_PRINTER', MONEY_PRINTER),
+  buildSticker('MOUNT_RUSHMORE', MOUNT_RUSHMORE),
+  buildSticker('KANYE_WEST', KANYE_WEST),
+  buildSticker('TAYLOR_SWIFT', TAYLOR_SWIFT),
+  buildSticker('DONALD_TRUMP', DONALD_TRUMP),
+  buildSticker('BILL_CLINTON', BILL_CLINTON),
+  buildSticker('EPSTEIN_ISLAND', EPSTEIN_ISLAND),
+  buildSticker('KURT_COBAIN', KURT_COBAIN),
+  buildSticker('BILL_COSBY', BILL_COSBY),
+  buildSticker('CHE_GUEVARA', CHE_GUEVARA),
+  buildSticker('PREGNANT_MAN_BLONDE', PREGNANT_MAN_BLONDE_WHITE_BORDER),
   buildSticker('ROCKET_SPACEMAN', ROCKET_SPACEMAN_WITH_BORDER),
   buildSticker('SALTY', SALTY),
   buildSticker('SICK_FLAME', SICK_2_WITH_BORDER),
