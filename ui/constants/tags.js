@@ -49,7 +49,6 @@ export const SCHEDULED_TAGS = Object.freeze({
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [
   DISABLE_SUPPORT_TAG,
-  PREFERENCE_EMBED,
   DISABLE_DOWNLOAD_BUTTON_TAG,
   DISABLE_REACTIONS_ALL_TAG,
   DISABLE_REACTIONS_VIDEO_TAG,
@@ -60,7 +59,7 @@ export const CONTROL_TAGS = [
 // System tags are special tags that are not available to the user.
 export const SYSTEM_TAGS = [LBRY_FIRST_TAG, ...Object.values(VISIBILITY_TAGS), ...Object.values(SCHEDULED_TAGS)];
 
-export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS, ...MEMBERS_ONLY_TAGS];
+export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS, ...MEMBERS_ONLY_TAGS, PREFERENCE_EMBED];
 
 export const MATURE_TAGS = Object.freeze([
   'porn',
