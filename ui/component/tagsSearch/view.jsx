@@ -106,7 +106,7 @@ export default function TagsSearch(props: Props) {
     });
   }
 
-  const controlTagLables = {};
+  const controlTagLabels = {};
   CONTROL_TAGS.map((t) => {
     let label;
     if (t === 'disable-support') {
@@ -124,7 +124,7 @@ export default function TagsSearch(props: Props) {
           .join(' ')
       );
     }
-    controlTagLables[t] = label;
+    controlTagLabels[t] = label;
   });
 
   // const countWithoutLbryFirst = selectedTagsSet.has('lbry-first') ? selectedTagsSet.size - 1 : selectedTagsSet.size;
@@ -277,7 +277,7 @@ export default function TagsSearch(props: Props) {
                   name={t}
                   type="checkbox"
                   blockWrap={false}
-                  label={controlTagLables[t]}
+                  label={controlTagLabels[t]}
                   checked={tagsPassedIn.some((te) => te.name === t)}
                   onChange={() => handleUtilityTagCheckbox(t)}
                 />
