@@ -110,7 +110,7 @@ export default function TagsSearch(props: Props) {
   CONTROL_TAGS.map((t) => {
     let label;
     if (t === 'disable-support') {
-      label = __('Disable tipping and boosting');
+      label = __('Disable Tipping And Boosting');
     } else if (t === 'c:disable-reactions-all') {
       label = __('Disable Reactions Video + Comments');
     } else if (t === 'c:disable-slimes-all') {
