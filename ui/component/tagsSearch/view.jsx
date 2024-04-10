@@ -70,7 +70,6 @@ export default function TagsSearch(props: Props) {
     disabled,
     limitSelect = TAG_FOLLOW_MAX,
     limitShow = 5,
-    user,
     disableControlTags,
     help,
   } = props;
@@ -82,7 +81,6 @@ export default function TagsSearch(props: Props) {
 
   // Make sure there are no duplicates, then trim
   // suggestedTags = (followedTags - tagsPassedIn) + unfollowedTags
-  const experimentalFeature = user && user.experimental_ui;
   const followedTagsSet = new Set(followedTags.map((tag) => tag.name));
   const selectedTagsSet = new Set(tagsPassedIn.map((tag) => tag.name));
   const unfollowedTagsSet = new Set(unfollowedTags.map((tag) => tag.name));
@@ -248,8 +246,7 @@ export default function TagsSearch(props: Props) {
             </section>
           )}
         </fieldset-section>
-        {experimentalFeature &&
-          !disableControlTags &&
+        {!disableControlTags &&
           onSelect && ( // onSelect ensures this does not appear on TagFollow
             <fieldset-section>
               <label>{__('Control Tags')}</label>
