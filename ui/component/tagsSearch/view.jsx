@@ -106,6 +106,27 @@ export default function TagsSearch(props: Props) {
     });
   }
 
+  const controlTagLables = {};
+  CONTROL_TAGS.map((t) => {
+    let label;
+    if (t === 'disable-support') {
+      label = __('Disable tipping and boosting');
+    } else if (t === 'c:disable-reactions-all') {
+      label = __('Disable Reactions Video + Comments');
+    } else if (t === 'c:disable-slimes-all') {
+      label = __('Disable Slimes Video + Comments');
+    } else {
+      label = __(
+        t
+          .replace(INTERNAL_TAG_PREFIX, '')
+          .split('-')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+      );
+    }
+    controlTagLables[t] = label;
+  });
+
   // const countWithoutLbryFirst = selectedTagsSet.has('lbry-first') ? selectedTagsSet.size - 1 : selectedTagsSet.size;
   const maxed = Boolean(limitSelect && countWithoutSpecialTags >= limitSelect);
   const suggestedTags = Array.from(suggestedTagsSet).filter(doesTagMatch).slice(0, limitShow);
@@ -256,13 +277,7 @@ export default function TagsSearch(props: Props) {
                   name={t}
                   type="checkbox"
                   blockWrap={false}
-                  label={__(
-                    t
-                      .replace(INTERNAL_TAG_PREFIX, '')
-                      .split('-')
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')
-                  )}
+                  label={controlTagLables[t]}
                   checked={tagsPassedIn.some((te) => te.name === t)}
                   onChange={() => handleUtilityTagCheckbox(t)}
                 />
