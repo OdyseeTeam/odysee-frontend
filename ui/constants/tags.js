@@ -23,8 +23,10 @@ export const LBRY_FIRST_TAG = 'c:lbry-first';
 export const DISABLE_DOWNLOAD_BUTTON_TAG = 'c:disable-download';
 export const DISABLE_REACTIONS_ALL_TAG = 'c:disable-reactions-all';
 export const DISABLE_REACTIONS_VIDEO_TAG = 'c:disable-reactions-video';
+export const DISABLE_REACTIONS_COMMENTS_TAG = 'c:disable-reactions-comments';
 export const DISABLE_SLIMES_ALL_TAG = 'c:disable-slimes-all';
 export const DISABLE_SLIMES_VIDEO_TAG = 'c:disable-slimes-video';
+export const DISABLE_SLIMES_COMMENTS_TAG = 'c:disable-slimes-comments';
 
 export const PURCHASE_TAG = 'c:purchase';
 export const RENTAL_TAG = 'c:rental';
@@ -50,16 +52,23 @@ export const SCHEDULED_TAGS = Object.freeze({
 export const CONTROL_TAGS = [
   DISABLE_SUPPORT_TAG,
   DISABLE_DOWNLOAD_BUTTON_TAG,
-  DISABLE_REACTIONS_ALL_TAG,
   DISABLE_REACTIONS_VIDEO_TAG,
-  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_REACTIONS_COMMENTS_TAG,
   DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SLIMES_COMMENTS_TAG,
 ];
 
 // System tags are special tags that are not available to the user.
 export const SYSTEM_TAGS = [LBRY_FIRST_TAG, ...Object.values(VISIBILITY_TAGS), ...Object.values(SCHEDULED_TAGS)];
 
-export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS, ...MEMBERS_ONLY_TAGS, PREFERENCE_EMBED];
+export const INTERNAL_TAGS = [
+  ...CONTROL_TAGS,
+  ...SYSTEM_TAGS,
+  ...MEMBERS_ONLY_TAGS,
+  PREFERENCE_EMBED,
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+];
 
 export const MATURE_TAGS = Object.freeze([
   'porn',

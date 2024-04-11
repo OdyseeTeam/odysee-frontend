@@ -111,10 +111,6 @@ export default function TagsSearch(props: Props) {
     let label;
     if (t === 'disable-support') {
       label = __('Disable Tipping and Boosting');
-    } else if (t === 'c:disable-reactions-all') {
-      label = __('Disable Reactions Video + Comments');
-    } else if (t === 'c:disable-slimes-all') {
-      label = __('Disable Slimes Video + Comments');
     } else {
       label = __(
         t

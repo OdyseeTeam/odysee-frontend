@@ -6,7 +6,12 @@ import { doToast } from 'redux/actions/notifications';
 import { selectMyReactsForComment, selectOthersReactsForComment } from 'redux/selectors/comments';
 import { doCommentReact } from 'redux/actions/comments';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { DISABLE_REACTIONS_ALL_TAG, DISABLE_SLIMES_ALL_TAG } from 'constants/tags';
+import {
+  DISABLE_REACTIONS_ALL_TAG,
+  DISABLE_SLIMES_ALL_TAG,
+  DISABLE_SLIMES_COMMENTS_TAG,
+  DISABLE_REACTIONS_COMMENTS_TAG,
+} from 'constants/tags';
 
 const select = (state, props) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -16,8 +21,12 @@ const select = (state, props) => {
 
   return {
     claim,
-    disableReactions: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_REACTIONS_ALL_TAG)(state),
-    disableSlimes: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_SLIMES_ALL_TAG)(state),
+    disableReactions:
+      makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_REACTIONS_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_REACTIONS_COMMENTS_TAG)(state),
+    disableSlimes:
+      makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_SLIMES_ALL_TAG)(state) ||
+      makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_SLIMES_COMMENTS_TAG)(state),
     claimIsMine: selectClaimIsMine(state, claim),
     myReacts: selectMyReactsForComment(state, reactionKey),
     othersReacts: selectOthersReactsForComment(state, reactionKey),
