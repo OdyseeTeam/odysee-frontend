@@ -41,6 +41,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
   const [isHidden, setIsHidden] = useState(false);
   const [loads, setLoads] = useState(1);
   const stickyContainer = useRef<?HTMLDivElement>(null);
+  const random = Math.floor(Math.random() * 2);
 
   const observer = new MutationObserver(callback);
 
@@ -194,7 +195,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
   }
 
   if (shouldShowAds && provider === 'rumble') {
-    return (
+    return random === 0 ? (
       <div
         id="rmbl-sticky"
         ref={stickyContainer}
@@ -210,6 +211,30 @@ const AdSticky = memo(function AdSticky(props: Props) {
               nrp.type = 'text/javascript';
               nrp.async = true;
               nrp.src = `https://a.ads.rmbl.ws/warp/61?r=${Math.floor(Math.random() * 99999)}`;
+              if (node) node.appendChild(nrp);
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+          </script>
+        </div>
+        <div className="rmbl-sticky-close">
+          <button onClick={() => closeRmbl()}>X</button>
+        </div>
+      </div>
+    ) : (
+      <div
+        id="rmbl-sticky"
+        ref={stickyContainer}
+        className={classnames('rmbl-sticky--157', {
+          'show-rmbl-sticky': isActive && !adBlockerFound && !isHidden,
+          FILE: isContentClaim,
+        })}
+      >
+        <div className="rmbl-sticky">
+          <script id="nrp-157" type="text/javascript">
+            {(function (node) {
+              var nrp = document.createElement('script');
+              nrp.type = 'text/javascript';
+              nrp.async = true;
+              nrp.src = `//a.ads.rmbl.ws/warp/157?r=${Math.floor(Math.random() * 99999)}`;
               if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
