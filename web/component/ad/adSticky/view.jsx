@@ -72,6 +72,10 @@ const AdSticky = memo(function AdSticky(props: Props) {
   }
 
   function closeRmbl() {
+    // $FlowIgnore
+    document.body.querySelectorAll('script[src*="warp/"]')?.forEach((script, index) => index > 0 && script.remove());
+    const iframes = stickyContainer.current?.firstElementChild?.querySelectorAll('iframe');
+    if (iframes) iframes.forEach((iframe) => iframe.remove());
     setIsHidden(true);
   }
 
@@ -148,23 +152,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
         };
       } catch (e) {}
     } else if (provider === 'rumble') {
-      // $FlowIgnore
-      document.body
-        .querySelectorAll('script[src*="warp/59"]')
-        ?.forEach((script, index) => index > 0 && script.remove());
-      // $FlowIgnore
-      document.body
-        .querySelectorAll('script[src*="warp/61"]')
-        ?.forEach((script, index) => index > 0 && script.remove());
-      // $FlowIgnore
-      document.body
-        .querySelectorAll('script[src*="warp/62"]')
-        ?.forEach((script, index) => index > 0 && script.remove());
-      // $FlowIgnore
-      const iframes = stickyContainer.current?.firstElementChild?.querySelectorAll('iframe');
-      if (iframes) iframes.forEach((iframe) => iframe.remove());
-
-      const adScript = document.getElementById('nrp-61');
+      const adScript = document.getElementById('nrp-61') || document.getElementById('nrp-157');
       const iframeCheck =
         (adScript && adScript.parentElement && adScript.parentElement.querySelector('iframe')) || null;
       if (adScript && iframeCheck) adScript.id = 'static';
@@ -194,7 +182,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
     );
   }
 
-  if (shouldShowAds && provider === 'rumble') {
+  if (shouldShowAds && provider === 'rumble' && !isHidden) {
     return random === 0 ? (
       <div
         id="rmbl-sticky"
