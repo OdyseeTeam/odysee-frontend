@@ -368,11 +368,7 @@ export const selectHasPrivateCollectionForId = (state: State, id: string) => {
 
 // Is private === only private (doesn't include public with private edits)
 export const selectIsCollectionPrivateForId = (state: State, id: string) =>
-  Boolean(
-    selectHasPrivateCollectionForId(state, id) &&
-      !selectCollectionHasEditsForId(state, id) &&
-      !selectCollectionHasUnsavedEditsForId(state, id)
-  );
+  Boolean(selectUnpublishedCollectionForId(state, id) || COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id));
 
 export const selectClaimIdsForCollectionId = createSelector(
   selectHasPrivateCollectionForId,
