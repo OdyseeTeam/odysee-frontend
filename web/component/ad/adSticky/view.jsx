@@ -74,6 +74,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
   function closeRmbl() {
     // $FlowIgnore
     document.body.querySelectorAll('script[src*="warp/"]')?.forEach((script, index) => index > 0 && script.remove());
+    // $FlowIgnore
     const iframes = stickyContainer.current?.firstElementChild?.querySelectorAll('iframe');
     if (iframes) iframes.forEach((iframe) => iframe.remove());
     setIsHidden(true);
