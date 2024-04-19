@@ -7,11 +7,12 @@ import Tooltip from 'component/common/tooltip';
 
 type Props = {
   source: string,
+  title: ?string,
   onClick: () => void,
 };
 
 function ImageViewer(props: Props) {
-  const { source, onClick } = props;
+  const { source, title, onClick } = props;
   const [loadingError, setLoadingError] = React.useState(false);
 
   return (
@@ -27,7 +28,7 @@ function ImageViewer(props: Props) {
           {!onClick ? (
             <ZoomableImage src={source} onError={() => setLoadingError(true)} />
           ) : (
-            <Tooltip title={__('Download')} arrow={false} followCursor enterDelay={100}>
+            <Tooltip title={title} arrow={false} followCursor enterDelay={100}>
               <img src={source} onError={() => setLoadingError(true)} onClick={onClick} />
             </Tooltip>
           )}
