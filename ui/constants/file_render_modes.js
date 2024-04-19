@@ -26,7 +26,7 @@ export const DOWNLOAD = 'download';
 export const APPLICATION = 'application';
 export const UNSUPPORTED = 'unsupported';
 
-export const UNSUPPORTED_IN_THIS_APP = IS_WEB ? [CAD, COMIC, APPLICATION] : [APPLICATION];
+export const UNSUPPORTED_IN_THIS_APP = IS_WEB ? [CAD, COMIC, APPLICATION, DOWNLOAD] : [APPLICATION];
 
 export const UNRENDERABLE_MODES = Array.from(
   new Set(UNSUPPORTED_IN_THIS_APP.concat([DOWNLOAD, APPLICATION, UNSUPPORTED]))
