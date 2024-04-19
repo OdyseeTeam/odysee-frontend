@@ -126,6 +126,7 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
             <ImageViewer
               uri={uri}
               source={thumbnail}
+              title={__('Download')}
               onClick={() => {
                 webDownloadClaim(streamingUrl, 'file', false);
               }}
@@ -147,6 +148,7 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
             <ImageViewer
               uri={uri}
               source={thumbnail}
+              title={__('Download')}
               onClick={() => {
                 webDownloadClaim(streamingUrl, 'file', false);
               }}
@@ -170,6 +172,7 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
             <ImageViewer
               uri={uri}
               source={thumbnail}
+              title={__('Download')}
               onClick={() => {
                 webDownloadClaim(streamingUrl, 'file', false);
               }}
@@ -187,6 +190,7 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
             <ImageViewer
               uri={uri}
               source={thumbnail}
+              title={__('Download')}
               onClick={() => {
                 webDownloadClaim(streamingUrl, 'file', false);
               }}
