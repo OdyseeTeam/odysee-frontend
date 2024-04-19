@@ -106,7 +106,14 @@ const StreamClaimPage = (props: Props) => {
 
   function renderClaimLayout() {
     if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode)) {
-      return <FileRenderDownload uri={uri} isFree={cost === 0} />;
+      return (
+        <>
+          <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
+            <StreamClaimRenderInline uri={uri} />
+          </div>
+          <FileRenderDownload uri={uri} isFree={cost === 0} />
+        </>
+      );
     }
 
     if (RENDER_MODES.TEXT_MODES.includes(renderMode)) {

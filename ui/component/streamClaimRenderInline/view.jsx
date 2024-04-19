@@ -5,7 +5,7 @@ import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as KEYCODES from 'constants/keycodes';
-import fs from 'fs';
+// import fs from 'fs';
 import analytics from 'analytics';
 
 import DocumentViewer from 'component/viewers/documentViewer';
@@ -13,11 +13,11 @@ import DocumentViewer from 'component/viewers/documentViewer';
 // @if TARGET='app'
 // should match
 import DocxViewer from 'component/viewers/docxViewer';
-import ComicBookViewer from 'component/viewers/comicBookViewer';
-import ThreeViewer from 'component/viewers/threeViewer';
+// import ComicBookViewer from 'component/viewers/comicBookViewer';
+// import ThreeViewer from 'component/viewers/threeViewer';
 // @endif
 
-const AppViewer = lazyImport(() => import('component/viewers/appViewer' /* webpackChunkName: "appViewer" */));
+// const AppViewer = lazyImport(() => import('component/viewers/appViewer' /* webpackChunkName: "appViewer" */));
 const HtmlViewer = lazyImport(() => import('component/viewers/htmlViewer' /* webpackChunkName: "htmlViewer" */));
 const ImageViewer = lazyImport(() => import('component/viewers/imageViewer' /* webpackChunkName: "imageViewer" */));
 const PdfViewer = lazyImport(() => import('component/viewers/pdfViewer' /* webpackChunkName: "pdfViewer" */));
@@ -91,7 +91,7 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
   }
 
   renderViewer() {
-    const { currentTheme, contentType, downloadPath, fileExtension, streamingUrl, uri, renderMode } = this.props;
+    const { currentTheme, contentType, downloadPath, streamingUrl, uri, renderMode, thumbnail } = this.props;
     const source = streamingUrl;
 
     switch (renderMode) {
@@ -120,6 +120,10 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
         );
       case RENDER_MODES.CAD:
         return (
+          <React.Suspense fallback={null}>
+            <ImageViewer uri={uri} source={thumbnail} />
+          </React.Suspense>
+          /*
           <ThreeViewer
             source={{
               fileType: fileExtension,
@@ -127,9 +131,14 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
             }}
             theme={currentTheme}
           />
+          */
         );
       case RENDER_MODES.COMIC:
         return (
+          <React.Suspense fallback={null}>
+            <ImageViewer uri={uri} source={thumbnail} />
+          </React.Suspense>
+          /*
           <ComicBookViewer
             source={{
               // @if TARGET='app'
@@ -139,12 +148,18 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
             }}
             theme={currentTheme}
           />
+        */
         );
       case RENDER_MODES.APPLICATION:
         return (
           <React.Suspense fallback={null}>
+            <ImageViewer uri={uri} source={thumbnail} />
+          </React.Suspense>
+          /*
+          <React.Suspense fallback={null}>
             <AppViewer uri={uri} />
           </React.Suspense>
+          */
         );
     }
 
