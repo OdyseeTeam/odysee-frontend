@@ -70,7 +70,6 @@ export default function TagsSearch(props: Props) {
     disabled,
     limitSelect = TAG_FOLLOW_MAX,
     limitShow = 5,
-    user,
     disableControlTags,
     help,
   } = props;
@@ -82,7 +81,6 @@ export default function TagsSearch(props: Props) {
 
   // Make sure there are no duplicates, then trim
   // suggestedTags = (followedTags - tagsPassedIn) + unfollowedTags
-  const experimentalFeature = user && user.experimental_ui;
   const followedTagsSet = new Set(followedTags.map((tag) => tag.name));
   const selectedTagsSet = new Set(tagsPassedIn.map((tag) => tag.name));
   const unfollowedTagsSet = new Set(unfollowedTags.map((tag) => tag.name));
@@ -107,6 +105,23 @@ export default function TagsSearch(props: Props) {
       }
     });
   }
+
+  const controlTagLabels = {};
+  CONTROL_TAGS.map((t) => {
+    let label;
+    if (t === 'disable-support') {
+      label = __('Disable Tipping and Boosting');
+    } else {
+      label = __(
+        t
+          .replace(INTERNAL_TAG_PREFIX, '')
+          .split('-')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+      );
+    }
+    controlTagLabels[t] = label;
+  });
 
   // const countWithoutLbryFirst = selectedTagsSet.has('lbry-first') ? selectedTagsSet.size - 1 : selectedTagsSet.size;
   const maxed = Boolean(limitSelect && countWithoutSpecialTags >= limitSelect);
@@ -248,8 +263,7 @@ export default function TagsSearch(props: Props) {
             </section>
           )}
         </fieldset-section>
-        {experimentalFeature &&
-          !disableControlTags &&
+        {!disableControlTags &&
           onSelect && ( // onSelect ensures this does not appear on TagFollow
             <fieldset-section>
               <label>{__('Control Tags')}</label>
@@ -259,13 +273,7 @@ export default function TagsSearch(props: Props) {
                   name={t}
                   type="checkbox"
                   blockWrap={false}
-                  label={__(
-                    t
-                      .replace(INTERNAL_TAG_PREFIX, '')
-                      .split('-')
-                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                      .join(' ')
-                  )}
+                  label={controlTagLabels[t]}
                   checked={tagsPassedIn.some((te) => te.name === t)}
                   onChange={() => handleUtilityTagCheckbox(t)}
                 />

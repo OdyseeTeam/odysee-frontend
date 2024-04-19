@@ -25,7 +25,7 @@ import {
   getChannelPermanentUrlFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
-import { INTERNAL_TAGS, MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
+import { MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
 import { removeInternalStringTags } from 'util/tags';
@@ -509,7 +509,7 @@ export const makeSelectMetadataForUri = (uri: string) =>
 export const makeSelectMetadataItemForUri = (uri: string, key: string) =>
   createSelector(makeSelectMetadataForUri(uri), (metadata: ChannelMetadata | StreamMetadata) => {
     if (metadata && metadata.tags && key === 'tags') {
-      return metadata.tags ? metadata.tags.filter((tag) => !INTERNAL_TAGS.includes(tag)) : [];
+      return metadata.tags || [];
     }
     return metadata ? metadata[key] : undefined;
   });

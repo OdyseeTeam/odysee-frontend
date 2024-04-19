@@ -6,7 +6,7 @@ import classnames from 'classnames';
 const AD_CONFIG = Object.freeze({
   url: 'https://assets.revcontent.com/master/delivery.js',
   sticky: 'https://x.revcontent.com/rc_sticky_all.js',
-  id: '277801'
+  id: '277801',
 });
 
 type Props = {
@@ -41,6 +41,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
   const [isHidden, setIsHidden] = useState(false);
   const [loads, setLoads] = useState(1);
   const stickyContainer = useRef<?HTMLDivElement>(null);
+  const random = Math.floor(Math.random() * 2);
 
   const observer = new MutationObserver(callback);
 
@@ -71,6 +72,11 @@ const AdSticky = memo(function AdSticky(props: Props) {
   }
 
   function closeRmbl() {
+    // $FlowIgnore
+    document.body.querySelectorAll('script[src*="warp/"]')?.forEach((script, index) => index > 0 && script.remove());
+    // $FlowIgnore
+    const iframes = stickyContainer.current?.firstElementChild?.querySelectorAll('iframe');
+    if (iframes) iframes.forEach((iframe) => iframe.remove());
     setIsHidden(true);
   }
 
@@ -148,23 +154,7 @@ const AdSticky = memo(function AdSticky(props: Props) {
         };
       } catch (e) {}
     } else if (provider === 'rumble') {
-      // $FlowIgnore
-      document.body
-        .querySelectorAll('script[src*="warp/59"]')
-        ?.forEach((script, index) => index > 0 && script.remove());
-      // $FlowIgnore
-      document.body
-        .querySelectorAll('script[src*="warp/61"]')
-        ?.forEach((script, index) => index > 0 && script.remove());
-      // $FlowIgnore
-      document.body
-        .querySelectorAll('script[src*="warp/62"]')
-        ?.forEach((script, index) => index > 0 && script.remove());
-      // $FlowIgnore
-      const iframes = stickyContainer.current?.firstElementChild?.querySelectorAll('iframe');
-      if (iframes) iframes.forEach((iframe) => iframe.remove());
-
-      const adScript = document.getElementById('nrp-61');
+      const adScript = document.getElementById('nrp-61') || document.getElementById('nrp-157');
       const iframeCheck =
         (adScript && adScript.parentElement && adScript.parentElement.querySelector('iframe')) || null;
       if (adScript && iframeCheck) adScript.id = 'static';
@@ -194,8 +184,8 @@ const AdSticky = memo(function AdSticky(props: Props) {
     );
   }
 
-  if (shouldShowAds && provider === 'rumble') {
-    return (
+  if (shouldShowAds && provider === 'rumble' && !isHidden) {
+    return random === 0 ? (
       <div
         id="rmbl-sticky"
         ref={stickyContainer}
@@ -211,6 +201,30 @@ const AdSticky = memo(function AdSticky(props: Props) {
               nrp.type = 'text/javascript';
               nrp.async = true;
               nrp.src = `https://a.ads.rmbl.ws/warp/61?r=${Math.floor(Math.random() * 99999)}`;
+              if (node) node.appendChild(nrp);
+            })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
+          </script>
+        </div>
+        <div className="rmbl-sticky-close">
+          <button onClick={() => closeRmbl()}>X</button>
+        </div>
+      </div>
+    ) : (
+      <div
+        id="rmbl-sticky"
+        ref={stickyContainer}
+        className={classnames('rmbl-sticky--157', {
+          'show-rmbl-sticky': isActive && !adBlockerFound && !isHidden,
+          FILE: isContentClaim,
+        })}
+      >
+        <div className="rmbl-sticky">
+          <script id="nrp-157" type="text/javascript">
+            {(function (node) {
+              var nrp = document.createElement('script');
+              nrp.type = 'text/javascript';
+              nrp.async = true;
+              nrp.src = `//a.ads.rmbl.ws/warp/157?r=${Math.floor(Math.random() * 99999)}`;
               if (node) node.appendChild(nrp);
             })(document.getElementsByTagName('script')[document.getElementsByTagName('script').length - 1].parentNode)}
           </script>
