@@ -5,6 +5,8 @@ import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as KEYCODES from 'constants/keycodes';
+import { webDownloadClaim } from 'util/downloadClaim';
+
 // import fs from 'fs';
 import analytics from 'analytics';
 
@@ -121,7 +123,13 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
       case RENDER_MODES.CAD:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={thumbnail} />
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
           </React.Suspense>
           /*
           <ThreeViewer
@@ -136,7 +144,13 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
       case RENDER_MODES.COMIC:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={thumbnail} />
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
           </React.Suspense>
           /*
           <ComicBookViewer
@@ -153,7 +167,30 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
       case RENDER_MODES.APPLICATION:
         return (
           <React.Suspense fallback={null}>
-            <ImageViewer uri={uri} source={thumbnail} />
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
+          </React.Suspense>
+          /*
+          <React.Suspense fallback={null}>
+            <AppViewer uri={uri} />
+          </React.Suspense>
+          */
+        );
+      case RENDER_MODES.DOWNLOAD:
+        return (
+          <React.Suspense fallback={null}>
+            <ImageViewer
+              uri={uri}
+              source={thumbnail}
+              onClick={() => {
+                webDownloadClaim(streamingUrl, 'file', false);
+              }}
+            />
           </React.Suspense>
           /*
           <React.Suspense fallback={null}>
