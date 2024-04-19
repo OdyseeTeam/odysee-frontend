@@ -25,6 +25,7 @@ type Props = {
   // -- redux --
   commentsListTitle: string,
   costInfo: ?{ includesData: boolean, cost: number },
+  thumbnail: ?string,
   isMature: boolean,
   linkedCommentId?: string,
   renderMode: string,
@@ -44,6 +45,7 @@ const StreamClaimPage = (props: Props) => {
     // -- redux --
     commentsListTitle,
     costInfo,
+    thumbnail,
     isMature,
     linkedCommentId,
     renderMode,
@@ -108,9 +110,11 @@ const StreamClaimPage = (props: Props) => {
     if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode)) {
       return (
         <>
-          <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
-            <StreamClaimRenderInline uri={uri} />
-          </div>
+          {thumbnail && (
+            <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
+              <StreamClaimRenderInline uri={uri} />
+            </div>
+          )}
           <FileRenderDownload uri={uri} isFree={cost === 0} />
         </>
       );
