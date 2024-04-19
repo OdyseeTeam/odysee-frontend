@@ -3,13 +3,15 @@ import React from 'react';
 import Card from 'component/common/card';
 import ErrorText from 'component/common/error-text';
 import ZoomableImage from 'component/zoomableImage';
+import Tooltip from 'component/common/tooltip';
 
 type Props = {
   source: string,
+  onClick: () => void,
 };
 
 function ImageViewer(props: Props) {
-  const { source } = props;
+  const { source, onClick } = props;
   const [loadingError, setLoadingError] = React.useState(false);
 
   return (
@@ -22,7 +24,13 @@ function ImageViewer(props: Props) {
       )}
       {!loadingError && (
         <div className="file-viewer">
-          <ZoomableImage src={source} onError={() => setLoadingError(true)} />
+          {!onClick ? (
+            <ZoomableImage src={source} onError={() => setLoadingError(true)} />
+          ) : (
+            <Tooltip title={__('Download')} arrow={false} followCursor enterDelay={100}>
+              <img src={source} onError={() => setLoadingError(true)} onClick={onClick} />
+            </Tooltip>
+          )}
         </div>
       )}
     </React.Fragment>
