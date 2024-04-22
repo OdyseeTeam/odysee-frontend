@@ -24,7 +24,7 @@ function ImageViewer(props: Props) {
         />
       )}
       {!loadingError && (
-        <div className="file-viewer">
+        <div className={`file-viewer${onClick ? ' file-viewer--download' : ''}`}>
           {!onClick ? (
             <ZoomableImage src={source} onError={() => setLoadingError(true)} />
           ) : (
