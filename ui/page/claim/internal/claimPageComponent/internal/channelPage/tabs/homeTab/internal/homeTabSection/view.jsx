@@ -413,35 +413,35 @@ function HomeTabSection(props: Props) {
                     <Icon icon={ICONS.ARROW_RIGHT} />
                   </label>
                 )}
-                {section.type !== 'channels' ? (
-                  <ClaimListDiscover
-                    hideFilters
-                    hideAdvancedFilter
-                    hideLayoutButton
-                    tileLayout
-                    infiniteScroll={false}
-                    useSkeletonScreen={false}
-                    uris={collectionUrls || claimSearchResults}
-                    maxClaimRender={maxClaimsInSection}
-                    claimIds={collectionClaimIds}
-                    injectedItem={
-                      !hasPremiumPlus &&
-                      index === topContentGridIndex && {
-                        node: (index) => {
-                          return index === maxTilesPerRow ? <Ad type="tileA" tileLayout /> : null;
-                        },
-                      }
-                    }
-                  />
-                ) : (
-                  featuredChannel && (
-                    <ChannelSection
-                      key={'featured-channels'}
-                      uris={featuredChannel && featuredChannel.value.uris.slice(0, maxChannelsPerRow)}
-                      channelId={channelClaimId}
-                    />
-                  )
-                )}
+                {section.type !== 'channels'
+                  ? (collectionUrls || claimSearchResults || collectionClaimIds) && (
+                      <ClaimListDiscover
+                        hideFilters
+                        hideAdvancedFilter
+                        hideLayoutButton
+                        tileLayout
+                        infiniteScroll={false}
+                        useSkeletonScreen={false}
+                        uris={collectionUrls || claimSearchResults}
+                        maxClaimRender={maxClaimsInSection}
+                        claimIds={collectionClaimIds}
+                        injectedItem={
+                          !hasPremiumPlus &&
+                          index === topContentGridIndex && {
+                            node: (index) => {
+                              return index === maxTilesPerRow ? <Ad type="tileA" tileLayout /> : null;
+                            },
+                          }
+                        }
+                      />
+                    )
+                  : featuredChannel && (
+                      <ChannelSection
+                        key={'featured-channels'}
+                        uris={featuredChannel && featuredChannel.value.uris.slice(0, maxChannelsPerRow)}
+                        channelId={channelClaimId}
+                      />
+                    )}
               </>
             ) : (
               <FeaturedSection
