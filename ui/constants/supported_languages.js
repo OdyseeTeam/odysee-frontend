@@ -14,6 +14,7 @@ const SUPPORTED_LANGUAGES = {
   fr: getLanguageName('fr'),
   de: getLanguageName('de'),
   gu: getLanguageName('gu'),
+  bn: getLanguageName('bn'),
   hi: getLanguageName('hi'),
   hu: getLanguageName('hu'),
   id: getLanguageName('id'),
