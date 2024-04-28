@@ -12,6 +12,8 @@ declare type ClaimsState = {
   pendingById: { [ClaimId]: Claim }, // keep pending claims
   resolvingIds: Array<ClaimId>,
   resolvingUris: Array<string>,
+  failedToResolveUris: Array<string>,
+  failedToResolveIds: Array<ClaimId>,
   reflectingById: { [ClaimId]: ReflectingUpdate },
   myClaims: ?Array<ClaimId>,
   myChannelClaimsById: ?{ [channelClaimId: string]: ChannelClaim },
