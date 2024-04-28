@@ -17,6 +17,8 @@ import {
   selectHasClaimForId,
   selectResolvingIds,
   selectResolvingUris,
+  selectFailedToResolveUris,
+  selectFailedToResolveIds,
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
@@ -272,7 +274,6 @@ const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (
   };
 
   try {
-    const state = getState();
     const batchSize = pageSize || FETCH_BATCH_SIZE;
     const uriBatches: Array<Promise<any>> = [];
     const idBatches: Array<Promise<any>> = [];
@@ -312,9 +313,15 @@ const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (
     // Related to above. Collection with deleted items would never get "resolved: true" status.
     // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
     if (itemsWereFetching) {
+      const state = getState();
       const resolvingIds = selectResolvingIds(state);
       const resolvingUris = selectResolvingUris(state);
-      if (uriBatches.length === 0 && idBatches.length > 0 && resolvingIds.length === 0) {
+      const failedToResolveUris = selectFailedToResolveUris(state);
+      const failedToResolveIds = selectFailedToResolveIds(state);
+      const failedItems = failedToResolveIds.concat(failedToResolveUris);
+      if (items.some((item) => failedItems.includes(item))) {
+        // itemsWereFetching stays true
+      } else if (uriBatches.length === 0 && idBatches.length > 0 && resolvingIds.length === 0) {
         itemsWereFetching = false;
       } else if (idBatches.length === 0 && uriBatches.length > 0 && resolvingUris.length === 0) {
         itemsWereFetching = false;
