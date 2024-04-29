@@ -267,8 +267,8 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
       updateIfValueChanged(state.claimsByUri, byUriDelta, channel.canonical_url, channel.claim_id);
       newResolvingUrls.delete(channel.canonical_url);
       newResolvingUrls.delete(channel.permanent_url);
-      newFailedToResolveUrls.delete(stream.canonical_url);
-      newFailedToResolveUrls.delete(stream.permanent_url);
+      newFailedToResolveUrls.delete(channel.canonical_url);
+      newFailedToResolveUrls.delete(channel.permanent_url);
     }
 
     if (repostSrcChannel && repostSrcChannel.claim_id) {
@@ -289,8 +289,8 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
       updateIfValueChanged(state.claimsByUri, byUriDelta, collection.permanent_url, collection.claim_id);
       newResolvingUrls.delete(collection.canonical_url);
       newResolvingUrls.delete(collection.permanent_url);
-      newFailedToResolveUrls.delete(stream.canonical_url);
-      newFailedToResolveUrls.delete(stream.permanent_url);
+      newFailedToResolveUrls.delete(collection.canonical_url);
+      newFailedToResolveUrls.delete(collection.permanent_url);
 
       // $FlowFixMe
       newResolvedCollectionsById[collection.claim_id] = claimToStoredCollection(collection);
