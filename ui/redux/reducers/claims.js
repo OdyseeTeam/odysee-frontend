@@ -23,8 +23,6 @@ const defaultState: ClaimsState = {
   fetchingChannelClaims: {},
   resolvingUris: [],
   resolvingIds: [],
-  failedToResolveUris: [],
-  failedToResolveIds: [],
   myChannelClaimsById: undefined,
   resolvedCollectionsById: {},
   myCollectionClaimIds: undefined,
@@ -199,7 +197,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
   const pendingById = state.pendingById;
   let newResolvingUrls = new Set(state.resolvingUris);
-  let newFailedToResolveUrls = new Set(state.failedToResolveUris);
   const myClaimIds = new Set(state.myClaims);
   const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
   let newMyCollectionClaimIds =
@@ -227,8 +224,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
       updateIfValueChanged(state.claimsByUri, byUriDelta, stream.permanent_url, stream.claim_id);
       newResolvingUrls.delete(stream.canonical_url);
       newResolvingUrls.delete(stream.permanent_url);
-      newFailedToResolveUrls.delete(stream.canonical_url);
-      newFailedToResolveUrls.delete(stream.permanent_url);
 
       if (stream.value_type === 'collection') {
         if (!newResolvedCollectionsById[stream.claim_id]) {
@@ -267,8 +262,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
       updateIfValueChanged(state.claimsByUri, byUriDelta, channel.canonical_url, channel.claim_id);
       newResolvingUrls.delete(channel.canonical_url);
       newResolvingUrls.delete(channel.permanent_url);
-      newFailedToResolveUrls.delete(stream.canonical_url);
-      newFailedToResolveUrls.delete(stream.permanent_url);
     }
 
     if (repostSrcChannel && repostSrcChannel.claim_id) {
@@ -289,8 +282,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
       updateIfValueChanged(state.claimsByUri, byUriDelta, collection.permanent_url, collection.claim_id);
       newResolvingUrls.delete(collection.canonical_url);
       newResolvingUrls.delete(collection.permanent_url);
-      newFailedToResolveUrls.delete(stream.canonical_url);
-      newFailedToResolveUrls.delete(stream.permanent_url);
 
       // $FlowFixMe
       newResolvedCollectionsById[collection.claim_id] = claimToStoredCollection(collection);
@@ -304,7 +295,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
     }
 
     newResolvingUrls.delete(url);
-    newFailedToResolveUrls.delete(url);
     if (!stream && !channel && !collection && !pendingById[state.claimsByUri[url]]) {
       updateIfValueChanged(state.claimsByUri, byUriDelta, url, null);
     }
@@ -323,7 +313,6 @@ function handleClaimAction(state: ClaimsState, action: any): ClaimsState {
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     channelClaimCounts,
     resolvingUris: Array.from(newResolvingUrls),
-    failedToResolveUris: Array.from(newFailedToResolveUrls),
     resolvedCollectionsById: newResolvedCollectionsById,
     myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
     ...(!state.myClaims || myClaimIds.size !== state.myClaims.length ? { myClaims: Array.from(myClaimIds) } : {}),
@@ -372,14 +361,9 @@ reducers[ACTIONS.RESOLVE_URIS_FAIL] = (state: ClaimsState, action: any): ClaimsS
   const uris: Array<string> = action.data;
 
   const newResolvingUris = new Set(state.resolvingUris);
-  const newFailedToResolveUrls = new Set(state.failedToResolveUris.concat(uris));
   uris.forEach((uri) => newResolvingUris.delete(uri));
 
-  return {
-    ...state,
-    resolvingUris: Array.from(newResolvingUris),
-    failedToResolveUris: Array.from(newFailedToResolveUrls),
-  };
+  return { ...state, resolvingUris: Array.from(newResolvingUris) };
 };
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: ClaimsState): ClaimsState =>
@@ -829,7 +813,6 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: ClaimsState, action: any): Cl
   const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
   const claimSearchByQueryMiscInfo = { ...state.claimSearchByQueryMiscInfo };
   const newResolvingIds = new Set(state.resolvingIds);
-  const newFailedToResolveIds = new Set(state.failedToResolveIds);
   const { append, query, urls, page, pageSize, totalItems, totalPages } = action.data;
 
   if (append) {
@@ -848,12 +831,7 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: ClaimsState, action: any): Cl
   claimSearchByQueryMiscInfo[query] = { page, pageSize, totalItems, totalPages };
 
   const { claim_ids: claimIds } = JSON.parse(query);
-  if (claimIds?.length > 0) {
-    claimIds.forEach((claimId) => {
-      newResolvingIds.delete(claimId);
-      newFailedToResolveIds.delete(claimId);
-    });
-  }
+  if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.delete(claimId));
 
   return Object.assign({}, state, {
     ...handleClaimAction(state, action),
@@ -862,7 +840,6 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: ClaimsState, action: any): Cl
     claimSearchByQueryMiscInfo,
     fetchingClaimSearchByQuery,
     resolvingIds: Array.from(newResolvingIds),
-    failedToResolveIds: Array.from(newFailedToResolveIds),
   });
 };
 
@@ -882,8 +859,6 @@ reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: ClaimsState, action: any): Claim
   }
 
   const { claim_ids: claimIds } = JSON.parse(query);
-  const newFailedToResolveIds =
-    claimIds?.length > 0 ? new Set(state.failedToResolveIds.concat(claimIds)) : state.failedToResolveIds;
   if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.delete(claimId));
 
   return Object.assign({}, state, {
@@ -891,7 +866,6 @@ reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: ClaimsState, action: any): Claim
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
     resolvingIds: Array.from(newResolvingIds),
-    failedToResolveIds: Array.from(newFailedToResolveIds),
   });
 };
 
