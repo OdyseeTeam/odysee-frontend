@@ -39,6 +39,7 @@ export const HOMEPAGE_ORDER = 'homepage_order';
 export const HOMEPAGE_ORDER_APPLY_TO_SIDEBAR = 'homepage_order_apply_to_sidebar';
 export const HIDE_MEMBERS_ONLY_CONTENT = 'hide_members_only_content';
 export const HIDE_REPOSTS = 'hide_reposts';
+export const HIDE_SHORTS = 'hide_shorts';
 export const HIDE_SCHEDULED_LIVESTREAMS = 'hide_scheduled_livestreams';
 export const SUPPORT_OPTION = 'support_option';
 export const TILE_LAYOUT = 'tile_layout';

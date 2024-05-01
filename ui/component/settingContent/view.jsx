@@ -23,6 +23,7 @@ type Props = {
   isAuthenticated: boolean,
   hideMembersOnlyContent: boolean,
   hideReposts: ?boolean,
+  hideShorts: ?boolean,
   showNsfw: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
@@ -37,6 +38,7 @@ export default function SettingContent(props: Props) {
     isAuthenticated,
     hideMembersOnlyContent,
     hideReposts,
+    hideShorts,
     showNsfw,
     instantPurchaseEnabled,
     instantPurchaseMax,
@@ -75,6 +77,15 @@ export default function SettingContent(props: Props) {
                   }
                   setClientSetting(SETTINGS.HIDE_REPOSTS, !hideReposts);
                 }}
+              />
+            </SettingsRow>
+
+            <SettingsRow title={__('Hide short content')} subtitle={__(HELP.HIDE_SHORTS)}>
+              <FormField
+                type="checkbox"
+                name="hide_shorts"
+                checked={hideShorts}
+                onChange={(e) => setClientSetting(SETTINGS.HIDE_SHORTS, !hideShorts)}
               />
             </SettingsRow>
 
@@ -169,6 +180,7 @@ export default function SettingContent(props: Props) {
 const HELP = {
   HIDE_MEMBERS_ONLY_CONTENT: 'You will not see content that requires a membership subscription.',
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
+  HIDE_SHORTS: 'You will not see content under 1min long. Also hides non-video/audio content.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
