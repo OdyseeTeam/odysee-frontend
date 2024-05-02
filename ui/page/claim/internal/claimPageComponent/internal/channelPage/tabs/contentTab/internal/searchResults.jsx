@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import ClaimList from 'component/claimList';
-import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
+import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_OPTIONS } from 'constants/search';
 import * as CS from 'constants/claim_search';
 import { lighthouse } from 'redux/actions/search';
 
@@ -11,12 +11,13 @@ type Props = {
   showMature: ?boolean,
   tileLayout: boolean,
   orderBy?: ?string,
+  minDuration?: ?number,
   onResults?: (results: ?Array<string>) => void,
   doResolveUris: (Array<string>, boolean) => void,
 };
 
 export function SearchResults(props: Props) {
-  const { searchQuery, claimId, showMature, tileLayout, orderBy, onResults, doResolveUris } = props;
+  const { searchQuery, claimId, showMature, tileLayout, orderBy, minDuration, onResults, doResolveUris } = props;
 
   const SEARCH_PAGE_SIZE = 24;
   const [page, setPage] = React.useState(1);
@@ -60,6 +61,7 @@ export function SearchResults(props: Props) {
             `&channel_id=${encodeURIComponent(claimId)}` +
             sortBy +
             `&nsfw=${showMature ? 'true' : 'false'}` +
+            (minDuration ? `&${SEARCH_OPTIONS.MIN_DURATION}=${minDuration}` : '') +
             `&size=${SEARCH_PAGE_SIZE}`
         )
         .then(({ body: results }) => {
@@ -88,7 +90,7 @@ export function SearchResults(props: Props) {
     }, DEBOUNCE_WAIT_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy]);
+  }, [searchQuery, claimId, page, showMature, doResolveUris, sortBy, minDuration]);
 
   if (!searchResults) {
     return null;

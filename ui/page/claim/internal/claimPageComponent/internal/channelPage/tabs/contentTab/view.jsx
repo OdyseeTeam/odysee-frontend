@@ -43,6 +43,7 @@ type Props = {
   isAuthenticated: boolean,
   showMature: boolean,
   tileLayout: boolean,
+  hideShorts: boolean,
   viewHiddenChannels: boolean,
   doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
@@ -64,6 +65,7 @@ function ContentTab(props: Props) {
     defaultInfiniteScroll = true,
     showMature,
     tileLayout,
+    hideShorts,
     viewHiddenChannels,
     doResolveUris,
     claimType,
@@ -226,6 +228,7 @@ function ContentTab(props: Props) {
                 showMature={showMature}
                 tileLayout={tileLayout}
                 orderBy={orderBy}
+                minDuration={hideShorts ? 61 : undefined}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
               />
