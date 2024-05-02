@@ -65,7 +65,7 @@ export const CsOptHelper = {
           const state = store.getState();
           hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
         }
-        x = durationVal || (hideShorts && '>60') || undefined;
+        x = durationVal || (hideShorts && `>=${SETTINGS.SHORTS_DURATION_LIMIT}`) || undefined;
         break;
       case CS.DURATION.SHORT:
         x = '<=240';

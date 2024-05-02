@@ -129,7 +129,7 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
       }
     }
     if ((!hasMediaTypeParam || mediaTypeHasDuration) && (!hasClaimTypeParam || claimTypeHasDuration)) {
-      additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = '61';
+      additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = SETTINGS.SHORTS_DURATION_LIMIT;
     }
   }
 

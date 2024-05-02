@@ -3,6 +3,7 @@ import { SIMPLE_SITE } from 'config';
 import { SECTION_TAGS } from 'constants/collections';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
+import * as SETTINGS from 'constants/settings';
 import React, { Fragment } from 'react';
 import GeoRestrictionInfo from 'component/geoRestictionInfo';
 import { useHistory } from 'react-router-dom';
@@ -228,7 +229,7 @@ function ContentTab(props: Props) {
                 showMature={showMature}
                 tileLayout={tileLayout}
                 orderBy={orderBy}
-                minDuration={hideShorts ? 61 : undefined}
+                minDuration={hideShorts ? SETTINGS.SHORTS_DURATION_LIMIT : undefined}
                 onResults={(results) => setIsSearching(results !== null)}
                 doResolveUris={doResolveUris}
               />
