@@ -245,7 +245,7 @@ function SideNavigation(props: Props) {
       hideForUnauth: true,
     },
     {
-      title: 'Rewards',
+      title: 'Credits',
       link: `/$/${PAGES.REWARDS}`,
       icon: ICONS.REWARDS,
       hideForUnauth: true,
@@ -578,9 +578,7 @@ function SideNavigation(props: Props) {
     DOMAIN === 'lbry.tv' ? null : (
       <div className="navigation__auth-nudge">
         <span>
-          <I18nMessage tokens={{ lbc: <Icon icon={ICONS.LBC} /> }}>
-            Sign up to earn %lbc% for you and your favorite creators.
-          </I18nMessage>
+          <I18nMessage tokens={{ lbc: <Icon icon={ICONS.LBC} /> }}>Sign up to receive %lbc%.</I18nMessage>
         </span>
         <Button
           button="secondary"

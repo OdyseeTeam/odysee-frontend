@@ -412,14 +412,8 @@ export default function WalletSendTip(props: Props) {
                   <Button
                     icon={ICONS.REWARDS}
                     button="primary"
-                    label={__('Earn Rewards')}
+                    label={__('Receive Credits')}
                     navigate={`/$/${PAGES.REWARDS}`}
-                  />
-                  <Button
-                    icon={ICONS.BUY}
-                    button="secondary"
-                    label={__('Buy/Swap Credits')}
-                    navigate={`/$/${PAGES.BUY}`}
                   />
                 </div>
               }

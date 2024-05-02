@@ -271,12 +271,7 @@ export default function CreatorSettingsTab(props: Props) {
           </div>
         )}
 
-        {isDisabled && (
-          <Card
-            title={__('Settings unavailable for this channel')}
-            subtitle={__("This channel isn't staking enough LBRY Credits to enable Creator Settings.")}
-          />
-        )}
+        {isDisabled && <Card title={__('Settings unavailable for this channel')} />}
 
         {!isBusy && !isDisabled && (
           <>

@@ -106,7 +106,7 @@ function UserEmailNew(props: Props) {
       <Card
         title={__('Join')}
         // @if TARGET='app'
-        subtitle={__('An account allows you to earn rewards and backup your data.')}
+        subtitle={__('An account allows you to receive credits and backup your data.')}
         // @endif
         actions={
           <div className={classnames({ 'card--disabled': DOMAIN === 'lbry.tv' && IS_WEB })}>

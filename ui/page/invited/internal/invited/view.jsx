@@ -131,7 +131,7 @@ function Invited(props: Props) {
         subtitle={
           referrerIsChannel
             ? __("You've already claimed your referrer, but we've followed this channel for you.")
-            : __('You already claimed your reward.')
+            : __('You already claimed your credit.')
         }
         actions={<Button button="primary" label={__('Done!')} onClick={handleDone} />}
       >
@@ -146,9 +146,7 @@ function Invited(props: Props) {
       <Card
         {...cardProps}
         title={__('Welcome!')}
-        subtitle={__(
-          'Something went wrong with your invite link. You can set and claim your invite reward after signing in.'
-        )}
+        subtitle={__('Something went wrong with your invite link.')}
         actions={
           <>
             <p className="error__text">{__('Not a valid invite')}</p>

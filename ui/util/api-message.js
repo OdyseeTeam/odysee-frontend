@@ -40,8 +40,8 @@ const MESSAGE_MAP: Array<ApiMsgConfig> = Object.freeze([
     replacement: "Your channel does not meet the creator's minimum channel-age limit.",
   },
   {
-    originalMsg: /^You only watched content (.*) days in the last week and it needs to be at least (.*) to get the reward.$/,
-    replacement: 'You only watched content for %1% days in the last week. It needs to be at least %2% to get the reward.',
+    originalMsg: /^You only watched content (.*) days in the last week and it needs to be at least (.*) to get the credit.$/,
+    replacement: 'You only watched content for %1% days in the last week. It needs to be at least %2% to get the credit.',
   },
   {
     originalMsg: 'Not enough funds to cover this transaction.',
