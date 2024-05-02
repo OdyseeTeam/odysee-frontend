@@ -4,7 +4,6 @@ import { FormField } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
 import Button from 'component/button';
 import Card from 'component/common/card';
-import I18nMessage from 'component/i18nMessage';
 import Page from 'component/page';
 import React from 'react';
 
@@ -90,28 +89,6 @@ class ReportPage extends React.Component {
                       href="https://github.com/OdyseeTeam/odysee-frontend/issues"
                       label={__('Submit an issue on GitHub')}
                     />
-                    .
-                  </li>
-                  <li>
-                    <I18nMessage
-                      tokens={{
-                        technical_resources: (
-                          <Button button="link" href="https://lbry.tech" label={__('technical resources')} />
-                        ),
-                      }}
-                    >
-                      Explore LBRY's %technical_resources%
-                    </I18nMessage>
-                    .
-                  </li>
-                  <li>
-                    <I18nMessage
-                      tokens={{
-                        tech_forum: <Button button="link" href="https://forum.lbry.tech" label={__('tech forum')} />,
-                      }}
-                    >
-                      Join LBRY's %tech_forum%
-                    </I18nMessage>
                     .
                   </li>
                 </ul>

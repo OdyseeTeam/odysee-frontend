@@ -289,11 +289,7 @@ function PublishPrice(props: Props) {
             onChange={(newFee) => updatePublishForm({ fee: newFee })}
           />
           {fee && fee.currency !== 'LBC' && (
-            <p className="publish-price__subtitle">
-              {__(
-                'All content fees are charged in LBRY Credits. For alternative payment methods, the number of LBRY Credits charged will be adjusted based on the value of LBRY Credits at the time of purchase.'
-              )}
-            </p>
+            <p className="publish-price__subtitle">{__('All content fees are charged in Credits.')}</p>
           )}
         </div>
       </div>

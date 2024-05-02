@@ -226,11 +226,10 @@ function WalletTipAmountSelector(props: Props) {
         />
         {activeTab === TAB_LBC && DEFAULT_TIP_AMOUNTS.some((val) => val > balance) && (
           <Button
-            button="secondary"
-            className="button-toggle-group-action"
-            icon={ICONS.BUY}
-            title={__('Buy or swap more LBRY Credits')}
-            navigate={`/$/${PAGES.BUY}`}
+            icon={ICONS.REWARDS}
+            button="primary"
+            label={__('Receive Credits')}
+            navigate={`/$/${PAGES.REWARDS}`}
           />
         )}
       </div>

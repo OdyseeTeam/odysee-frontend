@@ -22,12 +22,12 @@ rewards.TYPE_NEW_ANDROID = 'new_android';
 rewards.claimReward = (type, rewardParams) => {
   function requestReward(resolve, reject, params) {
     if (!Lbryio.enabled) {
-      reject(new Error(__('Rewards are not enabled.')));
+      reject(new Error(__('Credits are not enabled.')));
       return;
     }
 
     Lbryio.call('reward', 'claim', params, 'post').then((reward) => {
-      const message = reward.reward_notification || `You have claimed a ${reward.reward_amount} LBRY Credit reward.`;
+      const message = reward.reward_notification || `You have claimed a ${reward.reward_amount} Credit.`;
 
       // Display global notice
       const action = doToast({
@@ -95,9 +95,9 @@ rewards.claimReward = (type, rewardParams) => {
                 reject(
                   claims.length
                     ? new Error(
-                        __('Please upload something and wait for confirmation by the network to claim this reward.')
+                        __('Please upload something and wait for confirmation by the network to claim this credit.')
                       )
-                    : new Error(__('Please upload something to claim this reward.'))
+                    : new Error(__('Please upload something to claim this credit.'))
                 );
               }
             })

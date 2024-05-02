@@ -30,7 +30,7 @@ function FileViewerEmbeddedEnded(props: Props) {
     ? { ...DEFAULT_PROMPTS, tip_auth: 'Always tip your creators' }
     : {
         ...DEFAULT_PROMPTS,
-        earn_unauth: `Join ${SITE_NAME} and earn to watch.`,
+        earn_unauth: `Join ${SITE_NAME} and receive credits to watch.`,
         blockchain_unauth: "Now if anyone asks, you can say you've used a blockchain.",
       };
 

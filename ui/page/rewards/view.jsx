@@ -58,19 +58,19 @@ class RewardsPage extends PureComponent<Props> {
       return (
         <Card
           className="section"
-          title={__('Reward validation pending')}
+          title={__('Receive Credits validation pending')}
           body={
             <React.Fragment>
               <p>
                 {__(
-                  'This account must undergo review before you can participate in the rewards program. Not all users and regions may qualify.'
+                  'This account must undergo review before you can participate in the credits program. Not all users and regions may qualify.'
                 )}{' '}
                 {__('This can take anywhere from a few hours to several days. Please be patient.')}
               </p>
 
               <p>
                 {__(
-                  'We apologize for this inconvenience, but have added this additional step to prevent abuse. Users on VPN or shared connections will continue to see this message and are not eligible for Rewards.'
+                  'We apologize for this inconvenience, but have added this additional step to prevent abuse. Users on VPN or shared connections will continue to see this message and are not eligible for Credits.'
                 )}
               </p>
               <p>
@@ -79,7 +79,7 @@ class RewardsPage extends PureComponent<Props> {
                     rewards_faq: (
                       <Button
                         button="link"
-                        label={__('Rewards FAQ')}
+                        label={__('Receive Credits FAQ')}
                         href="https://help.odysee.tv/category-monetization/category-rewards/"
                       />
                     ),
@@ -116,7 +116,9 @@ class RewardsPage extends PureComponent<Props> {
         reward={{
           reward_type: REWARD_TYPES.TYPE_GENERATED_CODE,
           reward_title: __('Custom Code'),
-          reward_description: __('Are you a supermodel or rockstar that received a custom reward code? Claim it here.'),
+          reward_description: __(
+            'Are you a supermodel or rockstar that received a custom Credits code? Claim it here.'
+          ),
         }}
         disabled={isNotEligible}
       />
@@ -129,31 +131,31 @@ class RewardsPage extends PureComponent<Props> {
     if (!IS_WEB && daemonSettings && !daemonSettings.share_usage_data) {
       return (
         <section className="card card--section">
-          <h2 className="card__title card__title--deprecated">{__('Rewards Disabled')}</h2>
+          <h2 className="card__title card__title--deprecated">{__('Credits Disabled')}</h2>
           <p className="error__text">
             <I18nMessage tokens={{ settings: <Button button="link" navigate="/$/settings" label="Settings" /> }}>
-              Rewards are currently disabled for your account. Turn on diagnostic data sharing, in %settings%, to
-              re-enable them.
+              Receiving credits feature is currently disabled for your account. Turn on diagnostic data sharing, in
+              %settings%, to re-enable them.
             </I18nMessage>
           </p>
         </section>
       );
     } else if (fetching) {
-      return <BusyIndicator message={__('Fetching rewards')} />;
+      return <BusyIndicator message={__('Fetching available credits')} />;
     } else if (user === null) {
       return (
-        <p className="help">{__('This application is unable to earn rewards due to an authentication failure.')}</p>
+        <p className="help">{__('This application is unable to receive credits due to an authentication failure.')}</p>
       );
     } else if (!rewards || rewards.length <= 0) {
       return (
         <Card
-          title={__('No rewards available')}
+          title={__('No credits available')}
           subtitle={
             claimed && claimed.length
               ? __(
-                  "You have claimed all available rewards! We're regularly adding more so be sure to check back later."
+                  "You have claimed all available credits! We're regularly adding more so be sure to check back later."
                 )
-              : __('There are no rewards available at this time, please check back later.')
+              : __('There are no credits available at this time, please check back later.')
           }
           actions={<Button button="primary" navigate={`/$/${PAGES.DISCOVER}`} label={__('Go Home')} />}
         />

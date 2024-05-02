@@ -16,7 +16,7 @@ class RewardSummary extends React.Component<Props> {
     const hasRewards = unclaimedRewardAmount > 0;
     return (
       <Card
-        title={__('Available rewards')}
+        title={__('Available credits')}
         subtitle={
           <React.Fragment>
             {fetching && __('You have...')}
@@ -27,10 +27,10 @@ class RewardSummary extends React.Component<Props> {
                 }}
                 f
               >
-                You have %credit_amount% in unclaimed rewards.
+                You have %credit_amount% in unclaimed credits.
               </I18nMessage>
             ) : (
-              __('You have no rewards available.')
+              __('You have no credits available.')
             )}
           </React.Fragment>
         }
@@ -39,7 +39,7 @@ class RewardSummary extends React.Component<Props> {
             <Button
               button="primary"
               navigate="/$/rewards"
-              label={hasRewards ? __('Claim Rewards') : __('View Rewards')}
+              label={hasRewards ? __('Claim Credits') : __('View Claimable Credits')}
             />
             <Button
               button="link"

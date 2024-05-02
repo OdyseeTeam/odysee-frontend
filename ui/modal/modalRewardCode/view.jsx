@@ -40,20 +40,13 @@ class ModalRewardCode extends React.PureComponent<Props, State> {
     const { rewardCode } = this.state;
 
     return (
-      <Modal isOpen contentLabel={__('Enter reward code')} type="card" onAborted={closeModal}>
+      <Modal isOpen contentLabel={__('Enter credits code')} type="card" onAborted={closeModal}>
         <Card
-          title={__('Enter reward code')}
+          title={__('Enter credits code')}
           subtitle={
             <I18nMessage
               tokens={{
-                lbc: <LbcSymbol prefix={__('Redeem a custom reward code for')} />,
-                learn_more: (
-                  <Button
-                    button="link"
-                    href="https://help.odysee.tv/category-monetization/category-rewards/rewardtypes/"
-                    label={__('Learn more')}
-                  />
-                ),
+                lbc: <LbcSymbol prefix={__('Redeem a custom credits code for')} />,
               }}
             >
               %lbc%. %learn_more%.

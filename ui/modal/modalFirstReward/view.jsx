@@ -13,13 +13,13 @@ class ModalFirstReward extends React.PureComponent<Props> {
     const { closeModal } = this.props;
 
     return (
-      <Modal type="card" isOpen contentLabel={__('Your first reward')}>
+      <Modal type="card" isOpen contentLabel={__('Your first credit')}>
         <Card
-          title={__('Your first reward')}
-          subtitle={__('You just earned your first reward!')}
+          title={__('Your first credit')}
+          subtitle={__('You just received your first credit!')}
           body={
             <React.Fragment>
-              <p>{__("This reward will show in your Wallet in the top right momentarily (if it hasn't already).")}</p>
+              <p>{__("This credit will show in your Wallet in the top right momentarily (if it hasn't already).")}</p>
               <p>
                 {__(
                   'These Credits are used to compensate creators, to publish your own content, and to have say in how the network works.'

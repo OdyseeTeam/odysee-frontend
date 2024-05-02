@@ -30,16 +30,20 @@ export default function YrblWalletEmpty(props: Props) {
             </p>
             <p>
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                Never fear though, there are tons of ways to earn %lbc%. You can earn or purchase %lbc%, or you can have
-                your friends send you some.
+                Never fear though, there are tons of ways to receive %lbc%, and if that doesn't work, you can just ask
+                us at hello@odysee.com
               </I18nMessage>
             </p>
           </div>
         }
         actions={
           <div className="section__actions">
-            <Button button="primary" icon={ICONS.REWARDS} label={__('Earn Rewards')} navigate={`/$/${PAGES.REWARDS}`} />
-            <Button button="secondary" icon={ICONS.BUY} label={'Buy/Swap Credits'} navigate={`/$/${PAGES.BUY}`} />
+            <Button
+              button="primary"
+              icon={ICONS.REWARDS}
+              label={__('Receive Credits')}
+              navigate={`/$/${PAGES.REWARDS}`}
+            />
             {includeWalletLink && (
               <Button
                 icon={ICONS.RECEIVE}

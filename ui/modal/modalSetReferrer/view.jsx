@@ -3,7 +3,6 @@ import * as React from 'react';
 import { FormField, Form } from 'component/common/form';
 import { Modal } from 'modal/modal';
 import Button from 'component/button';
-import HelpLink from 'component/common/help-link';
 import Card from 'component/common/card';
 
 type Props = {
@@ -64,12 +63,7 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
       <Modal isOpen contentLabel={__('Enter inviter')} type="card" onAborted={closeModal}>
         <Card
           title={__('Enter inviter')}
-          subtitle={
-            <React.Fragment>
-              {__('Did someone invite you to use Odysee? Tell us who and you both get a reward!')}
-              <HelpLink href="https://help.odysee.tv/category-monetization/category-rewards/" />
-            </React.Fragment>
-          }
+          subtitle={<React.Fragment>{__('Did someone invite you to use Odysee? Tell us who!')}</React.Fragment>}
           actions={
             <React.Fragment>
               <Form onSubmit={this.handleSubmit}>
