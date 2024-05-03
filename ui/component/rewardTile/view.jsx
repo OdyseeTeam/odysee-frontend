@@ -64,7 +64,7 @@ const RewardTile = (props: Props) => {
           {!customActionsRewards.some((i) => i === reward.reward_type) &&
             (claimed ? (
               <span>
-                <Icon icon={ICONS.COMPLETED} /> {__('Reward claimed.')}
+                <Icon icon={ICONS.COMPLETED} /> {__('Credit claimed.')}
               </span>
             ) : (
               <RewardLink button claim_code={reward.claim_code} disabled={disabled} />

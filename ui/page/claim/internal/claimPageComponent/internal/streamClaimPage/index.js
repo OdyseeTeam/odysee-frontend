@@ -7,6 +7,7 @@ import {
   selectProtectedContentTagForUri,
   selectIsStreamPlaceholderForUri,
   selectCostInfoForUri,
+  selectThumbnailForUri,
 } from 'redux/selectors/claims';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
@@ -31,6 +32,7 @@ const select = (state, props) => {
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     costInfo: selectCostInfoForUri(state, uri),
+    thumbnail: selectThumbnailForUri(state, props.uri),
     isMature: selectClaimIsNsfwForUri(state, uri),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),

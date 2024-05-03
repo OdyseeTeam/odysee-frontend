@@ -734,7 +734,9 @@ export const selectHasChannels = (state: State) => {
 };
 
 export const selectResolvingUris = (state: State) => selectState(state).resolvingUris;
+export const selectFailedToResolveUris = (state: State) => selectState(state).failedToResolveUris;
 export const selectResolvingIds = (state: State) => selectState(state).resolvingIds;
+export const selectFailedToResolveIds = (state: State) => selectState(state).failedToResolveIds;
 
 export const selectChannelImportPending = (state: State) => selectState(state).pendingChannelImport;
 

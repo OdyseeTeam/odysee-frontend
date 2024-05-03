@@ -26,13 +26,13 @@ class InviteList extends React.PureComponent<Props> {
 
     let rewardAmount = 0;
     let rewardHelp = __(
-      "Woah, you have a lot of friends! You've claimed the maximum amount of invite rewards. Email %email% if you'd like to be whitelisted for more invites.",
+      "Woah, you have a lot of friends! You've claimed the maximum amount of invite credits. Email %email% if you'd like to be whitelisted for more invites.",
       { email: 'hello@odysee.com' }
     );
 
     if (referralReward) {
       rewardAmount = referralReward.reward_amount;
-      rewardHelp = referralReward.reward_description;
+      rewardHelp = '';
     }
     const showClaimable = invitees.some((invite) => invite.invite_reward_claimable && !invite.invite_reward_claimed);
 
@@ -50,7 +50,7 @@ class InviteList extends React.PureComponent<Props> {
             <div className="card__actions--inline">
               <RewardLink
                 button
-                label={__(`Claim Your %reward_amount% Credit Invite Reward`, { reward_amount: rewardAmount })}
+                label={__(`Receive Your %reward_amount% Invite Credit`, { reward_amount: rewardAmount })}
                 claim_code={referralReward.claim_code}
               />
             </div>
@@ -64,7 +64,7 @@ class InviteList extends React.PureComponent<Props> {
                 <tr>
                   <th>{__('Invitee Email')}</th>
                   <th>{__('Invite Status')}</th>
-                  <th>{__('Reward')}</th>
+                  <th>{__('Credit')}</th>
                 </tr>
               </thead>
               <tbody>

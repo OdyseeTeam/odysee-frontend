@@ -60,26 +60,19 @@ class UserVerify extends React.PureComponent<Props> {
                 lbc: <LbcSymbol size={48} />,
               }}
             >
-              Verify to earn %lbc%
+              Verify to get %lbc%
             </I18nMessage>
           </h1>
           <p>
             <I18nMessage
               tokens={{
-                rewards_program: (
-                  <Button
-                    button="link"
-                    label={__('other rewards')}
-                    href="https://help.odysee.tv/category-monetization/category-rewards/"
-                  />
-                ),
                 Refresh: <Button onClick={() => fetchUser()} button="link" label={__('Refresh')} />,
                 Skip: <Button {...skipButtonProps} button="link" label={__('Skip')} />,
                 SITE_NAME,
               }}
             >
-              Verified accounts are eligible to earn LBRY Credits for views, watching and reposting content, sharing
-              invite links etc. Verifying also helps us keep the %SITE_NAME% community safe too! %Refresh% or %Skip%.
+              Verified accounts are eligible to receive Credits for using %SITE_NAME%. Verifying also helps us keep the
+              %SITE_NAME% community safe! %Refresh% or %Skip%.
             </I18nMessage>
           </p>
           <p className="help">
@@ -176,7 +169,7 @@ class UserVerify extends React.PureComponent<Props> {
             icon={ICONS.REMOVE}
             title={__('Skip')}
             subtitle={__(
-              "Verifying is optional. If you skip this, it just means you can't earn LBRY Credits from our rewards system."
+              "Verifying is optional. If you skip this, it just means you can't receive Credits from our system."
             )}
             actions={
               <Fragment>

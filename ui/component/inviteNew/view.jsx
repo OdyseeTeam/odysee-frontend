@@ -1,5 +1,5 @@
 // @flow
-import { URL, SITE_NAME } from 'config';
+import { URL } from 'config';
 import React, { useEffect, useState } from 'react';
 import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
@@ -79,9 +79,9 @@ function InviteNew(props: Props) {
         <Card
           title={__('Invites')}
           subtitle={
-            <I18nMessage tokens={{ SITE_NAME, lbc: <LbcSymbol /> }}>
-              Earn %lbc% for inviting subscribers, followers, fans, friends, etc. to join and follow you on %SITE_NAME%.
-              You can use invites just like affiliate links.
+            <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
+              Receive %lbc% for inviting subscribers, followers, fans, friends, etc. You can use invites just like
+              affiliate links.
             </I18nMessage>
           }
           actions={
@@ -109,11 +109,7 @@ function InviteNew(props: Props) {
       <div className="column">
         <Card
           title={__('Invite by email')}
-          subtitle={
-            <I18nMessage tokens={{ SITE_NAME, lbc: <LbcSymbol /> }}>
-              Invite someone you know by email and earn %lbc% when they join %SITE_NAME%.
-            </I18nMessage>
-          }
+          subtitle={<I18nMessage tokens={{}}>Invite someone you know by email.</I18nMessage>}
           actions={
             <React.Fragment>
               <Form onSubmit={handleSubmit}>
@@ -131,18 +127,6 @@ function InviteNew(props: Props) {
                     handleEmailChanged(event);
                   }}
                 />
-                <p className="help">
-                  <I18nMessage
-                    tokens={{
-                      rewards_link: <Button button="link" navigate="/$/rewards" label={__('rewards')} />,
-                      referral_faq_link: (
-                        <Button button="link" label={__('FAQ')} href="https://help.odysee.tv/" target="_blank" />
-                      ),
-                    }}
-                  >
-                    Read our %referral_faq_link% to learn more about rewards.
-                  </I18nMessage>
-                </p>
               </Form>
             </React.Fragment>
           }

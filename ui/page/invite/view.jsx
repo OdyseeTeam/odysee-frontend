@@ -33,9 +33,7 @@ class InvitePage extends React.PureComponent<Props> {
     return (
       <Page className="invite-page__wrapper">
         {!authenticated ? (
-          <RewardAuthIntro
-            title={__('Log in to %SITE_NAME% to earn rewards From Inviting Your Friends', { SITE_NAME })}
-          />
+          <RewardAuthIntro title={__('Log in to %SITE_NAME% to Invite Your Friends', { SITE_NAME })} />
         ) : (
           <React.Fragment>
             {isPending && <BusyIndicator message={__('Checking your invite status')} />}

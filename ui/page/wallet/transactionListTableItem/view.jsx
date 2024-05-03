@@ -144,7 +144,7 @@ class TransactionListTableItem extends React.PureComponent<Props, State> {
         <td>
           {forClaim && <Button button="link" navigate={uri} label={claimName} disabled={!date} />}
           {!forClaim && reward && <span>{reward.reward_title}</span>}
-          {isLbryViewReward && <div className="table__item-label">{__('%SITE_NAME% view reward', { SITE_NAME })}</div>}
+          {isLbryViewReward && <div className="table__item-label">{__('%SITE_NAME% view Credit', { SITE_NAME })}</div>}
           {isTip && signingChannel && !isLbryViewReward && (
             <div className="table__item-label">
               <UriIndicator uri={signingChannel && signingChannel.permanent_url} link showAtSign />

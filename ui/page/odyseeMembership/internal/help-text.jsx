@@ -12,7 +12,7 @@ const HelpText = () => (
       <ul>
         <li className="balance-text">
           {__(
-            'Exclusive and early access features include: recommended content, the ability to post Odysee hyperlinks + images in comments, and account is also automatically eligible for Rewards. More to come later.'
+            'Exclusive and early access features include: recommended content, the ability to post Odysee hyperlinks + images in comments, and account is also automatically eligible for Credits. More to come later.'
           )}
         </li>
         <li className="balance-text">

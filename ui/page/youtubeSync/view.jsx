@@ -123,9 +123,9 @@ export default function YoutubeSync(props: Props) {
           </React.Suspense>
         ) : (
           <Card
-            title={__('Sync your YouTube channel to %site_name%', { site_name: IS_WEB ? SITE_NAME : 'LBRY' })}
+            title={__('Sync your YouTube channel to %site_name%', { site_name: IS_WEB ? SITE_NAME : 'Odysee' })}
             subtitle={__('Get your YouTube videos in front of the %site_name% audience.', {
-              site_name: IS_WEB ? SITE_NAME : 'LBRY',
+              site_name: IS_WEB ? SITE_NAME : 'Odysee',
             })}
             actions={
               <Form onSubmit={handleCreateChannel}>
@@ -135,7 +135,7 @@ export default function YoutubeSync(props: Props) {
                       {nameError ? (
                         <span className="error__text">{nameError}</span>
                       ) : (
-                        __('Your desired %site_name% channel name', { site_name: IS_WEB ? SITE_NAME : 'LBRY' })
+                        __('Your desired %site_name% channel name', { site_name: IS_WEB ? SITE_NAME : 'Odysee' })
                       )}
                     </label>
                     <div className="form-field__prefix">@</div>
@@ -185,8 +185,7 @@ export default function YoutubeSync(props: Props) {
                         site_name: SITE_NAME,
                       }}
                     >
-                      I want to sync my content to %site_name% and the LBRY network and agree to %terms%. I have also
-                      read and understand %faq%.
+                      I want to sync my content to %site_name%. I have also read and understand %faq%.
                     </I18nMessage>
                   }
                 />

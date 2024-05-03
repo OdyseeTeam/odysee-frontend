@@ -24,7 +24,7 @@ class IconComponent extends React.PureComponent<Props> {
   getTooltip = (icon: string) => {
     switch (icon) {
       case ICONS.REWARDS:
-        return __('Featured content. Earn rewards for watching.');
+        return __('Featured content. Receive credits for watching.');
       case ICONS.DOWNLOAD:
         return __('This file is in your library.');
       case ICONS.SUBSCRIBE:

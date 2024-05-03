@@ -8,7 +8,7 @@ const Livestream = {
 
 Livestream.call = (resource, action, params = {}, method = 'post') => {
   if (!Livestream.enabled) {
-    return Promise.reject(new Error(__('LBRY internal API is disabled')));
+    return Promise.reject(new Error(__('Odysee internal API is disabled')));
   }
 
   if (!(method === 'get' || method === 'post')) {

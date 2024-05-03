@@ -403,6 +403,9 @@
       cursor: none;
     }
   }
+  &.file-viewer--download {
+    cursor: pointer;
+  }
 }
 
 .file-render__viewer--comic {
