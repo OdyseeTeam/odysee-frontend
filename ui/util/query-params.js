@@ -1,5 +1,7 @@
 // @flow
 import { SEARCH_OPTIONS } from 'constants/search';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
@@ -54,7 +56,6 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
       if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
         queryParams.push(
           `mediaType=${[
-            SEARCH_OPTIONS.MEDIA_FILE,
             SEARCH_OPTIONS.MEDIA_AUDIO,
             SEARCH_OPTIONS.MEDIA_VIDEO,
             SEARCH_OPTIONS.MEDIA_TEXT,
@@ -98,6 +99,38 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
 
   if (language) {
     additionalOptions[SEARCH_OPTIONS.LANGUAGE] = language;
+  }
+
+  const { store } = window;
+  let hideShorts = false;
+  if (store) {
+    const state = store.getState();
+    hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+  }
+
+  if (hideShorts) {
+    let hasMediaTypeParam = false;
+    let hasClaimTypeParam = false;
+    let mediaTypeHasDuration = false;
+    let claimTypeHasDuration = false;
+    for (const param of queryParams) {
+      if (param.includes('mediaType')) {
+        hasMediaTypeParam = true;
+        const mediaTypesWithDurations = [SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_AUDIO];
+        if (mediaTypesWithDurations.some((mediaType) => param.includes(mediaType))) {
+          mediaTypeHasDuration = true;
+        }
+      }
+      if (param.includes('claimType')) {
+        hasClaimTypeParam = true;
+        if (param.includes(SEARCH_OPTIONS.INCLUDE_FILES)) {
+          claimTypeHasDuration = true;
+        }
+      }
+    }
+    if ((!hasMediaTypeParam || mediaTypeHasDuration) && (!hasClaimTypeParam || claimTypeHasDuration)) {
+      additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = SETTINGS.SHORTS_DURATION_LIMIT;
+    }
   }
 
   if (additionalOptions) {

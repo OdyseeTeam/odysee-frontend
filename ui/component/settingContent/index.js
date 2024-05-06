@@ -11,6 +11,7 @@ const select = (state, props) => ({
   isAuthenticated: selectUserVerifiedEmail(state),
   hideMembersOnlyContent: selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT),
   hideReposts: selectClientSetting(state, SETTINGS.HIDE_REPOSTS),
+  hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
   showNsfw: selectShowMatureContent(state),
   instantPurchaseEnabled: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED),
   instantPurchaseMax: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX),

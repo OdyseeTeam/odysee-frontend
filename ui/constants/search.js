@@ -36,6 +36,8 @@ export const SEARCH_OPTIONS = {
   TIME_FILTER_THIS_WEEK: 'thisweek',
   TIME_FILTER_THIS_MONTH: 'thismonth',
   TIME_FILTER_THIS_YEAR: 'thisyear',
+  MIN_DURATION: 'min_duration',
+  MAX_DURATION: 'max_duration',
 };
 
 export const SEARCH_PAGE_SIZE = 20;
