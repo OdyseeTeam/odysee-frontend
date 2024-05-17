@@ -1834,7 +1834,6 @@ export const doFetchCreatorSettings = (channelId: string) => {
           devToast(dispatch, `Creator: ${err}`);
           dispatch({
             type: ACTIONS.COMMENT_FETCH_SETTINGS_FAILED,
-            data: { channelId },
           });
         }
 
