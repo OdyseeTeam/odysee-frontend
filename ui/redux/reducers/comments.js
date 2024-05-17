@@ -1070,10 +1070,22 @@ export default handleActions(
       ...state,
       fetchingSettings: true,
     }),
-    [ACTIONS.COMMENT_FETCH_SETTINGS_FAILED]: (state: CommentsState, action: any) => ({
-      ...state,
-      fetchingSettings: false,
-    }),
+
+    [ACTIONS.COMMENT_FETCH_SETTINGS_FAILED]: (state: CommentsState, action: any) => {
+      const { channelId } = action.data;
+      const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
+
+      if (!settingsByChannelId[channelId]) {
+        settingsByChannelId[channelId] = undefined;
+      }
+
+      return {
+        ...state,
+        settingsByChannelId,
+        fetchingSettings: false,
+      };
+    },
+
     [ACTIONS.COMMENT_FETCH_SETTINGS_COMPLETED]: (state: CommentsState, action: any) => {
       const { channelId, settings, partialUpdate } = action.data;
       const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
