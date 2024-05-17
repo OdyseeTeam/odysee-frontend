@@ -1785,6 +1785,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const myChannels = selectMyChannelClaims(state);
+    const creatorChannel = selectClaimForClaimId(state, channelId);
 
     dispatch({
       type: ACTIONS.COMMENT_FETCH_SETTINGS_STARTED,
@@ -1803,7 +1804,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
 
     return cmd({
       channel_id: channelId,
-      channel_name: (signedName && signedName.name) || undefined,
+      channel_name: (signedName && signedName.name) || creatorChannel?.name,
       signature: (signedName && signedName.signature) || undefined,
       signing_ts: (signedName && signedName.signing_ts) || undefined,
     })
@@ -1833,7 +1834,6 @@ export const doFetchCreatorSettings = (channelId: string) => {
           devToast(dispatch, `Creator: ${err}`);
           dispatch({
             type: ACTIONS.COMMENT_FETCH_SETTINGS_FAILED,
-            data: { channelId },
           });
         }
 
