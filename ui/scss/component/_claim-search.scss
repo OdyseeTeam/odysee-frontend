@@ -187,14 +187,6 @@
   }
 }
 
-.clh__wrapper {
-  @media (max-width: $breakpoint-small) {
-    .button--alt {
-      margin-top: var(--spacing-xs);
-    }
-  }
-}
-
 .claim-search__menu-group {
   display: flex;
   flex-wrap: nowrap;
