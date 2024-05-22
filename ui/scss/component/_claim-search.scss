@@ -38,13 +38,23 @@
       font-weight: var(--font-weight-bold);
       padding-left: calc(var(--height-checkbox) + var(--spacing-s));
       margin-bottom: -4px;
+      @media (max-width: $breakpoint-small) {
+        font-size: var(--font-xxsmall);
+        margin-bottom: 0px;
+      }
       &::before {
         background-color: var(--color-background);
         margin-top: -2px;
+        @media (max-width: $breakpoint-small) {
+          margin-top: 4px;
+        }
       }
       &::after {
         background: none;
         margin-top: -2px;
+        @media (max-width: $breakpoint-small) {
+          margin-top: 4px;
+        }
       }
     }
   }
@@ -189,7 +199,7 @@
 
 .clh__wrapper {
   @media (max-width: $breakpoint-small) {
-    .button--alt {
+    .claim-search__menu-group {
       margin-top: var(--spacing-xs);
     }
   }
