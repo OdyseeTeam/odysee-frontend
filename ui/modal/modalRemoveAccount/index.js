@@ -5,7 +5,7 @@ import {
   selectFetchingMyChannelsSuccess,
   selectIsFetchingClaimListMine,
   selectIsFetchingClaimListMineSuccess,
-  selectMyClaimsPageItemCount,
+  selectMyPublicationClaims,
 } from 'redux/selectors/claims';
 import { doHideModal } from 'redux/actions/app';
 import {
@@ -24,7 +24,7 @@ const select = (state) => ({
   isPendingDeletion: selectUser(state)?.pending_deletion,
   hasYouTubeChannels: selectHasYoutubeChannels(state),
   totalBalance: selectTotalBalance(state),
-  totalClaimsCount: selectMyClaimsPageItemCount(state),
+  totalClaimsCount: selectMyPublicationClaims(state)?.length || 0,
   channelUrls: selectMyChannelClaimUrls(state),
   isFetchingChannels: selectFetchingMyChannels(state),
   isFetchingChannelsSuccess: selectFetchingMyChannelsSuccess(state),

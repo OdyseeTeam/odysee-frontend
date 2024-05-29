@@ -7,12 +7,9 @@ import React, { useEffect } from 'react';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
-import ClaimSearchView from 'component/claimSearchView';
 import Page from 'component/page';
 import Icon from 'component/common/icon';
 import Paginate from 'component/common/paginate';
-import { PAGE_PARAM, PAGE_SIZE_PARAM } from 'constants/claim';
-import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import WebUploadList from 'component/webUploadList';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
@@ -28,76 +25,64 @@ const FILTER: { [string]: FilterInfo } = Object.freeze({
   SCHEDULED: { key: 'SCHEDULED', cmd: '', label: 'Scheduled' },
 });
 
-const METHOD = {
-  CLAIM_LIST: 'CLAIM_LIST',
-  CLAIM_SEARCH: 'CLAIM_SEARCH',
-};
-
 type Props = {
   uploadCount: number,
   checkPendingPublishes: () => void,
   doBeginPublish: (PublishType, ?string) => void,
   fetchClaimListMine: DoFetchClaimListMine,
   fetching: boolean,
-  urls: Array<string>,
-  urlTotal: number,
+  myClaims: Array<Claim>,
+  myStreamClaims: Array<Claim>,
+  myRepostClaims: Array<Claim>,
+  myUnlistedClaims: Array<Claim>,
+  myScheduledClaims: Array<Claim>,
   history: { replace: (string) => void, push: (string) => void },
   page: number,
   pageSize: number,
   myChannelIds: ?Array<ClaimId>,
-  doClearClaimSearch: () => void,
 };
 
 function FileListPublished(props: Props) {
   const {
-    uploadCount,
     checkPendingPublishes,
     doBeginPublish,
     fetchClaimListMine,
     fetching,
-    urls,
-    urlTotal,
+    myClaims,
+    myStreamClaims,
+    myRepostClaims,
+    myUnlistedClaims,
+    myScheduledClaims,
     page,
     pageSize,
-    myChannelIds,
-    doClearClaimSearch,
   } = props;
 
   const [filterBy, setFilterBy] = React.useState(FILTER.ALL.key);
-  const method =
-    filterBy === FILTER.UNLISTED.key || filterBy === FILTER.SCHEDULED.key ? METHOD.CLAIM_SEARCH : METHOD.CLAIM_LIST;
 
-  const params = React.useMemo(() => {
-    return {
-      [PAGE_PARAM]: Number(page),
-      [PAGE_SIZE_PARAM]: Number(pageSize),
-    };
-  }, [page, pageSize]);
-
-  const csOptionsUnlisted: ClaimSearchOptions = React.useMemo(() => {
-    return {
-      page_size: 20,
-      any_tags: [VISIBILITY_TAGS.UNLISTED],
-      channel_ids: myChannelIds || [],
-      claim_type: ['stream'],
-      has_source: true,
-      order_by: ['height'],
-      remove_duplicates: true,
-    };
-  }, [myChannelIds]);
-
-  const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
-    return {
-      page_size: 20,
-      any_tags: [SCHEDULED_TAGS.SHOW, SCHEDULED_TAGS.HIDE],
-      channel_ids: myChannelIds || [],
-      claim_type: ['stream'],
-      has_source: true,
-      order_by: ['height'],
-      remove_duplicates: true,
-      release_time: `>${Math.floor(Date.now() / 1000)}`,
-    };
-  }, [myChannelIds]);
+  const claimsToShow = React.useMemo(() => {
+    let claims;
+    switch (filterBy) {
+      case FILTER.ALL.key:
+        claims = myClaims;
+        break;
+      case FILTER.UPLOADS.key:
+        claims = myStreamClaims;
+        break;
+      case FILTER.REPOSTS.key:
+        claims = myRepostClaims;
+        break;
+      case FILTER.UNLISTED.key:
+        claims = myUnlistedClaims;
+        break;
+      case FILTER.SCHEDULED.key:
+        claims = myScheduledClaims;
+        break;
+      default:
+        claims = [];
+        break;
+    }
+    return claims;
+  }, [myClaims, myStreamClaims, myRepostClaims, myUnlistedClaims, myScheduledClaims, filterBy]);
 
   const AdvisoryMsg = () => {
     if (filterBy === FILTER.UNLISTED.key) {
@@ -138,11 +123,7 @@ function FileListPublished(props: Props) {
               label={__('Refresh')}
               icon={ICONS.REFRESH}
               onClick={() => {
-                if (method === METHOD.CLAIM_LIST) {
-                  fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','), true);
-                } else {
-                  doClearClaimSearch();
-                }
+                fetchClaimListMine(1, 999999, true, [], true);
               }}
             />
           )}
@@ -152,6 +133,10 @@ function FileListPublished(props: Props) {
   }
 
   function getClaimListResultsJsx() {
+    const startIndex = (page - 1) * Number(pageSize);
+    const endIndex = startIndex + Number(pageSize);
+
+    const urls = claimsToShow.slice(startIndex, endIndex).map((claim) => claim.permanent_url);
     return (
       <>
         {!!urls && (
@@ -164,37 +149,17 @@ function FileListPublished(props: Props) {
               loading={fetching}
             />
             {getFetchingPlaceholders()}
-            <Paginate totalPages={urlTotal > 0 ? Math.ceil(urlTotal / Number(pageSize)) : 1} />
+            <Paginate totalPages={claimsToShow.length > 0 ? Math.ceil(claimsToShow.length / Number(pageSize)) : 1} />
           </>
         )}
       </>
     );
   }
 
-  function getClaimSearchResultsJsx() {
-    const isUnlisted = filterBy === FILTER.UNLISTED.key;
-    const hasChannels = myChannelIds ? myChannelIds.length > 0 : false;
-
-    return hasChannels ? (
-      <ClaimSearchView
-        key={isUnlisted ? 'unlisted' : 'scheduled'}
-        csOptions={isUnlisted ? csOptionsUnlisted : csOptionsScheduled}
-        layout="list"
-        pagination="infinite"
-      />
-    ) : (
-      <Yrbl
-        title={__('No uploads')}
-        subtitle={__("You haven't uploaded anything yet. This is where you can find them when you do!")}
-      />
-    );
-  }
-
   function getFetchingPlaceholders() {
     return (
       <>
-        {method === METHOD.CLAIM_LIST &&
-          fetching &&
+        {fetching &&
           new Array(Number(pageSize)).fill(1).map((x, i) => {
             return <ClaimPreview key={i} placeholder="loading" />;
           })}
@@ -207,10 +172,9 @@ function FileListPublished(props: Props) {
   }, [checkPendingPublishes]);
 
   useEffect(() => {
-    if (params && fetchClaimListMine && method === METHOD.CLAIM_LIST) {
-      fetchClaimListMine(params.page, params.page_size, true, FILTER[filterBy].cmd.split(','), true);
-    }
-  }, [uploadCount, params, filterBy, fetchClaimListMine, method]);
+    fetchClaimListMine(1, 999999, true, [], true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Page>
@@ -218,10 +182,9 @@ function FileListPublished(props: Props) {
         <WebUploadList />
         {getHeaderJsx()}
         <AdvisoryMsg />
-        {method === METHOD.CLAIM_LIST && getClaimListResultsJsx()}
-        {method === METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
+        {getClaimListResultsJsx()}
       </div>
-      {!(urls && urls.length) && method === METHOD.CLAIM_LIST && (
+      {!(claimsToShow && claimsToShow.length) && (
         <React.Fragment>
           {!fetching ? (
             <section className="main--empty">

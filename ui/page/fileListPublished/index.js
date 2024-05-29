@@ -1,13 +1,16 @@
 import { connect } from 'react-redux';
 import {
   selectIsFetchingClaimListMine,
-  selectMyClaimsPage,
-  selectMyClaimsPageItemCount,
   selectFetchingMyClaimsPageError,
   selectMyChannelClaimIds,
+  selectMyPublicationClaims,
+  selectMyStreamClaims,
+  selectMyRepostClaims,
+  selectMyUnlistedClaims,
+  selectMyScheduledClaims,
 } from 'redux/selectors/claims';
 import { selectUploadCount } from 'redux/selectors/publish';
-import { doFetchClaimListMine, doCheckPendingClaims, doClearClaimSearch } from 'redux/actions/claims';
+import { doFetchClaimListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import FileListPublished from './view';
 import { withRouter } from 'react-router';
@@ -23,8 +26,11 @@ const select = (state, props) => {
     page,
     pageSize,
     fetching: selectIsFetchingClaimListMine(state),
-    urls: selectMyClaimsPage(state),
-    urlTotal: selectMyClaimsPageItemCount(state),
+    myClaims: selectMyPublicationClaims(state),
+    myStreamClaims: selectMyStreamClaims(state),
+    myRepostClaims: selectMyRepostClaims(state),
+    myUnlistedClaims: selectMyUnlistedClaims(state),
+    myScheduledClaims: selectMyScheduledClaims(state),
     error: selectFetchingMyClaimsPageError(state),
     uploadCount: selectUploadCount(state),
     myChannelIds: selectMyChannelClaimIds(state),
@@ -34,7 +40,6 @@ const select = (state, props) => {
 const perform = {
   checkPendingPublishes: doCheckPendingClaims,
   fetchClaimListMine: doFetchClaimListMine,
-  doClearClaimSearch,
   doBeginPublish,
 };
 

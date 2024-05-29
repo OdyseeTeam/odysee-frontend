@@ -62,10 +62,7 @@ export default function ModalRemoveAccount(props: Props) {
   React.useEffect(() => {
     if (!isPendingDeletion || !isWalletEmpty) {
       doFetchAccountList();
-      const page = 1,
-        pageSize = 1,
-        resolve = false;
-      doFetchClaimListMine(page, pageSize, resolve);
+      doFetchClaimListMine(1, 9999999999, false);
       doFetchChannelListMine();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount

@@ -294,7 +294,6 @@ export function doFetchClaimListMine(
         data: {
           result,
           resolve,
-          setNewPageItems: true,
         },
       });
 
