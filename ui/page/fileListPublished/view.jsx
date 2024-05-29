@@ -3,7 +3,9 @@ import type { DoFetchClaimListMine } from 'redux/actions/claims';
 
 import './style.scss';
 import * as ICONS from 'constants/icons';
+import * as FILE_LIST from 'constants/fileList';
 import React, { useEffect } from 'react';
+import { useLocation } from 'react-router';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
@@ -13,17 +15,9 @@ import Paginate from 'component/common/paginate';
 import WebUploadList from 'component/webUploadList';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
-import classnames from 'classnames';
+import usePersistedState from 'effects/use-persisted-state';
 
-type FilterInfo = { key: string, cmd: string, label: string, ariaLabel?: string };
-
-const FILTER: { [string]: FilterInfo } = Object.freeze({
-  ALL: { key: 'ALL', cmd: 'stream,repost', label: 'All', ariaLabel: 'All uploads' },
-  UPLOADS: { key: 'UPLOADS', cmd: 'stream', label: 'Uploads' },
-  REPOSTS: { key: 'REPOSTS', cmd: 'repost', label: 'Reposts' },
-  UNLISTED: { key: 'UNLISTED', cmd: '', label: 'Unlisted' },
-  SCHEDULED: { key: 'SCHEDULED', cmd: '', label: 'Scheduled' },
-});
+import ClaimListHeader from './internal/fileListHeader/index';
 
 type Props = {
   uploadCount: number,
@@ -42,6 +36,9 @@ type Props = {
   myChannelIds: ?Array<ClaimId>,
 };
 
+// Avoid prop drilling
+export const FileListContext = React.createContext<any>();
+
 function FileListPublished(props: Props) {
   const {
     checkPendingPublishes,
@@ -57,25 +54,36 @@ function FileListPublished(props: Props) {
     pageSize,
   } = props;
 
-  const [filterBy, setFilterBy] = React.useState(FILTER.ALL.key);
-  const [shouldResetPageNumber, setShouldResetPageNumber] = React.useState(false);
+  const { search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+
+  const sortByParam = Object.keys(FILE_LIST.SORT_VALUES).find((key) => urlParams.get(key));
+  const [persistedOption, setPersistedOption] = usePersistedState('filelist-sort', FILE_LIST.DEFAULT_SORT);
+  const defaultSortOption = sortByParam ? { key: sortByParam, value: urlParams.get(sortByParam) } : persistedOption;
+  const defaultFilterType = urlParams.get(FILE_LIST.FILTER_TYPE_KEY) || 'All';
+  const defaultSearchTerm = urlParams.get(FILE_LIST.SEARCH_TERM_KEY) || '';
+
+  const [filterType, setFilterType] = React.useState(defaultFilterType);
+  const [searchText, setSearchText] = React.useState(defaultSearchTerm);
+  const [sortOption, setSortOption] = React.useState(defaultSortOption);
+  const [filterParamsChanged, setFilterParamsChanged] = React.useState(false);
 
   const claimsToShow = React.useMemo(() => {
     let claims;
-    switch (filterBy) {
-      case FILTER.ALL.key:
+    switch (filterType) {
+      case FILE_LIST.FILE_TYPE.ALL.key:
         claims = myClaims;
         break;
-      case FILTER.UPLOADS.key:
+      case FILE_LIST.FILE_TYPE.UPLOADS.key:
         claims = myStreamClaims;
         break;
-      case FILTER.REPOSTS.key:
+      case FILE_LIST.FILE_TYPE.REPOSTS.key:
         claims = myRepostClaims;
         break;
-      case FILTER.UNLISTED.key:
+      case FILE_LIST.FILE_TYPE.UNLISTED.key:
         claims = myUnlistedClaims;
         break;
-      case FILTER.SCHEDULED.key:
+      case FILE_LIST.FILE_TYPE.SCHEDULED.key:
         claims = myScheduledClaims;
         break;
       default:
@@ -83,10 +91,89 @@ function FileListPublished(props: Props) {
         break;
     }
     return claims;
-  }, [myClaims, myStreamClaims, myRepostClaims, myUnlistedClaims, myScheduledClaims, filterBy]);
+  }, [myClaims, myStreamClaims, myRepostClaims, myUnlistedClaims, myScheduledClaims, filterType]);
+
+  const filteredClaims = React.useMemo(() => {
+    let result = claimsToShow;
+
+    // First handle search
+    if (searchText) {
+      result = claimsToShow.filter((claim) => {
+        // $FlowFixMe
+        return claim.value?.title?.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
+      });
+    }
+
+    // Then the sorting selected setting
+    return result.sort((claimA, claimB) => {
+      let firstComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.ASC ? claimA : claimB;
+      let secondComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.ASC ? claimB : claimA;
+      const comparisonObj = {};
+
+      if (sortOption.key === FILE_LIST.SORT_KEYS.NAME) {
+        const nameComparisonObj = {
+          a: firstComparisonItem.value?.title || firstComparisonItem.name,
+          b: secondComparisonItem.value?.title || secondComparisonItem.name,
+        };
+
+        Object.assign(comparisonObj, nameComparisonObj);
+
+        // Only name (string) has a different return than when sorting numbers
+        // $FlowFixMe
+        return comparisonObj.a.localeCompare(comparisonObj.b);
+      }
+
+      function getComparisonObj() {
+        let timestampComparisonObj = {};
+        switch (sortOption.key) {
+          case FILE_LIST.SORT_KEYS.CREATED_AT:
+            firstComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimA : claimB;
+            secondComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimB : claimA;
+
+            timestampComparisonObj = {
+              // $FlowFixMe
+              a: firstComparisonItem.value?.release_time || firstComparisonItem.meta.creation_timestamp,
+              // $FlowFixMe
+              b: secondComparisonItem.value?.release_time || secondComparisonItem.meta.creation_timestamp,
+            };
+
+            Object.assign(comparisonObj, timestampComparisonObj);
+
+            break;
+
+          case FILE_LIST.SORT_KEYS.UPDATED_AT:
+            firstComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimA : claimB;
+            secondComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimB : claimA;
+
+            timestampComparisonObj = {
+              a: firstComparisonItem.height > 0 ? firstComparisonItem.height : 999999999999999,
+              b: secondComparisonItem.height > 0 ? secondComparisonItem.height : 999999999999999,
+            };
+
+            Object.assign(comparisonObj, timestampComparisonObj);
+
+            break;
+        }
+      }
+
+      getComparisonObj();
+
+      // $FlowFixMe
+      if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
+        return 1;
+      }
+
+      // $FlowFixMe
+      if ((comparisonObj.a || 0) < (comparisonObj.b || 0)) {
+        return -1;
+      }
+
+      return 0;
+    });
+  }, [claimsToShow, searchText, sortOption]);
 
   const AdvisoryMsg = () => {
-    if (filterBy === FILTER.UNLISTED.key) {
+    if (filterType === FILE_LIST.FILE_TYPE.UNLISTED.key) {
       return (
         <div className="flp__advisory">
           <Icon icon={ICONS.INFO} />
@@ -101,43 +188,11 @@ function FileListPublished(props: Props) {
     return null;
   };
 
-  function getHeaderJsx() {
-    return (
-      <div className={classnames('flp__header')}>
-        <div className="flp__filter">
-          {/* $FlowIgnore: mixed bug */}
-          {Object.values(FILTER).map((info: FilterInfo) => (
-            <Button
-              button="alt"
-              key={info.label}
-              label={__(info.label)}
-              aria-label={info.ariaLabel}
-              onClick={() => setFilterBy(info.key)}
-              className={classnames(`button-toggle`, { 'button-toggle--active': filterBy === info.key })}
-            />
-          ))}
-        </div>
-        <div className="flp__refresh">
-          {!fetching && (
-            <Button
-              button="alt"
-              label={__('Refresh')}
-              icon={ICONS.REFRESH}
-              onClick={() => {
-                fetchClaimListMine(1, 999999, true, [], true);
-              }}
-            />
-          )}
-        </div>
-      </div>
-    );
-  }
-
   function getClaimListResultsJsx() {
     const startIndex = (page - 1) * Number(pageSize);
     const endIndex = startIndex + Number(pageSize);
 
-    const urls = claimsToShow.slice(startIndex, endIndex).map((claim) => claim.permanent_url);
+    const urls = filteredClaims.slice(startIndex, endIndex).map((claim) => claim.permanent_url);
     return (
       <>
         {!!urls && (
@@ -151,8 +206,8 @@ function FileListPublished(props: Props) {
             />
             {getFetchingPlaceholders()}
             <Paginate
-              totalPages={claimsToShow.length > 0 ? Math.ceil(claimsToShow.length / Number(pageSize)) : 1}
-              shouldResetPageNumber={shouldResetPageNumber}
+              totalPages={filteredClaims.length > 0 ? Math.ceil(filteredClaims.length / Number(pageSize)) : 1}
+              shouldResetPageNumber={filterParamsChanged}
             />
           </>
         )}
@@ -186,20 +241,39 @@ function FileListPublished(props: Props) {
       firstUpdate.current = false;
       return;
     }
-    setShouldResetPageNumber(true);
-  }, [filterBy]);
+    setFilterParamsChanged(true);
+  }, [searchText, filterType, sortOption]);
 
   React.useEffect(() => {
-    if (shouldResetPageNumber) {
-      setShouldResetPageNumber(false);
+    if (filterParamsChanged) {
+      setFilterParamsChanged(false);
     }
-  }, [shouldResetPageNumber]);
+  }, [filterParamsChanged]);
+
+  React.useEffect(() => {
+    setPersistedOption(sortOption);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- (setPersistedOption is custom setState, can ignore)
+  }, [sortOption]);
 
   return (
     <Page>
       <div className="card-stack">
         <WebUploadList />
-        {getHeaderJsx()}
+        <FileListContext.Provider
+          value={{
+            searchText,
+            setSearchText,
+            fetching,
+          }}
+        >
+          <ClaimListHeader
+            filterType={filterType}
+            setFilterType={setFilterType}
+            // $FlowFixMe
+            sortOption={sortOption}
+            setSortOption={setSortOption}
+          />
+        </FileListContext.Provider>
         <AdvisoryMsg />
         {getClaimListResultsJsx()}
       </div>
@@ -208,14 +282,14 @@ function FileListPublished(props: Props) {
           {!fetching ? (
             <section className="main--empty">
               <Yrbl
-                title={filterBy === FILTER.REPOSTS ? __('No Reposts') : __('No uploads')}
+                title={filterType === FILE_LIST.FILE_TYPE.REPOSTS ? __('No Reposts') : __('No uploads')}
                 subtitle={
-                  filterBy === FILTER.REPOSTS
+                  filterType === FILE_LIST.FILE_TYPE.REPOSTS
                     ? __("You haven't reposted anything yet.")
                     : __("You haven't uploaded anything yet. This is where you can find them when you do!")
                 }
                 actions={
-                  filterBy !== FILTER.REPOSTS && (
+                  filterType !== FILE_LIST.FILE_TYPE.REPOSTS && (
                     <div className="section__actions">
                       <Button
                         button="primary"
