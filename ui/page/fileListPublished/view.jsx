@@ -58,6 +58,7 @@ function FileListPublished(props: Props) {
   } = props;
 
   const [filterBy, setFilterBy] = React.useState(FILTER.ALL.key);
+  const [shouldResetPageNumber, setShouldResetPageNumber] = React.useState(false);
 
   const claimsToShow = React.useMemo(() => {
     let claims;
@@ -149,7 +150,10 @@ function FileListPublished(props: Props) {
               loading={fetching}
             />
             {getFetchingPlaceholders()}
-            <Paginate totalPages={claimsToShow.length > 0 ? Math.ceil(claimsToShow.length / Number(pageSize)) : 1} />
+            <Paginate
+              totalPages={claimsToShow.length > 0 ? Math.ceil(claimsToShow.length / Number(pageSize)) : 1}
+              shouldResetPageNumber={shouldResetPageNumber}
+            />
           </>
         )}
       </>
@@ -175,6 +179,21 @@ function FileListPublished(props: Props) {
     fetchClaimListMine(1, 999999, true, [], true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const firstUpdate = React.useRef(true);
+  React.useLayoutEffect(() => {
+    if (firstUpdate.current) {
+      firstUpdate.current = false;
+      return;
+    }
+    setShouldResetPageNumber(true);
+  }, [filterBy]);
+
+  React.useEffect(() => {
+    if (shouldResetPageNumber) {
+      setShouldResetPageNumber(false);
+    }
+  }, [shouldResetPageNumber]);
 
   return (
     <Page>
