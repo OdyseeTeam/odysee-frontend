@@ -28,6 +28,7 @@ const defaultState: ClaimsState = {
   myChannelClaimsById: undefined,
   resolvedCollectionsById: {},
   myCollectionClaimIds: undefined,
+  isAllMyClaimsFetched: undefined,
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -389,7 +390,11 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: ClaimsState): ClaimsSt
   });
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
-  const { result, setNewPageItems }: { result: ClaimListResponse, setNewPageItems?: boolean } = action.data;
+  const {
+    result,
+    setNewPageItems,
+    isAllMyClaimsFetched,
+  }: { result: ClaimListResponse, setNewPageItems?: boolean, isAllMyClaimsFetched?: boolean } = action.data;
   const claims = result.items;
   const page = result.page;
   const totalItems = result.total_items;
@@ -457,6 +462,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
     byId: resolveDelta(state.byId, byIdDelta),
     pendingById: resolveDelta(state.pendingById, pendingByIdDelta),
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
+    isAllMyClaimsFetched: state.isAllMyClaimsFetched || isAllMyClaimsFetched,
     ...(setNewPageItems
       ? { myClaimsPageResults: urlsForCurrentPage, myClaimsPageNumber: page, myClaimsPageTotalResults: totalItems }
       : {}),

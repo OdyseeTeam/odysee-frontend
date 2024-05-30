@@ -296,6 +296,7 @@ export function doFetchClaimListMine(
             result,
             resolve,
             setNewPageItems: pageSize !== FILE_LIST.PAGE_SIZE_ALL_ITEMS,
+            isAllMyClaimsFetched: pageSize === FILE_LIST.PAGE_SIZE_ALL_ITEMS,
           },
         });
 

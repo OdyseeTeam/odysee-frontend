@@ -30,6 +30,7 @@ type Props = {
   fetching: boolean,
   urls: Array<string>,
   urlTotal: number,
+  isAllMyClaimsFetched: ?boolean,
   myClaims: Array<Claim>,
   myStreamClaims: Array<Claim>,
   myRepostClaims: Array<Claim>,
@@ -59,6 +60,7 @@ function FileListPublished(props: Props) {
     fetching,
     urls,
     urlTotal,
+    isAllMyClaimsFetched,
     myClaims,
     myStreamClaims,
     myRepostClaims,
@@ -336,11 +338,11 @@ function FileListPublished(props: Props) {
   }, [uploadCount, params, filterType, fetchClaimListMine, method, isFilteringEnabled, doClearClaimSearch]);
 
   useEffect(() => {
-    if (!isFilteringEnabled) {
+    if (!isFilteringEnabled || isAllMyClaimsFetched) {
       return;
     }
     fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
-  }, [isFilteringEnabled, fetchClaimListMine]);
+  }, [isFilteringEnabled, isAllMyClaimsFetched, fetchClaimListMine]);
 
   const firstUpdate = React.useRef(true);
   React.useLayoutEffect(() => {

@@ -654,6 +654,8 @@ export const selectMyClaimsPageItemCount = (state: State) => selectState(state).
 
 export const selectFetchingMyClaimsPageError = (state: State) => selectState(state).fetchingClaimListMinePageError;
 
+export const selectIsAllMyClaimsFetched = (state: State) => selectState(state).isAllMyClaimsFetched;
+
 export const selectMyClaims = createSelector(
   selectMyActiveClaims,
   selectClaimsById,

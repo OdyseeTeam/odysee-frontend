@@ -15,6 +15,7 @@ declare type ClaimsState = {
   failedToResolveUris: Array<string>,
   failedToResolveIds: Array<ClaimId>,
   reflectingById: { [ClaimId]: ReflectingUpdate },
+  isAllMyClaimsFetched: ?boolean,
   myClaims: ?Array<ClaimId>,
   myChannelClaimsById: ?{ [channelClaimId: string]: ChannelClaim },
   resolvedCollectionsById: { [collectionClaimId: string]: Collection },
