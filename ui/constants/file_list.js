@@ -2,6 +2,8 @@ export const FILTER_TYPE_KEY = 'filterType';
 
 export const SEARCH_TERM_KEY = 'search';
 
+export const PAGE_SIZE_ALL_ITEMS = 99999;
+
 export const FILE_TYPE = Object.freeze({
   ALL: { key: 'All', cmd: 'stream,repost', label: 'All', ariaLabel: 'All uploads' },
   UPLOADS: { key: 'Uploads', cmd: 'stream', label: 'Uploads' },

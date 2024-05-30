@@ -641,6 +641,17 @@ export const makeSelectAvatarForUri = (uri: string) =>
 export const selectIsFetchingClaimListMine = (state: State) => selectState(state).isFetchingClaimListMine;
 export const selectIsFetchingClaimListMineSuccess = (state: State) => selectState(state).isFetchingClaimListMineSuccess;
 
+export const selectMyClaimsPage = createSelector(selectState, (state) => state.myClaimsPageResults || []);
+
+export const selectMyClaimsPageNumber = createSelector(
+  selectState,
+  (state) => (state.claimListMinePage && state.claimListMinePage.items) || [],
+
+  (state) => (state.txoPage && state.txoPage.page) || 1
+);
+
+export const selectMyClaimsPageItemCount = (state: State) => selectState(state).myClaimsPageTotalResults || 0;
+
 export const selectFetchingMyClaimsPageError = (state: State) => selectState(state).fetchingClaimListMinePageError;
 
 export const selectMyClaims = createSelector(

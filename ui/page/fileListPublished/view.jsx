@@ -3,15 +3,18 @@ import type { DoFetchClaimListMine } from 'redux/actions/claims';
 
 import './style.scss';
 import * as ICONS from 'constants/icons';
-import * as FILE_LIST from 'constants/fileList';
+import * as FILE_LIST from 'constants/file_list';
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
+import ClaimSearchView from 'component/claimSearchView';
 import Page from 'component/page';
 import Icon from 'component/common/icon';
 import Paginate from 'component/common/paginate';
+import { PAGE_PARAM, PAGE_SIZE_PARAM } from 'constants/claim';
+import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 import WebUploadList from 'component/webUploadList';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
@@ -25,6 +28,8 @@ type Props = {
   doBeginPublish: (PublishType, ?string) => void,
   fetchClaimListMine: DoFetchClaimListMine,
   fetching: boolean,
+  urls: Array<string>,
+  urlTotal: number,
   myClaims: Array<Claim>,
   myStreamClaims: Array<Claim>,
   myRepostClaims: Array<Claim>,
@@ -34,6 +39,12 @@ type Props = {
   page: number,
   pageSize: number,
   myChannelIds: ?Array<ClaimId>,
+  doClearClaimSearch: () => void,
+};
+
+const METHOD = {
+  CLAIM_LIST: 'CLAIM_LIST',
+  CLAIM_SEARCH: 'CLAIM_SEARCH',
 };
 
 // Avoid prop drilling
@@ -41,10 +52,13 @@ export const FileListContext = React.createContext<any>();
 
 function FileListPublished(props: Props) {
   const {
+    uploadCount,
     checkPendingPublishes,
     doBeginPublish,
     fetchClaimListMine,
     fetching,
+    urls,
+    urlTotal,
     myClaims,
     myStreamClaims,
     myRepostClaims,
@@ -52,12 +66,15 @@ function FileListPublished(props: Props) {
     myScheduledClaims,
     page,
     pageSize,
+    myChannelIds,
+    doClearClaimSearch,
   } = props;
 
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
   const sortByParam = Object.keys(FILE_LIST.SORT_VALUES).find((key) => urlParams.get(key));
+  const [isFilteringEnabled, setIsFilteringEnabled] = usePersistedState('filelist-enable-filters', false);
   const [persistedOption, setPersistedOption] = usePersistedState('filelist-sort', FILE_LIST.DEFAULT_SORT);
   const defaultSortOption = sortByParam ? { key: sortByParam, value: urlParams.get(sortByParam) } : persistedOption;
   const defaultFilterType = urlParams.get(FILE_LIST.FILTER_TYPE_KEY) || 'All';
@@ -68,7 +85,48 @@ function FileListPublished(props: Props) {
   const [sortOption, setSortOption] = React.useState(defaultSortOption);
   const [filterParamsChanged, setFilterParamsChanged] = React.useState(false);
 
+  const method =
+    (filterType === FILE_LIST.FILE_TYPE.UNLISTED.key || filterType === FILE_LIST.FILE_TYPE.SCHEDULED.key) &&
+    !isFilteringEnabled
+      ? METHOD.CLAIM_SEARCH
+      : METHOD.CLAIM_LIST;
+
+  const params = React.useMemo(() => {
+    return {
+      [PAGE_PARAM]: Number(page),
+      [PAGE_SIZE_PARAM]: Number(pageSize),
+    };
+  }, [page, pageSize]);
+
+  const csOptionsUnlisted: ClaimSearchOptions = React.useMemo(() => {
+    return {
+      page_size: 20,
+      any_tags: [VISIBILITY_TAGS.UNLISTED],
+      channel_ids: myChannelIds || [],
+      claim_type: ['stream'],
+      has_source: true,
+      order_by: ['height'],
+      remove_duplicates: true,
+    };
+  }, [myChannelIds]);
+
+  const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
+    return {
+      page_size: 20,
+      any_tags: [SCHEDULED_TAGS.SHOW, SCHEDULED_TAGS.HIDE],
+      channel_ids: myChannelIds || [],
+      claim_type: ['stream'],
+      has_source: true,
+      order_by: ['height'],
+      remove_duplicates: true,
+      release_time: `>${Math.floor(Date.now() / 1000)}`,
+    };
+  }, [myChannelIds]);
+
   const claimsToShow = React.useMemo(() => {
+    if (!isFilteringEnabled) {
+      return [];
+    }
     let claims;
     switch (filterType) {
       case FILE_LIST.FILE_TYPE.ALL.key:
@@ -91,14 +149,17 @@ function FileListPublished(props: Props) {
         break;
     }
     return claims;
-  }, [myClaims, myStreamClaims, myRepostClaims, myUnlistedClaims, myScheduledClaims, filterType]);
+  }, [myClaims, myStreamClaims, myRepostClaims, myUnlistedClaims, myScheduledClaims, filterType, isFilteringEnabled]);
 
   const filteredClaims = React.useMemo(() => {
+    if (!isFilteringEnabled) {
+      return [];
+    }
     let result = claimsToShow;
 
     // First handle search
     if (searchText) {
-      result = claimsToShow.filter((claim) => {
+      result = result.filter((claim) => {
         // $FlowFixMe
         return claim.value?.title?.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
       });
@@ -170,7 +231,7 @@ function FileListPublished(props: Props) {
 
       return 0;
     });
-  }, [claimsToShow, searchText, sortOption]);
+  }, [claimsToShow, searchText, sortOption, isFilteringEnabled]);
 
   const AdvisoryMsg = () => {
     if (filterType === FILE_LIST.FILE_TYPE.UNLISTED.key) {
@@ -192,7 +253,10 @@ function FileListPublished(props: Props) {
     const startIndex = (page - 1) * Number(pageSize);
     const endIndex = startIndex + Number(pageSize);
 
-    const urls = filteredClaims.slice(startIndex, endIndex).map((claim) => claim.permanent_url);
+    const claimUrls = !isFilteringEnabled
+      ? urls
+      : filteredClaims.slice(startIndex, endIndex).map((claim) => claim.permanent_url);
+    const totalClaims = !isFilteringEnabled ? urlTotal : filteredClaims?.length;
     return (
       <>
         {!!urls && (
@@ -201,12 +265,12 @@ function FileListPublished(props: Props) {
               noEmpty
               persistedStorageKey="claim-list-published"
               showHiddenByUser
-              uris={fetching ? [] : urls}
+              uris={fetching ? [] : claimUrls}
               loading={fetching}
             />
             {getFetchingPlaceholders()}
             <Paginate
-              totalPages={filteredClaims.length > 0 ? Math.ceil(filteredClaims.length / Number(pageSize)) : 1}
+              totalPages={totalClaims > 0 ? Math.ceil(totalClaims / Number(pageSize)) : 1}
               shouldResetPageNumber={filterParamsChanged}
             />
           </>
@@ -215,10 +279,30 @@ function FileListPublished(props: Props) {
     );
   }
 
+  function getClaimSearchResultsJsx() {
+    const isUnlisted = filterType === FILE_LIST.FILE_TYPE.UNLISTED.key;
+    const hasChannels = myChannelIds ? myChannelIds.length > 0 : false;
+
+    return hasChannels ? (
+      <ClaimSearchView
+        key={isUnlisted ? 'unlisted' : 'scheduled'}
+        csOptions={isUnlisted ? csOptionsUnlisted : csOptionsScheduled}
+        layout="list"
+        pagination="infinite"
+      />
+    ) : (
+      <Yrbl
+        title={__('No uploads')}
+        subtitle={__("You haven't uploaded anything yet. This is where you can find them when you do!")}
+      />
+    );
+  }
+
   function getFetchingPlaceholders() {
     return (
       <>
-        {fetching &&
+        {method === METHOD.CLAIM_LIST &&
+          fetching &&
           new Array(Number(pageSize)).fill(1).map((x, i) => {
             return <ClaimPreview key={i} placeholder="loading" />;
           })}
@@ -231,9 +315,32 @@ function FileListPublished(props: Props) {
   }, [checkPendingPublishes]);
 
   useEffect(() => {
-    fetchClaimListMine(1, 999999, true, [], true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (isFilteringEnabled) {
+      return;
+    }
+    if (method === METHOD.CLAIM_LIST) {
+      fetchClaimListMine(
+        params.page,
+        params.page_size,
+        true,
+        // $FlowFixMe
+        Object.values(FILE_LIST.FILE_TYPE)
+          // $FlowFixMe
+          .find((fileType) => fileType.key === filterType)
+          .cmd.split(','),
+        true
+      );
+    } else {
+      doClearClaimSearch();
+    }
+  }, [uploadCount, params, filterType, fetchClaimListMine, method, isFilteringEnabled, doClearClaimSearch]);
+
+  useEffect(() => {
+    if (!isFilteringEnabled) {
+      return;
+    }
+    fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
+  }, [isFilteringEnabled, fetchClaimListMine]);
 
   const firstUpdate = React.useRef(true);
   React.useLayoutEffect(() => {
@@ -263,6 +370,8 @@ function FileListPublished(props: Props) {
           value={{
             searchText,
             setSearchText,
+            isFilteringEnabled,
+            setIsFilteringEnabled,
             fetching,
           }}
         >
@@ -275,9 +384,10 @@ function FileListPublished(props: Props) {
           />
         </FileListContext.Provider>
         <AdvisoryMsg />
-        {getClaimListResultsJsx()}
+        {method === METHOD.CLAIM_LIST && getClaimListResultsJsx()}
+        {method === METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
       </div>
-      {!(claimsToShow && claimsToShow.length) && (
+      {!(myClaims && myClaims.length) && method === METHOD.CLAIM_LIST && (
         <React.Fragment>
           {!fetching ? (
             <section className="main--empty">

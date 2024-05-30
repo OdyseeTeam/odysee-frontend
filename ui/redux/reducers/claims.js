@@ -53,6 +53,9 @@ const defaultState: ClaimsState = {
   repostLoading: false,
   repostError: undefined,
   fetchingClaimListMinePageError: undefined,
+  myClaimsPageResults: [],
+  myClaimsPageNumber: undefined,
+  myClaimsPageTotalResults: undefined,
   isFetchingClaimListMine: false,
   isFetchingClaimListMineSuccess: undefined,
   isFetchingMyPurchases: false,
@@ -386,8 +389,10 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED] = (state: ClaimsState): ClaimsSt
   });
 
 reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action: any): ClaimsState => {
-  const { result }: { result: ClaimListResponse } = action.data;
+  const { result, setNewPageItems }: { result: ClaimListResponse, setNewPageItems?: boolean } = action.data;
   const claims = result.items;
+  const page = result.page;
+  const totalItems = result.total_items;
 
   const byIdDelta = {};
   const byUriDelta = {};
@@ -452,6 +457,9 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
     byId: resolveDelta(state.byId, byIdDelta),
     pendingById: resolveDelta(state.pendingById, pendingByIdDelta),
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
+    ...(setNewPageItems
+      ? { myClaimsPageResults: urlsForCurrentPage, myClaimsPageNumber: page, myClaimsPageTotalResults: totalItems }
+      : {}),
   });
 };
 
@@ -689,6 +697,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): C
   const { claimId }: { claimId: string } = action.data;
   const byId = Object.assign({}, state.byId);
   const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
+  let myClaimsPageResults = null;
   const newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
   const claimsByUri = Object.assign({}, state.claimsByUri);
   const abandoningById = Object.assign({}, state.abandoningById);
@@ -703,6 +712,10 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): C
       delete claimsByUri[uri];
     }
   });
+
+  if (abandonedUris.length > 0 && state.myClaimsPageResults) {
+    myClaimsPageResults = state.myClaimsPageResults.filter((uri) => !abandonedUris.includes(uri));
+  }
 
   if (abandoningById[claimId]) {
     delete abandoningById[claimId];
@@ -733,6 +746,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: ClaimsState, action: any): C
     byId,
     claimsByUri,
     abandoningById,
+    myClaimsPageResults: myClaimsPageResults || state.myClaimsPageResults,
   });
 };
 

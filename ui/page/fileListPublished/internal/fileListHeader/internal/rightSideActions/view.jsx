@@ -1,9 +1,11 @@
 // @flow
+import type { DoFetchClaimListMine } from 'redux/actions/claims';
+
 import React from 'react';
 import { FormField, Form } from 'component/common/form';
 import { useHistory } from 'react-router';
 import { FileListContext } from 'page/fileListPublished/view';
-import * as FILE_LIST from 'constants/fileList';
+import * as FILE_LIST from 'constants/file_list';
 import * as KEYCODES from 'constants/keycodes';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
@@ -11,18 +13,13 @@ import Button from 'component/button';
 
 type Props = {
   // -- redux --
-  fetchClaimListMine: (
-    page: number,
-    pageSize: number,
-    resolve: boolean,
-    filters: Array<any>,
-    fetchViews: boolean
-  ) => void,
+  fetchClaimListMine: DoFetchClaimListMine,
 };
 
 const RightSideActions = (props: Props) => {
   const { fetchClaimListMine } = props;
-  const { searchText, setSearchText, fetching } = React.useContext(FileListContext);
+  const { searchText, setSearchText, isFilteringEnabled, setIsFilteringEnabled, fetching } =
+    React.useContext(FileListContext);
 
   const history = useHistory();
   const {
@@ -62,31 +59,42 @@ const RightSideActions = (props: Props) => {
     <div className="claim-search__wrapper--wrap">
       {/* Search Field */}
       <div className="claim-search__menu-group">
-        <Form onSubmit={() => {}} className="wunderbar--inline">
-          <Icon icon={ICONS.SEARCH} />
+        {isFilteringEnabled && (
+          <Form onSubmit={() => {}} className="wunderbar--inline">
+            <Icon icon={ICONS.SEARCH} />
+            <FormField
+              name="collection_search"
+              onFocus={onTextareaFocus}
+              onBlur={onTextareaBlur}
+              className="wunderbar__input--inline"
+              value={searchText}
+              onChange={(e) => handleSearchTextChange(e.target.value)}
+              type="text"
+              placeholder={__('Search')}
+            />
+          </Form>
+        )}
+        <div className="claim-search__menu-group enable-filters-checkbox">
           <FormField
-            name="collection_search"
-            onFocus={onTextareaFocus}
-            onBlur={onTextareaBlur}
-            className="wunderbar__input--inline"
-            value={searchText}
-            onChange={(e) => handleSearchTextChange(e.target.value)}
-            type="text"
-            placeholder={__('Search')}
+            label={__('Enable filters')}
+            name="enable_filters"
+            type="checkbox"
+            disabled={fetching}
+            checked={isFilteringEnabled}
+            onChange={() => setIsFilteringEnabled(!isFilteringEnabled)}
           />
-        </Form>
+        </div>
       </div>
       {/* Playlist Create Button */}
-      {!fetching && (
-        <Button
-          button="alt"
-          label={__('Refresh')}
-          icon={ICONS.REFRESH}
-          onClick={() => {
-            fetchClaimListMine(1, 999999, true, [], true);
-          }}
-        />
-      )}{' '}
+      <Button
+        button="alt"
+        label={__('Refresh')}
+        disabled={fetching}
+        icon={ICONS.REFRESH}
+        onClick={() => {
+          fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
+        }}
+      />{' '}
     </div>
   );
 };

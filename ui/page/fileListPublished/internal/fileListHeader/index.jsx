@@ -1,11 +1,12 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import * as FILE_LIST from 'constants/fileList';
+import * as FILE_LIST from 'constants/file_list';
+import { FileListContext } from 'page/fileListPublished/view';
 import classnames from 'classnames';
 import { FormField } from 'component/common/form';
 import { useHistory } from 'react-router';
-import RightSideActions from './internal/rightSideActions/view';
+import RightSideActions from './internal/rightSideActions/index';
 
 type Props = {
   filterType: string,
@@ -16,6 +17,8 @@ type Props = {
 
 export default function ClaimListHeader(props: Props) {
   const { filterType, sortOption, setFilterType, setSortOption } = props;
+
+  const { isFilteringEnabled } = React.useContext(FileListContext);
 
   const history = useHistory();
   const {
@@ -62,36 +65,38 @@ export default function ClaimListHeader(props: Props) {
                 />
               ))}
             </div>
-            <div className="claim-search__menu-subgroup">
-              <FormField
-                className="claim-search__dropdown"
-                type="select"
-                name="sort_by"
-                value={sortOption.key}
-                onChange={(e) => handleChange({ key: e.target.value, value: FILE_LIST.SORT_ORDER.ASC })}
-              >
-                {Object.entries(FILE_LIST.SORT_VALUES).map(([key, value]) => (
-                  <option key={key} value={key}>
-                    {/* $FlowFixMe */}
-                    {__(value.str)}
-                  </option>
-                ))}
-              </FormField>
-              <FormField
-                className="claim-search__dropdown"
-                type="select"
-                name="order_by"
-                value={sortOption.value}
-                onChange={(e) => handleChange({ key: sortOption.key, value: e.target.value })}
-              >
-                {Object.entries(FILE_LIST.SORT_ORDER).map(([key, value]) => (
-                  // $FlowFixMe
-                  <option key={value} value={value}>
-                    {__(FILE_LIST.SORT_VALUES[sortOption.key].orders[value])}
-                  </option>
-                ))}
-              </FormField>
-            </div>
+            {isFilteringEnabled && (
+              <div className="claim-search__menu-subgroup">
+                <FormField
+                  className="claim-search__dropdown"
+                  type="select"
+                  name="sort_by"
+                  value={sortOption.key}
+                  onChange={(e) => handleChange({ key: e.target.value, value: FILE_LIST.SORT_ORDER.ASC })}
+                >
+                  {Object.entries(FILE_LIST.SORT_VALUES).map(([key, value]) => (
+                    <option key={key} value={key}>
+                      {/* $FlowFixMe */}
+                      {__(value.str)}
+                    </option>
+                  ))}
+                </FormField>
+                <FormField
+                  className="claim-search__dropdown"
+                  type="select"
+                  name="order_by"
+                  value={sortOption.value}
+                  onChange={(e) => handleChange({ key: sortOption.key, value: e.target.value })}
+                >
+                  {Object.entries(FILE_LIST.SORT_ORDER).map(([key, value]) => (
+                    // $FlowFixMe
+                    <option key={value} value={value}>
+                      {__(FILE_LIST.SORT_VALUES[sortOption.key].orders[value])}
+                    </option>
+                  ))}
+                </FormField>
+              </div>
+            )}
           </div>
         </div>
 
