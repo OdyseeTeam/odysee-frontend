@@ -2934,6 +2934,7 @@
   "You will not see content under 1min long. Also hides non-video/audio content.": "You will not see content under 1min long. Also hides non-video/audio content.",
   "Hide short content": "Hide short content",
   "Larger upload list may take time to load with filters enabled": "Larger upload list may take time to load with filters enabled",
+  "Enable filters": "Enable filters",
 
   "--end--": "--end--"
 }
