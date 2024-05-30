@@ -75,6 +75,8 @@ function FileListPublished(props: Props) {
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
 
+  const [isLoadingLong, setIsLoadingLong] = React.useState(false);
+
   const sortByParam = Object.keys(FILE_LIST.SORT_VALUES).find((key) => urlParams.get(key));
   const [isFilteringEnabled, setIsFilteringEnabled] = usePersistedState('filelist-enable-filters', false);
   const [persistedOption, setPersistedOption] = usePersistedState('filelist-sort', FILE_LIST.DEFAULT_SORT);
@@ -270,6 +272,13 @@ function FileListPublished(props: Props) {
               uris={fetching ? [] : claimUrls}
               loading={fetching}
             />
+            {isLoadingLong && isFilteringEnabled && (
+              <div className="main--empty">
+                <Spinner type="small" />
+                <p>{__('Larger upload list may take time to load with filters enabled')}</p>
+              </div>
+            )}
+
             {getFetchingPlaceholders()}
             <Paginate
               totalPages={totalClaims > 0 ? Math.ceil(totalClaims / Number(pageSize)) : 1}
@@ -363,6 +372,15 @@ function FileListPublished(props: Props) {
     setPersistedOption(sortOption);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- (setPersistedOption is custom setState, can ignore)
   }, [sortOption]);
+
+  React.useEffect(() => {
+    let timeout;
+    setIsLoadingLong(false);
+    if (fetching === true) {
+      timeout = setTimeout(() => setIsLoadingLong(true), 7500);
+    }
+    return () => clearTimeout(timeout);
+  }, [fetching]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Page>

@@ -79,7 +79,6 @@ const RightSideActions = (props: Props) => {
             label={__('Enable filters')}
             name="enable_filters"
             type="checkbox"
-            disabled={fetching}
             checked={isFilteringEnabled}
             onChange={() => setIsFilteringEnabled(!isFilteringEnabled)}
           />
