@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
-import { doFetchClaimListMine } from 'redux/actions/claims';
+import { doClearClaimSearch, doFetchClaimListMine } from 'redux/actions/claims';
 import RightSideActions from './view';
 
 const perform = {
+  doClearClaimSearch,
   fetchClaimListMine: doFetchClaimListMine,
 };
 

@@ -43,11 +43,6 @@ type Props = {
   doClearClaimSearch: () => void,
 };
 
-const METHOD = {
-  CLAIM_LIST: 'CLAIM_LIST',
-  CLAIM_SEARCH: 'CLAIM_SEARCH',
-};
-
 // Avoid prop drilling
 export const FileListContext = React.createContext<any>();
 
@@ -92,8 +87,8 @@ function FileListPublished(props: Props) {
   const method =
     (filterType === FILE_LIST.FILE_TYPE.UNLISTED.key || filterType === FILE_LIST.FILE_TYPE.SCHEDULED.key) &&
     !isFilteringEnabled
-      ? METHOD.CLAIM_SEARCH
-      : METHOD.CLAIM_LIST;
+      ? FILE_LIST.METHOD.CLAIM_SEARCH
+      : FILE_LIST.METHOD.CLAIM_LIST;
 
   const params = React.useMemo(() => {
     return {
@@ -312,7 +307,7 @@ function FileListPublished(props: Props) {
   function getFetchingPlaceholders() {
     return (
       <>
-        {method === METHOD.CLAIM_LIST &&
+        {method === FILE_LIST.METHOD.CLAIM_LIST &&
           fetching &&
           new Array(Number(pageSize)).fill(1).map((x, i) => {
             return <ClaimPreview key={i} placeholder="loading" />;
@@ -329,7 +324,7 @@ function FileListPublished(props: Props) {
     if (isFilteringEnabled) {
       return;
     }
-    if (method === METHOD.CLAIM_LIST) {
+    if (method === FILE_LIST.METHOD.CLAIM_LIST) {
       fetchClaimListMine(
         params.page,
         params.page_size,
@@ -393,6 +388,7 @@ function FileListPublished(props: Props) {
             isFilteringEnabled,
             setIsFilteringEnabled,
             fetching,
+            method,
           }}
         >
           <ClaimListHeader
@@ -404,10 +400,10 @@ function FileListPublished(props: Props) {
           />
         </FileListContext.Provider>
         <AdvisoryMsg />
-        {method === METHOD.CLAIM_LIST && getClaimListResultsJsx()}
-        {method === METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
+        {method === FILE_LIST.METHOD.CLAIM_LIST && getClaimListResultsJsx()}
+        {method === FILE_LIST.METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
       </div>
-      {!(myClaims && myClaims.length) && method === METHOD.CLAIM_LIST && (
+      {!(myClaims && myClaims.length) && method === FILE_LIST.METHOD.CLAIM_LIST && (
         <React.Fragment>
           {!fetching ? (
             <section className="main--empty">

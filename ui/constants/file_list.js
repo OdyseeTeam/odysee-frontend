@@ -35,4 +35,9 @@ export const SORT_VALUES = Object.freeze({
   },
 });
 
+export const METHOD = Object.freeze({
+  CLAIM_LIST: 'CLAIM_LIST',
+  CLAIM_SEARCH: 'CLAIM_SEARCH',
+});
+
 export const DEFAULT_SORT = { key: SORT_KEYS.UPDATED_AT, value: SORT_ORDER.ASC };

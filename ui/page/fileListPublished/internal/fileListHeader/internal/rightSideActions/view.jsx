@@ -14,11 +14,12 @@ import Button from 'component/button';
 type Props = {
   // -- redux --
   fetchClaimListMine: DoFetchClaimListMine,
+  doClearClaimSearch: () => void,
 };
 
 const RightSideActions = (props: Props) => {
-  const { fetchClaimListMine } = props;
-  const { searchText, setSearchText, isFilteringEnabled, setIsFilteringEnabled, fetching } =
+  const { fetchClaimListMine, doClearClaimSearch } = props;
+  const { searchText, setSearchText, isFilteringEnabled, setIsFilteringEnabled, fetching, method } =
     React.useContext(FileListContext);
 
   const history = useHistory();
@@ -91,7 +92,11 @@ const RightSideActions = (props: Props) => {
         disabled={fetching}
         icon={ICONS.REFRESH}
         onClick={() => {
-          fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
+          if (method === FILE_LIST.METHOD.CLAIM_LIST) {
+            fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
+          } else {
+            doClearClaimSearch();
+          }
         }}
       />{' '}
     </div>
