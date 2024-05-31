@@ -186,7 +186,7 @@ function FileListPublished(props: Props) {
 
         // Only name (string) has a different return than when sorting numbers
         // $FlowFixMe
-        return comparisonObj.a.localeCompare(comparisonObj.b);
+        return comparisonObj.a.localeCompare(comparisonObj.b, undefined, { numeric: true, sensitivity: 'base' });
       }
 
       function getComparisonObj() {
