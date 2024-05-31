@@ -9,7 +9,7 @@ const HOMEPAGE_LANGUAGES = {
   ru: getLanguageEngName('ru'),
   it: getLanguageEngName('it'),
   'pt-BR': getLanguageEngName('pt-BR'),
-  in: getLanguageEngName('in'), 
+  in: getLanguageEngName('in'),
 };
 
 export function getHomepageLanguage(code) {
