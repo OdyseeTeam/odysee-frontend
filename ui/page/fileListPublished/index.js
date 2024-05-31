@@ -5,6 +5,12 @@ import {
   selectMyClaimsPageItemCount,
   selectFetchingMyClaimsPageError,
   selectMyChannelClaimIds,
+  selectMyPublicationClaims,
+  selectMyStreamClaims,
+  selectMyRepostClaims,
+  selectMyUnlistedClaims,
+  selectMyScheduledClaims,
+  selectIsAllMyClaimsFetched,
 } from 'redux/selectors/claims';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doFetchClaimListMine, doCheckPendingClaims, doClearClaimSearch } from 'redux/actions/claims';
@@ -25,6 +31,12 @@ const select = (state, props) => {
     fetching: selectIsFetchingClaimListMine(state),
     urls: selectMyClaimsPage(state),
     urlTotal: selectMyClaimsPageItemCount(state),
+    isAllMyClaimsFetched: selectIsAllMyClaimsFetched(state),
+    myClaims: selectMyPublicationClaims(state),
+    myStreamClaims: selectMyStreamClaims(state),
+    myRepostClaims: selectMyRepostClaims(state),
+    myUnlistedClaims: selectMyUnlistedClaims(state),
+    myScheduledClaims: selectMyScheduledClaims(state),
     error: selectFetchingMyClaimsPageError(state),
     uploadCount: selectUploadCount(state),
     myChannelIds: selectMyChannelClaimIds(state),

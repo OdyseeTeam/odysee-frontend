@@ -25,6 +25,7 @@ import {
   getChannelPermanentUrlFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
+import * as TAG from 'constants/tags';
 import { MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
@@ -650,7 +651,10 @@ export const selectMyClaimsPageNumber = createSelector(
 );
 
 export const selectMyClaimsPageItemCount = (state: State) => selectState(state).myClaimsPageTotalResults || 0;
+
 export const selectFetchingMyClaimsPageError = (state: State) => selectState(state).fetchingClaimListMinePageError;
+
+export const selectIsAllMyClaimsFetched = (state: State) => selectState(state).isAllMyClaimsFetched;
 
 export const selectMyClaims = createSelector(
   selectMyActiveClaims,
@@ -667,6 +671,34 @@ export const selectMyClaims = createSelector(
 
     return [...claims];
   }
+);
+
+export const selectMyPublicationClaims = createSelector(selectMyClaims, (myClaims) =>
+  myClaims.filter((claim) => claim && ['stream', 'repost'].includes(claim.value_type))
+);
+
+export const selectMyStreamClaims = createSelector(selectMyClaims, (myClaims) =>
+  myClaims.filter((claim) => claim && claim.value_type === 'stream')
+);
+
+export const selectMyRepostClaims = createSelector(selectMyClaims, (myClaims) =>
+  myClaims.filter((claim) => claim && claim.value_type === 'repost')
+);
+
+export const selectMyUnlistedClaims = createSelector(selectMyClaims, (myClaims) =>
+  // $FlowFixMe
+  myClaims.filter((claim) => claim && claim.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED))
+);
+
+export const selectMyScheduledClaims = createSelector(selectMyClaims, (myClaims) =>
+  myClaims.filter((claim) => {
+    return (
+      claim &&
+      claim.value?.release_time > Math.floor(Date.now() / 1000) &&
+      // $FlowFixMe
+      claim.value?.tags?.some((tag) => Object.values(TAG.SCHEDULED_TAGS).includes(tag))
+    );
+  })
 );
 
 export const selectMyClaimsWithoutChannels = createSelector(selectMyClaims, (myClaims) =>
