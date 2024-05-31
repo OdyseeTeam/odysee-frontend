@@ -9,7 +9,7 @@ const HOMEPAGE_LANGUAGES = {
   ru: getLanguageEngName('ru'),
   it: getLanguageEngName('it'),
   'pt-BR': getLanguageEngName('pt-BR'),
-  in: getLanguageEngName('in'),
+  hi: getLanguageEngName('hi'),
 };
 
 export function getHomepageLanguage(code) {
@@ -20,7 +20,7 @@ export function getHomepageLanguage(code) {
     case 'hi':
     case 'pa':
     case 'ur':
-      return HOMEPAGE_LANGUAGES.in; // Assuming 'hi' for these languages
+      return HOMEPAGE_LANGUAGES.hi;
     default:
       return HOMEPAGE_LANGUAGES[code] || null;
   }
