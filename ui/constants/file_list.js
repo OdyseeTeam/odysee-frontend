@@ -19,14 +19,14 @@ export const SORT_ORDER = Object.freeze({
 
 export const SORT_KEYS = Object.freeze({
   NAME: 'name',
-  CREATED_AT: 'createdAt',
+  RELEASED_AT: 'releasedAt',
   UPDATED_AT: 'updatedAt',
 });
 
 export const SORT_VALUES = Object.freeze({
   [SORT_KEYS.NAME]: { str: 'Name', orders: { [SORT_ORDER.ASC]: 'A-Z', [SORT_ORDER.DESC]: 'Z-A' } },
-  [SORT_KEYS.CREATED_AT]: {
-    str: 'Creation Time',
+  [SORT_KEYS.RELEASED_AT]: {
+    str: 'Release Time',
     orders: { [SORT_ORDER.ASC]: 'Newest First', [SORT_ORDER.DESC]: 'Oldest First' },
   },
   [SORT_KEYS.UPDATED_AT]: {

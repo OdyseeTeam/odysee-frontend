@@ -186,7 +186,7 @@ function FileListPublished(props: Props) {
       function getComparisonObj() {
         let timestampComparisonObj = {};
         switch (sortOption.key) {
-          case FILE_LIST.SORT_KEYS.CREATED_AT:
+          case FILE_LIST.SORT_KEYS.RELEASED_AT:
             firstComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimA : claimB;
             secondComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.DESC ? claimB : claimA;
 
