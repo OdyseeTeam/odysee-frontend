@@ -159,15 +159,21 @@ function FileListPublished(props: Props) {
     // First handle search
     if (searchText) {
       result = result.filter((claim) => {
+        const contentClaim = claim.reposted_claim ? claim.reposted_claim : claim;
         // $FlowFixMe
-        return claim.value?.title?.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
+        return contentClaim.value?.title?.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
       });
     }
 
     // Then the sorting selected setting
     return result.sort((claimA, claimB) => {
-      let firstComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.ASC ? claimA : claimB;
-      let secondComparisonItem = sortOption.value === FILE_LIST.SORT_ORDER.ASC ? claimB : claimA;
+      const nameComparisonClaimA = claimA.reposted_claim ? claimA.reposted_claim : claimA;
+      const nameComparisonClaimB = claimB.reposted_claim ? claimB.reposted_claim : claimB;
+
+      let firstComparisonItem =
+        sortOption.value === FILE_LIST.SORT_ORDER.ASC ? nameComparisonClaimA : nameComparisonClaimB;
+      let secondComparisonItem =
+        sortOption.value === FILE_LIST.SORT_ORDER.ASC ? nameComparisonClaimB : nameComparisonClaimA;
       const comparisonObj = {};
 
       if (sortOption.key === FILE_LIST.SORT_KEYS.NAME) {
