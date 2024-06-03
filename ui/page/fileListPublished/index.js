@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
   selectIsFetchingClaimListMine,
   selectMyClaimsPage,
@@ -28,6 +29,7 @@ const select = (state, props) => {
   return {
     page,
     pageSize,
+    activeChannel: selectActiveChannelClaim(state),
     fetching: selectIsFetchingClaimListMine(state),
     urls: selectMyClaimsPage(state),
     urlTotal: selectMyClaimsPageItemCount(state),
