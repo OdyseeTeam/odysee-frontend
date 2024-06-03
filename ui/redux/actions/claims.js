@@ -270,7 +270,8 @@ export function doFetchClaimListMine(
   pageSize: number = 99999,
   resolve: boolean = true,
   filterBy: Array<string> = [],
-  fetchViewCount: boolean = false
+  fetchViewCount: boolean = false,
+  channelIds: Array<?string> = []
 ) {
   return (dispatch: Dispatch) => {
     dispatch({
@@ -287,6 +288,7 @@ export function doFetchClaimListMine(
       page: page,
       page_size: pageSize,
       claim_type: claimTypes,
+      channel_id: channelIds,
       resolve,
     })
       .then(async (result: StreamListResponse) => {

@@ -10,6 +10,7 @@ import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import ClaimPreview from 'component/claimPreview';
 import ClaimSearchView from 'component/claimSearchView';
+import ChannelSelector from 'component/channelSelector';
 import Page from 'component/page';
 import Icon from 'component/common/icon';
 import Paginate from 'component/common/paginate';
@@ -39,7 +40,8 @@ type Props = {
   history: { replace: (string) => void, push: (string) => void },
   page: number,
   pageSize: number,
-  myChannelIds: ?Array<ClaimId>,
+  myChannelIds: Array<ClaimId>,
+  activeChannel: Claim,
   doClearClaimSearch: () => void,
 };
 
@@ -64,11 +66,14 @@ function FileListPublished(props: Props) {
     page,
     pageSize,
     myChannelIds,
+    activeChannel,
     doClearClaimSearch,
   } = props;
 
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
+
+  const [isAllSelected, setIsAllSelected] = React.useState(true);
 
   const [isLoadingLong, setIsLoadingLong] = React.useState(false);
 
@@ -83,6 +88,11 @@ function FileListPublished(props: Props) {
   const [searchText, setSearchText] = React.useState(defaultSearchTerm);
   const [sortOption, setSortOption] = React.useState(defaultSortOption);
   const [filterParamsChanged, setFilterParamsChanged] = React.useState(false);
+
+  const channelIdsClaimSearch = isAllSelected ? myChannelIds : activeChannel?.claim_id ? [activeChannel.claim_id] : [];
+  const channelIdsClaimList = React.useMemo(() => {
+    return isAllSelected ? [] : activeChannel?.claim_id ? [activeChannel.claim_id] : [];
+  }, [isAllSelected, activeChannel]);
 
   const method =
     (filterType === FILE_LIST.FILE_TYPE.UNLISTED.key || filterType === FILE_LIST.FILE_TYPE.SCHEDULED.key) &&
@@ -101,26 +111,26 @@ function FileListPublished(props: Props) {
     return {
       page_size: 20,
       any_tags: [VISIBILITY_TAGS.UNLISTED],
-      channel_ids: myChannelIds || [],
+      channel_ids: channelIdsClaimSearch,
       claim_type: ['stream'],
       has_source: true,
       order_by: ['height'],
       remove_duplicates: true,
     };
-  }, [myChannelIds]);
+  }, [channelIdsClaimSearch]);
 
   const csOptionsScheduled: ClaimSearchOptions = React.useMemo(() => {
     return {
       page_size: 20,
       any_tags: [SCHEDULED_TAGS.SHOW, SCHEDULED_TAGS.HIDE],
-      channel_ids: myChannelIds || [],
+      channel_ids: channelIdsClaimSearch,
       claim_type: ['stream'],
       has_source: true,
       order_by: ['height'],
       remove_duplicates: true,
       release_time: `>${Math.floor(Date.now() / 1000)}`,
     };
-  }, [myChannelIds]);
+  }, [channelIdsClaimSearch]);
 
   const claimsToShow = React.useMemo(() => {
     if (!isFilteringEnabled) {
@@ -155,6 +165,14 @@ function FileListPublished(props: Props) {
       return [];
     }
     let result = claimsToShow;
+
+    // Filter by channel
+    if (!isAllSelected && activeChannel) {
+      result = result.filter((claim) => {
+        // $FlowFixMe
+        return claim.signing_channel?.claim_id === activeChannel.claim_id;
+      });
+    }
 
     // First handle search
     if (searchText) {
@@ -236,7 +254,7 @@ function FileListPublished(props: Props) {
 
       return 0;
     });
-  }, [claimsToShow, searchText, sortOption, isFilteringEnabled]);
+  }, [claimsToShow, searchText, sortOption, isFilteringEnabled, isAllSelected, activeChannel]);
 
   const AdvisoryMsg = () => {
     if (filterType === FILE_LIST.FILE_TYPE.UNLISTED.key) {
@@ -340,12 +358,22 @@ function FileListPublished(props: Props) {
           // $FlowFixMe
           .find((fileType) => fileType.key === filterType)
           .cmd.split(','),
-        true
+        true,
+        channelIdsClaimList
       );
     } else {
       doClearClaimSearch();
     }
-  }, [uploadCount, params, filterType, fetchClaimListMine, method, isFilteringEnabled, doClearClaimSearch]);
+  }, [
+    uploadCount,
+    params,
+    filterType,
+    fetchClaimListMine,
+    method,
+    isFilteringEnabled,
+    channelIdsClaimList,
+    doClearClaimSearch,
+  ]);
 
   useEffect(() => {
     if (!isFilteringEnabled || isAllMyClaimsFetched) {
@@ -386,6 +414,13 @@ function FileListPublished(props: Props) {
   return (
     <Page>
       <div className="card-stack">
+        {myChannelIds?.length && myChannelIds?.length > 1 && (
+          <ChannelSelector
+            hideAnon
+            allOptionProps={{ onSelectAll: () => setIsAllSelected(true), isSelected: isAllSelected }}
+            onChannelSelect={() => setIsAllSelected(false)}
+          />
+        )}
         <WebUploadList />
         <FileListContext.Provider
           value={{
@@ -395,6 +430,9 @@ function FileListPublished(props: Props) {
             setIsFilteringEnabled,
             fetching,
             method,
+            isAllSelected,
+            params,
+            channelIdsClaimList,
           }}
         >
           <ClaimListHeader

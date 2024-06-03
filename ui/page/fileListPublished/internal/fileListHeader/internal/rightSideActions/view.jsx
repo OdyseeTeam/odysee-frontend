@@ -19,8 +19,16 @@ type Props = {
 
 const RightSideActions = (props: Props) => {
   const { fetchClaimListMine, doClearClaimSearch } = props;
-  const { searchText, setSearchText, isFilteringEnabled, setIsFilteringEnabled, fetching, method } =
-    React.useContext(FileListContext);
+  const {
+    searchText,
+    setSearchText,
+    isFilteringEnabled,
+    setIsFilteringEnabled,
+    fetching,
+    method,
+    params,
+    channelIdsClaimList,
+  } = React.useContext(FileListContext);
 
   const history = useHistory();
   const {
@@ -85,7 +93,6 @@ const RightSideActions = (props: Props) => {
           />
         </div>
       </div>
-      {/* Playlist Create Button */}
       <Button
         button="alt"
         label={__('Refresh')}
@@ -93,7 +100,14 @@ const RightSideActions = (props: Props) => {
         icon={ICONS.REFRESH}
         onClick={() => {
           if (method === FILE_LIST.METHOD.CLAIM_LIST) {
-            fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
+            fetchClaimListMine(
+              1,
+              isFilteringEnabled ? FILE_LIST.PAGE_SIZE_ALL_ITEMS : params.page_size,
+              true,
+              [],
+              true,
+              channelIdsClaimList
+            );
           } else {
             doClearClaimSearch();
           }
