@@ -41,7 +41,8 @@ const AdSticky = memo(function AdSticky(props: Props) {
   const [isHidden, setIsHidden] = useState(false);
   const [loads, setLoads] = useState(1);
   const stickyContainer = useRef<?HTMLDivElement>(null);
-  const random = Math.floor(Math.random() * 2);
+  // const random = Math.floor(Math.random() * 2);
+  const random = 1;
 
   const observer = new MutationObserver(callback);
 
