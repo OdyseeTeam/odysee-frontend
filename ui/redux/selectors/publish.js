@@ -289,5 +289,12 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
 
 export const selectIsNonPublicVisibilityAllowed = (state: State) => {
   const channel = selectPublishFormValue(state, 'channel');
-  return channel && channel !== CHANNEL_ANONYMOUS;
+
+  const fileMime = selectPublishFormValue(state, 'fileMime');
+  const type = selectPublishFormValue(state, 'type');
+  const allowedContentTypes = ['video', 'audio', 'image', 'text'];
+  const contentType = fileMime && fileMime.split('/');
+  const isAllowedContentType = contentType ? allowedContentTypes.includes(contentType[0]) : false;
+
+  return channel && channel !== CHANNEL_ANONYMOUS && (type === 'post' || isAllowedContentType);
 };
