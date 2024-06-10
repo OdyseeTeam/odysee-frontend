@@ -611,7 +611,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       ...(liveCreateType ? { liveCreateType } : {}),
       ...(liveEditType ? { liveEditType } : {}),
       claim_id: claim.claim_id,
-      fileMime: claim?.value?.source?.media_type,
       name,
       bid: Number(amount),
       author,
