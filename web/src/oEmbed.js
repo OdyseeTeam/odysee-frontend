@@ -15,16 +15,25 @@ Lbry.setDaemonConnectionString(PROXY_URL);
 // Fetch claim info
 // ****************************************************************************
 
-async function getClaim(requestUrl) {
-  const uri = requestUrl.replace(`${URL}/`, 'lbry://');
-
+async function getClaim(requestUrl, claimId) {
   let claim, error;
-  try {
-    const response = await Lbry.resolve({ urls: [uri] });
-    if (response && response[uri] && !response[uri].error) {
-      claim = response[uri];
-    }
-  } catch {}
+
+  if (claimId) {
+    try {
+      const response = await Lbry.claim_search({ claim_ids: [claimId] });
+      if (response && response.items?.at(0) && !response.error) {
+        claim = response.items[0];
+      }
+    } catch {}
+  } else if (requestUrl) {
+    const uri = requestUrl.replace(`${URL}/`, 'lbry://');
+    try {
+      const response = await Lbry.resolve({ urls: [uri] });
+      if (response && response[uri] && !response[uri].error) {
+        claim = response[uri];
+      }
+    } catch {}
+  }
 
   if (!claim) {
     error = 'The URL is invalid or is not associated with any claim.';
@@ -123,7 +132,13 @@ async function getOEmbed(ctx) {
   const hasUrlParams = RegExp(paramsRegex).test(decodedQueryUri);
   const claimUrl = hasUrlParams ? decodedQueryUri.substring(0, decodedQueryUri.search(paramsRegex)) : decodedQueryUri;
 
-  const { claim, error } = await getClaim(claimUrl);
+  let claimId;
+  const isPlaylist = decodedQueryUri.search('\\$/playlist') > 0;
+  if (isPlaylist) {
+    claimId = decodedQueryUri.match(/[0-9a-f]{40}/)?.at(0);
+  }
+
+  const { claim, error } = await getClaim(claimUrl, claimId);
 
   if (error) return error;
 
