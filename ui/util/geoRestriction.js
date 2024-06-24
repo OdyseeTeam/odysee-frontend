@@ -38,6 +38,7 @@ export function getGeoRestrictionForClaim(claim: ?StreamClaim, locale: LocaleInf
 
       return (
         specials.find((x: GeoRestriction) => (x.id === 'EU-ONLY' || x.id === 'EU-GOOGLE') && locale.is_eu_member) ||
+        specials.find((x: GeoRestriction) => window.cordova && window.odysee.build.googlePlay && x.id === 'GOOGLE') ||
         countries.find((x: GeoRestriction) => x.id === locale.country) ||
         continents.find((x: GeoRestriction) => x.id === locale.continent) ||
         null

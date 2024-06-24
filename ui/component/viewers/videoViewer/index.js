@@ -6,11 +6,13 @@ import {
   selectPurchaseMadeForClaimId,
   selectRentalTagForUri,
   selectProtectedContentTagForUri,
+  makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { selectNextUriForUriInPlayingCollectionForId } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
+import * as TAGS from 'constants/tags';
 import {
   doChangeVolume,
   doChangeMute,
@@ -89,6 +91,7 @@ const select = (state, props) => {
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    isDownloadDisabled: makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     recomendedContent: selectRecommendedContentForUri(state, props.uri),
   };
 };

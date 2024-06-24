@@ -1,5 +1,7 @@
 // @flow
 import { SEARCH_OPTIONS } from 'constants/search';
+import * as SETTINGS from 'constants/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
@@ -42,6 +44,33 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
   const { isBackgroundSearch } = options;
   const includeUserOptions = typeof isBackgroundSearch === 'undefined' ? false : !isBackgroundSearch;
 
+  let isCustomDurationSet = false;
+  let isDurationFilterSupported = false;
+
+  function checkQuerySupportsDurationFilter() {
+    let hasMediaTypeParam = false;
+    let hasClaimTypeParam = false;
+    let mediaTypeHasDuration = false;
+    let claimTypeHasDuration = false;
+    for (const param of queryParams) {
+      if (param.includes('mediaType')) {
+        hasMediaTypeParam = true;
+        const mediaTypesWithDurations = [SEARCH_OPTIONS.MEDIA_VIDEO, SEARCH_OPTIONS.MEDIA_AUDIO];
+        if (mediaTypesWithDurations.some((mediaType) => param.includes(mediaType))) {
+          mediaTypeHasDuration = true;
+        }
+      }
+      if (param.includes('claimType')) {
+        hasClaimTypeParam = true;
+        if (param.includes(SEARCH_OPTIONS.INCLUDE_FILES)) {
+          claimTypeHasDuration = true;
+        }
+      }
+    }
+
+    return (!hasMediaTypeParam || mediaTypeHasDuration) && (!hasClaimTypeParam || claimTypeHasDuration);
+  }
+
   if (includeUserOptions) {
     const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
     if (claimType) {
@@ -54,7 +83,6 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
       if (!claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS)) {
         queryParams.push(
           `mediaType=${[
-            SEARCH_OPTIONS.MEDIA_FILE,
             SEARCH_OPTIONS.MEDIA_AUDIO,
             SEARCH_OPTIONS.MEDIA_VIDEO,
             SEARCH_OPTIONS.MEDIA_TEXT,
@@ -65,6 +93,8 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
       }
     }
 
+    isDurationFilterSupported = checkQuerySupportsDurationFilter();
+
     const sortBy = options[SEARCH_OPTIONS.SORT];
     if (sortBy) {
       queryParams.push(`${SEARCH_OPTIONS.SORT}=${sortBy}`);
@@ -73,6 +103,20 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     const timeFilter = options[SEARCH_OPTIONS.TIME_FILTER];
     if (timeFilter) {
       queryParams.push(`${SEARCH_OPTIONS.TIME_FILTER}=${timeFilter}`);
+    }
+
+    const minDuration = options[SEARCH_OPTIONS.MIN_DURATION];
+    if (isDurationFilterSupported && minDuration && minDuration > 0) {
+      const minSeconds = minDuration * 60;
+      queryParams.push(`${SEARCH_OPTIONS.MIN_DURATION}=${minSeconds}`);
+      isCustomDurationSet = true;
+    }
+
+    const maxDuration = options[SEARCH_OPTIONS.MAX_DURATION];
+    if (isDurationFilterSupported && maxDuration && maxDuration > 0) {
+      const maxSeconds = maxDuration * 60;
+      queryParams.push(`${SEARCH_OPTIONS.MAX_DURATION}=${maxSeconds}`);
+      isCustomDurationSet = true;
     }
   }
 
@@ -98,6 +142,17 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
 
   if (language) {
     additionalOptions[SEARCH_OPTIONS.LANGUAGE] = language;
+  }
+
+  const { store } = window;
+  let hideShorts = false;
+  if (store) {
+    const state = store.getState();
+    hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+  }
+
+  if (hideShorts && isDurationFilterSupported && !isCustomDurationSet) {
+    additionalOptions[SEARCH_OPTIONS.MIN_DURATION] = SETTINGS.SHORTS_DURATION_LIMIT;
   }
 
   if (additionalOptions) {

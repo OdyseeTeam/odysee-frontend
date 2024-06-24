@@ -1,6 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
+import * as FILE_LIST from 'constants/file_list';
 import { Lbryio, doFetchViewCount } from 'lbryinc';
 import Lbry from 'lbry';
 import { normalizeURI } from 'util/lbryURI';
@@ -269,7 +270,8 @@ export function doFetchClaimListMine(
   pageSize: number = 99999,
   resolve: boolean = true,
   filterBy: Array<string> = [],
-  fetchViewCount: boolean = false
+  fetchViewCount: boolean = false,
+  channelIds: Array<?string> = []
 ) {
   return (dispatch: Dispatch) => {
     dispatch({
@@ -286,6 +288,7 @@ export function doFetchClaimListMine(
       page: page,
       page_size: pageSize,
       claim_type: claimTypes,
+      channel_id: channelIds,
       resolve,
     })
       .then(async (result: StreamListResponse) => {
@@ -294,7 +297,8 @@ export function doFetchClaimListMine(
           data: {
             result,
             resolve,
-            setNewPageItems: true,
+            setNewPageItems: pageSize !== FILE_LIST.PAGE_SIZE_ALL_ITEMS,
+            isAllMyClaimsFetched: pageSize === FILE_LIST.PAGE_SIZE_ALL_ITEMS,
           },
         });
 

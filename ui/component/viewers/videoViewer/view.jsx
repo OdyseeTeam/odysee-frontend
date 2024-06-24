@@ -90,6 +90,7 @@ type Props = {
   isRentableContent: boolean,
   purchaseMadeForClaimId: boolean,
   isProtectedContent: boolean,
+  isDownloadDisabled: boolean,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
   doSetVideoSourceLoaded: (uri: string) => void,
 };
@@ -147,6 +148,7 @@ function VideoViewer(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    isDownloadDisabled,
     doSetShowAutoplayCountdownForUri,
     doSetVideoSourceLoaded,
   } = props;
@@ -628,6 +630,7 @@ function VideoViewer(props: Props) {
           isPurchasableContent={isPurchasableContent}
           isRentableContent={isRentableContent}
           isProtectedContent={isProtectedContent}
+          isDownloadDisabled={isDownloadDisabled}
           isUnlisted={isClaimUnlisted(claim)}
           doSetVideoSourceLoaded={doSetVideoSourceLoaded}
         />

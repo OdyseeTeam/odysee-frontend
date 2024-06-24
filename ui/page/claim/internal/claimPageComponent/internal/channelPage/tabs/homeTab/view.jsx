@@ -48,7 +48,7 @@ function HomeTab(props: Props) {
   const topContentGridIndex = 1;
 
   React.useEffect(() => {
-    if (settingsByChannelId && Object.keys(settingsByChannelId).length) {
+    if (settingsByChannelId && Object.keys(settingsByChannelId).includes(claim.claim_id)) {
       if (homepage_settings) {
         setHome(homepage_settings);
       } else {
@@ -56,7 +56,7 @@ function HomeTab(props: Props) {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [homepage_settings]);
+  }, [homepage_settings, settingsByChannelId]);
 
   function handleEditCollection(e, index) {
     let newHome = [...home];

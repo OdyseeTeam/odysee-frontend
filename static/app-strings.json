@@ -2931,6 +2931,10 @@
   "Channels:": "Channels",
   "Larger comment histories may take time to load": "Larger comment histories may take time to load",
   "Disable Tipping and Boosting": "Disable Tipping and Boosting",
+  "You will not see content under 1min long. Also hides non-video/audio content.": "You will not see content under 1min long. Also hides non-video/audio content.",
+  "Hide short content": "Hide short content",
+  "Larger upload list may take time to load with filters enabled": "Larger upload list may take time to load with filters enabled",
+  "Enable filters": "Enable filters",
 
   "--end--": "--end--"
 }

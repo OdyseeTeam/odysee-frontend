@@ -2,11 +2,14 @@
 import { SEARCH_OPTIONS, SEARCH_PAGE_SIZE } from 'constants/search';
 import * as ICONS from 'constants/icons';
 import React, { useMemo } from 'react';
+import { useHistory } from 'react-router';
 import { Form, FormField } from 'component/common/form';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import classnames from 'classnames';
 import LangFilterIndicator from 'component/langFilterIndicator';
+import usePersistedState from 'effects/use-persisted-state';
+import debounce from 'util/debounce';
 
 const CLAIM_TYPES = {
   [SEARCH_OPTIONS.INCLUDE_FILES]: 'Files',
@@ -50,6 +53,7 @@ type Props = {
 const SearchOptions = (props: Props) => {
   const { options, simple, setSearchOption, expanded, searchInLanguage, toggleSearchExpanded, onSearchOptionsChanged } =
     props;
+  const { location } = useHistory();
 
   const stringifiedOptions = JSON.stringify(options);
 
@@ -58,6 +62,17 @@ const SearchOptions = (props: Props) => {
     const claimType = String(jsonOptions[SEARCH_OPTIONS.CLAIM_TYPE] || '');
     return claimType.includes(SEARCH_OPTIONS.INCLUDE_CHANNELS);
   }, [stringifiedOptions]);
+
+  const [minDurationMinutes, setMinDurationMinutes] = usePersistedState(`minDurUserMinutes-${location.pathname}`, null);
+  const [maxDurationMinutes, setMaxDurationMinutes] = usePersistedState(`maxDurUserMinutes-${location.pathname}`, null);
+  const setMinDurationMinutesDebounced = React.useCallback(
+    debounce((m) => updateSearchOptions(SEARCH_OPTIONS.MIN_DURATION, m), 750),
+    []
+  );
+  const setMaxDurationMinutesDebounced = React.useCallback(
+    debounce((m) => updateSearchOptions(SEARCH_OPTIONS.MAX_DURATION, m), 750),
+    []
+  );
 
   if (simple) {
     delete TYPES_ADVANCED[SEARCH_OPTIONS.MEDIA_APPLICATION];
@@ -215,6 +230,48 @@ const SearchOptions = (props: Props) => {
     </div>
   );
 
+  const durationElem = (
+    <div className="filter-values">
+      <div className="claim-search__duration-inputs-container">
+        <FormField
+          label={__('Min Minutes')}
+          type="number"
+          name="min_duration__minutes"
+          blockWrap={false}
+          value={minDurationMinutes}
+          onChange={(e) => {
+            setMinDurationMinutes(e.target.value);
+            setMinDurationMinutesDebounced(e.target.value);
+          }}
+        />
+        <FormField
+          label={__('Max Minutes')}
+          type="number"
+          name="max_duration__minutes"
+          blockWrap={false}
+          value={maxDurationMinutes}
+          onChange={(e) => {
+            setMaxDurationMinutes(e.target.value);
+            setMaxDurationMinutesDebounced(e.target.value);
+          }}
+        />
+        <Button
+          button="close"
+          className={classnames('close-button', {
+            'close-button--visible': minDurationMinutes || maxDurationMinutes,
+          })}
+          icon={ICONS.REMOVE}
+          onClick={() => {
+            setMinDurationMinutes('');
+            setMaxDurationMinutes('');
+            updateSearchOptions(SEARCH_OPTIONS.MIN_DURATION, '');
+            updateSearchOptions(SEARCH_OPTIONS.MAX_DURATION, '');
+          }}
+        />
+      </div>
+    </div>
+  );
+
   const uploadDateLabel =
     options[SEARCH_OPTIONS.CLAIM_TYPE] === SEARCH_OPTIONS.INCLUDE_CHANNELS ? __('Creation Date') : __('Upload Date');
 
@@ -240,6 +297,7 @@ const SearchOptions = (props: Props) => {
             {addRow(__('Type'), typeElem)}
             {addRow(uploadDateLabel, uploadDateElem)}
             {addRow(__('Sort By'), sortByElem)}
+            {addRow(__('Duration'), durationElem)}
             {addRow(__('Other Options'), otherOptionsElem)}
           </tbody>
         </table>

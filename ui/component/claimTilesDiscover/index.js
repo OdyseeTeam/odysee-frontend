@@ -118,6 +118,7 @@ function resolveSearchOptions(props) {
     order_by: resolveOrderByOption(orderBy),
     stream_types: streamTypesParam,
     remove_duplicates: true,
+    duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL),
   };
 
   function resolveOrderByOption(orderBy: string | Array<string>) {

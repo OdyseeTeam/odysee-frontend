@@ -19,6 +19,7 @@ import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import { selectFeaturedChannelsForChannelId } from 'redux/selectors/comments';
 import { CsOptHelper } from 'util/claim-search';
 import HomeTabSection from './view';
+import * as CS from 'constants/claim_search';
 
 const select = (state, props) => {
   const hasPremiumPlus = selectUserHasOdyseePremiumPlus(state);
@@ -45,6 +46,7 @@ const select = (state, props) => {
     no_totals: true,
     index: props.index,
     has_source: true,
+    duration: CsOptHelper.duration(null, claimType, CS.DURATION.ALL),
   };
   const searchKey = createNormalizedClaimSearchKey(options);
 

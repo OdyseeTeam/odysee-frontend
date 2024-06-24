@@ -34,6 +34,7 @@ const select = (state, props) => {
     claim,
     showMature: selectShowMatureContent(state),
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
+    hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     adBlockerFound: selectAdBlockerFound(state),
     // hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),

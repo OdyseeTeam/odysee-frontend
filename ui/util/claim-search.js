@@ -2,7 +2,9 @@
 import type { Duration } from 'constants/claim_search';
 
 import * as CS from 'constants/claim_search';
+import * as SETTINGS from 'constants/settings';
 import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
+import { selectClientSetting } from 'redux/selectors/settings';
 
 /**
  * Common logic to generate ClaimSearch option payload.
@@ -26,6 +28,7 @@ export const CsOptHelper = {
    * duration
    *
    * @param contentType
+   * @param claimTypes
    * @param duration Duration type
    * @param durationVal Only applicable is 'duration === all';
    * @param minMinutes Only for 'duration === custom'
@@ -34,16 +37,20 @@ export const CsOptHelper = {
    */
   duration: (
     contentType: ?string,
+    claimTypes: ?any,
     duration: Duration,
     durationVal?: string,
     minMinutes?: number,
     maxMinutes?: number
   ) => {
+    const claimTypesWithDurations = [CS.CLAIM_STREAM, CS.CLAIM_REPOST];
+    const claimTypesArray = Array.isArray(claimTypes) ? claimTypes : [claimTypes];
     if (
-      contentType !== CS.FILE_VIDEO &&
-      contentType !== CS.FILE_AUDIO &&
-      contentType !== null && // Any
-      contentType !== undefined // Any
+      (contentType !== CS.FILE_VIDEO &&
+        contentType !== CS.FILE_AUDIO &&
+        contentType !== null && // Any
+        contentType !== undefined) || // Any
+      (claimTypesArray[0] && !claimTypesArray.some((claimType) => claimTypesWithDurations.includes(claimType)))
     ) {
       return undefined;
     }
@@ -52,7 +59,13 @@ export const CsOptHelper = {
 
     switch (duration) {
       case CS.DURATION.ALL:
-        x = durationVal || undefined;
+        const { store } = window;
+        let hideShorts;
+        if (store) {
+          const state = store.getState();
+          hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+        }
+        x = durationVal || (hideShorts && `>=${SETTINGS.SHORTS_DURATION_LIMIT}`) || undefined;
         break;
       case CS.DURATION.SHORT:
         x = '<=240';

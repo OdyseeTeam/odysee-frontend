@@ -124,7 +124,7 @@ declare type ClaimSearchOptions = {|
   media_types?: Array<string>, // filter by 'video/mp4', 'image/png', etc
   fee_currency?: string, // specify fee currency: LBC, BTC, USD
   fee_amount?: number | string, // content download fee (supports equality constraints)
-  duration?: number | string | Array<string>, // duration of video or audio in seconds (supports equality constraints)
+  duration?: ?number | string | Array<string>, // duration of video or audio in seconds (supports equality constraints)
   any_tags?: Array<string>, // find claims containing any of the tags
   all_tags?: Array<string>, // find claims containing every tag
   not_tags?: Array<string>, // find claims not containing any of these tags

@@ -319,19 +319,37 @@ function buildCategoryPageHead(html, requestPath, categoryMeta) {
   return insertToHead(html, categoryPageMetadata);
 }
 
-async function resolveClaimOrRedirect(ctx, url, ignoreRedirect = false) {
+async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false) {
   let claim;
-  try {
-    const response = await Lbry.resolve({ urls: [url] });
-    if (response && response[url] && !response[url].error) {
-      claim = response && response[url];
-      const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
-      if (isRepost && !ignoreRedirect) {
-        ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
-        return;
+
+  const isClaimId = Boolean(urlOrClaimId?.match(/^[a-f0-9]{40}$/));
+  if (isClaimId) {
+    try {
+      const claimId = urlOrClaimId;
+      const response = await Lbry.claim_search({ claim_ids: [claimId] });
+      if (response && response.items?.at(0) && !response.error) {
+        claim = response.items[0];
+        const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
+        if (isRepost && !ignoreRedirect) {
+          ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
+          return;
+        }
       }
-    }
-  } catch {}
+    } catch {}
+  } else {
+    try {
+      const url = urlOrClaimId;
+      const response = await Lbry.resolve({ urls: [url] });
+      if (response && response[url] && !response[url].error) {
+        claim = response && response[url];
+        const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
+        if (isRepost && !ignoreRedirect) {
+          ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
+          return;
+        }
+      }
+    } catch {}
+  }
   return claim;
 }
 
@@ -361,6 +379,7 @@ async function getHtml(ctx) {
 
   const invitePath = `/$/${PAGES.INVITE}/`;
   const embedPath = `/$/${PAGES.EMBED}/`;
+  const playlistPath = `/$/${PAGES.PLAYLIST}/`;
 
   if (requestPath.includes(invitePath)) {
     try {
@@ -395,6 +414,20 @@ async function getHtml(ctx) {
       });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+    }
+
+    return insertToHead(html);
+  }
+
+  if (requestPath.includes(playlistPath)) {
+    const claimId = requestPath.match(/[a-f0-9]{40}/)?.at(0);
+    const claim = await resolveClaimOrRedirect(ctx, claimId, true);
+
+    if (claim) {
+      const ogMetadata = await buildClaimOgMetadata(claim.canonical_url, claim, {
+        userAgent: userAgent,
+      });
+      return insertToHead(html, ogMetadata);
     }
 
     return insertToHead(html);
