@@ -25,6 +25,7 @@ export const selectState = (state: State): SearchState => state.search;
 // $FlowFixMe - 'searchQuery' is never populated. Something lost in a merge?
 export const selectSearchValue: (state: State) => string = (state) => selectState(state).searchQuery;
 export const selectSearchOptions: (state: State) => SearchOptions = (state) => selectState(state).options;
+
 export const selectIsSearching: (state: State) => boolean = (state) => selectState(state).searching;
 export const selectSearchResultByQuery = (state: State) => selectState(state).resultsByQuery;
 export const selectHasReachedMaxResultsLength: (state: State) => { [boolean]: Array<boolean> } = (state) =>

@@ -85,6 +85,7 @@ const SearchOptions = (props: Props) => {
     if (options[SEARCH_OPTIONS.RESULT_COUNT] !== SEARCH_PAGE_SIZE) {
       setSearchOption(SEARCH_OPTIONS.RESULT_COUNT, SEARCH_PAGE_SIZE);
     }
+    options[SEARCH_OPTIONS.SORT] = '';
     // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
 
