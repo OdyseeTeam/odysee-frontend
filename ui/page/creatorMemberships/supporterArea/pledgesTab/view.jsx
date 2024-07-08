@@ -115,7 +115,13 @@ function PledgesTab(props: Props) {
                         ${supportAmount / 100} {currency} / {__(toCapitalCase(interval))}
                       </td>
 
-                      <td>{membership.Subscription.status === 'active' ? __('Active') : __('Cancelled')}</td>
+                      <td>
+                        {membership.Subscription.status === 'active'
+                          ? __('Active')
+                          : membership.Subscription.status === 'past_due'
+                          ? __('Past Due')
+                          : __('Cancelled')}
+                      </td>
 
                       <td>
                         <span dir="auto" className="button__label">
