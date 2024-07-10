@@ -16,7 +16,7 @@ const DE_CHANNELS =
   'lbry://@OdyseeHilfe#14dd52c6105698159df73eb1fac89da477f895ea';
 
 const FR_CHANNELS =
-  'lbry://@odysee.fr#883deeade902dbeca578df127dae46bc2d80ad642';
+  'lbry://@odysee.fr#83deeade902dbeca578df127dae46bc2d80ad642';
 
 export const COMMUNITY_CHANNELS = Object.freeze({
   en: AUTO_FOLLOW_CHANNELS,
