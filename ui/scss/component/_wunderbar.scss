@@ -32,6 +32,7 @@
     // margin-right: var(--spacing-l);
     margin-top: 5px;
     margin-right: 64px;
+    padding-right: var(--spacing-l);
 
     &:focus {
       box-shadow: none;
@@ -98,7 +99,7 @@
   background-color: var(--color-header-button);
   color: var(--color-input);
   border: none;
-  padding-right: var(--spacing-s);
+  padding-right: var(--spacing-l);
   padding-left: 2.2rem;
   -webkit-app-region: no-drag;
   border: 1px solid rgba(0, 0, 0, 0);
@@ -421,7 +422,11 @@
 .wunderbar__clear {
   background: unset !important;
   position: absolute;
-  right: var(--spacing-xs);
+  right: var(--spacing-s);
+  @media (max-width: $breakpoint-small) {
+    right: 75px;
+    top: 3px;
+  }
   padding: 0;
   .icon {
     transform: rotate(0deg);
