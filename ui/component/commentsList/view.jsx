@@ -454,15 +454,30 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
           >
             {readyToDisplayComments && (
               <>
+                {threadComment && (
+                  <CommentView
+                    key={threadComment.comment_id}
+                    comment={threadComment}
+                    disabled={notAuthedToChat}
+                    {...commentProps}
+                  />
+                )}
                 {pinnedComments &&
-                  !threadCommentId &&
-                  pinnedComments.map((c) => (
-                    <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
-                  ))}
+                  pinnedComments.map((c) => {
+                    if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
+                      // Skip if part of the linked comment thread - thread is shown at the top
+                      return;
+                    }
+                    return <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />;
+                  })}
 
-                {topLevelComments.map((c) => (
-                  <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />
-                ))}
+                {topLevelComments.map((c) => {
+                  if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
+                    // Skip if part of the linked comment thread - thread is shown at the top
+                    return;
+                  }
+                  return <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />;
+                })}
               </>
             )}
           </ul>
