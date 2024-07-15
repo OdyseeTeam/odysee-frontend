@@ -163,13 +163,13 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
           const extraBytes = parseInt(scriptSizeError.at(1).toString()) - maxSize;
           const itemsToDelete = Math.ceil(extraBytes / itemSizeInTx);
 
-          customMessage = __('Playlist exceeds size limits.')
-          + ' '
-          + (itemsToDelete > 1
+          customMessage = __('Playlist exceeds size limits.') +
+          ' ' +
+          (itemsToDelete > 1
             ? __('Please remove %itemsToDelete% items', {itemsToDelete})
-            : __('Please remove 1 item'))
-          + " "
-          + (extraBytes > 1
+            : __('Please remove 1 item')) +
+          ' ' +
+          (extraBytes > 1
             ? __('or %extraBytes% characters of text.', {extraBytes})
             : __('or 1 character of text.'));
         }
