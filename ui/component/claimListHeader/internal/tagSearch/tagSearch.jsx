@@ -48,16 +48,18 @@ function TagSearch(props: Props) {
           }}
         />
         <Icon icon={ICONS.TAG} />
-        <Button
-          icon={ICONS.REMOVE}
-          aria-label={__('Clear')}
-          button="alt"
-          className="clh-tag-search__clear"
-          onClick={() => {
-            setTagSearchQuery('');
-            handleChange({ key: CS.TAGS_KEY, value: '' });
-          }}
-        />
+        {tagSearchQuery && (
+          <Button
+            icon={ICONS.REMOVE}
+            aria-label={__('Clear')}
+            button="alt"
+            className="clh-tag-search__clear"
+            onClick={() => {
+              setTagSearchQuery('');
+              handleChange({ key: CS.TAGS_KEY, value: '' });
+            }}
+          />
+        )}
       </div>
     </div>
   );

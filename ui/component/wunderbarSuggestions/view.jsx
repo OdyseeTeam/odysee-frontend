@@ -372,6 +372,17 @@ export default function WunderBarSuggestions(props: Props) {
             onChange={(e) => setTerm(e.target.value)}
             value={term}
           />
+          {term && (
+            <Button
+              icon={ICONS.REMOVE}
+              aria-label={__('Clear')}
+              button="alt"
+              className="wunderbar__clear"
+              onClick={() => {
+                setTerm('');
+              }}
+            />
+          )}
 
           {isFocused && (
             <ComboboxPopover
