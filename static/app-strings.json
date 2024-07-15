@@ -2936,6 +2936,11 @@
   "Larger upload list may take time to load with filters enabled": "Larger upload list may take time to load with filters enabled",
   "Enable filters": "Enable filters",
   "Past Due": "Past Due",
+  "Playlist exceeds size limits.": "Playlist exceeds size limits.",
+  "Please remove %itemsToDelete% items": "Please remove %itemsToDelete% items",
+  "Please remove 1 item": "Please remove 1 item",
+  "or %extraBytes% characters of text.": "or %extraBytes% characters of text.",
+  "or 1 character of text.": "or 1 character of text.",
 
   "--end--": "--end--"
 }

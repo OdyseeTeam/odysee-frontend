@@ -154,7 +154,26 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
 
       function failure(error) {
         if (cb) cb();
-        dispatch(doToast({ message: error.message, isError: true }));
+
+        const scriptSizeError = error.message.match(/script size ([0-9]+) exceeds limit 8192/);
+        let customMessage = null;
+        if (scriptSizeError) {
+          const maxSize = 8192;
+          const itemSizeInTx = 24;
+          const extraBytes = parseInt(scriptSizeError.at(1).toString()) - maxSize;
+          const itemsToDelete = Math.ceil(extraBytes / itemSizeInTx);
+
+          customMessage = __('Playlist exceeds size limits.') +
+          ' ' +
+          (itemsToDelete > 1
+            ? __('Please remove %itemsToDelete% items', {itemsToDelete})
+            : __('Please remove 1 item')) +
+          ' ' +
+          (extraBytes > 1
+            ? __('or %extraBytes% characters of text.', {extraBytes})
+            : __('or 1 character of text.'));
+        }
+        dispatch(doToast({ message: customMessage || error.message, isError: true }));
         reject(error);
         throw new Error(error);
       }
