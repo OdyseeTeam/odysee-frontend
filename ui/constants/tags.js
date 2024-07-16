@@ -29,6 +29,8 @@ export const DISABLE_SLIMES_ALL_TAG = 'c:disable-slimes-all';
 export const DISABLE_SLIMES_VIDEO_TAG = 'c:disable-slimes-video';
 export const DISABLE_SLIMES_COMMENTS_TAG = 'c:disable-slimes-comments';
 
+export const NSFW_CONTENT_TAG = 'c:nsfw';
+
 export const PURCHASE_TAG = 'c:purchase';
 export const RENTAL_TAG = 'c:rental';
 export const PURCHASE_TAG_OLD = 'purchase:';
@@ -51,6 +53,7 @@ export const SCHEDULED_TAGS = Object.freeze({
 
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [
+  NSFW_CONTENT_TAG,
   DISABLE_SUPPORT_TAG,
   DISABLE_COMMENTS_TAG,
   DISABLE_DOWNLOAD_BUTTON_TAG,

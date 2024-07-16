@@ -19,6 +19,7 @@ import {
   DISABLE_REACTIONS_COMMENTS_TAG,
   DISABLE_SLIMES_VIDEO_TAG,
   DISABLE_SLIMES_COMMENTS_TAG,
+  AGE_RESTRICED_CONTENT_TAG,
 } from 'constants/tags';
 import { removeInternalTags } from 'util/tags';
 
@@ -131,6 +132,8 @@ export default function TagsSearch(props: Props) {
       label = __('Disable Dislikes - Content');
     } else if (t === DISABLE_SLIMES_COMMENTS_TAG) {
       label = __('Disable Dislikes - Comments');
+    } else if (t === AGE_RESTRICED_CONTENT_TAG) {
+      label = __('Mark content as NSFW');
     } else {
       label = __(
         t

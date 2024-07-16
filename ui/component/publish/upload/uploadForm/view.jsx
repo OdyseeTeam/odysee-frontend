@@ -9,7 +9,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, SIMPLE_SITE } from 'config';
+import { SITE_NAME } from 'config';
 import React, { useEffect, useState } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
@@ -459,14 +459,13 @@ function UploadForm(props: Props) {
             body={
               <div className="publish-row">
                 <TagsSelect
-                  suggestMature={!SIMPLE_SITE}
                   disableAutoFocus
                   hideHeader
                   label={__('Selected Tags')}
                   empty={__('No tags added')}
                   limitSelect={TAGS_LIMIT}
                   help={__(
-                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily."
                   )}
                   placeholder={__('gaming, crypto')}
                   onSelect={(newTags) => {

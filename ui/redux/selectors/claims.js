@@ -56,6 +56,10 @@ export const selectResolvedCollectionsById = (state: State) => selectState(state
 export const selectMyCollectionClaimIds = (state: State) => selectState(state).myCollectionClaimIds;
 export const selectHasPublicationClaims = (state: State) => selectState(state).hasPublicationClaims;
 
+export const selectIsNsfwAknowledgedForClaimId = (state: State, claimId: string) => {
+  return Boolean(selectState(state).nsfwAknowledgedById[claimId]);
+};
+
 export const selectMyCollectionClaimsById = createSelector(
   selectResolvedCollectionsById,
   selectMyCollectionClaimIds,
