@@ -111,6 +111,8 @@ export default function TagsSearch(props: Props) {
     let label;
     if (t === 'disable-support') {
       label = __('Disable Tipping and Boosting');
+    } else if (t === 'c:nsfw') {
+      label = __('Mark content as NSFW');
     } else {
       label = __(
         t
