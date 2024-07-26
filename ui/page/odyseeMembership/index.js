@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import { doMembershipList } from 'redux/actions/memberships';
 import {
   selectMembershipMineFetched,
+  selectMembershipMineFetching,
   selectMyActiveMembershipsForCreatorId,
   selectMyValidMembershipsForCreatorId,
   selectMyPurchasedMembershipsForChannelClaimId,
@@ -14,6 +15,7 @@ import OdyseeMembership from './view';
 
 const select = (state) => ({
   mineFetched: selectMembershipMineFetched(state),
+  mineFetching: selectMembershipMineFetching(state),
   validMemberships: selectMyValidMembershipsForCreatorId(state, ODYSEE_CHANNEL.ID),
   activeMemberships: selectMyActiveMembershipsForCreatorId(state, ODYSEE_CHANNEL.ID),
   purchasedMemberships: selectMyPurchasedMembershipsForChannelClaimId(state, ODYSEE_CHANNEL.ID),

@@ -17,6 +17,7 @@ import './style.scss';
 type Props = {
   // -- redux --
   mineFetched: boolean,
+  mineFetching: boolean,
   validMemberships: ?MembershipTiers,
   activeMemberships: ?MembershipTiers,
   purchasedMemberships: ?MembershipTiers,
@@ -29,6 +30,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const {
     // -- redux --
     mineFetched,
+    mineFetching,
     validMemberships,
     activeMemberships,
     purchasedMemberships,
@@ -45,7 +47,7 @@ const OdyseeMembershipPage = (props: Props) => {
   }, [doMembershipList]);
 
   // we are still waiting from the backend if any of these are undefined
-  const stillWaitingFromBackend = membershipOptions === undefined || !mineFetched;
+  const stillWaitingFromBackend = (membershipOptions === undefined || !mineFetched) && mineFetching;
 
   const urlSearchParams = new URLSearchParams(window.location.search);
   const interval = urlSearchParams.get('interval') || undefined;
@@ -78,6 +80,16 @@ const OdyseeMembershipPage = (props: Props) => {
         <div className="card-stack">
           <div className="main--empty">
             <Spinner />
+          </div>
+        </div>
+      </Page>
+    );
+  } else if (!mineFetched) {
+    return (
+      <Page className="premium-wrapper">
+        <div className="card-stack">
+          <div className="main--empty">
+            <p>Failed to fetch memberships</p>
           </div>
         </div>
       </Page>
