@@ -3,7 +3,7 @@ import analytics from 'analytics';
 import { doUpdateBalance, doSpendEverything, doSendCreditsToOdysee } from 'redux/actions/wallet';
 import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
-import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
+import { selectMembershipMineFetched, selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
 import { selectCardDetails } from 'redux/selectors/stripe';
 import { doGetCustomerStatus, doRemoveCardForPaymentMethodId } from 'redux/actions/stripe';
@@ -14,6 +14,12 @@ export function doRemoveAccountSequence() {
   return async (dispatch: Dispatch, getState: GetState): Promise<Status> => {
     await dispatch(doGetCustomerStatus());
     const state = getState();
+
+    const isMembershipsMineFetched = selectMembershipMineFetched(state);
+    if (!isMembershipsMineFetched) {
+      analytics.error(`doRemoveAccountSequence: Memberships not fetched`);
+      return 'error_occurred';
+    }
 
     const activeMemberships = selectMyActiveMembershipsById(state);
     const activeMembershipChannelIds = Object.keys(activeMemberships);
