@@ -89,7 +89,7 @@ const OdyseeMembershipPage = (props: Props) => {
       <Page className="premium-wrapper">
         <div className="card-stack">
           <div className="main--empty">
-            <p>Failed to fetch memberships</p>
+            <p>{__('Failed to fetch memberships')}</p>
           </div>
         </div>
       </Page>
