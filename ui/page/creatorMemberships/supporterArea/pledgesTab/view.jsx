@@ -16,11 +16,12 @@ import UriIndicator from 'component/uriIndicator';
 type Props = {
   // -- redux --
   myPurchasedCreatorMemberships: Array<MembershipTiers>,
+  isFetchingMemberships: boolean,
   doMembershipMine: () => Promise<MembershipTiers>,
 };
 
 function PledgesTab(props: Props) {
-  const { myPurchasedCreatorMemberships, doMembershipMine } = props;
+  const { myPurchasedCreatorMemberships, isFetchingMemberships, doMembershipMine } = props;
 
   React.useEffect(() => {
     if (myPurchasedCreatorMemberships === undefined) {
@@ -28,10 +29,16 @@ function PledgesTab(props: Props) {
     }
   }, [doMembershipMine, myPurchasedCreatorMemberships]);
 
-  if (myPurchasedCreatorMemberships === undefined) {
+  if (myPurchasedCreatorMemberships === undefined && isFetchingMemberships) {
     return (
       <div className="main--empty">
         <Spinner />
+      </div>
+    );
+  } else if (myPurchasedCreatorMemberships === undefined && !isFetchingMemberships) {
+    return (
+      <div className="main--empty">
+        <p>{__('Failed to fetch memberships')}</p>
       </div>
     );
   }

@@ -2941,6 +2941,7 @@
   "Please remove 1 item": "Please remove 1 item",
   "or %extraBytes% characters of text.": "or %extraBytes% characters of text.",
   "or 1 character of text.": "or 1 character of text.",
+  "Failed to fetch memberships": "Failed to fetch memberships",
 
   "--end--": "--end--"
 }

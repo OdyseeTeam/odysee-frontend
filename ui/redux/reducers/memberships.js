@@ -138,7 +138,7 @@ reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS] = (state, action) => {
 };
 reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL] = (state, action) => ({
   ...state,
-  membershipMineByCreatorId: {},
+  membershipMineByCreatorId: undefined,
   membershipMineFetching: false,
 });
 
