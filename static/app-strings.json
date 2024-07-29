@@ -2942,9 +2942,9 @@
   "or %extraBytes% characters of text.": "or %extraBytes% characters of text.",
   "or 1 character of text.": "or 1 character of text.",
   "Failed to fetch memberships": "Failed to fetch memberships",
-  "This content is marked as NSWF": "This content is marked as NSWF",
+  "This content is marked as mature": "This content is marked as mature",
   "Add tags that are relevant to your content so those who're looking for it can find it more easily.": "Add tags that are relevant to your content so those who're looking for it can find it more easily.",
-  "Mark content as NSFW": "Mark content as NSFW",
+  "Contains nudity, violence or other allowed 18+ content. See %community_guidelines%": "Contains nudity, violence or other allowed 18+ content. See %community_guidelines%",
 
   "--end--": "--end--"
 }
