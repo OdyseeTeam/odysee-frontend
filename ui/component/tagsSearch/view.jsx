@@ -1,5 +1,6 @@
 // @flow
 import React, { useState } from 'react';
+import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
 import Tag from 'component/tag';
 import { setUnion, setDifference } from 'util/set-operations';
@@ -133,7 +134,21 @@ export default function TagsSearch(props: Props) {
     } else if (t === DISABLE_SLIMES_COMMENTS_TAG) {
       label = __('Disable Dislikes - Comments');
     } else if (t === AGE_RESTRICED_CONTENT_TAG) {
-      label = __('Mark content as NSFW');
+      label = (
+        <I18nMessage
+          tokens={{
+            community_guidelines: (
+              <Button
+                button="link"
+                href="https://help.odysee.tv/communityguidelines/"
+                label={__('Community Guidelines')}
+              />
+            ),
+          }}
+        >
+          Contains nudity, violence or other allowed 18+ content. See %community_guidelines%
+        </I18nMessage>
+      );
     } else {
       label = __(
         t
