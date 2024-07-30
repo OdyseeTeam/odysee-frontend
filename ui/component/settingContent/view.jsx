@@ -27,6 +27,7 @@ type Props = {
   hideShorts: ?boolean,
   defaultCollectionAction: string,
   showNsfw: boolean,
+  isNsfwAknowledged: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
@@ -43,6 +44,7 @@ export default function SettingContent(props: Props) {
     hideShorts,
     defaultCollectionAction,
     showNsfw,
+    isNsfwAknowledged,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
@@ -107,6 +109,14 @@ export default function SettingContent(props: Props) {
                   ))}
                 </FormField>
               </fieldset-section>
+            </SettingsRow>
+            <SettingsRow title={__("Don't obscure mature content")} subtitle={__(HELP.NO_OBSCURE_MATURE)}>
+              <FormField
+                type="checkbox"
+                name="aknowledge_nsfw"
+                checked={isNsfwAknowledged}
+                onChange={() => setClientSetting(SETTINGS.NSFW_AKNOWLEDGED, !isNsfwAknowledged)}
+              />
             </SettingsRow>
 
             {!SIMPLE_SITE && (
@@ -204,6 +214,7 @@ const HELP = {
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
+  NO_OBSCURE_MATURE: "Don't blur thumbnails or warn about content being marked as mature",
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
   ONLY_CONFIRM_OVER_AMOUNT: '', // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
   PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',

@@ -58,6 +58,10 @@ export const selectTheme = (state) => {
   return theme;
 };
 
+export const selectIsNsfwAknowledged = (state) => {
+  return selectClientSetting(state, SETTINGS.NSFW_AKNOWLEDGED);
+};
+
 export const selectAutomaticDarkModeEnabled = (state) =>
   selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED);
 export const selectIsNight = (state) => selectState(state).isNight;

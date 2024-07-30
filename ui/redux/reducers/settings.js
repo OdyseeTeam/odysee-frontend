@@ -74,6 +74,7 @@ const defaultState = {
 
     // Content
     [SETTINGS.SHOW_MATURE]: false,
+    [SETTINGS.NSFW_AKNOWLEDGED]: false,
     [SETTINGS.AUTOPLAY_MEDIA]: true,
     [SETTINGS.FLOATING_PLAYER]: true,
     [SETTINGS.AUTO_DOWNLOAD]: true,
