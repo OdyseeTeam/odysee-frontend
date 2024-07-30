@@ -28,6 +28,10 @@ export const selectShowMatureContent = (state) => {
   return !ENABLE_MATURE ? false : selectClientSetting(state, SETTINGS.SHOW_MATURE);
 };
 
+export const selectIsNsfwAknowledged = (state) => {
+  return selectClientSetting(state, SETTINGS.NSFW_AKNOWLEDGED);
+};
+
 export const selectTheme = (state) => selectClientSetting(state, SETTINGS.THEME);
 export const selectAutomaticDarkModeEnabled = (state) =>
   selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED);

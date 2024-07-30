@@ -25,6 +25,7 @@ type Props = {
   hideReposts: ?boolean,
   hideShorts: ?boolean,
   showNsfw: boolean,
+  isNsfwAknowledged: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
@@ -40,6 +41,7 @@ export default function SettingContent(props: Props) {
     hideReposts,
     hideShorts,
     showNsfw,
+    isNsfwAknowledged,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
@@ -86,6 +88,15 @@ export default function SettingContent(props: Props) {
                 name="hide_shorts"
                 checked={hideShorts}
                 onChange={(e) => setClientSetting(SETTINGS.HIDE_SHORTS, !hideShorts)}
+              />
+            </SettingsRow>
+
+            <SettingsRow title={__("Don't obscure mature content")} subtitle={__(HELP.NO_OBSCURE_MATURE)}>
+              <FormField
+                type="checkbox"
+                name="aknowledge_nsfw"
+                checked={isNsfwAknowledged}
+                onChange={() => setClientSetting(SETTINGS.NSFW_AKNOWLEDGED, !isNsfwAknowledged)}
               />
             </SettingsRow>
 
@@ -183,6 +194,7 @@ const HELP = {
   HIDE_SHORTS: 'You will not see content under 1min long. Also hides non-video/audio content.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
+  NO_OBSCURE_MATURE: "Don't blur thumbnails or warn about content being marked as mature",
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
   ONLY_CONFIRM_OVER_AMOUNT: '', // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
   PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',

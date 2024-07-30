@@ -6,6 +6,7 @@ import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
+import { selectIsNsfwAknowledged } from 'redux/selectors/settings';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { ODYSEE_CHANNEL } from 'constants/channels';
@@ -56,7 +57,7 @@ export const selectResolvedCollectionsById = (state: State) => selectState(state
 export const selectMyCollectionClaimIds = (state: State) => selectState(state).myCollectionClaimIds;
 
 export const selectIsNsfwAknowledgedForClaimId = (state: State, claimId: string) => {
-  return Boolean(selectState(state).nsfwAknowledgedById[claimId]);
+  return Boolean(selectState(state).nsfwAknowledgedById[claimId]) || selectIsNsfwAknowledged(state);
 };
 
 export const selectMyCollectionClaimsById = createSelector(
