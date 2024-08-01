@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
 
 function scaleToDevicePixelRatio(value: number) {
   if (value === 64) return 64;
