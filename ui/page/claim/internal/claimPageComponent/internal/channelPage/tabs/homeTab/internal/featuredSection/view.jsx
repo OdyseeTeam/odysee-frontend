@@ -69,7 +69,7 @@ function FeaturedSection(props: Props) {
         <div className="claim-preview__text">
           <ClaimMenuList uri={uri} />
           <div className="claim-preview-info">
-            <span>{claim.value.title}</span>
+            <div className="claim-preview__title">{claim.value.title}</div>
           </div>
           <div className="claim-preview-author">
             <ChannelThumbnail uri={claim.signing_channel?.canonical_url} xsmall checkMembership={false} />
