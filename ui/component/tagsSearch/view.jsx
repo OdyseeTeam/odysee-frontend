@@ -1,5 +1,6 @@
 // @flow
 import React, { useState } from 'react';
+import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
 import Tag from 'component/tag';
 import { setUnion, setDifference } from 'util/set-operations';
@@ -111,6 +112,22 @@ export default function TagsSearch(props: Props) {
     let label;
     if (t === 'disable-support') {
       label = __('Disable Tipping and Boosting');
+    } else if (t === 'c:nsfw') {
+      label = (
+        <I18nMessage
+          tokens={{
+            community_guidelines: (
+              <Button
+                button="link"
+                href="https://help.odysee.tv/communityguidelines/"
+                label={__('Community Guidelines')}
+              />
+            ),
+          }}
+        >
+          Contains nudity, violence or other allowed 18+ content. See %community_guidelines%
+        </I18nMessage>
+      );
     } else {
       label = __(
         t

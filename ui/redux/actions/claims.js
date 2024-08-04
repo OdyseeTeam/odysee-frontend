@@ -1107,3 +1107,12 @@ export const doFetchNoSourceClaimsForChannelId =
         order_by: ['release_time'],
       })
     );
+
+export function doAknowledgeNsfw(claimId: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.AKNOWLEDGE_NSFW,
+      data: { claimId },
+    });
+  };
+}

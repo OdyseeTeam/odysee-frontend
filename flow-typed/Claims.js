@@ -62,6 +62,7 @@ declare type ClaimsState = {
   fetchingMyPurchasedClaims: ?boolean,
   fetchingMyPurchasedClaimsError: ?string,
   costInfosById: { [claimId: string]: { cost: number, includesData?: boolean } },
+  nsfwAknowledgedById: { [claimID: string]: boolean },
 };
 
 declare type ClaimSearchResultsInfo = {|
