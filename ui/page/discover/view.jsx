@@ -15,7 +15,6 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './internal/livestreamSection';
-import Ad from 'web/component/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
@@ -29,7 +28,6 @@ type Props = {
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   tileLayout: boolean,
-  hasPremiumPlus: boolean,
 };
 
 function DiscoverPage(props: Props) {
@@ -40,7 +38,6 @@ function DiscoverPage(props: Props) {
     doResolveUri,
     tileLayout,
     dynamicRouteProps,
-    hasPremiumPlus,
   } = props;
 
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
@@ -152,21 +149,6 @@ function DiscoverPage(props: Props) {
     return headerLabel;
   }
 
-  function getAds() {
-    return (
-      !isWildWest &&
-      !hasPremiumPlus && {
-        node: (index, lastVisibleIndex, pageSize) => {
-          if (pageSize && index < pageSize) {
-            return index === lastVisibleIndex ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
-          } else {
-            return index % (pageSize * 2) === 0 ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
-          }
-        },
-      }
-    );
-  }
-
   function getDefaultOrderBy() {
     // We were passing undefined to 'ClaimListDiscover::defaultOrderBy', so we
     // don't know what the fallback actually is for our remaining logic (i.e.
@@ -223,7 +205,6 @@ function DiscoverPage(props: Props) {
           tags={tags}
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
           repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-          injectedItem={getAds()}
           // TODO: find a better way to determine discover / wild west vs other modes release times
           // for now including && !tags so that
           releaseTime={getReleaseTime()}

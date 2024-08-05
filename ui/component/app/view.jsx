@@ -23,9 +23,7 @@ import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
 import { platform } from 'util/platform';
-import AdBlockTester from 'web/component/adBlockTester';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
-import Ad from 'web/component/ad';
 import {
   useDegradedPerformance,
   STATUS_OK,
@@ -93,8 +91,6 @@ type Props = {
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
-  doSetGdprConsentList: (csv: string) => void,
-  hasPremiumPlus: boolean,
 };
 
 export const AppContext = React.createContext<any>();
@@ -128,13 +124,10 @@ function App(props: Props) {
     fetchModBlockedList,
     fetchModAmIList,
     defaultChannelClaim,
-    nagsShown,
     announcement,
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
-    doSetGdprConsentList,
-    hasPremiumPlus = true,
   } = props;
 
   const isMobile = useIsMobile();
@@ -146,7 +139,6 @@ function App(props: Props) {
   const previousRewardApproved = usePrevious(isRewardApproved);
 
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
-  const [sidebarOpen] = usePersistedState('sidebar', false);
 
   const { pathname, hash, search } = location;
   const [retryingSync, setRetryingSync] = useState(false);
@@ -391,24 +383,6 @@ function App(props: Props) {
 
   // add OneTrust script
   useEffect(() => {
-    // don't add script for embedded content
-    function inIframe() {
-      try {
-        return window.self !== window.top;
-      } catch (e) {
-        return true;
-      }
-    }
-
-    if (inIframe() || !locale || !locale.gdpr_required) {
-      const ad = document.getElementById('rmbl-sticky') || document.getElementById('sticky-d-rc');
-      if (ad) {
-        if (!nagsShown) ad.classList.add('VISIBLE');
-        if (!sidebarOpen || isMobile) ad.classList.remove('LEFT');
-      }
-      return;
-    }
-
     const useProductionOneTrust = process.env.NODE_ENV === 'production' && window?.location?.hostname === 'odysee.com';
 
     const script = document.createElement('script');
@@ -423,14 +397,6 @@ function App(props: Props) {
     const secondScript = document.createElement('script');
     // OneTrust asks to add this
     secondScript.innerHTML = 'function OptanonWrapper() { window.gdprCallback() }';
-
-    window.gdprCallback = () => {
-      doSetGdprConsentList(window.OnetrustActiveGroups);
-      if (window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
-        const ad = document.getElementsByClassName('rev-shifter')[0];
-        if (ad && !window.nagsShown) ad.classList.add('VISIBLE');
-      }
-    };
 
     // $FlowFixMe
     document.head.appendChild(script);
@@ -450,17 +416,6 @@ function App(props: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one time after locale is fetched
   }, [locale]);
-
-  useEffect(() => {
-    window.nagsShown = nagsShown;
-    if (nagsShown) {
-      const ad = document.getElementsByClassName('VISIBLE')[0];
-      if (ad) ad.classList.remove('VISIBLE');
-    } else {
-      const ad = document.getElementsByClassName('rev-shifter')[0];
-      if (ad) ad.classList.add('VISIBLE');
-    }
-  }, [nagsShown]);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
@@ -551,8 +506,6 @@ function App(props: Props) {
         />
       ) : (
         <AppContext.Provider value={{ uri }}>
-          <AdBlockTester />
-          {!hasPremiumPlus && !embedPath && <Ad type="sticky" uri={uri} />}
           <Router uri={uri} />
           <ModalRouter />
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>

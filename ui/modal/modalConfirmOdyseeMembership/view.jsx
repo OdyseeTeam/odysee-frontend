@@ -109,8 +109,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
               You are purchasing a %time_interval_bold% %plan% membership that is active immediately and will renew
               %time_interval% at a price of %price_bold%.
             </I18nMessage>{' '}
-            {plan === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS &&
-              __('The no ads feature applies site-wide for all channels.')}
             {!noChannelsOrIncognitoMode ? (
               <I18nMessage tokens={{ channel_name: <b className="membership-bolded">{activeChannelName}</b> }}>
                 Your badge will be shown for your %channel_name% channel in all areas of the app, and can be added to
