@@ -17,7 +17,6 @@ import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
-import Ad from 'web/component/ad';
 import { tagSearchCsOptionsHook } from 'util/search';
 import { lazyImport } from 'util/lazyImport';
 
@@ -50,7 +49,6 @@ type Props = {
   claimType: string,
   empty?: string,
   activeLivestreamForChannel: ?LivestreamActiveClaim,
-  hasPremiumPlus: boolean,
 };
 
 function ContentTab(props: Props) {
@@ -72,7 +70,6 @@ function ContentTab(props: Props) {
     claimType,
     empty,
     activeLivestreamForChannel,
-    hasPremiumPlus,
   } = props;
 
   const claimsInChannel = 9999;
@@ -187,17 +184,6 @@ function ContentTab(props: Props) {
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
-            injectedItem={
-              !hasPremiumPlus && {
-                node: (index, lastVisibleIndex, pageSize) => {
-                  if (pageSize && index < pageSize) {
-                    return index === lastVisibleIndex ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
-                  } else {
-                    return index % (pageSize * 2) === 0 ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
-                  }
-                },
-              }
-            }
             meta={
               showFilters && (
                 <Form onSubmit={() => {}} className="wunderbar--inline">

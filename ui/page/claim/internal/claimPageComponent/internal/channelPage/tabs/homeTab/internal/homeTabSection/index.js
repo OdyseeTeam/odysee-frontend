@@ -15,14 +15,12 @@ import {
   selectClaimIdsForCollectionId,
 } from 'redux/selectors/collections';
 import { SECTION_TAGS } from 'constants/collections';
-import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import { selectFeaturedChannelsForChannelId } from 'redux/selectors/comments';
 import { CsOptHelper } from 'util/claim-search';
 import HomeTabSection from './view';
 import * as CS from 'constants/claim_search';
 
 const select = (state, props) => {
-  const hasPremiumPlus = selectUserHasOdyseePremiumPlus(state);
   const stream_types =
     props.section.file_type && Array.isArray(props.section.file_type)
       ? props.section.file_type
@@ -32,7 +30,7 @@ const select = (state, props) => {
   const claimType =
     props.section.type === 'playlists' ? 'collection' : props.section.type === 'reposts' ? 'repost' : 'stream';
   const options = {
-    page_size: props.section.type !== 'featured' ? (hasPremiumPlus ? 12 : 11) : 1,
+    page_size: props.section.type !== 'featured' ? 12 : 1,
     page: 1,
     channel_ids: [props.channelClaimId],
     stream_types: props.section.type !== 'reposts' ? stream_types : undefined,
@@ -81,7 +79,6 @@ const select = (state, props) => {
       props.section.type === 'featured' && props.section.claim_id && selectClaimUriForId(state, props.section.claim_id),
     featuredChannels: selectFeaturedChannelsForChannelId(state, props.channelClaimId),
     activeLivestreamUri: activeLivestream?.uri,
-    hasPremiumPlus,
   };
 };
 

@@ -7,7 +7,6 @@ import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
 import ChannelSection from 'component/channelSections/Section';
 import UpcomingClaims from 'component/upcomingClaims';
 import ClaimPreviewTile from 'component/claimPreviewTile';
-import Ad from 'web/component/ad';
 import { lighthouse } from 'redux/actions/search';
 import * as CS from 'constants/claim_search';
 import Icon from 'component/common/icon';
@@ -35,7 +34,6 @@ type Props = {
   singleClaimUri: string,
   featuredChannels: any,
   activeLivestreamUri: ?ClaimUri,
-  hasPremiumPlus: boolean,
   // --- perform ---
   doClaimSearch: (ClaimSearchOptions, ?DoClaimSearchSettings) => Promise<any>,
   doResolveClaimId: (claimId: string) => void,
@@ -47,7 +45,6 @@ function HomeTabSection(props: Props) {
   const {
     channelClaimId,
     index,
-    topContentGridIndex,
     section,
     editMode,
     hasFeaturedContent,
@@ -62,7 +59,6 @@ function HomeTabSection(props: Props) {
     fetchingClaimSearch,
     publishedCollections,
     singleClaimUri,
-    hasPremiumPlus,
     featuredChannels,
     activeLivestreamUri,
     doClaimSearch,
@@ -79,7 +75,6 @@ function HomeTabSection(props: Props) {
   const maxClaimsInSection = 12;
 
   const windowSize = useWindowSize();
-  const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
   const maxChannelsPerRow = windowSize >= 1150 ? 8 : windowSize > 900 ? 6 : 3;
   const featuredChannel = featuredChannels && featuredChannels.find((list) => list.id === section.claim_id);
   const hasFeaturedClaim = singleClaimUri || (claimSearchResults && claimSearchResults[0]) || section.claim_id;
@@ -425,14 +420,6 @@ function HomeTabSection(props: Props) {
                         uris={collectionUrls || claimSearchResults}
                         maxClaimRender={maxClaimsInSection}
                         claimIds={collectionClaimIds}
-                        injectedItem={
-                          !hasPremiumPlus &&
-                          index === topContentGridIndex && {
-                            node: (index) => {
-                              return index === maxTilesPerRow ? <Ad type="tileA" tileLayout /> : null;
-                            },
-                          }
-                        }
                       />
                     )
                   : featuredChannel && (

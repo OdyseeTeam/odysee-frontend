@@ -1,11 +1,9 @@
 // @flow
 import { v4 as Uuidv4 } from 'uuid';
-import { SHOW_ADS, AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION } from 'config';
 import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
 import ClaimPreview from 'component/claimPreview';
-import Ad from 'web/component/ad';
 import Card from 'component/common/card';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import Button from 'component/button';
@@ -13,13 +11,10 @@ import { FYP_ID } from 'constants/urlParams';
 import classnames from 'classnames';
 import RecSys from 'recsys';
 import LangFilterIndicator from 'component/langFilterIndicator';
-import { getClaimMetadata } from 'util/claim';
 import './style.scss';
 
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
-const BLOCKED_WORDS: ?Array<string> = AD_KEYWORD_BLOCKLIST && AD_KEYWORD_BLOCKLIST.toLowerCase().split(',');
-const CHECK_DESCRIPTION: boolean = AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION === 'true';
 
 type Props = {
   uri: string,
@@ -32,7 +27,6 @@ type Props = {
   claimId: string,
   metadata: any,
   location: UrlLocation,
-  hasPremiumPlus: boolean,
 };
 
 export default React.memo<Props>(function RecommendedContent(props: Props) {
@@ -45,33 +39,9 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     searchInLanguage,
     claim,
     location,
-    hasPremiumPlus,
   } = props;
 
   const claimId: ?string = claim && claim.claim_id;
-  const injectAds = SHOW_ADS && IS_WEB && !hasPremiumPlus;
-
-  function claimContainsBlockedWords(claim: ?StreamClaim) {
-    if (BLOCKED_WORDS) {
-      const hasBlockedWords = (str) => BLOCKED_WORDS.some((bw) => str.includes(bw));
-      const metadata = getClaimMetadata(claim);
-      // $FlowFixMe - flow does not support chaining yet, but we know for sure these fields are '?string'.
-      const title = metadata?.title?.toLowerCase();
-      // $FlowFixMe
-      const description = metadata?.description?.toLowerCase();
-      // $FlowFixMe
-      const name = claim?.name?.toLowerCase();
-
-      return Boolean(
-        (title && hasBlockedWords(title)) ||
-          (name && hasBlockedWords(name)) ||
-          (CHECK_DESCRIPTION && description && hasBlockedWords(description))
-      );
-    }
-    return false;
-  }
-
-  const blacklistTriggered = React.useMemo(() => injectAds && claimContainsBlockedWords(claim), [injectAds, claim]);
 
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
   const signingChannel = claim && claim.signing_channel;
@@ -79,14 +49,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const isMobile = useIsMobile();
   const isMedium = useIsMediumScreen();
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
-
-  const InjectedAd =
-    injectAds && !blacklistTriggered && !hasPremiumPlus
-      ? {
-          node: <Ad type="tileB" uri={uri} />,
-          index: isMobile ? 0 : 3,
-        }
-      : null;
 
   // Assume this component always resides in a page where the `uri` matches
   // e.g. never in a floating popup. With that, we can grab the FYP ID from
@@ -165,7 +127,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               type="small"
               loading={isSearching}
               uris={recommendedContentUris}
-              injectedItem={InjectedAd}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />
@@ -183,7 +144,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               hideFilters
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
-              injectedItem={InjectedAd}
               empty={__('No related content found')}
             />
           )}

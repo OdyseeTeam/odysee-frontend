@@ -20,7 +20,6 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
-import Ad from 'web/component/ad';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
 
@@ -42,7 +41,6 @@ type Props = {
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
   userHasOdyseeMembership: ?boolean,
-  hasPremiumPlus: boolean,
   currentTheme: string,
   activeLivestreamByCreatorId: LivestreamByCreatorId,
   livestreamViewersById: LivestreamViewersById,
@@ -63,7 +61,6 @@ function HomePage(props: Props) {
     homepageOrder,
     doOpenModal,
     userHasOdyseeMembership,
-    hasPremiumPlus,
     activeLivestreamByCreatorId: al, // yup, unreadable name, but we are just relaying here.
     livestreamViewersById: lv,
   } = props;
@@ -213,12 +210,6 @@ function HomePage(props: Props) {
         hasSource
         prefixUris={cache[id].livestreamUris}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
-        injectedItem={
-          index === cache.topGrid &&
-          !hasPremiumPlus && {
-            node: <Ad type="tileA" tileLayout />,
-          }
-        }
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />

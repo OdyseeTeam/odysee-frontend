@@ -16,10 +16,7 @@ import {
   selectIsAutoplayCountdownForUri,
 } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
-import {
-  selectUserHasOdyseePremiumPlus,
-  selectNoRestrictionOrUserIsMemberForContentClaimId,
-} from 'redux/selectors/memberships';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { clearPosition } from 'redux/actions/content';
 
 import VideoPlayersPage from './view';
@@ -48,7 +45,6 @@ const select = (state, props) => {
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isAutoplayCountdownForUri: selectIsAutoplayCountdownForUri(state, uri),
-    hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 

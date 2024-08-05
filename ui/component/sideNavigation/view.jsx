@@ -513,15 +513,6 @@ function SideNavigation(props: Props) {
         gdprDiv.style.display = 'none';
       }
     }
-
-    const ad = document.getElementById('rmbl-sticky') || document.getElementById('sticky-d-rc');
-    if (ad) {
-      if (!sidebarOpen || isMobile) {
-        ad.classList.remove('LEFT');
-      } else {
-        ad.classList.add('LEFT');
-      }
-    }
   }, [sidebarOpen, isMobile]);
 
   React.useEffect(() => {
