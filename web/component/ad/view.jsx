@@ -41,9 +41,9 @@ const Ad = memo(function Ad(props: Props & StateProps & DispatchProps) {
 
   return (
     <AdErrorBoundary type={type}>
-      {type === 'tileA' && <AdTileA provider={provider} tileLayout={tileLayout} />}
+      {type === 'tileA' && <AdTileA provider={provider} shouldShowAds={shouldShowAds} tileLayout={tileLayout} />}
       {type === 'tileB' && <AdTileB provider={provider} shouldShowAds={shouldShowAds} />}
-      {type === 'sticky' && <AdSticky provider={provider} uri={uri} />}
+      {type === 'sticky' && <AdSticky provider={provider} uri={uri} shouldShowAds={shouldShowAds} />}
       {type === 'aboveComments' && <AdAboveComments provider={provider} shouldShowAds={shouldShowAds} />}
     </AdErrorBoundary>
   );

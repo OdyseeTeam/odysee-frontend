@@ -115,7 +115,6 @@ const MembershipSplash = (props: Props) => {
 
           <BadgeInfo />
           <EarlyAcessInfo />
-          <NoAdsInfo />
 
           <div className="membership-splash__info-button">
             <JoinButton pageLocation={pageLocation} interval="year" plan="Premium%2b" doOpenModal />
@@ -139,12 +138,4 @@ const BadgeInfo = () => (
     <h1 className="balance-text">{__('Badge on profile')}</h1>
   </div>
 );
-
-const NoAdsInfo = () => (
-  <div className="membership-splash__info-content">
-    <Icon icon={ICONS.NO_ADS} />
-    <h1 className="balance-text">{__('No ads')}</h1>
-  </div>
-);
-
 export default MembershipSplash;

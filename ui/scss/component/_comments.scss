@@ -455,6 +455,7 @@ $thumbnailWidthSmall: 2rem;
       margin-bottom: var(--spacing-xs) !important;
       padding-top: 0 !important;
       border-radius: var(--border-radius);
+      max-height: 300px !important;
     }
   }
 

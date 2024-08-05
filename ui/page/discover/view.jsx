@@ -28,8 +28,6 @@ type Props = {
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   tileLayout: boolean,
-  activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
 };
 
 function DiscoverPage(props: Props) {
@@ -151,23 +149,6 @@ function DiscoverPage(props: Props) {
     return headerLabel;
   }
 
-  /*
-  function getAds() {
-    return (
-      !isWildWest &&
-      !hasPremiumPlus && {
-        node: (index, lastVisibleIndex, pageSize) => {
-          if (pageSize && index < pageSize) {
-            return index === lastVisibleIndex ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
-          } else {
-            return index % (pageSize * 2) === 0 ? <Ad type="tileA" tileLayout={tileLayout} /> : null;
-          }
-        },
-      }
-    );
-  }
-  */
-
   function getDefaultOrderBy() {
     // We were passing undefined to 'ClaimListDiscover::defaultOrderBy', so we
     // don't know what the fallback actually is for our remaining logic (i.e.
@@ -224,10 +205,6 @@ function DiscoverPage(props: Props) {
           tags={tags}
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
           repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-          // injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
-          // Assume wild west page if no dynamicRouteProps
-          // Not a very good solution, but just doing it for now
-          // until we are sure this page will stay around
           // TODO: find a better way to determine discover / wild west vs other modes release times
           // for now including && !tags so that
           releaseTime={getReleaseTime()}

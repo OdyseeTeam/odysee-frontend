@@ -115,7 +115,10 @@ export const selectMyValidMembershipsById = createSelector(selectMembershipMineD
     const purchasedCreatorMemberships = myMembershipsByCreatorId[creatorChannelId];
 
     for (const membership of purchasedCreatorMemberships) {
-      if (membership.Subscription.current_period_end * 1000 > Date.now()) {
+      if (
+        membership.Subscription.status !== 'past_due' &&
+        membership.Subscription.current_period_end * 1000 > Date.now()
+      ) {
         validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
         validMembershipsById[creatorChannelId].add(membership);
         // $FlowFixMe

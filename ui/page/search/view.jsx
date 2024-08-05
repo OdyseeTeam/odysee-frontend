@@ -25,6 +25,7 @@ export default function SearchPage(props: Props) {
   const { urlQuery, searchOptions, search, uris, isSearching, hasReachedMaxResultsLength } = props;
   const { push } = useHistory();
   const [from, setFrom] = React.useState(0);
+  const [currentUrlQuery, setCurrentUrlQuery] = React.useState(urlQuery);
 
   const modifiedUrlQuery = urlQuery && urlQuery.trim().replace(/\s+/g, '').replace(/:/g, '#');
   const uriFromQuery = `lbry://${modifiedUrlQuery}`;
@@ -64,11 +65,16 @@ export default function SearchPage(props: Props) {
   const stringifiedSearchOptions = JSON.stringify(searchOptions);
 
   useEffect(() => {
-    if (urlQuery) {
+    if (currentUrlQuery) {
       const searchOptions = JSON.parse(stringifiedSearchOptions);
-      search(urlQuery, { ...searchOptions, from: from });
+      search(currentUrlQuery, { ...searchOptions, from: from });
     }
-  }, [search, urlQuery, stringifiedSearchOptions, from]);
+  }, [search, currentUrlQuery, stringifiedSearchOptions, from]);
+
+  useEffect(() => {
+    resetPage();
+    setCurrentUrlQuery(urlQuery);
+  }, [urlQuery]);
 
   function loadMore() {
     if (!isSearching && !hasReachedMaxResultsLength) {
@@ -96,7 +102,6 @@ export default function SearchPage(props: Props) {
           header={
             <SearchOptions simple={SIMPLE_SITE} additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />
           }
-          // injectedItem={!hasPremiumPlus && { node: <Ads small type="video" />, index: 3 }}
         />
         <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
       </section>
