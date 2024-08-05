@@ -18,14 +18,12 @@ import {
   selectDefaultChannelClaim,
   selectHomepageAnnouncement,
 } from 'redux/selectors/settings';
-import { selectAnyNagsShown } from 'redux/selectors/notifications';
 import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doSignIn, doSetIncognito, doSetGdprConsentList } from 'redux/actions/app';
+import { doSignIn, doSetIncognito } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
-import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import App from './view';
 
 const select = (state) => ({
@@ -46,9 +44,7 @@ const select = (state) => ({
   activeChannelClaim: selectActiveChannelClaim(state),
   myChannelClaimIds: selectMyChannelClaimIds(state),
   defaultChannelClaim: selectDefaultChannelClaim(state),
-  nagsShown: selectAnyNagsShown(state),
   announcement: selectHomepageAnnouncement(state),
-  hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
 });
 
 const perform = {
@@ -63,7 +59,6 @@ const perform = {
   doOpenAnnouncements,
   doSetLastViewedAnnouncement,
   doSetDefaultChannel,
-  doSetGdprConsentList,
 };
 
 export default hot(connect(select, perform)(App));
