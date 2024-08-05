@@ -9,14 +9,12 @@ import {
 } from 'redux/selectors/search';
 import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
 import { getSearchQueryString } from 'util/query-params';
-import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import SearchPage from './view';
 import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
   const showMature = selectShowMatureContent(state);
   const urlParams = new URLSearchParams(props.location.search);
-  const hasPremiumPlus = selectUserHasOdyseePremiumPlus(state);
   const languageSetting = selectLanguage(state);
   const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
 
@@ -42,7 +40,6 @@ const select = (state, props) => {
     isSearching: selectIsSearching(state),
     uris: uris,
     hasReachedMaxResultsLength: hasReachedMaxResultsLength,
-    hasPremiumPlus: hasPremiumPlus,
   };
 };
 

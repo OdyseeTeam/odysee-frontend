@@ -7,7 +7,6 @@ import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
 import SearchTopClaim from 'component/searchTopClaim';
-import Ad from 'web/component/ad';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { SEARCH_PAGE_SIZE } from 'constants/search';
@@ -20,11 +19,10 @@ type Props = {
   uris: Array<string>,
   isAuthenticated: boolean,
   hasReachedMaxResultsLength: boolean,
-  hasPremiumPlus: boolean,
 };
 
 export default function SearchPage(props: Props) {
-  const { urlQuery, searchOptions, search, uris, isSearching, hasReachedMaxResultsLength, hasPremiumPlus } = props;
+  const { urlQuery, searchOptions, search, uris, isSearching, hasReachedMaxResultsLength } = props;
   const { push } = useHistory();
   const [from, setFrom] = React.useState(0);
   const [currentUrlQuery, setCurrentUrlQuery] = React.useState(urlQuery);
@@ -103,12 +101,6 @@ export default function SearchPage(props: Props) {
           pageSize={SEARCH_PAGE_SIZE}
           header={
             <SearchOptions simple={SIMPLE_SITE} additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />
-          }
-          injectedItem={
-            !hasPremiumPlus && {
-              node: <Ad type="tileA" />,
-              index: 3,
-            }
           }
         />
         <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>

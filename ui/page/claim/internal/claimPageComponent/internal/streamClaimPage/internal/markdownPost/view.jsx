@@ -1,6 +1,5 @@
 // @flow
 import * as React from 'react';
-import Ad from 'web/component/ad';
 import Empty from 'component/common/empty';
 import FileTitleSection from 'component/fileTitleSection';
 import { lazyImport } from 'util/lazyImport';
@@ -17,7 +16,6 @@ type Props = {
   threadCommentId?: string,
   commentSettingDisabled: ?boolean,
   contentUnlocked: boolean,
-  hasPremiumPlus: boolean,
 };
 
 export default function MarkdownPostPage(props: Props) {
@@ -30,7 +28,6 @@ export default function MarkdownPostPage(props: Props) {
     threadCommentId,
     commentSettingDisabled,
     contentUnlocked,
-    hasPremiumPlus,
   } = props;
 
   if (isMature) {
@@ -54,7 +51,6 @@ export default function MarkdownPostPage(props: Props) {
           <Empty text={__('The creator of this content has disabled comments.')} />
         ) : contentUnlocked ? (
           <React.Suspense fallback={null}>
-            {!hasPremiumPlus && <Ad type="aboveComments" uri={uri} />}
             <CommentsList
               uri={uri}
               linkedCommentId={linkedCommentId}
