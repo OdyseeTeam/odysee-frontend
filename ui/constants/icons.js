@@ -133,6 +133,7 @@ export const COMPACT = 'CompactMode';
 export const EXPAND = 'ExpandedMode';
 export const FEEDBACK = 'MessageSquare';
 export const SEARCH = 'Search';
+export const SPACEMAN = 'Spaceman';
 export const CHANNEL = 'AtSign';
 export const REFRESH = 'RefreshCw';
 export const MORE = 'More';
