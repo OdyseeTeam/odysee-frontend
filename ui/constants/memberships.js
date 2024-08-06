@@ -4,9 +4,9 @@ import * as STRIPE from 'constants/stripe';
 export const ODYSEE_TIER_NAMES = Object.freeze({ PREMIUM: 'Premium', PREMIUM_PLUS: 'Premium+' });
 
 export const DESCRIPTIONS = Object.freeze({
-  [ODYSEE_TIER_NAMES.PREMIUM]: 'Badge on profile, automatic credits confirmation, and early access to new features',
+  [ODYSEE_TIER_NAMES.PREMIUM]: 'Badge on profile, automatic credits confirmation, early access to new features',
   [ODYSEE_TIER_NAMES.PREMIUM_PLUS]:
-    'Badge on profile, automatic credits confirmation, and early access to new features',
+    'Badge on profile, automatic credits confirmation, early access to new features, keeps Odysee Ad-free for everyone',
 });
 
 export const INTERVALS = Object.freeze({ year: 'Yearly', month: 'Monthly' });

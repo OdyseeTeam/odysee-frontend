@@ -103,7 +103,6 @@ const MembershipSplash = (props: Props) => {
 
           <BadgeInfo />
           <EarlyAcessInfo />
-          <SupportOdysee />
 
           <div className="membership-splash__info-button">
             <JoinButton pageLocation={pageLocation} interval="year" plan="Premium%2b" doOpenModal />
@@ -125,13 +124,6 @@ const BadgeInfo = () => (
   <div className="membership-splash__info-content">
     <Icon icon={ICONS.MEMBER_BADGE} />
     <h1 className="balance-text">{__('Badge on profile')}</h1>
-  </div>
-);
-
-const SupportOdysee = () => (
-  <div className="membership-splash__info-content">
-    <Icon icon={ICONS.SPACEMAN} />
-    <h1 className="balance-text">{__('Supports the Odysee team')}</h1>
   </div>
 );
 

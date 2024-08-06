@@ -12,7 +12,7 @@ const HelpText = () => (
       <ul>
         <li className="balance-text">
           {__(
-            'Exclusive and early access features include: recommended content, the ability to post Odysee hyperlinks + images in comments, and account is also automatically eligible for Credits. More to come later.'
+            'Exclusive and early access features include: a special badge to show your support of Odysee, the ability to post Odysee hyperlinks + images in comments, and account is also automatically eligible for Credits.'
           )}
         </li>
         <li className="balance-text">
@@ -20,14 +20,10 @@ const HelpText = () => (
             'The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.'
           )}
         </li>
-        <li className="balance-text">{__('These are limited time rates, so get in early!')}</li>
         <li>
           {__(
-            'There may be higher tiers available in the future for creators and anyone else who wants to support us.'
+            `Badges are displayed on a single channel, so please ensure you're signing up under the account you'd like to receive a badge.`
           )}
-        </li>
-        <li>
-          {__('Badges will be displayed on a single channel to start, with an option to add on two more later on.')}
         </li>
         <li>
           {__('Cannot upgrade or downgrade a membership at this time. Refunds are not available. Choose wisely.')}
