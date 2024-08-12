@@ -19,6 +19,7 @@ import { SEARCH_OPTIONS } from 'constants/search';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { getAuthToken } from 'util/saved-passwords';
 
+const isDev = process.env.NODE_ENV !== 'production';
 // ****************************************************************************
 // FYP
 // ****************************************************************************
@@ -175,7 +176,7 @@ export const doSearch =
     });
 
     const isSearchingRecommendations = searchOptions.hasOwnProperty(SEARCH_OPTIONS.RELATED_TO);
-    const cmd = isSearchingRecommendations ? lighthouse.searchRecommendations : lighthouse.search;
+    const cmd = isSearchingRecommendations && !isDev ? lighthouse.searchRecommendations : lighthouse.search;
 
     cmd(queryWithOptions)
       .then((data: SearchResults) => {
