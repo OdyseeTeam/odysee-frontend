@@ -255,11 +255,23 @@
     }
 
     .content__info {
+      position: relative;
       margin-top: -50px;
-      background: red;
+      height: 50px;
+      // background: red;
       opacity: 0;
+      z-index: 999;
       .button--uri-indicator {
         display: none;
+      }
+      .claim-preview__title {
+        a {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
       }
     }
 
