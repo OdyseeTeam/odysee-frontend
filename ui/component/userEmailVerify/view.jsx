@@ -82,7 +82,7 @@ class UserEmailVerify extends React.PureComponent<Props, State> {
             user2FAPending ? (
               <p>
                 {__(
-                  'Since you have a Credit Card or Bank Account connected to your account, we just sent an email to %email% for you to confirm your login as required by Stripe. Remember to check other email folders like spam or promotions.',
+                  'Since you have added a Credit Card or Bank to your Odysee account at some point, we just sent an email to %email% for you to confirm your login as required by Stripe (our payment provider). Remember to check other email folders like spam or promotions.',
                   {
                     email,
                   }
