@@ -6,6 +6,7 @@ const reducers = {};
 const defaultState: UserState = {
   authenticationIsPending: false,
   userIsPending: false,
+  user2FAPending: false,
   emailNewIsPending: false,
   emailNewErrorMessage: '',
   emailToVerify: '',
@@ -50,6 +51,7 @@ reducers[ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) =>
     authenticationIsPending: false,
     userIsPending: false,
     user: action.data.user,
+    user2FAPending: false,
   });
 
 reducers[ACTIONS.AUTHENTICATION_FAILURE] = (state) =>
@@ -57,6 +59,7 @@ reducers[ACTIONS.AUTHENTICATION_FAILURE] = (state) =>
     authenticationIsPending: false,
     userIsPending: false,
     user: null,
+    user2FAPending: false,
   });
 
 reducers[ACTIONS.USER_FETCH_STARTED] = (state) =>
@@ -334,6 +337,12 @@ reducers[ACTIONS.USER_SET_REFERRER_RESET] = (state) =>
 reducers[ACTIONS.USER_PASSWORD_EXISTS] = (state) =>
   Object.assign({}, state, {
     passwordExistsForUser: true,
+  });
+
+reducers[ACTIONS.USER_2FA_STARTED] = (state) =>
+  Object.assign({}, state, {
+    passwordExistsForUser: false,
+    user2FAPending: true,
   });
 
 reducers[ACTIONS.USER_PASSWORD_RESET_STARTED] = (state) =>
