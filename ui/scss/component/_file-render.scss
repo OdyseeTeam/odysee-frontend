@@ -156,6 +156,7 @@
       margin-top: -2px;
       padding-bottom: 0;
       .media__subtitle {
+        margin-top: -3px;
         .claim-preview__channel-sub-count {
           font-size: var(--font-xsmall) !important;
           @media (max-width: $breakpoint-small) {
@@ -188,11 +189,11 @@
 
         .channel-thumbnail {
           margin: var(--spacing-xxs);
-          margin-right: var(--spacing-xs);
+          margin-right: var(--spacing-xxs);
           margin-left: 0px;
           margin-top: 2px;
-          width: 2.5rem;
-          height: 2.5rem;
+          width: 2.7rem;
+          height: 2.7rem;
 
           .ff-container {
             width: 2.5rem;
@@ -961,6 +962,7 @@ $control-bar-icon-size: 30px;
   }
 
   .vjs-touch-overlay {
+    z-index: 999;
     &.show-play-toggle,
     &.skip {
       background-color: rgba(0, 0, 0, 0.5);

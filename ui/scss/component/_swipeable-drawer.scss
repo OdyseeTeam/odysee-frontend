@@ -98,7 +98,7 @@
   &.button--primary {
     padding-left: var(--spacing-xxs);
     background-color: var(--color-header-button) !important;
-    border-radius: var(--border-radius) !important;
+    border-radius: 0 !important;
     .button__content {
       .icon {
         stroke: var(--color-text);
