@@ -464,7 +464,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
           vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
         } else {
-          vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl });
+          vjsPlayer.src({
+            HLS_FILETYPE,
+            src: livestreamVideoUrl.replace('cloud.odysee.live', 'cloud-cdn77.odysee.live'),
+          });
         }
       } else {
         vjsPlayer.isLivestream = false;
