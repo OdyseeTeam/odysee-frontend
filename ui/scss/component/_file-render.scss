@@ -1318,18 +1318,7 @@ $control-bar-icon-size: 30px;
 }
 
 .paid-content-overlay,
-.protected-content-overlay {
-  .button {
-    border: 1px solid white;
-    transition: all 0.2s;
-    opacity: 0.9;
-    &:hover {
-      transform: scale(1.08);
-      opacity: 1;
-    }
-  }
-}
-
+.protected-content-overlay,
 .age-restricted-content-overlay {
   .button {
     border: 1px solid white;
