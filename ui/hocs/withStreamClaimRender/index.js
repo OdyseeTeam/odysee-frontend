@@ -37,7 +37,7 @@ import { doAllowAgeRestrictedContent } from 'redux/actions/claims';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
 
-import { OVER_18_CONTENT_TAG } from 'constants/tags';
+import { AGE_RESTRICED_CONTENT_TAG } from 'constants/tags';
 
 import withStreamClaimRender from './view';
 
@@ -73,7 +73,7 @@ const select = (state, props) => {
     sdkFeePending: selectSdkFeePendingForUri(state, uri),
     pendingUnlockedRestrictions: selectPendingUnlockedRestrictionsForUri(state, uri),
     canViewFile: selectCanViewFileForUri(state, uri),
-    isAgeRestricted: makeSelectTagInClaimOrChannelForUri(props.uri, OVER_18_CONTENT_TAG)(state),
+    isAgeRestricted: makeSelectTagInClaimOrChannelForUri(props.uri, AGE_RESTRICED_CONTENT_TAG)(state),
     isAgeRestrictedContentAllowed: selectIsAgeRestrictedContentAllowedForClaimId(state, claimId),
     channelLiveFetched: selectChannelIsLiveFetchedForUri(state, uri),
     sourceLoaded: selectVideoSourceLoadedForUri(state, uri),
