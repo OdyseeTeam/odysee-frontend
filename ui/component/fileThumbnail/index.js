@@ -4,13 +4,13 @@ import {
   selectHasResolvedClaimForUri,
   selectThumbnailForUri,
   makeSelectTagInClaimOrChannelForUri,
-  selectIsNsfwAknowledgedForClaimId,
+  selectIsAgeRestrictedContentAllowedForClaimId,
   selectClaimForUri,
   selectClaimIsMine,
 } from 'redux/selectors/claims';
 import CardMedia from './view';
 
-import { NSFW_CONTENT_TAG } from 'constants/tags';
+import { OVER_18_CONTENT_TAG } from 'constants/tags';
 
 const select = (state, props) => {
   const { uri, secondaryUri } = props;
@@ -22,8 +22,8 @@ const select = (state, props) => {
     hasResolvedClaim: uri ? selectHasResolvedClaimForUri(state, uri) : undefined,
     thumbnailFromClaim: selectThumbnailForUri(state, uri),
     thumbnailFromSecondaryClaim: selectThumbnailForUri(state, secondaryUri, true),
-    isNsfw: makeSelectTagInClaimOrChannelForUri(props.uri, NSFW_CONTENT_TAG)(state),
-    isNsfwAknowledged: selectIsNsfwAknowledgedForClaimId(state, claimId),
+    isAgeRestricted: makeSelectTagInClaimOrChannelForUri(props.uri, OVER_18_CONTENT_TAG)(state),
+    isAgeRestrictedContentAllowed: selectIsAgeRestrictedContentAllowedForClaimId(state, claimId),
     claimIsMine: Boolean(selectClaimIsMine(state, claim)),
   };
 };

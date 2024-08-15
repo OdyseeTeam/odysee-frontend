@@ -30,8 +30,8 @@ type Props = {
   // forcePlaceholder?: boolean,
   forceReload?: boolean,
   // -- redux --
-  isNsfw: ?boolean,
-  isNsfwAknowledged: ?boolean,
+  isAgeRestricted: ?boolean,
+  isAgeRestrictedContentAllowed: ?boolean,
   claimIsMine: Boolean,
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
@@ -51,8 +51,8 @@ function FileThumbnail(props: Props) {
     // forcePlaceholder,
     forceReload,
     // -- redux --
-    isNsfw,
-    isNsfwAknowledged,
+    isAgeRestricted,
+    isAgeRestrictedContentAllowed,
     claimIsMine,
     hasResolvedClaim,
     thumbnailFromClaim,
@@ -115,7 +115,7 @@ function FileThumbnail(props: Props) {
         fallback={FALLBACK}
         className={className}
         forceReload={forceReload}
-        shouldBlur={!claimIsMine && isNsfw && !isNsfwAknowledged}
+        shouldBlur={!claimIsMine && isAgeRestricted && !isAgeRestrictedContentAllowed}
       >
         <PreviewOverlayProtectedContent uri={uri} />
         {children}

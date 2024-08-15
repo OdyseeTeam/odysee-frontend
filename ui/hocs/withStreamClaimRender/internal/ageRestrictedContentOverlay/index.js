@@ -4,10 +4,10 @@ import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import { selectUser } from 'redux/selectors/user';
-import { doAknowledgeNsfw } from 'redux/actions/claims';
+import { doAllowAgeRestrictedContent } from 'redux/actions/claims';
 import { doOpenModal } from 'redux/actions/app';
 
-import NsfwContentOverlay from './view';
+import AgeRestricedContentOverlay from './view';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -21,8 +21,8 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
-  doAknowledgeNsfw: (id) => dispatch(doAknowledgeNsfw(id)),
+  doAllowAgeRestrictedContent: (id) => dispatch(doAllowAgeRestrictedContent(id)),
   openModal: (id, params) => dispatch(doOpenModal(id, params)),
 });
 
-export default connect(select, perform)(NsfwContentOverlay);
+export default connect(select, perform)(AgeRestricedContentOverlay);

@@ -58,8 +58,8 @@ export const selectTheme = (state) => {
   return theme;
 };
 
-export const selectIsNsfwAknowledged = (state) => {
-  return selectClientSetting(state, SETTINGS.NSFW_AKNOWLEDGED);
+export const selectIsAgeRestrictedContentAllowed = (state) => {
+  return selectClientSetting(state, SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED);
 };
 
 export const selectAutomaticDarkModeEnabled = (state) =>

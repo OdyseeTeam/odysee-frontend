@@ -1098,10 +1098,10 @@ export const doFetchNoSourceClaimsForChannelId =
       })
     );
 
-export function doAknowledgeNsfw(claimId: string) {
+export function doAllowAgeRestrictedContent(claimId: string) {
   return (dispatch: Dispatch) => {
     dispatch({
-      type: ACTIONS.AKNOWLEDGE_NSFW,
+      type: ACTIONS.ALLOW_AGE_RESTRICTED_CONTENT,
       data: { claimId },
     });
   };

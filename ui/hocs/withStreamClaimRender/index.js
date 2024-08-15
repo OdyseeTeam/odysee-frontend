@@ -15,7 +15,7 @@ import {
   selectScheduledStateForUri,
   makeSelectTagInClaimOrChannelForUri,
   selectClaimIsMine,
-  selectIsNsfwAknowledgedForClaimId,
+  selectIsAgeRestrictedContentAllowedForClaimId,
   // selectClaimWasPurchasedForUri,
   // selectIsFiatPaidForUri,
 } from 'redux/selectors/claims';
@@ -33,11 +33,11 @@ import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
 
 import { doStartFloatingPlayingUri, doClearPlayingUri } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
-import { doAknowledgeNsfw } from 'redux/actions/claims';
+import { doAllowAgeRestrictedContent } from 'redux/actions/claims';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
 
-import { NSFW_CONTENT_TAG } from 'constants/tags';
+import { OVER_18_CONTENT_TAG } from 'constants/tags';
 
 import withStreamClaimRender from './view';
 
@@ -73,8 +73,8 @@ const select = (state, props) => {
     sdkFeePending: selectSdkFeePendingForUri(state, uri),
     pendingUnlockedRestrictions: selectPendingUnlockedRestrictionsForUri(state, uri),
     canViewFile: selectCanViewFileForUri(state, uri),
-    isNsfw: makeSelectTagInClaimOrChannelForUri(props.uri, NSFW_CONTENT_TAG)(state),
-    isNsfwAknowledged: selectIsNsfwAknowledgedForClaimId(state, claimId),
+    isAgeRestricted: makeSelectTagInClaimOrChannelForUri(props.uri, OVER_18_CONTENT_TAG)(state),
+    isAgeRestrictedContentAllowed: selectIsAgeRestrictedContentAllowedForClaimId(state, claimId),
     channelLiveFetched: selectChannelIsLiveFetchedForUri(state, uri),
     sourceLoaded: selectVideoSourceLoadedForUri(state, uri),
     claimIsMine: Boolean(selectClaimIsMine(state, claim)),
@@ -88,7 +88,7 @@ const perform = {
   doStartFloatingPlayingUri,
   doMembershipList,
   doClearPlayingUri,
-  doAknowledgeNsfw,
+  doAllowAgeRestrictedContent,
 };
 
 export default (Component) => withRouter(connect(select, perform)(withStreamClaimRender(Component)));

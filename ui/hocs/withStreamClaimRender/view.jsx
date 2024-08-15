@@ -10,7 +10,7 @@ import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import ProtectedContentOverlay from './internal/protectedContentOverlay';
 import ClaimCoverRender from 'component/claimCoverRender';
 import PaidContentOverlay from './internal/paidContentOverlay';
-import NsfwContentOverlay from './internal/nsfwContentOverlay';
+import AgeRestricedContentOverlay from './internal/ageRestrictedContentOverlay';
 import LoadingScreen from 'component/common/loading-screen';
 import ScheduledInfo from 'component/scheduledInfo';
 import Button from 'component/button';
@@ -50,8 +50,8 @@ type Props = {
   sdkFeePending: ?boolean,
   pendingUnlockedRestrictions: ?boolean,
   canViewFile: ?boolean,
-  isNsfw: ?boolean,
-  isNsfwAknowledged: ?boolean,
+  isAgeRestricted: ?boolean,
+  isAgeRestrictedContentAllowed: ?boolean,
   channelLiveFetched: boolean,
   sourceLoaded: boolean,
   claimIsMine: boolean,
@@ -102,8 +102,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       sdkFeePending,
       pendingUnlockedRestrictions,
       canViewFile,
-      isNsfw,
-      isNsfwAknowledged,
+      isAgeRestricted,
+      isAgeRestrictedContentAllowed,
       channelLiveFetched,
       sourceLoaded,
       claimIsMine,
@@ -123,7 +123,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState();
     const [clickProps, setClickProps] = React.useState();
 
-    const requiresNsfwAknowledgedment = isNsfw && !claimIsMine;
+    const requiresAgeConfirmation = isAgeRestricted && !claimIsMine;
     const { search, href, state: locationState, pathname } = location;
     const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
@@ -156,7 +156,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const urlTimeParam = href && href.indexOf('t=') > -1;
     const autoplayEnabled =
       !forceDisableAutoplay &&
-      !(requiresNsfwAknowledgedment && !isNsfwAknowledged) &&
+      !(requiresAgeConfirmation && !isAgeRestrictedContentAllowed) &&
       (!embedded || (urlParams && urlParams.get('autoplay'))) &&
       (forceAutoplayParam || urlTimeParam || (isLivestreamClaim ? isCurrentClaimLive : autoplay));
 
@@ -309,14 +309,14 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }, []);
 
     // -- Restricted State -- render instead of component, until no longer restricted
-    if (!canViewFile || (requiresNsfwAknowledgedment && !isNsfwAknowledged)) {
+    if (!canViewFile || (requiresAgeConfirmation && !isAgeRestrictedContentAllowed)) {
       // console.log('doCheckIfPurchasedClaimId: ', doCheckIfPurchasedClaimId)
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
-          {requiresNsfwAknowledgedment && !isNsfwAknowledged ? (
+          {requiresAgeConfirmation && !isAgeRestrictedContentAllowed ? (
             <>
               {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
-              <NsfwContentOverlay uri={uri} />
+              <AgeRestricedContentOverlay uri={uri} />
             </>
           ) : pendingFiatPayment || sdkFeePending ? (
             <>

@@ -2978,8 +2978,8 @@
   "This content is marked as mature": "This content is marked as mature",
   "Add tags that are relevant to your content so those who're looking for it can find it more easily.": "Add tags that are relevant to your content so those who're looking for it can find it more easily.",
   "Contains nudity, violence or other allowed 18+ content. See %community_guidelines%": "Contains nudity, violence or other allowed 18+ content. See %community_guidelines%",
-  "Don't obscure mature content": "Don't obscure mature content",
-  "Don't blur thumbnails or warn about content being marked as mature": "Don't blur thumbnails or warn about content being marked as mature",
+  "Don't obscure age restricted content": "Don't obscure age restricted content",
+  "Don't blur thumbnails or warn about age restricted content": "Don't blur thumbnails or warn about age restricted content",
 
   "--end--": "--end--"
 }

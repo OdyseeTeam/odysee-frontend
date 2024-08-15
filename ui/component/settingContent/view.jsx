@@ -27,7 +27,7 @@ type Props = {
   hideShorts: ?boolean,
   defaultCollectionAction: string,
   showNsfw: boolean,
-  isNsfwAknowledged: boolean,
+  isAgeRestrictedContentAllowed: boolean,
   ageConfirmed: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
@@ -45,7 +45,7 @@ export default function SettingContent(props: Props) {
     hideShorts,
     defaultCollectionAction,
     showNsfw,
-    isNsfwAknowledged,
+    isAgeRestrictedContentAllowed,
     ageConfirmed,
     instantPurchaseEnabled,
     instantPurchaseMax,
@@ -113,15 +113,20 @@ export default function SettingContent(props: Props) {
               </fieldset-section>
             </SettingsRow>
             <SettingsRow title={__("Don't obscure mature content")} subtitle={__(HELP.NO_OBSCURE_MATURE)}>
+            <SettingsRow
+              title={__("Don't obscure age restricted content")}
+              subtitle={__(HELP.NO_OBSCURE_AGE_RESTRICTED_CONTENT)}
+            >
               <FormField
                 type="checkbox"
-                name="aknowledge_nsfw"
-                checked={isNsfwAknowledged}
+                name="allow_age_restricted_content"
+                checked={isAgeRestrictedContentAllowed}
                 onChange={() =>
-                  isNsfwAknowledged || ageConfirmed
-                    ? setClientSetting(SETTINGS.NSFW_AKNOWLEDGED, !isNsfwAknowledged)
+                  isAgeRestrictedContentAllowed || ageConfirmed
+                    ? setClientSetting(SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED, !isAgeRestrictedContentAllowed)
                     : openModal(MODALS.CONFIRM_AGE, {
-                        cb: () => setClientSetting(SETTINGS.NSFW_AKNOWLEDGED, !isNsfwAknowledged),
+                        cb: () =>
+                          setClientSetting(SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED, !isAgeRestrictedContentAllowed),
                       })
                 }
               />
@@ -222,7 +227,7 @@ const HELP = {
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
-  NO_OBSCURE_MATURE: "Don't blur thumbnails or warn about content being marked as mature",
+  NO_OBSCURE_AGE_RESTRICTED_CONTENT: "Don't blur thumbnails or warn about age restricted content",
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
   ONLY_CONFIRM_OVER_AMOUNT: '', // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
   PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',

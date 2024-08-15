@@ -8,18 +8,18 @@ type Props = {
   user: ?Object,
   ageConfirmed: boolean,
   claimIsMine: boolean,
-  doAknowledgeNsfw: (claimId: string) => void,
+  doAllowAgeRestrictedContent: (claimId: string) => void,
   openModal: (string, props?: { cb: () => void }) => void,
 };
 
-const NsfwContentOverlay = (props: Props) => {
-  const { claimId, user, ageConfirmed, claimIsMine, doAknowledgeNsfw, openModal } = props;
+const AgeRestricedContentOverlay = (props: Props) => {
+  const { claimId, user, ageConfirmed, claimIsMine, doAllowAgeRestrictedContent, openModal } = props;
   const hasVerifiedEmail = user && user.has_verified_email;
 
   if (claimIsMine) return null;
 
   return (
-    <div className="nsfw-content-overlay">
+    <div className="age-restricted-content-overlay">
       <span>{__('This content is marked as mature')}</span>
 
       <Button
@@ -27,9 +27,9 @@ const NsfwContentOverlay = (props: Props) => {
         label={__('View Content')}
         onClick={() =>
           ageConfirmed && hasVerifiedEmail
-            ? doAknowledgeNsfw(claimId)
+            ? doAllowAgeRestrictedContent(claimId)
             : openModal(MODALS.CONFIRM_AGE, {
-                cb: () => doAknowledgeNsfw(claimId),
+                cb: () => doAllowAgeRestrictedContent(claimId),
               })
         }
       />
@@ -37,4 +37,4 @@ const NsfwContentOverlay = (props: Props) => {
   );
 };
 
-export default NsfwContentOverlay;
+export default AgeRestricedContentOverlay;
