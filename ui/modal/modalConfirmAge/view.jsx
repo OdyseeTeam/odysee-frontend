@@ -7,16 +7,18 @@ import Button from 'component/button';
 import { FormField } from 'component/common/form';
 
 type Props = {
+  cb: () => void,
   doHideModal: () => void,
-  doSetClientSetting: (string, any) => void,
+  doSetClientSetting: (string, any, boolean) => void,
 };
 
 function ModalAffirmPurchase(props: Props) {
-  const { doHideModal, doSetClientSetting } = props;
+  const { cb, doHideModal, doSetClientSetting } = props;
   const [confirmed, setConfirmed] = React.useState(false);
 
   function handleConfirmAge() {
-    doSetClientSetting(SETTINGS.SHOW_MATURE, true);
+    doSetClientSetting(SETTINGS.AGE_CONFIRMED, true, true);
+    cb();
     doHideModal();
   }
 

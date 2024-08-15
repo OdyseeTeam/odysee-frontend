@@ -13,6 +13,7 @@ const select = (state, props) => ({
   hideReposts: selectClientSetting(state, SETTINGS.HIDE_REPOSTS),
   hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
   defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
+  ageConfirmed: selectClientSetting(state, SETTINGS.AGE_CONFIRMED),
   showNsfw: selectShowMatureContent(state),
   isNsfwAknowledged: selectIsNsfwAknowledged(state),
   instantPurchaseEnabled: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED),

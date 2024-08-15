@@ -28,12 +28,13 @@ type Props = {
   defaultCollectionAction: string,
   showNsfw: boolean,
   isNsfwAknowledged: boolean,
+  ageConfirmed: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
   // --- perform ---
   setClientSetting: (string, boolean | string | number) => void,
-  openModal: (string) => void,
+  openModal: (string, props?: { cb: () => void }) => void,
 };
 
 export default function SettingContent(props: Props) {
@@ -45,6 +46,7 @@ export default function SettingContent(props: Props) {
     defaultCollectionAction,
     showNsfw,
     isNsfwAknowledged,
+    ageConfirmed,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
@@ -115,7 +117,13 @@ export default function SettingContent(props: Props) {
                 type="checkbox"
                 name="aknowledge_nsfw"
                 checked={isNsfwAknowledged}
-                onChange={() => setClientSetting(SETTINGS.NSFW_AKNOWLEDGED, !isNsfwAknowledged)}
+                onChange={() =>
+                  isNsfwAknowledged || ageConfirmed
+                    ? setClientSetting(SETTINGS.NSFW_AKNOWLEDGED, !isNsfwAknowledged)
+                    : openModal(MODALS.CONFIRM_AGE, {
+                        cb: () => setClientSetting(SETTINGS.NSFW_AKNOWLEDGED, !isNsfwAknowledged),
+                      })
+                }
               />
             </SettingsRow>
 
@@ -127,9 +135,9 @@ export default function SettingContent(props: Props) {
                     name="show_nsfw"
                     checked={showNsfw}
                     onChange={() =>
-                      !IS_WEB || showNsfw
+                      !IS_WEB || showNsfw || ageConfirmed
                         ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw)
-                        : openModal(MODALS.CONFIRM_AGE)
+                        : openModal(MODALS.CONFIRM_AGE, { cb: () => setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw) })
                     }
                   />
                 </SettingsRow>
