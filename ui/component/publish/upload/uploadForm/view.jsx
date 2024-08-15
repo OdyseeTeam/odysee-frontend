@@ -424,7 +424,7 @@ function UploadForm(props: Props) {
           title={__('Description')}
           body={
             <div className="publish-row">
-              <PublishDescription disabled={formDisabled} />
+              <PublishDescription disabled={disabled || publishing} />
             </div>
           }
         />
