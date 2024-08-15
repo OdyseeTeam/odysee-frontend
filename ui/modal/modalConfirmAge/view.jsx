@@ -35,7 +35,9 @@ function ModalAffirmPurchase(props: Props) {
                 name="age-confirmation"
                 type="checkbox"
                 label={__('I confirm I am over 18 years old.')}
-                helper={__('This is only for regulatory compliance and the data will not be stored.')}
+                helper={__(
+                  "This is only for regulatory compliance and the data will be stored in your private settings if you're signed in."
+                )}
                 checked={confirmed}
                 onChange={() => setConfirmed(!confirmed)}
               />

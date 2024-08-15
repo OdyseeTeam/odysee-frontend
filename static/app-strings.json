@@ -1638,7 +1638,7 @@
   "Syncing %total_videos% videos from your channel with %total_subs% subscriptions.": "Syncing %total_videos% videos from your channel with %total_subs% subscriptions.",
   "Confirm Your Age": "Confirm Your Age",
   "I confirm I am over 18 years old.": "I confirm I am over 18 years old.",
-  "This is only for regulatory compliance and the data will not be stored.": "This is only for regulatory compliance and the data will not be stored.",
+  "This is only for regulatory compliance and the data will be stored in your private settings if you're signed in.": "This is only for regulatory compliance and the data will be stored in your private settings if you're signed in.",
   "Whoa!": "Whoa!",
   "You've already claimed your referrer, but we've followed this channel for you.": "You've already claimed your referrer, but we've followed this channel for you.",
   "You've already claimed your referrer.": "You've already claimed your referrer.",
