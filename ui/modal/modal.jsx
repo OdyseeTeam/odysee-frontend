@@ -15,6 +15,7 @@ type ModalProps = {
   abortButtonLabel?: string,
   confirmButtonDisabled?: boolean,
   abortButtonDisabled?: boolean,
+  disableOutsideClick?: boolean,
   onConfirmed?: (any) => any,
   onAborted?: (any) => any,
   className?: string,
@@ -35,6 +36,7 @@ export function Modal(props: ModalProps) {
     onConfirmed,
     abortButtonLabel = __('Cancel'),
     abortButtonDisabled = false,
+    disableOutsideClick = false,
     onAborted,
     className,
     title,
@@ -46,7 +48,7 @@ export function Modal(props: ModalProps) {
   return (
     <ReactModal
       {...modalProps}
-      onRequestClose={onAborted || onConfirmed}
+      onRequestClose={!disableOutsideClick ? onAborted || onConfirmed : false}
       className={classnames('modal', className, {
         'modal--card-internal': type === 'card',
         'modal--wide': width === 'wide',
