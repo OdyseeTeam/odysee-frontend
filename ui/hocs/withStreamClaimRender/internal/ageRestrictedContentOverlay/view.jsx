@@ -20,7 +20,7 @@ const AgeRestricedContentOverlay = (props: Props) => {
 
   return (
     <div className="age-restricted-content-overlay">
-      <span>{__('This content is marked as mature')}</span>
+      <span>{__('You are trying to access age restriced content')}</span>
 
       <Button
         button="primary"
