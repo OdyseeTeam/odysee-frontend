@@ -442,7 +442,15 @@ function SelectAsset(props: Props) {
         )}
       </fieldset-section>
 
-      <div className="section__actions">
+      <div className="section__actions upload-actions">
+        <FormField
+          className="toggle-upload-checkbox"
+          name="toggle-upload"
+          type="checkbox"
+          label={__('Use a URL')}
+          checked={useUrl}
+          onChange={() => setUseUrl(!useUrl)}
+        />
         {onDone && (
           <Button
             button="primary"
@@ -460,14 +468,6 @@ function SelectAsset(props: Props) {
             }}
           />
         )}
-        <FormField
-          className="toggle-upload-checkbox"
-          name="toggle-upload"
-          type="checkbox"
-          label={__('Use a URL')}
-          checked={useUrl}
-          onChange={() => setUseUrl(!useUrl)}
-        />
       </div>
     </>
   );
