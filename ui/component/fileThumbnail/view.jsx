@@ -15,6 +15,7 @@ import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
+import PreviewOverlayAgeRestrictedContent from '../previewOverlayAgeRestrictedContent';
 
 const FALLBACK = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
 
@@ -30,9 +31,6 @@ type Props = {
   // forcePlaceholder?: boolean,
   forceReload?: boolean,
   // -- redux --
-  isAgeRestricted: ?boolean,
-  isAgeRestrictedContentAllowed: ?boolean,
-  claimIsMine: Boolean,
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
   thumbnailFromSecondaryClaim: ?string,
@@ -51,9 +49,6 @@ function FileThumbnail(props: Props) {
     // forcePlaceholder,
     forceReload,
     // -- redux --
-    isAgeRestricted,
-    isAgeRestrictedContentAllowed,
-    claimIsMine,
     hasResolvedClaim,
     thumbnailFromClaim,
     thumbnailFromSecondaryClaim,
@@ -83,6 +78,7 @@ function FileThumbnail(props: Props) {
             'media__thumb--small': small,
           })}
         >
+          <PreviewOverlayAgeRestrictedContent uri={uri} />
           <PreviewOverlayProtectedContent uri={uri} />
           {children}
         </FreezeframeWrapper>
@@ -115,8 +111,8 @@ function FileThumbnail(props: Props) {
         fallback={FALLBACK}
         className={className}
         forceReload={forceReload}
-        shouldBlur={!claimIsMine && isAgeRestricted && !isAgeRestrictedContentAllowed}
       >
+        <PreviewOverlayAgeRestrictedContent uri={uri} />
         <PreviewOverlayProtectedContent uri={uri} />
         {children}
       </Thumb>

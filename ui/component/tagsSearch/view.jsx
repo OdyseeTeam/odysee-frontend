@@ -14,12 +14,15 @@ import {
   RENTAL_TAG,
   RENTAL_TAG_OLD,
   PURCHASE_TAG_OLD,
+<<<<<<< HEAD
   DISABLE_SUPPORT_TAG,
   DISABLE_DOWNLOAD_BUTTON_TAG,
   DISABLE_REACTIONS_VIDEO_TAG,
   DISABLE_REACTIONS_COMMENTS_TAG,
   DISABLE_SLIMES_VIDEO_TAG,
   DISABLE_SLIMES_COMMENTS_TAG,
+=======
+>>>>>>> 3488087fe (Add mature content indicator on thumbnail + content page)
   AGE_RESTRICED_CONTENT_TAG,
 } from 'constants/tags';
 import { removeInternalTags } from 'util/tags';
