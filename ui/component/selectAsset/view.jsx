@@ -38,6 +38,9 @@ function SelectAsset(props: Props) {
   const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
   const imgRef = React.useRef(null);
   const previewCanvasRef = React.useRef(null);
+  const isAnimated =
+    // $FlowIgnore
+    (fileSelected && (fileSelected.type.includes('gif') || fileSelected.type.includes('webm'))) || false;
 
   const [cropInit, setCropInit] = React.useState(false);
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
@@ -146,7 +149,7 @@ function SelectAsset(props: Props) {
 
     const data = new FormData();
 
-    if (assetName === 'Cover Image' || assetName === 'Thumbnail') {
+    if ((assetName === 'Cover Image' || assetName === 'Thumbnail') && !isAnimated) {
       try {
         const file = await processCanvas();
         if (file) {
@@ -277,10 +280,13 @@ function SelectAsset(props: Props) {
         <div
           className="channel-preview__header"
           style={{
-            backgroundImage: 'url(' + (assetName === 'Thumbnail' ? String(otherValue) : '') + ')',
+            backgroundImage:
+              'url(' +
+              (assetName === 'Thumbnail' ? String(otherValue) : isAnimated ? String(currentPlaceholder) : '') +
+              ')',
           }}
         >
-          {assetName === 'Cover Image' && fileSelected && <canvas ref={previewCanvasRef} />}
+          {assetName === 'Cover Image' && fileSelected && !isAnimated && <canvas ref={previewCanvasRef} />}
         </div>
         <div className="channel-preview__tabs">
           <div>
@@ -297,8 +303,10 @@ function SelectAsset(props: Props) {
         <div className="channel-preview__thumbnail">
           {otherValue && assetName === 'Cover Image' ? (
             <img src={String(otherValue)} />
-          ) : (
+          ) : !isAnimated ? (
             <canvas ref={previewCanvasRef} />
+          ) : (
+            <img src={String(currentPlaceholder)} />
           )}
         </div>
         <div className="channel-preview__grid">
@@ -416,7 +424,7 @@ function SelectAsset(props: Props) {
             )}
             {(assetName === 'Cover Image' || assetName === 'Thumbnail') && (
               <>
-                {fileSelected && (
+                {fileSelected && !isAnimated && (
                   <div className="cropCanvas">
                     <ReactCrop
                       crop={crop}
