@@ -8,7 +8,10 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import usePersistedState from 'effects/use-persisted-state';
 import Icon from 'component/common/icon';
+// $FlowIgnore
+import ReactCrop, { centerCrop, makeAspectCrop, Crop, PixelCrop } from 'react-image-crop';
 import * as ICONS from 'constants/icons';
+import 'react-image-crop/src/ReactCrop.scss';
 import './style.scss';
 
 const accept = '.png, .jpg, .jpeg, .gif, .webp';
@@ -31,7 +34,15 @@ function SelectAsset(props: Props) {
   const [fileSelected, setFileSelected] = React.useState<any>(null);
   const [uploadStatus, setUploadStatus] = React.useState(STATUS.READY);
   const [imagePreview, setImagePreview] = React.useState(null);
+  const [crop, setCrop] = React.useState<Crop>();
+  const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
+  const imgRef = React.useRef(null);
+  const previewCanvasRef = React.useRef(null);
+  const isAnimated =
+    // $FlowIgnore
+    (fileSelected && (fileSelected.type.includes('gif') || fileSelected.type.includes('webm'))) || false;
 
+  const [cropInit, setCropInit] = React.useState(false);
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
@@ -45,7 +56,80 @@ function SelectAsset(props: Props) {
     }
   }, [useUrl]);
 
-  function doUploadAsset() {
+  React.useEffect(() => {
+    if (fileSelected) {
+      setCropInit(false);
+    }
+  }, [fileSelected]);
+
+  async function canvasPreview(
+    image: HTMLImageElement,
+    canvas: HTMLCanvasElement,
+    crop: PixelCrop,
+    scale = 1,
+    rotate = 0
+  ) {
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      throw new Error('No 2d context');
+    }
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+    const pixelRatio = window.devicePixelRatio;
+
+    canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
+    canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+
+    ctx.scale(pixelRatio, pixelRatio);
+    ctx.imageSmoothingQuality = 'high';
+
+    const cropX = crop.x * scaleX;
+    const cropY = crop.y * scaleY;
+
+    const rotateRads = rotate * (Math.PI / 180);
+    const centerX = image.naturalWidth / 2;
+    const centerY = image.naturalHeight / 2;
+
+    ctx.save();
+    ctx.translate(-cropX, -cropY);
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotateRads);
+    ctx.scale(scale, scale);
+    ctx.translate(-centerX, -centerY);
+    ctx.drawImage(image, 0, 0, image.naturalWidth, image.naturalHeight, 0, 0, image.naturalWidth, image.naturalHeight);
+
+    ctx.restore();
+  }
+
+  function useDebounceEffect(fn: () => void, waitTime: number, deps?: any) {
+    React.useEffect(() => {
+      const t = setTimeout(() => {
+        fn.apply(undefined, deps);
+      }, waitTime);
+
+      return () => {
+        clearTimeout(t);
+      };
+    }, [deps, fn, waitTime]);
+  }
+
+  useDebounceEffect(
+    () => {
+      const execute = async () => {
+        if (completedCrop?.width && completedCrop?.height && imgRef.current && previewCanvasRef.current) {
+          await canvasPreview(imgRef.current, previewCanvasRef.current, completedCrop);
+        }
+      };
+
+      execute();
+    },
+    100,
+    [completedCrop]
+  );
+
+  async function doUploadAsset() {
     const uploadError = (error = '') => {
       setUploadErrorMsg(error);
     };
@@ -64,7 +148,20 @@ function SelectAsset(props: Props) {
     setUploadStatus(STATUS.UPLOADING);
 
     const data = new FormData();
-    data.append('file-input', fileSelected);
+
+    if ((assetName === 'Cover Image' || assetName === 'Thumbnail') && !isAnimated) {
+      try {
+        const file = await processCanvas();
+        if (file) {
+          data.append('file-input', file);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      data.append('file-input', fileSelected);
+    }
+
     data.append('upload', 'Upload');
 
     return fetch(IMG_CDN_PUBLISH_URL, {
@@ -92,6 +189,77 @@ function SelectAsset(props: Props) {
       });
   }
 
+  function processCanvas() {
+    const image = imgRef.current;
+    const previewCanvas = previewCanvasRef.current;
+
+    if (!image || !previewCanvas || !completedCrop) {
+      return null;
+    }
+
+    const scaleX = image.naturalWidth / image.width;
+    const scaleY = image.naturalHeight / image.height;
+
+    const offscreen = document.createElement('canvas');
+    offscreen.width = completedCrop.width * scaleX;
+    offscreen.height = completedCrop.height * scaleY;
+
+    const ctx = offscreen.getContext('2d');
+    if (!ctx) {
+      return null;
+    }
+
+    ctx.drawImage(
+      previewCanvas,
+      0,
+      0,
+      previewCanvas.width,
+      previewCanvas.height,
+      0,
+      0,
+      offscreen.width,
+      offscreen.height
+    );
+
+    return new Promise<File>((resolve, reject) => {
+      offscreen.toBlob((blob) => {
+        if (blob) {
+          resolve(new File([blob], 'image.png', { type: 'image/png' }));
+        } else {
+          reject(new Error('Blob creation failed.'));
+        }
+      }, 'image/png');
+    });
+  }
+
+  function onImageLoad(e) {
+    const { offsetWidth: width, offsetHeight: height } = e.currentTarget;
+    const crop = centerCrop(
+      makeAspectCrop(
+        {
+          unit: '%',
+          width: 100,
+        },
+        assetName === 'Cover Image' ? 32 / 5 : 1,
+        width,
+        height
+      ),
+      width,
+      height
+    );
+
+    setCrop(crop);
+    const max = width > height ? height : width;
+    setCompletedCrop({
+      x: (width / 100) * crop.x,
+      y: (100 / 100) * crop.y,
+      unit: 'px',
+      width: assetName === 'Cover Image' ? width : max,
+      height: assetName === 'Cover Image' ? height : max,
+    });
+    setCropInit(true);
+  }
+
   // Note for translators: e.g. "Thumbnail  (1:1)"
   const label = `${__(assetName)} ${__(recommended)}`;
   const selectFileLabel = __('Select File');
@@ -113,12 +281,33 @@ function SelectAsset(props: Props) {
           className="channel-preview__header"
           style={{
             backgroundImage:
-              'url(' + (assetName === 'Cover Image' ? String(currentPlaceholder) : String(otherValue)) + ')',
+              'url(' +
+              (assetName === 'Thumbnail' ? String(otherValue) : isAnimated ? String(currentPlaceholder) : '') +
+              ')',
           }}
-        />
-        <div className="channel-preview__tabs" />
+        >
+          {assetName === 'Cover Image' && fileSelected && !isAnimated && <canvas ref={previewCanvasRef} />}
+        </div>
+        <div className="channel-preview__tabs">
+          <div>
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+        </div>
         <div className="channel-preview__thumbnail">
-          {otherValue && <img src={assetName === 'Cover Image' ? String(otherValue) : String(currentPlaceholder)} />}
+          {otherValue && assetName === 'Cover Image' ? (
+            <img src={String(otherValue)} />
+          ) : !isAnimated ? (
+            <canvas ref={previewCanvasRef} />
+          ) : (
+            <img src={String(currentPlaceholder)} />
+          )}
         </div>
         <div className="channel-preview__grid">
           {Array.from(Array(6), (e, i) => {
@@ -142,6 +331,10 @@ function SelectAsset(props: Props) {
 
   const formBody = (
     <>
+      <div className="modal_header">
+        <Icon icon={ICONS.IMAGE} />
+        <h2 className="modal_title">{title || __('Choose %asset%', { asset: __(`${assetName}`) })}</h2>
+      </div>
       <fieldset-section>
         {uploadErrorMsg && <div className="error__text">{uploadErrorMsg}</div>}
         {useUrl ? (
@@ -205,6 +398,7 @@ function SelectAsset(props: Props) {
               }}
               accept={accept}
             />
+
             {assetName === 'Image' && (
               <div className="image-upload__wrapper">
                 <FormField
@@ -228,12 +422,43 @@ function SelectAsset(props: Props) {
                 </div>
               </div>
             )}
-            {(assetName === 'Cover Image' || assetName === 'Thumbnail') && <ChannelPreview />}
+            {(assetName === 'Cover Image' || assetName === 'Thumbnail') && (
+              <>
+                {fileSelected && !isAnimated && (
+                  <div className="cropCanvas">
+                    <ReactCrop
+                      crop={crop}
+                      onChange={(c) => setCrop(c)}
+                      onComplete={(c) => setCompletedCrop(c)}
+                      aspect={assetName === 'Cover Image' ? 32 / 5 : 1}
+                      circularCrop={assetName === 'Thumbnail'}
+                      minWidth={assetName === 'Cover Image' ? null : 160}
+                      unit={'%'}
+                    >
+                      <img
+                        ref={imgRef}
+                        src={URL.createObjectURL(new Blob([fileSelected], { type: fileSelected.type }))}
+                        onLoad={!cropInit ? onImageLoad : () => {}}
+                      />
+                    </ReactCrop>
+                  </div>
+                )}
+                <ChannelPreview />
+              </>
+            )}
           </>
         )}
       </fieldset-section>
 
-      <div className="section__actions">
+      <div className="section__actions upload-actions">
+        <FormField
+          className="toggle-upload-checkbox"
+          name="toggle-upload"
+          type="checkbox"
+          label={__('Use a URL')}
+          checked={useUrl}
+          onChange={() => setUseUrl(!useUrl)}
+        />
         {onDone && (
           <Button
             button="primary"
@@ -251,14 +476,6 @@ function SelectAsset(props: Props) {
             }}
           />
         )}
-        <FormField
-          className="toggle-upload-checkbox"
-          name="toggle-upload"
-          type="checkbox"
-          label={__('Use a URL')}
-          checked={useUrl}
-          onChange={() => setUseUrl(!useUrl)}
-        />
       </div>
     </>
   );
@@ -269,7 +486,7 @@ function SelectAsset(props: Props) {
 
   return (
     <Card
-      title={title || __('Choose %asset%', { asset: __(`${assetName}`) })}
+      // title={title || __('Choose %asset%', { asset: __(`${assetName}`) })}
       actions={<Form onSubmit={onDone}>{formBody}</Form>}
     />
   );
