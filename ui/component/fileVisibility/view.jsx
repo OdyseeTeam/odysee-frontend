@@ -26,7 +26,7 @@ function FileVisibility(props: Props) {
         </div>
       )}
       {isAgeRestricted && showAgeRestriced && (
-        <div className="file-visibility file-visibility-age-restriced">{__('18+')}</div>
+        <div className="file-visibility file-visibility-age-restricted">{__('18+')}</div>
       )}
     </>
   );
