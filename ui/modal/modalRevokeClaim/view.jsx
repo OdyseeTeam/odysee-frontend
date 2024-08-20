@@ -119,7 +119,7 @@ export default function ModalRevokeClaim(props: Props) {
         actions={
           <div className="section__actions">
             <Button
-              disabled={shouldConfirmChannel && name !== channelName}
+              disabled={shouldConfirmChannel && name.normalize('NFC') !== channelName.normalize('NFC')}
               button="primary"
               label={label}
               onClick={revokeClaim}
