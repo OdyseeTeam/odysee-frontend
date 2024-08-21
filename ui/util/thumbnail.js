@@ -15,7 +15,11 @@ export function getThumbnailCdnUrl(props: Props) {
     return thumbnail;
   }
 
-  if (thumbnail.includes(THUMBNAIL_CDN_URL)) {
+  if (
+    thumbnail.includes(THUMBNAIL_CDN_URL) ||
+    thumbnail.includes('server.arfleet.zephyrdev.xyz') ||
+    thumbnail.includes('thumbnails-arfleet.odycdn.com')
+  ) {
     return thumbnail;
   }
 
