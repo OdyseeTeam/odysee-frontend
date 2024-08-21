@@ -37,12 +37,13 @@ import ClaimPreviewReset from 'component/claimPreviewReset';
 import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import ClaimPreviewHidden from './internal/claim-preview-no-mature';
 import ClaimPreviewNoContent from './internal/claim-preview-no-content';
-import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import { ENABLE_NO_SOURCE_CLAIMS, THUMBNAIL_HEIGHT, THUMBNAIL_QUALITY, THUMBNAIL_WIDTH } from 'config';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import { EmbedContext } from 'contexts/embed';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import { getThumbnailCdnUrl } from '../../util/thumbnail';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -211,8 +212,17 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
 
   const backgroundImage = thumbnailFromClaim
-    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    ? getThumbnailCdnUrl({
+        thumbnail: thumbnailFromClaim,
+        width: THUMBNAIL_WIDTH,
+        height: THUMBNAIL_HEIGHT,
+        quality: THUMBNAIL_QUALITY,
+      })
     : undefined;
+
+  // const backgroundImage = thumbnailFromClaim
+  //   ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+  //   : undefined;
 
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const channelSubscribers = React.useMemo(() => {
