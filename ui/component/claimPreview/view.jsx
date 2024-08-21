@@ -550,6 +550,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     <ClaimPreviewTitle uri={uri} />
                   </NavLink>
                 )}
+                {banState.blacklisted && claimIsMine && <div className="dmca-info">{__('DMCA flagged')}</div>}
                 {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
               </div>
               <div className="claim-tile__info">

@@ -234,7 +234,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
               <Card
                 title={uri}
                 subtitle={__(
-                  'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications.'
+                  'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
                 )}
                 actions={
                   <div className="section__actions">
