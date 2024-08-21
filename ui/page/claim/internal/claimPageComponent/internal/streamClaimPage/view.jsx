@@ -151,12 +151,16 @@ const StreamClaimPage = (props: Props) => {
           )}
         </p>
         <p>
-          {__('Plese remove the content, or reach out to %email% if you think there has been a mistake.', {
+          {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
             email: 'help@odysee.com',
           })}
         </p>
         <div className="section__actions">
-          <Button button="link" href="https://help.odysee.tv/copyright/" label={__('Read More')} />
+          <Button
+            button="link"
+            href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+            label={__('Read More')}
+          />
         </div>
       </section>
     );

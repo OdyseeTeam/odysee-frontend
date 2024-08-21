@@ -53,7 +53,11 @@ function AboutTab(props: Props) {
             </p>
           )}
           <div className="section__actions">
-            <Button button="link" href="https://help.odysee.tv/copyright/" label={__('Read More')} />
+            <Button
+              button="link"
+              href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+              label={__('Read More')}
+            />
           </div>
         </section>
       )}

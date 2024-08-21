@@ -589,5 +589,10 @@
 .claim-preview-info {
   .dmca-info {
     margin-bottom: 0px;
+    color: var(--color-text);
+
+    &:hover {
+      background: rgba(255, 0, 0, 0.4);
+    }
   }
 }
