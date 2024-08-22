@@ -577,3 +577,22 @@
 .content__non-clickable {
   pointer-events: none;
 }
+
+.dmca-info {
+  background: rgba(255, 0, 0, 0.06);
+  padding: var(--spacing-s);
+  border-radius: var(--border-radius);
+  border: 2px solid rgba(255, 0, 0, 0.6);
+  margin-bottom: var(--spacing-l);
+}
+
+.claim-preview-info {
+  .dmca-info {
+    margin-bottom: 0px;
+    color: var(--color-text);
+
+    &:hover {
+      background: rgba(255, 0, 0, 0.4);
+    }
+  }
+}

@@ -119,7 +119,7 @@ function ChannelPage(props: Props) {
   const viewParam = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW);
   const isHomeTab = !viewParam;
   const currentView =
-    !showClaims && !channelIsMine && (isHomeTab || TABS_FOR_CHANNELS_WITH_CONTENT.includes(viewParam))
+    !showClaims && (isHomeTab || TABS_FOR_CHANNELS_WITH_CONTENT.includes(viewParam))
       ? CHANNEL_PAGE.VIEWS.ABOUT
       : viewParam || CHANNEL_PAGE.VIEWS.HOME;
 

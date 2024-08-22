@@ -9,6 +9,7 @@ import {
   selectCostInfoForUri,
   selectThumbnailForUri,
 } from 'redux/selectors/claims';
+import { selectIsClaimBlackListedForUri } from 'lbryinc';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
@@ -41,6 +42,7 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
+    isClaimBlackListed: selectIsClaimBlackListedForUri(state, uri),
   };
 };
 
