@@ -122,12 +122,7 @@ export default function SettingContent(props: Props) {
                 name="allow_age_restricted_content"
                 checked={isAgeRestrictedContentAllowed}
                 onChange={() =>
-                  isAgeRestrictedContentAllowed || ageConfirmed
-                    ? setClientSetting(SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED, !isAgeRestrictedContentAllowed)
-                    : openModal(MODALS.CONFIRM_AGE, {
-                        cb: () =>
-                          setClientSetting(SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED, !isAgeRestrictedContentAllowed),
-                      })
+                  setClientSetting(SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED, !isAgeRestrictedContentAllowed)
                 }
               />
             </SettingsRow>
