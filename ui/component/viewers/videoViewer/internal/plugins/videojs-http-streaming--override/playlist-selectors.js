@@ -191,7 +191,7 @@ export const simpleSelector = function(
 };
 
 function newBandwidthEstimate(prevEstimate, newBandwidthMeasurement) {
-  const ALPHA = 0.2;
+  const ALPHA = 0.1;
   return Math.floor(ALPHA * newBandwidthMeasurement + (1 - ALPHA) * prevEstimate);
 }
 
