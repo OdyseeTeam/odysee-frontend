@@ -58,6 +58,7 @@
     "@stripe/react-stripe-js": "^1.10.0",
     "@stripe/stripe-js": "^1.35.0",
     "@ungap/from-entries": "^0.2.1",
+    "arbundles": "^0.11.1",
     "auto-launch": "^5.0.5",
     "core-js-pure": "^3.19.3",
     "electron-dl": "^1.11.0",
@@ -147,7 +148,7 @@
     "dom-scroll-into-view": "^1.2.1",
     "dotenv-defaults": "^5.0.0",
     "dotenv-webpack": "^8.0.0",
-    "electron": "9.4.0",
+    "electron": "^11.0.1",
     "electron-builder": "^22.9.1",
     "electron-devtools-installer": "^3.1.1",
     "electron-is-dev": "^0.3.0",
@@ -187,6 +188,7 @@
     "node-fetch": "^2.6.1",
     "node-libs-browser": "^2.1.0",
     "node-loader": "^2.0.0",
+    "node-polyfill-webpack-plugin": "^4.0.0",
     "node-wget": "^0.4.3",
     "nodemon": "^2.0.15",
     "postcss-loader": "^7.0.1",
@@ -257,7 +259,9 @@
     "yarnhook": "^0.2.0"
   },
   "resolutions": {
-    "video.js": "7.21.4"
+    "video.js": "7.21.4",
+    "process": "^0.11.10",
+    "axios": "^1.3.4"
   },
   "engines": {
     "node": "^18.14",

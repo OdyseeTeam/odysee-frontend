@@ -33,6 +33,8 @@ import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import Lbry from 'lbry';
 
+import { bundleToVideo } from 'bundle-wrangler';
+
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
@@ -490,6 +492,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           if (source) vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
       }
+      vjsPlayer.isLivestream = false;
+      vjsPlayer.removeClass('livestreamPlayer');
+      vjsPlayer.src(
+        bundleToVideo(
+          'https://server.arfleet.zephyrdev.xyz/explore/f59885a70b7e1832b333d8d9d7c77eba91ba102a20506f65c8c7446ea9f09728'
+        )
+      );
 
       doSetVideoSourceLoaded(uri);
 
