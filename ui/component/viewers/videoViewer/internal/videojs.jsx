@@ -472,33 +472,30 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
 
-        const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
-        playerServerRef.current = response.headers.get('x-powered-by');
-        vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
-
-        // remove query params for secured endpoints (which have query params on end of m3u8 path)
-        let trimmedUrl = new URL(response.url);
-        trimmedUrl.hash = '';
-        trimmedUrl.search = '';
-        trimmedUrl = trimmedUrl.toString();
-
-        // change to m3u8 if applicable
-        if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
-          vjsPlayer.claimSrcVhs = { type: HLS_FILETYPE, src: response.url };
-          vjsPlayer.src(vjsPlayer.claimSrcVhs);
-
-          contentUrl = response.url;
+        if (source.startsWith('https://server.arfleet.zephyrdev.xyz/explore/')) {
+          vjsPlayer.src(bundleToVideo(source));
         } else {
-          if (source) vjsPlayer.src(vjsPlayer.claimSrcOriginal);
+          const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+          playerServerRef.current = response.headers.get('x-powered-by');
+          vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
+
+          // remove query params for secured endpoints (which have query params on end of m3u8 path)
+          let trimmedUrl = new URL(response.url);
+          trimmedUrl.hash = '';
+          trimmedUrl.search = '';
+          trimmedUrl = trimmedUrl.toString();
+
+          // change to m3u8 if applicable
+          if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
+            vjsPlayer.claimSrcVhs = { type: HLS_FILETYPE, src: response.url };
+            vjsPlayer.src(vjsPlayer.claimSrcVhs);
+
+            contentUrl = response.url;
+          } else {
+            if (source) vjsPlayer.src(vjsPlayer.claimSrcOriginal);
+          }
         }
       }
-      vjsPlayer.isLivestream = false;
-      vjsPlayer.removeClass('livestreamPlayer');
-      vjsPlayer.src(
-        bundleToVideo(
-          'https://server.arfleet.zephyrdev.xyz/explore/f59885a70b7e1832b333d8d9d7c77eba91ba102a20506f65c8c7446ea9f09728'
-        )
-      );
 
       doSetVideoSourceLoaded(uri);
 
