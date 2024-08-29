@@ -472,8 +472,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
 
-        if (source.startsWith('https://server.arfleet.zephyrdev.xyz/explore/')) {
-          vjsPlayer.src(bundleToVideo(source));
+        if (source.includes('arfleet')) {
+          let bv = await bundleToVideo(source.split('?')[0]);
+          vjsPlayer.src({ type: 'video/mp4', src: bv });
         } else {
           const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
           playerServerRef.current = response.headers.get('x-powered-by');

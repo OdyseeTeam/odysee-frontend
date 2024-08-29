@@ -256,7 +256,8 @@
     "webpack-node-externals": "^3.0.0",
     "write-file-webpack-plugin": "^4.5.1",
     "y18n": "^4.0.1",
-    "yarnhook": "^0.2.0"
+    "yarnhook": "^0.2.0",
+    "bundle-wrangler": "link: ../bundle-wrangler/dist"
   },
   "resolutions": {
     "video.js": "7.21.4",
