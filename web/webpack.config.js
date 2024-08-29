@@ -246,6 +246,7 @@ const webConfig = {
       os: require.resolve('os-browserify/browser'),
       path: require.resolve('path-browserify'),
       stream: require.resolve('stream-browserify'),
+      'process/browser': require.resolve('process/browser'),
       vm: false,
     },
     alias: {
