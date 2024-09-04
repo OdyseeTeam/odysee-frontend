@@ -2941,6 +2941,11 @@
   "or %extraBytes% characters of text.": "or %extraBytes% characters of text.",
   "or 1 character of text.": "or 1 character of text.",
   "Failed to fetch memberships": "Failed to fetch memberships",
+  "Hide Download Button": "Hide Download Button",
+  "Disable Likes/Dislikes - Content": "Disable Likes/Dislikes - Content",
+  "Disable Likes/Dislikes - Comments": "Disable Likes/Dislikes - Comments",
+  "Disable Dislikes - Content": "Disable Dislikes - Content",
+  "Disable Dislikes - Comments": "Disable Dislikes - Comments",
 
   "--end--": "--end--"
 }
