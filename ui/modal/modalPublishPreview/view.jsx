@@ -56,7 +56,7 @@ type Props = {
   setEnablePublishPreview: (boolean) => void,
   isStillEditing: boolean,
   myChannels: ?Array<ChannelClaim>,
-  publishSuccess: boolean,
+  // publishSuccess: boolean,
   publishing: boolean,
   isLivestreamClaim: boolean,
   remoteFile: ?string,
@@ -101,7 +101,7 @@ const ModalPublishPreview = (props: Props) => {
     setEnablePublishPreview,
     isStillEditing,
     myChannels,
-    publishSuccess,
+    // publishSuccess,
     publishing,
     publish,
     closeModal,
@@ -391,6 +391,7 @@ const ModalPublishPreview = (props: Props) => {
   // **************************************************************************
 
   // @if TARGET='web'
+  /*
   React.useEffect(() => {
     if (publishing && !livestream) {
       closeModal();
@@ -399,7 +400,7 @@ const ModalPublishPreview = (props: Props) => {
     }
   }, [publishSuccess, publishing, livestream, closeModal]);
   // @endif
-
+ */
   // **************************************************************************
   // **************************************************************************
 
