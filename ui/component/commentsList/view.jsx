@@ -150,9 +150,18 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
   const [debouncedUri, setDebouncedUri] = React.useState();
 
+  const [uiFilteredComments, setUiFilteredComments] = React.useState([]);
+  const updateUiFilteredComments = React.useCallback((commentId) => {
+    setUiFilteredComments((prevCommentIds) => {
+      return prevCommentIds.includes(commentId) ? prevCommentIds : [...prevCommentIds, commentId];
+    });
+  }, []);
+
+  const totalUnfilteredComments = totalComments > 0 ? totalComments - uiFilteredComments.length : totalComments;
+
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
   const moreBelow = page < topLevelTotalPages;
-  const title = getCommentsListTitle(totalComments);
+  const title = getCommentsListTitle(totalUnfilteredComments);
   const threadDepthLevel = isMobile ? 3 : 10;
   let threadCommentParent;
   if (threadCommentAncestors) {
@@ -401,7 +410,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
   const actionButtonsProps = {
     uri,
-    totalComments,
+    totalUnfilteredComments,
     sort,
     changeSort,
     handleRefresh: refreshComments,
@@ -442,14 +451,14 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
             </span>
           )}
 
-          {commentsEnabledSetting && !isFetchingComments && !totalComments && !threadCommentId && (
+          {commentsEnabledSetting && !isFetchingComments && !totalUnfilteredComments && !threadCommentId && (
             <Empty padded text={__('That was pretty deep. What do you think?')} />
           )}
 
           <ul
             ref={commentListRef}
             className={classnames('comments', {
-              'comments--contracted': isMediumScreen && !expandedComments && totalComments > 1,
+              'comments--contracted': isMediumScreen && !expandedComments && totalUnfilteredComments > 1,
             })}
           >
             {readyToDisplayComments && (
@@ -459,6 +468,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
                     key={threadComment.comment_id}
                     comment={threadComment}
                     disabled={notAuthedToChat}
+                    updateUiFilteredComments={updateUiFilteredComments}
                     {...commentProps}
                   />
                 )}
@@ -468,7 +478,15 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
                       // Skip if part of the linked comment thread - thread is shown at the top
                       return;
                     }
-                    return <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />;
+                    return (
+                      <CommentView
+                        key={c.comment_id}
+                        comment={c}
+                        disabled={notAuthedToChat}
+                        updateUiFilteredComments={updateUiFilteredComments}
+                        {...commentProps}
+                      />
+                    );
                   })}
 
                 {topLevelComments.map((c) => {
@@ -476,7 +494,15 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
                     // Skip if part of the linked comment thread - thread is shown at the top
                     return;
                   }
-                  return <CommentView key={c.comment_id} comment={c} disabled={notAuthedToChat} {...commentProps} />;
+                  return (
+                    <CommentView
+                      key={c.comment_id}
+                      comment={c}
+                      disabled={notAuthedToChat}
+                      updateUiFilteredComments={updateUiFilteredComments}
+                      {...commentProps}
+                    />
+                  );
                 })}
               </>
             )}
@@ -484,7 +510,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
           {!hasDefaultExpansion && (
             <div className="card__bottom-actions card__bottom-actions--comments">
-              {(!expandedComments || moreBelow) && totalComments > 1 && (
+              {(!expandedComments || moreBelow) && totalUnfilteredComments > 1 && (
                 <Button
                   button="link"
                   title={!expandedComments ? __('Expand') : __('More')}
@@ -492,7 +518,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
                   onClick={() => (!expandedComments ? setExpandedComments(true) : setPage(page + 1))}
                 />
               )}
-              {expandedComments && totalComments > 1 && (
+              {expandedComments && totalUnfilteredComments > 1 && (
                 <Button
                   button="link"
                   title={__('Collapse')}
@@ -528,20 +554,20 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
 
 type ActionButtonsProps = {
   uri: string,
-  totalComments: number,
+  totalUnfilteredComments: number,
   sort: string,
   changeSort: (string) => void,
   handleRefresh: () => void,
 };
 
 const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
-  const { uri, totalComments, sort, changeSort, handleRefresh } = actionButtonsProps;
+  const { uri, totalUnfilteredComments, sort, changeSort, handleRefresh } = actionButtonsProps;
 
   const sortButtonProps = { activeSort: sort, changeSort };
 
   return (
     <div className="comment__actions">
-      {totalComments > 1 && ENABLE_COMMENT_REACTIONS && (
+      {totalUnfilteredComments > 1 && ENABLE_COMMENT_REACTIONS && (
         <span className="comment__sort">
           <SortButton {...sortButtonProps} label={__('Best')} icon={ICONS.BEST} sortOption={SORT_BY.POPULARITY} />
           <SortButton

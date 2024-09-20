@@ -18,6 +18,7 @@ export type Props = {|
   threadDepthLevel?: number,
   onShowMore?: () => void,
   threadLevel: number,
+  updateUiFilteredComments?: (commentId: string) => void,
 |};
 
 type StateProps = {|
@@ -44,6 +45,7 @@ export default function CommentsReplies(props: Props & StateProps & DispatchProp
     onShowMore,
     threadLevel,
     isFetching,
+    updateUiFilteredComments,
   } = props;
 
   return !numDirectReplies ? null : (
@@ -59,6 +61,7 @@ export default function CommentsReplies(props: Props & StateProps & DispatchProp
             supportDisabled={supportDisabled}
             threadLevel={threadLevel + 1}
             threadDepthLevel={threadDepthLevel}
+            updateUiFilteredComments={updateUiFilteredComments}
           />
         ))}
       </ul>

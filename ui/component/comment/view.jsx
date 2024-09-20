@@ -70,6 +70,7 @@ export type Props = {|
   threadLevel?: number,
   threadDepthLevel?: number,
   disabled?: boolean,
+  updateUiFilteredComments?: (commentId: string) => void,
 |};
 
 type StateProps = {|
@@ -140,6 +141,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
     authorTitle,
     channelAge,
     disabled,
+    updateUiFilteredComments,
   } = props;
 
   const commentElemRef = React.useRef();
@@ -312,6 +314,9 @@ function CommentView(props: Props & StateProps & DispatchProps) {
   );
 
   if (isCommenterChannelDeleted) {
+    if (updateUiFilteredComments) {
+      updateUiFilteredComments(commentId);
+    }
     return null;
   }
 
@@ -561,6 +566,7 @@ function CommentView(props: Props & StateProps & DispatchProps) {
               onShowMore={handleShowMore}
               hasMore={page < totalReplyPages}
               threadDepthLevel={threadDepthLevel}
+              updateUiFilteredComments={updateUiFilteredComments}
             />
           ))}
       </div>
