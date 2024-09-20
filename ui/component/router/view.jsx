@@ -334,6 +334,7 @@ function AppRouter(props: Props) {
     } else if (
       defaultChannelRef.current &&
       pathname !== `/$/${PAGES.UPLOAD}` &&
+      pathname !== `/$/${PAGES.POST}` &&
       !pathname.includes(`/$/${PAGES.LIST}/`) &&
       !pathname.includes(`/$/${PAGES.PLAYLIST}/`) &&
       pathname !== `/$/${PAGES.CREATOR_DASHBOARD}` &&
