@@ -2,14 +2,14 @@ import { connect } from 'react-redux';
 import { doSignOut } from 'redux/actions/app';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUser, selectUserEmail, selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectTheme } from 'redux/selectors/settings';
 import { doSetClientSetting } from 'redux/actions/settings';
 import * as SETTINGS from 'constants/settings';
 
 import HeaderProfileMenuButton from './view';
 
 const select = (state) => ({
-  currentTheme: selectClientSetting(state, SETTINGS.THEME),
+  currentTheme: selectTheme(state),
   automaticDarkModeEnabled: selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED),
 
   user: selectUser(state),

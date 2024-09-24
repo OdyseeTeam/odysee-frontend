@@ -36,7 +36,7 @@ const defaultState = {
     [SETTINGS.LANGUAGE]: null,
     [SETTINGS.SEARCH_IN_LANGUAGE]: false,
     [SETTINGS.THEME]: __('dark'),
-    [SETTINGS.THEMES]: [__('dark'), __('light')],
+    [SETTINGS.THEMES]: [__('dark'), __('light'), __('system')],
     [SETTINGS.HOMEPAGE]: null,
     [SETTINGS.HOMEPAGE_ORDER]: { active: null, hidden: null },
     [SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR]: false,
