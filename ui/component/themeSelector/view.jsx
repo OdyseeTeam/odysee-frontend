@@ -69,7 +69,7 @@ export default function ThemeSelector(props: Props) {
         >
           {themes.map((theme) => (
             <option key={theme} value={theme}>
-              {theme === 'light' ? __('Light') : __('Dark')}
+              {theme === 'light' ? __('Light') : theme === 'dark' ? __('Dark') : __('System')}
             </option>
           ))}
         </FormField>

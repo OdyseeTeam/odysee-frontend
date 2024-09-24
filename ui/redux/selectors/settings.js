@@ -28,7 +28,19 @@ export const selectShowMatureContent = (state) => {
   return !ENABLE_MATURE ? false : selectClientSetting(state, SETTINGS.SHOW_MATURE);
 };
 
-export const selectTheme = (state) => selectClientSetting(state, SETTINGS.THEME);
+export const selectTheme = (state) => {
+  const theme = selectClientSetting(state, SETTINGS.THEME);
+  if (theme === 'system') {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return 'light';
+    } else {
+      return 'dark';
+    }
+  }
+
+  return theme;
+};
+
 export const selectAutomaticDarkModeEnabled = (state) =>
   selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED);
 export const selectIsNight = (state) => selectState(state).isNight;

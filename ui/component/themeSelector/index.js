@@ -6,7 +6,8 @@ import ThemeSelector from './view';
 
 const select = (state) => ({
   currentTheme: selectClientSetting(state, SETTINGS.THEME),
-  themes: selectClientSetting(state, SETTINGS.THEMES),
+  // Temporarily hardcoding themes here, otherwise user needs to log out and reload to get the changes in clientSettings. Can be removed after sometime, when most users have done that.
+  themes: [__('dark'), __('light'), __('system')], // selectClientSetting(state, SETTINGS.THEMES),
   automaticDarkModeEnabled: selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED),
   darkModeTimes: selectClientSetting(state, SETTINGS.DARK_MODE_TIMES),
   clock24h: selectClientSetting(state, SETTINGS.CLOCK_24H),
