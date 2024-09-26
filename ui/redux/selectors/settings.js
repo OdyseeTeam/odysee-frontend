@@ -143,6 +143,18 @@ export const selectHomepageDiscover = (state) => {
   return homepages ? homepages['en'].discover || [] : [];
 };
 
+export const selectHomepageDiscoverNew = (state) => {
+  const homepageCode = selectHomepageCode(state);
+  const homepages = selectHomepageDb(state);
+  if (homepages) {
+    const discover = homepages[homepageCode]?.discoverNew;
+    if (discover) {
+      return discover;
+    }
+  }
+  return homepages ? homepages['en']?.discoverNew || [] : [];
+};
+
 export const selectHomepageAnnouncement = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);
