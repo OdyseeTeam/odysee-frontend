@@ -12,14 +12,17 @@ type Props = {
   blockedChannels: Array<string>,
   homepageData: any,
   discoverData: ?Array<string>,
+  discoverDataNew: ?Array<string>,
 };
 
 function ChannelsFollowingDiscover(props: Props) {
-  const { subscribedChannelIds, homepageData, discoverData } = props;
+  const { subscribedChannelIds, homepageData, discoverData, discoverDataNew } = props;
   const { PRIMARY_CONTENT, LATEST } = homepageData;
 
   let channelIds;
-  if (discoverData) {
+  if (discoverDataNew && discoverDataNew.length > 0) {
+    channelIds = discoverDataNew;
+  } else if (discoverData) {
     channelIds = discoverData;
   } else if (CUSTOM_HOMEPAGE) {
     if (LATEST) {
@@ -32,7 +35,7 @@ function ChannelsFollowingDiscover(props: Props) {
   return (
     <Page>
       <ClaimListDiscover
-        defaultOrderBy={CS.ORDER_BY_TRENDING}
+        defaultOrderBy={CS.ORDER_BY_NEW_CREATED}
         defaultFreshness={CS.FRESH_ALL}
         claimType={CS.CLAIM_CHANNEL}
         claimIds={CUSTOM_HOMEPAGE && channelIds ? channelIds : undefined}

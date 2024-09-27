@@ -88,6 +88,8 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   };
 
   const Header = () => {
+    if (list.total === 0) return null;
+
     return (
       <div
         className="claim-grid__header"
@@ -101,25 +103,13 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
           </span>
           <span className="claim-grid__title">{__('Upcoming')}</span>
 
-          {showHideSetting && !hideUpcoming && list.total > 0 && (
-            <div className="upcoming-grid__visibility" onClick={() => hideScheduled(true)}>
-              <Icon icon={ICONS.EYE_OFF} />
-              <span>{__('Hide')}</span>
-            </div>
-          )}
-          {showHideSetting && hideUpcoming && list.total > 0 && (
-            <div className="upcoming-grid__visibility" onClick={() => hideScheduled(false)}>
-              <Icon icon={ICONS.EYE} />
-              {list.total > 0 ? <span>{__('Show')}</span> : <span>{__('Empty')}</span>}
+          {showHideSetting && (
+            <div className="upcoming-grid__visibility" onClick={() => hideScheduled(!hideUpcoming)}>
+              <Icon icon={hideUpcoming ? ICONS.EYE : ICONS.EYE_OFF} />
+              <span>{hideUpcoming ? __('Show') : __('Hide')}</span>
               <div className="upcoming-grid__counter">
-                {list.total < upcomingMax ? list.total : showAllUpcoming ? upcomingMax : upcomingMax * 2}
+                {Math.min(list.total, showAllUpcoming ? upcomingMax : upcomingMax * 2)}
               </div>
-            </div>
-          )}
-          {((showHideSetting && list.total === 0) || (!showHideSetting && list.total === 0)) && (
-            <div className="upcoming-grid__visibility--empty">
-              <span>{__('Empty')}</span>
-              <div className="upcoming-grid__counter">{list.total}</div>
             </div>
           )}
         </div>

@@ -38,6 +38,9 @@ export const ORDER_BY_TOP_VALUE = ['effective_amount'];
 export const ORDER_BY_NEW = 'new';
 export const ORDER_BY_NEW_VALUE = ['release_time'];
 
+export const ORDER_BY_NEW_CREATED = 'new_created';
+export const ORDER_BY_NEW_CREATED_VALUE = ['creation_timestamp'];
+
 export const ORDER_BY_NEW_ASC = 'new_asc';
 export const ORDER_BY_NEW_ASC_VALUE = ['^release_time'];
 
