@@ -35,7 +35,7 @@ function ChannelsFollowingDiscover(props: Props) {
   return (
     <Page>
       <ClaimListDiscover
-        defaultOrderBy={CS.ORDER_BY_NEW}
+        defaultOrderBy={CS.ORDER_BY_NEW_CREATED}
         defaultFreshness={CS.FRESH_ALL}
         claimType={CS.CLAIM_CHANNEL}
         claimIds={CUSTOM_HOMEPAGE && channelIds ? channelIds : undefined}

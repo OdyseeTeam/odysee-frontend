@@ -659,6 +659,9 @@ function ClaimListDiscover(props: Props) {
       case CS.ORDER_BY_NEW:
         order_by = CS.ORDER_BY_NEW_VALUE;
         break;
+      case CS.ORDER_BY_NEW_CREATED:
+        order_by = CS.ORDER_BY_NEW_CREATED_VALUE;
+        break;
       case CS.ORDER_BY_NEW_ASC:
         order_by = CS.ORDER_BY_NEW_ASC_VALUE;
         break;
