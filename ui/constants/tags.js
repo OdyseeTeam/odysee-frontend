@@ -30,6 +30,7 @@ export const DISABLE_SLIMES_VIDEO_TAG = 'c:disable-slimes-video';
 export const DISABLE_SLIMES_COMMENTS_TAG = 'c:disable-slimes-comments';
 
 export const AGE_RESTRICED_CONTENT_TAG = 'c:requires_18+';
+export const AGE_RESTRICED_CHANNEL_IMAGES_TAG = 'c:channel_images_require_18+';
 
 export const PURCHASE_TAG = 'c:purchase';
 export const RENTAL_TAG = 'c:rental';
@@ -53,6 +54,7 @@ export const SCHEDULED_TAGS = Object.freeze({
 
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [
+  AGE_RESTRICED_CHANNEL_IMAGES_TAG,
   AGE_RESTRICED_CONTENT_TAG,
   DISABLE_SUPPORT_TAG,
   DISABLE_COMMENTS_TAG,

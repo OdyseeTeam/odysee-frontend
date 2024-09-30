@@ -16,6 +16,7 @@ import { useHistory } from 'react-router';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import * as TAGS from 'constants/tags';
 import { BITRATE } from 'constants/publish';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
@@ -519,6 +520,7 @@ function LivestreamForm(props: Props) {
                     help={__(
                       "Add tags that are relevant to your content so those who're looking for it can find it more easily."
                     )}
+                    disabledControlTags={[TAGS.AGE_RESTRICED_CHANNEL_IMAGES_TAG]}
                     placeholder={__('gaming, crypto')}
                     onSelect={(newTags) => {
                       const validatedTags = [];
