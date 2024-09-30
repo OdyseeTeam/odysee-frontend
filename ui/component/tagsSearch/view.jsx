@@ -21,6 +21,7 @@ import {
   DISABLE_SLIMES_VIDEO_TAG,
   DISABLE_SLIMES_COMMENTS_TAG,
   AGE_RESTRICED_CONTENT_TAG,
+  AGE_RESTRICED_CHANNEL_IMAGES_TAG,
 } from 'constants/tags';
 import { removeInternalTags } from 'util/tags';
 
@@ -149,6 +150,22 @@ export default function TagsSearch(props: Props) {
           }}
         >
           Contains nudity, violence or other allowed 18+ content. See %community_guidelines%
+        </I18nMessage>
+      );
+    } else if (t === AGE_RESTRICED_CHANNEL_IMAGES_TAG) {
+      label = (
+        <I18nMessage
+          tokens={{
+            community_guidelines: (
+              <Button
+                button="link"
+                href="https://help.odysee.tv/communityguidelines/"
+                label={__('Community Guidelines')}
+              />
+            ),
+          }}
+        >
+          Profile/Cover image contains nudity, violence or other allowed 18+ content. See %community_guidelines%
         </I18nMessage>
       );
     } else {
