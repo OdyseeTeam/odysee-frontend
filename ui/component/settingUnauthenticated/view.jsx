@@ -9,6 +9,7 @@ import { FormField } from 'component/common/form';
 import HomepageSelector from 'component/homepageSelector';
 import SettingLanguage from 'component/settingLanguage';
 import SettingsRow from 'component/settingsRow';
+import ThemeSelector from 'component/themeSelector';
 
 type Props = {
   searchInLanguage: boolean,
@@ -42,6 +43,10 @@ export default function SettingUnauthenticated(props: Props) {
               <HomepageSelector />
             </SettingsRow>
           )}
+
+          <SettingsRow title={__('Theme')}>
+            <ThemeSelector />
+          </SettingsRow>
         </>
       }
     />

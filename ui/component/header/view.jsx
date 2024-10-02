@@ -191,20 +191,23 @@ const Header = (props: Props) => {
           {!hideProfile && <HeaderProfileMenuButton />}
         </>
       ) : !isMobile ? (
-        <div className="header__authButtons">
-          <Button
-            navigate={`/$/${PAGES.AUTH_SIGNIN}${authRedirectParam}`}
-            button="link"
-            label={__('Log In')}
-            disabled={user === null}
-          />
-          <Button
-            navigate={`/$/${PAGES.AUTH}${authRedirectParam}`}
-            button="primary"
-            label={__('Sign Up')}
-            disabled={user === null}
-          />
-        </div>
+        <>
+          <HeaderProfileMenuButton />
+          <div className="header__authButtons">
+            <Button
+              navigate={`/$/${PAGES.AUTH_SIGNIN}${authRedirectParam}`}
+              button="link"
+              label={__('Log In')}
+              disabled={user === null}
+            />
+            <Button
+              navigate={`/$/${PAGES.AUTH}${authRedirectParam}`}
+              button="primary"
+              label={__('Sign Up')}
+              disabled={user === null}
+            />
+          </div>
+        </>
       ) : (
         <HeaderProfileMenuButton />
       )}

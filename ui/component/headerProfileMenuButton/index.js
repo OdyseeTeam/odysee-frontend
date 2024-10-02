@@ -19,9 +19,11 @@ const select = (state) => ({
 });
 
 const perform = (dispatch) => ({
-  handleThemeToggle: (automaticDarkModeEnabled, currentTheme) => {
-    if (automaticDarkModeEnabled) dispatch(doSetClientSetting(SETTINGS.AUTOMATIC_DARK_MODE_ENABLED, false));
-    dispatch(doSetClientSetting(SETTINGS.THEME, currentTheme === 'dark' ? 'light' : 'dark', true));
+  handleThemeToggle: (automaticDarkModeEnabled, currentTheme, authenticated) => {
+    if (automaticDarkModeEnabled) {
+      dispatch(doSetClientSetting(SETTINGS.AUTOMATIC_DARK_MODE_ENABLED, false, authenticated));
+    }
+    dispatch(doSetClientSetting(SETTINGS.THEME, currentTheme === 'dark' ? 'light' : 'dark', authenticated));
   },
   signOut: () => dispatch(doSignOut()),
 });
