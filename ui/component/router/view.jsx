@@ -403,7 +403,12 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.REPORT_CONTENT}`} exact component={ReportContentPage} />
         <Route {...props} path={`/$/${PAGES.LIST}/:collectionId`} component={CollectionPage} />
         <Route {...props} path={`/$/${PAGES.PLAYLIST}/:collectionId`} component={CollectionPage} />
-
+        <Route
+          {...props}
+          exact
+          path={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
+          component={ChannelsFollowingDiscoverPage}
+        />
         <PrivateRoute {...props} exact path={`/$/${PAGES.YOUTUBE_SYNC}`} component={YoutubeSyncPage} />
         <PrivateRoute {...props} exact path={`/$/${PAGES.TAGS_FOLLOWING}`} component={TagsFollowingPage} />
         <PrivateRoute
@@ -416,12 +421,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} component={SettingsStripeCard} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`} component={SettingsStripeAccount} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_UPDATE_PWD}`} component={UpdatePasswordPage} />
-        <PrivateRoute
-          {...props}
-          exact
-          path={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
-          component={ChannelsFollowingDiscoverPage}
-        />
+
         <PrivateRoute
           {...props}
           exact
