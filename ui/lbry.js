@@ -410,6 +410,10 @@ function claimSearchParamHook(options: any) {
   if (ids && ids.length > LIMIT) {
     finalOptions.not_channel_ids = ids.slice(0, LIMIT);
   }
+  const ids2 = finalOptions.claim_ids;
+  if (ids2 && ids2.length > LIMIT) {
+    finalOptions.claim_ids = ids2.slice(0, LIMIT);
+  }
 
   return finalOptions;
 }
