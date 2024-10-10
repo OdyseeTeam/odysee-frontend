@@ -28,6 +28,7 @@ type Props = {
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   tileLayout: boolean,
+  discoverDataNew: ?Array<string>,
 };
 
 function DiscoverPage(props: Props) {
@@ -38,9 +39,12 @@ function DiscoverPage(props: Props) {
     doResolveUri,
     tileLayout,
     dynamicRouteProps,
+    discoverDataNew,
   } = props;
 
   const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
+  const isExplore = dynamicRouteProps && dynamicRouteProps.id === 'EXPLORABLE_CHANNEL';
+  const exploreChannelsIds = isExplore && discoverDataNew && discoverDataNew.length > 0 ? discoverDataNew : undefined;
   const isCategory = Boolean(dynamicRouteProps);
   const hideFilter = dynamicRouteProps?.hideSort || undefined;
 
@@ -209,7 +213,7 @@ function DiscoverPage(props: Props) {
           // for now including && !tags so that
           releaseTime={getReleaseTime()}
           feeAmount={undefined}
-          channelIds={channelIds}
+          channelIds={isExplore && exploreChannelsIds ? exploreChannelsIds : channelIds}
           excludedChannelIds={excludedChannelIds}
           limitClaimsPerChannel={
             SIMPLE_SITE
