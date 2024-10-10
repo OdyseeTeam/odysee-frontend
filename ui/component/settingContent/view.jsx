@@ -25,12 +25,14 @@ type Props = {
   hideReposts: ?boolean,
   hideShorts: ?boolean,
   showNsfw: boolean,
+  isAgeRestrictedContentAllowed: boolean,
+  ageConfirmed: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
   // --- perform ---
   setClientSetting: (string, boolean | string | number) => void,
-  openModal: (string) => void,
+  openModal: (string, props?: { cb: () => void }) => void,
 };
 
 export default function SettingContent(props: Props) {
@@ -40,6 +42,8 @@ export default function SettingContent(props: Props) {
     hideReposts,
     hideShorts,
     showNsfw,
+    isAgeRestrictedContentAllowed,
+    ageConfirmed,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
@@ -89,6 +93,20 @@ export default function SettingContent(props: Props) {
               />
             </SettingsRow>
 
+            <SettingsRow
+              title={__("Don't obscure age restricted content")}
+              subtitle={__(HELP.NO_OBSCURE_AGE_RESTRICTED_CONTENT)}
+            >
+              <FormField
+                type="checkbox"
+                name="allow_age_restricted_content"
+                checked={isAgeRestrictedContentAllowed}
+                onChange={() =>
+                  setClientSetting(SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED, !isAgeRestrictedContentAllowed)
+                }
+              />
+            </SettingsRow>
+
             {!SIMPLE_SITE && (
               <>
                 <SettingsRow title={__('Show mature content')} subtitle={__(HELP.SHOW_MATURE)}>
@@ -97,9 +115,9 @@ export default function SettingContent(props: Props) {
                     name="show_nsfw"
                     checked={showNsfw}
                     onChange={() =>
-                      !IS_WEB || showNsfw
+                      !IS_WEB || showNsfw || ageConfirmed
                         ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw)
-                        : openModal(MODALS.CONFIRM_AGE)
+                        : openModal(MODALS.CONFIRM_AGE, { cb: () => setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw) })
                     }
                   />
                 </SettingsRow>
@@ -183,6 +201,7 @@ const HELP = {
   HIDE_SHORTS: 'You will not see content under 1min long. Also hides non-video/audio content.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
+  NO_OBSCURE_AGE_RESTRICTED_CONTENT: "Don't blur thumbnails or warn about age restricted content",
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
   ONLY_CONFIRM_OVER_AMOUNT: '', // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
   PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',

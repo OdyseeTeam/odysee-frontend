@@ -76,6 +76,8 @@ type Props = {
   preferEmbed: boolean,
   banState: any,
   isMature: boolean,
+  isImagesAgeRestricted: boolean,
+  isAgeRestrictedContentAllowed: boolean,
 };
 
 function ChannelPage(props: Props) {
@@ -103,6 +105,8 @@ function ChannelPage(props: Props) {
     preferEmbed,
     banState,
     isMature,
+    isImagesAgeRestricted,
+    isAgeRestrictedContentAllowed,
   } = props;
   const {
     push,
@@ -112,6 +116,8 @@ function ChannelPage(props: Props) {
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
+
+  const shouldBlur = !channelIsMine && isImagesAgeRestricted && !isAgeRestrictedContentAllowed;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
 
@@ -363,7 +369,7 @@ function ChannelPage(props: Props) {
   return (
     <ChannelPageContext.Provider value>
       <header
-        className={classnames('channel-cover', { 'channel-cover-legacy': legacyHeader })}
+        className={classnames('channel-cover', { 'channel-cover-legacy': legacyHeader, 'age-restricted': shouldBlur })}
         style={coverUrl && { backgroundImage: 'url(' + String(coverUrl) + ')' }}
       >
         <div className="channel-header-content">
