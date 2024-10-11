@@ -1,5 +1,6 @@
 // @flow
 import React, { useState } from 'react';
+import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
 import Tag from 'component/tag';
 import { setUnion, setDifference } from 'util/set-operations';
@@ -19,6 +20,8 @@ import {
   DISABLE_REACTIONS_COMMENTS_TAG,
   DISABLE_SLIMES_VIDEO_TAG,
   DISABLE_SLIMES_COMMENTS_TAG,
+  AGE_RESTRICED_CONTENT_TAG,
+  AGE_RESTRICED_CHANNEL_IMAGES_TAG,
 } from 'constants/tags';
 import { removeInternalTags } from 'util/tags';
 
@@ -43,6 +46,7 @@ type Props = {
   limitShow?: number,
   user: User,
   disableControlTags?: boolean,
+  disabledControlTags?: Array<string>,
   help?: string,
 };
 
@@ -77,6 +81,7 @@ export default function TagsSearch(props: Props) {
     limitSelect = TAG_FOLLOW_MAX,
     limitShow = 5,
     disableControlTags,
+    disabledControlTags,
     help,
   } = props;
   const [newTag, setNewTag] = useState('');
@@ -127,6 +132,38 @@ export default function TagsSearch(props: Props) {
       label = __('Disable Dislikes - Content');
     } else if (t === DISABLE_SLIMES_COMMENTS_TAG) {
       label = __('Disable Dislikes - Comments');
+    } else if (t === AGE_RESTRICED_CONTENT_TAG) {
+      label = (
+        <I18nMessage
+          tokens={{
+            community_guidelines: (
+              <Button
+                button="link"
+                href="https://help.odysee.tv/communityguidelines/"
+                label={__('Community Guidelines')}
+              />
+            ),
+          }}
+        >
+          Contains nudity, violence or other allowed 18+ content. See %community_guidelines%
+        </I18nMessage>
+      );
+    } else if (t === AGE_RESTRICED_CHANNEL_IMAGES_TAG) {
+      label = (
+        <I18nMessage
+          tokens={{
+            community_guidelines: (
+              <Button
+                button="link"
+                href="https://help.odysee.tv/communityguidelines/"
+                label={__('Community Guidelines')}
+              />
+            ),
+          }}
+        >
+          Profile/Cover image contains nudity, violence or other allowed 18+ content. See %community_guidelines%
+        </I18nMessage>
+      );
     } else {
       label = __(
         t
@@ -283,17 +320,21 @@ export default function TagsSearch(props: Props) {
           onSelect && ( // onSelect ensures this does not appear on TagFollow
             <fieldset-section>
               <label>{__('Control Tags')}</label>
-              {CONTROL_TAGS.map((t) => (
-                <FormField
-                  key={t}
-                  name={t}
-                  type="checkbox"
-                  blockWrap={false}
-                  label={controlTagLabels[t]}
-                  checked={tagsPassedIn.some((te) => te.name === t)}
-                  onChange={() => handleUtilityTagCheckbox(t)}
-                />
-              ))}
+              {CONTROL_TAGS.map(
+                (t) =>
+                  // $FlowIgnore
+                  !disabledControlTags?.includes(t) && (
+                    <FormField
+                      key={t}
+                      name={t}
+                      type="checkbox"
+                      blockWrap={false}
+                      label={controlTagLabels[t]}
+                      checked={tagsPassedIn.some((te) => te.name === t)}
+                      onChange={() => handleUtilityTagCheckbox(t)}
+                    />
+                  )
+              )}
             </fieldset-section>
           )}
       </Form>
