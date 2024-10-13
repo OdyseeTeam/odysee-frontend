@@ -7,6 +7,7 @@ import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import { isURIValid } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import * as PAGES from 'constants/pages';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { isChannelClaim } from 'util/claim';
 import { isClaimAllowedForCollection } from 'util/collections';
@@ -112,6 +113,7 @@ type Props = {
   doPlayNextUri: (params: { uri: string }) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
   thumbnailFromClaim: string,
+  defaultCollectionAction: string,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -187,6 +189,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     doPlayNextUri,
     doDisablePlayerDrag,
     thumbnailFromClaim,
+    defaultCollectionAction,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -257,9 +260,12 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   const ariaLabelData = isChannelUri ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
 
-  const navigateUrl = formatLbryUrlForWeb((claim && claim.canonical_url) || uri || '/');
+  const navigateUrl =
+    listId && defaultCollectionAction === COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW
+      ? `/$/${PAGES.PLAYLIST}/${listId}`
+      : formatLbryUrlForWeb((claim && claim.canonical_url) || uri || '/');
   let navigateSearch = new URLSearchParams();
-  if (listId) {
+  if (listId && defaultCollectionAction !== COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW) {
     navigateSearch.set(COLLECTIONS_CONSTS.COLLECTION_ID, listId);
   }
   if (searchParams) {

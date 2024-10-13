@@ -12,6 +12,7 @@ import {
 } from 'redux/selectors/collections';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import * as SETTINGS from 'constants/settings';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { doChannelMute, doChannelUnmute } from 'redux/actions/blocked';
 import { doOpenModal } from 'redux/actions/app';
@@ -31,6 +32,7 @@ import { doToast } from 'redux/actions/notifications';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { doEnableCollectionShuffle, doFetchUriAccessKey, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
@@ -97,6 +99,7 @@ const select = (state, props) => {
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     isContentProtectedAndLocked:
       contentClaim && selectIsProtectedContentLockedFromUserForId(state, contentClaim.claim_id),
+    defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
   };
 };
 

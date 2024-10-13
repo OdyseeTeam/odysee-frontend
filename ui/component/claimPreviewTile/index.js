@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import * as SETTINGS from 'constants/settings';
 import {
   selectClaimForUri,
   selectIsUriResolving,
@@ -11,7 +12,7 @@ import { doFileGetForUri } from 'redux/actions/file';
 import { selectViewCountForUri, selectBanStateForUri } from 'lbryinc';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
-import { selectShowMatureContent } from 'redux/selectors/settings';
+import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
 import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import ClaimPreviewTile from './view';
@@ -41,6 +42,7 @@ const select = (state, props) => {
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
     viewCount: selectViewCountForUri(state, props.uri),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
+    defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
   };
 };
 
