@@ -261,11 +261,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const ariaLabelData = isChannelUri ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
 
   const navigateUrl =
-    listId && defaultCollectionAction === COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW
+    isCollection && listId && defaultCollectionAction === COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW
       ? `/$/${PAGES.PLAYLIST}/${listId}`
       : formatLbryUrlForWeb((claim && claim.canonical_url) || uri || '/');
   let navigateSearch = new URLSearchParams();
-  if (listId && defaultCollectionAction !== COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW) {
+  if (!isCollection && listId) {
     navigateSearch.set(COLLECTIONS_CONSTS.COLLECTION_ID, listId);
   }
   if (searchParams) {
