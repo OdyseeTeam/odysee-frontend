@@ -22,7 +22,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   channels: ?Array<ChannelClaim>,
   incognito: boolean,
-  preferredCurrency: CurrencyOption,
   purchasePending: boolean,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doHideModal: () => void,
@@ -37,7 +36,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     activeChannelClaim,
     channels,
     incognito,
-    preferredCurrency,
     purchasePending,
     doMembershipBuy,
     doHideModal,
@@ -95,13 +93,15 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
             <I18nMessage
               tokens={{
                 time_interval_bold: (
-                  <b className="membership-bolded">{__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}</b>
+                  <b className="membership-bolded">
+                    {__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval].toLowerCase())}
+                  </b>
                 ),
-                time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]),
+                time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval].toLowerCase()),
                 price_bold: (
-                  <b className="membership-bolded">{`${preferredCurrency.toUpperCase()} ${
-                    STRIPE.CURRENCY[price.currency.toUpperCase()].symbol
-                  }${price.unit_amount / 100}`}</b>
+                  <b className="membership-bolded">{`${STRIPE.CURRENCY[price.currency.toUpperCase()].symbol}${(
+                    price.unit_amount / 100
+                  ).toFixed(2)}`}</b>
                 ),
                 plan,
               }}
