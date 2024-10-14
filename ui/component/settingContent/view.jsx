@@ -3,6 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import * as SETTINGS from 'constants/settings';
+import * as COLLECTIONS from 'constants/collections';
 import { Lbryio } from 'lbryinc';
 import { SIMPLE_SITE } from 'config';
 import * as MODALS from 'constants/modal_types';
@@ -24,6 +25,7 @@ type Props = {
   hideMembersOnlyContent: boolean,
   hideReposts: ?boolean,
   hideShorts: ?boolean,
+  defaultCollectionAction: string,
   showNsfw: boolean,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
@@ -39,6 +41,7 @@ export default function SettingContent(props: Props) {
     hideMembersOnlyContent,
     hideReposts,
     hideShorts,
+    defaultCollectionAction,
     showNsfw,
     instantPurchaseEnabled,
     instantPurchaseMax,
@@ -87,6 +90,23 @@ export default function SettingContent(props: Props) {
                 checked={hideShorts}
                 onChange={(e) => setClientSetting(SETTINGS.HIDE_SHORTS, !hideShorts)}
               />
+            </SettingsRow>
+
+            <SettingsRow title={__('Default playlist action')} subtitle={__(HELP.DEFAULT_PLAYLIST_ACTION)}>
+              <fieldset-section>
+                <FormField
+                  name="default_playlist_action_select"
+                  type="select"
+                  onChange={(e) => setClientSetting(SETTINGS.DEFAULT_COLLECTION_ACTION, e.target.value)}
+                  value={defaultCollectionAction}
+                >
+                  {COLLECTIONS.DEFAULT_COLLECTION_ACTIONS.map((action) => (
+                    <option key={action} value={action}>
+                      {action === COLLECTIONS.DEFAULT_ACTION_VIEW ? __('View') : __('Play')}
+                    </option>
+                  ))}
+                </FormField>
+              </fieldset-section>
             </SettingsRow>
 
             {!SIMPLE_SITE && (
@@ -181,6 +201,7 @@ const HELP = {
   HIDE_MEMBERS_ONLY_CONTENT: 'You will not see content that requires a membership subscription.',
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
   HIDE_SHORTS: 'You will not see content under 1min long. Also hides non-video/audio content.',
+  DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',

@@ -93,3 +93,8 @@ export const SORT_VALUES = Object.freeze({
 });
 
 export const DEFAULT_SORT = { key: 'name', value: SORT_ORDER.ASC };
+
+export const DEFAULT_ACTION_PLAY = 'defaultCollectionActionPlay';
+export const DEFAULT_ACTION_VIEW = 'defaultCollectionActionView';
+
+export const DEFAULT_COLLECTION_ACTIONS = [DEFAULT_ACTION_PLAY, DEFAULT_ACTION_VIEW];

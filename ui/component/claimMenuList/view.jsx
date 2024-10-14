@@ -72,6 +72,7 @@ type Props = {
   collectionEmpty: boolean,
   doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
   isContentProtectedAndLocked: boolean,
+  defaultCollectionAction: string,
   doFetchUriAccessKey: (uri: string) => Promise<?UriAccessKey>,
 };
 
@@ -120,6 +121,7 @@ function ClaimMenuList(props: Props) {
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
     isContentProtectedAndLocked,
+    defaultCollectionAction,
     doFetchUriAccessKey,
   } = props;
 
@@ -432,10 +434,17 @@ function ClaimMenuList(props: Props) {
                       className="comment__menu-option"
                       onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}`)}
                     >
-                      <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
-                        <Icon aria-hidden icon={ICONS.VIEW} />
-                        {__('View Playlist')}
-                      </a>
+                      {defaultCollectionAction !== COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW ? (
+                        <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
+                          <Icon aria-hidden icon={ICONS.VIEW} />
+                          {__('View Playlist')}
+                        </a>
+                      ) : (
+                        <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
+                          <Icon aria-hidden icon={ICONS.PLAY} />
+                          {__('Play')}
+                        </a>
+                      )}
                     </MenuItem>
                     {!collectionEmpty && (
                       <MenuItem

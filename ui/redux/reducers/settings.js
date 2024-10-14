@@ -1,6 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
+import * as COLLECTIONS from 'constants/collections';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import moment from 'moment';
 import { getSubsetFromKeysArray } from 'util/sync-settings';
@@ -71,6 +72,7 @@ const defaultState = {
     [SETTINGS.AUTO_DOWNLOAD]: true,
     [SETTINGS.HIDE_MEMBERS_ONLY_CONTENT]: false,
     [SETTINGS.HIDE_REPOSTS]: false,
+    [SETTINGS.DEFAULT_COLLECTION_ACTION]: COLLECTIONS.DEFAULT_ACTION_VIEW,
     [SETTINGS.HIDE_SCHEDULED_LIVESTREAMS]: false,
     [SETTINGS.DEFAULT_VIDEO_QUALITY]: null,
 
