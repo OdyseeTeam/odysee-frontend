@@ -128,8 +128,8 @@ const PurchaseFields = (props: PurchaseProps) => {
         </h4>
 
         <h4 className="membership_info">
-          <b>{__('Price')}:</b> {currency + ' ' + STRIPE.CURRENCY[currency].symbol}
-          {amount / 100} / {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
+          <b>{__('Price')}:</b> {STRIPE.CURRENCY[currency].symbol}
+          {(amount / 100).toFixed(2)} / {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
         </h4>
 
         <Button

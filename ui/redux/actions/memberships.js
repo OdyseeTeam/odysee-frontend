@@ -156,7 +156,7 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
       }
 
       const genericErrorMessage = __(
-        "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps"
+        "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps."
       );
 
       dispatch(doToast({ message: genericErrorMessage, isError: true }));
