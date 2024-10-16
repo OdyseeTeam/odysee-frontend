@@ -22,6 +22,7 @@ type Props = {
   purchaseTag: string,
   rentalTag: RentalTagParams,
   costInfo: any,
+  preferredCurrencyPriceEstimate: number,
   doOpenModal: (string, {}) => void,
 };
 
@@ -36,13 +37,17 @@ export default function PaidContentOvelay(props: Props) {
     purchaseTag, // the price of the purchase
     rentalTag,
     costInfo,
+    preferredCurrencyPriceEstimate,
     doOpenModal,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
 
-  const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
+  const { symbol: preferredFiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
+  const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY['USD'];
   const sdkFeeRequired = costInfo && costInfo.cost > 0;
+
+  const showPriceEstimateInPreferredCurrency = preferredCurrency !== 'USD';
 
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
@@ -103,6 +108,12 @@ export default function PaidContentOvelay(props: Props) {
                   currency: fiatSymbol,
                   amount: purchaseTag,
                 })}
+                {showPriceEstimateInPreferredCurrency &&
+                  ' ' +
+                    __('(Approx. %currency%%amount%)', {
+                      currency: preferredFiatSymbol,
+                      amount: preferredCurrencyPriceEstimate,
+                    })}
               </div>
 
               <div className="paid-content-prompt__price">
@@ -111,6 +122,10 @@ export default function PaidContentOvelay(props: Props) {
                   duration: secondsToDhms(rentalExpirationTimeInSeconds),
                   currency: fiatSymbol,
                   amount: rentalPrice,
+                })}{' '}
+                {__('(Approx. %currency%%amount%)', {
+                  currency: preferredFiatSymbol,
+                  amount: preferredCurrencyPriceEstimate,
                 })}
               </div>
 
@@ -125,6 +140,12 @@ export default function PaidContentOvelay(props: Props) {
                   amount: rentalPrice,
                   duration: secondsToDhms(rentalExpirationTimeInSeconds),
                 })}
+                {showPriceEstimateInPreferredCurrency &&
+                  ' ' +
+                    __('(Approx. %currency%%amount%)', {
+                      currency: preferredFiatSymbol,
+                      amount: preferredCurrencyPriceEstimate,
+                    })}
               </div>
 
               <ButtonPurchase label={__('Rent')} />
@@ -133,7 +154,13 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
-                {__('Purchase for %currency%%amount%', { currency: fiatSymbol, amount: purchaseTag })}
+                {__('Purchase for %currency%%amount%', { currency: fiatSymbol, amount: purchaseTag })}{' '}
+                {showPriceEstimateInPreferredCurrency &&
+                  ' ' +
+                    __('(Approx. %currency%%amount%)', {
+                      currency: preferredFiatSymbol,
+                      amount: preferredCurrencyPriceEstimate,
+                    })}
               </div>
 
               <ButtonPurchase label={__('Purchase')} />
@@ -151,7 +178,16 @@ export default function PaidContentOvelay(props: Props) {
                   />
                 ) : (
                   <ButtonPurchase
-                    label={__('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag })}
+                    label={
+                      __('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag }) +
+                      (showPriceEstimateInPreferredCurrency
+                        ? ' ' +
+                          __('(Approx. %currency%%amount%)', {
+                            currency: preferredFiatSymbol,
+                            amount: preferredCurrencyPriceEstimate,
+                          })
+                        : '')
+                    }
                   />
                 )}
               </>

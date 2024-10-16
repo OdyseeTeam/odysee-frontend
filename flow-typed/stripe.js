@@ -9,6 +9,7 @@ declare type StripeState = {
   customerStatusFetching: ?boolean,
   customerStatus: any,
   customerSetupResponse: ?StripeCustomerSetupResponse,
+  currencyRates: {[fromCurrency: string]: {[toCurrency: string]: number}},
 };
 
 declare type StripeAccountInfo = {

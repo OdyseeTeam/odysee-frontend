@@ -14,6 +14,7 @@ const defaultState: StripeState = {
   customerStatusFetching: undefined,
   customerStatus: undefined,
   customerSetupResponse: undefined,
+  currencyRates: { USD: { EUR: 0.9123 } },
 };
 
 reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_START] = (state, action) => ({ ...state, accountStatusFetching: true });
