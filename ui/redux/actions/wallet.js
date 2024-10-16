@@ -27,7 +27,7 @@ import {
   selectPurchaseTagForUri,
   selectRentalTagForUri,
 } from 'redux/selectors/claims';
-import { selectPreferredCurrency } from 'redux/selectors/settings';
+// import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { getChannelFromClaim } from 'util/claim';
 import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
@@ -896,7 +896,7 @@ export const doPurchaseClaimForUri =
     const { claim_id: channelClaimId, name: tipChannelName } = channelClaim;
 
     const activeChannelClaim = selectActiveChannelClaim(state);
-    const preferredCurrency = selectPreferredCurrency(state);
+    // const preferredCurrency = selectPreferredCurrency(state);
 
     const preorderTag = selectPreorderTagForUri(state, uri);
     const purchaseTag = selectPurchaseTagForUri(state, uri);
@@ -933,7 +933,7 @@ export const doPurchaseClaimForUri =
         ...(activeChannelClaim
           ? { tipper_channel_name: activeChannelClaim.name, tipper_channel_claim_id: activeChannelClaim.claim_id }
           : { anonymous: true }),
-        currency: preferredCurrency || 'USD',
+        currency: 'USD', // preferredCurrency || 'USD',
         environment: stripeEnvironment,
         source_claim_id: claim.claim_id,
         target_claim_id: claim.claim_id,
