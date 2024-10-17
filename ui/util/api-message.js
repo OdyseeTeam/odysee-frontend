@@ -1,8 +1,14 @@
 // @flow
+import { secondsToDhms } from 'util/time';
+
+const TYPES = {
+  INVALID_CHANNEL_AGE: 'INVALID_CHANNEL_AGE',
+};
 
 type ApiMsgConfig = {
   originalMsg: string | RegExp,
   replacement: string,
+  type?: string,
 };
 
 // prettier-ignore
@@ -36,8 +42,9 @@ const MESSAGE_MAP: Array<ApiMsgConfig> = Object.freeze([
     replacement: 'Please do not spam.',
   },
   {
-    originalMsg: 'this creator has set minimum account age requirements that are not currently met',
+    originalMsg: /^this creator has set minimum account age requirements that are not currently met: (.*) minutes$/,
     replacement: "Your channel does not meet the creator's minimum channel-age limit.",
+    type: TYPES.INVALID_CHANNEL_AGE,
   },
   {
     originalMsg: /^You only watched content (.*) days in the last week and it needs to be at least (.*) to get the credit.$/,
@@ -77,6 +84,9 @@ export function resolveApiMessage(message: string = '') {
     } else {
       const match = message.match(config.originalMsg);
       if (match) {
+        if (config.type === TYPES.INVALID_CHANNEL_AGE) {
+          return __(config.replacement) + ' ' + secondsToDhms(parseInt(match[1]) * 60);
+        }
         const subs = {};
         for (let i = 1; i < match.length; ++i) {
           subs[`${i}`] = match[i];
