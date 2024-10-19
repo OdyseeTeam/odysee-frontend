@@ -28,9 +28,10 @@ export function parseRentalTag(tags: ?Array<string>) {
       const parts = rentalTag.substring(prefix.length).split(':');
       const price = parseFloat(parts[0]);
       const expirationTimeInSeconds = parseInt(parts[1]);
+      const currency = 'USD';
 
       if (Number.isFinite(price) && Number.isFinite(expirationTimeInSeconds)) {
-        return { price, expirationTimeInSeconds };
+        return { price, expirationTimeInSeconds, currency, priceInPreferredCurrency: null };
       } else {
         return null; // invalid format
       }
@@ -48,9 +49,10 @@ export function parsePurchaseTag(tags: ?Array<string>) {
     if (purchaseTag) {
       const parts = purchaseTag.substring(prefix.length).split(':');
       const price = parseFloat(parts[0]);
+      const currency = 'USD';
 
       if (Number.isFinite(price)) {
-        return price;
+        return { price, currency, priceInPreferredCurrency: null };
       } else {
         return null; // invalid format
       }

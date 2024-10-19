@@ -3,6 +3,7 @@ import 'scss/component/_superchat.scss';
 
 import { getFormattedCreditsAmount, formatFullPrice } from 'util/format-credits';
 import classnames from 'classnames';
+import * as STRIPE from 'constants/stripe';
 import Icon from 'component/common/icon';
 import LbcSymbol from 'component/common/lbc-symbol';
 import React from 'react';
@@ -25,6 +26,7 @@ type Props = {
   hyperChat?: boolean,
   superChatLight?: boolean,
   icon?: string,
+  fiatCurrency?: string,
 };
 
 class CreditAmount extends React.PureComponent<Props> {
@@ -56,6 +58,7 @@ class CreditAmount extends React.PureComponent<Props> {
       hyperChat,
       // superChatLight,
       icon,
+      fiatCurrency,
     } = this.props;
 
     // return null, otherwise it will try and convert undefined to a string
@@ -78,9 +81,11 @@ class CreditAmount extends React.PureComponent<Props> {
         if (showLBC && !isFiat) {
           amountText = <LbcSymbol postfix={amountText} size={size} />;
         } else if (showLBC && isFiat) {
+          const fiatSymbol = STRIPE.CURRENCY[fiatCurrency].symbol;
           amountText = (
             <p style={{ display: 'inline' }}>
-              ${isNaN(Number(amountText)) ? amountText : (Math.round(Number(amount) * 100) / 100).toFixed(2)}
+              {fiatSymbol}
+              {isNaN(Number(amountText)) ? amountText : (Math.round(Number(amount) * 100) / 100).toFixed(2)}
             </p>
           );
         }

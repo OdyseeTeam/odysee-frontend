@@ -6,6 +6,8 @@ import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
+import { selectCurrencyRate } from 'redux/selectors/stripe';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { ODYSEE_CHANNEL } from 'constants/channels';
@@ -920,9 +922,24 @@ export const selectTagsRawForUri = (state: State, uri: string) => {
   return selectMetadataForUri(state, uri)?.tags;
 };
 
-export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  return parsePurchaseTag(metadata?.tags);
-})((state, uri) => String(uri));
+export const selectPurchaseTagForUri = createCachedSelector(
+  (state, uri) => state,
+  selectMetadataForUri,
+  (state, metadata: ?GenericMetadata) => {
+    const priceInfo = parsePurchaseTag(metadata?.tags);
+    if (!priceInfo) {
+      return priceInfo;
+    }
+    const preferredCurrency = selectPreferredCurrency(state);
+    const preferredCurrencyRate = selectCurrencyRate(state, priceInfo.currency, preferredCurrency);
+    // $FlowFixMe
+    priceInfo.priceInPreferredCurrency = preferredCurrencyRate
+      ? (priceInfo.price * preferredCurrencyRate).toFixed(2)
+      : null;
+
+    return priceInfo;
+  }
+)((state, uri) => String(uri));
 
 export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('preorder:'));
@@ -939,15 +956,46 @@ export const selectedRestrictedCommentsChatTagForUri = createSelector(
   (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has(RESTRICTED_CHAT_COMMENTS_TAG)
 );
 
-export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  return parseRentalTag(metadata?.tags);
-})((state, uri) => String(uri));
+export const selectRentalTagForUri = createCachedSelector(
+  (state, uri) => state,
+  selectMetadataForUri,
+  (state, metadata: ?GenericMetadata) => {
+    const rentalInfo = parseRentalTag(metadata?.tags);
+    if (!rentalInfo) {
+      return rentalInfo;
+    }
+    const preferredCurrency = selectPreferredCurrency(state);
+    const preferredCurrencyRate = selectCurrencyRate(state, rentalInfo.currency, preferredCurrency);
+    // $FlowFixMe
+    rentalInfo.priceInPreferredCurrency = preferredCurrencyRate
+      ? (rentalInfo.price * preferredCurrencyRate).toFixed(2)
+      : null;
+
+    return rentalInfo;
+  }
+)((state, uri) => String(uri));
 
 export const selectPreorderContentClaimIdForUri = createCachedSelector(
   selectMetadataForUri,
   (metadata: ?GenericMetadata) => {
     const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('full upload:'));
     if (matchingTag) return matchingTag.slice(12);
+  }
+)((state, uri) => String(uri));
+
+export const selectFiatCurrencyForUri = createCachedSelector(
+  selectPurchaseTagForUri,
+  selectRentalTagForUri,
+  (purchaseInfo, rentalInfo) => {
+    const paymentInfos = [purchaseInfo, rentalInfo];
+    let currency;
+    for (let info of paymentInfos) {
+      if (info?.currency) {
+        currency = info.currency;
+        break;
+      }
+    }
+    return currency;
   }
 )((state, uri) => String(uri));
 

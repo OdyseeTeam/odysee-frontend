@@ -19,7 +19,13 @@ import I18nMessage from 'component/i18nMessage';
 
 import { ModalContext } from 'contexts/modal';
 
-type RentalTagParams = { price: number, expirationTimeInSeconds: number };
+type RentalTagParams = {
+  price: number,
+  currency: string,
+  expirationTimeInSeconds: number,
+  priceInPreferredCurrency: number,
+};
+type PurchaseTagParams = { price: number, currency: string, priceInPreferredCurrency: number };
 
 // prettier-ignore
 const STRINGS = {
@@ -46,9 +52,10 @@ type Props = {
   uri: string,
   // -- redux --
   claimId: string,
-  preferredCurrency: string,
+  currency: string,
+  canUsePreferredCurrency: boolean,
   preorderTag: number,
-  purchaseTag: ?number,
+  purchaseTag: PurchaseTagParams,
   rentalTag: RentalTagParams,
   costInfo: any,
   fiatRequired: boolean,
@@ -66,7 +73,8 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   const {
     uri,
     claimId,
-    preferredCurrency,
+    currency,
+    canUsePreferredCurrency,
     rentalTag,
     purchaseTag,
     preorderTag,
@@ -91,12 +99,12 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   let rentTipAmount = 0;
 
   if (tags.purchaseTag && tags.rentalTag) {
-    tipAmount = tags.purchaseTag;
-    rentTipAmount = tags.rentalTag.price;
+    tipAmount = canUsePreferredCurrency ? tags.purchaseTag.priceInPreferredCurrency : tags.purchaseTag.price;
+    rentTipAmount = canUsePreferredCurrency ? tags.rentalTag.priceInPreferredCurrency : tags.rentalTag.price;
   } else if (tags.purchaseTag) {
-    tipAmount = tags.purchaseTag;
+    tipAmount = canUsePreferredCurrency ? tags.purchaseTag.priceInPreferredCurrency : tags.purchaseTag.price;
   } else if (tags.rentalTag) {
-    tipAmount = tags.rentalTag.price;
+    tipAmount = canUsePreferredCurrency ? tags.rentalTag.priceInPreferredCurrency : tags.rentalTag.price;
   } else if (tags.preorderTag) {
     tipAmount = tags.preorderTag;
   }
@@ -116,7 +124,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     ? secondsToDhms(tags.rentalTag.expirationTimeInSeconds)
     : '';
 
-  const fiatSymbol = STRIPE.CURRENCY[preferredCurrency].symbol;
+  const fiatSymbol = STRIPE.CURRENCY[currency].symbol;
 
   function handleSubmit(forceRental) {
     // if it's both purchase/rent, use purchase, for rent we will force it
@@ -209,7 +217,7 @@ const SubmitArea = withCreditCard((props: any) => (
         amount: props.tipAmount.toString(),
         duration: props.rentDuration,
       })}
-      icon={props.tags.rentalTag ? ICONS.BUY : ICONS.TIME}
+      icon={props.tags.rentalTag ? ICONS.TIME : ICONS.BUY}
     />
 
     {props.tags.purchaseTag && props.tags.rentalTag && (

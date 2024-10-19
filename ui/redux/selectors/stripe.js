@@ -11,6 +11,7 @@ export const selectAccountTransactions = (state: State) => selectState(state).ac
 export const selectCustomerStatus = (state: State) => selectState(state).customerStatus;
 export const selectCustomerStatusFetching = (state: State) => selectState(state).customerStatusFetching;
 export const selectCustomerSetupResponse = (state: State) => selectState(state).customerSetupResponse;
+export const selectCurrencyRates = (state: State) => selectState(state).currencyRates;
 
 export const selectAccountStatus = (state: State) => selectState(state).accountStatus;
 export const selectAccountStatusFetching = (state: State) => selectState(state).accountStatusFetching;
@@ -23,6 +24,11 @@ export const selectAccountInfo = (state: State) => {
 export const selectAccountDefaultCurrency = (state: State) => {
   const accountInfo = selectAccountInfo(state);
   return accountInfo && accountInfo.default_currency;
+};
+
+export const selectCurrencyRate = (state: State, from: string = 'USD', to: string) => {
+  const rates = selectCurrencyRates(state);
+  return from in rates ? rates[from][to] : undefined;
 };
 
 export const selectAccountUnpaidBalance = (state: State) => selectAccountStatus(state)?.total_received_unpaid || 0;
