@@ -28,7 +28,7 @@ export function parseRentalTag(tags: ?Array<string>) {
       const parts = rentalTag.substring(prefix.length).split(':');
       const price = parseFloat(parts[0]);
       const expirationTimeInSeconds = parseInt(parts[1]);
-      const currency = 'USD';
+      const currency = (parts[2] && parts[2].toUpperCase()) || 'USD';
 
       if (Number.isFinite(price) && Number.isFinite(expirationTimeInSeconds)) {
         return { price, expirationTimeInSeconds, currency, priceInPreferredCurrency: null };
@@ -49,8 +49,7 @@ export function parsePurchaseTag(tags: ?Array<string>) {
     if (purchaseTag) {
       const parts = purchaseTag.substring(prefix.length).split(':');
       const price = parseFloat(parts[0]);
-      const currency = 'USD';
-
+      const currency = (parts[1] && parts[1].toUpperCase()) || 'USD';
       if (Number.isFinite(price)) {
         return { price, currency, priceInPreferredCurrency: null };
       } else {

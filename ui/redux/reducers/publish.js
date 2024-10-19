@@ -138,6 +138,13 @@ export const publishReducer = handleActions(
         }
       }
 
+      // -- fiat fee currency
+      if (data.fiatPurchaseFee) {
+        auto.fiatRentalFee = { amount: state.fiatRentalFee.amount, currency: data.fiatPurchaseFee.currency };
+      } else if (data.fiatRentalFee) {
+        auto.fiatPurchaseFee = { amount: state.fiatPurchaseFee.amount, currency: data.fiatRentalFee.currency };
+      }
+
       // -- channel
       const channel = data.hasOwnProperty('channel') ? data.channel : state.channel;
       if (channel === undefined) {

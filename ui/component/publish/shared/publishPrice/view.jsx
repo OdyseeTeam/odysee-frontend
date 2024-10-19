@@ -15,7 +15,7 @@ import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
 import './style.lazy.scss';
 
 const FEE = { MIN: 1, MAX: 999.99 };
-const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until currency approach is determined.
+const CURRENCY_OPTIONS = ['USD', 'EUR'];
 
 type Props = {
   disabled: boolean,

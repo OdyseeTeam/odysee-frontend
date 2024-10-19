@@ -657,6 +657,8 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     const rental = parseRentalTag(tags);
     const purchase = parsePurchaseTag(tags);
 
+    const currency = rental?.currency || purchase?.currency || 'USD';
+
     if (rental || purchase) {
       publishData['paywall'] = PAYWALL.FIAT;
     } else if (fee.amount && Number(fee.amount) > 0) {
@@ -669,7 +671,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       publishData.fiatRentalEnabled = true;
       publishData.fiatRentalFee = {
         amount: rental.price,
-        currency: rental.currency, // TODO: hardcode until we have a direction on currency
+        currency: currency,
       };
       publishData.fiatRentalExpiration = {
         // Don't know which unit the user picked since we store it as 'seconds'
@@ -677,13 +679,24 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
         value: rental.expirationTimeInSeconds / TO_SECONDS['days'],
         unit: 'days',
       };
+    } else {
+      // Make sure currency matches purchase
+      publishData.fiatRentalFee = {
+        amount: 1,
+        currency: currency,
+      };
     }
 
     if (purchase) {
       publishData.fiatPurchaseEnabled = true;
       publishData.fiatPurchaseFee = {
         amount: purchase.price,
-        currency: purchase.currency, // TODO: hardcode until we have a direction on currency
+        currency: currency,
+      };
+    } else {
+      publishData.fiatPurchaseFee = {
+        amount: 1,
+        currency: currency,
       };
     }
 
