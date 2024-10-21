@@ -710,6 +710,9 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
     const myCommentedChannelIds = selectMyCommentedChannelIdsForId(state, claim_id);
     const mentionedChannels: Array<MentionedChannel> = [];
 
+    const claim = selectClaimForClaimId(state, claim_id);
+    const targetClaimId = claim.signing_channel ? claim.signing_channel.claim_id : claim_id; // claim_id is for anonymous content and on channel page comments
+
     if (!activeChannelClaim) {
       console.error('Unable to create comment. No activeChannel is set.'); // eslint-disable-line
       return;
@@ -725,7 +728,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       return;
     }
 
-    let previousCommenterChannel = localStorage.getItem(`commenter_${claim_id}`);
+    let previousCommenterChannel = localStorage.getItem(`commenter_${targetClaimId}`);
     previousCommenterChannel = previousCommenterChannel ? JSON.parse(previousCommenterChannel) : null;
     if (
       previousCommenterChannel &&
@@ -827,7 +830,8 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
             claim_id: activeChannelClaim.claim_id,
             name: activeChannelClaim.name,
           };
-          localStorage.setItem(`commenter_${claim_id}`, JSON.stringify(previousCommenterChannel));
+          localStorage.setItem(`commenter_${targetClaimId}`, JSON.stringify(previousCommenterChannel));
+
           let lastCommentedClaims = localStorage.getItem('lastCommentedClaims');
           lastCommentedClaims = lastCommentedClaims ? JSON.parse(lastCommentedClaims) : [];
           if (!lastCommentedClaims.includes(claim_id)) {
