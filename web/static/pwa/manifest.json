@@ -19,7 +19,7 @@
       "sizes": "512x512"
     },
     {
-      "src": "/public/pwa/icon-180.png",
+      "src": "/public/pwa/icon-180-android.png",
       "type": "image/png",
       "sizes": "180x180"
     }
