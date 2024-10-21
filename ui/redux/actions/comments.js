@@ -725,6 +725,23 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       return;
     }
 
+    let previousCommenterChannel = localStorage.getItem(`commenter_${claim_id}`);
+    previousCommenterChannel = previousCommenterChannel ? JSON.parse(previousCommenterChannel) : null;
+    if (
+      previousCommenterChannel &&
+      previousCommenterChannel.claim_id !== activeChannelClaim.claim_id &&
+      myCommentedChannelIds &&
+      !myCommentedChannelIds.includes(activeChannelClaim.claim_id)
+    ) {
+      dispatchToast(
+        dispatch,
+        __('Commenting from multiple channels is not allowed.'),
+        previousCommenterChannel.name,
+        'long'
+      );
+      return;
+    }
+
     if (myCommentedChannelIds && myCommentedChannelIds.length) {
       if (!myCommentedChannelIds.includes(activeChannelClaim.claim_id)) {
         const claimById = selectClaimsById(state);
@@ -805,6 +822,24 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       ...(payment_intent_id ? { payment_intent_id } : {}),
     })
       .then((result: CommentCreateResponse) => {
+        if (!previousCommenterChannel) {
+          const previousCommenterChannel = {
+            claim_id: activeChannelClaim.claim_id,
+            name: activeChannelClaim.name,
+          };
+          localStorage.setItem(`commenter_${claim_id}`, JSON.stringify(previousCommenterChannel));
+          let lastCommentedClaims = localStorage.getItem('lastCommentedClaims');
+          lastCommentedClaims = lastCommentedClaims ? JSON.parse(lastCommentedClaims) : [];
+          if (!lastCommentedClaims.includes(claim_id)) {
+            lastCommentedClaims.push(claim_id);
+            if (lastCommentedClaims.length > 100) {
+              const droppedItemClaimId = lastCommentedClaims.shift();
+              localStorage.removeItem(`commenter_${droppedItemClaimId}`);
+            }
+            localStorage.setItem('lastCommentedClaims', JSON.stringify(lastCommentedClaims));
+          }
+        }
+
         dispatch({
           type: ACTIONS.COMMENT_CREATE_COMPLETED,
           data: {
