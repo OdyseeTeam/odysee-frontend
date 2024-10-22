@@ -2,6 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import * as REACTION_TYPES from 'constants/reactions';
 import * as PAGES from 'constants/pages';
+import { LocalStorage } from 'util/storage';
 import { SORT_BY, BLOCK_LEVEL } from 'constants/comment';
 import Lbry from 'lbry';
 import { resolveApiMessage } from 'util/api-message';
@@ -728,7 +729,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       return;
     }
 
-    let previousCommenterChannel = localStorage.getItem(`commenter_${targetClaimId}`);
+    let previousCommenterChannel = LocalStorage.getItem(`commenter_${targetClaimId}`);
     previousCommenterChannel = previousCommenterChannel ? JSON.parse(previousCommenterChannel) : null;
     if (
       previousCommenterChannel &&
@@ -830,17 +831,17 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
             claim_id: activeChannelClaim.claim_id,
             name: activeChannelClaim.name,
           };
-          localStorage.setItem(`commenter_${targetClaimId}`, JSON.stringify(previousCommenterChannel));
+          LocalStorage.setItem(`commenter_${targetClaimId}`, JSON.stringify(previousCommenterChannel));
 
-          let lastCommentedClaims = localStorage.getItem('lastCommentedClaims');
+          let lastCommentedClaims = LocalStorage.getItem('lastCommentedClaims');
           lastCommentedClaims = lastCommentedClaims ? JSON.parse(lastCommentedClaims) : [];
           if (!lastCommentedClaims.includes(claim_id)) {
             lastCommentedClaims.push(claim_id);
             if (lastCommentedClaims.length > 100) {
               const droppedItemClaimId = lastCommentedClaims.shift();
-              localStorage.removeItem(`commenter_${droppedItemClaimId}`);
+              LocalStorage.removeItem(`commenter_${droppedItemClaimId}`);
             }
-            localStorage.setItem('lastCommentedClaims', JSON.stringify(lastCommentedClaims));
+            LocalStorage.setItem('lastCommentedClaims', JSON.stringify(lastCommentedClaims));
           }
         }
 
