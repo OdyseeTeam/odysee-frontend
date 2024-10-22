@@ -173,6 +173,7 @@ const filterCommentsDepOnList = {
   showMatureContent: selectShowMatureContent,
   geoBlockList: selectGeoBlockLists,
   locale: selectUserLocale,
+  delegatorsById: selectModerationDelegatorsById,
 };
 
 const filterCommentsPropKeys = Object.keys(filterCommentsDepOnList);
@@ -300,7 +301,25 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
     showMatureContent,
     geoBlockList,
     locale,
+    delegatorsById,
   } = filterProps;
+
+  const contentClaim = claimsById[claimId];
+  const contentCreatorClaimId = contentClaim?.signing_channel?.claim_id;
+  let amDelegatedMod = false;
+
+  for (const delegatorData of Object.values(delegatorsById)) {
+    if (!(delegatorData && typeof delegatorData === 'object' && 'delegators' in delegatorData)) {
+      continue;
+    }
+    for (const delegatorId of Object.values(delegatorData.delegators)) {
+      if (delegatorId === contentCreatorClaimId) {
+        amDelegatedMod = true;
+        break;
+      }
+    }
+    if (amDelegatedMod) break;
+  }
 
   return comments
     ? comments.filter((comment) => {
@@ -339,7 +358,7 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
 
         if (claimId) {
           const claimIdIsMine = myClaimIds && myClaimIds.size > 0 && myClaimIds.includes(claimId);
-          if (!claimIdIsMine) {
+          if (!claimIdIsMine && !amDelegatedMod) {
             if (personalBlockList.includes(comment.channel_url)) {
               return false;
             }
