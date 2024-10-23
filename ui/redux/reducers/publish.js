@@ -20,6 +20,17 @@ import * as PUBLISH_TYPES from 'constants/publish_types';
 // any pending uploads. Can be removed from January 2022 onwards.
 const getOldKeyFromParam = (params) => `${params.name}#${params.channel || 'anonymous'}`;
 
+const getDefaultCurrency = () => {
+  try {
+    const region = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (region && region.startsWith('Europe')) {
+      return 'EUR';
+    }
+  } catch (e) {}
+  return 'USD';
+};
+const defaultCurrency = getDefaultCurrency();
+
 // @see 'flow-typed/publish.js' for documentation
 const defaultState: PublishState = {
   type: 'file',
@@ -42,9 +53,9 @@ const defaultState: PublishState = {
     amount: 1,
     currency: 'LBC',
   },
-  fiatPurchaseFee: { amount: 1, currency: 'USD' },
+  fiatPurchaseFee: { amount: 1, currency: defaultCurrency },
   fiatPurchaseEnabled: false,
-  fiatRentalFee: { amount: 1, currency: 'USD' },
+  fiatRentalFee: { amount: 1, currency: defaultCurrency },
   fiatRentalExpiration: { value: 1, unit: 'weeks' },
   fiatRentalEnabled: false,
   memberRestrictionOn: false,
