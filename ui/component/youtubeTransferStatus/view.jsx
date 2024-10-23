@@ -192,7 +192,7 @@ export default function YoutubeTransferStatus(props: Props) {
                           <div className="help--inline">
                             {' '}
                             {__(
-                              '*Not all content may be processed. Click Learn More at the bottom to understand sync limitations '
+                              '*Not all content may be processed, there are limitations based on both Youtube and Odysee activity. Click Learn More at the bottom to see the latest requirements and limits. '
                             )}{' '}
                           </div>
 
@@ -237,7 +237,7 @@ export default function YoutubeTransferStatus(props: Props) {
                 : __('You will be able to claim your channel once it has finished syncing.')}{' '}
               {youtubeImportPending &&
                 __('You will not be able to edit the channel or content until the transfer process completes.')}{' '}
-              <Button button="link" label={__('Learn More')} href="https://help.odysee.tv/category-syncprogram/" />
+              <Button button="link" label={__('Learn More')} href="https://help.odysee.tv/category-syncprogram/limits/" />
             </p>
           </>
         }
