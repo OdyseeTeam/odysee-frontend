@@ -204,6 +204,7 @@ export default function YoutubeSync(props: Props) {
                   <I18nMessage
                     tokens={{
                       count: 100,
+                      views: '1,000',
                       learn_more: (
                         <Button
                           button="link"
@@ -213,7 +214,7 @@ export default function YoutubeSync(props: Props) {
                       ),
                     }}
                   >
-                    This will verify you are an active YouTuber with over %count% subscribers and original content.
+                    This will verify you are an active YouTuber with over %count% subscribers, average of %views% monthly views, and original content.
                     Channel names cannot be changed once chosen, please be extra careful. %learn_more%.
                   </I18nMessage>
                 </div>
