@@ -10,16 +10,23 @@ import { EmbedContext } from 'contexts/embed';
 import { formatLbryUrlForWeb, getModalUrlParam } from 'util/url';
 import I18nMessage from 'component/i18nMessage';
 
-type RentalTagParams = { price: number, expirationTimeInSeconds: number };
+type RentalTagParams = {
+  price: number,
+  currency: string,
+  expirationTimeInSeconds: number,
+  priceInPreferredCurrency: number,
+};
+type PurchaseTagParams = { price: number, currency: string, priceInPreferredCurrency: number };
 
 type Props = {
   uri: string,
   passClickPropsToParent?: (props: { href?: string, onClick?: () => void }) => void,
   // --- redux ---
-  preferredCurrency: string,
+  currency: string,
+  canUsePreferredCurrency: boolean,
   preorderContentClaim: Claim,
   preorderTag: number,
-  purchaseTag: string,
+  purchaseTag: PurchaseTagParams,
   rentalTag: RentalTagParams,
   costInfo: any,
   doOpenModal: (string, {}) => void,
@@ -30,7 +37,8 @@ export default function PaidContentOvelay(props: Props) {
     uri,
     passClickPropsToParent,
     // --- redux ---
-    preferredCurrency,
+    currency,
+    canUsePreferredCurrency,
     preorderContentClaim, // populates after doResolveClaimIds
     preorderTag, // the price of the preorder
     purchaseTag, // the price of the purchase
@@ -41,15 +49,20 @@ export default function PaidContentOvelay(props: Props) {
 
   const isEmbed = React.useContext(EmbedContext);
 
-  const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
+  const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[currency];
   const sdkFeeRequired = costInfo && costInfo.cost > 0;
 
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
     rentalExpirationTimeInSeconds = 0;
   if (rentalTag) {
-    rentalPrice = rentalTag.price;
+    rentalPrice = canUsePreferredCurrency ? rentalTag.priceInPreferredCurrency : rentalTag.price;
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds;
+  }
+
+  let purchasePrice = 0;
+  if (purchaseTag) {
+    purchasePrice = canUsePreferredCurrency ? purchaseTag.priceInPreferredCurrency : purchaseTag.price;
   }
 
   const clickProps = React.useMemo(() => {
@@ -101,7 +114,7 @@ export default function PaidContentOvelay(props: Props) {
                 <Icon icon={ICONS.BUY} />
                 {__('Purchase for %currency%%amount%', {
                   currency: fiatSymbol,
-                  amount: purchaseTag,
+                  amount: purchasePrice,
                 })}
               </div>
 
@@ -133,7 +146,7 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
-                {__('Purchase for %currency%%amount%', { currency: fiatSymbol, amount: purchaseTag })}
+                {__('Purchase for %currency%%amount%', { currency: fiatSymbol, amount: purchasePrice })}
               </div>
 
               <ButtonPurchase label={__('Purchase')} />

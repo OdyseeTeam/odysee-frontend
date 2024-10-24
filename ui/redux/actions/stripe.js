@@ -5,6 +5,7 @@ import {
   selectAccountCheckIsFetchingForId,
   selectCustomerStatusFetching,
   selectAccountStatusFetching,
+  selectCurrencyRateFetching,
 } from 'redux/selectors/stripe';
 import { doToast } from 'redux/actions/notifications';
 
@@ -185,3 +186,27 @@ export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async
     { environment: stripeEnvironment, payment_method_id: paymentMethodId },
     'post'
   ).then(() => dispatch(doGetCustomerStatus()));
+
+export const doFetchCurrencyRate = (from: string, to: string) => async (dispatch: Dispatch, getState: GetState) => {
+  if (to === from) {
+    return;
+  }
+
+  const state = getState();
+  const isFetching = selectCurrencyRateFetching(state, from, to);
+
+  if (isFetching) {
+    return;
+  }
+
+  await dispatch({ type: ACTIONS.FETCH_CURRENCY_RATE_START, data: { from, to } });
+
+  Lbryio.call('currency', 'rate', { from, to }, 'post', true)
+    .then((rate) => {
+      dispatch({ type: ACTIONS.FETCH_CURRENCY_RATE_SUCCESS, data: { rate, from, to } });
+    })
+    .catch((error) => {
+      dispatch(doToast({ message: __(error.message), isError: true }));
+      dispatch({ type: ACTIONS.FETCH_CURRENCY_RATE_FAIL, data: { from, to } });
+    });
+};
