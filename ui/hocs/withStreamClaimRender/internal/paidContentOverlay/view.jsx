@@ -60,7 +60,10 @@ export default function PaidContentOvelay(props: Props) {
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds;
   }
 
-  const purchasePrice = canUsePreferredCurrency ? purchaseTag.priceInPreferredCurrency : purchaseTag.price;
+  let purchasePrice = 0;
+  if (purchaseTag) {
+    purchasePrice = canUsePreferredCurrency ? purchaseTag.priceInPreferredCurrency : purchaseTag.price;
+  }
 
   const clickProps = React.useMemo(() => {
     const modalId = sdkFeeRequired ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
