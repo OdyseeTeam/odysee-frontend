@@ -38,7 +38,7 @@ const select = (state, props) => {
     claimId,
     claimType,
     currency,
-    canUsePreferredCurrency: Boolean(selectCurrencyRate(state, 'USD', preferredCurrency)),
+    canUsePreferredCurrency,
     preorderTag: selectPreorderTagForUri(state, uri),
     purchaseTag: selectPurchaseTagForUri(state, uri),
     rentalTag: selectRentalTagForUri(state, uri),

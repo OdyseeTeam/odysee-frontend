@@ -14,7 +14,9 @@ const defaultState: StripeState = {
   customerStatusFetching: undefined,
   customerStatus: undefined,
   customerSetupResponse: undefined,
-  currencyRates: { USD: { EUR: 0.9123 } },
+  currencyRatesFetchSuccess: {},
+  currencyRates: {},
+  currencyRatesFetching: {},
 };
 
 reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_START] = (state, action) => ({ ...state, accountStatusFetching: true });
@@ -35,6 +37,60 @@ reducers[ACTIONS.SET_CUSTOMER_STATUS] = (state, action) => ({
 });
 
 reducers[ACTIONS.SET_CUSTOMER_SETUP_RESPONSE] = (state, action) => ({ ...state, customerSetupResponse: action.data });
+
+reducers[ACTIONS.FETCH_CURRENCY_RATE_START] = (state, action) => {
+  const data = action.data;
+  const newCurrencyRatesFetching = Object.assign({}, state.currencyRatesFetching);
+  newCurrencyRatesFetching[data.from] = Array.isArray(newCurrencyRatesFetching[data.from])
+    ? newCurrencyRatesFetching[data.from].concat(data.to)
+    : [data.to];
+  console.log(newCurrencyRatesFetching);
+  return {
+    ...state,
+    currencyRatesFetching: newCurrencyRatesFetching,
+  };
+};
+
+reducers[ACTIONS.FETCH_CURRENCY_RATE_SUCCESS] = (state, action) => {
+  const data = action.data;
+  const newCurrencyRatesFetchSuccess = Object.assign({}, state.currencyRatesFetchSuccess);
+  newCurrencyRatesFetchSuccess[data.from] = newCurrencyRatesFetchSuccess[data.from] || {};
+  newCurrencyRatesFetchSuccess[data.from][data.to] = true;
+
+  const newCurrencyRatesFetching = Object.assign({}, state.currencyRatesFetching);
+  newCurrencyRatesFetching[data.from] = newCurrencyRatesFetching[data.from].filter((x) => x !== data.to);
+
+  const newCurrencyRates = Object.assign({}, state.currencyRates);
+  newCurrencyRates[data.from] = newCurrencyRates[data.from] || {};
+  newCurrencyRates[data.from][data.to] = data.rate;
+
+  return {
+    ...state,
+    currencyRatesFetching: newCurrencyRatesFetching,
+    currencyRates: newCurrencyRates,
+    currencyRatesFetchSuccess: newCurrencyRatesFetchSuccess,
+  };
+};
+
+reducers[ACTIONS.FETCH_CURRENCY_RATE_FAIL] = (state, action) => {
+  const data = action.data;
+  const newCurrencyRatesFetchSuccess = Object.assign({}, state.currencyRatesFetchSuccess);
+  newCurrencyRatesFetchSuccess[data.from] = newCurrencyRatesFetchSuccess[data.from] || {};
+  newCurrencyRatesFetchSuccess[data.from][data.to] = false;
+
+  const newCurrencyRatesFetching = Object.assign({}, state.currencyRatesFetching);
+  newCurrencyRatesFetching[data.from] = newCurrencyRatesFetching[data.from].filter((x) => x !== data.to);
+
+  const newCurrencyRates = Object.assign({}, state.currencyRates);
+  data.from in newCurrencyRates && delete newCurrencyRates[data.from][data.to];
+
+  return {
+    ...state,
+    currencyRatesFetching: newCurrencyRatesFetching,
+    currencyRates: newCurrencyRates,
+    currencyRatesFetchSuccess: newCurrencyRatesFetchSuccess,
+  };
+};
 
 reducers[ACTIONS.CHECK_CAN_RECEIVE_FIAT_TIPS_STARTED] = (state, action) => {
   const channelClaimId = action.data;

@@ -33,6 +33,7 @@ import {
   doLoadBuiltInHomepageData,
 } from 'redux/actions/settings';
 import { doFetchUserLocale } from 'redux/actions/user';
+import { doFetchCurrencyRate } from 'redux/actions/stripe';
 import { Lbryio, doBlackListedOutpointsSubscribe, doFilteredOutpointsSubscribe } from 'lbryinc';
 import rewards from 'rewards';
 import { store, persistor, history } from 'store';
@@ -243,6 +244,7 @@ function AppWrapper() {
       app.store.dispatch(doDaemonReady());
       app.store.dispatch(doLoadBuiltInHomepageData());
       app.store.dispatch(doFetchHomepages());
+      app.store.dispatch(doFetchCurrencyRate('USD', 'EUR'));
 
       const timer = setTimeout(() => {
         if (DEFAULT_LANGUAGE) {

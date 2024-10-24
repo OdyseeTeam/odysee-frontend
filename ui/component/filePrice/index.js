@@ -29,7 +29,7 @@ const select = (state, props) => {
     purchaseInfo: selectPurchaseTagForUri(state, props.uri),
     isFetchingPurchases: selectIsFetchingPurchases(state),
     currency,
-    canUsePreferredCurrency: Boolean(selectCurrencyRate(state, originalCurrency, preferredCurrency)),
+    canUsePreferredCurrency,
   };
 };
 

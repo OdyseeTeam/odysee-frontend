@@ -12,6 +12,7 @@ export const selectCustomerStatus = (state: State) => selectState(state).custome
 export const selectCustomerStatusFetching = (state: State) => selectState(state).customerStatusFetching;
 export const selectCustomerSetupResponse = (state: State) => selectState(state).customerSetupResponse;
 export const selectCurrencyRates = (state: State) => selectState(state).currencyRates;
+export const selectCurrencyRatesFetching = (state: State) => selectState(state).currencyRatesFetching;
 
 export const selectAccountStatus = (state: State) => selectState(state).accountStatus;
 export const selectAccountStatusFetching = (state: State) => selectState(state).accountStatusFetching;
@@ -28,7 +29,7 @@ export const selectAccountDefaultCurrency = (state: State) => {
 
 export const selectCurrencyRate = (state: State, from: string = 'USD', to: string) => {
   const rates = selectCurrencyRates(state);
-  return from in rates ? rates[from][to] : undefined;
+  return from in rates ? rates[from][to] : to in rates ? 1 / rates[to][from] : undefined;
 };
 
 export const selectAccountUnpaidBalance = (state: State) => selectAccountStatus(state)?.total_received_unpaid || 0;
@@ -119,4 +120,9 @@ export const selectCanReceiveFiatTipsForUri = (state: State, uri: string) => {
   // $FlowFixMe
   const channelId = selectChannelClaimIdForUri(state, uri);
   return channelId && byId[channelId];
+};
+
+export const selectCurrencyRateFetching = (state: State, from: string, to: string) => {
+  const ratesFetching = selectCurrencyRatesFetching(state);
+  return from in ratesFetching ? ratesFetching[from].includes(to) : false;
 };
