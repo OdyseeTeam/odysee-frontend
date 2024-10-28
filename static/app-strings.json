@@ -2658,6 +2658,7 @@
   "By continuing, you accept the %paid_content_terms_and_conditions%.": "By continuing, you accept the %paid_content_terms_and_conditions%.",
   "paid-content terms and conditions": "paid-content terms and conditions",
   "Payment processing fee: %currency%%ppf% • Odysee platform fee: %currency%%opf%": "Payment processing fee: %currency%%ppf% • Odysee platform fee: %currency%%opf%",
+  "Potential currency conversion fee if applicable": "Potential currency conversion fee if applicable",
   "processing and platform fees apply": "processing and platform fees apply",
   "Purchase for %currency%%amount%": "Purchase for %currency%%amount%",
   "Rent %duration% for %currency%%amount%": "Rent %duration% for %currency%%amount%",
