@@ -19,6 +19,7 @@ type Props = {
   languages: Array<string>,
   user: ?User,
   channelIsBlackListed: boolean,
+  claimIsMine: boolean,
 };
 
 const formatEmail = (email: string) => {
@@ -31,7 +32,7 @@ const formatEmail = (email: string) => {
 };
 
 function AboutTab(props: Props) {
-  const { claim, uri, description, email, website, languages, user, channelIsBlackListed } = props;
+  const { claim, uri, description, email, website, languages, user, channelIsBlackListed, claimIsMine } = props;
   const claimId = claim && claim.claim_id;
   const canView = user && user.global_mod;
 
@@ -44,8 +45,19 @@ function AboutTab(props: Props) {
               'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this channel from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
             )}
           </p>
+          {claimIsMine && (
+            <p>
+              {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
+                email: 'help@odysee.com',
+              })}
+            </p>
+          )}
           <div className="section__actions">
-            <Button button="link" href="https://help.odysee.tv/copyright/" label={__('Read More')} />
+            <Button
+              button="link"
+              href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+              label={__('Read More')}
+            />
           </div>
         </section>
       )}

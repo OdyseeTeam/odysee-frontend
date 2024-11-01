@@ -1,6 +1,7 @@
 // @flow
 import { PRIMARY_IMAGE_WRAPPER_CLASS } from 'constants/player';
 import * as React from 'react';
+import Button from 'component/button';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
 import * as ICONS from 'constants/icons';
@@ -34,6 +35,7 @@ type Props = {
   isProtectedContent?: boolean,
   contentUnlocked: boolean,
   isLivestream: boolean,
+  isClaimBlackListed: boolean,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
@@ -54,6 +56,7 @@ const StreamClaimPage = (props: Props) => {
     isProtectedContent,
     contentUnlocked,
     isLivestream,
+    isClaimBlackListed,
     doSetContentHistoryItem,
     doSetPrimaryUri,
     doToggleAppDrawer,
@@ -139,6 +142,30 @@ const StreamClaimPage = (props: Props) => {
     return <StreamClaimRenderInline uri={uri} />;
   }
 
+  function dmcaInfo() {
+    return (
+      <section className="card--section dmca-info">
+        <p>
+          {__(
+            'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
+          )}
+        </p>
+        <p>
+          {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
+            email: 'help@odysee.com',
+          })}
+        </p>
+        <div className="section__actions">
+          <Button
+            button="link"
+            href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+            label={__('Read More')}
+          />
+        </div>
+      </section>
+    );
+  }
+
   if (isMature) {
     return (
       <>
@@ -155,6 +182,7 @@ const StreamClaimPage = (props: Props) => {
     <>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
         {renderClaimLayout()}
+        {isClaimBlackListed && dmcaInfo()}
 
         <FileTitleSection uri={uri} accessStatus={accessStatus} />
 

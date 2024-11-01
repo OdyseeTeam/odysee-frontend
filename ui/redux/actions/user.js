@@ -22,7 +22,6 @@ import { getDefaultLanguage } from 'util/default-languages';
 import { LocalStorage, LS } from 'util/storage';
 
 import { doMembershipMine } from 'redux/actions/memberships';
-
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
@@ -448,7 +447,17 @@ export function doUserSignIn(email, password) {
           dispatch({
             type: ACTIONS.USER_EMAIL_NEW_EXISTS,
           });
-
+          return Lbryio.call('user_email', 'resend_token', { email, only_if_expired: true }, 'post').then(
+            success,
+            failure
+          );
+        } else if (error.response && error.response.status === 417) {
+          dispatch({
+            type: ACTIONS.USER_2FA_STARTED,
+          });
+          dispatch({
+            type: ACTIONS.USER_EMAIL_NEW_EXISTS,
+          });
           return Lbryio.call('user_email', 'resend_token', { email, only_if_expired: true }, 'post').then(
             success,
             failure

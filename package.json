@@ -78,6 +78,7 @@
     "react-beautiful-dnd": "^13.1.0",
     "react-color": "^2.19.3",
     "react-datetime-picker": "^3.4.3",
+    "react-image-crop": "^11.0.6",
     "react-plastic": "^1.1.1",
     "react-top-loading-bar": "^2.0.1",
     "redux-state-sync": "^3.1.4",

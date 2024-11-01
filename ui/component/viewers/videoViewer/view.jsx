@@ -559,8 +559,13 @@ function VideoViewer(props: Props) {
             <div className="recommendation-overlay-grid">
               {recomendedContent &&
                 recomendedContent.slice(0, 9).map((url, i) => (
-                  <div key={url} onClick={() => (i === 4 && isMobile ? replay() : doPlayNextUri({ uri: url }))}>
-                    <ClaimPreviewTile uri={url} />
+                  <div
+                    key={url}
+                    onClick={() => {
+                      i === 4 && isMobile ? replay() : doPlayNextUri({ uri: url });
+                    }}
+                  >
+                    <ClaimPreviewTile uri={url} onClickHandledByParent />
                   </div>
                 ))}
             </div>

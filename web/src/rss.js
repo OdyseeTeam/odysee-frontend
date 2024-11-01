@@ -40,7 +40,7 @@ async function getChannelClaim(name, claimId) {
 
 async function getClaimsFromChannel(claimId, count) {
   // had to hardcode because of imports vs require (requires larger refactor?)
-  const restrictedTags = ['c:disable-download', 'c:members-only', 'c:purchase', 'c:rental', 'c:unlisted'];
+  const restrictedTags = ['c:members-only', 'c:purchase', 'c:rental', 'c:unlisted'];
   const options = {
     channel_ids: [claimId],
     page_size: count,

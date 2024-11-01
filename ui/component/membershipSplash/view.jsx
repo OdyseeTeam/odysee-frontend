@@ -138,4 +138,5 @@ const BadgeInfo = () => (
     <h1 className="balance-text">{__('Badge on profile')}</h1>
   </div>
 );
+
 export default MembershipSplash;

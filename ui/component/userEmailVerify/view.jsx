@@ -16,6 +16,7 @@ type Props = {
   user: {
     has_verified_email: boolean,
   },
+  user2FAPending: boolean,
 };
 
 type State = {
@@ -72,22 +73,32 @@ class UserEmailVerify extends React.PureComponent<Props, State> {
   emailVerifyCheckInterval: ?IntervalID;
 
   render() {
-    const { email, isReturningUser, resendingEmail } = this.props;
-
+    const { email, isReturningUser, resendingEmail, user2FAPending } = this.props;
     return (
       <div className="main__sign-up">
         <Card
           title={isReturningUser ? __('Check Your email') : __('Confirm your account')}
           subtitle={
-            <p>
-              {__(
-                'We just sent an email to %email% with a link for you to %verify_text%. Remember to check other email folders like spam or promotions.',
-                {
-                  email,
-                  verify_text: isReturningUser ? __('log in') : __('verify your account'),
-                }
-              )}
-            </p>
+            user2FAPending ? (
+              <p>
+                {__(
+                  'Since you have added a Credit Card or Bank to your Odysee account at some point, we just sent an email to %email% for you to confirm your login as required by Stripe (our payment provider). Remember to check other email folders like spam or promotions.',
+                  {
+                    email,
+                  }
+                )}
+              </p>
+            ) : (
+              <p>
+                {__(
+                  'We just sent an email to %email% with a link for you to %verify_text%. Remember to check other email folders like spam or promotions.',
+                  {
+                    email,
+                    verify_text: isReturningUser ? __('log in') : __('verify your account'),
+                  }
+                )}
+              </p>
+            )
           }
           actions={
             <React.Fragment>

@@ -28,7 +28,19 @@ export const selectShowMatureContent = (state) => {
   return !ENABLE_MATURE ? false : selectClientSetting(state, SETTINGS.SHOW_MATURE);
 };
 
-export const selectTheme = (state) => selectClientSetting(state, SETTINGS.THEME);
+export const selectTheme = (state) => {
+  const theme = selectClientSetting(state, SETTINGS.THEME);
+  if (theme === 'system') {
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      return 'light';
+    } else {
+      return 'dark';
+    }
+  }
+
+  return theme;
+};
+
 export const selectAutomaticDarkModeEnabled = (state) =>
   selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED);
 export const selectIsNight = (state) => selectState(state).isNight;
@@ -129,6 +141,18 @@ export const selectHomepageDiscover = (state) => {
     }
   }
   return homepages ? homepages['en'].discover || [] : [];
+};
+
+export const selectHomepageDiscoverNew = (state) => {
+  const homepageCode = selectHomepageCode(state);
+  const homepages = selectHomepageDb(state);
+  if (homepages) {
+    const discover = homepages[homepageCode]?.discoverNew;
+    if (discover) {
+      return discover;
+    }
+  }
+  return homepages ? homepages['en']?.discoverNew || [] : [];
 };
 
 export const selectHomepageAnnouncement = (state) => {

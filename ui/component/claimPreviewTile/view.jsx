@@ -54,6 +54,7 @@ type Props = {
   pulse?: boolean,
   firstCollectionItemUrl: ?string,
   onlyThumb?: boolean,
+  onClickHandledByParent?: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -86,6 +87,7 @@ function ClaimPreviewTile(props: Props) {
     pulse,
     firstCollectionItemUrl,
     onlyThumb,
+    onClickHandledByParent,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -107,7 +109,9 @@ function ClaimPreviewTile(props: Props) {
     (fypId ? `?${FYP_ID}=${fypId}` : ''); // sigh...
   const navLinkProps = {
     to: navigateUrl,
-    onClick: (e) => e.stopPropagation(),
+    onClick: (e) => {
+      onClickHandledByParent ? e.preventDefault() : e.stopPropagation();
+    },
   };
 
   const signingChannel = claim && claim.signing_channel;

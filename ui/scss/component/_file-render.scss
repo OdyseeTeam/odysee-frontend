@@ -1367,13 +1367,6 @@ $control-bar-icon-size: 30px;
       margin: 0;
       animation: grow 0.6s forwards;
 
-      &:active {
-        pointer-events: none;
-      }
-
-      a {
-        pointer-events: none;
-      }
       .claim-tile__header {
         position: absolute;
         top: 0;
@@ -1446,7 +1439,6 @@ $control-bar-icon-size: 30px;
 
     .recommendation-overlay-grid {
       .claim-preview--tile {
-        pointer-events: none;
         &:hover {
           .claim-tile__info,
           .claim-tile__header,

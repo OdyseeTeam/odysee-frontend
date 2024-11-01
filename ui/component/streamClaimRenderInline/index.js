@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { makeSelectDownloadPathForUri, selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { makeSelectClaimForUri, selectThumbnailForUri, makeSelectContentTypeForUri } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectTheme } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri, makeSelectFileExtensionForUri } from 'redux/selectors/content';
 import { doAnalyticsViewForUri } from 'redux/actions/app';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
@@ -13,7 +13,7 @@ import StreamClaimRenderInline from './view';
 const select = (state, props) => {
   const autoplay = props.embedded ? false : selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA);
   return {
-    currentTheme: selectClientSetting(state, SETTINGS.THEME),
+    currentTheme: selectTheme(state),
     claim: makeSelectClaimForUri(props.uri)(state),
     thumbnail: selectThumbnailForUri(state, props.uri),
     contentType: makeSelectContentTypeForUri(props.uri)(state),

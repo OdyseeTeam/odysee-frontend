@@ -334,6 +334,7 @@ function AppRouter(props: Props) {
     } else if (
       defaultChannelRef.current &&
       pathname !== `/$/${PAGES.UPLOAD}` &&
+      pathname !== `/$/${PAGES.POST}` &&
       !pathname.includes(`/$/${PAGES.LIST}/`) &&
       !pathname.includes(`/$/${PAGES.PLAYLIST}/`) &&
       pathname !== `/$/${PAGES.CREATOR_DASHBOARD}` &&
@@ -368,7 +369,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/`} exact component={HomePage} />
 
-        {(!wildWestDisabled || tagParams) && <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />}
+        {tagParams && <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />}
         {categoryPages}
 
         <Route path={`/$/${PAGES.AUTH_SIGNIN}`} exact component={SignInPage} />

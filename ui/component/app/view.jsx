@@ -390,6 +390,16 @@ function App(props: Props) {
 
   // add OneTrust script
   useEffect(() => {
+    // don't add script for embedded content
+    function inIframe() {
+      try {
+        return window.self !== window.top;
+      } catch (e) {
+        return true;
+      }
+    }
+    if (inIframe()) return;
+
     const useProductionOneTrust = process.env.NODE_ENV === 'production' && window?.location?.hostname === 'odysee.com';
 
     const script = document.createElement('script');

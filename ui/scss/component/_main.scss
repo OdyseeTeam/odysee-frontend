@@ -952,6 +952,10 @@ body {
 
 // Temp hacks until 'section__actions--no-margin' is generic again.
 .main__channelsFollowing {
+  .icon--Heart {
+    margin-top: -1.5px;
+  }
+
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
       display: flex;

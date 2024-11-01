@@ -67,6 +67,10 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
           let followingIndex = activeOrder.indexOf('FOLLOWING');
           if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
           else activeOrder.push(key);
+        } else if (key === 'DISCOVERY_CHANNEL' || key === 'EXPLORABLE_CHANNEL') {
+          let followingIndex = activeOrder.indexOf('FOLLOWING');
+          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);
+          else activeOrder.push(key);
         } else {
           activeOrder.push(key);
         }

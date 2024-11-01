@@ -13,6 +13,12 @@ import {
   RENTAL_TAG,
   RENTAL_TAG_OLD,
   PURCHASE_TAG_OLD,
+  DISABLE_SUPPORT_TAG,
+  DISABLE_DOWNLOAD_BUTTON_TAG,
+  DISABLE_REACTIONS_VIDEO_TAG,
+  DISABLE_REACTIONS_COMMENTS_TAG,
+  DISABLE_SLIMES_VIDEO_TAG,
+  DISABLE_SLIMES_COMMENTS_TAG,
 } from 'constants/tags';
 import { removeInternalTags } from 'util/tags';
 
@@ -109,8 +115,18 @@ export default function TagsSearch(props: Props) {
   const controlTagLabels = {};
   CONTROL_TAGS.map((t) => {
     let label;
-    if (t === 'disable-support') {
+    if (t === DISABLE_SUPPORT_TAG) {
       label = __('Disable Tipping and Boosting');
+    } else if (t === DISABLE_DOWNLOAD_BUTTON_TAG) {
+      label = __('Hide Download Button');
+    } else if (t === DISABLE_REACTIONS_VIDEO_TAG) {
+      label = __('Disable Likes/Dislikes - Content');
+    } else if (t === DISABLE_REACTIONS_COMMENTS_TAG) {
+      label = __('Disable Likes/Dislikes - Comments');
+    } else if (t === DISABLE_SLIMES_VIDEO_TAG) {
+      label = __('Disable Dislikes - Content');
+    } else if (t === DISABLE_SLIMES_COMMENTS_TAG) {
+      label = __('Disable Dislikes - Comments');
     } else {
       label = __(
         t

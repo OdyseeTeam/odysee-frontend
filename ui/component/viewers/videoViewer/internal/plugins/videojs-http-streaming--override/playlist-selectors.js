@@ -190,6 +190,11 @@ export const simpleSelector = function(
   return chosenRep ? chosenRep.playlist : null;
 };
 
+function newBandwidthEstimate(prevEstimate, newBandwidthMeasurement) {
+  const ALPHA = 0.1;
+  return Math.floor(ALPHA * newBandwidthMeasurement + (1 - ALPHA) * prevEstimate);
+}
+
 // Playlist Selectors
 
 /**
@@ -208,10 +213,11 @@ export const lastBandwidthSelector = function() {
   const hlsQualitySelector = player.hlsQualitySelector;
   const isAutoSelected = hlsQualitySelector?.getCurrentQuality() === 'auto';
   const useFirstFoundRendition = player.isLivestream && isAutoSelected;
+  this.estimatedBandwidth = newBandwidthEstimate(this.estimatedBandwidth || this.systemBandwidth, this.systemBandwidth)
 
   const selectedBandwidth = simpleSelector(
     this.playlists.master,
-    this.systemBandwidth,
+    this.estimatedBandwidth,
     parseInt(safeGetComputedStyle(this.tech_.el(), 'width'), 10) * pixelRatio,
     parseInt(safeGetComputedStyle(this.tech_.el(), 'height'), 10) * pixelRatio,
     this.limitRenditionByPlayerDimensions,

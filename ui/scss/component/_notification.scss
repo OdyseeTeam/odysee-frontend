@@ -302,6 +302,7 @@ $contentMaxWidth: 60rem;
     padding-left: var(--spacing-xs);
     border-left: 2px solid;
     color: var(--color-text) !important;
+    word-break: break-all;
   }
 }
 
