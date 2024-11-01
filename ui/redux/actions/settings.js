@@ -354,7 +354,7 @@ export function doLoadBuiltInHomepageData() {
     const enHp = require('homepages/odysee-en');
     if (enHp) {
       window.homepages = {};
-      const keys = ['en', 'fr', 'es', 'de', 'it', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
+      const keys = ['en', 'fr', 'es', 'de', 'it', 'hi', 'zh', 'ru', 'pt-BR']; // TODO: must come from hp repo
       keys.forEach((hp) => (window.homepages[hp] = undefined));
       window.homepages['en'] = enHp;
       populateCategoryTitles(window.homepages?.en?.categories);

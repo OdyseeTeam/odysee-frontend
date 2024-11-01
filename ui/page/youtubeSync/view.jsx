@@ -124,9 +124,12 @@ export default function YoutubeSync(props: Props) {
         ) : (
           <Card
             title={__('Sync your YouTube channel to %site_name%', { site_name: IS_WEB ? SITE_NAME : 'Odysee' })}
-            subtitle={__('Get your YouTube videos in front of the %site_name% audience.', {
-              site_name: IS_WEB ? SITE_NAME : 'Odysee',
-            })}
+            subtitle={__(
+              `Don't want to manually upload? Get your YouTube videos in front of the %site_name% audience.`,
+              {
+                site_name: IS_WEB ? SITE_NAME : 'Odysee',
+              }
+            )}
             actions={
               <Form onSubmit={handleCreateChannel}>
                 <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
@@ -179,7 +182,7 @@ export default function YoutubeSync(props: Props) {
                           <Button
                             button="link"
                             label={__('how the program works')}
-                            href="https://help.odysee.tv/category-syncprogram/"
+                            href="https://help.odysee.tv/category-syncprogram/limits/"
                           />
                         ),
                         site_name: SITE_NAME,
@@ -207,7 +210,6 @@ export default function YoutubeSync(props: Props) {
                 <div className="help--card-actions">
                   <I18nMessage
                     tokens={{
-                      count: 100,
                       learn_more: (
                         <Button
                           button="link"
@@ -215,10 +217,18 @@ export default function YoutubeSync(props: Props) {
                           href="https://help.odysee.tv/category-syncprogram/"
                         />
                       ),
+                      community_guidelines: (
+                        <Button
+                          button="link"
+                          label={__('Community Guidelines')}
+                          href="https://help.odysee.tv/communityguidelines/"
+                        />
+                      ),
                     }}
                   >
-                    This will verify you are an active YouTuber with over %count% subscribers and original content.
-                    Channel names cannot be changed once chosen, please be extra careful. %learn_more%.
+                    Enrollment in the Odysee Sync Program is based on a manual assessment which requires a channel to
+                    have at least 50,000 monthly views on YouTube, and to be in compliance with Odysee's
+                    %community_guidelines%. %learn_more%.
                   </I18nMessage>
                 </div>
               </Form>

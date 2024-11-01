@@ -16,6 +16,7 @@ const SUPPORTED_LANGUAGES = {
   eo: getLanguageName('eo'),
   es: getLanguageName('es'),
   et: getLanguageName('et'),
+  fa: getLanguageName('fa'),
   fi: getLanguageName('fi'),
   fr: getLanguageName('fr'),
   gu: getLanguageName('gu'),

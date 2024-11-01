@@ -89,6 +89,13 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
         limitClaims = Math.floor(limitNumber);
       }
     }
+  } else if (typeof cat.channelLimit === 'string' && cat.channelLimit) {
+    const limitNumber = Number(cat.channelLimit);
+    // eslint-disable-next-line
+    if (limitNumber === limitNumber && limitNumber !== 0) {
+      // because javascript and NaN !== NaN
+      limitClaims = Math.floor(limitNumber);
+    }
   }
 
   return {

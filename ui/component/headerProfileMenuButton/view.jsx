@@ -24,7 +24,7 @@ import { useIsMobile } from 'effects/use-screensize';
 type HeaderMenuButtonProps = {
   currentTheme: string,
   automaticDarkModeEnabled: boolean,
-  handleThemeToggle: (boolean, string) => void,
+  handleThemeToggle: (boolean, string, boolean) => void,
 
   user: ?User,
   activeChannelClaim: ?ChannelClaim,
@@ -91,12 +91,12 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
       )}
 
       <div className="header__buttons">
-        {authenticated && !isMobile && (
+        {!isMobile && (
           <Menu>
             <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
               <Button
                 className="header__navigationItem--icon"
-                onClick={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}
+                onClick={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme, authenticated)}
               >
                 <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
               </Button>
@@ -105,23 +105,25 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         )}
         {notificationsEnabled && !isMobile && <NotificationHeaderButton />}
 
-        <Button
-          id="basic-button"
-          aria-controls={open ? 'basic-menu' : undefined}
-          aria-haspopup="true"
-          aria-expanded={open ? 'true' : undefined}
-          onClick={handleClick}
-          className={classnames('header__navigationItem', {
-            'header__navigationItem--icon': !activeChannelUrl,
-            'header__navigationItem--profilePic': activeChannelUrl,
-          })}
-        >
-          {activeChannelUrl ? (
-            <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge />
-          ) : (
-            <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
-          )}
-        </Button>
+        {authenticated && (
+          <Button
+            id="basic-button"
+            aria-controls={open ? 'basic-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            onClick={handleClick}
+            className={classnames('header__navigationItem', {
+              'header__navigationItem--icon': !activeChannelUrl,
+              'header__navigationItem--profilePic': activeChannelUrl,
+            })}
+          >
+            {activeChannelUrl ? (
+              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge />
+            ) : (
+              <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
+            )}
+          </Button>
+        )}
 
         {authenticated ? (
           <MuiMenu {...menuProps}>

@@ -2351,7 +2351,7 @@
   "You currently have no channel selected and will not have a badge be visible, if you want to show a badge you can select a channel now, or you can show a badge for up to three channels in the future for free.": "You currently have no channel selected and will not have a badge be visible, if you want to show a badge you can select a channel now, or you can show a badge for up to three channels in the future for free.",
   "Completing your purchase...": "Completing your purchase...",
   "Membership was successful": "Membership was successful",
-  "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps": "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps",
+  "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps.": "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps.",
   "Canceling your membership...": "Canceling your membership...",
   "Membership successfully canceled": "Membership successfully canceled",
   "Confirm Membership Cancellation": "Confirm Membership Cancellation",
@@ -2953,6 +2953,8 @@
   "Receive 1 LBC for inviting a friend, an enemy, a frenemy, or an enefriend. Everyone needs content freedom.": "Receive 1 LBC for inviting a friend, an enemy, a frenemy, or an enefriend. Everyone needs content freedom.",
   "Receive a credit of at least 0.05 LBC for watching cool stuff at least 3 days during the week.": "Receive a credit of at least 0.05 LBC for watching cool stuff at least 3 days during the week.",
   "Are you a supermodel or rockstar that received a custom Credits code? Claim it here.": "Are you a supermodel or rockstar that received a custom Credits code? Claim it here.",
-
+  "Default action when clicking a playlist.": "Default action when clicking a playlist.",
+  "Default playlist action": "Default playlist action",
+  
   "--end--": "--end--"
 }

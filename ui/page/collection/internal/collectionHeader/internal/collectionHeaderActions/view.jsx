@@ -84,7 +84,7 @@ function CollectionHeaderActions(props: Props) {
                       </div>
                     </Tooltip>
                   )}
-                  {!isMyCollection && <ClaimSupportButton uri={uri} fileAction />}
+                  {<ClaimSupportButton uri={uri} fileAction />}
                   {/* <ClaimRepostButton uri={uri} /> */}
                   <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />
                 </>

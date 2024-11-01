@@ -204,12 +204,15 @@ export default function ModalBlockChannel(props: Props) {
   // **************************************************************************
   // **************************************************************************
 
+  // Confirm before blocking
+  /*
   if (isPersonalTheOnlyTab && !isTimeoutAvail) {
     // There's only 1 option. Just execute it and don't show the modal.
     doCommentModBlock(commenterUri, offendingCommentId);
     doHideModal();
     return null;
   }
+  */
 
   return (
     <Modal isOpen type="card" onAborted={doHideModal}>

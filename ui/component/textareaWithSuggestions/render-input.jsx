@@ -81,7 +81,15 @@ const TextareaSuggestionsInput = (props: Props) => {
     );
 
     return (
-      <TextField inputRef={inputRef} variant="outlined" multiline minRows={1} select={false} {...autocompleteProps} />
+      <TextField
+        inputRef={inputRef}
+        variant="outlined"
+        multiline
+        minRows={1}
+        maxRows={15}
+        select={false}
+        {...autocompleteProps}
+      />
     );
   }
 

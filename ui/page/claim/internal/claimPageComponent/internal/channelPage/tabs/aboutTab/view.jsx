@@ -31,6 +31,15 @@ const formatEmail = (email: string) => {
   return null;
 };
 
+const formatWebsite = (website: string) => {
+  if (website) {
+    const protocolRegex = new RegExp('^https://', 'i');
+    const protocol = protocolRegex.exec(website);
+    return protocol ? website : `https://${website}`;
+  }
+  return null;
+};
+
 function AboutTab(props: Props) {
   const { claim, uri, description, email, website, languages, user, channelIsBlackListed, claimIsMine } = props;
   const claimId = claim && claim.claim_id;
@@ -83,7 +92,7 @@ function AboutTab(props: Props) {
             <Fragment>
               <label>{__('Site')}</label>
               <div className="media__info-text">
-                <MarkdownPreview content={website} simpleLinks />
+                <MarkdownPreview content={formatWebsite(website)} simpleLinks />
               </div>
             </Fragment>
           )}

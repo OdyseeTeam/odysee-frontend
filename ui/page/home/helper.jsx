@@ -61,13 +61,27 @@ export function getSortedRowData(
       });
 
       // For remaining 'rowData', display it if it's a new category:
+      let discoveryChannel;
       rowData.forEach((data: RowDataItem) => {
         if (!data.hideByDefault) {
           if (!homepageOrder.hidden || !homepageOrder.hidden.includes(data.id)) {
-            sortedRowData.push(data);
+            if (data.id === 'EXPLORABLE_CHANNEL') {
+              discoveryChannel = data;
+            } else {
+              sortedRowData.push(data);
+            }
           }
         }
       });
+
+      if (discoveryChannel) {
+        const followingIndex = sortedRowData.findIndex((item) => item.id === 'FOLLOWING');
+        if (followingIndex !== -1) {
+          sortedRowData.splice(followingIndex + 1, 0, discoveryChannel);
+        } else {
+          sortedRowData.push(discoveryChannel);
+        }
+      }
 
       if (
         homepageOrder.active &&

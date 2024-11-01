@@ -3,6 +3,7 @@ import React from 'react';
 import classnames from 'classnames';
 import { NavLink, withRouter } from 'react-router-dom';
 import { ChannelPageContext } from 'contexts/channel';
+import * as COLLECTIONS from 'constants/collections';
 import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
@@ -24,6 +25,7 @@ import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import { FYP_ID } from 'constants/urlParams';
+import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
 
 type Props = {
@@ -53,6 +55,7 @@ type Props = {
   isLivestreamActive: boolean,
   pulse?: boolean,
   firstCollectionItemUrl: ?string,
+  defaultCollectionAction: string,
   onlyThumb?: boolean,
   onClickHandledByParent?: boolean,
 };
@@ -86,6 +89,7 @@ function ClaimPreviewTile(props: Props) {
     viewCount,
     pulse,
     firstCollectionItemUrl,
+    defaultCollectionAction,
     onlyThumb,
     onClickHandledByParent,
   } = props;
@@ -102,11 +106,13 @@ function ClaimPreviewTile(props: Props) {
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
-  const listId = collectionId || collectionClaimId;
+  const listId = collectionId || collectionClaimId || '';
   const navigateUrl =
-    formatLbryUrlForWeb(canonicalUrl || uri || '/') +
-    (listId ? generateListSearchUrlParams(listId) : '') +
-    (fypId ? `?${FYP_ID}=${fypId}` : ''); // sigh...
+    isCollection && defaultCollectionAction === COLLECTIONS.DEFAULT_ACTION_VIEW
+      ? `/$/${PAGES.PLAYLIST}/${listId}`
+      : formatLbryUrlForWeb(canonicalUrl || uri || '/') +
+        (listId ? generateListSearchUrlParams(listId) : '') +
+        (fypId ? `?${FYP_ID}=${fypId}` : ''); // sigh...
   const navLinkProps = {
     to: navigateUrl,
     onClick: (e) => {

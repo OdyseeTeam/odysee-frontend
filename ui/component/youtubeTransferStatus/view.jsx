@@ -192,7 +192,7 @@ export default function YoutubeTransferStatus(props: Props) {
                           <div className="help--inline">
                             {' '}
                             {__(
-                              '*Not all content may be processed. Click Learn More at the bottom to understand sync limitations '
+                              '*Not all content may be processed, there are limitations based on both Youtube and Odysee activity. Click Learn More at the bottom to see the latest requirements and limits. '
                             )}{' '}
                           </div>
 

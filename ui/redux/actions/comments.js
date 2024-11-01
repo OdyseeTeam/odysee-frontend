@@ -2,6 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import * as REACTION_TYPES from 'constants/reactions';
 import * as PAGES from 'constants/pages';
+import { LocalStorage } from 'util/storage';
 import { SORT_BY, BLOCK_LEVEL } from 'constants/comment';
 import Lbry from 'lbry';
 import { resolveApiMessage } from 'util/api-message';
@@ -710,6 +711,9 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
     const myCommentedChannelIds = selectMyCommentedChannelIdsForId(state, claim_id);
     const mentionedChannels: Array<MentionedChannel> = [];
 
+    const claim = selectClaimForClaimId(state, claim_id);
+    const targetClaimId = claim.signing_channel ? claim.signing_channel.claim_id : claim_id; // claim_id is for anonymous content and on channel page comments
+
     if (!activeChannelClaim) {
       console.error('Unable to create comment. No activeChannel is set.'); // eslint-disable-line
       return;
@@ -720,6 +724,23 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
         dispatch,
         __('Failed to perform action.'),
         __('Please wait a while before re-submitting, or try refreshing the page.'),
+        'long'
+      );
+      return;
+    }
+
+    let previousCommenterChannel = LocalStorage.getItem(`commenter_${targetClaimId}`);
+    previousCommenterChannel = previousCommenterChannel ? JSON.parse(previousCommenterChannel) : null;
+    if (
+      previousCommenterChannel &&
+      previousCommenterChannel.claim_id !== activeChannelClaim.claim_id &&
+      myCommentedChannelIds &&
+      !myCommentedChannelIds.includes(activeChannelClaim.claim_id)
+    ) {
+      dispatchToast(
+        dispatch,
+        __('Commenting from multiple channels is not allowed.'),
+        previousCommenterChannel.name,
         'long'
       );
       return;
@@ -805,6 +826,25 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       ...(payment_intent_id ? { payment_intent_id } : {}),
     })
       .then((result: CommentCreateResponse) => {
+        if (!previousCommenterChannel) {
+          const previousCommenterChannel = {
+            claim_id: activeChannelClaim.claim_id,
+            name: activeChannelClaim.name,
+          };
+          LocalStorage.setItem(`commenter_${targetClaimId}`, JSON.stringify(previousCommenterChannel));
+
+          let lastCommentedClaims = LocalStorage.getItem('lastCommentedClaims');
+          lastCommentedClaims = lastCommentedClaims ? JSON.parse(lastCommentedClaims) : [];
+          if (!lastCommentedClaims.includes(claim_id)) {
+            lastCommentedClaims.push(claim_id);
+            if (lastCommentedClaims.length > 100) {
+              const droppedItemClaimId = lastCommentedClaims.shift();
+              LocalStorage.removeItem(`commenter_${droppedItemClaimId}`);
+            }
+            LocalStorage.setItem('lastCommentedClaims', JSON.stringify(lastCommentedClaims));
+          }
+        }
+
         dispatch({
           type: ACTIONS.COMMENT_CREATE_COMPLETED,
           data: {

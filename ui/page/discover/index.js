@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { doResolveUri } from 'redux/actions/claims';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectHomepageDiscoverNew } from 'redux/selectors/settings';
 import DiscoverPage from './view';
 
 const select = (state, props) => {
@@ -11,10 +11,13 @@ const select = (state, props) => {
   const repostedUriInUrl = urlParams.get(CS.REPOSTED_URI_KEY);
   const repostedUri = repostedUriInUrl ? decodeURIComponent(repostedUriInUrl) : undefined;
 
+  const discoverDataNew = selectHomepageDiscoverNew(state);
+
   return {
     repostedUri: repostedUri,
     repostedClaim: repostedUri ? selectClaimForUri(state, repostedUri, false) : null,
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
+    discoverDataNew: discoverDataNew,
   };
 };
 

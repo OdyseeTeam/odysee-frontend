@@ -22,7 +22,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   channels: ?Array<ChannelClaim>,
   incognito: boolean,
-  preferredCurrency: CurrencyOption,
   purchasePending: boolean,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doHideModal: () => void,
@@ -37,7 +36,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     activeChannelClaim,
     channels,
     incognito,
-    preferredCurrency,
     purchasePending,
     doMembershipBuy,
     doHideModal,
@@ -100,13 +98,15 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
               <I18nMessage
                 tokens={{
                   time_interval_bold: (
-                    <b className="membership-bolded">{__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}</b>
+                    <b className="membership-bolded">
+                      {__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval].toLowerCase())}
+                    </b>
                   ),
-                  time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]),
+                  time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval].toLowerCase()),
                   price_bold: (
-                    <b className="membership-bolded">{`${preferredCurrency.toUpperCase()} ${
-                      STRIPE.CURRENCY[price.currency.toUpperCase()].symbol
-                    }${price.unit_amount / 100}`}</b>
+                    <b className="membership-bolded">{`${STRIPE.CURRENCY[price.currency.toUpperCase()].symbol}${(
+                      price.unit_amount / 100
+                    ).toFixed(2)}`}</b>
                   ),
                   plan,
                 }}
@@ -114,8 +114,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
                 You are purchasing a %time_interval_bold% %plan% membership that is active immediately and will renew
                 %time_interval% at a price of %price_bold%.
               </I18nMessage>{' '}
-              {plan === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS &&
-                __('The no ads feature applies site-wide for all channels.')}
               {!noChannelsOrIncognitoMode ? (
                 <I18nMessage tokens={{ channel_name: <b className="membership-bolded">{activeChannelName}</b> }}>
                   Your badge will be shown for your %channel_name% channel in all areas of the app, and can be added to

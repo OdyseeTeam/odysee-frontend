@@ -18,6 +18,7 @@ declare type HomepagesDb = {
     featured: {},
     meme: string,
     discover: Array<string>,
+    discoverNew: Array<string>,
     announcement: string,
   }
 };

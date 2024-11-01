@@ -211,6 +211,10 @@
 .card__title-section {
   @extend .section__flex;
 
+  .card__title {
+    word-break: break-all;
+  }
+
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-s) 0px;
   }

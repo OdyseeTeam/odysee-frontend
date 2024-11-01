@@ -18,13 +18,14 @@ import { doResolveUri } from 'redux/actions/claims';
 import { doFileGetForUri } from 'redux/actions/file';
 import { selectBanStateForUri } from 'lbryinc';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
-import { selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import { selectLanguage, selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectHasVisitedUri } from 'redux/selectors/content';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import ClaimPreview from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
 import { doClearContentHistoryUri, doPlayNextUri } from 'redux/actions/content';
+import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -57,6 +58,7 @@ const select = (state, props) => {
     title: props.uri && selectTitleForUri(state, props.uri),
     firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
     thumbnailFromClaim: selectThumbnailForUri(state, props.uri),
+    defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
   };
 };
 

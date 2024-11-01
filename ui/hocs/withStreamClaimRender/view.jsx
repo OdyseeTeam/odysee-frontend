@@ -220,7 +220,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       if (canViewFile) {
         if (isHome) updateClaim('isHome');
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
-          if (renderMode === 'video') {
+          if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
             if (autoplay) updateClaim('a & d & !claimLinkId video');
           } else {
