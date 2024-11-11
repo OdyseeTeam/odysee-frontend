@@ -80,7 +80,7 @@ export const MATURE_TAGS = Object.freeze([
   'creampie',
   'blowjob',
   'handjob',
-  'vagina',
+  // 'vagina',
   'boobs',
   'big boobs',
   'big dick',
