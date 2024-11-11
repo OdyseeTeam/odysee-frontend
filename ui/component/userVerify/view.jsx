@@ -94,15 +94,7 @@ class UserVerify extends React.PureComponent<Props> {
                   token={this.onToken}
                   stripeKey={Lbryio.getStripeToken()}
                 />
-                <p className="help">
-                  {__('A $1 authorization may temporarily appear with your provider.')}{' '}
-                  <Button
-                    button="link"
-                    href="https://help.odysee.tv/category-monetization/category-rewards/"
-                    label={__('Read more')}
-                  />
-                  .
-                </p>
+                <p className="help">{__('A $1 authorization may temporarily appear with your provider.')}</p>
               </Fragment>
             }
           />
