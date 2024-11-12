@@ -151,9 +151,10 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const [debouncedUri, setDebouncedUri] = React.useState();
 
   const [uiFilteredComments, setUiFilteredComments] = React.useState([]);
-  const updateUiFilteredComments = React.useCallback((commentId) => {
+  const updateUiFilteredComments = React.useCallback((commentIds) => {
     setUiFilteredComments((prevCommentIds) => {
-      return prevCommentIds.includes(commentId) ? prevCommentIds : [...prevCommentIds, commentId];
+      const newCommentIds = commentIds.filter((id) => !prevCommentIds.includes(id));
+      return newCommentIds.length > 0 ? [...prevCommentIds, ...newCommentIds] : prevCommentIds;
     });
   }, []);
 

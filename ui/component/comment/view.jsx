@@ -70,7 +70,7 @@ export type Props = {|
   threadLevel?: number,
   threadDepthLevel?: number,
   disabled?: boolean,
-  updateUiFilteredComments?: (commentId: string) => void,
+  updateUiFilteredComments?: (commentIds: Array<string>) => void,
 |};
 
 type StateProps = {|
@@ -315,7 +315,8 @@ function CommentView(props: Props & StateProps & DispatchProps) {
 
   if (isCommenterChannelDeleted) {
     if (updateUiFilteredComments) {
-      updateUiFilteredComments(commentId);
+      const fetchedReplyIds = fetchedReplies.map((r) => r.comment_id);
+      updateUiFilteredComments([...fetchedReplyIds, commentId]);
     }
     return null;
   }
