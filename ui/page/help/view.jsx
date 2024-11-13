@@ -82,10 +82,15 @@ export default function HelpPage(props: Props) {
       <Card
         title={__('Email change')}
         subtitle={
-          <I18nMessage tokens={{ channel: <strong>#support</strong>, help_email: SITE_HELP_EMAIL }}>
-            Email address changes are processed manually on request via email. Email must come from the original email
-            being changed, or we'll need to verify ownership another way.
-          </I18nMessage>
+          <>
+            <I18nMessage tokens={{ channel: <strong>#support</strong>, help_email: SITE_HELP_EMAIL }}>
+              Email address changes are processed manually on request via email. Email must come from the original email
+              being changed, or we'll need to verify ownership another way.
+            </I18nMessage>{' '}
+            <I18nMessage>
+              Optionally the email change can be requested using "Submit Feedback" button below.
+            </I18nMessage>
+          </>
         }
         actions={
           <Button button="secondary" label={__('Email Us')} icon={ICONS.WEB} href={`mailto:${SITE_HELP_EMAIL}`} />
