@@ -16,14 +16,14 @@ import './style.scss';
 type Props = {
   // -- redux --
   accountInfo: ?StripeAccountInfo,
-  unpaidBalance: number,
+  paidBalance: number,
   chargesEnabled: ?boolean,
   accountRequiresVerification: ?boolean,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
 };
 
 const StripeAccountConnection = (props: Props) => {
-  const { accountInfo, unpaidBalance, chargesEnabled, accountRequiresVerification, doTipAccountStatus } = props;
+  const { accountInfo, paidBalance, chargesEnabled, accountRequiresVerification, doTipAccountStatus } = props;
 
   const { email, id: accountId } = accountInfo || {};
   const bankAccountNotFetched = chargesEnabled === undefined;
@@ -93,13 +93,17 @@ const StripeAccountConnection = (props: Props) => {
                 </>
               )}
             </div>
-          ) : unpaidBalance > 0 ? (
+          ) : paidBalance > 0 ? (
             // TODO: hopefully we won't be using this anymore and can remove it
             <div className="card__body-actions">
               <h3>{__('Congratulations, you have already begun receiving tips on Odysee!')}</h3>
               <div>
                 <br />
-                <h3>{__('Your pending account balance is $%balance% USD.', { balance: unpaidBalance / 100 })}</h3>
+                <h3>
+                  {__('Your paid out amount is $%balance% USD (or in your Stripe currency).', {
+                    balance: paidBalance / 100,
+                  })}
+                </h3>
               </div>
               <br />
               <div>
