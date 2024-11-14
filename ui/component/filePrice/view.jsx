@@ -14,14 +14,16 @@ type Props = {
   showFullPrice: boolean,
   type?: 'default' | 'filepage' | 'modal' | 'thumbnail',
   uri: string,
-  rentalInfo: { price: number, currency: string, expirationTimeInSeconds: number },
-  purchaseInfo: number,
+  rentalInfo: { price: number, currency: string, expirationTimeInSeconds: number, priceInPreferredCurrency: number },
+  purchaseInfo: { price: number, currency: string, priceInPreferredCurrency: number },
   isFetchingPurchases: boolean,
   // below props are just passed to <CreditAmount />
   customPrices?: { priceFiat: number, priceLBC: number },
   hideFree?: boolean, // hide the file price if it's free
   isFiat?: boolean,
   showLBC?: boolean,
+  currency: string,
+  canUsePreferredCurrency: boolean,
 };
 
 class FilePrice extends React.PureComponent<Props> {
@@ -41,6 +43,8 @@ class FilePrice extends React.PureComponent<Props> {
       purchaseInfo,
       isFetchingPurchases,
       fiatPaid,
+      currency,
+      canUsePreferredCurrency,
     } = this.props;
 
     const fiatRequired = Boolean(purchaseInfo) || Boolean(rentalInfo);
@@ -65,6 +69,10 @@ class FilePrice extends React.PureComponent<Props> {
 
       const hasMultiOptions = Boolean(purchaseInfo) && Boolean(rentalInfo);
       const showIconsOnly = hasMultiOptions && type === 'thumbnail';
+      const purchasePrice =
+        purchaseInfo && (canUsePreferredCurrency ? purchaseInfo.priceInPreferredCurrency : purchaseInfo.price);
+      const rentalPrice =
+        rentalInfo && (canUsePreferredCurrency ? rentalInfo.priceInPreferredCurrency : rentalInfo.price);
 
       return (
         <div
@@ -83,20 +91,22 @@ class FilePrice extends React.PureComponent<Props> {
             <>
               {purchaseInfo && (
                 <CreditAmount
-                  amount={showIconsOnly ? '' : purchaseInfo}
+                  amount={showIconsOnly ? '' : purchasePrice}
                   className={className}
                   isFiat
                   showFullPrice={showFullPrice}
                   icon={ICONS.BUY}
+                  fiatCurrency={currency}
                 />
               )}
               {rentalInfo && (
                 <CreditAmount
-                  amount={showIconsOnly ? '' : rentalInfo.price}
+                  amount={showIconsOnly ? '' : rentalPrice}
                   className={className}
                   isFiat
                   showFullPrice={showFullPrice}
                   icon={ICONS.TIME}
+                  fiatCurrency={currency}
                 />
               )}
             </>

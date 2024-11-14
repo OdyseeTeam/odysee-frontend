@@ -26,9 +26,11 @@ import {
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
   selectRentalTagForUri,
+  selectFiatCurrencyForUri,
 } from 'redux/selectors/claims';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectCurrencyRate } from 'redux/selectors/stripe';
 import { getChannelFromClaim } from 'util/claim';
 import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
 
@@ -897,6 +899,9 @@ export const doPurchaseClaimForUri =
 
     const activeChannelClaim = selectActiveChannelClaim(state);
     const preferredCurrency = selectPreferredCurrency(state);
+    const originalCurrency = selectFiatCurrencyForUri(state, uri);
+    const canUsePreferredCurrency = Boolean(selectCurrencyRate(state, originalCurrency, preferredCurrency));
+    const currency = canUsePreferredCurrency ? preferredCurrency : originalCurrency;
 
     const preorderTag = selectPreorderTagForUri(state, uri);
     const purchaseTag = selectPurchaseTagForUri(state, uri);
@@ -909,12 +914,12 @@ export const doPurchaseClaimForUri =
     let rentTipAmount = 0;
 
     if (tags.purchaseTag && tags.rentalTag) {
-      tipAmount = tags.purchaseTag;
-      rentTipAmount = tags.rentalTag.price;
+      tipAmount = canUsePreferredCurrency ? tags.purchaseTag.priceInPreferredCurrency : tags.purchaseTag.price;
+      rentTipAmount = canUsePreferredCurrency ? tags.rentalTag.priceInPreferredCurrency : tags.rentalTag.price;
     } else if (tags.purchaseTag) {
-      tipAmount = tags.purchaseTag;
+      tipAmount = canUsePreferredCurrency ? tags.purchaseTag.priceInPreferredCurrency : tags.purchaseTag.price;
     } else if (tags.rentalTag) {
-      rentTipAmount = tags.rentalTag.price;
+      rentTipAmount = canUsePreferredCurrency ? tags.rentalTag.priceInPreferredCurrency : tags.rentalTag.price;
     } else if (tags.preorderTag) {
       tipAmount = tags.preorderTag;
     }
@@ -933,7 +938,7 @@ export const doPurchaseClaimForUri =
         ...(activeChannelClaim
           ? { tipper_channel_name: activeChannelClaim.name, tipper_channel_claim_id: activeChannelClaim.claim_id }
           : { anonymous: true }),
-        currency: preferredCurrency || 'USD',
+        currency,
         environment: stripeEnvironment,
         source_claim_id: claim.claim_id,
         target_claim_id: claim.claim_id,

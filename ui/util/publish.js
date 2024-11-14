@@ -337,7 +337,7 @@ const PAYLOAD = {
         // Purchase
         if (fiatPurchaseEnabled && fiatPurchaseFee?.currency && Number(fiatPurchaseFee.amount) > 0) {
           tagSet.add(PURCHASE_TAG);
-          tagSet.add(`${PURCHASE_TAG}:${fiatPurchaseFee.amount.toFixed(2)}`);
+          tagSet.add(`${PURCHASE_TAG}:${fiatPurchaseFee.amount.toFixed(2)}:${fiatPurchaseFee.currency}`);
         }
 
         // Rental
@@ -350,7 +350,7 @@ const PAYLOAD = {
         ) {
           const seconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
           tagSet.add(RENTAL_TAG);
-          tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}`);
+          tagSet.add(`${RENTAL_TAG}:${fiatRentalFee.amount.toFixed(2)}:${seconds}:${fiatRentalFee.currency}`);
         }
       }
     },

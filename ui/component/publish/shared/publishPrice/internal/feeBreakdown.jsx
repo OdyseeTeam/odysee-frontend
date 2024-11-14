@@ -37,7 +37,9 @@ function FeeBreakdown(props: Props) {
         ppf: getAmountStr(fees?.stripe_cut),
         opf: getAmountStr(fees?.odysee_cut),
         currency: STRIPE.CURRENCY[currency].symbol,
-      })}
+      }) +
+        ' • ' +
+        __('Potential currency conversion fee if applicable')}
     </>
   );
 }
