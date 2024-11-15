@@ -34,7 +34,7 @@ type Props = {
   location: { search: string },
   playingCollectionId: ?string,
   position: number,
-  commentSettingDisabled: ?boolean,
+  commentsDisabled: ?boolean,
   videoTheaterMode: boolean,
   contentUnlocked: boolean,
   isAutoplayCountdownForUri: ?boolean,
@@ -52,7 +52,7 @@ export default function VideoPlayersPage(props: Props) {
     linkedCommentId,
     threadCommentId,
     videoTheaterMode,
-    commentSettingDisabled,
+    commentsDisabled,
     audioVideoDuration,
     commentsListTitle,
     isUriPlaying,
@@ -139,7 +139,7 @@ export default function VideoPlayersPage(props: Props) {
             <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
             {contentUnlocked &&
-              (commentSettingDisabled ? (
+              (commentsDisabled ? (
                 <Empty padded={!isMobile} text={__('The creator of this content has disabled comments.')} />
               ) : isMobile && !isLandscapeRotated ? (
                 <React.Fragment>

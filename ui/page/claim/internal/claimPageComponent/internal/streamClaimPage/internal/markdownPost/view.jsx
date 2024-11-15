@@ -14,7 +14,7 @@ type Props = {
   isMature: boolean,
   linkedCommentId?: string,
   threadCommentId?: string,
-  commentSettingDisabled: ?boolean,
+  commentsDisabled: ?boolean,
   contentUnlocked: boolean,
 };
 
@@ -26,7 +26,7 @@ export default function MarkdownPostPage(props: Props) {
     isMature,
     linkedCommentId,
     threadCommentId,
-    commentSettingDisabled,
+    commentsDisabled,
     contentUnlocked,
   } = props;
 
@@ -47,7 +47,7 @@ export default function MarkdownPostPage(props: Props) {
       </PostWrapper>
 
       <div className="file-page__post-comments">
-        {commentSettingDisabled ? (
+        {commentsDisabled ? (
           <Empty text={__('The creator of this content has disabled comments.')} />
         ) : contentUnlocked ? (
           <React.Suspense fallback={null}>

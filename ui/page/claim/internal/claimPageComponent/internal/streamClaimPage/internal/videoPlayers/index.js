@@ -2,11 +2,16 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
 import * as SETTINGS from 'constants/settings';
+import * as TAGS from 'constants/tags';
 
 import { getChannelIdFromClaim } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
-import { selectClaimIsNsfwForUri, selectClaimForUri } from 'redux/selectors/claims';
+import {
+  selectClaimIsNsfwForUri,
+  selectClaimForUri,
+  makeSelectTagInClaimOrChannelForUri,
+} from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { selectClientSetting } from 'redux/selectors/settings';
 import {
@@ -32,6 +37,8 @@ const select = (state, props) => {
 
   const claimId = claim.claim_id;
 
+  const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
+
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     fileInfo: makeSelectFileInfoForUri(uri)(state),
@@ -41,7 +48,8 @@ const select = (state, props) => {
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     playingCollectionId,
     position: selectContentPositionForUri(state, uri),
-    commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelId),
+    commentsDisabled:
+      commentSettingDisabled || makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isAutoplayCountdownForUri: selectIsAutoplayCountdownForUri(state, uri),
