@@ -305,8 +305,8 @@ function CommentMenuList(props: Props) {
           </MenuItem>
           <MenuItem className="comment__menu-option" onSelect={() => muteChannel(authorUri)}>
             <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.MUTE} />
-              {__('Mute')}
+              <Icon aria-hidden icon={ICONS.EYE_OFF} />
+              {__('Hide')}
             </div>
             {activeChannelIsCreator && (
               <span className="comment__menu-help">{__('Hide this channel for you only.')}</span>

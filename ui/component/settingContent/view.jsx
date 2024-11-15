@@ -137,7 +137,7 @@ export default function SettingContent(props: Props) {
                   />
                 </SettingsRow>
 
-                <SettingsRow title={__('Blocked and muted channels')}>
+                <SettingsRow title={__('Blocked and hidden channels')}>
                   <Button
                     button="inverse"
                     label={__('Manage')}

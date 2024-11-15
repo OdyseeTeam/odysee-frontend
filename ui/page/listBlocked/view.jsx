@@ -175,7 +175,7 @@ function ListBlocked(props: Props) {
         return __('List of channels that you have blocked as a moderator, along with the list of delegators.');
       case VIEW.MUTED:
         return __(
-          'Muted channels will be invisible to you in the app. They will not know they are muted and can still interact with you and your content.'
+          'Hidden channels will be invisible to you in the app. They will not know they are hidden and can still interact with you and your content.'
         );
     }
   }
@@ -185,7 +185,7 @@ function ListBlocked(props: Props) {
       case VIEW.BLOCKED:
         return __('You do not have any blocked channels');
       case VIEW.MUTED:
-        return __('You do not have any muted channels');
+        return __('You do not have any hidden channels');
       case VIEW.ADMIN:
         return __('You do not have any globally-blocked channels');
       case VIEW.MODERATOR:
@@ -256,7 +256,7 @@ function ListBlocked(props: Props) {
       noFooter
       noSideNavigation
       settingsPage
-      backout={{ title: __('Blocked and muted channels'), backLabel: __('Back') }}
+      backout={{ title: __('Blocked and hidden channels'), backLabel: __('Back') }}
     >
       {fetchingModerationBlockList && (
         <div className="main--empty">
@@ -271,7 +271,7 @@ function ListBlocked(props: Props) {
               {getViewElem(VIEW.BLOCKED, 'Blocked', ICONS.BLOCK)}
               {isAdmin && getViewElem(VIEW.ADMIN, 'Global', ICONS.BLOCK)}
               {isModerator && getViewElem(VIEW.MODERATOR, 'Moderator', ICONS.BLOCK)}
-              {getViewElem(VIEW.MUTED, 'Muted', ICONS.MUTE)}
+              {getViewElem(VIEW.MUTED, 'Hidden', ICONS.EYE_OFF)}
             </div>
             <div className="section__actions--inline">{getRefreshElem()}</div>
           </div>

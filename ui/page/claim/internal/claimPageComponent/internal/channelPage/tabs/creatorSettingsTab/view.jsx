@@ -486,7 +486,7 @@ const HELP = {
   MIN_SUPER: 'Enabling a minimum amount to hyperchat will force all TIPPED comments to have this value in order to be shown. This still allows regular comments to be posted.',
   MIN_SUPER_OFF: '(This settings is not applicable if all comments require a tip.)',
   BLOCKED_WORDS: 'Comments and livestream chat containing these words will be blocked.',
-  MODERATORS: 'Moderators can block channels on your behalf. Blocked channels will appear in your "Blocked and Muted" list.',
+  MODERATORS: 'Moderators can block channels on your behalf. Blocked channels will appear in your "Blocked and Hidden" list.',
   MODERATOR_SEARCH: 'Enter a channel name or URL to add as a moderator.\nExamples:\n - @channel\n - @channel#3\n - https://odysee.com/@Odysee:8\n - lbry://@Odysee#8',
   MEMBERS_ONLY_COMMENTS: 'Only channel members with "Members-only chat" perk can participate in public comments sections.',
   MEMBERS_ONLY_CHAT: 'Only channel members with "Members-only chat" perk can participate in public livestream chats.',
