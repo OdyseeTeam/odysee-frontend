@@ -729,11 +729,15 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       return;
     }
 
+    const commentChannelChangeCooldown = 1000 * 60 * 30; // 30min
+    const channelSwitchCutoffTimestamp = Date.now() - commentChannelChangeCooldown;
+
     let previousCommenterChannel = LocalStorage.getItem(`commenter_${targetClaimId}`);
     previousCommenterChannel = previousCommenterChannel ? JSON.parse(previousCommenterChannel) : null;
     if (
       previousCommenterChannel &&
       previousCommenterChannel.claim_id !== activeChannelClaim.claim_id &&
+      previousCommenterChannel.last_comment_timestamp >= channelSwitchCutoffTimestamp &&
       myCommentedChannelIds &&
       !myCommentedChannelIds.includes(activeChannelClaim.claim_id)
     ) {
@@ -826,23 +830,22 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       ...(payment_intent_id ? { payment_intent_id } : {}),
     })
       .then((result: CommentCreateResponse) => {
-        if (!previousCommenterChannel) {
-          const previousCommenterChannel = {
-            claim_id: activeChannelClaim.claim_id,
-            name: activeChannelClaim.name,
-          };
-          LocalStorage.setItem(`commenter_${targetClaimId}`, JSON.stringify(previousCommenterChannel));
+        const previousCommenterChannel = {
+          claim_id: activeChannelClaim.claim_id,
+          name: activeChannelClaim.name,
+          last_comment_timestamp: Date.now(),
+        };
+        LocalStorage.setItem(`commenter_${targetClaimId}`, JSON.stringify(previousCommenterChannel));
 
-          let lastCommentedClaims = LocalStorage.getItem('lastCommentedClaims');
-          lastCommentedClaims = lastCommentedClaims ? JSON.parse(lastCommentedClaims) : [];
-          if (!lastCommentedClaims.includes(claim_id)) {
-            lastCommentedClaims.push(claim_id);
-            if (lastCommentedClaims.length > 100) {
-              const droppedItemClaimId = lastCommentedClaims.shift();
-              LocalStorage.removeItem(`commenter_${droppedItemClaimId}`);
-            }
-            LocalStorage.setItem('lastCommentedClaims', JSON.stringify(lastCommentedClaims));
+        let lastCommentedClaims = LocalStorage.getItem('lastCommentedClaims');
+        lastCommentedClaims = lastCommentedClaims ? JSON.parse(lastCommentedClaims) : [];
+        if (!lastCommentedClaims.includes(claim_id)) {
+          lastCommentedClaims.push(claim_id);
+          if (lastCommentedClaims.length > 100) {
+            const droppedItemClaimId = lastCommentedClaims.shift();
+            LocalStorage.removeItem(`commenter_${droppedItemClaimId}`);
           }
+          LocalStorage.setItem('lastCommentedClaims', JSON.stringify(lastCommentedClaims));
         }
 
         dispatch({
