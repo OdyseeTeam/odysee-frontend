@@ -1,6 +1,7 @@
 // @flow
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
+import * as TAGS from 'constants/tags';
 import React from 'react';
 import classnames from 'classnames';
 import { FormField } from 'component/common/form';
@@ -482,6 +483,7 @@ function ChannelForm(props: Props) {
                       disableAutoFocus
                       limitSelect={MAX_TAG_SELECT}
                       tagsPassedIn={params.tags || []}
+                      excludedControlTags={[TAGS.DISABLE_COMMENTS_TAG]}
                       label={__('Selected Tags')}
                       onRemove={(clickedTag) => {
                         const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);

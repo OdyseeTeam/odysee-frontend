@@ -5,6 +5,8 @@ import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
 
+import * as TAGS from 'constants/tags';
+
 import {
   selectMyClaims,
   selectPendingClaims,
@@ -14,6 +16,7 @@ import {
   selectClaimReleaseInFutureForUri,
   selectClaimReleaseInPastForUri,
   selectClaimIdForUri,
+  makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 
@@ -306,6 +309,8 @@ export const selectChatCommentsDisabledForUri = (state: State, uri: string) => {
   const channelId = selectChannelClaimIdForUri(state, uri);
   if (!channelId) return channelId;
 
-  const commentsDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
-  return commentsDisabled;
+  const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
+  const commentsDisabled = makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state);
+
+  return commentSettingDisabled || commentsDisabled;
 };
