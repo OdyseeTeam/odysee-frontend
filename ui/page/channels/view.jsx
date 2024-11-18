@@ -5,11 +5,9 @@ import Page from 'component/page';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
-import LbcSymbol from 'component/common/lbc-symbol';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import HelpLink from 'component/common/help-link';
 import { lazyImport } from 'util/lazyImport';
 import { useHistory } from 'react-router';
 
@@ -23,8 +21,6 @@ type Props = {
   channelIds: ?ClaimIds,
   fetchingChannels: boolean,
   hasYoutubeChannels: boolean,
-  pendingIds: Array<string>,
-  viewRateById: {},
   doFetchChannelListMine: () => void,
   doUserViewRateList: () => void,
   doSetActiveChannel: (string) => void,
@@ -38,8 +34,6 @@ export default function ChannelsPage(props: Props) {
     channelIds,
     fetchingChannels,
     hasYoutubeChannels,
-    pendingIds,
-    viewRateById,
     doFetchChannelListMine,
     doUserViewRateList,
     doSetActiveChannel,
@@ -136,22 +130,6 @@ export default function ChannelsPage(props: Props) {
           renderProperties={(claim) => {
             const claimsInChannel = claim.meta.claims_in_channel;
             if (!claim || claimsInChannel === 0) {
-              return null;
-            }
-
-            const channelRewardData = viewRateById[claim.claim_id];
-
-            if (channelRewardData && !pendingIds.includes(claim.claim_id)) {
-              return (
-                <span className="claim-preview__custom-properties">
-                  <span className="help--inline">
-                    {__('Earnings per view: ')}
-                    <LbcSymbol postfix={channelRewardData.view_rate.toFixed(2)} />
-                    <HelpLink href="https://help.odysee.tv/category-monetization/" />
-                  </span>
-                </span>
-              );
-            } else {
               return null;
             }
           }}
