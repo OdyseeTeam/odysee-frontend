@@ -787,6 +787,7 @@ export function CommentCreate(props: Props) {
               setDisableSubmitButton={setDisableReviewButton}
               setTipError={setTipError}
               tipError={tipError}
+              isComment
             />
           )}
 
