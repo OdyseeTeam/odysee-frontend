@@ -566,9 +566,12 @@ export const doCollectionEdit =
     const isPrivateVersion = selectHasPrivateCollectionForId(state, collectionId);
     const { uris, remove, replace, order, type, isPreview } = params;
 
-    await dispatch(doFetchItemsInCollection({ collectionId }));
-    state = getState();
-    const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    let hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    if (!hasItemsResolved && !isPrivateVersion) {
+      await dispatch(doFetchItemsInCollection({ collectionId }));
+      state = getState();
+      hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    }
     if (!hasItemsResolved && !isPrivateVersion) {
       return dispatch(doToast({ message: __('Failed to resolve collection items. Please try again.'), isError: true }));
     }
