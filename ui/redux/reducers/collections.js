@@ -141,11 +141,21 @@ const collectionsReducer = handleActions(
       const newCollection = Object.assign({}, collection);
       newCollection.updatedAt = getCurrentTimeInSec();
 
-      return {
+      const newState = {
         ...state,
         [collectionKey]: { ...currentCollections, [id]: newCollection },
         lastUsedCollection: id,
       };
+
+      // Remove un-wanted versions of the list
+      [COLS.KEYS.UPDATED, COLS.KEYS.UNSAVED_CHANGES].forEach((key) => {
+        if (collectionKey !== key) {
+          const { [id]: _, ...remainingCollections } = state[key];
+          newState[key] = remainingCollections;
+        }
+      });
+
+      return newState;
     },
 
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
