@@ -24,6 +24,7 @@ const defaultState: CollectionState = {
   unpublished: {},
   edited: {},
   updated: {},
+  unsavedChanges: {},
   savedIds: [],
   // -- local --
   isFetchingMyCollections: undefined,
