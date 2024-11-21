@@ -608,8 +608,6 @@ export const doCollectionEdit =
       currentUrls.splice(order.to, 0, movedItem);
     }
 
-    await dispatch(doRemoveFromUpdatedCollectionsForCollectionId(collectionId));
-
     const isQueue = collectionId === COLS.QUEUE_ID;
     const title = params.title || params.name;
 
@@ -635,10 +633,6 @@ export const doCollectionEdit =
           },
         },
       });
-      // Needs to be run after collection_edit is dispatched, or saving changes doesn't work from edit page
-      if (!isPreview) {
-        dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
-      }
       success();
     });
   };
