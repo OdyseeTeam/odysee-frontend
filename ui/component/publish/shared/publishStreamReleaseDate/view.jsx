@@ -97,6 +97,7 @@ const PublishStreamReleaseDate = (props: Props) => {
                 disableClock
                 clearIcon={null}
                 minDate={moment().startOf('day').toDate()}
+                maxDate={new Date(9999, 11, 31)}
               />
             </div>
           )}
