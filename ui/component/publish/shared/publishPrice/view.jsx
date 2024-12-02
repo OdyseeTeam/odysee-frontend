@@ -11,7 +11,6 @@ import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
 import * as PUBLISH_TYPES from 'constants/publish_types';
 import usePersistedState from 'effects/use-persisted-state';
-import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
 import './style.lazy.scss';
 
 const FEE = { MIN: 1, MAX: 999.99 };
@@ -103,20 +102,6 @@ function PublishPrice(props: Props) {
     }
   }
 
-  function getBankAccountDriver() {
-    return (
-      <div className="publish-price__bank-driver">
-        <I18nMessage
-          tokens={{
-            click_here_to_connect_a_bank_account: <ButtonStripeConnectAccount />,
-          }}
-        >
-          %click_here_to_connect_a_bank_account% to enable purchasing and renting functionality.
-        </I18nMessage>
-      </div>
-    );
-  }
-
   function getRestrictionWarningRow() {
     return (
       <div className={classnames('publish-price__row', {})}>
@@ -145,15 +130,16 @@ function PublishPrice(props: Props) {
                 disabled={disabled}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FREE })}
               />
-              <FormField
-                type="radio"
-                name="content_fiat"
-                label={`${__('Purchase / Rent')} \u{0024}`}
-                checked={paywall === PAYWALL.FIAT}
-                disabled={disabled || noBankAccount || !fiatAllowed}
-                onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
-              />
-              {noBankAccount && getBankAccountDriver()}
+              {!noBankAccount && (
+                <FormField
+                  type="radio"
+                  name="content_fiat"
+                  label={`${__('Purchase / Rent')} \u{0024}`}
+                  checked={paywall === PAYWALL.FIAT}
+                  disabled={disabled || noBankAccount || !fiatAllowed}
+                  onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
+                />
+              )}
               <FormField
                 type="radio"
                 name="content_sdk"
