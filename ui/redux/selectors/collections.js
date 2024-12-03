@@ -249,7 +249,7 @@ export const selectClaimSavedForUrl = createSelector(
   (url, bLists, myRLists, uLists, eLists) => {
     const collections = [bLists, uLists, eLists, myRLists];
     // $FlowFixMe
-    const claimId = url.match(/[a-f0-9]{40}/)?.at(0);
+    const claimId = url.match(/[a-f0-9]{40}/)?.[0];
 
     return collections.some((list) =>
       // $FlowFixMe
