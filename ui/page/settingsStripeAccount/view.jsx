@@ -5,7 +5,6 @@ import Card from 'component/common/card';
 import Page from 'component/page';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
-import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
 
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
@@ -112,12 +111,13 @@ const StripeAccountConnection = (props: Props) => {
             </div>
           ) : (
             <div className="card__body-actions">
-              <h3>{__('Connect your bank account to Odysee to receive donations directly from users')}</h3>
+              <h3>{__('Adding a bank account has been disabled.')}</h3>
             </div>
           )
         }
         actions={
-          chargesEnabled && !accountRequiresVerification ? (
+          chargesEnabled &&
+          !accountRequiresVerification && (
             <>
               <Button
                 button="secondary"
@@ -135,8 +135,6 @@ const StripeAccountConnection = (props: Props) => {
                 />
               )}
             </>
-          ) : (
-            <ButtonStripeConnectAccount />
           )
         }
       />
