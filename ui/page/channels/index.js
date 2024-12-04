@@ -6,7 +6,6 @@ import {
   selectClaimsByUri,
 } from 'redux/selectors/claims';
 import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
-import { doUserViewRateList } from 'redux/actions/rewards';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { doSetActiveChannel } from 'redux/actions/app';
 import { selectHasYoutubeChannels } from 'redux/selectors/user';
@@ -25,7 +24,6 @@ const perform = {
   doFetchChannelListMine,
   doSetActiveChannel,
   doFetchOdyseeMembershipForChannelIds,
-  doUserViewRateList,
 };
 
 export default connect(select, perform)(ChannelsPage);
