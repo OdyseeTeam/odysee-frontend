@@ -44,6 +44,7 @@ type Props = {
   user: User,
   disableControlTags?: boolean,
   help?: string,
+  excludedControlTags?: Array<string>,
 };
 
 const UNALLOWED_TAGS = ['lbry-first'];
@@ -78,6 +79,7 @@ export default function TagsSearch(props: Props) {
     limitShow = 5,
     disableControlTags,
     help,
+    excludedControlTags = [],
   } = props;
   const [newTag, setNewTag] = useState('');
   const doesTagMatch = (name) => {
@@ -112,8 +114,10 @@ export default function TagsSearch(props: Props) {
     });
   }
 
+  const FILTERED_CONTROL_TAGS = CONTROL_TAGS.filter((tag) => !excludedControlTags.includes(tag));
+
   const controlTagLabels = {};
-  CONTROL_TAGS.map((t) => {
+  FILTERED_CONTROL_TAGS.map((t) => {
     let label;
     if (t === DISABLE_SUPPORT_TAG) {
       label = __('Disable Tipping and Boosting');
@@ -283,7 +287,7 @@ export default function TagsSearch(props: Props) {
           onSelect && ( // onSelect ensures this does not appear on TagFollow
             <fieldset-section>
               <label>{__('Control Tags')}</label>
-              {CONTROL_TAGS.map((t) => (
+              {FILTERED_CONTROL_TAGS.map((t) => (
                 <FormField
                   key={t}
                   name={t}

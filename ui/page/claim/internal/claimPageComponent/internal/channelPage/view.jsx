@@ -430,13 +430,13 @@ function ChannelPage(props: Props) {
       ) : (isBlocked || isMuted) && !viewBlockedChannel ? (
         <div className="main--empty">
           <Yrbl
-            title={isBlocked ? __('This channel is blocked') : __('This channel is muted')}
+            title={isBlocked ? __('This channel is blocked') : __('This channel is hidden')}
             subtitle={
               isBlocked
                 ? __('Are you sure you want to view this content? Viewing will not unblock @%channel%', {
                     channel: channelName,
                   })
-                : __('Are you sure you want to view this content? Viewing will not unmute @%channel%', {
+                : __('Are you sure you want to view this content? Viewing will not unhide @%channel%', {
                     channel: channelName,
                   })
             }

@@ -568,9 +568,12 @@ export const doCollectionEdit =
     const isPrivateVersion = selectHasPrivateCollectionForId(state, collectionId);
     const { uris, remove, replace, order, type, isPreview } = params;
 
-    await dispatch(doFetchItemsInCollection({ collectionId }));
-    state = getState();
-    const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    let hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    if (!hasItemsResolved && !isPrivateVersion) {
+      await dispatch(doFetchItemsInCollection({ collectionId }));
+      state = getState();
+      hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    }
     if (!hasItemsResolved && !isPrivateVersion) {
       return dispatch(doToast({ message: __('Failed to resolve collection items. Please try again.'), isError: true }));
     }
@@ -607,8 +610,6 @@ export const doCollectionEdit =
       currentUrls.splice(order.to, 0, movedItem);
     }
 
-    await dispatch(doRemoveFromUpdatedCollectionsForCollectionId(collectionId));
-
     const isQueue = collectionId === COLS.QUEUE_ID;
     const title = params.title || params.name;
 
@@ -634,10 +635,6 @@ export const doCollectionEdit =
           },
         },
       });
-      // Needs to be run after collection_edit is dispatched, or saving changes doesn't work from edit page
-      if (!isPreview) {
-        dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
-      }
       success();
     });
   };

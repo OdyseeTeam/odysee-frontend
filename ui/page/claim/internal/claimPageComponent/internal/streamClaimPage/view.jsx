@@ -30,7 +30,7 @@ type Props = {
   isMature: boolean,
   linkedCommentId?: string,
   renderMode: string,
-  commentSettingDisabled: ?boolean,
+  commentsDisabled: ?boolean,
   threadCommentId?: string,
   isProtectedContent?: boolean,
   contentUnlocked: boolean,
@@ -51,7 +51,7 @@ const StreamClaimPage = (props: Props) => {
     isMature,
     linkedCommentId,
     renderMode,
-    commentSettingDisabled,
+    commentsDisabled,
     threadCommentId,
     isProtectedContent,
     contentUnlocked,
@@ -190,7 +190,7 @@ const StreamClaimPage = (props: Props) => {
           <div className="file-page__secondary-content">
             <section className="file-page__media-actions">
               <React.Suspense fallback={null}>
-                {commentSettingDisabled ? (
+                {commentsDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
                 ) : isMobile && !isLandscapeRotated ? (
                   <React.Fragment>

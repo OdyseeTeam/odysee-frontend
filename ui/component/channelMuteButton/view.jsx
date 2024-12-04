@@ -21,7 +21,7 @@ function ChannelMuteButton(props: Props) {
     }
   }
 
-  return <Button button="alt" label={isMuted ? __('Unmute') : __('Mute')} onClick={handleClick} />;
+  return <Button button="alt" label={isMuted ? __('Unhide') : __('Hide')} onClick={handleClick} />;
 }
 
 export default ChannelMuteButton;

@@ -553,12 +553,14 @@ function ClaimMenuList(props: Props) {
                       {(!claimIsMine || channelIsBlocked) && contentChannelUri ? (
                         !incognitoClaim && (
                           <>
-                            <MenuItem className="comment__menu-option" onSelect={handleToggleBlock}>
-                              <div className="menu__link">
-                                <Icon aria-hidden icon={ICONS.BLOCK} />
-                                {channelIsBlocked ? __('Unblock Channel') : __('Block Channel')}
-                              </div>
-                            </MenuItem>
+                            {isChannelPage && (
+                              <MenuItem className="comment__menu-option" onSelect={handleToggleBlock}>
+                                <div className="menu__link">
+                                  <Icon aria-hidden icon={ICONS.BLOCK} />
+                                  {channelIsBlocked ? __('Unblock Channel') : __('Block Channel')}
+                                </div>
+                              </MenuItem>
+                            )}
 
                             {isAdmin && (
                               <MenuItem className="comment__menu-option" onSelect={handleToggleAdminBlock}>
@@ -568,11 +570,10 @@ function ClaimMenuList(props: Props) {
                                 </div>
                               </MenuItem>
                             )}
-
                             <MenuItem className="comment__menu-option" onSelect={handleToggleMute}>
                               <div className="menu__link">
-                                <Icon aria-hidden icon={ICONS.MUTE} />
-                                {channelIsMuted ? __('Unmute Channel') : __('Mute Channel')}
+                                <Icon aria-hidden icon={ICONS.EYE_OFF} />
+                                {channelIsMuted ? __('Unhide Channel') : __('Hide Channel')}
                               </div>
                             </MenuItem>
                           </>

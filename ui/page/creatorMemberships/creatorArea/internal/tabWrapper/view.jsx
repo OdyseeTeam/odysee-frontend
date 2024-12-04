@@ -6,7 +6,6 @@ import * as PAGES from 'constants/pages';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
-import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
 
 type Props = {
   component: any,
@@ -69,8 +68,8 @@ const TabWrapper = (props: Props) => {
     return (
       <ErrorBubble
         title={__('Bank Account Status')}
-        subtitle={__('To be able to begin receiving payments you must connect a Bank Account first.')}
-        action={<ButtonStripeConnectAccount />}
+        subtitle={__('Adding a bank account has been disabled.')}
+        action={<></>}
       />
     );
   }

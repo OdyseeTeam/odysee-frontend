@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import * as PAGES from 'constants/pages';
-import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectHasNavigated, selectScrollStartingPosition } from 'redux/selectors/app';
 import { selectClientSetting, selectHomepageData, selectWildWestDisabled } from 'redux/selectors/settings';
 import Router from './view';
@@ -32,6 +32,7 @@ const select = (state, props) => {
     title: selectTitleForUri(state, uri),
     currentScroll: selectScrollStartingPosition(state),
     isAuthenticated: selectUserVerifiedEmail(state),
+    isGlobalMod: Boolean(selectUser(state)?.global_mod),
     hasNavigated: selectHasNavigated(state),
     hasUnclaimedRefereeReward: selectHasUnclaimedRefereeReward(state),
     homepageData: selectHomepageData(state),

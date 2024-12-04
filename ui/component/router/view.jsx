@@ -178,6 +178,7 @@ type Props = {
   hideTitleNotificationCount: boolean,
   hasDefaultChannel: boolean,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
+  isGlobalMod: boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -222,6 +223,7 @@ function AppRouter(props: Props) {
     hideTitleNotificationCount,
     hasDefaultChannel,
     doSetActiveChannel,
+    isGlobalMod,
   } = props;
 
   const defaultChannelRef = React.useRef(hasDefaultChannel);
@@ -369,7 +371,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/`} exact component={HomePage} />
 
-        {tagParams && <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />}
+        {(tagParams || isGlobalMod) && <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />}
         {categoryPages}
 
         <Route path={`/$/${PAGES.AUTH_SIGNIN}`} exact component={SignInPage} />

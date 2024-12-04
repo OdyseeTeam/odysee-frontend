@@ -18,7 +18,7 @@ export type Props = {|
   threadDepthLevel?: number,
   onShowMore?: () => void,
   threadLevel: number,
-  updateUiFilteredComments?: (commentId: string) => void,
+  updateUiFilteredComments?: (commentIds: Array<string>) => void,
 |};
 
 type StateProps = {|

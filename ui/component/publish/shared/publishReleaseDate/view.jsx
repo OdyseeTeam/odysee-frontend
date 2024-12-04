@@ -119,6 +119,7 @@ const PublishReleaseDate = (props: Props & StateProps & DispatchProps) => {
             disableClock
             clearIcon={null}
             minDate={minDate}
+            maxDate={new Date(9999, 11, 31)}
           />
         )}
         {showDatePicker && (

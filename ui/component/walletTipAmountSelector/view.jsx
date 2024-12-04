@@ -28,6 +28,7 @@ type Props = {
   tipError: string,
   uri: string,
   canReceiveFiatTips: ?boolean,
+  isComment?: boolean,
   onChange: (number) => void,
   setConvertedAmount?: (number) => void,
   setDisableSubmitButton: (boolean) => void,
@@ -49,6 +50,7 @@ function WalletTipAmountSelector(props: Props) {
     fiatConversion,
     tipError,
     canReceiveFiatTips,
+    isComment,
     onChange,
     setConvertedAmount,
     setDisableSubmitButton,
@@ -283,6 +285,7 @@ function WalletTipAmountSelector(props: Props) {
           ? getHelpMessage(__('Only creators that verify cash accounts can receive tips.'))
           : getHelpMessage(__('Send a tip directly from your attached card.')))}
       {activeTab === TAB_FIAT &&
+        !isComment &&
         getHelpMessage(
           __(
             'IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.'

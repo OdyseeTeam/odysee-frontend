@@ -20,6 +20,7 @@ export const DISABLE_SUPPORT_TAG = 'disable-support';
 export const PREFERENCE_EMBED = 'c:preference-embed';
 export const SCHEDULED_LIVESTREAM_TAG = 'c:scheduled-livestream'; // Deprecated; use 'SCHEDULED_TAGS.LIVE'
 export const LBRY_FIRST_TAG = 'c:lbry-first';
+export const DISABLE_COMMENTS_TAG = 'c:disable-comments';
 export const DISABLE_DOWNLOAD_BUTTON_TAG = 'c:disable-download';
 export const DISABLE_REACTIONS_ALL_TAG = 'c:disable-reactions-all';
 export const DISABLE_REACTIONS_VIDEO_TAG = 'c:disable-reactions-video';
@@ -51,6 +52,7 @@ export const SCHEDULED_TAGS = Object.freeze({
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [
   DISABLE_SUPPORT_TAG,
+  DISABLE_COMMENTS_TAG,
   DISABLE_DOWNLOAD_BUTTON_TAG,
   DISABLE_REACTIONS_VIDEO_TAG,
   DISABLE_REACTIONS_COMMENTS_TAG,
@@ -80,7 +82,7 @@ export const MATURE_TAGS = Object.freeze([
   'creampie',
   'blowjob',
   'handjob',
-  'vagina',
+  // 'vagina',
   'boobs',
   'big boobs',
   'big dick',

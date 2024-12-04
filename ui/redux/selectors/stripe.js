@@ -25,7 +25,7 @@ export const selectAccountDefaultCurrency = (state: State) => {
   return accountInfo && accountInfo.default_currency;
 };
 
-export const selectAccountUnpaidBalance = (state: State) => selectAccountStatus(state)?.total_received_unpaid || 0;
+export const selectAccountPaidBalance = (state: State) => selectAccountStatus(state)?.total_paid || 0;
 
 export const selectAccountChargesEnabled = (state: State) => {
   const accountStatus = selectAccountStatus(state);

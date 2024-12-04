@@ -244,14 +244,17 @@ export const selectClaimSavedForUrl = createSelector(
   (state, url) => url,
   selectBuiltinCollections,
   selectMyPublicLocalCollections,
-  selectMyPublicLocalCollections,
   selectMyUnpublishedCollections,
   selectMyEditedCollections,
   (url, bLists, myRLists, uLists, eLists) => {
     const collections = [bLists, uLists, eLists, myRLists];
-
     // $FlowFixMe
-    return collections.some((list) => Object.values(list).some(({ items }) => items?.some((item) => item === url)));
+    const claimId = url.match(/[a-f0-9]{40}/)?.[0];
+
+    return collections.some((list) =>
+      // $FlowFixMe
+      Object.values(list).some(({ items }) => items?.some((item) => item === url || item === claimId))
+    );
   }
 );
 
