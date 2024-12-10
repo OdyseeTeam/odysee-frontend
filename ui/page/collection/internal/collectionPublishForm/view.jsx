@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import analytics from 'analytics';
+import classnames from 'classnames';
 
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
@@ -12,6 +13,7 @@ import { COLLECTION_PAGE } from 'constants/urlParams';
 
 import Button from 'component/button';
 // import CollectionDeleteButton from 'component/collectionDeleteButton';
+import SortButton from '../../internal/collectionActions/internal/sortButton';
 import CollectionItemsList from 'component/collectionItemsList';
 import Spinner from 'component/spinner';
 import BusyIndicator from 'component/common/busy-indicator';
@@ -223,12 +225,17 @@ const CollectionPublishForm = (props: Props) => {
 
             <TabPanel>
               {tabIndex === TAB.ITEMS && (
-                <CollectionItemsList
-                  collectionId={collectionId}
-                  empty={__('This playlist has no items.')}
-                  showEdit
-                  isEditPreview
-                />
+                <>
+                  <div className={classnames('collection-actions')}>
+                    <SortButton collectionId={collectionId} />
+                  </div>
+                  <CollectionItemsList
+                    collectionId={collectionId}
+                    empty={__('This playlist has no items.')}
+                    showEdit
+                    isEditPreview
+                  />
+                </>
               )}
             </TabPanel>
           </TabPanels>
