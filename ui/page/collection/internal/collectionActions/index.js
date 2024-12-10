@@ -7,7 +7,7 @@ import {
   selectCollectionTypeForId,
 } from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
-import { doToggleCollectionSavedForId, doSortCollectionByKey } from 'redux/actions/collections';
+import { doToggleCollectionSavedForId } from 'redux/actions/collections';
 
 import CollectionActions from './view';
 
@@ -28,7 +28,6 @@ const select = (state, props) => {
 const perform = {
   doOpenModal,
   doToggleCollectionSavedForId,
-  doSortCollectionByKey,
 };
 
 export default connect(select, perform)(CollectionActions);
