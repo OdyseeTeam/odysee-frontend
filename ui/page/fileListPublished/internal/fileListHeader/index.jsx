@@ -10,15 +10,13 @@ import RightSideActions from './internal/rightSideActions/index';
 
 type Props = {
   filterType: string,
-  sortOption: { key: string, value: string },
   setFilterType: (type: string) => void,
-  setSortOption: (params: { key: string, value: string }) => void,
 };
 
 export default function ClaimListHeader(props: Props) {
-  const { filterType, sortOption, setFilterType, setSortOption } = props;
+  const { filterType, setFilterType } = props;
 
-  const { isFilteringEnabled } = React.useContext(FileListContext);
+  const { sortOption, isFilteringEnabled, updateFilteringSetting } = React.useContext(FileListContext);
 
   const history = useHistory();
   const {
@@ -32,7 +30,7 @@ export default function ClaimListHeader(props: Props) {
     Object.keys(FILE_LIST.SORT_VALUES).forEach((k) => urlParams.get(k) && urlParams.delete(k));
 
     urlParams.set(sortObj.key, sortObj.value);
-    setSortOption(sortObj);
+    updateFilteringSetting(isFilteringEnabled, sortObj);
 
     const url = `?${urlParams.toString()}`;
     history.push(url);
