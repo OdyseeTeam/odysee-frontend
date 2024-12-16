@@ -32,6 +32,13 @@ const defaultState = {
     [SETTINGS.ENABLE_SYNC]: IS_WEB,
     [SETTINGS.ENABLE_PUBLISH_PREVIEW]: true,
     [SETTINGS.ACTIVE_CHANNEL_CLAIM]: undefined,
+    [SETTINGS.UPLOAD_PAGE_FILTERING]: {
+      isFilteringEnabled: false,
+      sortOption: {
+        key: 'updatedAt',
+        value: 'asc',
+      },
+    },
 
     // UI
     [SETTINGS.LANGUAGE]: null,
