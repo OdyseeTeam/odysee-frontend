@@ -320,37 +320,74 @@ function buildCategoryPageHead(html, requestPath, categoryMeta) {
 }
 
 async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false) {
-  let claim;
-
-  const isClaimId = Boolean(urlOrClaimId?.match(/^[a-f0-9]{40}$/));
-  if (isClaimId) {
-    try {
-      const claimId = urlOrClaimId;
-      const response = await Lbry.claim_search({ claim_ids: [claimId] });
-      if (response && response.items?.at(0) && !response.error) {
-        claim = response.items[0];
-        const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
-        if (isRepost && !ignoreRedirect) {
-          ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
-          return;
-        }
-      }
-    } catch {}
-  } else {
-    try {
-      const url = urlOrClaimId;
-      const response = await Lbry.resolve({ urls: [url] });
-      if (response && response[url] && !response[url].error) {
-        claim = response && response[url];
-        const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
-        if (isRepost && !ignoreRedirect) {
-          ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
-          return;
-        }
-      }
-    } catch {}
+  if (!urlOrClaimId) {
+    console.error('No urlOrClaimId provided');
+    return null;
   }
-  return claim;
+
+  // Sanitize and decode the URL properly
+  let sanitizedUrl = urlOrClaimId;
+  try {
+    // Handle special characters and encoding
+    sanitizedUrl = decodeURIComponent(urlOrClaimId)
+      // Replace HTML entities
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#039;/g, "'")
+      // Replace problematic characters
+      .replace(/…/g, '...')
+      .replace(/[^\x20-\x7E]/g, '') // Remove non-printable ASCII characters
+      .trim();
+
+    console.log('Original URL:', urlOrClaimId);
+    console.log('Sanitized URL:', sanitizedUrl);
+  } catch (error) {
+    console.error('URL sanitization failed:', error, 'URL:', urlOrClaimId);
+    return null;
+  }
+
+  let claim;
+  const isClaimId = Boolean(sanitizedUrl?.match(/^[a-f0-9]{40}$/));
+
+  try {
+    if (isClaimId) {
+      const response = await Lbry.claim_search({ claim_ids: [sanitizedUrl] });
+      claim = response?.items?.at(0);
+    } else {
+      // For non-claim-id URLs, ensure proper LBRY URL format
+      const lbryUrl = sanitizedUrl.startsWith('lbry://') ? sanitizedUrl : `lbry://${sanitizedUrl}`;
+      const response = await Lbry.resolve({ urls: [lbryUrl] });
+      claim = response?.[lbryUrl];
+    }
+
+    if (!claim || claim.error) {
+      console.error('Claim not found or error:', {
+        originalUrl: urlOrClaimId,
+        sanitizedUrl,
+        error: claim?.error || 'No claim returned',
+      });
+      return null;
+    }
+
+    const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
+    if (isRepost && !ignoreRedirect) {
+      const redirectUrl = `/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`;
+      console.log('Redirecting repost:', redirectUrl);
+      ctx.redirect(redirectUrl);
+      return null;
+    }
+
+    return claim;
+  } catch (error) {
+    console.error('Claim resolution failed:', {
+      error,
+      originalUrl: urlOrClaimId,
+      sanitizedUrl,
+    });
+    return null;
+  }
 }
 
 // ****************************************************************************
