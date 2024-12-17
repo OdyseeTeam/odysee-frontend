@@ -117,30 +117,48 @@ async function getOEmbed(ctx) {
   const urlQuery = getParameterByName('url', requestUrl);
   const embedlyReferrer = getParameterByName('referrer', requestUrl);
 
-  const decodedQueryUri = decodeURIComponent(urlQuery);
-
-  const paramsRegex = /[?&](?:\w=)?/g;
-  const hasUrlParams = RegExp(paramsRegex).test(decodedQueryUri);
-  const claimUrl = hasUrlParams ? decodedQueryUri.substring(0, decodedQueryUri.search(paramsRegex)) : decodedQueryUri;
-
-  const { claim, error } = await getClaim(claimUrl);
-
-  if (error) return error;
-
-  const queryTimestampParam = getParameterByName('t', decodedQueryUri);
-  const queryReferralParam = getParameterByName('r', decodedQueryUri);
-  const oEmbedData = generateOEmbedData(claim, embedlyReferrer, queryTimestampParam, queryReferralParam);
-
-  const formatQuery = getParameterByName('format', requestUrl);
-  if (formatQuery === 'xml') {
-    ctx.set('Content-Type', 'application/xml');
-    const xmlData = generateXmlData(oEmbedData);
-
-    return xmlData;
+  if (!urlQuery) {
+    console.error('No URL query parameter provided for oEmbed');
+    ctx.status = 400;
+    return { error: 'Missing URL parameter' };
   }
 
-  ctx.set('Content-Type', 'application/json');
-  return oEmbedData;
+  try {
+    const decodedQueryUri = decodeURIComponent(urlQuery);
+    console.log('Processing oEmbed request:', {
+      originalUrl: urlQuery,
+      decodedUrl: decodedQueryUri,
+      embedlyReferrer,
+    });
+
+    const paramsRegex = /[?&](?:\w=)?/g;
+    const hasUrlParams = RegExp(paramsRegex).test(decodedQueryUri);
+    const claimUrl = hasUrlParams ? decodedQueryUri.substring(0, decodedQueryUri.search(paramsRegex)) : decodedQueryUri;
+
+    const { claim, error } = await getClaim(claimUrl);
+    if (error) {
+      console.error('oEmbed claim error:', error);
+      ctx.status = 404;
+      return { error };
+    }
+
+    const queryTimestampParam = getParameterByName('t', decodedQueryUri);
+    const queryReferralParam = getParameterByName('r', decodedQueryUri);
+    const oEmbedData = generateOEmbedData(claim, embedlyReferrer, queryTimestampParam, queryReferralParam);
+
+    const formatQuery = getParameterByName('format', requestUrl);
+    if (formatQuery === 'xml') {
+      ctx.set('Content-Type', 'application/xml');
+      return generateXmlData(oEmbedData);
+    }
+
+    ctx.set('Content-Type', 'application/json');
+    return oEmbedData;
+  } catch (error) {
+    console.error('oEmbed processing error:', error);
+    ctx.status = 500;
+    return { error: 'Failed to process oEmbed request' };
+  }
 }
 
 module.exports = { getOEmbed };

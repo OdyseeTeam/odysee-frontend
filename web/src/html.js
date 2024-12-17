@@ -165,13 +165,42 @@ function buildBasicOgMetadata() {
 async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
   const { userAgent } = overrideOptions;
+
+  if (!claim || !uri) {
+    console.error('Missing claim or URI in buildClaimOgMetadata:', { uri, claim });
+    return '';
+  }
+
   const { claimName } = parseURI(uri);
-  const { meta, value, signing_channel } = claim;
+  const { meta, value, signing_channel: signingChannel } = claim;
+
+  // Ensure we have a valid canonical URL before constructing paths
+  const claimPath = claim.canonical_url
+    ? `${URL}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`
+    : `${URL}/${claimName}`;
+
+  // Build oembed URLs only if we have a valid claim path
+  const oembedJson = claimPath
+    ? `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
+        claimPath
+      )}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${escapeHtmlProperty(
+        value?.title || claimName
+      )}" />`
+    : '';
+
+  const oembedXml = claimPath
+    ? `<link rel="alternate" type="text/xml+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
+        claimPath
+      )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${escapeHtmlProperty(
+        value?.title || claimName
+      )}" />`
+    : '';
+
   const fee = value && value.fee && (Number(value.fee.amount) || 0);
   const tags = value && value.tags;
   const media = value && (value.video || value.audio || value.image);
   const source = value && value.source;
-  const channel = signing_channel && signing_channel.name;
+  const channel = signingChannel && signingChannel.name;
   let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
   const mediaType = source && source.media_type;
   const mediaDuration = media && media.duration;
@@ -222,7 +251,6 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const title = overrideOptions.title || claimTitle;
   const description = overrideOptions.description || claimDescription;
   const cleanDescription = removeMd(description);
-  const claimPath = `${URL}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
 
   let head = '';
 
@@ -248,12 +276,8 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   head += `<meta property="og:url" content="${claimPath}"/>`;
 
   head += `<link rel="canonical" content="${claimPath}"/>`;
-  head += `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
-    claimPath
-  )}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
-  head += `<link rel="alternate" type="text/xml+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
-    claimPath
-  )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
+  head += oembedJson;
+  head += oembedXml;
 
   if ((mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) || liveStream) {
     const videoUrl = generateEmbedUrlEncoded(claim.canonical_url);

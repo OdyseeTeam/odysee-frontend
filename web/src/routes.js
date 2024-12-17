@@ -70,6 +70,19 @@ router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
 router.get(`/$/oembed`, oEmbedMiddleware);
 
 router.get('*', async (ctx) => {
+  if (ctx.method === 'HEAD') {
+    const timestamp = new Date().toISOString();
+    console.log('HEAD request details:', {
+      timestamp,
+      url: ctx.url,
+      userAgent: ctx.get('user-agent'),
+      referer: ctx.get('referer'),
+      headers: ctx.headers,
+      // Log the full URL to see if there's any pattern in how it's constructed
+      fullUrl: `${ctx.protocol}://${ctx.host}${ctx.url}`,
+    });
+  }
+
   const requestedUrl = ctx.url;
 
   if (requestedUrl.startsWith('/public/') && requestedUrl.endsWith('.js')) {
