@@ -112,6 +112,12 @@ const VideoJsEvents = ({
 
   function onInitialPlay() {
     const player = playerRef.current;
+
+    // Reset recovery attempts on successful playback
+    if (player.appState) {
+      player.appState.recoveryAttempts = 0;
+    }
+
     updateMediaSession();
 
     // $FlowIssue
@@ -135,10 +141,47 @@ const VideoJsEvents = ({
 
   function onError() {
     const player = playerRef.current;
-    showTapButton(TAP.RETRY);
+    const error = player && player.error();
+
+    // Attempt auto-recovery for network and decode errors
+    if (error && (error.code === 2 || error.code === 3)) {
+      console.log('Attempting auto-recovery from error:', error.code, error.message);
+
+      // Try recovery up to 3 times
+      if (!player.appState.recoveryAttempts) {
+        player.appState.recoveryAttempts = 1;
+
+        // Create temp video to abort existing connection
+        const tempVideo = document.createElement('video');
+        tempVideo.src = player.currentSrc();
+        tempVideo.load();
+        tempVideo.remove();
+
+        // Reset player source
+        if (player.claimSrcVhs) {
+          player.src(player.claimSrcVhs);
+        } else if (player.claimSrcOriginal) {
+          player.src(player.claimSrcOriginal);
+        }
+
+        player.load();
+        player.play().catch(() => {
+          // If auto-recovery fails, show retry button
+          showTapButton(TAP.RETRY);
+        });
+      } else if (player.appState.recoveryAttempts < 3) {
+        player.appState.recoveryAttempts++;
+        setReload(Date.now());
+      } else {
+        // After 3 failed attempts, show manual retry button
+        showTapButton(TAP.RETRY);
+      }
+    } else {
+      // For other errors, show retry button immediately
+      showTapButton(TAP.RETRY);
+    }
 
     // reattach initial play listener in case we recover from error successfully
-    // $FlowFixMe
     player.one('play', onInitialPlay);
 
     if (player && player.loadingSpinner) {
@@ -290,6 +333,14 @@ const VideoJsEvents = ({
     player.one('play', onInitialPlay);
     player.on('volumechange', onVolumeChange);
     player.on('error', onError);
+
+    // Add this handler to reset recovery attempts when video plays successfully
+    player.on('playing', () => {
+      if (player.appState) {
+        player.appState.recoveryAttempts = 0;
+      }
+    });
+
     // custom tracking plugin, event used for watchman data, and marking view/getting rewards
     player.on('tracking:firstplay', doTrackingFirstPlay);
     // used for tracking buffering for watchman
@@ -305,6 +356,7 @@ const VideoJsEvents = ({
       player.off('play', onInitialPlay);
       player.off('volumechange', onVolumeChange);
       player.off('error', onError);
+      player.off('playing'); // Make sure to remove the new playing handler
       // custom tracking plugin, event used for watchman data, and marking view/getting rewards
       player.off('tracking:firstplay', doTrackingFirstPlay);
       // used for tracking buffering for watchman

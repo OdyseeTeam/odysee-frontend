@@ -331,6 +331,22 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         livestreamsOnly: true,
         action: () => setReload(Date.now()),
       });
+
+      player.on('error', function (e) {
+        const error = player.error();
+
+        // Only show retry button if:
+        // 1. It's not a network/decode error (which we auto-retry)
+        // 2. OR we've exceeded our auto-retry attempts
+        if (
+          error &&
+          ((error.code !== 2 && error.code !== 3) || (player.appState && player.appState.recoveryAttempts >= 3))
+        ) {
+          if (tapToRetryRef.current) {
+            tapToRetryRef.current.style.display = 'inline';
+          }
+        }
+      });
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
