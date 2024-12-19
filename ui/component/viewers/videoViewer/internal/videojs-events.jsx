@@ -147,31 +147,12 @@ const VideoJsEvents = ({
     if (error && (error.code === 2 || error.code === 3)) {
       console.log('Attempting auto-recovery from error:', error.code, error.message);
 
-      // Try recovery up to 3 times
       if (!player.appState.recoveryAttempts) {
         player.appState.recoveryAttempts = 1;
-
-        // Create temp video to abort existing connection
-        const tempVideo = document.createElement('video');
-        tempVideo.src = player.currentSrc();
-        tempVideo.load();
-        tempVideo.remove();
-
-        // Reset player source
-        if (player.claimSrcVhs) {
-          player.src(player.claimSrcVhs);
-        } else if (player.claimSrcOriginal) {
-          player.src(player.claimSrcOriginal);
-        }
-
-        player.load();
-        player.play().catch(() => {
-          // If auto-recovery fails, show retry button
-          showTapButton(TAP.RETRY);
-        });
+        retryVideoAfterFailure();
       } else if (player.appState.recoveryAttempts < 3) {
         player.appState.recoveryAttempts++;
-        setReload(Date.now());
+        retryVideoAfterFailure();
       } else {
         // After 3 failed attempts, show manual retry button
         showTapButton(TAP.RETRY);
@@ -181,7 +162,7 @@ const VideoJsEvents = ({
       showTapButton(TAP.RETRY);
     }
 
-    // reattach initial play listener in case we recover from error successfully
+    // Reattach initial play listener in case we recover from error successfully
     player.one('play', onInitialPlay);
 
     if (player && player.loadingSpinner) {
@@ -210,7 +191,44 @@ const VideoJsEvents = ({
   function retryVideoAfterFailure() {
     const player = playerRef.current;
     if (player) {
-      setReload(Date.now());
+      // Increment recovery attempts
+      if (!player.appState.recoveryAttempts) {
+        player.appState.recoveryAttempts = 1;
+      } else {
+        player.appState.recoveryAttempts += 1;
+      }
+
+      // Ensure we don't exceed the maximum number of retries
+      if (player.appState.recoveryAttempts > 3) {
+        showTapButton(TAP.RETRY);
+        return;
+      }
+
+      // Append cache-busting query parameter
+      const appendCacheBuster = (src) => {
+        const url = new URL(src, window.location.href);
+        url.searchParams.set('cb', Date.now().toString());
+        return url.toString();
+      };
+
+      // Determine the new source with cache buster
+      let newSrc;
+      if (player.claimSrcVhs) {
+        newSrc = appendCacheBuster(player.claimSrcVhs.src);
+        player.src({ ...player.claimSrcVhs, src: newSrc });
+      } else if (player.claimSrcOriginal) {
+        newSrc = appendCacheBuster(player.claimSrcOriginal.src);
+        player.src({ ...player.claimSrcOriginal, src: newSrc });
+      }
+
+      // Reload and attempt to play
+      player.load();
+      player.play().catch(() => {
+        // If auto-recovery fails, show retry button
+        showTapButton(TAP.RETRY);
+      });
+
+      // Optionally, reset the retry button visibility
       showTapButton(TAP.NONE);
     }
   }
