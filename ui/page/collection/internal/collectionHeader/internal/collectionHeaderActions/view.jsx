@@ -23,7 +23,7 @@ type Props = {
   claimId?: string,
   isMyCollection: boolean,
   collectionId: string,
-  // showEdit: boolean,
+  showEdit: boolean,
   // isHeader: boolean,
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
@@ -45,7 +45,7 @@ function CollectionHeaderActions(props: Props) {
     collectionId,
     isBuiltin,
     claimIsPending,
-    // showEdit,
+    showEdit,
     // isHeader,
     setShowEdit,
     // collectionSavedForId,
@@ -70,7 +70,7 @@ function CollectionHeaderActions(props: Props) {
         <SectionElement>
           {!isBuiltin && (
             <>
-              {isMyCollection && <CollectionPublishButton uri={uri} collectionId={collectionId} />}
+              {isMyCollection && <CollectionPublishButton uri={uri} collectionId={collectionId} showEdit={showEdit} />}
               {uri && (
                 <>
                   {claimIsPending && (
@@ -102,7 +102,7 @@ function CollectionHeaderActions(props: Props) {
               <Icon size={20} icon={ICONS.MORE_VERTICAL} />
             </MenuButton>
             <MenuList className="menu__list">
-              {isMyCollection && isNotADefaultList && (
+              {isMyCollection && isNotADefaultList && !showEdit && (
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() =>
