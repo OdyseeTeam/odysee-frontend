@@ -56,22 +56,28 @@ const StripeAccountConnection = (props: Props) => {
       settingsPage
       className="card-stack"
       backout={{
-        title: !chargesEnabled ? __('Add Payout Method') : __('Your Payout Method'),
+        title: !accountId ? __('Add Payout Method') : __('Your Payout Method'),
         backLabel: __('Back'),
       }}
     >
       <Card
         title={
           <div className="table__header-text">
-            {chargesEnabled ? __('Bank account connected') : __('Connect a bank account')}
+            {accountId ? __('Bank account connected') : __('Connect a bank account')}
           </div>
         }
         background
         isBodyList
         body={
-          chargesEnabled ? (
+          accountId ? (
             <div className="card__body-actions connected-account-information">
-              <h3>{__('Congratulations! Your account has been connected with Odysee.')}</h3>
+              {chargesEnabled ? (
+                <h3>{__('Congratulations! Your account has been connected with Odysee.')}</h3>
+              ) : (
+                <h3>
+                  {__('Your account has been connected, but charges are disabled. Please view the account on Stripe.')}
+                </h3>
+              )}
               <h3>
                 <I18nMessage tokens={{ email: <span className="bolded-email">{email}</span> }}>
                   The email you registered with Stripe is %email%
@@ -116,7 +122,7 @@ const StripeAccountConnection = (props: Props) => {
           )
         }
         actions={
-          chargesEnabled &&
+          accountId &&
           !accountRequiresVerification && (
             <>
               <Button
@@ -125,15 +131,13 @@ const StripeAccountConnection = (props: Props) => {
                 icon={ICONS.SETTINGS}
                 navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
               />
-              {accountId && (
-                <Button
-                  button="secondary"
-                  icon={ICONS.SETTINGS}
-                  label={__('View Account On Stripe')}
-                  navigate={`${STRIPE.STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
-                  className="stripe__view-account-button"
-                />
-              )}
+              <Button
+                button="secondary"
+                icon={ICONS.SETTINGS}
+                label={__('View Account On Stripe')}
+                navigate={`${STRIPE.STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
+                className="stripe__view-account-button"
+              />
             </>
           )
         }
