@@ -12,8 +12,8 @@ import Icon from 'component/common/icon';
 type Props = {
   modal: { id: string, modalProps: {} },
   filePath: string | WebFile,
-  updatePublishForm: (UpdatePublishState) => void,
   openModal: (id: string, { files: Array<WebFile> }) => void,
+  doUpdateFile: (file: WebFile, clearName?: boolean) => void,
   // React router
   history: {
     entities: {}[],
@@ -32,7 +32,7 @@ const NAVIGATE_TIME_OUT = 400;
 const PUBLISH_URL = `/$/${PAGES.UPLOAD}`;
 
 function FileDrop(props: Props) {
-  const { modal, history, openModal, updatePublishForm } = props;
+  const { modal, history, openModal, doUpdateFile } = props;
   const { drag, dropData } = useDragDrop();
   const [files, setFiles] = React.useState([]);
   const [error, setError] = React.useState(false);
@@ -78,10 +78,10 @@ function FileDrop(props: Props) {
   // Handle file selection
   const handleFileSelected = React.useCallback(
     (selectedFile) => {
-      updatePublishForm({ filePath: selectedFile });
+      doUpdateFile(selectedFile);
       hideDropArea();
     },
-    [updatePublishForm, hideDropArea]
+    [doUpdateFile, hideDropArea]
   );
 
   // Clear timers when unmounted
