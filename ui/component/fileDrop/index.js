@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 
-import { doUpdatePublishForm } from 'redux/actions/publish';
+import { doUpdateFile } from 'redux/actions/publish';
 import { selectPublishFormValue } from 'redux/selectors/publish';
 
 import { selectModal } from 'redux/selectors/app';
@@ -15,7 +15,7 @@ const select = (state) => ({
 
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
+  doUpdateFile: (file, clearName) => dispatch(doUpdateFile(file, clearName)),
 });
 
 export default connect(select, perform)(FileDrop);
