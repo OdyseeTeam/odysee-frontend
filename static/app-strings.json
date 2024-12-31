@@ -2968,6 +2968,7 @@
   "Optionally the email change can be requested using \"Submit Feedback\" button below.": "Optionally the email change can be requested using \"Submit Feedback\" button below.",
   "Failed to load": "Failed to load",
   "This file failed to load. Some browser extension may be blocking it. If the issue persists, please reach out to help@odysee.com": "This file failed to load. Some browser extension may be blocking it. If the issue persists, please reach out to help@odysee.com",
+  "Your account has been connected, but charges are disabled. Please view the account on Stripe.": "Your account has been connected, but charges are disabled. Please view the account on Stripe.",
   
   "--end--": "--end--"
 }
