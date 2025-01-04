@@ -1,5 +1,5 @@
 // @flow
-export const MINIMUM_PUBLISH_BID = 0.0001;
+export const MINIMUM_PUBLISH_BID = 0.001;
 export const ESTIMATED_FEE = 0.0015;
 
 export const MY_CLAIMS_PAGE_SIZE = 10;
