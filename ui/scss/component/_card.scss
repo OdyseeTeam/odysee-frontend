@@ -212,7 +212,7 @@
   @extend .section__flex;
 
   .card__title {
-    word-break: break-all;
+    word-break: break-word;
   }
 
   @media (min-width: $breakpoint-small) {
