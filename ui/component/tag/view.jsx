@@ -16,7 +16,7 @@ type Props = {
 
 export default function Tag(props: Props) {
   const { name, onClick, type = 'link', disabled = false } = props;
-  const isMature = MATURE_TAGS.includes(name);
+  const isMature = name.split(' ').some((word) => MATURE_TAGS.includes(word));
   const clickProps = onClick ? { onClick } : { navigate: `/$/${PAGES.DISCOVER}?t=${encodeURIComponent(name)}` };
 
   let title;
