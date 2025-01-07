@@ -48,6 +48,8 @@ const VideoJsEvents = ({
   playerServerRef: any,
   isLivestreamClaim: boolean,
 }) => {
+  let lastPlaybackTime = 0;
+
   function doTrackingBuffered(e: Event, data: any) {
     const playerPoweredBy = isLivestreamClaim ? 'lvs' : playerServerRef.current;
 
@@ -57,6 +59,7 @@ const VideoJsEvents = ({
     data.bitrateAsBitsPerSecond = this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
     doAnalyticsBuffer(uri, data);
   }
+
   /**
    * Analytics functionality that is run on first video start
    * @param e - event from videojs (from the plugin?)
@@ -112,6 +115,12 @@ const VideoJsEvents = ({
 
   function onInitialPlay() {
     const player = playerRef.current;
+
+    // Reset recovery attempts on successful playback
+    if (player.appState) {
+      player.appState.recoveryAttempts = 0;
+    }
+
     updateMediaSession();
 
     // $FlowIssue
@@ -135,22 +144,32 @@ const VideoJsEvents = ({
 
   function onError() {
     const player = playerRef.current;
-    showTapButton(TAP.RETRY);
+    const error = player && player.error();
 
-    // reattach initial play listener in case we recover from error successfully
-    // $FlowFixMe
+    // Attempt auto-recovery for network and decode errors
+    if (error && (error.code === 2 || error.code === 3)) {
+      if (!player.appState.recoveryAttempts) {
+        player.appState.recoveryAttempts = 1;
+        retryVideoAfterFailure();
+      } else if (player.appState.recoveryAttempts < 3) {
+        player.appState.recoveryAttempts++;
+        retryVideoAfterFailure();
+      } else {
+        // After 3 failed attempts, show manual retry button
+        showTapButton(TAP.RETRY);
+      }
+    } else {
+      // For other errors, show retry button immediately
+      showTapButton(TAP.RETRY);
+    }
+
+    // Reattach initial play listener in case we recover from error successfully
     player.one('play', onInitialPlay);
 
     if (player && player.loadingSpinner) {
       player.loadingSpinner.hide();
     }
   }
-
-  // const onEnded = React.useCallback(() => {
-  //   if (!adUrl) {
-  //     showTapButton(TAP.NONE);
-  //   }
-  // }, [adUrl]);
 
   // when user clicks 'Unmute' button, turn audio on and hide unmute button
   function unmuteAndHideHint() {
@@ -167,8 +186,52 @@ const VideoJsEvents = ({
   function retryVideoAfterFailure() {
     const player = playerRef.current;
     if (player) {
-      setReload(Date.now());
-      showTapButton(TAP.NONE);
+      lastPlaybackTime = player.currentTime();
+
+      if (player.appState.recoveryAttempts > 3) {
+        showTapButton(TAP.RETRY);
+        return;
+      }
+
+      const appendCacheBuster = (src) => {
+        try {
+          const url = new URL(src, window.location.href);
+          url.searchParams.set('cb', Date.now().toString());
+          return url.toString();
+        } catch (error) {
+          return src; // Fallback to original src if URL construction fails
+        }
+      };
+
+      let newSrcObject;
+      if (player.claimSrcVhs) {
+        newSrcObject = { ...player.claimSrcVhs };
+        newSrcObject.src = appendCacheBuster(player.claimSrcVhs.src);
+      } else if (player.claimSrcOriginal) {
+        newSrcObject = { ...player.claimSrcOriginal };
+        newSrcObject.src = appendCacheBuster(player.claimSrcOriginal.src);
+      }
+
+      if (newSrcObject && newSrcObject.src && newSrcObject.type) {
+        player.src(newSrcObject);
+        player.load();
+
+        // Restore playback position after metadata is loaded
+        player.one('loadedmetadata', () => {
+          player.currentTime(lastPlaybackTime);
+        });
+
+        player
+          .play()
+          .then(() => {
+            showTapButton(TAP.NONE);
+          })
+          .catch(() => {
+            showTapButton(TAP.RETRY);
+          });
+      } else {
+        showTapButton(TAP.RETRY);
+      }
     }
   }
 
@@ -250,7 +313,7 @@ const VideoJsEvents = ({
     let frame_not_seeked = true;
 
     function get_fps_average() {
-      return fps_rounder.reduce((a, b) => a + b) / fps_rounder.length;
+      return fps_rounder.reduce((a, b) => a + b, 0) / fps_rounder.length;
     }
 
     function ticker(useless, metadata) {
@@ -284,12 +347,22 @@ const VideoJsEvents = ({
     });
   }
 
+  function resetRecoveryAttempts() {
+    const player = playerRef.current;
+    if (player.appState) {
+      player.appState.recoveryAttempts = 0;
+    }
+  }
+
   function initializeEvents() {
     const player = playerRef.current;
 
     player.one('play', onInitialPlay);
     player.on('volumechange', onVolumeChange);
     player.on('error', onError);
+
+    player.on('playing', resetRecoveryAttempts);
+
     // custom tracking plugin, event used for watchman data, and marking view/getting rewards
     player.on('tracking:firstplay', doTrackingFirstPlay);
     // used for tracking buffering for watchman
@@ -311,9 +384,9 @@ const VideoJsEvents = ({
       player.off('tracking:buffered', doTrackingBuffered);
       player.off('playing', removeControlBar);
       player.off('playing', determineVideoFps);
+      player.off('playing', resetRecoveryAttempts);
       player.off('timeupdate', liveEdgeRestoreSpeed);
     });
-    // player.on('ended', onEnded);
 
     if (isLivestreamClaim) {
       window.liveSeeking = true;
