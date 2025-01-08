@@ -2969,6 +2969,7 @@
   "Failed to load": "Failed to load",
   "This file failed to load. Some browser extension may be blocking it. If the issue persists, please reach out to help@odysee.com": "This file failed to load. Some browser extension may be blocking it. If the issue persists, please reach out to help@odysee.com",
   "Your account has been connected, but charges are disabled. Please view the account on Stripe.": "Your account has been connected, but charges are disabled. Please view the account on Stripe.",
-  
+  "Send us an email to %help_email% if you continue to see this message. You can continue to use %site_name% without this feature.": "Send us an email to %help_email% if you continue to see this message. You can continue to use %site_name% without this feature.",
+
   "--end--": "--end--"
 }
