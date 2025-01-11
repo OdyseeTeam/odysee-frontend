@@ -46,7 +46,7 @@ export function getSortedRowData(
         if (dataIndex !== -1) {
           sortedRowData.push(rowData[dataIndex]);
           rowData.splice(dataIndex, 1);
-        } else if (key === 'FYP') {
+        } else if (key === 'FYP' && hasMembership) {
           // Special-case injection (not part of category definition):
           sortedRowData.push(FYP_SECTION);
         } else if (key === 'BANNER' && hasBanner) {
