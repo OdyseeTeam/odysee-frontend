@@ -23,6 +23,13 @@ function PublishBid(props: Props) {
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
 
   useEffect(() => {
+    if (bid < MINIMUM_PUBLISH_BID) {
+      updatePublishForm({ bid: parseFloat(MINIMUM_PUBLISH_BID) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     const totalAvailableBidAmount = previousBidAmount ? previousBidAmount + balance : balance;
 
     let bidError;
