@@ -32,6 +32,7 @@ import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import Lbry from 'lbry';
+import { Lbryio } from 'lbryinc';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
@@ -481,13 +482,23 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         trimmedUrl = trimmedUrl.toString();
 
         // change to m3u8 if applicable
-        if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
+        if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8') && response.status < 400) {
           vjsPlayer.claimSrcVhs = { type: HLS_FILETYPE, src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
 
           contentUrl = response.url;
         } else {
           if (source) vjsPlayer.src(vjsPlayer.claimSrcOriginal);
+        }
+
+        // Log possible errors
+        if (response.status >= 400) {
+          Lbryio.call('event', 'desktop_error', {
+            error_message: `PlayerSourceLoadError: Url: ${response.url} 
+            | Redirected: ${String(response.redirected)}
+            | Status: ${response.status}
+            | Body: ${typeof response.body === 'string' ? response.body : 'Body not string'}`,
+          });
         }
       }
 
