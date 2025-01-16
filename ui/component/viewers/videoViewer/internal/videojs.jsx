@@ -496,8 +496,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           Lbryio.call('event', 'desktop_error', {
             error_message: `PlayerSourceLoadError: Url: ${response.url} 
             | Redirected: ${String(response.redirected)}
-            | Status: ${response.status}
-            | Body: ${typeof response.body === 'string' ? response.body : 'Body not string'}`,
+            | Status: ${response.status}`,
           });
         }
       }
