@@ -814,8 +814,11 @@ export function doCheckYoutubeTransfer() {
 export function doFetchUserLocale(isRetry = false) {
   return (dispatch) => {
     fetch(LOCALE_API)
-      .then((res) => res.json())
-      .then((json) => {
+      .then(async (res) => {
+        let json = {};
+        try {
+          json = await res.json();
+        } catch (e) {}
         const locale = json.data || {}; // [flow] local: LocaleInfo
         dispatch({
           type: ACTIONS.USER_FETCH_LOCALE_DONE,
