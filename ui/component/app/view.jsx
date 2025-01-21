@@ -208,7 +208,7 @@ function App(props: Props) {
 
     // Only 1 nag is possible, so show the most important:
 
-    if (user === null) {
+    if (user === null && !embedPath) {
       return <NagNoUser />;
     }
 
