@@ -816,13 +816,11 @@ export function doFetchUserLocale(isRetry = false) {
     fetch(LOCALE_API)
       .then((res) => res.json())
       .then((json) => {
-        const locale = json.data; // [flow] local: LocaleInfo
-        if (locale) {
-          dispatch({
-            type: ACTIONS.USER_FETCH_LOCALE_DONE,
-            data: locale,
-          });
-        }
+        const locale = json.data || {}; // [flow] local: LocaleInfo
+        dispatch({
+          type: ACTIONS.USER_FETCH_LOCALE_DONE,
+          data: locale,
+        });
       })
       .catch(() => {
         if (!isRetry) {
