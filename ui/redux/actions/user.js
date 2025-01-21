@@ -127,6 +127,7 @@ export function doAuthenticate(
     });
     checkAuthBusy()
       .then(() => {
+        dispatch(doFetchGeoBlockedList());
         return Lbryio.authenticate(DOMAIN, getDefaultLanguage());
       })
       .then((user) => {
@@ -146,8 +147,6 @@ export function doAuthenticate(
               doInstallNew(appVersion, callbackForUsersWhoAreSharingData, DOMAIN);
             }
           }
-
-          dispatch(doFetchGeoBlockedList());
         });
       })
       .catch((error) => {
