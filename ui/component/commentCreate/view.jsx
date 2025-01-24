@@ -63,7 +63,7 @@ type Props = {
   onCancelReplying?: () => void,
   onDoneReplying?: () => void,
   // redux
-  doCommentCreate: (uri: string, isLivestream?: boolean, params: CommentSubmitParams) => Promise<any>,
+  doCommentCreate: (uri: string, isLivestream?: boolean, params: CommentSubmitParams, dryRun?: boolean) => Promise<any>,
   doFetchCreatorSettings: (channelId: string) => Promise<any>,
   doToast: ({ message: string }) => void,
   doCommentById: (commentId: string, toastIfNotFound: boolean) => Promise<any>,
@@ -398,7 +398,14 @@ export function CommentCreate(props: Props) {
           return;
         }
 
-        doSubmitTip();
+        // DryRun comment creation before submitting the tip
+        handleCreateComment(null, null, null, true).then((res) => {
+          if (res !== 'success') {
+            setSubmitting(false);
+            return;
+          }
+          doSubmitTip();
+        });
       })
       .catch(() => {
         doToast({
@@ -480,7 +487,7 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    * @param {boolean} [is_protected] Whether are not the content has a protected chat
    */
-  async function handleCreateComment(txid, payment_intent_id, environment) {
+  async function handleCreateComment(txid, payment_intent_id, environment, dryRun = false) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
@@ -496,21 +503,29 @@ export function CommentCreate(props: Props) {
 
     if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
-    setSubmitting(true);
+    !dryRun && setSubmitting(true);
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
-    doCommentCreate(uri, isLivestream, {
-      comment: stickerValue || commentValue,
-      claim_id: claimId,
-      parent_id: parentId,
-      txid,
-      payment_intent_id,
-      environment,
-      sticker: !!stickerValue,
-      is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-    })
+    return doCommentCreate(
+      uri,
+      isLivestream,
+      {
+        comment: stickerValue || commentValue,
+        claim_id: claimId,
+        parent_id: parentId,
+        txid,
+        payment_intent_id,
+        environment,
+        sticker: !!stickerValue,
+        is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+      },
+      dryRun
+    )
       .then((res) => {
+        if (dryRun) {
+          return res;
+        }
         setSubmitting(false);
         if (setQuickReply) setQuickReply(res);
 
