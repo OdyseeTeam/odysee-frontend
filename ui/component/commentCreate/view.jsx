@@ -399,7 +399,7 @@ export function CommentCreate(props: Props) {
         }
 
         // DryRun comment creation before submitting the tip
-        handleCreateComment(null, null, null, true).then((res) => {
+        handleCreateComment(undefined, undefined, undefined, true).then((res) => {
           if (res !== 'success') {
             setSubmitting(false);
             return;
@@ -507,24 +507,20 @@ export function CommentCreate(props: Props) {
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
-    return doCommentCreate(
-      uri,
-      isLivestream,
-      {
-        comment: stickerValue || commentValue,
-        claim_id: claimId,
-        parent_id: parentId,
-        txid,
-        payment_intent_id,
-        environment,
-        sticker: !!stickerValue,
-        is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-      },
-      dryRun
-    )
+    return doCommentCreate(uri, isLivestream, {
+      comment: stickerValue || commentValue,
+      claim_id: claimId,
+      parent_id: parentId,
+      txid,
+      payment_intent_id,
+      environment,
+      sticker: !!stickerValue,
+      is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+      dry_run: dryRun,
+    })
       .then((res) => {
         if (dryRun) {
-          return res;
+          return res.comment_id ? 'success' : 'fail';
         }
         setSubmitting(false);
         if (setQuickReply) setQuickReply(res);
