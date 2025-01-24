@@ -516,6 +516,7 @@ export function CommentCreate(props: Props) {
       environment,
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+      amount: activeTab === TAB_LBC ? tipAmount * 100000000 : 0,
       dry_run: dryRun,
     })
       .then((res) => {
