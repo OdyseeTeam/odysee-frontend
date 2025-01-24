@@ -33,6 +33,7 @@ declare type CommentSubmitParams = {
   environment?: ?string,
   sticker: boolean,
   is_protected?: boolean,
+  dry_run?: boolean,
 };
 
 // ****************************************************************************
