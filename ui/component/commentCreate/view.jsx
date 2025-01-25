@@ -503,7 +503,7 @@ export function CommentCreate(props: Props) {
 
     if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
-    !dryRun && setSubmitting(true);
+    setSubmitting(true);
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
@@ -528,10 +528,10 @@ export function CommentCreate(props: Props) {
       dry_run: dryRun,
     })
       .then((res) => {
+        setSubmitting(false);
         if (dryRun) {
           return res.comment_id ? 'success' : 'fail';
         }
-        setSubmitting(false);
         if (setQuickReply) setQuickReply(res);
 
         if (res && res.signature) {
