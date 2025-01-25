@@ -547,6 +547,9 @@ export function CommentCreate(props: Props) {
       })
       .catch(() => {
         setSubmitting(false);
+        if (dryRun) {
+          return;
+        }
         setCommentFailure(true);
 
         if (channelClaimId) {
