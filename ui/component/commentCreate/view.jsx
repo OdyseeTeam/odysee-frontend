@@ -398,7 +398,14 @@ export function CommentCreate(props: Props) {
           return;
         }
 
-        doSubmitTip();
+        // DryRun comment creation before submitting the tip
+        handleCreateComment(undefined, undefined, undefined, true).then((res) => {
+          if (res !== 'success') {
+            setSubmitting(false);
+            return;
+          }
+          doSubmitTip();
+        });
       })
       .catch(() => {
         doToast({
@@ -480,7 +487,7 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    * @param {boolean} [is_protected] Whether are not the content has a protected chat
    */
-  async function handleCreateComment(txid, payment_intent_id, environment) {
+  async function handleCreateComment(txid, payment_intent_id, environment, dryRun = false) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
@@ -500,7 +507,15 @@ export function CommentCreate(props: Props) {
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
-    doCommentCreate(uri, isLivestream, {
+    if (dryRun) {
+      if (activeTab === TAB_LBC) {
+        txid = 'dummy_txid';
+      } else if (activeTab === TAB_FIAT) {
+        payment_intent_id = 'dummy_payment_intent_id';
+      }
+    }
+
+    return doCommentCreate(uri, isLivestream, {
       comment: stickerValue || commentValue,
       claim_id: claimId,
       parent_id: parentId,
@@ -509,9 +524,14 @@ export function CommentCreate(props: Props) {
       environment,
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+      amount: activeTab === TAB_LBC ? tipAmount * 100000000 : undefined,
+      dry_run: dryRun,
     })
       .then((res) => {
         setSubmitting(false);
+        if (dryRun) {
+          return res.comment_id ? 'success' : 'fail';
+        }
         if (setQuickReply) setQuickReply(res);
 
         if (res && res.signature) {
@@ -527,6 +547,9 @@ export function CommentCreate(props: Props) {
       })
       .catch(() => {
         setSubmitting(false);
+        if (dryRun) {
+          return;
+        }
         setCommentFailure(true);
 
         if (channelClaimId) {
