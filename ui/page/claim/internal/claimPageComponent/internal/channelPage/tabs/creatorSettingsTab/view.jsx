@@ -80,6 +80,8 @@ export default function CreatorSettingsTab(props: Props) {
   const pushSlowModeMinDebounced = React.useMemo(() => debounce(pushSlowModeMin, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
   const pushMinTipDebounced = React.useMemo(() => debounce(pushMinTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
   const pushMinSuperDebounced = React.useMemo(() => debounce(pushMinSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const pushMinUSDCTipDebounced = React.useMemo(() => debounce(pushMinUSDCTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const pushMinUSDCSuperDebounced = React.useMemo(() => debounce(pushMinUSDCSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // **************************************************************************
   // **************************************************************************
@@ -158,20 +160,20 @@ export default function CreatorSettingsTab(props: Props) {
     updateCreatorSettings(activeChannelClaim, { slow_mode_min_gap: value });
   }
 
-  function pushMinTip(value: number, activeChannelClaim: ChannelClaim, currency: string) {
-    let key = 'min_tip_amount_comment';
-    if (currency === 'USDC') {
-      key = 'min_usdc_tip_amount_comment';
-    }
-    updateCreatorSettings(activeChannelClaim, { [key]: value });
+  function pushMinTip(value: number, activeChannelClaim: ChannelClaim) {
+    updateCreatorSettings(activeChannelClaim, { min_tip_amount_comment: value });
   }
 
-  function pushMinSuper(value: number, activeChannelClaim: ChannelClaim, currency: string) {
-    let key = 'min_tip_amount_super_chat';
-    if (currency === 'USDC') {
-      key = 'min_usdc_tip_amount_super_chat';
-    }
-    updateCreatorSettings(activeChannelClaim, { [key]: value });
+  function pushMinUSDCTip(value: number, activeChannelClaim: ChannelClaim) {
+    updateCreatorSettings(activeChannelClaim, { min_usdc_tip_amount_comment: value });
+  }
+
+  function pushMinSuper(value: number, activeChannelClaim: ChannelClaim) {
+    updateCreatorSettings(activeChannelClaim, { min_tip_amount_super_chat: value });
+  }
+
+  function pushMinUSDCSuper(value: number, activeChannelClaim: ChannelClaim) {
+    updateCreatorSettings(activeChannelClaim, { min_usdc_tip_amount_super_chat: value });
   }
 
   function parseModUri(uri) {
@@ -403,11 +405,15 @@ export default function CreatorSettingsTab(props: Props) {
                         const newMinTip = parseFloat(e.target.value);
                         setMinTip(newMinTip);
                         pushMinTipDebounced(newMinTip, activeChannelClaim);
-                        if (newMinTip !== 0 && (minUSDCSuper !== 0 || minSuper !== 0)) {
-                          setMinSuper(0);
-                          setMinUSDCSuper(0);
-                          pushMinSuperDebounced(0, activeChannelClaim);
-                          pushMinSuperDebounced(0, activeChannelClaim, 'USDC');
+                        if (newMinTip !== 0) {
+                          if (minSuper !== 0) {
+                            setMinSuper(0);
+                            pushMinSuperDebounced(0, activeChannelClaim);
+                          }
+                          if (minUSDCSuper !== 0) {
+                            setMinUSDCSuper(0);
+                            pushMinUSDCSuperDebounced(0, activeChannelClaim);
+                          }
                         }
                       }}
                       onBlur={() => setLastUpdated(Date.now())}
@@ -463,12 +469,16 @@ export default function CreatorSettingsTab(props: Props) {
                       onChange={(e) => {
                         const newMinUSDCTip = parseFloat(e.target.value);
                         setMinUSDCTip(newMinUSDCTip);
-                        pushMinTipDebounced(newMinUSDCTip, activeChannelClaim, 'USDC');
-                        if (newMinUSDCTip !== 0 && (minUSDCSuper !== 0 || minSuper !== 0)) {
-                          setMinSuper(0);
-                          setMinUSDCSuper(0);
-                          pushMinSuperDebounced(0, activeChannelClaim);
-                          pushMinSuperDebounced(0, activeChannelClaim, 'USDC');
+                        pushMinUSDCTipDebounced(newMinUSDCTip, activeChannelClaim);
+                        if (newMinUSDCTip !== 0) {
+                          if (minSuper !== 0) {
+                            setMinSuper(0);
+                            pushMinSuperDebounced(0, activeChannelClaim);
+                          }
+                          if (minUSDCSuper !== 0) {
+                            setMinUSDCSuper(0);
+                            pushMinUSDCSuperDebounced(0, activeChannelClaim);
+                          }
                         }
                       }}
                       onBlur={() => setLastUpdated(Date.now())}
@@ -500,7 +510,7 @@ export default function CreatorSettingsTab(props: Props) {
                       onChange={(e) => {
                         const newMinUSDCSuper = parseFloat(e.target.value);
                         setMinUSDCSuper(newMinUSDCSuper);
-                        pushMinSuperDebounced(newMinUSDCSuper, activeChannelClaim, 'USDC');
+                        pushMinUSDCSuperDebounced(newMinUSDCSuper, activeChannelClaim);
                       }}
                       onBlur={() => setLastUpdated(Date.now())}
                     />
