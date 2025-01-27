@@ -328,6 +328,11 @@
   padding: var(--spacing-s);
   border-bottom: 1px solid var(--color-border);
 
+  .help--warning {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+
   &:first-child,
   &:only-child {
     border-top: none;
