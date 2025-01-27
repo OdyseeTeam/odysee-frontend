@@ -5,7 +5,6 @@ import { getFormattedCreditsAmount, formatFullPrice } from 'util/format-credits'
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import LbcSymbol from 'component/common/lbc-symbol';
-import UsdcSymbol from 'component/common/usdc-symbol';
 import React from 'react';
 
 type Props = {
@@ -79,7 +78,11 @@ class CreditAmount extends React.PureComponent<Props> {
         if (showLBC && !isFiat) {
           amountText = <LbcSymbol postfix={amountText} size={size} />;
         } else if (showLBC && isFiat) {
-          amountText = <UsdcSymbol postfix={amountText} size={size} />;
+          amountText = (
+            <p style={{ display: 'inline' }}>
+              ${isNaN(Number(amountText)) ? amountText : (Math.round(Number(amount) * 100) / 100).toFixed(2)}
+            </p>
+          );
         }
 
         if (fee) {

@@ -11,7 +11,6 @@ import SettingsRow from 'component/settingsRow';
 import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form-components/form-field';
 import LbcSymbol from 'component/common/lbc-symbol';
-import UsdcSymbol from 'component/common/usdc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
@@ -449,11 +448,7 @@ export default function CreatorSettingsTab(props: Props) {
                   </SettingsRow>
 
                   <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <UsdcSymbol isFiat /> }}>
-                        Minimum %lbc% tip amount for comments
-                      </I18nMessage>
-                    }
+                    title={<I18nMessage tokens={{ lbc: '$' }}>Minimum %lbc% tip amount for comments</I18nMessage>}
                     subtitle={__(HELP.MIN_TIP)}
                   >
                     <FormField
@@ -481,11 +476,7 @@ export default function CreatorSettingsTab(props: Props) {
                   </SettingsRow>
 
                   <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <UsdcSymbol isFiat /> }}>
-                        Minimum %lbc% tip amount for hyperchats
-                      </I18nMessage>
-                    }
+                    title={<I18nMessage tokens={{ lbc: '$' }}>Minimum %lbc% tip amount for hyperchats</I18nMessage>}
                     subtitle={
                       <>
                         {__(HELP.MIN_SUPER)}
