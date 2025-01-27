@@ -116,11 +116,6 @@ const VideoJsEvents = ({
   function onInitialPlay() {
     const player = playerRef.current;
 
-    // Reset recovery attempts on successful playback
-    if (player.appState) {
-      player.appState.recoveryAttempts = 0;
-    }
-
     updateMediaSession();
 
     // $FlowIssue
@@ -361,7 +356,14 @@ const VideoJsEvents = ({
     player.on('volumechange', onVolumeChange);
     player.on('error', onError);
 
-    player.on('playing', resetRecoveryAttempts);
+    player.on('playing', () => {
+      let startTime = player.currentTime();
+      setTimeout(() => {
+        if (player.currentTime() > startTime) {
+          resetRecoveryAttempts();
+        }
+      }, 500);
+    });
 
     // custom tracking plugin, event used for watchman data, and marking view/getting rewards
     player.on('tracking:firstplay', doTrackingFirstPlay);
