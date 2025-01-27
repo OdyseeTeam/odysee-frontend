@@ -547,10 +547,6 @@ export function CommentCreate(props: Props) {
         if (dryRun) {
           return res.comment_id ? 'success' : 'fail';
         }
-        setSubmitting(false);
-        if (dryRun) {
-          return res.comment_id ? 'success' : 'fail';
-        }
         if (setQuickReply) setQuickReply(res);
 
         if (res && res.signature) {
