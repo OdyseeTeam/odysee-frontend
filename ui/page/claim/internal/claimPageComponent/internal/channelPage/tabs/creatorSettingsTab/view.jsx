@@ -11,6 +11,7 @@ import SettingsRow from 'component/settingsRow';
 import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form-components/form-field';
 import LbcSymbol from 'component/common/lbc-symbol';
+import UsdcSymbol from 'component/common/usdc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
@@ -71,6 +72,8 @@ export default function CreatorSettingsTab(props: Props) {
   const [moderatorUris, setModeratorUris] = React.useState([]);
   const [minTip, setMinTip] = React.useState(0);
   const [minSuper, setMinSuper] = React.useState(0);
+  const [minUSDCTip, setMinUSDCTip] = React.useState(0);
+  const [minUSDCSuper, setMinUSDCSuper] = React.useState(0);
   const [slowModeMin, setSlowModeMin] = React.useState(0);
   const [minChannelAgeMinutes, setMinChannelAgeMinutes] = React.useState(0);
   const [lastUpdated, setLastUpdated] = React.useState(1);
@@ -105,6 +108,8 @@ export default function CreatorSettingsTab(props: Props) {
       setCommentsEnabled(settings.comments_enabled || false);
       setMinTip(settings.min_tip_amount_comment || 0);
       setMinSuper(settings.min_tip_amount_super_chat || 0);
+      setMinUSDCTip(settings.min_usdc_tip_amount_comment || 0);
+      setMinUSDCSuper(settings.min_usdc_tip_amount_super_chat || 0);
       setSlowModeMin(settings.slow_mode_min_gap || 0);
       setMinChannelAgeMinutes(settings.time_since_first_comment || 0);
       setCommentsMembersOnly(settings.comments_members_only);
@@ -119,6 +124,12 @@ export default function CreatorSettingsTab(props: Props) {
       }
       if (settings.min_tip_amount_super_chat !== undefined) {
         setMinSuper(settings.min_tip_amount_super_chat);
+      }
+      if (settings.min_usdc_tip_amount_comment !== undefined) {
+        setMinUSDCTip(settings.min_usdc_tip_amount_comment);
+      }
+      if (settings.min_usdc_tip_amount_super_chat !== undefined) {
+        setMinUSDCSuper(settings.min_usdc_tip_amount_super_chat);
       }
       if (settings.slow_mode_min_gap !== undefined) {
         setSlowModeMin(settings.slow_mode_min_gap);
@@ -148,12 +159,20 @@ export default function CreatorSettingsTab(props: Props) {
     updateCreatorSettings(activeChannelClaim, { slow_mode_min_gap: value });
   }
 
-  function pushMinTip(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, { min_tip_amount_comment: value });
+  function pushMinTip(value: number, activeChannelClaim: ChannelClaim, currency: string) {
+    let key = 'min_tip_amount_comment';
+    if (currency === 'USDC') {
+      key = 'min_usdc_tip_amount_comment';
+    }
+    updateCreatorSettings(activeChannelClaim, { [key]: value });
   }
 
-  function pushMinSuper(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, { min_tip_amount_super_chat: value });
+  function pushMinSuper(value: number, activeChannelClaim: ChannelClaim, currency: string) {
+    let key = 'min_tip_amount_super_chat';
+    if (currency === 'USDC') {
+      key = 'min_usdc_tip_amount_super_chat';
+    }
+    updateCreatorSettings(activeChannelClaim, { [key]: value });
   }
 
   function parseModUri(uri) {
@@ -385,9 +404,11 @@ export default function CreatorSettingsTab(props: Props) {
                         const newMinTip = parseFloat(e.target.value);
                         setMinTip(newMinTip);
                         pushMinTipDebounced(newMinTip, activeChannelClaim);
-                        if (newMinTip !== 0 && minSuper !== 0) {
+                        if (newMinTip !== 0 && (minUSDCSuper !== 0 || minSuper !== 0)) {
                           setMinSuper(0);
+                          setMinUSDCSuper(0);
                           pushMinSuperDebounced(0, activeChannelClaim);
+                          pushMinSuperDebounced(0, activeChannelClaim, 'USDC');
                         }
                       }}
                       onBlur={() => setLastUpdated(Date.now())}
@@ -417,11 +438,78 @@ export default function CreatorSettingsTab(props: Props) {
                       type="number"
                       placeholder="1"
                       value={minSuper}
-                      disabled={minTip !== 0}
+                      disabled={minTip !== 0 || minUSDCTip !== 0}
                       onChange={(e) => {
                         const newMinSuper = parseFloat(e.target.value);
                         setMinSuper(newMinSuper);
                         pushMinSuperDebounced(newMinSuper, activeChannelClaim);
+                      }}
+                      onBlur={() => setLastUpdated(Date.now())}
+                    />
+                  </SettingsRow>
+
+                  <SettingsRow
+                    title={
+                      <I18nMessage tokens={{ lbc: <UsdcSymbol isFiat /> }}>
+                        Minimum %lbc% tip amount for comments
+                      </I18nMessage>
+                    }
+                    subtitle={__(HELP.MIN_TIP)}
+                  >
+                    <FormField
+                      name="min_tip_amount_comment"
+                      className="form-field--price-amount"
+                      max={LBC_MAX}
+                      min={LBC_MIN}
+                      step={LBC_STEP}
+                      type="number"
+                      placeholder="1"
+                      value={minUSDCTip}
+                      onChange={(e) => {
+                        const newMinUSDCTip = parseFloat(e.target.value);
+                        setMinUSDCTip(newMinUSDCTip);
+                        pushMinTipDebounced(newMinUSDCTip, activeChannelClaim, 'USDC');
+                        if (newMinUSDCTip !== 0 && (minUSDCSuper !== 0 || minSuper !== 0)) {
+                          setMinSuper(0);
+                          setMinUSDCSuper(0);
+                          pushMinSuperDebounced(0, activeChannelClaim);
+                          pushMinSuperDebounced(0, activeChannelClaim, 'USDC');
+                        }
+                      }}
+                      onBlur={() => setLastUpdated(Date.now())}
+                    />
+                  </SettingsRow>
+
+                  <SettingsRow
+                    title={
+                      <I18nMessage tokens={{ lbc: <UsdcSymbol isFiat /> }}>
+                        Minimum %lbc% tip amount for hyperchats
+                      </I18nMessage>
+                    }
+                    subtitle={
+                      <>
+                        {__(HELP.MIN_SUPER)}
+                        {minTip !== 0 && (
+                          <p className="help--inline">
+                            <em>{__(HELP.MIN_SUPER_OFF)}</em>
+                          </p>
+                        )}
+                      </>
+                    }
+                  >
+                    <FormField
+                      name="min_tip_amount_super_chat"
+                      className="form-field--price-amount"
+                      min={0}
+                      step="any"
+                      type="number"
+                      placeholder="1"
+                      value={minUSDCSuper}
+                      disabled={minTip !== 0 || minUSDCTip !== 0}
+                      onChange={(e) => {
+                        const newMinUSDCSuper = parseFloat(e.target.value);
+                        setMinUSDCSuper(newMinUSDCSuper);
+                        pushMinSuperDebounced(newMinUSDCSuper, activeChannelClaim, 'USDC');
                       }}
                       onBlur={() => setLastUpdated(Date.now())}
                     />

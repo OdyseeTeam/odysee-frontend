@@ -154,6 +154,7 @@ export const MENU = 'Menu';
 export const TRANSACTIONS = 'FileText';
 export const LBRY = 'Lbry';
 export const LBC = 'LBC';
+export const USDC = 'USDC';
 export const LIGHT = 'Sun';
 export const DARK = 'Moon';
 export const LIBRARY = 'Folder';
