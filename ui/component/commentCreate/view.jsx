@@ -779,7 +779,7 @@ export function CommentCreate(props: Props) {
               isLivestream={isLivestream}
               label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
               noticeLabel={
-                isMobile && (
+                (isMobile || isLivestream) && (
                   <HelpText
                     deletedComment={deletedComment}
                     minAmount={minAmount}
@@ -948,16 +948,17 @@ export function CommentCreate(props: Props) {
             ) : (
               onCancelReplying && <Button {...cancelButtonProps} onClick={onCancelReplying} />
             )}
-
-            <HelpText
-              deletedComment={deletedComment}
-              minAmount={minAmount}
-              minSuper={minSuper}
-              minTip={minTip}
-              minUSDCAmount={minUSDCAmount}
-              minUSDCSuper={minUSDCSuper}
-              minUSDCTip={minUSDCTip}
-            />
+            {!isLivestream && (
+              <HelpText
+                deletedComment={deletedComment}
+                minAmount={minAmount}
+                minSuper={minSuper}
+                minTip={minTip}
+                minUSDCAmount={minUSDCAmount}
+                minUSDCSuper={minUSDCSuper}
+                minUSDCTip={minUSDCTip}
+              />
+            )}
           </div>
         )}
         <div className="chat-resize">
