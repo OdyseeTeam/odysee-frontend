@@ -12,6 +12,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
+const TAB_USDC = 'TabUSDC';
 const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
 
@@ -208,7 +209,7 @@ function WalletTipAmountSelector(props: Props) {
                 'button-toggle--disabled': amount > balance,
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+              icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
@@ -222,7 +223,7 @@ function WalletTipAmountSelector(props: Props) {
           className={classnames('button-toggle button-toggle--expandformobile', {
             'button-toggle--active': useCustomTip,
           })}
-          icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+          icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
           label={__('Custom')}
           onClick={() => setUseCustomTip(true)}
         />
