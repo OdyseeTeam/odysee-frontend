@@ -30,19 +30,31 @@ type HelpTextProps = {
   minAmount: number,
   minSuper: number,
   minTip: number,
+  minUSDCAmount: number,
+  minUSDCSuper: number,
+  minUSDCTip: number,
 };
 
 export const HelpText = (helpTextProps: HelpTextProps) => {
-  const { deletedComment, minAmount, minSuper, minTip } = helpTextProps;
+  const { deletedComment, minAmount, minSuper, minTip, minUSDCAmount, minUSDCSuper, minUSDCTip } = helpTextProps;
 
   return (
     <>
       {deletedComment && <div className="error__text">{__('This comment has been deleted.')}</div>}
 
-      {!!minAmount && (
+      {(!!minAmount || !!minUSDCAmount) && (
         <div className="help--notice comment-create__min-amount-notice">
-          <I18nMessage tokens={{ lbc: <CreditAmount noFormat amount={minAmount} /> }}>
-            {minTip ? 'Comment min: %lbc%' : minSuper ? 'HyperChat min: %lbc%' : ''}
+          <I18nMessage
+            tokens={{
+              usdc: <CreditAmount noFormat isFiat amount={minUSDCAmount} />,
+              minUSDCAmount,
+              lbc: <CreditAmount noFormat amount={minAmount} />,
+            }}
+          >
+            {(minTip || minUSDCTip ? 'Comment min: ' : minSuper || minUSDCSuper ? 'HyperChat min: ' : '') +
+              (minTip || minSuper ? '%lbc%' : '') +
+              (minAmount && minUSDCAmount ? ' or ' : '') +
+              (minUSDCTip || minUSDCSuper ? '%usdc%' : '')}
           </I18nMessage>
 
           <Icon

@@ -171,8 +171,9 @@
   margin-top: calc(var(--spacing-xxs) - 2px);
   padding-top: calc(var(--spacing-xs) + 1px);
   height: var(--height-button);
+  text-align: center;
   .icon {
-    margin-bottom: -3px; // TODO fix few instances of these (find "-2px")
+    margin-bottom: 1px; // TODO fix few instances of these (find "-2px")
   }
 
   @media (max-width: $breakpoint-small) {
