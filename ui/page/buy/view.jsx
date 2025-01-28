@@ -12,8 +12,8 @@ import { SUPPORTED_MOONPAY_COUNTRIES } from 'constants/moonpay';
 import { useHistory } from 'react-router';
 import Button from 'component/button';
 import Nag from 'component/nag';
-import LbcSymbol from 'component/common/lbc-symbol';
-import { SIMPLE_SITE } from 'config';
+import UsdcSymbol from 'component/common/usdc-symbol';
+import { SIMPLE_SITE, ENABLE_ARCONNECT } from 'config';
 // import classnames from 'classnames';
 // import WalletSwap from 'component/walletSwap';
 
@@ -96,6 +96,24 @@ export default function BuyPage(props: Props) {
 
   const title = __('Buy Credits');
   const subtitle = <Button button="link" label={__('Learn more')} href="https://lbry.com/faq/buy-sell-bittrex" />;
+
+  if (ENABLE_ARCONNECT) {
+    return (
+      <Page
+        noSideNavigation
+        className="main--swap"
+        backout={{ backoutLabel: __('Done'), title: <UsdcSymbol prefix={__('Buy')} size={28} /> }}
+      >
+        <iframe
+          src="https://buy.onramper.dev?apiKey=pk_prod_01HETEQF46GSK6BS5JWKDF31BT&mode=buy"
+          title="Onramper Widget"
+          height="630px"
+          width="420px"
+          allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+        />
+      </Page>
+    );
+  }
 
   if (MOONPAY_DOWN) {
     return (
