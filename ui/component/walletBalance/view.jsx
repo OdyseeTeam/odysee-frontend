@@ -7,10 +7,13 @@ import CreditAmount from 'component/common/credit-amount';
 import Button from 'component/button';
 import HelpLink from 'component/common/help-link';
 import Card from 'component/common/card';
+import UsdcSymbol from '../common/usdc-symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { formatNumberWithCommas } from 'util/number';
 import WalletFiatBalance from 'component/walletFiatBalance';
+import WalletConnect from '../walletConnect/view';
+import { ENABLE_ARCONNECT } from '../../../config';
 
 type Props = {
   balance: number,
@@ -77,6 +80,7 @@ const WalletBalance = (props: Props) => {
               <span>{__('Your total balance.')}</span>
             )
           }
+          background
           actions={
             <>
               <h2 className="section__title--small">
@@ -193,7 +197,47 @@ const WalletBalance = (props: Props) => {
       </div>
       <div className="column">
         {/* fiat balance card */}
-        <WalletFiatBalance />
+        {ENABLE_ARCONNECT ? (
+          <>
+            <Card
+              className={!window.tmpWallet ? `card--disabled` : ``}
+              title={<UsdcSymbol postfix={formatNumberWithCommas(0)} isTitle />}
+              subtitle={
+                totalLocked > 0 ? (
+                  <I18nMessage tokens={{ usdc: <UsdcSymbol /> }}>Placeholder description 1 %usdc%</I18nMessage>
+                ) : (
+                  <span>{__('Your total balance.')}</span>
+                )
+              }
+              background
+              actions={
+                <>
+                  <div className="section__actions">
+                    <Button
+                      button="secondary"
+                      label={__('Receive')}
+                      icon={ICONS.RECEIVE}
+                      navigate={`/$/${PAGES.RECEIVE}`}
+                    />
+                    <Button button="secondary" label={__('Send')} icon={ICONS.SEND} navigate={`/$/${PAGES.SEND}`} />
+                    <Button button="secondary" label={__('Buy')} icon={ICONS.BUY} navigate={`/$/${PAGES.BUY}`} />
+                    <Button
+                      button="secondary"
+                      label={__('Payment Account')}
+                      icon={ICONS.SETTINGS}
+                      navigate={`/$/${PAGES.BUY}`}
+                    />
+                  </div>
+                </>
+              }
+            ></Card>
+            <div className="wallet">
+              <WalletConnect />
+            </div>
+          </>
+        ) : (
+          <WalletFiatBalance />
+        )}
       </div>
     </div>
   );

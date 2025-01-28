@@ -1,4 +1,6 @@
 // @flow
+import React from 'react';
+import { ENABLE_ARCONNECT } from '../../../config';
 import { Form } from 'component/common/form';
 import LbcMessage from 'component/common/lbc-message';
 import { Lbryio } from 'lbryinc';
@@ -12,10 +14,8 @@ import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
-import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
-
 import withCreditCard from 'hocs/withCreditCard';
 
 import { getStripeEnvironment } from 'util/stripe';
@@ -23,6 +23,7 @@ const stripeEnvironment = getStripeEnvironment();
 
 const TAB_BOOST = 'TabBoost';
 const TAB_FIAT = 'TabFiat';
+const TAB_USDC = 'TabUSDC';
 const TAB_LBC = 'TabLBC';
 
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
@@ -310,8 +311,12 @@ export default function WalletSendTip(props: Props) {
             {!claimIsMine && (
               <div className="section">
                 {/* tip fiat tab button */}
-                {stripeEnvironment && (
-                  <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
+                {ENABLE_ARCONNECT ? (
+                  <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
+                ) : (
+                  stripeEnvironment && (
+                    <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
+                  )
                 )}
 
                 {/* tip LBC tab button */}
@@ -343,7 +348,9 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">{(!incognito && activeChannelName) || __('Anonymous')}</div>
                   <div className="confirm__label">{__('Amount')}</div>
                   <div className="confirm__value">
-                    {activeTab === TAB_FIAT ? (
+                    {activeTab === TAB_USDC ? (
+                      <p>{`${ICONS.USDC} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    ) : activeTab === TAB_FIAT ? (
                       <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : (
                       <LbcSymbol postfix={tipAmount} size={22} />

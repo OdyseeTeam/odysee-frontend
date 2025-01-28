@@ -13,13 +13,13 @@ type Props = {
   postfix?: string | number | Node,
 };
 
-const LbcSymbol = (props: Props) => {
+const UsdcSymbol = (props: Props) => {
   const { prefix, postfix, size, isTitle = false } = props;
   return (
     <>
       {prefix}
       <Icon
-        icon={ICONS.LBC}
+        icon={ICONS.USDC}
         size={isTitle ? 22 : size}
         className={classnames('icon__lbc', {
           'icon__lbc--before-text': prefix,
@@ -32,4 +32,4 @@ const LbcSymbol = (props: Props) => {
   );
 };
 
-export default LbcSymbol;
+export default UsdcSymbol;
