@@ -406,7 +406,7 @@ export default function CreatorSettingsTab(props: Props) {
                       !minTip &&
                       !!minUSDCTip && (
                         <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                          %lbc% tips blocked. Set value to enable.
+                          All %lbc% comments allowed, please set a value if you want to limit this.
                         </I18nMessage>
                       )
                     }
@@ -458,7 +458,7 @@ export default function CreatorSettingsTab(props: Props) {
                       !minSuper &&
                       !!minUSDCSuper && (
                         <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                          %lbc% hyperchats blocked. Set value to enable.
+                          All %lbc% hyperchats allowed, please set a value if you want to limit this.
                         </I18nMessage>
                       )
                     }
@@ -488,7 +488,9 @@ export default function CreatorSettingsTab(props: Props) {
                     warning={
                       !!minTip &&
                       !minUSDCTip && (
-                        <I18nMessage tokens={{ lbc: '$' }}>%lbc% tips blocked. Set value to enable.</I18nMessage>
+                        <I18nMessage tokens={{ lbc: '$' }}>
+                          All %lbc% comments allowed, please set a value if you want to limit this.
+                        </I18nMessage>
                       )
                     }
                   >
@@ -536,7 +538,9 @@ export default function CreatorSettingsTab(props: Props) {
                     warning={
                       !!minSuper &&
                       !minUSDCSuper && (
-                        <I18nMessage tokens={{ lbc: '$' }}>%lbc% hyperchats blocked. Set value to enable.</I18nMessage>
+                        <I18nMessage tokens={{ lbc: '$' }}>
+                          All %lbc% hyperchats allowed, please set a value if you want to limit this.
+                        </I18nMessage>
                       )
                     }
                   >
