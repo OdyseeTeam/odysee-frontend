@@ -13,7 +13,7 @@ type Props = {
 };
 
 const Symbol = (props: Props) => {
-  const { token, chain, amount, size, isTitle = false } = props;
+  const { token, chain, amount, precision = 8, size, isTitle = false } = props;
   return (
     <>
       <div
@@ -32,7 +32,7 @@ const Symbol = (props: Props) => {
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
       </div>
       <span>
-        {amount}
+        {amount && Number(amount).toFixed(precision)}
         {amount && ` ${token.toUpperCase()}`}
       </span>
     </>

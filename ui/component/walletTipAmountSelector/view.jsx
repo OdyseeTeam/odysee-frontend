@@ -1,4 +1,5 @@
 // @flow
+import React from 'react';
 import 'scss/component/_wallet-tip-selector.scss';
 import { FormField } from 'component/common/form';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
@@ -7,7 +8,6 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import classnames from 'classnames';
-import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 
