@@ -65,7 +65,7 @@ class CreditAmount extends React.PureComponent<Props> {
     // return null, otherwise it will try and convert undefined to a string
     if (amount === undefined && customAmounts === undefined) return null;
 
-    function getSymbol(amountText, size) {
+    function getSymbol(amountText, size, chain) {
       return !token ? (
         <LbcSymbol postfix={amountText} size={size} />
       ) : (
