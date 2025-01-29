@@ -52,6 +52,44 @@
   margin-right: var(--spacing-s);
 }
 
+.icon__symbol-wrapper {
+  position: relative;
+  display: flex;
+  width: fit-content;
+  display: inline-block;
+  line-height: 0;
+  margin-right: var(--spacing-xxs) !important;
+  vertical-align: middle;
+
+  svg:nth-of-type(2) {
+    position: absolute;
+    right: -4px;
+    top: -2px;
+    width: 12px;
+    height: 12px;
+  }
+}
+
+.icon__symbol-wrapper--chain {
+  margin-right: var(--spacing-xs) !important;
+}
+
+.icon__symbol {
+  vertical-align: middle;
+}
+
+.icon__symbol--before-text {
+  margin-left: 4px;
+}
+
+.icon__symbol--after-text {
+  margin-right: 2px;
+}
+
+.icon__symbol--title {
+  margin-bottom: 4px;
+}
+
 .icon__lbc {
   vertical-align: middle;
 }

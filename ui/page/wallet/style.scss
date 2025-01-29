@@ -1,6 +1,10 @@
 @import '~ui/scss/init/breakpoints';
 
 .transactionsPage-wrapper {
+  .tabs__list {
+    padding: var(--spacing-xxs);
+  }
+
   .credit-amount {
     font-size: var(--font-body);
   }
@@ -47,8 +51,8 @@
           // background:var(--color-background);
           background-color: var(--color-header-button);
           border-radius: var(--border-radius) var(--border-radius) 0 0;
-          padding: var(--spacing-xxs) var(--spacing-s);
-          width: 100%;
+          padding: var(--spacing-xxs);
+          min-width: 100%;
           margin-top: calc(var(--spacing-s) * -1);
           margin-left: calc(var(--spacing-s) * -1);
           margin-right: calc(var(--spacing-s) * -1);
@@ -61,7 +65,16 @@
 
           svg {
             margin-bottom: 0;
-            margin-right: var(--spacing-s);
+            background: var(--color-background);
+            padding: 4px;
+            border-radius: var(--border-radius);
+            box-sizing: content-box;
+          }
+
+          select {
+            margin-left: auto;
+            font-size: var(--font-body);
+            height: 27px;
           }
         }
         .card__subtitle {
