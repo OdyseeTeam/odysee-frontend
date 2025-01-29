@@ -1,21 +1,18 @@
 import React from 'react';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import { createDataItemSigner, dryrun, message, result, results } from '@permaweb/aoconnect';
+import { dryrun } from '@permaweb/aoconnect';
 
-export default function WalletConnect(_props: { callback?: () => void }) {
-  console.log(window.arweaveWallet);
-
+export default function WalletConnect(props) {
+  const { wallet, setWallet } = props;
   const [walletAddress, setWalletAddress] = React.useState(null);
-  const [wallet, setWallet] = React.useState(null);
+
   const [walletType, setWalletType] = React.useState(null);
   const WALLET_PERMISSIONS = ['ACCESS_ADDRESS', 'ACCESS_PUBLIC_KEY', 'SIGN_TRANSACTION', 'DISPATCH', 'SIGNATURE'];
   const WalletEnum = {
     arConnect: 'arConnect',
     othent: 'othent',
   };
-
-  const [res, setRes] = React.useState(null);
 
   React.useEffect(() => {
     console.log('dryRun');
@@ -27,9 +24,9 @@ export default function WalletConnect(_props: { callback?: () => void }) {
           { name: 'Owner', value: 'OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs' },
         ],
         data: null,
+        owner: 'OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs',
       });
       console.log('response: ', response);
-      setRes(response);
     };
     dryrunAsync();
   }, []);
@@ -60,14 +57,5 @@ export default function WalletConnect(_props: { callback?: () => void }) {
     // setProfile(null);
   }
 
-  return (
-    <>
-      {wallet ? (
-        <Button button="secondary" onClick={handleDisconnect} label="Disconnect" />
-      ) : (
-        <Button button="primary" onClick={handleArConnect} label="Connect" icon={ICONS.ARCONNECT} />
-      )}
-      <pre>{JSON.stringify(res, null, 2)}</pre>
-    </>
-  );
+  return <>{!wallet && <Button button="primary" onClick={handleArConnect} label="Connect" icon={ICONS.ARCONNECT} />}</>;
 }
