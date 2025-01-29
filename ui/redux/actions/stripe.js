@@ -51,10 +51,13 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
   dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_START });
 
   return await Lbryio.call('account', 'status', { environment: stripeEnvironment }, 'post')
-    .then((accountStatusResponse: StripeAccountStatus) => {
+    .then((accountStatusResponse: StripeAccountStatus | AccountStatus) => {
       dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE, data: accountStatusResponse });
+      if (accountStatusResponse.arweave || accountStatusResponse.stripe) {
+        return accountStatusResponse;
+      }
 
-      return accountStatusResponse;
+      return { stripe: accountStatusResponse };
     })
     .catch((error) => {
       if (error.message === 'account not linked to user, please link first') {
