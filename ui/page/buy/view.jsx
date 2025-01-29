@@ -106,7 +106,7 @@ export default function BuyPage(props: Props) {
         backout={{ backoutLabel: __('Done'), title: <Symbol prefix={__('Buy')} size={28} /> }}
       >
         <iframe
-          src="https://buy.onramper.dev?apiKey=pk_prod_01HETEQF46GSK6BS5JWKDF31BT&mode=buy"
+          src="https://buy.onramper.com?themeName=light"
           title="Onramper Widget"
           height="630px"
           width="420px"
