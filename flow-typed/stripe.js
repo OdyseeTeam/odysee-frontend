@@ -1,8 +1,9 @@
 declare type StripeState = {
   accountCheckFetchingIds: ClaimIds,
   canReceiveFiatTipsById: { [id: string]: boolean },
+  canReceiveArweaveTipsById: { [id: string]: ArweaveTippableData }, // currencies []
   accountStatus: ?StripeAccountStatus,
-  arweaveStatus: ?any,
+  arweaveStatus: ?ArweaveAccountStatus,
   accountStatusFetching: boolean,
   accountLinkResponse: ?StripeAccountLink,
   accountTransactions: ?StripeTransactions,
@@ -143,8 +144,24 @@ declare type StripePaymentMethod = {
 };
 
 declare type AccountStatus = {
-  arweave?: StripeAccountStatus,
+  arweave?: ArweaveAccountStatus,
   stripe?: StripeAccountStatus,
+}
+
+declare type ArweaveAccountStatus = ArweaveAccountStatusEntry[]
+
+declare type ArweaveAccountStatusEntry = {
+  "address": string,
+  "currency": string,
+  "default": boolean,
+  "status": string,
+  "deposit_address": string
+}
+
+declare type ArweaveTippableData = {
+    "status": string,
+    "address": string,
+    "currency": string,
 }
 
 declare type StripeAccountStatus = {
