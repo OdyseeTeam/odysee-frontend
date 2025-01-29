@@ -7,6 +7,7 @@ const defaultState: StripeState = {
   accountCheckFetchingIds: [],
   canReceiveFiatTipsById: {},
   accountStatus: undefined,
+  arweaveStatus: undefined,
   accountStatusFetching: false,
   accountLinkResponse: undefined,
   accountTransactions: undefined,
@@ -20,7 +21,8 @@ reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_START] = (state, action) => ({ ...state, 
 reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE] = (state, action) => ({
   ...state,
   accountStatusFetching: false,
-  accountStatus: action.data,
+  accountStatus: action.data.stripe,
+  arweaveStatus: action.data.arweave,
 });
 
 reducers[ACTIONS.SET_ACCOUNT_LINK] = (state, action) => ({ ...state, accountLinkResponse: action.data });

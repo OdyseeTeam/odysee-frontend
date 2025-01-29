@@ -2,6 +2,7 @@ declare type StripeState = {
   accountCheckFetchingIds: ClaimIds,
   canReceiveFiatTipsById: { [id: string]: boolean },
   accountStatus: ?StripeAccountStatus,
+  arweaveStatus: ?any,
   accountStatusFetching: boolean,
   accountLinkResponse: ?StripeAccountLink,
   accountTransactions: ?StripeTransactions,
@@ -140,6 +141,11 @@ declare type StripePaymentMethod = {
   type: string,
   wechat_pay: ?{},
 };
+
+declare type AccountStatus = {
+  arweave?: StripeAccountStatus,
+  stripe?: StripeAccountStatus,
+}
 
 declare type StripeAccountStatus = {
   account_info: StripeAccountInfo,
