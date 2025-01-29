@@ -155,13 +155,15 @@ declare type ArweaveAccountStatusEntry = {
   "currency": string,
   "default": boolean,
   "status": string,
-  "deposit_address": string
+  "deposit_address": string,
+  "id": number
 }
 
 declare type ArweaveTippableData = {
     "status": string,
     "address": string,
     "currency": string,
+    "default": boolean,
 }
 
 declare type StripeAccountStatus = {
