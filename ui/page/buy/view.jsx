@@ -12,7 +12,8 @@ import { SUPPORTED_MOONPAY_COUNTRIES } from 'constants/moonpay';
 import { useHistory } from 'react-router';
 import Button from 'component/button';
 import Nag from 'component/nag';
-import UsdcSymbol from 'component/common/usdc-symbol';
+import LbcSymbol from '../../component/common/lbc-symbol';
+import Symbol from 'component/common/symbol';
 import { SIMPLE_SITE, ENABLE_ARCONNECT } from 'config';
 // import classnames from 'classnames';
 // import WalletSwap from 'component/walletSwap';
@@ -102,7 +103,7 @@ export default function BuyPage(props: Props) {
       <Page
         noSideNavigation
         className="main--swap"
-        backout={{ backoutLabel: __('Done'), title: <UsdcSymbol prefix={__('Buy')} size={28} /> }}
+        backout={{ backoutLabel: __('Done'), title: <Symbol prefix={__('Buy')} size={28} /> }}
       >
         <iframe
           src="https://buy.onramper.dev?apiKey=pk_prod_01HETEQF46GSK6BS5JWKDF31BT&mode=buy"

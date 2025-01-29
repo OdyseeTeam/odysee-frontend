@@ -7,7 +7,7 @@ import CreditAmount from 'component/common/credit-amount';
 import Button from 'component/button';
 import HelpLink from 'component/common/help-link';
 import Card from 'component/common/card';
-import UsdcSymbol from '../common/usdc-symbol';
+import Symbol from '../common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { formatNumberWithCommas } from 'util/number';
@@ -60,6 +60,10 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
+  // tmp
+  const [wallet, setWallet] = React.useState(null);
+  console.log('wallet: ', wallet);
+
   React.useEffect(() => {
     if (balance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
@@ -70,7 +74,7 @@ const WalletBalance = (props: Props) => {
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<LbcSymbol postfix={formatNumberWithCommas(totalBalance)} isTitle />}
+          title={<Symbol token="lbc" amount={formatNumberWithCommas(totalBalance)} isTitle />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
@@ -200,11 +204,18 @@ const WalletBalance = (props: Props) => {
         {ENABLE_ARCONNECT ? (
           <>
             <Card
-              className={!window.tmpWallet ? `card--disabled` : ``}
-              title={<UsdcSymbol postfix={formatNumberWithCommas(0)} isTitle />}
+              className={!wallet ? `card--disabled` : ``}
+              title={
+                <>
+                  <Symbol token="usdc" amount={formatNumberWithCommas(0)} isTitle />
+                  <select>
+                    <option value="">Wallet A</option>
+                  </select>
+                </>
+              }
               subtitle={
                 totalLocked > 0 ? (
-                  <I18nMessage tokens={{ usdc: <UsdcSymbol /> }}>Placeholder description 1 %usdc%</I18nMessage>
+                  <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Placeholder description 1 %usdc%</I18nMessage>
                 ) : (
                   <span>{__('Your total balance.')}</span>
                 )
@@ -212,6 +223,16 @@ const WalletBalance = (props: Props) => {
               background
               actions={
                 <>
+                  <h2 className="section__title--small">
+                    <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" chain="bnb" amount="10" /> }}>
+                      %usdc_amount% on BNB Chain
+                    </I18nMessage>
+                  </h2>
+                  <h2 className="section__title--small">
+                    <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" chain="base" amount={2} /> }}>
+                      %usdc_amount% on Base Chain
+                    </I18nMessage>
+                  </h2>
                   <div className="section__actions">
                     <Button
                       button="secondary"
@@ -231,9 +252,11 @@ const WalletBalance = (props: Props) => {
                 </>
               }
             ></Card>
-            <div className="wallet">
-              <WalletConnect />
-            </div>
+            {!wallet && (
+              <div className="wallet">
+                <WalletConnect wallet={wallet} setWallet={setWallet} />
+              </div>
+            )}
           </>
         ) : (
           <WalletFiatBalance />
