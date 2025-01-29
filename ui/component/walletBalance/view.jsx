@@ -31,6 +31,7 @@ type Props = {
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
+  arweaveStatus: any,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -51,6 +52,7 @@ const WalletBalance = (props: Props) => {
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
+    arweaveStatus,
   } = props;
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
@@ -60,6 +62,7 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
+  console.log('arweaveStatus', arweaveStatus);
   // tmp
   const [wallet, setWallet] = React.useState(null);
   console.log('wallet: ', wallet);
@@ -255,7 +258,7 @@ const WalletBalance = (props: Props) => {
                   </div>
                 </>
               }
-            ></Card>
+            />
             {!wallet && (
               <div className="wallet">
                 <WalletConnect wallet={wallet} setWallet={setWallet} />
