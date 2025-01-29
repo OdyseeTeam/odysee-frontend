@@ -26,11 +26,13 @@ import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
 import './style.lazy.scss';
+import { ENABLE_ARCONNECT } from '../../../config';
 
 const stripeEnvironment = getStripeEnvironment();
 
-const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
+const TAB_USDC = 'TabUSDC';
+const TAB_FIAT = 'TabFiat';
 
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
@@ -932,9 +934,11 @@ export function CommentCreate(props: Props) {
 
                 {!supportDisabled && !claimIsMine && (
                   <>
-                    <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
-
-                    {stripeEnvironment && (
+                    {ENABLE_ARCONNECT && (
+                      <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
+                    )}
+                    <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
+                    {!ENABLE_ARCONNECT && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                     )}
                   </>

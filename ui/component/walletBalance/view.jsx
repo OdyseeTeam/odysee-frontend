@@ -207,7 +207,7 @@ const WalletBalance = (props: Props) => {
               className={!wallet ? `card--disabled` : ``}
               title={
                 <>
-                  <Symbol token="usdc" amount={formatNumberWithCommas(0)} isTitle />
+                  <Symbol token="usdc" amount={'12'} precision="2" isTitle />
                   <select>
                     <option value="">Wallet A</option>
                   </select>
@@ -224,12 +224,16 @@ const WalletBalance = (props: Props) => {
               actions={
                 <>
                   <h2 className="section__title--small">
-                    <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" chain="bnb" amount="10" /> }}>
+                    <I18nMessage
+                      tokens={{ usdc_amount: <Symbol token="usdc" chain="bnb" amount="10" precision="2" /> }}
+                    >
                       %usdc_amount% on BNB Chain
                     </I18nMessage>
                   </h2>
                   <h2 className="section__title--small">
-                    <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" chain="base" amount={2} /> }}>
+                    <I18nMessage
+                      tokens={{ usdc_amount: <Symbol token="usdc" chain="base" amount={2} precision="2" /> }}
+                    >
                       %usdc_amount% on Base Chain
                     </I18nMessage>
                   </h2>
