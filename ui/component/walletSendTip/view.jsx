@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { ENABLE_ARCONNECT } from '../../../config';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
 import { Form } from 'component/common/form';
 import LbcMessage from 'component/common/lbc-message';
 import { Lbryio } from 'lbryinc';
@@ -310,13 +310,11 @@ export default function WalletSendTip(props: Props) {
           <>
             {!claimIsMine && (
               <div className="section">
-                {/* tip fiat tab button */}
-                {ENABLE_ARCONNECT ? (
+                {ENABLE_ARCONNECT && (
                   <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
-                ) : (
-                  stripeEnvironment && (
-                    <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
-                  )
+                )}
+                {ENABLE_STRIPE && stripeEnvironment && (
+                  <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
                 )}
 
                 {/* tip LBC tab button */}
