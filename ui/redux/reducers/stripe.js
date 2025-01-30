@@ -49,22 +49,16 @@ reducers[ACTIONS.CHECK_CAN_RECEIVE_FIAT_TIPS_STARTED] = (state, action) => {
   };
 };
 reducers[ACTIONS.SET_CAN_RECEIVE_FIAT_TIPS] = (state, action) => {
-  const { stripe, arweave, accountCheckResponse, claimId } = action.data;
-  let stripeCheckResponse;
-  if (accountCheckResponse !== true && accountCheckResponse !== false) {
-    // new api
-    stripeCheckResponse = stripe.accountCheckResponse;
-  } else {
-    // old api
-    stripeCheckResponse = accountCheckResponse;
-  }
+  const { accountCheckResponse, claimId } = action.data;
+
+  const { stripe, arweave } = accountCheckResponse;
 
   const newCanReceiveArweaveTipsById = Object.assign({}, state.canReceiveArweaveTipsById);
-  if (arweave.active) {
+  if (arweave && arweave.status === 'active') {
     newCanReceiveArweaveTipsById[claimId] = arweave;
   }
   const newCanReceiveFiatTipsById = Object.assign({}, state.canReceiveFiatTipsById);
-  newCanReceiveFiatTipsById[claimId] = stripeCheckResponse === true;
+  newCanReceiveFiatTipsById[claimId] = stripe === true;
 
   const newAccountCheckFetchingIds = new Set(state.accountCheckFetchingIds);
   newAccountCheckFetchingIds.delete(claimId);
