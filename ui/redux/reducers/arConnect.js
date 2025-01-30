@@ -3,11 +3,6 @@ import * as ACTIONS from 'constants/action_types';
 // import { handleActions } from 'util/redux-utils';
 const reducers = {};
 
-type ArConnectState = {
-  status: 'loading' | 'connected' | 'disconnected',
-  address?: string,
-};
-
 const defaultState: ArConnectState = {
   status: 'loading',
   address: undefined,
