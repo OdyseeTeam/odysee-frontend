@@ -12,8 +12,8 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { formatNumberWithCommas } from 'util/number';
 import WalletFiatBalance from 'component/walletFiatBalance';
-import WalletConnect from '../walletConnect/view';
-import { ENABLE_ARCONNECT } from '../../../config';
+import WalletConnect from '../walletConnect';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
 
 type Props = {
   balance: number,
@@ -32,6 +32,7 @@ type Props = {
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
   arweaveStatus: any,
+  arConnectStatus: any,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -53,6 +54,7 @@ const WalletBalance = (props: Props) => {
     massClaimIsPending,
     utxoCounts,
     arweaveStatus,
+    arConnectStatus,
   } = props;
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
@@ -62,10 +64,9 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
-  console.log('arweaveStatus', arweaveStatus);
   // tmp
-  const [wallet, setWallet] = React.useState(null);
-  console.log('wallet: ', wallet);
+  console.log('arweaveStatus', arweaveStatus);
+  console.log('arConnectStatus', arConnectStatus);
 
   React.useEffect(() => {
     if (balance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -203,11 +204,10 @@ const WalletBalance = (props: Props) => {
         />
       </div>
       <div className="column">
-        {/* fiat balance card */}
-        {ENABLE_ARCONNECT ? (
+        {ENABLE_ARCONNECT && (
           <>
             <Card
-              className={!wallet ? `card--disabled` : ``}
+              className={!arConnectStatus.address ? `card--disabled` : ``}
               title={
                 <>
                   <Symbol token="usdc" amount={'12'} precision="2" isTitle />
@@ -259,16 +259,15 @@ const WalletBalance = (props: Props) => {
                 </>
               }
             />
-            {!wallet && (
+            {!arConnectStatus.address && (
               <div className="wallet">
-                <WalletConnect wallet={wallet} setWallet={setWallet} />
+                <WalletConnect />
               </div>
             )}
           </>
-        ) : (
-          <WalletFiatBalance />
         )}
       </div>
+      <div className="column">{<WalletFiatBalance />}</div>
     </div>
   );
 };

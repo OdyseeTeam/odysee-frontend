@@ -3,9 +3,15 @@ import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import { dryrun } from '@permaweb/aoconnect';
 
+type Props = {
+  connectArConnect: () => void,
+};
+
 export default function WalletConnect(props) {
-  const { wallet, setWallet } = props;
+  const { wallet, setWallet, connectArConnect } = props;
   const [walletAddress, setWalletAddress] = React.useState(null);
+
+  console.log('Props:', props);
 
   const [walletType, setWalletType] = React.useState(null);
   const WALLET_PERMISSIONS = ['ACCESS_ADDRESS', 'ACCESS_PUBLIC_KEY', 'SIGN_TRANSACTION', 'DISPATCH', 'SIGNATURE'];
@@ -32,6 +38,8 @@ export default function WalletConnect(props) {
   }, []);
 
   async function handleArConnect() {
+    connectArConnect();
+    /*
     console.log('handleArConnect');
     if (!walletAddress) {
       if (window.arweaveWallet) {
@@ -47,6 +55,7 @@ export default function WalletConnect(props) {
         }
       }
     }
+      */
   }
 
   async function handleDisconnect() {
