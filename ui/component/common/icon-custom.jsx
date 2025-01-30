@@ -209,7 +209,7 @@ export const icons = {
     </svg>
   ),
   [ICONS.USDC]: (props: IconProps) => {
-    const { size = 24, color = 'currentColor', ...rest } = props;
+    const { size = 24 } = props;
     return (
       <svg
         width={size}
@@ -234,7 +234,7 @@ export const icons = {
     );
   },
   [ICONS.BNB]: (props: IconProps) => {
-    const { size = 24, color = 'currentColor', ...rest } = props;
+    const { size = 24 } = props;
 
     return (
       <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -254,7 +254,7 @@ export const icons = {
     );
   },
   [ICONS.BASE]: (props: IconProps) => {
-    const { size = 24, color = 'currentColor', ...rest } = props;
+    const { size = 24 } = props;
 
     return (
       <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">

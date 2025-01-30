@@ -33,7 +33,6 @@ type Props = {
   arweaveStatus: any,
   arConnectStatus: any,
   doCheckArConnectStatus: () => void,
-  doDisconnectArConnect: () => void,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -57,7 +56,6 @@ const WalletBalance = (props: Props) => {
     arweaveStatus,
     arConnectStatus,
     doCheckArConnectStatus,
-    doDisconnectArConnect,
   } = props;
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
@@ -72,17 +70,13 @@ const WalletBalance = (props: Props) => {
     console.log('arweaveStatus', arweaveStatus);
     console.log('arConnectStatus', arConnectStatus);
     doCheckArConnectStatus();
-  }, []);
+  }, [arweaveStatus, arConnectStatus, doCheckArConnectStatus]);
 
   React.useEffect(() => {
     if (balance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
   }, [doFetchUtxoCounts, balance, detailsExpanded]);
-
-  const handleArConnectDisconnect = () => {
-    doDisconnectArConnect();
-  };
 
   return (
     <div className={'columns'}>
