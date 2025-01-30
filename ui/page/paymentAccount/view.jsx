@@ -34,7 +34,7 @@ function PaymentAccountPage(props: Props) {
   } = useHistory();
 
   const urlParams = new URLSearchParams(search);
-  const currentView = urlParams.get(TAB_QUERY) || TABS.LBRY_CREDITS_TAB;
+  const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
 
   let tabIndex;
   switch (currentView) {
@@ -57,7 +57,7 @@ function PaymentAccountPage(props: Props) {
 
   React.useEffect(() => {
     doCheckArConnectStatus();
-  }, []);
+  }, [doCheckArConnectStatus]);
 
   const handleArConnectDisconnect = () => {
     doDisconnectArConnect();

@@ -1,13 +1,14 @@
 // @flow
+import { Dispatch } from 'redux';
 import * as ACTIONS from 'constants/action_types';
 
 const WALLET_PERMISSIONS = ['ACCESS_ADDRESS', 'ACCESS_PUBLIC_KEY', 'SIGN_TRANSACTION', 'DISPATCH', 'SIGNATURE'];
 
-export const doConnectArConnect = () => async (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
+export const doConnectArConnect = () => async (dispatch: Dispatch) => {
   if (!window.arweaveWallet) return;
 
   try {
+    // $FlowIgnore
     await window.arweaveWallet.connect(WALLET_PERMISSIONS);
     const address = await window.arweaveWallet.getActiveAddress();
 
@@ -20,12 +21,12 @@ export const doConnectArConnect = () => async (dispatch: Dispatch, getState: Get
     });
   } catch (e) {
     console.error(e);
-    return;
   }
 };
 
-export const doDisconnectArConnect = () => async (dispatch: Dispatch, getState: GetState) => {
+export const doDisconnectArConnect = () => async (dispatch: Dispatch) => {
   try {
+    // $FlowIgnore
     await global.window?.arweaveWallet?.disconnect();
     dispatch({
       type: ACTIONS.CONNECT_AR_CONNECT,
@@ -36,17 +37,17 @@ export const doDisconnectArConnect = () => async (dispatch: Dispatch, getState: 
     });
   } catch (e) {
     console.error(e);
-    return;
   }
 };
 
-export const doCheckArConnectStatus = () => async (dispatch) => {
+export const doCheckArConnectStatus = () => async (dispatch: Dispatch) => {
   try {
+    // $FlowIgnore
     const address = await window.arweaveWallet.getActiveAddress();
     dispatch({
       type: ACTIONS.CHECK_AR_CONNECT_STATUS,
       data: {
-        status: Boolean(address) ? 'connected' : 'disconnected',
+        status: address ? 'connected' : 'disconnected',
         address,
       },
     });
