@@ -19,6 +19,7 @@ declare type GetState = () => State;
 
 declare type State = {|
   app: AppState,
+  arConnect: ArConnectState,
   blacklist: any,
   blocked: BlocklistState,
   claims: ClaimsState,
