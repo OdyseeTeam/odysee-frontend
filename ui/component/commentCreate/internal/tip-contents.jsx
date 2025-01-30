@@ -6,7 +6,7 @@ import UriIndicator from 'component/uriIndicator';
 import CreditAmount from 'component/common/credit-amount';
 
 const TAB_LBC = 'TabLBC';
-const TAB_USDC = 'TabUSDC';
+// const TAB_USDC = 'TabUSDC';
 const TAB_FIAT = 'TabFiat';
 
 type Props = {

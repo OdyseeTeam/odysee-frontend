@@ -1,7 +1,8 @@
+// @flow
 import React from 'react';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import { dryrun } from '@permaweb/aoconnect';
+// import { dryrun } from '@permaweb/aoconnect';
 
 type Props = {
   connectArConnect: () => void,
@@ -10,6 +11,7 @@ type Props = {
 export default function WalletConnect(props: Props) {
   const { connectArConnect } = props;
 
+  /*
   React.useEffect(() => {
     console.log('dryRun');
     const dryrunAsync = async () => {
@@ -26,6 +28,7 @@ export default function WalletConnect(props: Props) {
     };
     dryrunAsync();
   }, []);
+  */
 
   async function handleArConnect() {
     connectArConnect();

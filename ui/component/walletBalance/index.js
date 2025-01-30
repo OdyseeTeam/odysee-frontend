@@ -13,7 +13,7 @@ import {
 } from 'redux/selectors/wallet';
 import { selectArweaveStatus } from 'redux/selectors/stripe';
 import { selectArConnectStatus } from '../../redux/selectors/arConnect';
-import { doCheckArConnectStatus, doDisconnectArConnect } from '../../redux/actions/arConnect';
+import { doCheckArConnectStatus } from '../../redux/actions/arConnect';
 import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
 import { doOpenModal } from 'redux/actions/app';
 import { selectSyncHash } from 'redux/selectors/sync';
@@ -42,5 +42,4 @@ export default connect(select, {
   doFetchUtxoCounts,
   doUtxoConsolidate,
   doCheckArConnectStatus,
-  doDisconnectArConnect,
 })(WalletBalance);
