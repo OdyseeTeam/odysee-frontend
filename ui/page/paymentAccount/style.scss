@@ -1,6 +1,10 @@
 @import '~ui/scss/init/breakpoints';
 
 .paymentAccountPage-wrapper {
+  .tab__panel {
+    position: relative;
+  }
+
   .tabs__list {
     padding: var(--spacing-xxs);
   }
