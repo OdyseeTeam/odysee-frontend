@@ -12,7 +12,6 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { formatNumberWithCommas } from 'util/number';
 import WalletFiatBalance from 'component/walletFiatBalance';
-import WalletConnect from '../walletConnect';
 import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
 
 type Props = {
@@ -33,6 +32,8 @@ type Props = {
   utxoCounts: { [string]: number },
   arweaveStatus: any,
   arConnectStatus: any,
+  doCheckArConnectStatus: () => void,
+  doDisconnectArConnect: () => void,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -55,6 +56,8 @@ const WalletBalance = (props: Props) => {
     utxoCounts,
     arweaveStatus,
     arConnectStatus,
+    doCheckArConnectStatus,
+    doDisconnectArConnect,
   } = props;
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
@@ -65,14 +68,21 @@ const WalletBalance = (props: Props) => {
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
   // tmp
-  console.log('arweaveStatus', arweaveStatus);
-  console.log('arConnectStatus', arConnectStatus);
+  React.useEffect(() => {
+    console.log('arweaveStatus', arweaveStatus);
+    console.log('arConnectStatus', arConnectStatus);
+    doCheckArConnectStatus();
+  }, []);
 
   React.useEffect(() => {
     if (balance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
   }, [doFetchUtxoCounts, balance, detailsExpanded]);
+
+  const handleArConnectDisconnect = () => {
+    doDisconnectArConnect();
+  };
 
   return (
     <div className={'columns'}>
@@ -207,7 +217,6 @@ const WalletBalance = (props: Props) => {
         {ENABLE_ARCONNECT && (
           <>
             <Card
-              className={!arConnectStatus.address ? `card--disabled` : ``}
               title={
                 <>
                   <Symbol token="usdc" amount={'12'} precision="2" isTitle />
@@ -243,31 +252,24 @@ const WalletBalance = (props: Props) => {
                   <div className="section__actions">
                     <Button
                       button="secondary"
-                      label={__('Receive')}
-                      icon={ICONS.RECEIVE}
-                      navigate={`/$/${PAGES.RECEIVE}`}
+                      label={__('Deposit Funds')}
+                      icon={ICONS.BUY}
+                      navigate={`/$/${PAGES.BUY}`}
                     />
-                    <Button button="secondary" label={__('Send')} icon={ICONS.SEND} navigate={`/$/${PAGES.SEND}`} />
-                    <Button button="secondary" label={__('Buy')} icon={ICONS.BUY} navigate={`/$/${PAGES.BUY}`} />
                     <Button
                       button="secondary"
                       label={__('Payment Account')}
                       icon={ICONS.SETTINGS}
-                      navigate={`/$/${PAGES.BUY}`}
+                      navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
                     />
                   </div>
                 </>
               }
             />
-            {!arConnectStatus.address && (
-              <div className="wallet">
-                <WalletConnect />
-              </div>
-            )}
           </>
         )}
       </div>
-      <div className="column">{<WalletFiatBalance />}</div>
+      {ENABLE_STRIPE && <div className="column">{<WalletFiatBalance />}</div>}
     </div>
   );
 };

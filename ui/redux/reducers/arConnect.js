@@ -4,7 +4,7 @@ import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 
 const defaultState: ArConnectState = {
-  connected: false,
+  status: 'loading',
   address: undefined,
   // type: undefined,
   // wallet: null,
@@ -13,7 +13,7 @@ const defaultState: ArConnectState = {
 reducers[ACTIONS.CONNECT_AR_CONNECT] = (state, action) => {
   return {
     ...state,
-    connected: action.data.connected,
+    status: action.data.status,
     address: action.data.address,
   };
 };
@@ -21,13 +21,22 @@ reducers[ACTIONS.CONNECT_AR_CONNECT] = (state, action) => {
 reducers[ACTIONS.DISCONNECT_AR_CONNECT] = (state, action) => {
   return {
     ...state,
-    connected: action.data.connected,
+    status: action.data.status,
+    address: action.data.address,
+  };
+};
+
+reducers[ACTIONS.CHECK_AR_CONNECT_STATUS] = (state, action) => {
+  return {
+    ...state,
+    status: action.data.status,
     address: action.data.address,
   };
 };
 
 export default function arConnectReducer(state: ArConnectState = defaultState, action: any) {
   const handler = reducers[action.type];
+
   if (handler) return handler(state, action);
   return state;
 }

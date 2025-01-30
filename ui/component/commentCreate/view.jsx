@@ -26,7 +26,7 @@ import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
 import './style.lazy.scss';
-import { ENABLE_ARCONNECT } from '../../../config';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
 
 const stripeEnvironment = getStripeEnvironment();
 
@@ -891,7 +891,7 @@ export function CommentCreate(props: Props) {
                       <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
                     )}
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
-                    {!ENABLE_ARCONNECT && stripeEnvironment && (
+                    {ENABLE_STRIPE && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                     )}
                   </>

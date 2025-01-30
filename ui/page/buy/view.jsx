@@ -102,7 +102,7 @@ export default function BuyPage(props: Props) {
       <Page
         noSideNavigation
         className="main--swap"
-        backout={{ backoutLabel: __('Done'), title: <Symbol prefix={__('Buy')} size={28} /> }}
+        backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
       >
         <iframe
           src="https://buy.onramper.dev?apiKey=pk_test_01JEXX6J49SXFTGBTEXN3S5MEF&enableCountrySelector=true&partnerContext=Odysee&mode=buy&defaultCrypto=usdc_base&onlyCryptos=usdc_bsc,usdc_base&defaultFiat=usd&defaultAmount=10&networkWallets=base:0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33,bsc:0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33&onlyCryptoNetworks=base,bsc&themeName=dark"
