@@ -142,6 +142,7 @@ const TagsFollowingPage = lazyImport(() => import('page/tagsFollowing' /* webpac
 const TopPage = lazyImport(() => import('page/top' /* webpackChunkName: "top" */));
 const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate' /* webpackChunkName: "passwordUpdate" */));
 const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync' /* webpackChunkName: "youtubeSync" */));
+const PaymentAccountPage = lazyImport(() => import('page/paymentAccount' /* webpackChunkName: "paymentAccountSync" */));
 
 // Tell the browser we are handling scroll restoration
 if ('scrollRestoration' in history) {
@@ -464,6 +465,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} component={MembershipsCreatorAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} component={MembershipsSupporterAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_LANDING}`} component={MembershipsLandingPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.PAYMENTACCOUNT}`} component={PaymentAccountPage} />
         <Route path={`/$/${PAGES.PORTAL}/:portalName`} exact component={PortalPage} />
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
