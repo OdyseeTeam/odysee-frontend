@@ -304,7 +304,6 @@ export const icons = {
       </svg>
     );
   },
-
   [ICONS.REWARDS]: buildIcon(
     <g fill="none" fillRule="evenodd" strokeLinecap="round">
       <circle cx="12" cy="8" r="7" />
