@@ -17,6 +17,7 @@ import userReducer from 'redux/reducers/user';
 import membershipsReducer from 'redux/reducers/memberships';
 import stripeReducer from 'redux/reducers/stripe';
 import arConnectReducer from './redux/reducers/arConnect';
+import arWalletReducer from 'redux/reducers/arwallet';
 import commentsReducer from 'redux/reducers/comments';
 import blockedReducer from 'redux/reducers/blocked';
 import coinSwapReducer from 'redux/reducers/coinSwap';
@@ -51,6 +52,7 @@ export default (history) =>
     memberships: membershipsReducer,
     stripe: stripeReducer,
     arConnect: arConnectReducer,
+    arwallet: arWalletReducer,
     wallet: walletReducer,
     sync: syncReducer,
     collections: collectionsReducer,
