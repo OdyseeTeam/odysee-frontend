@@ -1,13 +1,12 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
-// import { handleActions } from 'util/redux-utils';
+
 const reducers = {};
 
 const defaultState: ArConnectState = {
   status: 'loading',
   address: undefined,
-  // type: undefined,
-  // wallet: null,
+  balance: 0,
 };
 
 reducers[ACTIONS.CONNECT_AR_CONNECT] = (state, action) => {
@@ -15,6 +14,7 @@ reducers[ACTIONS.CONNECT_AR_CONNECT] = (state, action) => {
     ...state,
     status: action.data.status,
     address: action.data.address,
+    balance: action.data.balance,
   };
 };
 
@@ -23,6 +23,7 @@ reducers[ACTIONS.DISCONNECT_AR_CONNECT] = (state, action) => {
     ...state,
     status: action.data.status,
     address: action.data.address,
+    balance: 0,
   };
 };
 
@@ -31,6 +32,7 @@ reducers[ACTIONS.CHECK_AR_CONNECT_STATUS] = (state, action) => {
     ...state,
     status: action.data.status,
     address: action.data.address,
+    balance: action.data.balance,
   };
 };
 
