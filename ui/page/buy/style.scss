@@ -1,0 +1,26 @@
+.depositPage-wrapper {
+  display: flex;
+  justify-content: center;
+
+  .iframe-wrapper {
+    position: relative;
+
+    iframe {
+      &.iframe--disabled {
+        opacity: 0.3;
+        pointer-events: none;
+      }
+    }
+
+    .walletConnect-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}

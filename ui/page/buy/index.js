@@ -1,18 +1,14 @@
 import { connect } from 'react-redux';
-import { selectGettingNewAddress, selectReceiveAddress } from 'redux/selectors/wallet';
-import { doGetNewAddress } from 'redux/actions/wallet';
-import { selectUserEmail, selectUser } from 'redux/selectors/user';
-import { doUserSetCountry } from 'redux/actions/user';
+import { selectArConnectStatus } from '../../redux/selectors/arConnect';
+import { doCheckArConnectStatus } from '../../redux/actions/arConnect';
+import { selectThemePath } from 'redux/selectors/settings';
 import BuyPage from './view';
 
 const select = (state) => ({
-  receiveAddress: selectReceiveAddress(state),
-  gettingNewAddress: selectGettingNewAddress(state),
-  email: selectUserEmail(state),
-  user: selectUser(state),
+  arConnectStatus: selectArConnectStatus(state),
+  theme: selectThemePath(state),
 });
 
 export default connect(select, {
-  doGetNewAddress,
-  doUserSetCountry,
+  doCheckArConnectStatus,
 })(BuyPage);

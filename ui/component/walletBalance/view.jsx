@@ -7,10 +7,12 @@ import CreditAmount from 'component/common/credit-amount';
 import Button from 'component/button';
 import HelpLink from 'component/common/help-link';
 import Card from 'component/common/card';
+import Symbol from '../common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { formatNumberWithCommas } from 'util/number';
 import WalletFiatBalance from 'component/walletFiatBalance';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
 
 type Props = {
   balance: number,
@@ -28,6 +30,9 @@ type Props = {
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
+  arweaveStatus: any,
+  arConnectStatus: { status: string, address: string, balance: number },
+  doCheckArConnectStatus: () => void,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -48,6 +53,9 @@ const WalletBalance = (props: Props) => {
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
+    arweaveStatus,
+    arConnectStatus,
+    doCheckArConnectStatus,
   } = props;
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
@@ -56,6 +64,16 @@ const WalletBalance = (props: Props) => {
   const totalBalance = balance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
+
+  // tmp
+  React.useEffect(() => {
+    console.log('arweaveStatus', arweaveStatus);
+    console.log('arConnectStatus', arConnectStatus);
+  }, [arweaveStatus, arConnectStatus]);
+
+  React.useEffect(() => {
+    doCheckArConnectStatus();
+  }, [doCheckArConnectStatus]);
 
   React.useEffect(() => {
     if (balance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -67,16 +85,18 @@ const WalletBalance = (props: Props) => {
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<LbcSymbol postfix={formatNumberWithCommas(totalBalance)} isTitle />}
+          title={<Symbol token="lbc" amount={formatNumberWithCommas(totalBalance) || 0} isTitle />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                Your total balance. All of this is yours, but some %lbc% is in use on channels and content right now.
+                Your total %lbc% balance. All of this is yours, but some %lbc% is in use on channels and content right
+                now.
               </I18nMessage>
             ) : (
               <span>{__('Your total balance.')}</span>
             )
           }
+          background
           actions={
             <>
               <h2 className="section__title--small">
@@ -192,9 +212,50 @@ const WalletBalance = (props: Props) => {
         />
       </div>
       <div className="column">
-        {/* fiat balance card */}
-        <WalletFiatBalance />
+        {ENABLE_ARCONNECT && (
+          <>
+            <Card
+              title={<Symbol token="usdc" amount={arConnectStatus.balance} precision={2} isTitle />}
+              subtitle={
+                totalLocked > 0 ? (
+                  <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Your total %usdc%USDC balance.</I18nMessage>
+                ) : (
+                  <span>{__('Your total balance.')}</span>
+                )
+              }
+              background
+              actions={
+                <>
+                  <h2 className="section__title--small">
+                    <I18nMessage
+                      tokens={{
+                        usdc_amount: <Symbol token="usdc" amount={arConnectStatus.balance} precision={2} />,
+                      }}
+                    >
+                      %usdc_amount%
+                    </I18nMessage>
+                  </h2>
+                  <div className="section__actions">
+                    <Button
+                      button="secondary"
+                      label={__('Deposit Funds')}
+                      icon={ICONS.BUY}
+                      navigate={`/$/${PAGES.BUY}`}
+                    />
+                    <Button
+                      button="secondary"
+                      label={__('Payment Account')}
+                      icon={ICONS.SETTINGS}
+                      navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
+                    />
+                  </div>
+                </>
+              }
+            />
+          </>
+        )}
       </div>
+      {ENABLE_STRIPE && <div className="column">{<WalletFiatBalance />}</div>}
     </div>
   );
 };
