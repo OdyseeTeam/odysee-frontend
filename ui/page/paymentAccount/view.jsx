@@ -3,6 +3,7 @@ import React from 'react';
 import { useHistory } from 'react-router';
 // import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
 import Page from 'component/page';
 import Card from 'component/common/card';
 import Button from 'component/button';
@@ -101,11 +102,15 @@ function PaymentAccountPage(props: Props) {
                 }
                 title={
                   <>
-                    <Symbol token="usdc" amount={'12'} precision="2" isTitle />
-                    <select>
-                      <option value="">Wallet A</option>
-                    </select>
-                    <Button button="primary" label={__('Disconnect')} onClick={handleArConnectDisconnect} />
+                    <Symbol token="usdc" amount={'0'} precision="2" isTitle />
+                    {arConnectStatus.status === 'connected' && (
+                      <Button
+                        button="primary"
+                        icon={ICONS.ARCONNECT}
+                        label={__('Disconnect')}
+                        onClick={handleArConnectDisconnect}
+                      />
+                    )}
                   </>
                 }
                 // subtitle={}
@@ -113,30 +118,10 @@ function PaymentAccountPage(props: Props) {
                 actions={
                   <>
                     <h2 className="section__title--small">
-                      <I18nMessage
-                        tokens={{ usdc_amount: <Symbol token="usdc" chain="bnb" amount="10" precision="2" /> }}
-                      >
-                        %usdc_amount% on BNB Chain
+                      <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" amount="0" precision="2" /> }}>
+                        %usdc_amount%
                       </I18nMessage>
                     </h2>
-                    <h2 className="section__title--small">
-                      <I18nMessage
-                        tokens={{ usdc_amount: <Symbol token="usdc" chain="base" amount={2} precision="2" /> }}
-                      >
-                        %usdc_amount% on Base Chain
-                      </I18nMessage>
-                    </h2>
-                    {/*
-                  <div className="section__actions">
-                    <Button button="secondary" label={__('Deposit Funds')} icon={ICONS.BUY} navigate={`/$/${PAGES.BUY}`} />
-                    <Button
-                      button="secondary"
-                      label={__('Payment Account')}
-                      icon={ICONS.SETTINGS}
-                      navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
-                    />
-                  </div>
-                  */}
                   </>
                 }
               />
