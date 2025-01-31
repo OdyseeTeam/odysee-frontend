@@ -7,6 +7,7 @@ import classnames from 'classnames';
 type Props = {
   title: string,
   subtitle?: string,
+  warning?: string,
   multirow?: boolean, // Displays the Value widget(s) below the Label instead of on the right.
   useVerticalSeparator?: boolean, // Show a separator line between Label and Value. Useful when there are multiple Values.
   disabled?: boolean,
@@ -16,7 +17,8 @@ type Props = {
 };
 
 export default function SettingsRow(props: Props) {
-  const { title, subtitle, multirow, useVerticalSeparator, disabled, highlighted, membersOnly, children } = props;
+  const { title, subtitle, warning, multirow, useVerticalSeparator, disabled, highlighted, membersOnly, children } =
+    props;
   return (
     <div
       className={classnames('card__main-actions settings-row', {
@@ -36,6 +38,7 @@ export default function SettingsRow(props: Props) {
         </span>
         {subtitle && <p className="settings-row__subtitle">{subtitle}</p>}
       </div>
+      {warning && <div className="help--warning">{warning}</div>}
       <div
         className={classnames('settings-row__value', {
           'settings-row__value--multirow': multirow,
