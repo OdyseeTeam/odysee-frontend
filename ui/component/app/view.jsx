@@ -306,6 +306,14 @@ function App(props: Props) {
   }, [uploadCount]);
 
   useEffect(() => {
+    function getthing() {
+      return fetch('https://fast-deposit.everpay.io/depositAddress/OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs/evm')
+        .then((res) => res.json())
+        .then((j) => console.log(j));
+    }
+    getthing();
+  }, []);
+  useEffect(() => {
     if (!uploadCount) return;
 
     const onStorageUpdate = (e) => tusHandleTabUpdates(e.key);
