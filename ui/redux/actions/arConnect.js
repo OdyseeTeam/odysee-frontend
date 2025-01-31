@@ -41,6 +41,16 @@ export const doDisconnectArConnect = () => async (dispatch: Dispatch) => {
 };
 
 export const doCheckArConnectStatus = () => async (dispatch: Dispatch) => {
+  if (!window.arweaveWallet) {
+    dispatch({
+      type: ACTIONS.CHECK_AR_CONNECT_STATUS,
+      data: {
+        status: 'missingplugin',
+        address: undefined,
+      },
+    });
+  }
+
   try {
     // $FlowIgnore
     const address = await window.arweaveWallet.getActiveAddress();

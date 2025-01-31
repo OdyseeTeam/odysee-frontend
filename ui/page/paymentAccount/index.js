@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import { selectArConnectStatus } from '../../redux/selectors/arConnect';
-import { doCheckArConnectStatus, doDisconnectArConnect } from '../../redux/actions/arConnect';
+import { selectArConnectStatus } from 'redux/selectors/arConnect';
+import { doCheckArConnectStatus, doDisconnectArConnect } from 'redux/actions/arConnect';
 import PaymentAccountPage from './view';
 
 const select = (state) => ({
