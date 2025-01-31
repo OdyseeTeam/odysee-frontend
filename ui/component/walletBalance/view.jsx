@@ -69,7 +69,9 @@ const WalletBalance = (props: Props) => {
   React.useEffect(() => {
     console.log('arweaveStatus', arweaveStatus);
     console.log('arConnectStatus', arConnectStatus);
-    doCheckArConnectStatus();
+    if (arConnectStatus === 'loading') {
+      doCheckArConnectStatus();
+    }
   }, [arweaveStatus, arConnectStatus, doCheckArConnectStatus]);
 
   React.useEffect(() => {
@@ -86,7 +88,8 @@ const WalletBalance = (props: Props) => {
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                Your total balance. All of this is yours, but some %lbc% is in use on channels and content right now.
+                Your total %lbc% balance. All of this is yours, but some %lbc% is in use on channels and content right
+                now.
               </I18nMessage>
             ) : (
               <span>{__('Your total balance.')}</span>
@@ -211,17 +214,10 @@ const WalletBalance = (props: Props) => {
         {ENABLE_ARCONNECT && (
           <>
             <Card
-              title={
-                <>
-                  <Symbol token="usdc" amount={'12'} precision="2" isTitle />
-                  <select>
-                    <option value="">Wallet A</option>
-                  </select>
-                </>
-              }
+              title={<Symbol token="usdc" amount={'0'} precision="2" isTitle />}
               subtitle={
                 totalLocked > 0 ? (
-                  <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Placeholder description 1 %usdc%</I18nMessage>
+                  <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Your total %usdc%USDC balance.</I18nMessage>
                 ) : (
                   <span>{__('Your total balance.')}</span>
                 )
@@ -230,17 +226,8 @@ const WalletBalance = (props: Props) => {
               actions={
                 <>
                   <h2 className="section__title--small">
-                    <I18nMessage
-                      tokens={{ usdc_amount: <Symbol token="usdc" chain="bnb" amount="10" precision="2" /> }}
-                    >
-                      %usdc_amount% on BNB Chain
-                    </I18nMessage>
-                  </h2>
-                  <h2 className="section__title--small">
-                    <I18nMessage
-                      tokens={{ usdc_amount: <Symbol token="usdc" chain="base" amount={2} precision="2" /> }}
-                    >
-                      %usdc_amount% on Base Chain
+                    <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" amount="0" precision="2" /> }}>
+                      %usdc_amount%
                     </I18nMessage>
                   </h2>
                   <div className="section__actions">
