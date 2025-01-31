@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { doConnectArConnect, doDisconnectArConnect } from '../../redux/actions/arConnect';
+import { doConnectArConnect, doDisconnectArConnect } from 'redux/actions/arConnect';
 import WalletConnect from './view';
 
 const select = (state) => ({});
