@@ -1,5 +1,4 @@
 // @flow
-import type { Node } from 'react';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import classnames from 'classnames';
@@ -9,14 +8,15 @@ type Props = {
   withText?: boolean,
   isTitle?: boolean,
   size?: number,
-  amount?: string | number | Node,
+  amount?: string | number,
   token?: string,
   chain?: string,
-  precision?: string,
+  precision?: number,
 };
 
 const Symbol = (props: Props) => {
-  const { token, chain, amount, precision = '8', size, isTitle = false } = props;
+  const { token, chain, amount = null, precision = 8, size, isTitle = false } = props;
+
   return (
     <>
       <div
@@ -35,8 +35,8 @@ const Symbol = (props: Props) => {
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
       </div>
       <span>
-        {amount && Number(amount).toFixed(Number(precision))}
-        {amount && token && ` ${token.toUpperCase()}`}
+        {amount != null && Number(amount).toFixed(precision)}
+        {amount !== null && token && ` ${token.toUpperCase()}`}
       </span>
     </>
   );
