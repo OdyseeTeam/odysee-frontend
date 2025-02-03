@@ -5,25 +5,33 @@ import Page from 'component/page';
 import WalletConnect from '../../component/walletConnect';
 // import { useHistory } from 'react-router';
 import Symbol from 'component/common/symbol';
+
 import { ENABLE_ARCONNECT } from 'config';
 import './style.scss';
 
 type Props = {
-  arConnectStatus: any,
+  arWalletStatus: any,
   theme: string,
-  doCheckArConnectStatus: () => void,
 };
 
 export default function BuyPage(props: Props) {
-  const { arConnectStatus, theme, doCheckArConnectStatus } = props;
-  // const { goBack } = useHistory();
+  const { arWalletStatus, theme } = props;
+  const [targetWallet, setTargetWallet] = React.useState(undefined);
 
+  console.log('targetWallet: ', targetWallet);
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   const network = '0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33';
+  const iframeUri = `https://buy.onramper.dev?apiKey=${apiKey}&enableCountrySelector=true&partnerContext=Odysee&mode=buy&defaultCrypto=usdc_base&onlyCryptos=usdc_bsc,usdc_base&defaultFiat=usd&defaultAmount=30&networkWallets=base:${network},bsc:${network}&onlyCryptoNetworks=base,bsc&themeName=${theme}`;
+
+  const everpayUri = 'https://fast-deposit.everpay.io/depositAddress/OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs/evm';
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
 
   React.useEffect(() => {
-    doCheckArConnectStatus();
-  }, [doCheckArConnectStatus]);
+    fetch(proxyUrl + everpayUri)
+      // .then(response => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error('Error fetching data:', error));
+  }, []);
 
   if (ENABLE_ARCONNECT) {
     return (
@@ -32,16 +40,16 @@ export default function BuyPage(props: Props) {
         className="depositPage-wrapper"
         backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
       >
-        <div className="iframe-wrapper">
+        <div className={`iframe-wrapper${!arWalletStatus && ' iframe--disabled'}`}>
           <iframe
-            className={arConnectStatus.status === 'connected' ? '' : 'iframe--disabled'}
-            src={`https://buy.onramper.dev?apiKey=${apiKey}&enableCountrySelector=true&partnerContext=Odysee&mode=buy&defaultCrypto=usdc_base&onlyCryptos=usdc_bsc,usdc_base&defaultFiat=usd&defaultAmount=30&networkWallets=base:${network},bsc:${network}&onlyCryptoNetworks=base,bsc&themeName=${theme}`}
+            src={iframeUri}
             title="Onramper Widget"
             height="630px"
             width="420px"
             allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
           />
-          {arConnectStatus.status !== 'connected' && (
+
+          {!arWalletStatus && (
             <div className="walletConnect-wrapper">
               <WalletConnect />
             </div>

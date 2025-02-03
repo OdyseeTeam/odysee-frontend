@@ -25,6 +25,14 @@ const defaultState: ArWalletState = {
   nagged: false,
 };
 
+reducers[ACTIONS.ARCONNECT_DISCONNECT] = (state, action) => ({
+  ...state,
+  wallet: undefined,
+  address: undefined,
+  connecting: false,
+  balance: {},
+  error: null,
+});
 reducers[ACTIONS.ARCONNECT_STARTED] = (state, action) => ({ ...state, connecting: true });
 reducers[ACTIONS.ARCONNECT_SUCCESS] = (state, action) => ({
   ...state,

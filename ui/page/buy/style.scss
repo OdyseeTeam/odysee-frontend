@@ -5,8 +5,8 @@
   .iframe-wrapper {
     position: relative;
 
-    iframe {
-      &.iframe--disabled {
+    &.iframe--disabled {
+      iframe {
         opacity: 0.3;
         pointer-events: none;
       }

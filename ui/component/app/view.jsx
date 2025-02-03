@@ -33,7 +33,7 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
-import * as MODALS from '../../constants/modal_types';
+// import * as MODALS from '../../constants/modal_types';
 
 const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
@@ -134,12 +134,12 @@ function App(props: Props) {
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
-    doOpenModal,
-    arNagged,
-    doArNagged,
+    // doOpenModal,
+    // arNagged,
+    // doArNagged,
   } = props;
 
-  const experimental = user && user.experimental_ui;
+  // const experimental = user && user.experimental_ui;
   const isMobile = useIsMobile();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
@@ -210,6 +210,7 @@ function App(props: Props) {
     }
   }
 
+  /*
   function arweaveNag() {
     if (window.arweaveWallet) {
       return (
@@ -224,6 +225,7 @@ function App(props: Props) {
       return <Nag message={__('Install ArConnect extension to connect to arweave.')} onClose={doArNagged} />;
     }
   }
+    */
 
   function getStatusNag() {
     // Handle "offline" first. Everything else is meaningless if it's offline.
@@ -549,7 +551,7 @@ function App(props: Props) {
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
             <YoutubeWelcome />
             {!shouldHideNag && <NagContinueFirstRun />}
-            {experimental && !arNagged && arweaveNag()}
+            {/* experimental && !arNagged && arweaveNag() */}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
             )}
