@@ -1,4 +1,10 @@
-import { ARCONNECT_FAILURE, ARCONNECT_STARTED, ARCONNECT_SUCCESS, ARCONNECT_NAGGED } from 'constants/action_types';
+import {
+  ARCONNECT_FAILURE,
+  ARCONNECT_STARTED,
+  ARCONNECT_SUCCESS,
+  ARCONNECT_DISCONNECT,
+  ARCONNECT_NAGGED,
+} from 'constants/action_types';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -47,6 +53,22 @@ export function doArConnect() {
           type: ARCONNECT_SUCCESS,
           data: { address: event.detail.address, type: ARCONNECT_TYPE, wallet: window.arweaveWallet },
         });
+      }
+    }
+  };
+}
+
+export function doArDisconnect() {
+  return async (dispatch) => {
+    console.log('doArDisconnect');
+    dispatch({ type: ARCONNECT_STARTED });
+    if (window.arweaveWallet) {
+      try {
+        await global.window?.arweaveWallet?.disconnect();
+        console.log('disconnected');
+        dispatch({ type: ARCONNECT_DISCONNECT });
+      } catch (e) {
+        dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
     }
   };

@@ -49,7 +49,7 @@ function PublishPrice(props: Props) {
     fiatRentalFee,
     fiatRentalExpiration,
     // SDK-LBC
-    paywall = PAYWALL.FREE,
+    // paywall = PAYWALL.FREE,
     fee,
     memberRestrictionStatus,
     chargesEnabled,
@@ -61,11 +61,15 @@ function PublishPrice(props: Props) {
     visibility,
   } = props;
 
+  const paywall = PAYWALL.FIAT;
+  console.log('paywall: ', paywall);
+
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [fiatAllowed, setFiatAllowed] = React.useState(true);
   const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
-  const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
+  // const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
+  const noBankAccount = false;
 
   // If it's only restricted, the price can be added externally, and they won't be able to change it
   const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionStatus.isRestricting;

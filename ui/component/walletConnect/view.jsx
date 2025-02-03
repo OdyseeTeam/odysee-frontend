@@ -4,14 +4,20 @@ import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 
 type Props = {
-  connectArConnect: () => void,
+  arweaveAddress: string,
+  connectArWallet: () => void,
 };
 
 export default function WalletConnect(props: Props) {
-  const { connectArConnect } = props;
+  const { connectArWallet, arweaveAddress } = props;
+
+  React.useEffect(() => {
+    console.log('arweaveAddress: ', arweaveAddress);
+    if (arweaveAddress) connectArWallet();
+  }, [arweaveAddress]);
 
   async function handleArConnect() {
-    connectArConnect();
+    connectArWallet();
   }
 
   return <Button button="primary" onClick={handleArConnect} label="Connect" icon={ICONS.ARCONNECT} />;

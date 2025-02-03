@@ -14,9 +14,8 @@ import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
 
 type Props = {
-  arConnectStatus: { status: string, address: string, balance: number },
-  doCheckArConnectStatus: () => void,
-  doDisconnectArConnect: () => void,
+  arWalletStatus: any,
+  doArDisconnect: () => void,
 };
 
 const TAB_QUERY = 'tab';
@@ -28,7 +27,7 @@ const TABS = {
 };
 
 function PaymentAccountPage(props: Props) {
-  const { arConnectStatus, doCheckArConnectStatus, doDisconnectArConnect } = props;
+  const { arWalletStatus, doArDisconnect } = props;
   const {
     location: { search },
     push,
@@ -56,12 +55,8 @@ function PaymentAccountPage(props: Props) {
       break;
   }
 
-  React.useEffect(() => {
-    doCheckArConnectStatus();
-  }, [doCheckArConnectStatus]);
-
   const handleArConnectDisconnect = () => {
-    doDisconnectArConnect();
+    doArDisconnect();
   };
 
   function onTabChange(newTabIndex) {
@@ -95,15 +90,11 @@ function PaymentAccountPage(props: Props) {
           <TabPanel>
             <>
               <Card
-                className={
-                  arConnectStatus.status === 'loading' || arConnectStatus.status === 'disconnected'
-                    ? `card--disabled`
-                    : ``
-                }
+                className={!arWalletStatus ? `card--disabled` : ``}
                 title={
                   <>
-                    <Symbol token="usdc" amount={arConnectStatus.balance} precision={2} isTitle />
-                    {arConnectStatus.status === 'connected' && (
+                    <Symbol token="usdc" amount={0} precision={2} isTitle />
+                    {arWalletStatus && (
                       <Button
                         button="primary"
                         icon={ICONS.ARCONNECT}
@@ -118,16 +109,14 @@ function PaymentAccountPage(props: Props) {
                 actions={
                   <>
                     <h2 className="section__title--small">
-                      <I18nMessage
-                        tokens={{ usdc_amount: <Symbol token="usdc" amount={arConnectStatus.balance} precision={2} /> }}
-                      >
+                      <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" amount={0} precision={2} /> }}>
                         %usdc_amount%
                       </I18nMessage>
                     </h2>
                   </>
                 }
               />
-              {arConnectStatus.status === 'disconnected' && (
+              {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
                 </div>
