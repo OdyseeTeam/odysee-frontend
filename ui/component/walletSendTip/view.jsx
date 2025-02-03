@@ -50,6 +50,7 @@ type Props = {
   isTipOnly?: boolean,
   hasSelectedTab?: string,
   customText?: string,
+  experimentalUi: boolean,
   doHideModal: () => void,
   doSendCashTip: (
     TipParams,
@@ -86,6 +87,7 @@ export default function WalletSendTip(props: Props) {
     isTipOnly,
     hasSelectedTab,
     customText,
+    experimentalUi,
     doHideModal,
     doSendCashTip,
     doSendTip,
@@ -93,6 +95,8 @@ export default function WalletSendTip(props: Props) {
     preferredCurrency,
     modalProps,
   } = props;
+
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
@@ -310,7 +314,7 @@ export default function WalletSendTip(props: Props) {
           <>
             {!claimIsMine && (
               <div className="section">
-                {ENABLE_ARCONNECT && (
+                {showArweave && (
                   <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
                 )}
                 {ENABLE_STRIPE && stripeEnvironment && (
