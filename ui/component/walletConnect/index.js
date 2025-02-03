@@ -1,12 +1,14 @@
 import { connect } from 'react-redux';
-import { doConnectArConnect, doDisconnectArConnect } from 'redux/actions/arConnect';
+import { doArConnect } from 'redux/actions/arwallet';
+import { selectArweaveAddress } from 'redux/selectors/arwallet';
 import WalletConnect from './view';
 
-const select = (state) => ({});
+const select = (state) => ({
+  arweaveAddress: selectArweaveAddress(state),
+});
 
 const perform = (dispatch) => ({
-  connectArConnect: () => dispatch(doConnectArConnect()),
-  disconnectArConnect: (state) => dispatch(doDisconnectArConnect(state)),
+  connectArWallet: () => dispatch(doArConnect()),
 });
 
 export default connect(select, perform)(WalletConnect);
