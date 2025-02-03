@@ -127,4 +127,4 @@ export const selectUserLocale = (state) => selectState(state).locale;
 
 export const selectUserCountry = createSelector(selectUserLocale, (locale) => locale?.country);
 
-export const selectUserExperimentalUi = (state) => selectState(state).experimental_ui;
+export const selectUserExperimentalUi = (state) => selectState(state).user.experimental_ui;

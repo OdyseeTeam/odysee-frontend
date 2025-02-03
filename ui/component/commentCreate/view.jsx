@@ -61,6 +61,7 @@ type Props = {
   canReceiveFiatTips: ?boolean,
   canReceiveArweaveTips: any,
   arweaveStatus: any,
+  experimentalUi: boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
   onCancelReplying?: () => void,
@@ -113,6 +114,7 @@ export function CommentCreate(props: Props) {
     canReceiveFiatTips,
     canReceiveArweaveTips,
     arweaveStatus,
+    experimentalUi,
     channelClaimId,
     claimId,
     claimIsMine,
@@ -153,6 +155,8 @@ export function CommentCreate(props: Props) {
     areCommentsMembersOnly,
     hasPremiumPlus,
   } = props;
+
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
   console.log('arweaveStatus: ', arweaveStatus);
   console.log('canReceiveArweaveTips: ', canReceiveArweaveTips);
@@ -893,7 +897,7 @@ export function CommentCreate(props: Props) {
 
                 {!supportDisabled && !claimIsMine && (
                   <>
-                    {ENABLE_ARCONNECT && (
+                    {showArweave && (
                       <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
                     )}
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
