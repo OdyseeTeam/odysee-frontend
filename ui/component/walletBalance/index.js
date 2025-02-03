@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { selectUserExperimentalUi } from 'redux/selectors/user';
 import {
   selectBalance,
   selectClaimsBalance,
@@ -21,6 +22,7 @@ import { selectClaimedRewards } from 'redux/selectors/rewards';
 import WalletBalance from './view';
 
 const select = (state) => ({
+  experimentalUi: selectUserExperimentalUi(state),
   balance: selectBalance(state),
   arweaveStatus: selectArweaveStatus(state),
   arConnectStatus: selectArConnectStatus(state),
