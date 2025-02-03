@@ -12,13 +12,15 @@ import './style.scss';
 type Props = {
   arWalletStatus: any,
   theme: string,
+  experimentalUi: boolean,
 };
 
 export default function BuyPage(props: Props) {
-  const { arWalletStatus, theme } = props;
+  const { arWalletStatus, theme, experimentalUi } = props;
   const [targetWallet, setTargetWallet] = React.useState(undefined);
 
-  console.log('targetWallet: ', targetWallet);
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   const network = '0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33';
   const iframeUri = `https://buy.onramper.dev?apiKey=${apiKey}&enableCountrySelector=true&partnerContext=Odysee&mode=buy&defaultCrypto=usdc_base&onlyCryptos=usdc_bsc,usdc_base&defaultFiat=usd&defaultAmount=30&networkWallets=base:${network},bsc:${network}&onlyCryptoNetworks=base,bsc&themeName=${theme}`;

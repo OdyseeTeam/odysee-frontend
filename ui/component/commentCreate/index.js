@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { selectUserExperimentalUi } from 'redux/selectors/user';
 import {
   selectClaimForUri,
   selectClaimIsMine,
@@ -8,7 +9,6 @@ import {
   selectMyChannelClaimIds,
   selectedRestrictedCommentsChatTagForUri,
 } from 'redux/selectors/claims';
-import { CommentCreate } from './view';
 import { DISABLE_SUPPORT_TAG } from 'constants/tags';
 import {
   doCommentCreate,
@@ -35,6 +35,7 @@ import {
   selectUserHasOdyseePremiumPlus,
   selectUserIsMemberOfMembersOnlyChatForCreatorId,
 } from 'redux/selectors/memberships';
+import { CommentCreate } from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -78,6 +79,7 @@ const select = (state, props) => {
     isLivestreamChatMembersOnly: Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId)),
     areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
+    experimentalUi: selectUserExperimentalUi(state),
   };
 };
 
