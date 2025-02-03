@@ -1,13 +1,12 @@
 import { connect } from 'react-redux';
-import { selectArConnectStatus } from 'redux/selectors/arConnect';
-import { doCheckArConnectStatus, doDisconnectArConnect } from 'redux/actions/arConnect';
+import { selectArweaveConnected } from '../../redux/selectors/arwallet';
+import { doArDisconnect } from '../../redux/actions/arwallet';
 import PaymentAccountPage from './view';
 
 const select = (state) => ({
-  arConnectStatus: selectArConnectStatus(state),
+  arWalletStatus: selectArweaveConnected(state),
 });
 
 export default connect(select, {
-  doCheckArConnectStatus,
-  doDisconnectArConnect,
+  doArDisconnect,
 })(PaymentAccountPage);
