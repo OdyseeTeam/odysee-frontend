@@ -16,7 +16,8 @@ import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
 
 type Props = {
   experimentalUi: boolean,
-  balance: number,
+  LBCBalance: number,
+  USDCBalance: number,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
@@ -32,8 +33,6 @@ type Props = {
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
   arweaveStatus: any,
-  arConnectStatus: { status: string, address: string, balance: number },
-  doCheckArConnectStatus: () => void,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -42,7 +41,8 @@ const LARGE_WALLET_BALANCE = 100;
 const WalletBalance = (props: Props) => {
   const {
     experimentalUi,
-    balance,
+    LBCBalance,
+    USDCBalance,
     claimsBalance,
     supportsBalance,
     tipsBalance,
@@ -57,7 +57,6 @@ const WalletBalance = (props: Props) => {
     utxoCounts,
     arweaveStatus,
     arConnectStatus,
-    doCheckArConnectStatus,
   } = props;
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
@@ -65,25 +64,20 @@ const WalletBalance = (props: Props) => {
 
   const { other: otherCount = 0 } = utxoCounts || {};
 
-  const totalBalance = balance + tipsBalance + supportsBalance + claimsBalance;
+  const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
   // tmp
   React.useEffect(() => {
     console.log('arweaveStatus', arweaveStatus);
-    console.log('arConnectStatus', arConnectStatus);
-  }, [arweaveStatus, arConnectStatus]);
+  }, [arweaveStatus]);
 
   React.useEffect(() => {
-    doCheckArConnectStatus();
-  }, [doCheckArConnectStatus]);
-
-  React.useEffect(() => {
-    if (balance > LARGE_WALLET_BALANCE && detailsExpanded) {
+    if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
-  }, [doFetchUtxoCounts, balance, detailsExpanded]);
+  }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
 
   return (
     <div className={'columns'}>
@@ -104,7 +98,7 @@ const WalletBalance = (props: Props) => {
           actions={
             <>
               <h2 className="section__title--small">
-                <I18nMessage tokens={{ lbc_amount: <CreditAmount amount={balance} precision={4} /> }}>
+                <I18nMessage tokens={{ lbc_amount: <CreditAmount amount={LBCBalance} precision={4} /> }}>
                   %lbc_amount% immediately spendable
                 </I18nMessage>
               </h2>
@@ -218,7 +212,7 @@ const WalletBalance = (props: Props) => {
       {showArweave && (
         <div className="column">
           <Card
-            title={<Symbol token="usdc" amount={arConnectStatus.balance} precision={2} isTitle />}
+            title={<Symbol token="usdc" amount={USDCBalance} precision={2} isTitle />}
             subtitle={
               totalLocked > 0 ? (
                 <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Your total %usdc%USDC balance.</I18nMessage>
@@ -232,7 +226,7 @@ const WalletBalance = (props: Props) => {
                 <h2 className="section__title--small">
                   <I18nMessage
                     tokens={{
-                      usdc_amount: <Symbol token="usdc" amount={arConnectStatus.balance} precision={2} />,
+                      usdc_amount: <Symbol token="usdc" amount={USDCBalance} precision={2} />,
                     }}
                   >
                     %usdc_amount%
