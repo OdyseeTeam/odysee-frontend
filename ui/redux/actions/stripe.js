@@ -69,6 +69,15 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
     });
 };
 
+export const doTipAccountRemove = () => async (dispatch: Dispatch, getState: GetState) => {
+  return await Lbryio.call('account', 'remove', { environment: stripeEnvironment }, 'post')
+    .then(() => dispatch(doTipAccountStatus()))
+    .catch((error) => {
+      dispatch(doToast({ message: error.message || error, isError: true }));
+      throw Error(error.message || error);
+    });
+};
+
 export const doGetAndSetAccountLink = () => async (dispatch: Dispatch) => {
   const currentUrl = window.location.href;
 
