@@ -13,7 +13,9 @@ export default function WalletConnect(props: Props) {
 
   React.useEffect(() => {
     console.log('arweaveAddress: ', arweaveAddress);
-    if (arweaveAddress) connectArWallet();
+    if (arweaveAddress) {
+      connectArWallet();
+    }
   }, [arweaveAddress]);
 
   async function handleArConnect() {

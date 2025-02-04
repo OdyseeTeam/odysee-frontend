@@ -56,7 +56,6 @@ const WalletBalance = (props: Props) => {
     massClaimIsPending,
     utxoCounts,
     arweaveStatus,
-    arConnectStatus,
   } = props;
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 

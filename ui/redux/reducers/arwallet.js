@@ -41,6 +41,7 @@ reducers[ACTIONS.ARCONNECT_SUCCESS] = (state, action) => ({
   ...state,
   wallet: action.data.wallet,
   address: action.data.address,
+  balance: { ...state.balance, usdc: action.data.usdc },
   connecting: false,
   error: null,
 });

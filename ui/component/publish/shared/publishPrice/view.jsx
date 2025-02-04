@@ -11,6 +11,7 @@ import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
 import * as PUBLISH_TYPES from 'constants/publish_types';
 import usePersistedState from 'effects/use-persisted-state';
+import { ENABLE_ARCONNECT } from '../../../../../config';
 import './style.lazy.scss';
 
 const FEE = { MIN: 1, MAX: 999.99 };
@@ -49,7 +50,7 @@ function PublishPrice(props: Props) {
     fiatRentalFee,
     fiatRentalExpiration,
     // SDK-LBC
-    // paywall = PAYWALL.FREE,
+    paywall = PAYWALL.FREE,
     fee,
     memberRestrictionStatus,
     chargesEnabled,
@@ -60,9 +61,6 @@ function PublishPrice(props: Props) {
     type,
     visibility,
   } = props;
-
-  const paywall = PAYWALL.FIAT;
-  console.log('paywall: ', paywall);
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [fiatAllowed, setFiatAllowed] = React.useState(true);
@@ -134,6 +132,15 @@ function PublishPrice(props: Props) {
                 disabled={disabled}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FREE })}
               />
+              {ENABLE_ARCONNECT && (
+                <FormField
+                  type="radio"
+                  name="content_fiat"
+                  label={`${__('Purchase / Rent')} USDC`}
+                  checked={paywall === PAYWALL.USDC}
+                  onChange={() => updatePublishForm({ paywall: PAYWALL.USDC })}
+                />
+              )}
               {!noBankAccount && (
                 <FormField
                   type="radio"
@@ -176,6 +183,43 @@ function PublishPrice(props: Props) {
           >
             By continuing, you accept the %paid_content_terms_and_conditions%.
           </I18nMessage>
+        </div>
+      </div>
+    );
+  }
+
+  function getUSDCPurchaseRow() {
+    return (
+      <div
+        className={classnames('publish-price__row', {
+          'publish-price__row--disabled': restrictedWithoutPrice,
+        })}
+      >
+        <div className="publish-price__grp-1">
+          <FormField
+            label={__('Purchase')}
+            name="purchase"
+            type="checkbox"
+            checked={fiatPurchaseEnabled}
+            onChange={() => updatePublishForm({ fiatPurchaseEnabled: !fiatPurchaseEnabled })}
+          />
+        </div>
+        <div className={classnames('publish-price__grp-2', { 'publish-price__grp-2--disabled': !fiatPurchaseEnabled })}>
+          <FormFieldPrice
+            name="fiat_purchase_fee"
+            min={1}
+            price={fiatPurchaseFee}
+            onChange={(fee) => updatePublishForm({ fiatPurchaseFee: fee })}
+            onBlur={() => sanitizeFee('fiatPurchaseFee')}
+            currencies={CURRENCY_OPTIONS}
+          />
+          <div className="publish-price__fees">
+            <FeeBreakdown
+              amount={fiatPurchaseFee.amount}
+              currency={fiatPurchaseFee.currency}
+              doCustomerPurchaseCost={doCustomerPurchaseCost}
+            />
+          </div>
         </div>
       </div>
     );
@@ -347,6 +391,13 @@ function PublishPrice(props: Props) {
               >
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
                 {getPaywallOptionsRow()}
+                {paywall === PAYWALL.USDC && (
+                  <div className="publish-price__group">
+                    {getUSDCPurchaseRow()}
+                    {getRentalRow()}
+                    {getTncRow()}
+                  </div>
+                )}
                 {paywall === PAYWALL.FIAT && (
                   <div className="publish-price__group">
                     {getPurchaseRow()}
