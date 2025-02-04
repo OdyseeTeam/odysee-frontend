@@ -62,7 +62,6 @@ function WalletTipAmountSelector(props: Props) {
     doTipAccountCheckForUri,
   } = props;
 
-  console.log('activeTab: ', activeTab);
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
 
@@ -203,8 +202,6 @@ function WalletTipAmountSelector(props: Props) {
 
   let fiatIconToUse = ICONS.FINANCE;
   if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
-
-  console.log('customTipAmount: ', customTipAmount);
 
   return (
     <>
