@@ -140,7 +140,7 @@ export default function WalletSendTip(props: Props) {
       break;
     case TAB_FIAT:
     case TAB_LBC:
-      explainerText = __('Show this creator your appreciation by sending a donation.');
+      // explainerText = __('Show this creator your appreciation by sending a donation.');
       break;
   }
 
