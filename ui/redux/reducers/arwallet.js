@@ -4,8 +4,9 @@ import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 
 export type WalletBalance = {
-  ar?: string,
-  u?: string,
+  ar: string,
+  u: string,
+  usdc: number,
 };
 export type ArWalletState = {
   wallet: ?{},
@@ -22,7 +23,7 @@ const defaultState: ArWalletState = {
   address: undefined,
   error: undefined,
   connecting: false,
-  balance: {},
+  balance: { ar: 0, u: 0, usdc: 0 },
   nagged: false,
   tippingStatusById: {},
 };
@@ -32,7 +33,7 @@ reducers[ACTIONS.ARCONNECT_DISCONNECT] = (state, action) => ({
   wallet: undefined,
   address: undefined,
   connecting: false,
-  balance: {},
+  balance: { ar: 0, u: 0, usdc: 0 },
   error: null,
 });
 reducers[ACTIONS.ARCONNECT_STARTED] = (state, action) => ({ ...state, connecting: true });
@@ -49,7 +50,7 @@ reducers[ACTIONS.ARCONNECT_FAILURE] = (state, action) => ({
   connecting: false,
   wallet: null,
   address: null,
-  balance: {},
+  balance: { ar: 0, u: 0, usdc: 0 },
 });
 
 reducers[ACTIONS.ARCONNECT_NAGGED] = (state, action) => ({ ...state, nagged: true });
