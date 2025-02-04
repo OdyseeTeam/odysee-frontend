@@ -28,7 +28,7 @@ export const doTipAccountCheckForUri = (uri: string) => async (dispatch: Dispatc
   return await Lbryio.call(
     'account',
     'check',
-    { channel_claim_id: channelClaimId, channel_name: channelName, environment: stripeEnvironment },
+    { channel_claim_id: channelClaimId, channel_name: channelName, environment: stripeEnvironment, v2: true },
     'post'
   )
     .then((accountCheckResponse) =>
@@ -50,11 +50,14 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
 
   dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_START });
 
-  return await Lbryio.call('account', 'status', { environment: stripeEnvironment }, 'post')
-    .then((accountStatusResponse: StripeAccountStatus) => {
+  return await Lbryio.call('account', 'status', { environment: stripeEnvironment, v2: true }, 'post')
+    .then((accountStatusResponse: StripeAccountStatus | AccountStatus) => {
       dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE, data: accountStatusResponse });
+      if (accountStatusResponse.arweave || accountStatusResponse.stripe) {
+        return accountStatusResponse;
+      }
 
-      return accountStatusResponse;
+      return { stripe: accountStatusResponse };
     })
     .catch((error) => {
       if (error.message === 'account not linked to user, please link first') {

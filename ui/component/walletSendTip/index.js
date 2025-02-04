@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { selectUserExperimentalUi } from 'redux/selectors/user';
 import {
   selectTitleForUri,
   selectClaimForUri,
@@ -44,6 +45,7 @@ const select = (state, props) => {
     isPending: selectIsSendingSupport(state),
     title: selectTitleForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
+    experimentalUi: selectUserExperimentalUi(state),
   };
 };
 
