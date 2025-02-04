@@ -35,7 +35,7 @@ export default function BuyPage(props: Props) {
       .catch((error) => console.error('Error fetching data:', error));
   }, []);
 
-  if (ENABLE_ARCONNECT) {
+  if (showArweave) {
     return (
       <Page
         noSideNavigation
