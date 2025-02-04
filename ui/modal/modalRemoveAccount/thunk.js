@@ -5,14 +5,15 @@ import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
 import { selectMembershipMineFetched, selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
-import { selectCustomerStatus } from 'redux/selectors/stripe';
-import { doGetCustomerStatus, doCustomerRemove } from 'redux/actions/stripe';
+import { selectCustomerStatus, selectAccountStatus } from 'redux/selectors/stripe';
+import { doTipAccountStatus, doGetCustomerStatus, doTipAccountRemove, doCustomerRemove } from 'redux/actions/stripe';
 
 type Status = 'success' | 'error_occurred';
 
 export function doRemoveAccountSequence() {
   return async (dispatch: Dispatch, getState: GetState): Promise<Status> => {
     await dispatch(doGetCustomerStatus());
+    await dispatch(doTipAccountStatus());
     const state = getState();
 
     const isMembershipsMineFetched = selectMembershipMineFetched(state);
@@ -52,6 +53,15 @@ export function doRemoveAccountSequence() {
       } else if (customerStatus === undefined) {
         // Not expecting this part to be ever reached, but would end up here if customerStatus hasn't been fetched, so adding just in case
         throw new Error('`customer` is undefined');
+      }
+
+      // Remove stripe account
+      const accountStatus = selectAccountStatus(state);
+      if (accountStatus) {
+        await dispatch(doTipAccountRemove());
+      } else if (accountStatus === undefined) {
+        // Not expecting this part to be ever reached, but would end up here if accountStatus hasn't been fetched, so adding just in case
+        throw new Error('`accountStatus` is undefined');
       }
 
       // Wipe content/credits
