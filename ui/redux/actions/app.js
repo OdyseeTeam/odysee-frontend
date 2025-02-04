@@ -848,3 +848,9 @@ export function doSetChronoLocale(language: string) {
     }
   };
 }
+
+export function doSetAssignedLbryNetServer(server: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({ type: ACTIONS.SET_ASSIGNED_LBRYNET_SERVER, data: server });
+  };
+}
