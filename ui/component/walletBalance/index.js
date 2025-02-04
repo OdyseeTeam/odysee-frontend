@@ -12,6 +12,7 @@ import {
   selectPendingConsolidateTxid,
   selectPendingMassClaimTxid,
 } from 'redux/selectors/wallet';
+import { selectArweaveConnected, selectArweaveBalance } from 'redux/selectors/arwallet';
 import { selectArweaveStatus } from 'redux/selectors/stripe';
 import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
 import { doOpenModal } from 'redux/actions/app';
@@ -21,9 +22,9 @@ import WalletBalance from './view';
 
 const select = (state) => ({
   experimentalUi: selectUserExperimentalUi(state),
-  balance: selectBalance(state),
+  LBCBalance: selectBalance(state),
+  USDCBalance: selectArweaveBalance(state).usdc,
   arweaveStatus: selectArweaveStatus(state),
-  arConnectStatus: selectArConnectStatus(state),
   claimsBalance: selectClaimsBalance(state) || 0,
   supportsBalance: selectSupportsBalance(state) || 0,
   tipsBalance: selectTipsBalance(state) || 0,
@@ -41,5 +42,4 @@ export default connect(select, {
   doOpenModal,
   doFetchUtxoCounts,
   doUtxoConsolidate,
-  doCheckArConnectStatus,
 })(WalletBalance);
