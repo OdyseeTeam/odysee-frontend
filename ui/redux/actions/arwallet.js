@@ -44,7 +44,17 @@ export function doArConnect() {
         }
 
         const address = await global.window.arweaveWallet.getActiveAddress();
-        dispatch({ type: ARCONNECT_SUCCESS, data: { address, type: ARCONNECT_TYPE, wallet: window.arweaveWallet } });
+        const USDCBalance = await fetchUSDCBalance(address);
+        dispatch({
+          type: ARCONNECT_SUCCESS,
+          data: {
+            address,
+            type: ARCONNECT_TYPE,
+            balance: { usdc: USDCBalance },
+            usdc: USDCBalance,
+          },
+          wallet: window.arweaveWallet,
+        });
         return address;
       } catch (e) {
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
@@ -66,12 +76,10 @@ export function doArConnect() {
 
 export function doArDisconnect() {
   return async (dispatch) => {
-    console.log('doArDisconnect');
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
         await global.window?.arweaveWallet?.disconnect();
-        console.log('disconnected');
         dispatch({ type: ARCONNECT_DISCONNECT });
       } catch (e) {
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
@@ -166,4 +174,26 @@ const doArTip = async (
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
   };
+};
+
+const fetchUSDCBalance = async (address: string) => {
+  try {
+    const result = await dryrun({
+      process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+      data: '',
+      tags: [{ name: 'Action', value: 'Balance' }],
+      Owner: address,
+    });
+    if (result && result.Messages && result.Messages[0]) {
+      const message = result?.Messages?.[0];
+      // $FlowIgnore
+      const balance = message?.Tags?.find((tag: any) => tag.name === 'Balance')?.value;
+      return balance ? Number(balance) : 0;
+    } else {
+      return 0;
+    }
+  } catch (e) {
+    console.error(e);
+    return 0;
+  }
 };
