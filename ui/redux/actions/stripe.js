@@ -194,9 +194,12 @@ export const doCustomerSetup = () => async (dispatch: Dispatch) =>
   );
 
 export const doCustomerRemove = () => async (dispatch: Dispatch) =>
-  await Lbryio.call('customer', 'remove', { environment: stripeEnvironment }, 'post').then(() =>
-    dispatch(doGetCustomerStatus())
-  );
+  await Lbryio.call('customer', 'remove', { environment: stripeEnvironment }, 'post')
+    .then(() => dispatch(doGetCustomerStatus()))
+    .catch((error) => {
+      dispatch(doToast({ message: error.message || error, isError: true }));
+      throw Error(error.message || error);
+    });
 
 export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async (dispatch: Dispatch) =>
   await Lbryio.call(
