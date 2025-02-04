@@ -34,6 +34,8 @@ function PaymentAccountPage(props: Props) {
     push,
   } = useHistory();
 
+  console.log('balance: ', balance);
+
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
 
