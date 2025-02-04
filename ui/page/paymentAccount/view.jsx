@@ -15,7 +15,7 @@ import './style.scss';
 
 type Props = {
   arWalletStatus: any,
-  balance: any,
+  balance: number,
   doArDisconnect: () => void,
 };
 
@@ -94,7 +94,7 @@ function PaymentAccountPage(props: Props) {
                 className={!arWalletStatus ? `card--disabled` : ``}
                 title={
                   <>
-                    <Symbol token="usdc" amount={balance.usdc} precision={2} isTitle />
+                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
                     {arWalletStatus && (
                       <Button
                         button="primary"
@@ -110,9 +110,7 @@ function PaymentAccountPage(props: Props) {
                 actions={
                   <>
                     <h2 className="section__title--small">
-                      <I18nMessage
-                        tokens={{ usdc_amount: <Symbol token="usdc" amount={balance.usdc} precision={2} /> }}
-                      >
+                      <I18nMessage tokens={{ usdc_amount: <Symbol token="usdc" amount={balance} precision={2} /> }}>
                         %usdc_amount%
                       </I18nMessage>
                     </h2>
