@@ -9,8 +9,6 @@ type Props = { LBCBalance: number, USDCBalance: number, asset?: string, inline?:
 function WalletSpendableBalanceHelp(props: Props) {
   const { LBCBalance, USDCBalance, asset = 'lbc', inline } = props;
 
-  console.log('asset: ', asset);
-  console.log('USDCBalance: ', USDCBalance);
   const getMessage = (text: string) =>
     asset === 'lbc' ? (
       <I18nMessage tokens={{ LBCBalance: <CreditAmount amount={LBCBalance} precision={4} /> }}>{text}</I18nMessage>

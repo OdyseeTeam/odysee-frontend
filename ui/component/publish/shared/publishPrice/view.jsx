@@ -11,7 +11,7 @@ import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
 import * as PUBLISH_TYPES from 'constants/publish_types';
 import usePersistedState from 'effects/use-persisted-state';
-import { ENABLE_ARCONNECT } from '../../../../../config';
+import { ENABLE_ARCONNECT } from 'config';
 import './style.lazy.scss';
 
 const FEE = { MIN: 1, MAX: 999.99 };
@@ -36,6 +36,7 @@ type Props = {
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
   type: PublishType,
   visibility: Visibility,
+  accountStatus: any,
 };
 
 function PublishPrice(props: Props) {
@@ -60,14 +61,18 @@ function PublishPrice(props: Props) {
     disabled,
     type,
     visibility,
+    accountStatus,
   } = props;
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
   const [fiatAllowed, setFiatAllowed] = React.useState(true);
   const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
-  // const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
-  const noBankAccount = false;
+  const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
+
+  console.log('paywall: ', paywall);
+  console.log('ENABLE_ARCONNECT: ', ENABLE_ARCONNECT);
+  console.log('isFiatAllowed: ', fiatAllowed);
 
   // If it's only restricted, the price can be added externally, and they won't be able to change it
   const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionStatus.isRestricting;
@@ -132,25 +137,17 @@ function PublishPrice(props: Props) {
                 disabled={disabled}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FREE })}
               />
-              {ENABLE_ARCONNECT && (
-                <FormField
-                  type="radio"
-                  name="content_fiat"
-                  label={`${__('Purchase / Rent')} USDC`}
-                  checked={paywall === PAYWALL.USDC}
-                  onChange={() => updatePublishForm({ paywall: PAYWALL.USDC })}
-                />
-              )}
-              {!noBankAccount && (
-                <FormField
-                  type="radio"
-                  name="content_fiat"
-                  label={`${__('Purchase / Rent')} \u{0024}`}
-                  checked={paywall === PAYWALL.FIAT}
-                  disabled={disabled || noBankAccount || !fiatAllowed}
-                  onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
-                />
-              )}
+              {!noBankAccount ||
+                (ENABLE_ARCONNECT && (
+                  <FormField
+                    type="radio"
+                    name="content_fiat"
+                    label={`${__('Purchase / Rent')} \u{0024}`}
+                    checked={paywall === PAYWALL.FIAT}
+                    disabled={disabled || ((noBankAccount || !fiatAllowed) && !ENABLE_ARCONNECT)}
+                    onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
+                  />
+                ))}
               <FormField
                 type="radio"
                 name="content_sdk"
@@ -188,48 +185,11 @@ function PublishPrice(props: Props) {
     );
   }
 
-  function getUSDCPurchaseRow() {
-    return (
-      <div
-        className={classnames('publish-price__row', {
-          'publish-price__row--disabled': restrictedWithoutPrice,
-        })}
-      >
-        <div className="publish-price__grp-1">
-          <FormField
-            label={__('Purchase')}
-            name="purchase"
-            type="checkbox"
-            checked={fiatPurchaseEnabled}
-            onChange={() => updatePublishForm({ fiatPurchaseEnabled: !fiatPurchaseEnabled })}
-          />
-        </div>
-        <div className={classnames('publish-price__grp-2', { 'publish-price__grp-2--disabled': !fiatPurchaseEnabled })}>
-          <FormFieldPrice
-            name="fiat_purchase_fee"
-            min={1}
-            price={fiatPurchaseFee}
-            onChange={(fee) => updatePublishForm({ fiatPurchaseFee: fee })}
-            onBlur={() => sanitizeFee('fiatPurchaseFee')}
-            currencies={CURRENCY_OPTIONS}
-          />
-          <div className="publish-price__fees">
-            <FeeBreakdown
-              amount={fiatPurchaseFee.amount}
-              currency={fiatPurchaseFee.currency}
-              doCustomerPurchaseCost={doCustomerPurchaseCost}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   function getPurchaseRow() {
     return (
       <div
         className={classnames('publish-price__row', {
-          'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
+          'publish-price__row--disabled': (noBankAccount || restrictedWithoutPrice) && !ENABLE_ARCONNECT,
         })}
       >
         <div className="publish-price__grp-1">
@@ -266,7 +226,7 @@ function PublishPrice(props: Props) {
     return (
       <div
         className={classnames('publish-price__row', {
-          'publish-price__row--disabled': noBankAccount || restrictedWithoutPrice,
+          'publish-price__row--disabled': (noBankAccount || restrictedWithoutPrice) && !ENABLE_ARCONNECT,
         })}
       >
         <div className="publish-price__grp-1">
@@ -348,7 +308,7 @@ function PublishPrice(props: Props) {
       return false;
     }
 
-    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType();
+    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType() || ENABLE_ARCONNECT;
     setFiatAllowed(isFiatAllowed);
 
     if (paywall === PAYWALL.FIAT && !isFiatAllowed) {
@@ -391,13 +351,6 @@ function PublishPrice(props: Props) {
               >
                 {restrictedWithoutPrice && getRestrictionWarningRow()}
                 {getPaywallOptionsRow()}
-                {paywall === PAYWALL.USDC && (
-                  <div className="publish-price__group">
-                    {getUSDCPurchaseRow()}
-                    {getRentalRow()}
-                    {getTncRow()}
-                  </div>
-                )}
                 {paywall === PAYWALL.FIAT && (
                   <div className="publish-price__group">
                     {getPurchaseRow()}
