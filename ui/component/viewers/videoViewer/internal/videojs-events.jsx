@@ -116,11 +116,6 @@ const VideoJsEvents = ({
   function onInitialPlay() {
     const player = playerRef.current;
 
-    // Reset recovery attempts on successful playback
-    if (player.appState) {
-      player.appState.recoveryAttempts = 0;
-    }
-
     updateMediaSession();
 
     // $FlowIssue
@@ -349,9 +344,14 @@ const VideoJsEvents = ({
 
   function resetRecoveryAttempts() {
     const player = playerRef.current;
-    if (player.appState) {
-      player.appState.recoveryAttempts = 0;
-    }
+    let startTime = player.currentTime();
+    setTimeout(() => {
+      if (player.currentTime() > startTime) {
+        if (player.appState) {
+          player.appState.recoveryAttempts = 0;
+        }
+      }
+    }, 500);
   }
 
   function initializeEvents() {
