@@ -5,8 +5,8 @@ import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
 import { selectMembershipMineFetched, selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
-import { selectCardDetails } from 'redux/selectors/stripe';
-import { doGetCustomerStatus, doRemoveCardForPaymentMethodId } from 'redux/actions/stripe';
+import { selectCustomerStatus } from 'redux/selectors/stripe';
+import { doGetCustomerStatus, doCustomerRemove } from 'redux/actions/stripe';
 
 type Status = 'success' | 'error_occurred';
 
@@ -45,13 +45,13 @@ export function doRemoveAccountSequence() {
     }
 
     try {
-      // Remove credit card
-      const cardDetails = selectCardDetails(state);
-      if (cardDetails) {
-        await dispatch(doRemoveCardForPaymentMethodId(cardDetails.paymentMethodId));
-      } else if (cardDetails === undefined) {
+      // Remove stripe customer/card
+      const customerStatus = selectCustomerStatus(state);
+      if (customerStatus) {
+        await dispatch(doCustomerRemove());
+      } else if (customerStatus === undefined) {
         // Not expecting this part to be ever reached, but would end up here if customerStatus hasn't been fetched, so adding just in case
-        throw new Error('`cardDetails` is undefined');
+        throw new Error('`customer` is undefined');
       }
 
       // Wipe content/credits
