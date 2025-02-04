@@ -1,10 +1,16 @@
+// @flow
+import { Lbryio } from 'lbryinc';
 import {
   ARCONNECT_FAILURE,
   ARCONNECT_STARTED,
   ARCONNECT_SUCCESS,
   ARCONNECT_DISCONNECT,
   ARCONNECT_NAGGED,
+  AR_TIP_STATUS_STARTED,
+  AR_TIP_STATUS_SUCCESS,
+  AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
+import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -73,3 +79,91 @@ export function doArDisconnect() {
     }
   };
 }
+
+type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
+const doArTip = async (
+  tipParams: TipParams,
+  anonymous = false,
+  userParams: UserParams,
+  claimId,
+  stripeEnvironment,
+  preferredCurrency = 'USD',
+  successCallback
+) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
+
+    dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
+    try {
+      if (!window.arweaveWallet) {
+        dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
+        return;
+      }
+
+      const state = getState();
+      let isRetry = false;
+      if (state.arwallet.tippingStatusById[claimId] === 'error') {
+        isRetry = true;
+      }
+      if (!isRetry) {
+        await Lbryio.call(
+          'customer',
+          'tip',
+          {
+            // round to fix issues with floating point numbers
+            amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
+            creator_channel_name: tipParams.tipChannelName, // creator_channel_name
+            creator_channel_claim_id: tipParams.channelClaimId,
+            tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
+            tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
+            currency: 'USD',
+            anonymous: false,
+            source_claim_id: claimId,
+            environment: stripeEnvironment,
+            v2: true,
+            initiate: true,
+          },
+          'post'
+        );
+      }
+
+      const transferTxid = await message({
+        process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+        data: '',
+        tags: [
+          { name: 'Action', value: 'Transfer' },
+          { name: 'Quantity', value: tipParams.tipAmount * 1000000 }, // test/fix
+          { name: 'Recipient', value: '<address>' }, // get address
+          { name: 'Tip_Type', value: 'tip' },
+          { name: 'Claim_ID', value: claimId },
+        ],
+        Owner: '<address>', // test/fix
+        signer: createDataItemSigner(window.arweaveWallet),
+      });
+      await Lbryio.call(
+        'customer',
+        'tip',
+        {
+          // round to fix issues with floating point numbers
+          amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
+          creator_channel_name: tipParams.tipChannelName, // creator_channel_name
+          creator_channel_claim_id: tipParams.channelClaimId,
+          tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
+          tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
+          currency: 'USD',
+          anonymous: false,
+          source_claim_id: claimId,
+          environment: stripeEnvironment,
+          v2: true,
+          tx_id: transferTxid,
+        },
+        'post'
+      );
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
+    }
+    dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
+  };
+};

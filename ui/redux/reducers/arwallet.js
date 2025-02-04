@@ -14,6 +14,7 @@ export type ArWalletState = {
   connecting: boolean,
   balance: WalletBalance,
   nagged: boolean,
+  tippingStatusById: { [string]: string }, // started, errored, complete/deleted
 };
 
 const defaultState: ArWalletState = {
@@ -23,6 +24,7 @@ const defaultState: ArWalletState = {
   connecting: false,
   balance: {},
   nagged: false,
+  tippingStatusById: {},
 };
 
 reducers[ACTIONS.ARCONNECT_DISCONNECT] = (state, action) => ({
@@ -51,6 +53,30 @@ reducers[ACTIONS.ARCONNECT_FAILURE] = (state, action) => ({
 });
 
 reducers[ACTIONS.ARCONNECT_NAGGED] = (state, action) => ({ ...state, nagged: true });
+
+reducers[ACTIONS.AR_TIP_STATUS_STARTED] = (state, action) => {
+  const { tippingStatusById } = state;
+  const { claimId } = action.data;
+  const a = { ...tippingStatusById };
+  a[claimId] = 'started';
+  return { ...state, tippingStatusById: a };
+};
+
+reducers[ACTIONS.AR_TIP_STATUS_ERROR] = (state, action) => {
+  const { tippingStatusById } = state;
+  const { claimId } = action.data;
+  const a = { ...tippingStatusById };
+  a[claimId] = 'error'; // can retry
+  return { ...state, tippingStatusById: a };
+};
+
+reducers[ACTIONS.AR_TIP_STATUS_SUCCESS] = (state, action) => {
+  const { tippingStatusById } = state;
+  const { claimId } = action.data;
+  const a = { ...tippingStatusById };
+  delete a[claimId];
+  return { ...state, tippingStatusById: a };
+};
 
 export default function arwalletReducer(state: ArWalletState = defaultState, action: any) {
   const handler = reducers[action.type];
