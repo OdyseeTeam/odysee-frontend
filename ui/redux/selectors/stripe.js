@@ -14,6 +14,16 @@ export const selectCustomerSetupResponse = (state: State) => selectState(state).
 
 export const selectAccountStatus = (state: State) => selectState(state).accountStatus;
 export const selectArweaveStatus = (state: State) => selectState(state).arweaveStatus;
+// find in arweaveStatus[] where active = true
+export const selectArweaveActiveAccount = (state: State) => {
+  const arweaveStatus = selectArweaveStatus(state);
+  return (arweaveStatus && arweaveStatus.find((status) => status.active)) || null;
+};
+
+export const selectArweaveActiveAddress = (state: State) => {
+  const activeAccount = selectArweaveActiveAccount(state);
+  return (activeAccount && activeAccount.address) || null;
+};
 
 export const selectArweaveTipDataForId = (state: State, id: string) => {
   const byId = selectState(state).canReceiveArweaveTipsById;
