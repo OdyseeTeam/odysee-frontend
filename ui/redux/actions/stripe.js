@@ -69,6 +69,15 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
     });
 };
 
+export const doTipAccountRemove = () => async (dispatch: Dispatch, getState: GetState) => {
+  return await Lbryio.call('account', 'remove', { environment: stripeEnvironment }, 'post')
+    .then(() => dispatch(doTipAccountStatus()))
+    .catch((error) => {
+      dispatch(doToast({ message: error.message || error, isError: true }));
+      throw Error(error.message || error);
+    });
+};
+
 export const doGetAndSetAccountLink = () => async (dispatch: Dispatch) => {
   const currentUrl = window.location.href;
 
@@ -164,7 +173,13 @@ export const doGetCustomerStatus = () => async (dispatch: Dispatch, getState: Ge
         dispatch(doToast({ message: __(STRIPE.CARD_SETUP_ERROR_RESPONSE), isError: true }));
       }
 
-      dispatch({ type: ACTIONS.SET_CUSTOMER_STATUS, data: null });
+      if (typeof error === 'object' && error?.message === 'user as customer is not setup yet') {
+        // Set data to null to flag that customer was technically fetched succesfully.
+        // Account deletion sequence will halt if customer is `undefined`
+        dispatch({ type: ACTIONS.SET_CUSTOMER_STATUS, data: null });
+      } else {
+        dispatch({ type: ACTIONS.SET_CUSTOMER_STATUS, data: undefined });
+      }
 
       return error;
     });
@@ -177,6 +192,14 @@ export const doCustomerSetup = () => async (dispatch: Dispatch) =>
       return customerSetupResponse;
     }
   );
+
+export const doCustomerRemove = () => async (dispatch: Dispatch) =>
+  await Lbryio.call('customer', 'remove', { environment: stripeEnvironment }, 'post')
+    .then(() => dispatch(doGetCustomerStatus()))
+    .catch((error) => {
+      dispatch(doToast({ message: error.message || error, isError: true }));
+      throw Error(error.message || error);
+    });
 
 export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async (dispatch: Dispatch) =>
   await Lbryio.call(

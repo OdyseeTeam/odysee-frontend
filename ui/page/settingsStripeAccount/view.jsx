@@ -5,7 +5,9 @@ import Card from 'component/common/card';
 import Page from 'component/page';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
+import { doToast } from 'redux/actions/notifications';
 
+import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
@@ -19,10 +21,20 @@ type Props = {
   chargesEnabled: ?boolean,
   accountRequiresVerification: ?boolean,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
+  doOpenModal: (id: string, ?{}) => void,
+  doTipAccountRemove: () => Promise<any>,
 };
 
 const StripeAccountConnection = (props: Props) => {
-  const { accountInfo, paidBalance, chargesEnabled, accountRequiresVerification, doTipAccountStatus } = props;
+  const {
+    accountInfo,
+    paidBalance,
+    chargesEnabled,
+    accountRequiresVerification,
+    doTipAccountStatus,
+    doOpenModal,
+    doTipAccountRemove,
+  } = props;
 
   const { email, id: accountId } = accountInfo || {};
   const bankAccountNotFetched = chargesEnabled === undefined;
@@ -137,6 +149,30 @@ const StripeAccountConnection = (props: Props) => {
                 label={__('View Account On Stripe')}
                 navigate={`${STRIPE.STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
                 className="stripe__view-account-button"
+              />
+              <Button
+                button="secondary"
+                icon={ICONS.DELETE}
+                label={__('Remove Account')}
+                onClick={(e) =>
+                  doOpenModal(MODALS.CONFIRM, {
+                    title: __('Confirm Remove Account'),
+                    subtitle: __('Remove connected Stripe account'),
+                    onConfirm: (closeModal, setIsBusy) => {
+                      setIsBusy(true);
+                      doTipAccountRemove()
+                        .then(() => {
+                          setIsBusy(false);
+                          doToast({ message: __('Successfully removed the account.') });
+                          closeModal();
+                        })
+                        .catch(() => {
+                          setIsBusy(false);
+                          closeModal();
+                        });
+                    },
+                  })
+                }
               />
             </>
           )
