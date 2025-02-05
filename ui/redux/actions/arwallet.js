@@ -250,3 +250,36 @@ const fetchUSDCBalance = async (address: string) => {
     return 0;
   }
 };
+
+const updateAddress = async (id: string, status: string) => {
+  try {
+    const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post');
+    return;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const updateDefault = async (id: string) => {
+  try {
+    const res = await Lbryio.call('arweave/address', 'update', { id, set_default: true }, 'post');
+    return;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const registerAddress = async (address: string, currency = 'USD') => {
+  try {
+    const pub_key = window.arweaveWallet.getActivePublicKey();
+    const data = new TextEncoder().encode(address);
+    const signature = await window.arweaveWallet.signMessage(data);
+    const res = await Lbryio.call('arweave/address', 'add', { currency, address, pub_key, signature }, 'post');
+    return;
+    // get public key
+    // sign the address
+    // send to api with
+  } catch (e) {
+    console.error(e);
+  }
+};
