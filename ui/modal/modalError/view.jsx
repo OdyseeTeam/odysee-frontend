@@ -8,13 +8,13 @@ import { Modal } from 'modal/modal';
 
 type Props = {
   error: string | { message: string, cause?: any },
-  assignedLbryNetServer?: string,
+  assignedLbrynetServer?: string,
   closeModal: () => void,
 };
 
 class ModalError extends React.PureComponent<Props> {
   componentDidMount() {
-    const { error, assignedLbryNetServer } = this.props;
+    const { error, assignedLbrynetServer } = this.props;
 
     // Yuck
     // https://github.com/lbryio/lbry-sdk/issues/1118
@@ -36,7 +36,7 @@ class ModalError extends React.PureComponent<Props> {
     if (!skipLog) {
       if (process.env.NODE_ENV === 'production') {
         Lbryio.call('event', 'desktop_error', {
-          error_message: `${errorMessage} | assignedLbryNetServer: ${assignedLbryNetServer || 'undefined'}`,
+          error_message: `${errorMessage} | assignedLbrynetServer: ${assignedLbrynetServer || 'undefined'}`,
         });
       } else {
         console.log(`%c'event/desktop_error' (skipped):\n${errorMessage}`, 'color:yellow'); // eslint-disable-line no-console

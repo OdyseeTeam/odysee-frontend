@@ -22,7 +22,7 @@ import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doSignIn, doSetIncognito, doSetAssignedLbryNetServer } from 'redux/actions/app';
+import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
 import App from './view';
 
@@ -59,7 +59,7 @@ const perform = {
   doOpenAnnouncements,
   doSetLastViewedAnnouncement,
   doSetDefaultChannel,
-  doSetAssignedLbryNetServer,
+  doSetAssignedLbrynetServer,
 };
 
 export default hot(connect(select, perform)(App));

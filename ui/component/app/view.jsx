@@ -91,7 +91,7 @@ type Props = {
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
-  doSetAssignedLbryNetServer: (server: string) => void,
+  doSetAssignedLbrynetServer: (server: string) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -129,7 +129,7 @@ function App(props: Props) {
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
-    doSetAssignedLbryNetServer,
+    doSetAssignedLbrynetServer,
   } = props;
 
   const isMobile = useIsMobile();
@@ -472,7 +472,7 @@ function App(props: Props) {
     }
   }, [hasVerifiedEmail, signIn, hasSignedIn]);
 
-  useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbryNetServer);
+  useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbrynetServer);
 
   useEffect(() => {
     if (!syncIsLocked) {
