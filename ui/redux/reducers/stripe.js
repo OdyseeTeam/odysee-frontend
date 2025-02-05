@@ -8,7 +8,7 @@ const defaultState: StripeState = {
   canReceiveFiatTipsById: {},
   canReceiveArweaveTipsById: {},
   accountStatus: undefined,
-  arweaveStatus: undefined,
+  arweaveStatus: [],
   accountStatusFetching: false,
   accountLinkResponse: undefined,
   accountTransactions: undefined,
