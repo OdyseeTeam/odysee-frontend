@@ -1,9 +1,12 @@
 // @flow
 import React from 'react';
+import { useHistory } from 'react-router';
+import * as PAGES from 'constants/pages';
 import Page from 'component/page';
 // import Card from 'component/common/card';
 import WalletConnect from '../../component/walletConnect';
-// import { useHistory } from 'react-router';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+
 import Symbol from 'component/common/symbol';
 
 import { ENABLE_ARCONNECT } from 'config';
@@ -18,6 +21,10 @@ type Props = {
 export default function BuyPage(props: Props) {
   const { arWalletStatus, theme, experimentalUi } = props;
   const [targetWallet, setTargetWallet] = React.useState(undefined);
+  const {
+    location: { search },
+    push,
+  } = useHistory();
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
@@ -27,6 +34,42 @@ export default function BuyPage(props: Props) {
 
   const everpayUri = 'https://fast-deposit.everpay.io/depositAddress/OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs/evm';
   const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+  const TAB_QUERY = 'tab';
+  const TABS = {
+    BUY: 'buy',
+    RECEIVE: 'receive',
+  };
+
+  const urlParams = new URLSearchParams(search);
+  const currentView = urlParams.get(TAB_QUERY) || TABS.BUY;
+
+
+  let tabIndex;
+  switch (currentView) {
+    case TABS.BUY:
+      tabIndex = 0;
+      break;
+    case TABS.RECEIVE:
+      tabIndex = 1;
+      break;
+    default:
+      tabIndex = 0;
+      break;
+  }
+
+  function onTabChange(newTabIndex) {
+    let url = `/$/${PAGES.BUY}?`;
+
+    if (newTabIndex === 0) {
+      url += `${TAB_QUERY}=${TABS.BUY}`;
+    } else if (newTabIndex === 1) {
+      url += `${TAB_QUERY}=${TABS.RECEIVE}`;
+    } else {
+      url += `${TAB_QUERY}=${TABS.BUY}`;
+    }
+    push(url);
+  }
 
   React.useEffect(() => {
     fetch(proxyUrl + everpayUri)
@@ -38,25 +81,35 @@ export default function BuyPage(props: Props) {
   if (showArweave) {
     return (
       <Page
-        noSideNavigation
+        // noSideNavigation
         className="depositPage-wrapper"
-        backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
+        // backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
       >
-        <div className={`iframe-wrapper${!arWalletStatus && ' iframe--disabled'}`}>
-          <iframe
-            src={iframeUri}
-            title="Onramper Widget"
-            height="630px"
-            width="420px"
-            allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
-          />
+        <Tabs onChange={onTabChange} index={tabIndex}>
+          <TabList className="tabs__list--collection-edit-page">
+            <Tab>{__('Buy')}</Tab>
+            <Tab>{__('Receive')}</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
+                <iframe
+                  src={iframeUri}
+                  title="Onramper Widget"
+                  // height="630px"
+                  // width="420px"
+                  allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+                />
 
-          {!arWalletStatus && (
-            <div className="walletConnect-wrapper">
-              <WalletConnect />
-            </div>
-          )}
-        </div>
+                {!arWalletStatus && (
+                  <div className="walletConnect-wrapper">
+                    <WalletConnect />
+                  </div>
+                )}
+              </div>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Page>
     );
   }

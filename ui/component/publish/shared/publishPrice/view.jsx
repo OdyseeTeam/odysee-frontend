@@ -71,7 +71,6 @@ function PublishPrice(props: Props) {
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
 
   console.log('paywall: ', paywall);
-  console.log('ENABLE_ARCONNECT: ', ENABLE_ARCONNECT);
   console.log('isFiatAllowed: ', fiatAllowed);
 
   // If it's only restricted, the price can be added externally, and they won't be able to change it

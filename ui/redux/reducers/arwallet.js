@@ -14,7 +14,6 @@ export type ArWalletState = {
   error: ?string,
   connecting: boolean,
   balance: WalletBalance,
-  nagged: boolean,
   tippingStatusById: { [string]: string }, // started, errored, complete/deleted
 };
 
@@ -24,7 +23,6 @@ const defaultState: ArWalletState = {
   error: undefined,
   connecting: false,
   balance: { ar: 0, u: 0, usdc: 0 },
-  nagged: false,
   tippingStatusById: {},
 };
 
@@ -36,7 +34,9 @@ reducers[ACTIONS.ARCONNECT_DISCONNECT] = (state, action) => ({
   balance: { ar: 0, u: 0, usdc: 0 },
   error: null,
 });
+
 reducers[ACTIONS.ARCONNECT_STARTED] = (state, action) => ({ ...state, connecting: true });
+
 reducers[ACTIONS.ARCONNECT_SUCCESS] = (state, action) => ({
   ...state,
   wallet: action.data.wallet,
@@ -45,6 +45,7 @@ reducers[ACTIONS.ARCONNECT_SUCCESS] = (state, action) => ({
   connecting: false,
   error: null,
 });
+
 reducers[ACTIONS.ARCONNECT_FAILURE] = (state, action) => ({
   ...state,
   error: action.data,
@@ -53,8 +54,6 @@ reducers[ACTIONS.ARCONNECT_FAILURE] = (state, action) => ({
   address: null,
   balance: { ar: 0, u: 0, usdc: 0 },
 });
-
-reducers[ACTIONS.ARCONNECT_NAGGED] = (state, action) => ({ ...state, nagged: true });
 
 reducers[ACTIONS.AR_TIP_STATUS_STARTED] = (state, action) => {
   const { tippingStatusById } = state;

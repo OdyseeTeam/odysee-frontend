@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
-import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import Button from 'component/button';
 
 type Props = {
   arweaveAddress: string,
@@ -12,7 +12,6 @@ export default function WalletConnect(props: Props) {
   const { connectArWallet, arweaveAddress } = props;
 
   React.useEffect(() => {
-    console.log('arweaveAddress: ', arweaveAddress);
     if (arweaveAddress) {
       connectArWallet();
     }
@@ -22,5 +21,5 @@ export default function WalletConnect(props: Props) {
     connectArWallet();
   }
 
-  return <Button button="primary" onClick={handleArConnect} label="Connect" icon={ICONS.ARCONNECT} />;
+  return <Button button="primary" onClick={handleArConnect} label="Connect" icon={ICONS.WANDER} />;
 }
