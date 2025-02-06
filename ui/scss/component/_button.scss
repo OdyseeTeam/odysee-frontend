@@ -28,7 +28,8 @@
 .button--primary {
   // top: -1px;
   background-color: var(--color-primary) !important;
-
+  color: var(--color-primary-contrast);
+  
   .button__label {
     color: var(--color-primary-contrast);
   }

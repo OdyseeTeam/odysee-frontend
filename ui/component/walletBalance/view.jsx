@@ -1,18 +1,19 @@
 // @flow
+import React from 'react';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
-import React from 'react';
 import CreditAmount from 'component/common/credit-amount';
 import Button from 'component/button';
 import HelpLink from 'component/common/help-link';
 import Card from 'component/common/card';
-import Symbol from '../common/symbol';
+import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-import { formatNumberWithCommas } from 'util/number';
 import WalletFiatBalance from 'component/walletFiatBalance';
-import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
+import { formatNumberWithCommas } from 'util/number';
+
 
 type Props = {
   experimentalUi: boolean,
@@ -22,17 +23,18 @@ type Props = {
   claimsBalance: number,
   supportsBalance: number,
   tipsBalance: number,
-  doOpenModal: (string) => void,
-  hasSynced: boolean,
-  doFetchUtxoCounts: () => void,
-  doUtxoConsolidate: () => void,
+  hasSynced: boolean,  
   fetchingUtxoCounts: boolean,
   consolidatingUtxos: boolean,
   consolidateIsPending: boolean,
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
+  accountStatus: any;
   arweaveStatus: any,
+  doOpenModal: (string) => void,
+  doFetchUtxoCounts: () => void,
+  doUtxoConsolidate: () => void,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -45,32 +47,30 @@ const WalletBalance = (props: Props) => {
     USDCBalance,
     claimsBalance,
     supportsBalance,
-    tipsBalance,
-    doOpenModal,
-    hasSynced,
-    doUtxoConsolidate,
-    doFetchUtxoCounts,
+    tipsBalance,    
+    hasSynced,    
     consolidatingUtxos,
     consolidateIsPending,
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
+    accountStatus,
     arweaveStatus,
+    doOpenModal,
+    doUtxoConsolidate,
+    doFetchUtxoCounts,
   } = props;
-  const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+  const [detailsExpanded, setDetailsExpanded] = React.useState(false);  
 
   const { other: otherCount = 0 } = utxoCounts || {};
-
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
   const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
-  // tmp
-  React.useEffect(() => {
-    console.log('arweaveStatus', arweaveStatus);
-  }, [arweaveStatus]);
+  console.log('accountStatus: ', accountStatus)
+  console.log('arweaveStatus', arweaveStatus);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {

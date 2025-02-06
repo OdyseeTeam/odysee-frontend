@@ -5,7 +5,6 @@ import {
   ARCONNECT_STARTED,
   ARCONNECT_SUCCESS,
   ARCONNECT_DISCONNECT,
-  ARCONNECT_NAGGED,
   AR_TIP_STATUS_STARTED,
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
@@ -25,10 +24,6 @@ export const WALLET_PERMISSIONS = [
 ];
 
 export const ARCONNECT_TYPE = 'arConnect';
-
-export function doArNagged() {
-  return { type: ARCONNECT_NAGGED };
-}
 
 export function doArConnect() {
   console.log('doArConnect');
@@ -55,7 +50,6 @@ export function doArConnect() {
           },
           wallet: window.arweaveWallet,
         });
-        console.log('ok');
         return address;
       } catch (e) {
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
@@ -75,13 +69,13 @@ export function doArConnect() {
   };
 }
 
+/*
 export function doArUpdateBalance() {
   return async (dispatch) => {
     if (window.arweaveWallet) {
       try {
         const address = await global.window.arweaveWallet.getActiveAddress();
         const USDCBalance = await fetchUSDCBalance(address);
-        console.log('USDCBalance: ', USDCBalance);
       } catch (e) {
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
@@ -90,6 +84,7 @@ export function doArUpdateBalance() {
     }
   };
 }
+*/
 
 export function doArDisconnect() {
   return async (dispatch) => {
@@ -205,7 +200,7 @@ const fetchUSDCBalance = async (address: string) => {
       const message = result?.Messages?.[0];
       // $FlowIgnore
       const balance = message?.Tags?.find((tag: any) => tag.name === 'Balance')?.value;
-      return balance ? Number('10000000') / 1000000 : 0;
+      return balance ? Number(balance) / 1000000 : 0;
     } else {
       return 0;
     }
