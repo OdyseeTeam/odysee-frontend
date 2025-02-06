@@ -135,11 +135,8 @@ function App(props: Props) {
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
     // doOpenModal,
-    // arNagged,
-    // doArNagged,
   } = props;
 
-  // const experimental = user && user.experimental_ui;
   const isMobile = useIsMobile();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
@@ -209,23 +206,6 @@ function App(props: Props) {
       uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
     }
   }
-
-  /*
-  function arweaveNag() {
-    if (window.arweaveWallet) {
-      return (
-        <Nag
-          message={__('You can connect to arweave.')}
-          actionText={__('Connect to Arweave')}
-          onClick={() => doOpenModal(MODALS.ARWEAVE_CONNECT)}
-          onClose={doArNagged}
-        />
-      );
-    } else {
-      return <Nag message={__('Install ArConnect extension to connect to arweave.')} onClose={doArNagged} />;
-    }
-  }
-    */
 
   function getStatusNag() {
     // Handle "offline" first. Everything else is meaningless if it's offline.
@@ -551,7 +531,6 @@ function App(props: Props) {
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
             <YoutubeWelcome />
             {!shouldHideNag && <NagContinueFirstRun />}
-            {/* experimental && !arNagged && arweaveNag() */}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
             )}
