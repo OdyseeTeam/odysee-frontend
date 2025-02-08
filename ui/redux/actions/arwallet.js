@@ -27,7 +27,6 @@ export const WALLET_PERMISSIONS = [
 ];
 
 const USD_TO_USDC = 1000000;
-const CENTS_TO_USD = 100;
 
 export const ARCONNECT_TYPE = 'arConnect';
 
