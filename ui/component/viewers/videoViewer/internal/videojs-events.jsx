@@ -146,11 +146,11 @@ const VideoJsEvents = ({
       if (!player.appState.recoveryAttempts) {
         player.appState.recoveryAttempts = 1;
         retryVideoAfterFailure();
-      } else if (player.appState.recoveryAttempts < 3) {
+      } else if (player.appState.recoveryAttempts < 4) {
         player.appState.recoveryAttempts++;
         retryVideoAfterFailure();
       } else {
-        // After 3 failed attempts, show manual retry button
+        // After 4 failed attempts, show manual retry button
         showTapButton(TAP.RETRY);
       }
     } else {
@@ -178,17 +178,25 @@ const VideoJsEvents = ({
     showTapButton(TAP.NONE);
   }
 
-  function retryVideoAfterFailure() {
+  function retryVideoAfterFailure(manual: boolean = false) {
     const player = playerRef.current;
+    const attempt = player.appState.recoveryAttempts || 1;
     if (player) {
+      if (manual) {
+        // If manual retry, ignore previous recovery attempts
+        player.appState.recoveryAttempts = 1;
+      }
       lastPlaybackTime = player.currentTime();
 
-      if (player.appState.recoveryAttempts > 3) {
+      if (attempt > 4) {
         showTapButton(TAP.RETRY);
         return;
       }
 
-      const timeoutDelay = (player.appState.recoveryAttempts > 0 ? player.appState.recoveryAttempts - 1 : 0) * 1000;
+      // Exponential backoff delays: attempt 1 is near immediate, then 1s, 5s, and 15s.
+      const backoffDelays = [250, 1000, 5000, 15000];
+      const timeoutDelay = backoffDelays[attempt - 1] || backoffDelays[backoffDelays.length - 1];
+      
       setTimeout(() => {
         const appendCacheBuster = (src) => {
           try {
