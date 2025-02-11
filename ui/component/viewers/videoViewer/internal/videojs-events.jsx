@@ -196,7 +196,7 @@ const VideoJsEvents = ({
       // Exponential backoff delays: attempt 1 is near immediate, then 1s, 5s, and 15s.
       const backoffDelays = [250, 1000, 5000, 15000];
       const timeoutDelay = backoffDelays[attempt - 1] || backoffDelays[backoffDelays.length - 1];
-      
+
       setTimeout(() => {
         const appendCacheBuster = (src) => {
           try {
