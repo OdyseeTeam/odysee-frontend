@@ -3,34 +3,37 @@ import React from 'react';
 import { useHistory } from 'react-router';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
-import I18nMessage from 'component/i18nMessage';
 import Page from 'component/page';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
-import QRCode from 'component/common/qr-code';
-import CopyableText from 'component/copyableText';
+import SendUsdc from './sendUsdc/view';
+import ReceiveUsdt from './receiveUsdc/view';
+import OnRamper from './onRamper/view';
+
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
 
 type Props = {
   arWalletStatus: any,
   balance: number,
+  theme: string,
   doArDisconnect: () => void,
 };
 
 const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
-  SEND: 'send',
   RECEIVE: 'receive',
+  SEND: 'send',  
+  BUY: 'buy',
   WITHDRAW: 'withdraw',
   TRANSACTION_HISTORY: 'transaction-history',
 };
 
 function PaymentAccountPage(props: Props) {
-  const { arWalletStatus, balance, doArDisconnect } = props;
+  const { arWalletStatus, balance, theme, doArDisconnect } = props;
   const {
     location: { search },
     push,
@@ -44,14 +47,17 @@ function PaymentAccountPage(props: Props) {
     case TABS.OVERVIEW:
       tabIndex = 0;
       break;
-    case TABS.SEND:
+    case TABS.RECEIVE:
       tabIndex = 1;
       break;
-    case TABS.RECEIVE:
+    case TABS.SEND:
       tabIndex = 2;
       break;
-    case TABS.WITHDRAW:
+    case TABS.BUY:
       tabIndex = 3;
+      break;
+    case TABS.WITHDRAW:
+      tabIndex = 4;
       break;
     default:
       tabIndex = 0;
@@ -68,10 +74,12 @@ function PaymentAccountPage(props: Props) {
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.SEND}`;
-    } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.RECEIVE}`;
+    } else if (newTabIndex === 2) {
+      url += `${TAB_QUERY}=${TABS.SEND}`;
     } else if (newTabIndex === 3) {
+      url += `${TAB_QUERY}=${TABS.BUY}`;
+    } else if (newTabIndex === 4) {
       url += `${TAB_QUERY}=${TABS.WITHDRAW}`;
     } else {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
@@ -80,16 +88,21 @@ function PaymentAccountPage(props: Props) {
   }
 
   return (
-    <Page className="paymentAccountPage-wrapper">
+    <Page className="paymentAccountPage-wrapper main--full-width">
+      <header className="page-header">
+      </header>      
       <Tabs onChange={onTabChange} index={tabIndex}>
+        <div className="tab__wrapper">
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-          <Tab>{__('Send')}</Tab>
-          <Tab>{__('Receive')}</Tab>
-          <Tab>{__('Withdraw')}</Tab>
+          <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
+          <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Receive')}</Tab>
+          <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>{__('Send')}</Tab>          
+          <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>{__('Buy')}</Tab>
+          <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>{__('Withdraw')}</Tab>
         </TabList>
-        <TabPanels>
-          <TabPanel>
+        </div>
+        <TabPanels>    
+        <TabPanel>
             <>
               <Card
                 className={!arWalletStatus ? `card--disabled` : ``}
@@ -164,26 +177,10 @@ function PaymentAccountPage(props: Props) {
                 </div>
               )}
             </>
-          </TabPanel>
+          </TabPanel>                
           <TabPanel>
             <>
-              <Card
-                className={!arWalletStatus ? `card--disabled` : ``}
-                title={
-                  <>
-                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
-                    {arWalletStatus && (
-                      <Button
-                        button="primary"
-                        icon={ICONS.WANDER}
-                        label={__('Disconnect')}
-                        onClick={handleArConnectDisconnect}
-                      />
-                    )}
-                  </>
-                }
-                background
-              />
+              <ReceiveUsdt arWalletStatus={arWalletStatus} balance={balance} handleArConnectDisconnect={handleArConnectDisconnect} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -193,62 +190,7 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <Card
-                className={!arWalletStatus ? `card--disabled` : ``}
-                title={
-                  <>
-                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
-                    {arWalletStatus && (
-                      <Button
-                        button="primary"
-                        icon={ICONS.WANDER}
-                        label={__('Disconnect')}
-                        onClick={handleArConnectDisconnect}
-                      />
-                    )}
-                  </>
-                }
-                // subtitle={}
-                background
-                actions={
-                  <div className="section__flex">
-                    <div className="qr__wrapper">
-                      <QRCode value="abc" />
-                      <div className="address__wrapper">
-                      <CopyableText copyable={`0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33`} />
-                      </div>
-                    </div>
-                    <div className="section-content__wrapper">
-                      <h2 className="section__title--small">
-                        <I18nMessage
-                          tokens={{
-                            usdc: <><Symbol token="usdc" />USDC</>,
-                            bnb: <><Symbol token="bnb" />BNB</>,
-                            base: <><Symbol token="base" />Base</>,
-                            eth: <><Symbol token="eth" />ETH</>,
-                          }}
-                        >
-                          This is your %usdc% deposit address on the %bnb%, %base%, and %eth% chains. You can use this address to deposit %usdc% into your account directly from your own wallet.
-                        </I18nMessage>
-
-                      </h2>
-                      <div className="section__warning">
-                        <I18nMessage
-                          tokens={{
-                            usdc: <><Symbol token="usdc" />USDC</>,
-                            bnb: <><Symbol token="bnb" />BNB</>,
-                            base: <><Symbol token="base" />Base</>,
-                            eth: <><Symbol token="eth" />Ethereum</>,
-                          }}
-                        >
-                          Be aware that at this moment, we only support %usdc% on the %bnb%, %base% and %eth% chains. Sending %usdc% on any other chain will result in a loss of funds.
-                        </I18nMessage>
-                      </div>
-                    </div>
-                    
-                  </div>
-                }
-              />
+              <SendUsdc arWalletStatus={arWalletStatus} balance={balance} />              
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -258,30 +200,23 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <Card
-                className={!arWalletStatus ? `card--disabled` : ``}
-                title={
-                  <>
-                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
-                    {arWalletStatus && (
-                      <Button
-                        button="primary"
-                        icon={ICONS.WANDER}
-                        label={__('Disconnect')}
-                        onClick={handleArConnectDisconnect}
-                      />
-                    )}
-                  </>
-                }
-                // subtitle={}
-                background
-              />  
+              <OnRamper arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="buy" />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
                 </div>
               )}
-            </>            
+            </>
+          </TabPanel>
+          <TabPanel>
+            <>
+              <OnRamper arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="sell" />
+              {!arWalletStatus && (
+                <div className="wallet">
+                  <WalletConnect />
+                </div>
+              )}
+            </>         
           </TabPanel>
         </TabPanels>
       </Tabs>
