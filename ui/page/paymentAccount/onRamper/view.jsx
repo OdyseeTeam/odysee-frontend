@@ -58,12 +58,15 @@ export default function OnRamper(props: Props) {
     enableCountrySelector: 'true',
     partnerContext: 'Odysee',
     mode,
-    defaultCrypto: 'usdc_base',
-    onlyCryptos: 'usdc_bsc,usdc_base, usdc_ethereum',
-    defaultFiat: 'USD',
-    defaultAmount: '30',
-    networkWallets: `base:${network},bsc:${network},ethereum:${network}`,
-    onlyCryptoNetworks: 'base,bsc,ethereum',
+    
+    ...(mode === 'buy' ? { defaultCrypto: 'usdc_base' } : { sell_defaultCrypto: 'usdc_base' }),
+    ...(mode === 'buy' ? { onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' } : { sell_onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' }),
+    ...(mode === 'buy' ? { defaultFiat: 'USD' } : { sell_defaultFiat: 'USD' }),
+    ...(mode === 'buy' && { defaultAmount: '30' }),
+    ...(mode === 'buy' && { networkWallets: `base:${network},bsc:${network},ethereum:${network}` }),
+    ...(mode === 'buy' ? { onlyCryptoNetworks: `base:${network},bsc:${network},ethereum:${network}` } : { sell_onlyCryptoNetworks: `base:${network},bsc:${network},ethereum:${network}` }),
+
+    // theme
     themeName: 'dark',
     containerColor,
     primaryColor,
