@@ -185,7 +185,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const claimDescription =
     value && value.description && value.description.length > 0
       ? escapeHtmlProperty(truncateDescription(value.description))
-      : `View ${claimTitle} on ${SITE_NAME}`;
+      : `View on ${SITE_NAME}: ${claimTitle}`;
 
   const claimLanguage =
     value && value.languages && value.languages.length > 0 ? escapeHtmlProperty(value.languages[0]) : 'en_US';
