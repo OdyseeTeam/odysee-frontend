@@ -236,7 +236,7 @@ const WalletBalance = (props: Props) => {
                     button="secondary"
                     label={__('Deposit Funds')}
                     icon={ICONS.BUY}
-                    navigate={`/$/${PAGES.BUY}`}
+                    navigate={`/$/${PAGES.PAYMENTACCOUNT}?tab=buy`}
                   />
                   <Button
                     button="secondary"

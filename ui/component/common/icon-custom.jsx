@@ -117,7 +117,7 @@ export const icons = {
       <defs>
         <style>
           {
-            '.cls-1--whiteLogo{fill:#fff;}.cls-2--whiteLogo{fill:url(#linear-gradient);}.cls-3--whiteLogo{clip-path:url(#clip-path);}'
+            '.cls-1--whiteLogo{fill:#fff;}.cls-2--whiteLogo{fill:url(#linear-gradient);}.cls-3--whiteLogo{clipPath:url(#clipPath);}'
           }
         </style>
         <linearGradient id="linear-gradient" x1="45.6" y1="9.82" x2="88.36" y2="157.76" gradientUnits="userSpaceOnUse">
@@ -128,7 +128,7 @@ export const icons = {
           <stop offset="0.89" stopColor="#fecb07" />
           <stop offset="1" stopColor="#ffd600" />
         </linearGradient>
-        <clipPath id="clip-path">
+        <clipPath id="clipPath">
           <rect x="8.45" y="8.03" width="103.05" height="103.05" rx="51.52" />
         </clipPath>
       </defs>
@@ -178,7 +178,7 @@ export const icons = {
       <defs>
         <style>
           {
-            '.cls-1--darkLogo{fill:none;}.cls-2--darkLogo{fill:url(#linear-gradient);}.cls-3--darkLogo{clip-path:url(#clip-path);}.cls-4--darkLogo{fill:#fff;}'
+            '.cls-1--darkLogo{fill:none;}.cls-2--darkLogo{fill:url(#linear-gradient);}.cls-3--darkLogo{clipPath:url(#clipPath);}.cls-4--darkLogo{fill:#fff;}'
           }
         </style>
         <linearGradient id="linear-gradient" x1="45.6" y1="9.82" x2="88.36" y2="157.76" gradientUnits="userSpaceOnUse">
@@ -189,7 +189,7 @@ export const icons = {
           <stop offset="0.89" stopColor="#fecb07" />
           <stop offset="1" stopColor="#ffd600" />
         </linearGradient>
-        <clipPath id="clip-path">
+        <clipPath id="clipPath">
           <rect className="cls-1--darkLogo" x="8.45" y="8.03" width="103.05" height="103.05" rx="51.52" />
         </clipPath>
       </defs>
@@ -284,14 +284,14 @@ export const icons = {
         fill="none" 
         xmlns="http://www.w3.org/2000/svg"
       >
-        <g clip-path="url(#clip0_720_35)">
+        <g clipPath="url(#clip0_720_35)">
           <path d="M20 40C31.0457 40 40 31.0457 40 20C40 8.9543 31.0457 0 20 0C8.9543 0 0 8.9543 0 20C0 31.0457 8.9543 40 20 40Z" fill="#627EEA"/>
-          <path d="M20.6225 5V16.0875L29.9937 20.275L20.6225 5Z" fill="white" fill-opacity="0.602"/>
+          <path d="M20.6225 5V16.0875L29.9937 20.275L20.6225 5Z" fill="white" fillOpacity="0.602"/>
           <path d="M20.6225 5L11.25 20.275L20.6225 16.0875V5Z" fill="white"/>
-          <path d="M20.6225 27.46V34.9938L30 22.02L20.6225 27.46Z" fill="white" fill-opacity="0.602"/>
+          <path d="M20.6225 27.46V34.9938L30 22.02L20.6225 27.46Z" fill="white" fillOpacity="0.602"/>
           <path d="M20.6225 34.9938V27.4588L11.25 22.02L20.6225 34.9938Z" fill="white"/>
-          <path d="M20.6225 25.7162L29.9937 20.275L20.6225 16.09V25.7162Z" fill="white" fill-opacity="0.2"/>
-          <path d="M11.25 20.275L20.6225 25.7162V16.09L11.25 20.275Z" fill="white" fill-opacity="0.602"/>
+          <path d="M20.6225 25.7162L29.9937 20.275L20.6225 16.09V25.7162Z" fill="white" fillOpacity="0.2"/>
+          <path d="M11.25 20.275L20.6225 25.7162V16.09L11.25 20.275Z" fill="white" fillOpacity="0.602"/>
         </g>
         <defs>
           <clipPath id="clip0_720_35">
@@ -408,7 +408,7 @@ export const icons = {
         fill="none" 
         xmlns="http://www.w3.org/2000/svg"
       >
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M27.6273 9.88279L20.4818 0.822379C20.1808 0.431745 19.8856 0.367949 19.5622 0.787513L12.4058 9.86807L19.3324 16.1285L20.0051 1.78538L20.6777 16.1285L27.6273 9.88279Z" fill="currentColor"/>
+        <path fillRule="evenodd" clipRule="evenodd" d="M27.6273 9.88279L20.4818 0.822379C20.1808 0.431745 19.8856 0.367949 19.5622 0.787513L12.4058 9.86807L19.3324 16.1285L20.0051 1.78538L20.6777 16.1285L27.6273 9.88279Z" fill="currentColor"/>
         <path d="M32.7013 19.2467L39.9634 3.74967C40.1192 3.41021 39.7471 3.071 39.4235 3.25738L28.5647 9.49862L21.5065 17.4499L32.7013 19.2467Z" fill="currentColor"/>
         <path d="M7.29863 19.2467L0.036573 3.74967C-0.119206 3.41021 0.252812 3.071 0.576491 3.25738L11.4353 9.49862L18.4935 17.4499L7.29863 19.2467Z" fill="currentColor"/>
       </svg>

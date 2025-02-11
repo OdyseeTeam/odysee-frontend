@@ -4,13 +4,9 @@ import { useHistory } from 'react-router';
 import { ENABLE_ARCONNECT } from 'config';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
-import Page from 'component/page';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
-import WalletConnect from 'component/walletConnect';
-import ReceiveUsdc from '../paymentAccount/receiveUsdc/view';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
 
 type Props = {
@@ -20,8 +16,8 @@ type Props = {
   experimentalUi: boolean,
 };
 
-export default function BuyPage(props: Props) {
-  const { arWalletStatus, theme, balance, experimentalUi } = props;
+export default function OnRamper(props: Props) {
+  const { arWalletStatus, theme, balance, experimentalUi, mode } = props;
   const [targetWallet, setTargetWallet] = React.useState(undefined);
   const {
     location: { search },
@@ -31,7 +27,6 @@ export default function BuyPage(props: Props) {
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
-  // const network = '0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33';
   const network = '0xE6c07B52d897c596ECeA3a94566C4F4Fd45Ca04d';
   
   const rgbaToHex = (rgba) => {
@@ -62,13 +57,13 @@ export default function BuyPage(props: Props) {
     apiKey,
     enableCountrySelector: 'true',
     partnerContext: 'Odysee',
-    mode: 'buy',
+    mode,
     defaultCrypto: 'usdc_base',
-    onlyCryptos: 'usdc_bsc,usdc_base',
-    defaultFiat: 'usd',
+    onlyCryptos: 'usdc_bsc,usdc_base, usdc_ethereum',
+    defaultFiat: 'USD',
     defaultAmount: '30',
-    networkWallets: `base:${network},bsc:${network}`,
-    onlyCryptoNetworks: 'base,bsc',
+    networkWallets: `base:${network},bsc:${network},ethereum:${network}`,
+    onlyCryptoNetworks: 'base,bsc,ethereum',
     themeName: 'dark',
     containerColor,
     primaryColor,
@@ -82,17 +77,7 @@ export default function BuyPage(props: Props) {
   };
 
   const iframeUri = `https://buy.onramper.dev?${new URLSearchParams(params).toString()}`;
-  const everpayUri = 'https://fast-deposit.everpay.io/depositAddress/OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs/evm';
-  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-
-  const TAB_QUERY = 'tab';
-  const TABS = {
-    BUY: 'buy',
-    RECEIVE: 'receive',
-  };
-
-  const urlParams = new URLSearchParams(search);
-  const currentView = urlParams.get(TAB_QUERY) || TABS.BUY;
+  // const everpayUri = 'https://fast-deposit.everpay.io/depositAddress/OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs/evm';
 
   React.useEffect(() => {
     if(theme){
@@ -117,101 +102,42 @@ export default function BuyPage(props: Props) {
     }    
   },[theme])
 
-  let tabIndex;
-  switch (currentView) {
-    case TABS.BUY:
-      tabIndex = 0;
-      break;
-    case TABS.RECEIVE:
-      tabIndex = 1;
-      break;
-    default:
-      tabIndex = 0;
-      break;
-  }
+
 
   const handleArConnectDisconnect = () => {
     doArDisconnect();
   };
 
-  function onTabChange(newTabIndex) {
-    let url = `/$/${PAGES.BUY}?`;
+  return (
+    <Card
+      className={!arWalletStatus ? `card--buyusdc card--disabled` : `card--buyusdc`}
+      title={
+        <>
+          <Symbol token="usdc" amount={balance} precision={2} isTitle />
+          {arWalletStatus && (
+            <Button
+              button="primary"
+              icon={ICONS.WANDER}
+              label={__('Disconnect')}
+              onClick={handleArConnectDisconnect}
+            />
+          )}
+        </>
+      }
+      background
+      actions={
+        <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
+          <iframe
+            ref={iframeRef}
+            src={iframeUri}
+            title="Onramper Widget"
+            // height="630px"
+            // width="420px"
+            allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+          />                    
+        </div>
 
-    if (newTabIndex === 0) {
-      url += `${TAB_QUERY}=${TABS.BUY}`;
-    } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.RECEIVE}`;
-    } else {
-      url += `${TAB_QUERY}=${TABS.BUY}`;
-    }
-    push(url);
-  }
-
-  React.useEffect(() => {
-    fetch(proxyUrl + everpayUri)
-      // .then(response => response.json())
-      .then((data) => console.log(data))
-      .catch((error) => console.error('Error fetching data:', error));
-  }, []);
-
-  if (showArweave) {
-    return (
-      <Page
-        // noSideNavigation
-        className="depositPage-wrapper"
-        // backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
-      >
-        <Tabs onChange={onTabChange} index={tabIndex}>
-          <TabList className="tabs__list--collection-edit-page">
-            <Tab>{__('Buy')}</Tab>
-            <Tab>{__('Receive')}</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <>
-              <Card
-                className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`}
-                title={
-                  <>
-                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
-                    {arWalletStatus && (
-                      <Button
-                        button="primary"
-                        icon={ICONS.WANDER}
-                        label={__('Disconnect')}
-                        onClick={handleArConnectDisconnect}
-                      />
-                    )}
-                  </>
-                }
-                background
-                actions={
-                  <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
-                    <iframe
-                      ref={iframeRef}
-                      src={iframeUri}
-                      title="Onramper Widget"
-                      // height="630px"
-                      // width="420px"
-                      allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
-                    />                    
-                  </div>
-
-                }
-              />
-              {!arWalletStatus && (
-                <div className="wallet">
-                  <WalletConnect />
-                </div>
-              )}
-              </>
-            </TabPanel>
-            <TabPanel>
-            <ReceiveUsdc arWalletStatus={arWalletStatus} balance={balance} handleArConnectDisconnect={handleArConnectDisconnect} />
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Page>
-    );
-  }
+      }
+    />
+  );
 }
