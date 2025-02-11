@@ -302,7 +302,8 @@ export function CommentCreate(props: Props) {
         isTipOnly: true,
         hasSelectedTab: tab,
         customText: __('Preview Comment Tip'),
-        setAmount: (amount) => {
+        setAmount: (amount, activeTab) => {
+          setActiveTab(activeTab);
           setTipAmount(amount);
           setReviewingSupportComment(true);
         },

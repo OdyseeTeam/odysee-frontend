@@ -60,7 +60,7 @@ type Props = {
     ?(any) => void
   ) => string,
   doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
-  setAmount?: (number) => void,
+  setAmount?: (number, string) => void,
   preferredCurrency: string,
   modalProps?: any,
 };
@@ -208,7 +208,7 @@ export default function WalletSendTip(props: Props) {
     if (!tipAmount || !claimId) return;
 
     if (setAmount) {
-      setAmount(tipAmount);
+      setAmount(tipAmount, activeTab);
       doHideModal();
       return;
     }
@@ -282,7 +282,7 @@ export default function WalletSendTip(props: Props) {
   }
 
   React.useEffect(() => {
-    if (!hasSelected && hasSelectedTab && activeTab !== hasSelectedTab) {
+    if (!hasSelected && hasSelectedTab) {
       setActiveTab(claimIsMine ? TAB_BOOST : hasSelectedTab);
       setSelected(true);
     }
