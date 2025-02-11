@@ -188,45 +188,48 @@ const VideoJsEvents = ({
         return;
       }
 
-      const appendCacheBuster = (src) => {
-        try {
-          const url = new URL(src, window.location.href);
-          url.searchParams.set('cb', Date.now().toString());
-          return url.toString();
-        } catch (error) {
-          return src; // Fallback to original src if URL construction fails
+      const timeoutDelay = (player.appState.recoveryAttempts > 0 ? player.appState.recoveryAttempts - 1 : 0) * 1000;
+      setTimeout(() => {
+        const appendCacheBuster = (src) => {
+          try {
+            const url = new URL(src, window.location.href);
+            url.searchParams.set('cb', Date.now().toString());
+            return url.toString();
+          } catch (error) {
+            return src; // Fallback to original src if URL construction fails
+          }
+        };
+
+        let newSrcObject;
+        if (player.claimSrcVhs) {
+          newSrcObject = { ...player.claimSrcVhs };
+          newSrcObject.src = appendCacheBuster(player.claimSrcVhs.src);
+        } else if (player.claimSrcOriginal) {
+          newSrcObject = { ...player.claimSrcOriginal };
+          newSrcObject.src = appendCacheBuster(player.claimSrcOriginal.src);
         }
-      };
 
-      let newSrcObject;
-      if (player.claimSrcVhs) {
-        newSrcObject = { ...player.claimSrcVhs };
-        newSrcObject.src = appendCacheBuster(player.claimSrcVhs.src);
-      } else if (player.claimSrcOriginal) {
-        newSrcObject = { ...player.claimSrcOriginal };
-        newSrcObject.src = appendCacheBuster(player.claimSrcOriginal.src);
-      }
+        if (newSrcObject && newSrcObject.src && newSrcObject.type) {
+          player.src(newSrcObject);
+          player.load();
 
-      if (newSrcObject && newSrcObject.src && newSrcObject.type) {
-        player.src(newSrcObject);
-        player.load();
-
-        // Restore playback position after metadata is loaded
-        player.one('loadedmetadata', () => {
-          player.currentTime(lastPlaybackTime);
-        });
-
-        player
-          .play()
-          .then(() => {
-            showTapButton(TAP.NONE);
-          })
-          .catch(() => {
-            showTapButton(TAP.RETRY);
+          // Restore playback position after metadata is loaded
+          player.one('loadedmetadata', () => {
+            player.currentTime(lastPlaybackTime);
           });
-      } else {
-        showTapButton(TAP.RETRY);
-      }
+
+          player
+            .play()
+            .then(() => {
+              showTapButton(TAP.NONE);
+            })
+            .catch(() => {
+              showTapButton(TAP.RETRY);
+            });
+        } else {
+          showTapButton(TAP.RETRY);
+        }
+      }, timeoutDelay);
     }
   }
 
