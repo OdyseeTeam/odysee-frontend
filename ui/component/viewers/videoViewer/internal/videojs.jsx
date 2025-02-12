@@ -680,7 +680,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         button="link"
         icon={ICONS.REFRESH}
         className="video-js--tap-to-unmute"
-        onClick={retryVideoAfterFailure}
+        onClick={() => retryVideoAfterFailure(true)}
         ref={tapToRetryRef}
       />
     </div>

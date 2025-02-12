@@ -146,11 +146,11 @@ const VideoJsEvents = ({
       if (!player.appState.recoveryAttempts) {
         player.appState.recoveryAttempts = 1;
         retryVideoAfterFailure();
-      } else if (player.appState.recoveryAttempts < 3) {
+      } else if (player.appState.recoveryAttempts < 4) {
         player.appState.recoveryAttempts++;
         retryVideoAfterFailure();
       } else {
-        // After 3 failed attempts, show manual retry button
+        // After 4 failed attempts, show manual retry button
         showTapButton(TAP.RETRY);
       }
     } else {
@@ -178,55 +178,65 @@ const VideoJsEvents = ({
     showTapButton(TAP.NONE);
   }
 
-  function retryVideoAfterFailure() {
+  function retryVideoAfterFailure(manual: boolean = false) {
     const player = playerRef.current;
     if (player) {
+      if (manual) {
+        // If manual retry, ignore previous recovery attempts
+        player.appState.recoveryAttempts = 1;
+      }
+      const attempt = player.appState.recoveryAttempts || 1;
       lastPlaybackTime = player.currentTime();
-
-      if (player.appState.recoveryAttempts > 3) {
+      if (attempt > 4) {
         showTapButton(TAP.RETRY);
         return;
       }
 
-      const appendCacheBuster = (src) => {
-        try {
-          const url = new URL(src, window.location.href);
-          url.searchParams.set('cb', Date.now().toString());
-          return url.toString();
-        } catch (error) {
-          return src; // Fallback to original src if URL construction fails
+      // Exponential backoff delays: attempt 1 is near immediate, then 1s, 5s, and 15s.
+      const backoffDelays = [250, 1000, 5000, 15000];
+      const timeoutDelay = backoffDelays[attempt - 1] || backoffDelays[backoffDelays.length - 1];
+
+      setTimeout(() => {
+        const appendCacheBuster = (src) => {
+          try {
+            const url = new URL(src, window.location.href);
+            url.searchParams.set('cb', Date.now().toString());
+            return url.toString();
+          } catch (error) {
+            return src; // Fallback to original src if URL construction fails
+          }
+        };
+
+        let newSrcObject;
+        if (player.claimSrcVhs) {
+          newSrcObject = { ...player.claimSrcVhs };
+          newSrcObject.src = appendCacheBuster(player.claimSrcVhs.src);
+        } else if (player.claimSrcOriginal) {
+          newSrcObject = { ...player.claimSrcOriginal };
+          newSrcObject.src = appendCacheBuster(player.claimSrcOriginal.src);
         }
-      };
 
-      let newSrcObject;
-      if (player.claimSrcVhs) {
-        newSrcObject = { ...player.claimSrcVhs };
-        newSrcObject.src = appendCacheBuster(player.claimSrcVhs.src);
-      } else if (player.claimSrcOriginal) {
-        newSrcObject = { ...player.claimSrcOriginal };
-        newSrcObject.src = appendCacheBuster(player.claimSrcOriginal.src);
-      }
+        if (newSrcObject && newSrcObject.src && newSrcObject.type) {
+          player.src(newSrcObject);
+          player.load();
 
-      if (newSrcObject && newSrcObject.src && newSrcObject.type) {
-        player.src(newSrcObject);
-        player.load();
-
-        // Restore playback position after metadata is loaded
-        player.one('loadedmetadata', () => {
-          player.currentTime(lastPlaybackTime);
-        });
-
-        player
-          .play()
-          .then(() => {
-            showTapButton(TAP.NONE);
-          })
-          .catch(() => {
-            showTapButton(TAP.RETRY);
+          // Restore playback position after metadata is loaded
+          player.one('loadedmetadata', () => {
+            player.currentTime(lastPlaybackTime);
           });
-      } else {
-        showTapButton(TAP.RETRY);
-      }
+
+          player
+            .play()
+            .then(() => {
+              showTapButton(TAP.NONE);
+            })
+            .catch(() => {
+              showTapButton(TAP.RETRY);
+            });
+        } else {
+          showTapButton(TAP.RETRY);
+        }
+      }, timeoutDelay);
     }
   }
 
