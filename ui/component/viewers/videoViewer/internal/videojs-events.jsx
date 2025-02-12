@@ -180,14 +180,13 @@ const VideoJsEvents = ({
 
   function retryVideoAfterFailure(manual: boolean = false) {
     const player = playerRef.current;
-    const attempt = player.appState.recoveryAttempts || 1;
     if (player) {
       if (manual) {
         // If manual retry, ignore previous recovery attempts
         player.appState.recoveryAttempts = 1;
       }
+      const attempt = player.appState.recoveryAttempts || 1;
       lastPlaybackTime = player.currentTime();
-
       if (attempt > 4) {
         showTapButton(TAP.RETRY);
         return;
