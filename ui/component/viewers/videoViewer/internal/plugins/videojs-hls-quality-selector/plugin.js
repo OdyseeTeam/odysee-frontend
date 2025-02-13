@@ -72,10 +72,7 @@ class HlsQualitySelectorPlugin {
       return;
     }
 
-    /*if (this.player.claimSrcVhs || this.player.isLivestream) {
-      this._qualityButton.show();
-    }*/
-    if (this.player?.appState?.originalVideoHeight) {
+    if (this.player?.appState?.originalVideoHeight || this.player.claimSrcVhs || this.player.isLivestream) {
       this._qualityButton.show();
     }
   }
