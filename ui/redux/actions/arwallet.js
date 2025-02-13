@@ -11,7 +11,7 @@ import {
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
-import { selectArweaveActiveAddress } from '../selectors/stripe';
+import { selectAPIArweaveActiveAddress } from '../selectors/stripe';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -133,7 +133,8 @@ const doArTip = async (
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
     console.log(tipParams, userParams, claimId, stripeEnvironment, preferredCurrency);
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
-    dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
+    return;
+
     try {
       if (!window.arweaveWallet) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
@@ -141,7 +142,7 @@ const doArTip = async (
       }
 
       const state = getState();
-      const senderAddress = selectArweaveActiveAddress(state);
+      const senderAddress = selectAPIArweaveActiveAddress(state);
       if (window.arweaveWallet.getActiveAddress() !== senderAddress) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: address not registered' } });
         return;
@@ -236,38 +237,5 @@ const fetchUSDCBalance = async (address: string) => {
   } catch (e) {
     console.error(e);
     return 0;
-  }
-};
-
-const updateAddress = async (id: string, status: string) => {
-  try {
-    const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post');
-    return;
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const updateDefault = async (id: string) => {
-  try {
-    const res = await Lbryio.call('arweave/address', 'update', { id, set_default: true }, 'post');
-    return;
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const registerAddress = async (address: string, currency = 'USD') => {
-  try {
-    const pub_key = window.arweaveWallet.getActivePublicKey();
-    const data = new TextEncoder().encode(address);
-    const signature = await window.arweaveWallet.signMessage(data);
-    const res = await Lbryio.call('arweave/address', 'add', { currency, address, pub_key, signature }, 'post');
-    return;
-    // get public key
-    // sign the address
-    // send to api with
-  } catch (e) {
-    console.error(e);
   }
 };

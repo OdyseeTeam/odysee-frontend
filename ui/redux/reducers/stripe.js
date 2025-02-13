@@ -16,6 +16,8 @@ const defaultState: StripeState = {
   customerStatusFetching: undefined,
   customerStatus: undefined,
   customerSetupResponse: undefined,
+  arAccountUpdating: false,
+  arAccountUpdatingError: undefined,
 };
 
 reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_START] = (state, action) => ({ ...state, accountStatusFetching: true });
@@ -24,6 +26,42 @@ reducers[ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE] = (state, action) => ({
   accountStatusFetching: false,
   accountStatus: action.data.stripe,
   arweaveStatus: action.data.arweave,
+});
+
+reducers[ACTIONS.AR_ADDR_DEFAULT_STARTED] = (state) => ({
+  ...state,
+  arAccountUpdating: true,
+  arAccountUpdatingError: undefined,
+});
+reducers[ACTIONS.AR_ADDR_DEFAULT_SUCCESS] = (state) => ({ ...state, arAccountUpdating: false });
+reducers[ACTIONS.AR_ADDR_DEFAULT_ERROR] = (state, action) => ({
+  ...state,
+  arAccountUpdating: false,
+  arAccountUpdatingError: action.data,
+});
+
+reducers[ACTIONS.AR_ADDR_REGISTER_STARTED] = (state) => ({
+  ...state,
+  arAccountUpdating: true,
+  arAccountUpdatingError: undefined,
+});
+reducers[ACTIONS.AR_ADDR_REGISTER_SUCCESS] = (state) => ({ ...state, arAccountUpdating: false });
+reducers[ACTIONS.AR_ADDR_REGISTER_ERROR] = (state, action) => ({
+  ...state,
+  arAccountUpdating: false,
+  arAccountUpdatingError: action.data,
+});
+
+reducers[ACTIONS.AR_ADDR_UPDATE_STARTED] = (state) => ({
+  ...state,
+  arAccountUpdating: true,
+  arAccountUpdatingError: undefined,
+});
+reducers[ACTIONS.AR_ADDR_UPDATE_SUCCESS] = (state) => ({ ...state, arAccountUpdating: false });
+reducers[ACTIONS.AR_ADDR_UPDATE_ERROR] = (state, action) => ({
+  ...state,
+  arAccountUpdating: false,
+  arAccountUpdatingError: action.data,
 });
 
 reducers[ACTIONS.SET_ACCOUNT_LINK] = (state, action) => ({ ...state, accountLinkResponse: action.data });
