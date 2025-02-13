@@ -405,7 +405,6 @@ class HlsQualitySelectorPlugin {
       return;
     }
 
-    console.log('this is run');
     const qualityList = this.player.qualityLevels();
 
     // Set quality on plugin
