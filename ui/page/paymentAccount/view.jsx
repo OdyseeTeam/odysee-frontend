@@ -26,7 +26,7 @@ const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
   RECEIVE: 'receive',
-  SEND: 'send',  
+  SEND: 'send',
   BUY: 'buy',
   WITHDRAW: 'withdraw',
   TRANSACTION_HISTORY: 'transaction-history',
@@ -89,20 +89,29 @@ function PaymentAccountPage(props: Props) {
 
   return (
     <Page className="paymentAccountPage-wrapper main--full-width">
-      <header className="page-header">
-      </header>      
+      <header className="page-header"></header>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
-          <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Receive')}</Tab>
-          <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>{__('Send')}</Tab>          
-          <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>{__('Buy')}</Tab>
-          <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>{__('Withdraw')}</Tab>
-        </TabList>
+          <TabList className="tabs__list--collection-edit-page">
+            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
+              {__('Overview')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+              {__('Receive')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>
+              {__('Send')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>
+              {__('Buy')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>
+              {__('Withdraw')}
+            </Tab>
+          </TabList>
         </div>
-        <TabPanels>    
-        <TabPanel>
+        <TabPanels>
+          <TabPanel>
             <>
               <Card
                 className={!arWalletStatus ? `card--disabled` : ``}
@@ -123,51 +132,64 @@ function PaymentAccountPage(props: Props) {
                 background
                 actions={
                   <>
-                  <h2 className="section__title--small">
-                    {__('Transaction history')}
-                  </h2>
-                  <div className="transaction-history">
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Purchase')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('via')}</div>
-                      <div className="transaction-history__target">OnRamp</div>
+                    <h2 className="section__title--small">{__('Transaction history')}</h2>
+                    <div className="transaction-history">
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Purchase')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('via')}</div>
+                        <div className="transaction-history__target">OnRamp</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Withdraw')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('to')}</div>
+                        <div className="transaction-history__target">0x00000000000000000000</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Receive')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('from')}</div>
+                        <div className="transaction-history__target">0x00000000000000000000</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Send Tip')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('to')}</div>
+                        <div className="transaction-history__target">Username</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Receive Tip')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('from')}</div>
+                        <div className="transaction-history__target">Username</div>
+                      </div>
                     </div>
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Withdraw')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('to')}</div>
-                      <div className="transaction-history__target">0x00000000000000000000</div>
-                    </div>                    
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Receive')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('from')}</div>
-                      <div className="transaction-history__target">0x00000000000000000000</div>
-                    </div>
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Send Tip')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('to')}</div>
-                      <div className="transaction-history__target">Username</div>
-                    </div>
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Receive Tip')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('from')}</div>
-                      <div className="transaction-history__target">Username</div>
-                    </div>
-                  </div>
                   </>
                 }
               />
@@ -177,26 +199,30 @@ function PaymentAccountPage(props: Props) {
                 </div>
               )}
             </>
-          </TabPanel>                
-          <TabPanel>
-            <>
-              <ReceiveUsdt arWalletStatus={arWalletStatus} balance={balance} handleArConnectDisconnect={handleArConnectDisconnect} />
-              {!arWalletStatus && (
-                <div className="wallet">
-                  <WalletConnect />
-                </div>
-              )}
-            </>            
           </TabPanel>
           <TabPanel>
             <>
-              <SendUsdc arWalletStatus={arWalletStatus} balance={balance} />              
+              <ReceiveUsdt
+                arWalletStatus={arWalletStatus}
+                balance={balance}
+                handleArConnectDisconnect={handleArConnectDisconnect}
+              />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
                 </div>
               )}
-            </>            
+            </>
+          </TabPanel>
+          <TabPanel>
+            <>
+              <SendUsdc arWalletStatus={arWalletStatus} balance={balance} />
+              {!arWalletStatus && (
+                <div className="wallet">
+                  <WalletConnect />
+                </div>
+              )}
+            </>
           </TabPanel>
           <TabPanel>
             <>
@@ -216,7 +242,7 @@ function PaymentAccountPage(props: Props) {
                   <WalletConnect />
                 </div>
               )}
-            </>         
+            </>
           </TabPanel>
         </TabPanels>
       </Tabs>
