@@ -11,7 +11,7 @@ const TOSPage = () => {
         body={
           <div>
             <p>
-              <strong>Last Updated: October 2021</strong>
+              <strong>Last Updated: February 2025</strong>
             </p>
 
             <p>
@@ -577,6 +577,25 @@ const TOSPage = () => {
               government authorization, including, but not limited to, certain types of encryption software and source
               code, without first obtaining that authorization. This assurance and commitment shall survive termination
               of this Agreement.
+            </p>
+
+            <h3 id="toc_28">23. Third-Party Software Credits</h3>
+
+            <p>
+              Our platform utilizes several open‐source and third‐party software components. In particular, we use{' '}
+              <strong>MinIO</strong>, an open‐source, high‐performance object storage server distributed under the{' '}
+              <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" rel="noopener noreferrer">
+                GNU Affero General Public License (AGPL-3.0)
+              </a>
+              . We run MinIO in its original, unmodified form. For further details, please refer to the{' '}
+              <a href="https://github.com/minio/minio" target="_blank" rel="noopener noreferrer">
+                MinIO GitHub Repository
+              </a>{' '}
+              for the source code and the{' '}
+              <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" rel="noopener noreferrer">
+                AGPL-3.0 license text
+              </a>
+              .<em>Version: RELEASE.2025-02-07T23-21-09Z</em>.
             </p>
           </div>
         }
