@@ -314,8 +314,7 @@ const TOSPage = () => {
             </p>
 
             <p>
-              Designated Agent: Odysee, Inc 2540 S Maryland Pkwy Unit #5021 Las Vegas, NV 89109 Telephone Number:
-              907-318-5956 Fax Number: 801-327-6808
+              Designated Agent: Space Odysee Inc. 171 Madison Avenue Room 601 New York City, NY, USA 10016 
             </p>
 
             <p>E-Mail Address: hello@odysee.com</p>
@@ -579,7 +578,7 @@ const TOSPage = () => {
               of this Agreement.
             </p>
 
-            <h3 id="toc_28">23. Third-Party Software Credits</h3>
+            <h3 id="toc_29">23. Third-Party Software Credits</h3>
 
             <p>
               Our platform utilizes several open‐source and third‐party software components. In particular, we use{' '}
@@ -595,7 +594,7 @@ const TOSPage = () => {
               <a href="https://www.gnu.org/licenses/agpl-3.0.en.html" target="_blank" rel="noopener noreferrer">
                 AGPL-3.0 license text
               </a>
-              .<em>Version: RELEASE.2025-02-07T23-21-09Z</em>.
+              .  <em> Version: RELEASE.2025-02-07T23-21-09Z</em>.
             </p>
           </div>
         }
