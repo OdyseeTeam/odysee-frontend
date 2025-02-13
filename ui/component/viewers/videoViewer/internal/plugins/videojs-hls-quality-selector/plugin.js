@@ -75,7 +75,9 @@ class HlsQualitySelectorPlugin {
     /*if (this.player.claimSrcVhs || this.player.isLivestream) {
       this._qualityButton.show();
     }*/
-    this._qualityButton.show();
+    if (this.player?.appState?.originalVideoHeight) {
+      this._qualityButton.show();
+    }
   }
 
   updateConfig() {
@@ -87,7 +89,11 @@ class HlsQualitySelectorPlugin {
   }
 
   handleNoQualities() {
-    if (this._qualityButton && !(this.player?.claimSrcVhs || this.player?.isLivestream)) {
+    if (
+      this.player?.appState?.originalVideoHeight &&
+      this._qualityButton &&
+      !(this.player?.claimSrcVhs || this.player?.isLivestream)
+    ) {
       const levelItem = this.getQualityMenuItem.call(this, {
         label: `${this.player.appState.originalVideoHeight}p`,
         value: this.player.appState.originalVideoHeight,
