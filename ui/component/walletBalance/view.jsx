@@ -14,7 +14,6 @@ import I18nMessage from 'component/i18nMessage';
 import WalletFiatBalance from 'component/walletFiatBalance';
 import { formatNumberWithCommas } from 'util/number';
 
-
 type Props = {
   experimentalUi: boolean,
   LBCBalance: number,
@@ -23,18 +22,20 @@ type Props = {
   claimsBalance: number,
   supportsBalance: number,
   tipsBalance: number,
-  hasSynced: boolean,  
+  hasSynced: boolean,
   fetchingUtxoCounts: boolean,
   consolidatingUtxos: boolean,
   consolidateIsPending: boolean,
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
-  accountStatus: any;
-  arweaveStatus: any,
+  accountStatus: any,
+  fullArweaveStatus: Array<any>,
   doOpenModal: (string) => void,
   doFetchUtxoCounts: () => void,
   doUtxoConsolidate: () => void,
+  activeAPIArAccountAddress: string,
+  activeAPIArAccount: any,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -47,36 +48,51 @@ const WalletBalance = (props: Props) => {
     USDCBalance,
     claimsBalance,
     supportsBalance,
-    tipsBalance,    
-    hasSynced,    
+    tipsBalance,
+    hasSynced,
     consolidatingUtxos,
     consolidateIsPending,
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
     accountStatus,
-    arweaveStatus,
+    fullArweaveStatus,
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
+    activeAPIArAccountAddress,
+    activeAPIArAccount,
   } = props;
 
-  const [detailsExpanded, setDetailsExpanded] = React.useState(false);  
+  // stages:
+  // connected extension
+  // registered address
+  // unlocked extension
+
+  const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
   const { other: otherCount = 0 } = utxoCounts || {};
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
   const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
-
-  console.log('accountStatus: ', accountStatus)
-  console.log('arweaveStatus', arweaveStatus);
+  //
+  // console.log('accountStatus: ', accountStatus);
+  // console.log('arweaveStatus', arweaveStatus);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
+
+  const getArStatus = () => {
+    // if ()
+    // active wander address
+    // registered active account address
+    // not locked
+    // all set
+  };
 
   return (
     <div className={'columns'}>
@@ -222,15 +238,6 @@ const WalletBalance = (props: Props) => {
             background
             actions={
               <>
-                <h2 className="section__title--small">
-                  <I18nMessage
-                    tokens={{
-                      usdc_amount: <Symbol token="usdc" amount={USDCBalance} precision={2} />,
-                    }}
-                  >
-                    %usdc_amount%
-                  </I18nMessage>
-                </h2>
                 <div className="section__actions">
                   <Button
                     button="secondary"
