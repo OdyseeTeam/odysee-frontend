@@ -425,7 +425,7 @@ function FileListPublished(props: Props) {
   return (
     <Page>
       <div className="card-stack">
-        {myChannelIds?.length && myChannelIds?.length > 1 && (
+        {!!myChannelIds?.length && myChannelIds?.length > 1 && (
           <ChannelSelector
             hideAnon
             allOptionProps={{ onSelectAll: () => setIsAllSelected(true), isSelected: isAllSelected }}
