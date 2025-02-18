@@ -7,15 +7,11 @@ import Spinner from '../spinner/view';
 type Props = {
   arweaveAddress: string,
   connecting: boolean,
-  test: any,
   connectArWallet: () => void,
 };
 
 export default function WalletConnect(props: Props) {
-  const { connectArWallet, test, arweaveAddress, connecting } = props;
-  // const [connecting, setConnecting] = React.useState(false);
-  console.log('test: ', test);
-  console.log('window.arweaveWallet: ', window.arweaveWallet);
+  const { connectArWallet, arweaveAddress, connecting } = props;
 
   async function getAddress() {
     try {
@@ -24,8 +20,6 @@ export default function WalletConnect(props: Props) {
     } catch (e) {
       console.log('not connected');
     }
-
-    // console.log(x);
   }
 
   React.useEffect(() => {
