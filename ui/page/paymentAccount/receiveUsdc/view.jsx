@@ -1,39 +1,24 @@
 // @flow
 import React from 'react';
-import * as ICONS from 'constants/icons';
 import QRCode from 'component/common/qr-code';
 import CopyableText from 'component/copyableText';
 import I18nMessage from 'component/i18nMessage';
 import Card from 'component/common/card';
-import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import './style.scss';
 
 function ReceiveUsdc(props: Props) {
-  const { arWalletStatus, handleArConnectDisconnect, balance } = props;
+  const { cardHeader, arWalletStatus } = props;
 
   return (
     <Card
       className={!arWalletStatus ? `card--receiveusdc card--disabled` : `card--receiveusdc`}
-      title={
-        <>
-          <Symbol token="usdc" amount={balance} precision={2} isTitle />
-          {arWalletStatus && (
-            <Button
-              button="primary"
-              icon={ICONS.WANDER}
-              label={__('Disconnect')}
-              onClick={handleArConnectDisconnect}
-            />
-          )}
-        </>
-      }
-      // subtitle={}
+      title={cardHeader()}
       background
       actions={
         <div className="section__flex">
           <div className="qr__wrapper">
-            <QRCode value="abc" />
+            <QRCode value="0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33" />
             <div className="address__wrapper">
             <CopyableText copyable={`0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33`} />
             </div>
