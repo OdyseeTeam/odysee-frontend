@@ -5,6 +5,7 @@ import {
   ARCONNECT_STARTED,
   ARCONNECT_SUCCESS,
   ARCONNECT_DISCONNECT,
+  ARCONNECT_FETCHBALANCE,
   AR_TIP_STATUS_STARTED,
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
@@ -69,13 +70,22 @@ export function doArConnect() {
   };
 }
 
-/*
 export function doArUpdateBalance() {
   return async (dispatch) => {
+    dispatch({ type: ARCONNECT_FETCHBALANCE });
     if (window.arweaveWallet) {
       try {
         const address = await global.window.arweaveWallet.getActiveAddress();
         const USDCBalance = await fetchUSDCBalance(address);
+        dispatch({
+          type: ARCONNECT_SUCCESS,
+          data: {
+            address,
+            type: ARCONNECT_TYPE,
+            usdc: USDCBalance,
+          },
+          wallet: window.arweaveWallet,
+        });
       } catch (e) {
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
@@ -84,7 +94,6 @@ export function doArUpdateBalance() {
     }
   };
 }
-*/
 
 export function doArDisconnect() {
   return async (dispatch) => {
