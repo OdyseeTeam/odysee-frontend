@@ -45,22 +45,42 @@
     .sendusdc-row__amount{
       display: flex;
       flex-direction: column;
+
+      input{
+        width:100%;
+      }
+      span{
+        margin-top:var(--spacing-xxxs);
+        font-size:var(--font-xsmall);
+        &:hover{
+          cursor:pointer;
+        }
+      }
     }
     .sendusdc-row__network{
       display: flex;
       flex-direction: column;
 
       button{
+        
         background:var(--color-background);
         border-radius:var(--border-radius);
+        min-width:150px;
+        .icon--ChevronDown{
+          margin-left:auto;
+          margin-right:0;
+        }
       }
     }
     .sendusdc-row__receiver{
       display: flex;
       flex-direction: column;
+      input {
+        min-width:450px;
+      }
     }
     .sendusdc-row__send{
-      margin-top:auto;
+      margin-top:24px;
     }
   }
 }

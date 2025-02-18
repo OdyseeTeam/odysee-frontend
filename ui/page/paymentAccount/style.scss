@@ -249,6 +249,38 @@
               }
             }
           }
+
+          .refresh-balance{
+            display:flex;
+            justify-content: center;                     
+
+            svg{
+              stroke:var(--color-text) !important;
+              background:unset;
+            }
+
+            &.refresh-balance--loading{
+              animation: rotate 1s linear infinite;
+              opacity:.8;
+
+              &:hover{
+                cursor:default;
+                svg{
+                  stroke: var(--color-text) !important;
+                }
+              }
+            }
+
+            &:hover{
+              cursor:pointer;
+              background:unset !important;
+              svg{
+                stroke:var(--color-primary) !important;
+              }
+            }
+          }
+
+          filter: invert(0) !important;
         }
         .card__subtitle {
           min-height: 48px;
@@ -321,5 +353,14 @@
     svg{
       // color:var(--color-text);
     }
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
   }
 }

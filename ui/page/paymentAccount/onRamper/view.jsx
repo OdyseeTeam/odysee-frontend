@@ -2,11 +2,7 @@
 import React from 'react';
 import { useHistory } from 'react-router';
 import { ENABLE_ARCONNECT } from 'config';
-import * as PAGES from 'constants/pages';
-import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
-import Button from 'component/button';
-import Symbol from 'component/common/symbol';
 import './style.scss';
 
 type Props = {
@@ -17,8 +13,8 @@ type Props = {
 };
 
 export default function OnRamper(props: Props) {
-  const { arWalletStatus, theme, balance, experimentalUi, mode } = props;
-  const [targetWallet, setTargetWallet] = React.useState(undefined);
+  const { cardHeader, arWalletStatus, theme, experimentalUi, mode } = props;
+  // const [targetWallet, setTargetWallet] = React.useState(undefined);
   const {
     location: { search },
     push,
@@ -60,11 +56,11 @@ export default function OnRamper(props: Props) {
     mode,
     
     ...(mode === 'buy' ? { defaultCrypto: 'usdc_base' } : { sell_defaultCrypto: 'usdc_base' }),
-    ...(mode === 'buy' ? { onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' } : { sell_onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' }),
+    ...(mode === 'buy' ? { onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' } : { sell_onlyCryptos: 'usdc_bsc,usdc_base' }),
     ...(mode === 'buy' ? { defaultFiat: 'USD' } : { sell_defaultFiat: 'USD' }),
     ...(mode === 'buy' && { defaultAmount: '30' }),
-    ...(mode === 'buy' && { networkWallets: `base:${network},bsc:${network},ethereum:${network}` }),
-    ...(mode === 'buy' ? { onlyCryptoNetworks: `base:${network},bsc:${network},ethereum:${network}` } : { sell_onlyCryptoNetworks: `base:${network},bsc:${network},ethereum:${network}` }),
+    ...(mode === 'buy' && { networkWallets: `base:${network},bsc:${network}` }),
+    ...(mode === 'buy' ? { onlyCryptoNetworks: `base:${network},bsc:${network},ethereum:${network}` } : { sell_onlyCryptoNetworks: `base:${network},bsc:${network}` }),
 
     // theme
     themeName: 'dark',
@@ -105,28 +101,10 @@ export default function OnRamper(props: Props) {
     }    
   },[theme])
 
-
-
-  const handleArConnectDisconnect = () => {
-    doArDisconnect();
-  };
-
   return (
     <Card
       className={!arWalletStatus ? `card--buyusdc card--disabled` : `card--buyusdc`}
-      title={
-        <>
-          <Symbol token="usdc" amount={balance} precision={2} isTitle />
-          {arWalletStatus && (
-            <Button
-              button="primary"
-              icon={ICONS.WANDER}
-              label={__('Disconnect')}
-              onClick={handleArConnectDisconnect}
-            />
-          )}
-        </>
-      }
+      title={cardHeader()}
       background
       actions={
         <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
@@ -134,8 +112,6 @@ export default function OnRamper(props: Props) {
             ref={iframeRef}
             src={iframeUri}
             title="Onramper Widget"
-            // height="630px"
-            // width="420px"
             allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
           />                    
         </div>
