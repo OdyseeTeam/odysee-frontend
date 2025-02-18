@@ -3,6 +3,7 @@ import React from 'react';
 import { useHistory } from 'react-router';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import Page from 'component/page';
 import Card from 'component/common/card';
 import Button from 'component/button';
@@ -18,8 +19,10 @@ import './style.scss';
 type Props = {
   arWalletStatus: any,
   balance: number,
+  fetching: boolean,
   theme: string,
   doArDisconnect: () => void,
+  doArUpdateBalance: () => void,
 };
 
 const TAB_QUERY = 'tab';
@@ -33,7 +36,7 @@ const TABS = {
 };
 
 function PaymentAccountPage(props: Props) {
-  const { arWalletStatus, balance, theme, doArDisconnect } = props;
+  const { arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
   const {
     location: { search },
     push,
@@ -68,6 +71,29 @@ function PaymentAccountPage(props: Props) {
     doArDisconnect();
   };
 
+  const handleUpdateBalance = () => {
+    doArUpdateBalance();
+  }
+
+  function cardHeader() {
+    return (
+      <>
+        <Symbol token="usdc" amount={balance} precision={2} isTitle />
+        <div onClick={handleUpdateBalance} className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}>
+          <Icon icon={ICONS.REFRESH} />
+        </div>
+        {arWalletStatus && (
+          <Button
+            button="alt"
+            icon={ICONS.WANDER}
+            label={__('Disconnect')}
+            onClick={handleArConnectDisconnect}
+          />
+        )}
+      </>
+    )
+  }
+
   function onTabChange(newTabIndex) {
     let url = `/$/${PAGES.PAYMENTACCOUNT}?`;
 
@@ -85,7 +111,7 @@ function PaymentAccountPage(props: Props) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     }
     push(url);
-  }
+  }  
 
   return (
     <Page className="paymentAccountPage-wrapper main--full-width">
@@ -106,20 +132,7 @@ function PaymentAccountPage(props: Props) {
             <>
               <Card
                 className={!arWalletStatus ? `card--disabled` : ``}
-                title={
-                  <>
-                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
-                    {arWalletStatus && (
-                      <Button
-                        button="primary"
-                        icon={ICONS.WANDER}
-                        label={__('Disconnect')}
-                        onClick={handleArConnectDisconnect}
-                      />
-                    )}
-                  </>
-                }
-                // subtitle={}
+                title={cardHeader()}
                 background
                 actions={
                   <>
@@ -180,7 +193,7 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>                
           <TabPanel>
             <>
-              <ReceiveUsdt arWalletStatus={arWalletStatus} balance={balance} handleArConnectDisconnect={handleArConnectDisconnect} />
+              <ReceiveUsdt cardHeader={cardHeader} arWalletStatus={arWalletStatus} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -190,7 +203,7 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <SendUsdc arWalletStatus={arWalletStatus} balance={balance} />              
+              <SendUsdc cardHeader={cardHeader} arWalletStatus={arWalletStatus} balance={balance} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -200,7 +213,7 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <OnRamper arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="buy" />
+              <OnRamper cardHeader={cardHeader} arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="buy" />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -210,7 +223,7 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <OnRamper arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="sell" />
+              <OnRamper cardHeader={cardHeader} arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="sell" />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />

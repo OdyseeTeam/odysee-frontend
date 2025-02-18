@@ -60,6 +60,7 @@
   line-height: 0;
   margin-right: var(--spacing-xxs) !important;
   vertical-align: middle;
+  flex-shrink: 0;
 
   svg:nth-of-type(2) {
     position: absolute;

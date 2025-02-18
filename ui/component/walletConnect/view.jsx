@@ -2,6 +2,7 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
+import Spinner from '../spinner/view';
 
 type Props = {
   arweaveAddress: string,
@@ -10,10 +11,14 @@ type Props = {
 
 export default function WalletConnect(props: Props) {
   const { connectArWallet, arweaveAddress } = props;
+  const [connecting, setConnecting] = React.useState(false);
 
   React.useEffect(() => {
-    if (arweaveAddress) {
+    if (!arweaveAddress) {
+      setConnecting(true);
       connectArWallet();
+    }else{
+      setConnecting(false);
     }
   }, [arweaveAddress]);
 
@@ -21,5 +26,8 @@ export default function WalletConnect(props: Props) {
     connectArWallet();
   }
 
-  return <Button button="primary" onClick={handleArConnect} label="Connect" icon={ICONS.WANDER} />;
+  return !connecting 
+    ? <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
+    : <Spinner type="small" />
+
 }
