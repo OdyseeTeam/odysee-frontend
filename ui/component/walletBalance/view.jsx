@@ -64,11 +64,6 @@ const WalletBalance = (props: Props) => {
     activeAPIArAccount,
   } = props;
 
-  // stages:
-  // connected extension
-  // registered address
-  // unlocked extension
-
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
   const { other: otherCount = 0 } = utxoCounts || {};
@@ -76,9 +71,6 @@ const WalletBalance = (props: Props) => {
   const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
-  //
-  // console.log('accountStatus: ', accountStatus);
-  // console.log('arweaveStatus', arweaveStatus);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -86,13 +78,6 @@ const WalletBalance = (props: Props) => {
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
 
-  const getArStatus = () => {
-    // if ()
-    // active wander address
-    // registered active account address
-    // not locked
-    // all set
-  };
 
   return (
     <div className={'columns'}>
@@ -238,6 +223,15 @@ const WalletBalance = (props: Props) => {
             background
             actions={
               <>
+                <h2 className="section__title--small">
+                  <I18nMessage
+                    tokens={{
+                      usdc_amount: <Symbol token="usdc" amount={USDCBalance} precision={2} />,
+                    }}
+                  >
+                    %usdc_amount%
+                  </I18nMessage>
+                </h2>
                 <div className="section__actions">
                   <Button
                     button="secondary"

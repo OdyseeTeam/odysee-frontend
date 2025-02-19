@@ -19,12 +19,8 @@ type Props = {
   doRegisterArweaveAddress: (string) => void,
   activeApiAddress: string,
   fullAPIArweaveStatus: any, // [ {status: 'active', address: '0x1234'}, ...]
-  modalProps: any,
-  // from modalProps
   walletAddress: string,
   walletBalance: any,
-  // walletAddress: state.arwallet.address,
-  // walletBalance: state.arwallet.balance,
 };
 
 export default function ModalAnnouncements(props: Props) {
