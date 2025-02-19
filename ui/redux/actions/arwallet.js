@@ -1,5 +1,6 @@
 // @flow
 import { Lbryio } from 'lbryinc';
+import * as MODALS from 'constants/modal_types';
 import {
   ARCONNECT_FAILURE,
   ARCONNECT_STARTED,
@@ -12,6 +13,7 @@ import {
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
 import { selectAPIArweaveActiveAddress } from '../selectors/stripe';
+import { doOpenModal } from './app';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -19,7 +21,6 @@ export const WALLET_PERMISSIONS = [
   'ACCESS_ADDRESS',
   'ACCESS_PUBLIC_KEY',
   'SIGN_TRANSACTION',
-  'SIGN_MESSAGE',
   'DISPATCH',
   'SIGNATURE',
   'ENCRYPT',
@@ -31,12 +32,13 @@ const USD_TO_USDC = 1000000;
 export const ARCONNECT_TYPE = 'arConnect';
 
 export function doArConnect() {
-  console.log('doArConnect');
-  return async (dispatch) => {
+  console.log('doarconnect');
+  return async (dispatch, getState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
         await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
+        console.log('connected');
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
           // Attached throughout app-lifetime, so no need to clean up.
@@ -45,6 +47,9 @@ export function doArConnect() {
         }
 
         const address = await global.window.arweaveWallet.getActiveAddress();
+        const currentState = getState();
+        const apiActiveAddress = selectAPIArweaveActiveAddress(currentState);
+
         const USDCBalance = await fetchUSDCBalance(address);
         dispatch({
           type: ARCONNECT_SUCCESS,
@@ -55,8 +60,14 @@ export function doArConnect() {
           },
           wallet: window.arweaveWallet,
         });
-        return address;
+
+        // if needs interaction, launch modal
+        if (apiActiveAddress !== address) {
+          dispatch(doOpenModal(MODALS.ARWEAVE_CONNECT));
+          return;
+        }
       } catch (e) {
+        console.log('error:', e);
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
     } else {

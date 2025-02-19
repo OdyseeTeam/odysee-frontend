@@ -1,6 +1,7 @@
 // @flow
 import { Lbryio } from 'lbryinc';
 import { selectChannelClaimIdForUri, selectChannelNameForUri } from 'redux/selectors/claims';
+import { bufferToHex } from 'util/uint8array-to-hex';
 import {
   selectAccountCheckIsFetchingForId,
   selectCustomerStatusFetching,
@@ -189,14 +190,18 @@ export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async
     'post'
   ).then(() => dispatch(doGetCustomerStatus()));
 
-const registerAddress = async (address: string, currency = 'USD') => {
+const registerAddress = async (address: string, makeDefault: boolean, currency = 'USD') => {
   try {
-    const pub_key = window.arweaveWallet.getActivePublicKey();
+    const pub_key = await window.arweaveWallet.getActivePublicKey();
     const data = new TextEncoder().encode(address);
     const signature = await window.arweaveWallet.signMessage(data);
-    const res = await Lbryio.call('arweave/address', 'add', { currency, pub_key, signature }, 'post');
-    const json = await res.json();
-    return json;
+    const hexSig = bufferToHex(signature);
+    const params = { currency, pub_key, signature: hexSig };
+    if (makeDefault) {
+      params.default = true;
+    }
+    const res = await Lbryio.call('arweave/address', 'add', params, 'post');
+    return res;
     // get public key
     // sign the address
     // send to api with
@@ -209,8 +214,7 @@ const registerAddress = async (address: string, currency = 'USD') => {
 const updateAddress = async (id: string, status: string) => {
   try {
     const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post');
-    const json = await res.json();
-    return json;
+    return res;
   } catch (e) {
     console.error(e);
     throw e;
@@ -220,18 +224,17 @@ const updateAddress = async (id: string, status: string) => {
 const updateDefault = async (id: string) => {
   try {
     const res = await Lbryio.call('arweave/address', 'update', { id, set_default: true }, 'post');
-    const json = await res.json();
-    return json;
+    return res;
   } catch (e) {
     console.error(e);
     throw e;
   }
 };
 
-export const doRegisterArweaveAddress = (address: string) => async (dispatch: Dispatch) => {
+export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.AR_ADDR_REGISTER_STARTED });
   try {
-    await registerAddress(address);
+    await registerAddress(address, makeDefault);
     await dispatch(doTipAccountStatus());
     dispatch({ type: ACTIONS.AR_ADDR_REGISTER_SUCCESS });
   } catch (e) {
