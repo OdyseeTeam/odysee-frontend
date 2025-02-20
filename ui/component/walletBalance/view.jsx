@@ -14,7 +14,6 @@ import I18nMessage from 'component/i18nMessage';
 import WalletFiatBalance from 'component/walletFiatBalance';
 import { formatNumberWithCommas } from 'util/number';
 
-
 type Props = {
   experimentalUi: boolean,
   LBCBalance: number,
@@ -23,18 +22,20 @@ type Props = {
   claimsBalance: number,
   supportsBalance: number,
   tipsBalance: number,
-  hasSynced: boolean,  
+  hasSynced: boolean,
   fetchingUtxoCounts: boolean,
   consolidatingUtxos: boolean,
   consolidateIsPending: boolean,
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
-  accountStatus: any;
-  arweaveStatus: any,
+  accountStatus: any,
+  fullArweaveStatus: Array<any>,
   doOpenModal: (string) => void,
   doFetchUtxoCounts: () => void,
   doUtxoConsolidate: () => void,
+  activeAPIArAccountAddress: string,
+  activeAPIArAccount: any,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -47,21 +48,23 @@ const WalletBalance = (props: Props) => {
     USDCBalance,
     claimsBalance,
     supportsBalance,
-    tipsBalance,    
-    hasSynced,    
+    tipsBalance,
+    hasSynced,
     consolidatingUtxos,
     consolidateIsPending,
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
     accountStatus,
-    arweaveStatus,
+    fullArweaveStatus,
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
+    activeAPIArAccountAddress,
+    activeAPIArAccount,
   } = props;
 
-  const [detailsExpanded, setDetailsExpanded] = React.useState(false);  
+  const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
   const { other: otherCount = 0 } = utxoCounts || {};
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
@@ -69,14 +72,12 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
-  console.log('accountStatus: ', accountStatus)
-  console.log('arweaveStatus', arweaveStatus);
-
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
+
 
   return (
     <div className={'columns'}>

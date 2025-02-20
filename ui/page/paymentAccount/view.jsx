@@ -29,7 +29,7 @@ const TAB_QUERY = 'tab';
 const TABS = {
   OVERVIEW: 'overview',
   RECEIVE: 'receive',
-  SEND: 'send',  
+  SEND: 'send',
   BUY: 'buy',
   WITHDRAW: 'withdraw',
   TRANSACTION_HISTORY: 'transaction-history',
@@ -111,23 +111,23 @@ function PaymentAccountPage(props: Props) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     }
     push(url);
-  }  
+  }
 
   return (
     <Page className="paymentAccountPage-wrapper main--full-width">
       <header className="page-header">
-      </header>      
+      </header>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
         <TabList className="tabs__list--collection-edit-page">
           <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
           <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Receive')}</Tab>
-          <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>{__('Send')}</Tab>          
+          <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>{__('Send')}</Tab>
           <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>{__('Buy')}</Tab>
           <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>{__('Withdraw')}</Tab>
         </TabList>
         </div>
-        <TabPanels>    
+        <TabPanels>
         <TabPanel>
             <>
               <Card
@@ -155,7 +155,7 @@ function PaymentAccountPage(props: Props) {
                       <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
                       <div className="transaction-history__direction">{__('to')}</div>
                       <div className="transaction-history__target">0x00000000000000000000</div>
-                    </div>                    
+                    </div>
                     <div className="transaction-history__row">
                       <div className="transaction-history__date">xx.xx.xxx</div>
                       <div className="transaction-history__action">{__('Receive')}</div>
@@ -190,7 +190,7 @@ function PaymentAccountPage(props: Props) {
                 </div>
               )}
             </>
-          </TabPanel>                
+          </TabPanel>
           <TabPanel>
             <>
               <ReceiveUsdt cardHeader={cardHeader} arWalletStatus={arWalletStatus} />
@@ -199,7 +199,7 @@ function PaymentAccountPage(props: Props) {
                   <WalletConnect />
                 </div>
               )}
-            </>            
+            </>
           </TabPanel>
           <TabPanel>
             <>
@@ -209,7 +209,7 @@ function PaymentAccountPage(props: Props) {
                   <WalletConnect />
                 </div>
               )}
-            </>            
+            </>
           </TabPanel>
           <TabPanel>
             <>
@@ -229,7 +229,7 @@ function PaymentAccountPage(props: Props) {
                   <WalletConnect />
                 </div>
               )}
-            </>         
+            </>
           </TabPanel>
         </TabPanels>
       </Tabs>
