@@ -11,6 +11,8 @@ declare type StripeState = {
   customerStatusFetching: ?boolean,
   customerStatus: any,
   customerSetupResponse: ?StripeCustomerSetupResponse,
+  arAccountUpdating: false,
+  arAccountUpdatingError: undefined,
 };
 
 declare type StripeAccountInfo = {
