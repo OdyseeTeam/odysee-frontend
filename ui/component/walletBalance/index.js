@@ -13,7 +13,12 @@ import {
   selectPendingMassClaimTxid,
 } from 'redux/selectors/wallet';
 import { selectArweaveBalance } from 'redux/selectors/arwallet';
-import { selectAccountStatus, selectArweaveStatus } from 'redux/selectors/stripe';
+import {
+  selectAccountStatus,
+  selectAPIArweaveActiveAccount,
+  selectAPIArweaveActiveAddress,
+  selectFullAPIArweaveStatus,
+} from 'redux/selectors/stripe';
 import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
 import { doOpenModal } from 'redux/actions/app';
 import { selectSyncHash } from 'redux/selectors/sync';
@@ -25,7 +30,7 @@ const select = (state) => ({
   LBCBalance: selectBalance(state),
   USDCBalance: selectArweaveBalance(state).usdc,
   accountStatus: selectAccountStatus(state),
-  arweaveStatus: selectArweaveStatus(state),
+  fullArweaveStatus: selectFullAPIArweaveStatus(state),
   claimsBalance: selectClaimsBalance(state) || 0,
   supportsBalance: selectSupportsBalance(state) || 0,
   tipsBalance: selectTipsBalance(state) || 0,
@@ -37,6 +42,9 @@ const select = (state) => ({
   utxoCounts: selectUtxoCounts(state),
   consolidateIsPending: selectPendingConsolidateTxid(state),
   massClaimIsPending: selectPendingMassClaimTxid(state),
+  activeAPIArAccountAddress: selectAPIArweaveActiveAddress(state),
+  activeAPIArAccount: selectAPIArweaveActiveAccount(state),
+  arweaveAccountStatus: selectFullAPIArweaveStatus(state),
 });
 
 export default connect(select, {
