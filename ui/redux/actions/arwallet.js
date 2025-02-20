@@ -11,6 +11,7 @@ import {
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
+import { getGQLData } from '@permaweb/libs';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -218,3 +219,42 @@ const fetchUSDCBalance = async (address: string) => {
     return 0;
   }
 };
+
+const test = async () => {
+  try {
+    const response = await fetch('https://arweave-search.goldsky.com/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        query: `{
+          transactions(
+            first: 10,
+            tags: [
+              { name: "Data-Protocol", values: ["ao"] },
+              { name: "Action", values: ["Transfer"] },
+              { name: "Recipient", values: ["OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs"] }
+            ]
+          ) {
+            edges {
+              node {
+                id
+                recipient
+                owner { address }
+                block { timestamp height }
+              }
+            }
+          }
+        }`
+      }),
+    });
+    return response.json();
+  } catch (e) {
+    console.error(e);
+    return 0;
+  }
+};
+
+(async () => {
+  const x = await test();
+  console.log('X:', x.data.transactions);
+})();
