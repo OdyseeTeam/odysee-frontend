@@ -11,7 +11,8 @@ import { useHistory } from 'react-router';
 
 type Props = {
   doHideModal: () => void,
-  doRegisterArweaveAddress: (string) => void,
+  doArDisconnect: () => void,
+  doRegisterArweaveAddress: (string, boolean) => void,
   doUpdateArweaveAddressDefault: (number) => void,
   activeApiAddresses: string[],
   defaultApiAddress: string,
@@ -25,6 +26,7 @@ export default function ModalAnnouncements(props: Props) {
   const { push } = useHistory();
   const {
     doHideModal,
+    doArDisconnect,
     fullAPIArweaveStatus,
     defaultApiAddress,
     walletAddress,
@@ -50,7 +52,12 @@ export default function ModalAnnouncements(props: Props) {
         )}
         actions={
           <div className="section__actions">
-            <Button button="primary" label={'Register'} disabled={isArAccountUpdating} onClick={() => doRegisterArweaveAddress(walletAddress, true)} />
+            <Button
+              button="primary"
+              label={'Register'}
+              disabled={isArAccountUpdating}
+              onClick={() => doRegisterArweaveAddress(walletAddress, true)}
+            />
             <Button button="alt" label={'Done'} disabled={isArAccountUpdating} onClick={doHideModal} />
           </div>
         }
@@ -60,7 +67,14 @@ export default function ModalAnnouncements(props: Props) {
 
   // if address is found, but not default
   const handleMakeDefault = () => {
-    doUpdateArweaveAddressDefault(id);
+    if (id !== null) {
+      doUpdateArweaveAddressDefault(id);
+    }
+  };
+
+  const handleDisconnect = () => {
+    doArDisconnect();
+    doHideModal();
   };
   const MakeDefaultCard = () => {
     return (
@@ -74,8 +88,13 @@ export default function ModalAnnouncements(props: Props) {
         }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={'Make Default'}  disabled={isArAccountUpdating} onClick={handleMakeDefault} />
-            <Button button="alt" label={'Not Now'} disabled={isArAccountUpdating} onClick={doHideModal} />
+            <Button
+              button="primary"
+              label={'Make Default'}
+              disabled={isArAccountUpdating}
+              onClick={handleMakeDefault}
+            />
+            <Button button="alt" label={'Disconnect'} disabled={isArAccountUpdating} onClick={handleDisconnect} />
           </div>
         }
       />
