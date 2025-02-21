@@ -12,7 +12,7 @@ import {
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
-import { selectAPIArweaveActiveAddress } from '../selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
@@ -48,7 +48,7 @@ export function doArConnect() {
 
         const address = await global.window.arweaveWallet.getActiveAddress();
         const currentState = getState();
-        const apiActiveAddress = selectAPIArweaveActiveAddress(currentState);
+        const apiDefaultAddress = selectAPIArweaveDefaultAddress(currentState);
 
         const USDCBalance = await fetchUSDCBalance(address);
         dispatch({
@@ -62,7 +62,7 @@ export function doArConnect() {
         });
 
         // if needs interaction, launch modal
-        if (apiActiveAddress !== address) {
+        if (apiDefaultAddress !== address) {
           dispatch(doOpenModal(MODALS.ARWEAVE_CONNECT));
           return;
         }
@@ -248,5 +248,38 @@ const fetchUSDCBalance = async (address: string) => {
   } catch (e) {
     console.error(e);
     return 0;
+  }
+};
+
+const updateAddress = async (id: string, status: string) => {
+  try {
+    const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post');
+    return;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const updateDefault = async (id: string) => {
+  try {
+    const res = await Lbryio.call('arweave/address', 'update', { id, set_default: true }, 'post');
+    return;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const registerAddress = async (address: string, currency = 'USD') => {
+  try {
+    const pub_key = window.arweaveWallet.getActivePublicKey();
+    const data = new TextEncoder().encode(address);
+    const signature = await window.arweaveWallet.signMessage(data);
+    const res = await Lbryio.call('arweave/address', 'add', { currency, address, pub_key, signature }, 'post');
+    return;
+    // get public key
+    // sign the address
+    // send to api with
+  } catch (e) {
+    console.error(e);
   }
 };

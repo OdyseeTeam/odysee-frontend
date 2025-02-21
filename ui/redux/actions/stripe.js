@@ -234,7 +234,7 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
   }
 };
 
-const updateAddress = async (id: string, status: string) => {
+const updateAddressStatus = async (id: string, status: string) => {
   try {
     const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post');
     return res;
@@ -266,10 +266,10 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
   }
 };
 
-export const doUpdateArweaveAddress = (id: string, status: string) => async (dispatch: Dispatch) => {
+export const doUpdateArweaveAddress = (id: string, status: 'active' | 'inactive') => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED });
   try {
-    await updateAddress(id, status);
+    await updateAddressStatus(id, status);
     // now do account status
     await dispatch(doTipAccountStatus());
     dispatch({ type: ACTIONS.AR_ADDR_UPDATE_SUCCESS });

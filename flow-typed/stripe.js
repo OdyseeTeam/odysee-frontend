@@ -12,7 +12,7 @@ declare type StripeState = {
   customerStatus: any,
   customerSetupResponse: ?StripeCustomerSetupResponse,
   arAccountUpdating: false,
-  arAccountUpdatingError: undefined,
+  arAccountUpdatingError?: string,
 };
 
 declare type StripeAccountInfo = {
