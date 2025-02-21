@@ -12,7 +12,7 @@ import {
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
-import { selectAPIArweaveActiveAddress } from '../selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
@@ -48,7 +48,7 @@ export function doArConnect() {
 
         const address = await global.window.arweaveWallet.getActiveAddress();
         const currentState = getState();
-        const apiActiveAddress = selectAPIArweaveActiveAddress(currentState);
+        const apiDefaultAddress = selectAPIArweaveDefaultAddress(currentState);
 
         const USDCBalance = await fetchUSDCBalance(address);
         dispatch({
@@ -62,7 +62,7 @@ export function doArConnect() {
         });
 
         // if needs interaction, launch modal
-        if (apiActiveAddress !== address) {
+        if (apiDefaultAddress !== address) {
           dispatch(doOpenModal(MODALS.ARWEAVE_CONNECT));
           return;
         }

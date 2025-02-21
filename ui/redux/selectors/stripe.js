@@ -13,16 +13,29 @@ export const selectCustomerStatusFetching = (state: State) => selectState(state)
 export const selectCustomerSetupResponse = (state: State) => selectState(state).customerSetupResponse;
 
 export const selectAccountStatus = (state: State) => selectState(state).accountStatus;
+
+export const selectArAccountUpdating = (state: State) => selectState(state).arAccountUpdating;
 export const selectFullAPIArweaveStatus = (state: State) => selectState(state).arweaveStatus;
 // find in arweaveStatus[] where active = true
-export const selectAPIArweaveActiveAccount = (state: State) => {
+export const selectAPIArweaveActiveAccounts = (state: State) => {
   const arweaveStatus = selectFullAPIArweaveStatus(state);
-  return arweaveStatus && arweaveStatus.find((status) => status.status === 'active');
+  return arweaveStatus ? arweaveStatus.filter((entry) => entry.status === 'active') : [];
 };
 
-export const selectAPIArweaveActiveAddress = (state: State) => {
-  const activeAccount = selectAPIArweaveActiveAccount(state);
-  return activeAccount ? activeAccount.address : null;
+export const selectAPIArweaveDefaultAccount = (state: State) => {
+  const arweaveStatus = selectFullAPIArweaveStatus(state);
+  // find and return each match
+  return arweaveStatus ? arweaveStatus.find((entry) => entry.default) : null;
+};
+
+export const selectAPIArweaveDefaultAddress = (state: State) => {
+  const defaultAccount = selectAPIArweaveDefaultAccount(state);
+  return defaultAccount ? defaultAccount.address : null;
+};
+
+export const selectAPIArweaveActiveAddresses = (state: State) => {
+  const activeAccounts = selectAPIArweaveActiveAccounts(state);
+  return activeAccounts ? activeAccounts.map(a => a.address) : null;
 };
 
 export const selectArweaveTipDataForId = (state: State, id: string) => {

@@ -15,8 +15,6 @@ import {
 import { selectArweaveBalance } from 'redux/selectors/arwallet';
 import {
   selectAccountStatus,
-  selectAPIArweaveActiveAccount,
-  selectAPIArweaveActiveAddress,
   selectFullAPIArweaveStatus,
 } from 'redux/selectors/stripe';
 import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
@@ -42,8 +40,6 @@ const select = (state) => ({
   utxoCounts: selectUtxoCounts(state),
   consolidateIsPending: selectPendingConsolidateTxid(state),
   massClaimIsPending: selectPendingMassClaimTxid(state),
-  activeAPIArAccountAddress: selectAPIArweaveActiveAddress(state),
-  activeAPIArAccount: selectAPIArweaveActiveAccount(state),
   arweaveAccountStatus: selectFullAPIArweaveStatus(state),
 });
 
