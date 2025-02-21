@@ -54,11 +54,11 @@ export default function ModalAnnouncements(props: Props) {
           <div className="section__actions">
             <Button
               button="primary"
-              label={'Register'}
+              label={__('Register')}
               disabled={isArAccountUpdating}
               onClick={() => doRegisterArweaveAddress(walletAddress, true)}
             />
-            <Button button="alt" label={'Done'} disabled={isArAccountUpdating} onClick={doHideModal} />
+            <Button button="alt" label={__('Nevermind')} disabled={isArAccountUpdating} onClick={doHideModal} />
           </div>
         }
       />
@@ -90,11 +90,11 @@ export default function ModalAnnouncements(props: Props) {
           <div className="section__actions">
             <Button
               button="primary"
-              label={'Make Default'}
+              label={__('Make Default')}
               disabled={isArAccountUpdating}
               onClick={handleMakeDefault}
             />
-            <Button button="alt" label={'Disconnect'} disabled={isArAccountUpdating} onClick={handleDisconnect} />
+            <Button button="alt" label={__('Disconnect')} disabled={isArAccountUpdating} onClick={handleDisconnect} />
           </div>
         }
       />
@@ -120,8 +120,8 @@ export default function ModalAnnouncements(props: Props) {
         }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={'Top Up'} disabled={isArAccountUpdating} onClick={redirectToTopup} />
-            <Button button="alt" label={'Done'} disabled={isArAccountUpdating} onClick={doHideModal} />
+            <Button button="primary" label={__('Top Up')} disabled={isArAccountUpdating} onClick={redirectToTopup} />
+            <Button button="alt" label={__('Not Now')} disabled={isArAccountUpdating} onClick={doHideModal} />
           </div>
         }
       />
