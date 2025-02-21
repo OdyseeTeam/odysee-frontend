@@ -6,9 +6,9 @@ import PaymentAccountPage from './view';
 
 const select = (state) => ({
   arWalletStatus: selectArweaveConnected(state),
-  balance: selectArweaveBalance(state).usdc,
+  balance: selectArweaveBalance(state).usdc || 0,
   fetching: selectArweaveFetching(state),
-  theme: selectThemePath(state),  
+  theme: selectThemePath(state),
 });
 
 export default connect(select, {
