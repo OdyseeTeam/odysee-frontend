@@ -139,9 +139,6 @@ const doArTip = async (
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
-    console.log(tipParams, userParams, claimId, stripeEnvironment, preferredCurrency);
-    dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
-    return;
 
     try {
       if (!window.arweaveWallet) {
@@ -150,7 +147,7 @@ const doArTip = async (
       }
 
       const state = getState();
-      const senderAddress = selectAPIArweaveActiveAddress(state);
+      const senderAddress = selectAPIArweaveDefaultAddress(state);
       if (window.arweaveWallet.getActiveAddress() !== senderAddress) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: address not registered' } });
         return;
@@ -160,8 +157,9 @@ const doArTip = async (
       if (state.arwallet.tippingStatusById[claimId] === 'error') {
         isRetry = true;
       }
+      let referenceToken = '';
       if (!isRetry) {
-        await Lbryio.call(
+        const res = await Lbryio.call( // : { data, success, error }
           'customer',
           'tip',
           {
@@ -181,6 +179,8 @@ const doArTip = async (
           },
           'post'
         );
+        referenceToken = res.data.reference_token;
+        console.log('res', res); // res.token?
       }
 
       const transferTxid = await message({
@@ -192,6 +192,7 @@ const doArTip = async (
           { name: 'Recipient', value: tipParams.recipientAddress }, // get address
           { name: 'Tip_Type', value: 'tip' },
           { name: 'Claim_ID', value: claimId },
+          { name: 'X-O-Ref', value: referenceToken },
         ],
         Owner: senderAddress, // test/fix
         signer: createDataItemSigner(window.arweaveWallet),
@@ -214,6 +215,7 @@ const doArTip = async (
           environment: stripeEnvironment,
           v2: true,
           tx_id: transferTxid,
+          token: referenceToken,
         },
         'post'
       );
