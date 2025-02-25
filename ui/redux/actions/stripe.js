@@ -266,7 +266,7 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
   }
 };
 
-export const doUpdateArweaveAddress = (id: string, status: 'active' | 'inactive') => async (dispatch: Dispatch) => {
+export const doUpdateArweaveAddressStatus = (id: string, status: 'active' | 'inactive') => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED });
   try {
     await updateAddressStatus(id, status);
