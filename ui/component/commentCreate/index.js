@@ -29,7 +29,11 @@ import {
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectArweaveStatus, selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import {
+  selectFullAPIArweaveStatus,
+  selectArweaveTipDataForId,
+  selectCanReceiveFiatTipsForUri,
+} from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import {
   selectUserHasOdyseePremiumPlus,
@@ -60,7 +64,7 @@ const select = (state, props) => {
     activeChannelUrl,
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     canReceiveArweaveTips: selectArweaveTipDataForId(state, uri),
-    arweaveStatus: selectArweaveStatus(state),
+    arweaveStatus: selectFullAPIArweaveStatus(state),
     channelClaimId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
     claimId,

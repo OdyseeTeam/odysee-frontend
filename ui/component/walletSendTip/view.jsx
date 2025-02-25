@@ -108,6 +108,7 @@ export default function WalletSendTip(props: Props) {
   const [hasSelected, setSelected] = React.useState(false);
 
   /** STATE **/
+  // tipAmount: number 12.345, round later
   const [tipAmount, setTipAmount] = usePersistedState('comment-support:customTip', 1.0);
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [tipError, setTipError] = React.useState();

@@ -1,5 +1,6 @@
 // @flow
 import { Lbryio } from 'lbryinc';
+import * as MODALS from 'constants/modal_types';
 import {
   ARCONNECT_FAILURE,
   ARCONNECT_STARTED,
@@ -11,7 +12,8 @@ import {
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
-import { getGQLData } from '@permaweb/libs';
+import { selectAPIArweaveActiveAddress } from '../selectors/stripe';
+import { doOpenModal } from './app';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -25,15 +27,18 @@ export const WALLET_PERMISSIONS = [
   'DECRYPT',
 ];
 
+const USD_TO_USDC = 1000000;
+
 export const ARCONNECT_TYPE = 'arConnect';
 
 export function doArConnect() {
-  console.log('doArConnect');
-  return async (dispatch) => {
+  console.log('doarconnect');
+  return async (dispatch, getState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
         await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
+        console.log('connected');
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
           // Attached throughout app-lifetime, so no need to clean up.
@@ -42,6 +47,9 @@ export function doArConnect() {
         }
 
         const address = await global.window.arweaveWallet.getActiveAddress();
+        const currentState = getState();
+        const apiActiveAddress = selectAPIArweaveActiveAddress(currentState);
+
         const USDCBalance = await fetchUSDCBalance(address);
         dispatch({
           type: ARCONNECT_SUCCESS,
@@ -52,8 +60,14 @@ export function doArConnect() {
           },
           wallet: window.arweaveWallet,
         });
-        return address;
+
+        // if needs interaction, launch modal
+        if (apiActiveAddress !== address) {
+          dispatch(doOpenModal(MODALS.ARWEAVE_CONNECT));
+          return;
+        }
       } catch (e) {
+        console.log('error:', e);
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
     } else {
@@ -110,21 +124,28 @@ export function doArDisconnect() {
   };
 }
 
-type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type TipParams = {
+  tipAmountTwoPlaces: number,
+  tipChannelName: string,
+  channelClaimId: string,
+  recipientAddress: string,
+};
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 const doArTip = async (
   tipParams: TipParams,
-  anonymous = false,
+  anonymous: boolean,
   userParams: UserParams,
-  claimId,
+  claimId: string,
   stripeEnvironment,
   preferredCurrency = 'USD',
   successCallback
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
+    console.log(tipParams, userParams, claimId, stripeEnvironment, preferredCurrency);
+    dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
+    return;
 
-    dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
     try {
       if (!window.arweaveWallet) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
@@ -132,6 +153,12 @@ const doArTip = async (
       }
 
       const state = getState();
+      const senderAddress = selectAPIArweaveActiveAddress(state);
+      if (window.arweaveWallet.getActiveAddress() !== senderAddress) {
+        dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: address not registered' } });
+        return;
+      }
+
       let isRetry = false;
       if (state.arwallet.tippingStatusById[claimId] === 'error') {
         isRetry = true;
@@ -142,14 +169,16 @@ const doArTip = async (
           'tip',
           {
             // round to fix issues with floating point numbers
-            amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
+            amount: Math.round(USD_TO_USDC * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
             creator_channel_name: tipParams.tipChannelName, // creator_channel_name
             creator_channel_claim_id: tipParams.channelClaimId,
             tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
             tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
             currency: 'USD',
-            anonymous: false,
+            anonymous: anonymous,
             source_claim_id: claimId,
+            receiver_address: tipParams.recipientAddress,
+            sender_address: senderAddress,
             environment: stripeEnvironment,
             v2: true,
             initiate: true,
@@ -163,12 +192,12 @@ const doArTip = async (
         data: '',
         tags: [
           { name: 'Action', value: 'Transfer' },
-          { name: 'Quantity', value: tipParams.tipAmount * 1000000 }, // test/fix
-          { name: 'Recipient', value: '<address>' }, // get address
+          { name: 'Quantity', value: tipParams.tipAmountTwoPlaces * USD_TO_USDC }, // test/fix
+          { name: 'Recipient', value: tipParams.recipientAddress }, // get address
           { name: 'Tip_Type', value: 'tip' },
           { name: 'Claim_ID', value: claimId },
         ],
-        Owner: '<address>', // test/fix
+        Owner: senderAddress, // test/fix
         signer: createDataItemSigner(window.arweaveWallet),
       });
       await Lbryio.call(
@@ -176,14 +205,16 @@ const doArTip = async (
         'tip',
         {
           // round to fix issues with floating point numbers
-          amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
+          amount: Math.round(USD_TO_USDC * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
           creator_channel_name: tipParams.tipChannelName, // creator_channel_name
           creator_channel_claim_id: tipParams.channelClaimId,
           tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
           tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
           currency: 'USD',
-          anonymous: false,
+          anonymous: anonymous,
           source_claim_id: claimId,
+          receiver_address: tipParams.recipientAddress,
+          sender_address: senderAddress,
           environment: stripeEnvironment,
           v2: true,
           tx_id: transferTxid,
@@ -244,7 +275,7 @@ const test = async () => {
               }
             }
           }
-        }`
+        }`,
       }),
     });
     return response.json();
