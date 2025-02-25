@@ -140,7 +140,7 @@ export const doArTip = (
   userParams: UserParams,
   claimId: string,
   stripeEnvironment: string,
-  preferredCurrency: string = 'USD'
+  preferredCurrency: string = 'USD',
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
