@@ -8,7 +8,7 @@ import {
   selectArAccountUpdating,
   selectFullAPIArweaveStatus,
 } from 'redux/selectors/stripe';
-import { doRegisterArweaveAddress, doUpdateArweaveAddress, doUpdateArweaveAddressDefault } from 'redux/actions/stripe';
+import { doRegisterArweaveAddress, doUpdateArweaveAddressDefault } from 'redux/actions/stripe';
 
 const select = (state) => ({
   connecting: state.arwallet.connecting,
@@ -26,7 +26,6 @@ const perform = {
   doArConnect,
   doArDisconnect,
   doRegisterArweaveAddress,
-  doUpdateArweaveAddress,
   doUpdateArweaveAddressDefault,
 };
 
