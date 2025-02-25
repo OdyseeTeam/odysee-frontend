@@ -33,7 +33,7 @@ export const ARCONNECT_TYPE = 'arConnect';
 
 export function doArConnect() {
   console.log('doarconnect');
-  return async (dispatch, getState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
@@ -49,6 +49,8 @@ export function doArConnect() {
         const address = await global.window.arweaveWallet.getActiveAddress();
         const currentState = getState();
         const apiDefaultAddress = selectAPIArweaveDefaultAddress(currentState);
+        const currentModalId = currentState.app.modal;
+        const currentModalProps = currentState.app.modalProps;
 
         const USDCBalance = await fetchUSDCBalance(address);
         dispatch({
@@ -63,7 +65,11 @@ export function doArConnect() {
 
         // if needs interaction, launch modal
         if (apiDefaultAddress !== address) {
-          dispatch(doOpenModal(MODALS.ARWEAVE_CONNECT));
+          dispatch(
+            doOpenModal(MODALS.ARWEAVE_CONNECT, {
+              previousModal: currentModalId ? { id: currentModalId, modalProps: currentModalProps } : undefined,
+            })
+          );
           return;
         }
       } catch (e) {
@@ -83,7 +89,7 @@ export function doArConnect() {
 }
 
 export function doArUpdateBalance() {
-  return async (dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_FETCHBALANCE });
     if (window.arweaveWallet) {
       try {
@@ -108,7 +114,7 @@ export function doArUpdateBalance() {
 }
 
 export function doArDisconnect() {
-  return async (dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
@@ -133,8 +139,8 @@ export const doArTip = (
   anonymous: boolean,
   userParams: UserParams,
   claimId: string,
-  stripeEnvironment,
-  preferredCurrency = 'USD'
+  stripeEnvironment: string,
+  preferredCurrency: string = 'USD'
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
