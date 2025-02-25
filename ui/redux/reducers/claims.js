@@ -68,6 +68,7 @@ const defaultState: ClaimsState = {
   fetchingMyPurchasedClaims: undefined,
   fetchingMyPurchasedClaimsError: undefined,
   costInfosById: {},
+  hasPublicationClaims: undefined,
 };
 
 // ****************************************************************************
@@ -394,7 +395,13 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
     result,
     setNewPageItems,
     isAllMyClaimsFetched,
-  }: { result: ClaimListResponse, setNewPageItems?: boolean, isAllMyClaimsFetched?: boolean } = action.data;
+    isPublicationOnlyClaimList,
+  }: {
+    result: ClaimListResponse,
+    setNewPageItems?: boolean,
+    isAllMyClaimsFetched?: boolean,
+    isPublicationOnlyClaimList?: boolean,
+  } = action.data;
   const claims = result.items;
   const page = result.page;
   const totalItems = result.total_items;
@@ -454,6 +461,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
   });
 
   return Object.assign({}, state, {
+    hasPublicationClaims: isPublicationOnlyClaimList ? claims.length > 0 : state.hasPublicationClaims,
     isFetchingClaimListMineSuccess: true,
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),

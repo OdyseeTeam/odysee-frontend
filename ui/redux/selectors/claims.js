@@ -54,6 +54,7 @@ export const selectRepostError = (state: State) => selectState(state).repostErro
 export const selectLatestByUri = (state: State) => selectState(state).latestByUri;
 export const selectResolvedCollectionsById = (state: State) => selectState(state).resolvedCollectionsById;
 export const selectMyCollectionClaimIds = (state: State) => selectState(state).myCollectionClaimIds;
+export const selectHasPublicationClaims = (state: State) => selectState(state).hasPublicationClaims;
 
 export const selectMyCollectionClaimsById = createSelector(
   selectResolvedCollectionsById,
