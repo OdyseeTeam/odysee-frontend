@@ -32,7 +32,7 @@ type Props = {
   urls: Array<string>,
   urlTotal: number,
   isAllMyClaimsFetched: ?boolean,
-  myClaimIdsRaw?: Array<string>,
+  hasClaims?: boolean,
   myClaims: Array<Claim>,
   myStreamClaims: Array<Claim>,
   myRepostClaims: Array<Claim>,
@@ -62,7 +62,7 @@ function FileListPublished(props: Props) {
     urls,
     urlTotal,
     isAllMyClaimsFetched,
-    myClaimIdsRaw,
+    hasClaims,
     myClaims,
     myStreamClaims,
     myRepostClaims,
@@ -455,7 +455,7 @@ function FileListPublished(props: Props) {
       </div>
       {!(myClaims && myClaims.length) && method === FILE_LIST.METHOD.CLAIM_LIST && (
         <React.Fragment>
-          {!fetching && !myClaimIdsRaw?.length ? (
+          {!fetching && hasClaims === false ? (
             <section className="main--empty">
               <Yrbl
                 title={filterType === FILE_LIST.FILE_TYPE.REPOSTS ? __('No Reposts') : __('No uploads')}

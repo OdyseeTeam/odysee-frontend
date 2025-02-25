@@ -299,6 +299,7 @@ export function doFetchClaimListMine(
             resolve,
             setNewPageItems: pageSize !== FILE_LIST.PAGE_SIZE_ALL_ITEMS,
             isAllMyClaimsFetched: pageSize === FILE_LIST.PAGE_SIZE_ALL_ITEMS,
+            isPublicationOnlyClaimList: true,
           },
         });
 
