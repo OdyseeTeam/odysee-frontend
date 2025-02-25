@@ -461,7 +461,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: ClaimsState, action:
   });
 
   return Object.assign({}, state, {
-    hasPublicationClaims: isPublicationOnlyClaimList ? claims.length > 0 : undefined,
+    hasPublicationClaims: isPublicationOnlyClaimList ? claims.length > 0 : state.hasPublicationClaims,
     isFetchingClaimListMineSuccess: true,
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),
