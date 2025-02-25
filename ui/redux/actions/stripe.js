@@ -214,7 +214,6 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
 const updateAddressStatus = async (id: string, status: string) => {
   try {
     const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post'); // 'active' | 'inactive'
-    console.log('res', res);
     return res;
   } catch (e) {
     console.error(e);
