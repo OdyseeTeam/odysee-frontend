@@ -1,6 +1,6 @@
 import ModalArweaveConnect from './view';
 import { connect } from 'react-redux';
-import { doHideModal } from 'redux/actions/app';
+import { doHideModal, doOpenModal } from 'redux/actions/app';
 import { doArConnect, doArDisconnect } from 'redux/actions/arwallet';
 import {
   selectAPIArweaveActiveAddresses,
@@ -23,6 +23,7 @@ const select = (state) => ({
 
 const perform = {
   doHideModal,
+  doOpenModal,
   doArConnect,
   doArDisconnect,
   doRegisterArweaveAddress,

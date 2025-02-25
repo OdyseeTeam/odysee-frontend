@@ -11,6 +11,7 @@ import { useHistory } from 'react-router';
 
 type Props = {
   doHideModal: () => void,
+  doOpenModal: (string, any) => void,
   doArDisconnect: () => void,
   doRegisterArweaveAddress: (string, boolean) => void,
   doUpdateArweaveAddressDefault: (number) => void,
@@ -20,12 +21,14 @@ type Props = {
   walletAddress: string,
   walletBalance: any,
   isArAccountUpdating: boolean,
+  previousModal?: { id: string, modalProps: any },
 };
 
 export default function ModalAnnouncements(props: Props) {
   const { push } = useHistory();
   const {
     doHideModal,
+    doOpenModal,
     doArDisconnect,
     fullAPIArweaveStatus,
     defaultApiAddress,
@@ -34,6 +37,7 @@ export default function ModalAnnouncements(props: Props) {
     doRegisterArweaveAddress,
     doUpdateArweaveAddressDefault,
     isArAccountUpdating,
+    previousModal,
   } = props;
 
   const apiEntryWithAddress = fullAPIArweaveStatus.find((status) => status.address === walletAddress);
@@ -74,7 +78,11 @@ export default function ModalAnnouncements(props: Props) {
 
   const handleDisconnect = () => {
     doArDisconnect();
-    doHideModal();
+    if (previousModal) {
+      doOpenModal(previousModal.id, previousModal.modalProps);
+    } else {
+      doHideModal();
+    }
   };
   const MakeDefaultCard = () => {
     return (
@@ -101,6 +109,14 @@ export default function ModalAnnouncements(props: Props) {
     );
   };
 
+  const handleCloseModal = () => {
+    if (previousModal) {
+      doOpenModal(previousModal.id, previousModal.modalProps);
+    } else {
+      doHideModal();
+    }
+  };
+
   const redirectToTopup = () => {
     push('/$/paymentaccount?tab=buy');
     doHideModal();
@@ -121,7 +137,7 @@ export default function ModalAnnouncements(props: Props) {
         actions={
           <div className="section__actions">
             <Button button="primary" label={__('Top Up')} disabled={isArAccountUpdating} onClick={redirectToTopup} />
-            <Button button="alt" label={__('Not Now')} disabled={isArAccountUpdating} onClick={doHideModal} />
+            <Button button="alt" label={__('Not Now')} disabled={isArAccountUpdating} onClick={handleCloseModal} />
           </div>
         }
       />
