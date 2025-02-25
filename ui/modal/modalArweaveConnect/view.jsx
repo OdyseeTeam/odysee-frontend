@@ -58,7 +58,7 @@ export default function ModalAnnouncements(props: Props) {
               disabled={isArAccountUpdating}
               onClick={() => doRegisterArweaveAddress(walletAddress, true)}
             />
-            <Button button="alt" label={__('Nevermind')} disabled={isArAccountUpdating} onClick={doHideModal} />
+            <Button button="alt" label={__('Nevermind')} disabled={isArAccountUpdating} onClick={handleDisconnect} />
           </div>
         }
       />
