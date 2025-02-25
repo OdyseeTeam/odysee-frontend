@@ -28,7 +28,7 @@ export const WALLET_PERMISSIONS = [
 ];
 
 const USD_TO_USDC = 1000000;
-
+const TWO_PLACES_TO_PENNIES = 100;
 export const ARCONNECT_TYPE = 'arConnect';
 
 export function doArConnect() {
@@ -76,10 +76,7 @@ export function doArConnect() {
 
     function handleWalletSwitched(event) {
       if (event?.detail?.address) {
-        dispatch({
-          type: ARCONNECT_SUCCESS,
-          data: { address: event.detail.address, type: ARCONNECT_TYPE, wallet: window.arweaveWallet },
-        });
+        dispatch(doArDisconnect());
       }
     }
   };
@@ -131,20 +128,16 @@ type TipParams = {
   recipientAddress: string,
 };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
-const doArTip = async (
+export const doArTip = (
   tipParams: TipParams,
   anonymous: boolean,
   userParams: UserParams,
   claimId: string,
   stripeEnvironment,
-  preferredCurrency = 'USD',
-  successCallback
+  preferredCurrency = 'USD'
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
-    console.log(tipParams, userParams, claimId, stripeEnvironment, preferredCurrency);
-    dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
-    return;
 
     try {
       if (!window.arweaveWallet) {
@@ -153,23 +146,29 @@ const doArTip = async (
       }
 
       const state = getState();
-      const senderAddress = selectAPIArweaveActiveAddress(state);
-      if (window.arweaveWallet.getActiveAddress() !== senderAddress) {
-        dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: address not registered' } });
+      const senderAddress = selectAPIArweaveDefaultAddress(state);
+      const activeAddress = await window.arweaveWallet.getActiveAddress();
+      if (activeAddress !== senderAddress) {
+        dispatch({
+          type: AR_TIP_STATUS_ERROR,
+          data: { claimId: claimId, error: 'error: wallet address not registered' },
+        });
         return;
       }
 
       let isRetry = false;
-      if (state.arwallet.tippingStatusById[claimId] === 'error') {
-        isRetry = true;
-      }
+      // if (state.arwallet.tippingStatusById[claimId] === 'error') {
+      //   isRetry = true;
+      // }
+      let referenceToken = '';
       if (!isRetry) {
-        await Lbryio.call(
+        const res = await Lbryio.call(
+          // : { data, success, error }
           'customer',
           'tip',
           {
             // round to fix issues with floating point numbers
-            amount: Math.round(USD_TO_USDC * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
+            amount: Math.round(TWO_PLACES_TO_PENNIES * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
             creator_channel_name: tipParams.tipChannelName, // creator_channel_name
             creator_channel_claim_id: tipParams.channelClaimId,
             tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
@@ -181,10 +180,11 @@ const doArTip = async (
             sender_address: senderAddress,
             environment: stripeEnvironment,
             v2: true,
-            initiate: true,
           },
           'post'
         );
+        console.log('res', res); // res.token?
+        referenceToken = res.reference_token;
       }
 
       const transferTxid = await message({
@@ -192,10 +192,11 @@ const doArTip = async (
         data: '',
         tags: [
           { name: 'Action', value: 'Transfer' },
-          { name: 'Quantity', value: tipParams.tipAmountTwoPlaces * USD_TO_USDC }, // test/fix
+          { name: 'Quantity', value: String(tipParams.tipAmountTwoPlaces * USD_TO_USDC) }, // test/fix
           { name: 'Recipient', value: tipParams.recipientAddress }, // get address
           { name: 'Tip_Type', value: 'tip' },
           { name: 'Claim_ID', value: claimId },
+          { name: 'X-O-Ref', value: referenceToken },
         ],
         Owner: senderAddress, // test/fix
         signer: createDataItemSigner(window.arweaveWallet),
@@ -205,7 +206,7 @@ const doArTip = async (
         'tip',
         {
           // round to fix issues with floating point numbers
-          amount: Math.round(USD_TO_USDC * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
+          amount: Math.round(TWO_PLACES_TO_PENNIES * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
           creator_channel_name: tipParams.tipChannelName, // creator_channel_name
           creator_channel_claim_id: tipParams.channelClaimId,
           tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
@@ -218,6 +219,7 @@ const doArTip = async (
           environment: stripeEnvironment,
           v2: true,
           tx_id: transferTxid,
+          token: referenceToken,
         },
         'post'
       );
@@ -248,38 +250,5 @@ const fetchUSDCBalance = async (address: string) => {
   } catch (e) {
     console.error(e);
     return 0;
-  }
-};
-
-const updateAddress = async (id: string, status: string) => {
-  try {
-    const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post');
-    return;
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const updateDefault = async (id: string) => {
-  try {
-    const res = await Lbryio.call('arweave/address', 'update', { id, set_default: true }, 'post');
-    return;
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const registerAddress = async (address: string, currency = 'USD') => {
-  try {
-    const pub_key = window.arweaveWallet.getActivePublicKey();
-    const data = new TextEncoder().encode(address);
-    const signature = await window.arweaveWallet.signMessage(data);
-    const res = await Lbryio.call('arweave/address', 'add', { currency, address, pub_key, signature }, 'post');
-    return;
-    // get public key
-    // sign the address
-    // send to api with
-  } catch (e) {
-    console.error(e);
   }
 };
