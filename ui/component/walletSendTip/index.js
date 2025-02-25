@@ -16,7 +16,7 @@ import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 import WalletSendTip from './view';
 import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
-import { doArTip } from 'redux/actions/arwallet';
+import { doArConnect, doArTip } from 'redux/actions/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -57,6 +57,7 @@ const perform = {
   doSendTip,
   doSendCashTip,
   doArTip,
+  doArConnect,
 };
 
 export default withRouter(connect(select, perform)(WalletSendTip));

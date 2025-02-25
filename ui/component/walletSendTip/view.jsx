@@ -52,6 +52,7 @@ type Props = {
   customText?: string,
   experimentalUi: boolean,
   doHideModal: () => void,
+  doArConnect: () => void,
   doSendCashTip: (
     TipParams,
     anonymous: boolean,
@@ -105,6 +106,7 @@ export default function WalletSendTip(props: Props) {
     modalProps,
     arweaveTipData,
     doArTip,
+    doArConnect,
   } = props;
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
@@ -138,6 +140,9 @@ export default function WalletSendTip(props: Props) {
       ? boostYourContentText
       : boostThisContentText
     : __('Leave a tip for the creator');
+
+  // just do this always or check connection somehow?
+  doArConnect();
 
   let channelName;
   try {
