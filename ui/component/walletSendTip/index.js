@@ -15,6 +15,8 @@ import { withRouter } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 import WalletSendTip from './view';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { doArTip } from 'redux/actions/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -46,6 +48,7 @@ const select = (state, props) => {
     title: selectTitleForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
     experimentalUi: selectUserExperimentalUi(state),
+    arweaveTipData: selectArweaveTipDataForId(state, claimId),
   };
 };
 
@@ -53,6 +56,7 @@ const perform = {
   doHideModal,
   doSendTip,
   doSendCashTip,
+  doArTip,
 };
 
 export default withRouter(connect(select, perform)(WalletSendTip));
