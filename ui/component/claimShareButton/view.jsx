@@ -5,6 +5,7 @@ import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
 import Tooltip from 'component/common/tooltip';
 import { platform } from 'util/platform';
+import { useIsMobile } from 'effects/use-screensize';
 
 // ****************************************************************************
 // withUnlisted
@@ -62,20 +63,24 @@ type Props = {
   fileAction?: boolean,
   webShareable: boolean,
   collectionId?: string,
+  shrinkOnMobile?: boolean,
   // redux
   isUnlisted: ?boolean,
   doOpenModal: (id: string, {}) => void,
 };
 
 function ClaimShareButton(props: Props) {
-  const { uri, fileAction, collectionId, webShareable, isUnlisted, doOpenModal } = props;
+  const { uri, fileAction, collectionId, webShareable, shrinkOnMobile = false, isUnlisted, doOpenModal } = props;
 
+  const isMobile = useIsMobile();
+
+  const label = isMobile && shrinkOnMobile ? '' : __('Share');
   const title = isUnlisted ? 'Get a sharable link for your unlisted content.' : 'Share this content';
 
   return (
     <FileActionButton
       title={__(title)}
-      label={__('Share')}
+      label={label}
       icon={ICONS.SHARE}
       onClick={() => doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId })}
       noStyle={!fileAction}
