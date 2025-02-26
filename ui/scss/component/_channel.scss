@@ -1193,11 +1193,12 @@ $actions-z-index: 2;
   }
 
   @media (max-width: $breakpoint-small) {
-    background-size: auto 322px;
+    background-size: 100% auto;
     background-position-x: 50%;
     background-position-y: var(--header-height-mobile);
     margin-left: calc(var(--spacing-xs) * -1);
     margin-right: calc(var(--spacing-xs) * -1);
+    margin-top: -20px;
     width: calc(100% + 2 * var(--spacing-xs)) !important;
   }
 
