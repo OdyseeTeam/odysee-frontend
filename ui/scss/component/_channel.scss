@@ -1194,8 +1194,7 @@ $actions-z-index: 2;
   }
 
   @media (max-width: $breakpoint-small) {
-    background-attachment: local;
-    background-size: 100% auto;
+    background-size: auto var(--cover-photo-height-small);
     background-position-x: 50%;
     background-position-y: var(--header-height-mobile);
     margin-left: calc(var(--spacing-xs) * -1);
@@ -1284,7 +1283,8 @@ $actions-z-index: 2;
   }
   @media (max-width: $breakpoint-small) {
     //min-height: calc(var(--cover-photo-height) + 2 * var(--spacing-xl) + var(--spacing-m));
-    height: 200px;
+    min-height: var(--cover-photo-height-small);
+    height: var(--cover-photo-height-small);
   }
 
   .menu__button {
