@@ -9,9 +9,9 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
-import SendUsdc from './sendUsdc/view';
-import ReceiveUsdt from './receiveUsdc/view';
-import OnRamper from './onRamper/view';
+import SendUsdc from './sendUsdc';
+import ReceiveUsdt from './receiveUsdc';
+import OnRamper from './onRamper';
 
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';

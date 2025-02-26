@@ -50,7 +50,6 @@ function ReceiveUsdc(props: Props) {
               </I18nMessage>
             </div>
           </div>
-          
         </div>
       }
     />
