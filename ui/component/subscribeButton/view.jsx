@@ -49,7 +49,6 @@ export default function SubscribeButton(props: Props) {
   const buttonRef = useRef();
   const isMobile = useIsMobile();
   let isHovering = useHover(buttonRef);
-  isHovering = isMobile ? true : isHovering;
   const uiNotificationsEnabled = (user && user.experimental_ui) || ENABLE_UI_NOTIFICATIONS;
 
   const { channelName: rawChannelName } = parseURI(uri);

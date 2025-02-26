@@ -377,10 +377,12 @@ function ChannelPage(props: Props) {
               />
             )}
             {!(isBlocked || isMuted || isMature) && <JoinMembershipButton uri={uri} />}
-            {!(isBlocked || isMuted || isMature || channelIsBlackListed) && <ClaimShareButton uri={uri} webShareable />}
-            {!(isBlocked || isMuted || isMature) && <ClaimSupportButton uri={uri} />}
+            {!(isBlocked || isMuted || isMature || channelIsBlackListed) && (
+              <ClaimShareButton uri={uri} webShareable shrinkOnMobile />
+            )}
+            {!(isBlocked || isMuted || isMature) && <ClaimSupportButton uri={uri} shrinkOnMobile />}
             {!(isBlocked || isMuted || isMature) && (!channelIsBlackListed || isSubscribed) && (
-              <SubscribeButton uri={permanentUrl} />
+              <SubscribeButton uri={permanentUrl} shrinkOnMobile />
             )}
             <ClaimMenuList uri={claim.permanent_url} inline />
           </div>
