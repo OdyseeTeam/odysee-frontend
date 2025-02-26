@@ -51,8 +51,9 @@ function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
   const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '').replace('#', ':');
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
+  const autoplay = true;
 
-  const embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral);
+  const embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral, autoplay);
   const videoUrl =
     embedUrl + (embedlyReferrer ? `referrer=${encodeURIComponent(escapeHtmlProperty(embedlyReferrer))}` : '');
 
