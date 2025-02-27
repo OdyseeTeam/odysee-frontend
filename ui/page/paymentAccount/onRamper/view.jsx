@@ -80,7 +80,7 @@ export default function OnRamper(props: Props) {
       : { sell_onlyCryptos: 'usdc_bsc,usdc_base,usdc_ethereum' }),
     ...(mode === 'buy' ? { defaultFiat: 'USD' } : { sell_defaultFiat: 'USD' }),
     ...(mode === 'buy' && { defaultAmount: '30' }),
-    ...(mode === 'buy' && { networkWallets: `base:${depositAddress},bsc:${depositAddress},ethereum:${depositAddress}` }),
+    ...(mode === 'buy' && { networkWallets: `bsc:${depositAddress},base:${depositAddress},ethereum:${depositAddress}` }),
     ...(mode === 'buy'
       ? { onlyCryptoNetworks: `base,bsc,ethereum` }
       : { sell_onlyCryptoNetworks: `base,bsc,ethereum` }),
@@ -106,65 +106,66 @@ export default function OnRamper(props: Props) {
     subsetKeys.forEach((key) => {
       subsetParams[key] = params[key];
     });
-    const subsetString = buildParamString(subsetParams);
-
-    return subsetString;
+    return buildParamString(subsetParams);;
   };
 
   const buildParamString = (params) => {
     const paramString = Object.keys(params)
       .map((key) => `${key}=${params[key]}`)
       .join('&');
-    return paramString;
+    return paramString || '';
   };
 
-  // const signContent = 'wallets=btc:1Lbcfr7sAHTD9CgdQo3HTMTkV8LK4ZnX71,eth:1Lbcfr7sAUTEFCgdQo3HTMTkV8LK4ZnX71
-  // &networkWallets=ethereum:1BvBMSEYstWetqTFn5wrwrhGFryetusJaNVN2,bitcoin:1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2
-  // &walletAddressTags=btc:1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2,eth:1BvBMSEYstWetqTFn5wrwrhGFryetusJaNVN2'
-  //
-  // function arrangeStringAlphabetically(inputString: string): string {
-  //   // Parse the input string into an object
-  //   const inputObject: { [key: string]: { [key: string]: string } } = {};
-  //   inputString.split('&').forEach((pair) => {
-  //     // Split each pair into key and value
-  //     const [key, value] = pair.split('=');
-  //     // Split the value into nested key-value pairs
-  //     const nestedPairs = value.split(',');
-  //     inputObject[key] = {}; // Initialize the nested object for the key
-  //     nestedPairs.forEach((nestedPair) => {
-  //       // Split each nested pair into nested key and value
-  //       const [nestedKey, nestedValue] = nestedPair.split(':');
-  //       // Assign the nested key-value pair to the nested object
-  //       inputObject[key][nestedKey] = nestedValue;
-  //     });
-  //   });
-  //
-  //   // Sort the keys of each nested object alphabetically
-  //   for (const key in inputObject) {
-  //     inputObject[key] = Object.fromEntries(Object.entries(inputObject[key]).sort());
-  //   }
-  //
-  //   // Sort the keys of the top-level object alphabetically
-  //   const sortedKeys = Object.keys(inputObject).sort();
-  //   const sortedObject: { [key: string]: { [key: string]: string } } = {};
-  //   sortedKeys.forEach((key) => {
-  //     sortedObject[key] = inputObject[key];
-  //   });
-  //
-  //   // Reconstruct the string from the sorted object
-  //   let resultString = '';
-  //   for (const key in sortedObject) {
-  //     resultString += key + '='; // Append the key
-  //     // Append nested key-value pairs, sorted alphabetically
-  //     resultString += Object.entries(sortedObject[key]).map(([nestedKey, nestedValue]) => `${nestedKey}:${nestedValue}`).join(',');
-  //     resultString += '&'; // Separate key-value pairs with '&'
-  //   }
-  //   resultString = resultString.slice(0, -1); // Remove the trailing '&'
-  //
-  //   return resultString;
-  // }
+  // alphabetize function from onramper docs, modified for safety
+  function arrangeStringAlphabetically(inputString: string): string {
+    // Parse the input string into an object
+    const inputObject: { [key: string]: { [key: string]: string } } = {};
+    if (!inputString) {
+      return '';
+    }
+    inputString.split('&').forEach((pair) => {
+      // Split each pair into key and value
+      const [key, value] = pair.split('=');
+      // Split the value into nested key-value pairs
+      const nestedPairs = value.split(',');
+      inputObject[key] = {}; // Initialize the nested object for the key
+      nestedPairs.forEach((nestedPair) => {
+        // Split each nested pair into nested key and value
+        const [nestedKey, nestedValue] = nestedPair.split(':');
+        // Assign the nested key-value pair to the nested object
+        inputObject[key][nestedKey] = nestedValue;
+      });
+    });
 
-  const signContent = getSignContentSubsetFromParams(params);
+    // Sort the keys of each nested object alphabetically
+    for (const key in inputObject) {
+      inputObject[key] = Object.fromEntries(Object.entries(inputObject[key]).sort());
+    }
+
+    // Sort the keys of the top-level object alphabetically
+    const sortedKeys = Object.keys(inputObject).sort();
+    const sortedObject: { [key: string]: { [key: string]: string } } = {};
+    sortedKeys.forEach((key) => {
+      sortedObject[key] = inputObject[key];
+    });
+
+    // Reconstruct the string from the sorted object
+    let resultString = '';
+    for (const key in sortedObject) {
+      resultString += key + '='; // Append the key
+      // Append nested key-value pairs, sorted alphabetically
+      resultString += Object.entries(sortedObject[key]).map(([nestedKey, nestedValue]) => `${nestedKey}:${nestedValue}`).join(',');
+      resultString += '&'; // Separate key-value pairs with '&'
+    }
+    resultString = resultString.slice(0, -1); // Remove the trailing '&'
+
+    return resultString;
+  }
+
+  let signContent = '';
+  if (mode === 'buy') {
+    signContent = arrangeStringAlphabetically(getSignContentSubsetFromParams(params));
+  }
 
   const [isSigning, setIsSigning] = React.useState(false);
   const [onRamperSignature, setOnRamperSignature] = React.useState(null);
