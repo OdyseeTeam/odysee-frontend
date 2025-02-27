@@ -355,6 +355,7 @@ export const icons = {
         viewBox="0 0 24 24"
         width={size}
         height={size}
+        fillOpacity={'0'}
         stroke={'#FFFFFF'}
         strokeWidth="2"
         strokeLinecap="round"
