@@ -16,18 +16,18 @@ type Props = {
   labelCancel?: string,
   hideCancel?: boolean,
   busyMsg?: string,
-  checkboxText?: string,
+  checkboxLabel?: string,
   onConfirm: (closeModal: () => void, setIsBusy: (boolean) => void) => void,
   // --- perform ---
   doHideModal: () => void,
 };
 
 export default function ModalConfirm(props: Props) {
-  const { title, subtitle, body, labelOk, labelCancel, hideCancel, busyMsg, checkboxText, onConfirm, doHideModal } =
+  const { title, subtitle, body, labelOk, labelCancel, hideCancel, busyMsg, checkboxLabel, onConfirm, doHideModal } =
     props;
 
   const [isBusy, setIsBusy] = React.useState(false);
-  const [isChecked, setIsChecked] = React.useState(!checkboxText);
+  const [isChecked, setIsChecked] = React.useState(!checkboxLabel);
 
   function handleOnClick() {
     if (onConfirm) {
@@ -44,11 +44,11 @@ export default function ModalConfirm(props: Props) {
         className="confirm__wrapper"
         actions={
           <>
-            {checkboxText && (
+            {checkboxLabel && (
               <FormField
                 type="checkbox"
                 name="modal_confirm_checkbox"
-                label={checkboxText}
+                label={checkboxLabel}
                 checked={isChecked}
                 disabled={isBusy}
                 onChange={() => setIsChecked(!isChecked)}
