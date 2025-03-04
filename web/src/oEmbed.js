@@ -53,7 +53,7 @@ function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
   const autoplay = true;
 
-  const embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral, autoplay);
+  const embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral, null, autoplay);
   const videoUrl =
     embedUrl + (embedlyReferrer ? `referrer=${encodeURIComponent(escapeHtmlProperty(embedlyReferrer))}` : '');
 
