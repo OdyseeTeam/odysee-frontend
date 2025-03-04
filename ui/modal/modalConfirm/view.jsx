@@ -6,6 +6,7 @@ import Card from 'component/common/card';
 import Spinner from 'component/spinner';
 import { Modal } from 'modal/modal';
 import BusyIndicator from 'component/common/busy-indicator';
+import { FormField } from 'component/common/form';
 
 type Props = {
   title: string,
@@ -15,15 +16,18 @@ type Props = {
   labelCancel?: string,
   hideCancel?: boolean,
   busyMsg?: string,
+  checkboxText?: string,
   onConfirm: (closeModal: () => void, setIsBusy: (boolean) => void) => void,
   // --- perform ---
   doHideModal: () => void,
 };
 
 export default function ModalConfirm(props: Props) {
-  const { title, subtitle, body, labelOk, labelCancel, hideCancel, busyMsg, onConfirm, doHideModal } = props;
+  const { title, subtitle, body, labelOk, labelCancel, hideCancel, busyMsg, checkboxText, onConfirm, doHideModal } =
+    props;
 
   const [isBusy, setIsBusy] = React.useState(false);
+  const [isChecked, setIsChecked] = React.useState(!checkboxText);
 
   function handleOnClick() {
     if (onConfirm) {
@@ -39,22 +43,34 @@ export default function ModalConfirm(props: Props) {
         body={body}
         className="confirm__wrapper"
         actions={
-          <div className="section__actions">
-            {isBusy && busyMsg ? (
-              <BusyIndicator message={busyMsg} />
-            ) : (
-              <Button
-                button="primary"
-                label={isBusy ? <Spinner type="small" /> : labelOk || __('OK')}
+          <>
+            {checkboxText && (
+              <FormField
+                type="checkbox"
+                name="modal_confirm_checkbox"
+                label={checkboxText}
+                checked={isChecked}
                 disabled={isBusy}
-                onClick={handleOnClick}
+                onChange={() => setIsChecked(!isChecked)}
               />
             )}
+            <div className="section__actions">
+              {isBusy && busyMsg ? (
+                <BusyIndicator message={busyMsg} />
+              ) : (
+                <Button
+                  button="primary"
+                  label={isBusy ? <Spinner type="small" /> : labelOk || __('OK')}
+                  disabled={isBusy || !isChecked}
+                  onClick={handleOnClick}
+                />
+              )}
 
-            {!hideCancel && !(isBusy && busyMsg) && (
-              <Button button="link" label={labelCancel || __('Cancel')} disabled={isBusy} onClick={doHideModal} />
-            )}
-          </div>
+              {!hideCancel && !(isBusy && busyMsg) && (
+                <Button button="link" label={labelCancel || __('Cancel')} disabled={isBusy} onClick={doHideModal} />
+              )}
+            </div>
+          </>
         }
       />
     </Modal>
