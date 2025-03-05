@@ -86,7 +86,7 @@ function Card(props: Props) {
           className="background"
           style={{
             backgroundImage:
-              'url(https://source.thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + backgroundImage + ')',
+              'url(https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + backgroundImage + ')',
           }}
         />
       )}

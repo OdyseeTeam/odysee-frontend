@@ -35,7 +35,7 @@ export default function HelpHub(props: Props) {
       {image && (
         <img
           src={
-            'https://source.thumbnails.odycdn.com/optimize/s:46:0/quality:95/plain/https://static.odycdn.com/images/helpHub_' +
+            'https://thumbnails.odycdn.com/optimize/s:46:0/quality:95/plain/https://static.odycdn.com/images/helpHub_' +
             image +
             '.png'
           }

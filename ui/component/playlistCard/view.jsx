@@ -162,7 +162,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   /*
   // Disabled due to it blocking the clicking of the scrollbar
   const backgroundImage = thumbnailFromClaim
-    ? 'https://source.thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
     : undefined;
   */
 
