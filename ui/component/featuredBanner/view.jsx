@@ -159,7 +159,12 @@ export default function FeaturedBanner(props: Props) {
                 style={{ minWidth: width }}
               >
                 <img
-                  src={'https://thumbnails.odycdn.com/optimize/s:' + imageWidth + ':0/quality:95/plain/' + item.image}
+                  src={
+                    'https://source.thumbnails.odycdn.com/optimize/s:' +
+                    imageWidth +
+                    ':0/quality:95/plain/' +
+                    item.image
+                  }
                   style={{ width: width }}
                 />
               </NavLink>

@@ -55,7 +55,7 @@ const CollectionHeader = (props: Props) => {
 
   const backgroundImage =
     collection && collection.thumbnail && collection.thumbnail.url
-      ? 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + collection.thumbnail.url
+      ? 'https://source.thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + collection.thumbnail.url
       : undefined;
 
   const { id: collectionId } = collection;

@@ -76,7 +76,7 @@ function CollectionPreview(props: Props) {
   if (collectionType === 'featuredChannels') return null;
 
   let test = thumbnail || thumbnailFromSecondaryClaim || thumbnailFromClaim;
-  test = 'https://thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + test;
+  test = 'https://source.thumbnails.odycdn.com/optimize/s:390:220/quality:85/plain/' + test;
 
   if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;

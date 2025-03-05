@@ -214,7 +214,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
 
   const backgroundImage = thumbnailFromClaim
-    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    ? 'https://source.thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
     : undefined;
 
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';

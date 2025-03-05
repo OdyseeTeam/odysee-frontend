@@ -130,7 +130,7 @@ export default function Portals(props: Props) {
       className={classnames('portals-wrapper', { kill: kill })}
       style={{
         backgroundImage:
-          'url(https://thumbnails.odycdn.com/optimize/s:' +
+          'url(https://source.thumbnails.odycdn.com/optimize/s:' +
           imageWidth +
           ':0/quality:95/plain/' +
           portals.mainPortal.background +
@@ -160,7 +160,7 @@ export default function Portals(props: Props) {
                 >
                   <img
                     style={{ width: tileWidth - 12, height: tileWidth - 12 }}
-                    src={'https://thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image}
+                    src={'https://source.thumbnails.odycdn.com/optimize/s:237:0/quality:95/plain/' + portal.image}
                   />
                 </div>
                 <div className="portal-title" style={{ border: `2px solid rgba(` + portal.css.rgb + `,1)` }}>
