@@ -381,10 +381,10 @@ const PrivacyPolicyPage = () => {
             </p>
 
             <blockquote>
-              <p>Odysee, Inc 2540 S Maryland Pkwy Unit #5021 Las Vegas, NV 89109 hello@odysee.com</p>
+              <p>Space Odysee Inc. 171 Madison Avenue Room 601 New York City, NY, USA 10016 hello@odysee.com</p>
             </blockquote>
 
-            <small>Last edited on 2021-10-08</small>
+            <small>Last edited on 2025-02-13</small>
           </div>
         }
       />

@@ -23,6 +23,7 @@ const config = {
   SHORT_URL_API: process.env.SHORT_URL_API,
   SOCKETY_SERVER_API: process.env.SOCKETY_SERVER_API,
   LOCALE_API: process.env.LOCALE_API,
+  GEO_BLOCK_API: process.env.GEO_BLOCK_API,
   WELCOME_VERSION: process.env.WELCOME_VERSION,
   DOMAIN: process.env.DOMAIN,
   SHARE_DOMAIN_URL: process.env.SHARE_DOMAIN_URL,

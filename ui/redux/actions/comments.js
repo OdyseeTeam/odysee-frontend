@@ -704,7 +704,7 @@ export function doCommentReact(commentId: string, type: string) {
 
 export function doCommentCreate(uri: string, livestream: boolean, params: CommentSubmitParams) {
   return async (dispatch: Dispatch, getState: GetState) => {
-    const { comment, claim_id, parent_id, txid, payment_intent_id, sticker, is_protected } = params;
+    const { comment, claim_id, parent_id, txid, payment_intent_id, sticker, is_protected, amount, dry_run } = params;
 
     const state = getState();
     const activeChannelClaim = selectActiveChannelClaim(state);
@@ -802,16 +802,19 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       }
     }
 
-    dispatch({ type: ACTIONS.COMMENT_CREATE_STARTED });
+    const signatureData = await ChannelSign.sign(activeChannelClaim.claim_id, comment, false);
+    if (!signatureData) {
+      dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
+      return;
+    }
+
+    if (!dry_run) {
+      dispatch({ type: ACTIONS.COMMENT_CREATE_STARTED });
+    }
 
     const notification = parent_id && makeSelectNotificationForCommentId(parent_id)(state);
     if (notification && !notification.is_seen) {
       dispatch(doSeeNotifications([notification.id]));
-    }
-
-    const signatureData = await ChannelSign.sign(activeChannelClaim.claim_id, comment, false);
-    if (!signatureData) {
-      return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
     }
 
     return Comments.comment_create({
@@ -826,10 +829,15 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       mentioned_channels: mentionedChannels,
       environment: stripeEnvironment,
       is_protected: is_protected || undefined,
+      amount: amount,
+      dry_run: dry_run,
       ...(txid ? { support_tx_id: txid } : {}),
       ...(payment_intent_id ? { payment_intent_id } : {}),
     })
       .then((result: CommentCreateResponse) => {
+        if (dry_run) {
+          return result;
+        }
         const previousCommenterChannel = {
           claim_id: activeChannelClaim.claim_id,
           name: activeChannelClaim.name,
@@ -860,7 +868,9 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
         return result;
       })
       .catch((error) => {
-        dispatch({ type: ACTIONS.COMMENT_CREATE_FAILED, data: error });
+        if (!dry_run) {
+          dispatch({ type: ACTIONS.COMMENT_CREATE_FAILED, data: error });
+        }
         dispatchToast(dispatch, resolveApiMessage(error.message));
         return Promise.reject(error);
       });

@@ -22,7 +22,7 @@ import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doSignIn, doSetIncognito, doOpenModal } from 'redux/actions/app';
+import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
 import App from './view';
 import { selectArweaveConnected, selectArweaveConnecting } from 'redux/selectors/arwallet';
@@ -62,6 +62,7 @@ const perform = {
   doOpenAnnouncements,
   doSetLastViewedAnnouncement,
   doSetDefaultChannel,
+  doSetAssignedLbrynetServer,
   doOpenModal,
 };
 

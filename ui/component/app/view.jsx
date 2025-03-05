@@ -92,6 +92,7 @@ type Props = {
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
+  doSetAssignedLbrynetServer: (server: string) => void,
   doOpenModal: (any) => void,
 };
 
@@ -130,9 +131,10 @@ function App(props: Props) {
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
+    doSetAssignedLbrynetServer,
     // doOpenModal,
   } = props;
-  
+
   const isMobile = useIsMobile();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
@@ -473,7 +475,7 @@ function App(props: Props) {
     }
   }, [hasVerifiedEmail, signIn, hasSignedIn]);
 
-  useDegradedPerformance(setLbryTvApiStatus, user);
+  useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbrynetServer);
 
   useEffect(() => {
     if (!syncIsLocked) {

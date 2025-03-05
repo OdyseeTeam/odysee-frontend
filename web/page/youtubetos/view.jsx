@@ -345,10 +345,7 @@ const YouTubeTOSPage = () => {
               copyright that you own or control, you may notify the Company’s Designated Agent as follows:
             </p>
 
-            <p>
-              Designated Agent: Odysee, Inc 2540 S Maryland Pkwy Unit #5021 Las Vegas, NV 89109 Telephone Number:
-              907-318-5956 Fax Number: 801-327-6808
-            </p>
+            <p>Designated Agent: Space Odysee Inc. 171 Madison Avenue Room 601 New York City, NY, USA 10016</p>
 
             <p>E-Mail Address: hello@odysee.com</p>
 

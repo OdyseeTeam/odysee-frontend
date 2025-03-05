@@ -33,6 +33,8 @@ declare type CommentSubmitParams = {
   environment?: ?string,
   sticker: boolean,
   is_protected?: boolean,
+  amount?: number,
+  dry_run?: boolean,
 };
 
 // ****************************************************************************
@@ -71,6 +73,8 @@ declare type PerChannelSettings = {
   comments_enabled?: boolean,
   min_tip_amount_comment?: number,
   min_tip_amount_super_chat?: number,
+  min_usdc_tip_amount_comment?: number,
+  min_usdc_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
   time_since_first_comment?: number,
   livestream_chat_members_only?: boolean,
@@ -343,6 +347,8 @@ declare type SettingsResponse = {
   comments_enabled: boolean,
   min_tip_amount_comment: number,
   min_tip_amount_super_chat: number,
+  min_usdc_tip_amount_comment: number,
+  min_usdc_tip_amount_super_chat: number,
   slow_mode_min_gap: number,
   curse_jar_amount: number,
   filters_enabled?: boolean,
@@ -358,6 +364,8 @@ declare type UpdateSettingsParams = {
   comments_enabled?: boolean,
   min_tip_amount_comment?: number,
   min_tip_amount_super_chat?: number,
+  min_usdc_tip_amount_comment?: number,
+  min_usdc_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
   time_since_first_comment?: number,
   livestream_chat_members_only?: boolean,

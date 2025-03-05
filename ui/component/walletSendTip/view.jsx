@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { ENABLE_STRIPE, ENABLE_ARCONNECT } from '../../../config';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
 import { Form } from 'component/common/form';
 import LbcMessage from 'component/common/lbc-message';
 import { Lbryio } from 'lbryinc';
@@ -29,7 +29,7 @@ const TAB_LBC = 'TabLBC';
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
-
+type ArweaveTipData = { address: string, currency: string, default: boolean, status: 'active' | 'inactive' };
 type Props = {
   activeChannelId?: string,
   activeChannelName?: string,
@@ -52,6 +52,7 @@ type Props = {
   customText?: string,
   experimentalUi: boolean,
   doHideModal: () => void,
+  doArConnect: () => void,
   doSendCashTip: (
     TipParams,
     anonymous: boolean,
@@ -61,10 +62,19 @@ type Props = {
     preferredCurrency: string,
     ?(any) => void
   ) => string,
+  doArTip: (
+    TipParams,
+    anonymous: boolean,
+    UserParams,
+    claimId: string,
+    stripeEnvironment: ?string,
+    preferredCurrency: string
+  ) => void,
   doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
-  setAmount?: (number) => void,
+  setAmount?: (number, string) => void,
   preferredCurrency: string,
   modalProps?: any,
+  arweaveTipData?: ArweaveTipData, //
 };
 
 export default function WalletSendTip(props: Props) {
@@ -94,6 +104,9 @@ export default function WalletSendTip(props: Props) {
     setAmount,
     preferredCurrency,
     modalProps,
+    arweaveTipData,
+    doArTip,
+    doArConnect,
   } = props;
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
@@ -127,6 +140,9 @@ export default function WalletSendTip(props: Props) {
       ? boostYourContentText
       : boostThisContentText
     : __('Leave a tip for the creator');
+
+  // just do this always or check connection somehow?
+  doArConnect();
 
   let channelName;
   try {
@@ -214,7 +230,7 @@ export default function WalletSendTip(props: Props) {
     if (!tipAmount || !claimId) return;
 
     if (setAmount) {
-      setAmount(tipAmount);
+      setAmount(tipAmount, activeTab);
       doHideModal();
       return;
     }
@@ -251,6 +267,24 @@ export default function WalletSendTip(props: Props) {
         doHideModal();
       }
       // if it's a boost (?)
+    } else if (activeTab === TAB_USDC) {
+      if (!isOnConfirmationPage) {
+        setConfirmationPage(true);
+      } else {
+        const arweaveTipAddress = arweaveTipData.address;
+        const tipParams: TipParams = {
+          tipAmountTwoPlaces: tipAmount,
+          tipChannelName: tipChannelName || '',
+          channelClaimId: channelClaimId || '',
+          recipientAddress: arweaveTipAddress,
+        };
+        const userParams: UserParams = { activeChannelName, activeChannelId };
+
+        // hit backend to send tip
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) =>
+          console.log(e)
+        );
+      }
     } else {
       sendSupportOrConfirm();
     }
@@ -288,7 +322,7 @@ export default function WalletSendTip(props: Props) {
   }
 
   React.useEffect(() => {
-    if (!hasSelected && hasSelectedTab && activeTab !== hasSelectedTab) {
+    if (!hasSelected && hasSelectedTab) {
       setActiveTab(claimIsMine ? TAB_BOOST : hasSelectedTab);
       setSelected(true);
     }
@@ -315,7 +349,7 @@ export default function WalletSendTip(props: Props) {
           <>
             {!claimIsMine && (
               <div className="section">
-                {showArweave && (
+                {showArweave && arweaveTipData && (
                   <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
                 )}
                 {ENABLE_STRIPE && stripeEnvironment && (

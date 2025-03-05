@@ -60,8 +60,6 @@ const WalletBalance = (props: Props) => {
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
-    activeAPIArAccountAddress,
-    activeAPIArAccount,
   } = props;
 
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);

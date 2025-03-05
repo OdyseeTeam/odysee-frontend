@@ -744,6 +744,7 @@
   "Upload Guide": "Upload Guide",
   "This is equivalent to a password. Do not post or share this.": "This is equivalent to a password. Do not post or share this.",
   "Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (720p) for more reliable streaming.": "Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (720p) for more reliable streaming.",
+  "Couldn't detect the video encoding. This video will not be playable in most browsers. We recommend to use H264/AAC encoding with MP4 container.": "Couldn't detect the video encoding. This video will not be playable in most browsers. We recommend to use H264/AAC encoding with MP4 container.",
   "Transcoding": "Transcoding",
   "Optimize and transcode video": "Optimize and transcode video",
   "Known Tags": "Known Tags",

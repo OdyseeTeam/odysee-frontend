@@ -205,14 +205,22 @@ export function CommentCreate(props: Props) {
     disableInput;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
+  const minUSDCSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
+  const minUSDCTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;
-  const minAmountMet = activeTab !== TAB_LBC || minAmount === 0 || tipAmount >= minAmount;
+  const minUSDCAmount = minUSDCTip || minUSDCSuper || 0;
+  const minAmountMet =
+    (activeTab !== TAB_LBC && activeTab !== TAB_FIAT && !minTip && !minUSDCTip) ||
+    (activeTab === TAB_LBC && tipAmount >= minAmount) ||
+    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount);
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
   const fiatIcon = STRIPE.CURRENCY[preferredCurrency].icon;
 
   const minAmountRef = React.useRef(minAmount);
   minAmountRef.current = minAmount;
+  const minUSDCAmountRef = React.useRef(minUSDCAmount);
+  minUSDCAmountRef.current = minUSDCAmount;
 
   const addEmoteToComment = React.useCallback((emote: string) => {
     setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
@@ -306,7 +314,8 @@ export function CommentCreate(props: Props) {
         isTipOnly: true,
         hasSelectedTab: tab,
         customText: __('Preview Comment Tip'),
-        setAmount: (amount) => {
+        setAmount: (amount, activeTab) => {
+          setActiveTab(activeTab);
           setTipAmount(amount);
           setReviewingSupportComment(true);
         },
@@ -401,7 +410,13 @@ export function CommentCreate(props: Props) {
         const lockedMinAmount = minAmount; // value during closure.
         const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
 
-        if (lockedMinAmount !== currentMinAmount) {
+        const lockedMinUSDCAmount = minUSDCAmount; // value during closure.
+        const currentMinUSDCAmount = minUSDCAmountRef.current; // value from latest doFetchCreatorSettings().
+
+        if (
+          (activeTab === TAB_LBC && lockedMinAmount !== currentMinAmount) ||
+          (activeTab === TAB_FIAT && lockedMinUSDCAmount !== currentMinUSDCAmount)
+        ) {
           doToast({
             message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
             isError: true,
@@ -410,7 +425,14 @@ export function CommentCreate(props: Props) {
           return;
         }
 
-        doSubmitTip();
+        // DryRun comment creation before submitting the tip
+        handleCreateComment(undefined, undefined, undefined, true).then((res) => {
+          if (res !== 'success') {
+            setSubmitting(false);
+            return;
+          }
+          doSubmitTip();
+        });
       })
       .catch(() => {
         doToast({
@@ -492,7 +514,7 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    * @param {boolean} [is_protected] Whether are not the content has a protected chat
    */
-  async function handleCreateComment(txid, payment_intent_id, environment) {
+  async function handleCreateComment(txid, payment_intent_id, environment, dryRun = false) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
@@ -512,7 +534,15 @@ export function CommentCreate(props: Props) {
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
-    doCommentCreate(uri, isLivestream, {
+    if (dryRun) {
+      if (activeTab === TAB_LBC) {
+        txid = 'dummy_txid';
+      } else if (activeTab === TAB_FIAT) {
+        payment_intent_id = 'dummy_payment_intent_id';
+      }
+    }
+
+    return doCommentCreate(uri, isLivestream, {
       comment: stickerValue || commentValue,
       claim_id: claimId,
       parent_id: parentId,
@@ -521,9 +551,15 @@ export function CommentCreate(props: Props) {
       environment,
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+      amount: activeTab === TAB_LBC || activeTab === TAB_FIAT ? tipAmount : undefined,
+      currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : undefined,
+      dry_run: dryRun,
     })
       .then((res) => {
         setSubmitting(false);
+        if (dryRun) {
+          return res.comment_id ? 'success' : 'fail';
+        }
         if (setQuickReply) setQuickReply(res);
 
         if (res && res.signature) {
@@ -539,6 +575,9 @@ export function CommentCreate(props: Props) {
       })
       .catch(() => {
         setSubmitting(false);
+        if (dryRun) {
+          return;
+        }
         setCommentFailure(true);
 
         if (channelClaimId) {
@@ -753,8 +792,16 @@ export function CommentCreate(props: Props) {
               isLivestream={isLivestream}
               label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
               noticeLabel={
-                isMobile && (
-                  <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
+                (isMobile || isLivestream) && (
+                  <HelpText
+                    deletedComment={deletedComment}
+                    minAmount={minAmount}
+                    minSuper={minSuper}
+                    minTip={minTip}
+                    minUSDCAmount={minUSDCAmount}
+                    minUSDCSuper={minUSDCSuper}
+                    minUSDCTip={minUSDCTip}
+                  />
                 )
               }
               name={isReply ? 'create__reply' : 'create__comment'}
@@ -849,7 +896,7 @@ export function CommentCreate(props: Props) {
               />
             ) : (
               (!isMobile || selectedSticker) &&
-              (!minTip || claimIsMine) && (
+              ((!minTip && !minUSDCTip) || claimIsMine) && (
                 <Button
                   {...submitButtonProps}
                   ref={buttonRef}
@@ -916,8 +963,17 @@ export function CommentCreate(props: Props) {
             ) : (
               onCancelReplying && <Button {...cancelButtonProps} onClick={onCancelReplying} />
             )}
-
-            <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
+            {!isLivestream && (
+              <HelpText
+                deletedComment={deletedComment}
+                minAmount={minAmount}
+                minSuper={minSuper}
+                minTip={minTip}
+                minUSDCAmount={minUSDCAmount}
+                minUSDCSuper={minUSDCSuper}
+                minUSDCTip={minUSDCTip}
+              />
+            )}
           </div>
         )}
         <div className="chat-resize">

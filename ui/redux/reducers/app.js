@@ -52,6 +52,7 @@ export type AppState = {
   appDrawerOpen: boolean | string,
   mainPlayerDimensions: { height: ?number, width: ?number },
   videoSourceLoaded: ?string,
+  assignedLbrynetServer: ?string,
 };
 
 const defaultState: AppState = {
@@ -96,6 +97,7 @@ const defaultState: AppState = {
   appDrawerOpen: false,
   mainPlayerDimensions: { height: undefined, width: undefined },
   videoSourceLoaded: undefined,
+  assignedLbrynetServer: undefined,
 };
 
 // @@router comes from react-router
@@ -352,6 +354,10 @@ reducers[ACTIONS.SET_MAIN_PLAYER_DIMENSIONS] = (state, action) => {
 
 reducers[ACTIONS.SET_VIDEO_SOURCE_LOADED] = (state, action) => {
   return { ...state, videoSourceLoaded: action.data };
+};
+
+reducers[ACTIONS.SET_ASSIGNED_LBRYNET_SERVER] = (state, action) => {
+  return { ...state, assignedLbrynetServer: action.data };
 };
 
 reducers[ACTIONS.DRAWER_OPENED] = (state, action) => {

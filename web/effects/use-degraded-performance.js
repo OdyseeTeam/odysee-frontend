@@ -29,7 +29,7 @@ const getParams = (user) => {
   return params;
 };
 
-export function useDegradedPerformance(onDegradedPerformanceCallback, user) {
+export function useDegradedPerformance(onDegradedPerformanceCallback, user, doSetAssignedLbrynetServer) {
   const hasUser = user !== undefined && user !== null;
 
   useEffect(() => {
@@ -41,6 +41,7 @@ export function useDegradedPerformance(onDegradedPerformanceCallback, user) {
       fetchWithTimeout(STATUS_TIMEOUT_LIMIT, fetch(STATUS_ENDPOINT, getParams(user)))
         .then((response) => response.json())
         .then((status) => {
+          doSetAssignedLbrynetServer(status?.user?.assigned_lbrynet_server);
           if (status.general_state === STATUS_GENERAL_STATE.OFFLINE) {
             onDegradedPerformanceCallback(STATUS_DOWN);
           } else if (status.general_state !== STATUS_GENERAL_STATE.OK) {

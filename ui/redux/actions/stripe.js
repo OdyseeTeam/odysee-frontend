@@ -73,6 +73,15 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
     });
 };
 
+export const doTipAccountRemove = () => async (dispatch: Dispatch, getState: GetState) => {
+  return await Lbryio.call('account', 'remove', { environment: stripeEnvironment }, 'post')
+    .then(() => dispatch(doTipAccountStatus()))
+    .catch((error) => {
+      dispatch(doToast({ message: error.message || error, isError: true }));
+      throw Error(error.message || error);
+    });
+};
+
 export const doGetAndSetAccountLink = () => async (dispatch: Dispatch) => {
   const currentUrl = window.location.href;
 
@@ -168,7 +177,13 @@ export const doGetCustomerStatus = () => async (dispatch: Dispatch, getState: Ge
         dispatch(doToast({ message: __(STRIPE.CARD_SETUP_ERROR_RESPONSE), isError: true }));
       }
 
-      dispatch({ type: ACTIONS.SET_CUSTOMER_STATUS, data: null });
+      if (typeof error === 'object' && error?.message === 'user as customer is not setup yet') {
+        // Set data to null to flag that customer was technically fetched succesfully.
+        // Account deletion sequence will halt if customer is `undefined`
+        dispatch({ type: ACTIONS.SET_CUSTOMER_STATUS, data: null });
+      } else {
+        dispatch({ type: ACTIONS.SET_CUSTOMER_STATUS, data: undefined });
+      }
 
       return error;
     });
@@ -181,6 +196,14 @@ export const doCustomerSetup = () => async (dispatch: Dispatch) =>
       return customerSetupResponse;
     }
   );
+
+export const doCustomerRemove = () => async (dispatch: Dispatch) =>
+  await Lbryio.call('customer', 'remove', { environment: stripeEnvironment }, 'post')
+    .then(() => dispatch(doGetCustomerStatus()))
+    .catch((error) => {
+      dispatch(doToast({ message: error.message || error, isError: true }));
+      throw Error(error.message || error);
+    });
 
 export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async (dispatch: Dispatch) =>
   await Lbryio.call(
@@ -211,9 +234,9 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
   }
 };
 
-const updateAddress = async (id: string, status: string) => {
+const updateAddressStatus = async (id: string, status: string) => {
   try {
-    const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post');
+    const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post'); // 'active' | 'inactive'
     return res;
   } catch (e) {
     console.error(e);
@@ -243,18 +266,19 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
   }
 };
 
-export const doUpdateArweaveAddress = (id: string, status: string) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED });
-  try {
-    await updateAddress(id, status);
-    // now do account status
-    await dispatch(doTipAccountStatus());
-    dispatch({ type: ACTIONS.AR_ADDR_UPDATE_SUCCESS });
-  } catch (e) {
-    console.error(e);
-    dispatch({ type: ACTIONS.AR_ADDR_UPDATE_ERROR, data: e?.message || e });
-  }
-};
+export const doUpdateArweaveAddressStatus =
+  (id: string, status: 'active' | 'inactive') => async (dispatch: Dispatch) => {
+    dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED });
+    try {
+      await updateAddressStatus(id, status);
+      // now do account status
+      await dispatch(doTipAccountStatus());
+      dispatch({ type: ACTIONS.AR_ADDR_UPDATE_SUCCESS });
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: ACTIONS.AR_ADDR_UPDATE_ERROR, data: e?.message || e });
+    }
+  };
 
 export const doUpdateArweaveAddressDefault = (id: string) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_STARTED });

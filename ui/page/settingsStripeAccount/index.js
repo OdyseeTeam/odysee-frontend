@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { doTipAccountStatus } from 'redux/actions/stripe';
+import { doTipAccountStatus, doTipAccountRemove } from 'redux/actions/stripe';
+import { doOpenModal } from 'redux/actions/app';
 import {
   selectAccountPaidBalance,
   selectAccountChargesEnabled,
@@ -19,6 +20,8 @@ const select = (state) => ({
 
 const perform = {
   doTipAccountStatus,
+  doOpenModal,
+  doTipAccountRemove,
 };
 
 export default withRouter(connect(select, perform)(StripeAccountConnection));

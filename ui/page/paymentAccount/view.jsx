@@ -9,19 +9,20 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
-import SendUsdc from './sendUsdc/view';
-import ReceiveUsdt from './receiveUsdc/view';
-import OnRamper from './onRamper/view';
+import SendUsdc from './sendUsdc';
+import ReceiveUsdt from './receiveUsdc';
+import OnRamper from './onRamper';
+import ArWallets from './arWallets';
 
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
 
 type Props = {
+  arweaveWallets: any,
   arWalletStatus: any,
   balance: number,
   fetching: boolean,
   theme: string,
-  activeArweaveWallet: any,
   doArDisconnect: () => void,
   doArUpdateBalance: () => void,
 };
@@ -33,17 +34,16 @@ const TABS = {
   SEND: 'send',
   BUY: 'buy',
   WITHDRAW: 'withdraw',
+  WALLETS: 'wallets',
   TRANSACTION_HISTORY: 'transaction-history',
 };
 
 function PaymentAccountPage(props: Props) {
-  const { arWalletStatus, activeArweaveWallet, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
+  const { arweaveWallets, arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
   const {
     location: { search },
     push,
   } = useHistory();
-
-  console.log('test: ', activeArweaveWallet);
 
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
@@ -64,6 +64,9 @@ function PaymentAccountPage(props: Props) {
       break;
     case TABS.WITHDRAW:
       tabIndex = 4;
+      break;
+    case TABS.WALLETS:
+      tabIndex = 5;
       break;
     default:
       tabIndex = 0;
@@ -108,6 +111,8 @@ function PaymentAccountPage(props: Props) {
       url += `${TAB_QUERY}=${TABS.BUY}`;
     } else if (newTabIndex === 4) {
       url += `${TAB_QUERY}=${TABS.WITHDRAW}`;
+    } else if (newTabIndex === 5) {
+      url += `${TAB_QUERY}=${TABS.WALLETS}`;
     } else {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     }
@@ -119,7 +124,7 @@ function PaymentAccountPage(props: Props) {
       <header className="page-header"></header>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
-          <TabList className="tabs__list--collection-edit-page">
+          <TabList className="tabs__list">
             <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
               {__('Overview')}
             </Tab>
@@ -135,6 +140,13 @@ function PaymentAccountPage(props: Props) {
             <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>
               {__('Withdraw')}
             </Tab>
+            {arweaveWallets && arweaveWallets.length > 0 ? (
+              <Tab aria-selected={tabIndex === 5} onClick={() => onTabChange(5)}>
+                {__('My Wallets')}
+              </Tab>
+            ) : (
+              <></>
+            )}
           </TabList>
         </div>
         <TabPanels>
@@ -216,11 +228,7 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <ReceiveUsdt
-                cardHeader={cardHeader}
-                arWalletStatus={arWalletStatus}
-                activeArweaveWallet={activeArweaveWallet}
-              />
+              <ReceiveUsdt cardHeader={cardHeader} arWalletStatus={arWalletStatus} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -246,7 +254,6 @@ function PaymentAccountPage(props: Props) {
                 balance={balance}
                 theme={theme}
                 mode="buy"
-                activeArweaveWallet={activeArweaveWallet}
               />
               {!arWalletStatus && (
                 <div className="wallet">
@@ -264,6 +271,16 @@ function PaymentAccountPage(props: Props) {
                 theme={theme}
                 mode="sell"
               />
+              {!arWalletStatus && (
+                <div className="wallet">
+                  <WalletConnect />
+                </div>
+              )}
+            </>
+          </TabPanel>
+          <TabPanel>
+            <>
+              <ArWallets cardHeader={cardHeader} arWalletStatus={arWalletStatus} arweaveWallets={arweaveWallets} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />

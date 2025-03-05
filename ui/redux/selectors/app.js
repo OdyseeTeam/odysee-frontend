@@ -152,6 +152,7 @@ export const selectAppDrawerOpen = (state) => selectState(state).appDrawerOpen;
 export const selectMainPlayerDimensions = (state) => selectState(state).mainPlayerDimensions;
 export const selectVideoSourceLoaded = (state) => selectState(state).videoSourceLoaded;
 export const selectHasAppDrawerOpen = (state) => Boolean(selectAppDrawerOpen(state));
+export const selectAssignedLbrynetServer = (state) => selectState(state).assignedLbrynetServer;
 
 export const selectIsDrawerOpenForType = (state, type) => {
   const appDrawerOpen = selectAppDrawerOpen(state);

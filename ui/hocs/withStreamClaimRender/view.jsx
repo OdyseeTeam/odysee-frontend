@@ -269,7 +269,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         playingOptions.source = 'markdown';
       }
 
-      if (!isLivestreamClaim) {
+      if (!isLivestreamClaim && !streamingUrl) {
         doFileGetForUri(uri, fileGetOptions);
       }
       if (shouldStartFloating || !check) {

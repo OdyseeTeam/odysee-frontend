@@ -7,42 +7,42 @@ import React from 'react';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import { Modal } from 'modal/modal';
-import { FormField } from '../../component/common/form';
+import { useHistory } from 'react-router';
 
 type Props = {
-  connected?: boolean,
-  connecting?: boolean,
-  error?: string,
-  walletAddress?: string,
-  doArConnect: () => void,
   doHideModal: () => void,
-  doRegisterArweaveAddress: (string) => void,
-  activeApiAddress: string,
+  doOpenModal: (string, any) => void,
+  doArDisconnect: () => void,
+  doRegisterArweaveAddress: (string, boolean) => void,
+  doUpdateArweaveAddressDefault: (number) => void,
+  activeApiAddresses: string[],
+  defaultApiAddress: string,
   fullAPIArweaveStatus: any, // [ {status: 'active', address: '0x1234'}, ...]
   walletAddress: string,
   walletBalance: any,
+  isArAccountUpdating: boolean,
+  previousModal?: { id: string, modalProps: any },
 };
 
 export default function ModalAnnouncements(props: Props) {
+  const { push } = useHistory();
   const {
-    connecting,
-    error,
-    doArConnect,
     doHideModal,
+    doOpenModal,
+    doArDisconnect,
     fullAPIArweaveStatus,
-    activeApiAddress,
+    defaultApiAddress,
     walletAddress,
     walletBalance,
     doRegisterArweaveAddress,
+    doUpdateArweaveAddressDefault,
+    isArAccountUpdating,
+    previousModal,
   } = props;
 
-  const [makeDefault, setMakeDefault] = React.useState(false);
-
-  const handleRegister = () => {
-    doRegisterArweaveAddress(walletAddress, makeDefault);
-  };
-
-  const apiHasAddress = fullAPIArweaveStatus.find((status) => status.address === walletAddress);
+  const apiEntryWithAddress = fullAPIArweaveStatus.find((status) => status.address === walletAddress);
+  const id = apiEntryWithAddress ? apiEntryWithAddress.id : null;
+  const usdcBalance = walletBalance ? walletBalance.usdc : 0;
 
   // if connected address is not registered at all
   const RegisterCard = () => {
@@ -51,29 +51,18 @@ export default function ModalAnnouncements(props: Props) {
         className="announcement"
         title={__('Unregistered Wallet Address')}
         subtitle={__(
-          'Your arconnect address, %address%, is not onboarded with the payments system. You can switch your arconnect extension address, or register this one for use.',
+          'Your Wander address, %address%, is not onboarded with the payments system. You can switch your Wander extension address, or register this one for use.',
           { address: walletAddress }
         )}
-        body={
-          <div className="section">
-            <FormField
-              name="make-default"
-              type="checkbox"
-              label={__('Make this address my default wallet address')}
-              helper={__('This is only for regulatory compliance and the data will not be stored.')}
-              checked={makeDefault}
-              onChange={() => setMakeDefault(!makeDefault)}
-            />
-            {__(
-              'Your arconnect address, %address%, is not onboarded with the payments system. You can switch your arconnect extension address, or register this one.',
-              { address: walletAddress }
-            )}
-          </div>
-        }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={'Register'} onClick={() => doRegisterArweaveAddress(walletAddress, true)} />
-            <Button button="alt" label={'Done'} onClick={doHideModal} />
+            <Button
+              button="primary"
+              label={__('Register')}
+              disabled={isArAccountUpdating}
+              onClick={() => doRegisterArweaveAddress(walletAddress, true)}
+            />
+            <Button button="alt" label={__('Nevermind')} disabled={isArAccountUpdating} onClick={handleDisconnect} />
           </div>
         }
       />
@@ -81,7 +70,20 @@ export default function ModalAnnouncements(props: Props) {
   };
 
   // if address is found, but not default
-  const handleMakeDefault = () => {};
+  const handleMakeDefault = () => {
+    if (id !== null) {
+      doUpdateArweaveAddressDefault(id);
+    }
+  };
+
+  const handleDisconnect = () => {
+    doArDisconnect();
+    if (previousModal) {
+      doOpenModal(previousModal.id, previousModal.modalProps);
+    } else {
+      doHideModal();
+    }
+  };
   const MakeDefaultCard = () => {
     return (
       <Card
@@ -89,20 +91,36 @@ export default function ModalAnnouncements(props: Props) {
         title={__('Make Default Wallet Address')}
         body={
           <div className="section">
-            {__('Your arconnect address, %address%, is not your primary wallet right now.', { address: walletAddress })}
+            {__('Your Wander address, %address%, is not your primary wallet right now.', { address: walletAddress })}
           </div>
         }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={'Make Default'} onClick={handleMakeDefault} />
-            <Button button="alt" label={'Not Now'} onClick={doHideModal} />
+            <Button
+              button="primary"
+              label={__('Make Default')}
+              disabled={isArAccountUpdating}
+              onClick={handleMakeDefault}
+            />
+            <Button button="alt" label={__('Disconnect')} disabled={isArAccountUpdating} onClick={handleDisconnect} />
           </div>
         }
       />
     );
   };
 
-  const redirectToTopup = () => {};
+  const handleCloseModal = () => {
+    if (previousModal) {
+      doOpenModal(previousModal.id, previousModal.modalProps);
+    } else {
+      doHideModal();
+    }
+  };
+
+  const redirectToTopup = () => {
+    push('/$/paymentaccount?tab=buy');
+    doHideModal();
+  };
   const TopUpCard = () => {
     return (
       <Card
@@ -110,16 +128,16 @@ export default function ModalAnnouncements(props: Props) {
         title={__('No Balance')}
         body={
           <div className="section">
-            {__('Your arconnect address, %address%, has a balance of %balance%. Would you like to top up?', {
+            {__('Your Wander address, %address%, has a balance of %balance%. Would you like to top up?', {
               address: walletAddress,
-              balance: walletBalance,
+              balance: usdcBalance,
             })}
           </div>
         }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={'Top Up'} onClick={redirectToTopup} />
-            <Button button="alt" label={'Done'} onClick={doHideModal} />
+            <Button button="primary" label={__('Top Up')} disabled={isArAccountUpdating} onClick={redirectToTopup} />
+            <Button button="alt" label={__('Not Now')} disabled={isArAccountUpdating} onClick={handleCloseModal} />
           </div>
         }
       />
@@ -127,10 +145,10 @@ export default function ModalAnnouncements(props: Props) {
   };
 
   return (
-    <Modal type="card" isOpen onAborted={doHideModal}>
-      {!apiHasAddress && <RegisterCard />}
-      {apiHasAddress && activeApiAddress !== walletAddress && <MakeDefaultCard />}
-      {walletBalance === 0 && <TopUpCard />}
+    <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>
+      {!apiEntryWithAddress && <RegisterCard />}
+      {apiEntryWithAddress && defaultApiAddress !== walletAddress && <MakeDefaultCard />}
+      {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />}
     </Modal>
   );
 }
