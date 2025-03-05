@@ -155,6 +155,9 @@ const plugins = [
     process: 'process/browser',
     __: [path.resolve(path.join(__dirname, '../ui/i18n')), '__'],
   }),
+  new ProvidePlugin({
+    process: 'process/browser',
+  }),
 ];
 
 if (useStagingRoot) {
@@ -247,6 +250,8 @@ const webConfig = {
       path: require.resolve('path-browserify'),
       stream: require.resolve('stream-browserify'),
       vm: false,
+      process: require.resolve('process/browser'),
+      util: require.resolve('util/'), // ?
     },
     alias: {
       // lbryinc: '../extras/lbryinc',
@@ -254,7 +259,9 @@ const webConfig = {
       $ui: UI_ROOT,
       electron: `${WEB_PLATFORM_ROOT}/stubs/electron.js`,
       fs: `${WEB_PLATFORM_ROOT}/stubs/fs.js`,
+      'process/browser': require.resolve('process/browser.js'),
     },
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
   plugins,
 };
