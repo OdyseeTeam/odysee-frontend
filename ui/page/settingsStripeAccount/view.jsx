@@ -158,6 +158,10 @@ const StripeAccountConnection = (props: Props) => {
                   doOpenModal(MODALS.CONFIRM, {
                     title: __('Confirm Remove Account'),
                     subtitle: __('Remove connected Stripe account'),
+                    labelOk: __('Remove'),
+                    checkboxLabel: __(
+                      "I understand this is a permanent action, and that another bank account can't be connected after the removal."
+                    ),
                     onConfirm: (closeModal, setIsBusy) => {
                       setIsBusy(true);
                       doTipAccountRemove()
