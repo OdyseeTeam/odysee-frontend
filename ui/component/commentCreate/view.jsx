@@ -26,6 +26,7 @@ import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
 import './style.lazy.scss';
+import { doArTip } from '../../redux/actions/arwallet';
 
 const stripeEnvironment = getStripeEnvironment();
 
@@ -493,29 +494,80 @@ export function CommentCreate(props: Props) {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
 
+      console.log('TAB IS USDC')
+      const preferredCurrency = 'USDC';
+      const anonymous = false;
       // something like doArComment()
       // dryrun comment
+      const dryRunParams = {
+        comment: commentValue,
+        claim_id: claimId,
+        parent_id: parentId,
+        txid: 'dummy_txid',
+        payment_tx_id: 'bogus',
+        environment: stripeEnvironment,
+        is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+        amount: 1,
+        currency: 'USD',
+        dry_run: true,
+      };
+      doCommentCreate(uri, isLivestream, dryRunParams)
+        .then((res) => {
+          console.log('res', res);
+          if (res && res.signature) {
+            /*
+            export const doArTip = (
+  tipParams: TipParams,
+  anonymous: boolean,
+  userParams: UserParams,
+  claimId: string,
+  stripeEnvironment: string,
+  preferredCurrency: string = 'USD'
+) => {
+             */
+            doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment, preferredCurrency)
+              .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string }) => {
+                console.log('res', res);
+                const params = Object.assign({}, dryRunParams);
+                params.payment_tx_id = transferTxid;
+                params.dryrun = undefined;
+                params.amount = tipAmount;
+
+                // ...
+                handleCreateComment(null, res.txid, stripeEnvironment);
+                setCommentValue('');
+                setReviewingSupportComment(false);
+                setTipSelector(false);
+                setCommentFailure(false);
+                setSubmitting(false);
+              }
+          }
+        }).catch((e) => {
+          console.log('e', e);
+        });
+
+      return;
       // then txid = doArTip() = Pretip, ao tx, confirmation tip
       // then doCommentCreate(txid)
-      doArTip(
-        tipParams,
-        false,
-        userParams,
-        claimId,
-        stripeEnvironment,
-        preferredCurrency,
-        (customerTipResponse) => {
-          const { payment_intent_id } = customerTipResponse;
-
-          handleCreateComment(null, payment_intent_id, stripeEnvironment);
-
-          setCommentValue('');
-          setReviewingSupportComment(false);
-          setTipSelector(false);
-          setCommentFailure(false);
-          setSubmitting(false);
-        }
-      );
+      // doArTip(
+      //   tipParams,
+      //   false,
+      //   userParams,
+      //   claimId,
+      //   stripeEnvironment,
+      //   preferredCurrency,
+      //   (customerTipResponse) => {
+      //     const { payment_intent_id } = customerTipResponse;
+      //
+      //     handleCreateComment(null, payment_intent_id, stripeEnvironment);
+      //
+      //     setCommentValue('');
+      //     setReviewingSupportComment(false);
+      //     setTipSelector(false);
+      //     setCommentFailure(false);
+      //     setSubmitting(false);
+      //   }
+      // );
     } else {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
@@ -576,7 +628,7 @@ export function CommentCreate(props: Props) {
         payment_intent_id = 'dummy_payment_intent_id';
       }
     }
-
+    // do comment create
     return doCommentCreate(uri, isLivestream, {
       comment: stickerValue || commentValue,
       claim_id: claimId,
