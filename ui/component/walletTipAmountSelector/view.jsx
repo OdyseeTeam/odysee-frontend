@@ -36,6 +36,7 @@ type Props = {
   setTipError: (any) => void,
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
+  doArConnect: () => void,
 };
 
 function WalletTipAmountSelector(props: Props) {
@@ -59,6 +60,7 @@ function WalletTipAmountSelector(props: Props) {
     setTipError,
     preferredCurrency,
     doTipAccountCheckForUri,
+    doArConnect,
   } = props;
 
   const isMobile = useIsMobile();
@@ -123,6 +125,12 @@ function WalletTipAmountSelector(props: Props) {
       doTipAccountCheckForUri(uri);
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+
+  React.useEffect(() => {
+    if (activeTab === TAB_USDC) {
+      doArConnect();
+    }
+  }, [activeTab, doArConnect]);
 
   React.useEffect(() => {
     let regexp;

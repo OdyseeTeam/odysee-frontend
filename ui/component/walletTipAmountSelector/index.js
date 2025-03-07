@@ -6,6 +6,7 @@ import WalletTipAmountSelector from './view';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { doArConnect } from 'redux/actions/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -21,6 +22,7 @@ const select = (state, props) => {
 
 const perform = {
   doTipAccountCheckForUri,
+  doArConnect,
 };
 
 export default connect(select, perform)(WalletTipAmountSelector);

@@ -704,7 +704,18 @@ export function doCommentReact(commentId: string, type: string) {
 
 export function doCommentCreate(uri: string, livestream: boolean, params: CommentSubmitParams) {
   return async (dispatch: Dispatch, getState: GetState) => {
-    const { comment, claim_id, parent_id, txid, payment_intent_id, payment_tx_id, sticker, is_protected, amount, dry_run } = params;
+    const {
+      comment,
+      claim_id,
+      parent_id,
+      txid,
+      payment_intent_id,
+      payment_tx_id,
+      sticker,
+      is_protected,
+      amount,
+      dry_run,
+    } = params;
 
     const state = getState();
     const activeChannelClaim = selectActiveChannelClaim(state);

@@ -233,9 +233,9 @@ export const doArTip = (
     } catch (e) {
       console.error(e);
       dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
+      return { error: 'error' };
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
-    // TODO: consider what to return here.
     return { transferTxid: transferTxid, currency: 'USD', referenceToken: referenceToken };
   };
 };
