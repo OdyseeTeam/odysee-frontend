@@ -59,6 +59,7 @@ import 'scss/all.scss';
 // These overrides can't live in web/ because they need to use the same instance of `Lbry`
 import apiPublishCallViaWeb from 'web/setup/publish';
 import { doSendPastRecsysEntries } from 'redux/actions/content';
+import { doTipAccountStatus } from './redux/actions/stripe';
 
 analytics.init();
 
@@ -248,7 +249,10 @@ function AppWrapper() {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
-
+        // account status
+        app.store.dispatch(doTipAccountStatus());
+        // extension installed?
+        // if EXPERIMENTAL connect to arconnect
         app.store.dispatch(doUpdateIsNightAsync());
         app.store.dispatch(doBlackListedOutpointsSubscribe());
         app.store.dispatch(doFilteredOutpointsSubscribe());

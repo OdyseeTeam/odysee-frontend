@@ -1,9 +1,11 @@
 // @flow
+import React from 'react';
+import type { ElementRef } from 'react';
 import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
+import { SIMPLE_SITE, ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
@@ -13,8 +15,6 @@ import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CommentSelectors, { SELECTOR_TABS } from './internal/comment-selectors';
-import React from 'react';
-import type { ElementRef } from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import { useIsMobile } from 'effects/use-screensize';
@@ -29,8 +29,9 @@ import './style.lazy.scss';
 
 const stripeEnvironment = getStripeEnvironment();
 
-const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
+const TAB_USDC = 'TabUSDC';
+const TAB_FIAT = 'TabFiat';
 
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
@@ -58,6 +59,9 @@ type Props = {
   uri: string,
   disableInput?: boolean,
   canReceiveFiatTips: ?boolean,
+  canReceiveArweaveTips: any,
+  arweaveStatus: any,
+  experimentalUi: boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
   onCancelReplying?: () => void,
@@ -108,6 +112,9 @@ export function CommentCreate(props: Props) {
     activeChannelUrl,
     bottom,
     canReceiveFiatTips,
+    canReceiveArweaveTips,
+    arweaveStatus,
+    experimentalUi,
     channelClaimId,
     claimId,
     claimIsMine,
@@ -148,6 +155,11 @@ export function CommentCreate(props: Props) {
     areCommentsMembersOnly,
     hasPremiumPlus,
   } = props;
+
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+
+  console.log('arweaveStatus: ', arweaveStatus);
+  console.log('canReceiveArweaveTips: ', canReceiveArweaveTips);
 
   const fileUri = React.useContext(AppContext)?.uri;
 
@@ -932,9 +944,11 @@ export function CommentCreate(props: Props) {
 
                 {!supportDisabled && !claimIsMine && (
                   <>
-                    <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
-
-                    {stripeEnvironment && (
+                    {showArweave && (
+                      <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
+                    )}
+                    <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
+                    {ENABLE_STRIPE && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                     )}
                   </>

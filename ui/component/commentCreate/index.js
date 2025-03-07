@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { selectUserExperimentalUi } from 'redux/selectors/user';
 import {
   selectClaimForUri,
   selectClaimIsMine,
@@ -8,7 +9,6 @@ import {
   selectMyChannelClaimIds,
   selectedRestrictedCommentsChatTagForUri,
 } from 'redux/selectors/claims';
-import { CommentCreate } from './view';
 import { DISABLE_SUPPORT_TAG } from 'constants/tags';
 import {
   doCommentCreate,
@@ -29,12 +29,17 @@ import {
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import {
+  selectFullAPIArweaveStatus,
+  selectArweaveTipDataForId,
+  selectCanReceiveFiatTipsForUri,
+} from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import {
   selectUserHasOdyseePremiumPlus,
   selectUserIsMemberOfMembersOnlyChatForCreatorId,
 } from 'redux/selectors/memberships';
+import { CommentCreate } from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -58,6 +63,8 @@ const select = (state, props) => {
     activeChannelName,
     activeChannelUrl,
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
+    canReceiveArweaveTips: selectArweaveTipDataForId(state, uri),
+    arweaveStatus: selectFullAPIArweaveStatus(state),
     channelClaimId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
     claimId,
@@ -76,6 +83,7 @@ const select = (state, props) => {
     isLivestreamChatMembersOnly: Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId)),
     areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
+    experimentalUi: selectUserExperimentalUi(state),
   };
 };
 

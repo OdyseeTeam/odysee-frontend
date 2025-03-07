@@ -33,6 +33,7 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
+// import * as MODALS from '../../constants/modal_types';
 
 const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
@@ -60,7 +61,7 @@ type Props = {
   language: string,
   languages: Array<string>,
   theme: string,
-  user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean },
+  user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean, experimental_ui: boolean },
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string, reload: () => void },
   history: { push: (string) => void, location: { pathname: string }, replace: (string) => void },
@@ -92,6 +93,7 @@ type Props = {
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetAssignedLbrynetServer: (server: string) => void,
+  doOpenModal: (any) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -130,6 +132,7 @@ function App(props: Props) {
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
+    // doOpenModal,
   } = props;
 
   const isMobile = useIsMobile();

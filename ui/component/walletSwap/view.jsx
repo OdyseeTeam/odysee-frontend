@@ -151,7 +151,7 @@ function WalletSwap(props: Props) {
     return () => clearTimeout(timer);
   }, [lbc]);
 
-  // Resolve 'swap' with the latest info from 'coinSwaps'
+  // Resolve 'swap' with theconnectArConnect latest info from 'coinSwaps'
   React.useEffect(() => {
     const swapInfo = swap && coinSwaps.find((x) => x.chargeCode === swap.chargeCode);
     if (!swapInfo) {
