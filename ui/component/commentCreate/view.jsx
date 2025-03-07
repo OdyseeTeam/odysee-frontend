@@ -504,7 +504,6 @@ export function CommentCreate(props: Props) {
 
       const preferredCurrency = 'USDC';
       const anonymous = false;
-      // something like doArComment()
       // dryrun comment
       const dryRunCommentParams = {
         comment: commentValue,
@@ -520,13 +519,11 @@ export function CommentCreate(props: Props) {
       };
       doCommentCreate(uri, isLivestream, dryRunCommentParams)
         .then((res) => {
-          console.log('res', res);
           if (res && res.signature) {
             doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment, preferredCurrency)
               .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string }) => {
-                console.log('do artip res', arTipResponse);
                 if (arTipResponse.error) {
-                  // do something
+                  throw new Error(arTipResponse.error);
                 }
                 const { transferTxid } = arTipResponse;
                 const params = Object.assign({}, dryRunCommentParams);
@@ -611,7 +608,7 @@ export function CommentCreate(props: Props) {
         payment_intent_id = 'dummy_payment_intent_id';
       }
     }
-    // do comment create
+
     return doCommentCreate(uri, isLivestream, {
       comment: stickerValue || commentValue,
       claim_id: claimId,
