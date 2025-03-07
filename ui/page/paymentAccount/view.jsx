@@ -16,6 +16,7 @@ import ArWallets from './arWallets';
 
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
+import Overview from './overview';
 
 type Props = {
   arweaveWallets: any,
@@ -152,73 +153,7 @@ function PaymentAccountPage(props: Props) {
         <TabPanels>
           <TabPanel>
             <>
-              <Card
-                className={!arWalletStatus ? `card--disabled` : ``}
-                title={cardHeader()}
-                background
-                actions={
-                  <>
-                    <h2 className="section__title--small">{__('Transaction history')}</h2>
-                    <div className="transaction-history">
-                      <div className="transaction-history__row">
-                        <div className="transaction-history__date">xx.xx.xxx</div>
-                        <div className="transaction-history__action">{__('Purchase')}</div>
-                        <div className="transaction-history__amount">0.00</div>
-                        <div className="transaction-history__token">
-                          <Symbol token="usdc" />
-                          USDC
-                        </div>
-                        <div className="transaction-history__direction">{__('via')}</div>
-                        <div className="transaction-history__target">OnRamp</div>
-                      </div>
-                      <div className="transaction-history__row">
-                        <div className="transaction-history__date">xx.xx.xxx</div>
-                        <div className="transaction-history__action">{__('Withdraw')}</div>
-                        <div className="transaction-history__amount">0.00</div>
-                        <div className="transaction-history__token">
-                          <Symbol token="usdc" />
-                          USDC
-                        </div>
-                        <div className="transaction-history__direction">{__('to')}</div>
-                        <div className="transaction-history__target">0x00000000000000000000</div>
-                      </div>
-                      <div className="transaction-history__row">
-                        <div className="transaction-history__date">xx.xx.xxx</div>
-                        <div className="transaction-history__action">{__('Receive')}</div>
-                        <div className="transaction-history__amount">0.00</div>
-                        <div className="transaction-history__token">
-                          <Symbol token="usdc" />
-                          USDC
-                        </div>
-                        <div className="transaction-history__direction">{__('from')}</div>
-                        <div className="transaction-history__target">0x00000000000000000000</div>
-                      </div>
-                      <div className="transaction-history__row">
-                        <div className="transaction-history__date">xx.xx.xxx</div>
-                        <div className="transaction-history__action">{__('Send Tip')}</div>
-                        <div className="transaction-history__amount">0.00</div>
-                        <div className="transaction-history__token">
-                          <Symbol token="usdc" />
-                          USDC
-                        </div>
-                        <div className="transaction-history__direction">{__('to')}</div>
-                        <div className="transaction-history__target">Username</div>
-                      </div>
-                      <div className="transaction-history__row">
-                        <div className="transaction-history__date">xx.xx.xxx</div>
-                        <div className="transaction-history__action">{__('Receive Tip')}</div>
-                        <div className="transaction-history__amount">0.00</div>
-                        <div className="transaction-history__token">
-                          <Symbol token="usdc" />
-                          USDC
-                        </div>
-                        <div className="transaction-history__direction">{__('from')}</div>
-                        <div className="transaction-history__target">Username</div>
-                      </div>
-                    </div>
-                  </>
-                }
-              />
+              <Overview cardHeader={cardHeader} arWalletStatus={arWalletStatus} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
