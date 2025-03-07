@@ -7,8 +7,6 @@ import './style.scss';
 function ArWallets(props: Props) {
   const { cardHeader, arweaveWallets, arWalletStatus, activeAddress } = props;
 
-  console.log('activeAddress: ', activeAddress);
-
   return (
     <Card
       className={!arWalletStatus ? `card--arwalllets card--disabled` : `card--arwalllets`}

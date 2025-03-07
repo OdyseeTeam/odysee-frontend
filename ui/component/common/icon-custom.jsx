@@ -239,8 +239,8 @@ export const icons = {
     return (
       <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M20 0C31.0465 0 40 8.95353 40 20C40 31.0465 31.0465 40 20 40C8.95353 40 0 31.0465 0 20C0 8.95353 8.95353 0 20 0Z"
           fill="#F0B90B"
         />
