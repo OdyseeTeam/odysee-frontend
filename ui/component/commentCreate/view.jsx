@@ -539,7 +539,7 @@ export function CommentCreate(props: Props) {
       environment,
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-      amount: activeTab === TAB_LBC || activeTab === TAB_FIAT ? tipAmount : undefined,
+      amount: !!txid || !!payment_intent_id ? tipAmount : undefined,
       currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : undefined,
       dry_run: dryRun,
     })
