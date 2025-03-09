@@ -4,10 +4,10 @@ import Symbol from '../common/symbol';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 
-type Props = { LBCBalance: number, USDCBalance: number, asset?: string, inline?: boolean };
+type Props = { LBCBalance: number, USDCBalance: number, asset?: string, inline?: boolean, arConnecting: boolean };
 
 function WalletSpendableBalanceHelp(props: Props) {
-  const { LBCBalance, USDCBalance, asset = 'lbc', inline } = props;
+  const { LBCBalance, USDCBalance, asset = 'lbc', inline, arConnecting } = props;
 
   const getMessage = (text: string) =>
     asset === 'lbc' ? (
@@ -25,7 +25,9 @@ function WalletSpendableBalanceHelp(props: Props) {
       <div className="help">{getMessage('Your immediately spendable balance is %LBCBalance%.')}</div>
     );
   } else {
-    return USDCBalance ? (
+    return arConnecting ? (
+      <span className="help">{__('Connecting...')}</span>
+    ) : USDCBalance ? (
       <span className="help--spendable">{getMessage('%USDCBalance% available.')}</span>
     ) : (
       <div className="help">{getMessage('Your immediately spendable balance is %USDCBalance%.')}</div>

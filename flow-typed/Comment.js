@@ -30,6 +30,7 @@ declare type CommentSubmitParams = {
   parent_id?: string,
   txid?: ?string,
   payment_intent_id?: ?string,
+  payment_tx_id?: ?string,
   environment?: ?string,
   sticker: boolean,
   is_protected?: boolean,

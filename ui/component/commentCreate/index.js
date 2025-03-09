@@ -39,6 +39,7 @@ import {
   selectUserHasOdyseePremiumPlus,
   selectUserIsMemberOfMembersOnlyChatForCreatorId,
 } from 'redux/selectors/memberships';
+import { doArTip } from 'redux/actions/arwallet';
 import { CommentCreate } from './view';
 
 const select = (state, props) => {
@@ -63,7 +64,6 @@ const select = (state, props) => {
     activeChannelName,
     activeChannelUrl,
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
-    canReceiveArweaveTips: selectArweaveTipDataForId(state, uri),
     arweaveStatus: selectFullAPIArweaveStatus(state),
     channelClaimId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
@@ -84,6 +84,7 @@ const select = (state, props) => {
     areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
     experimentalUi: selectUserExperimentalUi(state),
+    recipientArweaveTipInfo: selectArweaveTipDataForId(state, claimId),
   };
 };
 
@@ -97,6 +98,7 @@ const perform = {
   doSendTip,
   doOpenModal,
   doTipAccountCheckForUri,
+  doArTip,
 };
 
 export default connect(select, perform)(CommentCreate);
