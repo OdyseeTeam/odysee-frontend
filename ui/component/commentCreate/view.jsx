@@ -502,7 +502,6 @@ export function CommentCreate(props: Props) {
       };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
 
-      const preferredCurrency = 'USDC';
       const anonymous = false;
       // dryrun comment
       const dryRunCommentParams = {
@@ -520,7 +519,7 @@ export function CommentCreate(props: Props) {
       doCommentCreate(uri, isLivestream, dryRunCommentParams)
         .then((res) => {
           if (res && res.signature) {
-            doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment, preferredCurrency)
+            doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment)
               .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string }) => {
                 if (arTipResponse.error) {
                   throw new Error(arTipResponse.error);

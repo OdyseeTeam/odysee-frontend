@@ -139,8 +139,7 @@ export const doArTip = (
   anonymous: boolean,
   userParams: UserParams,
   claimId: string,
-  stripeEnvironment: string,
-  preferredCurrency: string = 'USD'
+  stripeEnvironment: string
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
@@ -236,6 +235,7 @@ export const doArTip = (
       return { error: 'error' };
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
+    // support comments need the transferTxid, so return that here.
     return { transferTxid: transferTxid, currency: 'USD', referenceToken: referenceToken };
   };
 };
