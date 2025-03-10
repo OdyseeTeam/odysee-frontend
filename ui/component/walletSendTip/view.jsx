@@ -31,7 +31,6 @@ const STRIPE_DISABLED = true;
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
-type ArweaveTipData = { address: string, currency: string, default: boolean, status: 'active' | 'inactive' };
 type Props = {
   activeChannelId?: string,
   activeChannelName?: string,
@@ -73,10 +72,11 @@ type Props = {
     preferredCurrency: string
   ) => void,
   doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
+  doToast: ({ message: string, subMessage?: string, isError?: boolean }) => void,
   setAmount?: (number, string) => void,
   preferredCurrency: string,
   modalProps?: any,
-  arweaveTipData?: ArweaveTipData, //
+  arweaveTipData?: ArweaveTipDataForId, //
 };
 
 export default function WalletSendTip(props: Props) {
@@ -108,17 +108,20 @@ export default function WalletSendTip(props: Props) {
     modalProps,
     arweaveTipData,
     doArTip,
+    doToast,
     doArConnect,
   } = props;
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
+  const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
+  const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
 
-  // loads the fiat tab if nothing else is there yet
-  const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', TAB_FIAT);
-  const [activeTab, setActiveTab] = React.useState(claimIsMine ? TAB_BOOST : persistentTab);
+  // loads the default tab if nothing else is there yet
+  const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', defaultTabToShow);
+  const [activeTab, setActiveTab] = React.useState(persistentTab);
   const [hasSelected, setSelected] = React.useState(false);
 
   /** STATE **/
@@ -282,9 +285,14 @@ export default function WalletSendTip(props: Props) {
         const userParams: UserParams = { activeChannelName, activeChannelId };
 
         // hit backend to send tip
-        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) =>
-          console.log(e)
-        );
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) => {
+          console.error(e);
+          doToast({
+            message: __('Tip failed to send.'),
+            subMessage: e?.message || e,
+            isError: true,
+          });
+        });
       }
     } else {
       sendSupportOrConfirm();
@@ -350,7 +358,7 @@ export default function WalletSendTip(props: Props) {
           <>
             {!claimIsMine && (
               <div className="section">
-                {showArweave && arweaveTipData && (
+                {showArweave && (
                   <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
                 )}
                 {ENABLE_STRIPE && stripeEnvironment && (
@@ -434,14 +442,13 @@ export default function WalletSendTip(props: Props) {
                   icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
                   button="primary"
                   type="submit"
-                  disabled={fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || (activeTab === TAB_FIAT && STRIPE_DISABLED)}
+                  disabled={
+                    fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
+                  }
                   label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
                 />
-
                 {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
               </div>
-              {STRIPE_DISABLED && activeTab === TAB_FIAT && <div className={'error margin-vertical-medium'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>}
-
             </>
           ) : (
             // if it's LBC and there is no balance, you can prompt to purchase LBC
