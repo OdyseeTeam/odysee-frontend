@@ -17,6 +17,7 @@ import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 import WalletSendTip from './view';
 import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { doArConnect, doArTip } from 'redux/actions/arwallet';
+import { doToast } from '../../redux/actions/notifications';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -57,6 +58,7 @@ const perform = {
   doSendTip,
   doSendCashTip,
   doArTip,
+  doToast,
   doArConnect,
 };
 

@@ -141,12 +141,12 @@ export const doArTip = (
   anonymous: boolean,
   userParams: UserParams,
   claimId: string,
-  stripeEnvironment: string,
-  preferredCurrency: string = 'USD'
+  stripeEnvironment: string
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
-
+    let referenceToken = '';
+    let transferTxid = '';
     try {
       if (!window.arweaveWallet) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
@@ -168,7 +168,7 @@ export const doArTip = (
       // if (state.arwallet.tippingStatusById[claimId] === 'error') {
       //   isRetry = true;
       // }
-      let referenceToken = '';
+
       if (!isRetry) {
         const res = await Lbryio.call(
           // : { data, success, error }
@@ -195,7 +195,7 @@ export const doArTip = (
         referenceToken = res.reference_token;
       }
 
-      const transferTxid = await message({
+      transferTxid = await message({
         process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
         data: '',
         tags: [
@@ -234,8 +234,11 @@ export const doArTip = (
     } catch (e) {
       console.error(e);
       dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
+      return { error: 'error' };
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
+    // support comments need the transferTxid, so return that here.
+    return { transferTxid: transferTxid, currency: 'USD', referenceToken: referenceToken };
   };
 };
 
