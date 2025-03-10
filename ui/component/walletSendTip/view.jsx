@@ -70,6 +70,7 @@ type Props = {
     preferredCurrency: string
   ) => void,
   doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
+  doToast: ({ message: string, subMessage?: string, isError?: boolean }) => void,
   setAmount?: (number, string) => void,
   preferredCurrency: string,
   modalProps?: any,
@@ -105,6 +106,7 @@ export default function WalletSendTip(props: Props) {
     modalProps,
     arweaveTipData,
     doArTip,
+    doToast,
     doArConnect,
   } = props;
 
@@ -281,9 +283,14 @@ export default function WalletSendTip(props: Props) {
         const userParams: UserParams = { activeChannelName, activeChannelId };
 
         // hit backend to send tip
-        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) =>
-          console.log(e)
-        );
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) => {
+          console.error(e);
+          doToast({
+            message: __('Tip failed to send.'),
+            subMessage: e?.message || e,
+            isError: true,
+          });
+        });
       }
     } else {
       sendSupportOrConfirm();

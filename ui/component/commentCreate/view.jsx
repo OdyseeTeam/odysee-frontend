@@ -510,7 +510,7 @@ export function CommentCreate(props: Props) {
         claim_id: claimId,
         parent_id: parentId,
         txid: 'dummy_txid',
-        payment_tx_id: 'bogus',
+        payment_tx_id: 'dummy_txid',
         environment: stripeEnvironment,
         is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
         amount: 1,
@@ -541,12 +541,21 @@ export function CommentCreate(props: Props) {
               })
               .catch((e) => {
                 // do the error handling
+                doToast({
+                  message: __('Tip failed to send.'),
+                  subMessage: e?.message || e,
+                  isError: true,
+                });
                 console.log('doartip e', e);
               });
           }
         })
         .catch((e) => {
-          // do the error handling
+          doToast({
+            message: __('Comment failed to send.'),
+            subMessage: e?.message || e,
+            isError: true,
+          });
           console.log('do commentcreate e', e);
         });
     } else {
