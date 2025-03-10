@@ -3,3 +3,10 @@ declare type ArConnectState = {
   address?: string,
   balance: number,
 };
+
+declare type ArweaveTipDataForId = {
+  address: string,
+  default: boolean,
+  currency: string,
+  status: 'active' | 'inactive',
+};

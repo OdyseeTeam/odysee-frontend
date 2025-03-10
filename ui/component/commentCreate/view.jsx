@@ -58,7 +58,6 @@ type Props = {
   supportDisabled: boolean,
   uri: string,
   disableInput?: boolean,
-  recipientArweaveTipInfo: ?boolean,
   recipientArweaveTipInfo: any,
   arweaveStatus: any,
   experimentalUi: boolean,
@@ -198,6 +197,8 @@ export function CommentCreate(props: Props) {
   const [exchangeRate, setExchangeRate] = React.useState();
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
 
+  const arweaveTipEnabled = recipientArweaveTipInfo && recipientArweaveTipInfo.status === 'active';
+
   const charCount = commentValue ? commentValue.length : 0;
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
   const disabled =
@@ -207,6 +208,7 @@ export function CommentCreate(props: Props) {
     isFetchingChannels ||
     isFetchingCreatorSettings ||
     hasNothingToSumbit ||
+    (activeTab === TAB_USDC && !arweaveTipEnabled) ||
     disableInput;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
@@ -436,13 +438,12 @@ export function CommentCreate(props: Props) {
           return;
         }
         // DryRun comment creation before submitting the tip
-        handleCreateComment(undefined, undefined, undefined, undefined, true)
-          .then((res) => {
-            if (res !== 'success') {
-              setSubmitting(false);
-              return;
-            }
-            doSubmitTip();
+        handleCreateComment(undefined, undefined, undefined, undefined, true).then((res) => {
+          if (res !== 'success') {
+            setSubmitting(false);
+            return;
+          }
+          doSubmitTip();
         });
       })
       .catch(() => {
@@ -920,106 +921,99 @@ export function CommentCreate(props: Props) {
         {(!isMobile || isReviewingStickerComment || isReviewingSupportComment) && (
           <div className="section__actions">
             {/* Submit Button */}
-            { isReviewingSupportComment && (
+            {isReviewingSupportComment && (
               <>
-                { activeTab === TAB_LBC &&
-                  (
-                    <Button
-                      {...submitButtonProps}
-                      autoFocus
-                      disabled={disabled || !minAmountMet}
-                      label={
-                        isSubmitting
-                          ? __('Sending...')
-                          : commentFailure && tipAmount === successTip.tipAmount
-                            ? __('Re-submit')
-                            : __('Send')
-                      }
-                      onClick={handleSupportComment}
-                    />
-                  )
-                }
-                {activeTab === TAB_USDC &&
-                  (
-                    <Button
-                      {...submitButtonProps}
-                      autoFocus
-                      disabled={disabled || !minAmountMet}
-                      label={
-                        isSubmitting
-                          ? __('Sending...')
-                          : commentFailure && tipAmount === successTip.tipAmount
-                            ? __('Re-submit')
-                            : __('Send')
-                      }
-                      onClick={handleSupportComment}
-                    />
-                  )
-                }
-                {activeTab === TAB_FIAT &&
-                  (
-                    <SubmitCashTipButton
-                      {...submitButtonProps}
-                      autoFocus
-                      disabled={disabled || !minAmountMet}
-                      label={
-                        isSubmitting
-                          ? __('Sending...')
-                          : commentFailure && tipAmount === successTip.tipAmount
-                            ? __('Re-submit')
-                            : __('Send')
-                      }
-                      onClick={handleSupportComment}
-                    />
-                  )
-                }
+                {activeTab === TAB_LBC && (
+                  <Button
+                    {...submitButtonProps}
+                    autoFocus
+                    disabled={disabled || !minAmountMet}
+                    label={
+                      isSubmitting
+                        ? __('Sending...')
+                        : commentFailure && tipAmount === successTip.tipAmount
+                        ? __('Re-submit')
+                        : __('Send')
+                    }
+                    onClick={handleSupportComment}
+                  />
+                )}
+                {activeTab === TAB_USDC && (
+                  <Button
+                    {...submitButtonProps}
+                    autoFocus
+                    disabled={disabled || !minAmountMet}
+                    label={
+                      isSubmitting
+                        ? __('Sending...')
+                        : commentFailure && tipAmount === successTip.tipAmount
+                        ? __('Re-submit')
+                        : __('Send')
+                    }
+                    onClick={handleSupportComment}
+                  />
+                )}
+                {activeTab === TAB_FIAT && (
+                  <SubmitCashTipButton
+                    {...submitButtonProps}
+                    autoFocus
+                    disabled={disabled || !minAmountMet}
+                    label={
+                      isSubmitting
+                        ? __('Sending...')
+                        : commentFailure && tipAmount === successTip.tipAmount
+                        ? __('Re-submit')
+                        : __('Send')
+                    }
+                    onClick={handleSupportComment}
+                  />
+                )}
               </>
-          )}
-            { !isReviewingSupportComment && (
+            )}
+            {!isReviewingSupportComment && (
               <>
-                {tipSelectorOpen
-                  ? (<Button
-                      {...submitButtonProps}
-                      disabled={disabled || tipSelectorError || !minAmountMet}
-                      icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
-                      label={__('Review')}
-                      onClick={() => {
-                        setReviewingSupportComment(true);
-                        if (onSlimInputClose) onSlimInputClose();
-                      }}
-                    />
-                  )
-                  : (<>
-                      {(!isMobile || selectedSticker) &&
-                        ((!minTip && !minUSDCTip) || claimIsMine) && (
-                          <Button
-                            {...submitButtonProps}
-                            ref={buttonRef}
-                            disabled={disabled}
-                            label={
-                              isLivestream
-                                ? isSubmitting
-                                  ? __('Sending...')
-                                  : __('Send --[button to send chat message]--')
-                                : isReply
-                                  ? isSubmitting
-                                    ? __('Replying...')
-                                    : __('Reply')
-                                  : isSubmitting
-                                    ? __('Commenting...')
-                                    : __('Comment --[button to submit something]--')
-                            }
-                            onClick={() =>
-                              selectedSticker
-                                ? handleSubmitSticker()
-                                : handleCreateComment(undefined, undefined, undefined, undefined)
-                            }
-                          />
-                        )}
-                    </>
-                  )}
-              </>)
-            }
+                {tipSelectorOpen ? (
+                  <Button
+                    {...submitButtonProps}
+                    disabled={disabled || tipSelectorError || !minAmountMet}
+                    icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
+                    label={__('Review')}
+                    onClick={() => {
+                      setReviewingSupportComment(true);
+                      if (onSlimInputClose) onSlimInputClose();
+                    }}
+                  />
+                ) : (
+                  <>
+                    {(!isMobile || selectedSticker) && ((!minTip && !minUSDCTip) || claimIsMine) && (
+                      <Button
+                        {...submitButtonProps}
+                        ref={buttonRef}
+                        disabled={disabled}
+                        label={
+                          isLivestream
+                            ? isSubmitting
+                              ? __('Sending...')
+                              : __('Send --[button to send chat message]--')
+                            : isReply
+                            ? isSubmitting
+                              ? __('Replying...')
+                              : __('Reply')
+                            : isSubmitting
+                            ? __('Commenting...')
+                            : __('Comment --[button to submit something]--')
+                        }
+                        onClick={() =>
+                          selectedSticker
+                            ? handleSubmitSticker()
+                            : handleCreateComment(undefined, undefined, undefined, undefined)
+                        }
+                      />
+                    )}
+                  </>
+                )}
+              </>
+            )}
 
             {(!isMobile || isReviewingStickerComment) && (
               <>

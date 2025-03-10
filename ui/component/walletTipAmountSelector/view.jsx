@@ -29,6 +29,7 @@ type Props = {
   tipError: string,
   uri: string,
   canReceiveFiatTips: ?boolean,
+  arweaveTipData: ArweaveTipDataForId,
   isComment?: boolean,
   onChange: (number) => void,
   setConvertedAmount?: (number) => void,
@@ -53,6 +54,7 @@ function WalletTipAmountSelector(props: Props) {
     fiatConversion,
     tipError,
     canReceiveFiatTips,
+    arweaveTipData,
     isComment,
     onChange,
     setConvertedAmount,
@@ -78,6 +80,8 @@ function WalletTipAmountSelector(props: Props) {
 
   // if it's fiat but there's no card saved OR the creator can't receive fiat tips
   const shouldDisableFiatSelectors = activeTab === TAB_FIAT && !canReceiveFiatTips;
+  const shouldDisableUSDCSelectors =
+    activeTab === TAB_USDC && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
 
   /**
    * whether tip amount selection/review functionality should be disabled
@@ -94,6 +98,7 @@ function WalletTipAmountSelector(props: Props) {
     return (
       ((isLBCCondition || isUSDCCondition) && isNotFiatTab) ||
       shouldDisableFiatSelectors ||
+      shouldDisableUSDCSelectors ||
       (customTipAmount &&
         fiatConversion &&
         activeTab !== TAB_FIAT &&
@@ -286,8 +291,13 @@ function WalletTipAmountSelector(props: Props) {
           />
         </div>
       )}
+      {activeTab === TAB_USDC &&
+        (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active')) &&
+        getHelpMessage(__('Only creators that onboard with USDC can receive USDC tips.'))}
 
-      {activeTab === TAB_USDC && <WalletSpendableBalanceHelp asset="usdc" />}
+      {activeTab === TAB_USDC && arweaveTipData && arweaveTipData.status === 'active' && (
+        <WalletSpendableBalanceHelp asset="usdc" />
+      )}
 
       {/* lbc tab */}
       {activeTab === TAB_LBC && <WalletSpendableBalanceHelp asset="lbc" />}
