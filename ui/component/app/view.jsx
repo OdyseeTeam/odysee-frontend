@@ -94,9 +94,6 @@ type Props = {
   doSetDefaultChannel: (claimId: string) => void,
   doSetAssignedLbrynetServer: (server: string) => void,
   doOpenModal: (any) => void,
-  arNagged: boolean,
-  doArNagged: () => void,
-  doSetAssignedLbrynetServer: (server: string) => void,
 };
 
 export const AppContext = React.createContext<any>();
