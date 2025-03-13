@@ -24,7 +24,7 @@
   .media__thumb {
     width: calc(var(--file-list-thumbnail-width) * 2) !important;
     margin-right: 0 !important;
-    background-size: 100% 100%;
+    background-size: 100%;
     transition: background-size 0.2s ease-in-out;
 
     .claim-preview__overlay-properties {
@@ -131,7 +131,7 @@
       opacity: 1;
     }
     .media__thumb {
-      background-size: 108% 108%;
+      background-size: 108%;
       .claim-preview__overlay-properties {
         opacity: 1;
       }

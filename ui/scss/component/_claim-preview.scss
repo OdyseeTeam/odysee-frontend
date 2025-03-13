@@ -25,7 +25,7 @@
 
   .media__thumb {
     overflow: hidden;
-    background-size: 100% 100%;
+    background-size: 100%;
     transition: background-size 0.2s ease-in-out;
   }
 
@@ -49,7 +49,7 @@
       opacity: 1;
     }
     .media__thumb {
-      background-size: 108% 108%;
+      background-size: 108%;
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
       .claim-preview__hover-actions-grid {
         opacity: 1;
@@ -233,7 +233,7 @@
 
   .media__thumb {
     width: calc(var(--file-list-thumbnail-width) * 1.2) !important;
-    background-size: 100% 100%;
+    background-size: 100%;
     transition: background-size 0.2s;
     aspect-ratio: 16 / 9;
     &[aria-expanded='true'] {
@@ -1068,7 +1068,7 @@
     }
     .media__thumb {
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-      background-size: 108% 108%;
+      background-size: 108%;
     }
   }
 }
@@ -1997,7 +1997,7 @@ $claim-preview-progress-bar-height: 5px;
 
       .media__thumb {
         width: calc(var(--file-list-thumbnail-width) * 1.2);
-        background-size: 100% 100%;
+        background-size: 100%;
         transition: background-size 0.2s;
       }
 
@@ -2194,7 +2194,7 @@ $claim-preview-progress-bar-height: 5px;
       .thumbnail {
         .media__thumb {
           box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-          background-size: 108% 108%;
+          background-size: 108%;
         }
       }
       .text {
