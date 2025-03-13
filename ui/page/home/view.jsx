@@ -244,7 +244,7 @@ function HomePage(props: Props) {
         })}
       >
         {id === 'FYP' ? (
-          userHasOdyseeMembership && <RecommendedPersonal header={<HeaderArea />} />
+          <RecommendedPersonal header={<HeaderArea />} />
         ) : (
           <>
             <HeaderArea />
