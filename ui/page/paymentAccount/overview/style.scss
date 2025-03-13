@@ -1,0 +1,51 @@
+.card--overview {
+  .payment-options {
+    display: flex;
+    width: 100%;
+    background: var(--color-background);
+    padding: var(--spacing-s);
+    border-radius: var(--border-radius);
+    margin-top: calc(var(--spacing-s) * -1);
+    gap: var(--spacing-m);
+
+    .payment-option {
+      display: flex;
+      flex: 1;
+      align-items: center;
+
+      fieldset-section {
+        width: 100%;
+
+        .form-field--copyable {
+          background-color: var(--color-header-button);
+        }
+      }
+
+      .payment-option__monetization {
+        display: flex;
+        margin-left: auto;
+        gap: var(--spacing-l);
+        margin-right: var(--spacing-xxs);
+      }
+    }
+  }
+
+  .transaction-history {
+    padding: var(--spacing-s);
+    background: var(--color-background);
+    border-radius: var(--border-radius);
+    margin-top: calc(var(--spacing-s) * -1);
+
+    .transaction-history__row {
+      display: flex;
+      gap: var(--spacing-s);
+
+      .transaction-history__action {
+        min-width: 90px;
+      }
+      .transaction-history__direction {
+        min-width: 50px;
+      }
+    }
+  }
+}

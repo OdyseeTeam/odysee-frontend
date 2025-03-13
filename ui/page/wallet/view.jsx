@@ -36,7 +36,6 @@ const WalletPage = (props: Props) => {
 
   // @if TARGET='web'
   const urlParams = new URLSearchParams(search);
-
   const currentView = urlParams.get(TAB_QUERY) || TABS.LBRY_CREDITS_TAB;
   const currencyValue = urlParams.get(CURRENCY_QUERY_PARAM);
   const transactionType = urlParams.get('transactionType');

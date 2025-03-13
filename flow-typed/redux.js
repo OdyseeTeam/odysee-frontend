@@ -5,7 +5,7 @@ import type { LivestreamState } from 'redux/reducers/livestream';
 import type { MembershipsState } from 'redux/reducers/memberships';
 import type { StatsState } from 'extras/lbryinc/redux/reducers/stats';
 import type { WalletState } from 'redux/reducers/wallet';
-
+import type { ArWalletState } from 'redux/reducers/arwallet';
 declare type Action = {
   type: string,
   data?: any,
@@ -19,6 +19,7 @@ declare type GetState = () => State;
 
 declare type State = {|
   app: AppState,
+  arConnect: ArConnectState,
   blacklist: any,
   blocked: BlocklistState,
   claims: ClaimsState,
@@ -44,4 +45,5 @@ declare type State = {|
   tags: TagState,
   user: UserState,
   wallet: WalletState,
+  arwallet: ArWalletState,
 |};
