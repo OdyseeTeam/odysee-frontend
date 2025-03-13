@@ -92,6 +92,7 @@ type Props = {
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
+  doSetAssignedLbrynetServer: (server: string) => void,
   doOpenModal: (any) => void,
   arNagged: boolean,
   doArNagged: () => void,

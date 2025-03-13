@@ -5,7 +5,6 @@ import { FormField } from 'component/common/form';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
@@ -194,7 +193,7 @@ function WalletTipAmountSelector(props: Props) {
         }
       }
     }
-  }, [activeTab, amount, LBCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
+  }, [activeTab, amount, LBCBalance, USDCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
 
   if (!claim) return null;
 
