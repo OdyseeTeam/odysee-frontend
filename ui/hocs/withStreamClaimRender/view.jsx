@@ -39,6 +39,7 @@ type Props = {
   isFetchingPurchases: ?boolean,
   renderMode: string,
   streamingUrl: any,
+  isCollectionClaim: ?boolean,
   isLivestreamClaim: ?boolean,
   isCurrentClaimLive: ?boolean,
   scheduledState: ClaimScheduledState,
@@ -87,6 +88,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       isFetchingPurchases,
       renderMode,
       streamingUrl,
+      isCollectionClaim,
       isLivestreamClaim,
       isCurrentClaimLive,
       scheduledState,
@@ -269,7 +271,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         playingOptions.source = 'markdown';
       }
 
-      if (!isLivestreamClaim && !streamingUrl) {
+      if (!isLivestreamClaim && !isCollectionClaim && !streamingUrl) {
         doFileGetForUri(uri, fileGetOptions);
       }
       if (shouldStartFloating || !check) {
