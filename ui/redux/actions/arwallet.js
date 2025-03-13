@@ -14,6 +14,7 @@ import {
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
 import { getGQLData } from '@permaweb/libs';
 import { selectAPIArweaveActiveAddress } from '../selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
@@ -29,12 +30,12 @@ export const WALLET_PERMISSIONS = [
 ];
 
 const USD_TO_USDC = 1000000;
-
+const TWO_PLACES_TO_PENNIES = 100;
 export const ARCONNECT_TYPE = 'arConnect';
 
 export function doArConnect() {
   console.log('doarconnect');
-  return async (dispatch, getState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
@@ -49,7 +50,9 @@ export function doArConnect() {
 
         const address = await global.window.arweaveWallet.getActiveAddress();
         const currentState = getState();
-        const apiActiveAddress = selectAPIArweaveActiveAddress(currentState);
+        const apiDefaultAddress = selectAPIArweaveDefaultAddress(currentState);
+        const currentModalId = currentState.app.modal;
+        const currentModalProps = currentState.app.modalProps;
 
         const USDCBalance = await fetchUSDCBalance(address);
         dispatch({
@@ -63,8 +66,12 @@ export function doArConnect() {
         });
 
         // if needs interaction, launch modal
-        if (apiActiveAddress !== address) {
-          dispatch(doOpenModal(MODALS.ARWEAVE_CONNECT));
+        if (apiDefaultAddress !== address) {
+          dispatch(
+            doOpenModal(MODALS.ARWEAVE_CONNECT, {
+              previousModal: currentModalId ? { id: currentModalId, modalProps: currentModalProps } : undefined,
+            })
+          );
           return;
         }
       } catch (e) {
@@ -77,17 +84,14 @@ export function doArConnect() {
 
     function handleWalletSwitched(event) {
       if (event?.detail?.address) {
-        dispatch({
-          type: ARCONNECT_SUCCESS,
-          data: { address: event.detail.address, type: ARCONNECT_TYPE, wallet: window.arweaveWallet },
-        });
+        dispatch(doArDisconnect());
       }
     }
   };
 }
 
 export function doArUpdateBalance() {
-  return async (dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_FETCHBALANCE });
     if (window.arweaveWallet) {
       try {
@@ -112,7 +116,7 @@ export function doArUpdateBalance() {
 }
 
 export function doArDisconnect() {
-  return async (dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
@@ -132,20 +136,16 @@ type TipParams = {
   recipientAddress: string,
 };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
-const doArTip = async (
+export const doArTip = (
   tipParams: TipParams,
   anonymous: boolean,
   userParams: UserParams,
   claimId: string,
-  stripeEnvironment,
-  preferredCurrency = 'USD',
-  successCallback
+  stripeEnvironment: string,
+  preferredCurrency: string = 'USD'
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
-    console.log(tipParams, userParams, claimId, stripeEnvironment, preferredCurrency);
-    dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
-    return;
 
     try {
       if (!window.arweaveWallet) {
@@ -154,23 +154,29 @@ const doArTip = async (
       }
 
       const state = getState();
-      const senderAddress = selectAPIArweaveActiveAddress(state);
-      if (window.arweaveWallet.getActiveAddress() !== senderAddress) {
-        dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: address not registered' } });
+      const senderAddress = selectAPIArweaveDefaultAddress(state);
+      const activeAddress = await window.arweaveWallet.getActiveAddress();
+      if (activeAddress !== senderAddress) {
+        dispatch({
+          type: AR_TIP_STATUS_ERROR,
+          data: { claimId: claimId, error: 'error: wallet address not registered' },
+        });
         return;
       }
 
       let isRetry = false;
-      if (state.arwallet.tippingStatusById[claimId] === 'error') {
-        isRetry = true;
-      }
+      // if (state.arwallet.tippingStatusById[claimId] === 'error') {
+      //   isRetry = true;
+      // }
+      let referenceToken = '';
       if (!isRetry) {
-        await Lbryio.call(
+        const res = await Lbryio.call(
+          // : { data, success, error }
           'customer',
           'tip',
           {
             // round to fix issues with floating point numbers
-            amount: Math.round(USD_TO_USDC * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
+            amount: Math.round(TWO_PLACES_TO_PENNIES * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
             creator_channel_name: tipParams.tipChannelName, // creator_channel_name
             creator_channel_claim_id: tipParams.channelClaimId,
             tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
@@ -182,10 +188,11 @@ const doArTip = async (
             sender_address: senderAddress,
             environment: stripeEnvironment,
             v2: true,
-            initiate: true,
           },
           'post'
         );
+        console.log('res', res); // res.token?
+        referenceToken = res.reference_token;
       }
 
       const transferTxid = await message({
@@ -193,10 +200,11 @@ const doArTip = async (
         data: '',
         tags: [
           { name: 'Action', value: 'Transfer' },
-          { name: 'Quantity', value: tipParams.tipAmountTwoPlaces * USD_TO_USDC }, // test/fix
+          { name: 'Quantity', value: String(tipParams.tipAmountTwoPlaces * USD_TO_USDC) }, // test/fix
           { name: 'Recipient', value: tipParams.recipientAddress }, // get address
           { name: 'Tip_Type', value: 'tip' },
           { name: 'Claim_ID', value: claimId },
+          { name: 'X-O-Ref', value: referenceToken },
         ],
         Owner: senderAddress, // test/fix
         signer: createDataItemSigner(window.arweaveWallet),
@@ -206,7 +214,7 @@ const doArTip = async (
         'tip',
         {
           // round to fix issues with floating point numbers
-          amount: Math.round(USD_TO_USDC * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
+          amount: Math.round(TWO_PLACES_TO_PENNIES * tipParams.tipAmountTwoPlaces), // convert from dollars to cents
           creator_channel_name: tipParams.tipChannelName, // creator_channel_name
           creator_channel_claim_id: tipParams.channelClaimId,
           tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
@@ -219,6 +227,7 @@ const doArTip = async (
           environment: stripeEnvironment,
           v2: true,
           tx_id: transferTxid,
+          token: referenceToken,
         },
         'post'
       );
@@ -251,42 +260,3 @@ const fetchUSDCBalance = async (address: string) => {
     return 0;
   }
 };
-
-const test = async () => {
-  try {
-    const response = await fetch('https://arweave-search.goldsky.com/graphql', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: `{
-          transactions(
-            first: 10,
-            tags: [
-              { name: "Data-Protocol", values: ["ao"] },
-              { name: "Action", values: ["Transfer"] },
-              { name: "Recipient", values: ["OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs"] }
-            ]
-          ) {
-            edges {
-              node {
-                id
-                recipient
-                owner { address }
-                block { timestamp height }
-              }
-            }
-          }
-        }`
-      }),
-    });
-    return response.json();
-  } catch (e) {
-    console.error(e);
-    return 0;
-  }
-};
-
-(async () => {
-  const x = await test();
-  console.log('X:', x.data.transactions);
-})();

@@ -9,14 +9,16 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
-import SendUsdc from './sendUsdc/view';
-import ReceiveUsdt from './receiveUsdc/view';
-import OnRamper from './onRamper/view';
+import SendUsdc from './sendUsdc';
+import ReceiveUsdt from './receiveUsdc';
+import OnRamper from './onRamper';
+import ArWallets from './arWallets';
 
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
 
 type Props = {
+  arweaveWallets: any,
   arWalletStatus: any,
   balance: number,
   fetching: boolean,
@@ -32,11 +34,12 @@ const TABS = {
   SEND: 'send',
   BUY: 'buy',
   WITHDRAW: 'withdraw',
+  WALLETS: 'wallets',
   TRANSACTION_HISTORY: 'transaction-history',
 };
 
 function PaymentAccountPage(props: Props) {
-  const { arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
+  const { arweaveWallets, arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
   const {
     location: { search },
     push,
@@ -62,6 +65,9 @@ function PaymentAccountPage(props: Props) {
     case TABS.WITHDRAW:
       tabIndex = 4;
       break;
+    case TABS.WALLETS:
+      tabIndex = 5;
+      break;
     default:
       tabIndex = 0;
       break;
@@ -73,25 +79,23 @@ function PaymentAccountPage(props: Props) {
 
   const handleUpdateBalance = () => {
     doArUpdateBalance();
-  }
+  };
 
   function cardHeader() {
     return (
       <>
         <Symbol token="usdc" amount={balance} precision={2} isTitle />
-        <div onClick={handleUpdateBalance} className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}>
+        <div
+          onClick={handleUpdateBalance}
+          className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}
+        >
           <Icon icon={ICONS.REFRESH} />
         </div>
         {arWalletStatus && (
-          <Button
-            button="alt"
-            icon={ICONS.WANDER}
-            label={__('Disconnect')}
-            onClick={handleArConnectDisconnect}
-          />
+          <Button button="alt" icon={ICONS.WANDER} label={__('Disconnect')} onClick={handleArConnectDisconnect} />
         )}
       </>
-    )
+    );
   }
 
   function onTabChange(newTabIndex) {
@@ -107,6 +111,8 @@ function PaymentAccountPage(props: Props) {
       url += `${TAB_QUERY}=${TABS.BUY}`;
     } else if (newTabIndex === 4) {
       url += `${TAB_QUERY}=${TABS.WITHDRAW}`;
+    } else if (newTabIndex === 5) {
+      url += `${TAB_QUERY}=${TABS.WALLETS}`;
     } else {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     }
@@ -115,20 +121,36 @@ function PaymentAccountPage(props: Props) {
 
   return (
     <Page className="paymentAccountPage-wrapper main--full-width">
-      <header className="page-header">
-      </header>
+      <header className="page-header"></header>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
-          <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Receive')}</Tab>
-          <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>{__('Send')}</Tab>
-          <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>{__('Buy')}</Tab>
-          <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>{__('Withdraw')}</Tab>
-        </TabList>
+          <TabList className="tabs__list">
+            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
+              {__('Overview')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
+              {__('Receive')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>
+              {__('Send')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>
+              {__('Buy')}
+            </Tab>
+            <Tab aria-selected={tabIndex === 4} onClick={() => onTabChange(4)}>
+              {__('Withdraw')}
+            </Tab>
+            {arweaveWallets && arweaveWallets.length > 0 ? (
+              <Tab aria-selected={tabIndex === 5} onClick={() => onTabChange(5)}>
+                {__('My Wallets')}
+              </Tab>
+            ) : (
+              <></>
+            )}
+          </TabList>
         </div>
         <TabPanels>
-        <TabPanel>
+          <TabPanel>
             <>
               <Card
                 className={!arWalletStatus ? `card--disabled` : ``}
@@ -136,51 +158,64 @@ function PaymentAccountPage(props: Props) {
                 background
                 actions={
                   <>
-                  <h2 className="section__title--small">
-                    {__('Transaction history')}
-                  </h2>
-                  <div className="transaction-history">
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Purchase')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('via')}</div>
-                      <div className="transaction-history__target">OnRamp</div>
+                    <h2 className="section__title--small">{__('Transaction history')}</h2>
+                    <div className="transaction-history">
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Purchase')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('via')}</div>
+                        <div className="transaction-history__target">OnRamp</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Withdraw')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('to')}</div>
+                        <div className="transaction-history__target">0x00000000000000000000</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Receive')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('from')}</div>
+                        <div className="transaction-history__target">0x00000000000000000000</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Send Tip')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('to')}</div>
+                        <div className="transaction-history__target">Username</div>
+                      </div>
+                      <div className="transaction-history__row">
+                        <div className="transaction-history__date">xx.xx.xxx</div>
+                        <div className="transaction-history__action">{__('Receive Tip')}</div>
+                        <div className="transaction-history__amount">0.00</div>
+                        <div className="transaction-history__token">
+                          <Symbol token="usdc" />
+                          USDC
+                        </div>
+                        <div className="transaction-history__direction">{__('from')}</div>
+                        <div className="transaction-history__target">Username</div>
+                      </div>
                     </div>
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Withdraw')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('to')}</div>
-                      <div className="transaction-history__target">0x00000000000000000000</div>
-                    </div>
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Receive')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('from')}</div>
-                      <div className="transaction-history__target">0x00000000000000000000</div>
-                    </div>
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Send Tip')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('to')}</div>
-                      <div className="transaction-history__target">Username</div>
-                    </div>
-                    <div className="transaction-history__row">
-                      <div className="transaction-history__date">xx.xx.xxx</div>
-                      <div className="transaction-history__action">{__('Receive Tip')}</div>
-                      <div className="transaction-history__amount">0.00</div>
-                      <div className="transaction-history__token"><Symbol token="usdc" />USDC</div>
-                      <div className="transaction-history__direction">{__('from')}</div>
-                      <div className="transaction-history__target">Username</div>
-                    </div>
-                  </div>
                   </>
                 }
               />
@@ -213,7 +248,13 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <OnRamper cardHeader={cardHeader} arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="buy" />
+              <OnRamper
+                cardHeader={cardHeader}
+                arWalletStatus={arWalletStatus}
+                balance={balance}
+                theme={theme}
+                mode="buy"
+              />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -223,7 +264,23 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <OnRamper cardHeader={cardHeader} arWalletStatus={arWalletStatus} balance={balance} theme={theme} mode="sell" />
+              <OnRamper
+                cardHeader={cardHeader}
+                arWalletStatus={arWalletStatus}
+                balance={balance}
+                theme={theme}
+                mode="sell"
+              />
+              {!arWalletStatus && (
+                <div className="wallet">
+                  <WalletConnect />
+                </div>
+              )}
+            </>
+          </TabPanel>
+          <TabPanel>
+            <>
+              <ArWallets cardHeader={cardHeader} arWalletStatus={arWalletStatus} arweaveWallets={arweaveWallets} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
