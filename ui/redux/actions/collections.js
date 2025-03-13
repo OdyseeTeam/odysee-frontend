@@ -94,6 +94,8 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
   return (dispatch: Dispatch, getState: GetState): Promise<any> => {
     const state = getState();
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
+    const collection = selectCollectionForId(state, collectionId);
+    const createdAtTimestamp = collection.createdAt;
 
     // $FlowFixMe
     const params: GenericPublishCreateParams = {
@@ -140,6 +142,9 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
 
       function success(response: CollectionCreateResponse) {
         const collectionClaim = response.outputs[0];
+        if (!collectionClaim?.meta.creation_timestamp) collectionClaim.meta.creation_timestamp = createdAtTimestamp;
+        if (!collectionClaim?.timestamp) collectionClaim.timestamp = Date.now();
+
         dispatch({ type: ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS, data: collectionId });
 
         dispatch(
