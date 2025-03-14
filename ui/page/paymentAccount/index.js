@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import {
-  selectArweaveStatus,
   selectArweaveConnected,
   selectArweaveBalance,
   selectArweaveFetching,
