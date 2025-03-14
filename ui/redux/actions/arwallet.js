@@ -12,8 +12,6 @@ import {
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
-import { getGQLData } from '@permaweb/libs';
-import { selectAPIArweaveActiveAddress } from '../selectors/stripe';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
 const gFlags = {

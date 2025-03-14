@@ -33,11 +33,6 @@ export const selectAPIArweaveDefaultAddress = (state: State) => {
   return defaultAccount ? defaultAccount.address : null;
 };
 
-export const selectAPIArweaveActiveAddresses = (state: State) => {
-  const activeAccounts = selectAPIArweaveActiveAccounts(state);
-  return activeAccounts ? activeAccounts.map((a) => a.address) : null;
-};
-
 export const selectArweaveTipDataForId = (state: State, id: string) => {
   const byId = selectState(state).canReceiveArweaveTipsById;
   return byId[id];
