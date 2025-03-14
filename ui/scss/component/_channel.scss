@@ -64,7 +64,7 @@ $actions-z-index: 2;
     .tab {
       &[aria-selected='true'] {
         &:after {
-          height: 8px;
+          height: 4px;
           background-color: var(--color-link);
         }
       }
