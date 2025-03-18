@@ -49,10 +49,9 @@ export const doFetchChannelMembershipsForChannelIds =
 
     dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED, data: { channel: channelId, ids: channelsToFetch } });
 
-    return await Lbryio.call('membership', 'check', {
+    return await Lbryio.call('membership_v2', 'check', {
       channel_id: channelId,
       claim_ids: channelIdsToFetch,
-      environment: stripeEnvironment,
     })
       .then((response) => {
         const membershipsById = {};
