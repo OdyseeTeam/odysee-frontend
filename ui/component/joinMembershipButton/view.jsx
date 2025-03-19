@@ -25,7 +25,7 @@ type Props = {
   channelName: ?string,
   channelClaimId: ?string,
   doOpenModal: (id: string, {}) => void,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };
 
 const JoinMembershipButton = (props: Props) => {
@@ -50,7 +50,7 @@ const JoinMembershipButton = (props: Props) => {
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
-      doMembershipList({ channel_name: `@${channelName}`, channel_id: channelClaimId }).catch((e) => {});
+      doMembershipList({ channel_id: channelClaimId }).catch((e) => {});
     }
   }, [channelClaimId, channelName, creatorMembershipsFetched, doMembershipList]);
 
@@ -65,7 +65,7 @@ const JoinMembershipButton = (props: Props) => {
     if (isChannelPage) channelPath = channelPath.substr(1);
 
     const membershipIndex =
-      creatorTiers.findIndex((res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id) +
+      creatorTiers.findIndex((res) => res.membership.name === validUserMembershipForChannel?.membership?.name) +
       1;
 
     return (

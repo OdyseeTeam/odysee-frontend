@@ -24,7 +24,7 @@ const select = (state, props) => {
     myChannels: selectMyChannelClaims(state),
     isVid: selectPublishFormValue(state, 'fileVid'),
     publishing: selectPublishFormValue(state, 'publishing'),
-    myMembershipTiers: selectMembershipTiersForCreatorId(state, channelId),
+    myMembershipTiers: selectMembershipTiersForCreatorId(state, channelId), //
     memberRestrictionStatus: selectMemberRestrictionStatus(state),
     isStillEditing: selectIsStillEditing(state),
     ffmpegStatus: selectFfmpegStatus(state),

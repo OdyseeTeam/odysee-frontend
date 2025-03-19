@@ -17,7 +17,7 @@ type Props = {
   areCommentsMembersOnly?: boolean,
   creatorMembershipsFetched: boolean,
   doToggleMembersOnlyCommentsSettingForClaimId: (claimId: ClaimId) => Promise<any>,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doToast: ({ message: string }) => void,
 };
 
@@ -52,7 +52,7 @@ const CommentListMenu = (props: Props) => {
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelId) {
-      doMembershipList({ channel_name: channelName, channel_id: channelId });
+      doMembershipList({ channel_id: channelId });
     }
   }, [channelId, channelName, creatorMembershipsFetched, doMembershipList]);
 

@@ -21,10 +21,10 @@ const select = (state, props) => {
   } catch (error) {}
 
   return {
-    validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri),
+    validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri), // filtered mine[0]
     creatorHasMemberships: selectCreatorHasMembershipsByUri(state, uri),
     creatorMembershipsFetched: selectCreatorMembershipsFetchedByUri(state, uri),
-    creatorTiers: channelClaimId && selectMembershipTiersForCreatorId(state, channelClaimId),
+    creatorTiers: channelClaimId && selectMembershipTiersForCreatorId(state, channelClaimId), //
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, uri),
     channelName,
     channelClaimId,
