@@ -105,7 +105,7 @@ function buildOgMetadata(overrideOptions = {}) {
     `<meta property="og:site_name" content="${SITE_NAME || SITE_TITLE}"/>\n` +
     `<meta property="og:description" content="${cleanDescription}" />\n` +
     `<meta property="og:image" content="${
-      getThumbnailCardCdnUrl(image) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
+      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${URL}/public/v2-og.png`
     }" />\n` +
     `<meta property="og:type" content="website"/>\n` +
     '<meta name="twitter:card" content="summary_large_image"/>\n' +
@@ -114,7 +114,7 @@ function buildOgMetadata(overrideOptions = {}) {
     }" />\n` +
     `<meta name="twitter:description" content="${cleanDescription}" />\n` +
     `<meta name="twitter:image" content="${
-      getThumbnailCardCdnUrl(image) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
+      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${URL}/public/v2-og.png`
     }"/>\n` +
     '<meta property="fb:app_id" content="1673146449633983" />\n' +
     `<link rel="canonical" content="${SITE_CANONICAL_URL || URL}"/>` +
@@ -199,7 +199,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   let claimThumbnail =
     escapeHtmlProperty(thumbnail) ||
     getThumbnailCardCdnUrl(imageThumbnail) ||
-    getThumbnailCardCdnUrl(OG_IMAGE_URL) ||
+    OG_IMAGE_URL ||
     `${URL}/public/v2-og.png`;
   if (userAgent && userAgent.includes('Discordbot')) {
     claimThumbnail = claimThumbnail.substring(claimThumbnail.lastIndexOf('https://'));
