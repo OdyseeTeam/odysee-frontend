@@ -216,7 +216,9 @@ function DiscoverPage(props: Props) {
           channelIds={isExplore && exploreChannelsIds ? exploreChannelsIds : channelIds}
           excludedChannelIds={excludedChannelIds}
           limitClaimsPerChannel={
-            SIMPLE_SITE
+            orderParam === CS.ORDER_BY_NEW
+              ? 5
+              : SIMPLE_SITE
               ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) || 3
               : 3
           }
