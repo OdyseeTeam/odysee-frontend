@@ -79,6 +79,7 @@ export const doFetchChannelMembershipsForChannelIds =
 export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
   dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
+// list available memberships for a channel id
 export const doMembershipList =
   (params: MembershipListParams, forceUpdate: ?boolean) => async (dispatch: Dispatch, getState: GetState) => {
     const { channel_id: channelId } = params;
@@ -92,7 +93,7 @@ export const doMembershipList =
 
     dispatch({ type: ACTIONS.MEMBERSHIP_LIST_START, data: channelId });
 
-    return await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
+    return await Lbryio.call('membership_v2', 'list', { ...params }, 'post')
       .then((response: MembershipTiers) =>
         dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: response } })
       )
@@ -107,7 +108,7 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
 
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
 
-  return await Lbryio.call('v2/membership', 'mine', { environment: stripeEnvironment }, 'post')
+  return await Lbryio.call('membership_v2/subscription', 'list', { environment: stripeEnvironment }, 'post')
     .then((response: MembershipTiers) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
     .catch((err) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err }));
 };
@@ -190,8 +191,8 @@ export const doMembershipCancelForMembershipId = (membershipId: number) => async
 };
 
 export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
-  await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post')
-    .then((response: Membership) => response)
+  await Lbryio.call('membership_v2', 'create', { ...params }, 'post')
+    .then((response: MembershipCreateResponse) => response)
     .catch((e) => {
       throw new Error(e);
     });
@@ -422,7 +423,7 @@ export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getSt
   const pendingPromises = [];
   myChannelClaims.map((channelClaim, index) => {
     pendingPromises[index] = dispatch(
-      doMembershipList({ channel_name: channelClaim.name, channel_id: channelClaim.claim_id })
+      doMembershipList({ channel_id: channelClaim.claim_id })
     );
   });
 

@@ -55,7 +55,7 @@ type Props = {
   doFileGetForUri: (uri: string, opt?: ?FileGetOptions) => void,
   doMembershipMine: () => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doClearPlayingUri: () => void,
 };
 
@@ -173,7 +173,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       if (channelClaimId && channelName) {
-        doMembershipList({ channel_name: channelName, channel_id: channelClaimId });
+        doMembershipList({ channel_id: channelClaimId });
       }
     }, [channelClaimId, channelName, doMembershipList]);
 

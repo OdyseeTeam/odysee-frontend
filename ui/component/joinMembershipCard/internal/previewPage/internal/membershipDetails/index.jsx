@@ -23,9 +23,9 @@ const MembershipDetails = (props: Props) => {
     isLivestream,
   } = props;
 
-  const descriptionParagraphs = membership.Membership.description.split('\n');
-  const selectedMembershipName = membership.Membership.name;
-  const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.Membership.id);
+  const descriptionParagraphs = membership.description.split('\n');
+  const selectedMembershipName = membership.name;
+  const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.membership_id);
 
   let accessText = __(
     membersOnly
@@ -59,7 +59,7 @@ const MembershipDetails = (props: Props) => {
       {!isChannelTab && <div className="selected-membership">{selectedMembershipName}</div>}
 
       <section className="membership-tier__header">
-        <span>{membership.Membership.name}</span>
+        <span>{membership.name}</span>
       </section>
 
       <section className="membership-tier__infos">

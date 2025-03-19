@@ -45,7 +45,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
   React.useEffect(() => {
-    doMembershipList({ channel_name: ODYSEE_CHANNEL.NAME, channel_id: ODYSEE_CHANNEL.ID });
+    doMembershipList({ channel_id: ODYSEE_CHANNEL.ID });
   }, [doMembershipList]);
 
   // we are still waiting from the backend if any of these are undefined

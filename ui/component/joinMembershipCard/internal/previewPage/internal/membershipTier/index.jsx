@@ -35,7 +35,7 @@ const MembershipTier = (props: Props) => {
             icon={ICONS.MEMBERSHIP}
             button="primary"
             label={__('Join for $%membership_price% per month', {
-              membership_price: membership?.NewPrices[0]?.creator_receives_amount / 100,
+              membership_price: membership?.Prices.amount / 100, // tiers
             })}
             onClick={handleSelect}
             disabled={disabled || STRIPE_DISABLED}

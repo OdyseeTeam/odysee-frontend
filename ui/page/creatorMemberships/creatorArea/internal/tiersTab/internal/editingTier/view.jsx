@@ -126,7 +126,7 @@ function MembershipTier(props: Props) {
 
           addChannelMembership(newMembershipObj);
           // force update for list
-          doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id }, true);
+          doMembershipList({ channel_id: activeChannelClaim.claim_id }, true);
         })
         .catch(() => setIsSubmitting(false));
     }
