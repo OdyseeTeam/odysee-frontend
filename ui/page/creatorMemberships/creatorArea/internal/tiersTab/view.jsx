@@ -61,7 +61,7 @@ function TiersTab(props: Props) {
 
       // sort by price lowest to highest
       return Array.from(newChannelMemberships).sort(
-        (a, b) => a.NewPrices[0].creator_receives_amount - b.NewPrices[0].creator_receives_amount
+        (a, b) => a.Prices.amount - b.Prices.amount
       );
     });
   }
@@ -69,7 +69,7 @@ function TiersTab(props: Props) {
   function removeChannelMembershipForId(membershipId) {
     setChannelMemberships((previousMemberships) => {
       const newChannelMemberships = previousMemberships.filter(
-        (membership) => membership.Membership.id !== membershipId
+        (membership) => membership.membership_id !== membershipId
       );
 
       return newChannelMemberships;
@@ -89,7 +89,7 @@ function TiersTab(props: Props) {
       const newFetchedMemberships = new Set(fetchedMemberships);
 
       previousMemberships.forEach((membership) => {
-        if (newEditingIds.has(membership.Membership.id) && typeof membership.Membership.id === 'string') {
+        if (newEditingIds.has(membership.membership_id) && typeof membership.membership_id === 'string') {
           // after membership/list fetch, in case there are still local editing ids (clicked create tier twice but
           // only published one for ex) keep the unpublished memberships on the state instead of replacing for the
           // new fetched values which would erase them
@@ -126,9 +126,9 @@ function TiersTab(props: Props) {
     <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
       {channelMemberships &&
         channelMemberships.map((membershipTier, membershipIndex) => {
-          const membershipId = membershipTier.Membership.id;
+          const membershipId = membershipTier.membership_id;
           const isEditing = new Set(editingIds).has(membershipId);
-          const hasSubscribers = membershipTier.HasSubscribers;
+          const hasSubscribers = membershipTier.has_subscribers;
 
           return (
             <div className="membership-tier__wrapper" key={membershipIndex}>

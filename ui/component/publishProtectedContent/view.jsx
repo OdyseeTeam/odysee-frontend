@@ -175,19 +175,19 @@ function PublishProtectedContent(props: Props) {
               {memberRestrictionOn && (
                 <div className="tier-list">
                   {myMembershipTiers.map((tier: MembershipTier) => {
-                    const show = validTierIds && validTierIds.includes(tier.Membership.id);
+                    const show = validTierIds && validTierIds.includes(tier.membership_id);
                     return show ? (
                       <FormField
                         disabled={paywall !== PAYWALL.FREE}
-                        key={tier.Membership.id}
+                        key={tier.membership_id}
                         type="checkbox"
-                        checked={memberRestrictionTierIds.includes(tier.Membership.id)}
-                        label={tier.Membership.name}
-                        name={tier.Membership.id}
-                        onChange={() => toggleMemberRestrictionTierId(tier.Membership.id)}
+                        checked={memberRestrictionTierIds.includes(tier.membership_id)}
+                        label={tier.name}
+                        name={tier.membership_id}
+                        onChange={() => toggleMemberRestrictionTierId(tier.membership_id)}
                       />
                     ) : (
-                      <div key={tier.Membership.id} className="dummy-tier" />
+                      <div key={tier.membership_id} className="dummy-tier" />
                     );
                   })}
                 </div>

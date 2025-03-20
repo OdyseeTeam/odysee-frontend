@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import {
   selectMembershipTiersForChannelUri,
-  selectMembershipTiersForCreatorId,
   selectUserHasValidMembershipForCreatorId,
 } from 'redux/selectors/memberships';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
@@ -24,7 +23,7 @@ const select = (state, props) => {
   return {
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
-    membershipTiers: selectMembershipTiersForCreatorId(state, claimId),
+    // membershipTiers: selectMembershipTiersForCreatorId(state, claimId), //apparently not used
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
     channelTitle,
     channelUri,

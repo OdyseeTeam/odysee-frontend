@@ -7,49 +7,74 @@ declare type MembershipBuyParams = {
 
 declare type MembershipListParams = {
   channel_id: string,
-  channel_name: string,
 };
 
 // -- CreatorMembership: data the creator sees for a given membership
 declare type CreatorMembership = {
-  HasSubscribers: boolean,
-  Membership: MembershipDetails,
-  Perks: MembershipOdyseePerks,
-  Prices?: Array<StripePriceDetails>,
-  NewPrices: Array<MembershipNewStripePriceDetails>,
-};
+  channel_name: string,
+  channel_claim_id: string,
+  name: string,
+  description: string,
+  perks: Array<any>,
+  prices: {amount: string, currency: string, address: string },
+  has_subscribers: boolean,
+}
+
 declare type CreatorMemberships = Array<CreatorMembership>;
 
 // -- MembershipTier: data the supporter sees for a given membership
+// declare type MembershipTier = {
+//   Membership: Membership,
+//   MembershipDetails: MembershipDetails,
+//   Subscription: MembershipSubscriptionDetails,
+//   Perks: MembershipOdyseePerks,
+// };
+
+declare type PaymentDetails = {
+  amount: number,
+  currency: string,
+  frequency: string,
+  initiated_at: number,
+  completed_at: number,
+  transaction_id: string,
+  status: string,
+}
+
 declare type MembershipTier = {
-  Membership: Membership,
-  MembershipDetails: MembershipDetails,
-  Subscription: MembershipSubscriptionDetails,
-  Perks: MembershipOdyseePerks,
-};
-declare type MembershipTiers = Array<MembershipTier>;
+  membership: Membership,
+  subscription: { status: string, started_at: number, ends_at: number },
+  perks: Array<any>,
+  payments: Array<PaymentDetails>,
+}
+
+// OLD
+// declare type Membership = {
+//   name: ?string,
+//   auto_renew: boolean,
+//   badge: ?string,
+//   channel_id: string,
+//   channel_name: string,
+//   created_at: string,
+//   expires: string,
+//   handle: string,
+//   id: number,
+//   is_live: boolean,
+//   membership_id: number,
+//   membership_price_id: number,
+//   show_public_support: boolean,
+//   stripe_sub_id: string,
+//   term: string,
+//   tx_id: ?number,
+//   updated_at: string,
+//   user_id: number,
+//   verified: boolean,
+// };
 
 declare type Membership = {
-  name: ?string,
-  auto_renew: boolean,
-  badge: ?string,
-  channel_id: string,
-  channel_name: string,
-  created_at: string,
-  expires: string,
-  handle: string,
-  id: number,
-  is_live: boolean,
-  membership_id: number,
-  membership_price_id: number,
-  show_public_support: boolean,
-  stripe_sub_id: string,
-  term: string,
-  tx_id: ?number,
-  updated_at: string,
-  user_id: number,
-  verified: boolean,
-};
+  name: string,
+  enabled: boolean,
+  channel_claim_id: string,
+}
 
 declare type MembershipDetails = {
   activated: boolean,
@@ -207,9 +232,15 @@ declare type MembershipAddTierParams = {
   currency: string,
   amount: number,
   perks: string, // csv
-  old_stripe_price?: ?string, // price id
-  membership_id?: ?number,
+  frequency: string,
+  payment_address_id: string,
 };
+
+declare type MembershipCreateResponse = {
+  membership_id: number,
+  name: string,
+  description: string,
+}
 
 declare type MembershipMineDataByCreatorId = { [id: ClaimId]: MembershipTiers };
 
