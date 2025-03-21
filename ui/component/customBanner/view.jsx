@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-import "./style.scss";
-import Icon from "component/common/icon";
-import * as ICONS from "constants/icons";
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import './style.scss';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 
 const CustomBanner = ({ image, label, description, tag, button, background, isSecondary }) => {
   // Generate a unique key for the banner based on its content (e.g., the tag)
