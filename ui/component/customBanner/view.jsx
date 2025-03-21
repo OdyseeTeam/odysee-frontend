@@ -6,12 +6,12 @@ import * as ICONS from 'constants/icons';
 
 const CustomBanner = ({ image, label, description, tag, button, background, isSecondary }) => {
   // Generate a unique key for the banner based on its content (e.g., the tag)
-  const bannerKey = `banner-${label.replace(/\s+/g, "-").toLowerCase()}`;
+  const bannerKey = `banner-${label.replace(/\s+/g, '-').toLowerCase()}`;
 
   // State to control the visibility of the banner
   const [isVisible, setIsVisible] = useState(() => {
     // Check if the banner was previously closed (using localStorage)
-    const isBannerClosed = localStorage.getItem(bannerKey) === "closed";
+    const isBannerClosed = localStorage.getItem(bannerKey) === 'closed';
     return !isBannerClosed; // Show the banner if it is not closed
   });
 
@@ -21,7 +21,7 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
   // Function to close the banner
   const handleCloseBanner = () => {
     setIsVisible(false); // Hide the banner
-    localStorage.setItem(bannerKey, "closed"); // Save the state to localStorage
+    localStorage.setItem(bannerKey, 'closed'); // Save the state to localStorage
   };
 
   // Function to toggle the visibility of the context menu
@@ -45,7 +45,7 @@ Object.keys(localStorage).forEach((key) => {
 }); */
 
   return (
-    <div className={`banner-container ${isSecondary ? "banner-secondary" : "banner-primary"}`}>
+    <div className={`banner-container ${isSecondary ? 'banner-secondary' : 'banner-primary'}`}>
       {/* Context menu */}
       <div className="banner-context-menu">
         <button className="banner-menu-button" onClick={toggleMenu}>
