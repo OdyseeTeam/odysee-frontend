@@ -32,7 +32,8 @@ export function getSortedRowData(
   hasMembership: ?boolean,
   homepageOrder: HomepageOrder,
   homepageData: any,
-  rowData: Array<RowDataItem>
+  rowData: Array<RowDataItem>,
+  customBanner: ?RowDataItem
 ) {
   let sortedRowData: Array<RowDataItem> = [];
   const hasBanner = Boolean(homepageData.featured);
@@ -109,6 +110,10 @@ export function getSortedRowData(
     if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
     if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
     sortedRowData = pushAllValidCategories(rowData, hasMembership);
+  }
+
+  if (customBanner) {
+    sortedRowData.unshift(customBanner);
   }
 
   return sortedRowData;
