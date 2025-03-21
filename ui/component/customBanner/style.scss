@@ -1,0 +1,248 @@
+// Common styles for both banners
+.banner-container {
+  position: relative;
+  width: 100%;
+  margin: 0px auto 20px;
+  padding: 0 30px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  // Banner background
+  .banner-background {
+    width: 240px;
+    height: 240px;
+    object-fit: cover;
+    margin-right: auto;
+  }
+
+  // Flexible container for image and text
+  .banner-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  // Image on the left
+  .banner-image {
+    width: 240px;
+    height: 240px;
+    margin: 0 15px 0 0;
+    object-fit: cover;
+  }
+
+  // Text container
+  .banner-text-container {
+    flex: 1;
+  }
+
+  // Title
+  .banner-label {
+    max-width: 700px;
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Description
+  .banner-description {
+    font-size: 16px;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  // Tag (below the description)
+  .banner-tag {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+  }
+
+  // Button to the right of the text
+  .banner-button {
+    display: inline-block;
+    padding: 10px;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+      background-color: var(--banner-button-hover);
+    }
+  }
+
+  // "View More"
+  .banner-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+}
+
+// Estilos específicos para el primer banner
+.banner-primary {
+  background-color: var(--banner-primary-bg, #f7f7f7);
+  background-image: linear-gradient(to left, transparent, var(--banner-primary-bg, #a4812ecc) 60%);
+
+  .banner-label {
+    color: var(--banner-primary-label, #262626);
+  }
+
+  .banner-description {
+    color: var(--banner-primary-description, #fff);
+  }
+
+  .banner-tag {
+    color: var(--banner-primary-tag, #2b2b2b);
+  }
+
+  .banner-button {
+    background-color: var(--banner-primary-button-bg, #ca004b);
+
+    &:hover {
+      background-color: var(--banner-primary-button-hover, #a82053);
+    }
+  }
+
+  .banner-info {
+    color: var(--banner-primary-info, #ca004b);
+  }
+}
+
+// Specific styles for the second banner.
+.banner-secondary {
+  background-color: var(--banner-secondary-bg, #e0f7fa);
+  background-image: linear-gradient(to left, transparent, var(--banner-secondary-bg, #67449acc) 60%);
+
+  .banner-label {
+    color: var(--banner-secondary-label, #fff);
+  }
+
+  .banner-description {
+    color: var(--banner-secondary-description, #fff);
+  }
+
+  .banner-tag {
+    color: var(--banner-secondary-tag, #2b2b2b);
+  }
+
+  .banner-button {
+    background-color: var(--banner-secondary-button-bg, #ca004b);
+
+    &:hover {
+      background-color: var(--banner-secondary-button-hover, #a82053);
+    }
+  }
+
+  .banner-info {
+    color: var(--banner-secondary-info, #ca004b);
+  }
+}
+
+// Context menu (common to both banners)
+.banner-context-menu {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.banner-menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--banner-info, #ca004b);
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--banner-button-hover, #a82053);
+  }
+}
+
+.banner-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: var(--banner-bg, #f7f7f7);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 120px;
+}
+
+.banner-menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--banner-label, #262626);
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Dark mode styles - Possibly not necessary.
+[data-theme="dark"] {
+  .banner-primary {
+    --banner-primary-bg: #333;
+    --banner-primary-label: #f7f7f7;
+    --banner-primary-description: #d1a1e3;
+    --banner-primary-tag: #ccc;
+    --banner-primary-info: #ff79c6;
+    --banner-primary-button-bg: #ca004b;
+    --banner-primary-button-hover: #a82053;
+  }
+
+  .banner-secondary {
+    --banner-secondary-bg: #004d40;
+    --banner-secondary-label: #f7f7f7;
+    --banner-secondary-description: #d1a1e3;
+    --banner-secondary-tag: #ccc;
+    --banner-secondary-info: #ff79c6;
+    --banner-secondary-button-bg: #ca004b;
+    --banner-secondary-button-hover: #a82053;
+  }
+
+  .banner-menu-dropdown {
+    background-color: var(--banner-bg, #333);
+  }
+
+  .banner-menu-item {
+    color: var(--banner-label, #f7f7f7);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+}
