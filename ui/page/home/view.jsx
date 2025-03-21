@@ -22,6 +22,8 @@ import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
+import { customBanners as CUSTOM_BANNER_IDS } from 'custom/homepages/homepage.js'; //localhost v2, but must change in production homepageFetched.
+import CustomBanner from 'component/customBanner';
 
 const FeaturedBanner = lazyImport(() => import('component/featuredBanner' /* webpackChunkName: "featuredBanner" */));
 const Portals = lazyImport(() => import('component/portals' /* webpackChunkName: "portals" */));
@@ -300,12 +302,26 @@ function HomePage(props: Props) {
           undefined
         )}
 
-      {homepageFetched &&
-        sortedRowData.map(
-          ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-            return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
-          }
-        )}
+        {homepageFetched &&
+          sortedRowData.map(
+            ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
+              // Check if there is a banner that should appear in this position
+              const bannerForPosition = CUSTOM_BANNER_IDS.find((banner) => banner.position === index);
+
+              return (
+                <React.Fragment key={id}>
+                  {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
+                  {bannerForPosition && (
+                    <CustomBanner
+                      key={`custom-banner-${bannerForPosition.position}`}
+                      {...bannerForPosition}
+                      isSecondary={bannerForPosition === CUSTOM_BANNER_IDS[1]} // Pass isSecondary only for the second banner
+                    />
+                  )}
+                </React.Fragment>
+              );
+            }
+          )}
     </Page>
   );
 }
