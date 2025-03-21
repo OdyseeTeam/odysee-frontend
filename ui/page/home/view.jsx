@@ -22,7 +22,7 @@ import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
-import { customBanners as CUSTOM_BANNER_IDS } from 'custom/homepages/homepage.js'; //localhost v2, but must change in production homepageFetched.
+import { customBanners as CUSTOM_BANNER_IDS } from 'custom/homepages/homepage.js'; // localhost v2, but must change in production homepageFetched.
 import CustomBanner from 'component/customBanner';
 
 const FeaturedBanner = lazyImport(() => import('component/featuredBanner' /* webpackChunkName: "featuredBanner" */));
