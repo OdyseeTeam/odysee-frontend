@@ -62,7 +62,7 @@ function TiersTab(props: Props) {
 
       // sort by price lowest to highest
       return Array.from(newChannelMemberships).sort(
-        (a, b) => a.Prices.amount - b.Prices.amount
+        (a, b) => a.prices.amount - b.prices.amount
       );
     });
   }

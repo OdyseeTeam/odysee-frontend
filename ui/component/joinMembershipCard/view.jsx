@@ -92,7 +92,7 @@ const JoinMembershipCard = (props: Props) => {
 
     const membershipBuyParams: MembershipBuyParams = {
       membership_id: selectedTier.Membership.id,
-      price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
+      price_id: selectedTier.NewPrices[0].price.stripe_price_id,
     };
 
     if (activeChannelClaim && !incognito) {

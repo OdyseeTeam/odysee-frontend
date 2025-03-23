@@ -72,7 +72,7 @@ export const selectSupportersForChannelId = createSelector(
   selectNameForClaimId,
   selectMySupportersList,
   (channelName, supportersList) =>
-    supportersList && supportersList.filter((supporter) => supporter.ChannelBeingSupported === channelName)
+    supportersList && supportersList.filter((supporter) => supporter.supported_channel_name === channelName)
 );
 
 export const selectSupportersAmountForChannelId = (state: State, channelId: ClaimId) =>
@@ -336,22 +336,22 @@ export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creat
     {},
     myPurchasedCreatorMembership[0],
     creatorMembershipTiers.find(
-      (membership) => membership.membership_id === myPurchasedCreatorMembership[0].membership_id
+      (membershipSub) => membershipSub.membership_id === myPurchasedCreatorMembership[0].MembershipDetails.id
     )
   );
 };
 
 export const selectUserValidMembershipForChannelUri = createSelector(
   (state, uri) => selectMyPurchasedMembershipsForChannelClaimId(state, selectChannelClaimIdForUri(state, uri) || ''),
-  (purchasedMembershipForChannel) => {
-    if (!purchasedMembershipForChannel) return purchasedMembershipForChannel;
+  (purchasedMembershipSubsForChannel) => {
+    if (!purchasedMembershipSubsForChannel) return purchasedMembershipSubsForChannel;
 
     // $FlowFixMe
-    const subscriptionEndTime = purchasedMembershipForChannel[0].subscription?.ends_at;
+    const subscriptionEndTime = purchasedMembershipSubsForChannel[0].subscription?.ends_at;
     const currentTimeInStripeFormat = new Date().getTime() / 1000;
     const membershipIsValid = subscriptionEndTime && currentTimeInStripeFormat < subscriptionEndTime;
 
-    return membershipIsValid ? purchasedMembershipForChannel[0] : null;
+    return membershipIsValid ? purchasedMembershipSubsForChannel[0] : null;
   }
 );
 
@@ -446,7 +446,7 @@ export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(
   (restrictedIds, byId) => {
     const memberships = restrictedIds.map((id) => byId[id]);
 
-    return memberships.sort((a, b) => a.Prices.amount - b.Prices.amount);
+    return memberships.sort((a, b) => a.prices.amount - b.prices.amount);
   }
 );
 
@@ -494,8 +494,8 @@ export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(
 
     memberships.forEach(
       (membership: CreatorMembership) =>
-        membership.Perks &&
-        membership.Perks.some((perk: MembershipOdyseePerk) => {
+        membership.perks &&
+        membership.perks.some((perk: MembershipOdyseePerk) => {
           if (perk.id === MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id) {
             membershipIds.add(membership.membership_id);
             return true;
@@ -513,8 +513,8 @@ export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
     myValidMemberships &&
     myValidMemberships.filter(
       (membership: MembershipTier) =>
-        membership.Perks &&
-        membership.Perks.some(
+        membership.perks &&
+        membership.perks.some(
           (perk: MembershipOdyseePerk) => perk.id === MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id
         )
     )

@@ -46,7 +46,7 @@ const JoinMembershipButton = (props: Props) => {
   const isChannelPage = React.useContext(ChannelPageContext);
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
-  const membershipName = validUserMembershipForChannel?.MembershipDetails?.name;
+  const membershipName = validUserMembershipForChannel?.name;
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
@@ -65,7 +65,7 @@ const JoinMembershipButton = (props: Props) => {
     if (isChannelPage) channelPath = channelPath.substr(1);
 
     const membershipIndex =
-      creatorTiers.findIndex((res) => res.membership.name === validUserMembershipForChannel?.membership?.name) +
+      creatorTiers.findIndex((res) => res.membership.name === validUserMembershipForChannel?.name) +
       1;
 
     return (

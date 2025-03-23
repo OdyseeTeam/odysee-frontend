@@ -217,7 +217,7 @@ const PreviewPage = (props: Props) => {
           type="submit"
           disabled={userHasACreatorMembership || creatorPurchaseDisabled || STRIPE_DISABLED}
           label={__('Join for $%membership_price% per month', {
-            membership_price: selectedTier?.Prices.amount / 100,
+            membership_price: selectedTier?.prices.amount / 100,
           })}
           requiresAuth
           onClick={handleSelect}

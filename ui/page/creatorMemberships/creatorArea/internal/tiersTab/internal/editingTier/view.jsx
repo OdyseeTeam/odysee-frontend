@@ -48,16 +48,18 @@ function MembershipTier(props: Props) {
   const contributionRef = React.useRef();
 
   const initialState = React.useRef({
-    name: membership.Membership.name || '',
-    description: membership.Membership.description || '',
-    price: membership.NewPrices[0].creator_receives_amount / 100,
-    perks: Array.from(new Set([...MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS, ...membership.Perks.map((perk) => perk.id)])),
+    name: membership.name || '',
+    description: membership.description || '',
+    price: membership.prices.amount / 100,
+    perks: Array.from(new Set([...MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS, ...membership.perks.map((perk) => perk.id)])),
+    frequency: 'monthly',
   });
 
   const [editTierParams, setEditTierParams] = React.useState({
     editTierName: initialState.current.name,
     editTierDescription: initialState.current.description,
     editTierPrice: initialState.current.price,
+    editTierFrequency: initialState.current.frequency,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
@@ -97,7 +99,7 @@ function MembershipTier(props: Props) {
     const selectedPerksAsArray = selectedPerkIds.toString();
 
     if (activeChannelClaim) {
-      const isCreatingAMembership = typeof membership.Membership.id === 'string';
+      const isCreatingAMembership = typeof membership.membership_id === 'string';
       const price = Number(newTierMonthlyContribution) * 100; // multiply to turn into cents
 
       doMembershipAddTier({
@@ -108,23 +110,25 @@ function MembershipTier(props: Props) {
         amount: price,
         currency: 'usd', // hardcoded for now
         perks: selectedPerksAsArray,
-        old_stripe_price: membership.Prices ? membership.Prices[0].id : undefined,
-        membership_id: isCreatingAMembership ? undefined : membership.Membership.id,
+        frequency: editTierParams.editTierFrequency, //
+        membership_id: isCreatingAMembership ? undefined : membership.membership_id,
       })
         .then((response: MembershipDetails) => {
           setIsSubmitting(false);
-          removeEditing();
+
 
           const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
 
-          const newMembershipObj = {
-            HasSubscribers: false,
-            Membership: response,
-            NewPrices: [{ creator_receives_amount: price }],
+          const newMembershipObj: CreatorMembership = {
+            has_subscribers: false,
+            channel_name:
+            prices: [{ creator_receives_amount: price }],
             Perks: selectedPerks,
           };
 
-          addChannelMembership(newMembershipObj);
+          removeEditing();
+
+          addChannelMembership(newMembershipObj); // TODO check this newMembershipObj
           // force update for list
           doMembershipList({ channel_id: activeChannelClaim.claim_id }, true);
         })
@@ -150,7 +154,7 @@ function MembershipTier(props: Props) {
         type="text"
         name="tier_name"
         label={__('Tier Name')}
-        placeholder={membership.Membership.name}
+        placeholder={membership.name}
         autoFocus
         onChange={(e) =>
           setEditTierParams((prev) => ({ ...prev, editTierName: nameRef.current?.input?.current?.value || '' }))
@@ -183,7 +187,7 @@ function MembershipTier(props: Props) {
             type="checkbox"
             defaultChecked={isPermanent || isSelected}
             label={__(tierPerk.description)}
-            name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.Membership.id}
+            name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
             className="membership_perks"
             disabled={isPermanent}
             onChange={() =>

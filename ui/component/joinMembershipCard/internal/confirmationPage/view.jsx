@@ -34,7 +34,7 @@ const ConfirmationPage = (props: Props) => {
     incognito,
   } = props;
 
-  const total = (selectedTier.NewPrices[0].Price.amount / 100).toFixed(2);
+  const total = (selectedTier.NewPrices[0].price.amount / 100).toFixed(2);
   const creatorRevenue = (selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2);
   const processingFee = (selectedTier.NewPrices[0].fees.stripe_fee / 100).toFixed(2);
   const odyseeFee = (selectedTier.NewPrices[0].fees.odysee_fee / 100).toFixed(2);

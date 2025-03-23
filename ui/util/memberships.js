@@ -1,7 +1,7 @@
 // @flow
 
 export const getTotalPriceFromSupportersList = (supportersList: SupportersList) =>
-  supportersList.map((supporter) => supporter.Price).reduce((total, supporterPledge) => total + supporterPledge, 0);
+  supportersList.map((supporter) => supporter.price).reduce((total, supporterPledge) => total + supporterPledge, 0);
 
 /**
  * Given the current form type combination, what is the applicable perk name
