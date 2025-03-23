@@ -14,6 +14,7 @@ const MAP = Object.freeze({
   [MODALS.ADD_CARD]: lazyImport(() => import('modal/modalStripeCard' /* webpackChunkName: "modalStripeCard" */)),
   [MODALS.ANNOUNCEMENTS]: lazyImport(() => import('modal/modalAnnouncements' /* webpackChunkName: "modalAnnouncements" */)),
   [MODALS.AFFIRM_PURCHASE]: lazyImport(() => import('modal/modalAffirmPurchase' /* webpackChunkName: "modalAffirmPurchase" */)),
+  [MODALS.ARWEAVE_CONNECT]: lazyImport(() => import('modal/modalArweaveConnect' /* webpackChunkName: "modalAnnouncements" */)),
   [MODALS.AUTO_GENERATE_THUMBNAIL]: lazyImport(() => import('modal/modalAutoGenerateThumbnail' /* webpackChunkName: "modalAutoGenerateThumbnail" */)),
   [MODALS.AUTO_UPDATE_DOWNLOADED]: lazyImport(() => import('modal/modalAutoUpdateDownloaded' /* webpackChunkName: "modalAutoUpdateDownloaded" */)),
   [MODALS.BLOCK_CHANNEL]: lazyImport(() => import('modal/modalBlockChannel' /* webpackChunkName: "modalBlockChannel" */)),

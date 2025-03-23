@@ -22,6 +22,7 @@ export default function WalletFiatBalance(props: Props) {
     <Card
       title={<>{__('Cash Balance')}</>}
       subtitle={__('You can view your balance and transaction history on Stripe from the Bank Accounts section.')}
+      background
       actions={
         <>
           <h2 className="section__title--small">

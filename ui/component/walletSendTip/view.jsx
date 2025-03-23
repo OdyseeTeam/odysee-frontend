@@ -1,4 +1,6 @@
 // @flow
+import React from 'react';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
 import { Form } from 'component/common/form';
 import LbcMessage from 'component/common/lbc-message';
 import { Lbryio } from 'lbryinc';
@@ -12,10 +14,8 @@ import ChannelSelector from 'component/channelSelector';
 import classnames from 'classnames';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
-import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
-
 import withCreditCard from 'hocs/withCreditCard';
 
 import { getStripeEnvironment } from 'util/stripe';
@@ -23,12 +23,12 @@ const stripeEnvironment = getStripeEnvironment();
 
 const TAB_BOOST = 'TabBoost';
 const TAB_FIAT = 'TabFiat';
+const TAB_USDC = 'TabUSDC';
 const TAB_LBC = 'TabLBC';
 
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
-
 type Props = {
   activeChannelId?: string,
   activeChannelName?: string,
@@ -49,7 +49,9 @@ type Props = {
   isTipOnly?: boolean,
   hasSelectedTab?: string,
   customText?: string,
+  experimentalUi: boolean,
   doHideModal: () => void,
+  doArConnect: () => void,
   doSendCashTip: (
     TipParams,
     anonymous: boolean,
@@ -59,10 +61,20 @@ type Props = {
     preferredCurrency: string,
     ?(any) => void
   ) => string,
+  doArTip: (
+    TipParams,
+    anonymous: boolean,
+    UserParams,
+    claimId: string,
+    stripeEnvironment: ?string,
+    preferredCurrency: string
+  ) => void,
   doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
+  doToast: ({ message: string, subMessage?: string, isError?: boolean }) => void,
   setAmount?: (number, string) => void,
   preferredCurrency: string,
   modalProps?: any,
+  arweaveTipData?: ArweaveTipDataForId, //
 };
 
 export default function WalletSendTip(props: Props) {
@@ -85,14 +97,22 @@ export default function WalletSendTip(props: Props) {
     isTipOnly,
     hasSelectedTab,
     customText,
+    experimentalUi,
     doHideModal,
     doSendCashTip,
     doSendTip,
     setAmount,
     preferredCurrency,
     modalProps,
+    arweaveTipData,
+    doArTip,
+    doToast,
+    doArConnect,
   } = props;
 
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+
+  const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
   const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
@@ -103,6 +123,7 @@ export default function WalletSendTip(props: Props) {
   const [hasSelected, setSelected] = React.useState(false);
 
   /** STATE **/
+  // tipAmount: number 12.345, round later
   const [tipAmount, setTipAmount] = usePersistedState('comment-support:customTip', 1.0);
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [tipError, setTipError] = React.useState();
@@ -122,6 +143,9 @@ export default function WalletSendTip(props: Props) {
       : boostThisContentText
     : __('Leave a tip for the creator');
 
+  // just do this always or check connection somehow?
+  doArConnect();
+
   let channelName;
   try {
     ({ channelName } = parseURI(uri));
@@ -135,7 +159,7 @@ export default function WalletSendTip(props: Props) {
       break;
     case TAB_FIAT:
     case TAB_LBC:
-      explainerText = __('Show this creator your appreciation by sending a donation.');
+      // explainerText = __('Show this creator your appreciation by sending a donation.');
       break;
   }
 
@@ -245,6 +269,29 @@ export default function WalletSendTip(props: Props) {
         doHideModal();
       }
       // if it's a boost (?)
+    } else if (activeTab === TAB_USDC) {
+      if (!isOnConfirmationPage) {
+        setConfirmationPage(true);
+      } else {
+        const arweaveTipAddress = arweaveTipData.address;
+        const tipParams: TipParams = {
+          tipAmountTwoPlaces: tipAmount,
+          tipChannelName: tipChannelName || '',
+          channelClaimId: channelClaimId || '',
+          recipientAddress: arweaveTipAddress,
+        };
+        const userParams: UserParams = { activeChannelName, activeChannelId };
+
+        // hit backend to send tip
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) => {
+          console.error(e);
+          doToast({
+            message: __('Tip failed to send.'),
+            subMessage: e?.message || e,
+            isError: true,
+          });
+        });
+      }
     } else {
       sendSupportOrConfirm();
     }
@@ -309,8 +356,10 @@ export default function WalletSendTip(props: Props) {
           <>
             {!claimIsMine && (
               <div className="section">
-                {/* tip fiat tab button */}
-                {stripeEnvironment && (
+                {showArweave && (
+                  <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
+                )}
+                {ENABLE_STRIPE && stripeEnvironment && (
                   <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
                 )}
 
@@ -343,7 +392,9 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">{(!incognito && activeChannelName) || __('Anonymous')}</div>
                   <div className="confirm__label">{__('Amount')}</div>
                   <div className="confirm__value">
-                    {activeTab === TAB_FIAT ? (
+                    {activeTab === TAB_USDC ? (
+                      <p>{`${ICONS.USDC} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    ) : activeTab === TAB_FIAT ? (
                       <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : (
                       <LbcSymbol postfix={tipAmount} size={22} />
@@ -389,7 +440,9 @@ export default function WalletSendTip(props: Props) {
                   icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
                   button="primary"
                   type="submit"
-                  disabled={fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton}
+                  disabled={
+                    fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
+                  }
                   label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
                 />
                 {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
