@@ -62,7 +62,7 @@ export const doFetchChannelMembershipsForChannelIds =
           // if array was returned for a user (indicating a membership exists), otherwise is null
           if (Number.isInteger(memberships?.length)) {
             for (const membership of memberships) {
-              if (membership.activated) {
+              if (membership.activated) { // activated?
                 membershipsById[channelId] = membership.name;
               }
             }
@@ -169,9 +169,9 @@ export const doMembershipCancelForMembershipId = (membershipId: number) => async
   dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
 
   return await Lbryio.call(
-    'membership',
+    'membership_v2/subscription',
     'cancel',
-    { environment: stripeEnvironment, membership_id: membershipId },
+    { membership_id: membershipId },
     'post'
   )
     .then((response) => {
@@ -245,7 +245,7 @@ export const doOpenCancelationModalForMembership =
 export const doDeactivateMembershipForId = (membershipId: number) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.DELETE_MEMBERSHIP_STARTED, data: membershipId });
 
-  await Lbryio.call('membership', 'deactivate', { environment: stripeEnvironment, membership_id: membershipId }, 'post')
+  await Lbryio.call('membership_v2', 'deactivate', { membership_id: membershipId }, 'post')
     .then((response) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
       return response;

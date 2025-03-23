@@ -72,12 +72,12 @@ const MembershipDetails = (props: Props) => {
         <div className="membership-tier__perks">
           <div className="membership-tier__moon" />
           <div className="membership-tier__perks-content">
-            {membership.Perks && membership.Perks.length > 0 ? (
+            {membership.perks && membership.perks.length > 0 ? (
               <>
                 <label>{__('Perks')}</label>
                 <ul>
                   {/* $FlowFixMe -- already handled above */}
-                  {membership.Perks.map((tierPerk, i) => (
+                  {membership.perks.map((tierPerk, i) => (
                     <li key={i}>{__(tierPerk.name)}</li>
                   ))}
                 </ul>

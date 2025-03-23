@@ -251,6 +251,17 @@ declare type ChannelMembershipsByCreatorId = {
   [creatorId: string]: Array<MembershipIdByChannelId>,
 };
 
+declare type MembershipSubscriber = {
+  subscriber_channel_name: string,
+  subscriber_channel_id: string,
+  supported_channel_name: string,
+  membership_name: string,
+  price: number,
+  currency: string,
+  interval: string,
+  joined_at: any, // number or datestring?
+}
+
 declare type MembershipSupporter = {
   ChannelBeingSupported: string,
   ChannelName: string,
@@ -260,7 +271,7 @@ declare type MembershipSupporter = {
   MembershipName: string,
   Price: number,
 };
-declare type SupportersList = Array<MembershipSupporter>;
+declare type SupportersList = Array<MembershipSubscriber>;
 
 declare type MembershipContentResponse = Array<MembershipContentResponseItem>;
 declare type MembershipContentResponseItem = {

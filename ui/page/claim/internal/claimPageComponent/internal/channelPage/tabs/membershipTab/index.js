@@ -13,6 +13,7 @@ const select = (state, props) => {
   const channelClaimId = selectChannelClaimIdForUri(state, uri);
   const purchasedChannelMembership = selectMyPurchasedMembershipTierForCreatorUri(state, channelClaimId);
   const creatorMemberships = selectMembershipTiersForCreatorId(state, channelClaimId); //
+  // TODO AR MEMBERSHIP check these against api 'membership_id' field
   const membershipIndex =
     (creatorMemberships &&
       creatorMemberships.findIndex(

@@ -5,8 +5,8 @@ import { doMembershipMine } from 'redux/actions/memberships';
 import PledgesTab from './view';
 
 const select = (state) => ({
-  myPurchasedCreatorMemberships: selectMyPurchasedMembershipsFromCreators(state),
-  isFetchingMemberships: selectMembershipMineFetching(state),
+  myMembershipSubs: selectMyPurchasedMembershipsFromCreators(state),
+  isFetchingMembershipSubs: selectMembershipMineFetching(state),
 });
 
 const perform = {

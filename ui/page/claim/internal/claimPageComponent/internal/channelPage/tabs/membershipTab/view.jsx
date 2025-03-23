@@ -35,7 +35,6 @@ const MembershipTab = (props: Props) => {
   }
 
   const { MembershipDetails, Subscription, Perks } = purchasedChannelMembership;
-  // const { channel_name: creatorChannel } = purchasedChannelMembership.Membership;
   const { name: membershipName, description: membershipDescription } = MembershipDetails;
 
   const {
