@@ -57,6 +57,7 @@ export const ANNOUNCEMENTS = 'ANNOUNCEMENTS';
 export const ADD_CARD = 'ADD_CARD';
 export const ACCOUNT_DELETE = 'ACCOUNT_DELETE';
 
+export const ARWEAVE_CONNECT = 'ARWEAVE_CONNECT';
 // Memberships
 
 export const MEMBERSHIP_SPLASH = 'MEMBERSHIP_SPLASH';

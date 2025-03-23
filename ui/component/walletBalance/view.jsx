@@ -1,33 +1,41 @@
 // @flow
+import React from 'react';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
-import React from 'react';
 import CreditAmount from 'component/common/credit-amount';
 import Button from 'component/button';
 import HelpLink from 'component/common/help-link';
 import Card from 'component/common/card';
+import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-import { formatNumberWithCommas } from 'util/number';
 import WalletFiatBalance from 'component/walletFiatBalance';
+import { formatNumberWithCommas } from 'util/number';
 
 type Props = {
-  balance: number,
+  experimentalUi: boolean,
+  LBCBalance: number,
+  USDCBalance: number,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
   tipsBalance: number,
-  doOpenModal: (string) => void,
   hasSynced: boolean,
-  doFetchUtxoCounts: () => void,
-  doUtxoConsolidate: () => void,
   fetchingUtxoCounts: boolean,
   consolidatingUtxos: boolean,
   consolidateIsPending: boolean,
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
+  accountStatus: any,
+  fullArweaveStatus: Array<any>,
+  doOpenModal: (string) => void,
+  doFetchUtxoCounts: () => void,
+  doUtxoConsolidate: () => void,
+  activeAPIArAccountAddress: string,
+  activeAPIArAccount: any,
 };
 
 export const WALLET_CONSOLIDATE_UTXOS = 400;
@@ -35,52 +43,60 @@ const LARGE_WALLET_BALANCE = 100;
 
 const WalletBalance = (props: Props) => {
   const {
-    balance,
+    experimentalUi,
+    LBCBalance,
+    USDCBalance,
     claimsBalance,
     supportsBalance,
     tipsBalance,
-    doOpenModal,
     hasSynced,
-    doUtxoConsolidate,
-    doFetchUtxoCounts,
     consolidatingUtxos,
     consolidateIsPending,
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
+    accountStatus,
+    fullArweaveStatus,
+    doOpenModal,
+    doUtxoConsolidate,
+    doFetchUtxoCounts,
   } = props;
+
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
   const { other: otherCount = 0 } = utxoCounts || {};
-
-  const totalBalance = balance + tipsBalance + supportsBalance + claimsBalance;
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+  const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
   React.useEffect(() => {
-    if (balance > LARGE_WALLET_BALANCE && detailsExpanded) {
+    if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
-  }, [doFetchUtxoCounts, balance, detailsExpanded]);
+  }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
+
 
   return (
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<LbcSymbol postfix={formatNumberWithCommas(totalBalance)} isTitle />}
+          title={<Symbol token="lbc" amount={formatNumberWithCommas(totalBalance) || 0} isTitle />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                Your total balance. All of this is yours, but some %lbc% is in use on channels and content right now.
+                Your total %lbc% balance. All of this is yours, but some %lbc% is in use on channels and content right
+                now.
               </I18nMessage>
             ) : (
               <span>{__('Your total balance.')}</span>
             )
           }
+          background
           actions={
             <>
               <h2 className="section__title--small">
-                <I18nMessage tokens={{ lbc_amount: <CreditAmount amount={balance} precision={4} /> }}>
+                <I18nMessage tokens={{ lbc_amount: <CreditAmount amount={LBCBalance} precision={4} /> }}>
                   %lbc_amount% immediately spendable
                 </I18nMessage>
               </h2>
@@ -191,10 +207,49 @@ const WalletBalance = (props: Props) => {
           }
         />
       </div>
-      <div className="column">
-        {/* fiat balance card */}
-        <WalletFiatBalance />
-      </div>
+      {showArweave && (
+        <div className="column">
+          <Card
+            title={<Symbol token="usdc" amount={USDCBalance} precision={2} isTitle />}
+            subtitle={
+              totalLocked > 0 ? (
+                <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Your total %usdc%USDC balance.</I18nMessage>
+              ) : (
+                <span>{__('Your total balance.')}</span>
+              )
+            }
+            background
+            actions={
+              <>
+                <h2 className="section__title--small">
+                  <I18nMessage
+                    tokens={{
+                      usdc_amount: <Symbol token="usdc" amount={USDCBalance} precision={2} />,
+                    }}
+                  >
+                    %usdc_amount%
+                  </I18nMessage>
+                </h2>
+                <div className="section__actions">
+                  <Button
+                    button="secondary"
+                    label={__('Deposit Funds')}
+                    icon={ICONS.BUY}
+                    navigate={`/$/${PAGES.PAYMENTACCOUNT}?tab=buy`}
+                  />
+                  <Button
+                    button="secondary"
+                    label={__('Payment Account')}
+                    icon={ICONS.SETTINGS}
+                    navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
+                  />
+                </div>
+              </>
+            }
+          />
+        </div>
+      )}
+      {ENABLE_STRIPE && <div className="column">{<WalletFiatBalance />}</div>}
     </div>
   );
 };

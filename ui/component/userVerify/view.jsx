@@ -72,7 +72,7 @@ class UserVerify extends React.PureComponent<Props> {
               }}
             >
               Verified accounts are eligible to receive Credits for using %SITE_NAME%. Verifying also helps us keep the
-              %SITE_NAME% community safe! %Refresh% or %Skip%.
+              %SITE_NAME% community safe! %% or %Skip%.
             </I18nMessage>
           </p>
           <p className="help">

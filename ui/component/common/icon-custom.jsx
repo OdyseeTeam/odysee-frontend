@@ -117,7 +117,7 @@ export const icons = {
       <defs>
         <style>
           {
-            '.cls-1--whiteLogo{fill:#fff;}.cls-2--whiteLogo{fill:url(#linear-gradient);}.cls-3--whiteLogo{clip-path:url(#clip-path);}'
+            '.cls-1--whiteLogo{fill:#fff;}.cls-2--whiteLogo{fill:url(#linear-gradient);}.cls-3--whiteLogo{clipPath:url(#clipPath);}'
           }
         </style>
         <linearGradient id="linear-gradient" x1="45.6" y1="9.82" x2="88.36" y2="157.76" gradientUnits="userSpaceOnUse">
@@ -128,7 +128,7 @@ export const icons = {
           <stop offset="0.89" stopColor="#fecb07" />
           <stop offset="1" stopColor="#ffd600" />
         </linearGradient>
-        <clipPath id="clip-path">
+        <clipPath id="clipPath">
           <rect x="8.45" y="8.03" width="103.05" height="103.05" rx="51.52" />
         </clipPath>
       </defs>
@@ -178,7 +178,7 @@ export const icons = {
       <defs>
         <style>
           {
-            '.cls-1--darkLogo{fill:none;}.cls-2--darkLogo{fill:url(#linear-gradient);}.cls-3--darkLogo{clip-path:url(#clip-path);}.cls-4--darkLogo{fill:#fff;}'
+            '.cls-1--darkLogo{fill:none;}.cls-2--darkLogo{fill:url(#linear-gradient);}.cls-3--darkLogo{clipPath:url(#clipPath);}.cls-4--darkLogo{fill:#fff;}'
           }
         </style>
         <linearGradient id="linear-gradient" x1="45.6" y1="9.82" x2="88.36" y2="157.76" gradientUnits="userSpaceOnUse">
@@ -189,7 +189,7 @@ export const icons = {
           <stop offset="0.89" stopColor="#fecb07" />
           <stop offset="1" stopColor="#ffd600" />
         </linearGradient>
-        <clipPath id="clip-path">
+        <clipPath id="clipPath">
           <rect className="cls-1--darkLogo" x="8.45" y="8.03" width="103.05" height="103.05" rx="51.52" />
         </clipPath>
       </defs>
@@ -208,6 +208,95 @@ export const icons = {
       </g>
     </svg>
   ),
+  [ICONS.USDC]: (props: IconProps) => {
+    const { size = 24 } = props;
+    return (
+      <svg
+        width={size}
+        height={size}
+        data-name="86977684-12db-4850-8f30-233a7c267d11"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 2000 2000"
+      >
+        <path
+          d="M1000 2000c554.17 0 1000-445.83 1000-1000S1554.17 0 1000 0 0 445.83 0 1000s445.83 1000 1000 1000z"
+          fill="#2775ca"
+        />
+        <path
+          d="M1275 1158.33c0-145.83-87.5-195.83-262.5-216.66-125-16.67-150-50-150-108.34s41.67-95.83 125-95.83c75 0 116.67 25 137.5 87.5 4.17 12.5 16.67 20.83 29.17 20.83h66.66c16.67 0 29.17-12.5 29.17-29.16v-4.17c-16.67-91.67-91.67-162.5-187.5-170.83v-100c0-16.67-12.5-29.17-33.33-33.34h-62.5c-16.67 0-29.17 12.5-33.34 33.34v95.83c-125 16.67-204.16 100-204.16 204.17 0 137.5 83.33 191.66 258.33 212.5 116.67 20.83 154.17 45.83 154.17 112.5s-58.34 112.5-137.5 112.5c-108.34 0-145.84-45.84-158.34-108.34-4.16-16.66-16.66-25-29.16-25h-70.84c-16.66 0-29.16 12.5-29.16 29.17v4.17c16.66 104.16 83.33 179.16 220.83 200v100c0 16.66 12.5 29.16 33.33 33.33h62.5c16.67 0 29.17-12.5 33.34-33.33v-100c125-20.84 208.33-108.34 208.33-220.84z"
+          fill="#fff"
+        />
+        <path
+          d="M787.5 1595.83c-325-116.66-491.67-479.16-370.83-800 62.5-175 200-308.33 370.83-370.83 16.67-8.33 25-20.83 25-41.67V325c0-16.67-8.33-29.17-25-33.33-4.17 0-12.5 0-16.67 4.16-395.83 125-612.5 545.84-487.5 941.67 75 233.33 254.17 412.5 487.5 487.5 16.67 8.33 33.34 0 37.5-16.67 4.17-4.16 4.17-8.33 4.17-16.66v-58.34c0-12.5-12.5-29.16-25-37.5zM1229.17 295.83c-16.67-8.33-33.34 0-37.5 16.67-4.17 4.17-4.17 8.33-4.17 16.67v58.33c0 16.67 12.5 33.33 25 41.67 325 116.66 491.67 479.16 370.83 800-62.5 175-200 308.33-370.83 370.83-16.67 8.33-25 20.83-25 41.67V1700c0 16.67 8.33 29.17 25 33.33 4.17 0 12.5 0 16.67-4.16 395.83-125 612.5-545.84 487.5-941.67-75-237.5-258.34-416.67-487.5-491.67z"
+          fill="#fff"
+        />
+      </svg>
+    );
+  },
+  [ICONS.BNB]: (props: IconProps) => {
+    const { size = 24 } = props;
+
+    return (
+      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M20 0C31.0465 0 40 8.95353 40 20C40 31.0465 31.0465 40 20 40C8.95353 40 0 31.0465 0 20C0 8.95353 8.95353 0 20 0Z"
+          fill="#F0B90B"
+        />
+        <path
+          d="M10.992 20L11.0064 25.2884L15.5 27.9327V31.0288L8.3766 26.8509V18.4535L10.992 20ZM10.992 14.7115V17.7932L8.375 16.2452V13.1634L10.992 11.6154L13.6218 13.1634L10.992 14.7115ZM17.3766 13.1634L19.9936 11.6154L22.6234 13.1634L19.9936 14.7115L17.3766 13.1634Z"
+          fill="white"
+        />
+        <path
+          d="M12.883 24.1923V21.0961L15.5 22.6442V25.7259L12.883 24.1923ZM17.3766 29.0416L19.9936 30.5897L22.6234 29.0416V32.1234L19.9936 33.6714L17.3766 32.1234V29.0416ZM26.3766 13.1634L28.9936 11.6154L31.6234 13.1634V16.2452L28.9936 17.7932V14.7115L26.3766 13.1634ZM28.9936 25.2884L29.008 20L31.625 18.4519V26.8493L24.5016 31.0272V27.9311L28.9936 25.2884Z"
+          fill="white"
+        />
+        <path d="M27.117 24.1923L24.5 25.7259V22.6442L27.117 21.0961V24.1923Z" fill="white" />
+        <path
+          d="M27.117 15.8077L27.1314 18.9039L22.625 21.5481V26.8494L20.008 28.383L17.391 26.8494V21.5481L12.8846 18.9039V15.8077L15.5128 14.2596L19.992 16.9167L24.4984 14.2596L27.1282 15.8077H27.117ZM12.883 10.5209L19.9936 6.32855L27.117 10.5209L24.5 12.0689L19.9936 9.41189L15.5 12.0689L12.883 10.5209Z"
+          fill="white"
+        />
+      </svg>
+    );
+  },
+  [ICONS.BASE]: (props: IconProps) => {
+    const { size = 24 } = props;
+
+    return (
+      <svg width={size} height={size} viewBox="0 0 40 40" fill="nonde" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M19.9648 40C31.0304 40 40 31.0464 40 20C40 8.9536 31.0304 0 19.9648 0C9.4672 0 0.856 8.0608 0 18.3184H26.4816V21.6816H0C0.856 31.9392 9.4672 40 19.9648 40Z"
+          fill="#0052FF"
+        />
+      </svg>
+    );
+  },
+  [ICONS.ETH]: (props: IconProps) => {
+    const { size = 24 } = props;
+
+    return (
+      <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g clipPath="url(#clip0_720_35)">
+          <path
+            d="M20 40C31.0457 40 40 31.0457 40 20C40 8.9543 31.0457 0 20 0C8.9543 0 0 8.9543 0 20C0 31.0457 8.9543 40 20 40Z"
+            fill="#627EEA"
+          />
+          <path d="M20.6225 5V16.0875L29.9937 20.275L20.6225 5Z" fill="white" fillOpacity="0.602" />
+          <path d="M20.6225 5L11.25 20.275L20.6225 16.0875V5Z" fill="white" />
+          <path d="M20.6225 27.46V34.9938L30 22.02L20.6225 27.46Z" fill="white" fillOpacity="0.602" />
+          <path d="M20.6225 34.9938V27.4588L11.25 22.02L20.6225 34.9938Z" fill="white" />
+          <path d="M20.6225 25.7162L29.9937 20.275L20.6225 16.09V25.7162Z" fill="white" fillOpacity="0.2" />
+          <path d="M11.25 20.275L20.6225 25.7162V16.09L11.25 20.275Z" fill="white" fillOpacity="0.602" />
+        </g>
+        <defs>
+          <clipPath id="clip0_720_35">
+            <rect width="40" height="40" fill="white" />
+          </clipPath>
+        </defs>
+      </svg>
+    );
+  },
   [ICONS.LBC]: (props: IconProps) => {
     const { size = 24, color = 'currentColor', ...rest } = props;
     const randomId = uuid();
@@ -301,6 +390,28 @@ export const icons = {
             <rect width="24" height="24" fill="white" />
           </clipPath>
         </defs>
+      </svg>
+    );
+  },
+  [ICONS.WANDER]: (props: IconProps) => {
+    const { size = 24 } = props;
+
+    return (
+      <svg width={size} height={size} viewBox="0 0 40 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M27.6273 9.88279L20.4818 0.822379C20.1808 0.431745 19.8856 0.367949 19.5622 0.787513L12.4058 9.86807L19.3324 16.1285L20.0051 1.78538L20.6777 16.1285L27.6273 9.88279Z"
+          fill="currentColor"
+        />
+        <path
+          d="M32.7013 19.2467L39.9634 3.74967C40.1192 3.41021 39.7471 3.071 39.4235 3.25738L28.5647 9.49862L21.5065 17.4499L32.7013 19.2467Z"
+          fill="currentColor"
+        />
+        <path
+          d="M7.29863 19.2467L0.036573 3.74967C-0.119206 3.41021 0.252812 3.071 0.576491 3.25738L11.4353 9.49862L18.4935 17.4499L7.29863 19.2467Z"
+          fill="currentColor"
+        />
       </svg>
     );
   },

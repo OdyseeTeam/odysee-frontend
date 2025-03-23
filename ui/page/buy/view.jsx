@@ -1,240 +1,217 @@
 // @flow
-// import * as ICONS from 'constants/icons';
 import React from 'react';
+import { useHistory } from 'react-router';
+import { ENABLE_ARCONNECT } from 'config';
+import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
 import Page from 'component/page';
 import Card from 'component/common/card';
-import Spinner from 'component/spinner';
-import hmacSHA256 from 'crypto-js/hmac-sha256';
-import Base64 from 'crypto-js/enc-base64';
-import { countries as countryData } from 'country-data';
-import { FormField } from 'component/common/form';
-import { SUPPORTED_MOONPAY_COUNTRIES } from 'constants/moonpay';
-import { useHistory } from 'react-router';
 import Button from 'component/button';
-import Nag from 'component/nag';
-import LbcSymbol from 'component/common/lbc-symbol';
-import { SIMPLE_SITE } from 'config';
-// import classnames from 'classnames';
-// import WalletSwap from 'component/walletSwap';
-
-const MOONPAY_DOWN = true;
-
-const MOONPAY_KEY = process.env.MOONPAY_SECRET_KEY;
-const COUNTRIES = Array.from(
-  new Set(
-    countryData.all
-      .filter((country) => country.status !== 'deleted')
-      .map((country) => country.name)
-      .sort((a, b) => {
-        if (a > b) {
-          return 1;
-        }
-
-        if (b > a) {
-          return -1;
-        }
-
-        return 0;
-      })
-  )
-);
-
-/* const TAB = {
-  BUY: 'BUY',
-  SWAP: 'SWAP',
-}; */
+import Symbol from 'component/common/symbol';
+import WalletConnect from 'component/walletConnect';
+import ReceiveUsdc from '../paymentAccount/receiveUsdc/view';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import './style.scss';
 
 type Props = {
-  receiveAddress: ?string,
-  gettingNewAddress: boolean,
-  email: string,
-  user: ?User,
-  doGetNewAddress: () => void,
-  doUserSetCountry: (string) => void,
+  arWalletStatus: any,
+  theme: string,
+  balance: number,
+  experimentalUi: boolean,
 };
 
 export default function BuyPage(props: Props) {
-  const { receiveAddress, gettingNewAddress, doGetNewAddress, email, user, doUserSetCountry } = props;
-  const initialCountry = (user && user.country) || '';
-  // const [tab, setTab] = React.useState(TAB.BUY);
-  const [url, setUrl] = React.useState();
-  const [country, setCountry] = React.useState(initialCountry);
-  const [showPurchaseScreen, setShowPurchaseScreen] = React.useState(false);
-  const isValid = SUPPORTED_MOONPAY_COUNTRIES.includes(country);
-  const { goBack } = useHistory();
+  const { arWalletStatus, theme, balance, experimentalUi } = props;
+  const [targetWallet, setTargetWallet] = React.useState(undefined);
+  const {
+    location: { search },
+    push,
+  } = useHistory();
+
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+
+  const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
+  // const network = '0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33';
+  const network = '0xE6c07B52d897c596ECeA3a94566C4F4Fd45Ca04d';
+  
+  const rgbaToHex = (rgba) => {
+    const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
+    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : ''}`;
+  };
+
+  const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
+    const [rB, gB, bB, aB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
+    const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
+  
+    const r = Math.round(rB * (1 - aA) + rA * aA);
+    const g = Math.round(gB * (1 - aA) + gA * aA);
+    const b = Math.round(bB * (1 - aA) + bA * aA);
+  
+    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
+  };
+
+  const containerColor = `${rgbaToHexWithBackground(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim(), getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim())}`;
+  const primaryColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim());
+  const primaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim().slice(1);
+  const secondaryColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim());
+  const secondaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim().slice(1);
+  const cardColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim());
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
+  const params = {
+    apiKey,
+    enableCountrySelector: 'true',
+    partnerContext: 'Odysee',
+    mode: 'buy',
+    defaultCrypto: 'usdc_base',
+    onlyCryptos: 'usdc_bsc,usdc_base',
+    defaultFiat: 'usd',
+    defaultAmount: '30',
+    networkWallets: `base:${network},bsc:${network}`,
+    onlyCryptoNetworks: 'base,bsc',
+    themeName: 'dark',
+    containerColor,
+    primaryColor,
+    primaryTextColor,
+    secondaryColor,
+    secondaryTextColor,
+    cardColor,
+    primaryBtnTextColor: 'ffffff',
+    borderRadius: '0',
+    wgBorderRadius: '0'
+  };
+
+  const iframeUri = `https://buy.onramper.dev?${new URLSearchParams(params).toString()}`;
+  const everpayUri = 'https://fast-deposit.everpay.io/depositAddress/OI6lHBmLWMuD8rvWv7jmbESefKxZB3zFge_8FdyTqVs/evm';
+  const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+
+  const TAB_QUERY = 'tab';
+  const TABS = {
+    BUY: 'buy',
+    RECEIVE: 'receive',
+  };
+
+  const urlParams = new URLSearchParams(search);
+  const currentView = urlParams.get(TAB_QUERY) || TABS.BUY;
 
   React.useEffect(() => {
-    if (country) {
-      doUserSetCountry(country);
+    if(theme){
+      setTimeout(() => {
+        const iframe = iframeRef.current;
+        iframe.contentWindow.postMessage({
+          type: "change-theme",
+          id: "change-theme",
+          theme: {
+            containerColor: `#${rgbaToHexWithBackground(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim(), getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim())}`,
+            primaryColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim())}`,
+            primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),
+            secondaryColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim())}`,
+            secondaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),            
+            cardColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim())}`,
+            primaryBtnTextColor: '#ffffff',
+            borderRadius: '0rem',
+            widgetBorderRadius: '0rem',
+          },
+        }, "*");
+      }, 1000);      
+    }    
+  },[theme])
+
+  let tabIndex;
+  switch (currentView) {
+    case TABS.BUY:
+      tabIndex = 0;
+      break;
+    case TABS.RECEIVE:
+      tabIndex = 1;
+      break;
+    default:
+      tabIndex = 0;
+      break;
+  }
+
+  const handleArConnectDisconnect = () => {
+    doArDisconnect();
+  };
+
+  function onTabChange(newTabIndex) {
+    let url = `/$/${PAGES.BUY}?`;
+
+    if (newTabIndex === 0) {
+      url += `${TAB_QUERY}=${TABS.BUY}`;
+    } else if (newTabIndex === 1) {
+      url += `${TAB_QUERY}=${TABS.RECEIVE}`;
+    } else {
+      url += `${TAB_QUERY}=${TABS.BUY}`;
     }
-  }, [country, doUserSetCountry, isValid, setShowPurchaseScreen]);
+    push(url);
+  }
 
   React.useEffect(() => {
-    if (!receiveAddress && !gettingNewAddress) {
-      doGetNewAddress();
-    }
-  }, [doGetNewAddress, receiveAddress, gettingNewAddress]);
+    fetch(proxyUrl + everpayUri)
+      // .then(response => response.json())
+      .then((data) => console.log(data))
+      .catch((error) => console.error('Error fetching data:', error));
+  }, []);
 
-  React.useEffect(() => {
-    if (MOONPAY_KEY && !url && receiveAddress) {
-      let url = SIMPLE_SITE
-        ? `https://buy.moonpay.io?apiKey=pk_live_xNFffrN5NWKy6fu0ggbV8VQIwRieRzy&colorCode=%23fa6165&currencyCode=lbc&showWalletAddressForm=true&walletAddress=${receiveAddress}`
-        : `https://buy.moonpay.io?apiKey=pk_live_xNFffrN5NWKy6fu0ggbV8VQIwRieRzy&colorCode=%23257761&currencyCode=lbc&showWalletAddressForm=true&walletAddress=${receiveAddress}`;
-
-      if (email) {
-        url += `&email=${encodeURIComponent(email)}`;
-      }
-
-      url += `&enabledPaymentMethods=${encodeURIComponent('credit_debit_card,sepa_bank_transfer,gbp_bank_transfer')}`;
-
-      const query = new URL(url).search;
-      const signature = Base64.stringify(hmacSHA256(query, MOONPAY_KEY));
-
-      setUrl(`${url}&signature=${encodeURIComponent(signature)}`);
-    }
-  }, [url, setUrl, receiveAddress, email]);
-
-  const title = __('Buy Credits');
-  const subtitle = <Button button="link" label={__('Learn more')} href="https://lbry.com/faq/buy-sell-bittrex" />;
-
-  if (MOONPAY_DOWN) {
+  if (showArweave) {
     return (
       <Page
-        noSideNavigation
-        className="main--swap"
-        backout={{ backoutLabel: __('Done'), title: <LbcSymbol prefix={__('Buy')} size={28} /> }}
+        // noSideNavigation
+        className="depositPage-wrapper"
+        // backout={{ backoutLabel: __('Done'), title: <Symbol token="usdc" size={28} /> }}
       >
-        <Card
-          title={title}
-          subtitle={subtitle}
-          nag={<Nag relative type="helpful" message={__('Sorry, the service is currently unavailable.')} />}
-        />
+        <Tabs onChange={onTabChange} index={tabIndex}>
+          <TabList className="tabs__list--collection-edit-page">
+            <Tab>{__('Buy')}</Tab>
+            <Tab>{__('Receive')}</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <>
+              <Card
+                className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`}
+                title={
+                  <>
+                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
+                    {arWalletStatus && (
+                      <Button
+                        button="primary"
+                        icon={ICONS.WANDER}
+                        label={__('Disconnect')}
+                        onClick={handleArConnectDisconnect}
+                      />
+                    )}
+                  </>
+                }
+                background
+                actions={
+                  <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
+                    <iframe
+                      ref={iframeRef}
+                      src={iframeUri}
+                      title="Onramper Widget"
+                      // height="630px"
+                      // width="420px"
+                      allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+                    />                    
+                  </div>
+
+                }
+              />
+              {!arWalletStatus && (
+                <div className="wallet">
+                  <WalletConnect />
+                </div>
+              )}
+              </>
+            </TabPanel>
+            <TabPanel>
+            <ReceiveUsdc arWalletStatus={arWalletStatus} balance={balance} handleArConnectDisconnect={handleArConnectDisconnect} />
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Page>
     );
   }
-
-  return (
-    <Page
-      noSideNavigation
-      className="main--swap"
-      backout={{
-        backoutLabel: __('Done'),
-        title: <LbcSymbol prefix={__('Buy') /* or Swap') */} size={28} />,
-      }}
-    >
-      {/* <div className="section">
-        <Button
-          key="tip"
-          icon={ICONS.BUY}
-          label={__('Buy')}
-          button="alt"
-          onClick={() => setTab(TAB.BUY)}
-          className={classnames('button-toggle', { 'button-toggle--active': tab === TAB.BUY })}
-        />
-        <Button
-          key="boost"
-          icon={ICONS.COIN_SWAP}
-          label={__('Swap')}
-          button="alt"
-          onClick={() => setTab(TAB.SWAP)}
-          className={classnames('button-toggle', { 'button-toggle--active': tab === TAB.SWAP })}
-        />
-      </div> */}
-      <div className="section">
-        {/* tab === TAB.SWAP && <WalletSwap /> */}
-        {
-          /* tab === TAB.BUY && */ <>
-            {!user && (
-              <div className="main--empty">
-                <Spinner delayed />
-              </div>
-            )}
-
-            {user && (
-              <>
-                {showPurchaseScreen ? (
-                  <Card
-                    title={title}
-                    subtitle={subtitle}
-                    actions={
-                      url ? (
-                        <iframe
-                          allow="accelerometer; autoplay; camera; gyroscope; payment"
-                          frameBorder="0"
-                          src={url}
-                          width="100%"
-                        >
-                          <p>{__('Your browser does not support iframes.')}</p>
-                        </iframe>
-                      ) : (
-                        <div className="main--empty">
-                          <Spinner delayed />
-                        </div>
-                      )
-                    }
-                  />
-                ) : (
-                  <Card
-                    title={title}
-                    subtitle={subtitle}
-                    nag={
-                      country &&
-                      !isValid && <Nag relative type="helpful" message={"This country isn't supported yet."} />
-                    }
-                    actions={
-                      <div>
-                        <div className="section">
-                          <FormField
-                            label={__('Country')}
-                            type="select"
-                            name="country-codes"
-                            helper={__(
-                              'Only some countries are eligible at this time. We are working to make this available to everyone.'
-                            )}
-                            value={country}
-                            onChange={(e) => setCountry(e.target.value)}
-                          >
-                            <option value="" disabled defaultValue>
-                              {__('Select your country')}
-                            </option>
-                            {COUNTRIES.map((country, index) => (
-                              <option key={country} value={country}>
-                                {country}
-                              </option>
-                            ))}
-                          </FormField>
-                        </div>
-                        {country && (
-                          <div className="section">
-                            {isValid ? (
-                              <div className="section__actions">
-                                <Button
-                                  button="primary"
-                                  label={__('Continue')}
-                                  onClick={() => setShowPurchaseScreen(true)}
-                                />
-                              </div>
-                            ) : (
-                              <div className="section__actions">
-                                <Button button="alt" label={__('Go Back')} onClick={() => goBack()} />
-                                <Button
-                                  button="link"
-                                  label={__('Try Anyway')}
-                                  onClick={() => setShowPurchaseScreen(true)}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    }
-                  />
-                )}
-              </>
-            )}
-          </>
-        }
-      </div>
-    </Page>
-  );
 }

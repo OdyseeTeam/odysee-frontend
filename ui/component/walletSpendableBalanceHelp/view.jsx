@@ -1,22 +1,38 @@
 // @flow
 import CreditAmount from 'component/common/credit-amount';
+import Symbol from '../common/symbol';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 
-type Props = { balance: number, inline?: boolean };
+type Props = { LBCBalance: number, USDCBalance: number, asset?: string, inline?: boolean, arConnecting: boolean };
 
 function WalletSpendableBalanceHelp(props: Props) {
-  const { balance, inline } = props;
+  const { LBCBalance, USDCBalance, asset = 'lbc', inline, arConnecting } = props;
 
-  const getMessage = (text: string) => (
-    <I18nMessage tokens={{ balance: <CreditAmount amount={balance} precision={4} /> }}>{text}</I18nMessage>
-  );
+  const getMessage = (text: string) =>
+    asset === 'lbc' ? (
+      <I18nMessage tokens={{ LBCBalance: <CreditAmount amount={LBCBalance} precision={4} /> }}>{text}</I18nMessage>
+    ) : (
+      <I18nMessage tokens={{ USDCBalance: <Symbol amount={USDCBalance} token="usdc" precision={2} /> }}>
+        {text}
+      </I18nMessage>
+    );
 
-  return !balance ? null : inline ? (
-    <span className="help--spendable">{getMessage('%balance% available.')}</span>
-  ) : (
-    <div className="help">{getMessage('Your immediately spendable balance is %balance%.')}</div>
-  );
+  if (asset === 'lbc') {
+    return !LBCBalance ? null : inline ? (
+      <span className="help--spendable">{getMessage('%LBCBalance% available.')}</span>
+    ) : (
+      <div className="help">{getMessage('Your immediately spendable balance is %LBCBalance%.')}</div>
+    );
+  } else {
+    return arConnecting ? (
+      <span className="help">{__('Connecting...')}</span>
+    ) : USDCBalance ? (
+      <span className="help--spendable">{getMessage('%USDCBalance% available.')}</span>
+    ) : (
+      <div className="help">{getMessage('Your immediately spendable balance is %USDCBalance%.')}</div>
+    );
+  }
 }
 
 export default WalletSpendableBalanceHelp;
