@@ -54,7 +54,7 @@ Object.keys(localStorage).forEach((key) => {
         {isMenuOpen && (
           <div className="banner-menu-dropdown">
             <button className="banner-menu-item" onClick={handleCloseBanner}>
-              Cerrar banner
+              Close banner
             </button>
           </div>
         )}
