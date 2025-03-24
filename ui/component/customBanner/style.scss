@@ -99,7 +99,7 @@
   }
 }
 
-// Estilos específicos para el primer banner
+// Specific styles for the first banner
 .banner-primary {
   background-color: var(--banner-primary-bg, #f7f7f7);
   background-image: linear-gradient(to left, transparent, var(--banner-primary-bg, #a4812ecc) 60%);
@@ -209,40 +209,5 @@
 
   &:hover {
     background-color: rgba(0, 0, 0, 0.1);
-  }
-}
-
-// Dark mode styles - Possibly not necessary.
-[data-theme="dark"] {
-  .banner-primary {
-    --banner-primary-bg: #333;
-    --banner-primary-label: #f7f7f7;
-    --banner-primary-description: #d1a1e3;
-    --banner-primary-tag: #ccc;
-    --banner-primary-info: #ff79c6;
-    --banner-primary-button-bg: #ca004b;
-    --banner-primary-button-hover: #a82053;
-  }
-
-  .banner-secondary {
-    --banner-secondary-bg: #004d40;
-    --banner-secondary-label: #f7f7f7;
-    --banner-secondary-description: #d1a1e3;
-    --banner-secondary-tag: #ccc;
-    --banner-secondary-info: #ff79c6;
-    --banner-secondary-button-bg: #ca004b;
-    --banner-secondary-button-hover: #a82053;
-  }
-
-  .banner-menu-dropdown {
-    background-color: var(--banner-bg, #333);
-  }
-
-  .banner-menu-item {
-    color: var(--banner-label, #f7f7f7);
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
   }
 }
