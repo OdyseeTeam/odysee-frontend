@@ -22,13 +22,31 @@ import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
 import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
-// import { customBanners as CUSTOM_BANNER_IDS } from 'custom/homepages/homepage.js'; localhost v2, but must change in production homepageFetched.
-import CustomBanner from 'component/customBanner';
 
 const FeaturedBanner = lazyImport(() => import('component/featuredBanner' /* webpackChunkName: "featuredBanner" */));
 const Portals = lazyImport(() => import('component/portals' /* webpackChunkName: "portals" */));
+const CustomBanner = lazyImport(() => import('component/customBanner' /* webpackChunkName: "customBanner" */));
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
+type CustomBanners = {
+  image: {
+    url: string,
+    alt: string,
+  },
+  label: string,
+  description: string,
+  tag: string,
+  button: {
+    text: string,
+    link: string,
+  },
+  background: {
+    url: string,
+    alt: string,
+  },
+  position: number,
+};
 
 type Props = {
   authenticated: boolean,
@@ -37,6 +55,7 @@ type Props = {
   showNsfw: boolean,
   homepageData: any,
   homepageMeme: ?{ text: string, url: string },
+  homepageCustomBanners: Array<CustomBanners>,
   homepageFetched: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
@@ -57,6 +76,7 @@ function HomePage(props: Props) {
     showNsfw,
     homepageData,
     homepageMeme,
+    homepageCustomBanners,
     homepageFetched,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
@@ -302,26 +322,26 @@ function HomePage(props: Props) {
           undefined
         )}
 
-        {homepageFetched &&
-          sortedRowData.map(
-            ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-              // Check if there is a banner that should appear in this position
-              const bannerForPosition = CUSTOM_BANNER_IDS.find((banner) => banner.position === index);
+      {homepageFetched &&
+        sortedRowData.map(
+          ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
+            // Check if there is a banner that should appear in this position
+            const bannerForPosition = homepageCustomBanners.find((banner) => banner.position === index);
 
-              return (
-                <React.Fragment key={id}>
-                  {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
-                  {bannerForPosition && (
-                    <CustomBanner
-                      key={`custom-banner-${bannerForPosition.position}`}
-                      {...bannerForPosition}
-                      isSecondary={bannerForPosition === CUSTOM_BANNER_IDS[1]} // Pass isSecondary only for the second banner
-                    />
-                  )}
-                </React.Fragment>
-              );
-            }
-          )}
+            return (
+              <React.Fragment key={id}>
+                {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
+                {bannerForPosition && (
+                  <CustomBanner
+                    key={`custom-banner-${bannerForPosition.position}`}
+                    {...bannerForPosition}
+                    isSecondary={bannerForPosition === homepageCustomBanners[1]} // Pass isSecondary only for the second banner
+                  />
+                )}
+              </React.Fragment>
+            );
+          }
+        )}
     </Page>
   );
 }
