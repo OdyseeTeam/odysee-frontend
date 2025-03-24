@@ -2427,6 +2427,13 @@
     global "~4.4.0"
     is-function "^1.0.1"
 
+"@wanderapp/embed-sdk@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@wanderapp/embed-sdk/-/embed-sdk-0.0.1.tgz#94035f523c3d590d3ed862bde8f3bbe842b266e4"
+  integrity sha512-jUrEHaEdhAZxXJ/PGN5FHuZoYRJ7frITdtpJiDb2wmQDw7U9k5z9NvimIetUzcWnBsq4g7zTOQiAAGco3j5KgA==
+  dependencies:
+    ts-deepmerge "^7.0.2"
+
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"
@@ -17984,6 +17991,11 @@ truncate-utf8-bytes@^1.0.0:
   integrity sha512-95Pu1QXQvruGEhv62XCMO3Mm90GscOCClvrIUwCM0PYOXK3kaF3l3sIHxx71ThJfcbM2O5Au6SO3AWCSEfW4mQ==
   dependencies:
     utf8-byte-length "^1.0.1"
+
+ts-deepmerge@^7.0.2:
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/ts-deepmerge/-/ts-deepmerge-7.0.2.tgz#6333adcde83e4c42366e9a9a7f955c74ee913547"
+  integrity sha512-akcpDTPuez4xzULo5NwuoKwYRtjQJ9eoNfBACiBMaXwNAx7B1PKfe5wqUFJuW5uKzQ68YjDFwPaWHDG1KnFGsA==
 
 tsconfig-paths@^3.14.1:
   version "3.14.1"
