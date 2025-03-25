@@ -65,7 +65,7 @@ export default function PopoutChatPage(props: Props) {
   React.useEffect(() => {
     if (claim) {
       const channelId = getChannelIdFromClaim(claim) || 'invalid';
-      doMembershipList({ channel_id: channelId });
+      doMembershipList({ channel_claim_id: channelId });
     }
   }, [claim, doMembershipList]);
 

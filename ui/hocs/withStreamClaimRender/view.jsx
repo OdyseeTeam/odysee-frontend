@@ -173,7 +173,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       if (channelClaimId && channelName) {
-        doMembershipList({ channel_id: channelClaimId });
+        doMembershipList({ channel_claim_id: channelClaimId });
       }
     }, [channelClaimId, channelName, doMembershipList]);
 

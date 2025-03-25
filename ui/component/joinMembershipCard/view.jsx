@@ -138,7 +138,7 @@ const JoinMembershipCard = (props: Props) => {
 
   React.useEffect(() => {
     if (channelClaimId && channelName && creatorMemberships === undefined) {
-      doMembershipList({ channel_name: channelName, channel_id: channelClaimId });
+      doMembershipList({ channel_claim_id: channelClaimId });
     }
   }, [channelClaimId, channelName, creatorMemberships, doMembershipList]);
 

@@ -82,7 +82,7 @@ export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => as
 // list available memberships for a channel id
 export const doMembershipList =
   (params: MembershipListParams, forceUpdate: ?boolean) => async (dispatch: Dispatch, getState: GetState) => {
-    const { channel_id: channelId } = params;
+    const { channel_claim_id: channelId } = params;
     const state = getState();
     const isFetching = selectIsMembershipListFetchingForId(state, channelId);
     const alreadyFetched = selectMembershipTiersForCreatorId(state, channelId);
@@ -423,7 +423,7 @@ export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getSt
   const pendingPromises = [];
   myChannelClaims.map((channelClaim, index) => {
     pendingPromises[index] = dispatch(
-      doMembershipList({ channel_id: channelClaim.claim_id })
+      doMembershipList({ channel_claim_id: channelClaim.claim_id })
     );
   });
 

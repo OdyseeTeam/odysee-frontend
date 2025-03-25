@@ -26,7 +26,7 @@ const PreviewOverlayProtectedContent = (props: Props) => {
 
   React.useEffect(() => {
     if (channel && protectedMembershipIds && cheapestPlanPrice === undefined) {
-      doMembershipList({ channel_id: channel.claim_id });
+      doMembershipList({ channel_claim_id: channel.claim_id });
     }
   }, [channel, cheapestPlanPrice, doMembershipList, protectedMembershipIds]);
 
