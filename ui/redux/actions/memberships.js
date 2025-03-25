@@ -94,7 +94,7 @@ export const doMembershipList =
     dispatch({ type: ACTIONS.MEMBERSHIP_LIST_START, data: channelId });
 
     return await Lbryio.call('membership_v2', 'list', { ...params }, 'post')
-      .then((response: MembershipTiers) =>
+      .then((response: MembershipSubs) =>
         dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: response } })
       )
       .catch(() => dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: null } }));
@@ -108,8 +108,8 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
 
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
 
-  return await Lbryio.call('membership_v2/subscription', 'list', { environment: stripeEnvironment }, 'post')
-    .then((response: MembershipTiers) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
+  return await Lbryio.call('membership_v2/subscription', 'list', { environment: stripeEnvironment }, 'post') // { membership,subscription, perks, payments, current_price }
+    .then((response: MembershipSubs) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
     .catch((err) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err }));
 };
 
@@ -203,7 +203,7 @@ export const doGetMembershipPerks = (params: MembershipListParams) => async (dis
     .catch((e) => e);
 
 export const doOpenCancelationModalForMembership =
-  (membership: MembershipTier) => (dispatch: Dispatch, getState: GetState) => {
+  (membership: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
     const { MembershipDetails, Subscription } = membership;
 
     const state = getState();

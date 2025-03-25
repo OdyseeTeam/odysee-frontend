@@ -9,6 +9,8 @@ import {
   selectMyPurchasedMembershipTierForCreatorUri,
   selectMembershipMineData,
 } from 'redux/selectors/memberships';
+import { selectAPIArweaveDefaultAddress } from 'redux/selectors/stripe';
+
 import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import {
@@ -47,6 +49,7 @@ const select = (state, props) => {
   return {
     activeChannelClaim: selectActiveChannelClaim(state),
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
+    defaultArweaveAddress: selectAPIArweaveDefaultAddress(state),
     channelName: selectChannelNameForUri(state, uri),
     channelClaimId,
     incognito: selectIncognito(state),

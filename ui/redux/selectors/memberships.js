@@ -40,7 +40,7 @@ export const selectMembershipListFetchingIds = (state: State) => selectState(sta
 export const selectIsMembershipListFetchingForId = (state: State, claimId: ClaimId) =>
   new Set(selectMembershipListFetchingIds(state)).has(claimId);
 export const selectMembershipsListByCreatorId = (state: State) => selectState(state).membershipListByCreatorId;
-export const selectMembershipTiersForCreatorId = (state: State, creatorId: ClaimId) =>
+export const selectMembershipTiersForCreatorId = (state: State, creatorId: ClaimId): CreatorMemberships =>
   selectMembershipsListByCreatorId(state)[creatorId];
 
 export const selectClaimMembershipTiersFetchingIds = (state: State) =>
@@ -84,7 +84,7 @@ export const selectMonthlyIncomeForChannelId = createSelector(
 );
 
 // -- Active Membership = auto_renew is enabled
-export const selectMyActiveMembershipsById = createSelector(selectMembershipMineData, (myMembershipsByCreatorId) => {
+export const selectMyActiveMembershipsById = createSelector(selectMembershipMineData, (myMembershipsByCreatorId): MembershipMineDataByCreatorId => {
   if (!myMembershipsByCreatorId) return myMembershipsByCreatorId;
 
   const activeMembershipsById = {};
@@ -231,7 +231,7 @@ export const selectMembershipForCreatorIdAndChannelId = createCachedSelector(
       // -- For checking my own memberships, it is better to use the result of the 'mine'
       // call, which is cached and will be more up to date.
       const myMembership = myValidCreatorMemberships.find(
-        (membership: MembershipTier) => membership.channel_claim_id === channelId
+        (membership: MembershipSub) => membership.channel_claim_id === channelId
       );
 
       return myMembership && myMembership.name;
@@ -253,7 +253,7 @@ export const selectUserHasOdyseePremiumPlus = createSelector(selectMyValidOdysee
   // -- For checking my own memberships, it is better to use the result of the 'mine'
   // call, which is cached and will be more up to date.
   return myValidMemberships.some(
-    (membership: MembershipTier) =>
+    (membership: MembershipSub) =>
       membership.name === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS
   );
 });
@@ -323,9 +323,9 @@ export const selectCreatorHasMembershipsByUri = createSelector(selectMembershipT
   Boolean(memberships?.length > 0)
 );
 
-export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creatorId: string) => {
-  const myPurchasedCreatorMembership = selectMyPurchasedMembershipsForChannelClaimId(state, creatorId);
-  if (!myPurchasedCreatorMembership) return myPurchasedCreatorMembership;
+export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creatorId: string): MembershipTier => {
+  const myPurchasedCreatorMemberships = selectMyPurchasedMembershipsForChannelClaimId(state, creatorId);
+  if (!myPurchasedCreatorMemberships) return myPurchasedCreatorMemberships;
 
   const creatorMembershipTiers = selectMembershipTiersForCreatorId(state, creatorId);
   if (!creatorMembershipTiers) return creatorMembershipTiers;
@@ -334,9 +334,9 @@ export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creat
   // but returns null on membership_mine
   return Object.assign(
     {},
-    myPurchasedCreatorMembership[0],
+    myPurchasedCreatorMemberships[0],
     creatorMembershipTiers.find(
-      (membershipSub) => membershipSub.membership_id === myPurchasedCreatorMembership[0].MembershipDetails.id
+      (membershipSub) => membershipSub.membership_id === myPurchasedCreatorMemberships[0].id
     )
   );
 };

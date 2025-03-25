@@ -116,19 +116,18 @@ function MembershipTier(props: Props) {
         .then((response: MembershipDetails) => {
           setIsSubmitting(false);
 
-
           const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
 
           const newMembershipObj: CreatorMembership = {
             has_subscribers: false,
-            channel_name:
-            prices: [{ creator_receives_amount: price }],
-            Perks: selectedPerks,
+            channel_name: activeChannelClaim.name,
+            prices: [{ amount: price, currency: 'usd', address: '' }], // HERE PRICES
+            perks: selectedPerks,
           };
 
           removeEditing();
 
-          addChannelMembership(newMembershipObj); // TODO check this newMembershipObj
+          addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
           // force update for list
           doMembershipList({ channel_id: activeChannelClaim.claim_id }, true);
         })

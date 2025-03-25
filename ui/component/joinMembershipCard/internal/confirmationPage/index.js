@@ -12,7 +12,7 @@ const select = (state, props) => {
 
   return {
     channelName: selectChannelNameForUri(state, uri),
-    purchasePending: selectPurchaseIsPendingForMembershipId(state, selectedTier.Membership.id),
+    purchasePending: selectPurchaseIsPendingForMembershipId(state, selectedTier.membership_id),
     preferredCurrency: selectPreferredCurrency(state),
     incognito: selectIncognito(state),
   };
