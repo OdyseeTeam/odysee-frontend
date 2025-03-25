@@ -11,7 +11,7 @@ import BusyIndicator from 'component/common/busy-indicator';
 
 const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
 
-const MIN_PRICE = '4';
+const MIN_PRICE = '1'; // TODO: make this a decimal like 0.10
 const MAX_PRICE = '1000';
 
 type Props = {
@@ -25,7 +25,7 @@ type Props = {
   doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>,
   doMembershipList: (params: MembershipListParams, forceUpdate: ?boolean) => Promise<CreatorMemberships>,
-  apiArweaveAccount: any,
+  apiArweaveAddress: string,
 };
 
 function MembershipTier(props: Props) {
@@ -40,7 +40,7 @@ function MembershipTier(props: Props) {
     doMembershipAddTier,
     addChannelMembership,
     doMembershipList,
-    apiArweaveAccount,
+    apiArweaveAddress,
   } = props;
 
   const isMobile = useIsMobile();
@@ -112,7 +112,7 @@ function MembershipTier(props: Props) {
         currency: 'USD', // hardcoded for now
         perks: selectedPerksAsArray,
         frequency: editTierParams.editTierFrequency,
-        // payment_address: ?
+        payment_address: apiArweaveAddress,
       };
       // if (isCreatingMembership) {
       //   params.membership_id
