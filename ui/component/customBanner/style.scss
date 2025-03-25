@@ -50,7 +50,7 @@
 
   // Description
   .banner-description {
-    font-size: 16px;
+    font-size: 18px;
     margin-bottom: 10px;
     white-space: nowrap;
     overflow: hidden;
@@ -60,7 +60,7 @@
   // Tag (below the description)
   .banner-tag {
     display: block;
-    font-size: 14px;
+    font-size: 15px;
     margin-bottom: 20px;
     white-space: nowrap;
     overflow: hidden;
@@ -99,40 +99,78 @@
   }
 }
 
-// Specific styles for the first banner
+// Specific styles for the first banner with new color balance
 .banner-primary {
-  background-color: var(--banner-primary-bg, #f7f7f7);
-  background-image: linear-gradient(to left, transparent, var(--banner-primary-bg, #a4812ecc) 60%);
+  background-color: var(--banner-primary-bg, #fbfafd);
 
   .banner-label {
-    color: var(--banner-primary-label, #262626);
+    color: var(--banner-primary-label, #1c1c1c);
+    text-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);
   }
 
   .banner-description {
-    color: var(--banner-primary-description, #fff);
+    color: var(--banner-primary-description, #1c1c1c);
   }
 
   .banner-tag {
-    color: var(--banner-primary-tag, #2b2b2b);
+    color: var(--banner-primary-tag, #1c1c1c);
   }
 
   .banner-button {
-    background-color: var(--banner-primary-button-bg, #ca004b);
-
+    background-color: var(--banner-primary-button-bg, rgba(217, 35, 111, 0.9));
+    color: white;
+    border: none;
+    
     &:hover {
-      background-color: var(--banner-primary-button-hover, #a82053);
+      background-color: var(--banner-primary-button-hover, rgba(189, 25, 95, 0.9));
+      transform: translateY(-1px);
     }
   }
 
   .banner-info {
-    color: var(--banner-primary-info, #ca004b);
+    color: var(--banner-primary-info, rgb(0, 202, 174));
+  }
+
+  // Variación 1 - Enfatiza el color turquesa
+  &.vibrant-variant {
+    background-image: linear-gradient(
+      to left,
+      transparent,
+      rgba(217, 35, 137, 0.65) 30%,
+      rgba(93, 27, 189, 0.8) 60%,
+      rgb(0, 202, 164) 90%
+    );
+    
+    .banner-button {
+      background-color: var(--banner-primary-dark, rgb(0, 202, 174));
+    }
+  }
+
+  // Variación 2 - Degradado vertical suave
+  &.colorful-variant {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(217, 35, 137, 0.65) 30%,
+      rgba(93, 27, 189, 0.8) 60%,
+      rgb(0, 202, 164) 90%
+    );
+    
+    .banner-tag {
+      background-color: rgba(217, 35, 111, 0.7);
+    }
   }
 }
 
-// Specific styles for the second banner.
+// Specific styles for the second banner
 .banner-secondary {
   background-color: var(--banner-secondary-bg, #e0f7fa);
-  background-image: linear-gradient(to left, transparent, var(--banner-secondary-bg, #67449acc) 60%);
+  background-image: linear-gradient(
+    to left,
+    transparent,
+    var(--banner-secondary-light, #9d7fd9aa) 30%,
+    var(--banner-secondary-bg, #67449acc) 60%,
+    var(--banner-secondary-dark, #5a19c6cc) 80%
+  );
 
   .banner-label {
     color: var(--banner-secondary-label, #fff);
@@ -143,71 +181,105 @@
   }
 
   .banner-tag {
-    color: var(--banner-secondary-tag, #2b2b2b);
+    color: var(--banner-primary-tag, #ffffff);
   }
 
   .banner-button {
-    background-color: var(--banner-secondary-button-bg, #ca004b);
+    background-color: var(--banner-secondary-button-bg, #e8e8e8);
+    color: #000;
 
     &:hover {
-      background-color: var(--banner-secondary-button-hover, #a82053);
+      background-color: var(--banner-secondary-button-hover, #cfcfcf);
     }
   }
 
   .banner-info {
     color: var(--banner-secondary-info, #ca004b);
   }
+
+  // Alternative variation 1 - More contrasting gradient
+  &.variant-1 {
+    background-image: linear-gradient(
+      to left,
+      transparent,
+      var(--banner-secondary-light, #b8a2e6aa) 25%,
+      var(--banner-secondary-bg, #67449acc) 50%,
+      var(--banner-secondary-dark, #5a19c6cc) 80%
+    );
+  }
+
+  // Alternative variation 2 - Softer gradient
+  &.variant-2 {
+    background-image: linear-gradient(
+      to left,
+      transparent,
+      var(--banner-secondary-light, #d0c4f0aa) 40%,
+      var(--banner-secondary-bg, #67449acc) 70%,
+      var(--banner-secondary-dark, #5c3a99cc) 100%
+    );
+  }
 }
 
-// Context menu (common to both banners)
+// Context menu styles
 .banner-context-menu {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   z-index: 10;
 }
 
 .banner-menu-button {
-  background: none;
+  background: rgba(255, 255, 255, 0.9);
   border: none;
   cursor: pointer;
-  padding: 5px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--banner-info, #ca004b);
-  transition: color 0.3s ease;
+  color: var(--banner-info);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 0;
 
   &:hover {
-    color: var(--banner-button-hover, #a82053);
+    background: rgba(255, 255, 255, 1);
+    color: var(--banner-button-hover);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 }
 
 .banner-menu-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 5px);
   right: 0;
-  background-color: var(--banner-bg, #f7f7f7);
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.98);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  min-width: 120px;
+  min-width: 150px;
+  backdrop-filter: blur(8px);
+  z-index: 20;
+  padding: 2px 0;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .banner-menu-item {
   display: block;
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 16px;
   text-align: left;
   background: none;
   border: none;
   font-size: 14px;
-  font-weight: bold;
-  color: var(--banner-label, #262626);
+  font-weight: 500;
+  color: var(--banner-label);
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.04);
+    color: var(--banner-info);
   }
 }

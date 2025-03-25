@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './style.scss';
 import Icon from 'component/common/icon';
@@ -13,31 +13,45 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
   const [isVisible, setIsVisible] = useState(() => {
     // Check if the banner was previously closed (using localStorage)
     const isBannerClosed = LocalStorage.getItem(bannerKey) === 'closed';
-    return !isBannerClosed; // Show the banner if it is not closed
+    return !isBannerClosed;
   });
 
   // State to control the visibility of the context menu
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Function to close the banner
+   // Function to close the banner
+  const menuRef = useRef(null);
+
   const handleCloseBanner = () => {
-    setIsVisible(false); // Hide the banner
-    LocalStorage.setItem(bannerKey, 'closed'); // Save the state to localStorage
+    setIsVisible(false);
+    LocalStorage.setItem(bannerKey, 'closed');
   };
 
   // Function to toggle the visibility of the context menu
-  const toggleMenu = () => {
+  const toggleMenu = (e) => {
+    e.stopPropagation();
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // If the banner is not visible, do not render anything.
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
   if (!isVisible) return null;
 
-  // Clear the status of a specific banner
-  LocalStorage.removeItem(bannerKey);
-
   /* If you want the banner to appear again after some time or in a new session, you can clear the saved state in localStorage. For example:
-
 // Clear the status of all banners
 Object.keys(localStorage).forEach((key) => {
   if (key.startsWith("banner-")) {
@@ -46,22 +60,20 @@ Object.keys(localStorage).forEach((key) => {
 }); */
 
   return (
-    <div className={`banner-container ${isSecondary ? 'banner-secondary' : 'banner-primary'}`}>
-      {/* Context menu */}
-      <div className="banner-context-menu">
-        <button className="banner-menu-button" onClick={toggleMenu}>
+    <div className={`banner-container ${isSecondary ? 'banner-secondary variant-1' : 'banner-primary'}`}>
+      <div className="banner-context-menu" ref={menuRef}>
+        <button className="banner-menu-button" onClick={toggleMenu} aria-label="More options">
           <Icon icon={ICONS.MORE} />
         </button>
         {isMenuOpen && (
           <div className="banner-menu-dropdown">
             <button className="banner-menu-item" onClick={handleCloseBanner}>
-              Close banner
+              Close the banner
             </button>
           </div>
         )}
       </div>
 
-      {/* Banner content */}
       <div className="banner-content-wrapper">
         <img className="banner-image" src={image.url} alt={image.alt} />
         <div className="banner-text-container">
