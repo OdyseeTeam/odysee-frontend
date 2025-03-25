@@ -112,7 +112,7 @@ function MembershipTier(props: Props) {
         currency: 'USD', // hardcoded for now
         perks: selectedPerksAsArray,
         frequency: editTierParams.editTierFrequency,
-        payment_address_id: apiArweaveAccount.id,
+        // payment_address: ?
       };
       // if (isCreatingMembership) {
       //   params.membership_id
