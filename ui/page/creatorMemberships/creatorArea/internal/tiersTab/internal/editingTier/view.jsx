@@ -25,6 +25,7 @@ type Props = {
   doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>,
   doMembershipList: (params: MembershipListParams, forceUpdate: ?boolean) => Promise<CreatorMemberships>,
+  apiArweaveAccount: any,
 };
 
 function MembershipTier(props: Props) {
@@ -39,6 +40,7 @@ function MembershipTier(props: Props) {
     doMembershipAddTier,
     addChannelMembership,
     doMembershipList,
+    apiArweaveAccount,
   } = props;
 
   const isMobile = useIsMobile();
@@ -102,17 +104,20 @@ function MembershipTier(props: Props) {
       const isCreatingAMembership = typeof membership.membership_id === 'string';
       const price = Number(newTierMonthlyContribution) * 100; // multiply to turn into cents
 
-      doMembershipAddTier({
-        channel_name: activeChannelClaim.name,
+      const params = {
         channel_id: activeChannelClaim.claim_id,
         name: editTierParams.editTierName,
         description: editTierParams.editTierDescription,
         amount: price,
-        currency: 'usd', // hardcoded for now
+        currency: 'USD', // hardcoded for now
         perks: selectedPerksAsArray,
-        frequency: editTierParams.editTierFrequency, //
-        membership_id: isCreatingAMembership ? undefined : membership.membership_id,
-      })
+        frequency: editTierParams.editTierFrequency,
+        payment_address_id: apiArweaveAccount.id,
+      };
+      // if (isCreatingMembership) {
+      //   params.membership_id
+      // }
+      doMembershipAddTier(params)
         .then((response: MembershipDetails) => {
           setIsSubmitting(false);
 
@@ -129,7 +134,7 @@ function MembershipTier(props: Props) {
 
           addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
           // force update for list
-          doMembershipList({ channel_id: activeChannelClaim.claim_id }, true);
+          doMembershipList({ channel_claim_id: activeChannelClaim.claim_id }, true);
         })
         .catch(() => setIsSubmitting(false));
     }

@@ -52,7 +52,7 @@ const CommentListMenu = (props: Props) => {
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelId) {
-      doMembershipList({ channel_id: channelId });
+      doMembershipList({ channel_claim_id: channelId });
     }
   }, [channelId, channelName, creatorMembershipsFetched, doMembershipList]);
 
