@@ -43,7 +43,7 @@ const move = (source, destination, droppableSource, droppableDestination) => {
   };
 };
 
-function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembership) {
+function getInitialList(listId, savedOrder, homepageSections) {
   const savedActiveOrder = savedOrder.active || [];
   const savedHiddenOrder = savedOrder.hidden || [];
   const sectionKeys = Object.keys(homepageSections);
@@ -81,16 +81,6 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
   // Final check to exclude items that were previously moved to Hidden.
   activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
 
-  // Clean categories in case premium section has accidentally been added
-  if (!userHasOdyseeMembership) {
-    if (activeOrder.indexOf('FYP') !== -1) {
-      activeOrder.splice(activeOrder.indexOf('FYP'), 1);
-    }
-    if (hiddenOrder.indexOf('FYP') !== -1) {
-      hiddenOrder.splice(hiddenOrder.indexOf('FYP'), 1);
-    }
-  }
-
   return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
 }
 
@@ -105,20 +95,15 @@ type Props = {
   // --- redux:
   homepageData: any,
   homepageOrder: HomepageOrder,
-  userHasOdyseeMembership: boolean,
 };
 
 export default function HomepageSort(props: Props) {
-  const { onUpdate, homepageData, homepageOrder, userHasOdyseeMembership } = props;
+  const { onUpdate, homepageData, homepageOrder } = props;
   const { categories } = homepageData;
 
   const SECTIONS = { ...NON_CATEGORY, ...categories };
-  const [listActive, setListActive] = useState(() =>
-    getInitialList('ACTIVE', homepageOrder, SECTIONS, userHasOdyseeMembership)
-  );
-  const [listHidden, setListHidden] = useState(() =>
-    getInitialList('HIDDEN', homepageOrder, SECTIONS, userHasOdyseeMembership)
-  );
+  const [listActive, setListActive] = useState(() => getInitialList('ACTIVE', homepageOrder, SECTIONS));
+  const [listHidden, setListHidden] = useState(() => getInitialList('HIDDEN', homepageOrder, SECTIONS));
 
   const BINS = {
     ACTIVE: { id: 'ACTIVE', title: 'Active', list: listActive, setList: setListActive },
