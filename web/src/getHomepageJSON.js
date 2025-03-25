@@ -87,6 +87,7 @@ const getHomepageJsonV2 = (format, lang) => {
         meme: memo.homepageData[hp].meme,
         discover: memo.homepageData[hp].discover,
         discoverNew: memo.homepageData[hp]?.discoverNew,
+        customBanners: memo.homepageData[hp]?.customBanners,
         announcement: memo.announcements[hp],
       };
     } else {
