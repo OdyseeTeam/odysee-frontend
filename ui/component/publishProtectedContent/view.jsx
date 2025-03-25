@@ -16,7 +16,7 @@ type Props = {
   activeChannel: ChannelClaim,
   incognito: boolean,
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
-  myMembershipTiers: Array<MembershipTier>,
+  myMembershipTiers: Array<MembershipSub>,
   isStillEditing: boolean,
   memberRestrictionOn: boolean,
   memberRestrictionTierIds: Array<number>,

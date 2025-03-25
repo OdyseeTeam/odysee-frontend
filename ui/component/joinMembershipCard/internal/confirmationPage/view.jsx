@@ -13,7 +13,7 @@ import { Submit } from 'component/common/form';
 import withCreditCard from 'hocs/withCreditCard';
 
 type Props = {
-  selectedTier: CreatorMembership,
+  selectedCreatorMembership: CreatorMembership,
   selectedMembershipIndex: number,
   onCancel: () => void,
   // -- redux --
@@ -25,7 +25,7 @@ type Props = {
 
 const ConfirmationPage = (props: Props) => {
   const {
-    selectedTier,
+    selectedCreatorMembership,
     selectedMembershipIndex,
     onCancel,
     channelName,
@@ -34,10 +34,7 @@ const ConfirmationPage = (props: Props) => {
     incognito,
   } = props;
 
-  const total = (selectedTier.NewPrices[0].price.amount / 100).toFixed(2);
-  const creatorRevenue = (selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2);
-  const processingFee = (selectedTier.NewPrices[0].fees.stripe_fee / 100).toFixed(2);
-  const odyseeFee = (selectedTier.NewPrices[0].fees.odysee_fee / 100).toFixed(2);
+  const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
 
   return (
     <div className="confirm__wrapper">
@@ -50,37 +47,24 @@ const ConfirmationPage = (props: Props) => {
         <label>{__('Membership Tier')}</label>
         <span>
           <div className="dot" />
-          {selectedTier.Membership.name}
+          {selectedCreatorMembership.name}
         </span>
       </section>
-      <ConfirmationSection label={__('Description')} value={selectedTier.Membership.description} />
+      <ConfirmationSection label={__('Description')} value={selectedCreatorMembership.description} />
 
       <section>
         <label>{__('Total Monthly Cost')}</label>
         <span className="total-membership-price">
           <span className="total">${total}</span>
-          <span className="hide-on-mobile">{' ('}</span>
-          <span>
-            {__('Creator revenue')}: ${creatorRevenue}
-          </span>
-          <span className="hide-on-mobile">{', '}</span>
-          <span>
-            {__('Payment processing fee')}: ${processingFee}
-          </span>
-          <span className="hide-on-mobile">{', '}</span>
-          <span>
-            {__('Odysee platform fee')}: ${odyseeFee}
-          </span>
-          <span className="hide-on-mobile">{')'}</span>
         </span>
       </section>
-      {selectedTier.Perks && selectedTier.Perks.length > 0 && (
+      {selectedCreatorMembership.perks && selectedCreatorMembership.perks.length > 0 && (
         <ConfirmationSection
           label={__('Features and Perks')}
           value={
             <ul className="ul--no-style membership-tier__perks">
               {/* $FlowFixMe -- already handled above */}
-              {selectedTier.Perks.map((tierPerk, i) => (
+              {selectedCreatorMembership.perks.map((tierPerk, i) => (
                 <li key={i}>{__(tierPerk.name)}</li>
               ))}
             </ul>

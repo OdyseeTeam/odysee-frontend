@@ -26,6 +26,7 @@ type Props = {
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doHideModal: () => void,
   doToast: (params: { message: string }) => void,
+  defaultArweaveAddress?: string,
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
@@ -40,15 +41,14 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     doMembershipBuy,
     doHideModal,
     doToast,
+    defaultArweaveAddress,
   } = props;
 
   const isPurchasing = React.useRef(false);
 
-  const { Membership } = membership;
-
   const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
   const noChannelsOrIncognitoMode = incognito || !channels;
-  const plan = Membership.name;
+  const plan = membership.name;
 
   function handlePurchase() {
     if (isPurchasing.current) return;
@@ -56,9 +56,8 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     isPurchasing.current = true;
 
     doMembershipBuy({
-      membership_id: Membership.id,
+      source_payment_address: defaultArweaveAddress, // get this from stripe|arweavestatus|currentaddress|whatever
       channel_id: activeChannelId,
-      channel_name: activeChannelName,
       price_id: price.id,
     })
       .then((response) => {

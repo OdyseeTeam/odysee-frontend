@@ -22,8 +22,8 @@ const select = (state, props) => {
           membership &&
           membership.membership_id &&
           purchasedChannelMembership &&
-          purchasedChannelMembership.membership_id &&
-          membership.membership_id === purchasedChannelMembership.membership_id
+          purchasedChannelMembership.id &&
+          membership.membership_id === purchasedChannelMembership.id
       )) + 1;
 
   return {

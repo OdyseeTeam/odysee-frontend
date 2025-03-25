@@ -13,11 +13,11 @@ import MembershipBadge from 'component/membershipBadge';
 
 type Props = {
   membershipPurchase?: CreatorMembership,
-  membershipView?: MembershipTier,
+  membershipView?: MembershipSub,
   // -- redux --
   preferredCurrency: CurrencyOption,
   doOpenModal: (modalId: string, {}) => void,
-  doOpenCancelationModalForMembership: (membership: MembershipTier) => void,
+  doOpenCancelationModalForMembership: (membership: MembershipSub) => void,
 };
 
 const STRIPE_DISABLED = true;
@@ -27,14 +27,14 @@ const PremiumOption = (props: Props) => {
 
   if (membershipPurchase) {
     const membership = membershipPurchase;
-    const { Membership, NewPrices } = membership;
+    const { membership_id, name, prices } = membership;
 
     const purchaseFieldsProps = { preferredCurrency, membership, doOpenModal };
 
     return (
-      <Wrapper name={Membership.name}>
-        {NewPrices.map(({ Price, StripePrice }: MembershipNewStripePriceDetails) => (
-          <PurchaseFields key={Membership.id} {...purchaseFieldsProps} stripePrice={StripePrice} />
+      <Wrapper name={name}>
+        {prices.map(({ Price, StripePrice }: MembershipNewStripePriceDetails) => (
+          <PurchaseFields key={membership_id} {...purchaseFieldsProps} stripePrice={StripePrice} />
         ))}
       </Wrapper>
     );

@@ -18,7 +18,7 @@ type Props = {
   purchaseInfo: number,
   isFetchingPurchases: boolean,
   // below props are just passed to <CreditAmount />
-  customPrices?: { priceFiat: number, priceLBC: number },
+  customPrices?: { priceFiat: number, priceLBC: number }, // TODO Custom Prices for file
   hideFree?: boolean, // hide the file price if it's free
   isFiat?: boolean,
   showLBC?: boolean,

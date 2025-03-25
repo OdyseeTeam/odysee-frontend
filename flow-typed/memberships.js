@@ -1,22 +1,27 @@
 declare type MembershipBuyParams = {
-  membership_id: number,
-  channel_id?: string,
-  channel_name?: string,
-  price_id: string,
+  source_payment_address: string, // from account status / arweaveStatus
+  channel_id: string,
+  price_id: number,
 };
 
 declare type MembershipListParams = {
   channel_id: string,
 };
 
+declare type Perk = {
+  id: number,
+  name: string,
+  description: string,
+}
 // -- CreatorMembership: data the creator sees for a given membership
 declare type CreatorMembership = {
+  membership_id: string,
   channel_name: string,
   channel_claim_id: string,
   name: string,
   description: string,
-  perks: Array<any>,
-  prices: {amount: string, currency: string, address: string },
+  perks: Array<Perk>,
+  prices: [{id: number, amount: string, currency: string, address: string }],
   has_subscribers: boolean,
 }
 
@@ -40,7 +45,9 @@ declare type PaymentDetails = {
   status: string,
 }
 
-declare type MembershipTier = {
+// MembershipSubItem
+declare type MembershipSub = {
+  id: string,
   membership: Membership,
   subscription: { status: string, started_at: number, ends_at: number },
   perks: Array<any>,
@@ -242,7 +249,9 @@ declare type MembershipCreateResponse = {
   description: string,
 }
 
-declare type MembershipMineDataByCreatorId = { [id: ClaimId]: MembershipTiers };
+declare type MembershipSubs = Array<MembershipSub>;
+
+declare type MembershipSubscribedDataByCreatorId = { [id: ClaimId]: Array<MembershipSub> };
 
 declare type MembershipIdByChannelId = {
   [channelId: string]: string,

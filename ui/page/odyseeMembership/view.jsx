@@ -18,10 +18,10 @@ type Props = {
   // -- redux --
   mineFetched: boolean,
   mineFetching: boolean,
-  validMemberships: ?MembershipTiers,
-  activeMemberships: ?MembershipTiers,
-  purchasedMemberships: ?MembershipTiers,
-  canceledMemberships: ?MembershipTiers,
+  validMemberships: ?MembershipSubs,
+  activeMemberships: ?MembershipSubs,
+  purchasedMemberships: ?MembershipSubs,
+  canceledMemberships: ?MembershipSubs,
   membershipOptions: ?CreatorMemberships,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };

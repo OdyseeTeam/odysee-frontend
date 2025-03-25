@@ -38,7 +38,7 @@ function MembershipTier(props: Props) {
   return (
     <>
       <div className="membership-tier__header">
-        <span className="membership-tier__name">{membership.Membership.name}</span>
+        <span className="membership-tier__name">{membership.name}</span>
 
         <Menu>
           <MenuButton className="menu__button">
@@ -64,20 +64,19 @@ function MembershipTier(props: Props) {
                   : doOpenModal(MODALS.CONFIRM, {
                       title: __('Confirm Membership Deletion'),
                       subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
-                        membership_name: membership.Membership.name,
+                        membership_name: membership.name,
                       }),
                       busyMsg: __('Deleting your membership...'),
                       onConfirm: (closeModal, setIsBusy) => {
                         setIsBusy(true);
-                        doDeactivateMembershipForId(membership.Membership.id)
+                        doDeactivateMembershipForId(membership.membership_id)
                           .then(() => {
                             setIsBusy(false);
                             doToast({ message: __('Your membership was successfully deleted.') });
                             removeMembership();
                             closeModal();
                             doMembershipList({
-                              channel_name: membership.Membership.channel_name,
-                              channel_id: membership.Membership.channel_id,
+                              channel_claim_id: membership.channel_claim_id,
                             });
                           })
                           .catch(() => setIsBusy(false));
@@ -96,15 +95,10 @@ function MembershipTier(props: Props) {
 
       <div className="membership-tier__infos">
         <label>{__('Pledge')}</label>
-        <span>${(membership.NewPrices[0].creator_receives_amount / 100).toFixed(2)}</span>
-
-        <label>{__("User's price with Platform and Service fee")}</label>
-        <span>
-          {membership.NewPrices[0].client_pays ? `$${(membership.NewPrices[0].client_pays / 100).toFixed(2)}` : '...'}
-        </span>
+        <span>${(membership.prices[0].amount / 100).toFixed(2)}</span> // TODO Which price id?
 
         <label>{__('Description ')}</label>
-        <span className="membership-tier__description">{membership.Membership.description}</span>
+        <span className="membership-tier__description">{membership.description}</span>
 
         <div className="membership-tier__perks">
           <div className="membership-tier__perks-content">

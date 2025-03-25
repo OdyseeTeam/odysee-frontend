@@ -21,14 +21,14 @@ export function doRemoveAccountSequence() {
       analytics.error(`doRemoveAccountSequence: Memberships not fetched`);
       return 'error_occurred';
     }
-
-    const activeMemberships = selectMyActiveMembershipsById(state);
+    // NO AUTORENEW POSSIBLE, WHAT ARE WE DOING HERE
+    const activeMemberships = selectMyActiveMembershipsById(state); // this is autorenew...
     const activeMembershipChannelIds = Object.keys(activeMemberships);
     const activeMembershipIds = [];
 
     activeMembershipChannelIds.map((creatorChannelId) => {
       activeMemberships[creatorChannelId].forEach((membership) => {
-        activeMembershipIds.push(membership.Membership.membership_id);
+        activeMembershipIds.push(membership.membership_id); // TODO CHECK THIS
       });
     });
 

@@ -64,15 +64,15 @@ const TabWrapper = (props: Props) => {
   }
 
   // SECOND: verify bank account
-  if (!bankAccountConfirmed) {
-    return (
-      <ErrorBubble
-        title={__('Bank Account Status')}
-        subtitle={__('Adding a bank account has been disabled.')}
-        action={<></>}
-      />
-    );
-  }
+  // if (!bankAccountConfirmed) {
+  //   return (
+  //     <ErrorBubble
+  //       title={__('Bank Account Status')}
+  //       subtitle={__('Adding a bank account has been disabled.')}
+  //       action={<></>}
+  //     />
+  //   );
+  // }
 
   // THIRD: only USD supported. This will be the final message for some.
   if (accountDefaultCurrency !== 'usd') {

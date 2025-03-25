@@ -173,10 +173,12 @@ function TiersTab(props: Props) {
             const newestId = uuid(); // --> this will only be used locally when creating a new tier
 
             const newestMembership = {
-              HasSubscribers: false,
-              Membership: { id: newestId, name: __('Example Plan'), description: '' },
-              NewPrices: [{ creator_receives_amount: 500 }],
-              Perks: membershipOdyseePermanentPerks,
+              has_subscribers: false,
+              membership_id: newestId,
+              name: __('Example Plan'),
+              description: '',
+              prices: { amount: 500, currency: 'usd', address: '' },//TODO
+              perks: membershipOdyseePermanentPerks,
               saved: false,
             };
 

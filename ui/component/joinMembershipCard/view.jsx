@@ -31,11 +31,12 @@ type Props = {
   unlockableTierIds: Array<number>,
   cheapestMembership: ?CreatorMembership,
   isLivestream: ?boolean,
-  purchasedChannelMembership: MembershipTier & CreatorMembership,
+  purchasedChannelMembership: MembershipSub,
   membershipMine: any,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doToast: (params: { message: string }) => void,
+  defaultArweaveAddress?: string,
 };
 
 const JoinMembershipCard = (props: Props) => {
@@ -60,6 +61,7 @@ const JoinMembershipCard = (props: Props) => {
     doMembershipList,
     doMembershipBuy,
     doToast,
+    defaultArweaveAddress,
   } = props;
 
   const isUrlParamModal = React.useContext(ModalContext)?.isUrlParamModal;
@@ -83,7 +85,7 @@ const JoinMembershipCard = (props: Props) => {
   const [selectedMembershipIndex, setMembershipIndex] = React.useState(
     passedTierIndex || cheapestPlanIndex || membershipIndex
   );
-  const selectedTier = creatorMemberships && creatorMemberships[selectedMembershipIndex];
+  const selectedTier: CreatorMembership = creatorMemberships && creatorMemberships[selectedMembershipIndex];
 
   function handleJoinMembership() {
     if (!selectedTier || isPurchasing.current) return;
@@ -91,14 +93,14 @@ const JoinMembershipCard = (props: Props) => {
     isPurchasing.current = true;
 
     const membershipBuyParams: MembershipBuyParams = {
-      membership_id: selectedTier.Membership.id,
-      price_id: selectedTier.NewPrices[0].price.stripe_price_id,
+      source_payment_address: defaultArweaveAddress,
+      channel_id: channelClaimId,
+      price_id: selectedTier.prices[0].id,
     };
 
     if (activeChannelClaim && !incognito) {
       Object.assign(membershipBuyParams, {
         channel_id: activeChannelClaim.claim_id,
-        channel_name: activeChannelClaim.name,
       });
     }
 
@@ -117,8 +119,8 @@ const JoinMembershipCard = (props: Props) => {
           message: __(
             "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
             {
-              membership_tier_name: selectedTier.Membership.name,
-              creator_channel_name: selectedTier.Membership.channel_name,
+              membership_tier_name: selectedTier.name,
+              creator_channel_name: selectedTier.channel_name,
             }
           ),
         });

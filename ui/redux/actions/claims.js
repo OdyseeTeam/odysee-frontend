@@ -210,7 +210,7 @@ export function doResolveUris(
  *
  * @param claimIds
  */
-export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: boolean = true, options?: {}) {
+export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: boolean = true, options?: {}) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
 
