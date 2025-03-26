@@ -198,4 +198,30 @@
 
   --mui-background: #fff;
   --mui-button: var(--color-header-button);
+
+  // Custom Banners
+
+  --color-banner-button-shadow: rgba(0, 0, 0, 0.1);
+  --color-banner-button-shadow-hover: rgba(165, 165, 165, 0.411);
+  --color-dropdown-background: rgba(255, 255, 255, 0.98);
+  --color-menu-item-hover: rgba(0, 0, 0, 0.02);
+
+  // Banner: Colors for banner-primary (light mode)
+  --banner-primary-bg: #fbfafd;
+  --banner-primary-label: #1c1c1c;
+  --banner-primary-description: #1c1c1c;
+  --banner-primary-tag: #1c1c1c;
+  --banner-primary-button-bg: rgba(217, 35, 111, 0.9);
+  --banner-primary-button-hover: rgba(189, 25, 95, 0.9);
+  --banner-primary-info: rgb(12, 12, 12);
+  --banner-primary-dark: rgb(12, 12, 12);
+
+  // Colors for banner-secondary (light mode)
+  --banner-secondary-bg: #fbfafd;
+  --banner-secondary-description: #1c1c1c;
+  --banner-secondary-tag: #1c1c1c;
+  --banner-secondary-button-bg: rgba(217, 35, 111, 0.9);
+  --banner-secondary-button-hover: rgba(189, 25, 95, 0.9);
+  --banner-secondary-info: #ca004b;
+  --banner-secondary-button-text: #ffffff;
 }
