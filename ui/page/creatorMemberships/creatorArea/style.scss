@@ -148,6 +148,13 @@
     text-align: left;
     margin-bottom: var(--spacing-s);
   }
+
+  .checkbox {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin: var(--spacing-s) 0;
+  }
 }
 
 .table-channel-header {
