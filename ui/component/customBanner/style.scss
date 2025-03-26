@@ -1,3 +1,7 @@
+// Variables
+$breakpoint-small: 768px;
+$breakpoint-medium: 992px;
+
 // Common styles for both banners
 .banner-container {
   position: relative;
@@ -5,11 +9,8 @@
   margin: 0px auto 20px;
   padding: 0 30px;
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
 
-  // Banner background
   .banner-background {
     width: 240px;
     height: 240px;
@@ -17,27 +18,24 @@
     margin-right: auto;
   }
 
-  // Flexible container for image and text
   .banner-content-wrapper {
     display: flex;
     align-items: center;
     gap: 20px;
   }
 
-  // Image on the left
   .banner-image {
     width: 240px;
     height: 240px;
     margin: 0 15px 0 0;
     object-fit: cover;
+    transition: all 0.3s ease;
   }
 
-  // Text container
   .banner-text-container {
     flex: 1;
   }
 
-  // Title
   .banner-label {
     max-width: 700px;
     font-size: 30px;
@@ -46,18 +44,18 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.3s ease;
   }
 
-  // Description
   .banner-description {
     font-size: 18px;
     margin-bottom: 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.3s ease;
   }
 
-  // Tag (below the description)
   .banner-tag {
     display: block;
     font-size: 15px;
@@ -66,9 +64,9 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-weight: bold;
+    transition: color 0.3s ease;
   }
 
-  // Button to the right of the text
   .banner-button {
     display: inline-block;
     padding: 10px;
@@ -76,17 +74,16 @@
     font-weight: bold;
     text-decoration: none;
     border-radius: 5px;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 
     &:hover {
-      background-color: var(--banner-button-hover);
+      transform: translateY(-1px);
     }
   }
 
-  // "View More"
   .banner-info {
     position: absolute;
     top: 10px;
@@ -96,42 +93,39 @@
     display: flex;
     align-items: center;
     gap: 5px;
+    transition: color 0.3s ease;
   }
 }
 
-// Specific styles for the first banner with new color balance
+// Specific styles for the first banner
 .banner-primary {
-  background-color: var(--banner-primary-bg, #fbfafd);
+  background-color: var(--banner-primary-bg);
 
   .banner-label {
-    color: var(--banner-primary-label, #1c1c1c);
+    color: var(--banner-primary-label);
     text-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);
   }
 
   .banner-description {
-    color: var(--banner-primary-description, #1c1c1c);
+    color: var(--banner-primary-description);
   }
 
   .banner-tag {
-    color: var(--banner-primary-tag, #1c1c1c);
+    color: var(--banner-primary-tag);
   }
 
   .banner-button {
-    background-color: var(--banner-primary-button-bg, rgba(217, 35, 111, 0.9));
-    color: white;
-    border: none;
+    background-color: var(--banner-primary-button-bg);
     
     &:hover {
-      background-color: var(--banner-primary-button-hover, rgba(189, 25, 95, 0.9));
-      transform: translateY(-1px);
+      background-color: var(--banner-primary-button-hover);
     }
   }
 
   .banner-info {
-    color: var(--banner-primary-info, rgb(0, 202, 174));
+    color: var(--banner-primary-info);
   }
 
-  // Variación 1 - Enfatiza el color turquesa
   &.vibrant-variant {
     background-image: linear-gradient(
       to left,
@@ -142,11 +136,10 @@
     );
     
     .banner-button {
-      background-color: var(--banner-primary-dark, rgb(0, 202, 174));
+      background-color: var(--banner-primary-dark);
     }
   }
 
-  // Variación 2 - Degradado vertical suave
   &.colorful-variant {
     background-image: linear-gradient(
       to bottom,
@@ -163,59 +156,50 @@
 
 // Specific styles for the second banner
 .banner-secondary {
-  background-color: var(--banner-secondary-bg, #e0f7fa);
-  background-image: linear-gradient(
-    to left,
-    transparent,
-    var(--banner-secondary-light, #9d7fd9aa) 30%,
-    var(--banner-secondary-bg, #67449acc) 60%,
-    var(--banner-secondary-dark, #5a19c6cc) 80%
-  );
+  background-color: var(--banner-secondary-bg);
 
   .banner-label {
-    color: var(--banner-secondary-label, #fff);
+    color: var(--banner-secondary-label);
   }
 
   .banner-description {
-    color: var(--banner-secondary-description, #fff);
+    color: var(--banner-secondary-description);
   }
 
   .banner-tag {
-    color: var(--banner-primary-tag, #ffffff);
+    color: var(--banner-secondary-tag);
   }
 
   .banner-button {
-    background-color: var(--banner-secondary-button-bg, #e8e8e8);
-    color: #000;
-
+    background-color: var(--banner-secondary-button-bg);
+    color: var(--banner-secondary-button-text);
+    
     &:hover {
-      background-color: var(--banner-secondary-button-hover, #cfcfcf);
+      background-color: var(--banner-secondary-button-hover);
     }
   }
 
   .banner-info {
-    color: var(--banner-secondary-info, #ca004b);
+    color: var(--banner-secondary-info);
   }
 
-  // Alternative variation 1 - More contrasting gradient
   &.variant-1 {
     background-image: linear-gradient(
       to left,
       transparent,
-      var(--banner-secondary-light, #b8a2e6aa) 25%,
-      var(--banner-secondary-bg, #67449acc) 50%,
-      var(--banner-secondary-dark, #5a19c6cc) 80%
+      var(--banner-secondary-light) 25%,
+      var(--banner-secondary-bg) 50%,
+      var(--banner-secondary-dark) 80%
     );
   }
 
-  // Alternative variation 2 - Softer gradient
   &.variant-2 {
     background-image: linear-gradient(
       to left,
       transparent,
-      var(--banner-secondary-light, #d0c4f0aa) 40%,
-      var(--banner-secondary-bg, #67449acc) 70%,
-      var(--banner-secondary-dark, #5c3a99cc) 100%
+      var(--banner-secondary-light) 40%,
+      var(--banner-secondary-bg) 70%,
+      var(--banner-secondary-dark) 100%
     );
   }
 }
@@ -229,7 +213,7 @@
 }
 
 .banner-menu-button {
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--color-dropdown-background);
   border: none;
   cursor: pointer;
   width: 36px;
@@ -238,15 +222,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--banner-info);
+  color: var(--banner-primary-info);
   transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px var(--color-banner-button-shadow);
   padding: 0;
 
   &:hover {
-    background: rgba(255, 255, 255, 1);
-    color: var(--banner-button-hover);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: var(--color-dropdown-background);
+    color: var(--banner-primary-button-hover);
   }
 }
 
@@ -254,15 +237,14 @@
   position: absolute;
   top: calc(100% + 5px);
   right: 0;
-  background-color: rgba(255, 255, 255, 0.98);
+  background-color: var(--color-dropdown-background);
   border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px var(--color-banner-button-shadow);
   overflow: hidden;
   min-width: 150px;
   backdrop-filter: blur(8px);
   z-index: 20;
   padding: 2px 0;
-  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .banner-menu-item {
@@ -274,12 +256,100 @@
   border: none;
   font-size: 14px;
   font-weight: 500;
-  color: var(--banner-label);
   cursor: pointer;
   transition: all 0.2s ease;
+  color: var(--color-menu-item-color);
 
   &:hover {
-    background-color: rgba(0, 0, 0, 0.04);
-    color: var(--banner-info);
+    background-color: var(--color-menu-item-hover);
+  }
+}
+
+// Responsive styles for mobile
+@media (max-width: $breakpoint-small) {
+  .banner-container {
+    padding: 15px;
+    margin-bottom: 15px;
+    
+    .banner-content-wrapper {
+      flex-direction: column;
+      gap: 15px;
+      
+      &.small-image-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        
+        .banner-image {
+          width: 80px;
+          height: 80px;
+          margin-right: 15px;
+          flex-shrink: 0;
+        }
+      }
+    }
+    
+    .banner-background,
+    .banner-image {
+      margin: 0 0 15px 0;
+      
+      &.square-image {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 15px;
+      }
+      
+      &.circle-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+      }
+    }
+    
+    .banner-label {
+      font-size: 22px;
+      white-space: normal;
+    }
+    
+    .banner-description {
+      font-size: 15px;
+      white-space: normal;
+    }
+    
+    .banner-tag {
+      font-size: 13px;
+      white-space: normal;
+    }
+    
+    .banner-button {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+    }
+    
+    .banner-info {
+      position: static;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  }
+  
+  .banner-primary, .banner-secondary {
+    &.vibrant-variant, 
+    &.colorful-variant,
+    &.variant-1,
+    &.variant-2 {
+      background-image: none;
+    }
+  }
+  
+  .banner-context-menu {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .banner-menu-button {
+    width: 32px;
+    height: 32px;
   }
 }

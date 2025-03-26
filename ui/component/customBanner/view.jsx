@@ -60,7 +60,7 @@ Object.keys(localStorage).forEach((key) => {
 }); */
 
   return (
-    <div className={`banner-container ${isSecondary ? 'banner-secondary variant-1' : 'banner-primary'}`}>
+    <div className={`banner-container ${isSecondary ? 'banner-secondary' : 'banner-primary'}`}>
       <div className="banner-context-menu" ref={menuRef}>
         <button className="banner-menu-button" onClick={toggleMenu} aria-label="More options">
           <Icon icon={ICONS.MORE} />
