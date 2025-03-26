@@ -15,6 +15,7 @@ import Button from 'component/button';
 import TabWrapper from './internal/tabWrapper';
 
 import './style.scss';
+import { FormField } from 'component/common/form';
 
 const OverviewTab = lazyImport(() => import('./internal/overviewTab' /* webpackChunkName: "overviewTab" */));
 const TiersTab = lazyImport(() => import('./internal/tiersTab' /* webpackChunkName: "tiersTab" */));
@@ -47,6 +48,7 @@ const CreatorArea = (props: Props) => {
   } = props;
 
   const [allSelected, setAllSelected] = React.useState(true);
+  const [showDisabled, setShowDisabled] = React.useState(false);
 
   const channelsToList = React.useMemo(() => {
     if (!myChannelClaims) return myChannelClaims;
@@ -178,10 +180,17 @@ const CreatorArea = (props: Props) => {
                         icon={ICONS.BACK}
                         button="secondary"
                       />
+                      <FormField
+                        label={__('Show Disabled')}
+                        name="show_disabled"
+                        type="checkbox"
+                        checked={showDisabled}
+                        onChange={() => setShowDisabled(!showDisabled)}
+                      />
                     </div>
                   </div>
 
-                  <TiersTab />
+                  <TiersTab showDisabled={showDisabled} />
                 </>
               }
             />

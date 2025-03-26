@@ -35,13 +35,11 @@ function MembershipTier(props: Props) {
     doMembershipList,
   } = props;
 
-  console.log('mtier mem', membership)
-
   return (
     <>
       <div className="membership-tier__header">
-        <span className="membership-tier__name">{membership.name}</span>
-
+        <span className="membership-tier__name">{`${membership.name} ${membership.enabled ? '' : __('(Disabled)')}`}</span>
+        {membership.enabled === true && (
         <Menu>
           <MenuButton className="menu__button">
             <Icon size={18} icon={ICONS.SETTINGS} />
@@ -93,6 +91,7 @@ function MembershipTier(props: Props) {
             </MenuItem>
           </MenuList>
         </Menu>
+          )}
       </div>
 
       <div className="membership-tier__infos">

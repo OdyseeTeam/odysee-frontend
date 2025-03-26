@@ -19,6 +19,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   membershipOdyseePermanentPerks: MembershipOdyseePerks,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>,
+  showDisabled: boolean
 };
 
 function TiersTab(props: Props) {
@@ -29,13 +30,13 @@ function TiersTab(props: Props) {
     activeChannelClaim,
     membershipOdyseePermanentPerks,
     doGetMembershipPerks,
+    showDisabled,
   } = props;
 
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
 
   const [editingIds, setEditingIds] = React.useState(() => []);
   const [channelMemberships, setChannelMemberships] = React.useState<any>(fetchedMemberships || []);
-  console.log('channelMemberships', channelMemberships);
 
   function addEditingForMembershipId(membershipId) {
     setEditingIds((previousEditingIds) => {
@@ -126,7 +127,7 @@ function TiersTab(props: Props) {
   return (
     <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
       {channelMemberships &&
-        channelMemberships.map((membershipTier, membershipIndex) => {
+        channelMemberships.filter(m => showDisabled ? true : m.enabled === true).map((membershipTier, membershipIndex) => {
           const membershipId = membershipTier.membership_id;
           const isEditing = new Set(editingIds).has(membershipId);
           const hasSubscribers = membershipTier.has_subscribers;
