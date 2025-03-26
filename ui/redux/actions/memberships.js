@@ -197,6 +197,13 @@ export const doMembershipAddTier = (params: MembershipAddTierParams) => async (d
       throw new Error(e);
     });
 
+export const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => async (dispatch: Dispatch) =>
+  await Lbryio.call('membership_v2', 'update', { ...params }, 'post')
+    .then((response: MembershipCreateResponse) => response)
+    .catch((e) => {
+      throw new Error(e);
+    });
+
 export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership_perk', 'list', { ...params, environment: stripeEnvironment }, 'post')
     .then((response: MembershipDetails) => dispatch({ type: ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE, data: response }))

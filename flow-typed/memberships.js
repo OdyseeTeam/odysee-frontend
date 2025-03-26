@@ -23,6 +23,7 @@ declare type CreatorMembership = {
   perks: Array<Perk>,
   prices: [{id: number, amount: string, currency: string, address: string }],
   has_subscribers: boolean,
+  enabled: boolean,
 }
 
 declare type CreatorMemberships = Array<CreatorMembership>;
@@ -83,6 +84,7 @@ declare type Membership = {
   channel_claim_id: string,
 }
 
+declare type MembershipUpdateResponse = string;
 declare type MembershipDetails = {
   activated: boolean,
   badge_url: string,
@@ -242,6 +244,13 @@ declare type MembershipAddTierParams = {
   frequency: string,
   payment_address_id: string,
 };
+
+declare type MembershipUpdateTierParams = {
+  new_name?: string,
+  new_description?: string,
+  new_amount?: number,
+  membership_id: number,
+}
 
 declare type MembershipCreateResponse = {
   membership_id: number,
