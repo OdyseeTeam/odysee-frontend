@@ -36,6 +36,7 @@ function TiersTab(props: Props) {
 
   const [editingIds, setEditingIds] = React.useState(() => []);
   const [channelMemberships, setChannelMemberships] = React.useState<any>(fetchedMemberships || []);
+  console.log('channelMemberships', channelMemberships);
 
   function addEditingForMembershipId(membershipId) {
     setEditingIds((previousEditingIds) => {
@@ -62,7 +63,7 @@ function TiersTab(props: Props) {
 
       // sort by price lowest to highest
       return Array.from(newChannelMemberships).sort(
-        (a, b) => a.prices.amount - b.prices.amount
+        (a, b) => a.prices[0].amount - b.prices[0].amount
       );
     });
   }
@@ -165,7 +166,7 @@ function TiersTab(props: Props) {
           );
         })}
 
-      {(!channelMemberships || channelMemberships.length < 6) && (
+      {(!channelMemberships || channelMemberships.length < 100) && (/* todo change back to 6? */
         <Button
           button="primary"
           disabled={STRIPE_DISABLED}
@@ -177,7 +178,7 @@ function TiersTab(props: Props) {
               membership_id: newestId,
               name: __('Example Plan'),
               description: '',
-              prices: { amount: 500, currency: 'usd', address: '' },//TODO
+              prices: [{ amount: 500, currency: 'usd', address: '' }],
               perks: membershipOdyseePermanentPerks,
               saved: false,
             };

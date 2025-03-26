@@ -23,12 +23,13 @@ type Props = {
   membershipOdyseePerks: MembershipOdyseePerks,
   activeChannelClaim: ChannelClaim,
   doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
+  doMembershipUpdateTier: (params: MembershipUpdateTierParams) => Promise<MembershipDetails>,
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>,
   doMembershipList: (params: MembershipListParams, forceUpdate: ?boolean) => Promise<CreatorMemberships>,
   apiArweaveAddress: string,
 };
 
-function MembershipTier(props: Props) {
+function MembershipEditTier(props: Props) {
   const {
     membership,
     hasSubscribers,
@@ -38,6 +39,7 @@ function MembershipTier(props: Props) {
     membershipOdyseePerks,
     activeChannelClaim,
     doMembershipAddTier,
+    doMembershipUpdateTier,
     addChannelMembership,
     doMembershipList,
     apiArweaveAddress,
@@ -52,7 +54,7 @@ function MembershipTier(props: Props) {
   const initialState = React.useRef({
     name: membership.name || '',
     description: membership.description || '',
-    price: membership.prices.amount / 100,
+    prices: membership.prices[0].amount / 100, // array?
     perks: Array.from(new Set([...MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS, ...membership.perks.map((perk) => perk.id)])),
     frequency: 'monthly',
   });
@@ -63,6 +65,7 @@ function MembershipTier(props: Props) {
     editTierPrice: initialState.current.price,
     editTierFrequency: initialState.current.frequency,
   });
+
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
 
@@ -104,39 +107,71 @@ function MembershipTier(props: Props) {
       const isCreatingAMembership = typeof membership.membership_id === 'string';
       const price = Number(newTierMonthlyContribution) * 100; // multiply to turn into cents
 
-      const params = {
-        channel_id: activeChannelClaim.claim_id,
-        name: editTierParams.editTierName,
-        description: editTierParams.editTierDescription,
-        amount: price,
-        currency: 'USD', // hardcoded for now
-        perks: selectedPerksAsArray,
-        frequency: editTierParams.editTierFrequency,
-        payment_address: apiArweaveAddress,
-      };
-      // if (isCreatingMembership) {
-      //   params.membership_id
-      // }
-      doMembershipAddTier(params)
-        .then((response: MembershipDetails) => {
-          setIsSubmitting(false);
+      if (isCreatingAMembership) {
+        const params = {
+          channel_id: activeChannelClaim.claim_id,
+          name: editTierParams.editTierName,
+          description: editTierParams.editTierDescription,
+          amount: price,
+          currency: 'USD', // hardcoded for now
+          perks: selectedPerksAsArray,
+          frequency: editTierParams.editTierFrequency,
+          payment_address: apiArweaveAddress,
+        };
+        doMembershipAddTier(params)
+          .then((response: MembershipDetails) => {
+            setIsSubmitting(false);
 
-          const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
+            const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
 
-          const newMembershipObj: CreatorMembership = {
-            has_subscribers: false,
-            channel_name: activeChannelClaim.name,
-            prices: [{ amount: price, currency: 'usd', address: '' }], // HERE PRICES
-            perks: selectedPerks,
-          };
+            const newMembershipObj: CreatorMembership = {
+              name: editTierParams.editTierName,
+              description: editTierParams.editTierDescription,
 
-          removeEditing();
+              has_subscribers: false,
+              channel_name: activeChannelClaim.name,
+              prices: [{ amount: price, currency: 'usd', address: '' }], // HERE PRICES
+              perks: selectedPerks,
+            };
+            addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
+            removeEditing();
 
-          addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
-          // force update for list
-          doMembershipList({ channel_claim_id: activeChannelClaim.claim_id }, true);
-        })
-        .catch(() => setIsSubmitting(false));
+            // force update for list
+            doMembershipList({ channel_claim_id: activeChannelClaim.claim_id }, true);
+          })
+          .catch(() => setIsSubmitting(false));
+      } else { // is edit
+        const params = {
+          new_name: editTierParams.editTierName,
+          new_description: editTierParams.editTierDescription,
+          new_amount: price,
+          membership_id: membership.membership_id,
+        };
+        doMembershipUpdateTier(params)
+          .then((response: MembershipUpdateResponse) => {
+            setIsSubmitting(false);
+
+            const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
+
+            const newMembershipObj: CreatorMembership = {
+              membership_id: membership.membership_id,
+              name: editTierParams.editTierName,
+              description: editTierParams.editTierDescription,
+              has_subscribers: membership.has_subscribers,
+              channel_name: activeChannelClaim.name,
+              channel_claim_id: activeChannelClaim.claim_id,
+              prices: [{ amount: price, currency: 'usd', address: '' }], // HERE PRICES
+              perks: selectedPerks,
+            };
+
+            addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
+            removeEditing();
+
+            // force update for list
+            doMembershipList({ channel_claim_id: activeChannelClaim.claim_id }, true);
+          })
+          .catch(() => setIsSubmitting(false));
+      }
     }
   }
 
@@ -264,4 +299,4 @@ function MembershipTier(props: Props) {
   );
 }
 
-export default MembershipTier;
+export default MembershipEditTier;
