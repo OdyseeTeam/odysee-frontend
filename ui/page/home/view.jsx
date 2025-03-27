@@ -324,17 +324,16 @@ function HomePage(props: Props) {
           undefined
         )}
 
-      {homepageFetched &&
-        sortedRowData.map(
-          ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-
-            // Check if there are any comments for this position
-            const commentCardForPosition = homepageCommentCards?.find((commentCard) => commentCard.position === index) || null;
+{homepageFetched &&
+  sortedRowData.map(
+    ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
+      // Check if there are any comments for this position
+      const commentCardForPosition = homepageCommentCards?.find((commentCard) => commentCard.position === index) || null;
 
             return (
               <React.Fragment key={id}>
                 {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
-
+      
                 {/* Render comments if they exist for this position */}
                 {commentCardForPosition && (
                   <div key={`comment-card-${commentCardForPosition.position}`}>
@@ -345,10 +344,10 @@ function HomePage(props: Props) {
                   </div>
                 )}
               </React.Fragment>
-            )
+            );
           }
         )}
-    </Page>
+      </Page>
   );
 }
 

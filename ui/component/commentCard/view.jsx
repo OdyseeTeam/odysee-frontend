@@ -93,7 +93,6 @@ const EMOJI_MAPPING = {
 
    // Stickers mapping from Odysee CDN
 
-  ':PISS:': 'https://static.odycdn.com/stickers/PISS/PNG/piss_with_frame.png',
   ':FIRE:': 'https://static.odycdn.com/stickers/MISC/PNG/fire.png',
   ':SLIME:': 'https://static.odycdn.com/stickers/SLIME/PNG/slime_with_frame.png',
   ':PISS:': 'https://static.odycdn.com/stickers/PISS/PNG/piss_with_frame.png',
@@ -183,13 +182,17 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
   }, []);
 
   const scrollLeft = useCallback(() => {
-    containerRef.current?.scrollBy({ left: -300, behavior: 'smooth' });
-    setScrollPosition(containerRef.current?.scrollLeft || 0);
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+      setScrollPosition(containerRef.current.scrollLeft);
+    }
   }, []);
-
+  
   const scrollRight = useCallback(() => {
-    containerRef.current?.scrollBy({ left: 300, behavior: 'smooth' });
-    setScrollPosition(containerRef.current?.scrollLeft || 0);
+    if (containerRef.current) {
+      containerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+      setScrollPosition(containerRef.current.scrollLeft);
+    }
   }, []);
 
   const handleScroll = useCallback(() => {
@@ -315,7 +318,7 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
                 <div 
                   className="comment-card__text" 
                   dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }} 
-                />
+                  />
               </div>
             </div>
           );
@@ -338,11 +341,11 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
 
 CommentCard.propTypes = {
   pinnedClaimIds: PropTypes.arrayOf(PropTypes.string).isRequired,
-  sortBy: PropTypes.number
+  sortBy: PropTypes.number,
 };
 
 CommentCard.defaultProps = {
-  sortBy: 3
+  sortBy: 3,
 };
 
 export default React.memo(CommentCard);

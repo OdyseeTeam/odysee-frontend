@@ -12,7 +12,7 @@ const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
   const fetchClaimUrl = async (claimId) => {
     try {
       const response = await fetch(`https://odysee.com/$/search?q=${claimId}`, {
-        mode: 'no-cors'
+        mode: 'no-cors',
       });
       if (!response.ok) return `https://odysee.com/$/search?q=${claimId}`;
       
@@ -47,9 +47,9 @@ const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
                   claim_id: claimId,
                   page: 1,
                   page_size: 1,
-                  sort_by: sortBy
-                }
-              })
+                  sort_by: sortBy,
+                },
+              }),
             });
 
             if (!commentResponse.ok) return null;
@@ -67,7 +67,7 @@ const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
               claimId,
               timestamp: comment.timestamp,
               claimUrl,
-              isPinned: comment.is_pinned
+              isPinned: comment.is_pinned,
             };
           } catch {
             return null;
@@ -84,13 +84,13 @@ const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
     };
 
     fetchComments();
-  }, [pinnedClaimIds]);
+  }, [pinnedClaimIds, sortBy]);
 
   return { 
     comments, 
     loading, 
     error,
-    refresh: () => setLoading(true)
+    refresh: () => setLoading(true),
   };
 };
 
