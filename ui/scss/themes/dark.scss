@@ -179,4 +179,21 @@
     );
 
   --mui-background: #000;
+
+  // CommentCard
+
+  --color-card-comment-text: #de0050;
+  --color-card-comment-conent-text: #f1f1f1;
+  --color-card-comment-background: #161616;
+  --color-card-comment-shadow: rgba(0, 0, 0, 0.1);
+  --color-card-comment-shadow-hover: rgba(0, 0, 0, 0.15);
+  --color-card-comment-border: rgba(255, 255, 255, 0.03);
+  --color-dropdown-background: rgba(45, 45, 45, 0.98);
+  --color-menu-item-hover: rgba(255, 255, 255, 0.04);
+  --color-spinner-track: #444444;
+  --color-scroll-button-card-comment: rgba(57, 57, 57, 0.94);
+  --color-scroll-button-card-comment-hover: rgba(211, 211, 211, 0.6);
+  --color-card-comment-button: #ffffff;
+  --color-comment-card-menu: #ffffff;
+  --color-menu-card-background: rgba(30, 30, 30, 0.98);
 }

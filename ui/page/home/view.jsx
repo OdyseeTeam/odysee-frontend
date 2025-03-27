@@ -25,8 +25,30 @@ import { useHistory } from 'react-router-dom';
 
 const FeaturedBanner = lazyImport(() => import('component/featuredBanner' /* webpackChunkName: "featuredBanner" */));
 const Portals = lazyImport(() => import('component/portals' /* webpackChunkName: "portals" */));
+const CommentCard = lazyImport(() => import('component/commentCard' /* webpackChunkName: "commentCard" */));
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
+type CommentCards = {
+  id: string,
+  position: number,
+  pinnedClaimIds: Array<string>,
+  title?: string,
+  maxLength?: number,
+  sortBy?: number,
+
+  comments?: Array<{
+    id: string,
+    text: string,
+    channelName: string,
+    claimId: string,
+    timestamp: number,
+    claimUrl: string,
+    isPinned: boolean
+  }>,
+  loading?: boolean,
+  error?: string | null
+};
 
 type Props = {
   authenticated: boolean,
@@ -35,6 +57,7 @@ type Props = {
   showNsfw: boolean,
   homepageData: any,
   homepageMeme: ?{ text: string, url: string },
+  homepageCommentCards: Array<CommentCards>,
   homepageFetched: boolean,
   doFetchAllActiveLivestreamsForQuery: () => void,
   fetchingActiveLivestreams: boolean,
@@ -55,6 +78,7 @@ function HomePage(props: Props) {
     showNsfw,
     homepageData,
     homepageMeme,
+    homepageCommentCards,
     homepageFetched,
     doFetchAllActiveLivestreamsForQuery,
     fetchingActiveLivestreams,
@@ -303,7 +327,25 @@ function HomePage(props: Props) {
       {homepageFetched &&
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-            return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
+
+            // Check if there are any comments for this position
+            const commentCardForPosition = homepageCommentCards?.find((commentCard) => commentCard.position === index) || null;
+
+            return (
+              <React.Fragment key={id}>
+                {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
+
+                {/* Render comments if they exist for this position */}
+                {commentCardForPosition && (
+                  <div key={`comment-card-${commentCardForPosition.position}`}>
+                    <CommentCard 
+                      pinnedClaimIds={commentCardForPosition.pinnedClaimIds || []}
+                      sortBy={commentCardForPosition.sort_by}
+                    />
+                  </div>
+                )}
+              </React.Fragment>
+            )
           }
         )}
     </Page>

@@ -88,6 +88,7 @@ const getHomepageJsonV2 = (format, lang) => {
         discover: memo.homepageData[hp].discover,
         discoverNew: memo.homepageData[hp]?.discoverNew,
         customBanners: memo.homepageData[hp]?.customBanners,
+        commentCards: memo.homepageData[hp]?.commentCards,
         announcement: memo.announcements[hp],
       };
     } else {
