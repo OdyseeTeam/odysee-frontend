@@ -11,7 +11,7 @@ import BusyIndicator from 'component/common/busy-indicator';
 
 const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
 
-const MIN_PRICE = '1'; // TODO: make this a decimal like 0.10
+const MIN_PRICE = '0.10'; // TODO: make this a decimal like 0.10
 const MAX_PRICE = '1000';
 
 type Props = {

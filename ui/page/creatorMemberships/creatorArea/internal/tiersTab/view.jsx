@@ -127,7 +127,7 @@ function TiersTab(props: Props) {
   return (
     <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
       {channelMemberships &&
-        channelMemberships.filter(m => showDisabled ? true : m.enabled === true).map((membershipTier, membershipIndex) => {
+        channelMemberships.filter(m => showDisabled ? true : m.enabled === true || m.saved === false).map((membershipTier, membershipIndex) => {
           const membershipId = membershipTier.membership_id;
           const isEditing = new Set(editingIds).has(membershipId);
           const hasSubscribers = membershipTier.has_subscribers;
