@@ -1,90 +1,145 @@
-import { useEffect, useState } from 'react';
+/* eslint-disable no-console */
+import { useEffect, useState, useCallback } from 'react';
 
-const truncateText = (text, maxLength = 125) => {
-  return text.length <= maxLength ? text : `${text.slice(0, maxLength)}...`;
-};
-
-const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
+const useFetchComments = (claimIds, sortBy = 'top') => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchClaimUrl = async (claimId) => {
-    try {
-      const response = await fetch(`https://odysee.com/$/search?q=${claimId}`, {
-        mode: 'no-cors',
-      });
-      if (!response.ok) return `https://odysee.com/$/search?q=${claimId}`;
+  // Function to truncate text to 125 characters
+  const truncateText = useCallback((text, maxLength = 80) => {
+    if (!text) return '';
+    return text.length <= maxLength ? text : `${text.substring(0, maxLength)}...`;
+  }, []);
 
-      const { data } = await response.json();
-      const claim = data?.items?.[0];
-      return claim?.canonical_url
-        ? `https://odysee.com/${claim.canonical_url.replace('lbry://', '')}`
-        : `https://odysee.com/$/search?q=${claimId}`;
-    } catch {
-      return `https://odysee.com/$/search?q=${claimId}`;
+  // Function to obtain details of the memoized claim
+  const fetchClaimDetails = useCallback(async (claimId) => {
+    try {
+      const response = await fetch('https://api.na-backend.odysee.com/api/v1/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'claim_search',
+          params: {
+            claim_id: claimId,
+            page: 1,
+            page_size: 1,
+            no_totals: true,
+          },
+          id: Date.now(),
+        }),
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+      if (!data.result?.items?.[0]) throw new Error('No claim data found');
+
+      return data.result.items[0];
+    } catch (err) {
+      console.error(`Error fetching claim ${claimId}:`, err);
+      return null;
     }
-  };
+  }, []);
+
+  // Memorized feedback function
+  const fetchTopComment = useCallback(async (claimId) => {
+    try {
+      const response = await fetch('https://comments.odysee.com/api/v2?m=comment.List', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'comment.List',
+          params: {
+            claim_id: claimId,
+            page: 1,
+            page_size: 1,
+            sort_by: sortBy === 'top' ? 3 : 1,
+          },
+        }),
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+      if (!data.result?.items?.[0]) return null;
+
+      return data.result.items[0];
+    } catch (err) {
+      console.error(`Error fetching comments for claim ${claimId}:`, err);
+      return null;
+    }
+  }, [sortBy]); // sortBy dependency
 
   useEffect(() => {
-    const fetchComments = async () => {
+    let isMounted = true;
+
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        if (!pinnedClaimIds || pinnedClaimIds.length === 0) return;
+        if (!claimIds || claimIds.length === 0) {
+          if (isMounted) setComments([]);
+          return;
+        }
 
-        const commentsPromises = pinnedClaimIds.map(async (claimId) => {
-          try {
-            const commentResponse = await fetch('https://comments.odysee.com/api/v2?m=comment.List', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                jsonrpc: '2.0',
-                id: 1,
-                method: 'comment.List',
-                params: {
-                  claim_id: claimId,
-                  page: 1,
-                  page_size: 1,
-                  sort_by: sortBy,
-                },
-              }),
-            });
+        const commentsData = await Promise.all(
+          claimIds.map(async (claimId) => {
+            try {
+              const [claimData, commentData] = await Promise.all([
+                fetchClaimDetails(claimId),
+                fetchTopComment(claimId),
+              ]);
 
-            if (!commentResponse.ok) return null;
+              if (!claimData || !commentData) return null;
 
-            const commentData = await commentResponse.json();
-            const comment = commentData.result?.items?.[0];
-            if (!comment) return null;
+              return {
+                id: commentData.comment_id,
+                claimId: claimData.claim_id,
+                text: truncateText(commentData.comment),
+                channelName: commentData.channel_name,
+                channelThumbnail: claimData.signing_channel?.value?.thumbnail?.url,
+                thumbnail: claimData.value?.thumbnail?.url,
+                timestamp: commentData.timestamp,
+                claimUrl: claimData.canonical_url
+                  ? `https://odysee.com/${claimData.canonical_url.replace('lbry://', '')}`
+                  : `https://odysee.com/$/search?q=${claimId}`,
+                isPinned: commentData.is_pinned,
+                fullText: commentData.comment,
+              };
+            } catch (err) {
+              console.error(`Error processing claim ${claimId}:`, err);
+              return null;
+            }
+          })
+        );
 
-            const claimUrl = await fetchClaimUrl(claimId);
-
-            return {
-              id: comment.comment_id,
-              text: truncateText(comment.comment),
-              channelName: comment.channel_name,
-              claimId,
-              timestamp: comment.timestamp,
-              claimUrl,
-              isPinned: comment.is_pinned,
-            };
-          } catch {
-            return null;
-          }
-        });
-
-        const fetchedComments = (await Promise.all(commentsPromises)).filter(Boolean);
-        setComments(fetchedComments);
+        if (isMounted) {
+          setComments(commentsData.filter(Boolean));
+        }
       } catch (err) {
-        setError(err.message || 'Error loading comments');
+        if (isMounted) {
+          setError(err.message || 'An unknown error occurred');
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchComments();
-  }, [pinnedClaimIds, sortBy]);
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [claimIds, sortBy, fetchClaimDetails, fetchTopComment, truncateText]);
 
   return {
     comments,

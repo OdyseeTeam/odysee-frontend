@@ -29,27 +29,6 @@ const CommentCard = lazyImport(() => import('component/commentCard' /* webpackCh
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
-type CommentCards = {
-  id: string,
-  position: number,
-  pinnedClaimIds: Array<string>,
-  title?: string,
-  maxLength?: number,
-  sortBy?: number,
-
-  comments?: Array<{
-    id: string,
-    text: string,
-    channelName: string,
-    claimId: string,
-    timestamp: number,
-    claimUrl: string,
-    isPinned: boolean
-  }>,
-  loading?: boolean,
-  error?: string | null
-};
-
 type Props = {
   authenticated: boolean,
   followedTags: Array<Tag>,
@@ -336,13 +315,13 @@ function HomePage(props: Props) {
 
                 {/* Render comments if they exist for this position */}
                 {commentCardForPosition && (
-                  <div key={`comment-card-${commentCardForPosition.position}`}>
-                    <CommentCard
-                      pinnedClaimIds={commentCardForPosition.pinnedClaimIds || []}
-                      sortBy={commentCardForPosition.sort_by}
-                    />
-                  </div>
-                )}
+                <div key={`comment-card-${commentCardForPosition.position}`}>
+                  <CommentCard
+                    claimIds={commentCardForPosition.pinnedClaimIds || []}  // Changed from pinnedClaimIds to claimIds
+                    sortBy={commentCardForPosition.sort_by}
+                  />
+                </div>
+              )}
               </React.Fragment>
             );
           }

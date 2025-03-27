@@ -7,6 +7,7 @@ import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 const DEFAULT_AVATAR = 'https://thumbnails.odycdn.com/optimize/s:160:160/quality:85/plain/https://spee.ch/spaceman-png:2.png';
+const DEFAULT_THUMBNAIL = 'https://thumbnails.odycdn.com/optimize/s:600:0/quality:85/plain/default_thumbnail.png';
 
 // Emoji mapping from Odysee CDN
 const EMOJI_MAPPING = {
@@ -153,14 +154,9 @@ const EMOJI_MAPPING = {
   ':FORTUNE_CHEST_LBC:': 'https://static.odycdn.com/stickers/TIPS/png/with%20borderfortunechest_LBC_tip.png',
 };
 
-// Random colors for channel avatars
-const getRandomColor = (seed) => {
-  const hue = Math.floor((seed * 160) % 360);
-  return `hsl(${hue}, 80%, 65%)`;
-};
-
-const CommentCard = ({ pinnedClaimIds, sortBy }) => {
-  const { comments, loading, error, refresh } = useFetchComments(pinnedClaimIds, sortBy);
+const CommentCard = ({ claimIds, sortBy = 'top' }) => {
+  // States and references
+  const { comments, loading, error, refresh } = useFetchComments(claimIds, sortBy);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isCommentsVisible, setIsCommentsVisible] = useState(() => {
     return LocalStorage.getItem('comments-closed') !== 'true';
@@ -169,6 +165,13 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
   const containerRef = useRef(null);
   const menuRef = useRef(null);
 
+  // Function to generate random color based on seed
+  const getRandomColor = useCallback((seed) => {
+    const hue = Math.floor((seed * 160) % 360);
+    return `hsl(${hue}, 80%, 65%)`;
+  }, []);
+
+  // Function to format text with emojis
   const formatCommentText = useCallback((text) => {
     if (!text) return '';
     let formattedText = text;
@@ -181,6 +184,7 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
     return formattedText;
   }, []);
 
+  // Scroll functions
   const scrollLeft = useCallback(() => {
     if (containerRef.current) {
       containerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
@@ -195,16 +199,21 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
     }
   }, []);
 
+  // Scroll handling
   const handleScroll = useCallback(() => {
-    setScrollPosition(containerRef.current?.scrollLeft || 0);
+    if (containerRef.current) {
+      setScrollPosition(containerRef.current.scrollLeft);
+    }
   }, []);
 
+  // Close comments
   const handleCloseComments = useCallback(() => {
     setIsCommentsVisible(false);
     LocalStorage.setItem('comments-closed', 'true');
     setIsMenuOpen(false);
   }, []);
 
+  // Toggle context menu
   const toggleMenu = useCallback((e) => {
     e.stopPropagation();
     setIsMenuOpen(prev => !prev);
@@ -231,9 +240,7 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [isMenuOpen]);
 
-  if (!isCommentsVisible) {
-    return null;
-  }
+  if (!isCommentsVisible) return null;
 
   if (loading) {
     return (
@@ -305,7 +312,7 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
               <div className="comment-card__header">
                 <div className="comment-card__avatar" style={{ backgroundColor: bgColor }}>
                   <img
-                    src={DEFAULT_AVATAR}
+                    src={comment.channelThumbnail || DEFAULT_AVATAR}
                     alt={comment.channelName || 'Anonymous'}
                     onError={(e) => { e.target.style.display = 'none' }}
                     className="comment-card__avatar-img"
@@ -322,11 +329,20 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
                   )}
                 </div>
               </div>
+
               <div className="comment-card__content">
+                <div className="comment-card__thumbnail-container">
+                  <img
+                    src={comment.thumbnail || DEFAULT_THUMBNAIL}
+                    alt="Thumbnail"
+                    className="comment-card__thumbnail"
+                    onError={(e) => { e.target.src = DEFAULT_THUMBNAIL }}
+                  />
+                </div>
                 <div
                   className="comment-card__text"
                   dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }}
-                  />
+                />
               </div>
             </div>
           );
@@ -348,12 +364,12 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
 };
 
 CommentCard.propTypes = {
-  pinnedClaimIds: PropTypes.arrayOf(PropTypes.string).isRequired,
-  sortBy: PropTypes.number,
+  claimIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+  sortBy: PropTypes.oneOf(['top', 'new']),
 };
 
 CommentCard.defaultProps = {
-  sortBy: 3,
+  sortBy: 'top',
 };
 
 export default React.memo(CommentCard);
