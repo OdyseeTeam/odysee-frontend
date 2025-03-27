@@ -53,7 +53,6 @@
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
-  background-color: var(--color-card-comment-avatar-bg);
 }
 
 .comment-card__avatar-img {
@@ -79,7 +78,6 @@
 
 .comment-card__timestamp {
   font-size: 0.75rem;
-  color: var(--color-card-comment-text-secondary);
 }
 
 .comment-card__content {
@@ -94,7 +92,7 @@
   border-radius: 4px;
   overflow: hidden;
   position: relative;
-  background: var(--color-card-comment-thumbnail-bg);
+  background: #bbb;
 }
 
 .comment-card__thumbnail {
@@ -229,7 +227,6 @@
 .comment-card__empty {
   text-align: center;
   padding: 40px;
-  color: var(--color-card-comment-text-secondary);
 }
 
 .comment-card__spinner {
