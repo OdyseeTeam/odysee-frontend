@@ -8,11 +8,11 @@ import { selectPurchaseIsPendingForMembershipId } from 'redux/selectors/membersh
 import ConfirmationPage from './view';
 
 const select = (state, props) => {
-  const { uri, selectedTier } = props;
+  const { uri, selectedCreatorMembership } = props;
 
   return {
     channelName: selectChannelNameForUri(state, uri),
-    purchasePending: selectPurchaseIsPendingForMembershipId(state, selectedTier.membership_id),
+    purchasePending: selectPurchaseIsPendingForMembershipId(state, selectedCreatorMembership.membership_id),
     preferredCurrency: selectPreferredCurrency(state),
     incognito: selectIncognito(state),
   };
