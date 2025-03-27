@@ -18,6 +18,7 @@ import WalletSendTip from './view';
 import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { doArConnect, doArTip } from 'redux/actions/arwallet';
 import { doToast } from '../../redux/actions/notifications';
+import { selectArweaveTippingForId } from '../../redux/selectors/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -50,6 +51,7 @@ const select = (state, props) => {
     preferredCurrency: selectPreferredCurrency(state),
     experimentalUi: selectUserExperimentalUi(state),
     arweaveTipData: selectArweaveTipDataForId(state, claimId),
+    isArweaveTipping: selectArweaveTippingForId(state, claimId),
   };
 };
 

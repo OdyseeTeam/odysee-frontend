@@ -43,6 +43,7 @@ type Props = {
   instantTipEnabled: boolean,
   instantTipMax: { amount: number, currency: string },
   isPending: boolean,
+  isArweaveTipping: boolean,
   isSupport: boolean,
   title: string,
   uri: string,
@@ -92,6 +93,7 @@ export default function WalletSendTip(props: Props) {
     instantTipEnabled,
     instantTipMax,
     isPending,
+    isArweaveTipping,
     title,
     uri,
     isTipOnly,
@@ -109,6 +111,8 @@ export default function WalletSendTip(props: Props) {
     doToast,
     doArConnect,
   } = props;
+
+  console.log('isPending', isPending)
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
@@ -266,7 +270,6 @@ export default function WalletSendTip(props: Props) {
           stripeEnvironment,
           preferredCurrency
         );
-        doHideModal();
       }
       // if it's a boost (?)
     } else if (activeTab === TAB_USDC) {
@@ -283,13 +286,19 @@ export default function WalletSendTip(props: Props) {
         const userParams: UserParams = { activeChannelName, activeChannelId };
 
         // hit backend to send tip
-        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) => {
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').then(r => {
+          doToast({
+            message: __('Tip sent!'),
+          });
+          doHideModal();
+        }).catch((e) => {
           console.error(e);
           doToast({
             message: __('Tip failed to send.'),
             subMessage: e?.message || e,
             isError: true,
           });
+          doHideModal();
         });
       }
     } else {
@@ -410,7 +419,7 @@ export default function WalletSendTip(props: Props) {
                     autoFocus
                     onClick={handleSubmit}
                     button="primary"
-                    disabled={isPending}
+                    disabled={isPending || isArweaveTipping}
                     label={__('Confirm')}
                   />
                 )}
