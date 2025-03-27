@@ -174,7 +174,7 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
     let formattedText = text;
     for (const [emojiCode, emojiUrl] of Object.entries(EMOJI_MAPPING)) {
       formattedText = formattedText.replace(
-        new RegExp(emojiCode, 'g'), 
+        new RegExp(emojiCode, 'g'),
         `<img src="${emojiUrl}" alt="${emojiCode}" class="comment-emoji comment-sticker" />`
       );
     }
@@ -187,7 +187,7 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
       setScrollPosition(containerRef.current.scrollLeft);
     }
   }, []);
-  
+
   const scrollRight = useCallback(() => {
     if (containerRef.current) {
       containerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
@@ -231,32 +231,40 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [isMenuOpen]);
 
-  if (!isCommentsVisible) return null;
+  if (!isCommentsVisible) {
+    return null;
+  }
 
-  if (loading) return (
-    <div className="comment-card__loading">
-      <div className="comment-card__spinner" aria-label="Loading" />
-      <p>Loading comments...</p>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="comment-card__loading">
+        <div className="comment-card__spinner" aria-label="Loading" />
+        <p>Loading comments...</p>
+      </div>
+    );
+  }
 
-  if (error) return (
-    <div className="comment-card__error">
-      <p>Error loading comments: {error.message || error}</p>
-      <button onClick={refresh} className="comment-card__retry">
-        Retry
-      </button>
-    </div>
-  );
+  if (error) {
+    return (
+      <div className="comment-card__error">
+        <p>Error loading comments: {error.message || error}</p>
+        <button onClick={refresh} className="comment-card__retry">
+          Retry
+        </button>
+      </div>
+    );
+  }
 
-  if (!comments?.length) return (
-    <div className="comment-card__empty">
-      <p>No comments available</p>
-      <button onClick={refresh} className="comment-card__retry">
-        Retry
-      </button>
-    </div>
-  );
+  if (!comments?.length) {
+    return (
+      <div className="comment-card__empty">
+        <p>No comments available</p>
+        <button onClick={refresh} className="comment-card__retry">
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="comment-card-container">
@@ -288,18 +296,18 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
           const bgColor = getRandomColor(seed);
 
           return (
-            <div 
-              key={`${comment.id}-${comment.claimId}`} 
+            <div
+              key={`${comment.id}-${comment.claimId}`}
               className="comment-card__item"
               onClick={() => window.open(comment.claimUrl, '_blank', 'noopener,noreferrer')}
               tabIndex={0}
             >
               <div className="comment-card__header">
                 <div className="comment-card__avatar" style={{ backgroundColor: bgColor }}>
-                  <img 
-                    src={DEFAULT_AVATAR} 
+                  <img
+                    src={DEFAULT_AVATAR}
                     alt={comment.channelName || 'Anonymous'}
-                    onError={(e) => e.target.style.display = 'none'}
+                    onError={(e) => { e.target.style.display = 'none'; }}
                     className="comment-card__avatar-img"
                   />
                 </div>
@@ -315,9 +323,9 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
                 </div>
               </div>
               <div className="comment-card__content">
-                <div 
-                  className="comment-card__text" 
-                  dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }} 
+                <div
+                  className="comment-card__text"
+                  dangerouslySetInnerHTML={{ __html: formatCommentText(comment.text) }}
                   />
               </div>
             </div>

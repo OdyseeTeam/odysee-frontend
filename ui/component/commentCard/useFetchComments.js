@@ -15,10 +15,10 @@ const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
         mode: 'no-cors',
       });
       if (!response.ok) return `https://odysee.com/$/search?q=${claimId}`;
-      
+
       const { data } = await response.json();
       const claim = data?.items?.[0];
-      return claim?.canonical_url 
+      return claim?.canonical_url
         ? `https://odysee.com/${claim.canonical_url.replace('lbry://', '')}`
         : `https://odysee.com/$/search?q=${claimId}`;
     } catch {
@@ -53,7 +53,7 @@ const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
             });
 
             if (!commentResponse.ok) return null;
-            
+
             const commentData = await commentResponse.json();
             const comment = commentData.result?.items?.[0];
             if (!comment) return null;
@@ -86,9 +86,9 @@ const useFetchComments = (pinnedClaimIds, sortBy = 3) => {
     fetchComments();
   }, [pinnedClaimIds, sortBy]);
 
-  return { 
-    comments, 
-    loading, 
+  return {
+    comments,
+    loading,
     error,
     refresh: () => setLoading(true),
   };

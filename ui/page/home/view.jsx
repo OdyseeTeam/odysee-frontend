@@ -333,11 +333,11 @@ function HomePage(props: Props) {
             return (
               <React.Fragment key={id}>
                 {getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds)}
-      
+
                 {/* Render comments if they exist for this position */}
                 {commentCardForPosition && (
                   <div key={`comment-card-${commentCardForPosition.position}`}>
-                    <CommentCard 
+                    <CommentCard
                       pinnedClaimIds={commentCardForPosition.pinnedClaimIds || []}
                       sortBy={commentCardForPosition.sort_by}
                     />
