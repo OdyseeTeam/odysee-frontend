@@ -307,7 +307,7 @@ const CommentCard = ({ pinnedClaimIds, sortBy }) => {
                   <img
                     src={DEFAULT_AVATAR}
                     alt={comment.channelName || 'Anonymous'}
-                    onError={(e) => { e.target.style.display = 'none'; }}
+                    onError={(e) => { e.target.style.display = 'none' }}
                     className="comment-card__avatar-img"
                   />
                 </div>
