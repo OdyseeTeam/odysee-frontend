@@ -140,7 +140,7 @@ const PreviewPage = (props: Props) => {
         <div className={'Error'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
 
         <div className="join-membership__tab">
-          {creatorMemberships.map((membership, index) => (
+          {creatorMemberships.filter(m => m.enabled === true).map((membership, index) => (
             <MembershipTier
               membership={membership}
               handleSelect={() => {
