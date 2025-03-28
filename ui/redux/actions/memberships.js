@@ -49,10 +49,9 @@ export const doFetchChannelMembershipsForChannelIds =
 
     dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED, data: { channel: channelId, ids: channelsToFetch } });
 
-    return await Lbryio.call('membership', 'check', {
+    return await Lbryio.call('membership_v2', 'check', {
       channel_id: channelId,
       claim_ids: channelIdsToFetch,
-      environment: stripeEnvironment,
     })
       .then((response) => {
         const membershipsById = {};
@@ -63,7 +62,7 @@ export const doFetchChannelMembershipsForChannelIds =
           // if array was returned for a user (indicating a membership exists), otherwise is null
           if (Number.isInteger(memberships?.length)) {
             for (const membership of memberships) {
-              if (membership.activated) {
+              if (membership.activated) { // activated?
                 membershipsById[channelId] = membership.name;
               }
             }
@@ -80,9 +79,10 @@ export const doFetchChannelMembershipsForChannelIds =
 export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
   dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
+// list available memberships for a channel id
 export const doMembershipList =
   (params: MembershipListParams, forceUpdate: ?boolean) => async (dispatch: Dispatch, getState: GetState) => {
-    const { channel_id: channelId } = params;
+    const { channel_claim_id: channelId } = params;
     const state = getState();
     const isFetching = selectIsMembershipListFetchingForId(state, channelId);
     const alreadyFetched = selectMembershipTiersForCreatorId(state, channelId);
@@ -93,8 +93,8 @@ export const doMembershipList =
 
     dispatch({ type: ACTIONS.MEMBERSHIP_LIST_START, data: channelId });
 
-    return await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
-      .then((response: MembershipTiers) =>
+    return await Lbryio.call('membership_v2', 'list', { ...params }, 'post')
+      .then((response: MembershipSubs) =>
         dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: response } })
       )
       .catch(() => dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: null } }));
@@ -108,8 +108,8 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
 
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
 
-  return await Lbryio.call('v2/membership', 'mine', { environment: stripeEnvironment }, 'post')
-    .then((response: MembershipTiers) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
+  return await Lbryio.call('membership_v2/subscription', 'list', { environment: stripeEnvironment }, 'post') // { membership,subscription, perks, payments, current_price }
+    .then((response: MembershipSubs) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
     .catch((err) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err }));
 };
 
@@ -169,9 +169,9 @@ export const doMembershipCancelForMembershipId = (membershipId: number) => async
   dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
 
   return await Lbryio.call(
-    'membership',
+    'membership_v2/subscription',
     'cancel',
-    { environment: stripeEnvironment, membership_id: membershipId },
+    { membership_id: membershipId },
     'post'
   )
     .then((response) => {
@@ -191,8 +191,15 @@ export const doMembershipCancelForMembershipId = (membershipId: number) => async
 };
 
 export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
-  await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post')
-    .then((response: Membership) => response)
+  await Lbryio.call('membership_v2', 'create', { ...params }, 'post')
+    .then((response: MembershipCreateResponse) => response)
+    .catch((e) => {
+      throw new Error(e);
+    });
+
+export const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => async (dispatch: Dispatch) =>
+  await Lbryio.call('membership_v2', 'update', { ...params }, 'post')
+    .then((response: MembershipCreateResponse) => response)
     .catch((e) => {
       throw new Error(e);
     });
@@ -203,7 +210,7 @@ export const doGetMembershipPerks = (params: MembershipListParams) => async (dis
     .catch((e) => e);
 
 export const doOpenCancelationModalForMembership =
-  (membership: MembershipTier) => (dispatch: Dispatch, getState: GetState) => {
+  (membership: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
     const { MembershipDetails, Subscription } = membership;
 
     const state = getState();
@@ -245,7 +252,7 @@ export const doOpenCancelationModalForMembership =
 export const doDeactivateMembershipForId = (membershipId: number) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.DELETE_MEMBERSHIP_STARTED, data: membershipId });
 
-  await Lbryio.call('membership', 'deactivate', { environment: stripeEnvironment, membership_id: membershipId }, 'post')
+  await Lbryio.call('membership_v2', 'deactivate', { membership_id: membershipId }, 'post')
     .then((response) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
       return response;
@@ -423,7 +430,7 @@ export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getSt
   const pendingPromises = [];
   myChannelClaims.map((channelClaim, index) => {
     pendingPromises[index] = dispatch(
-      doMembershipList({ channel_name: channelClaim.name, channel_id: channelClaim.claim_id })
+      doMembershipList({ channel_claim_id: channelClaim.claim_id })
     );
   });
 

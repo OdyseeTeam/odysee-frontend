@@ -18,10 +18,10 @@ type Props = {
   // -- redux --
   mineFetched: boolean,
   mineFetching: boolean,
-  validMemberships: ?MembershipTiers,
-  activeMemberships: ?MembershipTiers,
-  purchasedMemberships: ?MembershipTiers,
-  canceledMemberships: ?MembershipTiers,
+  validMemberships: ?MembershipSubs,
+  activeMemberships: ?MembershipSubs,
+  purchasedMemberships: ?MembershipSubs,
+  canceledMemberships: ?MembershipSubs,
   membershipOptions: ?CreatorMemberships,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };
@@ -43,7 +43,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
   React.useEffect(() => {
-    doMembershipList({ channel_name: ODYSEE_CHANNEL.NAME, channel_id: ODYSEE_CHANNEL.ID });
+    doMembershipList({ channel_claim_id: ODYSEE_CHANNEL.ID });
   }, [doMembershipList]);
 
   // we are still waiting from the backend if any of these are undefined

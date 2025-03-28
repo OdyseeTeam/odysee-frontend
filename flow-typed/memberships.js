@@ -1,56 +1,90 @@
 declare type MembershipBuyParams = {
-  membership_id: number,
-  channel_id?: string,
-  channel_name?: string,
-  price_id: string,
+  source_payment_address: string, // from account status / arweaveStatus
+  channel_id: string,
+  price_id: number,
 };
 
 declare type MembershipListParams = {
   channel_id: string,
-  channel_name: string,
 };
 
+declare type Perk = {
+  id: number,
+  name: string,
+  description: string,
+}
 // -- CreatorMembership: data the creator sees for a given membership
 declare type CreatorMembership = {
-  HasSubscribers: boolean,
-  Membership: MembershipDetails,
-  Perks: MembershipOdyseePerks,
-  Prices?: Array<StripePriceDetails>,
-  NewPrices: Array<MembershipNewStripePriceDetails>,
-};
+  membership_id: string,
+  channel_name: string,
+  channel_claim_id: string,
+  name: string,
+  description: string,
+  perks: Array<Perk>,
+  prices: [{id: number, amount: string, currency: string, address: string }],
+  has_subscribers: boolean,
+  enabled: boolean,
+}
+
 declare type CreatorMemberships = Array<CreatorMembership>;
 
 // -- MembershipTier: data the supporter sees for a given membership
-declare type MembershipTier = {
-  Membership: Membership,
-  MembershipDetails: MembershipDetails,
-  Subscription: MembershipSubscriptionDetails,
-  Perks: MembershipOdyseePerks,
-};
-declare type MembershipTiers = Array<MembershipTier>;
+// declare type MembershipTier = {
+//   Membership: Membership,
+//   MembershipDetails: MembershipDetails,
+//   Subscription: MembershipSubscriptionDetails,
+//   Perks: MembershipOdyseePerks,
+// };
+
+declare type PaymentDetails = {
+  amount: number,
+  currency: string,
+  frequency: string,
+  initiated_at: number,
+  completed_at: number,
+  transaction_id: string,
+  status: string,
+}
+
+// MembershipSubItem
+declare type MembershipSub = {
+  id: string,
+  membership: Membership,
+  subscription: { status: string, started_at: number, ends_at: number },
+  perks: Array<any>,
+  payments: Array<PaymentDetails>,
+}
+
+// OLD
+// declare type Membership = {
+//   name: ?string,
+//   auto_renew: boolean,
+//   badge: ?string,
+//   channel_id: string,
+//   channel_name: string,
+//   created_at: string,
+//   expires: string,
+//   handle: string,
+//   id: number,
+//   is_live: boolean,
+//   membership_id: number,
+//   membership_price_id: number,
+//   show_public_support: boolean,
+//   stripe_sub_id: string,
+//   term: string,
+//   tx_id: ?number,
+//   updated_at: string,
+//   user_id: number,
+//   verified: boolean,
+// };
 
 declare type Membership = {
-  name: ?string,
-  auto_renew: boolean,
-  badge: ?string,
-  channel_id: string,
-  channel_name: string,
-  created_at: string,
-  expires: string,
-  handle: string,
-  id: number,
-  is_live: boolean,
-  membership_id: number,
-  membership_price_id: number,
-  show_public_support: boolean,
-  stripe_sub_id: string,
-  term: string,
-  tx_id: ?number,
-  updated_at: string,
-  user_id: number,
-  verified: boolean,
-};
+  name: string,
+  enabled: boolean,
+  channel_claim_id: string,
+}
 
+declare type MembershipUpdateResponse = string;
 declare type MembershipDetails = {
   activated: boolean,
   badge_url: string,
@@ -207,11 +241,26 @@ declare type MembershipAddTierParams = {
   currency: string,
   amount: number,
   perks: string, // csv
-  old_stripe_price?: ?string, // price id
-  membership_id?: ?number,
+  frequency: string,
+  payment_address_id: string,
 };
 
-declare type MembershipMineDataByCreatorId = { [id: ClaimId]: MembershipTiers };
+declare type MembershipUpdateTierParams = {
+  new_name?: string,
+  new_description?: string,
+  new_amount?: number,
+  membership_id: number,
+}
+
+declare type MembershipCreateResponse = {
+  membership_id: number,
+  name: string,
+  description: string,
+}
+
+declare type MembershipSubs = Array<MembershipSub>;
+
+declare type MembershipSubscribedDataByCreatorId = { [id: ClaimId]: Array<MembershipSub> };
 
 declare type MembershipIdByChannelId = {
   [channelId: string]: string,
@@ -219,6 +268,17 @@ declare type MembershipIdByChannelId = {
 declare type ChannelMembershipsByCreatorId = {
   [creatorId: string]: Array<MembershipIdByChannelId>,
 };
+
+declare type MembershipSubscriber = {
+  subscriber_channel_name: string,
+  subscriber_channel_id: string,
+  supported_channel_name: string,
+  membership_name: string,
+  price: number,
+  currency: string,
+  interval: string,
+  joined_at: any, // number or datestring?
+}
 
 declare type MembershipSupporter = {
   ChannelBeingSupported: string,
@@ -229,7 +289,7 @@ declare type MembershipSupporter = {
   MembershipName: string,
   Price: number,
 };
-declare type SupportersList = Array<MembershipSupporter>;
+declare type SupportersList = Array<MembershipSubscriber>;
 
 declare type MembershipContentResponse = Array<MembershipContentResponseItem>;
 declare type MembershipContentResponseItem = {

@@ -4,15 +4,15 @@ import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 
 export type MembershipsState = {
-  membershipMineByCreatorId: ?MembershipMineDataByCreatorId,
+  membershipMineByCreatorId: ?MembershipSubscribedDataByCreatorId,
   membershipMineFetching: boolean,
-  membershipListByCreatorId: { [creatorId: string]: MembershipTiers },
+  membershipListByCreatorId: { [creatorId: string]: MembershipSubs },
   membershipListFetchingIds: ClaimIds,
   channelMembershipsByCreatorId: ChannelMembershipsByCreatorId,
   fetchingIdsByCreatorId: { [creatorId: string]: ClaimIds },
   pendingBuyIds: ClaimIds,
   pendingCancelIds: ClaimIds,
-  myMembershipTiers: ?MembershipTiers,
+  myMembershipTiers: ?MembershipSubs,
   pendingDeleteIds: Array<string>,
   protectedContentClaimsByCreatorId: { [channelId: string]: any },
   mySupportersList: ?SupportersList,
@@ -123,7 +123,7 @@ reducers[ACTIONS.DELETE_MEMBERSHIP_FAILED] = (state, action) => {
 
 reducers[ACTIONS.GET_MEMBERSHIP_MINE_START] = (state, action) => ({ ...state, membershipMineFetching: true });
 reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS] = (state, action) => {
-  const myPurchasedMembershipTiers: MembershipTiers = action.data;
+  const myPurchasedMembershipTiers: MembershipSubs = action.data;
 
   const newMembershipMineByCreatorId = {};
 

@@ -19,6 +19,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   membershipOdyseePermanentPerks: MembershipOdyseePerks,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>,
+  showDisabled: boolean
 };
 
 function TiersTab(props: Props) {
@@ -29,6 +30,7 @@ function TiersTab(props: Props) {
     activeChannelClaim,
     membershipOdyseePermanentPerks,
     doGetMembershipPerks,
+    showDisabled,
   } = props;
 
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
@@ -61,7 +63,7 @@ function TiersTab(props: Props) {
 
       // sort by price lowest to highest
       return Array.from(newChannelMemberships).sort(
-        (a, b) => a.NewPrices[0].creator_receives_amount - b.NewPrices[0].creator_receives_amount
+        (a, b) => a.prices[0].amount - b.prices[0].amount
       );
     });
   }
@@ -69,7 +71,7 @@ function TiersTab(props: Props) {
   function removeChannelMembershipForId(membershipId) {
     setChannelMemberships((previousMemberships) => {
       const newChannelMemberships = previousMemberships.filter(
-        (membership) => membership.Membership.id !== membershipId
+        (membership) => membership.membership_id !== membershipId
       );
 
       return newChannelMemberships;
@@ -89,7 +91,7 @@ function TiersTab(props: Props) {
       const newFetchedMemberships = new Set(fetchedMemberships);
 
       previousMemberships.forEach((membership) => {
-        if (newEditingIds.has(membership.Membership.id) && typeof membership.Membership.id === 'string') {
+        if (newEditingIds.has(membership.membership_id) && typeof membership.membership_id === 'string') {
           // after membership/list fetch, in case there are still local editing ids (clicked create tier twice but
           // only published one for ex) keep the unpublished memberships on the state instead of replacing for the
           // new fetched values which would erase them
@@ -125,10 +127,10 @@ function TiersTab(props: Props) {
   return (
     <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
       {channelMemberships &&
-        channelMemberships.map((membershipTier, membershipIndex) => {
-          const membershipId = membershipTier.Membership.id;
+        channelMemberships.filter(m => showDisabled ? true : m.enabled === true || m.saved === false).map((membershipTier, membershipIndex) => {
+          const membershipId = membershipTier.membership_id;
           const isEditing = new Set(editingIds).has(membershipId);
-          const hasSubscribers = membershipTier.HasSubscribers;
+          const hasSubscribers = membershipTier.has_subscribers;
 
           return (
             <div className="membership-tier__wrapper" key={membershipIndex}>
@@ -162,17 +164,19 @@ function TiersTab(props: Props) {
           );
         })}
 
-      {(!channelMemberships || channelMemberships.length < 6) && (
+      {(!channelMemberships || channelMemberships.length < 100) && (/* todo change back to 6? */
         <Button
           button="primary"
           onClick={(e) => {
             const newestId = uuid(); // --> this will only be used locally when creating a new tier
 
             const newestMembership = {
-              HasSubscribers: false,
-              Membership: { id: newestId, name: __('Example Plan'), description: '' },
-              NewPrices: [{ creator_receives_amount: 500 }],
-              Perks: membershipOdyseePermanentPerks,
+              has_subscribers: false,
+              membership_id: newestId,
+              name: __('Example Plan'),
+              description: '',
+              prices: [{ amount: 500, currency: 'usd', address: '' }],
+              perks: membershipOdyseePermanentPerks,
               saved: false,
             };
 
