@@ -14,6 +14,7 @@ export default function WanderConnect(props: Props) {
   React.useEffect(() => {
     console.log('TICK');
     const wanderInstance = new WanderEmbedded({
+      clientId: 'abc',
       iframe: {
         routeLayout: {
           auth: 'modal',

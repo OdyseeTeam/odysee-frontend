@@ -5,14 +5,15 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import Page from 'component/page';
+import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
-import WanderConnect from 'component/wanderConnect';
 import SendUsdc from './sendUsdc';
 import ReceiveUsdt from './receiveUsdc';
 import OnRamper from './onRamper';
 import ArWallets from './arWallets';
+import WanderConnect from 'component/wanderConnect';
 
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';

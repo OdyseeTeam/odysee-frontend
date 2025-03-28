@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { doHideModal, doOpenModal } from 'redux/actions/app';
 import { doArConnect, doArDisconnect } from 'redux/actions/arwallet';
 import {
-  selectAPIArweaveActiveAddresses,
   selectAPIArweaveDefaultAddress,
   selectArAccountUpdating,
   selectFullAPIArweaveStatus,
@@ -13,7 +12,6 @@ import { doRegisterArweaveAddress, doUpdateArweaveAddressDefault } from 'redux/a
 const select = (state) => ({
   connecting: state.arwallet.connecting,
   error: state.arwallet.error,
-  activeApiAddresses: selectAPIArweaveActiveAddresses(state),
   defaultApiAddress: selectAPIArweaveDefaultAddress(state),
   fullAPIArweaveStatus: selectFullAPIArweaveStatus(state),
   walletAddress: state.arwallet.address,

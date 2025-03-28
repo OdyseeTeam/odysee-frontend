@@ -61,7 +61,7 @@ const ClaimCollectionAdd = (props: Props) => {
           {published &&
             Object.values(published)
               // $FlowFixMe
-              .sort((a, b) => a.name?.localeCompare(b.name))
+              .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
               // $FlowFixMe
               .map(({ id }) => <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />)}
         </ul>

@@ -1,10 +1,5 @@
 import { connect } from 'react-redux';
-import {
-  selectArweaveStatus,
-  selectArweaveConnected,
-  selectArweaveBalance,
-  selectArweaveFetching,
-} from 'redux/selectors/arwallet';
+import { selectArweaveConnected, selectArweaveBalance, selectArweaveFetching } from 'redux/selectors/arwallet';
 import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
 import { doArDisconnect, doArUpdateBalance } from 'redux/actions/arwallet';
 import { selectThemePath } from 'redux/selectors/settings';

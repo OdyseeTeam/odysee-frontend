@@ -252,6 +252,19 @@ export default function LivestreamSetupPage(props: Props) {
       </h1>
       <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />
 
+      {/* no channels yet */}
+      {!fetchingChannels && !hasChannels && (
+        <Yrbl
+          type="happy"
+          title={__("You haven't created a channel yet, let's fix that!")}
+          actions={
+            <div className="section__actions">
+              <Button button="primary" navigate={`/$/${PAGES.CHANNEL_NEW}`} label={__('Create A Channel')} />
+            </div>
+          }
+        />
+      )}
+
       {tab === 'Setup' && (
         <div className={editingURI ? 'disabled' : ''}>
           {/* livestreaming disabled */}
@@ -266,19 +279,6 @@ export default function LivestreamSetupPage(props: Props) {
           {/* show livestreaming frontend */}
           {livestreamEnabled && (
             <div className="card-stack">
-              {/* no channels yet */}
-              {!fetchingChannels && !hasChannels && (
-                <Yrbl
-                  type="happy"
-                  title={__("You haven't created a channel yet, let's fix that!")}
-                  actions={
-                    <div className="section__actions">
-                      <Button button="primary" navigate={`/$/${PAGES.CHANNEL_NEW}`} label={__('Create A Channel')} />
-                    </div>
-                  }
-                />
-              )}
-
               {!fetchingChannels && channelId && (
                 <>
                   <Card
@@ -444,7 +444,7 @@ export default function LivestreamSetupPage(props: Props) {
           )}
         </div>
       )}
-      {tab === 'Publish' && <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />}
+      {tab === 'Publish' && hasChannels && <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />}
     </Page>
   );
 }

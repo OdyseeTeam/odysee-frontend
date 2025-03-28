@@ -39,7 +39,7 @@ const select = (state, props) => {
   const { uri } = props;
 
   const claim = selectClaimForUri(state, uri);
-  const { claim_id: claimId, signing_channel: channelClaim } = claim || {};
+  const { claim_id: claimId, signing_channel: channelClaim, value_type: valueType } = claim || {};
   const { name: channelName, claim_id: channelClaimId } = channelClaim || {};
 
   // let sdkPaid = selectClaimWasPurchasedForUri(state, props.uri);
@@ -57,6 +57,7 @@ const select = (state, props) => {
     isFetchingPurchases: selectIsFetchingPurchases(state),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     streamingUrl: selectStreamingUrlForUri(state, uri),
+    isCollectionClaim: valueType === 'collection',
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
     scheduledState: selectScheduledStateForUri(state, uri),

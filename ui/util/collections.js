@@ -27,8 +27,8 @@ export function claimToStoredCollection(claim: CollectionClaim) {
 
   Object.assign(storedCollection, {
     id: claim.claim_id,
-    name: claim.value.title,
-    title: claim.value.title,
+    name: claim.value.title || claim.name,
+    title: claim.value.title || claim.name,
     items: claimIds || [],
     itemCount: claimIds ? claimIds.length : 0,
     description: claim.value.description,
