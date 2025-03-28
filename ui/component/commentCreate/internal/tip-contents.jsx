@@ -6,7 +6,7 @@ import UriIndicator from 'component/uriIndicator';
 import CreditAmount from 'component/common/credit-amount';
 
 const TAB_LBC = 'TabLBC';
-// const TAB_USDC = 'TabUSDC';
+const TAB_USDC = 'TabUSDC';
 const TAB_FIAT = 'TabFiat';
 
 type Props = {
@@ -26,7 +26,7 @@ export const TipReviewBox = (props: Props) => {
       <CreditAmount
         amount={tipAmount}
         className="comment-create__support-comment-preview__amount"
-        isFiat={activeTab === TAB_FIAT}
+        isFiat={activeTab === TAB_FIAT || activeTab === TAB_USDC}
         size={activeTab === TAB_LBC ? 18 : 2}
       />
 

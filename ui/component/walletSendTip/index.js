@@ -50,7 +50,7 @@ const select = (state, props) => {
     title: selectTitleForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
     experimentalUi: selectUserExperimentalUi(state),
-    arweaveTipData: selectArweaveTipDataForId(state, claimId),
+    arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
     isArweaveTipping: selectArweaveTippingForId(state, claimId),
   };
 };
