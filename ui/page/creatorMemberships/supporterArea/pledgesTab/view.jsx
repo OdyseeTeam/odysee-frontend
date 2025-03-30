@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import moment from 'moment';
 
 import { formatLbryUrlForWeb } from 'util/url';
 import { toCapitalCase } from 'util/string';
@@ -12,17 +11,19 @@ import * as ICONS from 'constants/icons';
 import Yrbl from 'component/yrbl';
 import Spinner from 'component/spinner';
 import UriIndicator from 'component/uriIndicator';
+import { selectClaimForId } from 'redux/selectors/claims';
 
 type Props = {
   // -- redux --
   myMembershipSubs: Array<MembershipTiers>,
   isFetchingMembershipSubs: boolean,
   doMembershipMine: () => Promise<MembershipTiers>,
+  activeChannelClaim: ChannelClaim,
 };
 
 function PledgesTab(props: Props) {
-  const { myMembershipSubs, isFetchingMembershipSubs, doMembershipMine } = props;
-
+  const { myMembershipSubs, isFetchingMembershipSubs, doMembershipMine, activeChannelClaim } = props;
+  const state = window.store && window.store.getState();
   React.useEffect(() => {
     if (myMembershipSubs === undefined) {
       doMembershipMine();
@@ -55,6 +56,11 @@ function PledgesTab(props: Props) {
       </div>
     );
   }
+  function monthsDiff(date1, date2) {
+    let d1 = new Date(date1);
+    let d2 = new Date(date2);
+    return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+  }
 
   return (
     <div className="membership__mypledges-wrapper">
@@ -76,15 +82,14 @@ function PledgesTab(props: Props) {
             <tbody>
               {myMembershipSubs.map((membershipSubs) =>
                 membershipSubs.map((membershipSub) => {
-                  const memberChannelName = membershipSub.Membership.channel_name;
-                  const memberChannelUri =
-                    memberChannelName === ''
+                  const memberChannelName = activeChannelClaim.name;
+                  const memberChannelUri = memberChannelName === ''
                       ? ''
-                      : buildURI({ channelName: memberChannelName, channelClaimId: membershipSub.Membership.channel_id });
-
-                  const creatorChannelId = membershipSub.MembershipDetails.channel_id;
+                      : buildURI({ channelName: memberChannelName, channelClaimId: activeChannelClaim.claim_id });
+                  const creatorChannelClaim = selectClaimForId(state, membershipSub.membership.channel_claim_id);
+                  const creatorChannelId = membershipSub.membership.channel_claim_id;
                   const creatorChannelUri = buildURI({
-                    channelName: membershipSub.MembershipDetails.channel_name,
+                    channelName: creatorChannelClaim.name,
                     channelClaimId: creatorChannelId,
                   });
                   const creatorChannelPath = formatLbryUrlForWeb(creatorChannelUri);
@@ -93,9 +98,10 @@ function PledgesTab(props: Props) {
                   const supportAmount = membershipSub.current_price.amount; // in cents or 1/100th EUR
                   const interval = membershipSub.current_price.frequency;
 
-                  const startDate = membershipSub.subscription.started_at * 1000;
-                  const endDate = membershipSub.subscription.ends_at * 1000 || Date.now();
-                  const amountOfMonths = Math.ceil(moment(endDate).diff(moment(startDate), 'months', true));
+                  const startDate = new Date(membershipSub.subscription.started_at);
+                  const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);
+                  console.log('startend ', startDate, endDate);
+                  const amountOfMonths = monthsDiff(startDate, endDate);
                   const timeAgoInMonths =
                     amountOfMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
 
@@ -126,8 +132,10 @@ function PledgesTab(props: Props) {
                         {membershipSub.subscription.status === 'active'
                           ? __('Active')
                           : membershipSub.subscription.status === 'past_due'
-                          ? __('Past Due')
-                          : __('Cancelled')}
+                            ? __('Past Due')
+                            : membershipSub.subscription.status === 'pending'
+                              ? __('Pending')
+                              : __('Cancelled')}
                       </td>
 
                       <td>

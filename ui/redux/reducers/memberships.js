@@ -128,7 +128,7 @@ reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS] = (state, action) => {
   const newMembershipMineByCreatorId = {};
 
   for (const membership of myPurchasedMembershipTiers) {
-    const creatorClaimId = membership.MembershipDetails.channel_id;
+    const creatorClaimId = membership.membership.channel_claim_id;
 
     const currentMemberships = newMembershipMineByCreatorId[creatorClaimId] || [];
     newMembershipMineByCreatorId[creatorClaimId] = [...currentMemberships, membership];

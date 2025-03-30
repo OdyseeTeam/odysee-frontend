@@ -138,6 +138,6 @@ const ConfirmationSection = (props: GroupProps) => {
   );
 };
 
-const SubmitButton = withCreditCard(() => <Submit autoFocus button="primary" label={__('Confirm')} />);
+const SubmitButton = () => <Submit autoFocus button="primary" label={__('Confirm')} />;
 
 export default ConfirmationPage;

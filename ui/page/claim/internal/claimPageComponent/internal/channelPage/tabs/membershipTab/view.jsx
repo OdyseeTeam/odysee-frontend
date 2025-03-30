@@ -9,6 +9,7 @@ import JoinMembershipCard from 'component/joinMembershipCard';
 import ClearMembershipDataButton from 'component/clearMembershipData';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
+import { Lbryio } from 'lbryinc';
 
 type Props = {
   uri: string,
@@ -35,25 +36,29 @@ const MembershipTab = (props: Props) => {
   } else {
     delete window.pendingMembership;
   }
+  console.log('membership', purchasedChannelMembership);
 
-  const { MembershipDetails, Subscription, Perks } = purchasedChannelMembership;
-  const { name: membershipName, description: membershipDescription } = MembershipDetails;
+  const { membership, subscription, perks } = purchasedChannelMembership;
+  const { name: membershipName, description: membershipDescription } = membership;
 
   const {
     // current_period_start: subscriptionStartDate,
-    current_period_end: subscriptionEndDate,
-    canceled_at: dateCanceled,
-  } = Subscription;
+    ends_at: subscriptionEndDate,
+    status: subscriptionStatus,
+  } = subscription;
 
-  const membershipIsActive = dateCanceled === 0;
+  // active means recurring?
+  const membershipIsActive = subscriptionStatus === 'active';
   // const startDate = subscriptionStartDate * 1000;
   // const endDate = subscriptionEndDate * 1000;
 
   // const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
   // const timeAgo = amountOfMonths === 1 ? '1 month' : amountOfMonths + ' months';
-  const formattedEndOfMembershipDate = formatDateToMonthAndDay(subscriptionEndDate * 1000);
+  // TODO understand recurring payments and how to understand the current month paid
+  const formattedEndOfMembershipDate = formatDateToMonthAndDay(new Date(subscriptionEndDate));
 
   return (
+    <>
     <Card
       className="membership membership-tab"
       body={
@@ -84,21 +89,21 @@ const MembershipTab = (props: Props) => {
             <div className="membership__plan-content">
               <div>
                 <label>{__('Creator revenue')}</label>
-                <span>${(purchasedChannelMembership.NewPrices[0].creator_receives_amount / 100).toFixed(2)}</span>
+                <span>${(purchasedChannelMembership.current_price.amount / 100).toFixed(2)}</span>
 
                 <label>{__('Total Monthly Cost')}</label>
-                <span>{`$${(purchasedChannelMembership.NewPrices[0].client_pays / 100).toFixed(2)}`}</span>
+                <span>{`$${(purchasedChannelMembership.current_price.amount / 100).toFixed(2)}`}</span>
 
                 <label>{__('Description')}</label>
                 <span>{membershipDescription}</span>
               </div>
 
-              {Perks && (
+              {perks && (
                 <div className="membership-tier__perks">
                   <label>{__('Odysee Perks')}</label>
 
                   <ul>
-                    {Perks.map((tierPerk, i) => (
+                    {perks.map((tierPerk, i) => (
                       <li key={i} className="membership__perk-item">
                         {__(tierPerk.name)}
                       </li>
@@ -132,6 +137,8 @@ const MembershipTab = (props: Props) => {
         </>
       }
     />
+      <JoinMembershipCard uri={uri} />
+      </>
   );
 };
 
