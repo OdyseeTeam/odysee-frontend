@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
-
+import { message, createDataItemSigner } from '@permaweb/aoconnect';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
 import {
@@ -13,15 +13,18 @@ import {
   selectMembershipTiersForCreatorId,
   selectChannelMembershipsForCreatorId,
 } from 'redux/selectors/memberships';
-import { selectChannelTitleForUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectChannelTitleForUri, selectClaimForId, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import { formatDateToMonthDayAndYear } from 'util/time';
 import { buildURI } from 'util/lbryURI';
 
 import { getStripeEnvironment } from 'util/stripe';
+import { selectActiveChannelClaim } from '../selectors/app';
+import { selectAPIArweaveDefaultAddress, selectArweaveTipDataForId } from '../selectors/stripe';
 const stripeEnvironment = getStripeEnvironment();
-
+const USD_TO_USDC = 1000000;
+const CONVERT_DOLLARS_TO_PENNIES = 100;
 export const doFetchChannelMembershipsForChannelIds =
   (channelId: string, channelIds: ClaimIds) => async (dispatch: Dispatch, getState: GetState) => {
     if (!channelIds || channelIds.length === 0) return;
@@ -108,61 +111,119 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
 
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
 
-  return await Lbryio.call('membership_v2/subscription', 'list', { environment: stripeEnvironment }, 'post') // { membership,subscription, perks, payments, current_price }
+  return await Lbryio.call('membership_v2/subscription', 'list', { }, 'post') // { membership,subscription, perks, payments, current_price }
     .then((response: MembershipSubs) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
-    .catch((err) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err }));
+    .catch((err) => {
+      console.log('err', err)
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err });
+    });
 };
 
-export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch) => {
-  const { membership_id: membershipId } = membershipParams;
+export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  console.log('dmb', membershipParams);
 
-  if (!membershipId) return;
+  const {
+    tippedChannelId,
+    subscriberChannelId, // current url channel id
+    priceId, // memberships.membershipList~.<channelid>[0].prices[n].id
+    membershipId,
+  } = membershipParams;
+
+  const source_payment_address = selectAPIArweaveDefaultAddress(state);
+  const subscribeApiParams: MembershipSubscribeParams = {
+    subscriber_channel_claim_id: subscriberChannelId,
+    price_id: priceId,
+    source_payment_address: source_payment_address,
+  };
+
+  if (!priceId) return;
 
   dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED, data: membershipId });
+  let subscribeToken;
+  let payeeAddress;
+  let responseAmount;
 
-  // show the memberships the user is subscribed to
-  return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
-    .then((response) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
-      dispatch(doMembershipMine());
+  // membership_v2/subscribe then doArTip then membership_v2/subscription/transaction_notify
+  try {
+    await Lbryio.call('membership_v2', 'subscribe', { ...subscribeApiParams }, 'post')
+      .then((response: MembershipSubscribeResponse) => {
+        const { token, payee_address, price } = response;
+        const { amount } = price;
+        responseAmount = (amount / CONVERT_DOLLARS_TO_PENNIES) * USD_TO_USDC;
+        subscribeToken = token;
+        payeeAddress = payee_address;
+      });
 
-      return response;
-    })
-    .catch((e) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
-
-      if (e.message === 'user needs to be linked to a setup customer first') {
-        dispatch(
-          doToast({
-            message: __('You need to link a credit card in order to purchase.'),
-            isError: true,
-            linkText: __('Take me there'),
-            linkTarget: '/settings/card',
-          })
-        );
-
-        throw new Error(e);
-      }
-
-      if (e.message === 'cannot purchase inactivate membership!') {
-        dispatch(
-          doToast({
-            message: __('Error purchasing. This membership was deleted by the creator.'),
-            isError: true,
-          })
-        );
-
-        throw new Error(e);
-      }
-
-      const genericErrorMessage = __(
-        "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps."
-      );
-
-      dispatch(doToast({ message: genericErrorMessage, isError: true }));
-
-      throw new Error(e);
+    const transferTxid = await message({
+      process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+      data: '',
+      tags: [
+        { name: 'Action', value: 'Transfer' },
+        { name: 'Quantity', value: String(responseAmount) }, // test/fix
+        { name: 'Recipient', value: payeeAddress }, // get address
+        { name: 'Tip_Type', value: 'tip' },
+        { name: 'Claim_ID', value: tippedChannelId },
+        { name: 'X-O-Ref', value: subscribeToken },
+      ],
+      Owner: source_payment_address, // test/fix
+      signer: createDataItemSigner(window.arweaveWallet),
     });
+
+    const notifyParams = {
+      token: subscribeToken,
+      tx_id: transferTxid,
+    };
+
+    await Lbryio.call('membership_v2/subscription', 'transaction_notify', notifyParams, 'post');
+    dispatch(doMembershipMine());
+    dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
+  } catch (e) {
+    dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+    console.error(e?.message || e);
+  }
+  // return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
+  //   .then((response) => {
+  //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
+  //     dispatch(doMembershipMine());
+  //
+  //     return response;
+  //   })
+  //   .catch((e) => {
+  //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+  //
+  //     if (e.message === 'user needs to be linked to a setup customer first') {
+  //       dispatch(
+  //         doToast({
+  //           message: __('You need to link a credit card in order to purchase.'),
+  //           isError: true,
+  //           linkText: __('Take me there'),
+  //           linkTarget: '/settings/card',
+  //         })
+  //       );
+  //
+  //       throw new Error(e);
+  //     }
+  //
+  //     if (e.message === 'cannot purchase inactivate membership!') {
+  //       dispatch(
+  //         doToast({
+  //           message: __('Error purchasing. This membership was deleted by the creator.'),
+  //           isError: true,
+  //         })
+  //       );
+  //
+  //       throw new Error(e);
+  //     }
+  //
+  //     const genericErrorMessage = __(
+  //       "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps."
+  //     );
+  //
+  //     dispatch(doToast({ message: genericErrorMessage, isError: true }));
+  //
+  //     throw new Error(e);
+  //   });
 };
 
 export const doMembershipCancelForMembershipId = (membershipId: number) => async (dispatch: Dispatch) => {
@@ -210,34 +271,35 @@ export const doGetMembershipPerks = (params: MembershipListParams) => async (dis
     .catch((e) => e);
 
 export const doOpenCancelationModalForMembership =
-  (membership: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
-    const { MembershipDetails, Subscription } = membership;
+  (membershipSub: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
+    const { membership, subscription } = membershipSub;
 
     const state = getState();
-    const formattedEndOfMembershipDate = formatDateToMonthDayAndYear(Subscription.current_period_end * 1000);
+    const { name: channelName } = selectClaimForId(state, membership.channel_claim_id);
+    const formattedEndOfMembershipDate = formatDateToMonthDayAndYear(new Date(subscription.ends_at) * 1000);
     const creatorUri = buildURI({
-      channelName: MembershipDetails.channel_name,
-      channelClaimId: MembershipDetails.channel_id,
+      channelName: channelName,
+      channelClaimId: membership.channel_claim_id,
     });
     const creatorTitleName = selectChannelTitleForUri(state, creatorUri);
 
     return dispatch(
       doOpenModal(MODALS.CONFIRM, {
-        title: __('Confirm %membership_name% Cancellation', { membership_name: MembershipDetails.name }),
+        title: __('Confirm %membership_name% Cancellation', { membership_name: membership.name }),
         subtitle: __(
           'Are you sure you want to cancel your %creator_name%\'s "%membership_name%" membership? ' +
             'You will still have all your features until %end_date% at which point your purchase will not be renewed ' +
             'and you will lose access to your membership features and perks.',
           {
             creator_name: creatorTitleName,
-            membership_name: MembershipDetails.name,
+            membership_name: membership.name,
             end_date: formattedEndOfMembershipDate,
           }
         ),
         busyMsg: __('Canceling your membership...'),
         onConfirm: (closeModal, setIsBusy) => {
           setIsBusy(true);
-          dispatch(doMembershipCancelForMembershipId(MembershipDetails.id)).then(() => {
+          dispatch(doMembershipCancelForMembershipId(membership.id)).then(() => {
             setIsBusy(false);
             dispatch(
               doToast({ message: __('Your membership was successfully cancelled and will no longer be renewed.') })

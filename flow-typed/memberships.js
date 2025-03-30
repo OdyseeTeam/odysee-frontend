@@ -1,9 +1,3 @@
-declare type MembershipBuyParams = {
-  source_payment_address: string, // from account status / arweaveStatus
-  channel_id: string,
-  price_id: number,
-};
-
 declare type MembershipListParams = {
   channel_id: string,
 };
@@ -24,6 +18,28 @@ declare type CreatorMembership = {
   prices: [{id: number, amount: string, currency: string, address: string }],
   has_subscribers: boolean,
   enabled: boolean,
+}
+
+declare type MembershipSubscribeParams = {
+  subscriber_channel_claim_id: string,
+  price_id: string,
+  source_payment_address: string,
+}
+
+declare type MembershipBuyParams = {
+  membershipId: string, // just for redux state
+  tippedChannelName: string,
+  tippedChannelId: string,
+  subscriberChannelId: string,
+  priceId: number,
+}
+
+declare type MembershipSubscribeResponse = {
+  "subscription_id": number,
+  "token": string,
+  "payee_address": string,
+  "start_time": number,
+  "end_time": number,
 }
 
 declare type CreatorMemberships = Array<CreatorMembership>;
@@ -48,7 +64,8 @@ declare type PaymentDetails = {
 
 // MembershipSubItem
 declare type MembershipSub = {
-  id: string,
+  current_price: { amount: number, currency: "USD", frequency: "monthly", id: number },
+  id: string, // this still?
   membership: Membership,
   subscription: { status: string, started_at: number, ends_at: number },
   perks: Array<any>,

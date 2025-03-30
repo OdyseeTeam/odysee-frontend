@@ -34,6 +34,8 @@ const TAB_USDC = 'TabUSDC';
 const TAB_FIAT = 'TabFiat';
 
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type ArTipParams = { tipAmountTwoPlaces: number, tipChannelName: string, channelClaimId: string, recipientAddress: string };
+
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
 type Props = {
@@ -80,7 +82,7 @@ type Props = {
     (any) => void
   ) => string,
   doArTip: (
-    TipParams,
+    ArTipParams,
     anonymous: boolean,
     UserParams,
     claimId: string,
@@ -495,7 +497,7 @@ export function CommentCreate(props: Props) {
       );
     } else if (activeTab === TAB_USDC) {
       const arweaveTipAddress = recipientArweaveTipInfo && recipientArweaveTipInfo.address;
-      const tipParams: TipParams = {
+      const tipParams: ArTipParams = {
         tipAmountTwoPlaces: Math.round(tipAmount * 100) / 100,
         tipChannelName,
         channelClaimId,
