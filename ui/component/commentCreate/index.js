@@ -84,7 +84,7 @@ const select = (state, props) => {
     areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
     hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
     experimentalUi: selectUserExperimentalUi(state),
-    recipientArweaveTipInfo: selectArweaveTipDataForId(state, claimId),
+    recipientArweaveTipInfo: selectArweaveTipDataForId(state, channelClaimId),
   };
 };
 

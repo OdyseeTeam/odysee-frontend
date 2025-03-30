@@ -14,8 +14,8 @@ type Props = {
   uri: string,
   membershipIndex: number,
   // -- redux --
-  purchasedChannelMembership: MembershipTier & CreatorMembership,
-  doOpenCancelationModalForMembership: (membership: MembershipTier) => void,
+  purchasedChannelMembership: MembershipSub, // TODO WTF
+  doOpenCancelationModalForMembership: (membership: MembershipSub) => void,
   navigate: (string) => void,
 };
 
