@@ -14,9 +14,67 @@ export default function WanderConnect(props: Props) {
   const wrapperRef = React.useRef();
 
   React.useEffect(() => {
+    // Initialize the wallet
+    const wanderInstance = new WanderEmbedded({
+      clientId: "ALPHA",
+      baseURL: "https://embed-dev.wander.app",
+      baseServerURL: "https://embed-api-dev.wander.app",
+      iframe: {
+        routeLayout: {
+          auth: "modal"
+        }
+      },
+      button: {
+        parent: wrapperRef.current,
+        position: "static",
+        theme: "light",
+        label: true,
+        wanderLogo: "default",
+        customStyles: `
+          :host {
+            position: relative !important;
+          }  
+
+          .button {
+            width: 40px;
+            height:40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--color-header-button);
+            border:none;
+          }
+
+          .label {
+            display:none;
+          }
+
+          .wanderLogo{
+            min-width:26px;
+            margin-right:-4px;
+          }
+        `
+      }
+    });
+
+    setInstance(wanderInstance);
+
+    // Clean up on unmount
+    return () => {
+      if (wanderInstance) {
+        wanderInstance.destroy();
+      }
+    };
+  }, []);
+
+  /*
+  console.log('A');
+  React.useEffect(() => {
     console.log('TICK');
     const wanderInstance = new WanderEmbedded({
       clientId: 'ALPHA',
+      baseURL: "https://embed-dev.wander.app",
+      baseServerURL: "https://embed-api-dev.wander.app",
       iframe: {
         routeLayout: {
           auth: 'modal',
@@ -26,14 +84,12 @@ export default function WanderConnect(props: Props) {
         parent: wrapperRef.current,
         position: 'static',
         customStyles: `
-              /* Position the button container */
               :host {
                 position: relative !important;
                 top: 0px;
                 right: 0px;
               }
   
-              /* Target the button element */
               .button {
                 width: 40px;
                 height:40px;
@@ -44,42 +100,36 @@ export default function WanderConnect(props: Props) {
                 background-color: var(--color-header-button);
               }
   
-              /* Target the Wander logo */
               .wanderLogo {
                 min-width: 28px;
                 margin-right:-3px;
               }
   
-              /* Target the button label */
               .label {
                 display:none;
               }
   
-              /* Target the balance display */
               .balance {
                 font-size: 12px;
                 opacity: 0.8;
               }
   
-              /* Target the connection indicator */
               .indicator {
                 width: 6px;
                 height: 6px;
               }
   
-              /* Target the dApp logo */
               .dappLogo {
                 width: 18px;
                 height: 18px;
               }
   
-              /* Target the notifications badge */
               .notifications {
                 font-size: 10px;
                 padding: 2px 6px;
               }
             `,
-        // position: 'bottom-right',
+        position: 'bottom-right',
         theme: 'system',
         label: false,
         wanderLogo: 'default',
@@ -109,6 +159,7 @@ export default function WanderConnect(props: Props) {
       }
     };
   }, []);
+  */
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;
 }
