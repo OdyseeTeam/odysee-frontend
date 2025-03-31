@@ -17,6 +17,7 @@ import Skeleton from '@mui/material/Skeleton';
 import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import WunderBar from 'component/wunderbar';
+import WanderConnect from 'component/wanderConnect';
 
 type Props = {
   authenticated: boolean,
@@ -159,33 +160,36 @@ const Header = (props: Props) => {
       {authenticated ? (
         <>
           {!hideWallet && (
-            <Tooltip
-              title={
-                balance > 0
-                  ? __('Immediately spendable: %spendable_balance%', { spendable_balance: roundedSpendableBalance })
-                  : __('Your Wallet')
-              }
-            >
-              <div>
-                {balanceLoading ? (
-                  <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
-                ) : (
-                  <Button
-                    navigate={`/$/${PAGES.WALLET}`}
-                    className={classnames('button--file-action header__navigationItem--balance', {
-                      'header__navigationItem--balance-round':
-                        hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady,
-                    })}
-                    label={
-                      hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
-                        ? __(isMobile ? 'Wallet' : 'Your Wallet')
-                        : roundedTotalBalance
-                    }
-                    icon={ICONS.LBC}
-                  />
-                )}
-              </div>
-            </Tooltip>
+            <>
+              <Tooltip
+                title={
+                  balance > 0
+                    ? __('Immediately spendable: %spendable_balance%', { spendable_balance: roundedSpendableBalance })
+                    : __('Your Wallet')
+                }
+              >
+                <div>
+                  {balanceLoading ? (
+                    <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
+                  ) : (
+                    <Button
+                      navigate={`/$/${PAGES.WALLET}`}
+                      className={classnames('button--file-action header__navigationItem--balance', {
+                        'header__navigationItem--balance-round':
+                          hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady,
+                      })}
+                      label={
+                        hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
+                          ? __(isMobile ? 'Wallet' : 'Your Wallet')
+                          : roundedTotalBalance
+                      }
+                      icon={ICONS.LBC}
+                    />
+                  )}
+                </div>
+              </Tooltip>
+              <WanderConnect />
+            </>
           )}
 
           {!hideProfile && <HeaderProfileMenuButton />}
