@@ -80,8 +80,8 @@ Object.keys(localStorage).forEach((key) => {
           <div className="banner-label">{label}</div>
           <div className="banner-description">{description}</div>
           {tag && <div className="banner-tag">{tag}</div>}
-          <a className="banner-button" href={button.link}>
-            {button.text}
+          <a className="banner-button" href={button.link} target="_blank" rel="noopener noreferrer">
+          {button.text}
           </a>
         </div>
         <img className="banner-background" src={background.url} alt={background.alt} />
