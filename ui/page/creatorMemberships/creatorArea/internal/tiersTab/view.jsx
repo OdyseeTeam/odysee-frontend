@@ -19,7 +19,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   membershipOdyseePermanentPerks: MembershipOdyseePerks,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>,
-  showDisabled: boolean
+  showDisabled: boolean,
 };
 
 function TiersTab(props: Props) {
@@ -62,9 +62,7 @@ function TiersTab(props: Props) {
       newChannelMemberships.add(membership);
 
       // sort by price lowest to highest
-      return Array.from(newChannelMemberships).sort(
-        (a, b) => a.prices[0].amount - b.prices[0].amount
-      );
+      return Array.from(newChannelMemberships).sort((a, b) => a.prices[0].amount - b.prices[0].amount);
     });
   }
 
@@ -127,44 +125,46 @@ function TiersTab(props: Props) {
   return (
     <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
       {channelMemberships &&
-        channelMemberships.filter(m => showDisabled ? true : m.enabled === true || m.saved === false).map((membershipTier, membershipIndex) => {
-          const membershipId = membershipTier.membership_id;
-          const isEditing = new Set(editingIds).has(membershipId);
-          const hasSubscribers = membershipTier.has_subscribers;
+        channelMemberships
+          .filter((m) => (showDisabled ? true : m.enabled === true || m.saved === false))
+          .map((membershipTier, membershipIndex) => {
+            const membershipId = membershipTier.membership_id;
+            const isEditing = new Set(editingIds).has(membershipId);
+            const hasSubscribers = membershipTier.has_subscribers;
 
-          return (
-            <div className="membership-tier__wrapper" key={membershipIndex}>
-              {isEditing ? (
-                <EditingTier
-                  membership={membershipTier}
-                  hasSubscribers={hasSubscribers}
-                  removeEditing={() => removeEditingForMembershipId(membershipId)}
-                  addChannelMembership={(newMembership) => {
-                    removeChannelMembershipForId(membershipId);
-                    addChannelMembership(newMembership);
-                  }}
-                  onCancel={() => {
-                    removeEditingForMembershipId(membershipId);
-
-                    if (typeof membershipId === 'string') {
+            return (
+              <div className="membership-tier__wrapper" key={membershipIndex}>
+                {isEditing ? (
+                  <EditingTier
+                    membership={membershipTier}
+                    hasSubscribers={hasSubscribers}
+                    removeEditing={() => removeEditingForMembershipId(membershipId)}
+                    addChannelMembership={(newMembership) => {
                       removeChannelMembershipForId(membershipId);
-                    }
-                  }}
-                />
-              ) : (
-                <MembershipTier
-                  membership={membershipTier}
-                  index={membershipIndex}
-                  hasSubscribers={hasSubscribers}
-                  addEditingId={() => addEditingForMembershipId(membershipId)}
-                  removeMembership={() => removeChannelMembershipForId(membershipId)}
-                />
-              )}
-            </div>
-          );
-        })}
+                      addChannelMembership(newMembership);
+                    }}
+                    onCancel={() => {
+                      removeEditingForMembershipId(membershipId);
 
-      {(!channelMemberships || channelMemberships.length < 100) && (/* todo change back to 6? */
+                      if (typeof membershipId === 'string') {
+                        removeChannelMembershipForId(membershipId);
+                      }
+                    }}
+                  />
+                ) : (
+                  <MembershipTier
+                    membership={membershipTier}
+                    index={membershipIndex}
+                    hasSubscribers={hasSubscribers}
+                    addEditingId={() => addEditingForMembershipId(membershipId)}
+                    removeMembership={() => removeChannelMembershipForId(membershipId)}
+                  />
+                )}
+              </div>
+            );
+          })}
+
+      {(!channelMemberships || channelMemberships.length < 100) /* todo change back to 6? */ && (
         <Button
           button="primary"
           onClick={(e) => {

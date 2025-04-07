@@ -1114,6 +1114,12 @@ svg.icon--Upgrade {
 }
 
 .button--view-memberships {
-  margin-top: var(--spacing-m);
+  //margin-top: var(--spacing-m);
   text-align: center;
+}
+
+.membership-tab-header__wrapper {
+  text-align: center;
+  align-items: center;
+  margin-bottom: var(--spacing-m);
 }

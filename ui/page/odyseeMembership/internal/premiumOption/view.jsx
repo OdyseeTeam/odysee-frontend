@@ -24,24 +24,25 @@ const PremiumOption = (props: Props) => {
   const { membershipPurchase, membershipView, preferredCurrency, doOpenModal, doOpenCancelationModalForMembership } =
     props;
 
-  if (membershipPurchase) {
-    const membership = membershipPurchase;
-    const { membership_id, name, prices } = membership;
-
-    const purchaseFieldsProps = { preferredCurrency, membership, doOpenModal };
-
-    return (
-      <Wrapper name={name}>
-        {prices.map(({ Price, StripePrice }: MembershipNewStripePriceDetails) => (
-          <PurchaseFields key={membership_id} {...purchaseFieldsProps} stripePrice={StripePrice} />
-        ))}
-      </Wrapper>
-    );
-  }
-
+  //   if (membershipPurchase) {
+  //     const membership = membershipPurchase;
+  //     const { membership_id, name, prices } = membership;
+  //
+  //     const purchaseFieldsProps = { preferredCurrency, membership, doOpenModal };
+  //
+  //     return (
+  //       <Wrapper name={name}>
+  //         {prices.map(({ Price, StripePrice }: MembershipNewStripePriceDetails) => (
+  //           <PurchaseFields key={membership_id} {...purchaseFieldsProps} stripePrice={prices} />
+  //         ))}
+  //       </Wrapper>
+  //     );
+  //   }
+  // TODO IF HAD PREMIUM THEN SHOW A NICE MESSAGE
+  // TODO use new had premium endpoint
   if (membershipView) {
     const membership = membershipView;
-    const { Membership, MembershipDetails, Subscription } = membership;
+    const { Membership, MembershipDetails, Subscription } = membership; // find this
 
     const isCancelled = Subscription.status === 'canceled';
     const membershipStillValid = isCancelled && Subscription.current_period_end * 1000 > Date.now();
@@ -110,38 +111,39 @@ type PurchaseProps = {
   doOpenModal: (modalId: string, {}) => void,
 };
 
-const PurchaseFields = (props: PurchaseProps) => {
-  const { preferredCurrency, membership, stripePrice, doOpenModal } = props;
-
-  const {
-    currency: priceCurrency,
-    unit_amount: amount,
-    recurring: { interval },
-  } = stripePrice;
-  const currency = priceCurrency.toUpperCase();
-
-  return (
-    currency === preferredCurrency && (
-      <React.Fragment key={membership.Membership.id}>
-        <h4 className="membership_info">
-          <b>{__('Interval')}:</b> {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
-        </h4>
-
-        <h4 className="membership_info">
-          <b>{__('Price')}:</b> {STRIPE.CURRENCY[currency].symbol}
-          {(amount / 100).toFixed(2)} / {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
-        </h4>
-
-        <Button
-          button="primary"
-          onClick={() => doOpenModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, { membership, price: stripePrice })}
-          className="membership_button"
-          label={__('Join via %interval% membership', { interval: __(interval) })}
-          icon={ICONS.FINANCE}
-        />
-      </React.Fragment>
-    )
-  );
-};
+// OLD ODYSEE PREMIUM
+// const PurchaseFields = (props: PurchaseProps) => {
+//   const { preferredCurrency, membership, prices, doOpenModal } = props;
+//
+//   const {
+//     currency: priceCurrency,
+//     unit_amount: amount,
+//     recurring: { interval },
+//   } = stripePrice;
+//   const currency = priceCurrency.toUpperCase();
+//
+//   return (
+//     currency === preferredCurrency && (
+//       <React.Fragment key={membership.membership_id}>
+//         <h4 className="membership_info">
+//           <b>{__('Interval')}:</b> {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
+//         </h4>
+//
+//         <h4 className="membership_info">
+//           <b>{__('Price')}:</b> {STRIPE.CURRENCY[currency].symbol}
+//           {(amount / 100).toFixed(2)} / {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
+//         </h4>
+//
+//         <Button
+//           button="primary"
+//           onClick={() => doOpenModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, { membership, price: stripePrice })}
+//           className="membership_button"
+//           label={__('Join via %interval% membership', { interval: __(interval) })}
+//           icon={ICONS.FINANCE}
+//         />
+//       </React.Fragment>
+//     )
+//   );
+// };
 
 export default PremiumOption;
