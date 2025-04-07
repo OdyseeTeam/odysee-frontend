@@ -84,26 +84,38 @@ export const selectMonthlyIncomeForChannelId = createSelector(
 );
 
 // -- Active Membership = auto_renew is enabled
-export const selectMyActiveMembershipsById = createSelector(selectMembershipMineData, (myMembershipsByCreatorId): MembershipMineDataByCreatorId => {
-  if (!myMembershipsByCreatorId) return myMembershipsByCreatorId;
+export const selectMyActiveMembershipsById = createSelector(
+  selectMembershipMineData,
+  (myMembershipsByCreatorId): MembershipMineDataByCreatorId => {
+    if (!myMembershipsByCreatorId) return myMembershipsByCreatorId;
 
-  const activeMembershipsById = {};
+    const activeMembershipsById = {};
 
-  for (const creatorChannelId in myMembershipsByCreatorId) {
-    const purchasedCreatorMemberships = myMembershipsByCreatorId[creatorChannelId];
+    for (const creatorChannelId in myMembershipsByCreatorId) {
+      const purchasedCreatorMemberships = myMembershipsByCreatorId[creatorChannelId];
 
-    for (const membership of purchasedCreatorMemberships) {
-      if (membership.auto_renew) { // TODO: implmenent autorenew; this is always false
-        activeMembershipsById[creatorChannelId] = new Set(activeMembershipsById[creatorChannelId]);
-        activeMembershipsById[creatorChannelId].add(membership);
-        // $FlowFixMe
-        activeMembershipsById[creatorChannelId] = Array.from(activeMembershipsById[creatorChannelId]);
+      for (const membership of purchasedCreatorMemberships) {
+        if (membership.auto_renew) {
+          // TODO: implmenent autorenew; this is always false
+          activeMembershipsById[creatorChannelId] = new Set(activeMembershipsById[creatorChannelId]);
+          activeMembershipsById[creatorChannelId].add(membership);
+          // $FlowFixMe
+          activeMembershipsById[creatorChannelId] = Array.from(activeMembershipsById[creatorChannelId]);
+        }
       }
     }
-  }
 
-  return activeMembershipsById;
-});
+    return activeMembershipsById;
+  }
+);
+
+export const selectHasMembershipForMembershipId = (state: State, creatorId: string, membershipId: number) => {
+  const mine = selectMembershipMineData(state);
+  const mineForCreator = mine[creatorId];
+  if (!mineForCreator) return false;
+  const isSubscribed = !!mineForCreator.find((m) => m.membership.id === membershipId) || false;
+  return isSubscribed;
+};
 
 // -- Valid Membership = still in period_end date range
 export const selectMyValidMembershipsById = createSelector(selectMembershipMineData, (myMembershipsByCreatorId) => {
@@ -115,10 +127,7 @@ export const selectMyValidMembershipsById = createSelector(selectMembershipMineD
     const purchasedCreatorMemberships = myMembershipsByCreatorId[creatorChannelId];
 
     for (const membership of purchasedCreatorMemberships) {
-      if (
-        membership.subscription.status !== 'past_due' &&
-        membership.subscription.ends_at * 1000 > Date.now()
-      ) {
+      if (membership.subscription.status !== 'past_due' && membership.subscription.ends_at * 1000 > Date.now()) {
         validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
         validMembershipsById[creatorChannelId].add(membership);
         // $FlowFixMe
@@ -253,8 +262,7 @@ export const selectUserHasOdyseePremiumPlus = createSelector(selectMyValidOdysee
   // -- For checking my own memberships, it is better to use the result of the 'mine'
   // call, which is cached and will be more up to date.
   return myValidMemberships.some(
-    (membership: MembershipSub) =>
-      membership.name === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS
+    (membership: MembershipSub) => membership.name === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS
   );
 });
 
@@ -297,6 +305,15 @@ export const selectMembershipsByIdForChannelIds = createSelector(
   }
 );
 
+export const selectIndexForCreatorMembership = (state: State, creatorId: string, membershipId: number) => {
+  const memberships = selectMembershipTiersForCreatorId(state, creatorId);
+
+  const inx = memberships.findIndex((m) => m.membership_id === membershipId);
+  return inx === -1 ? undefined : inx + 1;
+  // .map((m, i) => ({ index: i, id: m.membership.id }))
+  // .sort((a, b) => a.id - b.id)
+};
+
 export const selectMyMembershipTiersChannelById = (state: State) => {
   const myChannelClaimIds = selectMyChannelClaimIds(state);
   if (!myChannelClaimIds) return myChannelClaimIds;
@@ -335,9 +352,26 @@ export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creat
   return Object.assign(
     {},
     myPurchasedCreatorMemberships[0],
-    creatorMembershipTiers.find(
-      (membershipSub) => membershipSub.membership_id === myPurchasedCreatorMemberships[0].id
-    )
+    creatorMembershipTiers.find((membershipSub) => membershipSub.membership_id === myPurchasedCreatorMemberships[0].id)
+  );
+};
+export const selectMyPurchasedMembershipTierForCreatorIdAndMembershipId = (
+  state: State,
+  creatorId: string,
+  membershipId: number
+) => {
+  const myPurchasedCreatorMemberships = selectMyPurchasedMembershipsForChannelClaimId(state, creatorId);
+  if (!myPurchasedCreatorMemberships) return myPurchasedCreatorMemberships;
+
+  const creatorMembershipTiers = selectMembershipTiersForCreatorId(state, creatorId);
+  if (!creatorMembershipTiers) return creatorMembershipTiers;
+
+  // This is needed because some data like Perks is present in membership_list call,
+  // but returns null on membership_mine
+  return Object.assign(
+    {},
+    myPurchasedCreatorMemberships[0],
+    creatorMembershipTiers.find((membershipSub) => membershipSub.membership_id === membershipId)
   );
 };
 

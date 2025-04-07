@@ -12,13 +12,11 @@ type Props = {
   disabled?: boolean,
   isChannelTab?: boolean,
   handleSelect: () => void,
+  hasMembership: boolean,
 };
 
-const STRIPE_DISABLED = true;
-
 const MembershipTier = (props: Props) => {
-  const { membership, index, length, disabled, isChannelTab, handleSelect } = props;
-
+  const { membership, index, length, disabled, isChannelTab, handleSelect, hasMembership } = props;
   return (
     <div
       className={
@@ -31,15 +29,23 @@ const MembershipTier = (props: Props) => {
         isChannelTab={isChannelTab}
         membership={membership}
         headerAction={
-          <Button
-            icon={ICONS.MEMBERSHIP}
-            button="primary"
-            label={__('Join for $%membership_price% per month', {
-              membership_price: (membership?.prices[0].amount / 100).toFixed(membership?.prices[0].amount < 100 ? 2 : 0), // tiers
-            })}
-            onClick={handleSelect}
-            disabled={disabled || STRIPE_DISABLED}
-          />
+          <>
+            {hasMembership ? (
+              <h2>Currently Subscribed!</h2>
+            ) : (
+              <Button
+                icon={ICONS.MEMBERSHIP}
+                button="primary"
+                label={__('Join for $%membership_price% per month', {
+                  membership_price: (membership?.prices[0].amount / 100).toFixed(
+                    membership?.prices[0].amount < 100 ? 2 : 0
+                  ), // tiers
+                })}
+                onClick={handleSelect}
+                disabled={disabled}
+              />
+            )}
+          </>
         }
       />
     </div>
