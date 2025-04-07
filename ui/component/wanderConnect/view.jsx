@@ -15,49 +15,54 @@ export default function WanderConnect(props: Props) {
 
   React.useEffect(() => {
     // Initialize the wallet
-    const wanderInstance = new WanderEmbedded({
-      clientId: "ALPHA",
-      baseURL: "https://embed-dev.wander.app",
-      baseServerURL: "https://embed-api-dev.wander.app",
-      iframe: {
-        routeLayout: {
-          auth: "modal"
-        }
-      },
-      button: {
-        parent: wrapperRef.current,
-        position: "static",
-        theme: "light",
-        label: true,
-        wanderLogo: "default",
-        customStyles: `
-          :host {
-            position: relative !important;
-          }  
+    if (wrapperRef.current) {
+      console.log('Got instance');
+      const wanderInstance = new WanderEmbedded({
+        clientId: 'ALPHA',
+        baseURL: 'https://embed-dev.wander.app',
+        baseServerURL: 'https://embed-api-dev.wander.app',
+        iframe: {
+          routeLayout: {
+            auth: 'modal',
+          },
+        },
+        button: {
+          parent: wrapperRef.current,
+          position: 'static',
+          theme: 'light',
+          label: true,
+          wanderLogo: 'default',
+          customStyles: `
+            :host {
+              position: relative !important;
+            }  
+  
+            .button {
+              width: 40px;
+              height:40px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: var(--color-header-button);
+              border:none;
+            }
+  
+            .label {
+              display:none;
+            }
+  
+            .wanderLogo{
+              min-width:26px;
+              margin-right:-4px;
+            }
+          `,
+        },
+      });
 
-          .button {
-            width: 40px;
-            height:40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--color-header-button);
-            border:none;
-          }
-
-          .label {
-            display:none;
-          }
-
-          .wanderLogo{
-            min-width:26px;
-            margin-right:-4px;
-          }
-        `
-      }
-    });
-
-    setInstance(wanderInstance);
+      setInstance(wanderInstance);
+    } else {
+      console.log('No instance');
+    }
 
     // Clean up on unmount
     return () => {
@@ -65,7 +70,7 @@ export default function WanderConnect(props: Props) {
         wanderInstance.destroy();
       }
     };
-  }, []);
+  }, [wrapperRef]);
 
   /*
   console.log('A');

@@ -2427,10 +2427,10 @@
     global "~4.4.0"
     is-function "^1.0.1"
 
-"@wanderapp/embed-sdk@^0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@wanderapp/embed-sdk/-/embed-sdk-0.0.3.tgz#2e29ae564293e76e42571feb866a372c34a1447c"
-  integrity sha512-+c0meFkLlZAjoj5x8wAt3t7/YtyZRKz+ow3QHa1UTI0GxJC3nXFDar3zYwCBoUhUkt4OmgoAIrS6f8x0sSarIg==
+"@wanderapp/embed-sdk@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@wanderapp/embed-sdk/-/embed-sdk-0.0.4.tgz#6caed48d4e5ff130632b982e83eb2f85156b8ede"
+  integrity sha512-LGprnctxp/P8qa5S5uTc5G0/0fEMLidT+NW1T4Qs+r6QUU8m4d3eN3DxO+bboiRvzDOzicZRY2+Ajr5oyIcPfg==
   dependencies:
     ts-deepmerge "^7.0.2"
 
