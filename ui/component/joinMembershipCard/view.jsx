@@ -88,27 +88,21 @@ const JoinMembershipCard = (props: Props) => {
   const selectedCreatorMembership: CreatorMembership = creatorMemberships && creatorMemberships[selectedMembershipIndex];
 
   function handleJoinMembership() {
-    console.log('handleSubmit')
     if (!selectedCreatorMembership || isPurchasing.current) return;
-
-    console.log('one')
     isPurchasing.current = true;
 
     const membershipBuyParams: MembershipBuyParams = {
       tippedChannelId: channelClaimId,
-      subscriberChannelId: channelClaimId,
       priceId: selectedCreatorMembership.prices[0].id,
       membershipId: selectedCreatorMembership.membership_id,
     };
 
-    console.log('two')
     if (activeChannelClaim && !incognito) {
       Object.assign(membershipBuyParams, {
-        channel_id: activeChannelClaim.claim_id,
+        subscriberChannelId: activeChannelClaim.claim_id,
       });
     }
 
-    console.log('three')
     doMembershipBuy(membershipBuyParams)
       .then(() => {
         isPurchasing.current = false;
