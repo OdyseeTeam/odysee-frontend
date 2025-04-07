@@ -1,8 +1,5 @@
 // @flow
 import React from 'react';
-import * as PAGES from 'constants/pages';
-import * as ICONS from 'constants/icons';
-import Button from 'component/button';
 import HelpHub from 'component/common/help-hub';
 import ChannelOverview from './internal/channelOverview';
 
@@ -40,16 +37,6 @@ function OverviewTab(props: Props) {
           </td>
         </tr>
       </table>
-
-      <div className="link-to-bank-account">
-        <h2>You can view your balance and transaction history on Stripe from the Bank Accounts section.</h2>
-        <Button
-          button="secondary"
-          label={__('Bank Accounts')}
-          icon={ICONS.SETTINGS}
-          navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-        />
-      </div>
 
       <div className="membership-table__wrapper">
         <table className="table">

@@ -470,11 +470,13 @@ export const doSaveMembershipRestrictionsForContent =
 export const doMembershipClearData = () => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'clear', { environment: 'test' }, 'post').then(() => dispatch(doMembershipMine()));
 
+// here
 export const doGetMembershipSupportersList = () => async (dispatch: Dispatch) =>
-  Lbryio.call('membership', 'supporters_list', { environment: stripeEnvironment }, 'post')
+  Lbryio.call('membership_v2', 'subscribers', { }, 'post')
     .then((response: SupportersList) =>
+    {
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response })
-    )
+    })
     .catch(() => dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: null }));
 
 export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getState: GetState) => {
