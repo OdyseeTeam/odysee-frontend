@@ -11,9 +11,10 @@ import {
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
-import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
+import { dryrun, message, createDataItemSigner,  } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
+import { Dispatch } from 'react';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -134,6 +135,24 @@ type TipParams = {
   recipientAddress: string,
 };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
+
+// just using this to check the wallet is unlocked
+export const doArSign = (msg: string) => {
+  return async (dispatch: Dispatch) => {
+    try {
+      if (!window.arweaveWallet) {
+        throw new Error('arweaveWallet not found.');
+      }
+      const data = new TextEncoder().encode(msg);
+      const signature = await window.arweaveWallet.signMessage(data);
+      const isValidSignature = await window.arweaveWallet.verifyMessage(data, signature);
+      return isValidSignature;
+    } catch (e) {
+      return false;
+    }
+  };
+};
+
 export const doArTip = (
   tipParams: TipParams,
   anonymous: boolean,

@@ -130,7 +130,13 @@ const JoinMembershipCard = (props: Props) => {
           push(formatLbryUrlForWeb(uri));
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        doToast({
+          message: __(
+            e?.message || e
+          ),
+          isError: true,
+        });
         isPurchasing.current = false;
       });
   }
