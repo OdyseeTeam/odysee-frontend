@@ -16,7 +16,7 @@ type Props = {
   activeChannel: ChannelClaim,
   incognito: boolean,
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
-  myMembershipTiers: Array<MembershipSub>,
+  myMembershipTiers: Array<CreatorMembership>,
   isStillEditing: boolean,
   memberRestrictionOn: boolean,
   memberRestrictionTierIds: Array<number>,
@@ -81,8 +81,7 @@ function PublishProtectedContent(props: Props) {
   useEffect(() => {
     if (activeChannel) {
       getExistingTiers({
-        channel_name: activeChannel.normalized_name,
-        channel_id: activeChannel.claim_id,
+        channel_claim_id: activeChannel.claim_id,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
@@ -174,7 +173,7 @@ function PublishProtectedContent(props: Props) {
 
               {memberRestrictionOn && (
                 <div className="tier-list">
-                  {myMembershipTiers.map((tier: MembershipTier) => {
+                  {myMembershipTiers.map((tier: CreatorMembership) => {
                     const show = validTierIds && validTierIds.includes(tier.membership_id);
                     return show ? (
                       <FormField

@@ -43,9 +43,9 @@ export function getRestrictivePerkName(type: PublishType, liveCreateType: LiveCr
   return EXCLUSIVE_CONTENT;
 }
 
-export function filterMembershipTiersWithPerk(membershipTiers: Array<MembershipTier>, perkName: string) {
-  const filtered: MembershipTiers = membershipTiers.filter((t: MembershipTier) => {
-    return t.Perks && t.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
+export function filterMembershipTiersWithPerk(membershipTiers: Array<CreatorMembership>, perkName: string) {
+  const filtered: Array<CreatorMembership> = membershipTiers.filter((t: CreatorMembership) => {
+    return t.perks && t.perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
   });
   return filtered;
 }
