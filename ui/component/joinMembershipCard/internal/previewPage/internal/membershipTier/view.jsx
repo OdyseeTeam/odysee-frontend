@@ -12,11 +12,13 @@ type Props = {
   disabled?: boolean,
   isChannelTab?: boolean,
   handleSelect: () => void,
-  hasMembership: boolean,
+  isActive: boolean,
+  isPending: boolean,
+  isCanceled: boolean,
 };
 
 const MembershipTier = (props: Props) => {
-  const { membership, index, length, disabled, isChannelTab, handleSelect, hasMembership } = props;
+  const { membership, index, length, disabled, isChannelTab, handleSelect, isActive } = props;
   return (
     <div
       className={
@@ -30,7 +32,7 @@ const MembershipTier = (props: Props) => {
         membership={membership}
         headerAction={
           <>
-            {hasMembership ? (
+            {isActive ? (
               <h2>Currently Subscribed!</h2>
             ) : (
               <Button

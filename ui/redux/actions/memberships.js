@@ -20,8 +20,8 @@ import { formatDateToMonthDayAndYear } from 'util/time';
 import { buildURI } from 'util/lbryURI';
 
 import { getStripeEnvironment } from 'util/stripe';
-import { selectActiveChannelClaim } from '../selectors/app';
-import { selectAPIArweaveDefaultAddress, selectArweaveTipDataForId } from '../selectors/stripe';
+import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
+import { doArSign } from './arwallet';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
@@ -146,6 +146,10 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
 
   // membership_v2/subscribe then doArTip then membership_v2/subscription/transaction_notify
   try {
+    const walletUnlocked = await doArSign('hello');
+    if (!walletUnlocked) {
+      throw new Error('wallet not unlocked');
+    }
     await Lbryio.call('membership_v2', 'subscribe', { ...subscribeApiParams }, 'post')
       .then((response: MembershipSubscribeResponse) => {
         const { token, payee_address, price } = response;
@@ -181,6 +185,7 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
   } catch (e) {
     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
     console.error(e?.message || e);
+    return Promise.reject(e);
   }
   // return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
   //   .then((response) => {

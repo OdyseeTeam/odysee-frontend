@@ -10,8 +10,6 @@ import ErrorBubble from 'component/common/error-bubble';
 import I18nMessage from 'component/i18nMessage';
 import { Submit } from 'component/common/form';
 
-import withCreditCard from 'hocs/withCreditCard';
-
 type Props = {
   selectedCreatorMembership: CreatorMembership,
   selectedMembershipIndex: number,
