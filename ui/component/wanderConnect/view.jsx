@@ -34,7 +34,7 @@ export default function WanderConnect(props: Props) {
           wanderLogo: 'default',
           customStyles: `
             :host {
-              position: relative !important;
+              position: relative !important;              
             }  
   
             .button {
@@ -43,8 +43,11 @@ export default function WanderConnect(props: Props) {
               display: flex;
               align-items: center;
               justify-content: center;
-              background-color: var(--color-header-button);
-              border:none;
+              
+              &::before{
+                background-color: var(--color-header-button);
+                border:none;
+              }
             }
   
             .label {
@@ -53,7 +56,11 @@ export default function WanderConnect(props: Props) {
   
             .wanderLogo{
               min-width:26px;
-              margin-right:-4px;
+              margin-right:-4px !important;
+            }
+
+            .balance{
+              display:none;
             }
           `,
         },
