@@ -1,6 +1,11 @@
 // Variables
 $breakpoint-small: 768px;
+$breakpoint-kindle: 800px;
 $breakpoint-medium: 992px;
+$breakpoint-tablet: 1024px;
+$breakpoint-1200: 1200px;
+$breakpoint-1150: 1150px;
+$breakpoint-1280: 1280px;
 
 // Common styles for both banners
 .banner-container {
@@ -262,6 +267,198 @@ $breakpoint-medium: 992px;
 
   &:hover {
     background-color: var(--color-menu-item-hover);
+  }
+}
+
+// Responsive styles for tablets
+@media (max-width: $breakpoint-tablet) and (min-width: #{$breakpoint-small + 1}) {
+  .banner-container {
+    padding: 20px;
+    
+    .banner-image {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .banner-label {
+      font-size: 26px;
+    }
+    
+    .banner-description {
+      font-size: 16px;
+    }
+    
+    .banner-button {
+      padding: 12px 15px;
+    }
+  }
+}
+
+// Responsive styles for Kindle and similar e-readers
+@media (max-width: $breakpoint-kindle) and (min-width: #{$breakpoint-small + 1}),
+       (max-device-width: $breakpoint-kindle) and (orientation: portrait) {
+  .banner-container {
+    .banner-content-wrapper {
+      flex-direction: inherit;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .banner-image {
+      margin: 0 auto 15px;
+    }
+    
+    .banner-label,
+    .banner-description,
+    .banner-tag {
+      white-space: normal;
+      text-align: center;
+    }
+    
+    .banner-info {
+      position: static;
+      justify-content: center;
+      margin-top: 10px;
+    }
+  }
+}
+
+// High-resolution tablet adjustments
+@media only screen and (min-device-width: $breakpoint-small) and (max-device-width: $breakpoint-tablet) and (-webkit-min-device-pixel-ratio: 2) {
+  .banner-container {
+    .banner-label {
+      font-weight: 600;
+    }
+    
+    .banner-button {
+      padding: 11px 14px;
+    }
+  }
+}
+
+// Adjustments for 900px width
+@media (max-width: $breakpoint-medium) and (min-width: 769px) {
+  .banner-container {
+    padding: 0 20px;
+    
+    .banner-content-wrapper {
+      gap: 12px;
+    }
+    
+    .banner-image {
+      width: 180px;
+      height: 180px;
+    }
+    
+    .banner-label {
+      font-size: 24px;
+    }
+    
+    .banner-description {
+      font-size: 16px;
+    }
+    
+    .banner-tag {
+      margin-bottom: 15px;
+    }
+    
+    .banner-button {
+      padding: 9px 11px;
+      font-size: 14px;
+    }
+  }
+  
+  .banner-context-menu {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+// Adjustments for 1200px width
+@media (max-width: $breakpoint-1200) and (min-width: #{$breakpoint-tablet + 1}) {
+  .banner-container {
+    .banner-content-wrapper {
+      gap: 15px;
+    }
+    
+    .banner-image {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .banner-label {
+      font-size: 28px;
+      white-space: normal;
+    }
+    
+    .banner-description {
+      font-size: 17px;
+      white-space: normal;
+    }
+    
+    .banner-button {
+      padding: 10px 12px;
+    }
+  }
+}
+
+// Adjustments for 1280px width (HD displays)
+@media (max-width: $breakpoint-1280) and (min-width: 1151px) {  // Corregido: usando valor directo
+  .banner-container {
+    .banner-content-wrapper {
+      gap: 18px;
+    }
+    
+    .banner-image {
+      width: 230px;
+      height: 230px;
+    }
+    
+    .banner-label {
+      font-size: 28px;
+      max-width: 700px;
+    }
+    
+    .banner-description {
+      font-size: 17px;
+      max-width: 700px;
+    }
+    
+    .banner-button {
+      padding: 10px 14px;
+    }
+    
+    .banner-info {
+      font-size: 15px;
+    }
+  }
+}
+
+// Adjustments for 1150px width
+@media (max-width: $breakpoint-1150) and (min-width: 1025px) {  // $breakpoint-tablet + 1 = 1025px
+  .banner-container {
+    .banner-content-wrapper {
+      gap: 15px;
+    }
+    
+    .banner-image {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .banner-label {
+      font-size: 28px;
+      white-space: normal;
+    }
+    
+    .banner-description {
+      font-size: 17px;
+      white-space: normal;
+    }
+    
+    .banner-button {
+      padding: 10px 12px;
+    }
   }
 }
 
