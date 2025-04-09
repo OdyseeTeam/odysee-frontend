@@ -447,10 +447,9 @@ export const doSaveMembershipRestrictionsForContent =
     });
 
     await Lbryio.call(
-      'membership_content',
+      'paid_content',
       'modify',
       {
-        environment: stripeEnvironment,
         claim_id: contentClaimId,
         membership_ids: memberRestrictionTierIds
           .slice()
@@ -458,7 +457,7 @@ export const doSaveMembershipRestrictionsForContent =
           .join(','),
         channel_id: channelClaimId,
         claim_name: contentClaimName,
-        pending_claim: pendingClaim,
+        // pending_claim: pendingClaim,
       },
       'post'
     )
