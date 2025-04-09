@@ -215,7 +215,9 @@ export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async
 
 const registerAddress = async (address: string, makeDefault: boolean, currency = 'USD') => {
   try {
+    console.log('registerAddress');
     const pub_key = await window.arweaveWallet.getActivePublicKey();
+    console.log('pub_key: ', pub_key);
     const data = new TextEncoder().encode(address);
     const signature = await window.arweaveWallet.signMessage(data);
     const hexSig = bufferToHex(signature);
@@ -256,6 +258,7 @@ const updateDefault = async (id: string) => {
 
 export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.AR_ADDR_REGISTER_STARTED });
+  console.log('doRegisterArweaveAddress: ', address);
   try {
     await registerAddress(address, makeDefault);
     await dispatch(doTipAccountStatus());

@@ -33,6 +33,7 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
+import WanderConnect from 'component/wanderConnect';
 // import * as MODALS from '../../constants/modal_types';
 
 const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
@@ -522,6 +523,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <Router uri={uri} />
+          <WanderConnect />
           <ModalRouter />
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
           {!embedPath && <VideoRenderFloating />}

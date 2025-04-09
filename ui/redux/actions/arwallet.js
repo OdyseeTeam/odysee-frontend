@@ -47,6 +47,7 @@ export function doArConnect() {
         }
 
         const address = await global.window.arweaveWallet.getActiveAddress();
+        console.log('address: ', address);
         const currentState = getState();
         const apiDefaultAddress = selectAPIArweaveDefaultAddress(currentState);
         const currentModalId = currentState.app.modal;

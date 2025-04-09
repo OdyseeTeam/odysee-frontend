@@ -17,7 +17,6 @@ import Skeleton from '@mui/material/Skeleton';
 import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import WunderBar from 'component/wunderbar';
-import WanderConnect from 'component/wanderConnect';
 
 type Props = {
   authenticated: boolean,
@@ -188,7 +187,7 @@ const Header = (props: Props) => {
                   )}
                 </div>
               </Tooltip>
-              <WanderConnect />
+              <div onClick={() => window.test()}>Test</div>
             </>
           )}
 
