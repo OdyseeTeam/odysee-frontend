@@ -94,6 +94,8 @@ reducers[ACTIONS.SET_CAN_RECEIVE_FIAT_TIPS] = (state, action) => {
   const newCanReceiveArweaveTipsById = Object.assign({}, state.canReceiveArweaveTipsById);
   if (arweave && arweave.status === 'active') {
     newCanReceiveArweaveTipsById[claimId] = arweave;
+  } else {
+    newCanReceiveArweaveTipsById[claimId] = null;
   }
   const newCanReceiveFiatTipsById = Object.assign({}, state.canReceiveFiatTipsById);
   newCanReceiveFiatTipsById[claimId] = stripe === true;

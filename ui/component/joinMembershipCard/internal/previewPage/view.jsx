@@ -26,6 +26,7 @@ type Props = {
   // -- redux --
   channelId: string,
   canReceiveFiatTips: ?boolean,
+  canReceiveArweaveTips: ?boolean,
   channelIsMine: boolean,
   creatorMemberships: CreatorMemberships,
   doTipAccountCheckForUri: (uri: string) => void,
@@ -49,6 +50,7 @@ const PreviewPage = (props: Props) => {
     // -- redux --
     channelId,
     canReceiveFiatTips,
+    canReceiveArweaveTips,
     channelIsMine,
     creatorMemberships,
     doTipAccountCheckForUri,
@@ -60,14 +62,16 @@ const PreviewPage = (props: Props) => {
 
   const isChannelTab = React.useContext(ChannelPageContext);
 
+  console.log('U', userHasACreatorMembership);
+
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
-  const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false;
+  const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false || userHasACreatorMembership;
 
   React.useEffect(() => {
-    if (canReceiveFiatTips === undefined) {
+    if (canReceiveFiatTips === undefined || canReceiveArweaveTips === undefined) {
       doTipAccountCheckForUri(uri);
     }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+  }, [canReceiveFiatTips, canReceiveArweaveTips, doTipAccountCheckForUri, uri]);
 
   if (!creatorHasMemberships) {
     // -- On a channel that is mine, the button uses the channel id to set it as active
@@ -133,7 +137,7 @@ const PreviewPage = (props: Props) => {
         )}
 
         <div className="join-membership__tab">
-          {creatorMemberships.map((membership, index) => (
+          {creatorMemberships.filter(m => m.enabled === true).map((membership, index) => (
             <MembershipTier
               membership={membership}
               handleSelect={() => {
@@ -177,17 +181,17 @@ const PreviewPage = (props: Props) => {
       </div>
 
       <div className="join-membership__modal-tabs">
-        {creatorMemberships.map(({ Membership }, index) => (
+        {creatorMemberships.map((m, index) => (
           <Button
-            key={Membership.id}
-            label={Membership.name}
+            key={m.membership_id}
+            label={m.name}
             button="alt"
-            icon={pickIconToUse(Membership.id)}
+            icon={pickIconToUse(m.membership_id)}
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
-              'no-access-button': unlockableTierIds && !unlockableTierIds.includes(Membership.id),
-              'access-button': unlockableTierIds && unlockableTierIds.includes(Membership.id),
+              'no-access-button': unlockableTierIds && !unlockableTierIds.includes(m.membership_id),
+              'access-button': unlockableTierIds && unlockableTierIds.includes(m.membership_id),
             })}
           />
         ))}
@@ -210,7 +214,7 @@ const PreviewPage = (props: Props) => {
           type="submit"
           disabled={userHasACreatorMembership || creatorPurchaseDisabled}
           label={__('Join for $%membership_price% per month', {
-            membership_price: selectedTier?.NewPrices[0]?.creator_receives_amount / 100,
+            membership_price: selectedTier?.prices[0].amount / 100,
           })}
           requiresAuth
           onClick={handleSelect}

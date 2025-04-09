@@ -12,7 +12,7 @@ const select = (state, props) => {
 
   return {
     bankAccountConfirmed: selectAccountChargesEnabled(state),
-    channelMemberships: activeChannelClaim && selectMembershipTiersForCreatorId(state, activeChannelClaim.claim_id),
+    channelMemberships: activeChannelClaim && selectMembershipTiersForCreatorId(state, activeChannelClaim.claim_id), //
     activeChannelClaim,
     membershipOdyseePermanentPerks: selectMembershipOdyseePermanentPerks(state),
   };
