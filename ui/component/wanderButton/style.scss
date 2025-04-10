@@ -1,0 +1,16 @@
+.wanderButton {
+  position: relative;
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 40px;
+  height: 40px;
+  margin-right: var(--spacing-s);
+  border-radius:50%;
+  background-color: var(--color-header-button);
+
+  &:hover{
+    cursor:pointer;
+    background: var(--color-primary);
+  }
+}

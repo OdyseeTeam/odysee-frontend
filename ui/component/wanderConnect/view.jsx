@@ -11,14 +11,12 @@ type Props = {
 
 export default function WanderConnect(props: Props) {
   // const [instance, setInstance] = React.useState(null);
-  const instanceRef = React.useRef(null);
+  // const instanceRef = React.useRef(null);
   const wrapperRef = React.useRef();
+  console.log('Wander: ',window.wanderApp)
 
   React.useEffect(() => {
-    // Initialize the wallet
-    console.log('instanceRef.current: ', instanceRef.current);
-
-    if (!instanceRef.current) {
+    if (!window.wanderApp) {
       console.log('Got instance');
       const wanderInstance = new WanderEmbedded({
         clientId: 'ALPHA',
@@ -26,8 +24,51 @@ export default function WanderConnect(props: Props) {
         baseServerURL: 'https://embed-api-dev.wander.app',
         iframe: {
           routeLayout: {
-            auth: 'modal',
+            default: {
+              type: 'dropdown',
+            },
+            auth: {
+              type: 'modal',
+            },
           },
+          cssVars: {
+            background: '#ff0000',
+          },
+          customStyles: `
+            .backdrop {
+              top:var(--header-height);
+              background-color: var(--color-background-overlay);
+              backdrop-filter: blur(2px);
+            }
+
+            .iframe-wrapper {              
+              border-radius: var(--border-radius);
+              border: 2px solid var(--color-border) !important;
+              background:unset;
+
+              &[data-layout="dropdown"] {
+                position: fixed;
+                top: var(--header-height) !important;
+                right:1px !important;
+                left:unset !important;
+                border-top:unset !important;
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                transform: scaleY(0) !important;
+                transform-origin: top;
+                transition: transform .2s !important;
+
+                &.show{
+                  transform: scaleY(1) !important;
+                }
+              }
+
+            }
+
+            .iframe {
+              // background-color: var(--color-background) !important;
+              background:blue !important;
+            }
+          `
         },
         button: {
           parent: wrapperRef.current,
@@ -85,29 +126,17 @@ export default function WanderConnect(props: Props) {
               padding-top:1px;
             }
           `,
-        },
+        }
       });
 
-      console.log('set instance');
-      // setInstance(wanderInstance);
-      instanceRef.current = wanderInstance;
-
+      window.wanderApp = wanderInstance
       window.test = function () {
-        instanceRef.current.open();
+        window.wanderApp.open();
       };
     } else {
       console.log('No instance');
     }
 
-    // Clean up on unmount
-    /*
-    return () => {
-      if (instanceRef.current) {
-        instanceRef.current.destroy();
-        instanceRef.current = null;
-      }
-    };
-    */
   }, []);
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;

@@ -32,9 +32,7 @@ export default function WalletConnect(props: Props) {
     connectArWallet();
   }
 
-  return !connecting ? (
+  return (
     <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
-  ) : (
-    <Spinner type="small" />
-  );
+  )
 }
