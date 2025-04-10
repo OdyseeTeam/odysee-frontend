@@ -133,11 +133,6 @@ export default function WanderConnect(props: Props) {
       });
 
       window.wanderApp = wanderInstance
-      window.wander = {
-        open: function () {
-          window.wanderApp.open();
-        }
-      }
     } else {
       console.log('No instance');
     }
