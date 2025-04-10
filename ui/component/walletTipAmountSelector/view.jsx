@@ -258,7 +258,7 @@ function WalletTipAmountSelector(props: Props) {
             autoFocus={!isMobile}
             name="tip-input"
             id="tip-input"
-            disabled={(!customTipAmount && shouldDisableAmountSelector(0)) || STRIPE_DISABLED}
+            disabled={(!customTipAmount && shouldDisableAmountSelector(0))}
             error={tipError}
             min="0"
             step="any"
@@ -285,7 +285,6 @@ function WalletTipAmountSelector(props: Props) {
             'IMPORTANT: this donation is sent without a comment. If you want to include a comment, click the $ next to the comment input area.'
           )
         )}
-      {(<div className={'error'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>)}
     </>
   );
 }

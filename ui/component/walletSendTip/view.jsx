@@ -25,6 +25,8 @@ const TAB_BOOST = 'TabBoost';
 const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
 
+const STRIPE_DISABLED = true;
+
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
@@ -388,11 +390,13 @@ export default function WalletSendTip(props: Props) {
                   icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
                   button="primary"
                   type="submit"
-                  disabled={fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton}
+                  disabled={fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || (activeTab === TAB_FIAT && STRIPE_DISABLED)}
                   label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
                 />
+
                 {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
               </div>
+
             </>
           ) : (
             // if it's LBC and there is no balance, you can prompt to purchase LBC
