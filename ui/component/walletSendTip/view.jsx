@@ -396,6 +396,7 @@ export default function WalletSendTip(props: Props) {
 
                 {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
               </div>
+              {STRIPE_DISABLED && activeTab === TAB_FIAT && <div className={'help'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>}
 
             </>
           ) : (

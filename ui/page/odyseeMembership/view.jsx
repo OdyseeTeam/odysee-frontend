@@ -119,7 +119,7 @@ const OdyseeMembershipPage = (props: Props) => {
             subtitle={__('Expand to learn more about how Odysee Premium works')}
             body={showHelp && <HelpText />}
           />
-          {STRIPE_DISABLED && (<div className="error">{__('Payment Services are temporarily disabled. Please check back later.')}</div>)}
+          {STRIPE_DISABLED && (!validMemberships || validMemberships.length === 0) && (<div className="error">{__('Payment Services are temporarily disabled. Please check back later.')}</div>)}
 
           {!STRIPE_DISABLED && membershipOptions && (!validMemberships || validMemberships.length === 0) && (
             <Card title={__('Available Memberships')}>
