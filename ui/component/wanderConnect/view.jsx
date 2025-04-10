@@ -30,6 +30,9 @@ export default function WanderConnect(props: Props) {
             auth: {
               type: 'modal',
             },
+            "auth-request": {
+              type: 'modal',
+            },
           },
           cssVars: {
             background: '#ff0000',
