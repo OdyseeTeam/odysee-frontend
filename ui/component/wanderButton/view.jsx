@@ -10,8 +10,20 @@ type Props = {
 
 export default function WanderButton(props: Props) {
   
+  const handleButtonClick = () => {
+    if(window.wanderApp){
+      if(window.wanderApp.openReason === 'manually'){
+        window.wanderApp.close();
+      }
+      else{
+        window.wanderApp.open();
+      }
+    }
+    
+  }
+
   return (
-    <div onClick={() => window.test()} className="wanderButton">
+    <div onClick={handleButtonClick} className="wanderButton">
       <Icon icon={ICONS.WANDER} />
     </div>
   )
