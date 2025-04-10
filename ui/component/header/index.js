@@ -8,6 +8,7 @@ import { selectGetSyncErrorMessage, selectPrefsReady } from 'redux/selectors/syn
 import { selectHasNavigated } from 'redux/selectors/app';
 import { selectTotalBalance, selectBalance } from 'redux/selectors/wallet';
 import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from 'redux/selectors/user';
+import { selectArweaveConnected } from 'redux/selectors/arwallet';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import Header from './view';
@@ -22,6 +23,7 @@ const select = (state) => ({
   syncError: selectGetSyncErrorMessage(state),
   user: selectUser(state),
   prefsReady: selectPrefsReady(state),
+  arWalletStatus: selectArweaveConnected(state),
 });
 
 const perform = (dispatch) => ({

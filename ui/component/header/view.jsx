@@ -53,6 +53,7 @@ type Props = {
   openChangelog: ({}) => void,
   setSidebarOpen: (boolean) => void,
   signOut: () => void,
+  arWalletStatus: any,
 };
 
 const Header = (props: Props) => {
@@ -80,6 +81,7 @@ const Header = (props: Props) => {
     openChangelog,
     setSidebarOpen,
     signOut,
+    arWalletStatus,
   } = props;
 
   const {
@@ -188,7 +190,9 @@ const Header = (props: Props) => {
                   )}
                 </div>
               </Tooltip>
-              <WanderButton />
+              {arWalletStatus && (
+                <WanderButton />
+              )}              
             </>
           )}
 
