@@ -133,7 +133,7 @@ const PreviewPage = (props: Props) => {
             />
           </div>
         )}
-        <div className={'Error'}>Unable to join memberships at this time.</div>
+        <div className={'Error'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
 
         <div className="join-membership__tab">
           {creatorMemberships.map((membership, index) => (
