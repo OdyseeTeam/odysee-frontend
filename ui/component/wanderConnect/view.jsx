@@ -39,7 +39,7 @@ export default function WanderConnect(props: Props) {
           },
           customStyles: `
             .backdrop {
-              top:var(--header-height);
+              margin-top:var(--header-height);
               background-color: var(--color-background-overlay);
               backdrop-filter: blur(2px);
             }

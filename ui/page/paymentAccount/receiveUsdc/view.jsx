@@ -8,7 +8,7 @@ import Symbol from 'component/common/symbol';
 import './style.scss';
 
 function ReceiveUsdc(props: Props) {
-  const { cardHeader, arWalletStatus } = props;
+  const { cardHeader, arWallet, arWalletStatus } = props;
 
   return (
     <Card
@@ -18,9 +18,9 @@ function ReceiveUsdc(props: Props) {
       actions={
         <div className="section__flex">
           <div className="qr__wrapper">
-            <QRCode value="0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33" />
+            <QRCode value={arWallet.deposit_address} />
             <div className="address__wrapper">
-              <CopyableText copyable={`0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33`} />
+              <CopyableText copyable={arWallet.deposit_address} />
             </div>
           </div>
           <div className="section-content__wrapper">

@@ -18,6 +18,7 @@ import './style.scss';
 import Overview from './overview';
 
 type Props = {
+  arweaveActiveWallet: any,
   arweaveWallets: any,
   arWalletStatus: any,
   balance: number,
@@ -39,7 +40,7 @@ const TABS = {
 };
 
 function PaymentAccountPage(props: Props) {
-  const { arweaveWallets, arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
+  const { arweaveActiveWallet, arweaveWallets, arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
   const {
     location: { search },
     push,
@@ -152,7 +153,7 @@ function PaymentAccountPage(props: Props) {
         <TabPanels>
           <TabPanel>
             <>
-              <Overview cardHeader={cardHeader} arWalletStatus={arWalletStatus} />
+              <Overview cardHeader={cardHeader} arWallet={arweaveActiveWallet} arWalletStatus={arWalletStatus} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />
@@ -162,7 +163,7 @@ function PaymentAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <ReceiveUsdt cardHeader={cardHeader} arWalletStatus={arWalletStatus} />
+              <ReceiveUsdt cardHeader={cardHeader} arWallet={arweaveActiveWallet} arWalletStatus={arWalletStatus} />
               {!arWalletStatus && (
                 <div className="wallet">
                   <WalletConnect />

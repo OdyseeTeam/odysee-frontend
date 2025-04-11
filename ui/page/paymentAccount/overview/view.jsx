@@ -8,8 +8,10 @@ import Symbol from 'component/common/symbol';
 import './style.scss';
 
 function Overview(props: Props) {
-  const { cardHeader, arWalletStatus } = props;
+  const { cardHeader, arWalletStatus, arWallet } = props;
   const [transactions, setTransactions] = React.useState([]);
+
+  console.log('arWallet: ', arWallet)
 
   React.useEffect(() => {
     (async () => {
@@ -118,7 +120,7 @@ function Overview(props: Props) {
           <h2 className="section__title--small">{__('Connected wallet')}</h2>
           <div className="payment-options">
             <div className="payment-option">
-              <CopyableText copyable={`0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33`} />
+              <CopyableText copyable={arWallet.deposit_address} />
             </div>
             <div className="payment-option">
               <div className="payment-option__monetization">

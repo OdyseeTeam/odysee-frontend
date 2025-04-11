@@ -21,7 +21,7 @@ type Props = {
 };
 
 export default function BuyPage(props: Props) {
-  const { arWalletStatus, theme, balance, experimentalUi } = props;
+  const { arweaveActiveWallet, arWalletStatus, theme, balance, experimentalUi } = props;
   const [targetWallet, setTargetWallet] = React.useState(undefined);
   const {
     location: { search },
@@ -31,8 +31,7 @@ export default function BuyPage(props: Props) {
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
-  // const network = '0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33';
-  const network = '0xE6c07B52d897c596ECeA3a94566C4F4Fd45Ca04d';
+  const network = arweaveActiveWallet.deposit_address;
   
   const rgbaToHex = (rgba) => {
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
