@@ -18,9 +18,9 @@ function ReceiveUsdc(props: Props) {
       actions={
         <div className="section__flex">
           <div className="qr__wrapper">
-            <QRCode value={arWallet.deposit_address} />
+            <QRCode value={arWallet?.deposit_address} />
             <div className="address__wrapper">
-              <CopyableText copyable={arWallet.deposit_address} />
+              <CopyableText copyable={arWallet?.deposit_address} />
             </div>
           </div>
           <div className="section-content__wrapper">

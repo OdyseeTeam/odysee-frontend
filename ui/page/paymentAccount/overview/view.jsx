@@ -11,8 +11,6 @@ function Overview(props: Props) {
   const { cardHeader, arWalletStatus, arWallet } = props;
   const [transactions, setTransactions] = React.useState([]);
 
-  console.log('arWallet: ', arWallet)
-
   React.useEffect(() => {
     (async () => {
       if (window.arweaveWallet) {
@@ -120,7 +118,7 @@ function Overview(props: Props) {
           <h2 className="section__title--small">{__('Connected wallet')}</h2>
           <div className="payment-options">
             <div className="payment-option">
-              <CopyableText copyable={arWallet.deposit_address} />
+              <CopyableText copyable={arWallet?.deposit_address} />
             </div>
             <div className="payment-option">
               <div className="payment-option__monetization">

@@ -139,5 +139,27 @@ export default function WanderConnect(props: Props) {
 
   }, []);
 
+  /*
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const wrapper = document.querySelector('#wanderEmbeddedIframe > .iframe-wrapper')
+      console.log('wrapper: ', wrapper)
+      if (wrapper) {
+        const rect = element.getBoundingClientRect()
+        const marginTop = parseInt(window.getComputedStyle(element).marginTop)
+
+        const isOutside =
+          e.clientY < rect.top - marginTop
+
+        console.log('click: ', isOutside)
+        window.wanderApp.close()
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+  */
+
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;
 }

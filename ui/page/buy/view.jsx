@@ -31,7 +31,7 @@ export default function BuyPage(props: Props) {
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
-  const network = arweaveActiveWallet.deposit_address;
+  const network = arweaveActiveWallet?.deposit_address;
   
   const rgbaToHex = (rgba) => {
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);

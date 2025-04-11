@@ -33,7 +33,7 @@ function ArWallets(props: Props) {
                 >
                   <div className="wallet-table-row__id">{index + 1}</div>
                   <div className="wallet-table-row__address">{wallet.address}</div>
-                  <div className="wallet-table-row__deposit">{wallet.deposit_address}</div>
+                  <div className="wallet-table-row__deposit">{wallet?.deposit_address}</div>
                   <div className="wallet-table-row__status">
                     <ButtonToggle status={wallet.status === 'active' ? true : false} />
                   </div>
