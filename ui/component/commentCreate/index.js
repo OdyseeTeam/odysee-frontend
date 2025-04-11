@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectUserExperimentalUi } from 'redux/selectors/user';
+import { hasLegacyOdyseePremium, selectUserExperimentalUi } from 'redux/selectors/user';
 import {
   selectClaimForUri,
   selectClaimIsMine,
@@ -36,7 +36,6 @@ import {
 } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import {
-  selectUserHasOdyseePremiumPlus,
   selectUserIsMemberOfMembersOnlyChatForCreatorId,
 } from 'redux/selectors/memberships';
 import { doArTip } from 'redux/actions/arwallet';
@@ -82,7 +81,7 @@ const select = (state, props) => {
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
     isLivestreamChatMembersOnly: Boolean(selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId)),
     areCommentsMembersOnly: Boolean(selectMembersOnlyCommentsForChannelId(state, channelClaimId)),
-    hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
+    hasPremiumPlus: hasLegacyOdyseePremium(state),
     experimentalUi: selectUserExperimentalUi(state),
     recipientArweaveTipInfo: selectArweaveTipDataForId(state, channelClaimId),
   };

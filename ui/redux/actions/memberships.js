@@ -25,6 +25,7 @@ import { doArSign } from './arwallet';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
+
 export const doFetchChannelMembershipsForChannelIds =
   (channelId: string, channelIds: ClaimIds) => async (dispatch: Dispatch, getState: GetState) => {
     if (!channelIds || channelIds.length === 0) return;

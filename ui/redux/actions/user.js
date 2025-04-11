@@ -22,6 +22,7 @@ import { getDefaultLanguage } from 'util/default-languages';
 import { LocalStorage, LS } from 'util/storage';
 
 import { doMembershipMine } from 'redux/actions/memberships';
+import { selectDefaultChannelId } from 'redux/selectors/settings';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
@@ -113,7 +114,26 @@ function checkAuthBusy() {
     })();
   });
 }
+export function doUserHasPremium(channelClaimId) {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const channelClaim = selectDefaultChannelId(state);
+    dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED });
+    if (!channelClaim) {
+      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: false });
+    }
 
+    try {
+      const res = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaim}, 'post');
+      console.log(res);
+      if (res[channelClaim]) {
+        dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: res[channelClaim] });
+      }
+    } catch (e) {
+      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });
+    }
+  };
+}
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
 export function doAuthenticate(
   appVersion,
@@ -139,6 +159,7 @@ export function doAuthenticate(
           });
 
           dispatch(doMembershipMine());
+          dispatch(doUserHasPremium());
 
           if (shareUsageData) {
             dispatch(doRewardList());
