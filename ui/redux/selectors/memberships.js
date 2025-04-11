@@ -188,7 +188,7 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
 };
 
 export const selectUserHasValidOdyseeMembership = (state: State) =>
-  selectUserHasValidMembershipForCreatorId(state, ODYSEE_CHANNEL.ID);
+  selectUserHasValidMembershipForCreatorId(state, ODYSEE_CHANNEL.ID); // deprecated
 
 export const selectMyValidMembershipIds = createSelector(selectMyValidMembershipsById, (validMembershipsById) => {
   const validMembershipIds = new Set([]);
