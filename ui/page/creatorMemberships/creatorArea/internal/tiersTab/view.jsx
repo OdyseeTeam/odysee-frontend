@@ -31,6 +31,7 @@ function TiersTab(props: Props) {
     doGetMembershipPerks,
   } = props;
 
+  const STRIPE_DISABLED = true;
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
 
   const [editingIds, setEditingIds] = React.useState(() => []);
@@ -112,6 +113,7 @@ function TiersTab(props: Props) {
             <span>{__('You have to connect a bank account before you can create tiers.')}</span>
           </div>
           <Button
+            disabled={STRIPE_DISABLED}
             button="primary"
             label={__('Connect a bank account')}
             icon={ICONS.FINANCE}
@@ -132,6 +134,7 @@ function TiersTab(props: Props) {
 
           return (
             <div className="membership-tier__wrapper" key={membershipIndex}>
+
               {isEditing ? (
                 <EditingTier
                   membership={membershipTier}
@@ -165,6 +168,7 @@ function TiersTab(props: Props) {
       {(!channelMemberships || channelMemberships.length < 6) && (
         <Button
           button="primary"
+          disabled={STRIPE_DISABLED}
           onClick={(e) => {
             const newestId = uuid(); // --> this will only be used locally when creating a new tier
 

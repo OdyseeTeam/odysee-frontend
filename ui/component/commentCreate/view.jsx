@@ -32,6 +32,8 @@ const stripeEnvironment = getStripeEnvironment();
 const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
 
+const STRIPE_DISABLED = true;
+
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
@@ -874,7 +876,7 @@ export function CommentCreate(props: Props) {
             ) : tipSelectorOpen ? (
               <Button
                 {...submitButtonProps}
-                disabled={disabled || tipSelectorError || !minAmountMet}
+                disabled={disabled || tipSelectorError || !minAmountMet || (activeTab === TAB_FIAT && STRIPE_DISABLED)}
                 icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
                 label={__('Review')}
                 onClick={() => {
@@ -961,7 +963,9 @@ export function CommentCreate(props: Props) {
               />
             )}
           </div>
+
         )}
+        {activeTab === TAB_FIAT && STRIPE_DISABLED && (<div className={'help'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>)}
         <div className="chat-resize">
           <div />
           <div />
