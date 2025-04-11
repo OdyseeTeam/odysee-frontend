@@ -65,7 +65,7 @@ const PremiumOption = (props: Props) => {
           {formatDateToMonthDayAndYear(Subscription.current_period_end * 1000)}
         </h4>
 
-        {(!isCancelled ? Subscription.canceled_at === 0 : !membershipStillValid || STRIPE_DISABLED) && (
+        {(!STRIPE_DISABLED && (!isCancelled ? Subscription.canceled_at === 0 : !membershipStillValid)) && (
           <Button
             button="alt"
             membership-id={Membership.membership_id}

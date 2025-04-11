@@ -146,7 +146,7 @@ const SettingsStripeCard = (props: Props) => {
 
   if (STRIPE_DISABLED) {
     return (
-      <div className={'help'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
+      <div className={'error'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
     )
   }
 
