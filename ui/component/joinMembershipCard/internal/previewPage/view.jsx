@@ -126,7 +126,7 @@ const PreviewPage = (props: Props) => {
             <ButtonNavigateChannelId
               icon={ICONS.MEMBERSHIP}
               button="primary"
-              type="submit"
+            type="submit"
               label={__('Manage Your Membership Tiers')}
               navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
               channelId={channelId}

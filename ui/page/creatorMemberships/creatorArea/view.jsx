@@ -180,7 +180,7 @@ const CreatorArea = (props: Props) => {
                       />
                     </div>
                   </div>
-
+                  <div className={'help margin-vertical-medium'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
                   <TiersTab />
                 </>
               }

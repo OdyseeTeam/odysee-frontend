@@ -134,7 +134,7 @@ function TiersTab(props: Props) {
 
           return (
             <div className="membership-tier__wrapper" key={membershipIndex}>
-              <div className={'help'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
+
               {isEditing ? (
                 <EditingTier
                   membership={membershipTier}
