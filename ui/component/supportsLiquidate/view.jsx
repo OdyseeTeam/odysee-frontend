@@ -21,14 +21,16 @@ type Props = {
 };
 
 const SupportsLiquidate = (props: Props) => {
+  const defaultAmountPercent = 25;
   const { claim, abandonSupportForClaim, handleClose, abandonClaimError } = props;
-  const [previewBalance, setPreviewBalance] = useState(undefined);
+  const [previewBalance, setPreviewBalance] = useState(-1);
   const [amount, setAmount] = useState(-1);
+  const [sliderPosition, setSliderPosition] = useState(defaultAmountPercent);
   const [error, setError] = useState(false);
   const initialMessage = __('How much would you like to unlock?');
   const [message, setMessage] = useState(initialMessage);
   const keep =
-    amount >= 0
+    Number(amount) >= 0
       ? Boolean(previewBalance) && Number.parseFloat(String(Number(previewBalance) - Number(amount))).toFixed(8)
       : Boolean(previewBalance) && Number.parseFloat(String((Number(previewBalance) / 4) * 3)).toFixed(8); // default unlock 25%
   const claimId = claim && claim.claim_id;
@@ -50,40 +52,41 @@ const SupportsLiquidate = (props: Props) => {
     });
   }
 
-  function handleChange(a) {
+  function handleChange(a, isFromSlider) {
+    if (!isNaN(Number(a))) setSliderPosition((Number(a) / previewBalance) * 100);
+    setAmount((isFromSlider && !isNaN(Number(a)) && Number(a).toFixed(2)) || a);
+
     if (a === undefined || isNaN(Number(a))) {
       setMessage(__('Amount must be a number'));
       setError(true);
-      setAmount(0);
     } else if (a === '') {
-      setAmount(0);
       setError(true);
       setMessage(__('Amount cannot be blank'));
     } else if (Number(a) > Number(previewBalance)) {
       setMessage(__('Amount cannot be more than available'));
-      setError(false);
+      setError(true);
     } else if (Number(a) === Number(previewBalance)) {
       setMessage(__(`She's about to close up the library!`));
-      setAmount(a);
       setError(false);
     } else if (Number(a) > Number(previewBalance) / 2) {
       setMessage(__('Your content will do better with more staked on it'));
-      setAmount(a);
       setError(false);
     } else if (Number(a) === 0) {
       setMessage(__('Amount cannot be zero'));
-      setAmount(0);
       setError(true);
     } else if (Number(a) <= Number(previewBalance) / 2) {
       setMessage(__('A prudent choice'));
-      setAmount(Number(a));
       setError(false);
     } else {
       setMessage(initialMessage);
-      setAmount(a);
       setError(false);
     }
   }
+
+  React.useEffect(() => {
+    if (previewBalance) handleChange(previewBalance * (defaultAmountPercent / 100));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewBalance]); //
 
   return (
     <Card
@@ -142,11 +145,8 @@ const SupportsLiquidate = (props: Props) => {
                     <FormField
                       name="supports_liquidate_range"
                       type={'range'}
-                      min={0}
-                      step={0.01}
-                      max={previewBalance}
-                      value={Number(amount) >= 0 ? amount : previewBalance / 4} // by default, set it to 25% of available
-                      onChange={(e) => handleChange(e.target.value)}
+                      value={sliderPosition}
+                      onChange={(e) => handleChange((e.target.value / 100) * previewBalance, true)}
                     />
                     <label className="range__label">
                       <span>0</span>
@@ -155,9 +155,9 @@ const SupportsLiquidate = (props: Props) => {
                     </label>
                     <FormField
                       type="text"
-                      value={amount >= 0 ? amount || '' : previewBalance && previewBalance / 4}
+                      value={amount || ''}
                       helper={message}
-                      onChange={(e) => handleChange(e.target.value)}
+                      onChange={(e) => handleChange(e.target.value, false)}
                     />
                   </Form>
                 )}
