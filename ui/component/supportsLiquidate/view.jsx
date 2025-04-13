@@ -23,7 +23,7 @@ type Props = {
 const SupportsLiquidate = (props: Props) => {
   const defaultAmountPercent = 25;
   const { claim, abandonSupportForClaim, handleClose, abandonClaimError } = props;
-  const [previewBalance, setPreviewBalance] = useState(-1);
+  const [previewBalance, setPreviewBalance] = useState(undefined);
   const [amount, setAmount] = useState(-1);
   const [sliderPosition, setSliderPosition] = useState(defaultAmountPercent);
   const [error, setError] = useState(false);
@@ -53,7 +53,7 @@ const SupportsLiquidate = (props: Props) => {
   }
 
   function handleChange(a, isFromSlider) {
-    if (!isNaN(Number(a))) setSliderPosition((Number(a) / previewBalance) * 100);
+    if (!isNaN(Number(a)) && !isNaN(previewBalance)) setSliderPosition((Number(a) / Number(previewBalance)) * 100);
     setAmount((isFromSlider && !isNaN(Number(a)) && Number(a).toFixed(2)) || a);
 
     if (a === undefined || isNaN(Number(a))) {
@@ -85,7 +85,7 @@ const SupportsLiquidate = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (previewBalance) handleChange(previewBalance * (defaultAmountPercent / 100));
+    if (previewBalance) handleChange(previewBalance * (defaultAmountPercent / 100), true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [previewBalance]); //
 
@@ -151,8 +151,8 @@ const SupportsLiquidate = (props: Props) => {
                     />
                     <label className="range__label">
                       <span>0</span>
-                      <span>{previewBalance / 2}</span>
-                      <span>{previewBalance}</span>
+                      <span>{!isNaN(previewBalance) && Number(previewBalance / 2).toFixed(2)}</span>
+                      <span>{!isNaN(previewBalance) && Number(previewBalance).toFixed(2)}</span>
                     </label>
                     <FormField
                       type="text"
