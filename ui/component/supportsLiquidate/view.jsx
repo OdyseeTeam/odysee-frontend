@@ -71,8 +71,9 @@ const SupportsLiquidate = (props: Props) => {
     } else if (Number(a) > Number(previewBalance) / 2) {
       setMessage(__('Your content will do better with more staked on it'));
       setError(false);
-    } else if (Number(a) === 0) {
+    } else if (Number(a) <= 0) {
       setMessage(__('Amount cannot be zero'));
+      setAmount(0);
       setError(true);
     } else if (Number(a) <= Number(previewBalance) / 2) {
       setMessage(__('A prudent choice'));
