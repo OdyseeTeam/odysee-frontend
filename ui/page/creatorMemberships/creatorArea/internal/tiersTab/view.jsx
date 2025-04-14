@@ -103,24 +103,24 @@ function TiersTab(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- no need to listen for editing ids
   }, [fetchedMembershipsStr]);
 
-  if (!bankAccountConfirmed) {
-    return (
-      <>
-        <div className="bank-account-status">
-          <div>
-            <label>{__('Bank Account Status')}</label>
-            <span>{__('You have to connect a bank account before you can create tiers.')}</span>
-          </div>
-          <Button
-            button="primary"
-            label={__('Connect a bank account')}
-            icon={ICONS.FINANCE}
-            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-          />
-        </div>
-      </>
-    );
-  }
+  // if (!bankAccountConfirmed) {
+  //   return (
+  //     <>
+  //       <div className="bank-account-status">
+  //         <div>
+  //           <label>{__('Bank Account Status')}</label>
+  //           <span>{__('You have to connect a bank account before you can create tiers.')}</span>
+  //         </div>
+  //         <Button
+  //           button="primary"
+  //           label={__('Connect a bank account')}
+  //           icon={ICONS.FINANCE}
+  //           navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+  //         />
+  //       </div>
+  //     </>
+  //   );
+  // }
 
   return (
     <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
