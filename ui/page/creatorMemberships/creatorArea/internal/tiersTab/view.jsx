@@ -123,7 +123,7 @@ function TiersTab(props: Props) {
   // }
 
   return (
-    <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
+    <div className={classnames('tier-edit-functionality')}>
       {channelMemberships &&
         channelMemberships
           .filter((m) => (showDisabled ? true : m.enabled === true || m.saved === false))
