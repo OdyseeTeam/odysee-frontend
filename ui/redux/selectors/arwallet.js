@@ -8,3 +8,4 @@ export const selectArweaveConnecting = (state: State) => selectState(state).conn
 export const selectArweaveAddress = (state: State) => selectState(state).address;
 export const selectArweaveBalance = (state: State) => selectState(state).balance;
 export const selectArweaveFetching = (state: State) => selectState(state).fetching;
+export const selectArweaveTippingForId = (state: State, tippingId: string) => selectState(state).tippingStatusById[tippingId];

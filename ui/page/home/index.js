@@ -8,8 +8,7 @@ import {
   selectViewersById,
 } from 'redux/selectors/livestream';
 import { selectFollowedTags } from 'redux/selectors/tags';
-import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
+import { hasLegacyOdyseePremium, selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import {
   selectShowMatureContent,
@@ -31,7 +30,7 @@ const select = (state) => ({
   fetchingActiveLivestreams: selectIsFetchingActiveLivestreams(state),
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
-  userHasOdyseeMembership: selectUserHasValidOdyseeMembership(state),
+  userHasOdyseeMembership: hasLegacyOdyseePremium(state),
   activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
   livestreamViewersById: selectViewersById(state),
 });

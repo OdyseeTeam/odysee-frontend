@@ -1,8 +1,7 @@
 import { createSelector } from 'reselect';
 import { SHOW_ADS } from 'config';
 import { selectClaimForId, selectMyChannelClaims, selectStakedLevelForChannelUri } from 'redux/selectors/claims';
-import { selectUserEmail, selectUserLocale } from 'redux/selectors/user';
-import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
+import { hasLegacyOdyseePremium, selectUserEmail, selectUserLocale } from 'redux/selectors/user';
 import { selectDefaultChannelClaim } from 'redux/selectors/settings';
 
 export const selectState = (state) => state.app || {};
@@ -143,7 +142,7 @@ export const selectShouldShowAds = (state) => {
   return (
     SHOW_ADS &&
     selectAdBlockerFound(state) === false &&
-    selectUserHasOdyseePremiumPlus(state) === false &&
+    hasLegacyOdyseePremium(state) === false && // here
     selectIsAdAllowedPerGdpr(state)
   );
 };
