@@ -9,7 +9,7 @@ import './style.scss';
 const DEFAULT_AVATAR = 'https://thumbnails.odycdn.com/optimize/s:160:160/quality:85/plain/https://spee.ch/spaceman-png:2.png';
 const DEFAULT_THUMBNAIL = 'https://thumbnails.odycdn.com/optimize/s:600:0/quality:85/plain/default_thumbnail.png';
 
-// Emoji mapping from Odysee CDN
+// Emoji and stiker mapping
 const EMOJI_MAPPING = {
   ':thumb_up_2:': 'https://static.odycdn.com/emoticons/48%20px/thumb%20up%402x.png',
   ':thumb_down:': 'https://static.odycdn.com/emoticons/48%20px/thumb%20down%402x.png',
@@ -171,14 +171,24 @@ const CommentCard = ({ claimIds, sortBy = 'top' }) => {
     return `hsl(${hue}, 80%, 65%)`;
   }, []);
 
-  // Function to format text with emojis
+  // Function to format text with emojis and stickers
   const formatCommentText = useCallback((text) => {
     if (!text) return '';
     let formattedText = text;
     for (const [emojiCode, emojiUrl] of Object.entries(EMOJI_MAPPING)) {
+      const isSticker = emojiUrl.includes('/stickers/');
+      const className = isSticker ? 'comment-sticker' : 'comment-emoji';
+      
       formattedText = formattedText.replace(
         new RegExp(emojiCode, 'g'),
-        `<img src="${emojiUrl}" alt="${emojiCode}" class="comment-emoji comment-sticker" />`
+        `<img 
+          src="${emojiUrl}" 
+          alt="${emojiCode}" 
+          class="${className}"
+          loading="lazy"
+          width="${isSticker ? 90 : 24}"
+          height="${isSticker ? 90 : 24}"
+        />`
       );
     }
     return formattedText;

@@ -110,18 +110,26 @@
   line-height: 1.4;
   word-break: break-word;
   
-  .comment-emoji {
-    width: 18px;
-    height: 18px;
-    vertical-align: middle;
-    margin: 0 2px;
+.comment-emoji, .comment-sticker {
+  vertical-align: middle;
+  margin: 0 2px;
+  transition: all 0.2s ease-in-out; 
+}
+
+.comment-emoji {
+  width: 24px;
+  height: 24px;
+  &:hover {
+    transform: scale(1.2) rotate(10deg);
   }
-  
-  .comment-sticker {
-    width: 84px;
-    height: 84px;
-    vertical-align: middle;
-    margin: 2px;
+}
+
+.comment-sticker {
+  width: 90px;
+  height: 90px;
+  &:hover {
+    transform: scale(1.1);
+    }
   }
 }
 
