@@ -325,10 +325,9 @@ function HomePage(props: Props) {
           undefined
         )}
 
-{homepageFetched &&
+      {homepageFetched &&
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
-          
             // Check if there are any comments for this position
             const commentCardForPosition = homepageCommentCards?.find((commentCard) => commentCard.position === index) || null;
 
@@ -358,7 +357,7 @@ function HomePage(props: Props) {
             );
           }
         )}
-      </Page>
+    </Page>
   );
 }
 
