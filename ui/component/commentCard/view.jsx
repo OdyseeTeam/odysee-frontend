@@ -178,7 +178,7 @@ const CommentCard = ({ claimIds, sortBy = 'top' }) => {
     for (const [emojiCode, emojiUrl] of Object.entries(EMOJI_MAPPING)) {
       const isSticker = emojiUrl.includes('/stickers/');
       const className = isSticker ? 'comment-sticker' : 'comment-emoji';
-      
+
       formattedText = formattedText.replace(
         new RegExp(emojiCode, 'g'),
         `<img 
