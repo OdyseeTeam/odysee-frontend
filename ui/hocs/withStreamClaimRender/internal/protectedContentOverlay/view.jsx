@@ -39,6 +39,8 @@ const ProtectedContentOverlay = (props: Props) => {
     doOpenModal,
   } = props;
 
+  const STRIPE_DISABLED = true;
+
   const appFileUri = React.useContext(AppContext)?.uri;
   const fileUri = props.fileUri || appFileUri;
   const isEmbed = React.useContext(EmbedContext);
@@ -72,6 +74,7 @@ const ProtectedContentOverlay = (props: Props) => {
       <Button
         button="primary"
         icon={ICONS.MEMBERSHIP}
+        disabled={STRIPE_DISABLED}
         label={
           cheapestPlanPrice
             ? __(

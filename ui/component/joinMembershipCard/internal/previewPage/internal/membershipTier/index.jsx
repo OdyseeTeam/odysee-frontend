@@ -14,6 +14,8 @@ type Props = {
   handleSelect: () => void,
 };
 
+const STRIPE_DISABLED = true;
+
 const MembershipTier = (props: Props) => {
   const { membership, index, length, disabled, isChannelTab, handleSelect } = props;
 
@@ -36,7 +38,7 @@ const MembershipTier = (props: Props) => {
               membership_price: membership?.NewPrices[0]?.creator_receives_amount / 100,
             })}
             onClick={handleSelect}
-            disabled={disabled}
+            disabled={disabled || STRIPE_DISABLED}
           />
         }
       />

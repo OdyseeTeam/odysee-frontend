@@ -44,6 +44,7 @@ type Props = WrapperProps & {
 };
 
 const SettingsStripeCard = (props: Props) => {
+  const STRIPE_DISABLED = true;
   const {
     isModal,
     promisePending,
@@ -141,6 +142,12 @@ const SettingsStripeCard = (props: Props) => {
       clearErrorMessage();
       setCardNameValue(value);
     }
+  }
+
+  if (STRIPE_DISABLED) {
+    return (
+      <div className={'error'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
+    )
   }
 
   if (cardDetails) {

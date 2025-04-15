@@ -180,7 +180,7 @@ const CreatorArea = (props: Props) => {
                       />
                     </div>
                   </div>
-
+                  <div className={'error'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
                   <TiersTab />
                 </>
               }

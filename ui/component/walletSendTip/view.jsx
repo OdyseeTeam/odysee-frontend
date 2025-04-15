@@ -25,6 +25,8 @@ const TAB_BOOST = 'TabBoost';
 const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
 
+const STRIPE_DISABLED = true;
+
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
@@ -95,11 +97,10 @@ export default function WalletSendTip(props: Props) {
 
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
-  const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
 
-  // loads the default tab if nothing else is there yet
-  const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', defaultTabToShow);
-  const [activeTab, setActiveTab] = React.useState(persistentTab);
+  // loads the fiat tab if nothing else is there yet
+  const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', TAB_FIAT);
+  const [activeTab, setActiveTab] = React.useState(claimIsMine ? TAB_BOOST : persistentTab);
   const [hasSelected, setSelected] = React.useState(false);
 
   /** STATE **/
@@ -389,11 +390,14 @@ export default function WalletSendTip(props: Props) {
                   icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
                   button="primary"
                   type="submit"
-                  disabled={fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton}
+                  disabled={fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || (activeTab === TAB_FIAT && STRIPE_DISABLED)}
                   label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
                 />
+
                 {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
               </div>
+              {STRIPE_DISABLED && activeTab === TAB_FIAT && <div className={'error margin-vertical-medium'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>}
+
             </>
           ) : (
             // if it's LBC and there is no balance, you can prompt to purchase LBC

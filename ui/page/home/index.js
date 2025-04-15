@@ -17,6 +17,7 @@ import {
   selectClientSetting,
   selectHomepageMeme,
   selectHomepageCommentCards,
+  selectHomepageCustomBanners,
 } from 'redux/selectors/settings';
 
 import HomePage from './view';
@@ -36,6 +37,7 @@ const select = (state) => ({
   activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
   livestreamViewersById: selectViewersById(state),
   homepageCommentCards: selectHomepageCommentCards(state),
+  homepageCustomBanners: selectHomepageCustomBanners(state),
 });
 
 const perform = (dispatch) => ({

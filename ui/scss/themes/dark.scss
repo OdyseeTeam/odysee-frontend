@@ -195,4 +195,31 @@
   --color-card-comment-button: #ffffff;
   --color-comment-card-menu: #ffffff;
   --color-menu-card-background: rgba(30, 30, 30, 0.98);
+
+  // Custom Banners
+
+  --color-banner-button-shadow: rgba(0, 0, 0, 0.3);
+  --color-dropdown-background: rgba(30, 30, 30, 0.98);
+  --color-menu-item-color: #ffffff;
+  --color-menu-item-hover: rgba(255, 255, 255, 0.05);
+
+  // Colors for banner-primary (dark mode)
+  --banner-primary-bg: #1a1326;
+  --banner-primary-label: #ffffff;
+  --banner-primary-description: #e6e6e6;
+  --banner-primary-tag: #d3d3d3;
+  --banner-primary-button-bg: #4a148c;
+  --banner-primary-button-hover: #7b1fa2;
+  --banner-primary-info: #ffffff;
+  --banner-primary-dark: #ffffff;
+
+  // Colors for banner-secondary (dark mode)
+  --banner-secondary-bg: #131313;
+  --banner-secondary-label: #f8f8f8;
+  --banner-secondary-description: #e0e0e0;
+  --banner-secondary-tag: #e0e0e0;
+  --banner-secondary-button-bg: #de0050;
+  --banner-secondary-button-hover: #b41851;
+  --banner-secondary-info: #ff4d7a;
+  --banner-secondary-button-text: #ffffff;
 }

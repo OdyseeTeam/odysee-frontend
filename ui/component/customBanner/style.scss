@@ -1,0 +1,552 @@
+// Variables
+$breakpoint-small: 768px;
+$breakpoint-kindle: 800px;
+$breakpoint-medium: 992px;
+$breakpoint-tablet: 1024px;
+$breakpoint-1200: 1200px;
+$breakpoint-1150: 1150px;
+$breakpoint-1280: 1280px;
+
+// Common styles for both banners
+.banner-container {
+  position: relative;
+  width: 100%;
+  margin: 0px auto 20px;
+  padding: 0 30px;
+  border-radius: 4px;
+  overflow: hidden;
+
+  .banner-background {
+    width: 240px;
+    height: 240px;
+    object-fit: cover;
+    margin-right: auto;
+  }
+
+  .banner-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .banner-image {
+    width: 240px;
+    height: 240px;
+    margin: 0 15px 0 0;
+    object-fit: cover;
+    transition: all 0.3s ease;
+  }
+
+  .banner-text-container {
+    flex: 1;
+  }
+
+  .banner-label {
+    max-width: 800px;
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+
+  .banner-description {
+    font-size: 18px;
+    margin-bottom: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.3s ease;
+  }
+
+  .banner-tag {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+    transition: color 0.3s ease;
+  }
+
+  .banner-button {
+    display: inline-block;
+    padding: 10px;
+    color: #fff;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &:hover {
+      transform: translateY(-1px);
+    }
+  }
+
+  .banner-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.3s ease;
+  }
+}
+
+// Specific styles for the first banner
+.banner-primary {
+  background-color: var(--banner-primary-bg);
+
+  .banner-label {
+    color: var(--banner-primary-label);
+    text-shadow: 0 0px 1px rgba(0, 0, 0, 0.3);
+  }
+
+  .banner-description {
+    color: var(--banner-primary-description);
+  }
+
+  .banner-tag {
+    color: var(--banner-primary-tag);
+  }
+
+  .banner-button {
+    background-color: var(--banner-primary-button-bg);
+    
+    &:hover {
+      background-color: var(--banner-primary-button-hover);
+    }
+  }
+
+  .banner-info {
+    color: var(--banner-primary-info);
+  }
+
+  &.vibrant-variant {
+    background-image: linear-gradient(
+      to left,
+      transparent,
+      rgba(217, 35, 137, 0.65) 30%,
+      rgba(93, 27, 189, 0.8) 60%,
+      rgb(0, 202, 164) 90%
+    );
+    
+    .banner-button {
+      background-color: var(--banner-primary-dark);
+    }
+  }
+
+  &.colorful-variant {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(217, 35, 137, 0.65) 30%,
+      rgba(93, 27, 189, 0.8) 60%,
+      rgb(0, 202, 164) 90%
+    );
+    
+    .banner-tag {
+      background-color: rgba(217, 35, 111, 0.7);
+    }
+  }
+}
+
+// Specific styles for the second banner
+.banner-secondary {
+  background-color: var(--banner-secondary-bg);
+
+  .banner-label {
+    color: var(--banner-secondary-label);
+  }
+
+  .banner-description {
+    color: var(--banner-secondary-description);
+  }
+
+  .banner-tag {
+    color: var(--banner-secondary-tag);
+  }
+
+  .banner-button {
+    background-color: var(--banner-secondary-button-bg);
+    color: var(--banner-secondary-button-text);
+    
+    &:hover {
+      background-color: var(--banner-secondary-button-hover);
+    }
+  }
+
+  .banner-info {
+    color: var(--banner-secondary-info);
+  }
+
+  &.variant-1 {
+    background-image: linear-gradient(
+      to left,
+      transparent,
+      var(--banner-secondary-light) 25%,
+      var(--banner-secondary-bg) 50%,
+      var(--banner-secondary-dark) 80%
+    );
+  }
+
+  &.variant-2 {
+    background-image: linear-gradient(
+      to left,
+      transparent,
+      var(--banner-secondary-light) 40%,
+      var(--banner-secondary-bg) 70%,
+      var(--banner-secondary-dark) 100%
+    );
+  }
+}
+
+// Context menu styles
+.banner-context-menu {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 10;
+}
+
+.banner-menu-button {
+  background: var(--color-dropdown-background);
+  border: none;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--banner-primary-info);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px var(--color-banner-button-shadow);
+  padding: 0;
+
+  &:hover {
+    background: var(--color-dropdown-background);
+    color: var(--banner-primary-button-hover);
+  }
+}
+
+.banner-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  right: 0;
+  background-color: var(--color-dropdown-background);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px var(--color-banner-button-shadow);
+  overflow: hidden;
+  min-width: 150px;
+  backdrop-filter: blur(8px);
+  z-index: 20;
+  padding: 2px 0;
+}
+
+.banner-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-menu-item-color);
+
+  &:hover {
+    background-color: var(--color-menu-item-hover);
+  }
+}
+
+// Responsive styles for tablets
+@media (max-width: $breakpoint-tablet) and (min-width: #{$breakpoint-small + 1}) {
+  .banner-container {
+    padding: 20px;
+    
+    .banner-image {
+      width: 200px;
+      height: 200px;
+    }
+    
+    .banner-label {
+      font-size: 26px;
+    }
+    
+    .banner-description {
+      font-size: 16px;
+    }
+    
+    .banner-button {
+      padding: 12px 15px;
+    }
+  }
+}
+
+// Responsive styles for Kindle and similar e-readers
+@media (max-width: $breakpoint-kindle) and (min-width: #{$breakpoint-small + 1}),
+       (max-device-width: $breakpoint-kindle) and (orientation: portrait) {
+  .banner-container {
+    .banner-content-wrapper {
+      flex-direction: inherit;
+      align-items: center;
+      text-align: center;
+    }
+    
+    .banner-image {
+      margin: 0 auto 15px;
+    }
+    
+    .banner-label,
+    .banner-description,
+    .banner-tag {
+      white-space: normal;
+      text-align: center;
+    }
+    
+    .banner-info {
+      position: static;
+      justify-content: center;
+      margin-top: 10px;
+    }
+  }
+}
+
+// High-resolution tablet adjustments
+@media only screen and (min-device-width: $breakpoint-small) and (max-device-width: $breakpoint-tablet) and (-webkit-min-device-pixel-ratio: 2) {
+  .banner-container {
+    .banner-label {
+      font-weight: 600;
+    }
+    
+    .banner-button {
+      padding: 11px 14px;
+    }
+  }
+}
+
+// Adjustments for 900px width
+@media (max-width: $breakpoint-medium) and (min-width: 769px) {
+  .banner-container {
+    padding: 0 20px;
+    
+    .banner-content-wrapper {
+      gap: 12px;
+    }
+    
+    .banner-image {
+      width: 180px;
+      height: 180px;
+    }
+    
+    .banner-label {
+      font-size: 24px;
+    }
+    
+    .banner-description {
+      font-size: 16px;
+    }
+    
+    .banner-tag {
+      margin-bottom: 15px;
+    }
+    
+    .banner-button {
+      padding: 9px 11px;
+      font-size: 14px;
+    }
+  }
+  
+  .banner-context-menu {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+// Adjustments for 1200px width
+@media (max-width: $breakpoint-1200) and (min-width: #{$breakpoint-tablet + 1}) {
+  .banner-container {
+    .banner-content-wrapper {
+      gap: 15px;
+    }
+    
+    .banner-image {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .banner-label {
+      font-size: 28px;
+      white-space: normal;
+    }
+    
+    .banner-description {
+      font-size: 17px;
+      white-space: normal;
+    }
+    
+    .banner-button {
+      padding: 10px 12px;
+    }
+  }
+}
+
+// Adjustments for 1280px width (HD displays)
+@media (max-width: $breakpoint-1280) and (min-width: 1151px) {  // Corregido: usando valor directo
+  .banner-container {
+    .banner-content-wrapper {
+      gap: 18px;
+    }
+    
+    .banner-image {
+      width: 230px;
+      height: 230px;
+    }
+    
+    .banner-label {
+      font-size: 28px;
+      max-width: 700px;
+    }
+    
+    .banner-description {
+      font-size: 17px;
+      max-width: 700px;
+    }
+    
+    .banner-button {
+      padding: 10px 14px;
+    }
+    
+    .banner-info {
+      font-size: 15px;
+    }
+  }
+}
+
+// Adjustments for 1150px width
+@media (max-width: $breakpoint-1150) and (min-width: 1025px) {  // $breakpoint-tablet + 1 = 1025px
+  .banner-container {
+    .banner-content-wrapper {
+      gap: 15px;
+    }
+    
+    .banner-image {
+      width: 220px;
+      height: 220px;
+    }
+    
+    .banner-label {
+      font-size: 28px;
+      white-space: normal;
+    }
+    
+    .banner-description {
+      font-size: 17px;
+      white-space: normal;
+    }
+    
+    .banner-button {
+      padding: 10px 12px;
+    }
+  }
+}
+
+// Responsive styles for mobile
+@media (max-width: $breakpoint-small) {
+  .banner-container {
+    padding: 15px;
+    margin-bottom: 15px;
+    
+    .banner-content-wrapper {
+      flex-direction: column;
+      gap: 15px;
+      
+      &.small-image-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        
+        .banner-image {
+          width: 80px;
+          height: 80px;
+          margin-right: 15px;
+          flex-shrink: 0;
+        }
+      }
+    }
+    
+    .banner-background,
+    .banner-image {
+      margin: 0 0 15px 0;
+      
+      &.square-image {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 15px;
+      }
+      
+      &.circle-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin: 0 auto 15px;
+      }
+    }
+    
+    .banner-label {
+      font-size: 22px;
+      white-space: normal;
+    }
+    
+    .banner-description {
+      font-size: 15px;
+      white-space: normal;
+    }
+    
+    .banner-tag {
+      font-size: 13px;
+      white-space: normal;
+    }
+    
+    .banner-button {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+    }
+    
+    .banner-info {
+      position: static;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  }
+  
+  .banner-primary, .banner-secondary {
+    &.vibrant-variant, 
+    &.colorful-variant,
+    &.variant-1,
+    &.variant-2 {
+      background-image: none;
+    }
+  }
+  
+  .banner-context-menu {
+    top: 10px;
+    right: 10px;
+  }
+  
+  .banner-menu-button {
+    width: 32px;
+    height: 32px;
+  }
+}

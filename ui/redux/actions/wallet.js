@@ -646,6 +646,8 @@ export function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
     return Lbry.support_abandon(params)
       .then((res) => {
         if (!preview) {
+          dispatchToast(dispatch, __('Successfully unlocked your tip!'), '', 'long', false);
+
           dispatch({
             type: ACTIONS.ABANDON_CLAIM_SUPPORT_COMPLETED,
             data: { claimId, txid: res.txid, effective: res.outputs[0].amount, type: claimType },
@@ -655,6 +657,8 @@ export function doSupportAbandonForClaim(claimId, claimType, keep, preview) {
         return res;
       })
       .catch((e) => {
+        dispatchToast(dispatch, __('Error unlocking your tip'), e.message || e, 'long');
+
         dispatch({
           type: ACTIONS.ABANDON_CLAIM_SUPPORT_FAILED,
           data: e.message,
