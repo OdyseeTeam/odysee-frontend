@@ -37,7 +37,7 @@ type Props = {
   doTipAccountCheckForUri: (uri: string) => void,
 };
 
-const STRIPE_DISABLED = true;
+// const STRIPE_DISABLED = true;
 
 function WalletTipAmountSelector(props: Props) {
   const {
@@ -258,7 +258,7 @@ function WalletTipAmountSelector(props: Props) {
             autoFocus={!isMobile}
             name="tip-input"
             id="tip-input"
-            disabled={(!customTipAmount && shouldDisableAmountSelector(0))}
+            disabled={!customTipAmount && shouldDisableAmountSelector(0)}
             error={tipError}
             min="0"
             step="any"
