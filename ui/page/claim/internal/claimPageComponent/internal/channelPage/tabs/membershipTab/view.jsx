@@ -19,7 +19,7 @@ type Props = {
   navigate: (string) => void,
 };
 
-const STRIPE_DISABLED = true;
+// const STRIPE_DISABLED = true;
 
 const MembershipTab = (props: Props) => {
   const {

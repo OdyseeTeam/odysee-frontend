@@ -77,7 +77,11 @@ const PreviewPage = (props: Props) => {
     if (channelIsMine) {
       return (
         <div className="join-membership__empty">
-          <h2 className="header--no-memberships">{STRIPE_DISABLED ? __('Payment Services are temporarily disabled. Please check back later.') : __('Channel Has No Memberships')}</h2>
+          <h2 className="header--no-memberships">
+            {STRIPE_DISABLED
+              ? __('Payment Services are temporarily disabled. Please check back later.')
+              : __('Channel Has No Memberships')}
+          </h2>
           <p>
             {__(
               "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
@@ -126,7 +130,7 @@ const PreviewPage = (props: Props) => {
             <ButtonNavigateChannelId
               icon={ICONS.MEMBERSHIP}
               button="primary"
-            type="submit"
+              type="submit"
               label={__('Manage Your Membership Tiers')}
               navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
               channelId={channelId}
