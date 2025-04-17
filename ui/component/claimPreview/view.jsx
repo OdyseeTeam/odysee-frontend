@@ -309,6 +309,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     shouldHide = true;
   }
 
+  // Filter empty reposts
+  if (!shouldHide) {
+    shouldHide = claim?.value_type === 'repost' && !pathname.includes(`/$/${PAGES.UPLOAD}`);
+  }
+
   if (!shouldHide && isPublishSuggestion) {
     shouldHide = true;
   }

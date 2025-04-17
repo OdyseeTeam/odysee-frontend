@@ -150,6 +150,11 @@ function ClaimPreviewTile(props: Props) {
       (isAbandoned && !showUnresolvedClaims);
   }
 
+  // Filter empty reposts
+  if (!shouldHide) {
+    shouldHide = claim?.value_type === 'repost';
+  }
+
   if (!shouldHide) {
     shouldHide = isLivestream && !showNoSourceClaims;
   }
