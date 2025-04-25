@@ -2972,6 +2972,9 @@
   "Your account has been connected, but charges are disabled. Please view the account on Stripe.": "Your account has been connected, but charges are disabled. Please view the account on Stripe.",
   "Send us an email to %help_email% if you continue to see this message. You can continue to use %site_name% without this feature.": "Send us an email to %help_email% if you continue to see this message. You can continue to use %site_name% without this feature.",
   "I understand this is a permanent action, and that another bank account can't be connected after the removal.": "I understand this is a permanent action, and that another bank account can't be connected after the removal.",
-
+  "Channel is required for commenting": "Channel is required for commenting",
+  "You'll need a channel to comment on this upload.": "You'll need a channel to comment on this upload.",
+  "Continue to channel creation": "Continue to channel creation",
+  
   "--end--": "--end--"
 }
