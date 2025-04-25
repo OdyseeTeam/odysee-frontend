@@ -707,12 +707,20 @@ export function CommentCreate(props: Props) {
             return;
           }
 
-          const pathPlusRedirect = `/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`;
-          if (isLivestream) {
-            window.open(pathPlusRedirect);
-          } else {
-            push(pathPlusRedirect);
-          }
+          doOpenModal(MODALS.CONFIRM, {
+            title: __('Channel is required for commenting'),
+            subtitle: __("You'll need a channel to comment on this upload."),
+            labelOk: __('Continue to channel creation'),
+            onConfirm: (closeModal) => {
+              const pathPlusRedirect = `/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`;
+              if (isLivestream) {
+                window.open(pathPlusRedirect);
+              } else {
+                push(pathPlusRedirect);
+              }
+              closeModal();
+            },
+          });
         }}
       >
         <FormField
@@ -963,9 +971,10 @@ export function CommentCreate(props: Props) {
               />
             )}
           </div>
-
         )}
-        {activeTab === TAB_FIAT && STRIPE_DISABLED && (<div className={'help'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>)}
+        {activeTab === TAB_FIAT && STRIPE_DISABLED && (
+          <div className={'help'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>
+        )}
         <div className="chat-resize">
           <div />
           <div />
