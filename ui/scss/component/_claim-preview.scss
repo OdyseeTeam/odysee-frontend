@@ -11,6 +11,10 @@
     top: var(--spacing-xxxxs);
     right: 0;
     padding: 2px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    min-width: 50px;
+    min-height: 30px;
     border-radius: 50%;
     z-index: 2;
 
@@ -34,7 +38,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    margin-right: var(--spacing-m);
+    margin-right: var(--spacing-xl);
     color: rgba(var(--color-text-base), 0.9);
   }
 
