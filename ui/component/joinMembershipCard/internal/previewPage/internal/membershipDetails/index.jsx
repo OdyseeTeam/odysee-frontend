@@ -68,6 +68,8 @@ const MembershipDetails = (props: Props) => {
             descriptionLine === '' ? <br key={i} /> : <p key={i}>{descriptionLine}</p>
           )}
         </span>
+        <label>{__('Pledge')}</label>
+        <span>${(membership?.prices[0].amount / 100).toFixed(2)}</span> {/* the ui basically supports monthly right now */}
 
         <div className="membership-tier__perks">
           <div className="membership-tier__moon" />

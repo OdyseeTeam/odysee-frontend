@@ -119,7 +119,14 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err });
     });
 };
+/*
+3 Steps: membership_v2/subscribe, arweave.message() to send payment, membership_v2/subscription/transaction_notify
+await dispatch(doMembershipMine()); returns memberships[] which are put into state as a {creatorId: [subscriptions...] map
+after step 1: subscription.status will be pending if new, payments[] will have an item reflecting the placeholder payment
+`{completed_at: null, transaction_id: "", etc}`
+after step 3: subscription.status may still be pending if api has not yet verified the payment on ao
 
+ */
 export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   console.log('dmb', membershipParams);
@@ -159,6 +166,7 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
         subscribeToken = token;
         payeeAddress = payee_address;
       });
+    await dispatch(doMembershipMine());
 
     const transferTxid = await message({
       process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
@@ -180,8 +188,10 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
       tx_id: transferTxid,
     };
 
+    await dispatch(doMembershipMine());
+
     await Lbryio.call('membership_v2/subscription', 'transaction_notify', notifyParams, 'post');
-    dispatch(doMembershipMine());
+    await dispatch(doMembershipMine());
     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
   } catch (e) {
     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });

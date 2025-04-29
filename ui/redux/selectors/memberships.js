@@ -109,14 +109,16 @@ export const selectMyActiveMembershipsById = createSelector(
   }
 );
 
+// subscription.status === 'active' or ( subscription.status === 'pending' and m.payments.find(p => p.status="submitted")
 export const selectHasMembershipForMembershipId = (state: State, creatorId: string, membershipId: number) => {
   const mine = selectMembershipMineData(state);
   const mineForCreator = mine[creatorId];
   if (!mineForCreator) return false;
-  const isSubscribed = !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'active') || false;
+  const isSubscribed = !!mineForCreator.find((m) => m.membership.id === membershipId && (m.subscription.status === 'active' || (m.subscription.status ==='pending' && m.payments.some(p => p.status === 'submitted')))) || false;
   return isSubscribed;
 };
 
+// canceled if subscription.status === 'canceled'
 export const selectHasCanceledMembershipForMembershipId = (state: State, creatorId: string, membershipId: number) => {
   const mine = selectMembershipMineData(state);
   const mineForCreator = mine[creatorId];
@@ -124,6 +126,7 @@ export const selectHasCanceledMembershipForMembershipId = (state: State, creator
   return !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'canceled') || false;
 };
 
+// pending if subscription.status === pending AND payments.find(p => p.status === submitted
 export const selectHasPendingMembershipForMembershipId = (state: State, creatorId: string, membershipId: number) => {
   const mine = selectMembershipMineData(state);
   const mineForCreator = mine[creatorId];
@@ -186,6 +189,12 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
   const validMemberships = selectMyValidMembershipsForCreatorId(state, id);
   return Boolean(validMemberships && validMemberships.length > 0);
 };
+
+export const selectUserHasValidNonCanceledMembershipForCreatorId = (state: State, id: string) => {
+  const validMemberships = selectMyValidMembershipsForCreatorId(state, id);
+  const memberships = validMemberships.filter(m => m.subscription.status === 'active') // possibly 'pending'
+  return Boolean(memberships && memberships.length > 0);
+}
 
 export const selectUserHasValidOdyseeMembership = (state: State) =>
   selectUserHasValidMembershipForCreatorId(state, ODYSEE_CHANNEL.ID); // deprecated

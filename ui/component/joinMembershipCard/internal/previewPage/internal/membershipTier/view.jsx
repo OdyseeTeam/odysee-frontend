@@ -14,10 +14,22 @@ type Props = {
   isActive: boolean,
   isPending: boolean,
   isCanceled: boolean,
+  isOwnChannel: boolean,
+  userHasCreatorMembership: boolean, // here
 };
 
 const MembershipTier = (props: Props) => {
-  const { membership, index, length, disabled, isChannelTab, handleSelect, isActive } = props;
+  const {
+    membership,
+    index,
+    length,
+    disabled,
+    isChannelTab,
+    handleSelect,
+    isActive,
+    isOwnChannel,
+    userHasCreatorMembership,
+  } = props;
   return (
     <div
       className={
@@ -33,9 +45,11 @@ const MembershipTier = (props: Props) => {
           <>
             {isActive ? (
               <div className={'help'}>Currently Subscribed!</div>
-            ) : disabled
+            ) : userHasCreatorMembership
               ? (<div className={'help'}>Cancel Active Membership before Joining Another</div>)
-              : (
+              : isOwnChannel
+                ? null
+                : (
               <Button
                 icon={ICONS.MEMBERSHIP}
                 button="primary"
