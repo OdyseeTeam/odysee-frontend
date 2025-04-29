@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import {
   selectMembershipTiersForChannelUri,
-  selectUserHasValidMembershipForCreatorId,
+  selectUserHasValidNonCanceledMembershipForCreatorId,
 } from 'redux/selectors/memberships';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
@@ -30,7 +30,7 @@ const select = (state, props) => {
     channelUri,
     channelId: claimId,
     channelName: claim.name,
-    userHasACreatorMembership: selectUserHasValidMembershipForCreatorId(state, channelId),
+    userHasACreatorMembership: selectUserHasValidNonCanceledMembershipForCreatorId(state, channelId),
   };
 };
 

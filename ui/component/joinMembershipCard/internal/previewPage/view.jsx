@@ -63,6 +63,7 @@ const PreviewPage = (props: Props) => {
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
+  console.log('selectedTier', selectedTier, selectedMembershipIndex);
 
   console.log('U', userHasACreatorMembership);
 
@@ -154,7 +155,8 @@ const PreviewPage = (props: Props) => {
               index={index}
               length={creatorMemberships.length}
               key={index}
-              disabled={creatorPurchaseDisabled}
+              isOwnChannel={channelIsMine}
+              userHasCreatorMembership={userHasACreatorMembership} // here
               isChannelTab
             />
           ))}

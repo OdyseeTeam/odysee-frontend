@@ -38,6 +38,7 @@ const MembershipTab = (props: Props) => {
   } else {
     delete window.pendingMembership;
   }
+  console.log('active', activeMemberships)
 
   return (
     <>

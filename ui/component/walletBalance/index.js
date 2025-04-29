@@ -24,6 +24,7 @@ const select = (state) => ({
   experimentalUi: selectUserExperimentalUi(state),
   LBCBalance: selectBalance(state),
   USDCBalance: selectArweaveBalance(state).usdc,
+  arweaveBalance: selectArweaveBalance(state).arweave,
   accountStatus: selectAccountStatus(state),
   fullArweaveStatus: selectFullAPIArweaveStatus(state),
   claimsBalance: selectClaimsBalance(state) || 0,

@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { v4 as uuid } from 'uuid';
 
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
+
 import Button from 'component/button';
 
 import MembershipTier from './internal/membershipTier';

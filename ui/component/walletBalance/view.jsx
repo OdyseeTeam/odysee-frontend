@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -46,6 +46,7 @@ const WalletBalance = (props: Props) => {
     experimentalUi,
     LBCBalance,
     USDCBalance,
+    arweaveBalance,
     claimsBalance,
     supportsBalance,
     tipsBalance,
@@ -65,7 +66,7 @@ const WalletBalance = (props: Props) => {
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
   const { other: otherCount = 0 } = utxoCounts || {};
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+  const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
@@ -207,7 +208,7 @@ const WalletBalance = (props: Props) => {
           }
         />
       </div>
-      {showArweave && (
+      {showStablecoin && (
         <div className="column">
           <Card
             title={<Symbol token="usdc" amount={USDCBalance} precision={2} isTitle />}
@@ -249,6 +250,48 @@ const WalletBalance = (props: Props) => {
           />
         </div>
       )}
+      { /* ARWEAVE */ }
+        <div className="column">
+          <Card
+            title={<Symbol token="ar_logo" amount={USDCBalance} precision={2} isTitle />}
+            subtitle={
+              totalLocked > 0 ? (
+                <I18nMessage tokens={{ usdc: <Symbol token="ar_logo" /> }}>Your total %usdc%USDC balance.</I18nMessage>
+              ) : (
+                <span>{__('Your total balance.')}</span>
+              )
+            }
+            background
+            actions={
+              <>
+                <h2 className="section__title--small">
+                  <I18nMessage
+                    tokens={{
+                      ar_amount: <Symbol token="ar_logo" amount={arweaveBalance} precision={2} />,
+                    }}
+                  >
+                    %ar_amount%
+                  </I18nMessage>
+                </h2>
+                <div className="section__actions">
+                  <Button
+                    button="secondary"
+                    label={__('Deposit Funds')}
+                    icon={ICONS.BUY}
+                    navigate={`/$/${PAGES.PAYMENTACCOUNT}?tab=buy`}
+                  />
+                  <Button
+                    button="secondary"
+                    label={__('Payment Account')}
+                    icon={ICONS.SETTINGS}
+                    navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
+                  />
+                </div>
+              </>
+            }
+          />
+        </div>
+
       {ENABLE_STRIPE && <div className="column">{<WalletFiatBalance />}</div>}
     </div>
   );
