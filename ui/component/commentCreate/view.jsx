@@ -25,13 +25,10 @@ import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_AR, TAB_BOOST } from 'constants/tip_tabs';
 import './style.lazy.scss';
 
 const stripeEnvironment = getStripeEnvironment();
-
-const TAB_LBC = 'TabLBC';
-const TAB_USDC = 'TabUSDC';
-const TAB_FIAT = 'TabFiat';
 
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type ArTipParams = { tipAmountTwoPlaces: number, tipChannelName: string, channelClaimId: string, recipientAddress: string };

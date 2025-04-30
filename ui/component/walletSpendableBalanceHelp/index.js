@@ -6,6 +6,7 @@ import WalletSpendableBalanceHelp from './view';
 const select = (state) => ({
   LBCBalance: selectBalance(state),
   USDCBalance: selectArweaveBalance(state).usdc,
+  ARBalance: selectArweaveBalance(state).ar,
   arConnecting: selectArweaveConnecting(state),
 });
 

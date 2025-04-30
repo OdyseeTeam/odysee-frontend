@@ -55,12 +55,14 @@ export function doArConnect() {
         const currentModalProps = currentState.app.modalProps;
 
         const USDCBalance = await fetchUSDCBalance(address);
+        const ARBalance = await fetchARBalance(address);
         dispatch({
           type: ARCONNECT_SUCCESS,
           data: {
             address,
             type: ARCONNECT_TYPE,
             usdc: USDCBalance,
+            ar: ARBalance,
           },
           wallet: window.arweaveWallet,
         });
