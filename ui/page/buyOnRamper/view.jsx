@@ -9,7 +9,7 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
-import ReceiveUsdc from '../paymentAccount/receiveUsdc/view';
+import ReceiveUsdc from '../paymentAccount/receiveUsdc/view'; // huh?
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import './style.scss';
 
@@ -173,7 +173,7 @@ export default function BuyPage(props: Props) {
                 className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`}
                 title={
                   <>
-                    <Symbol token="usdc" amount={balance} precision={2} />
+                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
                     {arWalletStatus && (
                       <Button
                         button="primary"
@@ -187,7 +187,14 @@ export default function BuyPage(props: Props) {
                 background
                 actions={
                   <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
-                    <span>Buy Info</span>
+                    <iframe
+                      ref={iframeRef}
+                      src={iframeUri}
+                      title="Onramper Widget"
+                      // height="630px"
+                      // width="420px"
+                      allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
+                    />
                   </div>
 
                 }
