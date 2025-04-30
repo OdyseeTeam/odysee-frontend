@@ -43,7 +43,7 @@ reducers[ACTIONS.ARCONNECT_SUCCESS] = (state, action) => ({
   ...state,
   wallet: action.data.wallet,
   address: action.data.address,
-  balance: { ...state.balance, usdc: action.data.usdc },
+  balance: { ...state.balance, usdc: action.data.usdc, ar: action.data.ar },
   fetching: false,
   connecting: false,
   error: null,
@@ -58,9 +58,9 @@ reducers[ACTIONS.ARCONNECT_FAILURE] = (state, action) => ({
   balance: { ar: 0, u: 0, usdc: 0 },
 });
 
-reducers[ACTIONS.ARCONNECT_FETCHBALANCE] = (state, action) => ({ 
-  ...state, 
-  fetching: true 
+reducers[ACTIONS.ARCONNECT_FETCHBALANCE] = (state, action) => ({
+  ...state,
+  fetching: true,
 });
 
 

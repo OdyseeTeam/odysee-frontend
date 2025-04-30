@@ -7,7 +7,7 @@
 export const ODYSEE_LOGO = 'OdyseeLogo';
 export const ODYSEE_WHITE_TEXT = 'OdyseeLogoWhiteText';
 export const ODYSEE_DARK_TEXT = 'OdyseeLogoDarkText';
-export const AR_LOGO = 'ArLogo';
+export const AR = 'Ar';
 
 // User
 export const SIGN_OUT = 'SignOut';

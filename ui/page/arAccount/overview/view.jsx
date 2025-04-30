@@ -11,11 +11,14 @@ function Overview(props: Props) {
   const { cardHeader, arWalletStatus } = props;
   const [transactions, setTransactions] = React.useState([]);
 
+  const [arBalance, setArBalance] = React.useState(0);
+  console.log('arwstat', arWalletStatus);
   React.useEffect(() => {
     (async () => {
       if (window.arweaveWallet) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
+          // const
           console.log('address: ', address);
           const sent = await fetch(`https://arweave-search.goldsky.com/graphql`, {
             method: 'POST',
@@ -118,7 +121,7 @@ function Overview(props: Props) {
           <h2 className="section__title--small">{__('Connected wallet')}</h2>
           <div className="payment-options">
             <div className="payment-option">
-              <CopyableText copyable={address} />
+              <CopyableText copyable={"addresshere"} />
             </div>
             <div className="payment-option">
               <div className="payment-option__monetization">
@@ -148,8 +151,8 @@ function Overview(props: Props) {
                   </div>
                   <div className="transaction-history__amount">{transaction.amount.toFixed(2)}</div>
                   <div className="transaction-history__token">
-                    <Symbol token="usdc" />
-                    USDC
+                    <Symbol token="ar" />
+                    Ar
                   </div>
                   <div className="transaction-history__direction">
                     {transaction.action === 'sendTip' ? __('to') : __('from')}

@@ -18,6 +18,7 @@ type Props = {
   experimentalUi: boolean,
   LBCBalance: number,
   USDCBalance: number,
+  arBalance: number,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
@@ -46,7 +47,7 @@ const WalletBalance = (props: Props) => {
     experimentalUi,
     LBCBalance,
     USDCBalance,
-    arweaveBalance,
+    arBalance,
     claimsBalance,
     supportsBalance,
     tipsBalance,
@@ -253,10 +254,10 @@ const WalletBalance = (props: Props) => {
       { /* ARWEAVE */ }
         <div className="column">
           <Card
-            title={<Symbol token="ar_logo" amount={USDCBalance} precision={2} isTitle />}
+            title={<Symbol token="ar" amount={arBalance} precision={2} isTitle />}
             subtitle={
               totalLocked > 0 ? (
-                <I18nMessage tokens={{ usdc: <Symbol token="ar_logo" /> }}>Your total %usdc%USDC balance.</I18nMessage>
+                <I18nMessage tokens={{ usdc: <Symbol token="ar" /> }}>Your total %usdc%USDC balance.</I18nMessage>
               ) : (
                 <span>{__('Your total balance.')}</span>
               )
@@ -267,7 +268,7 @@ const WalletBalance = (props: Props) => {
                 <h2 className="section__title--small">
                   <I18nMessage
                     tokens={{
-                      ar_amount: <Symbol token="ar_logo" amount={arweaveBalance} precision={2} />,
+                      ar_amount: <Symbol token="ar" amount={arBalance} precision={2} />,
                     }}
                   >
                     %ar_amount%
@@ -278,13 +279,13 @@ const WalletBalance = (props: Props) => {
                     button="secondary"
                     label={__('Deposit Funds')}
                     icon={ICONS.BUY}
-                    navigate={`/$/${PAGES.PAYMENTACCOUNT}?tab=buy`}
+                    navigate={`/$/${PAGES.ARACCOUNT}?tab=buy`}
                   />
                   <Button
                     button="secondary"
-                    label={__('Payment Account')}
+                    label={__('Arweave Account')}
                     icon={ICONS.SETTINGS}
-                    navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
+                    navigate={`/$/${PAGES.ARACCOUNT}`}
                   />
                 </div>
               </>

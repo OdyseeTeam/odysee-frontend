@@ -26,6 +26,7 @@ export const WALLET_PERMISSIONS = [
   'SIGNATURE',
   'ENCRYPT',
   'DECRYPT',
+  'ACCESS_TOKENS',
 ];
 
 const USD_TO_USDC = 1000000;
@@ -96,12 +97,14 @@ export function doArUpdateBalance() {
       try {
         const address = await global.window.arweaveWallet.getActiveAddress();
         const USDCBalance = await fetchUSDCBalance(address);
+        const ARBalance = await fetchARBalance(address);
         dispatch({
           type: ARCONNECT_SUCCESS,
           data: {
             address,
             type: ARCONNECT_TYPE,
             usdc: USDCBalance,
+            ar: ARBalance,
           },
           wallet: window.arweaveWallet,
         });
@@ -278,5 +281,22 @@ const fetchUSDCBalance = async (address: string) => {
   } catch (e) {
     console.error(e);
     return 0;
+  }
+};
+
+function getBalanceEndpoint(wallet: string) {
+  return `https://arweave.net/wallet/${wallet}/balance`;
+}
+
+const fetchARBalance = async (address: string) => {
+  try {
+    const rawBalance = await fetch(getBalanceEndpoint(address));
+    const jsonBalance = await rawBalance.json();
+    const arBalance = jsonBalance / 1e12;
+    return arBalance;
+  } catch (e)
+  {
+    console.error(e);
+    return -1;
   }
 };
