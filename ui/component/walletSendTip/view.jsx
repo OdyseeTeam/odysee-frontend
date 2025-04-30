@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
 import { Form } from 'component/common/form';
 import LbcMessage from 'component/common/lbc-message';
 import { Lbryio } from 'lbryinc';
@@ -17,16 +17,10 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import withCreditCard from 'hocs/withCreditCard';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_AR, TAB_BOOST } from 'constants/tip_tabs';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
-
-const TAB_BOOST = 'TabBoost';
-const TAB_FIAT = 'TabFiat';
-const TAB_USDC = 'TabUSDC';
-const TAB_LBC = 'TabLBC';
-
-const STRIPE_DISABLED = true;
 
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
@@ -114,10 +108,8 @@ export default function WalletSendTip(props: Props) {
     doArConnect,
   } = props;
 
-  console.log('isPending', isPending)
-
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
-
+  const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
+  const showArweave = ENABLE_ARCONNECT;
   const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
@@ -165,6 +157,7 @@ export default function WalletSendTip(props: Props) {
       break;
     case TAB_FIAT:
     case TAB_LBC:
+    case TAB_AR:
       // explainerText = __('Show this creator your appreciation by sending a donation.');
       break;
   }
@@ -368,9 +361,12 @@ export default function WalletSendTip(props: Props) {
             {!claimIsMine && (
               <div className="section">
                 {showArweave && (
+                  <TabSwitchButton icon={ICONS.AR} label={__('Tip')} name={TAB_AR} {...tabButtonProps} />
+                )}
+                {showStablecoin && (
                   <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
                 )}
-                {ENABLE_STRIPE && stripeEnvironment && (
+                {ENABLE_STRIPE && stripeEnvironment && false && (
                   <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
                 )}
 
@@ -405,6 +401,8 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">
                     {activeTab === TAB_USDC ? (
                       <p>{`${ICONS.USDC} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    ) : activeTab === TAB_AR ? (
+                      <p>{`${ICONS.AR} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : activeTab === TAB_FIAT ? (
                       <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : (

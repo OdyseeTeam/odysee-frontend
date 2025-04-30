@@ -9,11 +9,9 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_AR, TAB_BOOST } from 'constants/tip_tabs';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
-const TAB_USDC = 'TabUSDC';
-const TAB_FIAT = 'TabFiat';
-const TAB_LBC = 'TabLBC';
 
 type Props = {
   uri: string,
@@ -84,6 +82,8 @@ function WalletTipAmountSelector(props: Props) {
   const shouldDisableFiatSelectors = activeTab === TAB_FIAT && !canReceiveFiatTips;
   const shouldDisableUSDCSelectors =
     activeTab === TAB_USDC && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
+  const shouldDisableARSelectors =
+    activeTab === TAB_AR && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
 
   /**
    * whether tip amount selection/review functionality should be disabled
@@ -100,6 +100,7 @@ function WalletTipAmountSelector(props: Props) {
     return (
       ((isLBCCondition || isUSDCCondition) && isNotFiatTab) ||
       shouldDisableFiatSelectors ||
+      shouldDisableARSelectors ||
       shouldDisableUSDCSelectors ||
       (customTipAmount &&
         fiatConversion &&
@@ -134,7 +135,7 @@ function WalletTipAmountSelector(props: Props) {
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
-    if (activeTab === TAB_USDC) {
+    if (activeTab === TAB_USDC || activeTab === TAB_AR) {
       doArConnect();
     }
   }, [activeTab, doArConnect]);
@@ -234,7 +235,7 @@ function WalletTipAmountSelector(props: Props) {
                   (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+              icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? ICONS.AR : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse} /* here */
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
@@ -248,7 +249,7 @@ function WalletTipAmountSelector(props: Props) {
           className={classnames('button-toggle button-toggle--expandformobile', {
             'button-toggle--active': useCustomTip,
           })}
-          icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+          icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? ICONS.AR : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
           label={__('Custom')}
           onClick={() => setUseCustomTip(true)}
         />
@@ -299,6 +300,10 @@ function WalletTipAmountSelector(props: Props) {
 
       {activeTab === TAB_USDC && arweaveTipData && arweaveTipData.status === 'active' && (
         <WalletSpendableBalanceHelp asset="usdc" />
+      )}
+
+      {activeTab === TAB_AR && arweaveTipData && arweaveTipData.status === 'active' && (
+        <WalletSpendableBalanceHelp asset="ar" />
       )}
 
       {/* lbc tab */}
