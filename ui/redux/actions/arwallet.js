@@ -56,6 +56,7 @@ export function doArConnect() {
 
         const USDCBalance = await fetchUSDCBalance(address);
         const ARBalance = await fetchARBalance(address);
+        const arExchangeRate = await fetchARExchangeRate();
         dispatch({
           type: ARCONNECT_SUCCESS,
           data: {
@@ -63,6 +64,7 @@ export function doArConnect() {
             type: ARCONNECT_TYPE,
             usdc: USDCBalance,
             ar: ARBalance,
+            usdPerAr: arExchangeRate,
           },
           wallet: window.arweaveWallet,
         });
@@ -100,6 +102,7 @@ export function doArUpdateBalance() {
         const address = await global.window.arweaveWallet.getActiveAddress();
         const USDCBalance = await fetchUSDCBalance(address);
         const ARBalance = await fetchARBalance(address);
+        const arExchangeRate = await fetchARExchangeRate();
         dispatch({
           type: ARCONNECT_SUCCESS,
           data: {
@@ -107,6 +110,7 @@ export function doArUpdateBalance() {
             type: ARCONNECT_TYPE,
             usdc: USDCBalance,
             ar: ARBalance,
+            usdPerAr: arExchangeRate,
           },
           wallet: window.arweaveWallet,
         });
@@ -302,3 +306,14 @@ const fetchARBalance = async (address: string) => {
     return -1;
   }
 };
+
+const fetchARExchangeRate = async () => {
+  try {
+    const rate = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd`);
+    const dollarsPerAr = await rate.json()?.arweave?.usd;
+    return dollarsPerAr;
+  } catch (e) {
+    return -1;
+    console.error(e);
+  }
+}
