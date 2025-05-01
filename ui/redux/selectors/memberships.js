@@ -191,7 +191,7 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
 };
 
 export const selectUserHasValidNonCanceledMembershipForCreatorId = (state: State, id: string) => {
-  const validMemberships = selectMyValidMembershipsForCreatorId(state, id);
+  const validMemberships = selectMyValidMembershipsForCreatorId(state, id) || [];
   const memberships = validMemberships.filter(m => m.subscription.status === 'active') // possibly 'pending'
   return Boolean(memberships && memberships.length > 0);
 }

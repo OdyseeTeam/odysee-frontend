@@ -166,7 +166,6 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
         subscribeToken = token;
         payeeAddress = payee_address;
       });
-    await dispatch(doMembershipMine());
 
     const transferTxid = await message({
       process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
