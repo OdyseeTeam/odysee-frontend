@@ -31,7 +31,9 @@ export default function WalletConnect(props: Props) {
   async function handleArConnect() {
     connectArWallet();
   }
-
+  if (!window.arweaveWallet) {
+    return <span>Install Wander Wallet extension.</span>;
+  }
   return !connecting ? (
     <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
   ) : (
