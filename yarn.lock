@@ -3168,6 +3168,16 @@ arweave@^1.10.13, arweave@^1.13.7:
     base64-js "^1.5.1"
     bignumber.js "^9.0.2"
 
+arweave@^1.15.7:
+  version "1.15.7"
+  resolved "https://registry.yarnpkg.com/arweave/-/arweave-1.15.7.tgz#d09265d128e93a471203649de083ba7fec52cb29"
+  integrity sha512-F+Y4iWU1qea9IsKQ/YNmLsY4DHQVsaJBuhEbFxQn9cfGHOmtXE+bwo14oY8xqymsqSNf/e1PeIfLk7G7qN/hVA==
+  dependencies:
+    arconnect "^0.4.2"
+    asn1.js "^5.4.1"
+    base64-js "^1.5.1"
+    bignumber.js "^9.0.2"
+
 asap@~2.0.3:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/asap/-/asap-2.0.6.tgz#e50347611d7e690943208bbdafebcbc2fb866d46"

@@ -402,7 +402,7 @@ export default function WalletSendTip(props: Props) {
                     {activeTab === TAB_USDC ? (
                       <p>{`${ICONS.USDC} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : activeTab === TAB_AR ? (
-                      <p>{`${ICONS.AR} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                      <p>{`${ICONS.AR} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : activeTab === TAB_FIAT ? (
                       <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : (
@@ -440,6 +440,7 @@ export default function WalletSendTip(props: Props) {
                 onChange={(amount) => setTipAmount(amount)}
                 setDisableSubmitButton={setDisableSubmitButton}
                 modalProps={modalProps}
+                exchangeRateOverride={undefined} // use this for value that returns from sub call?
               />
 
               {/* send tip/boost button */}

@@ -1,3 +1,12 @@
 .walletTipSelector__input {
   margin: var(--spacing-s) 0;
+  display: flex;
+  >span {
+    margin-left: var(--spacing-s);
+  }
+}
+
+.walletTipSelector__input-conversion {
+  height: 100%;
+  margin: auto;
 }

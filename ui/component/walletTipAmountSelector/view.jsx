@@ -36,6 +36,8 @@ type Props = {
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
   doArConnect: () => void,
+  dollarsPerAr: number,
+  exchangeRateOverride?: number,
 };
 
 function WalletTipAmountSelector(props: Props) {
@@ -61,11 +63,14 @@ function WalletTipAmountSelector(props: Props) {
     preferredCurrency,
     doTipAccountCheckForUri,
     doArConnect,
+    dollarsPerAr,
+    exchangeRateOverride,
   } = props;
 
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
 
+  const dollarsPerArToUse = exchangeRateOverride || dollarsPerAr;
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
 
@@ -233,7 +238,7 @@ function WalletTipAmountSelector(props: Props) {
                   (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? ICONS.AR : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse} /* here */
+              icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? fiatIconToUse : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse} /* here */
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
@@ -247,7 +252,7 @@ function WalletTipAmountSelector(props: Props) {
           className={classnames('button-toggle button-toggle--expandformobile', {
             'button-toggle--active': useCustomTip,
           })}
-          icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? ICONS.AR : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+          icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? fiatIconToUse : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
           label={__('Custom')}
           onClick={() => setUseCustomTip(true)}
         />
@@ -289,7 +294,8 @@ function WalletTipAmountSelector(props: Props) {
             placeholder="1.23"
             value={amount}
             onChange={(event) => handleCustomPriceChange(event.target.value)}
-          />
+          /> { activeTab === TAB_AR && dollarsPerArToUse && dollarsPerArToUse > 0 && (
+          <span className={'walletTipSelector__input-conversion help'}>{(amount / dollarsPerArToUse).toFixed(6)} AR</span>)}
         </div>
       )}
       {activeTab === TAB_USDC &&
