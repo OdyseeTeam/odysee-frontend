@@ -8,12 +8,18 @@ export type WalletBalance = {
   u: string,
   usdc: number,
 };
+
+export type ExchangeRates = {
+  ar: number,
+}
+
 export type ArWalletState = {
   wallet: ?{},
   address: ?string,
   error: ?string,
   connecting: boolean,
   balance: WalletBalance,
+  exchangeRates: ExchangeRates,
   fetching: boolean,
   tippingStatusById: { [string]: string }, // started, errored, complete/deleted
 };
@@ -24,6 +30,7 @@ const defaultState: ArWalletState = {
   error: undefined,
   connecting: false,
   balance: { ar: 0, u: 0, usdc: 0 },
+  exchangeRates: { ar: 0 },
   fetching: false,
   tippingStatusById: {},
 };
@@ -44,6 +51,7 @@ reducers[ACTIONS.ARCONNECT_SUCCESS] = (state, action) => ({
   wallet: action.data.wallet,
   address: action.data.address,
   balance: { ...state.balance, usdc: action.data.usdc, ar: action.data.ar },
+  exchangeRates: { ...state.exchangeRates, ar: action.data.usdPerAr},
   fetching: false,
   connecting: false,
   error: null,

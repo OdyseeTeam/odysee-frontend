@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectBalance } from 'redux/selectors/wallet';
-import { selectArweaveBalance } from 'redux/selectors/arwallet';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import WalletTipAmountSelector from './view';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
@@ -16,6 +16,7 @@ const select = (state, props) => {
   return {
     LBCBalance: selectBalance(state),
     USDCBalance: selectArweaveBalance(state).usdc,
+    dollarsPerAr: selectArweaveExchangeRates(state).ar,
     claim: selectClaimForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),

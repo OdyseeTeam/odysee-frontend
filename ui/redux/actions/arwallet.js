@@ -11,10 +11,11 @@ import {
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
-import { dryrun, message, createDataItemSigner,  } from '@permaweb/aoconnect';
+import { dryrun, message, createDataItemSigner  } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
 import { Dispatch } from 'react';
+import arweave from 'util/arweave';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
 };
@@ -57,6 +58,7 @@ export function doArConnect() {
         const USDCBalance = await fetchUSDCBalance(address);
         const ARBalance = await fetchARBalance(address);
         const arExchangeRate = await fetchARExchangeRate();
+        console.log('arexchange', arExchangeRate)
         dispatch({
           type: ARCONNECT_SUCCESS,
           data: {
@@ -221,6 +223,7 @@ export const doArTip = (
         referenceToken = res.reference_token;
       }
 
+      const sendResult = await sendAr()
       transferTxid = await message({
         process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
         data: '',
@@ -309,11 +312,41 @@ const fetchARBalance = async (address: string) => {
 
 const fetchARExchangeRate = async () => {
   try {
-    const rate = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=arweave&vs_currencies=usd`);
-    const dollarsPerAr = await rate.json()?.arweave?.usd;
-    return dollarsPerAr;
+    const res = await Lbryio.call(
+      // : { data, success, error }
+      'arweave',
+      'exchange_rate',
+      {},
+      'post'
+    );
+    return res;
   } catch (e) {
-    return -1;
+    return 0;
+  }
+};
+
+const sendAr = async (address, amountInAr, tags) => {
+  try {
+    const transaction = await arweave.createTransaction({
+      target: address,
+      quantity: arweave.ar.arToWinston(amountInAr),
+
+    });
+
+    // transaction.addTag('Content-Type', 'text/html');
+    // transaction.addTag('key2', 'value2');
+
+    await arweave.transactions.sign(transaction);
+
+    const res = await window.arweaveWallet.dispatch(transaction);
+    console.log('res', res);
+    if (res.json) {
+      const resJson = await res.json();
+      console.log('resjson', resJson);
+      return resJson;
+    }
+    return res;
+  } catch (e) {
     console.error(e);
   }
 }

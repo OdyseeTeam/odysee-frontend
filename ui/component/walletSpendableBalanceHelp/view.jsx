@@ -4,11 +4,13 @@ import Symbol from '../common/symbol';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 
-type Props = { LBCBalance: number, USDCBalance: number, ARBalance: number, asset?: string, inline?: boolean, arConnecting: boolean };
+type Props = { LBCBalance: number, USDCBalance: number, ARBalance: number, dollarsPerAr: number, asset?: string, inline?: boolean, arConnecting: boolean };
 
 function WalletSpendableBalanceHelp(props: Props) {
-  const { LBCBalance, USDCBalance, ARBalance, asset = 'lbc', inline, arConnecting } = props;
+  const { LBCBalance, USDCBalance, dollarsPerAr, ARBalance, asset = 'lbc', inline, arConnecting } = props;
 
+  const dollars = ARBalance * dollarsPerAr;
+  const dollarsRounded = Number(dollars.toFixed(2));
   const getMessage = (text: string) =>
     asset === 'lbc' ? (
       <I18nMessage tokens={{ LBCBalance: <CreditAmount amount={LBCBalance} precision={4} /> }}>{text}</I18nMessage>
@@ -17,7 +19,7 @@ function WalletSpendableBalanceHelp(props: Props) {
         {text}
       </I18nMessage>
     ) : (/* asset === 'ar' */
-      <I18nMessage tokens={{ ARBalance: <Symbol amount={ARBalance} token="ar" precision={2} /> }}>
+      <I18nMessage tokens={{ ConvertedBalance: dollarsRounded, ARBalance: <Symbol amount={ARBalance} token="ar" precision={2} /> }}>
         {text}
       </I18nMessage>
     );
@@ -40,7 +42,7 @@ function WalletSpendableBalanceHelp(props: Props) {
     return arConnecting ? (
       <span className="help">{__('Connecting...')}</span>
     ) : ARBalance ? (
-      <span className="help--spendable">{getMessage('%ARBalance% available.')}</span>
+      <span className="help--spendable">{getMessage('$%ConvertedBalance% (%ARBalance%) available.')}</span>
     ) : (
       <div className="help">{getMessage('Your immediately spendable balance is %ARBalance%.')}</div>
     );
