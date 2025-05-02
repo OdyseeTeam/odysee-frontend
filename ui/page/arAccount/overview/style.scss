@@ -1,17 +1,30 @@
+@import '~ui/scss/init/breakpoints';
+
 .card--overview {
-  .payment-options {
+  .payment-options-wrapper {
     display: flex;
     width: 100%;
-    background: var(--color-background);
-    padding: var(--spacing-s);
-    border-radius: var(--border-radius);
-    margin-top: calc(var(--spacing-s) * -1);
     gap: var(--spacing-m);
 
+    @media (max-width: $breakpoint-medium) {
+      flex-direction: column;
+    }
+  }
+
+  .payment-options {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+
+    .payment-option-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
     .payment-option {
       display: flex;
+      flex-direction: column;
       flex: 1;
-      align-items: center;
 
       fieldset-section {
         width: 100%;
@@ -21,12 +34,84 @@
         }
       }
 
+      .qr-code {
+        width: 200px;
+        height: 200px;
+        canvas {
+          width: 100% !important;
+          height: 100% !important;
+        }
+      }
+
       .payment-option__monetization {
         display: flex;
-        margin-left: auto;
+        background: var(--color-header-button);
         gap: var(--spacing-l);
-        margin-right: var(--spacing-xxs);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-s);
+
+        .toggle-wrapper {
+          margin-left: auto;
+        }
       }
+    }
+  }
+
+  .payment-options-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    background: var(--color-background);
+    padding: var(--spacing-s);
+    border-radius: var(--border-radius);
+    gap: var(--spacing-m);
+  }
+
+  .sendAr-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    .sendAr-row__amount,
+    .sendAr-row__receiver {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      // justify-content: center;
+    }
+    .sendAr-row__receiver {
+      input {
+        font-size: 14px;
+      }
+    }
+
+    .sendAr__total {
+      display: flex;
+      width: 100%;
+
+      span {
+        margin-left: auto;
+        font-size: var(--font-xsmall);
+        cursor: pointer;
+      }
+    }
+
+    .sendArLabel {
+      display: flex;
+      width: 100%;
+      align-items: center;
+    }
+
+    input {
+      background: var(--color-header-button);
+      width: 100%;
+      margin-left: auto;
+    }
+
+    .sendAr-row__send {
+      margin-top: auto;
     }
   }
 
