@@ -5,11 +5,16 @@ import CopyableText from 'component/copyableText';
 import ButtonToggle from 'component/buttonToggle';
 import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
+import Button from 'component/button';
 import './style.scss';
 
 function Overview(props: Props) {
-  const { cardHeader, arWalletStatus } = props;
+  const { cardHeader, wallet, balance, arWalletStatus } = props;
   const [transactions, setTransactions] = React.useState([]);
+
+  const [canSend, setCanSend] = React.useState(false);
+  const inputAmountRef = React.useRef();
+  const inputReceivingAddressRef = React.useRef();
 
   const [arBalance, setArBalance] = React.useState(0);
   console.log('arwstat', arWalletStatus);
@@ -18,8 +23,6 @@ function Overview(props: Props) {
       if (window.arweaveWallet) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
-          // const
-          console.log('address: ', address);
           const sent = await fetch(`https://arweave-search.goldsky.com/graphql`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -111,6 +114,20 @@ function Overview(props: Props) {
     })();
   }, []);
 
+  function handleCheckForm() {
+    const isValidEthAddress = (address) => /^0x[a-fA-F0-9]{40}$/.test(address);
+    const check =
+      inputAmountRef.current.value &&
+      Number(inputAmountRef.current.value) <= Number(balance.ar) &&
+      isValidEthAddress(inputReceivingAddressRef.current.value);
+    setCanSend(check);
+  }
+
+  function handleSetMaxAmount() {
+    inputAmountRef.current.value = balance.ar.toFixed(8);
+    handleCheckForm();
+  }
+
   return (
     <Card
       className={!arWalletStatus ? `card--overview card--disabled` : `card--overview`}
@@ -118,17 +135,71 @@ function Overview(props: Props) {
       background
       actions={
         <>
-          <h2 className="section__title--small">{__('Connected wallet')}</h2>
-          <div className="payment-options">
-            <div className="payment-option">
-              <CopyableText copyable={"addresshere"} />
+          <div className="payment-options-wrapper">
+            <div className="payment-options">
+              <h2 className="section__title--small">{__('Connected wallet')}</h2>
+              <div className="payment-options-content">
+                <div className="payment-option">
+                  <div className="sendArLabel">{__('Address')}</div>
+                  <CopyableText copyable={wallet?.address} />
+                </div>
+                <div className="payment-option">
+                  <div className="sendArLabel">{__('Settings')}</div>
+                  <div className="payment-option__monetization">
+                    {__('Allow monetization')} <ButtonToggle status={true} />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="payment-option">
-              <div className="payment-option__monetization">
-                {__('Allow monetization')} <ButtonToggle status={true} />
+
+            <div className="payment-options">
+              <h2 className="section__title--small">{__('Receive')}</h2>
+              <div className="payment-options-content">
+                <div className="payment-option" style={{ alignItems: 'center' }}>
+                  <QRCode value={wallet?.address} />
+                </div>
+              </div>
+            </div>
+
+            <div className="payment-options">
+              <h2 className="section__title--small">{__('Send')}</h2>
+              <div className="payment-options-content">
+                <div className="payment-option">
+                  <div className="sendAr-row">
+                    <div className="sendAr-row__amount">
+                      <div className="sendArLabel">{__('Amount')}</div>
+                      <input
+                        ref={inputAmountRef}
+                        type="number"
+                        step="0.00000001"
+                        placeholder={Number(0).toFixed(8)}
+                        onChange={handleCheckForm}
+                      />
+                    </div>
+                    <div className="sendAr__total" onClick={handleSetMaxAmount}>
+                      <span>
+                        {__('Totally available: ')} {balance.ar.toFixed(8)}
+                      </span>
+                    </div>
+
+                    <div className="sendAr-row__receiver">
+                      <div className="sendArLabel">{__('Receiving address')}</div>
+                      <input
+                        ref={inputReceivingAddressRef}
+                        type="text"
+                        placeholder={`00000000000000000000000000000000000000000`}
+                        onChange={handleCheckForm}
+                      />
+                    </div>
+                    <div className="sendAr-row__send">
+                      <Button button="primary" title={__('Send')} label={__('Send')} disabled={!canSend} />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
           <h2 className="section__title--small">{__('Transaction history')}</h2>
           <div className="transaction-history">
             {transactions.map((transaction, index) => {
@@ -161,63 +232,6 @@ function Overview(props: Props) {
                 </div>
               );
             })}
-            {/*
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Purchase')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('via')}</div>
-              <div className="transaction-history__target">OnRamp</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Withdraw')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('to')}</div>
-              <div className="transaction-history__target">0x00000000000000000000</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Receive')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('from')}</div>
-              <div className="transaction-history__target">0x00000000000000000000</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Send Tip')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('to')}</div>
-              <div className="transaction-history__target">Username</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Receive Tip')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('from')}</div>
-              <div className="transaction-history__target">Username</div>
-            </div>
-            */}
           </div>
         </>
       }

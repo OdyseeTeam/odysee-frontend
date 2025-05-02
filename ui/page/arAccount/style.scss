@@ -5,7 +5,7 @@
 
   .page-header {
     position: relative;
-    background-image: url('https://thumbs.odycdn.com/36f4a2447ac50941c99c74fb10d659cb.webp');
+    background-image: url('https://thumbs.odycdn.com/a655210a5610362e238853d3db050538.webp');
     background-position-y: var(--header-height);
     background-position-x: var(--side-nav-width--micro);
 
@@ -19,12 +19,12 @@
     margin-top: calc(var(--spacing-l) * -1);
 
     @media (min-width: $breakpoint-large) {
-      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 320px);
+      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 340px);
       background-size: calc(100% - var(--side-nav-width--micro));
     }
 
     @media (max-width: $breakpoint-large) {
-      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 120px);
+      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 220px);
     }
 
     @media (max-width: $breakpoint-small) {

@@ -18,7 +18,6 @@ function ArWallets(props: Props) {
             <div className="wallet-table-row wallet-table-row--header">
               <div className="wallet-table-row__id">#</div>
               <div className="wallet-table-row__address">{__('Arweave Address')}</div>
-              <div className="wallet-table-row__deposit">{__('Deposit Address')}</div>
               <div className="wallet-table-row__status">{__('Status')}</div>
               <div className="wallet-table-row__default">{__('Connected')}</div>
             </div>
@@ -33,7 +32,6 @@ function ArWallets(props: Props) {
                 >
                   <div className="wallet-table-row__id">{index + 1}</div>
                   <div className="wallet-table-row__address">{wallet.address}</div>
-                  <div className="wallet-table-row__deposit">{wallet.deposit_address}</div>
                   <div className="wallet-table-row__status">
                     <ButtonToggle status={wallet.status === 'active' ? true : false} />
                   </div>
