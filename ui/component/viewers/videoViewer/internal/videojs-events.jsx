@@ -187,10 +187,8 @@ const VideoJsEvents = ({
       }
       const attempt = player.appState.recoveryAttempts || 1;
       lastPlaybackTime = player.currentTime();
-      if (attempt > 4) {
-        showTapButton(TAP.RETRY);
-        return;
-      }
+
+      showTapButton(TAP.RETRY);
 
       // Exponential backoff delays: attempt 1 is near immediate, then 1s, 5s, and 15s.
       const backoffDelays = [250, 1000, 5000, 15000];
