@@ -21,7 +21,7 @@ import { buildURI } from 'util/lbryURI';
 
 import { getStripeEnvironment } from 'util/stripe';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
-import { doArSign } from './arwallet';
+import { doArSign, sendAr } from './arwallet';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
@@ -151,6 +151,10 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
   let subscribeToken;
   let payeeAddress;
   let responseAmount;
+  let cryptoAmount;
+  let currencyType;
+
+  let transferTxid;
 
   // membership_v2/subscribe then doArTip then membership_v2/subscription/transaction_notify
   try {
@@ -161,26 +165,35 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
     await Lbryio.call('membership_v2', 'subscribe', { ...subscribeApiParams }, 'post')
       .then((response: MembershipSubscribeResponse) => {
         const { token, payee_address, price } = response;
-        const { amount } = price;
+        const { crypto_amount, amount, currency } = price;
         responseAmount = (amount / CONVERT_DOLLARS_TO_PENNIES) * USD_TO_USDC;
+        cryptoAmount = crypto_amount;
         subscribeToken = token;
         payeeAddress = payee_address;
+        currencyType = currency;
       });
 
-    const transferTxid = await message({
-      process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
-      data: '',
-      tags: [
-        { name: 'Action', value: 'Transfer' },
-        { name: 'Quantity', value: String(responseAmount) }, // test/fix
-        { name: 'Recipient', value: payeeAddress }, // get address
-        { name: 'Tip_Type', value: 'tip' },
-        { name: 'Claim_ID', value: tippedChannelId },
+    if (currencyType === 'AR') {
+      const tags = [
         { name: 'X-O-Ref', value: subscribeToken },
-      ],
-      Owner: source_payment_address, // test/fix
-      signer: createDataItemSigner(window.arweaveWallet),
-    });
+      ];
+      transferTxid = await sendAr(payeeAddress, cryptoAmount, tags).id;
+    } else if (currencyType === 'USD') {
+      transferTxid = await message({
+        process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+        data: '',
+        tags: [
+          { name: 'Action', value: 'Transfer' },
+          { name: 'Quantity', value: String(responseAmount) }, // test/fix
+          { name: 'Recipient', value: payeeAddress }, // get address
+          { name: 'Tip_Type', value: 'tip' },
+          { name: 'Claim_ID', value: tippedChannelId },
+          { name: 'X-O-Ref', value: subscribeToken },
+        ],
+        Owner: source_payment_address, // test/fix
+        signer: createDataItemSigner(window.arweaveWallet),
+      });
+    }
 
     const notifyParams = {
       token: subscribeToken,
@@ -484,12 +497,12 @@ export const doSaveMembershipRestrictionsForContent =
 export const doMembershipClearData = () => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'clear', { environment: 'test' }, 'post').then(() => dispatch(doMembershipMine()));
 
-// here
+// TODO get (paginate?) historical only_active = false
 export const doGetMembershipSupportersList = () => async (dispatch: Dispatch) =>
-  Lbryio.call('membership_v2', 'subscribers', { }, 'post')
+  Lbryio.call('membership_v2', 'subscribers', { only_active: true }, 'post')
     .then((response: SupportersList) =>
     {
-      dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response })
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response });
     })
     .catch(() => dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: null }));
 

@@ -52,10 +52,10 @@ function MembershipSubscribed(props: IProps) {
               <div className="membership__plan-content">
                 <div>
                   <label>{__('Creator revenue')}</label>
-                  <span>${(membershipSub.current_price.amount / 100).toFixed(2)}</span>
+                  <span>${(membershipSub.subscription.current_price.amount / 100).toFixed(2)}</span>
 
                   <label>{__('Total Monthly Cost')}</label>
-                  <span>{`$${(membershipSub.current_price.amount / 100).toFixed(2)}`}</span>
+                  <span>{`$${(membershipSub.subscription.current_price.amount / 100).toFixed(2)}`}</span>
 
                   <label>{__('Description')}</label>
                   <span>{membershipSub.membership.description}</span>
