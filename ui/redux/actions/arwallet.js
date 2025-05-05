@@ -175,6 +175,7 @@ export const doArTip = (
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
     let referenceToken = '';
     let transferTxid = '';
+    let cryptoAmount;
     try {
       if (!window.arweaveWallet) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
@@ -209,7 +210,7 @@ export const doArTip = (
             creator_channel_claim_id: tipParams.channelClaimId,
             tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
             tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
-            currency: 'USD',
+            currency: 'USD', // ?
             anonymous: anonymous,
             source_claim_id: claimId,
             receiver_address: tipParams.recipientAddress,
@@ -221,9 +222,18 @@ export const doArTip = (
         );
         console.log('res', res); // res.token?
         referenceToken = res.reference_token;
+        cryptoAmount = res.crypto_amount;
       }
 
-      const sendResult = await sendAr()
+      const tags = [
+        { name: 'Tip_Type', value: 'tip' },
+        { name: 'Claim_ID', value: claimId },
+        { name: 'X-O-Ref', value: referenceToken },
+      ];
+      // WIP
+
+      const sendResult = await sendWinstons(tipParams.recipientAddress, cryptoAmount, tags  );
+      console.log('sendResult', sendResult)
       transferTxid = await message({
         process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
         data: '',
@@ -325,16 +335,17 @@ const fetchARExchangeRate = async () => {
   }
 };
 
-const sendAr = async (address, amountInAr, tags) => {
+export const sendWinstons = async (address, amountInWinstons, tags) => {
   try {
     const transaction = await arweave.createTransaction({
       target: address,
-      quantity: arweave.ar.arToWinston(amountInAr),
+      quantity: amountInWinstons,
 
     });
 
-    // transaction.addTag('Content-Type', 'text/html');
-    // transaction.addTag('key2', 'value2');
+    tags.forEach((t) => {
+      transaction.addTag(t.name, t.value);
+    });
 
     await arweave.transactions.sign(transaction);
 
@@ -347,6 +358,6 @@ const sendAr = async (address, amountInAr, tags) => {
     }
     return res;
   } catch (e) {
-    console.error(e);
+    console.error('ERROR', e);
   }
-}
+};

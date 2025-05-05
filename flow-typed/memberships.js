@@ -34,12 +34,21 @@ declare type MembershipBuyParams = {
   priceId: number,
 }
 
+declare type SubscriptionPrice = {
+  "id": number,
+  "amount": number,
+  "currency": string, // 'AR' , 'USD'
+  "frequency": string,
+  "crypto_amount": string,
+}
+
 declare type MembershipSubscribeResponse = {
   "subscription_id": number,
   "token": string,
   "payee_address": string,
   "start_time": number,
   "end_time": number,
+  "price": SubscriptionPrice,
 }
 
 declare type CreatorMemberships = Array<CreatorMembership>;
