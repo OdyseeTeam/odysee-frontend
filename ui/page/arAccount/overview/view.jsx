@@ -156,7 +156,7 @@ function Overview(props: Props) {
               <h2 className="section__title--small">{__('Receive')}</h2>
               <div className="payment-options-content">
                 <div className="payment-option" style={{ alignItems: 'center' }}>
-                  <QRCode value={wallet?.address} />
+                  {wallet && wallet.address && <QRCode value={wallet.address} />}
                 </div>
               </div>
             </div>

@@ -1,8 +1,27 @@
 .walletTipSelector__input {
   margin: var(--spacing-s) 0;
   display: flex;
-  >span {
+  > span {
     margin-left: var(--spacing-s);
+  }
+
+  fieldset-section {
+    position: relative;
+    label[for='tip-input'] {
+      position: absolute;
+      top: var(--spacing-xs);
+      left: var(--spacing-xs);
+      opacity: 0.5;
+    }
+    .usd-tip {
+      padding-left: 20px;
+    }
+    div {
+      label[for='tip-input'] {
+        position: unset;
+        background: unset;
+      }
+    }
   }
 }
 

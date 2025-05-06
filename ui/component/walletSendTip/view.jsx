@@ -17,7 +17,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import withCreditCard from 'hocs/withCreditCard';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_AR, TAB_BOOST } from 'constants/tip_tabs';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
@@ -111,6 +111,7 @@ export default function WalletSendTip(props: Props) {
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const showArweave = ENABLE_ARCONNECT;
   const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
+  console.log('arweaveTipEnabled: ', arweaveTipEnabled);
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
   const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
@@ -157,7 +158,7 @@ export default function WalletSendTip(props: Props) {
       break;
     case TAB_FIAT:
     case TAB_LBC:
-    case TAB_AR:
+    case TAB_USD:
       // explainerText = __('Show this creator your appreciation by sending a donation.');
       break;
   }
@@ -281,20 +282,22 @@ export default function WalletSendTip(props: Props) {
         const userParams: UserParams = { activeChannelName, activeChannelId };
 
         // hit backend to send tip
-        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').then(r => {
-          doToast({
-            message: __('Tip sent!'),
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD')
+          .then((r) => {
+            doToast({
+              message: __('Tip sent!'),
+            });
+            doHideModal();
+          })
+          .catch((e) => {
+            console.error(e);
+            doToast({
+              message: __('Tip failed to send.'),
+              subMessage: e?.message || e,
+              isError: true,
+            });
+            doHideModal();
           });
-          doHideModal();
-        }).catch((e) => {
-          console.error(e);
-          doToast({
-            message: __('Tip failed to send.'),
-            subMessage: e?.message || e,
-            isError: true,
-          });
-          doHideModal();
-        });
       }
     } else {
       sendSupportOrConfirm();
@@ -325,6 +328,8 @@ export default function WalletSendTip(props: Props) {
         return titleText;
       case TAB_FIAT:
         return __('Send a %amount% Tip', { amount: `${fiatSymbolToUse}${displayAmount}` });
+      case TAB_USD:
+        return __('Send a %amount% Tip', { amount: `${displayAmount} USD` });
       case TAB_LBC:
         return __('Send a %amount% Tip', { amount: `${displayAmount} LBC` });
       default:
@@ -361,7 +366,7 @@ export default function WalletSendTip(props: Props) {
             {!claimIsMine && (
               <div className="section">
                 {showArweave && (
-                  <TabSwitchButton icon={ICONS.AR} label={__('Tip')} name={TAB_AR} {...tabButtonProps} />
+                  <TabSwitchButton icon={ICONS.USD} label={__('Tip')} name={TAB_USD} {...tabButtonProps} />
                 )}
                 {showStablecoin && (
                   <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
@@ -401,8 +406,8 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">
                     {activeTab === TAB_USDC ? (
                       <p>{`${ICONS.USDC} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
-                    ) : activeTab === TAB_AR ? (
-                      <p>{`${ICONS.AR} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    ) : activeTab === TAB_USD ? (
+                      <p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : activeTab === TAB_FIAT ? (
                       <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : (

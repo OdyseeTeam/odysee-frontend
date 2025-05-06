@@ -12,7 +12,7 @@ function ReceiveAr(props: Props) {
 
   return (
     <Card
-      className={!arWalletStatus ? `card--receiveusdc card--disabled` : `card--receiveusdc`}
+      className={!arWalletStatus ? `card--receiveAr card--disabled` : `card--receiveAr`}
       title={cardHeader()}
       background
       actions={
