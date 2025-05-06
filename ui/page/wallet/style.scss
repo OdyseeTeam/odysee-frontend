@@ -132,4 +132,21 @@
     justify-content: center;
     align-items: center;
   }
+
+  .wallet-check-row {
+    display: flex;
+    div:first-of-type {
+      min-width: 210px;
+    }
+    .ok {
+      color: #009d03;
+    }
+    .fail {
+      color: var(--color-text-error);
+    }
+  }
+
+  .link {
+    color: var(--color-primary);
+  }
 }

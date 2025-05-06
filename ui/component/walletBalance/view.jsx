@@ -11,14 +11,16 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-import WalletFiatBalance from 'component/walletFiatBalance';
+// import WalletFiatBalance from 'component/walletFiatBalance';
 import { formatNumberWithCommas } from 'util/number';
 
 type Props = {
   experimentalUi: boolean,
   LBCBalance: number,
-  USDCBalance: number,
+  // USDCBalance: number,
+  arStatus: any,
   arBalance: number,
+  arUsdRate: number,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
@@ -35,6 +37,7 @@ type Props = {
   doOpenModal: (string) => void,
   doFetchUtxoCounts: () => void,
   doUtxoConsolidate: () => void,
+  doArConnect: () => void,
   activeAPIArAccountAddress: string,
   activeAPIArAccount: any,
 };
@@ -46,8 +49,10 @@ const WalletBalance = (props: Props) => {
   const {
     experimentalUi,
     LBCBalance,
-    USDCBalance,
+    // USDCBalance,
+    arStatus,
     arBalance,
+    arUsdRate,
     claimsBalance,
     supportsBalance,
     tipsBalance,
@@ -62,6 +67,7 @@ const WalletBalance = (props: Props) => {
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
+    doArConnect,
   } = props;
 
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
@@ -72,6 +78,10 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
+  const hasArExtension = Boolean(window.arweaveWallet);
+  const hasArConnection = Boolean(arStatus.address);
+  console.log('hasArExtension: ', hasArExtension);
+  console.log('hasArConnection: ', hasArConnection);
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
@@ -255,36 +265,91 @@ const WalletBalance = (props: Props) => {
         <Card
           title={<Symbol token="ar" amount={arBalance} precision={2} isTitle />}
           subtitle={
-            totalLocked > 0 ? (
-              <I18nMessage tokens={{ usdc: <Symbol token="ar" /> }}>Your total %usdc%USDC balance.</I18nMessage>
-            ) : (
-              <span>{__('Your total balance.')}</span>
-            )
+            <>
+              <div className="wallet-check-row">
+                <div>{__('Wander browser extension')}</div>
+                <div>
+                  {hasArExtension ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}
+                </div>
+              </div>
+              <div className="wallet-check-row">
+                <div>{__('Wander wallet connection')}</div>
+                <div>
+                  {hasArConnection ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}
+                </div>
+              </div>
+              {/* <I18nMessage tokens={{ ar: <Symbol token="ar" /> }}>Your total %ar%AR balance.</I18nMessage> */}
+            </>
           }
           background
           actions={
             <>
-              <h2 className="section__title--small">
+              {!hasArExtension ? (
                 <I18nMessage
                   tokens={{
-                    ar_amount: <Symbol token="ar" amount={arBalance} precision={2} />,
+                    link: (
+                      <a
+                        href="https://www.wander.app/download?tab=download-browser"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="link"
+                      >
+                        Download here.
+                      </a>
+                    ),
                   }}
                 >
-                  %ar_amount%
+                  To use AR on Odysee, the Wander browser extension must be installed. %link%
                 </I18nMessage>
-              </h2>
+              ) : !hasArConnection ? (
+                <I18nMessage
+                  tokens={{
+                    link: (
+                      <a className="link" onClick={() => doArConnect()}>
+                        Connect now.
+                      </a>
+                    ),
+                  }}
+                >
+                  To use AR on Odysee, the Wander wallet must be connected. %link%
+                </I18nMessage>
+              ) : (
+                <>
+                  <h2 className="section__title--small">
+                    <I18nMessage
+                      tokens={{
+                        ar_amount: <Symbol token="ar" amount={arBalance} precision={2} />,
+                      }}
+                    >
+                      %ar_amount%
+                    </I18nMessage>
+                  </h2>
+                  <h2 className="section__title--small">
+                    <I18nMessage
+                      tokens={{
+                        usd: <Symbol token="usd" amount={arBalance * arUsdRate} precision={2} />,
+                      }}
+                    >
+                      %usd%
+                    </I18nMessage>
+                  </h2>
+                </>
+              )}
+
               <div className="section__actions">
                 <Button
                   button="secondary"
                   label={__('Deposit Funds')}
                   icon={ICONS.BUY}
                   navigate={`/$/${PAGES.ARACCOUNT}?tab=buy`}
+                  disabled={!hasArExtension || !hasArConnection}
                 />
                 <Button
                   button="secondary"
                   label={__('Arweave Account')}
                   icon={ICONS.SETTINGS}
                   navigate={`/$/${PAGES.ARACCOUNT}`}
+                  disabled={!hasArExtension || !hasArConnection}
                 />
               </div>
             </>

@@ -9,7 +9,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_AR, TAB_BOOST } from 'constants/tip_tabs';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 
@@ -88,7 +88,7 @@ function WalletTipAmountSelector(props: Props) {
   const shouldDisableUSDCSelectors =
     activeTab === TAB_USDC && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
   const shouldDisableARSelectors =
-    activeTab === TAB_AR && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
+    activeTab === TAB_USD && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
 
   /**
    * whether tip amount selection/review functionality should be disabled
@@ -140,7 +140,7 @@ function WalletTipAmountSelector(props: Props) {
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
-    if (activeTab === TAB_USDC || activeTab === TAB_AR) {
+    if (activeTab === TAB_USDC || activeTab === TAB_USD) {
       doArConnect();
     }
   }, [activeTab, doArConnect]);
@@ -240,7 +240,15 @@ function WalletTipAmountSelector(props: Props) {
                   (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? fiatIconToUse : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse} /* here */
+              icon={
+                activeTab === TAB_USDC
+                  ? ICONS.USDC
+                  : activeTab === TAB_USD
+                  ? ICONS.USD
+                  : activeTab === TAB_LBC
+                  ? ICONS.LBC
+                  : ICONS.USD
+              } /* here */
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
@@ -254,7 +262,15 @@ function WalletTipAmountSelector(props: Props) {
           className={classnames('button-toggle button-toggle--expandformobile', {
             'button-toggle--active': useCustomTip,
           })}
-          icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_AR ? fiatIconToUse : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+          icon={
+            activeTab === TAB_USDC
+              ? ICONS.USDC
+              : activeTab === TAB_USD
+              ? ICONS.USD
+              : activeTab === TAB_LBC
+              ? ICONS.LBC
+              : ICONS.USD
+          }
           label={__('Custom')}
           onClick={() => setUseCustomTip(true)}
         />
@@ -293,11 +309,17 @@ function WalletTipAmountSelector(props: Props) {
             min="0"
             step="any"
             type="number"
-            placeholder="1.23"
+            className={activeTab === 'TabUSD' ? 'usd-tip' : ''}
+            prefix={activeTab === 'TabUSD' ? '$' : null}
+            placeholder={'1.23'}
             value={amount}
             onChange={(event) => handleCustomPriceChange(event.target.value)}
-          /> { activeTab === TAB_AR && dollarsPerArToUse && dollarsPerArToUse > 0 && (
-          <span className={'walletTipSelector__input-conversion help'}>{(amount / dollarsPerArToUse).toFixed(6)} AR</span>)}
+          />{' '}
+          {activeTab === TAB_USD && dollarsPerArToUse && dollarsPerArToUse > 0 && (
+            <span className={'walletTipSelector__input-conversion help'}>
+              ({(amount / dollarsPerArToUse).toFixed(6)} AR)
+            </span>
+          )}
         </div>
       )}
       {activeTab === TAB_USDC &&
@@ -308,7 +330,7 @@ function WalletTipAmountSelector(props: Props) {
         <WalletSpendableBalanceHelp asset="usdc" />
       )}
 
-      {activeTab === TAB_AR && arweaveTipData && arweaveTipData.status === 'active' && (
+      {activeTab === TAB_USD && arweaveTipData && arweaveTipData.status === 'active' && (
         <WalletSpendableBalanceHelp asset="ar" />
       )}
 

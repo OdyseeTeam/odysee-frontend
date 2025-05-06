@@ -11,7 +11,7 @@ import {
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
 } from 'constants/action_types';
-import { dryrun, message, createDataItemSigner  } from '@permaweb/aoconnect';
+import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
 import { Dispatch } from 'react';
@@ -55,16 +55,16 @@ export function doArConnect() {
         const currentModalId = currentState.app.modal;
         const currentModalProps = currentState.app.modalProps;
 
-        const USDCBalance = await fetchUSDCBalance(address);
+        // const USDCBalance = await fetchUSDCBalance(address);
         const ARBalance = await fetchARBalance(address);
         const arExchangeRate = await fetchARExchangeRate();
-        console.log('arexchange', arExchangeRate)
+        console.log('arexchange', arExchangeRate);
         dispatch({
           type: ARCONNECT_SUCCESS,
           data: {
             address,
             type: ARCONNECT_TYPE,
-            usdc: USDCBalance,
+            // usdc: USDCBalance,
             ar: ARBalance,
             usdPerAr: arExchangeRate,
           },
@@ -102,7 +102,7 @@ export function doArUpdateBalance() {
     if (window.arweaveWallet) {
       try {
         const address = await global.window.arweaveWallet.getActiveAddress();
-        const USDCBalance = await fetchUSDCBalance(address);
+        // const USDCBalance = await fetchUSDCBalance(address);
         const ARBalance = await fetchARBalance(address);
         const arExchangeRate = await fetchARExchangeRate();
         dispatch({
@@ -110,7 +110,7 @@ export function doArUpdateBalance() {
           data: {
             address,
             type: ARCONNECT_TYPE,
-            usdc: USDCBalance,
+            // usdc: USDCBalance,
             ar: ARBalance,
             usdPerAr: arExchangeRate,
           },
@@ -232,8 +232,8 @@ export const doArTip = (
       ];
       // WIP
 
-      const sendResult = await sendWinstons(tipParams.recipientAddress, cryptoAmount, tags  );
-      console.log('sendResult', sendResult)
+      const sendResult = await sendWinstons(tipParams.recipientAddress, cryptoAmount, tags);
+      console.log('sendResult', sendResult);
       transferTxid = await message({
         process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
         data: '',
@@ -281,6 +281,7 @@ export const doArTip = (
   };
 };
 
+/*
 const fetchUSDCBalance = async (address: string) => {
   try {
     const result = await dryrun({
@@ -302,6 +303,7 @@ const fetchUSDCBalance = async (address: string) => {
     return 0;
   }
 };
+*/
 
 function getBalanceEndpoint(wallet: string) {
   return `https://arweave.net/wallet/${wallet}/balance`;
@@ -313,8 +315,7 @@ const fetchARBalance = async (address: string) => {
     const jsonBalance = await rawBalance.json();
     const arBalance = jsonBalance / 1e12;
     return arBalance;
-  } catch (e)
-  {
+  } catch (e) {
     console.error(e);
     return -1;
   }
@@ -340,7 +341,6 @@ export const sendWinstons = async (address, amountInWinstons, tags) => {
     const transaction = await arweave.createTransaction({
       target: address,
       quantity: amountInWinstons,
-
     });
 
     tags.forEach((t) => {
@@ -361,3 +361,5 @@ export const sendWinstons = async (address, amountInWinstons, tags) => {
     console.error('ERROR', e);
   }
 };
+
+export const sendAr = () => {};
