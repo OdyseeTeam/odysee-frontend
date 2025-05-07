@@ -847,6 +847,10 @@
       }
     }
 
+    .button {
+      float: right;
+    }
+
     &.membership-tier1 {
       .membership__plan-header {
         background-color: rgba(var(--color-membership-1), 1);
