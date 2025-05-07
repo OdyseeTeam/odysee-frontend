@@ -111,7 +111,6 @@ export default function WalletSendTip(props: Props) {
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const showArweave = ENABLE_ARCONNECT;
   const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
-  console.log('arweaveTipEnabled: ', arweaveTipEnabled);
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
   const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
@@ -268,7 +267,7 @@ export default function WalletSendTip(props: Props) {
         );
       }
       // if it's a boost (?)
-    } else if (activeTab === TAB_USDC) {
+    } else if (activeTab === TAB_USDC || activeTab === TAB_USD) {
       if (!isOnConfirmationPage) {
         setConfirmationPage(true);
       } else {
@@ -281,15 +280,15 @@ export default function WalletSendTip(props: Props) {
         };
         const userParams: UserParams = { activeChannelName, activeChannelId };
 
+        const currencyToUse = activeTab === TAB_USD ? 'AR' : 'USD';
         // hit backend to send tip
-        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD')
-          .then((r) => {
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, currencyToUse)
+          .then(r => {
             doToast({
               message: __('Tip sent!'),
             });
             doHideModal();
-          })
-          .catch((e) => {
+          }).catch((e) => {
             console.error(e);
             doToast({
               message: __('Tip failed to send.'),
@@ -297,7 +296,7 @@ export default function WalletSendTip(props: Props) {
               isError: true,
             });
             doHideModal();
-          });
+        });
       }
     } else {
       sendSupportOrConfirm();

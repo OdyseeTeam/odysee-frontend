@@ -58,7 +58,6 @@ export function doArConnect() {
         // const USDCBalance = await fetchUSDCBalance(address);
         const ARBalance = await fetchARBalance(address);
         const arExchangeRate = await fetchARExchangeRate();
-        console.log('arexchange', arExchangeRate);
         dispatch({
           type: ARCONNECT_SUCCESS,
           data: {
@@ -144,6 +143,7 @@ type TipParams = {
   tipChannelName: string,
   channelClaimId: string,
   recipientAddress: string,
+  transactionCurrency: 'USD' | 'AR';
 };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
@@ -175,7 +175,7 @@ export const doArTip = (
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
     let referenceToken = '';
     let transferTxid = '';
-    let cryptoAmount;
+    let transactionAmount;
     try {
       if (!window.arweaveWallet) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
@@ -210,7 +210,7 @@ export const doArTip = (
             creator_channel_claim_id: tipParams.channelClaimId,
             tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
             tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
-            currency: 'USD', // ?
+            currency: tipParams.transactionCurrency, // 'AR'
             anonymous: anonymous,
             source_claim_id: claimId,
             receiver_address: tipParams.recipientAddress,
@@ -220,9 +220,8 @@ export const doArTip = (
           },
           'post'
         );
-        console.log('res', res); // res.token?
         referenceToken = res.reference_token;
-        cryptoAmount = res.crypto_amount;
+        transactionAmount = res.transaction_amount;
       }
 
       const tags = [
@@ -230,24 +229,29 @@ export const doArTip = (
         { name: 'Claim_ID', value: claimId },
         { name: 'X-O-Ref', value: referenceToken },
       ];
-      // WIP
 
-      const sendResult = await sendWinstons(tipParams.recipientAddress, cryptoAmount, tags);
-      console.log('sendResult', sendResult);
-      transferTxid = await message({
-        process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
-        data: '',
-        tags: [
-          { name: 'Action', value: 'Transfer' },
-          { name: 'Quantity', value: String(tipParams.tipAmountTwoPlaces * USD_TO_USDC) }, // test/fix
-          { name: 'Recipient', value: tipParams.recipientAddress }, // get address
-          { name: 'Tip_Type', value: 'tip' },
-          { name: 'Claim_ID', value: claimId },
-          { name: 'X-O-Ref', value: referenceToken },
-        ],
-        Owner: senderAddress, // test/fix
-        signer: createDataItemSigner(window.arweaveWallet),
-      });
+      const transactionAmountString = String(transactionAmount);
+      if (tipParams.transactionCurrency === 'AR') {
+        const sendWinstonsRes = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
+        transferTxid = sendWinstonsRes.id;
+      } else if (tipParams.transactionCurrency === 'USD') {
+        // AO Onramper USDC
+        transferTxid = await message({
+          process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+          data: '',
+          tags: [
+            { name: 'Action', value: 'Transfer' },
+            { name: 'Quantity', value: String(tipParams.tipAmountTwoPlaces * USD_TO_USDC) }, // test/fix
+            { name: 'Recipient', value: tipParams.recipientAddress }, // get address
+            { name: 'Tip_Type', value: 'tip' },
+            { name: 'Claim_ID', value: claimId },
+            { name: 'X-O-Ref', value: referenceToken },
+          ],
+          Owner: senderAddress, // test/fix
+          signer: createDataItemSigner(window.arweaveWallet),
+        });
+      }
+
       await Lbryio.call(
         'customer',
         'tip',
@@ -258,7 +262,7 @@ export const doArTip = (
           creator_channel_claim_id: tipParams.channelClaimId,
           tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
           tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
-          currency: 'USD',
+          currency: tipParams.transactionCurrency,
           anonymous: anonymous,
           source_claim_id: claimId,
           receiver_address: tipParams.recipientAddress,
@@ -277,7 +281,7 @@ export const doArTip = (
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
     // support comments need the transferTxid, so return that here.
-    return { transferTxid: transferTxid, currency: 'USD', referenceToken: referenceToken };
+    return { transferTxid: transferTxid, currency: tipParams.transactionCurrency, referenceToken: referenceToken };
   };
 };
 
@@ -336,7 +340,7 @@ const fetchARExchangeRate = async () => {
   }
 };
 
-export const sendWinstons = async (address, amountInWinstons, tags) => {
+export const sendWinstons = async (address: string, amountInWinstons: string, tags: Array<{ name: string, value: string }>) => {
   try {
     const transaction = await arweave.createTransaction({
       target: address,
@@ -361,5 +365,3 @@ export const sendWinstons = async (address, amountInWinstons, tags) => {
     console.error('ERROR', e);
   }
 };
-
-export const sendAr = () => {};

@@ -19,6 +19,7 @@ type Props = {
   amount: number,
   LBCBalance: number,
   USDCBalance: number,
+  arBalance: number,
   claim: StreamClaim,
   convertedAmount?: number,
   customTipAmount?: number,
@@ -49,6 +50,7 @@ function WalletTipAmountSelector(props: Props) {
     amount,
     LBCBalance,
     USDCBalance,
+    arBalance,
     claim,
     convertedAmount,
     customTipAmount,
@@ -96,14 +98,15 @@ function WalletTipAmountSelector(props: Props) {
    * @returns {boolean}
    */
   function shouldDisableAmountSelector(amount: number) {
-    const isLBCCondition = activeTab === 'TabLBC' && (amount > LBCBalance || LBCBalance === 0);
-    const isUSDCCondition = activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0);
+    const isLBCCondition = activeTab === TAB_LBC && (amount > LBCBalance || LBCBalance === 0);
+    const isUSDCCondition = activeTab === TAB_USDC && (amount > USDCBalance || USDCBalance === 0);
+    const isARCondition = activeTab === TAB_USD && (amount > arBalance || arBalance === 0);
     const isNotFiatTab = activeTab !== TAB_FIAT;
 
     // if it's LBC but the balance isn't enough, or fiat conditions met
     // $FlowFixMe
     return (
-      ((isLBCCondition || isUSDCCondition) && isNotFiatTab) ||
+      ((isLBCCondition || isUSDCCondition || isARCondition) && isNotFiatTab) ||
       shouldDisableFiatSelectors ||
       shouldDisableARSelectors ||
       shouldDisableUSDCSelectors ||
