@@ -255,13 +255,13 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
   //   });
 };
 
-export const doMembershipCancelForMembershipId = (membershipId: number) => async (dispatch: Dispatch) => {
+export const doMembershipCancelForMembershipId = (membershipId: number, revert: boolean) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
 
   return await Lbryio.call(
     'membership_v2/subscription',
     'cancel',
-    { membership_id: membershipId },
+    { membership_id: membershipId, revert },
     'post'
   )
     .then((response) => {
@@ -302,6 +302,7 @@ export const doGetMembershipPerks = (params: MembershipListParams) => async (dis
 export const doOpenCancelationModalForMembership =
   (membershipSub: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
     const { membership, subscription } = membershipSub;
+    const isActive = subscription.status === 'active';
 
     const state = getState();
     const { name: channelName } = selectClaimForId(state, membership.channel_claim_id);
@@ -312,6 +313,30 @@ export const doOpenCancelationModalForMembership =
     });
     const creatorTitleName = selectChannelTitleForUri(state, creatorUri);
 
+    if (!isActive) {
+      return dispatch(
+        doOpenModal(MODALS.CONFIRM, {
+          title: __('Confirm Restoring %membership_name% Membership', { membership_name: membership.name }),
+          subtitle: __(
+            'Are you sure you want to restore your %creator_name%\'s "%membership_name%" membership? ',
+            {
+              membership_name: membership.name,
+            }
+          ),
+          busyMsg: __('Restoring your membership...'),
+          onConfirm: (closeModal, setIsBusy) => {
+            setIsBusy(true);
+            dispatch(doMembershipCancelForMembershipId(membership.id, true)).then(() => {
+              setIsBusy(false);
+              dispatch(
+                doToast({ message: __('Your membership was successfully restored.') })
+              );
+              closeModal();
+            });
+          },
+        })
+      );
+    }
     return dispatch(
       doOpenModal(MODALS.CONFIRM, {
         title: __('Confirm %membership_name% Cancellation', { membership_name: membership.name }),

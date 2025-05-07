@@ -4,6 +4,7 @@ import { Menu, MenuButton, MenuItem, MenuList } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
+import Button from 'component/button';
 import { formatDateToMonthAndDay } from 'util/time';
 interface IProps {
   uri: string;
@@ -47,6 +48,23 @@ function MembershipSubscribed(props: IProps) {
                     </MenuList>
                   </Menu>
                 )}
+                {!isActive && (
+                  <Menu>
+                    <MenuButton className="menu__button">
+                      <Icon size={18} icon={ICONS.SETTINGS} />
+                    </MenuButton>
+                    <MenuList className={'menu__list membership-tier' + membershipIndex}>
+                      <MenuItem
+                        className="comment__menu-option"
+                        onSelect={() => doOpenCancelationModalForMembership(membershipSub)}
+                      >
+                        <div className="menu__link">
+                          <Icon size={16} icon={ICONS.REFRESH} /> {__('Restore Membership')}
+                        </div>
+                      </MenuItem>
+                    </MenuList>
+                  </Menu>
+                  )}
               </div>
 
               <div className="membership__plan-content">
@@ -81,10 +99,11 @@ function MembershipSubscribed(props: IProps) {
                       ? __('This membership will renew on %renewal_date%', {
                           renewal_date: formattedEndOfMembershipDate,
                         })
-                      : __('Your cancelled membership will end on %end_date%', {
+                      : __('Your cancelled membership will end on %end_date%.', {
                           end_date: formattedEndOfMembershipDate,
                         })}
                   </label>
+                  {!isActive && <Button label={"hello"} button={"primary"} onClick={() => {}}/>}
                 </div>
               </div>
             </div>
