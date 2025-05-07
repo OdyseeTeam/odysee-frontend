@@ -16,6 +16,7 @@ const select = (state, props) => {
   return {
     LBCBalance: selectBalance(state),
     USDCBalance: selectArweaveBalance(state).usdc,
+    arBalance: selectArweaveBalance(state).ar,
     dollarsPerAr: selectArweaveExchangeRates(state).ar,
     claim: selectClaimForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),

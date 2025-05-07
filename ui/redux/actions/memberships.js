@@ -21,7 +21,7 @@ import { buildURI } from 'util/lbryURI';
 
 import { getStripeEnvironment } from 'util/stripe';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
-import { doArSign, sendAr } from './arwallet';
+import { doArSign, sendAr, sendWinstons } from './arwallet';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
@@ -165,19 +165,20 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
     await Lbryio.call('membership_v2', 'subscribe', { ...subscribeApiParams }, 'post')
       .then((response: MembershipSubscribeResponse) => {
         const { token, payee_address, price } = response;
-        const { crypto_amount, amount, currency } = price;
+        const { transaction_amount, amount, transaction_currency } = price;
         responseAmount = (amount / CONVERT_DOLLARS_TO_PENNIES) * USD_TO_USDC;
-        cryptoAmount = crypto_amount;
+        cryptoAmount = String(transaction_amount);
         subscribeToken = token;
         payeeAddress = payee_address;
-        currencyType = currency;
+        currencyType = transaction_currency;
       });
 
     if (currencyType === 'AR') {
       const tags = [
         { name: 'X-O-Ref', value: subscribeToken },
       ];
-      transferTxid = await sendAr(payeeAddress, cryptoAmount, tags).id;
+      const transferRes = await sendWinstons(payeeAddress, cryptoAmount, tags);
+      transferTxid = transferRes.id;
     } else if (currencyType === 'USD') {
       transferTxid = await message({
         process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',

@@ -437,7 +437,7 @@ export function CommentCreate(props: Props) {
         }
 
         // look, this is crazy complex. I just put the dry run inside doSendTip() for USDC instead of here.
-        if (activeTab === TAB_USDC) {
+        if (activeTab === TAB_USDC || activeTab === TAB_USD) {
           doSubmitTip();
           return;
         }
@@ -497,13 +497,15 @@ export function CommentCreate(props: Props) {
         false,
         'comment'
       );
-    } else if (activeTab === TAB_USDC) {
+    } else if (activeTab === TAB_USDC || activeTab === TAB_USD) {
       const arweaveTipAddress = recipientArweaveTipInfo && recipientArweaveTipInfo.address;
+      const transactionCurrency = activeTab === TAB_USD ? 'AR' : 'USD';
       const tipParams: ArTipParams = {
         tipAmountTwoPlaces: Math.round(tipAmount * 100) / 100,
         tipChannelName,
         channelClaimId,
         recipientAddress: arweaveTipAddress,
+        transactionCurrency: transactionCurrency,
       };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
 
@@ -517,13 +519,17 @@ export function CommentCreate(props: Props) {
         payment_tx_id: 'dummy_txid',
         environment: stripeEnvironment,
         is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-        amount: 1,
-        currency: 'USD',
+        amount: 1, // dummy amount
+        currency: transactionCurrency, // AR
         dry_run: true,
       };
       doCommentCreate(uri, isLivestream, dryRunCommentParams)
-        .then((res) => {
+        .then((res: { }) => {
           if (res && res.signature) {
+
+            // tell apis about a tip, get a token and amount
+            // make transaction
+            // notify transaction id
             doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment)
               .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string }) => {
                 if (arTipResponse.error) {
@@ -533,7 +539,7 @@ export function CommentCreate(props: Props) {
                 const params = Object.assign({}, dryRunCommentParams);
                 params.payment_tx_id = transferTxid;
                 params.dryrun = undefined;
-                params.amount = tipAmount;
+                params.amount = tipAmount; // dollars
 
                 // ...
                 handleCreateComment(null, null, transferTxid, stripeEnvironment);
@@ -633,7 +639,7 @@ export function CommentCreate(props: Props) {
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
       amount: !!txid || !!payment_intent_id || !!payment_tx_id ? tipAmount : undefined,
-      currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : undefined,
+      currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : activeTab === TAB_USD ? 'AR' : undefined,
       dry_run: dryRun,
     })
       .then((res) => {
@@ -951,7 +957,7 @@ export function CommentCreate(props: Props) {
                     onClick={handleSupportComment}
                   />
                 )}
-                {activeTab === TAB_USDC && (
+                {(activeTab === TAB_USDC || activeTab === TAB_USD) && (
                   <Button
                     {...submitButtonProps}
                     autoFocus
@@ -1052,10 +1058,11 @@ export function CommentCreate(props: Props) {
                 {!supportDisabled && !claimIsMine && (
                   <>
                     {showArweave && (
-                      <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
+                      // <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
+                      <TipActionButton {...tipButtonProps} name={__('AR')} icon={ICONS.USD} tab={TAB_USD} />
                     )}
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
-                    {ENABLE_STRIPE && stripeEnvironment && (
+                    {false && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                     )}
                   </>
