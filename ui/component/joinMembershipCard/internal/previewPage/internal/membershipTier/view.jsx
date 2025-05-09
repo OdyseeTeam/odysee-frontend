@@ -30,6 +30,13 @@ const MembershipTier = (props: Props) => {
     isOwnChannel,
     userHasCreatorMembership,
   } = props;
+
+  const getMembershipAction = () => {
+    // if cancelled, show "Cancelled, click to Restore" and last valid date
+    // if active, show "Active"
+
+  }
+
   return (
     <div
       className={
@@ -53,7 +60,7 @@ const MembershipTier = (props: Props) => {
               <Button
                 icon={ICONS.MEMBERSHIP}
                 button="primary"
-                label={__('Join for $%membership_price% per month', {
+                label={__('Join C for $%membership_price% per month', {
                   membership_price: (membership?.prices[0].amount / 100).toFixed(
                     membership?.prices[0].amount < 100 ? 2 : 0
                   ), // tiers

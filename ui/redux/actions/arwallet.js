@@ -232,8 +232,7 @@ export const doArTip = (
 
       const transactionAmountString = String(transactionAmount);
       if (tipParams.transactionCurrency === 'AR') {
-        const sendWinstonsRes = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
-        transferTxid = sendWinstonsRes.id;
+        transferTxid = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
       } else if (tipParams.transactionCurrency === 'USD') {
         // AO Onramper USDC
         transferTxid = await message({
@@ -342,10 +341,12 @@ const fetchARExchangeRate = async () => {
 
 export const sendWinstons = async (address: string, amountInWinstons: string, tags: Array<{ name: string, value: string }>) => {
   try {
-    const transaction = await arweave.createTransaction({
+    const createParams = {
       target: address,
+      recipient: address,
       quantity: amountInWinstons,
-    });
+    };
+    const transaction = await arweave.createTransaction(createParams);
 
     tags.forEach((t) => {
       transaction.addTag(t.name, t.value);
@@ -353,14 +354,9 @@ export const sendWinstons = async (address: string, amountInWinstons: string, ta
 
     await arweave.transactions.sign(transaction);
 
-    const res = await window.arweaveWallet.dispatch(transaction);
-    console.log('res', res);
-    if (res.json) {
-      const resJson = await res.json();
-      console.log('resjson', resJson);
-      return resJson;
-    }
-    return res;
+    const { id } = transaction;
+    const res = await arweave.transactions.post(transaction);
+    return id;
   } catch (e) {
     console.error('ERROR', e);
   }

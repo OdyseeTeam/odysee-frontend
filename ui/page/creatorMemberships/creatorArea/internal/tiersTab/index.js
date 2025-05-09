@@ -3,7 +3,7 @@ import { doOpenModal } from 'redux/actions/app';
 import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
 import { selectMembershipTiersForCreatorId, selectMembershipOdyseePermanentPerks } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { doGetMembershipPerks, doMembershipAddTier, doDeactivateMembershipForId } from 'redux/actions/memberships';
+import { doGetMembershipPerks, doDeactivateMembershipForId } from 'redux/actions/memberships';
 import { doToast } from 'redux/actions/notifications';
 import TiersTab from './view';
 
@@ -21,7 +21,6 @@ const select = (state, props) => {
 const perform = {
   doOpenModal,
   doGetMembershipPerks,
-  doMembershipAddTier,
   doDeactivateMembershipForId,
   doToast,
 };
