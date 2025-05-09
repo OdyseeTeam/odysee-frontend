@@ -94,9 +94,9 @@ function PledgesTab(props: Props) {
                   });
                   const creatorChannelPath = formatLbryUrlForWeb(creatorChannelUri);
 
-                  const currency = membershipSub.current_price.currency.toUpperCase();
-                  const supportAmount = membershipSub.current_price.amount; // in cents or 1/100th EUR
-                  const interval = membershipSub.current_price.frequency;
+                  const currency = membershipSub.subscription.current_price.currency.toUpperCase();
+                  const supportAmount = membershipSub.subscription.current_price.amount; // in cents or 1/100th EUR
+                  const interval = membershipSub.subscription.current_price.frequency;
 
                   const startDate = new Date(membershipSub.subscription.started_at);
                   const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);

@@ -36,7 +36,7 @@ type Props = {
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doToast: (params: { message: string }) => void,
-  defaultArweaveAddress?: string,
+  isChannelTab?: boolean,
 };
 
 const JoinMembershipCard = (props: Props) => {
@@ -61,7 +61,7 @@ const JoinMembershipCard = (props: Props) => {
     doMembershipList,
     doMembershipBuy,
     doToast,
-    defaultArweaveAddress,
+    isChannelTab,
   } = props;
 
   const isUrlParamModal = React.useContext(ModalContext)?.isUrlParamModal;
@@ -190,7 +190,7 @@ const JoinMembershipCard = (props: Props) => {
         body={
           <>
             {isOnConfirmationPage ? (
-              <ConfirmationPage {...pageProps} onCancel={() => setConfirmationPage(false)} />
+              <ConfirmationPage {...pageProps} onCancel={isChannelTab ? doHideModal : () => setConfirmationPage(false)} />
             ) : (
               <PreviewPage
                 {...pageProps}

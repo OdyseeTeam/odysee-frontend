@@ -21,7 +21,7 @@ import { buildURI } from 'util/lbryURI';
 
 import { getStripeEnvironment } from 'util/stripe';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
-import { doArSign, sendAr, sendWinstons } from './arwallet';
+import { doArSign, sendWinstons } from './arwallet';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
@@ -156,7 +156,6 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
 
   let transferTxid;
 
-  // membership_v2/subscribe then doArTip then membership_v2/subscription/transaction_notify
   try {
     const walletUnlocked = await doArSign('hello');
     if (!walletUnlocked) {
@@ -177,8 +176,7 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
       const tags = [
         { name: 'X-O-Ref', value: subscribeToken },
       ];
-      const transferRes = await sendWinstons(payeeAddress, cryptoAmount, tags);
-      transferTxid = transferRes.id;
+      transferTxid = await sendWinstons(payeeAddress, cryptoAmount, tags);
     } else if (currencyType === 'USD') {
       transferTxid = await message({
         process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
@@ -282,16 +280,16 @@ export const doMembershipCancelForMembershipId = (membershipId: number, revert: 
 
 export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership_v2', 'create', { ...params }, 'post')
-    .then((response: MembershipCreateResponse) => response)
+    .then((response: MembershipCreateResponse) => ({ response: response } ))
     .catch((e) => {
-      throw new Error(e);
+      return { error: e?.message || e };
     });
 
 export const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership_v2', 'update', { ...params }, 'post')
-    .then((response: MembershipCreateResponse) => response)
+    .then((response: MembershipCreateResponse) => ({ response: response }))
     .catch((e) => {
-      throw new Error(e);
+      return { error: e?.message || e };
     });
 
 export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>

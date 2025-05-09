@@ -54,7 +54,7 @@ function MembershipEditTier(props: Props) {
   const initialState = React.useRef({
     name: membership.name || '',
     description: membership.description || '',
-    prices: membership.prices[0].amount / 100, // array?
+    price: membership.prices[0].amount / 100, // currently a single price
     perks: Array.from(new Set([...MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS, ...membership.perks.map((perk) => perk.id)])),
     frequency: 'monthly',
   });
@@ -68,6 +68,7 @@ function MembershipEditTier(props: Props) {
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
+  const [saveError, setSaveError] = React.useState('');
 
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
@@ -82,6 +83,7 @@ function MembershipEditTier(props: Props) {
    * @returns {Promise<void>}
    */
   async function saveMembership() {
+    setSaveError('');
     const initialObj = initialState.current;
     const newObj = {
       name: editTierParams.editTierName,
@@ -105,7 +107,7 @@ function MembershipEditTier(props: Props) {
 
     if (activeChannelClaim) {
       const isCreatingAMembership = typeof membership.membership_id === 'string';
-      const price = Number(newTierMonthlyContribution) * 100; // multiply to turn into cents
+      const price = Math.round(Number(newTierMonthlyContribution) * 100); // multiply to turn into cents
 
       if (isCreatingAMembership) {
         const params = {
@@ -113,15 +115,19 @@ function MembershipEditTier(props: Props) {
           name: editTierParams.editTierName,
           description: editTierParams.editTierDescription,
           amount: price,
-          currency: 'USD', // hardcoded for now
+          currency: 'AR', // hardcoded for now
           perks: selectedPerksAsArray,
           frequency: editTierParams.editTierFrequency,
           payment_address: apiArweaveAddress,
         };
         doMembershipAddTier(params)
-          .then((response: MembershipDetails) => {
+          .then((responseOrError: {response: 'ok', error: string }) => {
+            const { error } = responseOrError;
             setIsSubmitting(false);
-
+            if (error) {
+              setSaveError(error);
+              return;
+            }
             const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
 
             const newMembershipObj: CreatorMembership = {
@@ -130,7 +136,7 @@ function MembershipEditTier(props: Props) {
 
               has_subscribers: false,
               channel_name: activeChannelClaim.name,
-              prices: [{ amount: price, currency: 'usd', address: '' }], // HERE PRICES
+              prices: [{ amount: price, currency: 'AR', address: '' }], // HERE PRICES
               perks: selectedPerks,
             };
             addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
@@ -148,8 +154,13 @@ function MembershipEditTier(props: Props) {
           membership_id: membership.membership_id,
         };
         doMembershipUpdateTier(params)
-          .then((response: MembershipUpdateResponse) => {
+          .then((responseOrError: { response: 'ok', error: string }) => {
             setIsSubmitting(false);
+            const { error} = responseOrError;
+            if (error) {
+              setSaveError(error);
+              return;
+            }
 
             const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
 
@@ -281,6 +292,7 @@ function MembershipEditTier(props: Props) {
               : descriptionError
               ? __('A membership description is required.')
               : undefined}
+            {saveError && __(saveError)}
           </div>
           <div className="error__text">
             {hasSubscribers

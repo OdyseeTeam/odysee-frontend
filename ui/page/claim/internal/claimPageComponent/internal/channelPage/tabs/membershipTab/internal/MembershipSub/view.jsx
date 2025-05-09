@@ -103,7 +103,6 @@ function MembershipSubscribed(props: IProps) {
                           end_date: formattedEndOfMembershipDate,
                         })}
                   </label>
-                  {!isActive && <Button label={"hello"} button={"primary"} onClick={() => {}}/>}
                 </div>
               </div>
             </div>

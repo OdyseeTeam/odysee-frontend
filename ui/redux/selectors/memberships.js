@@ -126,6 +126,9 @@ export const selectHasCanceledMembershipForMembershipId = (state: State, creator
   return !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'canceled') || false;
 };
 
+// select cancelled membership is renewable
+// select membership is renewable
+
 // pending if subscription.status === pending AND payments.find(p => p.status === submitted
 export const selectHasPendingMembershipForMembershipId = (state: State, creatorId: string, membershipId: number) => {
   const mine = selectMembershipMineData(state);
@@ -350,6 +353,22 @@ export const userHasMembershipTiers = createSelector(selectMyMembershipTiersChan
 
 export const selectMembershipTiersForChannelUri = (state: State, uri: string) =>
   selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
+
+export const selectTierIndexForCreatorIdAndMembershipId = (state: State, creatorId: string, membershipId: number): number | null => {
+  if (!state) return null;
+  const memberships = selectMembershipTiersForCreatorId(state, creatorId);
+
+  if (!memberships) return null;
+
+  // Filter memberships by `enabled === true`
+  const enabledMemberships = memberships.filter((m) => m.enabled === true);
+
+  // Find the index of the membership with the given `membershipId`
+  const index = enabledMemberships.findIndex((m) => m.membership_id === membershipId);
+
+  // Return the index + 1, or undefined if not found
+  return index === -1 ? null : index + 1;
+}
 
 export const selectOdyseeMembershipTiers = (state: State) =>
   selectMembershipTiersForCreatorId(state, ODYSEE_CHANNEL.ID);

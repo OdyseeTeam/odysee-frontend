@@ -143,7 +143,7 @@ const PreviewPage = (props: Props) => {
               membership={membership}
               handleSelect={() => {
                 setMembershipIndex(index);
-                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, passedTierIndex: index });
+                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, passedTierIndex: index, isChannelTab: isChannelTab });
               }}
               index={index}
               length={creatorMemberships.length}
@@ -200,13 +200,15 @@ const PreviewPage = (props: Props) => {
       </div>
 
       <div className="join-membership__modal-content">
-        <MembershipDetails
-          membership={selectedTier}
-          unlockableTierIds={unlockableTierIds}
-          userHasACreatorMembership={userHasACreatorMembership}
-          membersOnly={membersOnly}
-          isLivestream={isLivestream}
-        />
+        {selectedTier && (
+          <MembershipDetails
+            membership={selectedTier}
+            unlockableTierIds={unlockableTierIds}
+            userHasACreatorMembership={userHasACreatorMembership}
+            membersOnly={membersOnly}
+            isLivestream={isLivestream}
+          />
+        )}
       </div>
 
       <div className="join-membership__modal-action">
