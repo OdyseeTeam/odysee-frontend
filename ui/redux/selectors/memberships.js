@@ -118,6 +118,18 @@ export const selectHasMembershipForMembershipId = (state: State, creatorId: stri
   return isSubscribed;
 };
 
+export const selectMembershipMineForCreatorId = (state: State, creatorId: string) => {
+  const mine = selectMembershipMineData(state);
+  return mine[creatorId];
+}
+
+export const selectMembershipMineForCreatorIdForMembershipId = (state: State, creatorId: string, membershipId: number) => {
+  const mine = selectMembershipMineForCreatorId(state, creatorId);
+  const membership = mine.find(m => m.membership.id === membershipId);
+  if (!membership) return false;
+  return membership;
+}
+
 // canceled if subscription.status === 'canceled'
 export const selectHasCanceledMembershipForMembershipId = (state: State, creatorId: string, membershipId: number) => {
   const mine = selectMembershipMineData(state);
@@ -134,7 +146,7 @@ export const selectHasPendingMembershipForMembershipId = (state: State, creatorI
   const mine = selectMembershipMineData(state);
   const mineForCreator = mine[creatorId];
   if (!mineForCreator) return false;
-  return !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'pending') || false;
+  return !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'pending' && !m.payments.some(p => p.status === 'submitted')) || false;
 };
 
 // -- Valid Membership = still in period_end date range

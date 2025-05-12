@@ -301,6 +301,7 @@ export const doOpenCancelationModalForMembership =
   (membershipSub: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
     const { membership, subscription } = membershipSub;
     const isActive = subscription.status === 'active';
+    const isCanceled = subscription.status === 'canceled';
 
     const state = getState();
     const { name: channelName } = selectClaimForId(state, membership.channel_claim_id);
@@ -311,7 +312,7 @@ export const doOpenCancelationModalForMembership =
     });
     const creatorTitleName = selectChannelTitleForUri(state, creatorUri);
 
-    if (!isActive) {
+    if (isCanceled) {
       return dispatch(
         doOpenModal(MODALS.CONFIRM, {
           title: __('Confirm Restoring %membership_name% Membership', { membership_name: membership.name }),

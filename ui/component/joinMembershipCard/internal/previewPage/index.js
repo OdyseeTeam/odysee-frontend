@@ -24,7 +24,6 @@ const select = (state, props) => {
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     canReceiveArweaveTips: !!selectArweaveTipDataForId(state, channelId),
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
-    // membershipTiers: selectMembershipTiersForCreatorId(state, claimId), //apparently not used
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
     channelTitle,
     channelUri,
