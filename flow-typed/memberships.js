@@ -297,7 +297,7 @@ declare type ChannelMembershipsByCreatorId = {
 
 declare type MembershipSubscriber = {
   subscriber_channel_name: string,
-  subscriber_channel_id: string,
+  subscriber_channel_claim_id: string,
   supported_channel_name: string,
   membership_name: string,
   price: number,
