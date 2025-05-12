@@ -19,6 +19,7 @@ type Props = {
   purchasePending: boolean,
   preferredCurrency: ?string,
   incognito: boolean,
+  isRenewal?: boolean,
 };
 
 const ConfirmationPage = (props: Props) => {
@@ -30,6 +31,7 @@ const ConfirmationPage = (props: Props) => {
     purchasePending,
     preferredCurrency,
     incognito,
+    isRenewal,
   } = props;
 
   const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
@@ -38,7 +40,7 @@ const ConfirmationPage = (props: Props) => {
     <div className="confirm__wrapper">
       <h1>{__('Almost done')}</h1>
       <ConfirmationSection
-        label={__(`Join %channelName%'s Membership As`, { channelName })}
+        label={isRenewal ? __(`Renew %channelName%'s Membership As`, { channelName }) : __(`Join %channelName%'s Membership As`, { channelName })}
         value={<ChannelSelector />}
       />
       <section>
@@ -93,7 +95,7 @@ const ConfirmationPage = (props: Props) => {
               </p>
             )}
 
-            <SubmitButton modalState={{ passedTierIndex: selectedMembershipIndex }} />
+            <SubmitButton isRenewal={isRenewal} modalState={{ passedTierIndex: selectedMembershipIndex }} />
             <Button button="link" label={__('Cancel')} onClick={onCancel} />
           </div>
 
@@ -136,6 +138,6 @@ const ConfirmationSection = (props: GroupProps) => {
   );
 };
 
-const SubmitButton = () => <Submit autoFocus button="primary" label={__('Confirm')} />;
+const SubmitButton = (props: { isRenewal: boolean }) => <Submit autoFocus button="primary" label={props.isRenewal ? __('Renew') : __('Confirm')} />;
 
 export default ConfirmationPage;

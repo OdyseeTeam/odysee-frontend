@@ -6,21 +6,27 @@ import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import { formatDateToMonthAndDay } from 'util/time';
+import * as MODALS from 'constants/modal_types';
 interface IProps {
   uri: string;
   membershipSub: MembershipSub;
   membershipIndex: number;
+  doOpenModal: () => void;
+  doOpenCancelationModalForMembership: (MembershipSub) => void;
 }
 
 function MembershipSubscribed(props: IProps) {
-  const { membershipIndex, membershipSub, doOpenCancelationModalForMembership } = props;
+  const { uri, membershipIndex, membershipSub, doOpenCancelationModalForMembership, doOpenModal } = props;
   if (!membershipSub) {
     return null;
   }
+
+  const now = new Date();
   const subscriptionEndDate = membershipSub.subscription.ends_at;
   const formattedEndOfMembershipDate = formatDateToMonthAndDay(new Date(subscriptionEndDate));
   const perks = membershipSub.perks;
   const isActive = membershipSub.subscription.status === 'active';
+  const canRenew = now > new Date(membershipSub.subscription.earliest_renewal_at);
   return (
     <>
       <Card
@@ -94,15 +100,29 @@ function MembershipSubscribed(props: IProps) {
                 )}
 
                 <div className="membership__plan-actions">
-                  <label>
+
+
                     {isActive
-                      ? __('This membership will renew on %renewal_date%', {
+                      ? canRenew
+                        ? (<Button
+                            icon={ICONS.MEMBERSHIP}
+                            button="primary"
+                            label={__('Renew for $%membership_price% this month', {
+                              membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
+                                membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
+                              ), // tiers
+                            })}
+                            onClick={() => {
+                              doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: membershipIndex, passedTierIndex: membershipIndex, isChannelTab: true, isRenewal: true });
+                            }}
+                            disabled={false}
+                        />)
+                        : <label>{__('You can renew this membership on or after %renewal_date%', {
                           renewal_date: formattedEndOfMembershipDate,
-                        })
-                      : __('Your cancelled membership will end on %end_date%.', {
-                          end_date: formattedEndOfMembershipDate,
-                        })}
-                  </label>
+                        })}</label>
+                      : <label>{__('Your cancelled membership will end on %end_date%.', {
+                        end_date: formattedEndOfMembershipDate,
+                      })}</label>}
                 </div>
               </div>
             </div>

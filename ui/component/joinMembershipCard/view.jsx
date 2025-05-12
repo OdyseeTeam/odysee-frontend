@@ -37,6 +37,7 @@ type Props = {
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doToast: (params: { message: string }) => void,
   isChannelTab?: boolean,
+  isRenewal?: boolean,
 };
 
 const JoinMembershipCard = (props: Props) => {
@@ -62,6 +63,7 @@ const JoinMembershipCard = (props: Props) => {
     doMembershipBuy,
     doToast,
     isChannelTab,
+    isRenewal,
   } = props;
 
   const isUrlParamModal = React.useContext(ModalContext)?.isUrlParamModal;
@@ -150,8 +152,8 @@ const JoinMembershipCard = (props: Props) => {
   }, [channelClaimId, channelName, creatorMemberships, doMembershipList]);
 
   const pageProps = React.useMemo(() => {
-    return { uri, selectedCreatorMembership, selectedMembershipIndex };
-  }, [selectedMembershipIndex, selectedCreatorMembership, uri]);
+    return { uri, selectedCreatorMembership, selectedMembershipIndex, isRenewal };
+  }, [selectedMembershipIndex, selectedCreatorMembership, uri, isRenewal]);
 
   React.useEffect(() => {
     if (isUrlParamModal && purchasedChannelMembership) {

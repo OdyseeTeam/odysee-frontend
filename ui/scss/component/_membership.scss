@@ -973,6 +973,16 @@
         display: block;
         font-size: var(--font-base);
         opacity: 0.8;
+
+      }
+
+      .button__content {
+        display: flex;
+        opacity: 1.0;
+      }
+
+      .button {
+
       }
     }
   }
@@ -985,9 +995,10 @@
     }
 
     .button {
-      background-color: var(--color-header-background) !important;
+      //background-color: var(--color-header-background) !important;
       border: 2px solid var(--color-border);
       margin-right: var(--spacing-s);
+      float: left;
     }
   }
 }
