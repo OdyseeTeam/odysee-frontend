@@ -76,7 +76,13 @@ declare type MembershipSub = {
   current_price: { amount: number, currency: "USD", frequency: "monthly", id: number },
   id: string, // this still?
   membership: Membership,
-  subscription: { status: string, started_at: number, ends_at: number },
+  subscription: {
+    current_price: { amount: number, currency: "USD", frequency: "monthly", id: number },
+    status: string,
+    started_at: number,
+    ends_at: string,
+    earliest_renewal_at: string,
+  },
   perks: Array<any>,
   payments: Array<PaymentDetails>,
 }
