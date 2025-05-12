@@ -29,6 +29,21 @@ const SupportersTab = (props: Props) => {
     doResolveClaimIds,
   } = props;
 
+  // const sl = [
+  //   {
+  //     subscriber_channel_name: '@iostest',
+  //     subscriber_channel_claim_id: 'b2de35a63ab37f9c4ec1c65f8135ed0306b7f67f',
+  //     supported_channel_name: '@shirely',
+  //     membership_name: 'The worst',
+  //     price: 10,
+  //     currency: 'AR',
+  //     interval: 'Monthly',
+  //     joined_at: '2025-05-10T04:39:27.822Z', // number or datestring?
+  //   },
+  // ];
+  //
+  // const supportersList = sl;
+
   const hasAnySupporters = React.useMemo(() => {
     return Boolean(
       channelsToList &&
