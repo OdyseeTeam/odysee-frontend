@@ -3,10 +3,14 @@ import MembershipTier from './view';
 import {
   selectHasCanceledMembershipForMembershipId,
   selectHasMembershipForMembershipId,
-  selectHasPendingMembershipForMembershipId, selectTierIndexForCreatorIdAndMembershipId,
+  selectHasPendingMembershipForMembershipId,
+  selectMembershipMineForCreatorIdForMembershipId,
+  selectTierIndexForCreatorIdAndMembershipId,
 } from 'redux/selectors/memberships';
+import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
 
 const select = (state, props) => {
+  const creatorId = props.membership.channel_claim_id;
   return {
     tierIndex: selectTierIndexForCreatorIdAndMembershipId(
       state,
@@ -28,7 +32,12 @@ const select = (state, props) => {
       props.membership.channel_claim_id,
       props.membership.membership_id
     ),
+    thisMembership: selectMembershipMineForCreatorIdForMembershipId(state, creatorId, props.membership.membership_id),
   };
 };
 
-export default connect(select)(MembershipTier);
+const perform = {
+  doOpenCancelationModalForMembership,
+};
+
+export default connect(select, perform)(MembershipTier);

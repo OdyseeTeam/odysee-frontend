@@ -61,16 +61,6 @@ const MembershipTab = (props: Props) => {
           ))}
       </div>
       )}
-      {cancelledMemberships.length > 0 && (
-      <div className={'membership-tab-item__wrapper'}>
-      <div className={'card__header--between membership-tab-header__wrapper'}>
-        <h2 className={'card__title'}>Cancelled Memberships</h2>
-      </div>
-      {cancelledMemberships.map((subscription, index) => (
-            <MembershipSub uri={uri} membershipSub={subscription} key={subscription.membership.name} />
-          ))}
-      </div>
-        )}
       <div className={'membership-tab-item__wrapper'}>
       <div className={'card__header--between membership-tab-header__wrapper'}>
         <h2 className={'card__title'}>Available Memberships</h2>

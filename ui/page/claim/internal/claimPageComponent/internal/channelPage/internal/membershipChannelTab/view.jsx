@@ -15,7 +15,7 @@ type Props = {
   membershipIndex: number,
   // -- redux --
   purchasedChannelMembership: MembershipSub, // TODO WTF
-  doOpenCancelationModalForMembership: (membership: MembershipSub) => void,
+  doOpenCancelationModalForMembership: (membership: MembershipSub, revert?: boolean) => void,
   navigate: (string) => void,
 };
 
