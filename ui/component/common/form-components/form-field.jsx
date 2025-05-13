@@ -100,6 +100,7 @@ export class FormField extends React.PureComponent<Props, State> {
       blockWrap,
       charCount,
       children,
+      disabled,
       error,
       helper,
       hideSuggestions,
@@ -131,6 +132,8 @@ export class FormField extends React.PureComponent<Props, State> {
       max,
       ...inputProps
     } = this.props;
+
+    console.log('disabled: ', disabled);
 
     const errorMessage = typeof error === 'object' ? error.message : error;
 
@@ -411,7 +414,11 @@ export class FormField extends React.PureComponent<Props, State> {
                 </div>
               )}
 
-              {prefix && <label htmlFor={name}>{prefix}</label>}
+              {prefix && (
+                <label htmlFor={name} className={disabled || error ? 'disabled' : ''}>
+                  {prefix}
+                </label>
+              )}
 
               {inputButton ? (
                 <input-submit>

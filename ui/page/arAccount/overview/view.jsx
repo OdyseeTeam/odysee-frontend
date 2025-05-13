@@ -17,87 +17,38 @@ function Overview(props: Props) {
   const inputReceivingAddressRef = React.useRef();
 
   const [arBalance, setArBalance] = React.useState(0);
-  console.log('arwstat', arWalletStatus);
+  // console.log('arwstat', arWalletStatus);
   React.useEffect(() => {
     (async () => {
       if (window.arweaveWallet) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
-          const sent = await fetch(`https://arweave-search.goldsky.com/graphql`, {
+
+          console.log('Get transactions');
+          const transactions = await fetch('https://arweave-search.goldsky.com/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               query: `{
-              transactions(
-                first: 10,
-                owners: ["${address}"],
-                tags: [
-                  { name: "Data-Protocol", values: ["ao"] },
-                  { name: "Action", values: ["Transfer"] }
-                  { name: "Tip_Type" } 
-                ]
-              ) {
-                edges {
-                  node {
-                    id
-                    recipient
-                    owner { address }
-                    block { timestamp height }
-                    tags { name, value }
+                transactions(
+                  owners: ["${address}"],
+                ) { 
+                  edges { 
+                    node { 
+                      id
+                      recipient
+                      quantity { ar }
+                      owner { address }
+                      block { timestamp height }
+                      tags { name, value }
+                    }
                   }
                 }
-              }
-            }`,
+              }`,
             }),
           });
 
-          const sentData = await sent.json();
-          if (sentData && sentData.data && sentData.data.transactions && sentData.data.transactions.edges) {
-            const transactions = sentData.data.transactions.edges;
-            console.log('sent: ', transactions);
-            const newTransactions = [];
-            for (let entry of transactions) {
-              const transaction = entry.node;
-              const row = {
-                date: transaction.block.timestamp,
-                action: 'sendTip',
-                amount: Number(transaction.tags.find((tag) => tag.name === 'Quantity')?.value) / 1000000,
-                target: transaction.tags.find((tag) => tag.name === 'Claim_ID')?.value,
-              };
-              newTransactions.push(row);
-            }
-            setTransactions(newTransactions);
-          }
-
-          const received = await fetch(`https://arweave-search.goldsky.com/graphql`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              query: `{
-              transactions(
-                first: 10,
-                tags: [
-                  { name: "Data-Protocol", values: ["ao"] },
-                  { name: "Action", values: ["Transfer"] },
-                  { name: "Recipient", values: ["${address}"] }
-                  { name: "Tip_Type" } 
-                ]
-              ) {
-                edges {
-                  node {
-                    id
-                    recipient
-                    owner { address }
-                    block { timestamp height }
-                    tags { name, value }
-                  }
-                }
-              }
-            }`,
-            }),
-          });
-
-          const receivedData = await received.json();
+          const receivedData = await transactions.json();
           if (
             receivedData &&
             receivedData.data &&
@@ -105,7 +56,18 @@ function Overview(props: Props) {
             receivedData.data.transactions.edges
           ) {
             const transactions = receivedData.data.transactions.edges;
-            console.log('received: ', transactions);
+            const newTransactions = [];
+            for (let entry of transactions) {
+              const transaction = entry.node;
+              const row = {
+                date: transaction.block.timestamp,
+                action: 'sendTip',
+                amount: Number(transaction.quantity.ar),
+                target: transaction.recipient,
+              };
+              if (row.target) newTransactions.push(row);
+            }
+            setTransactions(newTransactions);
           }
         } catch (e) {
           console.error(e);
@@ -152,6 +114,7 @@ function Overview(props: Props) {
               </div>
             </div>
 
+            {/*
             <div className="payment-options">
               <h2 className="section__title--small">{__('Receive')}</h2>
               <div className="payment-options-content">
@@ -160,6 +123,7 @@ function Overview(props: Props) {
                 </div>
               </div>
             </div>
+            */}
 
             <div className="payment-options">
               <h2 className="section__title--small">{__('Send')}</h2>
@@ -218,9 +182,9 @@ function Overview(props: Props) {
                       .replace(',', '')}
                   </div>
                   <div className="transaction-history__action">
-                    {transaction.action === 'sendTip' ? __('Send Tip') : __('Receive Tip')}
+                    {transaction.action === 'sendTip' ? __('Send') : __('Receive Tip')}
                   </div>
-                  <div className="transaction-history__amount">{transaction.amount.toFixed(2)}</div>
+                  <div className="transaction-history__amount">{transaction.amount.toFixed(4)}</div>
                   <div className="transaction-history__token">
                     <Symbol token="ar" />
                     Ar

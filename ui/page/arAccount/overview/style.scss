@@ -48,7 +48,7 @@
         background: var(--color-header-button);
         gap: var(--spacing-l);
         border-radius: var(--border-radius);
-        padding: var(--spacing-s);
+        padding: var(--spacing-xs);
 
         .toggle-wrapper {
           margin-left: auto;
@@ -65,7 +65,11 @@
     background: var(--color-background);
     padding: var(--spacing-s);
     border-radius: var(--border-radius);
-    gap: var(--spacing-m);
+    gap: 18px;
+
+    .payment-option {
+      flex: unset;
+    }
   }
 
   .sendAr-row {
@@ -80,11 +84,6 @@
       flex-direction: column;
       width: 100%;
       // justify-content: center;
-    }
-    .sendAr-row__receiver {
-      input {
-        font-size: 14px;
-      }
     }
 
     .sendAr__total {
@@ -111,7 +110,7 @@
     }
 
     .sendAr-row__send {
-      margin-top: auto;
+      margin-top: var(--spacing-s);
     }
   }
 

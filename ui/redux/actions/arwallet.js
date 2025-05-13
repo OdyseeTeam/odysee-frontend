@@ -10,6 +10,7 @@ import {
   AR_TIP_STATUS_STARTED,
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
+  WANDER_AUTH,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
@@ -143,7 +144,7 @@ type TipParams = {
   tipChannelName: string,
   channelClaimId: string,
   recipientAddress: string,
-  transactionCurrency: 'USD' | 'AR';
+  transactionCurrency: 'USD' | 'AR',
 };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
@@ -339,7 +340,11 @@ const fetchARExchangeRate = async () => {
   }
 };
 
-export const sendWinstons = async (address: string, amountInWinstons: string, tags: Array<{ name: string, value: string }>) => {
+export const sendWinstons = async (
+  address: string,
+  amountInWinstons: string,
+  tags: Array<{ name: string, value: string }>
+) => {
   try {
     const createParams = {
       target: address,
@@ -360,4 +365,17 @@ export const sendWinstons = async (address: string, amountInWinstons: string, ta
   } catch (e) {
     console.error('ERROR', e);
   }
+};
+
+export const doArSetAuth = (status: string) => {
+  console.log('AAAAAAAAAAAAAAAAA doArSetAuth: ', status);
+  return async (dispatch: Dispatch) => {
+    console.log('----');
+    dispatch({ type: WANDER_AUTH, data: status });
+    try {
+      dispatch({ type: WANDER_AUTH, data: status });
+    } catch (e) {
+      console.error(e);
+    }
+  };
 };

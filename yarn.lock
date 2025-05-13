@@ -2427,6 +2427,13 @@
     global "~4.4.0"
     is-function "^1.0.1"
 
+"@wanderapp/connect@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@wanderapp/connect/-/connect-0.1.1.tgz#311a67788ca8c9d7b1e1a992690be85493db7473"
+  integrity sha512-jIf2IgdUKVQ7kkE5SDah/7kNenwHXd0TiWu+ug6iVKYmjr13OgLhzxim8cK6hCem4UOTne+LE6skh3KfQTYKuQ==
+  dependencies:
+    ts-deepmerge "^7.0.3"
+
 "@webassemblyjs/ast@1.11.1":
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/@webassemblyjs/ast/-/ast-1.11.1.tgz#2bfd767eae1a6996f432ff7e8d7fc75679c0b6a7"
@@ -17994,6 +18001,11 @@ truncate-utf8-bytes@^1.0.0:
   integrity sha512-95Pu1QXQvruGEhv62XCMO3Mm90GscOCClvrIUwCM0PYOXK3kaF3l3sIHxx71ThJfcbM2O5Au6SO3AWCSEfW4mQ==
   dependencies:
     utf8-byte-length "^1.0.1"
+
+ts-deepmerge@^7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/ts-deepmerge/-/ts-deepmerge-7.0.3.tgz#e7053ddb45be093b71d7f9a5a05935ae119f1d31"
+  integrity sha512-Du/ZW2RfwV/D4cmA5rXafYjBQVuvu4qGiEEla4EmEHVHgRdx68Gftx7i66jn2bzHPwSVZY36Ae6OuDn9el4ZKA==
 
 tsconfig-paths@^3.14.1:
   version "3.14.1"

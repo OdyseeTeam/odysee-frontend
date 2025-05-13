@@ -11,10 +11,11 @@ export type WalletBalance = {
 
 export type ExchangeRates = {
   ar: number,
-}
+};
 
 export type ArWalletState = {
   wallet: ?{},
+  auth: ?string,
   address: ?string,
   error: ?string,
   connecting: boolean,
@@ -26,6 +27,7 @@ export type ArWalletState = {
 
 const defaultState: ArWalletState = {
   wallet: undefined,
+  auth: undefined,
   address: undefined,
   error: undefined,
   connecting: false,
@@ -51,7 +53,7 @@ reducers[ACTIONS.ARCONNECT_SUCCESS] = (state, action) => ({
   wallet: action.data.wallet,
   address: action.data.address,
   balance: { ...state.balance, usdc: action.data.usdc, ar: action.data.ar },
-  exchangeRates: { ...state.exchangeRates, ar: action.data.usdPerAr},
+  exchangeRates: { ...state.exchangeRates, ar: action.data.usdPerAr },
   fetching: false,
   connecting: false,
   error: null,
@@ -70,7 +72,6 @@ reducers[ACTIONS.ARCONNECT_FETCHBALANCE] = (state, action) => ({
   ...state,
   fetching: true,
 });
-
 
 reducers[ACTIONS.AR_TIP_STATUS_STARTED] = (state, action) => {
   const { tippingStatusById } = state;
@@ -94,6 +95,11 @@ reducers[ACTIONS.AR_TIP_STATUS_SUCCESS] = (state, action) => {
   const a = { ...tippingStatusById };
   delete a[claimId];
   return { ...state, tippingStatusById: a };
+};
+
+reducers[ACTIONS.WANDER_AUTH] = (state, action) => {
+  console.log('RRRRRRRRRRRRRRRRRRRRRRR ', action);
+  return { ...state, auth: action };
 };
 
 export default function arwalletReducer(state: ArWalletState = defaultState, action: any) {

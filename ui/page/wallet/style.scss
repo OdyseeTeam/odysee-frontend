@@ -148,5 +148,9 @@
 
   .link {
     color: var(--color-primary);
+    &:hover {
+      cursor: pointer;
+      color: var(--color-secondary);
+    }
   }
 }

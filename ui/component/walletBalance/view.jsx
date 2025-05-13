@@ -21,6 +21,7 @@ type Props = {
   arStatus: any,
   arBalance: number,
   arUsdRate: number,
+  wanderAuth: string,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
@@ -62,6 +63,7 @@ const WalletBalance = (props: Props) => {
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
+    wanderAuth,
     accountStatus,
     fullArweaveStatus,
     doOpenModal,
@@ -69,6 +71,11 @@ const WalletBalance = (props: Props) => {
     doFetchUtxoCounts,
     doArConnect,
   } = props;
+
+  console.log('wanderAuth: ', wanderAuth);
+
+  // console.log('Wallet: ', window.arweaveWallet)
+  console.log('Wander instance: ', window.wanderInstance);
 
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
@@ -78,10 +85,12 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
-  const hasArExtension = Boolean(window.arweaveWallet);
+  // const hasArSignin = Boolean(window.wanderInstance.authInfo);
+  const hasArSignin = window.wanderInstance.authInfo.authStatus;
   const hasArConnection = Boolean(arStatus.address);
-  console.log('hasArExtension: ', hasArExtension);
+  console.log('hasArSignin: ', hasArSignin);
   console.log('hasArConnection: ', hasArConnection);
+
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
@@ -267,10 +276,8 @@ const WalletBalance = (props: Props) => {
           subtitle={
             <>
               <div className="wallet-check-row">
-                <div>{__('Wander browser extension')}</div>
-                <div>
-                  {hasArExtension ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}
-                </div>
+                <div>{__('Wander wallet login')}</div>
+                <div>{hasArSignin ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}</div>
               </div>
               <div className="wallet-check-row">
                 <div>{__('Wander wallet connection')}</div>
@@ -284,22 +291,22 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!hasArExtension ? (
+              {!hasArSignin ? (
                 <I18nMessage
                   tokens={{
                     link: (
                       <a
-                        href="https://www.wander.app/download?tab=download-browser"
-                        target="_blank"
-                        rel="noreferrer"
                         className="link"
+                        onClick={() => {
+                          window.wanderInstance.open();
+                        }}
                       >
-                        Download here.
+                        Sign in.
                       </a>
                     ),
                   }}
                 >
-                  To use AR on Odysee, the Wander browser extension must be installed. %link%
+                  To use AR on Odysee, you have to sign into the Wander wallet. %link%
                 </I18nMessage>
               ) : !hasArConnection ? (
                 <I18nMessage
@@ -342,14 +349,14 @@ const WalletBalance = (props: Props) => {
                   label={__('Deposit Funds')}
                   icon={ICONS.BUY}
                   navigate={`/$/${PAGES.ARACCOUNT}?tab=buy`}
-                  disabled={!hasArExtension || !hasArConnection}
+                  disabled={!hasArSignin || !hasArConnection}
                 />
                 <Button
                   button="secondary"
                   label={__('Arweave Account')}
                   icon={ICONS.SETTINGS}
                   navigate={`/$/${PAGES.ARACCOUNT}`}
-                  disabled={!hasArExtension || !hasArConnection}
+                  disabled={!hasArSignin || !hasArConnection}
                 />
               </div>
             </>
