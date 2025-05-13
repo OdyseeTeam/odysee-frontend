@@ -14,7 +14,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import { ENABLE_ARCONNECT } from 'config';
 import './style.lazy.scss';
 
-const FEE = { MIN: 1, MAX: 999.99 };
+const FEE = { MIN: 0, MAX: 999.99 };
 const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until currency approach is determined.
 
 type Props = {
@@ -203,7 +203,7 @@ function PublishPrice(props: Props) {
         <div className={classnames('publish-price__grp-2', { 'publish-price__grp-2--disabled': !fiatPurchaseEnabled })}>
           <FormFieldPrice
             name="fiat_purchase_fee"
-            min={1}
+            min={0.01}
             price={fiatPurchaseFee}
             onChange={(fee) => updatePublishForm({ fiatPurchaseFee: fee })}
             onBlur={() => sanitizeFee('fiatPurchaseFee')}
@@ -240,7 +240,7 @@ function PublishPrice(props: Props) {
         <div className={classnames('publish-price__grp-2', { 'publish-price__grp-2--disabled': !fiatRentalEnabled })}>
           <FormFieldPrice
             name="fiat_rental_fee"
-            min={1}
+            min={0.01}
             price={fiatRentalFee}
             onChange={(fee) => updatePublishForm({ fiatRentalFee: fee })}
             onBlur={() => sanitizeFee('fiatRentalFee')}
