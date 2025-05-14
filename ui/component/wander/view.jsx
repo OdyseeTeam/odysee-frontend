@@ -18,16 +18,16 @@ export default function Wander(props: Props) {
   const wrapperRef = React.useRef();
 
   React.useEffect(() => {
-    console.log('Auth: ', auth)
-    if(auth == 'authenticated') connectArWallet()
-  },[auth])  
+    console.log('Auth: ', auth);
+    if (auth == 'authenticated') connectArWallet();
+  }, [auth]);
 
   React.useEffect(() => {
     const wanderInstance = new WanderConnect({
       clientId: 'FREE_TRIAL',
       theme: theme,
       button: {
-        parent: wrapperRef.current,
+        // parent: wrapperRef.current,
         label: false,
         customStyles: `
           #wanderConnectButtonHost {
@@ -37,7 +37,8 @@ export default function Wander(props: Props) {
       iframe: {
         routeLayout: {
           default: {
-            type: 'dropdown',
+            // type: 'dropdown',
+            type: 'modal',
           },
           auth: {
             type: 'modal',
@@ -90,7 +91,7 @@ export default function Wander(props: Props) {
                 background-color: unset;
               }
             }
-              */
+            */
           }
         `,
       },
@@ -108,9 +109,9 @@ export default function Wander(props: Props) {
 
   React.useEffect(() => {
     if (instance) {
-      doArSetAuth(instance.authInfo.authStatus)
+      doArSetAuth(instance.authInfo.authStatus);
       window.addEventListener('arweaveWalletLoaded', () => {
-        doArSetAuth(instance.authInfo.authStatus)
+        doArSetAuth(instance.authInfo.authStatus);
       });
     }
   }, [instance]);
