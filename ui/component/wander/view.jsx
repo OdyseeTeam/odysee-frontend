@@ -64,6 +64,10 @@ export default function Wander(props: Props) {
             backdrop-filter: blur(2px);
           }
 
+          .iframe {
+            max-width:400px;
+          }
+
           .iframe-wrapper {              
             border-radius: var(--border-radius);
             border: 2px solid var(--color-border) !important;
