@@ -368,14 +368,8 @@ export const sendWinstons = async (
 };
 
 export const doArSetAuth = (status: string) => {
-  console.log('AAAAAAAAAAAAAAAAA doArSetAuth: ', status);
-  return async (dispatch: Dispatch) => {
-    console.log('----');
+  return async (dispatch) => {
     dispatch({ type: WANDER_AUTH, data: status });
-    try {
-      dispatch({ type: WANDER_AUTH, data: status });
-    } catch (e) {
-      console.error(e);
-    }
+    return;
   };
 };

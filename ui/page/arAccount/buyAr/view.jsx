@@ -124,7 +124,7 @@ function BuyAr(props: Props) {
                 <h3>{__('Pay with')}</h3>
                 <select ref={paymentOptionRef} onChange={handleSelectPaymentOption}>
                   {paymentOptions.map((option: any) => {
-                    return <option value={option.id}>{option.name}</option>;
+                    return <option key={option.id} value={option.id}>{option.name}</option>;
                   })}
                 </select>
               </div>
@@ -140,15 +140,6 @@ function BuyAr(props: Props) {
               }
               disabled={!fiatAmount}
             />
-
-            {/*
-          <p>The easiest way to buy AR is by using your Wander browser extension or die Wander mobile app.</p>          
-          <div className="buyAr-instructions">
-            <img src="https://thumbs.odycdn.com/f094a003f417470c2a5ded257fa0eca9.webp" />
-            <img src="https://thumbs.odycdn.com/fbff76ee4df58a6fcde7a23d0761e66d.webp" />
-            <img src="https://thumbs.odycdn.com/e916597b969323c07621baa4ead51f30.webp" />
-          </div>
-          */}
           </>
         }
       />

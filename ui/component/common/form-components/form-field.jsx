@@ -133,8 +133,6 @@ export class FormField extends React.PureComponent<Props, State> {
       ...inputProps
     } = this.props;
 
-    console.log('disabled: ', disabled);
-
     const errorMessage = typeof error === 'object' ? error.message : error;
 
     const wrapperProps = { type, helper };

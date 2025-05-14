@@ -1,33 +1,32 @@
 // @flow
 import React from 'react';
 import { WanderConnect } from '@wanderapp/connect';
-
 import './style.scss';
-import { doArSetAuth } from '../../redux/actions/arwallet';
 
 type Props = {
   arweaveAddress: string,
   connecting: boolean,
   theme: string,
+  auth: string,
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
 };
 
 export default function Wander(props: Props) {
-  const { theme } = props;
+  const { theme, auth, doArSetAuth, connectArWallet } = props;
   const [instance, setInstance] = React.useState(null);
-  // const instanceRef = React.useRef(null);
   const wrapperRef = React.useRef();
-  // console.log('Wander: ', window.wanderApp);
-  // console.log('instance: ', instance);
 
   React.useEffect(() => {
-    // Initialize the wallet
+    if(auth == 'authenticated') connectArWallet()
+  },[auth])  
+
+  React.useEffect(() => {
     const wanderInstance = new WanderConnect({
       clientId: 'FREE_TRIAL',
       theme: theme,
       button: {
-        // parent: wrapperRef.current,
+        parent: wrapperRef.current,
         label: false,
         customStyles: `
           #wanderConnectButtonHost {
@@ -51,8 +50,6 @@ export default function Wander(props: Props) {
             shadowBlurred: 'none',
           },
           dark: {
-            backgroundColor: '#fff000',
-            background: '#00ff00',
             shadowBlurred: 'none',
             boxShadow: 'none',
           },
@@ -69,11 +66,14 @@ export default function Wander(props: Props) {
             border: 2px solid var(--color-border) !important;
             background:unset;
 
+            /*
             &[data-layout="dropdown"] {
               position: fixed;
               top: var(--header-height) !important;
               right:1px !important;
               left:unset !important;
+              min-height: 500px;
+              height: 600px;
               border-top:unset !important;
               border-radius: 0 0 var(--border-radius) var(--border-radius);
               transform: scaleY(0) !important;
@@ -89,6 +89,7 @@ export default function Wander(props: Props) {
                 background-color: unset;
               }
             }
+              */
           }
         `,
       },
@@ -97,7 +98,6 @@ export default function Wander(props: Props) {
     setInstance(wanderInstance);
     window.wanderInstance = wanderInstance;
 
-    // Clean up on unmount
     return () => {
       if (wanderInstance) {
         wanderInstance.destroy();
@@ -107,13 +107,9 @@ export default function Wander(props: Props) {
 
   React.useEffect(() => {
     if (instance) {
-      doArSetAuth(instance.authInfo.authStatus);
+      doArSetAuth(instance.authInfo.authStatus)
       window.addEventListener('arweaveWalletLoaded', () => {
         doArSetAuth(instance.authInfo.authStatus)
-          .then((a) => {
-            console.log('aaa');
-          })
-          .catch((e) => {});
       });
     }
   }, [instance]);

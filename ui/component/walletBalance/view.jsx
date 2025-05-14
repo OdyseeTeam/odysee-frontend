@@ -13,6 +13,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 // import WalletFiatBalance from 'component/walletFiatBalance';
 import { formatNumberWithCommas } from 'util/number';
+import Spinner from 'component/spinner';
 
 type Props = {
   experimentalUi: boolean,
@@ -72,8 +73,6 @@ const WalletBalance = (props: Props) => {
     doArConnect,
   } = props;
 
-  console.log('wanderAuth: ', wanderAuth);
-
   // console.log('Wallet: ', window.arweaveWallet)
   console.log('Wander instance: ', window.wanderInstance);
 
@@ -86,10 +85,8 @@ const WalletBalance = (props: Props) => {
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
   // const hasArSignin = Boolean(window.wanderInstance.authInfo);
-  const hasArSignin = window.wanderInstance.authInfo.authStatus;
+  const hasArSignin = wanderAuth === 'authenticated';
   const hasArConnection = Boolean(arStatus.address);
-  console.log('hasArSignin: ', hasArSignin);
-  console.log('hasArConnection: ', hasArConnection);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -277,12 +274,21 @@ const WalletBalance = (props: Props) => {
             <>
               <div className="wallet-check-row">
                 <div>{__('Wander wallet login')}</div>
-                <div>{hasArSignin ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}</div>
+                <div>
+                  {
+                    !wanderAuth 
+                      ? <span className="fail">&#x2716;</span>
+                      : wanderAuth === 'loading' 
+                        ? <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
+                        : <span className="ok">&#x2714;</span> 
+                  }
+                </div>
               </div>
+
               <div className="wallet-check-row">
                 <div>{__('Wander wallet connection')}</div>
                 <div>
-                  {hasArConnection ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}
+                  {wanderAuth === 'authenticated' && hasArConnection ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}
                 </div>
               </div>
               {/* <I18nMessage tokens={{ ar: <Symbol token="ar" /> }}>Your total %ar%AR balance.</I18nMessage> */}
@@ -291,7 +297,7 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!hasArSignin ? (
+              {!wanderAuth ? (
                 <I18nMessage
                   tokens={{
                     link: (
@@ -308,7 +314,10 @@ const WalletBalance = (props: Props) => {
                 >
                   To use AR on Odysee, you have to sign into the Wander wallet. %link%
                 </I18nMessage>
-              ) : !hasArConnection ? (
+              ) : 
+                wanderAuth === 'loading'
+                  ? __('Odysee is signing you in to your Wander wallet. Please wait...')
+                  : !hasArConnection ? (
                 <I18nMessage
                   tokens={{
                     link: (

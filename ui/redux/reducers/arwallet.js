@@ -98,8 +98,7 @@ reducers[ACTIONS.AR_TIP_STATUS_SUCCESS] = (state, action) => {
 };
 
 reducers[ACTIONS.WANDER_AUTH] = (state, action) => {
-  console.log('RRRRRRRRRRRRRRRRRRRRRRR ', action);
-  return { ...state, auth: action };
+  return { ...state, auth: action.data };
 };
 
 export default function arwalletReducer(state: ArWalletState = defaultState, action: any) {
