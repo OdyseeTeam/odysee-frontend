@@ -28,7 +28,7 @@ export default function Wander(props: Props) {
       clientId: 'FREE_TRIAL',
       theme: theme,
       button: {
-        // parent: wrapperRef.current,
+        parent: wrapperRef.current,
         label: false,
         customStyles: `
           #wanderConnectButtonHost {
