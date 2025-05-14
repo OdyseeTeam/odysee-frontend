@@ -18,6 +18,7 @@ export default function Wander(props: Props) {
   const wrapperRef = React.useRef();
 
   React.useEffect(() => {
+    console.log('Auth: ', auth)
     if(auth == 'authenticated') connectArWallet()
   },[auth])  
 
@@ -26,7 +27,7 @@ export default function Wander(props: Props) {
       clientId: 'FREE_TRIAL',
       theme: theme,
       button: {
-        parent: wrapperRef.current,
+        // parent: wrapperRef.current,
         label: false,
         customStyles: `
           #wanderConnectButtonHost {

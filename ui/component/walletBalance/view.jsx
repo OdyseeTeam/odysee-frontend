@@ -276,7 +276,7 @@ const WalletBalance = (props: Props) => {
                 <div>{__('Wander wallet login')}</div>
                 <div>
                   {
-                    !wanderAuth 
+                    !wanderAuth || wanderAuth === 'not-authenticated'
                       ? <span className="fail">&#x2716;</span>
                       : wanderAuth === 'loading' 
                         ? <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
@@ -297,7 +297,7 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!wanderAuth ? (
+              {!wanderAuth || wanderAuth === 'not-authenticated' ? (
                 <I18nMessage
                   tokens={{
                     link: (
