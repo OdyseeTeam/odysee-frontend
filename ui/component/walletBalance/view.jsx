@@ -286,9 +286,9 @@ const WalletBalance = (props: Props) => {
                 <div>{__('Wander wallet connection')}</div>
                 <div>
                   {wanderAuth === 'authenticated' && hasArConnection ? (
-                    <span className="ok">&#x2714;</span>
+                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
                   ) : (
-                    <span className="fail">&#x2716;</span>
+                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
                   )}
                 </div>
               </div>
