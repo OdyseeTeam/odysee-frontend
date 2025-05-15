@@ -237,7 +237,7 @@ export default function WalletSendTip(props: Props) {
     }
 
     // send an instant tip (no need to go to an exchange first)
-    if (instantTipEnabled && activeTab !== TAB_FIAT) {
+    if (instantTipEnabled && activeTab !== TAB_FIAT && activeTab !== TAB_USD) {
       if (instantTipMax.currency === 'LBC') {
         sendSupportOrConfirm(instantTipMax.amount);
       } else {
@@ -272,15 +272,16 @@ export default function WalletSendTip(props: Props) {
         setConfirmationPage(true);
       } else {
         const arweaveTipAddress = arweaveTipData.address;
+        const currencyToUse = activeTab === TAB_USD ? 'AR' : 'USD';
         const tipParams: TipParams = {
           tipAmountTwoPlaces: tipAmount,
           tipChannelName: tipChannelName || '',
           channelClaimId: channelClaimId || '',
           recipientAddress: arweaveTipAddress,
+          currency: currencyToUse,
         };
         const userParams: UserParams = { activeChannelName, activeChannelId };
 
-        const currencyToUse = activeTab === TAB_USD ? 'AR' : 'USD';
         // hit backend to send tip
         doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, currencyToUse)
           .then(r => {

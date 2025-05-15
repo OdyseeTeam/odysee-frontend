@@ -36,6 +36,7 @@ type ArTipParams = {
   tipChannelName: string,
   channelClaimId: string,
   recipientAddress: string,
+  currency: string,
 };
 
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
@@ -506,7 +507,7 @@ export function CommentCreate(props: Props) {
         tipChannelName,
         channelClaimId,
         recipientAddress: arweaveTipAddress,
-        transactionCurrency: transactionCurrency,
+        currency: transactionCurrency,
       };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
 
@@ -527,7 +528,6 @@ export function CommentCreate(props: Props) {
       doCommentCreate(uri, isLivestream, dryRunCommentParams)
         .then((res: { }) => {
           if (res && res.signature) {
-
             // tell apis about a tip, get a token and amount
             // make transaction
             // notify transaction id
