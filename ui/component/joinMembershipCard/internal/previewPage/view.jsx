@@ -15,7 +15,7 @@ import './style.scss';
 
 type Props = {
   uri: string,
-  selectedTier: CreatorMembership,
+  selectedCreatorMembership: CreatorMembership,
   selectedMembershipIndex: number,
   unlockableTierIds: Array<number>,
   userHasACreatorMembership: boolean,
@@ -39,7 +39,7 @@ type Props = {
 const PreviewPage = (props: Props) => {
   const {
     uri,
-    selectedTier,
+    selectedCreatorMembership,
     selectedMembershipIndex,
     unlockableTierIds,
     userHasACreatorMembership,
@@ -61,12 +61,12 @@ const PreviewPage = (props: Props) => {
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
-  console.log('selectedTier', selectedTier, selectedMembershipIndex);
+  console.log('selectedCreatorMembership', selectedCreatorMembership, selectedMembershipIndex);
 
   console.log('U', userHasACreatorMembership);
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
-  const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false || userHasACreatorMembership;
+  const creatorPurchaseDisabled = channelIsMine || (!canReceiveArweaveTips && !canReceiveFiatTips) || userHasACreatorMembership;
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined || canReceiveArweaveTips === undefined) {
@@ -200,9 +200,9 @@ const PreviewPage = (props: Props) => {
       </div>
 
       <div className="join-membership__modal-content">
-        {selectedTier && (
+        {selectedCreatorMembership && (
           <MembershipDetails
-            membership={selectedTier}
+            membership={selectedCreatorMembership}
             unlockableTierIds={unlockableTierIds}
             userHasACreatorMembership={userHasACreatorMembership}
             membersOnly={membersOnly}
@@ -217,8 +217,8 @@ const PreviewPage = (props: Props) => {
           button="primary"
           type="submit"
           disabled={userHasACreatorMembership || creatorPurchaseDisabled}
-          label={__('Join for $%membership_price% per month', {
-            membership_price: selectedTier?.prices[0].amount / 100,
+          label={__('Join X for $%membership_price% per month', {
+            membership_price: selectedCreatorMembership?.prices[0].amount / 100,
           })}
           requiresAuth
           onClick={handleSelect}
