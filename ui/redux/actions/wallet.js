@@ -1022,7 +1022,7 @@ export const doPurchaseClaimForUri =
       'new_transaction',
       {
         // round to fix issues with floating point numbers
-        amount: Math.round(100 * amount), // convert from dollars to cents
+        amount: Math.round(100 * amountToUse), // convert from dollars to cents
         creator_channel_name: tipChannelName,
         creator_channel_claim_id: channelClaimId,
         ...(activeChannelClaim
