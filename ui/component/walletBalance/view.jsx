@@ -266,7 +266,7 @@ const WalletBalance = (props: Props) => {
       {/* ARWEAVE */}
       <div className="column">
         <Card
-          title={hasArConnection ? <Symbol token="wander" amount="Wander" /> : <Symbol token="ar" amount={arBalance} precision={2} isTitle />}
+          title={!hasArConnection ? <Symbol token="wander" amount="Wander" /> : <Symbol token="ar" amount={arBalance} precision={2} isTitle />}
           subtitle={
             <>
               <div className="wallet-check-row">
