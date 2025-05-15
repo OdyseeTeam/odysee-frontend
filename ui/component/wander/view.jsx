@@ -21,7 +21,11 @@ export default function Wander(props: Props) {
   React.useEffect(() => {
     console.log('AUTH: ', auth)
     if(auth === 'onboarding') instance.open()
-    if (auth == 'authenticated') connectArWallet();
+    if (auth == 'authenticated'){
+      console.log('ABC')
+      if(window.wanderInstance.balanceInfo) connectArWallet();
+      else window.wanderInstance.open()
+    } 
   }, [auth]);
 
   React.useEffect(() => {
