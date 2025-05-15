@@ -213,7 +213,8 @@ export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async
     'post'
   ).then(() => dispatch(doGetCustomerStatus()));
 
-const registerAddress = async (address: string, makeDefault: boolean, currency = 'USD') => {
+// changed currency here to 'AR' because API will currently only return an ar amount to pay if so.
+const registerAddress = async (address: string, makeDefault: boolean, currency = 'AR') => {
   try {
     const pub_key = await window.arweaveWallet.getActivePublicKey();
     const data = new TextEncoder().encode(address);
