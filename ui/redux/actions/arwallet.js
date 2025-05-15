@@ -224,7 +224,6 @@ export const doArTip = (
         referenceToken = res.reference_token;
         transactionAmount = res.transaction_amount;
       }
-      console.log('phase 1 done')
 
       const tags = [
         { name: 'Tip_Type', value: 'tip' },
