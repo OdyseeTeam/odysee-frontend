@@ -223,7 +223,8 @@ export function CommentCreate(props: Props) {
   const minAmountMet =
     (activeTab !== TAB_LBC && activeTab !== TAB_FIAT && !minTip && !minUSDCTip) ||
     (activeTab === TAB_LBC && tipAmount >= minAmount) ||
-    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount);
+    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
+    (activeTab === TAB_USD && tipAmount >= minUSDCAmount);
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
   const fiatIcon = STRIPE.CURRENCY[preferredCurrency].icon;
