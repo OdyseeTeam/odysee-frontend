@@ -11,6 +11,14 @@
     }
   }
 
+  .payment-options-card{
+    display:flex;
+    flex:1;
+    flex-direction: column;
+    gap:var(--spacing-s);
+    height:100%;
+  }
+
   .payment-options {
     display: flex;
     flex-direction: column;
@@ -49,9 +57,15 @@
         gap: var(--spacing-l);
         border-radius: var(--border-radius);
         padding: var(--spacing-xs);
+        margin-bottom:var(--spacing-s);
+        align-items: center;
 
         .toggle-wrapper {
           margin-left: auto;
+        }
+
+        &:last-of-type{
+          margin-bottom:0;
         }
       }
     }
@@ -65,7 +79,7 @@
     background: var(--color-background);
     padding: var(--spacing-s);
     border-radius: var(--border-radius);
-    gap: 18px;
+    gap: 29px;
 
     .payment-option {
       flex: unset;
@@ -89,6 +103,7 @@
     .sendAr__total {
       display: flex;
       width: 100%;
+      margin-bottom:var(--spacing-s);
 
       span {
         margin-left: auto;
@@ -122,14 +137,55 @@
 
     .transaction-history__row {
       display: flex;
+      width:100%;
       gap: var(--spacing-s);
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      align-items: center;
 
-      .transaction-history__action {
+      .transaction-history__date{
         min-width: 90px;
+      }
+      .transaction-history__action {
+        min-width: 60px;
       }
       .transaction-history__direction {
         min-width: 50px;
       }
+      .transaction-history__target{
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      @media (max-width: $breakpoint-small) {
+        font-size:var(--font-xxsmall) !important;
+      }
+
+      @media (max-width: $breakpoint-medium) {
+        font-size:var(--font-small);
+
+        .transaction-history__date{
+          min-width: 90px;
+        }
+        .transaction-history__action {
+          min-width: 30px;
+        }
+        .transaction-history__token{
+          min-width: 30px;
+          .icon__symbol-wrapper{
+            margin-right:0 !important;
+            svg{
+              width:12px;
+              height:12px; 
+            }
+          }          
+        }
+        .transaction-history__direction {
+          min-width: 20px;
+        }
+      }
     }
+
+
   }
 }

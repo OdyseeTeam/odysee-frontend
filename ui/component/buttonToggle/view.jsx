@@ -4,17 +4,18 @@ import './style.scss';
 
 type Props = {
   status: boolean,
+  setStatus: () => void,
 };
 
 function ButtonToggle(props: Props) {
-  const { status } = props;
+  const { status, setStatus } = props;
 
-  const [currentStatus, setCurrentStatus] = React.useState(status);
+  // const [currentStatus, setCurrentStatus] = React.useState(status);
 
   return (
     <div
-      className={!currentStatus ? `toggle-wrapper` : `toggle-wrapper toggle-wrapper--active`}
-      onClick={() => setCurrentStatus(!currentStatus)}
+      className={!status ? `toggle-wrapper` : `toggle-wrapper toggle-wrapper--active`}
+      onClick={() => setStatus()}
     >
       <div className="toggle-status" />
     </div>

@@ -88,7 +88,7 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
-                <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost }}>
+                <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost.toFixed(2) }}>
                   Purchase for %currency%%amount%
                 </I18nMessage>
               </div>
@@ -101,7 +101,7 @@ export default function PaidContentOvelay(props: Props) {
                 <Icon icon={ICONS.BUY} />
                 {__('Purchase for %currency%%amount%', {
                   currency: fiatSymbol,
-                  amount: purchaseTag,
+                  amount: Number(purchaseTag).toFixed(2),
                 })}
               </div>
 
@@ -133,7 +133,7 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
-                {__('Purchase for %currency%%amount%', { currency: fiatSymbol, amount: purchaseTag })}
+                {__('Purchase for %currency%%amount%', { currency: fiatSymbol, amount: Number(purchaseTag).toFixed(2) })}
               </div>
 
               <ButtonPurchase label={__('Purchase')} />

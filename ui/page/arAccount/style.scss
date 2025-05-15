@@ -315,8 +315,19 @@
       margin-top: auto;
     }
     .section__title--small {
+      display:flex;
       font-weight: 600;
       margin-top: 0;
+
+      a{
+        color: var(--color-primary);
+        margin-left:auto;
+        font-weight:600;
+        &:hover{
+          cursor:pointer;
+          color:var(--color-secondary);
+        }
+      }
     }
   }
 

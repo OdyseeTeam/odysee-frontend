@@ -178,7 +178,7 @@ const Header = (props: Props) => {
                     })}
                     label={
                       hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
-                        ? __(isMobile ? 'Wallet' : 'Your Wallet')
+                        ? __(isMobile ? 'WalletX' : 'Your Wallet')
                         : roundedTotalBalance
                     }
                     icon={ICONS.LBC}

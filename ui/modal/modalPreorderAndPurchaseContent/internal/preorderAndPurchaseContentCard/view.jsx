@@ -199,7 +199,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   );
 }
 
-const SubmitArea = withCreditCard((props: any) => (
+const SubmitArea = (props: any) => (
   <div className="handle-submit-area">
     <Button
       button="primary"
@@ -225,4 +225,4 @@ const SubmitArea = withCreditCard((props: any) => (
       />
     )}
   </div>
-));
+);

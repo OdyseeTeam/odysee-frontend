@@ -1,26 +1,27 @@
 // @flow
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import QRCode from 'component/common/qr-code';
 import CopyableText from 'component/copyableText';
 import ButtonToggle from 'component/buttonToggle';
 import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import Button from 'component/button';
+import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 function Overview(props: Props) {
   const { cardHeader, wallet, balance, arWalletStatus } = props;
   const [transactions, setTransactions] = React.useState([]);
-
   const [canSend, setCanSend] = React.useState(false);
+  const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
+  // const [arBalance, setArBalance] = React.useState(0);
 
-  const [arBalance, setArBalance] = React.useState(0);
-  // console.log('arwstat', arWalletStatus);
   React.useEffect(() => {
     (async () => {
-      if (window.arweaveWallet) {
+      if (window.arweaveWallet && arWalletStatus) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
 
@@ -74,7 +75,11 @@ function Overview(props: Props) {
         }
       }
     })();
-  }, []);
+  }, [arWalletStatus]);
+
+  React.useEffect(() => {
+    LocalStorage.setItem('WANDER_QR', showQR);
+  },[showQR])
 
   function handleCheckForm() {
     const isValidEthAddress = (address) => /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -98,32 +103,41 @@ function Overview(props: Props) {
       actions={
         <>
           <div className="payment-options-wrapper">
-            <div className="payment-options">
-              <h2 className="section__title--small">{__('Connected wallet')}</h2>
-              <div className="payment-options-content">
-                <div className="payment-option">
-                  <div className="sendArLabel">{__('Address')}</div>
-                  <CopyableText copyable={wallet?.address} />
+            <div className="payment-options-card">
+              <div className="payment-options">
+                <h2 className="section__title--small">{__('Connected wallet')}</h2>
+                <div className="payment-options-content">
+                  <div className="payment-option">
+                    <div className="sendArLabel">{__('Address')}</div>
+                    <CopyableText copyable={wallet?.address} />
+                  </div>
                 </div>
-                <div className="payment-option">
-                  <div className="sendArLabel">{__('Settings')}</div>
-                  <div className="payment-option__monetization">
-                    {__('Allow monetization')} <ButtonToggle status={true} />
+              </div>
+              <div className="payment-options">
+              <h2 className="section__title--small">{__('Settings')}</h2>
+                <div className="payment-options-content">                
+                  <div className="payment-option">
+                    <div className="payment-option__monetization">
+                      {__('Allow monetization')} <ButtonToggle status={true} setStatus={() => {}} />
+                    </div>
+                    <div className="payment-option__monetization">
+                      {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/*
-            <div className="payment-options">
-              <h2 className="section__title--small">{__('Receive')}</h2>
-              <div className="payment-options-content">
-                <div className="payment-option" style={{ alignItems: 'center' }}>
-                  {wallet && wallet.address && <QRCode value={wallet.address} />}
+            {showQR && (
+              <div className="payment-options">
+                <h2 className="section__title--small">{__('Receive')}</h2>
+                <div className="payment-options-content">
+                  <div className="payment-option" style={{ alignItems: 'center' }}>
+                    {wallet && wallet.address && <QRCode value={wallet.address} />}
+                  </div>
                 </div>
               </div>
-            </div>
-            */}
+            )}
 
             <div className="payment-options">
               <h2 className="section__title--small">{__('Send')}</h2>
@@ -164,7 +178,10 @@ function Overview(props: Props) {
             </div>
           </div>
 
-          <h2 className="section__title--small">{__('Transaction history')}</h2>
+          <h2 className="section__title--small">
+            {__('Transaction history')}
+            <NavLink to={`wallet?tab=fiat-payment-history&currency=fiat&transactionType=tips`}>Tip history</NavLink>
+          </h2>
           <div className="transaction-history">
             {transactions.map((transaction, index) => {
               return (
@@ -182,12 +199,11 @@ function Overview(props: Props) {
                       .replace(',', '')}
                   </div>
                   <div className="transaction-history__action">
-                    {transaction.action === 'sendTip' ? __('Send') : __('Receive Tip')}
+                    {transaction.action === 'sendTip' ? __('Send') : __('Receive')}
                   </div>
                   <div className="transaction-history__amount">{transaction.amount.toFixed(4)}</div>
                   <div className="transaction-history__token">
                     <Symbol token="ar" />
-                    Ar
                   </div>
                   <div className="transaction-history__direction">
                     {transaction.action === 'sendTip' ? __('to') : __('from')}
