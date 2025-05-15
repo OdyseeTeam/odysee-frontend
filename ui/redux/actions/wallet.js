@@ -33,6 +33,8 @@ import { getChannelFromClaim } from 'util/claim';
 import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
 
 import { getStripeEnvironment } from 'util/stripe';
+import { sendWinstons } from './arwallet';
+import { selectAPIArweaveDefaultAddress, selectArweaveTipDataForId } from 'redux/selectors/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
 const FIFTEEN_SECONDS = 15000;
@@ -886,7 +888,7 @@ export const doSendCashTip =
 
 export const doPurchaseClaimForUri =
   ({ uri, transactionType }) =>
-  (dispatch, getState) => {
+  async (dispatch, getState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const channelClaim = getChannelFromClaim(claim);
@@ -896,6 +898,9 @@ export const doPurchaseClaimForUri =
     const { claim_id: channelClaimId, name: tipChannelName } = channelClaim;
 
     const activeChannelClaim = selectActiveChannelClaim(state);
+    const source_payment_address = selectAPIArweaveDefaultAddress(state);
+    const arweaveTipData = selectArweaveTipDataForId(state, channelClaimId);
+
     const preferredCurrency = selectPreferredCurrency(state);
 
     const preorderTag = selectPreorderTagForUri(state, uri);
@@ -919,8 +924,98 @@ export const doPurchaseClaimForUri =
       tipAmount = tags.preorderTag;
     }
 
-    const amount = itsARental ? rentTipAmount : tipAmount;
+    const amountToUse = itsARental ? rentTipAmount : tipAmount;
     const expirationTime = itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
+    // if ()
+    const isV2 = true;
+    if (isV2) {
+      try {
+        const tipResponse = await Lbryio.call(
+          'customer',
+          'new_transaction',
+          {
+            // round to fix issues with floating point numbers
+            amount: Math.round(100 * amountToUse), // convert from dollars to cents
+            creator_channel_name: tipChannelName,
+            creator_channel_claim_id: channelClaimId,
+            ...(activeChannelClaim
+              ? { tipper_channel_name: activeChannelClaim.name, tipper_channel_claim_id: activeChannelClaim.claim_id }
+              : { anonymous: true }),
+            currency: 'AR' || preferredCurrency || 'USD',
+            environment: stripeEnvironment,
+            source_claim_id: claim.claim_id,
+            target_claim_id: claim.claim_id,
+            type: transactionType,
+            validity_seconds: expirationTime,
+            receiver_address: arweaveTipData.address,
+            sender_address: source_payment_address,
+            v2: true,
+          },
+          'post'
+        );
+        const { token, transaction_amount } = tipResponse;
+
+        const tags = [
+          { name: 'X-O-Ref', value: token },
+        ];
+        const transferTxid = await sendWinstons(arweaveTipData.address, String(transaction_amount), tags);
+
+        await Lbryio.call(
+          'customer',
+          'new_transaction',
+          {
+            // round to fix issues with floating point numbers
+            amount: Math.round(100 * amountToUse), // convert from dollars to cents
+            creator_channel_name: tipChannelName,
+            creator_channel_claim_id: channelClaimId,
+            ...(activeChannelClaim
+              ? { tipper_channel_name: activeChannelClaim.name, tipper_channel_claim_id: activeChannelClaim.claim_id }
+              : { anonymous: true }),
+            currency: 'AR' || preferredCurrency || 'AR',
+            environment: stripeEnvironment,
+            source_claim_id: claim.claim_id,
+            target_claim_id: claim.claim_id,
+            type: transactionType,
+            validity_seconds: expirationTime,
+            receiver_address: arweaveTipData.address,
+            sender_address: source_payment_address,
+            token: token,
+            tx_id: transferTxid,
+            v2: true,
+          },
+          'post'
+        );
+
+        const STRINGS = {
+          purchase: {
+            title: 'Purchase completed successfully',
+            subtitle: 'Enjoy!',
+          },
+          preorder: {
+            title: 'Preorder completed successfully',
+            subtitle: "You will be able to see the content as soon as it's available!",
+          },
+          rental: {
+            title: 'Rental completed successfully',
+            subtitle: 'Enjoy!',
+          },
+        };
+
+        const stringsToUse = STRINGS[transactionType];
+
+        dispatch(doToast({ message: __(stringsToUse.title), subMessage: __(stringsToUse.subtitle) }));
+        return;
+      } catch (error) {
+        console.error('error', error);
+        dispatch(
+          doToast({
+            message: error.message || __('Sorry, there was an error in processing your payment!'),
+            isError: true,
+          })
+        );
+        return;
+      }
+    }
 
     return Lbryio.call(
       'customer',
