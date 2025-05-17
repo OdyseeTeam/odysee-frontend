@@ -2,22 +2,29 @@
 import React from 'react';
 import QRCode from 'component/common/qr-code';
 import CopyableText from 'component/copyableText';
-import ButtonToggle from 'component/buttonToggle';
 import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import Button from 'component/button';
 import './style.scss';
-
+import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
+type Props = {
+  arWalletStatus: any, // boolean
+  cardHeader: any,
+  // select
+  accountUpdating: string,
+  defaultAccount: any, // account
+  // perform
+  doUpdateArweaveAddressStatus: (string, string) => void,
+};
 function Overview(props: Props) {
-  const { cardHeader, wallet, balance, arWalletStatus } = props;
+  const { cardHeader, wallet, balance, arWalletStatus, accountUpdating,  doUpdateArweaveAddressStatus, defaultAccount } = props;
+  console.log('overview props', props)
   const [transactions, setTransactions] = React.useState([]);
 
   const [canSend, setCanSend] = React.useState(false);
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
 
-  const [arBalance, setArBalance] = React.useState(0);
-  console.log('arwstat', arWalletStatus);
   React.useEffect(() => {
     (async () => {
       if (window.arweaveWallet) {
@@ -146,7 +153,7 @@ function Overview(props: Props) {
                 <div className="payment-option">
                   <div className="sendArLabel">{__('Settings')}</div>
                   <div className="payment-option__monetization">
-                    {__('Allow monetization')} <ButtonToggle status={true} />
+                    {__('Allow monetization')} <ButtonToggleAddressActive address={wallet?.address} />
                   </div>
                 </div>
               </div>

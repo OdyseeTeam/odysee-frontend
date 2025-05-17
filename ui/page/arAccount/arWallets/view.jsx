@@ -1,8 +1,8 @@
 // @flow
 import React from 'react';
 import Card from 'component/common/card';
-import ButtonToggle from 'component/buttonToggle';
 import './style.scss';
+import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
 
 function ArWallets(props: Props) {
   const { cardHeader, arweaveWallets, arWalletStatus, activeAddress } = props;
@@ -29,11 +29,12 @@ function ArWallets(props: Props) {
                       ? `wallet-table-row`
                       : `wallet-table-row wallet-table-row--disconnected`
                   }
+                  key={wallet.address}
                 >
                   <div className="wallet-table-row__id">{index + 1}</div>
                   <div className="wallet-table-row__address">{wallet.address}</div>
                   <div className="wallet-table-row__status">
-                    <ButtonToggle status={wallet.status === 'active' ? true : false} />
+                    <ButtonToggleAddressActive address={wallet?.address} />
                   </div>
                   <div className="wallet-table-row__default">{wallet.default.toString()}</div>
                 </div>

@@ -39,31 +39,37 @@ reducers[ACTIONS.AR_ADDR_DEFAULT_ERROR] = (state, action) => ({
   arAccountUpdating: false,
   arAccountUpdatingError: action.data,
 });
-
-reducers[ACTIONS.AR_ADDR_REGISTER_STARTED] = (state) => ({
+// Register
+reducers[ACTIONS.AR_ADDR_REGISTER_STARTED] = (state, action) => ({
   ...state,
-  arAccountUpdating: true,
+  arAccountUpdatingId: action.data,
   arAccountUpdatingError: undefined,
 });
-reducers[ACTIONS.AR_ADDR_REGISTER_SUCCESS] = (state) => ({ ...state, arAccountUpdating: false });
+reducers[ACTIONS.AR_ADDR_REGISTER_SUCCESS] = (state, action) => ({
+  ...state, arAccountUpdatingId: undefined });
 reducers[ACTIONS.AR_ADDR_REGISTER_ERROR] = (state, action) => ({
   ...state,
-  arAccountUpdating: false,
+  arAccountUpdatingId: undefined,
   arAccountUpdatingError: action.data,
 });
 
-reducers[ACTIONS.AR_ADDR_UPDATE_STARTED] = (state) => ({
+// Update
+reducers[ACTIONS.AR_ADDR_UPDATE_STARTED] = (state, action) => ({
   ...state,
-  arAccountUpdating: true,
+  arAccountUpdatingId: action.data,
   arAccountUpdatingError: undefined,
 });
-reducers[ACTIONS.AR_ADDR_UPDATE_SUCCESS] = (state) => ({ ...state, arAccountUpdating: false });
+reducers[ACTIONS.AR_ADDR_UPDATE_SUCCESS] = (state, action) => ({
+  ...state,
+  arAccountUpdatingId: undefined,
+});
 reducers[ACTIONS.AR_ADDR_UPDATE_ERROR] = (state, action) => ({
   ...state,
-  arAccountUpdating: false,
+  arAccountUpdatingId: undefined,
   arAccountUpdatingError: action.data,
 });
 
+// Link
 reducers[ACTIONS.SET_ACCOUNT_LINK] = (state, action) => ({ ...state, accountLinkResponse: action.data });
 reducers[ACTIONS.SET_ACCOUNT_TRANSACTIONS] = (state, action) => ({ ...state, accountTransactions: action.data });
 reducers[ACTIONS.SET_ACCOUNT_PAYMENT_HISTORY] = (state, action) => ({ ...state, accountPaymentHistory: action.data });
