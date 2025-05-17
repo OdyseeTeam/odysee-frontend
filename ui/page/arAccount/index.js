@@ -4,13 +4,13 @@ import {
   selectArweaveBalance,
   selectArweaveFetching,
 } from 'redux/selectors/arwallet';
-import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
+import { selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
 import { doArDisconnect, doArUpdateBalance } from 'redux/actions/arwallet';
 import { selectThemePath } from 'redux/selectors/settings';
 import ArAccountPage from './view';
 
 const select = (state) => ({
-  arweaveWallets: selectAPIArweaveActiveAccounts(state),
+  arweaveWallets: selectFullAPIArweaveAccounts(state),
   arWalletStatus: selectArweaveConnected(state),
   balance: selectArweaveBalance(state) || 0,
   fetching: selectArweaveFetching(state),

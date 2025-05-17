@@ -1,20 +1,20 @@
 // @flow
-import React, { forwardRef, useRef } from 'react';
+import React from 'react';
 import './style.scss';
 
 type Props = {
   status: boolean,
+  onClick: () => void,
+  disabled: boolean,
 };
 
 function ButtonToggle(props: Props) {
-  const { status } = props;
-
-  const [currentStatus, setCurrentStatus] = React.useState(status);
+  const { status, onClick, disabled } = props;
 
   return (
     <div
-      className={!currentStatus ? `toggle-wrapper` : `toggle-wrapper toggle-wrapper--active`}
-      onClick={() => setCurrentStatus(!currentStatus)}
+      className={`toggle-wrapper ${status ? 'toggle-wrapper--active' : ''} ${disabled ? 'slider-wrapper--disabled' : ''} `}
+      onClick={!disabled ? onClick : undefined}
     >
       <div className="toggle-status" />
     </div>
