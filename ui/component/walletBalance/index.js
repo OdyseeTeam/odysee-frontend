@@ -13,7 +13,12 @@ import {
   selectPendingMassClaimTxid,
 } from 'redux/selectors/wallet';
 import { doArConnect } from 'redux/actions/arwallet';
-import { selectArweaveStatus, selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+import {
+  selectArweaveStatus,
+  selectArweaveBalance,
+  selectArweaveExchangeRates,
+  selectArweaveWanderAuth,
+} from 'redux/selectors/arwallet';
 import { selectAccountStatus, selectFullAPIArweaveStatus } from 'redux/selectors/stripe';
 import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
 import { doOpenModal } from 'redux/actions/app';
@@ -42,6 +47,7 @@ const select = (state) => ({
   consolidateIsPending: selectPendingConsolidateTxid(state),
   massClaimIsPending: selectPendingMassClaimTxid(state),
   arweaveAccountStatus: selectFullAPIArweaveStatus(state),
+  wanderAuth: selectArweaveWanderAuth(state),
 });
 
 export default connect(select, {

@@ -9,12 +9,14 @@
     position: relative;
     label[for='tip-input'] {
       position: absolute;
-      top: var(--spacing-xs);
+      bottom: 5.5px;
       left: var(--spacing-xs);
-      opacity: 0.5;
+      .disabled {
+        opacity: 0.6;
+      }
     }
     .usd-tip {
-      padding-left: 20px;
+      padding-left: 22px;
     }
     div {
       label[for='tip-input'] {

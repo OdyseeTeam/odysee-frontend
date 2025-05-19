@@ -13,6 +13,8 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 // import WalletFiatBalance from 'component/walletFiatBalance';
 import { formatNumberWithCommas } from 'util/number';
+import { LocalStorage } from 'util/storage';
+import Spinner from 'component/spinner';
 
 type Props = {
   experimentalUi: boolean,
@@ -21,6 +23,7 @@ type Props = {
   arStatus: any,
   arBalance: number,
   arUsdRate: number,
+  wanderAuth: string,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
@@ -62,6 +65,7 @@ const WalletBalance = (props: Props) => {
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
+    wanderAuth,
     accountStatus,
     fullArweaveStatus,
     doOpenModal,
@@ -78,10 +82,22 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
-  const hasArExtension = Boolean(window.arweaveWallet);
+  const [walletType, setWalletType] = React.useState(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded');
+  
+  const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
+  const hasArSignin = wanderAuth?.authStatus === 'authenticated' || walletType === 'extension';
   const hasArConnection = Boolean(arStatus.address);
-  console.log('hasArExtension: ', hasArExtension);
-  console.log('hasArConnection: ', hasArConnection);
+  React.useEffect(() => {
+    setWalletType(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded')
+    const type = LocalStorage.getItem('WALLET_TYPE');
+    if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
+      wanderInstance.authInfo.authType = type
+    }    
+    if((!wanderInstance.authInfo.authStatus || wanderInstance.authInfo.authStatus === 'not-authenticated') && wanderInstance.authInfo.authType === 'NATIVE_WALLET'){
+      doArConnect()
+    }
+  }, [wanderAuth]);
+
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
@@ -263,19 +279,36 @@ const WalletBalance = (props: Props) => {
       {/* ARWEAVE */}
       <div className="column">
         <Card
-          title={<Symbol token="ar" amount={arBalance} precision={2} isTitle />}
+          title={
+            !hasArConnection ? (
+              <Symbol token="wander" amount="Wander" />
+            ) : (
+              <Symbol token="ar" amount={arBalance} precision={2} isTitle />
+            )
+          }
           subtitle={
             <>
               <div className="wallet-check-row">
-                <div>{__('Wander browser extension')}</div>
+                <div>{__('Wander login or extension')}</div>
                 <div>
-                  {hasArExtension ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}
+                  {(!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !hasArSignin) && walletType !== 'extension' ? (
+                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
+                  ) : (wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded' ? (
+                    <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
+                  ) : (
+                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
+                  )}
                 </div>
               </div>
+
               <div className="wallet-check-row">
                 <div>{__('Wander wallet connection')}</div>
                 <div>
-                  {hasArConnection ? <span className="ok">&#x2714;</span> : <span className="fail">&#x2716;</span>}
+                  {hasArConnection ? (
+                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
+                  ) : (
+                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
+                  )}
                 </div>
               </div>
               {/* <I18nMessage tokens={{ ar: <Symbol token="ar" /> }}>Your total %ar%AR balance.</I18nMessage> */}
@@ -284,35 +317,84 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!hasArExtension ? (
+              {(!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !hasArSignin) && walletType !== 'extension' ? (
+                <div>
+                  <I18nMessage
+                    tokens={{
+                      text: (
+                        <p>
+                          To use AR on Odysee, you have to sign into your Wander account or use the Wander browser
+                          extension.
+                        </p>
+                      ),
+                      login: (
+                        <a
+                          className="link"
+                          onClick={() => {
+                            window.wanderInstance.open();
+                          }}
+                        >
+                          Sign in
+                        </a>
+                      ),
+                      extension: (
+                        <a className="link" href="https://www.wander.app/download?tab=download-browser" target="_blank">
+                          install browser extension
+                        </a>
+                      ),
+                    }}
+                  >
+                    {`%text% %login%${!hasArweaveExtension ? ' or %extension%' : ''}`}
+                  </I18nMessage>
+                </div>
+              ) : (wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded' ? (
+                <div>
                 <I18nMessage
-                  tokens={{
-                    link: (
-                      <a
-                        href="https://www.wander.app/download?tab=download-browser"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="link"
-                      >
-                        Download here.
-                      </a>
-                    ),
-                  }}
-                >
-                  To use AR on Odysee, the Wander browser extension must be installed. %link%
-                </I18nMessage>
+                    tokens={{
+                      text: (
+                        <p>
+                          Odysee is signing you in to your Wander wallet. Please wait...
+                        </p>
+                      ),
+                      status: (
+                        <a
+                          className="link"
+                          onClick={() => {
+                            window.wanderInstance.open();
+                          }}
+                        >
+                          Check status
+                        </a>
+                      )
+                    }}
+                  >
+                    {`%text% %status%`}
+                  </I18nMessage>
+                  </div>
               ) : !hasArConnection ? (
+                <div>
                 <I18nMessage
                   tokens={{
+                    text: (
+                      <p>
+                        To use AR on Odysee, the Wander wallet must be connected.
+                      </p>
+                    ),
                     link: (
                       <a className="link" onClick={() => doArConnect()}>
-                        Connect now.
+                        Connect now
+                      </a>
+                    ),
+                    login: (
+                      <a className="link" onClick={() => window.wanderInstance.open()}>
+                        change login
                       </a>
                     ),
                   }}
                 >
-                  To use AR on Odysee, the Wander wallet must be connected. %link%
+                   %text% %link% or %login%.
                 </I18nMessage>
+                </div>
               ) : (
                 <>
                   <h2 className="section__title--small">
@@ -342,14 +424,21 @@ const WalletBalance = (props: Props) => {
                   label={__('Deposit Funds')}
                   icon={ICONS.BUY}
                   navigate={`/$/${PAGES.ARACCOUNT}?tab=buy`}
-                  disabled={!hasArExtension || !hasArConnection}
+                  disabled={!hasArSignin || !hasArConnection}
                 />
                 <Button
                   button="secondary"
                   label={__('Arweave Account')}
                   icon={ICONS.SETTINGS}
                   navigate={`/$/${PAGES.ARACCOUNT}`}
-                  disabled={!hasArExtension || !hasArConnection}
+                  disabled={!hasArSignin || !hasArConnection}
+                />
+                <Button
+                  button="secondary"
+                  label={__('Wallet')}
+                  icon={ICONS.WANDER}
+                  onClick={() => window.wanderInstance.open()}
+                  disabled={wanderAuth !== 'authenticated'}
                 />
               </div>
             </>

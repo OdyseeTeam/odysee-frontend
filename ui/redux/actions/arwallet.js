@@ -10,6 +10,7 @@ import {
   AR_TIP_STATUS_STARTED,
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
+  WANDER_AUTH,
 } from 'constants/action_types';
 import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
@@ -344,7 +345,11 @@ const fetchARExchangeRate = async () => {
   }
 };
 
-export const sendWinstons = async (address: string, amountInWinstons: string, tags: Array<{ name: string, value: string }>) => {
+export const sendWinstons = async (
+  address: string,
+  amountInWinstons: string,
+  tags: Array<{ name: string, value: string }>
+) => {
   try {
     const createParams = {
       target: address,
@@ -365,4 +370,11 @@ export const sendWinstons = async (address: string, amountInWinstons: string, ta
   } catch (e) {
     console.error('ERROR', e);
   }
+};
+
+export const doArSetAuth = (status: any) => {
+  return async (dispatch) => {
+    dispatch({ type: WANDER_AUTH, data: status });
+    return;
+  };
 };

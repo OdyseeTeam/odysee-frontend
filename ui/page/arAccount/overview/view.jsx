@@ -1,110 +1,52 @@
 // @flow
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import QRCode from 'component/common/qr-code';
 import CopyableText from 'component/copyableText';
+import ButtonToggle from 'component/buttonToggle';
 import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import Button from 'component/button';
+import { LocalStorage } from 'util/storage';
 import './style.scss';
-import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
-type Props = {
-  arWalletStatus: any, // boolean
-  cardHeader: any,
-  // select
-  accountUpdating: string,
-  defaultAccount: any, // account
-  // perform
-  doUpdateArweaveAddressStatus: (string, string) => void,
-};
-function Overview(props: Props) {
-  const { cardHeader, wallet, balance, arWalletStatus, accountUpdating,  doUpdateArweaveAddressStatus, defaultAccount } = props;
-  console.log('overview props', props)
-  const [transactions, setTransactions] = React.useState([]);
 
+function Overview(props: Props) {
+  const { account, cardHeader, wallet, balance, arWalletStatus, doUpdateArweaveAddressStatus } = props;
+  const [transactions, setTransactions] = React.useState([]);
   const [canSend, setCanSend] = React.useState(false);
+  const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
 
   React.useEffect(() => {
     (async () => {
-      if (window.arweaveWallet) {
+      if (window.arweaveWallet && arWalletStatus) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
-          const sent = await fetch(`https://arweave-search.goldsky.com/graphql`, {
+          const transactions = await fetch('https://arweave-search.goldsky.com/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               query: `{
-              transactions(
-                first: 10,
-                owners: ["${address}"],
-                tags: [
-                  { name: "Data-Protocol", values: ["ao"] },
-                  { name: "Action", values: ["Transfer"] }
-                  { name: "Tip_Type" } 
-                ]
-              ) {
-                edges {
-                  node {
-                    id
-                    recipient
-                    owner { address }
-                    block { timestamp height }
-                    tags { name, value }
+                transactions(
+                  owners: ["${address}"],
+                ) { 
+                  edges { 
+                    node { 
+                      id
+                      recipient
+                      quantity { ar }
+                      owner { address }
+                      block { timestamp height }
+                      tags { name, value }
+                    }
                   }
                 }
-              }
-            }`,
+              }`,
             }),
           });
 
-          const sentData = await sent.json();
-          if (sentData && sentData.data && sentData.data.transactions && sentData.data.transactions.edges) {
-            const transactions = sentData.data.transactions.edges;
-            console.log('sent: ', transactions);
-            const newTransactions = [];
-            for (let entry of transactions) {
-              const transaction = entry.node;
-              const row = {
-                date: transaction.block.timestamp,
-                action: 'sendTip',
-                amount: Number(transaction.tags.find((tag) => tag.name === 'Quantity')?.value) / 1000000,
-                target: transaction.tags.find((tag) => tag.name === 'Claim_ID')?.value,
-              };
-              newTransactions.push(row);
-            }
-            setTransactions(newTransactions);
-          }
-
-          const received = await fetch(`https://arweave-search.goldsky.com/graphql`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              query: `{
-              transactions(
-                first: 10,
-                tags: [
-                  { name: "Data-Protocol", values: ["ao"] },
-                  { name: "Action", values: ["Transfer"] },
-                  { name: "Recipient", values: ["${address}"] }
-                  { name: "Tip_Type" } 
-                ]
-              ) {
-                edges {
-                  node {
-                    id
-                    recipient
-                    owner { address }
-                    block { timestamp height }
-                    tags { name, value }
-                  }
-                }
-              }
-            }`,
-            }),
-          });
-
-          const receivedData = await received.json();
+          const receivedData = await transactions.json();
           if (
             receivedData &&
             receivedData.data &&
@@ -112,14 +54,29 @@ function Overview(props: Props) {
             receivedData.data.transactions.edges
           ) {
             const transactions = receivedData.data.transactions.edges;
-            console.log('received: ', transactions);
+            const newTransactions = [];
+            for (let entry of transactions) {
+              const transaction = entry.node;
+              const row = {
+                date: transaction.block.timestamp,
+                action: 'sendTip',
+                amount: Number(transaction.quantity.ar),
+                target: transaction.recipient,
+              };
+              if (row.target && row.amount > 0) newTransactions.push(row);
+            }
+            setTransactions(newTransactions);
           }
         } catch (e) {
           console.error(e);
         }
       }
     })();
-  }, []);
+  }, [arWalletStatus]);
+
+  React.useEffect(() => {
+    LocalStorage.setItem('WANDER_QR', showQR);
+  },[showQR])
 
   function handleCheckForm() {
     const isValidEthAddress = (address) => /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -135,6 +92,10 @@ function Overview(props: Props) {
     handleCheckForm();
   }
 
+  const handlemonetizationToggle = () => {
+    doUpdateArweaveAddressStatus(account.id, account.status === 'active' ? 'inactive' : 'active');
+  }
+
   return (
     <Card
       className={!arWalletStatus ? `card--overview card--disabled` : `card--overview`}
@@ -143,30 +104,41 @@ function Overview(props: Props) {
       actions={
         <>
           <div className="payment-options-wrapper">
-            <div className="payment-options">
-              <h2 className="section__title--small">{__('Connected wallet')}</h2>
-              <div className="payment-options-content">
-                <div className="payment-option">
-                  <div className="sendArLabel">{__('Address')}</div>
-                  <CopyableText copyable={wallet?.address} />
+            <div className="payment-options-card">
+              <div className="payment-options">
+                <h2 className="section__title--small">{__('Connected wallet')}</h2>
+                <div className="payment-options-content">
+                  <div className="payment-option">
+                    <div className="sendArLabel">{__('Address')}</div>
+                    <CopyableText copyable={wallet?.address} />
+                  </div>
                 </div>
-                <div className="payment-option">
-                  <div className="sendArLabel">{__('Settings')}</div>
-                  <div className="payment-option__monetization">
-                    {__('Allow monetization')} <ButtonToggleAddressActive address={wallet?.address} />
+              </div>
+              <div className="payment-options">
+              <h2 className="section__title--small">{__('Settings')}</h2>
+                <div className="payment-options-content">                
+                  <div className="payment-option">
+                    <div className="payment-option__monetization">
+                      {__('Allow monetization')} <ButtonToggle status={account?.status === 'active'} setStatus={handlemonetizationToggle} />
+                    </div>
+                    <div className="payment-option__monetization">
+                      {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="payment-options">
-              <h2 className="section__title--small">{__('Receive')}</h2>
-              <div className="payment-options-content">
-                <div className="payment-option" style={{ alignItems: 'center' }}>
-                  {wallet && wallet.address && <QRCode value={wallet.address} />}
+            {showQR && (
+              <div className="payment-options">
+                <h2 className="section__title--small">{__('Receive')}</h2>
+                <div className="payment-options-content">
+                  <div className="payment-option" style={{ alignItems: 'center' }}>
+                    {wallet && wallet.address && <QRCode value={wallet.address} />}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <div className="payment-options">
               <h2 className="section__title--small">{__('Send')}</h2>
@@ -207,7 +179,10 @@ function Overview(props: Props) {
             </div>
           </div>
 
-          <h2 className="section__title--small">{__('Transaction history')}</h2>
+          <h2 className="section__title--small">
+            {__('Transaction history')}
+            <NavLink to={`wallet?tab=fiat-payment-history&currency=fiat&transactionType=tips`}>Tip history</NavLink>
+          </h2>
           <div className="transaction-history">
             {transactions.map((transaction, index) => {
               return (
@@ -225,12 +200,11 @@ function Overview(props: Props) {
                       .replace(',', '')}
                   </div>
                   <div className="transaction-history__action">
-                    {transaction.action === 'sendTip' ? __('Send Tip') : __('Receive Tip')}
+                    {transaction.action === 'sendTip' ? __('Send') : __('Receive')}
                   </div>
-                  <div className="transaction-history__amount">{transaction.amount.toFixed(2)}</div>
+                  <div className="transaction-history__amount">{transaction.amount.toFixed(4)}</div>
                   <div className="transaction-history__token">
                     <Symbol token="ar" />
-                    Ar
                   </div>
                   <div className="transaction-history__direction">
                     {transaction.action === 'sendTip' ? __('to') : __('from')}
