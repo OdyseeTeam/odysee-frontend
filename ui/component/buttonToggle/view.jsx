@@ -1,5 +1,5 @@
 // @flow
-import React, { forwardRef, useRef } from 'react';
+import React from 'react';
 import './style.scss';
 
 type Props = {
@@ -9,8 +9,6 @@ type Props = {
 
 function ButtonToggle(props: Props) {
   const { status, setStatus } = props;
-
-  // const [currentStatus, setCurrentStatus] = React.useState(status);
 
   return (
     <div

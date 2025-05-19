@@ -11,13 +11,15 @@ import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 function Overview(props: Props) {
-  const { cardHeader, wallet, balance, arWalletStatus } = props;
+  const { account, cardHeader, wallet, balance, arWalletStatus, doUpdateArweaveAddressStatus } = props;
   const [transactions, setTransactions] = React.useState([]);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
   // const [arBalance, setArBalance] = React.useState(0);
+
+  console.log('wallet: ', wallet)
 
   React.useEffect(() => {
     (async () => {
@@ -66,7 +68,7 @@ function Overview(props: Props) {
                 amount: Number(transaction.quantity.ar),
                 target: transaction.recipient,
               };
-              if (row.target && row.amount>0) newTransactions.push(row);
+              if (row.target && row.amount > 0) newTransactions.push(row);
             }
             setTransactions(newTransactions);
           }
@@ -95,6 +97,10 @@ function Overview(props: Props) {
     handleCheckForm();
   }
 
+  const handlemonetizationToggle = () => {
+    doUpdateArweaveAddressStatus(account.id, account.status === 'active' ? 'inactive' : 'active');
+  }
+
   return (
     <Card
       className={!arWalletStatus ? `card--overview card--disabled` : `card--overview`}
@@ -118,7 +124,7 @@ function Overview(props: Props) {
                 <div className="payment-options-content">                
                   <div className="payment-option">
                     <div className="payment-option__monetization">
-                      {__('Allow monetization')} <ButtonToggle status={true} setStatus={() => {}} />
+                      {__('Allow monetization')} <ButtonToggle status={account?.status === 'active'} setStatus={handlemonetizationToggle} />
                     </div>
                     <div className="payment-option__monetization">
                       {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>

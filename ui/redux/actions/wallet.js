@@ -953,10 +953,10 @@ export const doPurchaseClaimForUri =
           },
           'post'
         );
-        const { token, transaction_amount } = tipResponse;
+        const { reference_token, transaction_amount } = tipResponse;
 
         const tags = [
-          { name: 'X-O-Ref', value: token },
+          { name: 'X-O-Ref', value: reference_token },
         ];
         const transferTxid = await sendWinstons(arweaveTipData.address, String(transaction_amount), tags);
 
@@ -979,7 +979,7 @@ export const doPurchaseClaimForUri =
             validity_seconds: expirationTime,
             receiver_address: arweaveTipData.address,
             sender_address: source_payment_address,
-            token: token,
+            token: reference_token,
             tx_id: transferTxid,
             v2: true,
           },
@@ -1022,7 +1022,7 @@ export const doPurchaseClaimForUri =
       'new_transaction',
       {
         // round to fix issues with floating point numbers
-        amount: Math.round(100 * amount), // convert from dollars to cents
+        amount: Math.round(100 * amountToUse), // convert from dollars to cents
         creator_channel_name: tipChannelName,
         creator_channel_claim_id: channelClaimId,
         ...(activeChannelClaim

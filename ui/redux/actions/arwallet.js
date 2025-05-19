@@ -139,12 +139,12 @@ export function doArDisconnect() {
   };
 }
 
-type TipParams = {
+type LocalTipParams = {
   tipAmountTwoPlaces: number,
   tipChannelName: string,
   channelClaimId: string,
   recipientAddress: string,
-  transactionCurrency: 'USD' | 'AR',
+  currency: 'USD' | 'AR';
 };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
@@ -166,7 +166,7 @@ export const doArSign = (msg: string) => {
 };
 
 export const doArTip = (
-  tipParams: TipParams,
+  tipParams: LocalTipParams,
   anonymous: boolean,
   userParams: UserParams,
   claimId: string,
@@ -177,6 +177,7 @@ export const doArTip = (
     let referenceToken = '';
     let transferTxid = '';
     let transactionAmount;
+    console.log('artip');
     try {
       if (!window.arweaveWallet) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
@@ -211,7 +212,7 @@ export const doArTip = (
             creator_channel_claim_id: tipParams.channelClaimId,
             tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
             tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
-            currency: tipParams.transactionCurrency, // 'AR'
+            currency: tipParams.currency, // 'AR'
             anonymous: anonymous,
             source_claim_id: claimId,
             receiver_address: tipParams.recipientAddress,
@@ -232,9 +233,13 @@ export const doArTip = (
       ];
 
       const transactionAmountString = String(transactionAmount);
-      if (tipParams.transactionCurrency === 'AR') {
-        transferTxid = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
-      } else if (tipParams.transactionCurrency === 'USD') {
+      if (tipParams.currency === 'AR') {
+        try {
+          transferTxid = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
+        } catch (error) {
+          console.log(error);
+        }
+      } else if (tipParams.currency === 'USD') {
         // AO Onramper USDC
         transferTxid = await message({
           process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
@@ -262,7 +267,7 @@ export const doArTip = (
           creator_channel_claim_id: tipParams.channelClaimId,
           tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
           tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
-          currency: tipParams.transactionCurrency,
+          currency: tipParams.currency,
           anonymous: anonymous,
           source_claim_id: claimId,
           receiver_address: tipParams.recipientAddress,
@@ -281,7 +286,7 @@ export const doArTip = (
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
     // support comments need the transferTxid, so return that here.
-    return { transferTxid: transferTxid, currency: tipParams.transactionCurrency, referenceToken: referenceToken };
+    return { transferTxid: transferTxid, currency: tipParams.currency, referenceToken: referenceToken };
   };
 };
 
