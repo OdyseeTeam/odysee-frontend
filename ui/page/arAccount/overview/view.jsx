@@ -66,7 +66,7 @@ function Overview(props: Props) {
                 amount: Number(transaction.quantity.ar),
                 target: transaction.recipient,
               };
-              if (row.target) newTransactions.push(row);
+              if (row.target && row.amount>0) newTransactions.push(row);
             }
             setTransactions(newTransactions);
           }

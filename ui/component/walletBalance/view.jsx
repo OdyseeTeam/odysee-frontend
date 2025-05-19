@@ -81,8 +81,9 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
-  // const hasArSignin = Boolean(window.wanderInstance.authInfo);
-  const hasArSignin = wanderAuth === 'authenticated';
+  const hasArweaveExtension = window.wanderInstance.isBrowserWalletEnabled && window.arweaveWallet;
+  const hasArSignin = wanderAuth === 'authenticated' || hasArweaveExtension;
+  console.log('arStatus: ', arStatus)
   const hasArConnection = Boolean(arStatus.address);
 
   React.useEffect(() => {
@@ -270,9 +271,9 @@ const WalletBalance = (props: Props) => {
           subtitle={
             <>
               <div className="wallet-check-row">
-                <div>{__('Wander wallet login')}</div>
+                <div>{__('Wander login or extension')}</div>
                 <div>
-                  {!wanderAuth || wanderAuth === 'not-authenticated' ? (
+                  {!wanderAuth || wanderAuth === 'not-authenticated' && !hasArSignin ? (
                     <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
                   ) : wanderAuth === 'loading' || wanderAuth === 'onboarding' ? (
                     <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
@@ -285,7 +286,7 @@ const WalletBalance = (props: Props) => {
               <div className="wallet-check-row">
                 <div>{__('Wander wallet connection')}</div>
                 <div>
-                  {wanderAuth === 'authenticated' && hasArConnection ? (
+                  {hasArConnection ? (
                     <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
                   ) : (
                     <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
@@ -298,23 +299,39 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!wanderAuth || wanderAuth === 'not-authenticated' ? (
+              {!wanderAuth || wanderAuth === 'not-authenticated' && !hasArSignin ? (
+                <div>
                 <I18nMessage
                   tokens={{
-                    link: (
+                    text: (
+                      <p>
+                        To use AR on Odysee, you have to sign into your Wander account or use the Wander browser extension.
+                      </p>
+                    ),
+                    login: (
                       <a
                         className="link"
                         onClick={() => {
                           window.wanderInstance.open();
                         }}
                       >
-                        Sign in.
+                        Sign in
+                      </a>
+                    ),
+                    extension: (
+                      <a
+                        className="link"
+                        href="https://www.wander.app/download?tab=download-browser"
+                        target="_blank"
+                      >
+                        install browser extension
                       </a>
                     ),
                   }}
                 >
-                  To use AR on Odysee, you have to sign into the Wander wallet. %link%
+                  %text% %login% or %extension%
                 </I18nMessage>
+                </div>
               ) : wanderAuth === 'loading' ? (
                 __('Odysee is signing you in to your Wander wallet. Please wait...')
               ) : !hasArConnection ? (

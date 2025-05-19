@@ -51,7 +51,6 @@
         .card__title {
           display: flex;
           align-items: center;
-          // background:var(--color-background);
           background-color: var(--color-header-button);
           border-radius: var(--border-radius) var(--border-radius) 0 0;
           padding: var(--spacing-xxs);
@@ -60,7 +59,6 @@
           margin-left: calc(var(--spacing-s) * -1);
           margin-right: calc(var(--spacing-s) * -1);
           box-sizing: content-box;
-          // padding-top:6px;
 
           span {
             margin-bottom: -4px;
@@ -93,7 +91,6 @@
 
     .button--secondary {
       background-color: var(--color-header-button);
-      // color:white !important;
     }
 
     .card__main-actions {
@@ -101,6 +98,12 @@
       flex-direction: column;
       height: 100%;
       gap: var(--spacing-m);
+
+      div{
+        p{
+          margin-bottom: var(--spacing-s);
+        }
+      }
     }
 
     .card__first-pane {
@@ -113,7 +116,6 @@
       background: var(--color-background);
       padding: var(--spacing-s);
       border-radius: var(--border-radius);
-      // padding-top:var(--spacing-m);
       margin-top: auto;
     }
     .section__title--small {
@@ -146,6 +148,7 @@
   }
 
   .link {
+    font-weight: 700;
     color: var(--color-primary);
     &:hover {
       cursor: pointer;

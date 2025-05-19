@@ -18,11 +18,11 @@ export default function Wander(props: Props) {
   const authRef = React.useRef(instance?.authInfo?.authStatus);
   const wrapperRef = React.useRef();
 
+  console.log(window.arweaveWallet)
+
   React.useEffect(() => {
-    console.log('AUTH: ', auth)
     if(auth === 'onboarding') instance.open()
     if (auth == 'authenticated'){
-      console.log('ABC')
       if(window.wanderInstance.balanceInfo) connectArWallet();
       else window.wanderInstance.open()
     } 
