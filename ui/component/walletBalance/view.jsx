@@ -83,7 +83,7 @@ const WalletBalance = (props: Props) => {
 
   const hasArweaveExtension = window.wanderInstance.isBrowserWalletEnabled && window.arweaveWallet;
   const hasArSignin = wanderAuth === 'authenticated' || hasArweaveExtension;
-  const hasArConnection = Boolean(arStatus.address);
+  const hasArConnection = Boolean(arStatus.address) && hasArSignin;
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -337,17 +337,29 @@ const WalletBalance = (props: Props) => {
               ) : wanderAuth === 'loading' ? (
                 __('Odysee is signing you in to your Wander wallet. Please wait...')
               ) : !hasArConnection ? (
+                <div>
                 <I18nMessage
                   tokens={{
+                    text: (
+                      <p>
+                        To use AR on Odysee, the Wander wallet must be connected.
+                      </p>
+                    ),
                     link: (
                       <a className="link" onClick={() => doArConnect()}>
-                        Connect now.
+                        Connect now
+                      </a>
+                    ),
+                    login: (
+                      <a className="link" onClick={() => window.wanderInstance.open()}>
+                        change login
                       </a>
                     ),
                   }}
                 >
-                  To use AR on Odysee, the Wander wallet must be connected. %link%
+                   %text% %link% or %login%.
                 </I18nMessage>
+                </div>
               ) : (
                 <>
                   <h2 className="section__title--small">
