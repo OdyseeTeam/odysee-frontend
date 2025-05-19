@@ -8,7 +8,7 @@ import Page from 'component/page';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
-import ReceiveAr from './receiveAr';
+// import ReceiveAr from './receiveAr';
 import BuyAr from './buyAr';
 import ArWallets from './arWallets';
 

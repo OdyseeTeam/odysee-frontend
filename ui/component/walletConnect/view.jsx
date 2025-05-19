@@ -11,7 +11,8 @@ type Props = {
 };
 
 export default function WalletConnect(props: Props) {
-  const { connectArWallet, arweaveAddress, connecting } = props;
+  const { connectArWallet, arweaveAddress, connecting, wanderAuth } = props;
+  const auth = wanderAuth === 'loading' || wanderAuth === 'onboarding'  
 
   async function getAddress() {
     try {
@@ -34,9 +35,11 @@ export default function WalletConnect(props: Props) {
   if (!window.arweaveWallet) {
     return <span>Install Wander Wallet extension.</span>;
   }
-  return !connecting ? (
-    <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
-  ) : (
-    <Spinner type="small" />
-  );
+  return auth
+    ? <Button button="primary" label={__('Connecting...')} icon={ICONS.WANDER} />
+    : connecting ? (
+        <Button button="primary" onClick={handleArConnect} label={__('Connect')} icon={ICONS.WANDER} />
+      ) : (
+        <Spinner type="small" />
+      );
 }

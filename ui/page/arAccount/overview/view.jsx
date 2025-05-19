@@ -17,17 +17,12 @@ function Overview(props: Props) {
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
-  // const [arBalance, setArBalance] = React.useState(0);
-
-  console.log('wallet: ', wallet)
 
   React.useEffect(() => {
     (async () => {
       if (window.arweaveWallet && arWalletStatus) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
-
-          console.log('Get transactions');
           const transactions = await fetch('https://arweave-search.goldsky.com/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
