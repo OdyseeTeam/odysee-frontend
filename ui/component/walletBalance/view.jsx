@@ -386,6 +386,13 @@ const WalletBalance = (props: Props) => {
                   navigate={`/$/${PAGES.ARACCOUNT}`}
                   disabled={!hasArSignin || !hasArConnection}
                 />
+                <Button
+                  button="secondary"
+                  label={__('Wallet')}
+                  icon={ICONS.WANDER}
+                  onClick={() => window.wanderInstance.open()}
+                  disabled={wanderAuth !== 'authenticated'}
+                />
               </div>
             </>
           }
