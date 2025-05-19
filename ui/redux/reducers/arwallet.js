@@ -15,7 +15,7 @@ export type ExchangeRates = {
 
 export type ArWalletState = {
   wallet: ?{},
-  auth: ?string,
+  auth: ?any,
   address: ?string,
   error: ?string,
   connecting: boolean,

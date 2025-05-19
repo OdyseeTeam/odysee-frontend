@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import { WanderConnect } from '@wanderapp/connect';
+import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 type Props = {
@@ -15,15 +16,16 @@ type Props = {
 export default function Wander(props: Props) {
   const { theme, auth, doArSetAuth, connectArWallet } = props;
   const [instance, setInstance] = React.useState(null);
-  const authRef = React.useRef(instance?.authInfo?.authStatus);
+  const authRef = React.useRef(instance?.authInfo);
   const wrapperRef = React.useRef();
 
   React.useEffect(() => {
-    if(auth === 'onboarding') instance.open()
-    if (auth == 'authenticated'){
+    if(auth?.authStatus === 'onboarding') instance.open()
+    if (auth?.authStatus == 'authenticated'){
+      console.log('CONNECT?')
       if(window.wanderInstance.balanceInfo) connectArWallet();
       else window.wanderInstance.open()
-    } 
+    }
   }, [auth]);
 
   React.useEffect(() => {
@@ -117,33 +119,39 @@ export default function Wander(props: Props) {
 
   React.useEffect(() => {
     const check = () => {
-      const status = instance?.authInfo.authStatus;
+      const status = instance?.authInfo;
       if (status !== authRef.current) {
         authRef.current = status;
         doArSetAuth(status);
-        forceUpdate();
-        if (status !== 'loading') clearInterval(interval);
+        if (window.wanderInstance?.authInfo?.authStatus === 'authenticated' || status?.authType === 'NATIVE_WALLET'){
+          LocalStorage.setItem('WALLET_TYPE', window.wanderInstance.authInfo.authType);
+          if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
+            wanderInstance.authInfo.authType = type
+          }              
+          clearInterval(interval);
+        }
       }
     };
 
-    if (instance) {
-      doArSetAuth(instance.authInfo.authStatus);
-      window.addEventListener('arweaveWalletLoaded', () => {
-        doArSetAuth(instance.authInfo.authStatus);
-      });
+    const interval = setInterval(check, 1000);
 
-      const interval = setInterval(check, 200);
+    if (instance) {
+      doArSetAuth(instance.authInfo);
+      window.addEventListener('arweaveWalletLoaded', () => {
+        doArSetAuth(instance.authInfo);
+      });
+      
       return () => clearInterval(interval);
     }
   }, [instance]);
 
   React.useEffect(() => {
-    const current = window?.wanderInstance?.authInfo.authStatus;
+    const current = window?.wanderInstance?.authInfo;
     if (current !== authRef.current) {
       authRef.current = current;
       doArSetAuth(current);
     }
-  }, [window?.wanderInstance?.authInfo.authStatus]);
+  }, [window?.wanderInstance?.authInfo]);
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;
 }

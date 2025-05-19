@@ -13,6 +13,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 // import WalletFiatBalance from 'component/walletFiatBalance';
 import { formatNumberWithCommas } from 'util/number';
+import { LocalStorage } from 'util/storage';
 import Spinner from 'component/spinner';
 
 type Props = {
@@ -81,9 +82,21 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
-  const hasArweaveExtension = window.wanderInstance.isBrowserWalletEnabled && window.arweaveWallet;
-  const hasArSignin = wanderAuth === 'authenticated' || hasArweaveExtension;
-  const hasArConnection = Boolean(arStatus.address) && hasArSignin;
+  const [walletType, setWalletType] = React.useState(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded');
+  
+  const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
+  const hasArSignin = wanderAuth?.authStatus === 'authenticated' || walletType === 'extension';
+  const hasArConnection = Boolean(arStatus.address);
+  React.useEffect(() => {
+    setWalletType(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded')
+    const type = LocalStorage.getItem('WALLET_TYPE');
+    if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
+      wanderInstance.authInfo.authType = type
+    }    
+    if((!wanderInstance.authInfo.authStatus || wanderInstance.authInfo.authStatus === 'not-authenticated') && wanderInstance.authInfo.authType === 'NATIVE_WALLET'){
+      doArConnect()
+    }
+  }, [wanderAuth]);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -278,9 +291,9 @@ const WalletBalance = (props: Props) => {
               <div className="wallet-check-row">
                 <div>{__('Wander login or extension')}</div>
                 <div>
-                  {!wanderAuth || (wanderAuth === 'not-authenticated' && !hasArSignin) ? (
+                  {(!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !hasArSignin) && walletType !== 'extension' ? (
                     <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
-                  ) : wanderAuth === 'loading' || wanderAuth === 'onboarding' ? (
+                  ) : (wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded' ? (
                     <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
                   ) : (
                     <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
@@ -304,7 +317,7 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!wanderAuth || (wanderAuth === 'not-authenticated' && !hasArSignin) ? (
+              {(!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !hasArSignin) && walletType !== 'extension' ? (
                 <div>
                   <I18nMessage
                     tokens={{
@@ -331,11 +344,33 @@ const WalletBalance = (props: Props) => {
                       ),
                     }}
                   >
-                    %text% %login% or %extension%
+                    {`%text% %login%${!hasArweaveExtension ? ' or %extension%' : ''}`}
                   </I18nMessage>
                 </div>
-              ) : wanderAuth === 'loading' ? (
-                __('Odysee is signing you in to your Wander wallet. Please wait...')
+              ) : (wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded' ? (
+                <div>
+                <I18nMessage
+                    tokens={{
+                      text: (
+                        <p>
+                          Odysee is signing you in to your Wander wallet. Please wait...
+                        </p>
+                      ),
+                      status: (
+                        <a
+                          className="link"
+                          onClick={() => {
+                            window.wanderInstance.open();
+                          }}
+                        >
+                          Check status
+                        </a>
+                      )
+                    }}
+                  >
+                    {`%text% %status%`}
+                  </I18nMessage>
+                  </div>
               ) : !hasArConnection ? (
                 <div>
                 <I18nMessage
