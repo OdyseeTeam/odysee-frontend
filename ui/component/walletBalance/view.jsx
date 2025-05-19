@@ -83,7 +83,6 @@ const WalletBalance = (props: Props) => {
 
   const hasArweaveExtension = window.wanderInstance.isBrowserWalletEnabled && window.arweaveWallet;
   const hasArSignin = wanderAuth === 'authenticated' || hasArweaveExtension;
-  console.log('arStatus: ', arStatus)
   const hasArConnection = Boolean(arStatus.address);
 
   React.useEffect(() => {
@@ -267,13 +266,19 @@ const WalletBalance = (props: Props) => {
       {/* ARWEAVE */}
       <div className="column">
         <Card
-          title={!hasArConnection ? <Symbol token="wander" amount="Wander" /> : <Symbol token="ar" amount={arBalance} precision={2} isTitle />}
+          title={
+            !hasArConnection ? (
+              <Symbol token="wander" amount="Wander" />
+            ) : (
+              <Symbol token="ar" amount={arBalance} precision={2} isTitle />
+            )
+          }
           subtitle={
             <>
               <div className="wallet-check-row">
                 <div>{__('Wander login or extension')}</div>
                 <div>
-                  {!wanderAuth || wanderAuth === 'not-authenticated' && !hasArSignin ? (
+                  {!wanderAuth || (wanderAuth === 'not-authenticated' && !hasArSignin) ? (
                     <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
                   ) : wanderAuth === 'loading' || wanderAuth === 'onboarding' ? (
                     <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
@@ -299,38 +304,35 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!wanderAuth || wanderAuth === 'not-authenticated' && !hasArSignin ? (
+              {!wanderAuth || (wanderAuth === 'not-authenticated' && !hasArSignin) ? (
                 <div>
-                <I18nMessage
-                  tokens={{
-                    text: (
-                      <p>
-                        To use AR on Odysee, you have to sign into your Wander account or use the Wander browser extension.
-                      </p>
-                    ),
-                    login: (
-                      <a
-                        className="link"
-                        onClick={() => {
-                          window.wanderInstance.open();
-                        }}
-                      >
-                        Sign in
-                      </a>
-                    ),
-                    extension: (
-                      <a
-                        className="link"
-                        href="https://www.wander.app/download?tab=download-browser"
-                        target="_blank"
-                      >
-                        install browser extension
-                      </a>
-                    ),
-                  }}
-                >
-                  %text% %login% or %extension%
-                </I18nMessage>
+                  <I18nMessage
+                    tokens={{
+                      text: (
+                        <p>
+                          To use AR on Odysee, you have to sign into your Wander account or use the Wander browser
+                          extension.
+                        </p>
+                      ),
+                      login: (
+                        <a
+                          className="link"
+                          onClick={() => {
+                            window.wanderInstance.open();
+                          }}
+                        >
+                          Sign in
+                        </a>
+                      ),
+                      extension: (
+                        <a className="link" href="https://www.wander.app/download?tab=download-browser" target="_blank">
+                          install browser extension
+                        </a>
+                      ),
+                    }}
+                  >
+                    %text% %login% or %extension%
+                  </I18nMessage>
                 </div>
               ) : wanderAuth === 'loading' ? (
                 __('Odysee is signing you in to your Wander wallet. Please wait...')
