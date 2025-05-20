@@ -51,6 +51,9 @@
         }
       }
 
+    }
+
+
       .payment-option__monetization {
         display: flex;
         background: var(--color-header-button);
@@ -68,7 +71,6 @@
           margin-bottom:0;
         }
       }
-    }
   }
 
   .payment-options-content {
@@ -79,7 +81,7 @@
     background: var(--color-background);
     padding: var(--spacing-s);
     border-radius: var(--border-radius);
-    gap: 29px;
+    gap: var(--spacing-s);
 
     .payment-option {
       flex: unset;

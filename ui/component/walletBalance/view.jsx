@@ -14,6 +14,7 @@ import I18nMessage from 'component/i18nMessage';
 // import WalletFiatBalance from 'component/walletFiatBalance';
 import { formatNumberWithCommas } from 'util/number';
 import { LocalStorage } from 'util/storage';
+import { formatCredits } from 'util/format-credits';
 import Spinner from 'component/spinner';
 
 type Props = {
@@ -113,7 +114,7 @@ const WalletBalance = (props: Props) => {
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<Symbol token="lbc" amount={formatNumberWithCommas(totalBalance) || 0} isTitle />}
+          title={<Symbol token="lbc" amount={formatCredits(Number(totalBalance), 6, true)} precision={6} isTitle />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
@@ -288,7 +289,7 @@ const WalletBalance = (props: Props) => {
             !hasArConnection ? (
               <Symbol token="wander" amount="Wander" />
             ) : (
-              <Symbol token="ar" amount={arBalance} precision={2} isTitle />
+              <Symbol token="ar" amount={arBalance} precision={6} isTitle />
             )
           }
           subtitle={
