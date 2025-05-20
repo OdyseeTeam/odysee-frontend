@@ -24,10 +24,9 @@
     }
   }
 
-  &.toggle-wrapper--disabled {
-    .toggle-status {
-      background: #222222;
-    }
+  &.toggle-wrapper--busy {
+    opacity: .4;
+    pointer-events: none;
   }
 
   &:hover {
