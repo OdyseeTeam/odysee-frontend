@@ -87,12 +87,14 @@ const WalletBalance = (props: Props) => {
   const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
   const hasArSignin = wanderAuth?.authStatus === 'authenticated' || walletType === 'extension';
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
+  console.log('wanderAuth: ', wanderAuth)
+  console.log('walletType: ', walletType)
   const isSigningIn = (wanderAuth?.authStatus === undefined || wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded'
-  const isConnecting = (!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !hasArSignin) && walletType !== 'extension'
+  const isConnecting = (!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !isSigningIn) && walletType !== 'extension'
 
-  React.useEffect(() => {
-    setWalletType(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded')
+  React.useEffect(() => {    
     const type = LocalStorage.getItem('WALLET_TYPE');
+    setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded')
     if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
       wanderInstance.authInfo.authType = type
     }    
