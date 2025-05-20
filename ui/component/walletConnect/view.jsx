@@ -12,7 +12,7 @@ type Props = {
 
 export default function WalletConnect(props: Props) {
   const { connectArWallet, arweaveAddress, connecting, wanderAuth } = props;
-  const auth = wanderAuth === 'loading' || wanderAuth === 'onboarding'  
+  const auth = wanderAuth === 'loading' || wanderAuth === 'onboarding' || connecting 
 
   async function getAddress() {
     try {
