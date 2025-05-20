@@ -39,8 +39,6 @@ const OdyseeMembershipPage = (props: Props) => {
     doMembershipList,
   } = props;
 
-  const STRIPE_DISABLED = true;
-
   const [hasShownModal, setHasShownModal] = React.useState(false);
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
@@ -119,15 +117,6 @@ const OdyseeMembershipPage = (props: Props) => {
             subtitle={__('Expand to learn more about how Odysee Premium works')}
             body={showHelp && <HelpText />}
           />
-          {STRIPE_DISABLED && (!validMemberships || validMemberships.length === 0) && (<div className="error">{__('Payment Services are temporarily disabled. Please check back later.')}</div>)}
-
-          {!STRIPE_DISABLED && membershipOptions && (!validMemberships || validMemberships.length === 0) && (
-            <Card title={__('Available Memberships')}>
-              {membershipOptions.map((membership) => (
-                <PremiumOption key={membership.name} membershipPurchase={membership} />
-              ))}
-            </Card>
-          )}
 
           {activeMemberships && activeMemberships.length > 0 && (
             <Card title={__('Your Active Memberships')}>
