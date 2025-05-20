@@ -86,7 +86,7 @@ const WalletBalance = (props: Props) => {
   
   const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
   const hasArSignin = wanderAuth?.authStatus === 'authenticated' || walletType === 'extension';
-  const hasArConnection = Boolean(arStatus.address);
+  const hasArConnection = Boolean(arStatus.address) && hasArSignin;
   React.useEffect(() => {
     setWalletType(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded')
     const type = LocalStorage.getItem('WALLET_TYPE');
