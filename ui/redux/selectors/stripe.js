@@ -29,6 +29,11 @@ export const selectAPIArweaveDefaultAccount = (state: State) => {
   return arweaveStatus ? arweaveStatus.find((entry) => entry.default) : null;
 };
 
+export const selectArweaveDefaultAccountMonetizationEnabled = (state: State) => {
+  const account = selectAPIArweaveDefaultAccount(state);
+  if (account) return account.status === 'active';
+};
+
 export const selectAPIArweaveDefaultAddress = (state: State) => {
   const defaultAccount = selectAPIArweaveDefaultAccount(state);
   return defaultAccount ? defaultAccount.address : null;

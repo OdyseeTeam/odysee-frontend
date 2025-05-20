@@ -36,6 +36,7 @@ type Props = {
   supportersList: ?SupportersList,
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
   doGetMembershipSupportersList: () => void,
+  monetizationEnabled: boolean,
 };
 
 const CreatorArea = (props: Props) => {
@@ -45,6 +46,7 @@ const CreatorArea = (props: Props) => {
     supportersList,
     doListAllMyMembershipTiers,
     doGetMembershipSupportersList,
+    monetizationEnabled,
   } = props;
 
   const [allSelected, setAllSelected] = React.useState(true);
@@ -189,6 +191,7 @@ const CreatorArea = (props: Props) => {
                       />
                     </div>
                   </div>
+                  {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
 
                   <TiersTab showDisabled={showDisabled} />
                 </>
