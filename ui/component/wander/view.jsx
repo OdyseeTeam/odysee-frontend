@@ -22,7 +22,6 @@ export default function Wander(props: Props) {
   React.useEffect(() => {
     if(auth?.authStatus === 'onboarding') instance.open()
     if (auth?.authStatus == 'authenticated'){
-      console.log('CONNECT?')
       if(window.wanderInstance.balanceInfo) connectArWallet();
       else window.wanderInstance.open()
     }
@@ -120,7 +119,7 @@ export default function Wander(props: Props) {
   React.useEffect(() => {
     const check = () => {
       const status = instance?.authInfo;
-      if (status !== authRef.current) {
+      if (status && status !== authRef.current) {
         authRef.current = status;
         doArSetAuth(status);
         if (window.wanderInstance?.authInfo?.authStatus === 'authenticated' || status?.authType === 'NATIVE_WALLET'){
