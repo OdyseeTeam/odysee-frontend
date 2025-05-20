@@ -11,7 +11,7 @@ import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 function Overview(props: Props) {
-  const { account, cardHeader, wallet, balance, arWalletStatus, doUpdateArweaveAddressStatus } = props;
+  const { account, cardHeader, wallet, balance, arWalletStatus, doUpdateArweaveAddressStatus, accountUpdating } = props;
   const [transactions, setTransactions] = React.useState([]);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
@@ -119,7 +119,7 @@ function Overview(props: Props) {
                 <div className="payment-options-content">                
                   <div className="payment-option">
                     <div className="payment-option__monetization">
-                      {__('Allow monetization')} <ButtonToggle status={account?.status === 'active'} setStatus={handlemonetizationToggle} />
+                      {__('Allow monetization')} <ButtonToggle status={account?.status === 'active'} setStatus={handlemonetizationToggle} busy={accountUpdating} />
                     </div>
                     <div className="payment-option__monetization">
                       {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>
