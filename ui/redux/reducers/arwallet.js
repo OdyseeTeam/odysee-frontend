@@ -97,7 +97,8 @@ reducers[ACTIONS.AR_TIP_STATUS_SUCCESS] = (state, action) => {
   return { ...state, tippingStatusById: a };
 };
 
-reducers[ACTIONS.WANDER_AUTH] = (state, action) => {
+reducers[ACTIONS.WANDER_AUTH] = (state, action) => {  
+  if(!action.data) return
   return { ...state, auth: action.data };
 };
 

@@ -119,10 +119,11 @@ export default function Wander(props: Props) {
   React.useEffect(() => {
     const check = () => {
       const status = instance?.authInfo;
-      if (status && status !== authRef.current) {
+      if (status !== authRef.current) {
         authRef.current = status;
         doArSetAuth(status);
         if (window.wanderInstance?.authInfo?.authStatus === 'authenticated' || status?.authType === 'NATIVE_WALLET'){
+          console.log('IIIIIIIIIIIIIIIIIIIII: ', window.wanderInstance.authInfo.authType)
           LocalStorage.setItem('WALLET_TYPE', window.wanderInstance.authInfo.authType);
           if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
             wanderInstance.authInfo.authType = type
