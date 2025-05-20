@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import { selectUserExperimentalUi } from 'redux/selectors/user';
 import {
   selectBalance,
+  selectTotalBalance,
   selectClaimsBalance,
   selectSupportsBalance,
   selectTipsBalance,
@@ -36,6 +37,7 @@ const select = (state) => ({
   accountStatus: selectAccountStatus(state),
   fullArweaveStatus: selectFullAPIArweaveStatus(state),
   claimsBalance: selectClaimsBalance(state) || 0,
+  totalBalance: selectTotalBalance(state),
   supportsBalance: selectSupportsBalance(state) || 0,
   tipsBalance: selectTipsBalance(state) || 0,
   rewards: selectClaimedRewards(state),

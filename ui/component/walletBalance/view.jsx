@@ -58,6 +58,7 @@ const WalletBalance = (props: Props) => {
     arBalance,
     arUsdRate,
     claimsBalance,
+    totalBalance,
     supportsBalance,
     tipsBalance,
     hasSynced,
@@ -79,7 +80,7 @@ const WalletBalance = (props: Props) => {
 
   const { other: otherCount = 0 } = utxoCounts || {};
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
-  const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
+  // const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
@@ -88,8 +89,6 @@ const WalletBalance = (props: Props) => {
   const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
   const hasArSignin = wanderAuth?.authStatus === 'authenticated' || walletType === 'extension';
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
-  console.log('wanderAuth: ', wanderAuth)
-  console.log('walletType: ', walletType)
   const isSigningIn = (wanderAuth?.authStatus === undefined || wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded'
   const isConnecting = (!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !isSigningIn) && walletType !== 'extension'
 
@@ -114,7 +113,7 @@ const WalletBalance = (props: Props) => {
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<Symbol token="lbc" amount={formatCredits(Number(totalBalance), 6, true)} precision={6} isTitle />}
+          title={<Symbol token="lbc" amount={formatCredits(totalBalance, 8, true)} precision={6} isTitle />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
@@ -444,7 +443,7 @@ const WalletBalance = (props: Props) => {
                   label={__('Wallet')}
                   icon={ICONS.WANDER}
                   onClick={() => window.wanderInstance.open()}
-                  disabled={wanderAuth !== 'authenticated'}
+                  disabled={!hasArConnection || walletType === 'extension'}
                 />
               </div>
             </>
