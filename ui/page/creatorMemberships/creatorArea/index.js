@@ -7,11 +7,13 @@ import { selectMySupportersList } from 'redux/selectors/memberships';
 import { doListAllMyMembershipTiers, doGetMembershipSupportersList } from 'redux/actions/memberships';
 
 import CreatorArea from './view';
+import { selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
 
 const select = (state, props) => ({
   activeChannelClaim: selectActiveChannelClaim(state),
   myChannelClaims: selectMyChannelClaims(state),
   supportersList: selectMySupportersList(state),
+  monetizationEnabled: selectArweaveDefaultAccountMonetizationEnabled(state),
 });
 
 const perform = {
