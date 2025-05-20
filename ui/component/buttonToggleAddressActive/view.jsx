@@ -19,7 +19,7 @@ function ButtonToggleAddressActive(props: Props) {
     };
 
     return (
-      <ButtonToggle status={account.status === 'active'} onClick={handleClick} disabled={accountUpdating} />
+      <ButtonToggle status={account.status === 'active'} setStatus={handleClick} busy={accountUpdating} />
     );
   }
   return null;

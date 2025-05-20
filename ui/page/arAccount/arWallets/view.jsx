@@ -1,8 +1,8 @@
 // @flow
 import React from 'react';
 import Card from 'component/common/card';
-import './style.scss';
 import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
+import './style.scss';
 
 function ArWallets(props: Props) {
   const { cardHeader, arweaveWallets, arWalletStatus, activeAddress } = props;
