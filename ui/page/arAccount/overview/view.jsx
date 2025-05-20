@@ -112,6 +112,10 @@ function Overview(props: Props) {
                     <div className="sendArLabel">{__('Address')}</div>
                     <CopyableText copyable={wallet?.address} />
                   </div>
+                  <div className="payment-option__monetization">
+                      {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>
+                    </div>
+                  
                 </div>
               </div>
               <div className="payment-options">
@@ -120,10 +124,7 @@ function Overview(props: Props) {
                   <div className="payment-option">
                     <div className="payment-option__monetization">
                       {__('Allow monetization')} <ButtonToggle status={account?.status === 'active'} setStatus={handlemonetizationToggle} busy={accountUpdating} />
-                    </div>
-                    <div className="payment-option__monetization">
-                      {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>
-                    </div>
+                    </div>  
                   </div>
                 </div>
               </div>
