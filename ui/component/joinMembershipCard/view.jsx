@@ -126,9 +126,7 @@ const JoinMembershipCard = (props: Props) => {
           ),
         });
 
-        console.log('unlockable', unlockableTierIds)
-
-        const purchasingUnlockableContentTier = unlockableTierIds.includes(selectedCreatorMembership.membership_id);
+        const purchasingUnlockableContentTier = unlockableTierIds && unlockableTierIds.includes(selectedCreatorMembership.membership_id);
 
         if (shouldNavigate && purchasingUnlockableContentTier) {
           push(formatLbryUrlForWeb(uri));
