@@ -57,7 +57,9 @@ function ArAccountPage(props: Props) {
   }
 
   const handleArConnectDisconnect = () => {
+    window.wanderInstance.authInfo.authType = undefined;
     doArDisconnect();
+    push(`/$/${PAGES.WALLET}`);
   };
 
   const handleUpdateBalance = () => {
