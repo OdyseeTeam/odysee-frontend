@@ -146,16 +146,20 @@ export default function Wander(props: Props) {
         const data = event.data;
         if(data && data.id && !data.id.includes('react')){
           if(data.type === 'embedded_auth'){
-            LocalStorage.setItem('WALLET_TYPE', data.data.authType);
-            doArSetAuth(data.data);
+            if(data.data.authType){
+              console.log('SET AUTH: ', data.data.authType)
+              LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+              doArSetAuth(data.data);
+            }            
           }
           if(data.type === 'embedded_request'){
             window.wanderInstance.open()
           }
+          /*
           if(data.type === "api_getPermissions_result"){
             console.log('api_getPermissions_result')
           }
-          // console.log('DATA: ', data)
+          */
         }        
       });
       

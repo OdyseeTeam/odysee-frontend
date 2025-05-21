@@ -42,6 +42,7 @@ type Props = {
   doFetchUtxoCounts: () => void,
   doUtxoConsolidate: () => void,
   doArConnect: () => void,
+  doArDisconnect: () => void,
   activeAPIArAccountAddress: string,
   activeAPIArAccount: any,
 };
@@ -74,16 +75,15 @@ const WalletBalance = (props: Props) => {
     doUtxoConsolidate,
     doFetchUtxoCounts,
     doArConnect,
+    doArDisconnect,
   } = props;
 
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
 
   const { other: otherCount = 0 } = utxoCounts || {};
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
-  // const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
-
   const [walletType, setWalletType] = React.useState(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded');
   
   const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
@@ -288,7 +288,10 @@ const WalletBalance = (props: Props) => {
             !hasArConnection ? (
               <Symbol token="wander" amount="Wander" />
             ) : (
-              <Symbol token="ar" amount={arBalance} precision={6} isTitle />
+              <>
+                <Symbol token="ar" amount={arBalance} precision={6} isTitle />
+                <Button button="alt" icon={ICONS.WANDER} label={__('Disconnect')} onClick={() => doArDisconnect()} />
+              </>
             )
           }
           subtitle={

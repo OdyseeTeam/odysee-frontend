@@ -13,14 +13,14 @@ import {
   selectPendingConsolidateTxid,
   selectPendingMassClaimTxid,
 } from 'redux/selectors/wallet';
-import { doArConnect } from 'redux/actions/arwallet';
+import { doArConnect, doArDisconnect } from 'redux/actions/arwallet';
 import {
   selectArweaveStatus,
   selectArweaveBalance,
   selectArweaveExchangeRates,
   selectArweaveWanderAuth,
 } from 'redux/selectors/arwallet';
-import { selectAccountStatus, selectFullAPIArweaveStatus } from 'redux/selectors/stripe';
+import { selectFullAPIArweaveStatus } from 'redux/selectors/stripe';
 import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
 import { doOpenModal } from 'redux/actions/app';
 import { selectSyncHash } from 'redux/selectors/sync';
@@ -56,4 +56,5 @@ export default connect(select, {
   doFetchUtxoCounts,
   doUtxoConsolidate,
   doArConnect,
+  doArDisconnect,
 })(WalletBalance);
