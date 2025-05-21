@@ -72,7 +72,6 @@ function WalletTipAmountSelector(props: Props) {
   } = props;  
 
   const USDBalance = arBalance * arExchangeRate?.ar;
-  console.log('USDBalance: ',USDBalance)
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
 
