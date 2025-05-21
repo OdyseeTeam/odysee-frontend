@@ -38,6 +38,7 @@ type Props = {
   doTipAccountCheckForUri: (uri: string) => void,
   doArConnect: () => void,
   dollarsPerAr: number,
+  arExchangeRate: any;
   exchangeRateOverride?: number,
 };
 
@@ -68,9 +69,12 @@ function WalletTipAmountSelector(props: Props) {
     doTipAccountCheckForUri,
     doArConnect,
     dollarsPerAr,
+    arExchangeRate,
     exchangeRateOverride,
-  } = props;
+  } = props;  
 
+  const USDBalance = arBalance * arExchangeRate?.ar;
+  console.log('USDBalance: ',USDBalance)
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
 
@@ -102,7 +106,9 @@ function WalletTipAmountSelector(props: Props) {
   function shouldDisableAmountSelector(amount: number) {
     const isLBCCondition = activeTab === TAB_LBC && (amount > LBCBalance || LBCBalance === 0);
     const isUSDCCondition = activeTab === TAB_USDC && (amount > USDCBalance || USDCBalance === 0);
-    const isARCondition = activeTab === TAB_USD && (amount > arBalance || arBalance === 0);
+    // const isARCondition = activeTab === TAB_USD && (amount > arBalance || arBalance === 0);
+    const isARCondition = activeTab === TAB_USD && (amount > USDBalance || USDBalance === 0);
+    
     const isNotFiatTab = activeTab !== TAB_FIAT;
 
     // if it's LBC but the balance isn't enough, or fiat conditions met
