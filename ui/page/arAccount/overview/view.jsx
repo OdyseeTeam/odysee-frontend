@@ -76,7 +76,7 @@ function Overview(props: Props) {
 
   React.useEffect(() => {
     LocalStorage.setItem('WANDER_QR', showQR);
-  },[showQR])
+  }, [showQR]);
 
   function handleCheckForm() {
     const isValidEthAddress = (address) => /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -115,16 +115,16 @@ function Overview(props: Props) {
                   <div className="payment-option__monetization">
                       {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>
                     </div>
-                  
+
                 </div>
               </div>
               <div className="payment-options">
               <h2 className="section__title--small">{__('Settings')}</h2>
-                <div className="payment-options-content">                
+                <div className="payment-options-content">
                   <div className="payment-option">
                     <div className="payment-option__monetization">
                       {__('Allow monetization')} <ButtonToggle status={account?.status === 'active'} setStatus={handlemonetizationToggle} busy={accountUpdating} />
-                    </div>  
+                    </div>
                   </div>
                 </div>
               </div>

@@ -12,7 +12,7 @@ import ArAccountPage from './view';
 const select = (state) => ({
   arweaveWallets: selectFullAPIArweaveAccounts(state),
   arWalletStatus: selectArweaveConnected(state),
-  balance: selectArweaveBalance(state) || 0,
+  balance: selectArweaveBalance(state) || { ar: 0 },
   fetching: selectArweaveFetching(state),
   theme: selectThemePath(state),
 });

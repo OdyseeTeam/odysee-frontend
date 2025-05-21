@@ -6,6 +6,7 @@ import { selectIncognito } from 'redux/selectors/app';
 import { selectPurchaseIsPendingForMembershipId } from 'redux/selectors/memberships';
 
 import ConfirmationPage from './view';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const { uri, selectedCreatorMembership } = props;
@@ -15,6 +16,8 @@ const select = (state, props) => {
     purchasePending: selectPurchaseIsPendingForMembershipId(state, selectedCreatorMembership.membership_id),
     preferredCurrency: selectPreferredCurrency(state),
     incognito: selectIncognito(state),
+    balance: selectArweaveBalance(state) || { ar: 0 },
+    exchangeRate: selectArweaveExchangeRates(state),
   };
 };
 

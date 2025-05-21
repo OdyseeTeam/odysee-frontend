@@ -22,6 +22,7 @@ const select = (state, props) => {
     preferredCurrency: selectPreferredCurrency(state),
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
+    arExchangeRate: selectArweaveExchangeRates(state),
   };
 };
 

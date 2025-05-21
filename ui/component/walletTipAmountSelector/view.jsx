@@ -78,6 +78,8 @@ function WalletTipAmountSelector(props: Props) {
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
 
+  const amountInArEstimated = (amount / dollarsPerArToUse).toFixed(6);
+
   const tipAmountsToDisplay =
     customTipAmount && fiatConversion && activeTab === TAB_FIAT
       ? [customTipAmount]
@@ -169,6 +171,8 @@ function WalletTipAmountSelector(props: Props) {
           setTipError(__('Not enough Credits'));
         } else if (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)) {
           setTipError(__('Not enough USDC'));
+        } else if (activeTab === 'TabUSD' && (!arBalance || amountInArEstimated > arBalance)) {
+          setTipError(__('Insufficient AR Balance'));
         } else if (amount < MINIMUM_PUBLISH_BID) {
           setTipError(__('Amount must be higher'));
         } else if (
@@ -215,7 +219,7 @@ function WalletTipAmountSelector(props: Props) {
         }
       }
     }
-  }, [activeTab, amount, LBCBalance, USDCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
+  }, [activeTab, amount, LBCBalance, arBalance, USDCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
 
   if (!claim) return null;
 
@@ -320,7 +324,7 @@ function WalletTipAmountSelector(props: Props) {
           />{' '}
           {activeTab === TAB_USD && dollarsPerArToUse && dollarsPerArToUse > 0 && (
             <span className={'walletTipSelector__input-conversion help'}>
-              ({(amount / dollarsPerArToUse).toFixed(6)} AR)
+              ({amountInArEstimated} AR)
             </span>
           )}
         </div>
