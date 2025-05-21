@@ -305,7 +305,7 @@ export const doOpenCancelationModalForMembership =
 
     const state = getState();
     const { name: channelName } = selectClaimForId(state, membership.channel_claim_id);
-    const formattedEndOfMembershipDate = formatDateToMonthDayAndYear(new Date(subscription.ends_at) * 1000);
+    const formattedEndOfMembershipDate = formatDateToMonthDayAndYear(new Date(subscription.ends_at));
     const creatorUri = buildURI({
       channelName: channelName,
       channelClaimId: membership.channel_claim_id,
