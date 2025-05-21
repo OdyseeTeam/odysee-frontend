@@ -91,6 +91,7 @@ const WalletBalance = (props: Props) => {
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
   const isSigningIn = (wanderAuth?.authStatus === undefined || wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded'
   const hasConnection = ((!wanderAuth?.authStatus || wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn) && walletType === 'embedded') || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect')
+  console.log('hasConnection: ', hasConnection)
 
   React.useEffect(() => {    
     const type = LocalStorage.getItem('WALLET_TYPE');
@@ -299,7 +300,7 @@ const WalletBalance = (props: Props) => {
               <div className="wallet-check-row">
                 <div>{__('Wander login or extension')}</div>
                 <div>
-                  {!hasConnection ? (
+                  {!hasConnection && !isSigningIn ? (
                     <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
                   ) : isSigningIn ? (
                     <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
@@ -325,7 +326,7 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {!hasConnection ? (
+              {!hasConnection && !isSigningIn ? (
                 <div>
                   <I18nMessage
                     tokens={{
