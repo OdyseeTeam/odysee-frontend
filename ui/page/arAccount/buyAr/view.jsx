@@ -84,7 +84,7 @@ function BuyAr(props: Props) {
   };
 
   return (
-    fiats.length && (
+    fiats.length > 0 && (
       <Card
         className={!arWalletStatus ? `card--buyAr card--disabled` : `card--buyAr`}
         title={cardHeader()}
@@ -112,14 +112,6 @@ function BuyAr(props: Props) {
                   </Menu>
                 </div>
               </div>
-              {/* <div className="buyAr-card">
-              <h3>{__('You get')}</h3>
-              <div className="buyAr-input buyAr-input--fixed">
-                <input
-                  placeholder={`0 AR`}
-                />
-              </div>              
-            </div> */}
               <div className="buyAr-card">
                 <h3>{__('Pay with')}</h3>
                 <select ref={paymentOptionRef} onChange={handleSelectPaymentOption}>
