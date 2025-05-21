@@ -91,7 +91,6 @@ const WalletBalance = (props: Props) => {
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
   const isSigningIn = (wanderAuth?.authStatus === undefined || wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded'
   const hasConnection = ((!wanderAuth?.authStatus || wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn) && walletType === 'embedded') || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect')
-  console.log('hasConnection: ', hasConnection)
 
   React.useEffect(() => {    
     const type = LocalStorage.getItem('WALLET_TYPE');
