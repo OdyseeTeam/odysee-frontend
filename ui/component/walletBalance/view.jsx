@@ -87,9 +87,7 @@ const WalletBalance = (props: Props) => {
   const [walletType, setWalletType] = React.useState(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded');
 
   const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
-  console.log('hasArweaveExtension: ', hasArweaveExtension)
   const hasArSignin = wanderAuth?.authStatus === 'authenticated' || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
-  console.log('hasArSignin: ', hasArSignin)
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
   const isSigningIn = (wanderAuth?.authStatus === undefined || wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded'
   const hasConnection = ((!wanderAuth?.authStatus || wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn) && walletType === 'embedded') || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect')
@@ -354,7 +352,7 @@ const WalletBalance = (props: Props) => {
                       ),
                     }}
                   >
-                    {`%text% %login%${!hasArweaveExtension ? ' or %extension%' : ''}`}
+                    {`%text% %login%${(!hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET') ? ' or %extension%' : ''}`}
                   </I18nMessage>
                 </div>
               ) : isSigningIn ? (
