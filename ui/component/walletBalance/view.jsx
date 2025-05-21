@@ -85,12 +85,14 @@ const WalletBalance = (props: Props) => {
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
   const [walletType, setWalletType] = React.useState(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded');
-  
+
   const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
-  const hasArSignin = wanderAuth?.authStatus === 'authenticated' || walletType === 'extension';
+  console.log('hasArweaveExtension: ', hasArweaveExtension)
+  const hasArSignin = wanderAuth?.authStatus === 'authenticated' || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
+  console.log('hasArSignin: ', hasArSignin)
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
   const isSigningIn = (wanderAuth?.authStatus === undefined || wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded'
-  const isConnecting = (!wanderAuth?.authStatus || wanderAuth?.authStatus === 'not-authenticated' && !isSigningIn) && walletType !== 'extension'
+  const hasConnection = ((!wanderAuth?.authStatus || wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn) && walletType === 'embedded') || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect')
 
   React.useEffect(() => {    
     const type = LocalStorage.getItem('WALLET_TYPE');
@@ -299,12 +301,12 @@ const WalletBalance = (props: Props) => {
               <div className="wallet-check-row">
                 <div>{__('Wander login or extension')}</div>
                 <div>
-                  {isConnecting ? (
-                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
+                  {!hasConnection ? (
+                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
                   ) : isSigningIn ? (
                     <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
                   ) : (
-                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
+                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" alt="Success" />
                   )}
                 </div>
               </div>
@@ -325,7 +327,7 @@ const WalletBalance = (props: Props) => {
           background
           actions={
             <>
-              {isConnecting ? (
+              {!hasConnection ? (
                 <div>
                   <I18nMessage
                     tokens={{
