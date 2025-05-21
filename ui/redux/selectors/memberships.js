@@ -125,6 +125,7 @@ export const selectMembershipMineForCreatorId = (state: State, creatorId: string
 
 export const selectMembershipMineForCreatorIdForMembershipId = (state: State, creatorId: string, membershipId: number) => {
   const mine = selectMembershipMineForCreatorId(state, creatorId);
+  if (!mine) return false;
   const membership = mine.find(m => m.membership.id === membershipId);
   if (!membership) return false;
   return membership;

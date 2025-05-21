@@ -20,6 +20,8 @@ type Props = {
   preferredCurrency: ?string,
   incognito: boolean,
   isRenewal?: boolean,
+  balance: ArweaveBalance,
+  exchangeRate: { ar: number },
 };
 
 const ConfirmationPage = (props: Props) => {
@@ -32,7 +34,12 @@ const ConfirmationPage = (props: Props) => {
     preferredCurrency,
     incognito,
     isRenewal,
+    balance,
+    exchangeRate,
   } = props;
+
+  const { ar: arBalance } = balance;
+  const { ar: dollarsPerAr } = exchangeRate;
 
   const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
 
@@ -94,8 +101,15 @@ const ConfirmationPage = (props: Props) => {
                 </div>
               </p>
             )}
+            {(!arBalance || (dollarsPerAr && Number(dollarsPerAr) * arBalance < total)) && (
+              <p className="help">
+                <div className="error__text">
+                  {__('Insufficient Balance')}
+                </div>
+              </p>
+            )}
 
-            <SubmitButton isRenewal={isRenewal} modalState={{ passedTierIndex: selectedMembershipIndex }} />
+            <SubmitButton isRenewal={isRenewal} disabled={!arBalance} modalState={{ passedTierIndex: selectedMembershipIndex }} />
             <Button button="link" label={__('Cancel')} onClick={onCancel} />
           </div>
 
@@ -138,6 +152,6 @@ const ConfirmationSection = (props: GroupProps) => {
   );
 };
 
-const SubmitButton = (props: { isRenewal: boolean }) => <Submit autoFocus button="primary" label={props.isRenewal ? __('Renew') : __('Confirm')} />;
+const SubmitButton = (props: { isRenewal: boolean, disabled: boolean }) => <Submit disabled={props.disabled} autoFocus button="primary" label={props.isRenewal ? __('Renew') : __('Confirm')} />;
 
 export default ConfirmationPage;
