@@ -9,8 +9,14 @@
     position: relative;
     label[for='tip-input'] {
       position: absolute;
-      bottom: 5.5px;
+      display:flex;
+      margin:0;
+      top:0;
+      bottom:0;
+      align-items: center;
       left: var(--spacing-xs);
+      font-size: inherit;
+      font-weight: inherit;
       .disabled {
         opacity: 0.6;
       }
