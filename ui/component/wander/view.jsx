@@ -165,7 +165,7 @@ export default function Wander(props: Props) {
         }        
       });
       
-      return () => clearInterval(interval);
+      // return () => clearInterval(interval);
     }
   }, [instance]);
 
