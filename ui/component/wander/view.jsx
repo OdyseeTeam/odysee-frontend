@@ -147,6 +147,7 @@ export default function Wander(props: Props) {
         if(data && data.id && !data.id.includes('react')){
           if(data.type === 'embedded_auth'){
             LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+            doArSetAuth(data.data);
           }
           if(data.type === 'embedded_request'){
             window.wanderInstance.open()
@@ -154,6 +155,7 @@ export default function Wander(props: Props) {
           if(data.type === "api_getPermissions_result"){
             console.log('api_getPermissions_result')
           }
+          // console.log('DATA: ', data)
         }        
       });
       
