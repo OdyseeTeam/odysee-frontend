@@ -36,7 +36,7 @@ type Props = {
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
-  accountStatus: any,
+  // accountStatus: any,
   fullArweaveStatus: Array<any>,
   doOpenModal: (string) => void,
   doFetchUtxoCounts: () => void,
@@ -54,6 +54,7 @@ const WalletBalance = (props: Props) => {
     experimentalUi,
     LBCBalance,
     // USDCBalance,
+    wanderAuth,
     arStatus,
     arBalance,
     arUsdRate,
@@ -66,9 +67,8 @@ const WalletBalance = (props: Props) => {
     consolidateIsPending,
     massClaimingTips,
     massClaimIsPending,
-    utxoCounts,
-    wanderAuth,
-    accountStatus,
+    utxoCounts,    
+    // accountStatus,
     fullArweaveStatus,
     doOpenModal,
     doUtxoConsolidate,
@@ -98,10 +98,10 @@ const WalletBalance = (props: Props) => {
     if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
       wanderInstance.authInfo.authType = type
     }    
-    if((!wanderInstance.authInfo.authStatus || wanderInstance.authInfo.authStatus === 'not-authenticated') && wanderInstance.authInfo.authType === 'NATIVE_WALLET'){
+    if(!arStatus.connecting && wanderInstance.authInfo.authType === 'NATIVE_WALLET' && walletType === 'extension'){
       doArConnect()
     }
-  }, [wanderAuth]);
+  }, [wanderAuth, walletType]);    
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -386,7 +386,7 @@ const WalletBalance = (props: Props) => {
                       </p>
                     ),
                     link: (
-                      <a className="link" onClick={() => doArConnect()}>
+                      <a className="link" onClick={() => {doArConnect()}}>
                         Connect now
                       </a>
                     ),

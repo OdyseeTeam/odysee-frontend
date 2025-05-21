@@ -24,8 +24,8 @@ import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguag
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
-import App from './view';
 import { selectArweaveConnected, selectArweaveConnecting } from 'redux/selectors/arwallet';
+import App from './view';
 
 const select = (state) => ({
   user: selectUser(state),
