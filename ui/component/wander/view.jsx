@@ -120,6 +120,7 @@ export default function Wander(props: Props) {
   }, [theme]);
 
   React.useEffect(() => {
+    /*
     const check = () => {
       const status = instance?.authInfo;
       if (status !== authRef.current) {
@@ -136,6 +137,7 @@ export default function Wander(props: Props) {
     };
 
     const interval = setInterval(check, 1000);
+    */
 
     if (instance) {
       doArSetAuth(instance.authInfo);
