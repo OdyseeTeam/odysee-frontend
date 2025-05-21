@@ -155,6 +155,7 @@ export default function Wander(props: Props) {
             }            
           }
           if(data.type === 'embedded_request'){
+            console.log('REQUEST: ', data.data)
             window.wanderInstance.open()
           }
           /*
