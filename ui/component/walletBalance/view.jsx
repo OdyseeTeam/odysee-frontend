@@ -319,7 +319,6 @@ const WalletBalance = (props: Props) => {
                   )}
                 </div>
               </div>
-              {/* <I18nMessage tokens={{ ar: <Symbol token="ar" /> }}>Your total %ar%AR balance.</I18nMessage> */}
             </>
           }
           background

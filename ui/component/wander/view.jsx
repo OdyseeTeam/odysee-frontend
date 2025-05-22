@@ -19,12 +19,14 @@ export default function Wander(props: Props) {
   const authRef = React.useRef(instance?.authInfo);
   const wrapperRef = React.useRef();
 
+  console.log('connecting: ', connecting)
   React.useEffect(() => {
     if(auth?.authStatus === 'onboarding') instance.open()
     if (auth?.authStatus == 'authenticated'){      
       if(window.wanderInstance.balanceInfo && !connecting && !arweaveAddress){
         connectArWallet();
       } else if(!window.wanderInstance.balanceInfo){
+        console.log('OPEN A')
         window.wanderInstance.open()
       }
     }
@@ -151,11 +153,13 @@ export default function Wander(props: Props) {
             if(data.data.authType){
               console.log('SET AUTH: ', data.data.authType)
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+              window.wanderInstance.close()
               doArSetAuth(data.data);
             }            
           }
           if(data.type === 'embedded_request'){
             console.log('REQUEST: ', data.data)
+            console.log('OPEN B')
             window.wanderInstance.open()
           }
           /*
