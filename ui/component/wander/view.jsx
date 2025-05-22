@@ -160,6 +160,7 @@ export default function Wander(props: Props) {
           if(data.type === 'embedded_request'){
             console.log('REQUEST: ', data.data)
             console.log('OPEN B')
+            window.wanderInstance.close()
             window.wanderInstance.open()
           }
           /*
