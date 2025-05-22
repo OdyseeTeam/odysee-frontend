@@ -364,8 +364,14 @@ export const userHasMembershipTiers = createSelector(selectMyMembershipTiersChan
   Boolean(myMembershipsById && Object.values(myMembershipsById).length > 0)
 );
 
-export const selectMembershipTiersForChannelUri = (state: State, uri: string) =>
+export const selectAllMembershipTiersForChannelUri = (state: State, uri: string) =>
   selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
+
+export const selectMembershipTiersForChannelUri = (state: State, uri: string) => {
+  const tiers = selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
+  if (!tiers) return null;
+  return tiers.filter((tier) => tier.prices.some(p => p.address !== ''));
+}
 
 export const selectTierIndexForCreatorIdAndMembershipId = (state: State, creatorId: string, membershipId: number): number | null => {
   if (!state) return null;
