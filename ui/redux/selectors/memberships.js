@@ -184,7 +184,7 @@ export const selectMyPurchasedMembershipsFromCreatorsById = (state: State) => {
 };
 export const selectMyPurchasedMembershipsFromCreators = createSelector(
   selectMyPurchasedMembershipsFromCreatorsById,
-  (myPurchasedCreatorMemberships) => myPurchasedCreatorMemberships && Object.values(myPurchasedCreatorMemberships)
+  (myPurchasedCreatorMemberships) => myPurchasedCreatorMemberships && Object.values(myPurchasedCreatorMemberships).flat()
 );
 
 export const selectMyActiveMembershipsForCreatorId = (state: State, id: string) => {
@@ -392,7 +392,7 @@ export const selectCreatorMembershipsFetchedByUri = createSelector(
 );
 
 export const selectCreatorHasMembershipsByUri = createSelector(selectMembershipTiersForChannelUri, (memberships) =>
-  Boolean(memberships?.length > 0)
+  Boolean(memberships?.length > 0 && memberships.some(m => m.enabled = true))
 );
 
 export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creatorId: string): MembershipTier => {

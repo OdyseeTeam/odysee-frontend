@@ -87,7 +87,7 @@ const JoinMembershipButton = (props: Props) => {
       label={__('Join')}
       title={__('Become A Member')}
       onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
-      style={{ filter: !creatorHasMemberships ? 'brightness(50%)' : undefined }}
+      style={{ filter: (!creatorHasMemberships) ? 'brightness(50%)' : undefined }}
     />
   );
 };
