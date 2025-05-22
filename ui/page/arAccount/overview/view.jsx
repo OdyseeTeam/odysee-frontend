@@ -57,7 +57,9 @@ function Overview(props: Props) {
             const newTransactions = [];
             for (let entry of transactions) {
               const transaction = entry.node;
+              console.log('transaction: ', transaction)
               const row = {
+                txId: transaction.id,
                 date: transaction.block.timestamp,
                 action: 'sendTip',
                 amount: Number(transaction.quantity.ar),
@@ -211,6 +213,9 @@ function Overview(props: Props) {
                     {transaction.action === 'sendTip' ? __('to') : __('from')}
                   </div>
                   <div className="transaction-history__target">{transaction.target}</div>
+                  <div className="transaction-history__viewblock">
+                    <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank"><img src='https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp' /></a>
+                  </div>
                 </div>
               );
             })}

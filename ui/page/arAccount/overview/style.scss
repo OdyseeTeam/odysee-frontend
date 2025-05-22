@@ -158,6 +158,14 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      .transaction-history__viewblock{
+        margin-left:auto;
+        img {
+          width:14px;
+          height:14px;
+          border-radius:50%;
+        }
+      }
 
       @media (max-width: $breakpoint-small) {
         font-size:var(--font-xxsmall) !important;
@@ -185,6 +193,10 @@
         .transaction-history__direction {
           min-width: 20px;
         }
+      }
+
+      &:hover{
+        //background-color:rgba(var(--color-text-base),.05);
       }
     }
 
