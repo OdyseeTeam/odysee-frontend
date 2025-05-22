@@ -1,0 +1,96 @@
+// @flow
+import React from 'react';
+import { buildURI } from 'util/lbryURI';
+import Spinner from 'component/spinner';
+import { formatLbryUrlForWeb } from 'util/url';
+import ChannelThumbnail from 'component/channelThumbnail';
+import UriIndicator from 'component/uriIndicator';
+import { toCapitalCase } from 'util/string';
+import Button from 'component/button';
+import * as ICONS from 'constants/icons';
+
+type Props = {
+  membershipSub: MembershipSub,
+  creatorChannelClaim: string,
+  activeChannelClaim: string,
+}
+export default function MembershipRow(props: Props) {
+  const { membershipSub, creatorChannelClaim, activeChannelClaim } = props;
+  function monthsDiff(date1, date2) {
+    let d1 = new Date(date1);
+    let d2 = new Date(date2);
+    return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+  }
+  const memberChannelName = activeChannelClaim.name;
+  const memberChannelUri = memberChannelName === ''
+    ? ''
+    : buildURI({ channelName: memberChannelName, channelClaimId: activeChannelClaim.claim_id });
+  if (!creatorChannelClaim) {
+    return (
+      <tr>
+        <td colSpan="7">
+          <Spinner />
+        </td>
+      </tr>
+    );
+  }
+  const creatorChannelId = membershipSub.membership.channel_claim_id;
+  const creatorChannelUri = buildURI({
+    channelName: creatorChannelClaim.name,
+    channelClaimId: creatorChannelId,
+  });
+  const creatorChannelPath = formatLbryUrlForWeb(creatorChannelUri);
+
+  const currency = membershipSub.subscription.current_price.currency.toUpperCase();
+  const supportAmount = membershipSub.subscription.current_price.amount; // in cents or 1/100th EUR
+  const interval = membershipSub.subscription.current_price.frequency;
+
+  const startDate = new Date(membershipSub.subscription.started_at);
+  const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);
+  const amountOfMonths = monthsDiff(startDate, endDate);
+  const timeAgoInMonths =
+    amountOfMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
+
+  return (
+    <tr key={`${membershipSub.membership.channel_claim_id}${membershipSub.membership.name}`}>
+      <td className="channelThumbnail">
+        <ChannelThumbnail xsmall uri={creatorChannelUri} />
+        <ChannelThumbnail
+          xxsmall
+          uri={memberChannelUri === '' ? undefined : memberChannelUri}
+          tooltipTitle={memberChannelName === '' ? __('Anonymous') : memberChannelName}
+        />
+      </td>
+
+      <td>
+        <UriIndicator uri={creatorChannelUri} link />
+      </td>
+
+      <td>{membershipSub.membership.name}</td>
+
+      <td>{timeAgoInMonths}</td>
+
+      <td>
+        ${supportAmount / 100} {currency} / {__(toCapitalCase(interval))}
+      </td>
+      <td>
+        {membershipSub.subscription.status === 'active'
+          ? __('Active')
+          : membershipSub.subscription.status === 'past_due'
+            ? __('Past Due')
+            : membershipSub.subscription.status === 'pending'
+              ? __('Pending')
+              : __('Cancelled')}
+      </td>
+      <td>
+          <span dir="auto" className="button__label">
+            <Button
+              button="primary"
+              icon={ICONS.MEMBERSHIP}
+              navigate={creatorChannelPath + '?view=membership'}
+            />
+          </span>
+      </td>
+    </tr>
+  );
+}
