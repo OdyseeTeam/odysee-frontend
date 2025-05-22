@@ -34,7 +34,7 @@ const Symbol = (props: Props) => {
           icon={token ? ICONS[token.toUpperCase()] : ICONS.LBC}
           size={isTitle ? 22 : size}
           className={classnames('icon__symbol', {
-            'icon__symbol--after-text': amount,
+            // 'icon__symbol--after-text': amount,
             'icon__symbol--title': isTitle,
           })}
         />

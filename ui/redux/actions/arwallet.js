@@ -42,6 +42,7 @@ export function doArConnect() {
     if (window.arweaveWallet) {
       try {
         await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
+        window.wanderInstance.close()
         console.log('connected');
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
