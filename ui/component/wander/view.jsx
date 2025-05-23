@@ -19,14 +19,12 @@ export default function Wander(props: Props) {
   const authRef = React.useRef(instance?.authInfo);
   const wrapperRef = React.useRef();
 
-  console.log('connecting: ', connecting)
   React.useEffect(() => {
     if(auth?.authStatus === 'onboarding') instance.open()
     if (auth?.authStatus == 'authenticated'){      
       if(window.wanderInstance.balanceInfo && !connecting && !arweaveAddress){
         connectArWallet();
       } else if(!window.wanderInstance.balanceInfo){
-        console.log('OPEN A')
         window.wanderInstance.open()
       }
     }
@@ -122,24 +120,6 @@ export default function Wander(props: Props) {
   }, [theme]);
 
   React.useEffect(() => {
-    /*
-    const check = () => {
-      const status = instance?.authInfo;
-      if (status !== authRef.current) {
-        authRef.current = status;
-        doArSetAuth(status);
-        if (window.wanderInstance?.authInfo?.authStatus === 'authenticated' || status?.authType === 'NATIVE_WALLET'){
-          // LocalStorage.setItem('WALLET_TYPE', window.wanderInstance.authInfo.authType);
-          if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
-            wanderInstance.authInfo.authType = type
-          }              
-          clearInterval(interval);
-        }
-      }
-    };
-
-    const interval = setInterval(check, 1000);
-    */
 
     if (instance) {
       doArSetAuth(instance.authInfo);
@@ -151,27 +131,17 @@ export default function Wander(props: Props) {
         if(data && data.id && !data.id.includes('react')){
           if(data.type === 'embedded_auth'){
             if(data.data.authType){
-              console.log('SET AUTH: ', data.data.authType)
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
               window.wanderInstance.close()
               doArSetAuth(data.data);
             }            
           }
           if(data.type === 'embedded_request'){
-            console.log('REQUEST: ', data.data)
-            console.log('OPEN B')
             window.wanderInstance.close()
             window.wanderInstance.open()
           }
-          /*
-          if(data.type === "api_getPermissions_result"){
-            console.log('api_getPermissions_result')
-          }
-          */
         }        
       });
-      
-      // return () => clearInterval(interval);
     }
   }, [instance]);
 
