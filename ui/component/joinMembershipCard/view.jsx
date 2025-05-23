@@ -78,7 +78,7 @@ const JoinMembershipCard = (props: Props) => {
     if (cheapestMembership) {
       return (
         creatorMemberships &&
-        creatorMemberships.findIndex((membership) => membership.Membership.id === cheapestMembership.Membership.id)
+        creatorMemberships.findIndex((membership) => membership.membership_id === cheapestMembership.membership_id)
       );
     }
   }, [cheapestMembership, creatorMemberships]);
