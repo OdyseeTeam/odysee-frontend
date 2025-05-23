@@ -153,7 +153,6 @@ const WalletPage = (props: Props) => {
             </TabPanel>
           </TabPanels>
         </Tabs>
-        <p>TMP Agent: {navigator.userAgent}</p>
       </Page>
       {/* @endif */}
       {/* @if TARGET='app' */}

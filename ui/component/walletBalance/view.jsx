@@ -80,6 +80,7 @@ const WalletBalance = (props: Props) => {
   } = props;
 
   const isMobile = useIsMobile();
+  const isWanderApp = navigator.userAgent.includes('WanderMobile');
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
   const { other: otherCount = 0 } = utxoCounts || {};
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
@@ -345,10 +346,15 @@ const WalletBalance = (props: Props) => {
                 <div>
                   <I18nMessage
                     tokens={{
-                      text: (
+                      textD: (
                         <p>
                           To use AR on Odysee, you have to sign into your Wander account or use the Wander browser
                           extension.
+                        </p>
+                      ),
+                      textM: (
+                        <p>
+                          To use AR on Odysee, you have to sign into your Wander account or use the Wander Wallet app.
                         </p>
                       ),
                       login: (
@@ -366,12 +372,19 @@ const WalletBalance = (props: Props) => {
                           install browser extension
                         </a>
                       ),
+                      app: (
+                        <a className="link" href="https://www.wander.app/download?tab=download-mobile" target="_blank">
+                          Wander Wallet app
+                        </a>
+                      ),
                     }}
                   >
-                    {`%text% %login%${
-                      !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
-                        ? ' or %extension%'
-                        : ''
+                    {`${isMobile 
+                      ? '%textM%' 
+                      : '%textM%'} %login%${
+                        !isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
+                          ? ' or %extension%'
+                          : ' or get the %app%'
                     }`}
                   </I18nMessage>
                 </div>
@@ -417,7 +430,7 @@ const WalletBalance = (props: Props) => {
                       ),
                     }}
                   >
-                    %text% %link% or %login%.
+                    {`%text% %link%${!isWanderApp ? ' or %login%.' : ''}`}
                   </I18nMessage>
                 </div>
               ) : (
