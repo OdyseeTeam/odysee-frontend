@@ -105,8 +105,6 @@ const WalletBalance = (props: Props) => {
       walletType === 'embedded') ||
     (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
 
-  console.log('isMobile: ', isMobile);
-
   React.useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
     setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded');

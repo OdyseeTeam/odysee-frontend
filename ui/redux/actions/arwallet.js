@@ -36,14 +36,12 @@ const TWO_PLACES_TO_PENNIES = 100;
 export const ARCONNECT_TYPE = 'arConnect';
 
 export function doArConnect() {
-  console.log('doArConnect');
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
         await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
-        window.wanderInstance.close()
-        console.log('connected');
+        window.wanderInstance.close();
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
           // Attached throughout app-lifetime, so no need to clean up.
