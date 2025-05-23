@@ -122,6 +122,11 @@ export default function Wander(props: Props) {
   React.useEffect(() => {
 
     if (instance) {
+      const isWanderApp = navigator.userAgent.includes('WanderMobile');
+      if(isWanderApp){
+        window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';
+        LocalStorage.setItem('WALLET_TYPE', 'NATIVE_WALLET');
+      }
       doArSetAuth(instance.authInfo);
       window.addEventListener('arweaveWalletLoaded', () => {
         doArSetAuth(instance.authInfo);
