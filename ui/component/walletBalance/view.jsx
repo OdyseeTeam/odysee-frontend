@@ -383,8 +383,8 @@ const WalletBalance = (props: Props) => {
                       ? '%textM%' 
                       : '%textM%'} %login%${
                         !isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
-                          ? ' or %extension%'
-                          : ' or get the %app%'
+                          ? ' or %extension%.'
+                          : ' or get the %app%.'
                     }`}
                   </I18nMessage>
                 </div>
