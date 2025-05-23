@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import { useIsMobile } from 'effects/use-screensize';
 import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
@@ -68,7 +69,7 @@ const WalletBalance = (props: Props) => {
     consolidateIsPending,
     massClaimingTips,
     massClaimIsPending,
-    utxoCounts,    
+    utxoCounts,
     // accountStatus,
     fullArweaveStatus,
     doOpenModal,
@@ -78,30 +79,48 @@ const WalletBalance = (props: Props) => {
     doArDisconnect,
   } = props;
 
+  const isMobile = useIsMobile();
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
-
   const { other: otherCount = 0 } = utxoCounts || {};
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
-  const [walletType, setWalletType] = React.useState(window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded');
-
-  const hasArweaveExtension = Boolean(window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect');
-  const hasArSignin = wanderAuth?.authStatus === 'authenticated' || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
+  const [walletType, setWalletType] = React.useState(
+    window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded'
+  );
+  const hasArweaveExtension = Boolean(
+    window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect' && !isMobile
+  );
+  const hasArSignin =
+    wanderAuth?.authStatus === 'authenticated' ||
+    (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
   const hasArConnection = Boolean(arStatus.address) && hasArSignin;
-  const isSigningIn = (wanderAuth?.authStatus === undefined || wanderAuth?.authStatus === 'loading' || wanderAuth?.authStatus === 'onboarding') && walletType === 'embedded'
-  const hasConnection = ((!wanderAuth?.authStatus || wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn) && walletType === 'embedded') || (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect')
+  const isSigningIn =
+    (wanderAuth?.authStatus === undefined ||
+      wanderAuth?.authStatus === 'loading' ||
+      wanderAuth?.authStatus === 'onboarding') &&
+    walletType === 'embedded';
+  const hasConnection =
+    ((!wanderAuth?.authStatus || (wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn)) &&
+      walletType === 'embedded') ||
+    (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
 
-  React.useEffect(() => {    
+  console.log('isMobile: ', isMobile);
+
+  React.useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
-    setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded')
-    if((!window.wanderInstance.authInfo.authType && window.wanderInstance.authInfo.authType !== 'null') && window.wanderInstance.authInfo.authType !== type) {
-      wanderInstance.authInfo.authType = type
-    }    
-    if(!arStatus.connecting && wanderInstance.authInfo.authType === 'NATIVE_WALLET' && walletType === 'extension'){
-      doArConnect()
+    setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded');
+    if (
+      !window.wanderInstance.authInfo.authType &&
+      window.wanderInstance.authInfo.authType !== 'null' &&
+      window.wanderInstance.authInfo.authType !== type
+    ) {
+      wanderInstance.authInfo.authType = type;
     }
-  }, [wanderAuth, walletType]);    
+    if (!arStatus.connecting && wanderInstance.authInfo.authType === 'NATIVE_WALLET' && walletType === 'extension') {
+      doArConnect();
+    }
+  }, [wanderAuth, walletType]);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -297,7 +316,7 @@ const WalletBalance = (props: Props) => {
           subtitle={
             <>
               <div className="wallet-check-row">
-                <div>{__('Wander login or extension')}</div>
+                <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
                 <div>
                   {!hasConnection && !isSigningIn ? (
                     <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
@@ -351,18 +370,18 @@ const WalletBalance = (props: Props) => {
                       ),
                     }}
                   >
-                    {`%text% %login%${(!hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET') ? ' or %extension%' : ''}`}
+                    {`%text% %login%${
+                      !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
+                        ? ' or %extension%'
+                        : ''
+                    }`}
                   </I18nMessage>
                 </div>
               ) : isSigningIn ? (
                 <div>
-                <I18nMessage
+                  <I18nMessage
                     tokens={{
-                      text: (
-                        <p>
-                          Odysee is signing you in to your Wander wallet. Please wait...
-                        </p>
-                      ),
+                      text: <p>Odysee is signing you in to your Wander wallet. Please wait...</p>,
                       status: (
                         <a
                           className="link"
@@ -372,35 +391,36 @@ const WalletBalance = (props: Props) => {
                         >
                           Check status
                         </a>
-                      )
+                      ),
                     }}
                   >
                     {`%text% %status%`}
                   </I18nMessage>
-                  </div>
+                </div>
               ) : !hasArConnection ? (
                 <div>
-                <I18nMessage
-                  tokens={{
-                    text: (
-                      <p>
-                        To use AR on Odysee, the Wander wallet must be connected.
-                      </p>
-                    ),
-                    link: (
-                      <a className="link" onClick={() => {doArConnect()}}>
-                        Connect now
-                      </a>
-                    ),
-                    login: (
-                      <a className="link" onClick={() => window.wanderInstance.open()}>
-                        change login
-                      </a>
-                    ),
-                  }}
-                >
-                   %text% %link% or %login%.
-                </I18nMessage>
+                  <I18nMessage
+                    tokens={{
+                      text: <p>To use AR on Odysee, the Wander wallet must be connected.</p>,
+                      link: (
+                        <a
+                          className="link"
+                          onClick={() => {
+                            doArConnect();
+                          }}
+                        >
+                          Connect now
+                        </a>
+                      ),
+                      login: (
+                        <a className="link" onClick={() => window.wanderInstance.open()}>
+                          change login
+                        </a>
+                      ),
+                    }}
+                  >
+                    %text% %link% or %login%.
+                  </I18nMessage>
                 </div>
               ) : (
                 <>
@@ -428,14 +448,14 @@ const WalletBalance = (props: Props) => {
               <div className="section__actions">
                 <Button
                   button="secondary"
-                  label={__('Deposit Funds')}
+                  label={__(`Deposit${!isMobile ? ' Funds' : ''}`)}
                   icon={ICONS.BUY}
                   navigate={`/$/${PAGES.ARACCOUNT}?tab=buy`}
                   disabled={!hasArSignin || !hasArConnection}
                 />
                 <Button
                   button="secondary"
-                  label={__('Arweave Account')}
+                  label={__(`${!isMobile ? 'Arweave ' : ''}Account`)}
                   icon={ICONS.SETTINGS}
                   navigate={`/$/${PAGES.ARACCOUNT}`}
                   disabled={!hasArSignin || !hasArConnection}

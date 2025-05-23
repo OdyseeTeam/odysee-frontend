@@ -59,6 +59,10 @@
     max-width: var(--page-max-width);
     margin-right: auto;
     margin-left: auto;
+
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+    }
   }
 
   .tabs__list {
@@ -169,7 +173,7 @@
       flex-shrink: 0;
       margin: 0;
       min-height: 100%;
-      min-width: 500px;
+      min-width: 390px;
     }
   }
 
@@ -315,17 +319,17 @@
       margin-top: auto;
     }
     .section__title--small {
-      display:flex;
+      display: flex;
       font-weight: 600;
       margin-top: 0;
 
-      a{
+      a {
         color: var(--color-primary);
-        margin-left:auto;
-        font-weight:600;
-        &:hover{
-          cursor:pointer;
-          color:var(--color-secondary);
+        margin-left: auto;
+        font-weight: 600;
+        &:hover {
+          cursor: pointer;
+          color: var(--color-secondary);
         }
       }
     }

@@ -57,7 +57,6 @@ function Overview(props: Props) {
             const newTransactions = [];
             for (let entry of transactions) {
               const transaction = entry.node;
-              console.log('transaction: ', transaction)
               const row = {
                 txId: transaction.id,
                 date: transaction.block.timestamp,
@@ -96,7 +95,7 @@ function Overview(props: Props) {
 
   const handlemonetizationToggle = () => {
     doUpdateArweaveAddressStatus(account.id, account.status === 'active' ? 'inactive' : 'active');
-  }
+  };
 
   return (
     <Card
@@ -115,17 +114,21 @@ function Overview(props: Props) {
                     <CopyableText copyable={wallet?.address} />
                   </div>
                   <div className="payment-option__monetization">
-                      {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)}/>
-                    </div>
-
+                    {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)} />
+                  </div>
                 </div>
               </div>
               <div className="payment-options">
-              <h2 className="section__title--small">{__('Settings')}</h2>
+                <h2 className="section__title--small">{__('Settings')}</h2>
                 <div className="payment-options-content">
                   <div className="payment-option">
                     <div className="payment-option__monetization">
-                      {__('Allow monetization')} <ButtonToggle status={account?.status === 'active'} setStatus={handlemonetizationToggle} busy={accountUpdating} />
+                      {__('Allow monetization')}{' '}
+                      <ButtonToggle
+                        status={account?.status === 'active'}
+                        setStatus={handlemonetizationToggle}
+                        busy={accountUpdating}
+                      />
                     </div>
                   </div>
                 </div>
@@ -214,7 +217,9 @@ function Overview(props: Props) {
                   </div>
                   <div className="transaction-history__target">{transaction.target}</div>
                   <div className="transaction-history__viewblock">
-                    <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank"><img src='https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp' /></a>
+                    <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank">
+                      <img src="https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp" />
+                    </a>
                   </div>
                 </div>
               );
