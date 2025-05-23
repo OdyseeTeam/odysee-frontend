@@ -18,5 +18,6 @@ global.app = app;
 
 // Lbryinc needs access to the redux store for dispatching auth-releated actions
 global.store = app.store;
+window.store = app.store; // added to fix missing redux tools. remove if problems.
 
 export default app;
