@@ -61,12 +61,9 @@ const PreviewPage = (props: Props) => {
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
-  console.log('selectedCreatorMembership', selectedCreatorMembership, selectedMembershipIndex);
-
-  console.log('U', userHasACreatorMembership);
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
-  const creatorPurchaseDisabled = channelIsMine || (!canReceiveArweaveTips && !canReceiveFiatTips) || userHasACreatorMembership;
+  const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined || canReceiveArweaveTips === undefined) {
