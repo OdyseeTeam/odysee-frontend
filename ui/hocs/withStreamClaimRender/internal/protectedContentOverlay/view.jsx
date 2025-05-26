@@ -19,8 +19,9 @@ type Props = {
   uri: string,
   scheduledState: ClaimScheduledState,
   userIsAMember: boolean,
-  myMembership: ?Membership,
-  cheapestPlanPrice: ?Membership,
+  myMembership: ?CreatorMembership,
+  cheapestPlanPrice: ?CreatorMembership,
+  joinEnabled: boolean,
   passClickPropsToParent?: (props: { href?: string, onClick?: () => void }) => void,
   doOpenModal: (string, {}) => void,
 };
@@ -35,11 +36,10 @@ const ProtectedContentOverlay = (props: Props) => {
     scheduledState,
     userIsAMember,
     cheapestPlanPrice,
+    joinEnabled,
     passClickPropsToParent,
     doOpenModal,
   } = props;
-
-  const STRIPE_DISABLED = true;
 
   const appFileUri = React.useContext(AppContext)?.uri;
   const fileUri = props.fileUri || appFileUri;
@@ -66,28 +66,37 @@ const ProtectedContentOverlay = (props: Props) => {
     return null;
   }
 
+  // know if membership is disabled.. no address..
   return (
     <div className="protected-content-overlay">
       <Icon icon={ICONS.LOCK} />
-      <span>{__('Only %channel_name% members can view this content.', { channel_name: channelName })}</span>
-
-      <Button
-        button="primary"
-        icon={ICONS.MEMBERSHIP}
-        disabled={STRIPE_DISABLED}
-        label={
-          cheapestPlanPrice
-            ? __(
-                isEmbed
-                  ? 'Join on Odysee now for $%membership_price% per month!'
-                  : 'Join for $%membership_price% per month',
-                { membership_price: cheapestPlanPrice }
-              )
-            : __('Membership options')
-        }
-        title={__('Become a member')}
-        {...clickProps}
-      />
+      {!joinEnabled && (
+        <>
+          <span>{__('Only @%channel_name% members can view this content.', { channel_name: channelName })}</span>
+          <span>{__('New members are not currently accepted.')}</span>
+          </>
+      )}
+      {joinEnabled && (
+        <>
+          <span>{__('Only @%channel_name% members can view this content.', { channel_name: channelName })}</span>
+          <Button
+            button="primary"
+            icon={ICONS.MEMBERSHIP}
+            label={
+              cheapestPlanPrice
+                ? __(
+                    isEmbed
+                      ? 'Join on Odysee now for $%membership_price% per month!'
+                      : 'Join for $%membership_price% per month',
+                    { membership_price: cheapestPlanPrice }
+                  )
+                : __('Membership options')
+            }
+            title={__('Become a member')}
+            {...clickProps}
+          />
+        </>
+    )}
     </div>
   );
 };
