@@ -34,6 +34,7 @@ type Props = {
   channelUri: string,
   channelName: string,
   doOpenModal: (id: string, props: {}) => void,
+  joinEnabled: boolean,
 };
 
 const PreviewPage = (props: Props) => {
@@ -58,6 +59,7 @@ const PreviewPage = (props: Props) => {
     channelUri,
     channelName,
     doOpenModal,
+    joinEnabled,
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
@@ -74,6 +76,28 @@ const PreviewPage = (props: Props) => {
   if (!creatorHasMemberships) {
     // -- On a channel that is mine, the button uses the channel id to set it as active
     // when landing on the memberships page for the given channel --
+
+    if (!joinEnabled) {
+      return (
+        <div className="join-membership__empty">
+          <h2 className="header--no-memberships">{__('Closed to New Members')}</h2>
+          <p>
+            {__(
+              'Unfortunately, this membership is not accepting new members at this time.'
+            )}
+          </p>
+          <div>
+            <Button
+              icon={ICONS.MEMBERSHIP}
+              button="primary"
+              type="submit"
+              label={__(`Create Your Channel's Memberships`)}
+              navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+            />
+          </div>
+        </div>
+      );
+    }
     if (channelIsMine) {
       return (
         <div className="join-membership__empty">
