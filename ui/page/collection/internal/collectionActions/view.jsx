@@ -15,6 +15,7 @@ type Props = {
   uri: string,
   claimId?: string,
   isMyCollection: boolean,
+  disableFileReactions: boolean,
   collectionId: string,
   showEdit: boolean,
   isHeader: boolean,
@@ -32,6 +33,7 @@ function CollectionActions(props: Props) {
     uri,
     // claimId,
     // isMyCollection,
+    disableFileReactions,
     collectionId,
     isBuiltin,
     showEdit,
@@ -60,7 +62,9 @@ function CollectionActions(props: Props) {
           {showPlaybackButtons && <PlayButton collectionId={collectionId} />}
           {showPlaybackButtons && <ShuffleButton collectionId={collectionId} />}
 
-          {!isBuiltin && <>{uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}</>}
+          {!isBuiltin && !disableFileReactions && (
+            <>{uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}</>
+          )}
         </SectionElement>
 
         {!isOnPublicView && showEdit && <SortButton collectionId={collectionId} />}
