@@ -165,7 +165,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
             <div className="fiat-order__claim-preview">
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
-
+            { /* confirm purchase - needs to check balance and disable */}
             {pendingSdkPayment ? (
               <Button
                 button="primary"

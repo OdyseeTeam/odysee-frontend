@@ -367,10 +367,11 @@ export const userHasMembershipTiers = createSelector(selectMyMembershipTiersChan
 export const selectAllMembershipTiersForChannelUri = (state: State, uri: string) =>
   selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
 
+// select enabled, monetized memberships (joinable)
 export const selectMembershipTiersForChannelUri = (state: State, uri: string) => {
   const tiers = selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
   if (!tiers) return null;
-  return tiers.filter((tier) => tier.prices.some(p => p.address !== ''));
+  return tiers.filter((tier) => tier.prices.some(p => p.address !== '') && tier.enabled); // handle monetization disabled
 }
 
 export const selectTierIndexForCreatorIdAndMembershipId = (state: State, creatorId: string, membershipId: number): number | null => {

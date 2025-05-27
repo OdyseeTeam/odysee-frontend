@@ -69,7 +69,7 @@ function WalletTipAmountSelector(props: Props) {
     dollarsPerAr,
     arExchangeRate,
     exchangeRateOverride,
-  } = props;  
+  } = props;
 
   const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
@@ -105,7 +105,7 @@ function WalletTipAmountSelector(props: Props) {
     const isUSDCCondition = activeTab === TAB_USDC && (amount > USDCBalance || USDCBalance === 0);
     // const isARCondition = activeTab === TAB_USD && (amount > arBalance || arBalance === 0);
     const isARCondition = activeTab === TAB_USD && (amount > USDBalance || USDBalance === 0);
-    
+
     const isNotFiatTab = activeTab !== TAB_FIAT;
 
     // if it's LBC but the balance isn't enough, or fiat conditions met

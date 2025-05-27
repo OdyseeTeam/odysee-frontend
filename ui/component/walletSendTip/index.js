@@ -15,10 +15,11 @@ import { withRouter } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 import WalletSendTip from './view';
-import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { selectAccountCheckIsFetchingForId, selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { doArConnect, doArTip } from 'redux/actions/arwallet';
-import { doToast } from '../../redux/actions/notifications';
-import { selectArweaveTippingForId } from '../../redux/selectors/arwallet';
+import { doToast } from 'redux/actions/notifications';
+import { selectArweaveTippingForId } from 'redux/selectors/arwallet';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -52,6 +53,7 @@ const select = (state, props) => {
     experimentalUi: selectUserExperimentalUi(state),
     arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
     isArweaveTipping: selectArweaveTippingForId(state, claimId),
+    checkingAccount: selectAccountCheckIsFetchingForId(state, claimId),
   };
 };
 
@@ -62,6 +64,7 @@ const perform = {
   doArTip,
   doToast,
   doArConnect,
+  doTipAccountCheckForUri,
 };
 
 export default withRouter(connect(select, perform)(WalletSendTip));
