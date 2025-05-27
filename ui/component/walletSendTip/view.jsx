@@ -72,6 +72,8 @@ type Props = {
   preferredCurrency: string,
   modalProps?: any,
   arweaveTipData?: ArweaveTipDataForId, //
+  doTipAccountCheckForUri: () => void,
+  checkingAccount: boolean,
 };
 
 export default function WalletSendTip(props: Props) {
@@ -106,6 +108,8 @@ export default function WalletSendTip(props: Props) {
     doArTip,
     doToast,
     doArConnect,
+    doTipAccountCheckForUri,
+    checkingAccount,
   } = props;
 
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
@@ -338,6 +342,10 @@ export default function WalletSendTip(props: Props) {
   }
 
   React.useEffect(() => {
+    doTipAccountCheckForUri(uri);
+  }, [doTipAccountCheckForUri, uri]);
+
+  React.useEffect(() => {
     if (!hasSelected && hasSelectedTab) {
       setActiveTab(claimIsMine ? TAB_BOOST : hasSelectedTab);
       setSelected(true);
@@ -456,7 +464,7 @@ export default function WalletSendTip(props: Props) {
                   button="primary"
                   type="submit"
                   disabled={
-                    fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
+                    checkingAccount || fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
                   }
                   label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
                 />

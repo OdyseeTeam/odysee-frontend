@@ -157,7 +157,7 @@ export default function ModalAnnouncements(props: Props) {
           <div className="section">
             {__('Your Wander address, %address%, has a balance of %balance%. Would you like to top up?', {
               address: walletAddress,
-              balance: usdcBalance,
+              balance: usdcBalance || 0,
             })}
           </div>
         }

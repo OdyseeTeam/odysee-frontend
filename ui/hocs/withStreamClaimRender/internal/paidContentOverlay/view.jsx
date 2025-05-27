@@ -84,18 +84,18 @@ export default function PaidContentOvelay(props: Props) {
     <div className="paid-content-overlay">
       <div className="paid-content-overlay__body">
         <div className="paid-content-prompt paid-content-prompt--overlay">
-          {sdkFeeRequired ? (
-            <>
-              <div className="paid-content-prompt__price">
-                <Icon icon={ICONS.BUY} />
-                <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost.toFixed(2) }}>
-                  Purchase for %currency%%amount%
-                </I18nMessage>
-              </div>
+          {sdkFeeRequired && (
+              <>
+                <div className="paid-content-prompt__price">
+                  <Icon icon={ICONS.BUY} />
+                  <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost.toFixed(2) }}>
+                    Purchase for %currency%%amount%
+                  </I18nMessage>
+                </div>
 
-              <ButtonPurchase label={__('Purchase')} />
-            </>
-          ) : rentalTag && purchaseTag ? (
+                <ButtonPurchase label={__('Purchase')} />
+              </>)}
+          {rentalTag && purchaseTag && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
@@ -116,7 +116,30 @@ export default function PaidContentOvelay(props: Props) {
 
               <ButtonPurchase label={__('Purchase or Rent')} />
             </>
-          ) : rentalTag ? (
+          )}
+          {rentalTag && purchaseTag && (
+            <>
+              <div className="paid-content-prompt__price">
+                <Icon icon={ICONS.BUY} />
+                {__('Purchase for %currency%%amount%', {
+                  currency: fiatSymbol,
+                  amount: Number(purchaseTag).toFixed(2),
+                })}
+              </div>
+
+              <div className="paid-content-prompt__price">
+                <Icon icon={ICONS.TIME} />
+                {__('Rent %duration% for %currency%%amount%', {
+                  duration: secondsToDhms(rentalExpirationTimeInSeconds),
+                  currency: fiatSymbol,
+                  amount: rentalPrice,
+                })}
+              </div>
+
+              <ButtonPurchase label={__('Purchase or Rent')} />
+            </>
+          )}
+          {rentalTag && !purchaseTag && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.TIME} />
@@ -126,10 +149,10 @@ export default function PaidContentOvelay(props: Props) {
                   duration: secondsToDhms(rentalExpirationTimeInSeconds),
                 })}
               </div>
-
               <ButtonPurchase label={__('Rent')} />
             </>
-          ) : purchaseTag ? (
+          )}
+          {purchaseTag && !rentalTag && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
@@ -138,25 +161,25 @@ export default function PaidContentOvelay(props: Props) {
 
               <ButtonPurchase label={__('Purchase')} />
             </>
-          ) : (
-            preorderTag && (
-              <>
-                {preorderContentClaim ? (
-                  <Button
-                    iconColor="red"
-                    className={'preorder-button'}
-                    button="primary"
-                    label={__('Click here to view your purchased content')}
-                    navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
-                  />
-                ) : (
-                  <ButtonPurchase
-                    label={__('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag })}
-                  />
-                )}
-              </>
-            )
           )}
+          {preorderTag && (
+            <>
+              {preorderContentClaim ? (
+                <Button
+                  iconColor="red"
+                  className={'preorder-button'}
+                  button="primary"
+                  label={__('Click here to view your purchased content')}
+                  navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
+                />
+              ) : (
+                <ButtonPurchase
+                  label={__('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag })}
+                />
+              )}
+            </>
+          )}
+          {}
         </div>
       </div>
     </div>
