@@ -429,9 +429,7 @@ const WalletBalance = (props: Props) => {
                       link: (
                         <a
                           className="link"
-                          onClick={() => {
-                            doArConnect();
-                          }}
+                          onClick={() => doArConnect()}
                         >
                           Connect now
                         </a>
