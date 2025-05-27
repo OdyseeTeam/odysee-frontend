@@ -222,6 +222,7 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     const hexSig = bufferToHex(signature);
     const params = { currency, pub_key, signature: hexSig };
     if (makeDefault) {
+      // $FlowIgnore
       params.default = true;
     }
     const res = await Lbryio.call('arweave/address', 'add', params, 'post');

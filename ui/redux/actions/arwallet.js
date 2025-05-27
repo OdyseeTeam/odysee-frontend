@@ -12,9 +12,11 @@ import {
   AR_TIP_STATUS_ERROR,
   WANDER_AUTH,
 } from 'constants/action_types';
-import { dryrun, message, createDataItemSigner } from '@permaweb/aoconnect';
+// $FlowIgnore
+import { message, createDataItemSigner } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
+// $FlowIgnore
 import { Dispatch } from 'react';
 import arweave from 'util/arweave';
 const gFlags = {
@@ -40,6 +42,7 @@ export function doArConnect() {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
+        // $FlowIgnore
         await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
         window.wanderInstance.close();
 
@@ -129,6 +132,7 @@ export function doArDisconnect() {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
+        // $FlowIgnore
         await global.window?.arweaveWallet?.disconnect();
         dispatch({ type: ARCONNECT_DISCONNECT });
       } catch (e) {
@@ -143,7 +147,7 @@ type LocalTipParams = {
   tipChannelName: string,
   channelClaimId: string,
   recipientAddress: string,
-  currency: 'USD' | 'AR';
+  currency: 'USD' | 'AR',
 };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
@@ -364,7 +368,7 @@ export const sendWinstons = async (
     await arweave.transactions.sign(transaction);
 
     const { id } = transaction;
-    const res = await arweave.transactions.post(transaction);
+    // const res = await arweave.transactions.post(transaction);
     return id;
   } catch (e) {
     console.error('ERROR', e);
@@ -372,8 +376,8 @@ export const sendWinstons = async (
 };
 
 export const doArSetAuth = (status: any) => {
-  return async (dispatch) => {
+  return async (dispatch: Dispatch) => {
     dispatch({ type: WANDER_AUTH, data: status });
-    return;
+    // return;
   };
 };

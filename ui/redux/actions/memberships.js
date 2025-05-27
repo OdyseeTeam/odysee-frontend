@@ -1,6 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
+// $FlowIgnore
 import { message, createDataItemSigner } from '@permaweb/aoconnect';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
@@ -66,7 +67,8 @@ export const doFetchChannelMembershipsForChannelIds =
           // if array was returned for a user (indicating a membership exists), otherwise is null
           if (Number.isInteger(memberships?.length)) {
             for (const membership of memberships) {
-              if (membership.activated) { // activated?
+              if (membership.activated) {
+                // activated?
                 membershipsById[channelId] = membership.name;
               }
             }
@@ -112,10 +114,10 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
 
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
 
-  return await Lbryio.call('membership_v2/subscription', 'list', { }, 'post') // { membership,subscription, perks, payments, current_price }
+  return await Lbryio.call('membership_v2/subscription', 'list', {}, 'post') // { membership,subscription, perks, payments, current_price }
     .then((response: MembershipSubs) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
     .catch((err) => {
-      console.log('err', err)
+      console.log('err', err);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err });
     });
 };
@@ -127,160 +129,156 @@ after step 1: subscription.status will be pending if new, payments[] will have a
 after step 3: subscription.status may still be pending if api has not yet verified the payment on ao
 
  */
-export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  console.log('dmb', membershipParams);
+export const doMembershipBuy =
+  (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    console.log('dmb', membershipParams);
 
-  const {
-    tippedChannelId,
-    subscriberChannelId, // current url channel id
-    priceId, // memberships.membershipList~.<channelid>[0].prices[n].id
-    membershipId,
-  } = membershipParams;
+    const {
+      tippedChannelId,
+      subscriberChannelId, // current url channel id
+      priceId, // memberships.membershipList~.<channelid>[0].prices[n].id
+      membershipId,
+    } = membershipParams;
 
-  const source_payment_address = selectAPIArweaveDefaultAddress(state);
-  const subscribeApiParams: MembershipSubscribeParams = {
-    subscriber_channel_claim_id: subscriberChannelId,
-    price_id: priceId,
-    source_payment_address: source_payment_address,
-  };
-
-  if (!priceId) return;
-
-  dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED, data: membershipId });
-  let subscribeToken;
-  let payeeAddress;
-  let responseAmount;
-  let cryptoAmount;
-  let currencyType;
-
-  let transferTxid;
-
-  try {
-    const walletUnlocked = await doArSign('hello');
-    if (!walletUnlocked) {
-      throw new Error('wallet not unlocked');
-    }
-    await Lbryio.call('membership_v2', 'subscribe', { ...subscribeApiParams }, 'post')
-      .then((response: MembershipSubscribeResponse) => {
-        const { token, payee_address, price } = response;
-        const { transaction_amount, amount, transaction_currency } = price;
-        responseAmount = (amount / CONVERT_DOLLARS_TO_PENNIES) * USD_TO_USDC;
-        cryptoAmount = String(transaction_amount);
-        subscribeToken = token;
-        payeeAddress = payee_address;
-        currencyType = transaction_currency;
-      });
-
-    if (currencyType === 'AR') {
-      const tags = [
-        { name: 'X-O-Ref', value: subscribeToken },
-      ];
-      transferTxid = await sendWinstons(payeeAddress, cryptoAmount, tags);
-    } else if (currencyType === 'USD') {
-      transferTxid = await message({
-        process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
-        data: '',
-        tags: [
-          { name: 'Action', value: 'Transfer' },
-          { name: 'Quantity', value: String(responseAmount) }, // test/fix
-          { name: 'Recipient', value: payeeAddress }, // get address
-          { name: 'Tip_Type', value: 'tip' },
-          { name: 'Claim_ID', value: tippedChannelId },
-          { name: 'X-O-Ref', value: subscribeToken },
-        ],
-        Owner: source_payment_address, // test/fix
-        signer: createDataItemSigner(window.arweaveWallet),
-      });
-    }
-
-    const notifyParams = {
-      token: subscribeToken,
-      tx_id: transferTxid,
+    const source_payment_address = selectAPIArweaveDefaultAddress(state);
+    const subscribeApiParams: MembershipSubscribeParams = {
+      subscriber_channel_claim_id: subscriberChannelId,
+      price_id: String(priceId),
+      source_payment_address: source_payment_address || '',
     };
 
-    await dispatch(doMembershipMine());
+    if (!priceId) return;
 
-    await Lbryio.call('membership_v2/subscription', 'transaction_notify', notifyParams, 'post');
-    await dispatch(doMembershipMine());
-    dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
-  } catch (e) {
-    dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
-    console.error(e?.message || e);
-    return Promise.reject(e);
-  }
-  // return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
-  //   .then((response) => {
-  //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
-  //     dispatch(doMembershipMine());
-  //
-  //     return response;
-  //   })
-  //   .catch((e) => {
-  //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
-  //
-  //     if (e.message === 'user needs to be linked to a setup customer first') {
-  //       dispatch(
-  //         doToast({
-  //           message: __('You need to link a credit card in order to purchase.'),
-  //           isError: true,
-  //           linkText: __('Take me there'),
-  //           linkTarget: '/settings/card',
-  //         })
-  //       );
-  //
-  //       throw new Error(e);
-  //     }
-  //
-  //     if (e.message === 'cannot purchase inactivate membership!') {
-  //       dispatch(
-  //         doToast({
-  //           message: __('Error purchasing. This membership was deleted by the creator.'),
-  //           isError: true,
-  //         })
-  //       );
-  //
-  //       throw new Error(e);
-  //     }
-  //
-  //     const genericErrorMessage = __(
-  //       "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps."
-  //     );
-  //
-  //     dispatch(doToast({ message: genericErrorMessage, isError: true }));
-  //
-  //     throw new Error(e);
-  //   });
-};
+    dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED, data: membershipId });
+    let subscribeToken = '';
+    let payeeAddress = '';
+    let responseAmount;
+    let cryptoAmount = '';
+    let currencyType = '';
 
-export const doMembershipCancelForMembershipId = (membershipId: number, revert: boolean) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
+    let transferTxid;
 
-  return await Lbryio.call(
-    'membership_v2/subscription',
-    'cancel',
-    { membership_id: membershipId, revert },
-    'post'
-  )
-    .then((response) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
-      dispatch(doMembershipMine());
-
-      return response;
-    })
-    .catch((e) => {
-      if (e.message === 'this subscription is no longer active') {
-        dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
-      } else {
-        dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
-        throw new Error(e);
+    try {
+      const walletUnlocked = await doArSign('hello');
+      if (!walletUnlocked) {
+        throw new Error('wallet not unlocked');
       }
-    });
-};
+      await Lbryio.call('membership_v2', 'subscribe', { ...subscribeApiParams }, 'post').then(
+        (response: MembershipSubscribeResponse) => {
+          const { token, payee_address, price } = response;
+          const { transaction_amount, amount, transaction_currency } = price;
+          responseAmount = (amount / CONVERT_DOLLARS_TO_PENNIES) * USD_TO_USDC;
+          cryptoAmount = String(transaction_amount);
+          subscribeToken = token;
+          payeeAddress = payee_address;
+          currencyType = transaction_currency;
+        }
+      );
+
+      if (currencyType === 'AR') {
+        const tags = [{ name: 'X-O-Ref', value: subscribeToken }];
+        transferTxid = await sendWinstons(payeeAddress, cryptoAmount, tags);
+      } else if (currencyType === 'USD') {
+        transferTxid = await message({
+          process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+          data: '',
+          tags: [
+            { name: 'Action', value: 'Transfer' },
+            { name: 'Quantity', value: String(responseAmount) }, // test/fix
+            { name: 'Recipient', value: payeeAddress }, // get address
+            { name: 'Tip_Type', value: 'tip' },
+            { name: 'Claim_ID', value: tippedChannelId },
+            { name: 'X-O-Ref', value: subscribeToken },
+          ],
+          Owner: source_payment_address, // test/fix
+          signer: createDataItemSigner(window.arweaveWallet),
+        });
+      }
+
+      const notifyParams = {
+        token: subscribeToken,
+        tx_id: transferTxid,
+      };
+
+      await dispatch(doMembershipMine());
+
+      await Lbryio.call('membership_v2/subscription', 'transaction_notify', notifyParams, 'post');
+      await dispatch(doMembershipMine());
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
+    } catch (e) {
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+      console.error(e?.message || e);
+      return Promise.reject(e);
+    }
+    // return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
+    //   .then((response) => {
+    //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
+    //     dispatch(doMembershipMine());
+    //
+    //     return response;
+    //   })
+    //   .catch((e) => {
+    //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+    //
+    //     if (e.message === 'user needs to be linked to a setup customer first') {
+    //       dispatch(
+    //         doToast({
+    //           message: __('You need to link a credit card in order to purchase.'),
+    //           isError: true,
+    //           linkText: __('Take me there'),
+    //           linkTarget: '/settings/card',
+    //         })
+    //       );
+    //
+    //       throw new Error(e);
+    //     }
+    //
+    //     if (e.message === 'cannot purchase inactivate membership!') {
+    //       dispatch(
+    //         doToast({
+    //           message: __('Error purchasing. This membership was deleted by the creator.'),
+    //           isError: true,
+    //         })
+    //       );
+    //
+    //       throw new Error(e);
+    //     }
+    //
+    //     const genericErrorMessage = __(
+    //       "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps."
+    //     );
+    //
+    //     dispatch(doToast({ message: genericErrorMessage, isError: true }));
+    //
+    //     throw new Error(e);
+    //   });
+  };
+
+export const doMembershipCancelForMembershipId =
+  (membershipId: number, revert: boolean) => async (dispatch: Dispatch) => {
+    dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
+
+    return await Lbryio.call('membership_v2/subscription', 'cancel', { membership_id: membershipId, revert }, 'post')
+      .then((response) => {
+        dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+        dispatch(doMembershipMine());
+
+        return response;
+      })
+      .catch((e) => {
+        if (e.message === 'this subscription is no longer active') {
+          dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+        } else {
+          dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+          throw new Error(e);
+        }
+      });
+  };
 
 export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership_v2', 'create', { ...params }, 'post')
-    .then((response: MembershipCreateResponse) => ({ response: response } ))
+    .then((response: MembershipCreateResponse) => ({ response: response }))
     .catch((e) => {
       return { error: e?.message || e };
     });
@@ -300,7 +298,7 @@ export const doGetMembershipPerks = (params: MembershipListParams) => async (dis
 export const doOpenCancelationModalForMembership =
   (membershipSub: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
     const { membership, subscription } = membershipSub;
-    const isActive = subscription.status === 'active';
+    // const isActive = subscription.status === 'active';
     const isCanceled = subscription.status === 'canceled';
 
     const state = getState();
@@ -316,20 +314,15 @@ export const doOpenCancelationModalForMembership =
       return dispatch(
         doOpenModal(MODALS.CONFIRM, {
           title: __('Confirm Restoring %membership_name% Membership', { membership_name: membership.name }),
-          subtitle: __(
-            'Are you sure you want to restore your %creator_name%\'s "%membership_name%" membership? ',
-            {
-              membership_name: membership.name,
-            }
-          ),
+          subtitle: __('Are you sure you want to restore your %creator_name%\'s "%membership_name%" membership? ', {
+            membership_name: membership.name,
+          }),
           busyMsg: __('Restoring your membership...'),
           onConfirm: (closeModal, setIsBusy) => {
             setIsBusy(true);
             dispatch(doMembershipCancelForMembershipId(membership.id, true)).then(() => {
               setIsBusy(false);
-              dispatch(
-                doToast({ message: __('Your membership was successfully restored.') })
-              );
+              dispatch(doToast({ message: __('Your membership was successfully restored.') }));
               closeModal();
             });
           },
@@ -352,7 +345,7 @@ export const doOpenCancelationModalForMembership =
         busyMsg: __('Canceling your membership...'),
         onConfirm: (closeModal, setIsBusy) => {
           setIsBusy(true);
-          dispatch(doMembershipCancelForMembershipId(membership.id)).then(() => {
+          dispatch(doMembershipCancelForMembershipId(membership.id, true)).then(() => {
             setIsBusy(false);
             dispatch(
               doToast({ message: __('Your membership was successfully cancelled and will no longer be renewed.') })
@@ -525,8 +518,7 @@ export const doMembershipClearData = () => async (dispatch: Dispatch) =>
 // TODO get (paginate?) historical only_active = false
 export const doGetMembershipSupportersList = () => async (dispatch: Dispatch) =>
   Lbryio.call('membership_v2', 'subscribers', { only_active: true }, 'post')
-    .then((response: SupportersList) =>
-    {
+    .then((response: SupportersList) => {
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response });
     })
     .catch(() => dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: null }));
@@ -545,9 +537,7 @@ export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getSt
 
   const pendingPromises = [];
   myChannelClaims.map((channelClaim, index) => {
-    pendingPromises[index] = dispatch(
-      doMembershipList({ channel_claim_id: channelClaim.claim_id })
-    );
+    pendingPromises[index] = dispatch(doMembershipList({ channel_claim_id: channelClaim.claim_id }));
   });
 
   return await Promise.all(pendingPromises)

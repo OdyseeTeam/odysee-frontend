@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+// $FlowIgnore
 import { WanderConnect } from '@wanderapp/connect';
 import { LocalStorage } from 'util/storage';
 import './style.scss';
@@ -8,7 +9,7 @@ type Props = {
   arweaveAddress: string,
   connecting: boolean,
   theme: string,
-  auth: string,
+  auth: any,
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
 };
@@ -18,17 +19,20 @@ export default function Wander(props: Props) {
   const [instance, setInstance] = React.useState(null);
   const authRef = React.useRef(instance?.authInfo);
   const wrapperRef = React.useRef();
+  const authInfo = window?.wanderInstance?.authInfo;
 
   React.useEffect(() => {
-    if(auth?.authStatus === 'onboarding') instance.open()
-    if (auth?.authStatus == 'authenticated'){      
-      if(window.wanderInstance.balanceInfo && !connecting && !arweaveAddress){
-        connectArWallet();
-      } else if(!window.wanderInstance.balanceInfo){
-        window.wanderInstance.open()
+    if (instance) {
+      if (auth?.authStatus === 'onboarding') instance.open();
+      if (auth?.authStatus === 'authenticated') {
+        if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
+          connectArWallet();
+        } else if (!window.wanderInstance.balanceInfo) {
+          window.wanderInstance.open();
+        }
       }
     }
-  }, [auth]);
+  }, [auth, arweaveAddress, connecting, connectArWallet, instance]);
 
   React.useEffect(() => {
     const wanderInstance = new WanderConnect({
@@ -72,7 +76,7 @@ export default function Wander(props: Props) {
           }
 
           .iframe {
-            max-width:400px;
+            // max-width:400px;
           }
 
           .iframe-wrapper {              
@@ -120,10 +124,9 @@ export default function Wander(props: Props) {
   }, [theme]);
 
   React.useEffect(() => {
-
     if (instance) {
       const isWanderApp = navigator.userAgent.includes('WanderMobile');
-      if(isWanderApp){
+      if (isWanderApp) {
         window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';
         LocalStorage.setItem('WALLET_TYPE', 'NATIVE_WALLET');
       }
@@ -131,24 +134,33 @@ export default function Wander(props: Props) {
       window.addEventListener('arweaveWalletLoaded', () => {
         doArSetAuth(instance.authInfo);
       });
-      window.addEventListener("message", (event) => {
+      window.addEventListener('message', (event) => {
         const data = event.data;
-        if(data && data.id && !data.id.includes('react')){
-          if(data.type === 'embedded_auth'){
-            if(data.data.authType){
+        if (data && data.id && !data.id.includes('react')) {
+          if (data.type === 'embedded_auth') {
+            if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null')) {
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
-              window.wanderInstance.close()
+              window.wanderInstance.close();
               doArSetAuth(data.data);
-            }            
+            }
           }
-          if(data.type === 'embedded_request'){
-            window.wanderInstance.close()
-            window.wanderInstance.open()
+          if (data.type === 'embedded_request') {
+            console.log('data: ', data);
+            window.wanderInstance.close();
+            window.wanderInstance.open();
           }
-        }        
+          if (data.type === 'event') {
+            console.log('message data: ', data);
+          }
+        }
       });
+
+      return () => {
+        window.removeEventListener('arweaveWalletLoaded');
+        window.removeEventListener('message');
+      };
     }
-  }, [instance]);
+  }, [instance, doArSetAuth]);
 
   React.useEffect(() => {
     const current = window?.wanderInstance?.authInfo;
@@ -156,7 +168,7 @@ export default function Wander(props: Props) {
       authRef.current = current;
       doArSetAuth(current);
     }
-  }, [window?.wanderInstance?.authInfo]);
+  }, [authInfo, doArSetAuth]);
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;
 }

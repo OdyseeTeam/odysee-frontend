@@ -4,6 +4,13 @@ import Card from 'component/common/card';
 import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
 import './style.scss';
 
+type Props = {
+  cardHeader: any,
+  arweaveWallets: any,
+  arWalletStatus: any,
+  activeAddress: string,
+};
+
 function ArWallets(props: Props) {
   const { cardHeader, arweaveWallets, arWalletStatus, activeAddress } = props;
 
