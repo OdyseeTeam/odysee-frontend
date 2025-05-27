@@ -25,9 +25,13 @@ export default function Wander(props: Props) {
     if (instance) {
       if (auth?.authStatus === 'onboarding') instance.open();
       if (auth?.authStatus === 'authenticated') {
+        // Connected
         if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
+          // Has backup
+          console.log('FIX THIS RECONNECT: ', window.wanderInstance)
           connectArWallet();
-        } else if (!window.wanderInstance.balanceInfo) {
+        } else if (!window.wanderInstance.balanceInfo){
+          // Missing backup
           window.wanderInstance.open();
         }
       }
@@ -137,6 +141,7 @@ export default function Wander(props: Props) {
       window.addEventListener('message', (event) => {
         const data = event.data;
         if (data && data.id && !data.id.includes('react')) {
+          console.log('message data: ', data);
           if (data.type === 'embedded_auth') {
             if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null')) {
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
@@ -150,7 +155,7 @@ export default function Wander(props: Props) {
             window.wanderInstance.open();
           }
           if (data.type === 'event') {
-            console.log('message data: ', data);
+            // console.log('message data: ', data);
           }
         }
       });

@@ -128,6 +128,9 @@ export function doArUpdateBalance() {
 }
 
 export function doArDisconnect() {
+  // window.wanderInstance.authInfo = {};
+  console.log('doArDisconnect: ', window.wanderInstance)  
+
   return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {

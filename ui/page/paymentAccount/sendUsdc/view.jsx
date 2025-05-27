@@ -10,7 +10,7 @@ import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import './style.scss';
 
-function SendUsdc(props: Props) {
+function SendUsdc(props: any) {
   const { cardHeader, arWalletStatus, balance } = props;
   const [canSend, setCanSend] = React.useState(false);
   const inputAmountRef = React.useRef<HTMLInputElement | null>(null);
