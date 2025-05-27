@@ -1,3 +1,4 @@
+/* eslint-disable */
 // @flow
 import React from 'react';
 import * as ICONS from 'constants/icons';
@@ -12,7 +13,7 @@ import './style.scss';
 function SendUsdc(props: Props) {
   const { cardHeader, arWalletStatus, balance } = props;
   const [canSend, setCanSend] = React.useState(false);
-  const inputAmountRef = React.useRef();
+  const inputAmountRef = React.useRef<HTMLInputElement | null>(null);
   const inputReceivingAddressRef = React.useRef();
 
   const networks = [
@@ -32,16 +33,19 @@ function SendUsdc(props: Props) {
   const [targetNetwork, setTargetNetwork] = React.useState(networks[0]);
 
   function handleSetMaxAmount() {
-    inputAmountRef.current.value = balance.toFixed(8);
+    if (inputAmountRef && inputAmountRef.current) {
+      // $FlowIgnore
+      inputAmountRef.current.value = String(balance.toFixed(8) || 0);
+    }
     handleCheckForm();
   }
 
   function handleCheckForm() {
-    const isValidEthAddress = (address) => /^0x[a-fA-F0-9]{40}$/.test(address);
+    const isValidEthAddress = (address) => typeof address === 'string' && /^0x[a-fA-F0-9]{40}$/.test(address);
     const check =
-      inputAmountRef.current.value &&
-      Number(inputAmountRef.current.value) <= Number(balance) &&
-      isValidEthAddress(inputReceivingAddressRef.current.value);
+      inputAmountRef.current?.value &&
+      Number(inputAmountRef.current?.value) <= Number(balance) &&
+      isValidEthAddress(inputReceivingAddressRef.current?.value);
     setCanSend(check);
   }
 

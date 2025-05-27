@@ -1,3 +1,4 @@
+/* eslint-disable */
 // @flow
 import React from 'react';
 import { useHistory } from 'react-router';
@@ -18,15 +19,18 @@ type Props = {
   theme: string,
   balance: number,
   experimentalUi: boolean,
+  doArDisconnect: () => void,
 };
 
 export default function BuyPage(props: Props) {
-  const { arWalletStatus, theme, balance, experimentalUi } = props;
-  const [targetWallet, setTargetWallet] = React.useState(undefined);
+  const { arWalletStatus, theme, balance, experimentalUi, doArDisconnect } = props;
+  // const [targetWallet, setTargetWallet] = React.useState(undefined);
   const {
     location: { search },
     push,
   } = useHistory();
+  const root = document?.documentElement ?? undefined;
+  if (!(root instanceof Element)) return;
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
 
@@ -36,11 +40,17 @@ export default function BuyPage(props: Props) {
 
   const rgbaToHex = (rgba) => {
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
-    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : ''}`;
+    return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${
+      a < 1
+        ? Math.round(a * 255)
+            .toString(16)
+            .padStart(2, '0')
+        : ''
+    }`;
   };
 
   const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
-    const [rB, gB, bB, aB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
+    const [rB, gB, bB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
     const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
 
     const r = Math.round(rB * (1 - aA) + rA * aA);
@@ -50,12 +60,16 @@ export default function BuyPage(props: Props) {
     return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
   };
 
-  const containerColor = `${rgbaToHexWithBackground(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim(), getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim())}`;
-  const primaryColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim());
-  const primaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim().slice(1);
-  const secondaryColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim());
-  const secondaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim().slice(1);
-  const cardColor = rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim());
+  const containerColor = `${rgbaToHexWithBackground(
+    getComputedStyle(root).getPropertyValue('--color-background').trim(),
+    getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim()
+  )}`;
+  const primaryColor = rgbaToHex(getComputedStyle(root).getPropertyValue('--color-primary').trim());
+  const primaryTextColor = getComputedStyle(root).getPropertyValue('--color-text').trim().slice(1);
+  const secondaryColor = rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim());
+  const secondaryTextColor = getComputedStyle(root).getPropertyValue('--color-text').trim().slice(1);
+  const cardColor = rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim());
+  // $FlowIgnore
   const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   const params = {
@@ -78,7 +92,7 @@ export default function BuyPage(props: Props) {
     cardColor,
     primaryBtnTextColor: 'ffffff',
     borderRadius: '0',
-    wgBorderRadius: '0'
+    wgBorderRadius: '0',
   };
 
   const iframeUri = `https://buy.onramper.dev?${new URLSearchParams(params).toString()}`;
@@ -95,27 +109,34 @@ export default function BuyPage(props: Props) {
   const currentView = urlParams.get(TAB_QUERY) || TABS.BUY;
 
   React.useEffect(() => {
-    if(theme){
+    if (theme) {
       setTimeout(() => {
         const iframe = iframeRef.current;
-        iframe.contentWindow.postMessage({
-          type: "change-theme",
-          id: "change-theme",
-          theme: {
-            containerColor: `#${rgbaToHexWithBackground(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim(), getComputedStyle(document.documentElement).getPropertyValue('--color-header-button').trim())}`,
-            primaryColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim())}`,
-            primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),
-            secondaryColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim())}`,
-            secondaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),
-            cardColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim())}`,
-            primaryBtnTextColor: '#ffffff',
-            borderRadius: '0rem',
-            widgetBorderRadius: '0rem',
+        iframe.contentWindow.postMessage(
+          {
+            type: 'change-theme',
+            id: 'change-theme',
+            theme: {
+              containerColor: `#${rgbaToHexWithBackground(
+                getComputedStyle(root).getPropertyValue('--color-background').trim(),
+                getComputedStyle(root).getPropertyValue('--color-header-button').trim()
+              )}`,
+              primaryColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-primary').trim())}`,
+              primaryTextColor: getComputedStyle(root).getPropertyValue('--color-text').trim(),
+              secondaryColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim())}`,
+              secondaryTextColor: getComputedStyle(root).getPropertyValue('--color-text').trim(),
+              cardColor: `#${rgbaToHex(getComputedStyle(root).getPropertyValue('--color-background').trim())}`,
+              primaryBtnTextColor: '#ffffff',
+              borderRadius: '0rem',
+              widgetBorderRadius: '0rem',
+            },
           },
-        }, "*");
+          '*'
+        );
       }, 1000);
     }
-  },[theme])
+    // $FlowIgnore
+  }, [theme]);
 
   let tabIndex;
   switch (currentView) {
@@ -169,45 +190,48 @@ export default function BuyPage(props: Props) {
           <TabPanels>
             <TabPanel>
               <>
-              <Card
-                className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`}
-                title={
-                  <>
-                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
-                    {arWalletStatus && (
-                      <Button
-                        button="primary"
-                        icon={ICONS.WANDER}
-                        label={__('Disconnect')}
-                        onClick={handleArConnectDisconnect}
+                <Card
+                  className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`}
+                  title={
+                    <>
+                      <Symbol token="usdc" amount={balance} precision={2} isTitle />
+                      {arWalletStatus && (
+                        <Button
+                          button="primary"
+                          icon={ICONS.WANDER}
+                          label={__('Disconnect')}
+                          onClick={handleArConnectDisconnect}
+                        />
+                      )}
+                    </>
+                  }
+                  background
+                  actions={
+                    <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
+                      <iframe
+                        ref={iframeRef}
+                        src={iframeUri}
+                        title="Onramper Widget"
+                        // height="630px"
+                        // width="420px"
+                        allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
                       />
-                    )}
-                  </>
-                }
-                background
-                actions={
-                  <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
-                    <iframe
-                      ref={iframeRef}
-                      src={iframeUri}
-                      title="Onramper Widget"
-                      // height="630px"
-                      // width="420px"
-                      allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
-                    />
+                    </div>
+                  }
+                />
+                {!arWalletStatus && (
+                  <div className="wallet">
+                    <WalletConnect />
                   </div>
-
-                }
-              />
-              {!arWalletStatus && (
-                <div className="wallet">
-                  <WalletConnect />
-                </div>
-              )}
+                )}
               </>
             </TabPanel>
             <TabPanel>
-            <ReceiveUsdc arWalletStatus={arWalletStatus} balance={balance} handleArConnectDisconnect={handleArConnectDisconnect} />
+              <ReceiveUsdc
+                arWalletStatus={arWalletStatus}
+                balance={balance}
+                handleArConnectDisconnect={handleArConnectDisconnect}
+              />
             </TabPanel>
           </TabPanels>
         </Tabs>

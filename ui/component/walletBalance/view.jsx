@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
-import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
+// import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -13,10 +13,9 @@ import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 // import WalletFiatBalance from 'component/walletFiatBalance';
-import { formatNumberWithCommas } from 'util/number';
+// import { formatNumberWithCommas } from 'util/number';
 import { LocalStorage } from 'util/storage';
 import { formatCredits } from 'util/format-credits';
-import Spinner from 'component/spinner';
 
 type Props = {
   experimentalUi: boolean,
@@ -25,7 +24,7 @@ type Props = {
   arStatus: any,
   arBalance: number,
   arUsdRate: number,
-  wanderAuth: string,
+  wanderAuth: any,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
@@ -53,7 +52,7 @@ const LARGE_WALLET_BALANCE = 100;
 
 const WalletBalance = (props: Props) => {
   const {
-    experimentalUi,
+    // experimentalUi,
     LBCBalance,
     // USDCBalance,
     wanderAuth,
@@ -71,7 +70,7 @@ const WalletBalance = (props: Props) => {
     massClaimIsPending,
     utxoCounts,
     // accountStatus,
-    fullArweaveStatus,
+    // fullArweaveStatus,
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
@@ -83,7 +82,7 @@ const WalletBalance = (props: Props) => {
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
   const { other: otherCount = 0 } = utxoCounts || {};
-  const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
+  // const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
   const [walletType, setWalletType] = React.useState(
@@ -114,12 +113,16 @@ const WalletBalance = (props: Props) => {
       window.wanderInstance.authInfo.authType !== 'null' &&
       window.wanderInstance.authInfo.authType !== type
     ) {
-      wanderInstance.authInfo.authType = type;
+      window.wanderInstance.authInfo.authType = type;
     }
-    if (!arStatus.connecting && wanderInstance.authInfo.authType === 'NATIVE_WALLET' && walletType === 'extension') {
+    if (
+      !arStatus.connecting &&
+      window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' &&
+      walletType === 'extension'
+    ) {
       doArConnect();
     }
-  }, [wanderAuth, walletType]);
+  }, [wanderAuth, walletType, doArConnect, arStatus.connecting]);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -257,6 +260,7 @@ const WalletBalance = (props: Props) => {
           }
         />
       </div>
+      {/*
       {showStablecoin && (
         <div className="column">
           <Card
@@ -299,6 +303,7 @@ const WalletBalance = (props: Props) => {
           />
         </div>
       )}
+      */}
       {/* ARWEAVE */}
       <div className="column">
         <Card
@@ -368,23 +373,31 @@ const WalletBalance = (props: Props) => {
                         </a>
                       ),
                       extension: (
-                        <a className="link" href="https://www.wander.app/download?tab=download-browser" target="_blank">
+                        <a
+                          className="link"
+                          rel="noreferrer"
+                          href="https://www.wander.app/download?tab=download-browser"
+                          target="_blank"
+                        >
                           install browser extension
                         </a>
                       ),
                       app: (
-                        <a className="link" href="https://www.wander.app/download?tab=download-mobile" target="_blank">
+                        <a
+                          className="link"
+                          rel="noreferrer"
+                          href="https://www.wander.app/download?tab=download-mobile"
+                          target="_blank"
+                        >
                           Wander Wallet app
                         </a>
                       ),
                     }}
                   >
-                    {`${isMobile 
-                      ? '%textM%' 
-                      : '%textD%'} %login%${
-                        !isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
-                          ? ' or %extension%.'
-                          : ' or get the %app%.'
+                    {`${isMobile ? '%textM% or get the %app%.' : '%textD%'} %login%${
+                      !isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
+                        ? ' or %extension%.'
+                        : ''
                     }`}
                   </I18nMessage>
                 </div>

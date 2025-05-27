@@ -1,5 +1,7 @@
 declare type MembershipListParams = {
-  channel_id: string,
+  id?: string,
+  channel_id?: string,
+  channel_claim_id: string,
 };
 
 declare type Perk = {
@@ -40,6 +42,8 @@ declare type SubscriptionPrice = {
   "currency": string, // 'AR' , 'USD'
   "frequency": string,
   "crypto_amount": string,
+  "transaction_amount": number,
+  "transaction_currency": string,
 }
 
 declare type MembershipSubscribeResponse = {
@@ -85,6 +89,8 @@ declare type MembershipSub = {
   },
   perks: Array<any>,
   payments: Array<PaymentDetails>,
+  name: string,
+  channel_claim_id: string,
 }
 
 // OLD
@@ -111,6 +117,7 @@ declare type MembershipSub = {
 // };
 
 declare type Membership = {
+  id: number,
   name: string,
   enabled: boolean,
   channel_claim_id: string,

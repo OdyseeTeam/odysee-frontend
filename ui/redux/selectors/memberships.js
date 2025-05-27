@@ -86,6 +86,7 @@ export const selectMonthlyIncomeForChannelId = createSelector(
 // -- Active Membership = auto_renew is enabled
 export const selectMyActiveMembershipsById = createSelector(
   selectMembershipMineData,
+  // $FlowIgnore
   (myMembershipsByCreatorId): MembershipMineDataByCreatorId => {
     if (!myMembershipsByCreatorId) return myMembershipsByCreatorId;
 
@@ -114,29 +115,41 @@ export const selectHasMembershipForMembershipId = (state: State, creatorId: stri
   const mine = selectMembershipMineData(state);
   const mineForCreator = mine[creatorId];
   if (!mineForCreator) return false;
-  const isSubscribed = !!mineForCreator.find((m) => m.membership.id === membershipId && (m.subscription.status === 'active' || (m.subscription.status ==='pending' && m.payments.some(p => p.status === 'submitted')))) || false;
+  const isSubscribed =
+    !!mineForCreator.find(
+      (m) =>
+        m.membership.id === membershipId &&
+        (m.subscription.status === 'active' ||
+          (m.subscription.status === 'pending' && m.payments.some((p) => p.status === 'submitted')))
+    ) || false;
   return isSubscribed;
 };
 
 export const selectMembershipMineForCreatorId = (state: State, creatorId: string) => {
   const mine = selectMembershipMineData(state);
   return mine[creatorId];
-}
+};
 
-export const selectMembershipMineForCreatorIdForMembershipId = (state: State, creatorId: string, membershipId: number) => {
+export const selectMembershipMineForCreatorIdForMembershipId = (
+  state: State,
+  creatorId: string,
+  membershipId: number
+) => {
   const mine = selectMembershipMineForCreatorId(state, creatorId);
   if (!mine) return false;
-  const membership = mine.find(m => m.membership.id === membershipId);
+  const membership = mine.find((m) => m.membership.id === membershipId);
   if (!membership) return false;
   return membership;
-}
+};
 
 // canceled if subscription.status === 'canceled'
 export const selectHasCanceledMembershipForMembershipId = (state: State, creatorId: string, membershipId: number) => {
   const mine = selectMembershipMineData(state);
   const mineForCreator = mine[creatorId];
   if (!mineForCreator) return false;
-  return !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'canceled') || false;
+  return (
+    !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'canceled') || false
+  );
 };
 
 // select cancelled membership is renewable
@@ -147,7 +160,14 @@ export const selectHasPendingMembershipForMembershipId = (state: State, creatorI
   const mine = selectMembershipMineData(state);
   const mineForCreator = mine[creatorId];
   if (!mineForCreator) return false;
-  return !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'pending' && !m.payments.some(p => p.status === 'submitted')) || false;
+  return (
+    !!mineForCreator.find(
+      (m) =>
+        m.membership.id === membershipId &&
+        m.subscription.status === 'pending' &&
+        !m.payments.some((p) => p.status === 'submitted')
+    ) || false
+  );
 };
 
 // -- Valid Membership = still in period_end date range
@@ -160,7 +180,10 @@ export const selectMyValidMembershipsById = createSelector(selectMembershipMineD
     const purchasedCreatorMemberships = myMembershipsByCreatorId[creatorChannelId];
 
     for (const membership of purchasedCreatorMemberships) {
-      if (membership.subscription.status !== 'past_due' && new Date(membership.subscription.ends_at).getTime() > Date.now()) {
+      if (
+        membership.subscription.status !== 'past_due' &&
+        new Date(membership.subscription.ends_at).getTime() > Date.now()
+      ) {
         validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
         validMembershipsById[creatorChannelId].add(membership);
         // $FlowFixMe
@@ -184,7 +207,9 @@ export const selectMyPurchasedMembershipsFromCreatorsById = (state: State) => {
 };
 export const selectMyPurchasedMembershipsFromCreators = createSelector(
   selectMyPurchasedMembershipsFromCreatorsById,
-  (myPurchasedCreatorMemberships) => myPurchasedCreatorMemberships && Object.values(myPurchasedCreatorMemberships).flat()
+  (myPurchasedCreatorMemberships) =>
+    myPurchasedCreatorMemberships &&
+    Object.values(myPurchasedCreatorMemberships).reduce((acc, val) => acc.concat(val), [])
 );
 
 export const selectMyActiveMembershipsForCreatorId = (state: State, id: string) => {
@@ -208,9 +233,9 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
 
 export const selectUserHasValidNonCanceledMembershipForCreatorId = (state: State, id: string) => {
   const validMemberships = selectMyValidMembershipsForCreatorId(state, id) || [];
-  const memberships = validMemberships.filter(m => m.subscription.status === 'active') // possibly 'pending'
+  const memberships = validMemberships.filter((m) => m.subscription.status === 'active'); // possibly 'pending'
   return Boolean(memberships && memberships.length > 0);
-}
+};
 
 export const selectUserHasValidOdyseeMembership = (state: State) =>
   selectUserHasValidMembershipForCreatorId(state, ODYSEE_CHANNEL.ID); // deprecated
@@ -371,10 +396,15 @@ export const selectAllMembershipTiersForChannelUri = (state: State, uri: string)
 export const selectMembershipTiersForChannelUri = (state: State, uri: string) => {
   const tiers = selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
   if (!tiers) return null;
-  return tiers.filter((tier) => tier.prices.some(p => p.address !== '') && tier.enabled); // handle monetization disabled
-}
+  // $FlowIgnore
+  return tiers.filter((tier) => tier.prices.some((p) => p.address !== '') && tier.enabled); // handle monetization disabled
+};
 
-export const selectTierIndexForCreatorIdAndMembershipId = (state: State, creatorId: string, membershipId: number): number | null => {
+export const selectTierIndexForCreatorIdAndMembershipId = (
+  state: State,
+  creatorId: string,
+  membershipId: number
+): number | null => {
   if (!state) return null;
   const memberships = selectMembershipTiersForCreatorId(state, creatorId);
 
@@ -388,7 +418,7 @@ export const selectTierIndexForCreatorIdAndMembershipId = (state: State, creator
 
   // Return the index + 1, or undefined if not found
   return index === -1 ? null : index + 1;
-}
+};
 
 export const selectOdyseeMembershipTiers = (state: State) =>
   selectMembershipTiersForCreatorId(state, ODYSEE_CHANNEL.ID);
@@ -399,9 +429,10 @@ export const selectCreatorMembershipsFetchedByUri = createSelector(
 );
 
 export const selectCreatorHasMembershipsByUri = createSelector(selectMembershipTiersForChannelUri, (memberships) =>
-  Boolean(memberships?.length > 0 && memberships.some(m => m.enabled = true))
+  Boolean(memberships?.length > 0 && memberships.some((m) => (m.enabled = true)))
 );
 
+// $FlowIgnore
 export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creatorId: string): MembershipTier => {
   const myPurchasedCreatorMemberships = selectMyPurchasedMembershipsForChannelClaimId(state, creatorId);
   if (!myPurchasedCreatorMemberships) return myPurchasedCreatorMemberships;
@@ -482,6 +513,7 @@ export const selectProtectedContentMembershipsForId = (state: State, claimId: Cl
 
   return (
     creatorMemberships &&
+    // $FlowIgnore
     creatorMemberships.filter((membership) => protectedContentMembershipIds.has(membership.membership_id)) // m.Membership.id
   );
 };
