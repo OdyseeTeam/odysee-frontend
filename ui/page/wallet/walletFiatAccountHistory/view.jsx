@@ -89,6 +89,15 @@ const WalletFiatAccountHistory = (props: Props) => {
   }
 
   function getTipAmount(transaction, currencySymbol) {
+    const rate = transaction.locked_rate;
+    if (rate) {
+      return (
+        <>
+          {currencySymbol}
+          {((transaction.tipped_amount / 100) * rate).toFixed(2)} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+        </>
+      );
+    }
     return (
       <>
         {currencySymbol}
@@ -107,6 +116,15 @@ const WalletFiatAccountHistory = (props: Props) => {
   }
 
   function getReceivedAmount(transaction, currencySymbol) {
+    const rate = transaction.locked_rate;
+    if (rate) {
+      return (
+        <>
+          {currencySymbol}
+          {((transaction.tipped_amount / 100) * rate).toFixed(2)} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+        </>
+      );
+    }
     return (
       <>
         {currencySymbol}
