@@ -415,7 +415,7 @@ export const doSetMembershipTiersForClaimId =
 
 export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_STARTED, data: channelClaimId });
-
+  // get membership tiers for channel
   await Lbryio.call(
     'membership',
     'content',
@@ -449,7 +449,7 @@ export const doMembershipContentForStreamClaimIds =
 
     dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_START, data: idsToFetch });
 
-    await Lbryio.call('paid_content', 'resolve', { claim_ids: claimIdsCsv }, 'post')
+    await Lbryio.call('membership_v2/member_content', 'resolve', { claim_ids: claimIdsCsv }, 'post')
       .then((response: MembershipContentResponse) => {
         dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS, data: response });
         return response;
@@ -488,7 +488,7 @@ export const doSaveMembershipRestrictionsForContent =
     });
 
     await Lbryio.call(
-      'paid_content',
+      'membership_v2/member_content',
       'modify',
       {
         claim_id: contentClaimId,
