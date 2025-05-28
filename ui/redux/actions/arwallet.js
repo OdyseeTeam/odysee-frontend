@@ -7,6 +7,7 @@ import {
   ARCONNECT_SUCCESS,
   ARCONNECT_DISCONNECT,
   ARCONNECT_FETCHBALANCE,
+  ARSETEXCHANGERATE,
   AR_TIP_STATUS_STARTED,
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
@@ -37,6 +38,33 @@ export const WALLET_PERMISSIONS = [
 const USD_TO_USDC = 1000000;
 const TWO_PLACES_TO_PENNIES = 100;
 export const ARCONNECT_TYPE = 'arConnect';
+
+const fetchARExchangeRate = async () => {
+  try {
+    const res = await Lbryio.call(
+      // : { data, success, error }
+      'arweave',
+      'exchange_rate',
+      {},
+      'post'
+    );
+    return res;
+  } catch (e) {
+    return 0;
+  }
+};
+
+
+export function doArInit() {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    try {
+      const arExchangeRate = await fetchARExchangeRate();
+      dispatch({ type: ARSETEXCHANGERATE, data: Number(arExchangeRate) });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+}
 
 export function doArConnect() {
   console.log('doArConnect')
@@ -298,29 +326,6 @@ export const doArTip = (
   };
 };
 
-/*
-const fetchUSDCBalance = async (address: string) => {
-  try {
-    const result = await dryrun({
-      process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
-      data: '',
-      tags: [{ name: 'Action', value: 'Balance' }],
-      Owner: address,
-    });
-    if (result && result.Messages && result.Messages[0]) {
-      const message = result?.Messages?.[0];
-      // $FlowIgnore
-      const balance = message?.Tags?.find((tag: any) => tag.name === 'Balance')?.value;
-      return balance ? Number(balance) / 1000000 : 0;
-    } else {
-      return 0;
-    }
-  } catch (e) {
-    console.error(e);
-    return 0;
-  }
-};
-*/
 
 function getBalanceEndpoint(wallet: string) {
   return `https://arweave.net/wallet/${wallet}/balance`;
@@ -335,21 +340,6 @@ const fetchARBalance = async (address: string) => {
   } catch (e) {
     console.error(e);
     return -1;
-  }
-};
-
-const fetchARExchangeRate = async () => {
-  try {
-    const res = await Lbryio.call(
-      // : { data, success, error }
-      'arweave',
-      'exchange_rate',
-      {},
-      'post'
-    );
-    return res;
-  } catch (e) {
-    return 0;
   }
 };
 

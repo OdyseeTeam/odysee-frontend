@@ -102,6 +102,11 @@ reducers[ACTIONS.WANDER_AUTH] = (state, action) => {
   return { ...state, auth: action.data };
 };
 
+reducers[ACTIONS.ARSETEXCHANGERATE] = (state, action) => {  
+  console.log('action: ', action)
+  return { ...state, exchangeRates: { ar: action.data }};
+};
+
 export default function arwalletReducer(state: ArWalletState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
