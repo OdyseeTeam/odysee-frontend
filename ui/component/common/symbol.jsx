@@ -17,7 +17,7 @@ type Props = {
 const Symbol = (props: Props) => {
   const { token, chain, amount = null, precision = 8, size, isTitle = false } = props;
   const displayAmount = Number(amount).toFixed(precision);
-  const displayLabel = token !== 'wallet' && token !== null ? ` ${token?.toUpperCase()}` : null;
+  const displayLabel = token !== 'wallet' && token !== null ? ` ${token?.toUpperCase()}` : token === 'wallet' ? ' AR' : null;
 
   return (
     <>
