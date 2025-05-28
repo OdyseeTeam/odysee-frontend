@@ -18,6 +18,7 @@ import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doOpenModal } from './app';
 // $FlowIgnore
 import { Dispatch } from 'react';
+import { LocalStorage } from 'util/storage';
 import arweave from 'util/arweave';
 const gFlags = {
   arconnectWalletSwitchListenerAdded: false,
@@ -39,6 +40,7 @@ export const ARCONNECT_TYPE = 'arConnect';
 
 export function doArConnect() {
   console.log('doArConnect')
+  LocalStorage.setItem('WANDER_DISCONNECT', false);
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
@@ -129,8 +131,7 @@ export function doArUpdateBalance() {
 }
 
 export function doArDisconnect() {
-  // window.wanderInstance.authInfo = {};
-  console.log('doArDisconnect: ', window.wanderInstance)  
+  LocalStorage.setItem('WANDER_DISCONNECT', true)
 
   return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_STARTED });

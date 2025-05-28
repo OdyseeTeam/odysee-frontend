@@ -107,7 +107,6 @@ const WalletBalance = (props: Props) => {
 
   React.useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
-    console.log('type: ', type)
     setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded');
     if (
       !window.wanderInstance.authInfo.authType &&
@@ -121,12 +120,7 @@ const WalletBalance = (props: Props) => {
       (window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance.authInfo.authType === 'nul')&&
       walletType === 'extension'
     ) {
-      console.log('A')
       doArConnect();
-    }else{
-      console.log('=== B')
-      console.log('window.authType: ', window.wanderInstance.authInfo.authType)
-      console.log('walletType: ', walletType)
     }
     // $FlowIgnore
   }, [wanderAuth, walletType]);
