@@ -178,7 +178,7 @@ export default function ModalAnnouncements(props: Props) {
       { /* don't bother showing register unless you're showing a 2nd+ address */ }
       {hasArweaveEntry && !apiEntryWithAddress && <RegisterCard />}
       {apiEntryWithAddress && defaultApiAddress !== walletAddress && <MakeDefaultCard />}
-      {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />}
+      {/* {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />} */}
     </Modal>
   );
 }
