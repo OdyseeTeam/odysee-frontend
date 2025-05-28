@@ -28,15 +28,15 @@ export default function Wander(props: Props) {
         // Connected
         if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
           // Has backup
-          console.log('FIX THIS RECONNECT: ', window.wanderInstance)
-          connectArWallet();
+          const autoconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? false : true;
+          if(autoconnect) connectArWallet();
         } else if (!window.wanderInstance.balanceInfo){
           // Missing backup
           window.wanderInstance.open();
         }
       }
     }
-  }, [auth, arweaveAddress, connecting, connectArWallet, instance]);
+  }, [auth]);
 
   React.useEffect(() => {
     const wanderInstance = new WanderConnect({
@@ -141,16 +141,15 @@ export default function Wander(props: Props) {
       window.addEventListener('message', (event) => {
         const data = event.data;
         if (data && data.id && !data.id.includes('react')) {
-          console.log('message data: ', data);
           if (data.type === 'embedded_auth') {
-            if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null')) {
+            if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null' && data.data.authType !== null)) {
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+              LocalStorage.setItem('WANDER_DISCONNECT', false);
               window.wanderInstance.close();
               doArSetAuth(data.data);
             }
           }
           if (data.type === 'embedded_request') {
-            console.log('data: ', data);
             window.wanderInstance.close();
             window.wanderInstance.open();
           }
@@ -161,8 +160,9 @@ export default function Wander(props: Props) {
       });
 
       return () => {
-        window.removeEventListener('arweaveWalletLoaded');
-        window.removeEventListener('message');
+        const handler = () => {}
+        window.removeEventListener('arweaveWalletLoaded', handler);
+        window.removeEventListener('message', handler);
       };
     }
   }, [instance, doArSetAuth]);
