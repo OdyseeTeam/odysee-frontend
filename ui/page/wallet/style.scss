@@ -171,3 +171,41 @@
     }
   }
 }
+
+
+// tmp
+.tmp-lbc-announcement{
+  position:relative;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background:rgba(78, 208, 205,.2);
+  border:1px solid rgba(78, 208, 205, 0.507);
+  width:100%;
+  margin-bottom:var(--spacing-s);
+  padding:var(--spacing-s);
+  border-radius:var(--border-radius);
+  overflow:hidden;
+
+  img{
+    position:absolute;
+    left:0;
+    border-right: 1px solid rgba(78, 208, 205, 0.507);
+    background:rgba(78, 208, 205, 1);
+  }
+  
+  h3{
+    display:flex;
+    align-items: center;
+    font-weight:900;
+
+    svg{
+      margin-bottom:2px;  
+      margin-right:var(--spacing-xxs);
+      width:20px;
+      height:20px;
+    }
+    
+  }
+}

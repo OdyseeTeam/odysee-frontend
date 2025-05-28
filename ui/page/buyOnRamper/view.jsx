@@ -198,8 +198,7 @@ export default function BuyPage(props: Props) {
                       {arWalletStatus && (
                         <Button
                           button="primary"
-                          icon={ICONS.WANDER}
-                          label={__('Disconnect')}
+                          label={__('Disconnect Wallet')}
                           onClick={handleArConnectDisconnect}
                         />
                       )}

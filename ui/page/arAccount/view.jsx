@@ -77,7 +77,7 @@ function ArAccountPage(props: Props) {
           <Icon icon={ICONS.REFRESH} />
         </div>
         {arWalletStatus && (
-          <Button button="alt" icon={ICONS.WANDER} label={__('Disconnect')} onClick={handleArConnectDisconnect} />
+          <Button button="alt" label={__('Disconnect Wallet')} onClick={handleArConnectDisconnect} />
         )}
       </>
     );

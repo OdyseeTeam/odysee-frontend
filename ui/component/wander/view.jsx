@@ -131,7 +131,7 @@ export default function Wander(props: Props) {
     if (instance) {
       const isWanderApp = navigator.userAgent.includes('WanderMobile');
       if (isWanderApp) {
-        window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';
+        window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';        
         LocalStorage.setItem('WALLET_TYPE', 'NATIVE_WALLET');
       }
       doArSetAuth(instance.authInfo);
@@ -141,9 +141,9 @@ export default function Wander(props: Props) {
       window.addEventListener('message', (event) => {
         const data = event.data;
         if (data && data.id && !data.id.includes('react')) {
-          console.log('message data: ', data);
           if (data.type === 'embedded_auth') {
-            if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null')) {
+            if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null' && data.data.authType !== null)) {
+              console.log('SET WALLET_TYPE:', data.data.authType)
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
               window.wanderInstance.close();
               doArSetAuth(data.data);
@@ -161,8 +161,9 @@ export default function Wander(props: Props) {
       });
 
       return () => {
-        window.removeEventListener('arweaveWalletLoaded');
-        window.removeEventListener('message');
+        const handler = () => {}
+        window.removeEventListener('arweaveWalletLoaded', handler);
+        window.removeEventListener('message', handler);
       };
     }
   }, [instance, doArSetAuth]);

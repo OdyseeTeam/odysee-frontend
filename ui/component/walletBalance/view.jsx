@@ -107,6 +107,7 @@ const WalletBalance = (props: Props) => {
 
   React.useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
+    console.log('type: ', type)
     setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded');
     if (
       !window.wanderInstance.authInfo.authType &&
@@ -117,18 +118,55 @@ const WalletBalance = (props: Props) => {
     }
     if (
       !arStatus.connecting &&
-      window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' &&
+      (window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance.authInfo.authType === 'nul')&&
       walletType === 'extension'
     ) {
+      console.log('A')
       doArConnect();
+    }else{
+      console.log('=== B')
+      console.log('window.authType: ', window.wanderInstance.authInfo.authType)
+      console.log('walletType: ', walletType)
     }
-  }, [wanderAuth, walletType, doArConnect, arStatus.connecting]);
+    // $FlowIgnore
+  }, [wanderAuth, walletType]);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
+
+
+  /*
+  React.useEffect(() => {    
+    (async () => {
+      if(hasConnection){
+        console.log('hasConnection: ', hasConnection)
+        const tokens = await window.arweaveWallet.userTokens();
+        console.log("Tokens owned by the user:", tokens);
+        try {
+          const tokenId = tokens[0].processId
+          console.log('tokenId: ', tokenId)
+          const balance = await window.arweaveWallet.tokenBalance(tokenId);
+          console.log(`Balance of the token with ID ${tokenId}:`, balance);
+        } catch (error) {
+          console.error("Error fetching token balance:", error);
+        }
+      }      
+    })()
+  }, [hasConnection])
+  */
+
+  const handleSignIn = () => {
+    const showModal = LocalStorage.getItem('CRYPTO_DISCLAIMERS') 
+      ? LocalStorage.getItem('CRYPTO_DISCLAIMERS') === 'true'
+        ? true
+        : false
+      : true;
+    if(showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS)
+    else window.wanderInstance.open();
+  }
 
   return (
     <div className={'columns'}>
@@ -309,11 +347,11 @@ const WalletBalance = (props: Props) => {
         <Card
           title={
             !hasArConnection ? (
-              <Symbol token="wander" amount="Wander" />
+              <Symbol token="wallet" amount="0" />
             ) : (
               <>
                 <Symbol token="ar" amount={arBalance} precision={6} isTitle />
-                <Button button="alt" icon={ICONS.WANDER} label={__('Disconnect')} onClick={() => doArDisconnect()} />
+                <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect()} />
               </>
             )
           }
@@ -353,21 +391,18 @@ const WalletBalance = (props: Props) => {
                     tokens={{
                       textD: (
                         <p>
-                          To use AR on Odysee, you have to sign into your Wander account or use the Wander browser
-                          extension.
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
                         </p>
                       ),
                       textM: (
                         <p>
-                          To use AR on Odysee, you have to sign into your Wander account or use the Wander Wallet app.
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
                         </p>
                       ),
                       login: (
                         <a
                           className="link"
-                          onClick={() => {
-                            window.wanderInstance.open();
-                          }}
+                          onClick={handleSignIn}
                         >
                           Sign in
                         </a>

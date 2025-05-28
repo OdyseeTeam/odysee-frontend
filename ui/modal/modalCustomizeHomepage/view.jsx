@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import './style.scss';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
@@ -8,6 +7,7 @@ import HomepageSort from 'component/homepageSort';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import { Modal } from 'modal/modal';
+import './style.scss';
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
