@@ -1,12 +1,32 @@
 .walletTipSelector__input {
+  position:relative;
   margin: var(--spacing-s) 0;
   display: flex;
+  flex-direction: column;
   > span {
     margin-left: var(--spacing-s);
   }
 
   fieldset-section {
     position: relative;
+
+    .arInput-wrapper{
+      position:relative;
+
+      span{
+        position:absolute;
+        display:flex;
+        margin:0;
+        top:0;
+        bottom:0;
+        align-items: center;
+        left: var(--spacing-xs);
+        font-size: inherit;
+        font-weight: inherit;
+      }
+    }
+
+
     label[for='tip-input'] {
       position: absolute;
       display:flex;
@@ -25,9 +45,11 @@
       padding-left: 22px;
     }
     div {
+      // position:absolute;
       label[for='tip-input'] {
         position: unset;
         background: unset;
+        // background:red;
       }
     }
   }
@@ -35,5 +57,6 @@
 
 .walletTipSelector__input-conversion {
   height: 100%;
-  margin: auto;
+  margin:0 !important;
+  // margin: auto;
 }

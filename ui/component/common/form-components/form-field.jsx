@@ -399,24 +399,27 @@ export class FormField extends React.PureComponent<Props, State> {
                 <div>
                   <Label {...labelProps} errorMessage={errorMessage} />
                   {inputElementProps.maxLength && typeof inputElementProps.value === 'string' && (
-                    <label
+                    <label                    
                       className={
                         Number(inputElementProps.maxLength) - String(inputElementProps.value).length > 0
                           ? 'input-max-counter'
                           : 'input-max-counter-error'
                       }
                     >
+                      <div>kjhk</div>
                       {Number(inputElementProps.maxLength) - String(inputElementProps.value).length}
                     </label>
                   )}
                 </div>
               )}
 
+              {/*
               {prefix && (
                 <label htmlFor={name} className={disabled || error ? 'disabled' : ''}>
                   {prefix}
                 </label>
               )}
+                */}
 
               {inputButton ? (
                 <input-submit>
@@ -424,7 +427,7 @@ export class FormField extends React.PureComponent<Props, State> {
                   {inputButton}
                 </input-submit>
               ) : (
-                inputElem || <input {...inputElementProps} />
+                inputElem || !prefix ? <input {...inputElementProps}/> : <div className="arInput-wrapper"><span>{prefix}</span><input {...inputElementProps}/></div>
               )}
             </fieldset-section>
           </FormFieldWrapper>

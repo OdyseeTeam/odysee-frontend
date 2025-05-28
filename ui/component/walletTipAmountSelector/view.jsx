@@ -78,7 +78,6 @@ function WalletTipAmountSelector(props: Props) {
   const dollarsPerArToUse = exchangeRateOverride || dollarsPerAr;
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
-
   const amountInArEstimated = (amount / dollarsPerArToUse).toFixed(6);
 
   const tipAmountsToDisplay =
@@ -309,7 +308,7 @@ function WalletTipAmountSelector(props: Props) {
 
       {/* custom number input form */}
       {useCustomTip && (
-        <div className="walletTipSelector__input">
+        <div className="walletTipSelector__input">          
           <FormField
             autoFocus={!isMobile}
             name="tip-input"
@@ -325,11 +324,11 @@ function WalletTipAmountSelector(props: Props) {
             value={amount}
             onChange={(event) => handleCustomPriceChange(event.target.value)}
           />{' '}
-          {activeTab === TAB_USD && dollarsPerArToUse && dollarsPerArToUse > 0 && (
+          {activeTab === TAB_USD ? (
             <span className={'walletTipSelector__input-conversion help'}>
               ({amountInArEstimated} AR)
             </span>
-          )}
+          ) : ''}
         </div>
       )}
       {activeTab === TAB_USDC &&
