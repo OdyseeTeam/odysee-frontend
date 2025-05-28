@@ -243,13 +243,11 @@ export const selectUserHasValidOdyseeMembership = (state: State) =>
 export const selectMyValidMembershipIds = createSelector(selectMyValidMembershipsById, (validMembershipsById) => {
   const validMembershipIds = new Set([]);
 
-  for (const creatorId in validMembershipsById) {
-    const memberships = validMembershipsById[creatorId];
-
-    for (const membership of memberships) {
-      validMembershipIds.add(membership.membership_id);
-    }
-  }
+  Object.entries(validMembershipsById).forEach(([key, value]) => {
+    value.forEach((value) => {
+      validMembershipIds.add(value.membership.id);
+    })
+  })
 
   // $FlowFixMe
   return validMembershipIds.size ? Array.from(validMembershipIds) : null;
@@ -485,7 +483,7 @@ export const selectUserValidMembershipForChannelUri = createSelector(
 export const selectProtectedContentMembershipsForClaimId = (state: State, channelId: string, claimId: string) => {
   const protectedClaimsById = selectProtectedContentClaimsForId(state, channelId);
 
-  return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
+  return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships; // array of mids ['1234']
 };
 export const selectProtectedContentMembershipsForContentClaimId = (state: State, claimId: string) => {
   const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
@@ -525,8 +523,8 @@ export const selectMyProtectedContentMembershipForId = createSelector(
     if (!protectedContentMemberships) return protectedContentMemberships;
 
     const validMembershipIdsSet = new Set(validMembershipIds);
-    const myMembership = protectedContentMemberships.find((membership) =>
-      validMembershipIdsSet.has(membership.membership_id)
+    const myMembership = protectedContentMemberships.some((m) =>
+      validMembershipIdsSet.has(m.membership_id)
     );
     if (!myMembership) return null;
 
@@ -535,7 +533,7 @@ export const selectMyProtectedContentMembershipForId = createSelector(
 );
 
 export const selectUserIsMemberOfProtectedContentForId = (state: State, claimId: ClaimId) =>
-  Boolean(selectMyProtectedContentMembershipForId(state, claimId));
+  selectMyProtectedContentMembershipForId(state, claimId);
 
 export const selectNoRestrictionOrUserIsMemberForContentClaimId = (state: State, claimId: ClaimId) => {
   const protectedContentMemberships = selectContentHasProtectedMembershipIds(state, claimId);
