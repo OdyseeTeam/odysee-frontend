@@ -123,13 +123,16 @@ function Overview(props: Props) {
                 <div className="payment-options-content">
                   <div className="payment-option">
                     <div className="payment-option__monetization">
-                      {__('Allow monetization')}{' '}
+                      <div className="payment-option__labels">
+                        <h3>{__('Allow monetization')}</h3>
+                        <span>{__('Turning this on enables your account(s) to receive tips and setup memberships.')}</span>
+                      </div>
                       <ButtonToggle
                         status={account?.status === 'active'}
                         setStatus={handlemonetizationToggle}
                         busy={accountUpdating}
                       />
-                    </div>
+                    </div>                    
                   </div>
                 </div>
               </div>
