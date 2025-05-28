@@ -63,10 +63,21 @@
 
       .toggle-wrapper {
         margin-left: auto;
+        min-width:40px;
       }
 
       &:last-of-type {
         margin-bottom: 0;
+      }
+
+      .payment-option__labels{
+        display:flex;
+        flex-direction: column;
+        span{
+          display:inline-block;
+          font-size:var(--font-xsmall);
+          opacity:.6;
+        }
       }
     }
   }
@@ -82,7 +93,7 @@
     gap: var(--spacing-s);
 
     .payment-option {
-      flex: unset;
+      flex: 1;
     }
   }
 
@@ -125,7 +136,11 @@
     }
 
     .sendAr-row__send {
-      margin-top: var(--spacing-s);
+      margin-top: auto;
+
+      @media (max-width: $breakpoint-medium) {
+        margin-top: var(--spacing-m);
+      }
     }
   }
 
