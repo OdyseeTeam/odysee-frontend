@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-
+import Symbol from 'component/common/symbol';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 
 import * as ICONS from 'constants/icons';
