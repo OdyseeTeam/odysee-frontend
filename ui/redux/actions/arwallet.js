@@ -363,7 +363,7 @@ export const sendWinstons = async (
     await arweave.transactions.sign(transaction);
 
     const { id } = transaction;
-    // const res = await arweave.transactions.post(transaction);
+    await arweave.transactions.post(transaction);
     return id;
   } catch (e) {
     console.error('ERROR', e);
