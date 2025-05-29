@@ -38,12 +38,30 @@ const MembershipTier = (props: Props) => {
     exchangeRate,
   } = props;
 
+  // TODO: develop getMembershipStatus(membershipSub) util function:
+  /*
+  using membership.status, payments[len-1].status, renewal date, current date
+  States:
+    No membership
+    Membership intent pending, payments[]
+    Membership pending, payments[0] status submitted
+    Membership active, payments[0] status paid
+    Membership earliest renewal date reached
+    Membership active, payments[1] status submitted
+    Membership active, payments[1] status paid
+    Membership lapsed
+    Membership payment intent sent - pending?
+    Membership lapsed, payments[2] status submitted
+    Membership active, payments[2] status paid
+   */
+  const hasPayment = thisMembership.payments.length > 0;
+
   const getMembershipAction = () => {
     if (isActive) {
       return (<div className={'help'}>Currently Subscribed!</div>);
     }
 
-    if (isPending) {
+    if (isPending && hasPayment) {
       return (
         <div className={'help'}>Currently Subscribed! (Pending Confirmation)</div>
       );

@@ -19,6 +19,12 @@ export type MembershipsState = {
   membershipOdyseePerks: Array<MembershipOdyseePerk>,
   listingAllMyTiers: ?boolean,
   claimMembershipTiersFetchingIds: Array<string>,
+  membershipPaymentsIncoming: Array<any>,
+  membershipPaymentsIncomingFetching: boolean,
+  membershipPaymentsIncomingError?: string,
+  membershipPaymentsOutgoing: Array<any>,
+  membershipPaymentsOutgoingFetching: boolean,
+  membershipPaymentsOutgoingError?: string,
 };
 
 const defaultState: MembershipsState = {
@@ -37,6 +43,12 @@ const defaultState: MembershipsState = {
   membershipOdyseePerks: [],
   listingAllMyTiers: undefined,
   claimMembershipTiersFetchingIds: [],
+  membershipPaymentsIncoming: [],
+  membershipPaymentsIncomingFetching: false,
+  membershipPaymentsIncomingError: '',
+  membershipPaymentsOutgoing: [],
+  membershipPaymentsOutgoingFetching: false,
+  membershipPaymentsOutgoingError: '',
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
@@ -257,6 +269,30 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => 
   }
 
   return { ...state, protectedContentClaimsByCreatorId: newProtectedContentClaims };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_INCOMING_STARTED] = (state) => {
+  return { ...state, membershipPaymentsIncomingFetching: true, membershipPaymentsIncomingError: '' };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL] = (state, action) => {
+  return { ...state, membershipPaymentsIncoming: action.data, membershipPaymentsIncomingFetching: false };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED] = (state, action) => {
+  return { ...state, membershipPaymentsIncomingFetching: false, membershipPaymentsIncomingError: action.data };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_OUTGOING_STARTED] = (state) => {
+  return { ...state, membershipPaymentsOutgoingFetching: true, membershipPaymentsOutgoingError: '' };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_OUTGOING_SUCCESSFUL] = (state, action) => {
+  return { ...state, membershipPaymentsOutgoingFetching: false, membershipPaymentsOutgoing: action.data };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_OUTGOING_FAILED] = (state, action) => {
+  return { ...state, membershipPaymentsOutgoingFetching: false, membershipPaymentsOutgoingError: '' };
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE] = (state, action) => {

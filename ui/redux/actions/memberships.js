@@ -276,6 +276,35 @@ export const doMembershipCancelForMembershipId =
       });
   };
 
+export const doMembershipFetchIncomingPayments = () => async (dispatch: Dispatch) => {
+  // start
+  dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_STARTED });
+  try {
+    const inboundTransactions = await Lbryio.call('membership_v2/transactions', 'inbound', {}, 'post');
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL, data: inboundTransactions });
+  } catch (error) {
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED, data: error.message || error });
+    console.log('error', error.message || error);
+  }
+};
+
+export const doMembershipFetchOutgoingPayments = () => async (dispatch: Dispatch) => {
+  // start
+  dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_STARTED });
+  try {
+    const outboundTransactions = await Lbryio.call('membership_v2/transactions', 'outbound', {}, 'post');
+    const channelsToResolve = new Set([]);
+    const outboundTransactions.forEach(t => {
+      channelsToResolve.add(t.creator_channel_claim_id);
+      channelsToResolve.add(t.subscriber_channel_claim_id);
+    })
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL, data: outboundTransactions });
+  } catch (error) {
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED, data: error.message || error });
+    console.log('error', error.message || error);
+  }
+};
+
 export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership_v2', 'create', { ...params }, 'post')
     .then((response: MembershipCreateResponse) => ({ response: response }))
