@@ -19,6 +19,7 @@ type Props = {
   doToast: (params: { message: string }) => void,
   doDeactivateMembershipForId: (membershipId: number) => Promise<Membership>,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
+  exchangeRate: { ar: number },
 };
 
 function MembershipTier(props: Props) {
@@ -33,6 +34,7 @@ function MembershipTier(props: Props) {
     doToast,
     doDeactivateMembershipForId,
     doMembershipList,
+    exchangeRate,
   } = props;
 
   return (
@@ -96,7 +98,7 @@ function MembershipTier(props: Props) {
 
       <div className="membership-tier__infos">
         <label>{__('Pledge')}</label>
-        <span>${(membership?.prices[0].amount / 100).toFixed(2)}</span> {/* the ui basically supports monthly right now */}
+        <span>${(membership?.prices[0].amount / 100).toFixed(2)} (<Symbol token="ar" amount={(membership?.prices[0].amount / 100).toFixed(2) / exchangeRate.ar} />)</span> {/* the ui basically supports monthly right now */}
 
         <label>{__('Description ')}</label>
         <span className="membership-tier__description">{membership.description}</span>
