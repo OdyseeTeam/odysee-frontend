@@ -18,6 +18,7 @@ type Props = {
   userHasCreatorMembership: boolean, // here
   doOpenCancelationModalForMembership: (string, ?boolean) => void,
   thisMembership: Membership[],
+  exchangeRate: { ar: number },
 };
 
 const MembershipTier = (props: Props) => {
@@ -34,6 +35,7 @@ const MembershipTier = (props: Props) => {
     userHasCreatorMembership,
     doOpenCancelationModalForMembership,
     thisMembership,
+    exchangeRate,
   } = props;
 
   const getMembershipAction = () => {
@@ -102,6 +104,7 @@ const MembershipTier = (props: Props) => {
         headerAction={
           getMembershipAction()
         }
+        exchangeRate={exchangeRate}
       />
     </div>
   );

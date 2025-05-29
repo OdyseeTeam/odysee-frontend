@@ -2,13 +2,13 @@
 import React from 'react';
 
 import * as STRIPE from 'constants/stripe';
-
 import BusyIndicator from 'component/common/busy-indicator';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import ErrorBubble from 'component/common/error-bubble';
 import I18nMessage from 'component/i18nMessage';
 import { Submit } from 'component/common/form';
+import Symbol from 'component/common/symbol';
 
 type Props = {
   selectedCreatorMembership: CreatorMembership,
@@ -40,6 +40,7 @@ const ConfirmationPage = (props: Props) => {
 
   const { ar: arBalance } = balance;
   const { ar: dollarsPerAr } = exchangeRate;
+  console.log('exchangeRate: ', exchangeRate)
 
   const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
 
@@ -62,7 +63,7 @@ const ConfirmationPage = (props: Props) => {
       <section>
         <label>{__('Total Monthly Cost')}</label>
         <span className="total-membership-price">
-          <span className="total">${total}</span>
+          <span className="total">${total} (<Symbol token="ar" amount={total / exchangeRate.ar} />)</span>
         </span>
       </section>
       {selectedCreatorMembership.perks && selectedCreatorMembership.perks.length > 0 && (

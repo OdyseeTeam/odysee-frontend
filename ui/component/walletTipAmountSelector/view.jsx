@@ -70,6 +70,7 @@ function WalletTipAmountSelector(props: Props) {
     arExchangeRate,
     exchangeRateOverride,
   } = props;
+  
 
   const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();

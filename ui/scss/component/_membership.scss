@@ -280,6 +280,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  list-style: none;
 
   ul {
     display: flex;
@@ -300,7 +301,7 @@
           max-height: calc(180px * 3 / 4);
         }
       }
-    }
+    }      
   }
 
   li {
