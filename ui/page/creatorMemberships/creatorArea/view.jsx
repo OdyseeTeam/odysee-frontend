@@ -20,13 +20,14 @@ import { FormField } from 'component/common/form';
 const OverviewTab = lazyImport(() => import('./internal/overviewTab' /* webpackChunkName: "overviewTab" */));
 const TiersTab = lazyImport(() => import('./internal/tiersTab' /* webpackChunkName: "tiersTab" */));
 const SupportersTab = lazyImport(() => import('./internal/supportersTab' /* webpackChunkName: "supportersTab" */));
-
+const PaymentsTab = lazyImport(() => import('./internal/paymentsTab'));
 const TAB_QUERY = 'tab';
 
 const TABS = {
   OVERVIEW: 'overview',
   SUPPORTERS: 'supporters',
   TIERS: 'tiers',
+  PAYMENTS: 'payments',
 };
 
 type Props = {
@@ -93,6 +94,9 @@ const CreatorArea = (props: Props) => {
     case TABS.TIERS:
       tabIndex = 2;
       break;
+    case TABS.PAYMENTS:
+      tabIndex = 3;
+      break;
   }
 
   function onTabChange(newTabIndex) {
@@ -104,6 +108,8 @@ const CreatorArea = (props: Props) => {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
     } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.TIERS}`;
+    } else if (newTabIndex === 3) {
+      url += `${TAB_QUERY}=${TABS.PAYMENTS}`;
     }
     push(url);
   }
@@ -126,6 +132,7 @@ const CreatorArea = (props: Props) => {
           <Tab>{__('Overview')}</Tab>
           <Tab>{__('My Supporters')}</Tab>
           <Tab>{__('My Tiers')}</Tab>
+          <Tab>{__('Payments')}</Tab>
           <div className="no-after">
             <Tab>
               <Button
@@ -194,6 +201,41 @@ const CreatorArea = (props: Props) => {
                   {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
 
                   <TiersTab showDisabled={showDisabled} />
+                </>
+              }
+            />
+          </TabPanel>
+          <TabPanel>
+            <TabWrapper
+              component={
+                <>
+                  <div className="create-tiers-header-buttons">
+                    <div className="create-tiers-channel-selector">
+                      <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
+                      <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                    </div>
+
+                    <div className="create-tiers-preview-button">
+                      <span className="section__subtitle ">{__('Preview your tiers')}</span>
+                      <br />
+                      <Button
+                        navigate={`${formatLbryUrlForWeb(activeChannelClaim?.canonical_url)}?view=membership`}
+                        label={__('See Your Memberships')}
+                        icon={ICONS.BACK}
+                        button="secondary"
+                      />
+                      <FormField
+                        label={__('Show Disabled')}
+                        name="show_disabled"
+                        type="checkbox"
+                        checked={showDisabled}
+                        onChange={() => setShowDisabled(!showDisabled)}
+                      />
+                    </div>
+                  </div>
+                  {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
+
+                  <PaymentsTab showDisabled={showDisabled} />
                 </>
               }
             />

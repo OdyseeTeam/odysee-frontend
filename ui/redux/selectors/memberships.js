@@ -665,3 +665,27 @@ export const selectChannelHasMembershipTiersForId = (state: State, channelId: st
   const memberships = selectMembershipTiersForCreatorId(state, channelId);
   return memberships && memberships.length > 0;
 };
+
+export const selectMembershipTxIncoming = (state) => {
+  return  selectState(state).membershipPaymentsIncoming;
+}
+
+export const selectMembershipTxIncomingFetching = (state) => {
+  return  selectState(state).membershipPaymentsIncomingFetching;
+}
+
+export const selectMembershipTxIncomingError = (state) => {
+  return  selectState(state).membershipPaymentsIncomingError;
+}
+
+export const selectMembershipTxOutgoing = (state) => {
+  return  selectState(state).membershipPaymentsOutgoing;
+}
+
+export const selectMembershipTxOutgoingFetching = (state) => {
+  return  selectState(state).membershipPaymentsOutgoingFetching;
+}
+
+export const selectMembershipTxOutgoingError = (state) => {
+  return  selectState(state).membershipPaymentsOutgoingError;
+}

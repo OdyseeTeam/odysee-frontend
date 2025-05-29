@@ -6,6 +6,7 @@ import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { doGetMembershipPerks, doDeactivateMembershipForId } from 'redux/actions/memberships';
 import { doToast } from 'redux/actions/notifications';
 import TiersTab from './view';
+import { selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -15,6 +16,7 @@ const select = (state, props) => {
     channelMemberships: activeChannelClaim && selectMembershipTiersForCreatorId(state, activeChannelClaim.claim_id), //
     activeChannelClaim,
     membershipOdyseePermanentPerks: selectMembershipOdyseePermanentPerks(state),
+    exchangeRate: selectArweaveExchangeRates(state),
   };
 };
 

@@ -20,6 +20,7 @@ type Props = {
   membershipOdyseePermanentPerks: MembershipOdyseePerks,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>,
   showDisabled: boolean,
+  exchangeRate: { [key: string]: number };
 };
 
 function TiersTab(props: Props) {
@@ -31,6 +32,7 @@ function TiersTab(props: Props) {
     membershipOdyseePermanentPerks,
     doGetMembershipPerks,
     showDisabled,
+    exchangeRate,
   } = props;
 
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
