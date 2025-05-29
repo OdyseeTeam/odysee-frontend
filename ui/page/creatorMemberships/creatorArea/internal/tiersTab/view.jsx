@@ -158,6 +158,7 @@ function TiersTab(props: Props) {
                     hasSubscribers={hasSubscribers}
                     addEditingId={() => addEditingForMembershipId(membershipId)}
                     removeMembership={() => removeChannelMembershipForId(membershipId)}
+                    exchangeRate={exchangeRate}
                   />
                 )}
               </div>

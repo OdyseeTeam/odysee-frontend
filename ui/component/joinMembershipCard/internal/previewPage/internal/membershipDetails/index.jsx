@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import Symbol from 'component/common/symbol';
 import './style.scss';
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
   isChannelTab?: boolean,
   membersOnly?: boolean,
   isLivestream?: ?boolean,
+  exchangeRate: { ar: number },
 };
 
 const MembershipDetails = (props: Props) => {
@@ -21,6 +23,7 @@ const MembershipDetails = (props: Props) => {
     isChannelTab,
     membersOnly,
     isLivestream,
+    exchangeRate,
   } = props;
 
   const descriptionParagraphs = membership.description.split('\n');
@@ -69,7 +72,7 @@ const MembershipDetails = (props: Props) => {
           )}
         </span>
         <label>{__('Pledge')}</label>
-        <span>${(membership?.prices[0].amount / 100).toFixed(2)}</span> {/* the ui basically supports monthly right now */}
+        <span style={{ display: 'flex' }}>${(membership?.prices[0].amount / 100).toFixed(2)}  (<Symbol token="ar" amount={(membership?.prices[0].amount / 100).toFixed(2) / exchangeRate.ar} />)</span> {/* the ui basically supports monthly right now */}
 
         <div className="membership-tier__perks">
           <div className="membership-tier__moon" />

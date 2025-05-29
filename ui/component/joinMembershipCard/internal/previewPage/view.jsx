@@ -228,6 +228,7 @@ const PreviewPage = (props: Props) => {
             userHasACreatorMembership={userHasACreatorMembership}
             membersOnly={membersOnly}
             isLivestream={isLivestream}
+            exchangeRate={exchangeRate}
           />
         )}
       </div>
