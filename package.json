@@ -59,7 +59,7 @@
     "@stripe/react-stripe-js": "^1.10.0",
     "@stripe/stripe-js": "^1.35.0",
     "@ungap/from-entries": "^0.2.1",
-    "@wanderapp/connect": "^0.1.1",
+    "@wanderapp/connect": "^0.1.3",
     "arweave": "^1.15.7",
     "auto-launch": "^5.0.5",
     "core-js-pure": "^3.19.3",
