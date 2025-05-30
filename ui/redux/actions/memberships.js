@@ -287,7 +287,7 @@ export const doMembershipFetchIncomingPayments = () => async (dispatch: Dispatch
       channelsToResolve.add(t.creator_channel_claim_id);
       channelsToResolve.add(t.subscriber_channel_claim_id);
     });
-    dispatch(doResolveClaimIds(channelsToResolve));
+    dispatch(doResolveClaimIds(Array.from(channelsToResolve)));
     dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL, data: inboundTransactions });
   } catch (error) {
     dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED, data: error.message || error });
