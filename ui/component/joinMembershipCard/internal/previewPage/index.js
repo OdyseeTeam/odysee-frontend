@@ -28,6 +28,7 @@ const select = (state, props) => {
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
     joinEnabled,
+    cheapestPlan,
     channelTitle,
     channelUri,
     channelId: claimId,

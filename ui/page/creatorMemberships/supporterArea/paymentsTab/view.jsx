@@ -3,20 +3,18 @@ import React from 'react';
 import PaymentRow from './internal/paymentRow';
 
 interface IProps {
-  doMembershipFetchIncomingPayments: () => void,
+  doMembershipFetchOutgoingPayments: () => void,
 }
 
 function PaymentsTab(props: IProps) {
   const {
-    doMembershipFetchIncomingPayments,
+    doMembershipFetchOutgoingPayments,
     transactions,
-    txsFetching,
-    txsError,
   } = props;
-  console.log('incoming: ', txsError || 'no-error', txsFetching, transactions);
+
   React.useEffect(() => {
-    doMembershipFetchIncomingPayments();
-  }, [doMembershipFetchIncomingPayments]);
+    doMembershipFetchOutgoingPayments();
+  }, [doMembershipFetchOutgoingPayments]);
 
   return (
     <>
@@ -27,7 +25,7 @@ function PaymentsTab(props: IProps) {
             <th className="date-header">{__('Date')}</th> {/* completed_at */}
             <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th> {/* */}
             <th className="channelName-header">{<>{__('Sending Channel')}</>}</th> {/* */}
-            <th>{__('Membership')} </th> {/* ? what goes here? */}
+            <th>{__('Membership')} </th> {/* */}
             <th className="amount-header">{__('Amount')} </th> {/* */}
             <th className="amount-header">{__('Status')} </th> {/* */}
           </tr>
@@ -36,7 +34,7 @@ function PaymentsTab(props: IProps) {
           {transactions &&
             transactions.map((transaction) => {
               return (
-                <PaymentRow transaction={transaction} />
+                <PaymentRow key={transaction.transaction_id} transaction={transaction} />
               );
             })}
           </tbody>

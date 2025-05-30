@@ -35,6 +35,7 @@ type Props = {
   channelName: string,
   doOpenModal: (id: string, props: {}) => void,
   joinEnabled: boolean,
+  cheapestPlan: CreatorMembership,
 };
 
 const PreviewPage = (props: Props) => {
@@ -60,6 +61,7 @@ const PreviewPage = (props: Props) => {
     channelName,
     doOpenModal,
     joinEnabled,
+    cheapestPlan,
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
@@ -77,7 +79,8 @@ const PreviewPage = (props: Props) => {
     // -- On a channel that is mine, the button uses the channel id to set it as active
     // when landing on the memberships page for the given channel --
 
-    if (!joinEnabled) {
+    // hack to test monetization disabled - memberships come back address = ''
+    if (cheapestPlan && !joinEnabled) {
       return (
         <div className="join-membership__empty">
           <h2 className="header--no-memberships">{__('Closed to New Members')}</h2>

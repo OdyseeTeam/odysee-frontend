@@ -18,7 +18,6 @@ function View(props: IProps) {
   const { membership, transaction, recipientChannel, senderChannel } = props;
   const { name: recipientName, claim_id: recipientClaimId } =  recipientChannel || {};
   const { name: senderName, claim_id: senderClaimId } =  senderChannel || {};
-
   const recipientUri = recipientChannel
     ? buildURI({
       channelName: recipientName,

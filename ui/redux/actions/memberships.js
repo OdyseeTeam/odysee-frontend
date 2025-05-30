@@ -23,6 +23,7 @@ import { buildURI } from 'util/lbryURI';
 import { getStripeEnvironment } from 'util/stripe';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doArSign, sendWinstons } from './arwallet';
+import { doResolveClaimIds } from './claims';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
@@ -281,6 +282,12 @@ export const doMembershipFetchIncomingPayments = () => async (dispatch: Dispatch
   dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_STARTED });
   try {
     const inboundTransactions = await Lbryio.call('membership_v2/transactions', 'inbound', {}, 'post');
+    const channelsToResolve = new Set([]);
+    inboundTransactions.forEach(t => {
+      channelsToResolve.add(t.creator_channel_claim_id);
+      channelsToResolve.add(t.subscriber_channel_claim_id);
+    });
+    dispatch(doResolveClaimIds(channelsToResolve));
     dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL, data: inboundTransactions });
   } catch (error) {
     dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED, data: error.message || error });
@@ -290,17 +297,19 @@ export const doMembershipFetchIncomingPayments = () => async (dispatch: Dispatch
 
 export const doMembershipFetchOutgoingPayments = () => async (dispatch: Dispatch) => {
   // start
-  dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_STARTED });
+  dispatch({ type: ACTIONS.MEMBERSHIP_TX_OUTGOING_STARTED });
   try {
     const outboundTransactions = await Lbryio.call('membership_v2/transactions', 'outbound', {}, 'post');
     const channelsToResolve = new Set([]);
-    const outboundTransactions.forEach(t => {
+    outboundTransactions.forEach(t => {
       channelsToResolve.add(t.creator_channel_claim_id);
       channelsToResolve.add(t.subscriber_channel_claim_id);
-    })
-    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL, data: outboundTransactions });
+    });
+    dispatch(doResolveClaimIds(channelsToResolve));
+    // TODO also resolve memberships?
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_OUTGOING_SUCCESSFUL, data: outboundTransactions });
   } catch (error) {
-    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED, data: error.message || error });
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_OUTGOING_FAILED, data: error.message || error });
     console.log('error', error.message || error);
   }
 };

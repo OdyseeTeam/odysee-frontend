@@ -214,28 +214,10 @@ const CreatorArea = (props: Props) => {
                       <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
                       <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
                     </div>
-
-                    <div className="create-tiers-preview-button">
-                      <span className="section__subtitle ">{__('Preview your tiers')}</span>
-                      <br />
-                      <Button
-                        navigate={`${formatLbryUrlForWeb(activeChannelClaim?.canonical_url)}?view=membership`}
-                        label={__('See Your Memberships')}
-                        icon={ICONS.BACK}
-                        button="secondary"
-                      />
-                      <FormField
-                        label={__('Show Disabled')}
-                        name="show_disabled"
-                        type="checkbox"
-                        checked={showDisabled}
-                        onChange={() => setShowDisabled(!showDisabled)}
-                      />
-                    </div>
                   </div>
                   {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
 
-                  <PaymentsTab showDisabled={showDisabled} />
+                  <PaymentsTab />
                 </>
               }
             />

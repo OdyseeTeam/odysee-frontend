@@ -93,28 +93,33 @@ declare type MembershipSub = {
   channel_claim_id: string,
 }
 
-// OLD
-// declare type Membership = {
-//   name: ?string,
-//   auto_renew: boolean,
-//   badge: ?string,
-//   channel_id: string,
-//   channel_name: string,
-//   created_at: string,
-//   expires: string,
-//   handle: string,
-//   id: number,
-//   is_live: boolean,
-//   membership_id: number,
-//   membership_price_id: number,
-//   show_public_support: boolean,
-//   stripe_sub_id: string,
-//   term: string,
-//   tx_id: ?number,
-//   updated_at: string,
-//   user_id: number,
-//   verified: boolean,
-// };
+/*
+
+completed_at: "2025-05-28T21:12:07Z"
+conversion_rate: 7.29
+creator_channel_claim_id: "bd491cfe1cca4faee2dfaf7e9f10b9ed3495dcf1"
+initiated_at: "2025-05-28T21:12:04Z"
+is_subscriber_anonymous: false
+membership_id: 2754
+status: "paid"
+subscriber_channel_claim_id: "210e284714708d185ac7ac791117608d1f92075f"
+transaction_currency: "AR"
+transaction_id: "4IZHeVbyBd9xHiRAmcgDEL-jBFFk2YBwkOQ_57hc94E"
+usd_amount: 10
+ */
+declare type MembershipPayment = {
+  completed_at: string, // "2025-05-28T21:12:07Z"
+  conversion_rate: number,
+  creator_channel_claim_id: string,
+  initiated_at: string, // "2025-05-28T21:12:04Z"
+  is_subscriber_anonymous: boolean,
+  membership_id: number,
+  status: string,
+  subscriber_channel_claim_id: string,
+  transaction_currency: string,
+  transaction_id: string,
+  usd_amount: number,
+}
 
 declare type Membership = {
   id: number,

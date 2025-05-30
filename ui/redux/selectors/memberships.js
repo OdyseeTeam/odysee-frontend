@@ -136,9 +136,9 @@ export const selectMembershipMineForCreatorIdForMembershipId = (
   membershipId: number
 ) => {
   const mine = selectMembershipMineForCreatorId(state, creatorId);
-  if (!mine) return false;
+  if (!mine) return null;
   const membership = mine.find((m) => m.membership.id === membershipId);
-  if (!membership) return false;
+  if (!membership) return null;
   return membership;
 };
 

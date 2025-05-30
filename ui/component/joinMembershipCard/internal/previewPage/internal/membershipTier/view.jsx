@@ -54,7 +54,8 @@ const MembershipTier = (props: Props) => {
     Membership lapsed, payments[2] status submitted
     Membership active, payments[2] status paid
    */
-  const hasPayment = thisMembership.payments.length > 0;
+
+  const hasPayment = thisMembership ? thisMembership?.payments.length > 0 : false;
 
   const getMembershipAction = () => {
     if (isActive) {

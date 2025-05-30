@@ -17,13 +17,12 @@ import Button from 'component/button';
 import './style.scss';
 
 const PledgesTab = lazyImport(() => import('./pledgesTab' /* webpackChunkName: "pledgesTab" */));
-
+const PaymentsTab = lazyImport(() => import('./paymentsTab' /* webpackChunkName: "outgoingPaymentsTab" */));
 const TAB_QUERY = 'tab';
 
 const TABS = {
   OVERVIEW: 'overview',
-  SUPPORTERS: 'supporters',
-  TIERS: 'tiers',
+  PAYMENTS: 'payments',
 };
 
 type Props = {
@@ -72,11 +71,8 @@ const SupporterArea = (props: Props) => {
     case TABS.OVERVIEW:
       tabIndex = 0;
       break;
-    case TABS.TIERS:
+    case TABS.PAYMENTS:
       tabIndex = 1;
-      break;
-    case TABS.SUPPORTERS:
-      tabIndex = 2;
       break;
   }
 
@@ -86,9 +82,7 @@ const SupporterArea = (props: Props) => {
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2) {
-      url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
+      url += `${TAB_QUERY}=${TABS.PAYMENTS}`;
     }
     push(url);
   }
@@ -101,7 +95,7 @@ const SupporterArea = (props: Props) => {
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
-          {/* <Tab>{__('Billing History')}</Tab> */}
+           <Tab>{__('Payments')}</Tab>
           {/* <Tab> {__('Creators To Support')}</Tab> */}
           <div className="no-after">
             <Tab>
@@ -129,6 +123,7 @@ const SupporterArea = (props: Props) => {
             <>
               <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
               <ChannelSelector hideAnon />
+              <PaymentsTab />
             </>
           </TabPanel>
         </TabPanels>
