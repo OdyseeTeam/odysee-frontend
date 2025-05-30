@@ -3,7 +3,6 @@ import React from 'react';
 import Yrbl from 'component/yrbl';
 import Spinner from 'component/spinner';
 import MembershipRow from './internal/membershipRow';
-import { buildURI } from 'util/lbryURI';
 
 type Props = {
   // -- redux --
@@ -11,33 +10,27 @@ type Props = {
   isFetchingMembershipSubs: boolean,
   doMembershipMine: () => Promise<MembershipSub>,
   activeChannelClaim: ChannelClaim,
-  doResolveUris: (uris: Array<string>, cache: boolean) => Promise<any>,
+  doResolveClaimIds: (claimIds: Array<string>) => Promise<any>,
 };
 
 function PledgesTab(props: Props) {
-  const { myMembershipSubs, isFetchingMembershipSubs, doMembershipMine, doResolveUris } = props;
+  const { myMembershipSubs, isFetchingMembershipSubs, doMembershipMine, doResolveClaimIds } = props;
   React.useEffect(() => {
     if (myMembershipSubs === undefined) {
       doMembershipMine();
     }
   }, [doMembershipMine, myMembershipSubs]);
-  const subChannelUris = React.useMemo(() => {
-    return myMembershipSubs ? myMembershipSubs.map(sub => {
-      const creatorUri = buildURI({
-        channelName: sub.membership.name,
-        channelClaimId: sub.membership.channel_claim_id,
-      });
-      return creatorUri;
-    }) : [];
+  const subChannelIds = React.useMemo(() => {
+    return myMembershipSubs ? myMembershipSubs.map(sub => sub.membership.channel_claim_id) : [];
   }, [myMembershipSubs]);
 
   const [resolved, setResolved] = React.useState(false);
   React.useEffect(() => {
-    if (!resolved && subChannelUris && subChannelUris.length) {
+    if (!resolved && subChannelIds && subChannelIds.length) {
       setResolved(true);
-      doResolveUris(subChannelUris);
+      doResolveClaimIds(subChannelIds);
     }
-  }, [subChannelUris, doResolveUris, resolved]);
+  }, [subChannelIds, doResolveClaimIds, resolved]);
 
   if (myMembershipSubs === undefined && isFetchingMembershipSubs) {
     return (
