@@ -305,7 +305,7 @@ export const doMembershipFetchOutgoingPayments = () => async (dispatch: Dispatch
       channelsToResolve.add(t.creator_channel_claim_id);
       channelsToResolve.add(t.subscriber_channel_claim_id);
     });
-    dispatch(doResolveClaimIds(channelsToResolve));
+    dispatch(doResolveClaimIds(Array.from(channelsToResolve)));
     // TODO also resolve memberships?
     dispatch({ type: ACTIONS.MEMBERSHIP_TX_OUTGOING_SUCCESSFUL, data: outboundTransactions });
   } catch (error) {

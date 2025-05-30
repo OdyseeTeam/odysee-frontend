@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectMyChannelClaimIds, selectMyChannelClaims } from 'redux/selectors/claims';
 import { selectMySupportersList } from 'redux/selectors/memberships';
 
 import { doListAllMyMembershipTiers, doGetMembershipSupportersList } from 'redux/actions/memberships';
@@ -11,6 +11,7 @@ import { selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/
 
 const select = (state, props) => ({
   activeChannelClaim: selectActiveChannelClaim(state),
+  myChannelIds: selectMyChannelClaimIds(state),
   myChannelClaims: selectMyChannelClaims(state),
   supportersList: selectMySupportersList(state),
   monetizationEnabled: selectArweaveDefaultAccountMonetizationEnabled(state),
