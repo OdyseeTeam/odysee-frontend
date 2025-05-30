@@ -4,19 +4,23 @@ import PaymentRow from './internal/paymentRow';
 
 interface IProps {
   doMembershipFetchIncomingPayments: () => void,
+  channelsToList?: [],
 }
 
 function PaymentsTab(props: IProps) {
   const {
     doMembershipFetchIncomingPayments,
     transactions,
-    txsFetching,
-    txsError,
+    channelsToList,
   } = props;
-  console.log('incoming: ', txsError || 'no-error', txsFetching, transactions);
   React.useEffect(() => {
     doMembershipFetchIncomingPayments();
   }, [doMembershipFetchIncomingPayments]);
+  const channelIdsToList = channelsToList && channelsToList.map(c => c.claim_id);
+
+  const transactionsToList = channelIdsToList && channelIdsToList.length
+    ? transactions.filter(t => channelIdsToList.includes(t.creator_channel_claim_id))
+    : transactions;
 
   return (
     <>
@@ -33,15 +37,15 @@ function PaymentsTab(props: IProps) {
           </tr>
           </thead>
           <tbody>
-          {transactions &&
-            transactions.map((transaction) => {
+          {transactionsToList &&
+            transactionsToList.map((transaction) => {
               return (
-                <PaymentRow transaction={transaction} />
+                <PaymentRow key={transaction.transaction_id} transaction={transaction} />
               );
             })}
           </tbody>
         </table>
-        {transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Tips')}</p>}
+        {transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Membership Payments')}</p>}
       </div>
     </>
   );

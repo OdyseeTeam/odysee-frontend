@@ -38,6 +38,7 @@ type Props = {
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
   doGetMembershipSupportersList: () => void,
   monetizationEnabled: boolean,
+  myChannelIds: Array<string>,
 };
 
 const CreatorArea = (props: Props) => {
@@ -48,6 +49,7 @@ const CreatorArea = (props: Props) => {
     doListAllMyMembershipTiers,
     doGetMembershipSupportersList,
     monetizationEnabled,
+    myChannelIds,
   } = props;
 
   const [allSelected, setAllSelected] = React.useState(true);
@@ -121,6 +123,12 @@ const CreatorArea = (props: Props) => {
 
   const switchToTiersTab = () => onTabChange(2);
 
+  /*
+  onChannelSelect={(id) => updateFormParams({ channel_id: id })}
+allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+            allOptionProps={{ onSelectAll: () => setIsAllSelected(true), isSelected: isAllSelected }}
+            onChannelSelect={() => setIsAllSelected(false)}
+   */
   return (
     <Page className="membershipPage-wrapper">
       <div className="membership__mychannels-header">
@@ -177,7 +185,7 @@ const CreatorArea = (props: Props) => {
                   <div className="create-tiers-header-buttons">
                     <div className="create-tiers-channel-selector">
                       <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-                      <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                      <ChannelSelector hideAnon onChannelSelect={() => { setAllSelected(false) }} />
                     </div>
 
                     <div className="create-tiers-preview-button">
@@ -211,13 +219,19 @@ const CreatorArea = (props: Props) => {
                 <>
                   <div className="create-tiers-header-buttons">
                     <div className="create-tiers-channel-selector">
-                      <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-                      <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                      <span className="section__subtitle ">{__('Memberships for Channel...')}</span>
+                      <ChannelSelector
+                        channelIds={myChannelIds}
+                        hideCreateNew
+                        allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                        hideAnon
+                        onChannelSelect={() => setAllSelected(false)}
+                      />
                     </div>
                   </div>
                   {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
 
-                  <PaymentsTab />
+                  <PaymentsTab channelsToList={channelsToList} />
                 </>
               }
             />

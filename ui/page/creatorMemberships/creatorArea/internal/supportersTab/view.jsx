@@ -61,7 +61,6 @@ const SupportersTab = (props: Props) => {
   React.useEffect(() => {
     if (supportersList) {
       const supportersClaimIds = supportersList.map((channel) => channel.subscriber_channel_claim_id);
-      console.log('supporterClaimids', supportersClaimIds);
       doResolveClaimIds(supportersClaimIds);
     }
   }, [supportersList, doResolveClaimIds]);

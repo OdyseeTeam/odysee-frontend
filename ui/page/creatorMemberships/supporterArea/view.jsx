@@ -30,6 +30,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   myChannelClaims: ?Array<ChannelClaim>,
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
+  myChannelIds: Array<string>,
 };
 
 const SupporterArea = (props: Props) => {
@@ -38,6 +39,7 @@ const SupporterArea = (props: Props) => {
     activeChannelClaim,
     myChannelClaims,
     doListAllMyMembershipTiers,
+    myChannelIds,
   } = props;
 
   React.useEffect(() => {
@@ -50,6 +52,15 @@ const SupporterArea = (props: Props) => {
     location: { search },
     push,
   } = useHistory();
+  const [allSelected, setAllSelected] = React.useState(true);
+
+  const channelsToList = React.useMemo(() => {
+    if (!myChannelClaims) return myChannelClaims;
+    if (!activeChannelClaim) return activeChannelClaim;
+
+    if (allSelected) return myChannelClaims;
+    return [activeChannelClaim];
+  }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   if (activeChannelClaim === undefined) {
     return (
@@ -121,9 +132,15 @@ const SupporterArea = (props: Props) => {
 
           <TabPanel>
             <>
-              <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-              <ChannelSelector hideAnon />
-              <PaymentsTab />
+              <span className="section__subtitle ">{__('Membership Payments for Channel')}</span>
+              <ChannelSelector
+                channelIds={myChannelIds}
+                hideCreateNew
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                hideAnon
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <PaymentsTab channelsToList={channelsToList} />
             </>
           </TabPanel>
         </TabPanels>
