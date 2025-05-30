@@ -280,6 +280,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  list-style: none;
 
   ul {
     display: flex;
@@ -300,7 +301,7 @@
           max-height: calc(180px * 3 / 4);
         }
       }
-    }
+    }      
   }
 
   li {
@@ -847,6 +848,10 @@
       }
     }
 
+    .button {
+      float: right;
+    }
+
     &.membership-tier1 {
       .membership__plan-header {
         background-color: rgba(var(--color-membership-1), 1);
@@ -969,6 +974,16 @@
         display: block;
         font-size: var(--font-base);
         opacity: 0.8;
+
+      }
+
+      .button__content {
+        display: flex;
+        opacity: 1.0;
+      }
+
+      .button {
+
       }
     }
   }
@@ -981,9 +996,10 @@
     }
 
     .button {
-      background-color: var(--color-header-background) !important;
+      //background-color: var(--color-header-background) !important;
       border: 2px solid var(--color-border);
       margin-right: var(--spacing-s);
+      float: left;
     }
   }
 }
@@ -1114,6 +1130,15 @@ svg.icon--Upgrade {
 }
 
 .button--view-memberships {
-  margin-top: var(--spacing-m);
+  //margin-top: var(--spacing-m);
   text-align: center;
+}
+
+.membership-tab-item__wrapper {
+  margin-bottom: var(--spacing-l);
+}
+.membership-tab-header__wrapper {
+  text-align: center;
+  align-items: center;
+  margin-bottom: var(--spacing-m);
 }

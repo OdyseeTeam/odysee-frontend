@@ -1,13 +1,15 @@
 // @flow
 import React from 'react';
 import { useHistory } from 'react-router';
+import Icon from 'component/common/icon';
 import WalletBalance from 'component/walletBalance';
-import TxoList from './txoList';
 import Page from 'component/page';
 import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
 import Spinner from 'component/spinner';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import TxoList from './txoList';
 import './style.scss';
 
 const TAB_QUERY = 'tab';
@@ -97,6 +99,11 @@ const WalletPage = (props: Props) => {
           <TabPanels>
             {/* balances for lbc and fiat */}
             <TabPanel>
+              <div className="tmp-lbc-announcement">
+                <img src="https://thumbs.odycdn.com/dcee45614b2798d1a09d2c43dda5fade.webp" />
+                <h3><Icon icon={ICONS.LBC} />LBC will be going away soon</h3>
+                <p>Odysee will be using AR cryptocurrency for Payments and Monetization.</p>
+              </div>
               <WalletBalance />
             </TabPanel>
             {/* credits tab */}

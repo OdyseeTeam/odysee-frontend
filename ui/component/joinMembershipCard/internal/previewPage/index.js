@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import {
+  selectCheapestProtectedContentMembershipForId,
   selectMembershipTiersForChannelUri,
-  selectMembershipTiersForCreatorId,
-  selectUserHasValidMembershipForCreatorId,
+  selectUserHasValidNonCanceledMembershipForCreatorId,
 } from 'redux/selectors/memberships';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
@@ -20,17 +20,20 @@ const select = (state, props) => {
   const channelId = getChannelIdFromClaim(claim);
 
   const { canonical_url: channelUri } = getChannelFromClaim(claim) || {};
-
+  const cheapestPlan = selectCheapestProtectedContentMembershipForId(state, claimId);
+  const joinEnabled = cheapestPlan && cheapestPlan.prices.some(p => p.address);
   return {
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
+    canReceiveArweaveTips: !!selectArweaveTipDataForId(state, channelId),
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
-    membershipTiers: selectMembershipTiersForCreatorId(state, claimId),
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
+    joinEnabled,
+    cheapestPlan,
     channelTitle,
     channelUri,
     channelId: claimId,
     channelName: claim.name,
-    userHasACreatorMembership: selectUserHasValidMembershipForCreatorId(state, channelId),
+    userHasACreatorMembership: selectUserHasValidNonCanceledMembershipForCreatorId(state, channelId),
   };
 };
 

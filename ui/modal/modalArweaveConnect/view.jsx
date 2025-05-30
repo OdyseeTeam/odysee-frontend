@@ -22,6 +22,8 @@ type Props = {
   walletBalance: any,
   isArAccountUpdating: boolean,
   previousModal?: { id: string, modalProps: any },
+  isConnecting: boolean,
+  fullArweaveStatusArray: Array<any>,
 };
 
 export default function ModalAnnouncements(props: Props) {
@@ -38,11 +40,21 @@ export default function ModalAnnouncements(props: Props) {
     doUpdateArweaveAddressDefault,
     isArAccountUpdating,
     previousModal,
+    isConnecting,
+    fullArweaveStatusArray,
   } = props;
 
   const apiEntryWithAddress = fullAPIArweaveStatus.find((status) => status.address === walletAddress);
   const id = apiEntryWithAddress ? apiEntryWithAddress.id : null;
   const usdcBalance = walletBalance ? walletBalance.usdc : 0;
+  const hasArweaveEntry = fullAPIArweaveStatus && fullAPIArweaveStatus.length > 0;
+
+  React.useEffect(() => {
+    // automatically register first address if there isn't one
+    if (!hasArweaveEntry) {
+      doRegisterArweaveAddress(walletAddress, true);
+    }
+  }, [walletAddress, doRegisterArweaveAddress, hasArweaveEntry, apiEntryWithAddress]);
 
   // if connected address is not registered at all
   const RegisterCard = () => {
@@ -118,9 +130,24 @@ export default function ModalAnnouncements(props: Props) {
   };
 
   const redirectToTopup = () => {
-    push('/$/paymentaccount?tab=buy');
+    push('/$/araccount?tab=buy');
     doHideModal();
   };
+
+  const ConnectingCard = () => {
+    return (
+    <Card
+      className="announcement"
+      title={__('Connecting Wallet')}
+      body={
+        <div className="section">
+          {__('Connecting...')}
+        </div>
+      }
+    />
+    );
+  };
+
   const TopUpCard = () => {
     return (
       <Card
@@ -130,7 +157,7 @@ export default function ModalAnnouncements(props: Props) {
           <div className="section">
             {__('Your Wander address, %address%, has a balance of %balance%. Would you like to top up?', {
               address: walletAddress,
-              balance: usdcBalance,
+              balance: usdcBalance || 0,
             })}
           </div>
         }
@@ -144,11 +171,14 @@ export default function ModalAnnouncements(props: Props) {
     );
   };
 
+  // if you don't already have
   return (
     <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>
-      {!apiEntryWithAddress && <RegisterCard />}
+      {(isConnecting || isArAccountUpdating) && !apiEntryWithAddress && <ConnectingCard />}
+      { /* don't bother showing register unless you're showing a 2nd+ address */ }
+      {hasArweaveEntry && !apiEntryWithAddress && <RegisterCard />}
       {apiEntryWithAddress && defaultApiAddress !== walletAddress && <MakeDefaultCard />}
-      {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />}
+      {/* {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />} */}
     </Modal>
   );
 }

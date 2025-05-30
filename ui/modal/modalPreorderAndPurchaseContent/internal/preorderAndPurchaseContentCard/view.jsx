@@ -165,7 +165,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
             <div className="fiat-order__claim-preview">
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
-
+            { /* confirm purchase - needs to check balance and disable */}
             {pendingSdkPayment ? (
               <Button
                 button="primary"
@@ -199,7 +199,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   );
 }
 
-const SubmitArea = withCreditCard((props: any) => (
+const SubmitArea = (props: any) => (
   <div className="handle-submit-area">
     <Button
       button="primary"
@@ -225,4 +225,4 @@ const SubmitArea = withCreditCard((props: any) => (
       />
     )}
   </div>
-));
+);

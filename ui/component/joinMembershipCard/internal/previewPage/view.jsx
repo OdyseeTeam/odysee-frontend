@@ -15,7 +15,7 @@ import './style.scss';
 
 type Props = {
   uri: string,
-  selectedTier: CreatorMembership,
+  selectedCreatorMembership: CreatorMembership,
   selectedMembershipIndex: number,
   unlockableTierIds: Array<number>,
   userHasACreatorMembership: boolean,
@@ -26,6 +26,7 @@ type Props = {
   // -- redux --
   channelId: string,
   canReceiveFiatTips: ?boolean,
+  canReceiveArweaveTips: ?boolean,
   channelIsMine: boolean,
   creatorMemberships: CreatorMemberships,
   doTipAccountCheckForUri: (uri: string) => void,
@@ -33,12 +34,14 @@ type Props = {
   channelUri: string,
   channelName: string,
   doOpenModal: (id: string, props: {}) => void,
+  joinEnabled: boolean,
+  cheapestPlan: CreatorMembership,
 };
 
 const PreviewPage = (props: Props) => {
   const {
     uri,
-    selectedTier,
+    selectedCreatorMembership,
     selectedMembershipIndex,
     unlockableTierIds,
     userHasACreatorMembership,
@@ -49,6 +52,7 @@ const PreviewPage = (props: Props) => {
     // -- redux --
     channelId,
     canReceiveFiatTips,
+    canReceiveArweaveTips,
     channelIsMine,
     creatorMemberships,
     doTipAccountCheckForUri,
@@ -56,22 +60,47 @@ const PreviewPage = (props: Props) => {
     channelUri,
     channelName,
     doOpenModal,
+    joinEnabled,
+    cheapestPlan,
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
-  const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false;
+  const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
 
   React.useEffect(() => {
-    if (canReceiveFiatTips === undefined) {
+    if (canReceiveFiatTips === undefined || canReceiveArweaveTips === undefined) {
       doTipAccountCheckForUri(uri);
     }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+  }, [canReceiveFiatTips, canReceiveArweaveTips, doTipAccountCheckForUri, uri]);
 
   if (!creatorHasMemberships) {
     // -- On a channel that is mine, the button uses the channel id to set it as active
     // when landing on the memberships page for the given channel --
+
+    // hack to test monetization disabled - memberships come back address = ''
+    if (cheapestPlan && !joinEnabled) {
+      return (
+        <div className="join-membership__empty">
+          <h2 className="header--no-memberships">{__('Closed to New Members')}</h2>
+          <p>
+            {__(
+              'Unfortunately, this membership is not accepting new members at this time.'
+            )}
+          </p>
+          <div>
+            <Button
+              icon={ICONS.MEMBERSHIP}
+              button="primary"
+              type="submit"
+              label={__(`Create Your Channel's Memberships`)}
+              navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+            />
+          </div>
+        </div>
+      );
+    }
     if (channelIsMine) {
       return (
         <div className="join-membership__empty">
@@ -133,17 +162,18 @@ const PreviewPage = (props: Props) => {
         )}
 
         <div className="join-membership__tab">
-          {creatorMemberships.map((membership, index) => (
+          {creatorMemberships.filter(m => m.enabled === true).map((membership, index) => (
             <MembershipTier
               membership={membership}
               handleSelect={() => {
                 setMembershipIndex(index);
-                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, passedTierIndex: index });
+                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, membershipId: membership.membership_id, passedTierIndex: index, isChannelTab: isChannelTab });
               }}
               index={index}
               length={creatorMemberships.length}
               key={index}
-              disabled={creatorPurchaseDisabled}
+              isOwnChannel={channelIsMine}
+              userHasCreatorMembership={userHasACreatorMembership} // here
               isChannelTab
             />
           ))}
@@ -177,30 +207,33 @@ const PreviewPage = (props: Props) => {
       </div>
 
       <div className="join-membership__modal-tabs">
-        {creatorMemberships.map(({ Membership }, index) => (
+        {creatorMemberships.map((m, index) => (
           <Button
-            key={Membership.id}
-            label={Membership.name}
+            key={m.membership_id}
+            label={m.name}
             button="alt"
-            icon={pickIconToUse(Membership.id)}
+            icon={pickIconToUse(m.membership_id)}
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
-              'no-access-button': unlockableTierIds && !unlockableTierIds.includes(Membership.id),
-              'access-button': unlockableTierIds && unlockableTierIds.includes(Membership.id),
+              'no-access-button': unlockableTierIds && !unlockableTierIds.includes(m.membership_id),
+              'access-button': unlockableTierIds && unlockableTierIds.includes(m.membership_id),
             })}
           />
         ))}
       </div>
 
       <div className="join-membership__modal-content">
-        <MembershipDetails
-          membership={selectedTier}
-          unlockableTierIds={unlockableTierIds}
-          userHasACreatorMembership={userHasACreatorMembership}
-          membersOnly={membersOnly}
-          isLivestream={isLivestream}
-        />
+        {selectedCreatorMembership && (
+          <MembershipDetails
+            membership={selectedCreatorMembership}
+            unlockableTierIds={unlockableTierIds}
+            userHasACreatorMembership={userHasACreatorMembership}
+            membersOnly={membersOnly}
+            isLivestream={isLivestream}
+            exchangeRate={exchangeRate}
+          />
+        )}
       </div>
 
       <div className="join-membership__modal-action">
@@ -209,8 +242,8 @@ const PreviewPage = (props: Props) => {
           button="primary"
           type="submit"
           disabled={userHasACreatorMembership || creatorPurchaseDisabled}
-          label={__('Join for $%membership_price% per month', {
-            membership_price: selectedTier?.NewPrices[0]?.creator_receives_amount / 100,
+          label={__('Join X for $%membership_price% per month', {
+            membership_price: selectedCreatorMembership?.prices[0].amount / 100,
           })}
           requiresAuth
           onClick={handleSelect}

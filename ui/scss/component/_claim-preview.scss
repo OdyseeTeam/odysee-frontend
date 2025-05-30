@@ -1211,6 +1211,9 @@
     a.button--no-style:first-of-type {
       .button__content {
         align-items: unset;
+        font-size: var(--font-xxsmall);
+        margin-top: -1px;
+        margin-bottom: -2px;
       }
     }
   }

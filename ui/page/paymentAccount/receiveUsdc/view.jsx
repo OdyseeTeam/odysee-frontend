@@ -7,7 +7,7 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import './style.scss';
 
-function ReceiveUsdc(props: Props) {
+function ReceiveUsdc(props: any) {
   const { cardHeader, arWalletStatus } = props;
 
   return (
