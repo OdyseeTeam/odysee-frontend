@@ -172,10 +172,7 @@ export const selectHasPendingMembershipForMembershipId = (state: State, creatorI
 
 // -- Valid Membership = still in period_end date range
 export const selectMyValidMembershipsById = createSelector(selectMembershipMineData, (myMembershipsByCreatorId) => {
-  if (!myMembershipsByCreatorId) return myMembershipsByCreatorId;
-
   const validMembershipsById = {};
-
   for (const creatorChannelId in myMembershipsByCreatorId) {
     const purchasedCreatorMemberships = myMembershipsByCreatorId[creatorChannelId];
 
@@ -221,8 +218,6 @@ export const selectMyActiveMembershipsForCreatorId = (state: State, id: string) 
 
 export const selectMyValidMembershipsForCreatorId = (state: State, id: string) => {
   const myValidMembershipsById = selectMyValidMembershipsById(state);
-  if (!myValidMembershipsById) return myValidMembershipsById;
-
   return myValidMembershipsById[id] || null;
 };
 
