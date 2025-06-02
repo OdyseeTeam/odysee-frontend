@@ -4,6 +4,9 @@ import UriIndicator from 'component/uriIndicator';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { buildURI } from 'util/lbryURI';
 import moment from 'moment';
+import CopyableText from 'component/copyableText';
+import Tooltip from 'component/common/tooltip';
+import { toCapitalCase } from 'util/string';
 
 interface IProps {
   transaction: MembershipPayment,
@@ -32,7 +35,7 @@ function View(props: IProps) {
 
   return (
     <tr key={transaction.transaction_id}>
-      <td>{moment(new Date(transaction.initiated_at)).format('LLL')}</td>
+      <td><Tooltip title={moment(new Date(transaction.initiated_at)).format('LLL')} ><div>{moment(new Date(transaction.initiated_at)).format('LL')}</div></Tooltip></td>
       <td className="channelThumbnail">
         {recipientUri ? (
           <UriIndicator focusable={false} uri={recipientUri} link>
@@ -54,8 +57,11 @@ function View(props: IProps) {
         )}
       </td>
       <td>{membership && membership.name}</td>
+      <td className="payment-txid">
+        <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.transaction_id} />
+      </td>
       <td>{transaction.usd_amount}</td>
-      <td>{transaction.status}</td>
+      <td>{transaction.status ? toCapitalCase(transaction.status) : '...'}</td>
     </tr>
   );
 }

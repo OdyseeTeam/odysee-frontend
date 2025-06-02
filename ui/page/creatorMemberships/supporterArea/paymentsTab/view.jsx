@@ -26,7 +26,7 @@ function PaymentsTab(props: IProps) {
 
   return (
     <>
-      <div className="table__wrapper">
+      <div className="membership-payments-table__wrapper">
         <table className="table">
           <thead>
           <tr>
@@ -34,6 +34,7 @@ function PaymentsTab(props: IProps) {
             <th className="channelName-header">{<>{__('Receiving Channel')}</>}</th> {/* */}
             <th className="channelName-header">{<>{__('Sending Channel')}</>}</th> {/* */}
             <th>{__('Membership')} </th> {/* */}
+            <th className="payment-txid">{__('Transaction')} </th>
             <th className="amount-header">{__('Amount')} </th> {/* */}
             <th className="amount-header">{__('Status')} </th> {/* */}
           </tr>
