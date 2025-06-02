@@ -33,6 +33,16 @@ export function getGeoRestrictionForClaim(claim: ?StreamClaim, locale: LocaleInf
     }
 
     if (geoConfig) {
+      // Block for everyone if locale wasn't fetched
+      if (Object.keys(locale).length === 0) {
+        return {
+          id: '',
+          trigger: '',
+          reason: '',
+          message: "Couldn't fetch locale data, please try again later.",
+        };
+      }
+
       const specials = geoConfig.specials || [];
       const countries = geoConfig.countries || [];
       const continents = geoConfig.continents || [];
