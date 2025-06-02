@@ -39,7 +39,7 @@ export function getGeoRestrictionForClaim(claim: ?StreamClaim, locale: LocaleInf
           id: '',
           trigger: '',
           reason: '',
-          message: "Couldn't fetch locale data, please try again later.",
+          message: "Couldn't fetch legally required location data to access this content, please try again later or reach out to hello@odysee.com if the issue continues.",
         };
       }
 
