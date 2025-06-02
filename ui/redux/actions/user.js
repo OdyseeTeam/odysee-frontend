@@ -824,7 +824,7 @@ export function doFetchUserLocale(isRetry = false) {
           data: locale,
         });
       })
-      .catch(() => {
+      .catch((e) => {
         if (!isRetry) {
           // If failed, retry one more time after N seconds. This removes the
           // need to fetch at each component level. If it failed twice, probably
@@ -833,6 +833,10 @@ export function doFetchUserLocale(isRetry = false) {
             dispatch(doFetchUserLocale(true));
           }, 10000);
         }
+        dispatch({
+          type: ACTIONS.USER_FETCH_LOCALE_DONE,
+          data: {},
+        });
       });
   };
 }
