@@ -64,6 +64,7 @@ type Props = {
   render?: () => React$Node,
   handleTip?: (isLBC: boolean) => any,
   handleSubmit?: () => any,
+  hideValue?: boolean,
 };
 
 type State = {
@@ -129,6 +130,7 @@ export class FormField extends React.PureComponent<Props, State> {
       render,
       handleTip,
       handleSubmit,
+      hideValue,
       max,
       ...inputProps
     } = this.props;
@@ -399,7 +401,7 @@ export class FormField extends React.PureComponent<Props, State> {
                 <div>
                   <Label {...labelProps} errorMessage={errorMessage} />
                   {inputElementProps.maxLength && typeof inputElementProps.value === 'string' && (
-                    <label                    
+                    <label
                       className={
                         Number(inputElementProps.maxLength) - String(inputElementProps.value).length > 0
                           ? 'input-max-counter'
@@ -423,7 +425,7 @@ export class FormField extends React.PureComponent<Props, State> {
 
               {inputButton ? (
                 <input-submit>
-                  <input {...inputElementProps} />
+                  {!hideValue && (<input {...inputElementProps} />)}
                   {inputButton}
                 </input-submit>
               ) : (

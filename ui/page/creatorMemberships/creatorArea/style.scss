@@ -114,6 +114,51 @@
   }
 }
 
+.membership-payments-table__wrapper {
+  .table {
+    thead {
+      th {
+        border-bottom: 2px solid rgba(var(--color-primary-static), 0.4);
+      }
+    }
+    tbody {
+      tr {
+        td {
+          padding: 0.8rem;
+          border-bottom: 2px solid rgba(var(--color-primary-static), 0.4) !important;
+        }
+      }
+    }
+
+    margin-bottom: 28px;
+  }
+  @media (max-width: $breakpoint-small) {
+    overflow-x: auto !important;
+
+    .table {
+      .channelName-header {
+        min-width: 180px;
+      }
+      thead {
+        tr {
+          th {
+            white-space: nowrap;
+          }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            white-space: nowrap;
+            padding: 0.6rem !important;
+            padding-right: 0 !important;
+          }
+        }
+      }
+    }
+  }
+}
+
 .back-to-memberships-button {
   transform: rotate(180deg);
   margin-left: 6px;

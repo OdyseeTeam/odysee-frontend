@@ -12,6 +12,8 @@ type Props = {
   label?: string,
   primaryButton?: boolean,
   name?: string,
+  hideValue?: boolean,
+  linkTo?: string, // url to append copyable to 'https://link.to/<copyable>`
   onCopy?: (string) => string,
   enableInputMask?: boolean,
 };
@@ -27,6 +29,8 @@ export default function CopyableText(props: Props) {
     name,
     onCopy,
     enableInputMask,
+    linkTo,
+    hideValue,
   } = props;
   const [maskInput, setMaskInput] = React.useState(enableInputMask);
 
@@ -69,6 +73,7 @@ export default function CopyableText(props: Props) {
     <FormField
       type={maskInput ? 'password' : 'text'}
       className="form-field--copyable"
+      hideValue={hideValue}
       readOnly
       name={name}
       label={label}
@@ -76,7 +81,11 @@ export default function CopyableText(props: Props) {
       ref={input}
       onFocus={onFocus}
       inputButton={
-        <Button button={primaryButton ? 'primary' : 'secondary'} icon={ICONS.COPY} onClick={handleCopyText} />
+      <>
+        <Button button={primaryButton ? 'primary' : 'secondary'} icon={ICONS.COPY} onClick={handleCopyText} aria-label={__('Copy %copyable%', { copyable: copyable })} />
+        {linkTo && (<Button button={primaryButton ? 'primary' : 'secondary'} icon={ICONS.EXTERNAL} navigate={`${linkTo}${copyable}`} description={'Link'} />)}
+      </>
+
       }
       helper={
         enableInputMask && (

@@ -301,7 +301,7 @@
           max-height: calc(180px * 3 / 4);
         }
       }
-    }      
+    }
   }
 
   li {
@@ -771,13 +771,10 @@
     }
   }
 
-  .form-field--copyable {
-    display: none;
-  }
-  button.button {
-    border-radius: var(--border-radius);
-    float: right;
-  }
+  //button.button {
+  //  border-radius: var(--border-radius);
+  //  float: right;
+  //}
 
   .membership-table__page {
     width: 60px;
@@ -819,6 +816,69 @@
   }
 }
 
+
+.membership-payments-table__wrapper {
+
+  .icon--ExternalLink {
+    margin-top: unset;
+  }
+
+  .channelThumbnail {
+    padding-right: 0 !important;
+    width: 50px;
+    .channel-thumbnail__custom {
+      height: 100%;
+    }
+    .channel-thumbnail--xxsmall {
+      margin-left: 10px;
+    }
+  }
+
+  button.button {
+    border-radius: var(--border-radius);
+    float: right;
+  }
+
+  .membership-table__page {
+    width: 60px;
+  }
+
+  .membership-table__url {
+    width: 20px;
+    fieldset-section {
+      flex-direction: row-reverse;
+    }
+  }
+
+  .channel-thumbnail {
+    display: inline-block;
+    margin-right: 0;
+    padding-right: 0;
+
+    &.channel-thumbnail--xxsmall {
+      position: absolute;
+      transform: translate(-150%, 125%);
+    }
+  }
+
+  thead {
+    tr {
+      th {
+        @media (min-width: $breakpoint-small) {
+          padding: 0.8rem;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+  tbody {
+    tr {
+      &:hover {
+        background-color: rgba(var(--color-header-background-base), 0.2);
+      }
+    }
+  }
+}
 .membership-tab {
   .membership__body {
     border-radius: var(--border-radius);
