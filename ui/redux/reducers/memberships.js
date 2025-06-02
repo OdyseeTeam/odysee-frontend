@@ -28,7 +28,7 @@ export type MembershipsState = {
 };
 
 const defaultState: MembershipsState = {
-  membershipMineByCreatorId: undefined,
+  membershipMineByCreatorId: {},
   membershipMineFetching: false,
   membershipListByCreatorId: {},
   membershipListFetchingIds: [],
