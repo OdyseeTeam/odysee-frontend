@@ -178,8 +178,7 @@ export const selectMyValidMembershipsById = createSelector(selectMembershipMineD
 
     for (const membership of purchasedCreatorMemberships) {
       if (
-        membership.subscription.status !== 'past_due' &&
-        new Date(membership.subscription.ends_at).getTime() > Date.now()
+        membership.subscription.status === 'active' || membership.subscription.status === 'lapsed'
       ) {
         validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
         validMembershipsById[creatorChannelId].add(membership);
