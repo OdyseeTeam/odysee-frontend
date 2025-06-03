@@ -408,7 +408,6 @@ export class FormField extends React.PureComponent<Props, State> {
                           : 'input-max-counter-error'
                       }
                     >
-                      <div>kjhk</div>
                       {Number(inputElementProps.maxLength) - String(inputElementProps.value).length}
                     </label>
                   )}
@@ -425,11 +424,16 @@ export class FormField extends React.PureComponent<Props, State> {
 
               {inputButton ? (
                 <input-submit>
-                  {!hideValue && (<input {...inputElementProps} />)}
+                  {!hideValue && <input {...inputElementProps} />}
                   {inputButton}
                 </input-submit>
+              ) : inputElem || !prefix ? (
+                <input {...inputElementProps} />
               ) : (
-                inputElem || !prefix ? <input {...inputElementProps}/> : <div className="arInput-wrapper"><span>{prefix}</span><input {...inputElementProps}/></div>
+                <div className="arInput-wrapper">
+                  <span>{prefix}</span>
+                  <input {...inputElementProps} />
+                </div>
               )}
             </fieldset-section>
           </FormFieldWrapper>
