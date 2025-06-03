@@ -527,14 +527,9 @@
       display: block;
     }
     span {
+      display:flex;
       font-size: var(--font-base);
       opacity: 0.8;
-
-      display: -webkit-box;
-      line-clamp: 10;
-      -webkit-line-clamp: 10;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
 
     .section__subtitle--join-membership__perk:last-child {
@@ -1184,7 +1179,13 @@ svg.icon--Upgrade {
 }
 
 .membership-tier__infos-description {
-  display: block;
+  display: -webkit-box;
+  line-clamp: 10;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+
+  // display: block;
   max-height: 144px;
   overflow-y: scroll;
 }
