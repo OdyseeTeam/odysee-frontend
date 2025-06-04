@@ -527,7 +527,7 @@
       display: block;
     }
     span {
-      display:flex;
+      display: flex;
       font-size: var(--font-base);
       opacity: 0.8;
     }
@@ -811,9 +811,7 @@
   }
 }
 
-
 .membership-payments-table__wrapper {
-
   .icon--ExternalLink {
     margin-top: unset;
   }
@@ -1029,16 +1027,14 @@
         display: block;
         font-size: var(--font-base);
         opacity: 0.8;
-
       }
 
       .button__content {
         display: flex;
-        opacity: 1.0;
+        opacity: 1;
       }
 
       .button {
-
       }
     }
   }
@@ -1175,17 +1171,16 @@ svg.icon--Upgrade {
 }
 
 .membership-tier__description {
-  word-break: break-word;
-}
-
-.membership-tier__infos-description {
   display: -webkit-box;
   line-clamp: 10;
   -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  word-break: break-word;
+}
 
-  // display: block;
+.membership-tier__infos-description {
+  display: block;
   max-height: 144px;
   overflow-y: scroll;
 }
