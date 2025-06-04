@@ -253,7 +253,7 @@ const PreviewPage = (props: Props) => {
           <span className="error-bubble">
             {channelIsMine
               ? __("You're not able to signup for your own memberships")
-              : __('This creator does not have an active bank account to receive payments.')}
+              : __("You're already a member.")}
           </span>
         )}
       </div>
