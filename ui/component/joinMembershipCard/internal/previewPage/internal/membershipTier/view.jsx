@@ -28,6 +28,7 @@ const MembershipTier = (props: Props) => {
     length,
     disabled,
     isChannelTab,
+    isOwnChannel,
     handleSelect,
     isActive,
     isPending,
@@ -91,6 +92,10 @@ const MembershipTier = (props: Props) => {
         ),
       })}
       </div>);
+    }
+
+    if (isOwnChannel) {
+      return null;
     }
 
     // return Join button
