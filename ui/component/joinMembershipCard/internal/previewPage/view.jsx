@@ -36,6 +36,7 @@ type Props = {
   doOpenModal: (id: string, props: {}) => void,
   joinEnabled: boolean,
   cheapestPlan: CreatorMembership,
+  exchangeRate: { ar: number },
 };
 
 const PreviewPage = (props: Props) => {
@@ -62,6 +63,7 @@ const PreviewPage = (props: Props) => {
     doOpenModal,
     joinEnabled,
     cheapestPlan,
+    exchangeRate,
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
