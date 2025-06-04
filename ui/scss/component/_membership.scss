@@ -1015,6 +1015,8 @@
   }
 
   .membership__plan-content {
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    background-color: rgba(var(--color-header-button-base), 0.6);
     padding: var(--spacing-m);
     div {
       margin-bottom: var(--spacing-s);
