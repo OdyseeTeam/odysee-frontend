@@ -170,6 +170,14 @@ export default function ModalAnnouncements(props: Props) {
       />
     );
   };
+  const showConnecting = (isConnecting || isArAccountUpdating) && !apiEntryWithAddress;
+  const showRegister = hasArweaveEntry && !apiEntryWithAddress
+  const showMakeDefault = apiEntryWithAddress && defaultApiAddress !== walletAddress;
+
+  if (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) {
+    handleCloseModal();
+    return;
+  }
 
   // if you don't already have
   return (
@@ -179,7 +187,6 @@ export default function ModalAnnouncements(props: Props) {
       {hasArweaveEntry && !apiEntryWithAddress && <RegisterCard />}
       {apiEntryWithAddress && defaultApiAddress !== walletAddress && <MakeDefaultCard />}
       {/* {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />} */}
-      {/* make sure if no case, we send hide modal */}
     </Modal>
   );
 }
