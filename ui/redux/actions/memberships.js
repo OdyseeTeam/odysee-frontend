@@ -383,7 +383,7 @@ export const doOpenCancelationModalForMembership =
         busyMsg: __('Canceling your membership...'),
         onConfirm: (closeModal, setIsBusy) => {
           setIsBusy(true);
-          dispatch(doMembershipCancelForMembershipId(membership.id, true)).then(() => {
+          dispatch(doMembershipCancelForMembershipId(membership.id)).then(() => {
             setIsBusy(false);
             dispatch(
               doToast({ message: __('Your membership was successfully cancelled and will no longer be renewed.') })
