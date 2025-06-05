@@ -9,6 +9,7 @@ import {
 } from 'redux/selectors/memberships';
 import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
 import { selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+import { doArConnect } from 'redux/actions/arwallet';
 
 const select = (state, props) => {
   const creatorId = props.membership.channel_claim_id;
@@ -40,6 +41,7 @@ const select = (state, props) => {
 
 const perform = {
   doOpenCancelationModalForMembership,
+  doArConnect,
 };
 
 export default connect(select, perform)(MembershipTier);

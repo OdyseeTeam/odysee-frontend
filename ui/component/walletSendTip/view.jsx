@@ -146,7 +146,9 @@ export default function WalletSendTip(props: Props) {
     : __('Leave a tip for the creator');
 
   // just do this always or check connection somehow?
-  doArConnect();
+  React.useEffect(() => {
+    doArConnect();
+  }, [doArConnect]);
 
   let channelName;
   try {
