@@ -19,6 +19,7 @@ type Props = {
   doOpenCancelationModalForMembership: (string, ?boolean) => void,
   thisMembership: Membership[],
   exchangeRate: { ar: number },
+  doArConnect: () => void,
 };
 
 const MembershipTier = (props: Props) => {
@@ -37,6 +38,7 @@ const MembershipTier = (props: Props) => {
     doOpenCancelationModalForMembership,
     thisMembership,
     exchangeRate,
+    doArConnect,
   } = props;
 
   // TODO: develop getMembershipStatus(membershipSub) util function:
@@ -55,6 +57,11 @@ const MembershipTier = (props: Props) => {
     Membership lapsed, payments[2] status submitted
     Membership active, payments[2] status paid
    */
+
+  // TODO: better detect current connection; connect on refresh once in app.view or such
+  React.useEffect(() => {
+    doArConnect();
+  }, [doArConnect]);
 
   const hasPayment = thisMembership ? thisMembership?.payments.length > 0 : false;
 
