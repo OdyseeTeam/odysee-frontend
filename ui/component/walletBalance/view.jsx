@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
-import * as SETTINGS from 'constants/settings';
+// import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -14,9 +14,10 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { LocalStorage } from 'util/storage';
 import { formatCredits } from 'util/format-credits';
+import { useArStatus } from 'effects/use-ar-status';
 
 type Props = {
-  clientSettings: any,
+  experimentalUi: boolean,
   LBCBalance: number,
   arStatus: any,
   arBalance: number,
@@ -48,7 +49,7 @@ const LARGE_WALLET_BALANCE = 100;
 
 const WalletBalance = (props: Props) => {
   const {
-    clientSettings,
+    // experimentalUi,
     LBCBalance,
     wanderAuth,
     arStatus,
@@ -71,51 +72,24 @@ const WalletBalance = (props: Props) => {
     doArDisconnect,
   } = props;
 
+  const {
+    walletType,
+    hasArweaveExtension,
+    hasArSignin,
+    hasArConnection,
+    isSigningIn,
+    hasConnection,
+  } = useArStatus();
+
+  console.log('hasArConnection', hasArConnection)
+
   const isMobile = useIsMobile();
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
   const { other: otherCount = 0 } = utxoCounts || {};
+  // const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
-  const [walletType, setWalletType] = React.useState(
-    window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded'
-  );
-  const hasArweaveExtension = Boolean(
-    window.arweaveWallet && window.arweaveWallet.walletName === 'ArConnect' && !isMobile
-  );
-  const hasArSignin =
-    wanderAuth?.authStatus === 'authenticated' ||
-    (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
-  const hasArConnection = Boolean(arStatus.address) && hasArSignin;
-  const isSigningIn =
-    (wanderAuth?.authStatus === undefined ||
-      wanderAuth?.authStatus === 'loading' ||
-      wanderAuth?.authStatus === 'onboarding') &&
-    walletType === 'embedded';
-  const hasConnection =
-    ((!wanderAuth?.authStatus || (wanderAuth?.authStatus !== 'not-authenticated' && !isSigningIn)) &&
-      walletType === 'embedded') ||
-    (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
-
-  React.useEffect(() => {
-    const type = LocalStorage.getItem('WALLET_TYPE');
-    setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded');
-    if (
-      !window.wanderInstance.authInfo.authType &&
-      window.wanderInstance.authInfo.authType !== 'null' &&
-      window.wanderInstance.authInfo.authType !== type
-    ) {
-      window.wanderInstance.authInfo.authType = type;
-    }
-    if (
-      !arStatus.connecting &&
-      (window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance.authInfo.authType === 'nul') &&
-      walletType === 'extension'
-    ) {
-      doArConnect();
-    }
-    // $FlowIgnore
-  }, [wanderAuth, walletType, doArConnect]);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
@@ -123,9 +97,38 @@ const WalletBalance = (props: Props) => {
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
 
+  React.useEffect(() => {
+    if (!hasArConnection) {
+    }
+  }, [hasArConnection, doArConnect]);
+
+  /*
+  React.useEffect(() => {
+    (async () => {
+      if(hasConnection){
+        console.log('hasConnection: ', hasConnection)
+        const tokens = await window.arweaveWallet.userTokens();
+        console.log("Tokens owned by the user:", tokens);
+        try {
+          const tokenId = tokens[0].processId
+          console.log('tokenId: ', tokenId)
+          const balance = await window.arweaveWallet.tokenBalance(tokenId);
+          console.log(`Balance of the token with ID ${tokenId}:`, balance);
+        } catch (error) {
+          console.error("Error fetching token balance:", error);
+        }
+      }
+    })()
+  }, [hasConnection])
+  */
+
   const handleSignIn = () => {
-    const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];
-    if (showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS);
+    const showModal = LocalStorage.getItem('CRYPTO_DISCLAIMERS')
+      ? LocalStorage.getItem('CRYPTO_DISCLAIMERS') === 'true'
+        ? true
+        : false
+      : true;
+    if (showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS)
     else window.wanderInstance.open();
   };
 

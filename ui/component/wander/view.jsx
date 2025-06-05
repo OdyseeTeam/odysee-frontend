@@ -121,7 +121,7 @@ export default function Wander(props: Props) {
 
     setInstance(wanderInstance);
     window.wanderInstance = wanderInstance;
-    
+
     return () => {
       if (wanderInstance) {
         wanderInstance.destroy();
