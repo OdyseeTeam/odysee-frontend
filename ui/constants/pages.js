@@ -84,6 +84,7 @@ exports.FYP = 'fyp';
 exports.YOUTUBE_TOS = 'youtubetos';
 exports.BUY = 'buy';
 exports.PAYMENTACCOUNT = 'paymentaccount';
+exports.ARACCOUNT = 'araccount';
 exports.RECEIVE = 'receive';
 exports.SEND = 'send';
 exports.SWAP = 'swap';

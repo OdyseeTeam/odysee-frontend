@@ -52,7 +52,6 @@ const select = (state, props) => {
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   fetchSubCount: (claimId) => dispatch(doFetchSubCount(claimId)),
-  getMembershipTiersForChannel: (channelId) => dispatch(doGetMembershipTiersForChannelClaimId(channelId)),
   doMembershipMine: () => dispatch(doMembershipMine()),
 });
 

@@ -118,7 +118,7 @@ function Overview(props: Props) {
           <h2 className="section__title--small">{__('Connected wallet')}</h2>
           <div className="payment-options">
             <div className="payment-option">
-              <CopyableText copyable={`0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33`} />
+              <CopyableText copyable={address} />
             </div>
             <div className="payment-option">
               <div className="payment-option__monetization">
@@ -158,63 +158,6 @@ function Overview(props: Props) {
                 </div>
               );
             })}
-            {/*
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Purchase')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('via')}</div>
-              <div className="transaction-history__target">OnRamp</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Withdraw')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('to')}</div>
-              <div className="transaction-history__target">0x00000000000000000000</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Receive')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('from')}</div>
-              <div className="transaction-history__target">0x00000000000000000000</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Send Tip')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('to')}</div>
-              <div className="transaction-history__target">Username</div>
-            </div>
-            <div className="transaction-history__row">
-              <div className="transaction-history__date">xx.xx.xxx</div>
-              <div className="transaction-history__action">{__('Receive Tip')}</div>
-              <div className="transaction-history__amount">0.00</div>
-              <div className="transaction-history__token">
-                <Symbol token="usdc" />
-                USDC
-              </div>
-              <div className="transaction-history__direction">{__('from')}</div>
-              <div className="transaction-history__target">Username</div>
-            </div>
-            */}
           </div>
         </>
       }

@@ -15,17 +15,19 @@ import Button from 'component/button';
 import TabWrapper from './internal/tabWrapper';
 
 import './style.scss';
+import { FormField } from 'component/common/form';
 
 const OverviewTab = lazyImport(() => import('./internal/overviewTab' /* webpackChunkName: "overviewTab" */));
 const TiersTab = lazyImport(() => import('./internal/tiersTab' /* webpackChunkName: "tiersTab" */));
 const SupportersTab = lazyImport(() => import('./internal/supportersTab' /* webpackChunkName: "supportersTab" */));
-
+const PaymentsTab = lazyImport(() => import('./internal/paymentsTab'));
 const TAB_QUERY = 'tab';
 
 const TABS = {
   OVERVIEW: 'overview',
   SUPPORTERS: 'supporters',
   TIERS: 'tiers',
+  PAYMENTS: 'payments',
 };
 
 type Props = {
@@ -35,6 +37,8 @@ type Props = {
   supportersList: ?SupportersList,
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
   doGetMembershipSupportersList: () => void,
+  monetizationEnabled: boolean,
+  myChannelIds: Array<string>,
 };
 
 const CreatorArea = (props: Props) => {
@@ -44,9 +48,12 @@ const CreatorArea = (props: Props) => {
     supportersList,
     doListAllMyMembershipTiers,
     doGetMembershipSupportersList,
+    monetizationEnabled,
+    myChannelIds,
   } = props;
 
   const [allSelected, setAllSelected] = React.useState(true);
+  const [showDisabled, setShowDisabled] = React.useState(false);
 
   const channelsToList = React.useMemo(() => {
     if (!myChannelClaims) return myChannelClaims;
@@ -89,6 +96,9 @@ const CreatorArea = (props: Props) => {
     case TABS.TIERS:
       tabIndex = 2;
       break;
+    case TABS.PAYMENTS:
+      tabIndex = 3;
+      break;
   }
 
   function onTabChange(newTabIndex) {
@@ -100,6 +110,8 @@ const CreatorArea = (props: Props) => {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
     } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.TIERS}`;
+    } else if (newTabIndex === 3) {
+      url += `${TAB_QUERY}=${TABS.PAYMENTS}`;
     }
     push(url);
   }
@@ -111,6 +123,12 @@ const CreatorArea = (props: Props) => {
 
   const switchToTiersTab = () => onTabChange(2);
 
+  /*
+  onChannelSelect={(id) => updateFormParams({ channel_id: id })}
+allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+            allOptionProps={{ onSelectAll: () => setIsAllSelected(true), isSelected: isAllSelected }}
+            onChannelSelect={() => setIsAllSelected(false)}
+   */
   return (
     <Page className="membershipPage-wrapper">
       <div className="membership__mychannels-header">
@@ -122,6 +140,7 @@ const CreatorArea = (props: Props) => {
           <Tab>{__('Overview')}</Tab>
           <Tab>{__('My Supporters')}</Tab>
           <Tab>{__('My Tiers')}</Tab>
+          <Tab>{__('Payments')}</Tab>
           <div className="no-after">
             <Tab>
               <Button
@@ -166,7 +185,7 @@ const CreatorArea = (props: Props) => {
                   <div className="create-tiers-header-buttons">
                     <div className="create-tiers-channel-selector">
                       <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-                      <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                      <ChannelSelector hideAnon onChannelSelect={() => { setAllSelected(false) }} />
                     </div>
 
                     <div className="create-tiers-preview-button">
@@ -178,10 +197,41 @@ const CreatorArea = (props: Props) => {
                         icon={ICONS.BACK}
                         button="secondary"
                       />
+                      <FormField
+                        label={__('Show Disabled')}
+                        name="show_disabled"
+                        type="checkbox"
+                        checked={showDisabled}
+                        onChange={() => setShowDisabled(!showDisabled)}
+                      />
                     </div>
                   </div>
+                  {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
 
-                  <TiersTab />
+                  <TiersTab showDisabled={showDisabled} />
+                </>
+              }
+            />
+          </TabPanel>
+          <TabPanel>
+            <TabWrapper
+              component={
+                <>
+                  <div className="create-tiers-header-buttons">
+                    <div className="create-tiers-channel-selector">
+                      <span className="section__subtitle ">{__('Memberships for Channel...')}</span>
+                      <ChannelSelector
+                        channelIds={myChannelIds}
+                        hideCreateNew
+                        allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                        hideAnon
+                        onChannelSelect={() => setAllSelected(false)}
+                      />
+                    </div>
+                  </div>
+                  {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
+
+                  <PaymentsTab channelsToList={channelsToList} />
                 </>
               }
             />
