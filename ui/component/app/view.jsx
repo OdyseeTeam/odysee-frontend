@@ -34,6 +34,7 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
+import { useArStatus } from 'effects/use-ar-status';
 // import * as MODALS from '../../constants/modal_types';
 
 const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
@@ -134,6 +135,7 @@ function App(props: Props) {
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
     // doOpenModal,
+    doArConnect,
   } = props;
 
   const isMobile = useIsMobile();
@@ -172,6 +174,15 @@ function App(props: Props) {
   const featureParam = urlParams.get('feature');
   const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
   const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
+
+  const {
+    walletType,
+    hasArweaveExtension,
+    hasArSignin,
+    hasArConnection,
+    isSigningIn,
+    hasConnection,
+  } = useArStatus();
 
   let path;
   if (isNewestPath) {
@@ -249,6 +260,13 @@ function App(props: Props) {
     }
   }
 
+  // useEffect(() => {
+  //   if (hasArConnection && !isSigningIn && !hasArSignin) {
+  //     console.log('do ar connect app')
+  //     doArConnect();
+  //   }
+  //
+  // }, [hasArConnection, isSigningIn, hasArSignin, doArConnect])
   useEffect(() => {
     if (userId) {
       analytics.setUser(userId);
