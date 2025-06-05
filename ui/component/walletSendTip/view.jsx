@@ -117,7 +117,7 @@ export default function WalletSendTip(props: Props) {
   const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
-  const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
+  const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_USD;
 
   // loads the default tab if nothing else is there yet
   const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', defaultTabToShow);
