@@ -121,7 +121,7 @@ export default function Wander(props: Props) {
 
     setInstance(wanderInstance);
     window.wanderInstance = wanderInstance;
-    
+
     return () => {
       if (wanderInstance) {
         wanderInstance.destroy();
@@ -133,7 +133,7 @@ export default function Wander(props: Props) {
     if (instance) {
       const isWanderApp = navigator.userAgent.includes('WanderMobile');
       if (isWanderApp) {
-        window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';        
+        window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';
         LocalStorage.setItem('WALLET_TYPE', 'NATIVE_WALLET');
       }
       doArSetAuth(instance.authInfo);
@@ -145,7 +145,7 @@ export default function Wander(props: Props) {
         if (data && data.id && !data.id.includes('react')) {
           if (data.type === 'embedded_auth') {
             if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null' && data.data.authType !== null)) {
-              LocalStorage.setItem('WALLET_TYPE', data.data.authType);              
+              LocalStorage.setItem('WALLET_TYPE', data.data.authType);
               LocalStorage.setItem('WANDER_DISCONNECT', false);
               window.wanderInstance.close();
               doArSetAuth(data.data);

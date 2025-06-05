@@ -14,7 +14,7 @@ export default function ModalCryptoDisclaimers(props: Props) {
   const {
     doHideModal,
   } = props;
-  const showDisclaimersLS = LocalStorage.getItem('CRYPTO_DISCLAIMERS') 
+  const showDisclaimersLS = LocalStorage.getItem('CRYPTO_DISCLAIMERS')
     ? LocalStorage.getItem('CRYPTO_DISCLAIMERS') === 'true'
       ? true
       : false
@@ -23,12 +23,12 @@ export default function ModalCryptoDisclaimers(props: Props) {
 
   const handleShowDisclaimers = () => {
     LocalStorage.setItem('CRYPTO_DISCLAIMERS', !showDisclaimers);
-    setShowDisclaimers(!showDisclaimers)    
+    setShowDisclaimers(!showDisclaimers);
   }
 
   const handleSignIn = () => {
     window.wanderInstance.open();
-    doHideModal()
+    doHideModal();
   }
 
   return (
@@ -77,7 +77,7 @@ export default function ModalCryptoDisclaimers(props: Props) {
         onChange={handleShowDisclaimers}
       />
 
-      <Button 
+      <Button
         button="primary"
         label={__('Sign in')}
         onClick={handleSignIn}
