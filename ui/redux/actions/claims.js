@@ -301,7 +301,7 @@ export function doFetchClaimListMine(
           if (Object.keys(pendingClaimsById).includes(claims[i].claim_id)) {
             continue;
           }
-          if (claims[i].confirmations - claims[i + 1].confirmations > 0) {
+          if (claims[i].confirmations > claims[i + 1].confirmations) {
             Lbryio.call('event', 'desktop_error', { error_message: `CLAIM STUCK IN UPLOADS` });
             break;
           }
