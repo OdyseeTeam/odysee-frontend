@@ -1029,7 +1029,7 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
         const claims = results.items;
         const confirmedClaims = [];
         claims.forEach((claim) => {
-          if (claim.claim_id && claim.confirmations > 0) {
+          if (claim.claim_id && claim.confirmations > 0 && pendingById[claim.claim_id].txid === claim.txid) {
             confirmedClaims.push(claim);
             delete pendingById[claim.claim_id];
           }
