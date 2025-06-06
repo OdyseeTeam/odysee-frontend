@@ -302,7 +302,7 @@ export function doFetchClaimListMine(
             continue;
           }
           if (claims[i].confirmations > claims[i + 1].confirmations) {
-            Lbryio.call('event', 'desktop_error', { error_message: `CLAIM STUCK IN UPLOADS` });
+            Lbryio.call('event', 'desktop_error', { error_message: `CLAIM STUCK IN UPLOADS: ${claims[i].claim_id}` });
             break;
           }
         }
