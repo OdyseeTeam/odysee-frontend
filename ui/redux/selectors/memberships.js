@@ -363,9 +363,12 @@ export const selectMembershipsByIdForChannelIds = createSelector(
 
 export const selectIndexForCreatorMembership = (state: State, creatorId: string, membershipId: number) => {
   const memberships = selectMembershipTiersForCreatorId(state, creatorId);
+  if (!memberships) {
+    return -1;
+  }
 
   const inx = memberships.findIndex((m) => m.membership_id === membershipId);
-  return inx === -1 ? undefined : inx + 1;
+  return inx === -1 ? -1 : inx + 1;
   // .map((m, i) => ({ index: i, id: m.membership.id }))
   // .sort((a, b) => a.id - b.id)
 };

@@ -33,7 +33,7 @@ const select = (state, props) => {
     channelTitle,
     channelUri,
     channelId: claimId,
-    channelName: claim.name,
+    channelName: claim?.name,
     userHasACreatorMembership: selectUserHasValidNonCanceledMembershipForCreatorId(state, channelId),
     exchangeRate: selectArweaveExchangeRates(state),
   };

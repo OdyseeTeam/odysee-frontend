@@ -8,32 +8,26 @@ import UriIndicator from 'component/uriIndicator';
 import { toCapitalCase } from 'util/string';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 
 type Props = {
   membershipSub: MembershipSub,
   creatorChannelClaim: string,
   activeChannelClaim: string,
+  doOpenModal: (id: string, {}) => void,
+  doMembershipList: (params: MembershipListParams) => void,
+  membershipIndex: number,
+  memberChannelUri: string,
 }
 export default function MembershipRow(props: Props) {
-  const { membershipSub, creatorChannelClaim, activeChannelClaim } = props;
+  const { membershipSub, creatorChannelClaim, activeChannelClaim, doOpenModal, membershipIndex,
+    memberChannelUri, doMembershipList } = props;
   function monthsDiff(date1, date2) {
     let d1 = new Date(date1);
     let d2 = new Date(date2);
     return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
   }
   const memberChannelName = activeChannelClaim.name;
-  const memberChannelUri = memberChannelName === ''
-    ? ''
-    : buildURI({ channelName: memberChannelName, channelClaimId: activeChannelClaim.claim_id });
-  if (!creatorChannelClaim || !membershipSub) {
-    return (
-      <tr>
-        <td colSpan="7">
-          <Spinner />
-        </td>
-      </tr>
-    );
-  }
   const creatorChannelId = membershipSub.membership.channel_claim_id;
   const creatorChannelUri = buildURI({
     channelName: creatorChannelClaim.name,
@@ -48,10 +42,26 @@ export default function MembershipRow(props: Props) {
 
   const startDate = new Date(membershipSub.subscription.started_at);
   const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);
+  const canRenew = new Date() > new Date(membershipSub.subscription.earliest_renewal_at) || membershipSub.subscription.earliest_renewal_at;
+
   const amountOfMonths = monthsDiff(startDate, endDate);
   const timeAgoInMonths =
     amountOfMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
 
+  React.useEffect(() => {
+    if (membershipIndex === -1) {
+      doMembershipList({ channel_claim_id: creatorChannelId });
+    }
+  }, [creatorChannelId, doMembershipList, membershipIndex]);
+  if (!creatorChannelClaim || !membershipSub || membershipIndex === -1) {
+    return (
+      <tr>
+        <td colSpan="7">
+          <Spinner />
+        </td>
+      </tr>
+    );
+  }
   return (
     <tr key={`${membershipSub.membership.channel_claim_id}${membershipSub.membership.name}`}>
       <td className="channelThumbnail">
@@ -76,7 +86,21 @@ export default function MembershipRow(props: Props) {
       </td>
       <td>
         {membershipSub.subscription.status === 'active'
-          ? __('Active')
+          ? canRenew
+            ? (<Button
+                icon={ICONS.MEMBERSHIP}
+                button="primary"
+                label={__('Renew', {
+                  membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
+                    membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
+                  ), // tiers
+                })}
+                onClick={() => {
+                  doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri: creatorChannelUri, membershipIndex: membershipIndex, passedTierIndex: membershipIndex, isChannelTab: true, isRenewal: true });
+                }}
+                disabled={false}
+            />)
+            : __('Active')
           : membershipSub.subscription.status === 'past_due'
             ? __('Past Due')
             : membershipSub.subscription.status === 'pending'
