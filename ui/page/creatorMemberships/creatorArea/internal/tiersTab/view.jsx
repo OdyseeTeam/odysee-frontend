@@ -26,7 +26,6 @@ type Props = {
 function TiersTab(props: Props) {
   const {
     // -- redux --
-    bankAccountConfirmed,
     channelMemberships: fetchedMemberships,
     activeChannelClaim,
     membershipOdyseePermanentPerks,
