@@ -42,7 +42,7 @@ export default function MembershipRow(props: Props) {
 
   const startDate = new Date(membershipSub.subscription.started_at);
   const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);
-  const canRenew = new Date() > new Date(membershipSub.subscription.earliest_renewal_at) || membershipSub.subscription.earliest_renewal_at;
+  const canRenew = membershipSub.subscription.earliest_renewal_at && new Date() > new Date(membershipSub.subscription.earliest_renewal_at);
 
   const amountOfMonths = monthsDiff(startDate, endDate);
   const timeAgoInMonths =
