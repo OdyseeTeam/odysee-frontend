@@ -45,9 +45,10 @@ export default function MembershipRow(props: Props) {
   const canRenew = membershipSub.subscription.earliest_renewal_at && new Date() > new Date(membershipSub.subscription.earliest_renewal_at);
 
   const amountOfMonths = monthsDiff(startDate, endDate);
-  const timeAgoInMonths =
-    amountOfMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
 
+  const paidMonths = membershipSub.payments.filter(m => m.status && (m.status === 'paid' || m.status === 'submitted')).length
+  const timeAgoInMonths =
+    paidMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
   React.useEffect(() => {
     if (membershipIndex === -1) {
       doMembershipList({ channel_claim_id: creatorChannelId });
