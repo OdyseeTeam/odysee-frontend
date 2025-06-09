@@ -90,7 +90,7 @@ const JoinMembershipCard = (props: Props) => {
   const selectedCreatorMembership: CreatorMembership = creatorMemberships && creatorMemberships[selectedMembershipIndex];
 
   function handleJoinMembership() {
-    if (!selectedCreatorMembership || isPurchasing.current) return;
+    if (!selectedCreatorMembership || isPurchasing.current) return; // TODO handle error
     isPurchasing.current = true;
 
     const membershipBuyParams: MembershipBuyParams = {
@@ -144,7 +144,7 @@ const JoinMembershipCard = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (channelClaimId && channelName && creatorMemberships === undefined) {
+    if (channelClaimId && channelName && !creatorMemberships) {
       doMembershipList({ channel_claim_id: channelClaimId });
     }
   }, [channelClaimId, channelName, creatorMemberships, doMembershipList]);

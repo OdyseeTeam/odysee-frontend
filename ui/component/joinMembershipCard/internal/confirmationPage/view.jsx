@@ -22,6 +22,7 @@ type Props = {
   isRenewal?: boolean,
   balance: ArweaveBalance,
   exchangeRate: { ar: number },
+  doArConnect: () => void,
 };
 
 const ConfirmationPage = (props: Props) => {
@@ -36,6 +37,7 @@ const ConfirmationPage = (props: Props) => {
     isRenewal,
     balance,
     exchangeRate,
+    doArConnect,
   } = props;
 
   const { ar: arBalance } = balance;
@@ -43,7 +45,9 @@ const ConfirmationPage = (props: Props) => {
   console.log('exchangeRate: ', exchangeRate)
 
   const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
-
+  React.useEffect(() => {
+    doArConnect();
+  }, [doArConnect]);
   return (
     <div className="confirm__wrapper">
       <h1>{__('Almost done')}</h1>

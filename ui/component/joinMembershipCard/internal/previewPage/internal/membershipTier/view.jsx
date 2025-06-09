@@ -95,7 +95,7 @@ const MembershipTier = (props: Props) => {
     if (userHasCreatorMembership) {
       return (<div className={'help'}>{__('$%membership_price% per month', {
         membership_price: (membership?.prices[0].amount / 100).toFixed(
-          membership?.prices[0].amount < 100 ? 2 : 0,
+          membership?.prices[0].amount < 100 ? 2 : 0
         ),
       })}
       </div>);
