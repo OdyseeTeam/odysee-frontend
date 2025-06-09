@@ -9,6 +9,7 @@ import { toCapitalCase } from 'util/string';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
+import * as moment from 'moment';
 
 type Props = {
   membershipSub: MembershipSub,
@@ -79,11 +80,12 @@ export default function MembershipRow(props: Props) {
       </td>
 
       <td>{membershipSub.membership.name}</td>
+      <td>{moment(membershipSub.subscription.ends_at).format('L')}</td>
 
       <td>{timeAgoInMonths}</td>
 
       <td>
-        {supportAmount ? `${supportAmount / 100} ${currency} / ${__(toCapitalCase(interval))}` : null}
+        {supportAmount ? `$${(supportAmount / 100).toFixed(2)} ${currency} / ${__(toCapitalCase(interval))}` : null}
       </td>
       <td>
         {membershipSub.subscription.status === 'active'
