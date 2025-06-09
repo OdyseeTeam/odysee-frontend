@@ -70,7 +70,8 @@ function PledgesTab(props: Props) {
                   {__('Channel Name')}
                 </th>
                 <th>{__('Tier')}</th>
-                <th>{__('Total Supporting Time')}</th>
+                <th>{__('Paid Until')}</th>
+                <th>{__('Months Supported')}</th>
                 <th>{__('Amount')}</th>
                 <th>{__('Status')}</th>
                 <th className="membership-table__page">{__('Page')}</th>
