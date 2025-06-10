@@ -1566,15 +1566,15 @@
   backdrop-filter: blur(100px);
   color: white;
   border-radius: var(--border-radius);
+  overflow: hidden;
 
   .button {
     margin-top: var(--spacing-s);
   }
 
-  @media (max-width: $breakpoint-small) {
-    span {
-      text-align: center;
-    }
+  .info {
+    max-width: 85%;
+    text-align: center;
   }
 }
 

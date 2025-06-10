@@ -1477,6 +1477,15 @@ $control-bar-icon-size: 30px;
     .recommendation-overlay-wrapper {
       display: none;
     }
+    .age-restricted-content-overlay {
+      .info {
+        display: none;
+      }
+      .button {
+        max-width: 100%;
+        font-size: xx-small;
+      }
+    }
   }
 }
 

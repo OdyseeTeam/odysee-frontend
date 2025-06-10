@@ -12,7 +12,7 @@ const AgeRestricedContentOverlay = (props: Props) => {
 
   return (
     <div className="age-restricted-content-overlay">
-      <span>
+      <span className={'info'}>
         {__(
           'The following content is intended for Mature Audiences aged 18 years and over. Viewer discretion is advised.'
         )}
