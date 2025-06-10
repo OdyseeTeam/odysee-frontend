@@ -156,7 +156,7 @@ const SupportersTab = (props: Props) => {
                               <td>{moment(new Date(supporter.joined_at)).format('LL')}</td>
                               <td>
                                 {/* need to put  */}
-                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id].filter(p => p.status === 'paid' || p.status === 'submitted').length}
+                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id] && paymentsBySubscriber[supporter.subscriber_channel_claim_id].filter(p => p.status === 'paid' || p.status === 'submitted').length}
                               </td>
                             </tr>
                           );
