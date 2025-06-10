@@ -7,6 +7,9 @@ import moment from 'moment';
 import CopyableText from 'component/copyableText';
 import Tooltip from 'component/common/tooltip';
 import { toCapitalCase } from 'util/string';
+import { formatLbryUrlForWeb } from 'util/url';
+import Button from 'component/button';
+import * as ICONS from 'constants/icons';
 
 interface IProps {
   transaction: MembershipPayment,
@@ -33,6 +36,8 @@ function View(props: IProps) {
       channelClaimId: senderClaimId })
     : null;
 
+  const creatorChannelPath = formatLbryUrlForWeb(recipientUri);
+
   return (
     <tr key={transaction.transaction_id}>
       <td><Tooltip title={moment(new Date(transaction.initiated_at)).format('LLL')} ><div>{moment(new Date(transaction.initiated_at)).format('LL')}</div></Tooltip></td>
@@ -56,7 +61,16 @@ function View(props: IProps) {
           <div>Anon</div>
         )}
       </td>
-      <td>{membership && membership.name}</td>
+      <td>
+        <span dir="auto" className="button__label">
+          <Button
+            button="primary"
+            icon={ICONS.MEMBERSHIP}
+            navigate={creatorChannelPath + '?view=membership'}
+            label={membership && membership.name}
+          />
+        </span>
+      </td>
       <td className="payment-txid">
         <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.transaction_id} />
       </td>
