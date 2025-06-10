@@ -2,7 +2,11 @@ import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import { doOpenModal } from 'redux/actions/app';
 import { doSetClientSetting } from 'redux/actions/settings';
-import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
+import {
+  selectShowMatureContent,
+  selectIsAgeRestrictedContentAllowed,
+  selectClientSetting,
+} from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 import SettingContent from './view';
@@ -13,7 +17,9 @@ const select = (state, props) => ({
   hideReposts: selectClientSetting(state, SETTINGS.HIDE_REPOSTS),
   hideShorts: selectClientSetting(state, SETTINGS.HIDE_SHORTS),
   defaultCollectionAction: selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION),
+  ageConfirmed: selectClientSetting(state, SETTINGS.AGE_CONFIRMED),
   showNsfw: selectShowMatureContent(state),
+  isAgeRestrictedContentAllowed: selectIsAgeRestrictedContentAllowed(state),
   instantPurchaseEnabled: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED),
   instantPurchaseMax: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX),
   enablePublishPreview: selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW),

@@ -63,6 +63,7 @@ declare type ClaimsState = {
   fetchingMyPurchasedClaimsError: ?string,
   costInfosById: { [claimId: string]: { cost: number, includesData?: boolean } },
   hasPublicationClaims: ?boolean,
+  ageRestrictionAllowedByClaimId: { [claimID: string]: boolean },
 };
 
 declare type ClaimSearchResultsInfo = {|

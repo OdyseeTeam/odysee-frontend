@@ -403,6 +403,10 @@ $actions-z-index: 2;
   }
 }
 
+.channel-thumbnail.age-restricted {
+  filter: blur(5px);
+}
+
 .channel-thumbnail {
   display: flex;
   position: relative;
@@ -1170,6 +1174,13 @@ $actions-z-index: 2;
   @media (max-width: $breakpoint-small) {
     width: 100% !important;
     margin-left: 0 !important;
+  }
+}
+
+.channel-cover.age-restricted {
+  &:after {
+    -webkit-backdrop-filter: blur(100px);
+    backdrop-filter: blur(100px);
   }
 }
 

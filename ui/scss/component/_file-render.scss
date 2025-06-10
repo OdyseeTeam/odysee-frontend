@@ -1318,7 +1318,8 @@ $control-bar-icon-size: 30px;
 }
 
 .paid-content-overlay,
-.protected-content-overlay {
+.protected-content-overlay,
+.age-restricted-content-overlay {
   .button {
     border: 1px solid white;
     transition: all 0.2s;
@@ -1475,6 +1476,15 @@ $control-bar-icon-size: 30px;
   &.content__viewer--floating {
     .recommendation-overlay-wrapper {
       display: none;
+    }
+    .age-restricted-content-overlay {
+      .info {
+        display: none;
+      }
+      .button {
+        max-width: 100%;
+        font-size: xx-small;
+      }
     }
   }
 }
