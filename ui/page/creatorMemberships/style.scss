@@ -44,7 +44,7 @@ h1 {
 
 .membership-wrapper {
   background-size: 120%;
-  margin-bottom: var(--spacing-l);
+  margin-bottom: var(--spacing-m);
   border-radius: var(--border-radius);
   overflow: hidden;
 
@@ -86,7 +86,7 @@ h1 {
     background-position: 20% -190px;
     transition: background-position 0.4s;
     .membership-content {
-      background-color: rgba(0, 208, 217, 0.3);
+      background-color: rgba(0, 208, 217, 0.1);
     }
   }
 
@@ -95,7 +95,7 @@ h1 {
     background-position: 60% -170px;
     transition: background-position 0.4s;
     .membership-content {
-      background-color: rgba(230, 25, 112, 0.3);
+      background-color: rgba(230, 25, 112, 0.1);
     }
   }
 
@@ -115,14 +115,14 @@ h1 {
     &.supporter {
       background-position: 18% -196px;
       .membership-content {
-        background-color: rgba(0, 208, 217, 0.5);
+        background-color: rgba(0, 208, 217, 0.2);
       }
     }
 
     &.memberships {
       background-position: 58% -176px;
       .membership-content {
-        background-color: rgba(230, 25, 112, 0.5);
+        background-color: rgba(230, 25, 112, 0.2);
       }
     }
   }

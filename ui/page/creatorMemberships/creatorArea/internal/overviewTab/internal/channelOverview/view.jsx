@@ -36,7 +36,7 @@ const ChannelOverview = (props: Props) => {
 
       <td>
         <ButtonNavigateChannelId
-          button="primary"
+          button="alt"
           channelId={channelClaim.claim_id}
           icon={ICONS.MEMBERSHIP}
           navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}

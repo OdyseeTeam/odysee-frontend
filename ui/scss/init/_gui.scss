@@ -1014,8 +1014,9 @@ video {
 .help-hub__wrapper {
   margin-top: var(--spacing-l);
   width: 100%;
-  background-color: rgba(255, 221, 162, 1);
-  color: black;
+  border: 1px solid rgba(255, 221, 162, 1);
+  background-color: rgba(255, 221, 162, .1);
+  // color: black;
   border-radius: var(--border-radius);
   text-align: center;
   padding: var(--spacing-s);

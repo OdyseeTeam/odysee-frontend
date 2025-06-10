@@ -39,7 +39,7 @@ const MembershipsLandingPage = () => {
       <div className="membership-wrapper memberships" onClick={() => handleNavigateToPage(PAGES.CREATOR_MEMBERSHIPS)}>
         <div className="membership-content">
           <div>
-            <h2>{__('Membership Portal')}</h2>
+            <h2>{__('Creator Portal')}</h2>
             <p className="portal-tagline">
               {__('Create memberships and have users subscribe to them to support you.')}
             </p>

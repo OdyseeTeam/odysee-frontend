@@ -31,7 +31,7 @@ export default function MembershipRow(props: Props) {
   const memberChannelName = activeChannelClaim.name;
   const creatorChannelId = membershipSub.membership.channel_claim_id;
   const creatorChannelUri = buildURI({
-    channelName: creatorChannelClaim.name,
+    channelName: creatorChannelClaim?.name,
     channelClaimId: creatorChannelId,
   });
   const creatorChannelPath = formatLbryUrlForWeb(creatorChannelUri);
@@ -111,13 +111,13 @@ export default function MembershipRow(props: Props) {
               : __('Cancelled')}
       </td>
       <td>
-          <span dir="auto" className="button__label">
-            <Button
-              button="primary"
-              icon={ICONS.MEMBERSHIP}
-              navigate={creatorChannelPath + '?view=membership'}
-            />
-          </span>
+        <span dir="auto" className="button__label">
+          <Button
+            button="alt"
+            icon={ICONS.MEMBERSHIP}
+            navigate={creatorChannelPath + '?view=membership'}
+          />
+        </span>
       </td>
     </tr>
   );

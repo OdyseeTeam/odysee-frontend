@@ -131,27 +131,26 @@ allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelect
    */
   return (
     <Page className="membershipPage-wrapper">
-      <div className="membership__mychannels-header">
-        <label>{__('Creator Portal')}</label>
+      <div className="creator-header-wrapper">
+        <div className="creator-header">
+          <Button
+            navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
+            icon={ICONS.BACK}
+            button="primary"
+          />
+          <div>{__('Creator Portal')}</div>
+        </div>        
       </div>
 
       <Tabs onChange={onTabChange} index={tabIndex}>
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-          <Tab>{__('My Supporters')}</Tab>
-          <Tab>{__('My Tiers')}</Tab>
-          <Tab>{__('Payments')}</Tab>
-          <div className="no-after">
-            <Tab>
-              <Button
-                navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
-                label={__('Back To Memberships')}
-                icon={ICONS.BACK}
-                button="secondary"
-              />
-            </Tab>
-          </div>
-        </TabList>
+        <div className="tab__wrapper">
+          <TabList>
+            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
+            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('My Supporters')}</Tab>
+            <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>{__('My Tiers')}</Tab>
+            <Tab aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>{__('Payments')}</Tab>
+          </TabList>
+        </div>
 
         <TabPanels>
           <TabPanel>
