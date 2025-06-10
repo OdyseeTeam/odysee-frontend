@@ -220,6 +220,32 @@ export const selectMyValidMembershipsForCreatorId = (state: State, id: string) =
   return myValidMembershipsById[id] || null;
 };
 
+export const selectIncomingPaymentsBySubscriber = (state) => {
+  const payments = selectMembershipTxIncoming(state);
+  return payments.reduce((ac, cur) => {
+    const currentId = cur.subscriber_channel_claim_id;
+    if ( ac[currentId] ) {
+      ac[currentId].push(cur)
+    } else {
+      ac[currentId] = [cur];
+    }
+    return ac;
+  }, {})
+}
+
+export const selectMembershipPaymentsForMemberChannelId = (state: State, id: string) => {
+  const payments = selectMembershipTxIncoming(state);
+  if (!payments) {
+    return [];
+  }
+
+  if (payments.length === 0) {
+    return [];
+  }
+
+  selectedPayments = payments.filter(p => p.subscriber_channel_claim_id === id);
+  return selectedPayments;
+}
 export const selectUserHasValidMembershipForCreatorId = (state: State, id: string) => {
   const validMemberships = selectMyValidMembershipsForCreatorId(state, id);
   return Boolean(validMemberships && validMemberships.length > 0);
