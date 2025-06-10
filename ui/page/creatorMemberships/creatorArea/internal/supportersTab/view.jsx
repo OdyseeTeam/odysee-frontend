@@ -17,6 +17,7 @@ type Props = {
   supportersList: ?SupportersList,
   channelMembershipTiers: ?CreatorMemberships,
   doResolveClaimIds: (claimIds: Array<string>) => void,
+  paymentsBySubscriber: { [channelId: string]: Array<MembershipPayment> }, // payments by id { [id]: [{ paymentobj }...] }
 };
 
 const SupportersTab = (props: Props) => {
@@ -27,6 +28,7 @@ const SupportersTab = (props: Props) => {
     supportersList,
     channelMembershipTiers,
     doResolveClaimIds,
+    paymentsBySubscriber,
   } = props;
 
   // const sl = [
@@ -153,7 +155,8 @@ const SupportersTab = (props: Props) => {
                               <td>${supporter.price / 100} USD / Month</td>
                               <td>{moment(new Date(supporter.joined_at)).format('LL')}</td>
                               <td>
-                                {Math.ceil(moment(new Date()).diff(new Date(supporter.joined_at), 'months', true))}
+                                {/* need to put  */}
+                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id].filter(p => p.status === 'paid' || p.status === 'submitted').length}
                               </td>
                             </tr>
                           );
