@@ -112,7 +112,6 @@ export default function SettingContent(props: Props) {
                 </FormField>
               </fieldset-section>
             </SettingsRow>
-            <SettingsRow title={__("Don't obscure mature content")} subtitle={__(HELP.NO_OBSCURE_MATURE)}>
             <SettingsRow
               title={__("Don't obscure age restricted content")}
               subtitle={__(HELP.NO_OBSCURE_AGE_RESTRICTED_CONTENT)}
