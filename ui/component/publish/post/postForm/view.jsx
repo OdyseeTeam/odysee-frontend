@@ -439,7 +439,7 @@ function PostForm(props: Props) {
                   help={__(
                     "Add tags that are relevant to your content so those who're looking for it can find it more easily."
                   )}
-                  disabledControlTags={[TAGS.AGE_RESTRICED_CHANNEL_IMAGES_TAG]}
+                  excludedControlTags={[TAGS.AGE_RESTRICED_CHANNEL_IMAGES_TAG]}
                   placeholder={__('gaming, crypto')}
                   onSelect={(newTags) => {
                     const validatedTags = [];

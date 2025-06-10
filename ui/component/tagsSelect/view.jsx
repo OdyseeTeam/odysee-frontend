@@ -26,7 +26,7 @@ type Props = {
   hideHeader?: boolean,
   limitShow?: number,
   limitSelect?: number,
-  disabledControlTags?: Array<string>,
+  excludedControlTags?: Array<string>,
 };
 
 /*
@@ -49,7 +49,7 @@ export default function TagsSelect(props: Props) {
     label,
     limitShow,
     limitSelect,
-    disabledControlTags,
+    excludedControlTags,
   } = props;
   const [hasClosed, setHasClosed] = usePersistedState('tag-select:has-closed', false);
   const tagsToDisplay = tagsChosen || followedTags;
@@ -104,7 +104,7 @@ export default function TagsSelect(props: Props) {
               placeholder={placeholder}
               limitShow={limitShow}
               limitSelect={limitSelect}
-              disabledControlTags={disabledControlTags}
+              excludedControlTags={excludedControlTags}
               help={
                 help !== false && (
                   <span>

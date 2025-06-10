@@ -46,7 +46,6 @@ type Props = {
   limitShow?: number,
   user: User,
   disableControlTags?: boolean,
-  disabledControlTags?: Array<string>,
   help?: string,
   excludedControlTags?: Array<string>,
 };
@@ -82,7 +81,6 @@ export default function TagsSearch(props: Props) {
     limitSelect = TAG_FOLLOW_MAX,
     limitShow = 5,
     disableControlTags,
-    disabledControlTags,
     help,
     excludedControlTags = [],
   } = props;
