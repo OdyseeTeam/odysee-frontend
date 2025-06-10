@@ -100,25 +100,23 @@ const SupporterArea = (props: Props) => {
 
   return (
     <Page className="membershipPage-wrapper">
-      <div className="membership__mypledges-header">
-        <label>{__('Donor Portal')}</label>
+      <div className="supporter-header-wrapper">
+        <div className="supporter-header">
+          <Button
+            navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
+            icon={ICONS.BACK}
+            button="primary"
+          />
+          <div>{__('Donor Portal')}</div>
+        </div>        
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-           <Tab>{__('Payments')}</Tab>
-          {/* <Tab> {__('Creators To Support')}</Tab> */}
-          <div className="no-after">
-            <Tab>
-              <Button
-                navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
-                label={__('Back To Memberships')}
-                icon={ICONS.BACK}
-                button="secondary"
-              />
-            </Tab>
-          </div>
-        </TabList>
+        <div className="tab__wrapper">
+          <TabList>
+            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
+            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Payments')}</Tab>
+          </TabList>
+        </div>
 
         <TabPanels>
           <TabPanel>

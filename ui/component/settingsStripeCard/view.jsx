@@ -151,7 +151,6 @@ const SettingsStripeCard = (props: Props) => {
   if (cardDetails) {
     return (
       <div className="successCard">
-        {/* back to membership button */}
         {shouldShowBackToMembershipButton && (
           <Button
             button="primary"

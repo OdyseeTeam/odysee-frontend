@@ -14,11 +14,11 @@ const select = (state, props) => {
 
   const creatorChannelUri = creatorChannelClaim
     ? ''
-    : buildURI({ channelName: creatorChannelClaim.name, channelClaimId: creatorChannelClaim.claim_id });
+    : buildURI({ channelName: creatorChannelClaim?.name, channelClaimId: creatorChannelClaim?.claim_id });
 
   // select membership for creator and membershipid
   const membershipId = membershipSub ? membershipSub.membership.id : undefined;
-  const index = selectIndexForCreatorMembership(state, creatorChannelClaim.claim_id, membershipId);
+  const index = selectIndexForCreatorMembership(state, creatorChannelClaim?.claim_id, membershipId);
 
   return {
     activeChannelClaim: selectActiveChannelClaim(state),

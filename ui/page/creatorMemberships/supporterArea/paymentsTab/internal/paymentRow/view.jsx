@@ -74,7 +74,7 @@ function View(props: IProps) {
       <td className="payment-txid">
         <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.transaction_id} />
       </td>
-      <td>{transaction.usd_amount}</td>
+      <td>{membership && ''}${(transaction.usd_amount/100).toFixed(2)} USD</td>
       <td>{transaction.status ? toCapitalCase(transaction.status) : '...'}</td>
     </tr>
   );
