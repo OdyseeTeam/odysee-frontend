@@ -119,7 +119,7 @@ export const selectHasMembershipForMembershipId = (state: State, creatorId: stri
     !!mineForCreator.find(
       (m) =>
         m.membership.id === membershipId &&
-        (m.subscription.status === 'active' ||
+        (m.subscription.is_active === true ||
           (m.subscription.status === 'pending' && m.payments.some((p) => p.status === 'submitted')))
     ) || false;
   return isSubscribed;
@@ -177,9 +177,7 @@ export const selectMyValidMembershipsById = createSelector(selectMembershipMineD
     const purchasedCreatorMemberships = myMembershipsByCreatorId[creatorChannelId];
 
     for (const membership of purchasedCreatorMemberships) {
-      if (
-        membership.subscription.status === 'active' || membership.subscription.status === 'lapsed'
-      ) {
+      if (membership.subscription.is_active === true) {
         validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
         validMembershipsById[creatorChannelId].add(membership);
         // $FlowFixMe
@@ -253,7 +251,7 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
 
 export const selectUserHasValidNonCanceledMembershipForCreatorId = (state: State, id: string) => {
   const validMemberships = selectMyValidMembershipsForCreatorId(state, id) || [];
-  const memberships = validMemberships.filter((m) => m.subscription.status === 'active'); // possibly 'pending'
+  const memberships = validMemberships.filter((m) => m.subscription.is_active === true); // possibly 'pending'
   return Boolean(memberships && memberships.length > 0);
 };
 

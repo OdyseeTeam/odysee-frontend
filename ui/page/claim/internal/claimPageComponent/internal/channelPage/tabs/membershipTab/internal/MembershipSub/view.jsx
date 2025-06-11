@@ -27,7 +27,7 @@ function MembershipSubscribed(props: IProps) {
   const subscriptionEndDate = membershipSub.subscription.ends_at;
   const formattedEndOfMembershipDate = formatDateToMonthAndDay(new Date(subscriptionEndDate));
   const perks = membershipSub.perks;
-  const isActive = membershipSub.subscription.status === 'active';
+  const isActive = membershipSub.subscription.is_active === true;
   const canRenew = membershipSub.subscription.earliest_renewal_at && now > new Date(membershipSub.subscription.earliest_renewal_at);
   return (
     <>
