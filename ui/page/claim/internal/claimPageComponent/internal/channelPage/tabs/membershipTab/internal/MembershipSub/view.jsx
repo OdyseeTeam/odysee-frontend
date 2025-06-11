@@ -21,6 +21,8 @@ function MembershipSubscribed(props: IProps) {
     return null;
   }
 
+  const styleIndex = membershipIndex + 1;
+
   const now = new Date();
   const subscriptionEndDate = membershipSub.subscription.ends_at;
   const formattedEndOfMembershipDate = formatDateToMonthAndDay(new Date(subscriptionEndDate));
@@ -33,7 +35,7 @@ function MembershipSubscribed(props: IProps) {
         className="membership membership-tab"
         body={
           <>
-            <div className={'membership__body membership-tier' + membershipIndex}>
+            <div className={'membership__body membership-tier' + styleIndex}>
               <div className="membership__plan-header">
                 <span>{membershipSub.membership.name}</span>
 
@@ -42,7 +44,7 @@ function MembershipSubscribed(props: IProps) {
                     <MenuButton className="menu__button">
                       <Icon size={18} icon={ICONS.SETTINGS} />
                     </MenuButton>
-                    <MenuList className={'menu__list membership-tier' + membershipIndex}>
+                    <MenuList className={'menu__list membership-tier' + styleIndex}>
                       <MenuItem
                         className="comment__menu-option"
                         onSelect={() => doOpenCancelationModalForMembership(membershipSub)}
@@ -59,7 +61,7 @@ function MembershipSubscribed(props: IProps) {
                     <MenuButton className="menu__button">
                       <Icon size={18} icon={ICONS.SETTINGS} />
                     </MenuButton>
-                    <MenuList className={'menu__list membership-tier' + membershipIndex}>
+                    <MenuList className={'menu__list membership-tier' + styleIndex}>
                       <MenuItem
                         className="comment__menu-option"
                         onSelect={() => doOpenCancelationModalForMembership(membershipSub)}
