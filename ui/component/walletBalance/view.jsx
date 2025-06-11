@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
-// import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
+import * as SETTINGS from 'constants/settings';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -12,15 +12,12 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-// import WalletFiatBalance from 'component/walletFiatBalance';
-// import { formatNumberWithCommas } from 'util/number';
 import { LocalStorage } from 'util/storage';
 import { formatCredits } from 'util/format-credits';
 
 type Props = {
-  experimentalUi: boolean,
+  clientSettings: any,
   LBCBalance: number,
-  // USDCBalance: number,
   arStatus: any,
   arBalance: number,
   arUsdRate: number,
@@ -36,7 +33,6 @@ type Props = {
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
-  // accountStatus: any,
   fullArweaveStatus: Array<any>,
   doOpenModal: (string) => void,
   doFetchUtxoCounts: () => void,
@@ -52,9 +48,8 @@ const LARGE_WALLET_BALANCE = 100;
 
 const WalletBalance = (props: Props) => {
   const {
-    // experimentalUi,
+    clientSettings,
     LBCBalance,
-    // USDCBalance,
     wanderAuth,
     arStatus,
     arBalance,
@@ -69,8 +64,6 @@ const WalletBalance = (props: Props) => {
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
-    // accountStatus,
-    // fullArweaveStatus,
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
@@ -82,7 +75,6 @@ const WalletBalance = (props: Props) => {
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
   const { other: otherCount = 0 } = utxoCounts || {};
-  // const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
   const [walletType, setWalletType] = React.useState(
@@ -131,33 +123,8 @@ const WalletBalance = (props: Props) => {
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
 
-
-  /*
-  React.useEffect(() => {    
-    (async () => {
-      if(hasConnection){
-        console.log('hasConnection: ', hasConnection)
-        const tokens = await window.arweaveWallet.userTokens();
-        console.log("Tokens owned by the user:", tokens);
-        try {
-          const tokenId = tokens[0].processId
-          console.log('tokenId: ', tokenId)
-          const balance = await window.arweaveWallet.tokenBalance(tokenId);
-          console.log(`Balance of the token with ID ${tokenId}:`, balance);
-        } catch (error) {
-          console.error("Error fetching token balance:", error);
-        }
-      }      
-    })()
-  }, [hasConnection])
-  */
-
   const handleSignIn = () => {
-    const showModal = LocalStorage.getItem('CRYPTO_DISCLAIMERS') 
-      ? LocalStorage.getItem('CRYPTO_DISCLAIMERS') === 'true'
-        ? true
-        : false
-      : true;
+    const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS]
     if(showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS)
     else window.wanderInstance.open();
   }

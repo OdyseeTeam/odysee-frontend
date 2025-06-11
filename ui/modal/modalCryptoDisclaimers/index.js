@@ -1,13 +1,18 @@
 import ModalCryptoDisclaimers from './view';
 import { connect } from 'react-redux';
-import { doHideModal, doOpenModal } from 'redux/actions/app';
-import { doArConnect, doArDisconnect } from 'redux/actions/arwallet';
+import { doHideModal } from 'redux/actions/app';
+import { doArConnect } from 'redux/actions/arwallet';
+import { selectClientSettings } from 'redux/selectors/settings';
+import { doSetClientSetting } from 'redux/actions/settings';
 
-const select = (state) => ({});
+const select = (state) => ({
+  clientSettings: selectClientSettings(state)
+});
 
 const perform = {
   doHideModal,
   doArConnect,
+  doSetClientSetting,
 };
 
 export default connect(select, perform)(ModalCryptoDisclaimers);

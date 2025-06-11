@@ -1,28 +1,29 @@
 // @flow
 import React from 'react';
+import * as SETTINGS from 'constants/settings';
 import Button from 'component/button';
 import { FormField } from 'component/common/form-components/form-field';
 import { Modal } from 'modal/modal';
-import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 type Props = {
+  clientSettings: any,
   doHideModal: () => void,
+  doSetClientSetting: (string, boolean, ?boolean) => void,
 };
 
 export default function ModalCryptoDisclaimers(props: Props) {
   const {
+    clientSettings,
     doHideModal,
+    doSetClientSetting,
   } = props;
-  const showDisclaimersLS = LocalStorage.getItem('CRYPTO_DISCLAIMERS') 
-    ? LocalStorage.getItem('CRYPTO_DISCLAIMERS') === 'true'
-      ? true
-      : false
-    : true;
+
+  const showDisclaimersLS = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];
   const [showDisclaimers, setShowDisclaimers] = React.useState(showDisclaimersLS);
 
   const handleShowDisclaimers = () => {
-    LocalStorage.setItem('CRYPTO_DISCLAIMERS', !showDisclaimers);
+    doSetClientSetting(SETTINGS.CRYPTO_DISCLAIMERS, !showDisclaimers);
     setShowDisclaimers(!showDisclaimers)    
   }
 
