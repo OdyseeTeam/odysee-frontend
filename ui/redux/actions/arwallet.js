@@ -258,6 +258,13 @@ export const doArTip = (
           },
           'post'
         );
+        if (res.error) {
+          dispatch({
+            type: AR_TIP_STATUS_ERROR,
+            data: { claimId: claimId, error: res.error },
+          });
+          return;
+        }
         referenceToken = res.reference_token;
         transactionAmount = res.transaction_amount;
       }
@@ -293,6 +300,14 @@ export const doArTip = (
         });
       }
 
+      if (!transferTxid) {
+        dispatch({
+          type: AR_TIP_STATUS_ERROR,
+          data: { claimId: claimId, error: 'error: arweave transaction failed' },
+        });
+        return;
+      }
+
       await Lbryio.call(
         'customer',
         'tip',
@@ -318,7 +333,7 @@ export const doArTip = (
     } catch (e) {
       console.error(e);
       dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
-      return { error: 'error' };
+      return { error: 'error' | e?.message || e };
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
     // support comments need the transferTxid, so return that here.
