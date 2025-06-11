@@ -394,7 +394,7 @@ export const selectIndexForCreatorMembership = (state: State, creatorId: string,
   }
 
   const inx = memberships.findIndex((m) => m.membership_id === membershipId);
-  return inx === -1 ? -1 : inx + 1;
+  return inx === -1 ? -1 : inx; // removed +1 here
   // .map((m, i) => ({ index: i, id: m.membership.id }))
   // .sort((a, b) => a.id - b.id)
 };

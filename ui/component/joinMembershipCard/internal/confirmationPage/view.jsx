@@ -42,12 +42,12 @@ const ConfirmationPage = (props: Props) => {
 
   const { ar: arBalance } = balance;
   const { ar: dollarsPerAr } = exchangeRate;
-  console.log('exchangeRate: ', exchangeRate)
 
-  const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
   React.useEffect(() => {
     doArConnect();
   }, [doArConnect]);
+
+  const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
   return (
     <div className="confirm__wrapper">
       <h1>{__('Almost done')}</h1>
