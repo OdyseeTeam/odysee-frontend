@@ -7,7 +7,7 @@
 
 import { generateError } from './publish-error';
 import analytics from '../../ui/analytics';
-import { PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL } from '../../ui/constants/errors';
+import { PUBLISH_TIMEOUT } from '../../ui/constants/errors';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
 import { LBRY_WEB_PUBLISH_API } from 'config';
@@ -15,7 +15,7 @@ import { LBRY_WEB_PUBLISH_API } from 'config';
 const ENDPOINT = LBRY_WEB_PUBLISH_API;
 const ENDPOINT_METHOD = 'publish';
 
-const PUBLISH_FETCH_TIMEOUT_MS = 60000;
+const PUBLISH_FETCH_TIMEOUT_MS = 600000;
 const PREVIEW_FETCH_TIMEOUT_MS = 10000;
 
 export function makeUploadRequest(
@@ -76,7 +76,7 @@ export function makeUploadRequest(
       } else {
         analytics.error(`publish-v1: timed out after ${PUBLISH_FETCH_TIMEOUT_MS / 1000}s`);
         window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-        reject(generateError(PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL, params, xhr));
+        reject(generateError(PUBLISH_TIMEOUT, params, xhr));
       }
     };
     xhr.onabort = () => {
