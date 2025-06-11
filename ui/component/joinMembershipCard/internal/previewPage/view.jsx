@@ -72,7 +72,7 @@ const PreviewPage = (props: Props) => {
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
-  const hasActiveWalletConnection = arweaveStatus?.auth.authStatus === 'authenticated';
+  const hasActiveWalletConnection = Boolean(arweaveStatus?.address);
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
