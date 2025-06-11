@@ -85,7 +85,6 @@ export default function ModalAnnouncements(props: Props) {
   const handleMakeDefault = () => {
     if (id !== null) {
       doUpdateArweaveAddressDefault(id);
-
     }
     doHideModal();
   };

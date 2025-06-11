@@ -82,10 +82,11 @@ declare type MembershipSub = {
   membership: Membership,
   subscription: {
     current_price: { amount: number, currency: "USD", frequency: "monthly", id: number },
-    status: string,
+    status: string, // 'active' 'lapsed' 'cancelled' ?
     started_at: number,
     ends_at: string,
     earliest_renewal_at: string,
+    is_active: boolean,
   },
   perks: Array<any>,
   payments: Array<PaymentDetails>,
