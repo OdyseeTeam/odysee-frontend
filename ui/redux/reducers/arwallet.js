@@ -103,7 +103,6 @@ reducers[ACTIONS.WANDER_AUTH] = (state, action) => {
 };
 
 reducers[ACTIONS.ARSETEXCHANGERATE] = (state, action) => {  
-  console.log('action: ', action)
   return { ...state, exchangeRates: { ar: action.data }};
 };
 

@@ -25,15 +25,16 @@ import { doFetchUtxoCounts, doUtxoConsolidate } from 'redux/actions/wallet';
 import { doOpenModal } from 'redux/actions/app';
 import { selectSyncHash } from 'redux/selectors/sync';
 import { selectClaimedRewards } from 'redux/selectors/rewards';
+import { selectClientSettings } from 'redux/selectors/settings';
 import WalletBalance from './view';
 
 const select = (state) => ({
+  clientSettings: selectClientSettings(state),
   experimentalUi: selectUserExperimentalUi(state),
   LBCBalance: selectBalance(state),
   arStatus: selectArweaveStatus(state),
   arBalance: selectArweaveBalance(state)?.ar,
   arUsdRate: selectArweaveExchangeRates(state)?.ar,
-  // accountStatus: selectAccountStatus(state),
   fullArweaveStatus: selectFullAPIArweaveStatus(state),
   claimsBalance: selectClaimsBalance(state) || 0,
   totalBalance: selectTotalBalance(state),

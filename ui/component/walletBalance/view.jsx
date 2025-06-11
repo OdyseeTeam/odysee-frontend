@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
-// import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
+import * as SETTINGS from 'constants/settings';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -12,15 +12,12 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-// import WalletFiatBalance from 'component/walletFiatBalance';
-// import { formatNumberWithCommas } from 'util/number';
 import { LocalStorage } from 'util/storage';
 import { formatCredits } from 'util/format-credits';
 
 type Props = {
-  experimentalUi: boolean,
+  clientSettings: any,
   LBCBalance: number,
-  // USDCBalance: number,
   arStatus: any,
   arBalance: number,
   arUsdRate: number,
@@ -36,7 +33,6 @@ type Props = {
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
-  // accountStatus: any,
   fullArweaveStatus: Array<any>,
   doOpenModal: (string) => void,
   doFetchUtxoCounts: () => void,
@@ -52,9 +48,8 @@ const LARGE_WALLET_BALANCE = 100;
 
 const WalletBalance = (props: Props) => {
   const {
-    // experimentalUi,
+    clientSettings,
     LBCBalance,
-    // USDCBalance,
     wanderAuth,
     arStatus,
     arBalance,
@@ -69,8 +64,6 @@ const WalletBalance = (props: Props) => {
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
-    // accountStatus,
-    // fullArweaveStatus,
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
@@ -82,7 +75,6 @@ const WalletBalance = (props: Props) => {
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
   const [detailsExpanded, setDetailsExpanded] = React.useState(false);
   const { other: otherCount = 0 } = utxoCounts || {};
-  // const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
   const [walletType, setWalletType] = React.useState(
@@ -117,18 +109,25 @@ const WalletBalance = (props: Props) => {
     }
     if (
       !arStatus.connecting &&
-      window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' &&
+      (window.wanderInstance.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance.authInfo.authType === 'nul') &&
       walletType === 'extension'
     ) {
       doArConnect();
     }
-  }, [wanderAuth, walletType, doArConnect, arStatus.connecting]);
+    // $FlowIgnore
+  }, [wanderAuth, walletType, doArConnect]);
 
   React.useEffect(() => {
     if (LBCBalance > LARGE_WALLET_BALANCE && detailsExpanded) {
       doFetchUtxoCounts();
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
+
+  const handleSignIn = () => {
+    const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];
+    if (showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS);
+    else window.wanderInstance.open();
+  };
 
   return (
     <div className={'columns'}>
@@ -309,11 +308,11 @@ const WalletBalance = (props: Props) => {
         <Card
           title={
             !hasArConnection ? (
-              <Symbol token="wander" amount="Wander" />
+              <Symbol token="wallet" amount="0" />
             ) : (
               <>
                 <Symbol token="ar" amount={arBalance} precision={6} isTitle />
-                <Button button="alt" icon={ICONS.WANDER} label={__('Disconnect')} onClick={() => doArDisconnect()} />
+                <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect()} />
               </>
             )
           }
@@ -353,21 +352,18 @@ const WalletBalance = (props: Props) => {
                     tokens={{
                       textD: (
                         <p>
-                          To use AR on Odysee, you have to sign into your Wander account or use the Wander browser
-                          extension.
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
                         </p>
                       ),
                       textM: (
                         <p>
-                          To use AR on Odysee, you have to sign into your Wander account or use the Wander Wallet app.
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
                         </p>
                       ),
                       login: (
                         <a
                           className="link"
-                          onClick={() => {
-                            window.wanderInstance.open();
-                          }}
+                          onClick={handleSignIn}
                         >
                           Sign in
                         </a>
