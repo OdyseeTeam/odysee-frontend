@@ -82,7 +82,7 @@ export default function Wander(props: Props) {
           }
 
           .iframe {
-            // max-width:400px;
+            max-width:400px;
           }
 
           .iframe-wrapper {              
