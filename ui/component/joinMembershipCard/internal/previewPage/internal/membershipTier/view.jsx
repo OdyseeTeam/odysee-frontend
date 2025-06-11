@@ -59,7 +59,7 @@ const MembershipTier = (props: Props) => {
   const hasPayment = thisMembership ? thisMembership?.payments.length > 0 : false;
 
   const getMembershipAction = () => {
-    if (isActive) {
+    if (isActive && !isCanceled) {
       return (<div className={'help'}>Currently Subscribed!</div>);
     }
 
