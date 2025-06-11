@@ -42,7 +42,7 @@ function MembershipSubscribed(props: IProps) {
               <div className="membership__plan-header">
                 <span>{membershipSub.membership.name}</span>
 
-                {isActive && (
+                {isActive && !isCanceled && (
                   <Menu>
                     <MenuButton className="menu__button">
                       <Icon size={18} icon={ICONS.SETTINGS} />
@@ -59,7 +59,7 @@ function MembershipSubscribed(props: IProps) {
                     </MenuList>
                   </Menu>
                 )}
-                {!isActive && (
+                {isCanceled && (
                   <Menu>
                     <MenuButton className="menu__button">
                       <Icon size={18} icon={ICONS.SETTINGS} />
