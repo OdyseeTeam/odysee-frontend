@@ -44,6 +44,7 @@ const ConfirmationPage = (props: Props) => {
   const { ar: dollarsPerAr } = exchangeRate;
 
   React.useEffect(() => {
+    console.log('AC A')
     doArConnect();
   }, [doArConnect]);
 

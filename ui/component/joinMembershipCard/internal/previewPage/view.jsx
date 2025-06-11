@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import classnames from 'classnames';
 import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
@@ -36,6 +37,8 @@ type Props = {
   doOpenModal: (id: string, props: {}) => void,
   joinEnabled: boolean,
   cheapestPlan: CreatorMembership,
+  arweaveWallets: any,
+  arweaveStatus: any,
   exchangeRate: { ar: number },
 };
 
@@ -63,10 +66,13 @@ const PreviewPage = (props: Props) => {
     doOpenModal,
     joinEnabled,
     cheapestPlan,
+    arweaveWallets,
+    arweaveStatus,
     exchangeRate,
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
+  const hasActiveWalletConnection = arweaveStatus?.auth.authStatus === 'authenticated';
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
@@ -150,6 +156,20 @@ const PreviewPage = (props: Props) => {
   if (isChannelTab) {
     return (
       <>
+        {!hasActiveWalletConnection && 
+          <div className="missing-wallet-warning">
+            {arweaveWallets.length > 0 
+              ? <>
+                  <p>{__('To join a new membership on Odysee, you need to be signed into Wander.')}</p>
+                  
+                </>
+              : <>
+                  <p>{__('To join a new membership on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.')}</p>
+                </>
+            }
+              <NavLink to={`/$/wallet`}>Wallet settings</NavLink>            
+            </div>}
+
         {channelIsMine && (
           <div className="button--manage-memberships">
             <ButtonNavigateChannelId
@@ -177,6 +197,7 @@ const PreviewPage = (props: Props) => {
               isOwnChannel={channelIsMine}
               userHasCreatorMembership={userHasACreatorMembership} // here
               isChannelTab
+              disabled={!hasActiveWalletConnection}
             />
           ))}
         </div>
