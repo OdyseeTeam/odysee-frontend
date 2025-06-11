@@ -25,9 +25,12 @@ function MembershipSubscribed(props: IProps) {
 
   const now = new Date();
   const subscriptionEndDate = membershipSub.subscription.ends_at;
+  const subscriptionRenewalDate = membershipSub.subscription.earliest_renewal_at;
   const formattedEndOfMembershipDate = formatDateToMonthAndDay(new Date(subscriptionEndDate));
+  const formattedRenewalMembershipDate = formatDateToMonthAndDay(new Date(subscriptionRenewalDate));
   const perks = membershipSub.perks;
   const isActive = membershipSub.subscription.is_active === true;
+  const isCanceled = membershipSub.subscription.status === 'canceled';
   const canRenew = membershipSub.subscription.earliest_renewal_at && now > new Date(membershipSub.subscription.earliest_renewal_at);
   return (
     <>
@@ -104,7 +107,7 @@ function MembershipSubscribed(props: IProps) {
                 <div className="membership__plan-actions">
 
 
-                    {isActive
+                    {isActive && !isCanceled
                       ? canRenew
                         ? (<Button
                             icon={ICONS.MEMBERSHIP}
@@ -120,7 +123,7 @@ function MembershipSubscribed(props: IProps) {
                             disabled={false}
                         />)
                         : <label>{__('You can renew this membership on or after %renewal_date%', {
-                          renewal_date: formattedEndOfMembershipDate,
+                          renewal_date: formattedRenewalMembershipDate,
                         })}</label>
                       : <label>{__('Your cancelled membership will end on %end_date%.', {
                         end_date: formattedEndOfMembershipDate,
