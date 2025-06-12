@@ -83,9 +83,9 @@ reducers[ACTIONS.AR_TIP_STATUS_STARTED] = (state, action) => {
 
 reducers[ACTIONS.AR_TIP_STATUS_ERROR] = (state, action) => {
   const { tippingStatusById } = state;
-  const { claimId } = action.data;
+  const { claimId, error } = action.data;
   const a = { ...tippingStatusById };
-  a[claimId] = 'error'; // can retry
+  a[claimId] = error; // can retry
   return { ...state, tippingStatusById: a };
 };
 
@@ -97,12 +97,12 @@ reducers[ACTIONS.AR_TIP_STATUS_SUCCESS] = (state, action) => {
   return { ...state, tippingStatusById: a };
 };
 
-reducers[ACTIONS.WANDER_AUTH] = (state, action) => {  
+reducers[ACTIONS.WANDER_AUTH] = (state, action) => {
   if(!action.data) return state ;
   return { ...state, auth: action.data };
 };
 
-reducers[ACTIONS.ARSETEXCHANGERATE] = (state, action) => {  
+reducers[ACTIONS.ARSETEXCHANGERATE] = (state, action) => {
   return { ...state, exchangeRates: { ar: action.data }};
 };
 

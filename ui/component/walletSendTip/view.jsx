@@ -40,6 +40,7 @@ type Props = {
   instantTipMax: { amount: number, currency: string },
   isPending: boolean,
   isArweaveTipping: boolean,
+  arweaveTippingError: string,
   isSupport: boolean,
   title: string,
   uri: string,
@@ -92,6 +93,7 @@ export default function WalletSendTip(props: Props) {
     instantTipMax,
     isPending,
     isArweaveTipping,
+    arweaveTippingError,
     title,
     uri,
     isTipOnly,
@@ -292,6 +294,9 @@ export default function WalletSendTip(props: Props) {
         // hit backend to send tip
         doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, currencyToUse)
           .then(r => {
+            if (r.error) {
+              throw new Error(r.error);
+            }
             doToast({
               message: __('Tip sent!'),
             });
@@ -303,7 +308,8 @@ export default function WalletSendTip(props: Props) {
               subMessage: e?.message || e,
               isError: true,
             });
-            doHideModal();
+          throw new Error(e?.message || e);
+            // don't close yet: remove doHideModal()
         });
       }
     } else {
@@ -435,12 +441,13 @@ export default function WalletSendTip(props: Props) {
                     autoFocus
                     onClick={handleSubmit}
                     button="primary"
-                    disabled={isPending || isArweaveTipping}
-                    label={__('Confirm')}
+                    disabled={isArweaveTipping}
+                    label={arweaveTippingError ? __('Retry') : __('Confirm')} // only disable if tipping.
                   />
                 )}
                 <Button button="link" label={__('Cancel')} onClick={() => setConfirmationPage(false)} />
               </div>
+              {arweaveTippingError && <div className={'error'}>{arweaveTippingError}</div>}
             </>
           ) : !((activeTab === TAB_LBC || activeTab === TAB_BOOST) && balance === 0) ? (
             <>
@@ -533,6 +540,6 @@ const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
 
 const SubmitCashTipButton = withCreditCard(
   ({ isPending, handleSubmit }: { isPending: boolean, handleSubmit: () => void }) => (
-    <Button autoFocus disabled={isPending} onClick={handleSubmit} button="primary" label={__('Confirm')} />
+    <Button autoFocus disabled={false} onClick={handleSubmit} button="primary" label={isPending ? __('Retry') : __('ConfirmC')} />
   )
 );
