@@ -177,7 +177,7 @@ export default function ModalAnnouncements(props: Props) {
 
   if (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) {
     handleCloseModal();
-    return;
+    return null;
   }
 
   // if you don't already have

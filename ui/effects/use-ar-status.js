@@ -37,8 +37,6 @@ export const useArStatus = () => {
       walletType === 'embedded') ||
     (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
 
-    console.log('hasConnection: ', hasConnection)
-    console.log('walletType: ', walletType)
   const activeArStatus = hasConnection
     ? 'connected'
     : isSigningIn
