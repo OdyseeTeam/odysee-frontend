@@ -233,7 +233,7 @@ const Header = (props: Props) => {
 
           {backTitle && <h1 className="header__authTitle">{(isMobile && simpleBackTitle) || backTitle}</h1>}
 
-          {userButtons(false, isMobile)}
+          {userButtons(hideBalance, isMobile)}
         </div>
       ) : (
         <>
