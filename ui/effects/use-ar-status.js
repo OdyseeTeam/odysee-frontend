@@ -12,7 +12,7 @@ export const useArStatus = () => {
   const dispatch = useDispatch();
 
   const [walletType, setWalletType] = useState(
-    window.wanderInstance?.authInfo?.authType === 'NATIVE_WALLET' ? 'extension' : 'embedded'
+    LocalStorage.getItem('WALLET_TYPE') === 'NATIVE_WALLET' ? 'extension' : 'embedded'
   );
 
   const hasArweaveExtension = Boolean(
@@ -37,6 +37,8 @@ export const useArStatus = () => {
       walletType === 'embedded') ||
     (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
 
+    console.log('hasConnection: ', hasConnection)
+    console.log('walletType: ', walletType)
   const activeArStatus = hasConnection
     ? 'connected'
     : isSigningIn
@@ -45,6 +47,7 @@ export const useArStatus = () => {
 
   useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
+    console.log('llllllllllllllll: ', type)
     setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded');
     if (
       window.wanderInstance &&
