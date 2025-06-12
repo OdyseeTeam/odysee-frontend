@@ -13,6 +13,7 @@
   overflow: hidden;
   transition: border-radius .4s, padding .4s, max-width .4s;
   padding: 0 0;
+  color:var(--color-text);
   
   &::before {
     content: '';
@@ -47,7 +48,8 @@
 
   &:hover{
     cursor:pointer;
-    background:var(--color-primary);    
+    background:var(--color-primary);
+    color:white;
   }
 }
 
