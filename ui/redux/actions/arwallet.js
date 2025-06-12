@@ -54,7 +54,6 @@ const fetchARExchangeRate = async () => {
   }
 };
 
-
 export function doArInit() {
   return async (dispatch: Dispatch, getState: GetState) => {
     try {
@@ -281,8 +280,14 @@ export const doArTip = (
           transferTxid = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
         } catch (error) {
           console.log(error);
+          dispatch({
+            type: AR_TIP_STATUS_ERROR,
+            data: { claimId: claimId, error: 'error: arweave transaction failed' },
+          });
+          return  { error: error?.message || error };
         }
       } else if (tipParams.currency === 'USD') {
+        // This not currently used
         // AO Onramper USDC
         transferTxid = await message({
           process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
@@ -301,11 +306,12 @@ export const doArTip = (
       }
 
       if (!transferTxid) {
+        const er = 'error: arweave transaction failed';
         dispatch({
           type: AR_TIP_STATUS_ERROR,
-          data: { claimId: claimId, error: 'error: arweave transaction failed' },
+          data: { claimId: claimId, error: er },
         });
-        return;
+        return  { error: er };
       }
 
       await Lbryio.call(
@@ -333,14 +339,13 @@ export const doArTip = (
     } catch (e) {
       console.error(e);
       dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: e.message } });
-      return { error: 'error' | e?.message || e };
+      return { error: e?.message || e };
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
     // support comments need the transferTxid, so return that here.
     return { transferTxid: transferTxid, currency: tipParams.currency, referenceToken: referenceToken };
   };
 };
-
 
 function getBalanceEndpoint(wallet: string) {
   return `https://arweave.net/wallet/${wallet}/balance`;
@@ -377,11 +382,17 @@ export const sendWinstons = async (
 
     await arweave.transactions.sign(transaction);
 
+    const txResponse = await arweave.transactions.post(transaction);
+    const { status } = txResponse;
+    if (status !== 200) {
+      throw new Error(`Transaction failed with status: ${status}`);
+    }
+    console.log(txResponse);
     const { id } = transaction;
-    await arweave.transactions.post(transaction);
     return id;
   } catch (e) {
-    console.error('ERROR', e);
+    console.error('ERROR SENDING WINSTONS', e);
+    throw new Error(e.message);
   }
 };
 

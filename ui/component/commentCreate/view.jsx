@@ -532,7 +532,7 @@ export function CommentCreate(props: Props) {
             // make transaction
             // notify transaction id
             doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment)
-              .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string }) => {
+              .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string, error?: string }) => {
                 if (arTipResponse.error) {
                   throw new Error(arTipResponse.error);
                 }
