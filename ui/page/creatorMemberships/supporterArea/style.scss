@@ -114,15 +114,12 @@
       padding: var(--spacing-m);
       border-radius: var(--border-radius);
       bottom: var(--spacing-m);
-      // left: var(--spacing-m);
       padding: var(--spacing-m);
-      font-size: var(--font-large);
+      font-size: xx-large;
       font-weight: var(--font-weight-bold);
       color: var(--color-text);
     }
   }
-
-
 
   @media (max-width: $breakpoint-small) {
     background-image: url('https://thumbnails.odycdn.com/optimize/s:600:0/quality:95/plain/https://static.odycdn.com/images/banner_DonorPortal.jpg');

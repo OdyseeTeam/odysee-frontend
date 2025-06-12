@@ -128,7 +128,7 @@ a.button--alt {
 
 .button--liquidass {
   border:1px solid white;
-  background-color:rgba(255,255,255,0) !important;
+  background-color:rgba(255,255,255,.1) !important;
   backdrop-filter:blur(4px);
   margin-top: var(--spacing-m);
   transition: background .6s;
@@ -151,7 +151,7 @@ a.button--alt {
   }
 
   &:hover {
-    background-color:rgba(255,255,255,.1) !important;
+    background-color:rgba(255,255,255,.2) !important;
     .icon {
       stroke: var(--color-primary-contrast) !important;
     }
