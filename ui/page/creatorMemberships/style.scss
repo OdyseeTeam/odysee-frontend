@@ -1,8 +1,105 @@
 @import '~ui/scss/init/breakpoints';
 
-// H1 is temporary for test
-h1 {
-  font-size: var(--font-title);
+.memberships-wrapper{
+  margin-right: auto;
+  margin-left: auto;
+  width: 100%;
+  max-width: unset;
+
+  .memberships-header-wrapper{
+    background-image: url('https://thumbs.odycdn.com/9bf7e0c6e616bb988e5a19b6dfa863cd.webp');
+    position: relative;
+    background-position-y: var(--header-height);
+    background-position-x: var(--side-nav-width--micro);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    background-size: calc(100% - var(--side-nav-width--micro));
+    min-height: var(--cover-photo-height);
+    height: 184px;
+    width: 100%;
+    margin-top: calc(var(--spacing-l) * -1);
+
+    .memberships-header{
+      display:flex;
+      position: relative;
+      width: calc(100% - 2 * var(--spacing-l));
+      max-width: var(--page-max-width);
+      height: 100%;
+      margin-left: auto;
+      margin-right: auto;      
+
+      h1{
+        font-size: xx-large;
+        font-weight: var(--font-weight-bold);
+        margin-top:auto;
+        margin-bottom: var(--spacing-m);
+        width:fit-content;
+        // background-color: var(--color-header-background);
+        background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
+        padding: var(--spacing-m);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-m);
+        box-shadow: 0 3px 6px 0 var(--color-shadow), 0 4px 10px 0 rgba(0, 0, 0, 0.6);
+
+        svg{
+          width:30px;
+          height:30px;
+          margin-bottom:-4px;
+          margin-right:var(--spacing-s);
+        }
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:600:0/quality:95/plain/https://thumbs.odycdn.com/9bf7e0c6e616bb988e5a19b6dfa863cd.webp');
+      background-position: 0 0;
+      background-size: 100%;
+    }
+    
+    @media (min-width: $breakpoint-small) {
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:600:0/quality:95/plain/https://thumbs.odycdn.com/9bf7e0c6e616bb988e5a19b6dfa863cd.webp');
+      background-position: 0 0;
+      background-size: 100%;
+    }
+
+    @media (min-width: $breakpoint-medium) {
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:1600:0/quality:95/plain/https://thumbs.odycdn.com/9bf7e0c6e616bb988e5a19b6dfa863cd.webp');
+      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 60px);
+    }
+
+    @media (min-width: $breakpoint-large) {
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:1600:0/quality:95/plain/https://thumbs.odycdn.com/9bf7e0c6e616bb988e5a19b6dfa863cd.webp');
+      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 120px);
+    }
+
+    @media (min-width: $breakpoint-xlarge) {
+      background-image: url('https://static.odycdn.com/images/banner_creatorPortal.jpg');
+      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 120px);
+    }
+  }
+
+  .memberships-content{
+    position: relative;
+    width: calc(100% - 2 * var(--spacing-l));
+    max-width: var(--page-max-width);
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top:var(--spacing-l);
+
+    .memberships{
+      display:flex;
+      position: relative;
+      isolation: isolate;
+      min-height:50vh;
+
+      @media (max-width: $breakpoint-small) {
+        flex-direction: column;
+        min-height:unset;
+      }
+    }
+  }
 }
 
 .bank-account-status {
@@ -43,14 +140,14 @@ h1 {
 }
 
 .membership-wrapper {
-  background-size: 120%;
-  margin-bottom: var(--spacing-m);
-  border-radius: var(--border-radius);
-  overflow: hidden;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
 
   .membership-content {
-    text-align: center;
-    padding: 4% 26%;
+    text-align: center;    
 
     div:first-of-type {
       background: var(--color-header-background);
@@ -68,8 +165,7 @@ h1 {
           margin-left: 10%;
           width: 80%;
           height: 2px;
-          background: var(--color-primary);
-          color: var(--color-primary);
+          background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
           margin: 0 10px;
           transition: width 0.2s, margin-left 0.2s;
         }
@@ -81,26 +177,87 @@ h1 {
     transition: background-color 0.4s;
   }
 
-  &.supporter {
+  &.supporter {    
     background-image: url('https://static.odycdn.com/images/banner_DonorPortal.jpg');
     background-position: 20% -190px;
     transition: background-position 0.4s;
+    z-index: 1;
+    width:60%;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    overflow:hidden;
+
+    @media (max-width: $breakpoint-small) {
+      position:relative;
+      clip-path: unset;
+      width:100%;
+
+      .membership-content{
+        padding: 4% !important;
+      }
+    }
+
     .membership-content {
-      background-color: rgba(0, 208, 217, 0.1);
+      padding-top: 4%;
+      padding-left: 4%;
+      padding-right: 18%;
+      width:100%;
+      height:100%;
+    }
+
+    &:before{
+      transition: background-color .4s;
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background-color: rgba(0, 208, 217, 0);
     }
   }
 
-  &.memberships {
+  &.memberships {    
     background-image: url('https://static.odycdn.com/images/banner_creatorPortal.jpg');
     background-position: 60% -170px;
     transition: background-position 0.4s;
+    clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
+    z-index: 2;
+    width:55%;
+    margin-left:auto;
+
+    @media (max-width: $breakpoint-small) {
+      position:relative;
+      clip-path: unset;
+      width:100%;
+
+      .membership-content{
+        padding: 4% !important;
+      }
+    }
+
     .membership-content {
-      background-color: rgba(230, 25, 112, 0.1);
+      margin-top: auto;
+      padding-bottom: 4%;
+      padding-right: 4%;
+      padding-left: 14%;
+      width:100%;
+      height:100%;      
+    }
+
+    &:before{
+      z-index: 0;
+      transition: background-color .4s;
+      content:'';
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background-color: rgba(230, 25, 112, 0);
     }
   }
 
   &:hover {
-    // cursor:pointer;
     h2 {
       font-size: var(--font-title);
       font-weight: var(--font-bold);
@@ -114,15 +271,16 @@ h1 {
 
     &.supporter {
       background-position: 18% -196px;
-      .membership-content {
-        background-color: rgba(0, 208, 217, 0.2);
+
+      &:before{
+        background-color: rgba(0, 208, 217, 0.1);
       }
     }
 
     &.memberships {
       background-position: 58% -176px;
-      .membership-content {
-        background-color: rgba(230, 25, 112, 0.2);
+      &:before {
+        background-color: rgba(230, 25, 112, 0.1);
       }
     }
   }
@@ -163,7 +321,6 @@ h1 {
     font-size: var(--font-large);
     font-weight: var(--font-weight-bold);
     padding-left: 10px;
-    // width:auto;
     margin-top: var(--spacing-s);
     flex: 1;
     border-bottom: 1px solid var(--color-header-background);
