@@ -17,6 +17,7 @@ import Skeleton from '@mui/material/Skeleton';
 import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import WunderBar from 'component/wunderbar';
+import WanderButton from '../wanderButton';
 
 type Props = {
   authenticated: boolean,
@@ -45,6 +46,7 @@ type Props = {
   totalBalance?: number,
   user: ?User,
   prefsReady: boolean,
+  arweaveAccounts: any,
   doClearClaimSearch: () => void,
   doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
   clearEmailEntry: () => void,
@@ -72,6 +74,7 @@ const Header = (props: Props) => {
     totalBalance,
     user,
     prefsReady,
+    arweaveAccounts,
     doClearClaimSearch,
     doRemoveFromUnsavedChangesCollectionsForCollectionId,
     clearEmailEntry,
@@ -159,6 +162,10 @@ const Header = (props: Props) => {
       {authenticated ? (
         <>
           {!hideWallet && (
+            <>
+            {arweaveAccounts.length > 0 ? (
+              <WanderButton />
+            ) : (
             <Tooltip
               title={
                 balance > 0
@@ -186,6 +193,8 @@ const Header = (props: Props) => {
                 )}
               </div>
             </Tooltip>
+            )}
+            </>
           )}
 
           {!hideProfile && <HeaderProfileMenuButton />}

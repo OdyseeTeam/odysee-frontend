@@ -103,6 +103,9 @@
     height:100%;
 
     .button{
+      border:1px solid white;
+      background-color:transparent !important;
+      backdrop-filter:blur(4px);
       margin-top: var(--spacing-m);
       @media (max-width: $breakpoint-small) {
         margin-top: calc(var(--spacing-m) * 2);

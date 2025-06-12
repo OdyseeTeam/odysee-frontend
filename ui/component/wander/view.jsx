@@ -41,8 +41,6 @@ export default function Wander(props: Props) {
         }else {
           console.log('Authenticated C')
         }
-      }else if(instance.windowArweaveWallet.walletName === 'ArConnect'){
-        console.log('window.wanderInstance: ', window.wanderInstance)
       }
     }
   }, [auth]);
