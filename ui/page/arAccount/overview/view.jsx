@@ -195,7 +195,7 @@ function Overview(props: Props) {
           <div className="transaction-history">
             {transactions.map((transaction, index) => {
               return (
-                <div className="transaction-history__row">
+                <div key={index} className="transaction-history__row">
                   <div className="transaction-history__date">
                     {new Date(transaction.date * 1000)
                       .toLocaleString('en-US', {

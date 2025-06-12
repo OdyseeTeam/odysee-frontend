@@ -123,12 +123,6 @@ const CreatorArea = (props: Props) => {
 
   const switchToTiersTab = () => onTabChange(2);
 
-  /*
-  onChannelSelect={(id) => updateFormParams({ channel_id: id })}
-allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-            allOptionProps={{ onSelectAll: () => setIsAllSelected(true), isSelected: isAllSelected }}
-            onChannelSelect={() => setIsAllSelected(false)}
-   */
   return (
     <Page className="membershipPage-wrapper">
       <div className="creator-header-wrapper">
