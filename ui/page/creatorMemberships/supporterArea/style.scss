@@ -183,6 +183,10 @@
 
     .button--alt{
       background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
+      color:white;
+      &:hover{
+        color:white;
+      }
     }
   }
   @media (max-width: $breakpoint-small) {
@@ -235,6 +239,10 @@
     }
     .button--primary{
       background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));    
+      color:white;
+      &:hover{
+        color:white;
+      }
     }
   }
   @media (max-width: $breakpoint-small) {
