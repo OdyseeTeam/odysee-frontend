@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
-// import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
+import * as SETTINGS from 'constants/settings';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -17,7 +17,7 @@ import { formatCredits } from 'util/format-credits';
 import { useArStatus } from 'effects/use-ar-status';
 
 type Props = {
-  experimentalUi: boolean,
+  clientSettings: any,
   LBCBalance: number,
   arStatus: any,
   arBalance: number,
@@ -49,7 +49,7 @@ const LARGE_WALLET_BALANCE = 100;
 
 const WalletBalance = (props: Props) => {
   const {
-    // experimentalUi,
+    clientSettings,
     LBCBalance,
     wanderAuth,
     arStatus,
@@ -79,6 +79,7 @@ const WalletBalance = (props: Props) => {
     hasArConnection,
     isSigningIn,
     hasConnection,
+    activeArStatus
   } = useArStatus();
 
   console.log('hasArConnection', hasArConnection)
@@ -262,50 +263,6 @@ const WalletBalance = (props: Props) => {
           }
         />
       </div>
-      {/*
-      {showStablecoin && (
-        <div className="column">
-          <Card
-            title={<Symbol token="usdc" amount={USDCBalance} precision={2} isTitle />}
-            subtitle={
-              totalLocked > 0 ? (
-                <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Your total %usdc%USDC balance.</I18nMessage>
-              ) : (
-                <span>{__('Your total balance.')}</span>
-              )
-            }
-            background
-            actions={
-              <>
-                <h2 className="section__title--small">
-                  <I18nMessage
-                    tokens={{
-                      usdc_amount: <Symbol token="usdc" amount={USDCBalance} precision={2} />,
-                    }}
-                  >
-                    %usdc_amount%
-                  </I18nMessage>
-                </h2>
-                <div className="section__actions">
-                  <Button
-                    button="secondary"
-                    label={__('Deposit Funds')}
-                    icon={ICONS.BUY}
-                    navigate={`/$/${PAGES.PAYMENTACCOUNT}?tab=buy`}
-                  />
-                  <Button
-                    button="secondary"
-                    label={__('Payment Account')}
-                    icon={ICONS.SETTINGS}
-                    navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
-                  />
-                </div>
-              </>
-            }
-          />
-        </div>
-      )}
-      */}
       {/* ARWEAVE */}
       <div className="column">
         <Card
@@ -314,7 +271,7 @@ const WalletBalance = (props: Props) => {
               <Symbol token="wallet" amount="0" />
             ) : (
               <>
-                <Symbol token="ar" amount={arBalance} precision={6} isTitle />
+                <Symbol token="usd" amount={(arBalance*arStatus.exchangeRates.ar)} precision={2} isTitle />
                 <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect()} />
               </>
             )
@@ -452,15 +409,6 @@ const WalletBalance = (props: Props) => {
                       }}
                     >
                       %ar_amount%
-                    </I18nMessage>
-                  </h2>
-                  <h2 className="section__title--small">
-                    <I18nMessage
-                      tokens={{
-                        usd: <Symbol token="usd" amount={arBalance * arUsdRate} precision={2} />,
-                      }}
-                    >
-                      %usd%
                     </I18nMessage>
                   </h2>
                 </>
