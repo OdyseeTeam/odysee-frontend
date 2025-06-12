@@ -47,7 +47,6 @@ export const useArStatus = () => {
 
   useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
-    console.log('llllllllllllllll: ', type)
     setWalletType(type === 'NATIVE_WALLET' ? 'extension' : 'embedded');
     if (
       window.wanderInstance &&
