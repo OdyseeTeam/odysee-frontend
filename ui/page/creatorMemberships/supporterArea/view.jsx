@@ -105,7 +105,7 @@ const SupporterArea = (props: Props) => {
           <Button
             navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
             icon={ICONS.BACK}
-            button="primary"
+            button="liquidass"
           />
           <div>{__('Donor Portal')}</div>
         </div>        

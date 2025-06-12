@@ -136,7 +136,7 @@ allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelect
           <Button
             navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
             icon={ICONS.BACK}
-            button="primary"
+            button="liquidass"
           />
           <div>{__('Creator Portal')}</div>
         </div>        
