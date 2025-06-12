@@ -147,6 +147,7 @@ export default function WalletSendTip(props: Props) {
 
   // just do this always or check connection somehow?
   React.useEffect(() => {
+    console.log('AC B')
     doArConnect();
   }, [doArConnect]);
 

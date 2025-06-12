@@ -18,6 +18,7 @@ type Props = {
 export default function Wander(props: Props) {
   const { theme, auth, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress } = props;
   const [instance, setInstance] = React.useState(null);
+  const [requests, setRequests] = React.useState(0);
   const authRef = React.useRef(instance?.authInfo);
   const wrapperRef = React.useRef();
   const authInfo = window?.wanderInstance?.authInfo;
@@ -29,12 +30,19 @@ export default function Wander(props: Props) {
         // Connected
         if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
           // Has backup
+          console.log('Authenticated A')
           const autoconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? false : true;
           if(autoconnect) connectArWallet();
         } else if (!window.wanderInstance.balanceInfo){
           // Missing backup
+          console.log('Authenticated B')
           window.wanderInstance.open();
+          connectArWallet()
+        }else {
+          console.log('Authenticated C')
         }
+      }else if(instance.windowArweaveWallet.walletName === 'ArConnect'){
+        console.log('window.wanderInstance: ', window.wanderInstance)
       }
     }
   }, [auth]);
@@ -119,9 +127,10 @@ export default function Wander(props: Props) {
       },
     });
 
+
     setInstance(wanderInstance);
     window.wanderInstance = wanderInstance;
-    
+
     return () => {
       if (wanderInstance) {
         wanderInstance.destroy();
@@ -152,11 +161,18 @@ export default function Wander(props: Props) {
             }
           }
           if (data.type === 'embedded_request') {
-            window.wanderInstance.close();
-            window.wanderInstance.open();
+            console.log('REQUEST: ', data)
+            setRequests(window.wanderInstance.pendingRequests)
+            // setRequests
+            if(window.wanderInstance.pendingRequests !== 0){
+              window.wanderInstance.close();
+              window.wanderInstance.open();
+            } else{
+              window.wanderInstance.close();
+            }           
           }
           if (data.type === 'event') {
-            // console.log('message data: ', data);
+            console.log('message data: ', data);
           }
         }
       });

@@ -105,29 +105,27 @@ function MembershipSubscribed(props: IProps) {
                 )}
 
                 <div className="membership__plan-actions">
-
-
-                    {isActive && !isCanceled
-                      ? canRenew
-                        ? (<Button
-                            icon={ICONS.MEMBERSHIP}
-                            button="primary"
-                            label={__('Renew for $%membership_price% this month', {
-                              membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
-                                membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
-                              ), // tiers
-                            })}
-                            onClick={() => {
-                              doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: membershipIndex, passedTierIndex: membershipIndex, isChannelTab: true, isRenewal: true });
-                            }}
-                            disabled={false}
-                        />)
-                        : <label>{__('You can renew this membership on or after %renewal_date%', {
-                          renewal_date: formattedRenewalMembershipDate,
-                        })}</label>
-                      : <label>{__('Your cancelled membership will end on %end_date%.', {
-                        end_date: formattedEndOfMembershipDate,
-                      })}</label>}
+                  {isActive && !isCanceled
+                    ? canRenew
+                      ? (<Button
+                          icon={ICONS.MEMBERSHIP}
+                          button="primary"
+                          label={__('Renew for $%membership_price% this month', {
+                            membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
+                              membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
+                            ), // tiers
+                          })}
+                          onClick={() => {
+                            doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: membershipIndex, passedTierIndex: membershipIndex, isChannelTab: true, isRenewal: true });
+                          }}
+                          disabled={false}
+                      />)
+                      : <label>{__('You can renew this membership on or after %renewal_date%', {
+                        renewal_date: formattedRenewalMembershipDate,
+                      })}</label>
+                    : <label>{__('Your cancelled membership will end on %end_date%.', {
+                      end_date: formattedEndOfMembershipDate,
+                    })}</label>}
                 </div>
               </div>
             </div>

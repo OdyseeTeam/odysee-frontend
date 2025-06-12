@@ -29,7 +29,7 @@ export default function ModalCryptoDisclaimers(props: Props) {
 
   const handleSignIn = () => {
     window.wanderInstance.open();
-    doHideModal()
+    doHideModal();
   }
 
   return (
@@ -78,7 +78,7 @@ export default function ModalCryptoDisclaimers(props: Props) {
         onChange={handleShowDisclaimers}
       />
 
-      <Button 
+      <Button
         button="primary"
         label={__('Sign in')}
         onClick={handleSignIn}

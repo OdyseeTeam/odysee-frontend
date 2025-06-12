@@ -388,6 +388,5 @@ export const sendWinstons = async (
 export const doArSetAuth = (status: any) => {
   return async (dispatch: Dispatch) => {
     dispatch({ type: WANDER_AUTH, data: status });
-    // return;
   };
 };

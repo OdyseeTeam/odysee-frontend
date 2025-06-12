@@ -11,6 +11,7 @@ import MembershipTier from './internal/membershipTier';
 import MembershipDetails from './internal/membershipDetails';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as MODALS from 'constants/modal_types';
+import { useArStatus } from 'effects/use-ar-status';
 
 import './style.scss';
 
@@ -70,6 +71,10 @@ const PreviewPage = (props: Props) => {
     arweaveStatus,
     exchangeRate,
   } = props;
+
+  const {
+    activeArStatus
+  } = useArStatus();
 
   const isChannelTab = React.useContext(ChannelPageContext);
   const hasActiveWalletConnection = Boolean(arweaveStatus?.address);
@@ -156,19 +161,29 @@ const PreviewPage = (props: Props) => {
   if (isChannelTab) {
     return (
       <>
-        {!hasActiveWalletConnection && 
-          <div className="missing-wallet-warning">
-            {arweaveWallets.length > 0 
-              ? <>
+        {activeArStatus !== 'connected' && (
+          <div className={`wallet-warning${activeArStatus === 'authenticating' ? ' wallet-warning--authenticating' : ''}`}>
+            {activeArStatus === 'not-authenticated' ? (
+              arweaveWallets.length > 0 ? (
+                <>
                   <p>{__('To join a new membership on Odysee, you need to be signed into Wander.')}</p>
-                  
+                  <NavLink to="/$/wallet">Wallet settings</NavLink>
                 </>
-              : <>
+              ) : (
+                <>
                   <p>{__('To join a new membership on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.')}</p>
+                  <NavLink to="/$/wallet">Wallet settings</NavLink>
                 </>
-            }
-              <NavLink to={`/$/wallet`}>Wallet settings</NavLink>            
-            </div>}
+              )
+            ) : (
+              <>
+                <p>{__('Establishing wallet connection. Please wait...')}</p>
+                <a onClick={() => window.wanderInstance.open()}>Show status</a>
+              </>
+            )}            
+          </div>
+        )}
+
 
         {channelIsMine && (
           <div className="button--manage-memberships">
@@ -197,7 +212,7 @@ const PreviewPage = (props: Props) => {
               isOwnChannel={channelIsMine}
               userHasCreatorMembership={userHasACreatorMembership} // here
               isChannelTab
-              disabled={!hasActiveWalletConnection}
+              disabled={activeArStatus !== 'connected'}
             />
           ))}
         </div>

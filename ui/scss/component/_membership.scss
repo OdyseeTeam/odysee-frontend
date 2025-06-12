@@ -1018,6 +1018,8 @@
     border-radius: 0 0 var(--border-radius) var(--border-radius);
     background-color: rgba(var(--color-header-button-base), 0.6);
     padding: var(--spacing-m);
+    box-sizing: border-box;
+
     div {
       margin-bottom: var(--spacing-s);
 
@@ -1042,18 +1044,8 @@
   }
 
   .membership__plan-actions {
+    display:flex;
     margin-top: var(--spacing-l);
-
-    label {
-      display: block;
-    }
-
-    .button {
-      //background-color: var(--color-header-background) !important;
-      border: 2px solid var(--color-border);
-      margin-right: var(--spacing-s);
-      float: left;
-    }
   }
 }
 
@@ -1193,7 +1185,7 @@ svg.icon--Upgrade {
 }
 
 .membership-tab-item__wrapper {
-  margin-bottom: var(--spacing-l);
+  margin-bottom: var(--spacing-m);
 }
 .membership-tab-header__wrapper {
   text-align: center;
