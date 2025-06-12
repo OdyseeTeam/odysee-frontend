@@ -373,7 +373,7 @@ const WalletBalance = (props: Props) => {
                   <h2 className="section__title--small">
                     <I18nMessage
                       tokens={{
-                        ar_amount: <Symbol token="ar" amount={arBalance} precision={2} />,
+                        ar_amount: <Symbol token="ar" amount={arBalance} precision={6} />,
                       }}
                     >
                       %ar_amount%
