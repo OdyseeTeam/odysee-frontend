@@ -60,13 +60,13 @@ export const useArStatus = () => {
       walletType === 'extension' && !hasArConnection
     ) {
       const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? true : false;
-      console.log('connect pls');
+      // console.log('connect pls');
       if(!intentionalDisconnect) dispatch(doArConnect());
     }
     if (arStatus.connecting) {
-      console.log('connecting');
+      // console.log('connecting');
     }
-    console.log('connected pls?', wanderAuth, walletType, arStatus.connecting);
+    // console.log('connected pls?', wanderAuth, walletType, arStatus.connecting);
   }, [wanderAuth, walletType, arStatus.connecting]);
 
   return {

@@ -79,7 +79,6 @@ const WalletBalance = (props: Props) => {
     hasArConnection,
     isSigningIn,
     hasConnection,
-    activeArStatus
   } = useArStatus();
 
   console.log('hasArConnection', hasArConnection)

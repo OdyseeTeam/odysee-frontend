@@ -19,8 +19,6 @@ export default function WanderButton(props: Props) {
   } = useArStatus();  
   const history = useHistory()
 
-
-  console.log('activeArStatus: ', activeArStatus)
   const handleWalletClick= () => {
     history.push(`/$/${PAGES.WALLET}`)
   }
