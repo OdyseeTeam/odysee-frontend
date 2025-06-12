@@ -9,6 +9,7 @@
 .button--primary,
 .button--secondary,
 .button--alt,
+.button--liquidass,
 .button--link {
   &:focus {
     z-index: 2; // Ensure focus box-shadow is always visible on every button side
@@ -17,7 +18,8 @@
 
 .button--primary,
 .button--secondary,
-.button--alt {
+.button--alt,
+.button--liquidass {
   height: var(--height-button);
   border-radius: var(--border-radius);
   padding: 0 var(--spacing-m);
@@ -120,6 +122,51 @@ a.button--alt {
         //top: 23% !important;
         top: 0%;
       }
+    }
+  }
+}
+
+.button--liquidass {
+  border:1px solid white;
+  background-color:rgba(255,255,255,0) !important;
+  backdrop-filter:blur(4px);
+  margin-top: var(--spacing-m);
+  transition: background .6s;
+
+  .button__label {
+    color: var(--color-primary-contrast);
+  }
+
+  .icon {
+    color: var(--color-primary-contrast);
+  }
+
+  .credit-amount {
+    color: var(--color-primary-contrast);
+
+    .icon {
+      margin-left: 3px;
+      margin-right: 3px;
+    }
+  }
+
+  &:hover {
+    background-color:rgba(255,255,255,.1) !important;
+    .icon {
+      stroke: var(--color-primary-contrast) !important;
+    }
+  }
+
+  &:focus-visible {
+    background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+
+    .button__label {
+      color: var(--color-text) !important;
+    }
+
+    .icon {
+      stroke: var(--color-text) !important;
     }
   }
 }
