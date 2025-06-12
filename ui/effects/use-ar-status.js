@@ -53,6 +53,7 @@ export const useArStatus = () => {
       (window.wanderInstance?.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance?.authInfo.authType === 'null') &&
       walletType === 'extension' && !hasArConnection
     ) {
+      const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? true : false;
       console.log('connect pls');
       dispatch(doArConnect());
     }
