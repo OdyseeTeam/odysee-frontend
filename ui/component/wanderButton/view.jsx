@@ -41,8 +41,8 @@ return (
       className={`wanderButton${
         activeArStatus === 'authenticating'
           ? ' wanderButton--authenticating'
-          : activeArStatus === 'connecting'
-          ? ' wanderButton--connecting'
+          : activeArStatus === 'authenticated'
+          ? ' wanderButton--authenticated'
           : activeArStatus === 'connected'
           ? ' wanderButton--connected'
           : ''

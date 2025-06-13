@@ -26,6 +26,7 @@
     box-sizing: border-box;
     mask-image: conic-gradient(from 0deg, black 150%, transparent 250%);
     -webkit-mask-image: conic-gradient(from 0deg, black 150%, transparent 250%);
+    transition: border-color .4s;
   }
 
   &.wanderButton--authenticating{
@@ -34,7 +35,7 @@
     }    
   }
 
-  &.wanderButton--connecting{
+  &.wanderButton--authenticated{
     &::before{
       border-top-color: green;
     }    
