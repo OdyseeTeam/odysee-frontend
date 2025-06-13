@@ -24,19 +24,18 @@ export default function WanderButton(props: Props) {
     history.push(`/$/${PAGES.WALLET}`)
   }
 
-return (
-<Tooltip
-  title={
-    activeArStatus === 'authenticating'
-      ? __('Authenticating...')
-      : activeArStatus === 'connected'
-      ? arweaveStatus.balance.ar > 0
-        ? __('Immediately spendable: $%spendable_balance_usd% (%spendable_balance_ar% AR)', { spendable_balance_usd: (arweaveStatus.balance.ar*arweaveStatus.exchangeRates.ar).toFixed(2), spendable_balance_ar: arweaveStatus.balance.ar.toFixed(6) })
-        : __('Your Wallet')
-      : ''
-  }
->
-
+  return (
+  <Tooltip
+    title={
+      activeArStatus === 'authenticating'
+        ? __('Authenticating...')
+        : activeArStatus === 'connected'
+        ? arweaveStatus.balance.ar > 0
+          ? __('Immediately spendable: $%spendable_balance_usd% (%spendable_balance_ar% AR)', { spendable_balance_usd: (arweaveStatus.balance.ar*arweaveStatus.exchangeRates.ar).toFixed(2), spendable_balance_ar: arweaveStatus.balance.ar.toFixed(6) })
+          : __('Your Wallet')
+        : ''
+    }
+  >
     <div
       className={`wanderButton${
         activeArStatus === 'authenticating'
@@ -49,7 +48,7 @@ return (
       }`}
       onClick={handleWalletClick}
     >
-      ${activeArStatus === 'connected' ? <Counter value={(arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar) || '0.00'} /> : ''}
+      ${activeArStatus === 'connected' ? <Counter value={arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar} /> : ''}
     </div>
   </Tooltip>
 );

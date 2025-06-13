@@ -6,11 +6,19 @@ const DIGITS = Array.from({ length: 10 }, (_, i) => i)
 
 export default function Counter({ value }) {
   const [chars, setChars] = React.useState([])
+  const [displayValue, setDisplayValue] = React.useState(value)
 
   React.useEffect(() => {
-    const str = Number(value).toFixed(2)
-    setChars(str.split(''))
+    const timer = setTimeout(() => {
+      setDisplayValue(value)
+    }, 200)
+    return () => clearTimeout(timer)
   }, [value])
+
+  React.useEffect(() => {
+    const str = Number(displayValue).toFixed(2)
+    setChars(str.split(''))
+  }, [displayValue])
 
   return (
     <div className="counter-wrapper" style={{ lineHeight: 1 }}>
