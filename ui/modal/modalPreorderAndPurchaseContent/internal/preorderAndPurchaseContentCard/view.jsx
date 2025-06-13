@@ -3,8 +3,6 @@ import React from 'react';
 
 // $FlowFixMe
 import { Global } from '@emotion/react';
-
-import './style.scss';
 import ClaimPreview from 'component/claimPreview';
 import BusyIndicator from 'component/common/busy-indicator';
 import { Form } from 'component/common/form';
@@ -12,12 +10,13 @@ import * as ICONS from 'constants/icons';
 import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
-import withCreditCard from 'hocs/withCreditCard';
+import WalletStatus from 'component/walletStatus';
 import { secondsToDhms } from 'util/time';
 import Icon from 'component/common/icon';
 import I18nMessage from 'component/i18nMessage';
-
 import { ModalContext } from 'contexts/modal';
+import { useArStatus } from 'effects/use-ar-status';
+import './style.scss';
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
@@ -81,6 +80,10 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doCheckIfPurchasedClaimId,
     doPlayUri,
   } = props;
+
+  const {
+    activeArStatus
+  } = useArStatus();
 
   const isUrlParamModal = React.useContext(ModalContext).isUrlParamModal;
 
@@ -166,6 +169,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
             { /* confirm purchase - needs to check balance and disable */}
+            <WalletStatus />
             {pendingSdkPayment ? (
               <Button
                 button="primary"
@@ -190,6 +194,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 rentLabel={STRINGS['rental'].button}
                 rentTipAmount={rentTipAmount}
                 rentDuration={rentDuration}
+                disabled={activeArStatus !== 'connected'}
               />
             )}
           </div>
@@ -210,6 +215,7 @@ const SubmitArea = (props: any) => (
         duration: props.rentDuration,
       })}
       icon={props.tags.rentalTag ? ICONS.BUY : ICONS.TIME}
+      disabled={props.disabled}
     />
 
     {props.tags.purchaseTag && props.tags.rentalTag && (
@@ -222,6 +228,7 @@ const SubmitArea = (props: any) => (
           duration: props.rentDuration,
         })}
         icon={ICONS.TIME}
+        disabled={props.disabled}
       />
     )}
   </div>

@@ -102,10 +102,6 @@
   }
 }
 
-.file-render--post-container {
-  @include font-serif;
-}
-
 .post__info--credit-details {
   @include font-sans;
   margin-top: var(--spacing-l);

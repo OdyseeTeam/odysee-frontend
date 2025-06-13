@@ -34,8 +34,6 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
-import { useArStatus } from 'effects/use-ar-status';
-// import * as MODALS from '../../constants/modal_types';
 
 const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
