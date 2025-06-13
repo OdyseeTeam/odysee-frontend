@@ -150,12 +150,6 @@ function WalletTipAmountSelector(props: Props) {
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
-    if (activeTab === TAB_USDC || activeTab === TAB_USD) {
-      doArConnect();
-    }
-  }, [activeTab, doArConnect]);
-
-  React.useEffect(() => {
     let regexp;
 
     if (amount === 0) {
