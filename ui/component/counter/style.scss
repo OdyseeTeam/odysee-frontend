@@ -1,0 +1,36 @@
+.counter-wrapper {
+  display: flex;
+  font-size: var(--font-body);
+  line-height: 1;  
+
+  .number-wrapper {
+    height: 1em;
+    width: 1ch;
+    overflow: hidden;
+    display: inline-block;
+
+    .digit-stack {
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+
+      .digit{
+        height: 1em;
+        line-height: 1;
+        font-size: inherit;
+      }
+    }
+  }
+
+  .static-char {
+    display: inline-block;
+    width: 1ch;
+    font-size: inherit;
+  }
+
+  .number-placeholder{
+    display: 'inline-block';
+    width: 0.5ch;
+    font-size: inherit;
+    line-height: 1;
+  }
+}

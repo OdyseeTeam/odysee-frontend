@@ -3,6 +3,7 @@ import React from 'react';
 // $FlowIgnore
 import { useArStatus } from 'effects/use-ar-status';
 import Tooltip from 'component/common/tooltip';
+import Counter from 'component/counter';
 import { useHistory } from 'react-router-dom'
 import * as PAGES from 'constants/pages';
 import './style.scss';
@@ -48,7 +49,7 @@ return (
       }`}
       onClick={handleWalletClick}
     >
-      ${activeArStatus === 'connected' ? `${(arweaveStatus.balance.ar*arweaveStatus.exchangeRates.ar).toFixed(2)}` : ''}
+      ${activeArStatus === 'connected' ? <Counter value={arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar} /> : ''}
     </div>
   </Tooltip>
 );
