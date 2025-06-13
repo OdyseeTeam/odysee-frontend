@@ -44,6 +44,9 @@
     border-radius:var(--border-radius);
     padding: 0 var(--spacing-s);
     max-width:100px;
+    &::before {
+      display:none;
+    }
   }
 
   &:hover{
