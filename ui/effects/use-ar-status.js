@@ -37,11 +37,13 @@ export const useArStatus = () => {
       walletType === 'embedded') ||
     (walletType === 'extension' && window.arweaveWallet?.walletName === 'ArConnect');
 
-  const activeArStatus = hasConnection
+  const activeArStatus = hasArConnection
     ? 'connected'
     : isSigningIn
       ? 'authenticating'
-      : 'not-authenticated'
+      : hasConnection
+        ? 'authenticated'
+        : 'not-authenticated'
 
   useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
