@@ -235,7 +235,7 @@ const WalletBalance = (props: Props) => {
         <Card
           title={
             !hasArConnection ? (
-              <Symbol token="wallet" amount="0" precision={2} />
+              <Symbol token="wallet" amount="0" precision={2} isTitle />
             ) : (
               <>
                 <Symbol token="usd" amount={(arBalance*arStatus.exchangeRates.ar)} precision={2} isTitle />
