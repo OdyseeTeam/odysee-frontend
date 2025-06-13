@@ -115,6 +115,7 @@ type Props = {
   isLivestreamChatMembersOnly: boolean,
   areCommentsMembersOnly: boolean,
   hasPremiumPlus: boolean,
+  arweaveTippingError: string,
 };
 
 export function CommentCreate(props: Props) {
@@ -167,6 +168,7 @@ export function CommentCreate(props: Props) {
     isLivestreamChatMembersOnly,
     areCommentsMembersOnly,
     hasPremiumPlus,
+    arweaveTippingError,
   } = props;
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
@@ -557,6 +559,7 @@ export function CommentCreate(props: Props) {
                   subMessage: e?.message || e,
                   isError: true,
                 });
+                setSubmitting(false);
                 console.log('doartip e', e);
               });
           }
@@ -568,6 +571,7 @@ export function CommentCreate(props: Props) {
             isError: true,
           });
           console.log('do commentcreate e', e);
+          setSubmitting(false);
         });
     } else {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
@@ -863,14 +867,17 @@ export function CommentCreate(props: Props) {
         {isReviewingSupportComment ? (
           activeChannelUrl &&
           activeTab && (
-            <TipReviewBox
-              activeChannelUrl={activeChannelUrl}
-              tipAmount={tipAmount}
-              activeTab={activeTab}
-              message={commentValue}
-              isReviewingStickerComment={isReviewingStickerComment}
-              stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
-            />
+            <>
+              <TipReviewBox
+                activeChannelUrl={activeChannelUrl}
+                tipAmount={tipAmount}
+                activeTab={activeTab}
+                message={commentValue}
+                isReviewingStickerComment={isReviewingStickerComment}
+                stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
+              />
+              { arweaveTippingError && <div className={'error'}>{arweaveTippingError}</div> }
+            </>
           )
         ) : selectedSticker ? (
           activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
@@ -959,7 +966,7 @@ export function CommentCreate(props: Props) {
                     label={
                       isSubmitting
                         ? __('Sending...')
-                        : commentFailure && tipAmount === successTip.tipAmount
+                        : (commentFailure || arweaveTippingError) && tipAmount === successTip.tipAmount
                         ? __('Re-submit')
                         : __('Send')
                     }
@@ -974,7 +981,7 @@ export function CommentCreate(props: Props) {
                     label={
                       isSubmitting
                         ? __('Sending...')
-                        : commentFailure && tipAmount === successTip.tipAmount
+                        : (commentFailure) && tipAmount === successTip.tipAmount
                         ? __('Re-submit')
                         : __('Send')
                     }
