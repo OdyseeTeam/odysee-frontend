@@ -6,24 +6,12 @@ const DIGITS = Array.from({ length: 10 }, (_, i) => i)
 
 export default function Counter({ value }) {
   const [chars, setChars] = React.useState([])
-  const [initialized, setInitialized] = React.useState(false)
 
   React.useEffect(() => {
-    const str = Number(value).toFixed(2).split('')
-
-    if (!initialized) {
-      setChars(str)
-      setInitialized(true)
-      return
-    }
-
-    const timeout = setTimeout(() => {
-      setChars(str)
-    }, 200)
-
-    return () => clearTimeout(timeout)
+    const str = Number(value).toFixed(2)
+    setChars(str.split(''))
   }, [value])
-  
+
   return (
     <div className="counter-wrapper" style={{ lineHeight: 1 }}>
       {chars.map((c, i) =>
@@ -31,9 +19,7 @@ export default function Counter({ value }) {
           <div className="number-wrapper" key={i}>
             <div
               className="digit-stack"
-              style={{
-                transform: `translateY(-${+c}em)`,
-              }}
+              style={{ transform: `translateY(-${+c}em)` }}
             >
               {DIGITS.map(d => (
                 <div className="digit" key={d}>

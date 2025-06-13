@@ -49,7 +49,7 @@ return (
       }`}
       onClick={handleWalletClick}
     >
-      ${activeArStatus === 'connected' ? <Counter value={arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar} /> : ''}
+      ${activeArStatus === 'connected' ? <Counter value={(arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar) || '0.00'} /> : ''}
     </div>
   </Tooltip>
 );
