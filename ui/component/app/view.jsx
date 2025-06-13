@@ -175,15 +175,6 @@ function App(props: Props) {
   const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
   const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
 
-  const {
-    walletType,
-    hasArweaveExtension,
-    hasArSignin,
-    hasArConnection,
-    isSigningIn,
-    hasConnection,
-  } = useArStatus();
-
   let path;
   if (isNewestPath) {
     path = urlPath.replace(embedLatestPath ? EMBED_PATH : latestContentPath ? LATEST_PATH : LIVE_PATH, '');
@@ -260,13 +251,6 @@ function App(props: Props) {
     }
   }
 
-  // useEffect(() => {
-  //   if (hasArConnection && !isSigningIn && !hasArSignin) {
-  //     console.log('do ar connect app')
-  //     doArConnect();
-  //   }
-  //
-  // }, [hasArConnection, isSigningIn, hasArSignin, doArConnect])
   useEffect(() => {
     if (userId) {
       analytics.setUser(userId);

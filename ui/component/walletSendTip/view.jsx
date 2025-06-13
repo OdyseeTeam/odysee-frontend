@@ -1,23 +1,26 @@
 // @flow
 import React from 'react';
 import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
-import { Form } from 'component/common/form';
-import LbcMessage from 'component/common/lbc-message';
 import { Lbryio } from 'lbryinc';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import { Form } from 'component/common/form';
+import LbcMessage from 'component/common/lbc-message';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
-import classnames from 'classnames';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
-import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
+import WalletStatus from 'component/walletStatus';
+import usePersistedState from 'effects/use-persisted-state';
+import { useArStatus } from 'effects/use-ar-status';
 import withCreditCard from 'hocs/withCreditCard';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import classnames from 'classnames';
+
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
@@ -114,6 +117,10 @@ export default function WalletSendTip(props: Props) {
     checkingAccount,
   } = props;
 
+  const {
+    activeArStatus
+  } = useArStatus();
+
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const showArweave = ENABLE_ARCONNECT;
   const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
@@ -146,12 +153,6 @@ export default function WalletSendTip(props: Props) {
       ? boostYourContentText
       : boostThisContentText
     : __('Leave a tip for the creator');
-
-  // just do this always or check connection somehow?
-  React.useEffect(() => {
-    console.log('AC B')
-    doArConnect();
-  }, [doArConnect]);
 
   let channelName;
   try {
@@ -451,35 +452,41 @@ export default function WalletSendTip(props: Props) {
             </>
           ) : !((activeTab === TAB_LBC || activeTab === TAB_BOOST) && balance === 0) ? (
             <>
-              <ChannelSelector />
+              {activeTab === TAB_USD && activeArStatus !== 'connected' 
+                ? <WalletStatus /> 
+                : (
+                  <>
+                  <ChannelSelector />
 
-              {/* section to pick tip/boost amount */}
-              <WalletTipAmountSelector
-                setTipError={setTipError}
-                tipError={tipError}
-                uri={uri}
-                activeTab={activeTab === TAB_BOOST ? TAB_LBC : activeTab}
-                amount={tipAmount}
-                onChange={(amount) => setTipAmount(amount)}
-                setDisableSubmitButton={setDisableSubmitButton}
-                modalProps={modalProps}
-                exchangeRateOverride={undefined} // use this for value that returns from sub call?
-              />
+                  {/* section to pick tip/boost amount */}
+                  <WalletTipAmountSelector
+                    setTipError={setTipError}
+                    tipError={tipError}
+                    uri={uri}
+                    activeTab={activeTab === TAB_BOOST ? TAB_LBC : activeTab}
+                    amount={tipAmount}
+                    onChange={(amount) => setTipAmount(amount)}
+                    setDisableSubmitButton={setDisableSubmitButton}
+                    modalProps={modalProps}
+                    exchangeRateOverride={undefined} // use this for value that returns from sub call?
+                  />
 
-              {/* send tip/boost button */}
-              <div className="section__actions">
-                <Button
-                  autoFocus
-                  icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
-                  button="primary"
-                  type="submit"
-                  disabled={
-                    checkingAccount || fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
-                  }
-                  label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
-                />
-                {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
-              </div>
+                  {/* send tip/boost button */}
+                  <div className="section__actions">
+                    <Button
+                      autoFocus
+                      icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
+                      button="primary"
+                      type="submit"
+                      disabled={
+                        checkingAccount || fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
+                      }
+                      label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
+                    />
+                    {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
+                  </div>
+                  </>
+                )}
             </>
           ) : (
             // if it's LBC and there is no balance, you can prompt to purchase LBC
