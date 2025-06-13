@@ -323,7 +323,7 @@ function WalletTipAmountSelector(props: Props) {
           />{' '}
           {activeTab === TAB_USD ? (
             <span className={'walletTipSelector__input-conversion help'}>
-              ({amountInArEstimated} AR)
+              ({arExchangeRate?.ar} AR)
             </span>
           ) : ''}
         </div>

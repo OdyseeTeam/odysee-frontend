@@ -107,7 +107,7 @@ export default function PaidContentOvelay(props: Props) {
                   currency: fiatSymbol,
                   amount: Number(purchaseTag).toFixed(2),
                 })}{' '}
-                (<Symbol token="ar" amount={Number(purchaseTag) * exchangeRate?.ar} precision={4} />)
+                (<Symbol token="ar" amount={Number(purchaseTag) / exchangeRate?.ar} precision={4} />)
               </div>
 
               <div className="paid-content-prompt__price">
@@ -117,7 +117,7 @@ export default function PaidContentOvelay(props: Props) {
                   currency: fiatSymbol,
                   amount: rentalPrice,
                 })}{' '}
-                (<Symbol token="ar" amount={rentalPrice * exchangeRate?.ar} precision={4} />)
+                (<Symbol token="ar" amount={rentalPrice / exchangeRate?.ar} precision={4} />)
               </div>
 
               <ButtonPurchase label={__('Purchase or Rent')} />
