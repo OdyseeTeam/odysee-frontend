@@ -159,7 +159,6 @@ export default function Wander(props: Props) {
             }
           }
           if (data.type === 'embedded_request') {
-            console.log('REQUEST: ', data)
             setRequests(window.wanderInstance.pendingRequests)
             // setRequests
             if(window.wanderInstance.pendingRequests !== 0){
@@ -169,9 +168,11 @@ export default function Wander(props: Props) {
               window.wanderInstance.close();
             }           
           }
+          /*
           if (data.type === 'event') {
             console.log('message data: ', data);
           }
+          */
         }
       });
 
