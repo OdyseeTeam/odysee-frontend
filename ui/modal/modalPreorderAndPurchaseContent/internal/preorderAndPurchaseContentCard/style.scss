@@ -1,27 +1,23 @@
 @import '~ui/scss/init/breakpoints';
 
 .fiat-order {
-  //max-width: 580px;  ??
-}
-
-.fiat-order__actions {
-  button {
-    margin-top: var(--spacing-s);
-    margin-right: var(--spacing-s);
+  .fiat-order__actions {
+    button {
+      margin-top: var(--spacing-s);
+      margin-right: var(--spacing-s);
+    }
   }
-}
 
-.fiat-order__footer {
-  font-size: var(--font-small);
-  margin-top: var(--spacing-s);
-}
+  .fiat-order__claim-preview {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-s);
+    margin-bottom: var(--spacing-m);
+  }
 
-.fiat-order__claim-preview {
-  border-radius: var(--border-radius);
-  border: 1px solid var(--color-border);
-  padding: var(--spacing-s);
-  margin-bottom: var(--spacing-l);
-}
+  .claim-preview__wrapper--recommendation{
+    margin-bottom:0;
+  }
 
   .handle-submit-area {
     display:flex;
@@ -36,3 +32,16 @@
       }
     }
   }
+
+  .fiat-order__footer {
+    font-size: var(--font-small);
+    margin-top: var(--spacing-s);
+  }
+
+}
+
+
+
+
+
+
