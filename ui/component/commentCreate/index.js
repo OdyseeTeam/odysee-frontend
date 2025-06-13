@@ -40,6 +40,7 @@ import {
 } from 'redux/selectors/memberships';
 import { doArTip } from 'redux/actions/arwallet';
 import { CommentCreate } from './view';
+import { selectArweaveTippingErrorForId } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -84,6 +85,7 @@ const select = (state, props) => {
     hasPremiumPlus: hasLegacyOdyseePremium(state),
     experimentalUi: selectUserExperimentalUi(state),
     recipientArweaveTipInfo: selectArweaveTipDataForId(state, channelClaimId),
+    arweaveTippingError: selectArweaveTippingErrorForId(state, channelClaimId),
   };
 };
 
