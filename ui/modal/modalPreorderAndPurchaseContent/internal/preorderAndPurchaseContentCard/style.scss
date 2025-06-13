@@ -22,3 +22,17 @@
   padding: var(--spacing-s);
   margin-bottom: var(--spacing-l);
 }
+
+  .handle-submit-area {
+    display:flex;
+    gap:var(--spacing-s);
+
+    .button{
+      flex:1;
+      margin-right:unset;
+
+      .button__content{
+        justify-content: center;
+      }
+    }
+  }
