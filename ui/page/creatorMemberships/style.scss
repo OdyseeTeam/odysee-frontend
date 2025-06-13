@@ -77,6 +77,18 @@
       background-image: url('https://static.odycdn.com/images/banner_creatorPortal.jpg');
       background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 120px);
     }
+
+    &:before {
+      position: absolute;
+      bottom: 0;
+      opacity: 1;
+      content: '';
+      height: 100%;
+      left: 0;
+      right: 0;
+      width: 100%;
+      background: linear-gradient(0deg, #0d0d0d 0, transparent 65%);
+    }
   }
 
   .memberships-content{
