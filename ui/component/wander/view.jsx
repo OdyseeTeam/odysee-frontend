@@ -13,12 +13,13 @@ type Props = {
   doArInit: () => void;
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
+  doArUpdateBalance: () => void,
 };
 
 export default function Wander(props: Props) {
-  const { theme, auth, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress } = props;
+  const { theme, auth, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance } = props;
   const [instance, setInstance] = React.useState(null);
-  const [requests, setRequests] = React.useState(0);
+  // const [requests, setRequests] = React.useState(0);
   const authRef = React.useRef(instance?.authInfo);
   const wrapperRef = React.useRef();
   const authInfo = window?.wanderInstance?.authInfo;
@@ -159,14 +160,17 @@ export default function Wander(props: Props) {
             }
           }
           if (data.type === 'embedded_request') {
-            setRequests(window.wanderInstance.pendingRequests)
-            // setRequests
+            // setRequests(window.wanderInstance.pendingRequests)
             if(window.wanderInstance.pendingRequests !== 0){
               window.wanderInstance.close();
               window.wanderInstance.open();
             } else{
               window.wanderInstance.close();
             }           
+          }
+          if (data.type === 'embedded_balance') {
+            console.log('Update balance')
+            doArUpdateBalance()
           }
           /*
           if (data.type === 'event') {
@@ -176,10 +180,15 @@ export default function Wander(props: Props) {
         }
       });
 
+      const balanceUpdate = setInterval(() => {
+        doArUpdateBalance()
+      }, 60000)
+
       return () => {
         const handler = () => {}
         window.removeEventListener('arweaveWalletLoaded', handler);
         window.removeEventListener('message', handler);
+        clearInterval(balanceUpdate);
       };
     }
   }, [instance, doArSetAuth]);

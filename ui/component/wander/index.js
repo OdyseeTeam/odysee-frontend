@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import { doArInit, doArConnect, doArSetAuth } from 'redux/actions/arwallet';
 import { selectArweaveWanderAuth, selectArweaveAddress, selectArweaveConnecting } from 'redux/selectors/arwallet';
 import { selectTheme } from 'redux/selectors/settings';
+import { doArUpdateBalance } from 'redux/actions/arwallet';
 import Wander from './view';
 
 const select = (state) => ({
@@ -16,6 +17,7 @@ const perform = (dispatch) => ({
   doArInit: () => dispatch(doArInit()),
   connectArWallet: () => dispatch(doArConnect()),
   doArSetAuth: (status) => dispatch(doArSetAuth(status)),
+  doArUpdateBalance,
 });
 
 export default connect(select, perform)(Wander);
