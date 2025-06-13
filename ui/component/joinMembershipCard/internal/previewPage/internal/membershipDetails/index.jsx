@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import Symbol from 'component/common/symbol';
 import './style.scss';
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
   isChannelTab?: boolean,
   membersOnly?: boolean,
   isLivestream?: ?boolean,
+  exchangeRate: { ar: number },
 };
 
 const MembershipDetails = (props: Props) => {
@@ -21,11 +23,12 @@ const MembershipDetails = (props: Props) => {
     isChannelTab,
     membersOnly,
     isLivestream,
+    exchangeRate,
   } = props;
 
-  const descriptionParagraphs = membership.Membership.description.split('\n');
-  const selectedMembershipName = membership.Membership.name;
-  const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.Membership.id);
+  const descriptionParagraphs = membership.description.split('\n');
+  const selectedMembershipName = membership.name;
+  const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.membership_id);
 
   let accessText = __(
     membersOnly
@@ -59,7 +62,7 @@ const MembershipDetails = (props: Props) => {
       {!isChannelTab && <div className="selected-membership">{selectedMembershipName}</div>}
 
       <section className="membership-tier__header">
-        <span>{membership.Membership.name}</span>
+        <span>{membership.name}</span>
       </section>
 
       <section className="membership-tier__infos">
@@ -68,16 +71,18 @@ const MembershipDetails = (props: Props) => {
             descriptionLine === '' ? <br key={i} /> : <p key={i}>{descriptionLine}</p>
           )}
         </span>
+        <label>{__('Pledge')}</label>
+        <span style={{ display: 'flex' }}>${(membership?.prices[0].amount / 100).toFixed(2)}</span> {/* the ui basically supports monthly right now */}
 
         <div className="membership-tier__perks">
           <div className="membership-tier__moon" />
           <div className="membership-tier__perks-content">
-            {membership.Perks && membership.Perks.length > 0 ? (
+            {membership.perks && membership.perks.length > 0 ? (
               <>
                 <label>{__('Perks')}</label>
                 <ul>
                   {/* $FlowFixMe -- already handled above */}
-                  {membership.Perks.map((tierPerk, i) => (
+                  {membership.perks.map((tierPerk, i) => (
                     <li key={i}>{__(tierPerk.name)}</li>
                   ))}
                 </ul>

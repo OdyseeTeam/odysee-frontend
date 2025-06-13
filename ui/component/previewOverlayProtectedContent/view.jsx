@@ -7,7 +7,7 @@ type Props = {
   channel: ?ChannelClaim,
   cheapestPlanPrice: ?number,
   claimIsMine: boolean,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   hasProtectedContentTag: boolean,
   protectedMembershipIds: Array<number>,
   userIsAMember: boolean,
@@ -26,7 +26,7 @@ const PreviewOverlayProtectedContent = (props: Props) => {
 
   React.useEffect(() => {
     if (channel && protectedMembershipIds && cheapestPlanPrice === undefined) {
-      doMembershipList({ channel_name: channel.name, channel_id: channel.claim_id });
+      doMembershipList({ channel_claim_id: channel.claim_id });
     }
   }, [channel, cheapestPlanPrice, doMembershipList, protectedMembershipIds]);
 

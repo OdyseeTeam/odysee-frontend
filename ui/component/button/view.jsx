@@ -97,6 +97,7 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
           'button--close': button === 'close',
           'button--disabled': disable,
           'button--link': button === 'link',
+          'button--liquidass': button === 'liquidass',
         }
       : 'button--no-style',
     className

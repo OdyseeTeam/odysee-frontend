@@ -17,6 +17,7 @@ type Props = {
   supportersList: ?SupportersList,
   channelMembershipTiers: ?CreatorMemberships,
   doResolveClaimIds: (claimIds: Array<string>) => void,
+  paymentsBySubscriber: { [channelId: string]: Array<MembershipPayment> }, // payments by id { [id]: [{ paymentobj }...] }
 };
 
 const SupportersTab = (props: Props) => {
@@ -27,14 +28,30 @@ const SupportersTab = (props: Props) => {
     supportersList,
     channelMembershipTiers,
     doResolveClaimIds,
+    paymentsBySubscriber,
   } = props;
+
+  // const sl = [
+  //   {
+  //     subscriber_channel_name: '@iostest',
+  //     subscriber_channel_claim_id: 'b2de35a63ab37f9c4ec1c65f8135ed0306b7f67f',
+  //     supported_channel_name: '@shirely',
+  //     membership_name: 'The worst',
+  //     price: 10,
+  //     currency: 'AR',
+  //     interval: 'Monthly',
+  //     joined_at: '2025-05-10T04:39:27.822Z', // number or datestring?
+  //   },
+  // ];
+  //
+  // const supportersList = sl;
 
   const hasAnySupporters = React.useMemo(() => {
     return Boolean(
       channelsToList &&
         channelsToList.some((channel) => {
           const channelHasSupporters =
-            supportersList && supportersList.some((supporter) => channel.name === supporter.ChannelBeingSupported);
+            supportersList && supportersList.some((supporter) => channel.name === supporter.supported_channel_name);
 
           return channelHasSupporters;
         })
@@ -45,7 +62,7 @@ const SupportersTab = (props: Props) => {
 
   React.useEffect(() => {
     if (supportersList) {
-      const supportersClaimIds = supportersList.map((channel) => channel.ChannelID);
+      const supportersClaimIds = supportersList.map((channel) => channel.subscriber_channel_claim_id);
       doResolveClaimIds(supportersClaimIds);
     }
   }, [supportersList, doResolveClaimIds]);
@@ -76,7 +93,7 @@ const SupportersTab = (props: Props) => {
           channelsToList.map((listedChannelClaim) => {
             const supportersForChannel =
               supportersList &&
-              supportersList.filter((supporter) => listedChannelClaim.name === supporter.ChannelBeingSupported);
+              supportersList.filter((supporter) => listedChannelClaim.name === supporter.supported_channel_name);
 
             return (
               supportersForChannel &&
@@ -107,11 +124,11 @@ const SupportersTab = (props: Props) => {
                       <tbody>
                         {supportersForChannel.map((supporter, i) => {
                           const supporterUri =
-                            supporter.ChannelName === ''
+                            supporter.subscriber_channel_name === ''
                               ? undefined
                               : buildURI({
-                                  channelName: supporter.ChannelName,
-                                  channelClaimId: supporter.ChannelID,
+                                  channelName: supporter.subscriber_channel_name,
+                                  channelClaimId: supporter.subscriber_channel_claim_id,
                                 });
 
                           return (
@@ -127,18 +144,19 @@ const SupportersTab = (props: Props) => {
                               </td>
                               <td>
                                 <span dir="auto" className="button__label">
-                                  {supporter.ChannelName === '' ? (
+                                  {supporter.subscriber_channel_name === '' ? (
                                     __('Anonymous')
                                   ) : (
                                     <UriIndicator link uri={supporterUri} />
                                   )}
                                 </span>
                               </td>
-                              <td>{supporter.MembershipName}</td>
-                              <td>${supporter.Price / 100} USD / Month</td>
-                              <td>{moment(new Date(supporter.JoinedAtTime)).format('LL')}</td>
+                              <td>{supporter.membership_name}</td>
+                              <td>${supporter.price / 100} USD / Month</td>
+                              <td>{moment(new Date(supporter.joined_at)).format('LL')}</td>
                               <td>
-                                {Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}
+                                {/* need to put  */}
+                                {paymentsBySubscriber[supporter.subscriber_channel_claim_id] && paymentsBySubscriber[supporter.subscriber_channel_claim_id].filter(p => p.status === 'paid' || p.status === 'submitted').length}
                               </td>
                             </tr>
                           );
