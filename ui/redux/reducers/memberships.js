@@ -4,25 +4,31 @@ import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 
 export type MembershipsState = {
-  membershipMineByCreatorId: ?MembershipMineDataByCreatorId,
+  membershipMineByCreatorId: ?MembershipSubscribedDataByCreatorId,
   membershipMineFetching: boolean,
-  membershipListByCreatorId: { [creatorId: string]: MembershipTiers },
+  membershipListByCreatorId: { [creatorId: string]: MembershipSubs },
   membershipListFetchingIds: ClaimIds,
   channelMembershipsByCreatorId: ChannelMembershipsByCreatorId,
   fetchingIdsByCreatorId: { [creatorId: string]: ClaimIds },
   pendingBuyIds: ClaimIds,
   pendingCancelIds: ClaimIds,
-  myMembershipTiers: ?MembershipTiers,
+  myMembershipTiers: ?MembershipSubs,
   pendingDeleteIds: Array<string>,
   protectedContentClaimsByCreatorId: { [channelId: string]: any },
   mySupportersList: ?SupportersList,
   membershipOdyseePerks: Array<MembershipOdyseePerk>,
   listingAllMyTiers: ?boolean,
   claimMembershipTiersFetchingIds: Array<string>,
+  membershipPaymentsIncoming: Array<any>,
+  membershipPaymentsIncomingFetching: boolean,
+  membershipPaymentsIncomingError?: string,
+  membershipPaymentsOutgoing: Array<any>,
+  membershipPaymentsOutgoingFetching: boolean,
+  membershipPaymentsOutgoingError?: string,
 };
 
 const defaultState: MembershipsState = {
-  membershipMineByCreatorId: undefined,
+  membershipMineByCreatorId: {},
   membershipMineFetching: false,
   membershipListByCreatorId: {},
   membershipListFetchingIds: [],
@@ -37,6 +43,12 @@ const defaultState: MembershipsState = {
   membershipOdyseePerks: [],
   listingAllMyTiers: undefined,
   claimMembershipTiersFetchingIds: [],
+  membershipPaymentsIncoming: [],
+  membershipPaymentsIncomingFetching: false,
+  membershipPaymentsIncomingError: '',
+  membershipPaymentsOutgoing: [],
+  membershipPaymentsOutgoingFetching: false,
+  membershipPaymentsOutgoingError: '',
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
@@ -123,12 +135,12 @@ reducers[ACTIONS.DELETE_MEMBERSHIP_FAILED] = (state, action) => {
 
 reducers[ACTIONS.GET_MEMBERSHIP_MINE_START] = (state, action) => ({ ...state, membershipMineFetching: true });
 reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS] = (state, action) => {
-  const myPurchasedMembershipTiers: MembershipTiers = action.data;
+  const myPurchasedMembershipTiers: MembershipSubs = action.data;
 
   const newMembershipMineByCreatorId = {};
 
   for (const membership of myPurchasedMembershipTiers) {
-    const creatorClaimId = membership.MembershipDetails.channel_id;
+    const creatorClaimId = membership.membership.channel_claim_id;
 
     const currentMemberships = newMembershipMineByCreatorId[creatorClaimId] || [];
     newMembershipMineByCreatorId[creatorClaimId] = [...currentMemberships, membership];
@@ -257,6 +269,30 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => 
   }
 
   return { ...state, protectedContentClaimsByCreatorId: newProtectedContentClaims };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_INCOMING_STARTED] = (state) => {
+  return { ...state, membershipPaymentsIncomingFetching: true, membershipPaymentsIncomingError: '' };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL] = (state, action) => {
+  return { ...state, membershipPaymentsIncoming: action.data, membershipPaymentsIncomingFetching: false };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED] = (state, action) => {
+  return { ...state, membershipPaymentsIncomingFetching: false, membershipPaymentsIncomingError: action.data };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_OUTGOING_STARTED] = (state) => {
+  return { ...state, membershipPaymentsOutgoingFetching: true, membershipPaymentsOutgoingError: '' };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_OUTGOING_SUCCESSFUL] = (state, action) => {
+  return { ...state, membershipPaymentsOutgoingFetching: false, membershipPaymentsOutgoing: action.data };
+};
+
+reducers[ACTIONS.MEMBERSHIP_TX_OUTGOING_FAILED] = (state, action) => {
+  return { ...state, membershipPaymentsOutgoingFetching: false, membershipPaymentsOutgoingError: '' };
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE] = (state, action) => {

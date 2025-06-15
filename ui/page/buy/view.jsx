@@ -33,7 +33,7 @@ export default function BuyPage(props: Props) {
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   // const network = '0x67b573D3dA11E21Af9993c5a94C7c5cD88638F33';
   const network = '0xE6c07B52d897c596ECeA3a94566C4F4Fd45Ca04d';
-  
+
   const rgbaToHex = (rgba) => {
     const [r, g, b, a = 1] = rgba.match(/\d+(\.\d+)?/g).map(Number);
     return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1)}${a < 1 ? Math.round(a * 255).toString(16).padStart(2, '0') : ''}`;
@@ -42,11 +42,11 @@ export default function BuyPage(props: Props) {
   const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
     const [rB, gB, bB, aB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
     const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
-  
+
     const r = Math.round(rB * (1 - aA) + rA * aA);
     const g = Math.round(gB * (1 - aA) + gA * aA);
     const b = Math.round(bB * (1 - aA) + bA * aA);
-  
+
     return `${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).padStart(6, '0')}`;
   };
 
@@ -106,15 +106,15 @@ export default function BuyPage(props: Props) {
             primaryColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim())}`,
             primaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),
             secondaryColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim())}`,
-            secondaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),            
+            secondaryTextColor: getComputedStyle(document.documentElement).getPropertyValue('--color-text').trim(),
             cardColor: `#${rgbaToHex(getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim())}`,
             primaryBtnTextColor: '#ffffff',
             borderRadius: '0rem',
             widgetBorderRadius: '0rem',
           },
         }, "*");
-      }, 1000);      
-    }    
+      }, 1000);
+    }
   },[theme])
 
   let tabIndex;
@@ -173,12 +173,11 @@ export default function BuyPage(props: Props) {
                 className={!arWalletStatus ? `card--iframe card--disabled` : `card--iframe`}
                 title={
                   <>
-                    <Symbol token="usdc" amount={balance} precision={2} isTitle />
+                    <Symbol token="usdc" amount={balance} precision={2} />
                     {arWalletStatus && (
                       <Button
                         button="primary"
-                        icon={ICONS.WANDER}
-                        label={__('Disconnect')}
+                        label={__('Disconnect Wallet')}
                         onClick={handleArConnectDisconnect}
                       />
                     )}
@@ -187,14 +186,7 @@ export default function BuyPage(props: Props) {
                 background
                 actions={
                   <div className={`iframe-wrapper${!arWalletStatus ? ' iframe--disabled' : ''}`}>
-                    <iframe
-                      ref={iframeRef}
-                      src={iframeUri}
-                      title="Onramper Widget"
-                      // height="630px"
-                      // width="420px"
-                      allow="accelerometer; autoplay; camera; gyroscope; payment; microphone"
-                    />                    
+                    <span>Buy Info</span>
                   </div>
 
                 }

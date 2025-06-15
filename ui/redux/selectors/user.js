@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 
 export const selectState = (state) => state.user || {};
-
+export const hasLegacyOdyseePremium = (state) => selectState(state).hasLegacyOdyseePremium;
 export const selectAuthenticationIsPending = (state) => selectState(state).authenticationIsPending;
 export const selectUserIsPending = (state) => selectState(state).userIsPending;
 export const selectUser = (state) => selectState(state).user;

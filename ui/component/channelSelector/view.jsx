@@ -33,6 +33,7 @@ type Props = {
   disabled?: boolean,
   allOptionProps?: { onSelectAll: () => void, isSelected: boolean },
   doFetchOdyseeMembershipForChannelIds: (channelIds: ClaimIds) => void,
+  hideCreateNew?: boolean,
 };
 
 function ChannelSelector(props: Props) {
@@ -53,6 +54,7 @@ function ChannelSelector(props: Props) {
     disabled,
     allOptionProps,
     doFetchOdyseeMembershipForChannelIds,
+    hideCreateNew,
   } = props;
 
   const hideAnon = Boolean(props.hideAnon || storeSelection);
@@ -69,12 +71,12 @@ function ChannelSelector(props: Props) {
   const pendingChannelFetch = !noActiveChannel && channelIds === undefined;
 
   function handleChannelSelect(channelId) {
-    doSetIncognito(false);
-    doSetActiveChannel(channelId);
+      doSetIncognito(false);
+      doSetActiveChannel(channelId);
 
-    if (storeSelection) {
-      doSetDefaultChannel(channelId);
-    }
+      if (storeSelection) {
+        doSetDefaultChannel(channelId);
+      }
   }
 
   function handleSelectOption(channelId) {
@@ -157,13 +159,14 @@ function ChannelSelector(props: Props) {
                 <IncognitoSelector />
               </MenuItem>
             )}
-
-            <MenuItem onSelect={() => push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
-              <div className="channel-selector__item">
-                <Icon sectionIcon icon={ICONS.CHANNEL} />
-                <div className="channel-selector__text">{__('Create a new channel')}</div>
-              </div>
-            </MenuItem>
+            {!hideCreateNew && (
+              <MenuItem onSelect={() => push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`)}>
+                <div className="channel-selector__item">
+                  <Icon sectionIcon icon={ICONS.CHANNEL} />
+                  <div className="channel-selector__text">{__('Create a new channel')}</div>
+                </div>
+              </MenuItem>
+            )}
           </MenuList>
         </Menu>
       </div>

@@ -1,0 +1,94 @@
+@import '~ui/scss/init/breakpoints';
+
+.card--buyAr {
+  .buyAr-instructions {
+    display: flex;
+    gap: var(--spacing-m);
+    img {
+      flex: 1;
+    }
+  }
+
+  .buyAr-wrapper {
+    display: flex;
+    width: 100%;
+    gap: var(--spacing-s);
+
+    @media (max-width: $breakpoint-medium) {
+      flex-direction: column;
+    }
+
+    .buyAr-card {
+      flex: 1;
+      background: var(--color-background);
+      padding: var(--spacing-s);
+      border-radius: var(--border-radius);
+
+      h3 {
+        opacity: 0.8;
+      }
+
+      .buyAr-input {
+        position: relative;
+        display: flex;
+        input {
+          font-size: var(--font-large);
+          width: 100%;
+        }
+        button {
+          position: absolute;
+          right: var(--spacing-s);
+          top: 0;
+          color: var(--color-font);
+
+          .fiatOption {
+            padding: 0;
+          }
+        }
+
+        &.buyAr-input--fixed {
+          user-select: none;
+          pointer-events: none;
+        }
+      }
+    }
+
+    select {
+      width: 100%;
+    }
+  }
+
+  .button__content {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.fiatOption {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-xxs) var(--spacing-s);
+  gap: var(--spacing-s);
+  .fiatOption-wrapper {
+    width: 30px;
+    height: 20px;
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    svg {
+      width: 100%;
+      height: 100%;
+      // object-fit: cover;
+    }
+  }
+  .fiatOption-text {
+    .fiatOption-symbol {
+      display: flex;
+      font-weight: 800;
+    }
+    .fiatOption-name {
+      opacity: 0.8;
+      font-size: var(--font-small);
+      margin-top: -6px;
+    }
+  }
+}

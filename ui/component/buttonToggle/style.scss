@@ -24,6 +24,11 @@
     }
   }
 
+  &.toggle-wrapper--busy {
+    opacity: .4;
+    pointer-events: none;
+  }
+
   &:hover {
     cursor: pointer;
   }

@@ -55,7 +55,7 @@ export const PAGE_TITLE = {
   [PAGES.TOS]: 'Terms of Service',
   [PAGES.UPLOADS]: 'Your uploads',
   [PAGES.UPLOAD]: 'Upload a File to Odysee',
-  [PAGES.WALLET]: 'Wallet',
+  [PAGES.WALLET]: 'Odysee',
   [PAGES.YOUTUBE_SYNC]: 'YouTube Sync',
   [PAGES.YOUTUBE_TOS]: 'YouTube Sync Terms of Service',
 };
