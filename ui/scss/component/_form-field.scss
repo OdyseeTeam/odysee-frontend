@@ -147,7 +147,7 @@ label {
   font-size: var(--font-small);
   color: var(--color-input-label);
   display: inline-block;
-  margin-bottom: 0.1rem;
+  // margin-bottom: 0.1rem;
 
   .icon__lbc {
     margin-bottom: 4px;
@@ -551,7 +551,7 @@ fieldset-section {
   }
 
   .select--slim {
-    margin-bottom: var(--spacing-xxs);
+    // margin-bottom: var(--spacing-xxs);
 
     @media (min-width: $breakpoint-small) {
       max-width: none;
