@@ -20,9 +20,10 @@ function PaymentsTab(props: IProps) {
 
   const channelIdsToList = channelsToList && channelsToList.map(c => c.claim_id);
 
-  const transactionsToList = channelIdsToList && channelIdsToList.length
+  const transactionsToList = (channelIdsToList && channelIdsToList.length
     ? transactions.filter(t => channelIdsToList.includes(t.subscriber_channel_claim_id))
-    : transactions;
+    : transactions
+  ).sort((a, b) => new Date(b.initiated_at).getTime() - new Date(a.initiated_at).getTime());
 
   return (
     <>

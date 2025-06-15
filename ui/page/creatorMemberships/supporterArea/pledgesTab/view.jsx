@@ -57,7 +57,9 @@ function PledgesTab(props: Props) {
         </div>
       </div>
     );
-  }
+  }  
+
+  const sortedMembershipSubs = myMembershipSubs.sort((a, b) => new Date(b.subscription.started_at).getTime() - new Date(a.subscription.started_at).getTime());
 
   return (
     <div className="membership__mypledges-wrapper">
@@ -78,7 +80,7 @@ function PledgesTab(props: Props) {
               </tr>
             </thead>
             <tbody>
-              {myMembershipSubs.map((membershipSub) => {
+              {sortedMembershipSubs.map((membershipSub) => {
                   return (
                     <MembershipRow membershipSub={membershipSub} key={membershipSub.id} />
                   );

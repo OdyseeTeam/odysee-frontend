@@ -49,6 +49,8 @@ export default function ModalAnnouncements(props: Props) {
   const usdcBalance = walletBalance ? walletBalance.usdc : 0;
   const hasArweaveEntry = fullAPIArweaveStatus && fullAPIArweaveStatus.length > 0;
 
+  console.log('fullAPIArweaveStatus: ', fullAPIArweaveStatus)
+
   React.useEffect(() => {
     // automatically register first address if there isn't one
     if (!hasArweaveEntry) {
@@ -149,6 +151,7 @@ export default function ModalAnnouncements(props: Props) {
     );
   };
 
+  /*
   const TopUpCard = () => {
     return (
       <Card
@@ -171,6 +174,8 @@ export default function ModalAnnouncements(props: Props) {
       />
     );
   };
+  */
+
   const showConnecting = (isConnecting || isArAccountUpdating) && !apiEntryWithAddress;
   const showRegister = hasArweaveEntry && !apiEntryWithAddress
   const showMakeDefault = apiEntryWithAddress && defaultApiAddress !== walletAddress;
@@ -179,6 +184,9 @@ export default function ModalAnnouncements(props: Props) {
     handleCloseModal();
     return null;
   }
+
+  console.log('hasArweaveEntry: ', hasArweaveEntry)
+  console.log('apiEntryWithAddress: ', apiEntryWithAddress)
 
   // if you don't already have
   return (

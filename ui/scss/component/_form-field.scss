@@ -922,3 +922,7 @@ fieldset-section {
 .clh-tag-search__input--hidden {
   display: none;
 }
+
+label[for='youtube_sync_checkbox'], label[for='sign_in_password'] {
+  margin-top:var(--spacing-s);
+}
