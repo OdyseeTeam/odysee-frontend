@@ -84,16 +84,18 @@ const SupportersTab = (props: Props) => {
         subtitle={__('Once you have supporters, they will appear here.')}
       />
     );
-  }
+  }  
 
   return (
     <>
       <div className="membership-table__wrapper">
         {channelsToList &&
           channelsToList.map((listedChannelClaim) => {
-            const supportersForChannel =
-              supportersList &&
-              supportersList.filter((supporter) => listedChannelClaim.name === supporter.supported_channel_name);
+          const supportersForChannel = supportersList
+            ? supportersList
+                .filter(supporter => listedChannelClaim.name === supporter.supported_channel_name)
+                .sort((a, b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())
+            : [];
 
             return (
               supportersForChannel &&
