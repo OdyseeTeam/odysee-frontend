@@ -131,6 +131,12 @@
 }
 
 .membership-payments-table__wrapper {
+  label{
+    font-size: var(--font-xsmall);
+    color: rgba(var(--color-text-base), 0.6);
+    margin-left:var(--spacing-s);
+  }
+
   margin-bottom: 28px;
 
   .table {

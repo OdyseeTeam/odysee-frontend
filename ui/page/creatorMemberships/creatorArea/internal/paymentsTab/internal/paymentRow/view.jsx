@@ -22,6 +22,8 @@ function View(props: IProps) {
   const { name: recipientName, claim_id: recipientClaimId } =  recipientChannel || {};
   const { name: senderName, claim_id: senderClaimId } =  senderChannel || {};
 
+  console.log('membership: ', membership)
+
   const recipientUri = recipientChannel
     ? buildURI({
       channelName: recipientName,
@@ -59,9 +61,15 @@ function View(props: IProps) {
       </td>
       <td>{membership && membership.name}</td>
       <td className="payment-txid">
-        <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.transaction_id} />
+        {!transaction.transaction_id.startsWith('in_') && (
+          <CopyableText
+            hideValue
+            linkTo={`https://viewblock.io/arweave/tx/`}
+            copyable={transaction.transaction_id}
+        />
+        )}
       </td>
-      <td>{transaction.usd_amount}</td>
+      <td>${(transaction.usd_amount/100).toFixed(2)} USD</td>
       <td>{transaction.status ? toCapitalCase(transaction.status) : '...'}</td>
     </tr>
   );
