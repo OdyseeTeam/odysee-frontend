@@ -175,12 +175,14 @@
 }
 
 .comment-create__min-amount-notice {
+  display:flex;
+  justify-content: center;
+  align-items: center;
   margin-top: calc(var(--spacing-xxs) - 2px);
-  padding-top: calc(var(--spacing-xs) + 1px);
   height: var(--height-button);
   text-align: center;
   .icon {
-    margin-bottom: 1px; // TODO fix few instances of these (find "-2px")
+    margin-left: var(--spacing-xxs);
   }
 
   @media (max-width: $breakpoint-small) {
