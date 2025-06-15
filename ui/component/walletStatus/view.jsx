@@ -1,20 +1,22 @@
 // @flow
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 // $FlowIgnore
 import { useArStatus } from 'effects/use-ar-status';
 import './style.scss';
 
 type Props = {
+  arweaveWallets: any,
   doArConnect: () => void,
 };
 
 export default function WalletStatus(props: Props) {
-  const { doArConnect } = props;
+  const { arweaveWallets, doArConnect } = props;
   const {
     activeArStatus
   } = useArStatus();
 
-  return activeArStatus !== 'connected' ? (
+  return arweaveWallets && activeArStatus !== 'connected' ? (
     <div className={`wallet-status${activeArStatus === 'authenticating' ? ' wallet-status--authenticating' : activeArStatus === 'authenticated' ? ' wallet-status--authenticated' : ''}`}>
       {activeArStatus === 'not-authenticated' ? (
         arweaveWallets.length > 0 ? (
