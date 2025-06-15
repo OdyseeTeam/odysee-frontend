@@ -148,6 +148,17 @@ export const selectHomepageMeme = (state) => {
   return homepages ? homepages['en']?.meme || {} : {};
 };
 
+export const selectHomepageCommentCards = (state) => {
+  const homepageCode = selectHomepageCode(state);
+  const homepages = selectHomepageDb(state);
+  if (homepages) {
+    const commentCards = homepages[homepageCode]?.commentCards;
+    if (commentCards) {
+      return commentCards;
+    }
+  }
+  return homepages ? homepages['en']?.commentCards || {} : {};
+
 export const selectHomepageCustomBanners = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = selectHomepageDb(state);
