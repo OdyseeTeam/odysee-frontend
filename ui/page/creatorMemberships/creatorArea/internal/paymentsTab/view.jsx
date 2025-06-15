@@ -22,6 +22,8 @@ function PaymentsTab(props: IProps) {
     ? transactions.filter(t => channelIdsToList.includes(t.creator_channel_claim_id))
     : transactions;
 
+    console.log('transactionsToList: ', transactionsToList)
+
   return (
     <>
       <div className="membership-payments-table__wrapper">

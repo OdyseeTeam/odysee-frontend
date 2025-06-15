@@ -9,7 +9,7 @@ const select = (state, props) => {
 
   const recipientChannel = selectClaimForClaimId(state, transaction?.creator_channel_claim_id);
   const senderChannel = selectClaimForClaimId(state, transaction?.subscriber_channel_claim_id);
-  const membership = selectMembershipForId(transaction.membership_id);
+  const membership = selectMembershipForId(state, transaction.membership_id);
 
   return {
     recipientChannel,
