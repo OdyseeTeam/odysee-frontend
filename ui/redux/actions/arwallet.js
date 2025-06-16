@@ -280,7 +280,8 @@ export const doArTip = (
       const transactionAmountString = String(transactionAmount);
       if (tipParams.currency === 'AR') {
         try {
-          transferTxid = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
+          const { transferTxid: txid } = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
+          transferTxid = txid;
         } catch (error) {
           console.log(error);
           dispatch({
@@ -371,6 +372,7 @@ export const sendWinstons = async (
   amountInWinstons: string,
   tags: Array<{ name: string, value: string }>
 ) => {
+  let txResponse: { status: number, statusText: string, data: any };
   try {
     const createParams = {
       target: address,
@@ -385,18 +387,18 @@ export const sendWinstons = async (
 
     await arweave.transactions.sign(transaction);
 
-    const txResponse = await arweave.transactions.post(transaction);
+    txResponse = await arweave.transactions.post(transaction);
     console.log('txResponse: ', txResponse)
     const { status } = txResponse;
     if (status !== 200) {
-      throw new Error(`Transaction failed with status: ${status}`);
+      return { error: 'transaction failed', transactionId: txResponse.transactionId, status };
     }
     console.log(txResponse);
     const { id } = transaction;
-    return id;
+    return { transactionId: id, status };
   } catch (e) {
     console.error('ERROR SENDING WINSTONS', e);
-    throw new Error(e.message);
+    return { error: 'Unknown Error' };
   }
 };
 
@@ -410,7 +412,7 @@ export const doArSetAuth = (status: any) => {
 export const doArSend = (recipientAddress: string, amountAr: number) => {
   return async (dispatch: Dispatch) => {
     dispatch({ type: AR_SEND_STARTED });
-    
+
     if (!window.arweaveWallet) {
       dispatch({ type: AR_SEND_ERROR, data: { error: 'arweaveWallet not found.' } });
       return { error: 'arweaveWallet not found.' };
@@ -429,7 +431,7 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
         recipient: recipientAddress,
         quantity: amountInWinstons,
       };
-      
+
       const transactionCheck = await arweave.createTransaction(testParams);
       let transaction = null
       if(transactionCheck.quantity >= amountInWinstons){

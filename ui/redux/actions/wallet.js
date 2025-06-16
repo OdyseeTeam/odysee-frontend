@@ -962,7 +962,7 @@ export const doPurchaseClaimForUri =
         const tags = [
           { name: 'X-O-Ref', value: reference_token },
         ];
-        const transferTxid = await sendWinstons(arweaveTipData.address, String(transaction_amount), tags);
+        const { transferTxid }  = await sendWinstons(arweaveTipData.address, String(transaction_amount), tags);
 
         await Lbryio.call(
           'customer',

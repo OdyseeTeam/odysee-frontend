@@ -179,7 +179,12 @@ export const doMembershipBuy =
 
       if (currencyType === 'AR') {
         const tags = [{ name: 'X-O-Ref', value: subscribeToken }];
-        transferTxid = await sendWinstons(payeeAddress, cryptoAmount, tags);
+        const { transferTxid: txid, error, status } = await sendWinstons(payeeAddress, 's', tags);
+        if (error) { // TODO pass error to redux
+          dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+          console.error(e?.message || e);
+        }
+        transferTxid = txid;
       } else if (currencyType === 'USD') {
         transferTxid = await message({
           process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
@@ -196,6 +201,8 @@ export const doMembershipBuy =
           signer: createDataItemSigner(window.arweaveWallet),
         });
       }
+
+      console.log('transferTxid', transferTxid);
 
       const notifyParams = {
         token: subscribeToken,
