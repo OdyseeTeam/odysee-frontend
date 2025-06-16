@@ -12,6 +12,9 @@ import {
   AR_TIP_STATUS_SUCCESS,
   AR_TIP_STATUS_ERROR,
   WANDER_AUTH,
+  AR_SEND_STARTED,
+  AR_SEND_ERROR,
+  AR_SEND_SUCCESS,
 } from 'constants/action_types';
 // $FlowIgnore
 import { message, createDataItemSigner } from '@permaweb/aoconnect';
@@ -383,6 +386,7 @@ export const sendWinstons = async (
     await arweave.transactions.sign(transaction);
 
     const txResponse = await arweave.transactions.post(transaction);
+    console.log('txResponse: ', txResponse)
     const { status } = txResponse;
     if (status !== 200) {
       throw new Error(`Transaction failed with status: ${status}`);
@@ -401,3 +405,52 @@ export const doArSetAuth = (status: any) => {
     dispatch({ type: WANDER_AUTH, data: status });
   };
 };
+
+export const doArSend = (recipientAddress: string, amountAr: number) => {
+  return async (dispatch: Dispatch) => {
+    dispatch({ type: AR_SEND_STARTED });
+    
+    if (!window.arweaveWallet) {
+      dispatch({ type: AR_SEND_ERROR, data: { error: 'arweaveWallet not found.' } });
+      return { error: 'arweaveWallet not found.' };
+    }
+
+    const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
+    if (!isValidArweaveAddress(recipientAddress)) {
+      dispatch({ type: AR_SEND_ERROR, data: { error: 'Invalid Arweave address.' } });
+      return { error: 'Invalid Arweave address.' };
+    }
+
+    try {
+      const amountInWinstons = arweave.ar.arToWinston(amountAr.toString());
+      const testParams = {
+        target: recipientAddress,
+        recipient: recipientAddress,
+        quantity: amountInWinstons,
+      };
+      
+      const transactionCheck = await arweave.createTransaction(testParams);
+      let transaction = null
+      if(transactionCheck.quantity >= amountInWinstons){
+        const newParams = {
+          target: recipientAddress,
+          recipient: recipientAddress,
+          quantity: String(amountInWinstons - transactionCheck.reward),
+        };
+        transaction = await arweave.createTransaction(newParams);
+      }else {
+        transaction = transactionCheck;
+      }
+      await arweave.transactions.sign(transaction);
+      const response = await arweave.transactions.post(transaction)
+
+      dispatch({ type: AR_SEND_SUCCESS, data: { txId: response.id, recipient: recipientAddress, amount: amountAr } });
+      return { txId: response.id };
+    } catch (e) {
+      dispatch({ type: AR_SEND_ERROR, data: { error: e.message || 'Failed to send AR' } });
+      return { error: e.message || 'Failed to send AR' };
+    }
+  };
+};
+
+
