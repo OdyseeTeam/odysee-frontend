@@ -42,16 +42,18 @@ reducers[ACTIONS.AR_ADDR_DEFAULT_ERROR] = (state, action) => ({
 // Register
 reducers[ACTIONS.AR_ADDR_REGISTER_STARTED] = (state, action) => ({
   ...state,
-  arAccountUpdatingId: action.data,
-  arAccountUpdatingError: undefined,
+  arAccountRegisteringId: action.data,
+  arAccountRegisteringError: undefined,
 });
 reducers[ACTIONS.AR_ADDR_REGISTER_SUCCESS] = (state, action) => ({
-  ...state, arAccountUpdatingId: undefined });
+  ...state, arAccountRegisteringId: undefined });
 reducers[ACTIONS.AR_ADDR_REGISTER_ERROR] = (state, action) => ({
   ...state,
-  arAccountUpdatingId: undefined,
-  arAccountUpdatingError: action.data,
+  arAccountRegisteringId: undefined,
+  arAccountRegisteringError: action.data,
 });
+reducers[ACTIONS.AR_ADDR_REGISTER_CLEAR] = (state, action) => ({
+  ...state, arAccountRegisteringId: undefined, arAccountRegisteringError: undefined });
 
 // Update
 reducers[ACTIONS.AR_ADDR_UPDATE_STARTED] = (state, action) => ({

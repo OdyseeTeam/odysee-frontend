@@ -270,6 +270,10 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
   }
 };
 
+export const doRegisterArweaveAddressClear = () => (dispatch) => {
+  dispatch({ type: ACTIONS.AR_ADDR_REGISTER_CLEAR });
+};
+
 export const doUpdateArweaveAddressStatus =
   (id: string, status: 'active' | 'inactive') => async (dispatch: Dispatch) => {
     dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED, data: id });

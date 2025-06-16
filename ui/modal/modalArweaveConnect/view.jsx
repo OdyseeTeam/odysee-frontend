@@ -13,6 +13,7 @@ type Props = {
   doHideModal: () => void,
   doOpenModal: (string, any) => void,
   doArDisconnect: () => void,
+  doRegisterArweaveAddressClear: () => void,
   doRegisterArweaveAddress: (string, boolean) => void,
   doUpdateArweaveAddressDefault: (number) => void,
   activeApiAddresses: string[],
@@ -20,7 +21,8 @@ type Props = {
   fullAPIArweaveStatus: any, // [ {status: 'active', address: '0x1234'}, ...]
   walletAddress: string,
   walletBalance: any,
-  isArAccountUpdating: boolean,
+  isArAccountRegistering: boolean,
+  arAccountRegisteringError?: '',
   previousModal?: { id: string, modalProps: any },
   isConnecting: boolean,
   fullArweaveStatusArray: Array<any>,
@@ -32,13 +34,15 @@ export default function ModalAnnouncements(props: Props) {
     doHideModal,
     doOpenModal,
     doArDisconnect,
+    doRegisterArweaveAddressClear,
     fullAPIArweaveStatus,
     defaultApiAddress,
     walletAddress,
     walletBalance,
     doRegisterArweaveAddress,
     doUpdateArweaveAddressDefault,
-    isArAccountUpdating,
+    isArAccountRegistering,
+    arAccountRegisteringError,
     previousModal,
     isConnecting,
     fullArweaveStatusArray,
@@ -73,10 +77,10 @@ export default function ModalAnnouncements(props: Props) {
             <Button
               button="primary"
               label={__('Register')}
-              disabled={isArAccountUpdating}
+              disabled={isArAccountRegistering}
               onClick={() => doRegisterArweaveAddress(walletAddress, true)}
             />
-            <Button button="alt" label={__('Nevermind')} disabled={isArAccountUpdating} onClick={handleDisconnect} />
+            <Button button="alt" label={__('Nevermind')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
           </div>
         }
       />
@@ -94,8 +98,10 @@ export default function ModalAnnouncements(props: Props) {
   const handleDisconnect = () => {
     doArDisconnect();
     if (previousModal) {
+      doRegisterArweaveAddressClear();
       doOpenModal(previousModal.id, previousModal.modalProps);
     } else {
+      doRegisterArweaveAddressClear();
       doHideModal();
     }
   };
@@ -114,10 +120,29 @@ export default function ModalAnnouncements(props: Props) {
             <Button
               button="primary"
               label={__('Make Default')}
-              disabled={isArAccountUpdating}
+              disabled={isArAccountRegistering}
               onClick={handleMakeDefault}
             />
-            <Button button="alt" label={__('Disconnect')} disabled={isArAccountUpdating} onClick={handleDisconnect} />
+            <Button button="alt" label={__('Disconnect')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
+          </div>
+        }
+      />
+    );
+  };
+
+  const ErrorCard = () => {
+    return (
+      <Card
+        className="announcement"
+        title={__('Address Error')}
+        body={
+          <div className="section">
+            {__('There was an error registering that address: %error%', { error: arAccountRegisteringError })}
+          </div>
+        }
+        actions={
+          <div className="section__actions">
+            <Button button="alt" label={__('Disconnect')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
           </div>
         }
       />
@@ -167,8 +192,8 @@ export default function ModalAnnouncements(props: Props) {
         }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={__('Top Up')} disabled={isArAccountUpdating} onClick={redirectToTopup} />
-            <Button button="alt" label={__('Not Now')} disabled={isArAccountUpdating} onClick={handleCloseModal} />
+            <Button button="primary" label={__('Top Up')} disabled={isArAccountRegistering} onClick={redirectToTopup} />
+            <Button button="alt" label={__('Not Now')} disabled={isArAccountRegistering} onClick={handleCloseModal} />
           </div>
         }
       />
@@ -176,9 +201,10 @@ export default function ModalAnnouncements(props: Props) {
   };
   */
 
-  const showConnecting = (isConnecting || isArAccountUpdating) && !apiEntryWithAddress;
-  const showRegister = hasArweaveEntry && !apiEntryWithAddress
-  const showMakeDefault = apiEntryWithAddress && defaultApiAddress !== walletAddress;
+  const showConnecting = (isConnecting || isArAccountRegistering) && !apiEntryWithAddress;
+  const showRegister = !showConnecting && !arAccountRegisteringError && hasArweaveEntry && !apiEntryWithAddress
+  const showMakeDefault = !showConnecting && !arAccountRegisteringError && apiEntryWithAddress && defaultApiAddress !== walletAddress;
+  const showErrorCard = !showConnecting && !!arAccountRegisteringError;
 
   if (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) {
     handleCloseModal();
@@ -191,10 +217,11 @@ export default function ModalAnnouncements(props: Props) {
   // if you don't already have
   return (
     <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>
-      {(isConnecting || isArAccountUpdating) && !apiEntryWithAddress && <ConnectingCard />}
+      {showConnecting && <ConnectingCard />}
       { /* don't bother showing register unless you're showing a 2nd+ address */ }
-      {hasArweaveEntry && !apiEntryWithAddress && <RegisterCard />}
-      {apiEntryWithAddress && defaultApiAddress !== walletAddress && <MakeDefaultCard />}
+      {showRegister && <RegisterCard />}
+      {showErrorCard && <ErrorCard />}
+      {showMakeDefault && <MakeDefaultCard />}
       {/* {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />} */}
     </Modal>
   );
