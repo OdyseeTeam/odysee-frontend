@@ -22,6 +22,7 @@ type Props = {
   balance: any,
   fetching: boolean,
   theme: string,
+  exchangeRate: { ar: number },
   doArDisconnect: () => void,
   doArUpdateBalance: () => void,
 };
@@ -34,7 +35,7 @@ const TABS = {
 };
 
 function ArAccountPage(props: Props) {
-  const { arweaveWallets, arWalletStatus, balance, fetching, theme, doArDisconnect, doArUpdateBalance } = props;
+  const { arweaveWallets, arWalletStatus, balance, fetching, exchangeRate, doArDisconnect, doArUpdateBalance } = props;
   const {
     location: { search },
     push,
@@ -69,7 +70,7 @@ function ArAccountPage(props: Props) {
   function cardHeader() {
     return (
       <>
-        <Symbol token="ar" amount={balance.ar} precision={2} />
+        <Symbol token="usd" amount={(balance.ar*exchangeRate.ar)} precision={2} />
         <div
           onClick={handleUpdateBalance}
           className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}

@@ -106,6 +106,25 @@ reducers[ACTIONS.ARSETEXCHANGERATE] = (state, action) => {
   return { ...state, exchangeRates: { ar: action.data }};
 };
 
+reducers[ACTIONS.AR_SEND_STARTED] = (state) => ({
+  ...state,
+  sending: true,
+  error: null,
+});
+
+reducers[ACTIONS.AR_SEND_SUCCESS] = (state, action) => ({
+  ...state,
+  sending: false,
+  error: null,
+  lastSentTxId: action.data.txId,
+});
+
+reducers[ACTIONS.AR_SEND_ERROR] = (state, action) => ({
+  ...state,
+  sending: false,
+  error: action.data.error,
+});
+
 export default function arwalletReducer(state: ArWalletState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);

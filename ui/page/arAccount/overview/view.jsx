@@ -11,7 +11,16 @@ import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 function Overview(props: Props) {
-  const { account, cardHeader, wallet, balance, arWalletStatus, doUpdateArweaveAddressStatus, accountUpdating } = props;
+  const { 
+    account, 
+    cardHeader, 
+    wallet, 
+    balance, 
+    arWalletStatus, 
+    doUpdateArweaveAddressStatus, 
+    accountUpdating,
+    doArSend,
+  } = props;
   const [transactions, setTransactions] = React.useState([]);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
@@ -80,11 +89,11 @@ function Overview(props: Props) {
   }, [showQR]);
 
   function handleCheckForm() {
-    const isValidEthAddress = (address) => /^0x[a-fA-F0-9]{40}$/.test(address);
+    const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
     const check =
       inputAmountRef.current.value &&
       Number(inputAmountRef.current.value) <= Number(balance.ar) &&
-      isValidEthAddress(inputReceivingAddressRef.current.value);
+      isValidArweaveAddress(inputReceivingAddressRef.current.value);
     setCanSend(check);
   }
 
@@ -95,6 +104,13 @@ function Overview(props: Props) {
 
   const handlemonetizationToggle = () => {
     doUpdateArweaveAddressStatus(account.id, account.status === 'active' ? 'inactive' : 'active');
+  };
+
+  const handleSendClick = () => {
+    const recipientAddress = inputReceivingAddressRef.current.value.trim();
+    const amountAr = Number(inputAmountRef.current.value);
+    if (!recipientAddress || !amountAr) return;
+    doArSend(recipientAddress, amountAr);
   };
 
   return (
@@ -180,7 +196,13 @@ function Overview(props: Props) {
                       />
                     </div>
                     <div className="sendAr-row__send">
-                      <Button button="primary" title={__('Send')} label={__('Send')} disabled={!canSend} />
+                      <Button
+                        button="primary" 
+                        title={__('Send')} 
+                        label={__('Send')} 
+                        disabled={!canSend || arWalletStatus?.sending} 
+                        onClick={handleSendClick}
+                      />
                     </div>
                   </div>
                 </div>

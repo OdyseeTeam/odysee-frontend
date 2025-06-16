@@ -9,7 +9,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD } from 'constants/tip_tabs';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 
@@ -72,15 +72,15 @@ function WalletTipAmountSelector(props: Props) {
     arExchangeRate,
     exchangeRateOverride,
   } = props;
+  
 
   const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
 
-  const dollarsPerArToUse = exchangeRateOverride || dollarsPerAr;
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
-  const amountInArEstimated = (amount / dollarsPerArToUse).toFixed(6);
+  const amountInArEstimated = (amount / arExchangeRate?.ar).toFixed(6);
 
   const tipAmountsToDisplay =
     customTipAmount && fiatConversion && activeTab === TAB_FIAT
@@ -232,36 +232,34 @@ function WalletTipAmountSelector(props: Props) {
     <>
       <div className="section">
         {tipAmountsToDisplay &&
-          tipAmountsToDisplay.map((defaultAmount) => {
-            return (
-              <Button
-                key={defaultAmount}
-                disabled={shouldDisableAmountSelector(defaultAmount)}
-                button="alt"
-                className={classnames('button-toggle button-toggle--expandformobile', {
-                  'button-toggle--active':
-                    convertToTwoDecimalsOrMore(defaultAmount) === convertToTwoDecimalsOrMore(amount) && !useCustomTip,
-                  'button-toggle--disabled':
-                    (activeTab === 'TabLBC' && amount > LBCBalance) ||
-                    (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
-                })}
-                label={defaultAmount}
-                icon={
-                  activeTab === TAB_USDC
-                    ? ICONS.USDC
-                    : activeTab === TAB_USD
-                      ? ICONS.USD
-                      : activeTab === TAB_LBC
-                        ? ICONS.LBC
-                        : ICONS.USD
-                } /* here */
-                onClick={() => {
-                  handleCustomPriceChange(defaultAmount);
-                  setUseCustomTip(false);
-                }}
-              />
-            );
-          })}
+          tipAmountsToDisplay.map((defaultAmount) => (
+            <Button
+              key={defaultAmount}
+              disabled={shouldDisableAmountSelector(defaultAmount)}
+              button="alt"
+              className={classnames('button-toggle button-toggle--expandformobile', {
+                'button-toggle--active':
+                  convertToTwoDecimalsOrMore(defaultAmount) === convertToTwoDecimalsOrMore(amount) && !useCustomTip,
+                'button-toggle--disabled':
+                  (activeTab === 'TabLBC' && amount > LBCBalance) ||
+                  (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
+              })}
+              label={defaultAmount}
+              icon={
+                activeTab === TAB_USDC
+                  ? ICONS.USDC
+                  : activeTab === TAB_USD
+                  ? ICONS.USD
+                  : activeTab === TAB_LBC
+                  ? ICONS.LBC
+                  : ICONS.USD
+              } /* here */
+              onClick={() => {
+                handleCustomPriceChange(defaultAmount);
+                setUseCustomTip(false);
+              }}
+            />
+          ))}
 
         <Button
           button="alt"
@@ -306,7 +304,7 @@ function WalletTipAmountSelector(props: Props) {
 
       {/* custom number input form */}
       {useCustomTip && (
-        <div className="walletTipSelector__input">
+        <div className="walletTipSelector__input">          
           <FormField
             autoFocus={!isMobile}
             name="tip-input"
@@ -324,7 +322,7 @@ function WalletTipAmountSelector(props: Props) {
           />{' '}
           {activeTab === TAB_USD ? (
             <span className={'walletTipSelector__input-conversion help'}>
-              ({arExchangeRate?.ar} AR)
+              ({amountInArEstimated} AR)
             </span>
           ) : ''}
         </div>
