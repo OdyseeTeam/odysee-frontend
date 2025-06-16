@@ -30,11 +30,11 @@ export default function MembershipRow(props: Props) {
   }
   const memberChannelName = activeChannelClaim.name;
   const creatorChannelId = membershipSub.membership.channel_claim_id;
-  const creatorChannelUri = buildURI({
-    channelName: creatorChannelClaim?.name,
+  const creatorChannelUri = creatorChannelClaim ?buildURI({
+    channelName: creatorChannelClaim.name,
     channelClaimId: creatorChannelId,
-  });
-  const creatorChannelPath = formatLbryUrlForWeb(creatorChannelUri);
+  }) : null;
+  const creatorChannelPath = creatorChannelUri ? formatLbryUrlForWeb(creatorChannelUri) : '';
 
   const currency = membershipSub.subscription.current_price
     ? membershipSub.subscription.current_price.currency.toUpperCase() : '';
