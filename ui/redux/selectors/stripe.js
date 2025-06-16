@@ -15,6 +15,9 @@ export const selectCustomerSetupResponse = (state: State) => selectState(state).
 export const selectAccountStatus = (state: State) => selectState(state).accountStatus;
 
 export const selectArAccountUpdating = (state: State) => selectState(state).arAccountUpdatingId;
+export const selectArAccountRegistering = (state: State) => selectState(state).arAccountRegisteringId;
+export const selectArAccountRegisteringError = (state: State) => selectState(state).arAccountRegisteringError;
+
 export const selectFullAPIArweaveStatus = (state: State) => selectState(state).arweaveStatus;
 export const selectFullAPIArweaveAccounts = (state: State) => selectState(state).arweaveStatus;
 // find in arweaveStatus[] where active = true
