@@ -30,7 +30,7 @@ export default function MembershipRow(props: Props) {
   }
   const memberChannelName = activeChannelClaim.name;
   const creatorChannelId = membershipSub.membership.channel_claim_id;
-  const creatorChannelUri = creatorChannelClaim ?buildURI({
+  const creatorChannelUri = creatorChannelClaim ? buildURI({
     channelName: creatorChannelClaim.name,
     channelClaimId: creatorChannelId,
   }) : null;
