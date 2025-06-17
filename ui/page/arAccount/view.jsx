@@ -7,14 +7,15 @@ import Icon from 'component/common/icon';
 import Page from 'component/page';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
-import WalletConnect from 'component/walletConnect';
-// import ReceiveAr from './receiveAr';
+import WalletStatus from 'component/walletStatus';
+import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import { useArStatus } from 'effects/use-ar-status';
 import BuyAr from './buyAr';
+import Overview from './overview';
 import ArWallets from './arWallets';
 
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+
 import './style.scss';
-import Overview from './overview';
 
 type Props = {
   arweaveWallets: any,
@@ -40,6 +41,9 @@ function ArAccountPage(props: Props) {
     location: { search },
     push,
   } = useHistory();
+  const {
+    activeArStatus
+  } = useArStatus();
   const activeWallet = arweaveWallets.find((x) => x.default);
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
@@ -127,31 +131,39 @@ function ArAccountPage(props: Props) {
                 cardHeader={cardHeader}
                 wallet={activeWallet}
                 balance={balance}
-                arWalletStatus={arWalletStatus}
+                activeArStatus={activeArStatus}
               />
-              {!arWalletStatus && (
+              {activeArStatus !== 'connected' && (
                 <div className="wallet">
-                  <WalletConnect />
+                  <WalletStatus />
                 </div>
               )}
             </>
           </TabPanel>
           <TabPanel>
             <>
-              <BuyAr cardHeader={cardHeader} wallet={activeWallet} arWalletStatus={arWalletStatus} />
-              {!arWalletStatus && (
+              <BuyAr
+                cardHeader={cardHeader}
+                wallet={activeWallet}
+                activeArStatus={activeArStatus}
+              />
+              {activeArStatus !== 'connected' && (
                 <div className="wallet">
-                  <WalletConnect />
+                  <WalletStatus />
                 </div>
               )}
             </>
           </TabPanel>
           <TabPanel>
             <>
-              <ArWallets cardHeader={cardHeader} arWalletStatus={arWalletStatus} arweaveWallets={arweaveWallets} />
-              {!arWalletStatus && (
+              <ArWallets 
+                cardHeader={cardHeader} 
+                activeArStatus={activeArStatus} 
+                arweaveWallets={arweaveWallets}
+              />
+              {activeArStatus !== 'connected' && (
                 <div className="wallet">
-                  <WalletConnect />
+                  <WalletStatus />
                 </div>
               )}
             </>
