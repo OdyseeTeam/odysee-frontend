@@ -23,7 +23,6 @@ function Overview(props: Props) {
     accountUpdating,
     sendError,
     doArSend,
-    doToast,
   } = props;
 
   const {
@@ -126,15 +125,6 @@ function Overview(props: Props) {
     LocalStorage.setItem('WANDER_QR', showQR);
   }, [showQR]);
 
-  React.useEffect(() => {
-    if(sendError){
-      doToast({
-        message: sendError,
-        isError: true
-      });
-    }    
-  },[sendError])
-
   function handleCheckForm() {
     const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
     const check =
@@ -145,7 +135,7 @@ function Overview(props: Props) {
   }
 
   function handleSetMaxAmount() {
-    inputAmountRef.current.value = balance.ar.toFixed(8);
+    inputAmountRef.current.value = balance.ar;
     handleCheckForm();
   }
 

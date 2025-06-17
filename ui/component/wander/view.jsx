@@ -138,68 +138,66 @@ export default function Wander(props: Props) {
   }, [theme]);
 
   React.useEffect(() => {
-    if (instance) {
-      const isWanderApp = navigator.userAgent.includes('WanderMobile');
-      if (isWanderApp) {
-        window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';        
-        LocalStorage.setItem('WALLET_TYPE', 'NATIVE_WALLET');
-      }
-      doArSetAuth(instance.authInfo);
-      window.addEventListener('arweaveWalletLoaded', () => {
-        doArSetAuth(instance.authInfo);
-      });
-      window.addEventListener('message', (event) => {
-        const data = event.data;
-        if (data && data.id && !data.id.includes('react')) {
-          if (data.type === 'embedded_auth') {
-            if (data.data.authType || (data.data.authStatus === 'not-authenticated' && data.data.authType !== 'null' && data.data.authType !== null)) {
-              LocalStorage.setItem('WALLET_TYPE', data.data.authType);              
-              LocalStorage.setItem('WANDER_DISCONNECT', false);
-              window.wanderInstance.close();
-              doArSetAuth(data.data);
-            }
-          }
-          if (data.type === 'embedded_request') {
-            // setRequests(window.wanderInstance.pendingRequests)
-            if(window.wanderInstance.pendingRequests !== 0){
-              window.wanderInstance.close();
-              window.wanderInstance.open();
-            } else{
-              window.wanderInstance.close();
-            }           
-          }
-          if (data.type === 'embedded_balance') {
-            console.log('Update balance')
-            doArUpdateBalance()
-          }
-          /*
-          if (data.type === 'event') {
-            console.log('message data: ', data);
-          }
-          */
-        }
-      });
+    if (!instance) return;
 
-      const balanceUpdate = setInterval(() => {
-        doArUpdateBalance()
-      }, 60000)
-
-      return () => {
-        const handler = () => {}
-        window.removeEventListener('arweaveWalletLoaded', handler);
-        window.removeEventListener('message', handler);
-        clearInterval(balanceUpdate);
-      };
+    const isWanderApp = navigator.userAgent.includes('WanderMobile');
+    if (isWanderApp) {
+      window.wanderInstance.authInfo.authType = 'NATIVE_WALLET';
+      LocalStorage.setItem('WALLET_TYPE', 'NATIVE_WALLET');
     }
+
+    doArSetAuth(instance.authInfo);
+
+    const onArweaveWalletLoaded = () => {
+      doArSetAuth(instance.authInfo);
+    };
+
+    const onMessage = (event) => {
+      const data = event.data;
+      if (data && data.id && !data.id.includes('react')) {
+        if (data.type === 'embedded_auth') {
+          if (
+            data.data.authType ||
+            (data.data.authStatus === 'not-authenticated' &&
+              data.data.authType !== 'null' &&
+              data.data.authType !== null)
+          ) {
+            LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+            LocalStorage.setItem('WANDER_DISCONNECT', false);
+            window.wanderInstance.close();
+            doArSetAuth(data.data);
+          }
+        }
+        if (data.type === 'embedded_request') {
+          if (window.wanderInstance.pendingRequests !== 0) {
+            window.wanderInstance.close();
+            window.wanderInstance.open();
+          } else {
+            window.wanderInstance.close();
+          }
+        }
+        if (data.type === 'embedded_balance') {
+          console.log('Update balance');
+          doArUpdateBalance();
+        }
+      }
+    };
+
+    window.addEventListener('arweaveWalletLoaded', onArweaveWalletLoaded);
+    window.addEventListener('message', onMessage);
+
+    const balanceUpdate = setInterval(() => {
+      doArUpdateBalance();
+    }, 60000);
+
+    return () => {
+      window.removeEventListener('arweaveWalletLoaded', onArweaveWalletLoaded);
+      window.removeEventListener('message', onMessage);
+      clearInterval(balanceUpdate);
+    };
   }, [instance, doArSetAuth]);
 
-  React.useEffect(() => {
-    const current = window?.wanderInstance?.authInfo;
-    if (current !== authRef.current) {
-      authRef.current = current;
-      doArSetAuth(current);
-    }
-  }, [authInfo, doArSetAuth]);
+  
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;
 }

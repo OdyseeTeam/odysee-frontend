@@ -3,7 +3,7 @@ import { selectArweaveError } from 'redux/selectors/arwallet';
 import { doArSend } from 'redux/actions/arwallet';
 import { selectAPIArweaveDefaultAccount, selectArAccountUpdating, selectArweaveAccountForAddress } from 'redux/selectors/stripe';
 import { doUpdateArweaveAddressStatus } from 'redux/actions/stripe';
-import { doToast } from 'redux/actions/notifications';
+// import { doToast } from 'redux/actions/notifications';
 import Overview from './view';
 
 const select = (state, props) => {
@@ -18,7 +18,7 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   doUpdateArweaveAddressStatus,
-  doToast: (props) => dispatch(doToast(props)),
+  // doToast: (props) => dispatch(doToast(props)),
   doArSend: (recipientAddress, amountAr) => dispatch(doArSend(recipientAddress, amountAr)),
 });
 

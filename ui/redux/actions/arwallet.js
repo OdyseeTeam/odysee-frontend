@@ -19,6 +19,7 @@ import {
 // $FlowIgnore
 import { message, createDataItemSigner } from '@permaweb/aoconnect';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
+import { doToast } from 'redux/actions/notifications';
 import { doOpenModal } from './app';
 // $FlowIgnore
 import { Dispatch } from 'react';
@@ -448,11 +449,18 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
 
       console.log('Response: ', response)
 
-      dispatch({ type: AR_SEND_SUCCESS, data: { txId: response.id, recipient: recipientAddress, amount: amountAr } });
+      dispatch(doToast({
+        message: `${amountAr} AR successfully sent to ${recipientAddress}`,
+      }));
+      dispatch({ type: AR_SEND_SUCCESS, data: { txId: response.id, recipient: recipientAddress, amount: amountAr } });      
       return { txId: response.id };
     } catch (e) {
       console.log('ERR: ', e)
-      dispatch({ type: AR_SEND_ERROR, data: { error: e.message || 'Failed to send AR' } });
+      dispatch(doToast({
+        message: e.message || 'Failed to send AR',
+        isError: true
+      }));
+      dispatch({ type: AR_SEND_ERROR, data: { error: e.message || 'Failed to send AR' } });      
       return { error: e.message || 'Failed to send AR' };
     }
   };
