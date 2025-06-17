@@ -178,8 +178,8 @@ export const doMembershipBuy =
       );
 
       if (currencyType === 'AR') {
-        const tags = [{ name: 'X-O-Ref', value: subscribeToken }];
-        const { transferTxid: txid, error, status } = await sendWinstons(payeeAddress, 's', tags);
+        const tags = [{ name: 'X-O-Ref', value: subscribeToken }]; // here
+        const { transferTxid: txid, error, status } = await sendWinstons(payeeAddress, cryptoAmount, tags);
         if (error) { // TODO pass error to redux
           dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
           console.error(e?.message || e);
