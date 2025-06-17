@@ -53,7 +53,7 @@ export default function ModalAnnouncements(props: Props) {
   const usdcBalance = walletBalance ? walletBalance.usdc : 0;
   const hasArweaveEntry = fullAPIArweaveStatus && fullAPIArweaveStatus.length > 0;
 
-  console.log('fullAPIArweaveStatus: ', fullAPIArweaveStatus)
+  console.log('fullAPIArweaveStatus: ', fullAPIArweaveStatus);
 
   React.useEffect(() => {
     // automatically register first address if there isn't one
@@ -80,7 +80,12 @@ export default function ModalAnnouncements(props: Props) {
               disabled={isArAccountRegistering}
               onClick={() => doRegisterArweaveAddress(walletAddress, true)}
             />
-            <Button button="alt" label={__('Nevermind')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
+            <Button
+              button="alt"
+              label={__('Disconnect')}
+              disabled={isArAccountRegistering}
+              onClick={handleDisconnect}
+            />
           </div>
         }
       />
@@ -123,7 +128,12 @@ export default function ModalAnnouncements(props: Props) {
               disabled={isArAccountRegistering}
               onClick={handleMakeDefault}
             />
-            <Button button="alt" label={__('Disconnect')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
+            <Button
+              button="alt"
+              label={__('Disconnect')}
+              disabled={isArAccountRegistering}
+              onClick={handleDisconnect}
+            />
           </div>
         }
       />
@@ -142,7 +152,12 @@ export default function ModalAnnouncements(props: Props) {
         }
         actions={
           <div className="section__actions">
-            <Button button="alt" label={__('Disconnect')} disabled={isArAccountRegistering} onClick={handleDisconnect} />
+            <Button
+              button="alt"
+              label={__('Disconnect')}
+              disabled={isArAccountRegistering}
+              onClick={handleDisconnect}
+            />
           </div>
         }
       />
@@ -164,15 +179,11 @@ export default function ModalAnnouncements(props: Props) {
 
   const ConnectingCard = () => {
     return (
-    <Card
-      className="announcement"
-      title={__('Connecting Wallet')}
-      body={
-        <div className="section">
-          {__('Connecting...')}
-        </div>
-      }
-    />
+      <Card
+        className="announcement"
+        title={__('Connecting Wallet')}
+        body={<div className="section">{__('Connecting...')}</div>}
+      />
     );
   };
 
@@ -202,8 +213,9 @@ export default function ModalAnnouncements(props: Props) {
   */
 
   const showConnecting = (isConnecting || isArAccountRegistering) && !apiEntryWithAddress;
-  const showRegister = !showConnecting && !arAccountRegisteringError && hasArweaveEntry && !apiEntryWithAddress
-  const showMakeDefault = !showConnecting && !arAccountRegisteringError && apiEntryWithAddress && defaultApiAddress !== walletAddress;
+  const showRegister = !showConnecting && !arAccountRegisteringError && hasArweaveEntry && !apiEntryWithAddress;
+  const showMakeDefault =
+    !showConnecting && !arAccountRegisteringError && apiEntryWithAddress && defaultApiAddress !== walletAddress;
   const showErrorCard = !showConnecting && !!arAccountRegisteringError;
 
   if (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) {
@@ -211,14 +223,14 @@ export default function ModalAnnouncements(props: Props) {
     return null;
   }
 
-  console.log('hasArweaveEntry: ', hasArweaveEntry)
-  console.log('apiEntryWithAddress: ', apiEntryWithAddress)
+  console.log('hasArweaveEntry: ', hasArweaveEntry);
+  console.log('apiEntryWithAddress: ', apiEntryWithAddress);
 
   // if you don't already have
   return (
     <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>
       {showConnecting && <ConnectingCard />}
-      { /* don't bother showing register unless you're showing a 2nd+ address */ }
+      {/* don't bother showing register unless you're showing a 2nd+ address */}
       {showRegister && <RegisterCard />}
       {showErrorCard && <ErrorCard />}
       {showMakeDefault && <MakeDefaultCard />}
