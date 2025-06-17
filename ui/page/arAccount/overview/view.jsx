@@ -31,9 +31,8 @@ function Overview(props: Props) {
   const inputReceivingAddressRef = React.useRef();
 
   React.useEffect(() => {    
-    (async () => {
-      console.log('Fetch transactions')
-      if (window.arweaveWallet && arWalletStatus) {
+    (async () => {      
+      if (window.arweaveWallet && activeArStatus === 'connected') {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
           const senderTransactions = await fetch('https://arweave-search.goldsky.com/graphql', {
@@ -83,12 +82,13 @@ function Overview(props: Props) {
           });
 
           const receivedDataA = await senderTransactions.json();
-          const receivedDataB = await receiverTransactions.json();
+          const receivedDataB = await receiverTransactions.json();          
 
           const transactionsA = receivedDataA.data?.transactions?.edges || [];
           const transactionsB = receivedDataB.data?.transactions?.edges || [];
 
           const transactions = [...transactionsA, ...transactionsB];
+          console.log('Fetched transactions: ', transactions)
 
           if (
             transactions
@@ -114,7 +114,8 @@ function Overview(props: Props) {
         }
       }
     })();
-  }, [arWalletStatus, balance, activeArStatus]);
+  }, [activeArStatus, balance, activeArStatus]);
+  console.log('arWalletStatus: ', arWalletStatus)
 
   React.useEffect(() => {
     LocalStorage.setItem('WANDER_QR', showQR);
