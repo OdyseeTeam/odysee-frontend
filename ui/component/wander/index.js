@@ -17,7 +17,7 @@ const perform = (dispatch) => ({
   doArInit: () => dispatch(doArInit()),
   connectArWallet: () => dispatch(doArConnect()),
   doArSetAuth: (status) => dispatch(doArSetAuth(status)),
-  doArUpdateBalance,
+  doArUpdateBalance: () => dispatch(doArUpdateBalance()),
 });
 
 export default connect(select, perform)(Wander);
