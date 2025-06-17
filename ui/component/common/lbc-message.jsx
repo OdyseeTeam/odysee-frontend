@@ -13,7 +13,7 @@ export default function LbcMessage(props: Props) {
   if (!children) return null;
 
   let amount;
-  const tokenizedMessage = children.replace(
+  const tokenizedMessage = children?.replace(
     /(\d?\.?\d?-?\d?\.?-?\d+?)\s(LBC|LBRY Credits?)/g,
     (originalString, lbcAmount, thirdArg) => {
       amount = lbcAmount;
