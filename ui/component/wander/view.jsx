@@ -19,10 +19,7 @@ type Props = {
 export default function Wander(props: Props) {
   const { theme, auth, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance } = props;
   const [instance, setInstance] = React.useState(null);
-  // const [requests, setRequests] = React.useState(0);
-  const authRef = React.useRef(instance?.authInfo);
   const wrapperRef = React.useRef();
-  const authInfo = window?.wanderInstance?.authInfo;
 
   React.useEffect(() => {
     if (instance) {
@@ -187,6 +184,7 @@ export default function Wander(props: Props) {
     window.addEventListener('message', onMessage);
 
     const balanceUpdate = setInterval(() => {
+      console.log('Update Balance')
       doArUpdateBalance();
     }, 60000);
 

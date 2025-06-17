@@ -21,7 +21,6 @@ function Overview(props: Props) {
     arWalletStatus, 
     doUpdateArweaveAddressStatus, 
     accountUpdating,
-    sendError,
     doArSend,
   } = props;
 
