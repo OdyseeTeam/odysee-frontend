@@ -107,11 +107,13 @@ function Overview(props: Props) {
                 date: transaction.block.timestamp,
                 action: transaction.recipient === address ? 'receiveTip' : 'sendTip',
                 amount: Number(transaction.quantity.ar),
-                target: transaction.recipient,
+                target: transaction.recipient === address ? transaction.owner.address : transaction.recipient,
               };
               if (row.target && row.amount > 0) newTransactions.push(row);
             }
-            setTransactions(newTransactions);
+            const sortByDateDesc = (txs) => [...txs].sort((a, b) => b.date - a.date);
+
+            setTransactions(sortByDateDesc(newTransactions));
           }
         } catch (e) {
           console.error(e);
