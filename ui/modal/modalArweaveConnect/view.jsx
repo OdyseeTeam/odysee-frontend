@@ -56,9 +56,11 @@ export default function ModalAnnouncements(props: Props) {
   React.useEffect(() => {
     // automatically register first address if there isn't one
     if (!hasArweaveEntry) {
-      doRegisterArweaveAddress(walletAddress, true);
+      doRegisterArweaveAddress(walletAddress, true).then(() => {
+        doHideModal();
+      });
     }
-  }, [walletAddress, doRegisterArweaveAddress, hasArweaveEntry, apiEntryWithAddress]);
+  }, [walletAddress, doRegisterArweaveAddress, doHideModal, hasArweaveEntry, apiEntryWithAddress]);
 
   // if connected address is not registered at all
   const RegisterCard = () => {
@@ -146,9 +148,11 @@ export default function ModalAnnouncements(props: Props) {
         body={
           <div className="section">
             <p>{__('There was an error registering that address: %error%', { error: arAccountRegisteringError })}</p>
-            <p>{__('Reach out to %email% with questions.', {
-              email: 'help@odysee.com',
-            })}</p>
+            <p>
+              {__('Reach out to %email% with questions.', {
+                email: 'help@odysee.com',
+              })}
+            </p>
           </div>
         }
         actions={
