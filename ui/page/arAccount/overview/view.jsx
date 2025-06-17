@@ -88,7 +88,6 @@ function Overview(props: Props) {
           const transactionsB = receivedDataB.data?.transactions?.edges || [];
 
           const transactions = [...transactionsA, ...transactionsB];
-          console.log('Fetched transactions: ', transactions)
 
           if (
             transactions
@@ -115,7 +114,6 @@ function Overview(props: Props) {
       }
     })();
   }, [activeArStatus, balance, activeArStatus]);
-  console.log('arWalletStatus: ', arWalletStatus)
 
   React.useEffect(() => {
     LocalStorage.setItem('WANDER_QR', showQR);
