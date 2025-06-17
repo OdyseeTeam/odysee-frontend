@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import {
-  selectCheapestProtectedContentMembershipForId,
+  selectCheapestProtectedContentMembershipForId, selectIsMembershipListFetchingForId,
   selectMembershipTiersForChannelUri,
   selectUserHasValidNonCanceledMembershipForCreatorId,
 } from 'redux/selectors/memberships';
@@ -29,6 +29,7 @@ const select = (state, props) => {
     canReceiveArweaveTips: !!selectArweaveTipDataForId(state, channelId),
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
+    isFetchingMemberships: selectIsMembershipListFetchingForId(state, claimId),
     joinEnabled,
     cheapestPlan,
     channelTitle,

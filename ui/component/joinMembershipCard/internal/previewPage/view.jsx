@@ -15,6 +15,7 @@ import MembershipDetails from './internal/membershipDetails';
 import { useArStatus } from 'effects/use-ar-status';
 
 import './style.scss';
+import Spinner from 'component/spinner';
 
 type Props = {
   uri: string,
@@ -42,6 +43,7 @@ type Props = {
   arweaveWallets: any,
   arweaveStatus: any,
   exchangeRate: { ar: number },
+  isFetchingMemberships: boolean,
 };
 
 const PreviewPage = (props: Props) => {
@@ -68,17 +70,15 @@ const PreviewPage = (props: Props) => {
     doOpenModal,
     joinEnabled,
     cheapestPlan,
-    arweaveWallets,
-    arweaveStatus,
+    isFetchingMemberships,
     exchangeRate,
   } = props;
 
   const {
-    activeArStatus
+    activeArStatus,
   } = useArStatus();
 
   const isChannelTab = React.useContext(ChannelPageContext);
-  const hasActiveWalletConnection = Boolean(arweaveStatus?.address);
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
@@ -89,6 +89,13 @@ const PreviewPage = (props: Props) => {
     }
   }, [canReceiveFiatTips, canReceiveArweaveTips, doTipAccountCheckForUri, uri]);
 
+  if (isFetchingMemberships) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
+  }
   if (!creatorHasMemberships) {
     // -- On a channel that is mine, the button uses the channel id to set it as active
     // when landing on the memberships page for the given channel --
