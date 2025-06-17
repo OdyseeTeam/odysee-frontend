@@ -144,10 +144,13 @@ export default function ModalAnnouncements(props: Props) {
     return (
       <Card
         className="announcement"
-        title={__('Address Error')}
+        title={__('Wallet Connect Error')}
         body={
           <div className="section">
-            {__('There was an error registering that address: %error%', { error: arAccountRegisteringError })}
+            <p>{__('There was an error registering that address: %error%', { error: arAccountRegisteringError })}</p>
+            <p>{__('Reach out to %email% with questions.', {
+              email: 'help@odysee.com',
+            })}</p>
           </div>
         }
         actions={
