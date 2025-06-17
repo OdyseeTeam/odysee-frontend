@@ -22,7 +22,7 @@ const selectState = (state: State) => state.memberships || {};
 export const selectMembershipMineData = (state: State) => selectState(state).membershipMineByCreatorId;
 export const selectMembershipMineFetching = (state: State) => selectState(state).membershipMineFetching;
 export const selectMembershipMineFetched = (state: State) => selectMembershipMineData(state) !== undefined;
-
+export const selectMembershipBuyError = (state: State) => selectState(state).membershipBuyError;
 export const selectMembershipFetchingIdsByChannel = (state: State) => selectState(state).fetchingIdsByCreatorId;
 export const selectChannelMembershipsByCreatorId = (state: State) => selectState(state).channelMembershipsByCreatorId;
 export const selectChannelMembershipsForCreatorId = (state: State, channelId: string) =>

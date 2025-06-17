@@ -87,10 +87,13 @@ reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED] = (state, action) => {
   };
 };
 
+reducers[ACTIONS.SET_MEMBERSHIP_BUY_CLEAR] = (state) => {
+  return { ...state, membershipBuyError: '' };
+};
 reducers[ACTIONS.SET_MEMBERSHIP_BUY_STARTED] = (state, action) => {
   const newPendingBuyIds = new Set(state.pendingBuyIds);
   newPendingBuyIds.add(action.data);
-  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds) };
+  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds), membershipBuyError: '' };
 };
 reducers[ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL] = (state, action) => {
   const newPendingBuyIds = new Set(state.pendingBuyIds);
@@ -98,9 +101,10 @@ reducers[ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL] = (state, action) => {
   return { ...state, pendingBuyIds: Array.from(newPendingBuyIds) };
 };
 reducers[ACTIONS.SET_MEMBERSHIP_BUY_FAILED] = (state, action) => {
+  const { id, error }  = action.data;
   const newPendingBuyIds = new Set(state.pendingBuyIds);
-  newPendingBuyIds.delete(action.data);
-  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds) };
+  newPendingBuyIds.delete(id);
+  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds), membershipBuyError: error  };
 };
 
 reducers[ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED] = (state, action) => {

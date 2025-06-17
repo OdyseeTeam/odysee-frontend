@@ -388,10 +388,11 @@ export const sendWinstons = async (
 
     await arweave.transactions.sign(transaction);
     txResponse = await arweave.transactions.post(transaction);
-    console.log(txResponse);
-    const { status } = txResponse;
+    const { status, statusText } = txResponse;
     if (status !== 200) {
-      return { error: 'transaction failed', transactionId: txResponse.transactionId, status };
+      // statusText = "Invalid Json"
+      // TODO custo errors for status codes?
+      return { error: statusText, transactionId: txResponse.transactionId, status };
     }
 
     const { id } = transaction;
