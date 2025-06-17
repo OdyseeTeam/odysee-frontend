@@ -441,11 +441,14 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
           quantity: String(amountInWinstons - transactionCheck.reward),
         };
         transaction = await arweave.createTransaction(newParams);
+        await arweave.transactions.sign(transaction);
       }else {
         transaction = transactionCheck;
+        await arweave.transactions.sign(transaction);
       }      
       console.log('Transaction: ', transaction)
-      await arweave.transactions.sign(transaction);
+      arweave.transactions.sign(transaction);
+      console.log('Signed Transaction: ', transaction)
       const response = await arweave.transactions.post(transaction);
 
       console.log('Response: ', response)

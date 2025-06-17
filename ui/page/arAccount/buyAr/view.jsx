@@ -7,7 +7,7 @@ import Card from 'component/common/card';
 import './style.scss';
 
 function BuyAr(props: Props) {
-  const { cardHeader, arWalletStatus, wallet } = props;
+  const { cardHeader, wallet, activeArStatus } = props;
   const fiatAmountRef = React.useRef(null);
   const paymentOptionRef = React.useRef(null);
   const [fiatAmount, setFiatAmount] = React.useState(0);
@@ -86,7 +86,7 @@ function BuyAr(props: Props) {
   return (
     fiats.length > 0 && (
       <Card
-        className={!arWalletStatus ? `card--buyAr card--disabled` : `card--buyAr`}
+        className={activeArStatus !== 'connected' ? `card--buyAr card--disabled` : `card--buyAr`}
         title={cardHeader()}
         background
         actions={

@@ -7,16 +7,16 @@ import './style.scss';
 type Props = {
   cardHeader: any,
   arweaveWallets: any,
-  arWalletStatus: any,
   activeAddress: string,
+  activeArStatus: any,
 };
 
 function ArWallets(props: Props) {
-  const { cardHeader, arweaveWallets, arWalletStatus, activeAddress } = props;
+  const { cardHeader, arweaveWallets, activeAddress, activeArStatus } = props;
 
   return (
     <Card
-      className={!arWalletStatus ? `card--arwalllets card--disabled` : `card--arwalllets`}
+      className={activeArStatus !== 'connected' ? `card--arwalllets card--disabled` : `card--arwalllets`}
       title={cardHeader()}
       background
       actions={
