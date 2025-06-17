@@ -2,6 +2,7 @@
 import React from 'react';
 import Button from 'component/button';
 import Paginate from 'component/common/paginate';
+import CopyableText from 'component/copyableText';
 import moment from 'moment';
 import PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
@@ -65,11 +66,17 @@ const WalletFiatAccountHistory = (props: Props) => {
 
   function getSendingChannelName(transaction) {
     return (
-      <Button
-        navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
-        label={transaction.tipper_channel_name}
-        button="link"
-      />
+      <>
+        {transaction.tipper_channel_name ? (
+          <Button
+            navigate={'/' + transaction.tipper_channel_name + ':' + transaction.tipper_channel_claim_id}
+            label={transaction.tipper_channel_name}
+            button="link"
+          />
+        ) : (
+          __('Anonymous')
+        )}
+      </>
     );
   }
 
@@ -90,38 +97,44 @@ const WalletFiatAccountHistory = (props: Props) => {
 
   function getTipAmount(transaction, currencySymbol) {
     const rate = transaction.locked_rate;
+    const symbol = currencySymbol || '$';
+    const currency = transaction.currency !== 'AR' ? STRIPE.CURRENCIES[transaction.currency.toUpperCase()] : 'USD';
+
     if (rate) {
       return (
         <>
-          {currencySymbol}
-          {((transaction.tipped_amount / 100) * rate).toFixed(2)} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+          {symbol}
+          {((transaction.tipped_amount / 100) * rate).toFixed(2)} {currency}
         </>
       );
     }
     return (
       <>
-        {currencySymbol}
-        {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+        {symbol}
+        {transaction.tipped_amount / 100} {currency}
       </>
     );
   }
 
   function getProcessingFee(transaction, currencySymbol) {
+    const symbol = currencySymbol || '$';
     return (
       <>
-        {currencySymbol}
+        {symbol}
         {(transaction.transaction_fee + transaction.application_fee) / 100}
       </>
     );
   }
 
   function getReceivedAmount(transaction, currencySymbol) {
+    const symbol = currencySymbol || '$';
     const rate = transaction.locked_rate;
     if (rate) {
       return (
         <>
-          {currencySymbol}
-          {((transaction.tipped_amount / 100) * rate).toFixed(2)} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
+          {symbol}
+          {((transaction.tipped_amount / 100) * rate).toFixed(2)}{' '}
+          {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
         </>
       );
     }
@@ -129,6 +142,20 @@ const WalletFiatAccountHistory = (props: Props) => {
       <>
         {currencySymbol}
         {transaction.received_amount / 100}
+      </>
+    );
+  }
+
+  function getTransactionTx(transaction) {
+    return (
+      <>
+        {!transaction?.payment_intent_id?.startsWith('pi_') ? (
+          <CopyableText
+            hideValue
+            linkTo={`https://viewblock.io/arweave/tx/`}
+            copyable={transaction.payment_intent_id}
+          />
+        ) : null}
       </>
     );
   }
@@ -154,8 +181,9 @@ const WalletFiatAccountHistory = (props: Props) => {
               <th className="transactionType-header">{<>{__('Type')}</>}</th>
               <th className="location-header">{__('Location')}</th>
               <th className="amount-header">{__('Amount')} </th>
-              <th className="processingFee-header">{__('Processing Fee')}</th>
-              <th className="receivedAmount-header">{__('Received Amount')}</th>
+              <th className="processingFee-header">{__('Fee')}</th>
+              <th className="receivedAmount-header">{__('Received')}</th>
+              <th className="transactionId-header">{__('Transaction')}</th>
             </tr>
           </thead>
           <tbody>
@@ -172,6 +200,7 @@ const WalletFiatAccountHistory = (props: Props) => {
                     {createColumn(getTipAmount(transaction, currencySymbol))}
                     {createColumn(getProcessingFee(transaction, currencySymbol))}
                     {createColumn(getReceivedAmount(transaction, currencySymbol))}
+                    {createColumn(getTransactionTx(transaction))}
                   </tr>
                 );
               })}
