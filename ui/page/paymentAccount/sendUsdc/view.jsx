@@ -30,7 +30,7 @@ function SendUsdc(props: any) {
       label: 'Base',
     },
   ];
-  const [targetNetwork, setTargetNetwork] = React.useState(networks[0]);
+  const [targetNetwork, setTargetNetwork] = React.useState(networks[0]);  
 
   function handleSetMaxAmount() {
     if (inputAmountRef && inputAmountRef.current) {

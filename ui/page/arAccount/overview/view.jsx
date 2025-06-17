@@ -7,6 +7,7 @@ import ButtonToggle from 'component/buttonToggle';
 import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import Button from 'component/button';
+import Spinner from 'component/spinner';
 import { LocalStorage } from 'util/storage';
 import './style.scss';
 
@@ -19,20 +20,23 @@ function Overview(props: Props) {
     arWalletStatus, 
     doUpdateArweaveAddressStatus, 
     accountUpdating,
+    sendError,
     doArSend,
+    doToast,
   } = props;
-  const [transactions, setTransactions] = React.useState([]);
+  const [transactions, setTransactions] = React.useState(null);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
 
-  React.useEffect(() => {
+  React.useEffect(() => {    
     (async () => {
+      console.log('Fetch transactions')
       if (window.arweaveWallet && arWalletStatus) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
-          const transactions = await fetch('https://arweave-search.goldsky.com/graphql', {
+          const senderTransactions = await fetch('https://arweave-search.goldsky.com/graphql', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -55,21 +59,47 @@ function Overview(props: Props) {
             }),
           });
 
-          const receivedData = await transactions.json();
+          const receiverTransactions = await fetch('https://arweave-search.goldsky.com/graphql', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              query: `{
+                transactions(
+                  recipients: ["${address}"],
+                ) { 
+                  edges { 
+                    node { 
+                      id
+                      recipient
+                      quantity { ar }
+                      owner { address }
+                      block { timestamp height }
+                      tags { name, value }
+                    }
+                  }
+                }
+              }`,
+            }),
+          });
+
+          const receivedDataA = await senderTransactions.json();
+          const receivedDataB = await receiverTransactions.json();
+
+          const transactionsA = receivedDataA.data?.transactions?.edges || [];
+          const transactionsB = receivedDataB.data?.transactions?.edges || [];
+
+          const transactions = [...transactionsA, ...transactionsB];
+
           if (
-            receivedData &&
-            receivedData.data &&
-            receivedData.data.transactions &&
-            receivedData.data.transactions.edges
+            transactions
           ) {
-            const transactions = receivedData.data.transactions.edges;
             const newTransactions = [];
             for (let entry of transactions) {
               const transaction = entry.node;
               const row = {
                 txId: transaction.id,
                 date: transaction.block.timestamp,
-                action: 'sendTip',
+                action: transaction.recipient === address ? 'receiveTip' : 'sendTip',
                 amount: Number(transaction.quantity.ar),
                 target: transaction.recipient,
               };
@@ -82,11 +112,21 @@ function Overview(props: Props) {
         }
       }
     })();
-  }, [arWalletStatus]);
+  }, [arWalletStatus, balance]);
 
   React.useEffect(() => {
     LocalStorage.setItem('WANDER_QR', showQR);
   }, [showQR]);
+
+  React.useEffect(() => {
+    if(sendError){
+      console.log('sendError: ', sendError)
+      doToast({
+        message: sendError,
+        isError: true
+      });
+    }    
+  },[sendError])
 
   function handleCheckForm() {
     const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
@@ -215,40 +255,39 @@ function Overview(props: Props) {
             <NavLink to={`wallet?tab=fiat-payment-history&currency=fiat&transactionType=tips`}>Tip history</NavLink>
           </h2>
           <div className="transaction-history">
-            {transactions.map((transaction, index) => {
-              return (
-                <div key={index} className="transaction-history__row">
-                  <div className="transaction-history__date">
-                    {new Date(transaction.date * 1000)
-                      .toLocaleString('en-US', {
+            {!transactions 
+              ? <Spinner type="small" />
+              : transactions.map((transaction, index) => (
+                  <div key={index} className="transaction-history__row">
+                    <div className="transaction-history__date">
+                      {new Date(transaction.date * 1000).toLocaleString('en-US', {
                         month: '2-digit',
                         day: '2-digit',
                         year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: false,
-                      })
-                      .replace(',', '')}
+                      }).replace(',', '')}
+                    </div>
+                    <div className="transaction-history__action">
+                      {transaction.action === 'sendTip' ? __('Send') : __('Receive')}
+                    </div>
+                    <div className="transaction-history__amount">{transaction.amount.toFixed(6)}</div>
+                    <div className="transaction-history__token">
+                      <Symbol token="ar" />
+                    </div>
+                    <div className="transaction-history__direction">
+                      {transaction.action === 'sendTip' ? __('to') : __('from')}
+                    </div>
+                    <div className="transaction-history__target">{transaction.target}</div>
+                    <div className="transaction-history__viewblock">
+                      <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank" rel="noreferrer">
+                        <img src="https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp" />
+                      </a>
+                    </div>
                   </div>
-                  <div className="transaction-history__action">
-                    {transaction.action === 'sendTip' ? __('Send') : __('Receive')}
-                  </div>
-                  <div className="transaction-history__amount">{transaction.amount.toFixed(4)}</div>
-                  <div className="transaction-history__token">
-                    <Symbol token="ar" />
-                  </div>
-                  <div className="transaction-history__direction">
-                    {transaction.action === 'sendTip' ? __('to') : __('from')}
-                  </div>
-                  <div className="transaction-history__target">{transaction.target}</div>
-                  <div className="transaction-history__viewblock">
-                    <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank">
-                      <img src="https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp" />
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
+                ))
+            }
           </div>
         </>
       }

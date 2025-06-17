@@ -146,13 +146,20 @@
   }
 
   .transaction-history {
+    display:flex;
+    flex-direction: column;
     padding: var(--spacing-s);
     background: var(--color-background);
     border-radius: var(--border-radius);
     margin-top: calc(var(--spacing-s) * -1);
 
+    .spinner{
+      margin-left: auto;
+      margin-right: auto;
+    }
+
     .transaction-history__row {
-      display: flex;
+      display: flex;        
       width: 100%;
       gap: var(--spacing-s);
       grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -160,12 +167,23 @@
 
       .transaction-history__date {
         min-width: 90px;
+        width: 140px;
       }
       .transaction-history__action {
         min-width: 60px;
+        width: 60px;
+      }
+      .transaction-history__amount{
+        min-width: 70px;
+        width: 70px;
+      }
+      .transaction-history__token{
+        min-width: 50px;
+        width: 50px;
       }
       .transaction-history__direction {
-        min-width: 50px;
+        min-width: 40px;
+        width: 40px;
       }
       .transaction-history__target {
         white-space: nowrap;
