@@ -181,8 +181,7 @@ export const doMembershipBuy =
         const tags = [{ name: 'X-O-Ref', value: subscribeToken }]; // here
         const { transferTxid: txid, error, status } = await sendWinstons(payeeAddress, cryptoAmount, tags);
         if (error) { // TODO pass error to redux
-          dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
-          console.error(e?.message || e);
+          throw new Error(error?.message || error);
         }
         transferTxid = txid;
       } else if (currencyType === 'USD') {
@@ -214,54 +213,16 @@ export const doMembershipBuy =
       await Lbryio.call('membership_v2/subscription', 'transaction_notify', notifyParams, 'post');
       await dispatch(doMembershipMine());
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
-    } catch (e) {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
-      console.error(e?.message || e);
-      return Promise.reject(e);
+    } catch (error) {
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: { id: membershipId, error: error?.message || error } });
+      console.error(error?.message || error);
+      return Promise.reject(error);
     }
-    // return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
-    //   .then((response) => {
-    //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
-    //     dispatch(doMembershipMine());
-    //
-    //     return response;
-    //   })
-    //   .catch((e) => {
-    //     dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
-    //
-    //     if (e.message === 'user needs to be linked to a setup customer first') {
-    //       dispatch(
-    //         doToast({
-    //           message: __('You need to link a credit card in order to purchase.'),
-    //           isError: true,
-    //           linkText: __('Take me there'),
-    //           linkTarget: '/settings/card',
-    //         })
-    //       );
-    //
-    //       throw new Error(e);
-    //     }
-    //
-    //     if (e.message === 'cannot purchase inactivate membership!') {
-    //       dispatch(
-    //         doToast({
-    //           message: __('Error purchasing. This membership was deleted by the creator.'),
-    //           isError: true,
-    //         })
-    //       );
-    //
-    //       throw new Error(e);
-    //     }
-    //
-    //     const genericErrorMessage = __(
-    //       "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps."
-    //     );
-    //
-    //     dispatch(doToast({ message: genericErrorMessage, isError: true }));
-    //
-    //     throw new Error(e);
-    //   });
   };
+
+export const doMembershipBuyClear = () => (dispatch) => {
+  dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_CLEAR });
+};
 
 export const doMembershipCancelForMembershipId =
   (membershipId: number, revert: boolean) => async (dispatch: Dispatch) => {

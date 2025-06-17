@@ -18,7 +18,7 @@ import {
   selectMembersOnlyCommentsForChannelId,
 } from 'redux/selectors/comments';
 
-import { doMembershipList, doMembershipBuy } from 'redux/actions/memberships';
+import { doMembershipList, doMembershipBuy, doMembershipBuyClear } from 'redux/actions/memberships';
 import { doToast } from 'redux/actions/notifications';
 
 import { getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
@@ -66,6 +66,7 @@ const perform = {
   doMembershipList,
   doMembershipBuy,
   doToast,
+  doMembershipBuyClear,
 };
 
 export default connect(select, perform)(PreviewPage);

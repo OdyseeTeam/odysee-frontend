@@ -23,6 +23,8 @@ type Props = {
   balance: ArweaveBalance,
   exchangeRate: { ar: number },
   doArConnect: () => void,
+  membershipBuyError: string,
+  doMembershipBuyClear: () => void,
 };
 
 const ConfirmationPage = (props: Props) => {
@@ -38,15 +40,22 @@ const ConfirmationPage = (props: Props) => {
     balance,
     exchangeRate,
     doArConnect,
+    membershipBuyError,
+    doMembershipBuyClear,
   } = props;
 
   const { ar: arBalance } = balance;
   const { ar: dollarsPerAr } = exchangeRate;
 
   React.useEffect(() => {
-    console.log('AC A')
     doArConnect();
   }, [doArConnect]);
+
+  React.useEffect(() => {
+    return () => {
+      doMembershipBuyClear();
+    };
+  }, [doMembershipBuyClear]);
 
   const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
   return (
@@ -119,6 +128,12 @@ const ConfirmationPage = (props: Props) => {
             <Button button="link" label={__('Cancel')} onClick={onCancel} />
           </div>
 
+          {membershipBuyError &&
+            (
+              <p className="error">
+                {membershipBuyError}
+              </p>
+            )}
           <p className="help">
             <I18nMessage
               tokens={{
