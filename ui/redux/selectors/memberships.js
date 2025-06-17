@@ -2,7 +2,7 @@
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 
-import { filterMembershipTiersWithPerk, getTotalPriceFromSupportersList } from 'util/memberships';
+import { filterMembershipTiersWithPerk, getTotalPriceFromSupportersList, membershipIsExpired } from 'util/memberships';
 
 import {
   selectChannelClaimIdForUri,
@@ -148,7 +148,7 @@ export const selectHasCanceledMembershipForMembershipId = (state: State, creator
   const mineForCreator = mine[creatorId];
   if (!mineForCreator) return false;
   return (
-    !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'canceled') || false
+    !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'canceled' && !membershipIsExpired(m.subscription.ends_at)) || false
   );
 };
 
@@ -251,7 +251,7 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
 
 export const selectUserHasValidNonCanceledMembershipForCreatorId = (state: State, id: string) => {
   const validMemberships = selectMyValidMembershipsForCreatorId(state, id) || [];
-  const memberships = validMemberships.filter((m) => m.subscription.is_active === true); // possibly 'pending'
+  const memberships = validMemberships.filter((m) => m.subscription.is_active === true && m.subscription.status !== 'canceled'); // possibly 'pending'
   return Boolean(memberships && memberships.length > 0);
 };
 

@@ -233,9 +233,9 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     // sign the address
     // send to api with
   } catch (e) {
-    console.error(e);    
+    console.error(e);
     return null;
-    // throw e;    
+    // throw e;
   }
 };
 
@@ -262,7 +262,10 @@ const updateDefault = async (id: string) => {
 export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.AR_ADDR_REGISTER_STARTED, data: address });
   try {
-    await registerAddress(address, makeDefault);
+    const res = await registerAddress(address, makeDefault);
+    if (res.error) {
+      throw new Error(res.error);
+    }
     await dispatch(doTipAccountStatus());
     dispatch({ type: ACTIONS.AR_ADDR_REGISTER_SUCCESS, data: address });
   } catch (e) {

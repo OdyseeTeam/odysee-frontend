@@ -13,8 +13,8 @@ const select = (state, props) => {
   const { membershipSub } = props;
 
   const creatorChannelUri = creatorChannelClaim
-    ? ''
-    : buildURI({ channelName: creatorChannelClaim?.name, channelClaimId: creatorChannelClaim?.claim_id });
+    ? buildURI({ channelName: creatorChannelClaim?.name, channelClaimId: creatorChannelClaim?.claim_id })
+    : '';
 
   // select membership for creator and membershipid
   const membershipId = membershipSub ? membershipSub.membership.id : undefined;
