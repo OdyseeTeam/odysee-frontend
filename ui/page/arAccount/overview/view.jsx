@@ -9,6 +9,7 @@ import Symbol from 'component/common/symbol';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 import { LocalStorage } from 'util/storage';
+import { useArStatus } from 'effects/use-ar-status';
 import './style.scss';
 
 function Overview(props: Props) {
@@ -24,6 +25,11 @@ function Overview(props: Props) {
     doArSend,
     doToast,
   } = props;
+
+  const {
+    activeArStatus
+  } = useArStatus();
+  
   const [transactions, setTransactions] = React.useState(null);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
@@ -112,7 +118,7 @@ function Overview(props: Props) {
         }
       }
     })();
-  }, [arWalletStatus, balance]);
+  }, [arWalletStatus, balance, activeArStatus]);
 
   React.useEffect(() => {
     LocalStorage.setItem('WANDER_QR', showQR);
@@ -120,7 +126,6 @@ function Overview(props: Props) {
 
   React.useEffect(() => {
     if(sendError){
-      console.log('sendError: ', sendError)
       doToast({
         message: sendError,
         isError: true
