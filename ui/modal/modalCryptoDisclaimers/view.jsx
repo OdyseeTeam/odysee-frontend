@@ -23,7 +23,8 @@ export default function ModalCryptoDisclaimers(props: Props) {
   const [showDisclaimers, setShowDisclaimers] = React.useState(showDisclaimersLS);
 
   const handleShowDisclaimers = () => {
-    doSetClientSetting(SETTINGS.CRYPTO_DISCLAIMERS, !showDisclaimers);
+
+    doSetClientSetting(SETTINGS.CRYPTO_DISCLAIMERS, !showDisclaimers, true);
     setShowDisclaimers(!showDisclaimers)    
   }
 
