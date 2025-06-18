@@ -132,6 +132,10 @@ export default function Wander(props: Props) {
         wanderInstance.destroy();
       }
     };
+  }, []);
+
+  React.useEffect(() => {
+    window.wanderInstance.setTheme(theme);
   }, [theme]);
 
   React.useEffect(() => {
@@ -152,6 +156,7 @@ export default function Wander(props: Props) {
     const onMessage = (event) => {
       const data = event.data;
       if (data && data.id && !data.id.includes('react')) {
+        console.log('Data: ', data)
         if (data.type === 'embedded_auth') {
           if (
             data.data.authType ||
@@ -162,6 +167,8 @@ export default function Wander(props: Props) {
             LocalStorage.setItem('WALLET_TYPE', data.data.authType);
             LocalStorage.setItem('WANDER_DISCONNECT', false);
             window.wanderInstance.close();
+            doArSetAuth(data.data);
+          }else if(data.data.authStatus === 'not-authenticated'){
             doArSetAuth(data.data);
           }
         }

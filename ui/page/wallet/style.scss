@@ -107,6 +107,10 @@
     .button--secondary {
       color: var(--color-text);
       background-color: var(--color-header-button);
+
+      &:hover{
+        color:white;
+      }
     }
 
     .card__main-actions {
