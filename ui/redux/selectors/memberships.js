@@ -491,13 +491,11 @@ export const selectUserValidMembershipForChannelUri = createSelector(
   (state, uri) => selectMyPurchasedMembershipsForChannelClaimId(state, selectChannelClaimIdForUri(state, uri) || ''),
   (purchasedMembershipSubsForChannel) => {
     if (!purchasedMembershipSubsForChannel) return purchasedMembershipSubsForChannel;
+    // TODO: think about how to handle canceled memberships
+    const activeMemberships = purchasedMembershipSubsForChannel.filter(m => m.subscription.is_active && m.subscription.status !== 'canceled')
+    return activeMemberships[0] || null;
 
-    // $FlowFixMe
-    const subscriptionEndTime = purchasedMembershipSubsForChannel[0].subscription?.ends_at;
-    const currentTimeInStripeFormat = new Date().getTime() / 1000;
-    const membershipIsValid = subscriptionEndTime && currentTimeInStripeFormat < subscriptionEndTime;
 
-    return membershipIsValid ? purchasedMembershipSubsForChannel[0] : null;
   }
 );
 
