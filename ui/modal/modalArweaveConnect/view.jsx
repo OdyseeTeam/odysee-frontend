@@ -38,22 +38,20 @@ export default function ModalAnnouncements(props: Props) {
     fullAPIArweaveStatus,
     defaultApiAddress,
     walletAddress,
-    walletBalance,
+    // walletBalance,
     doRegisterArweaveAddress,
     doUpdateArweaveAddressDefault,
     isArAccountRegistering,
     arAccountRegisteringError,
     previousModal,
     isConnecting,
-    fullArweaveStatusArray,
+    // fullArweaveStatusArray,
   } = props;
 
   const apiEntryWithAddress = fullAPIArweaveStatus.find((status) => status.address === walletAddress);
   const id = apiEntryWithAddress ? apiEntryWithAddress.id : null;
-  const usdcBalance = walletBalance ? walletBalance.usdc : 0;
+  // const usdcBalance = walletBalance ? walletBalance.usdc : 0;
   const hasArweaveEntry = fullAPIArweaveStatus && fullAPIArweaveStatus.length > 0;
-
-  console.log('fullAPIArweaveStatus: ', fullAPIArweaveStatus);
 
   React.useEffect(() => {
     // automatically register first address if there isn't one
@@ -189,31 +187,6 @@ export default function ModalAnnouncements(props: Props) {
       />
     );
   };
-
-  /*
-  const TopUpCard = () => {
-    return (
-      <Card
-        className="announcement"
-        title={__('No Balance')}
-        body={
-          <div className="section">
-            {__('Your Wander address, %address%, has a balance of %balance%. Would you like to top up?', {
-              address: walletAddress,
-              balance: usdcBalance || 0,
-            })}
-          </div>
-        }
-        actions={
-          <div className="section__actions">
-            <Button button="primary" label={__('Top Up')} disabled={isArAccountRegistering} onClick={redirectToTopup} />
-            <Button button="alt" label={__('Not Now')} disabled={isArAccountRegistering} onClick={handleCloseModal} />
-          </div>
-        }
-      />
-    );
-  };
-  */
 
   const showConnecting = (isConnecting || isArAccountRegistering) && !apiEntryWithAddress;
   const showRegister = !showConnecting && !arAccountRegisteringError && hasArweaveEntry && !apiEntryWithAddress;
