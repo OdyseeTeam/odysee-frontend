@@ -172,7 +172,6 @@ export function doArDisconnect() {
         await global.window?.arweaveWallet?.disconnect();
 
         dispatch({ type: ARCONNECT_DISCONNECT });
-        console.log('sign out')
         window.wanderInstance.signOut();
       } catch (e) {
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
