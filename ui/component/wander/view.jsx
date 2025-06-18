@@ -156,7 +156,6 @@ export default function Wander(props: Props) {
     const onMessage = (event) => {
       const data = event.data;
       if (data && data.id && !data.id.includes('react')) {
-        console.log('Data: ', data)
         if (data.type === 'embedded_auth') {
           if (
             data.data.authType ||
