@@ -387,13 +387,13 @@ export const sendWinstons = async (
     });
 
     await arweave.transactions.sign(transaction);
-
     txResponse = await arweave.transactions.post(transaction);
+    console.log(txResponse);
     const { status } = txResponse;
     if (status !== 200) {
       return { error: 'transaction failed', transactionId: txResponse.transactionId, status };
     }
-    console.log(txResponse);
+    
     const { id } = transaction;
     return { transactionId: id, status };
   } catch (e) {
@@ -445,12 +445,7 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
         transaction = transactionCheck;
         await arweave.transactions.sign(transaction);
       }      
-      console.log('Transaction: ', transaction)
-      arweave.transactions.sign(transaction);
-      console.log('Signed Transaction: ', transaction)
       const response = await arweave.transactions.post(transaction);
-
-      console.log('Response: ', response)
 
       dispatch(doToast({
         message: `${amountAr} AR successfully sent to ${recipientAddress}`,
@@ -458,7 +453,6 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
       dispatch({ type: AR_SEND_SUCCESS, data: { txId: response.id, recipient: recipientAddress, amount: amountAr } });      
       return { txId: response.id };
     } catch (e) {
-      console.log('ERR: ', e)
       dispatch(doToast({
         message: e.message || 'Failed to send AR',
         isError: true

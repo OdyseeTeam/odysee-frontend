@@ -78,6 +78,7 @@
             padding: 0 var(--spacing-xxs);
             margin-left: auto;
             border: 1px solid var(--color-text);
+            user-select: none;
             span {
               margin: 0;
             }

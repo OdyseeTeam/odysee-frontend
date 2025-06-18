@@ -32,7 +32,16 @@
         margin-left: auto;
       }
       .wallet-table-row__default {
+        display:flex;
+        justify-content: center;
+        align-items: center;
         min-width: 86px;
+
+        img{
+          flex-shrink: 0;
+          width:16px;
+          height:16px;
+        }
       }
 
       &.wallet-table-row--header {
@@ -48,3 +57,4 @@
     }
   }
 }
+

@@ -28,9 +28,11 @@ type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
   totalBalance: ?number,
+  doTipAccountStatus: () => void,
 };
 
 const WalletPage = (props: Props) => {
+  const { doTipAccountStatus } = props;
   const {
     location: { search },
     push,
@@ -62,6 +64,10 @@ const WalletPage = (props: Props) => {
       tabIndex = 0;
       break;
   }
+
+  React.useEffect(() => {
+    doTipAccountStatus()
+  },[])
 
   function onTabChange(newTabIndex) {
     let url = `/$/${PAGES.WALLET}?`;
