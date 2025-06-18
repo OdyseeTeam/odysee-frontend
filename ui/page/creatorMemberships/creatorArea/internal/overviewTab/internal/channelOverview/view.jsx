@@ -45,8 +45,10 @@ const ChannelOverview = (props: Props) => {
 
       <td className="membership-table__url">
         <CopyableText
-          onlyCopy
-          primaryButton
+          // onlyCopy
+          hideValue
+          // primaryButton
+          // linkTo={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
           copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
           snackMessage={__('Page location copied')}
         />
