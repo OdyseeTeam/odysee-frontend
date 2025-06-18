@@ -10,15 +10,16 @@ import Button from 'component/button';
 import Spinner from 'component/spinner';
 import { LocalStorage } from 'util/storage';
 import './style.scss';
+import ButtonToggleAddressActive from '../../../component/buttonToggleAddressActive';
 
 function Overview(props: Props) {
-  const { 
-    account, 
-    cardHeader, 
-    wallet, 
-    balance, 
-    arWalletStatus, 
-    doUpdateArweaveAddressStatus, 
+  const {
+    account,
+    cardHeader,
+    wallet,
+    balance,
+    arWalletStatus,
+    doUpdateArweaveAddressStatus,
     accountUpdating,
     activeArStatus,
     doArSend,
@@ -30,8 +31,8 @@ function Overview(props: Props) {
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
 
-  React.useEffect(() => {    
-    (async () => {      
+  React.useEffect(() => {
+    (async () => {
       if (window.arweaveWallet && activeArStatus === 'connected') {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
@@ -82,7 +83,7 @@ function Overview(props: Props) {
           });
 
           const receivedDataA = await senderTransactions.json();
-          const receivedDataB = await receiverTransactions.json();          
+          const receivedDataB = await receiverTransactions.json();
 
           const transactionsA = receivedDataA.data?.transactions?.edges || [];
           const transactionsB = receivedDataB.data?.transactions?.edges || [];
@@ -134,10 +135,6 @@ function Overview(props: Props) {
     handleCheckForm();
   }
 
-  const handlemonetizationToggle = () => {
-    doUpdateArweaveAddressStatus(account.id, account.status === 'active' ? 'inactive' : 'active');
-  };
-
   const handleSendClick = () => {
     const recipientAddress = inputReceivingAddressRef.current.value.trim();
     const amountAr = Number(inputAmountRef.current.value);
@@ -175,12 +172,8 @@ function Overview(props: Props) {
                         <h3>{__('Allow monetization')}</h3>
                         <span>{__('Turning this on enables your account(s) to receive tips and setup memberships.')}</span>
                       </div>
-                      <ButtonToggle
-                        status={account?.status === 'active'}
-                        setStatus={handlemonetizationToggle}
-                        busy={accountUpdating}
-                      />
-                    </div>                    
+                      <ButtonToggleAddressActive address={wallet?.address} />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -229,10 +222,10 @@ function Overview(props: Props) {
                     </div>
                     <div className="sendAr-row__send">
                       <Button
-                        button="primary" 
-                        title={__('Send')} 
-                        label={__('Send')} 
-                        disabled={!canSend || arWalletStatus?.sending} 
+                        button="primary"
+                        title={__('Send')}
+                        label={__('Send')}
+                        disabled={!canSend || arWalletStatus?.sending}
                         onClick={handleSendClick}
                       />
                     </div>
@@ -247,7 +240,7 @@ function Overview(props: Props) {
             <NavLink to={`wallet?tab=fiat-payment-history&currency=fiat&transactionType=tips`}>Tip history</NavLink>
           </h2>
           <div className="transaction-history">
-            {!transactions 
+            {!transactions
               ? <Spinner type="small" />
               : transactions.map((transaction, index) => (
                   <div key={index} className="transaction-history__row">
