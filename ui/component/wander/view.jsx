@@ -174,7 +174,6 @@ export default function Wander(props: Props) {
           }
         }
         if (data.type === 'embedded_balance') {
-          console.log('Update balance');
           doArUpdateBalance();
         }
       }
@@ -184,7 +183,6 @@ export default function Wander(props: Props) {
     window.addEventListener('message', onMessage);
 
     const balanceUpdate = setInterval(() => {
-      console.log('Update Balance')
       doArUpdateBalance();
     }, 60000);
 

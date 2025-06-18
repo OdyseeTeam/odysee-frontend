@@ -170,6 +170,9 @@ export function doArDisconnect() {
       try {
         // $FlowIgnore
         await global.window?.arweaveWallet?.disconnect();
+
+        // UPDATE 2
+        // SIGN OUT
         dispatch({ type: ARCONNECT_DISCONNECT });
       } catch (e) {
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
