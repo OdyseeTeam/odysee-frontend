@@ -397,7 +397,6 @@ export const sendWinstons = async (
       // TODO custo errors for status codes?
       return { error: statusText, transactionId: txResponse.transactionId, status };
     }
-    
     const { id } = transaction;
     return { transactionId: id, status };
   } catch (e) {
