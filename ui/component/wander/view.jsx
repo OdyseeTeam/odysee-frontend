@@ -163,10 +163,12 @@ export default function Wander(props: Props) {
               data.data.authType !== 'null' &&
               data.data.authType !== null)
           ) {
-            LocalStorage.setItem('WALLET_TYPE', data.data.authType);
-            LocalStorage.setItem('WANDER_DISCONNECT', false);
-            window.wanderInstance.close();
-            doArSetAuth(data.data);
+            if(data.data.authStatus !== 'loading'){
+              LocalStorage.setItem('WALLET_TYPE', data.data.authType);
+              LocalStorage.setItem('WANDER_DISCONNECT', false);
+              window.wanderInstance.close();
+              doArSetAuth(data.data);
+            }            
           }else if(data.data.authStatus === 'not-authenticated'){
             doArSetAuth(data.data);
           }
