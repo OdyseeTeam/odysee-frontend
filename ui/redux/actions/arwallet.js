@@ -381,7 +381,7 @@ export const sendWinstons = async (
     const createParams = {
       target: address,
       recipient: address,
-      quantity: 's', //amountInWinstons,
+      quantity: amountInWinstons,
     };
     const transaction = await arweave.createTransaction(createParams);
 
