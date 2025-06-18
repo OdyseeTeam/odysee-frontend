@@ -168,7 +168,7 @@ export function doSetClientSetting(key: string, value: any, pushPrefs?: boolean)
         key,
         value,
       },
-    });
+    });    
 
     if (pushPrefs) {
       dispatch(doPushSettingsToPrefs());
