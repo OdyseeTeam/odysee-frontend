@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-
+import moment from 'moment';
 import { ChannelPageContext } from 'contexts/channel';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
@@ -46,7 +46,10 @@ const JoinMembershipButton = (props: Props) => {
   const isChannelPage = React.useContext(ChannelPageContext);
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
-  const membershipName = validUserMembershipForChannel?.name;
+  const membershipName = validUserMembershipForChannel?.membership.name;
+  const endsAt = validUserMembershipForChannel.subscription.ends_at;
+
+  const shouldRenew = moment().isAfter(moment(endsAt).subtract(7, 'days'));
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
@@ -65,8 +68,21 @@ const JoinMembershipButton = (props: Props) => {
     if (isChannelPage) channelPath = channelPath.substr(1);
 
     const membershipIndex =
-      creatorTiers.findIndex((res) => res.membership.name === validUserMembershipForChannel?.name) +
+      creatorTiers.findIndex((res) => res.name === validUserMembershipForChannel?.name) +
       1;
+
+    if (shouldRenew) {
+      return (
+        <Button
+          {...DEFAULT_PROPS}
+          className="button--membership"
+          label={__('Renew "%membership_tier_name%"', { membership_tier_name: membershipName })}
+          title={__('Renew "%membership_tier_name%"', { membership_tier_name: membershipName })}
+          onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, isRenew: true })}
+          style={{ filter: (!creatorHasMemberships) ? 'brightness(50%)' : undefined }}
+        />
+      );
+    }
 
     return (
       <Button
@@ -79,7 +95,6 @@ const JoinMembershipButton = (props: Props) => {
       />
     );
   }
-
   return (
     <Button
       {...DEFAULT_PROPS}
