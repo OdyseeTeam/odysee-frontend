@@ -24,8 +24,6 @@ function Overview(props: Props) {
     doArSend,
   } = props;
 
-  console.log('arWalletStatus: ', wallet)
-
   const [transactions, setTransactions] = React.useState(null);
   const [canSend, setCanSend] = React.useState(false);
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
