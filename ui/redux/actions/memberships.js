@@ -179,7 +179,7 @@ export const doMembershipBuy =
 
       if (currencyType === 'AR') {
         const tags = [{ name: 'X-O-Ref', value: subscribeToken }]; // here
-        const { transferTxid: txid, error, status } = await sendWinstons(payeeAddress, cryptoAmount, tags);
+        const { transactionId: txid, error, status } = await sendWinstons(payeeAddress, cryptoAmount, tags);
         if (error) { // TODO pass error to redux
           throw new Error(error?.message || error);
         }
