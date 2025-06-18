@@ -137,6 +137,12 @@
     .section__title--small {
       font-weight: 600;
       margin-top: 0;
+
+      img{
+        width:18px;
+        height:18px;
+        margin-right:var(--spacing-xxxs);
+      }
     }
   }
 

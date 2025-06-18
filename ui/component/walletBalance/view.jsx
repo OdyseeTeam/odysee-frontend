@@ -410,6 +410,11 @@ const WalletBalance = (props: Props) => {
                       %ar_amount%
                     </I18nMessage>
                   </h2>
+                  <h2 className="section__title--small">
+                    <img src="https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp" />
+                    AR Price: ${Number(arStatus.exchangeRates.ar).toFixed(2)} USD
+                  </h2>
+                  
                 </>
               )}
 
