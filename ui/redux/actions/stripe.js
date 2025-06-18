@@ -44,7 +44,6 @@ export const doTipAccountCheckForUri = (uri: string) => async (dispatch: Dispatc
 };
 
 export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: GetState) => {
-  console.log('doTipAccountStatus')
   const state = getState();
   const isFetching = selectAccountStatusFetching(state);
 
@@ -54,7 +53,6 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
 
   return await Lbryio.call('account', 'status', { environment: stripeEnvironment, v2: true }, 'post')
     .then((accountStatusResponse: StripeAccountStatus | AccountStatus) => {
-      console.log('accountStatusResponse: ', accountStatusResponse)
       dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE, data: accountStatusResponse });
       if (accountStatusResponse.arweave || accountStatusResponse.stripe) {
         return accountStatusResponse;
