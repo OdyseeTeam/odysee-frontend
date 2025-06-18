@@ -281,7 +281,7 @@ export const doArTip = (
       const transactionAmountString = String(transactionAmount);
       if (tipParams.currency === 'AR') {
         try {
-          const { transferTxid: txid } = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
+          const { transactionId: txid } = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
           transferTxid = txid;
         } catch (error) {
           console.log(error);
@@ -378,7 +378,7 @@ export const sendWinstons = async (
     const createParams = {
       target: address,
       recipient: address,
-      quantity: amountInWinstons,
+      quantity: 's', //amountInWinstons,
     };
     const transaction = await arweave.createTransaction(createParams);
 
@@ -388,10 +388,11 @@ export const sendWinstons = async (
 
     await arweave.transactions.sign(transaction);
     txResponse = await arweave.transactions.post(transaction);
-    console.log(txResponse);
-    const { status } = txResponse;
+    const { status, statusText } = txResponse;
     if (status !== 200) {
-      return { error: 'transaction failed', transactionId: txResponse.transactionId, status };
+      // statusText = "Invalid Json"
+      // TODO custo errors for status codes?
+      return { error: statusText, transactionId: txResponse.transactionId, status };
     }
     
     const { id } = transaction;
@@ -441,23 +442,24 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
         };
         transaction = await arweave.createTransaction(newParams);
         await arweave.transactions.sign(transaction);
-      }else {
+      } else {
         transaction = transactionCheck;
         await arweave.transactions.sign(transaction);
-      }      
+      }
+      arweave.transactions.sign(transaction);
       const response = await arweave.transactions.post(transaction);
 
       dispatch(doToast({
         message: `${amountAr} AR successfully sent to ${recipientAddress}`,
       }));
-      dispatch({ type: AR_SEND_SUCCESS, data: { txId: response.id, recipient: recipientAddress, amount: amountAr } });      
+      dispatch({ type: AR_SEND_SUCCESS, data: { txId: response.id, recipient: recipientAddress, amount: amountAr } });
       return { txId: response.id };
     } catch (e) {
       dispatch(doToast({
         message: e.message || 'Failed to send AR',
-        isError: true
+        isError: true,
       }));
-      dispatch({ type: AR_SEND_ERROR, data: { error: e.message || 'Failed to send AR' } });      
+      dispatch({ type: AR_SEND_ERROR, data: { error: e.message || 'Failed to send AR' } });
       return { error: e.message || 'Failed to send AR' };
     }
   };

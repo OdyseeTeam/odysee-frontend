@@ -57,9 +57,9 @@ function PledgesTab(props: Props) {
         </div>
       </div>
     );
-  }  
+  }
 
-  const sortedMembershipSubs = myMembershipSubs.sort((a, b) => new Date(b.subscription.started_at).getTime() - new Date(a.subscription.started_at).getTime());
+  const sortedMembershipSubs = myMembershipSubs.filter(sub => sub.subscription.is_active === true).sort((a, b) => new Date(b.subscription.started_at).getTime() - new Date(a.subscription.started_at).getTime());
 
   return (
     <div className="membership__mypledges-wrapper">
