@@ -47,9 +47,9 @@ const JoinMembershipButton = (props: Props) => {
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
   const membershipName = validUserMembershipForChannel?.membership.name;
-  const endsAt = validUserMembershipForChannel.subscription.ends_at;
+  const endsAt = validUserMembershipForChannel?.subscription.ends_at;
 
-  const shouldRenew = moment().isAfter(moment(endsAt).subtract(7, 'days'));
+  const shouldRenew = endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days'));
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
