@@ -150,7 +150,6 @@ const MembershipTier = (props: Props) => {
         headerAction={
           getMembershipAction()
         }
-        exchangeRate={exchangeRate}
       />
     </div>
   );
