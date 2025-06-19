@@ -344,9 +344,9 @@ export const selectCanViewFileForUri = (state: State, uri: string) => {
     return !!claimIsMine;
   }
 
-  const pendingPurchase = selectPendingPurchaseForUri(state, uri);
+  const pendingPurchase = selectPendingPurchaseForUri(state, uri);  
   const isAnonymousFiatContent = selectIsAnonymousFiatContentForUri(state, uri);
-  const pendingUnlockedRestrictions = selectPendingUnlockedRestrictionsForUri(state, uri);
+  const pendingUnlockedRestrictions = selectPendingUnlockedRestrictionsForUri(state, uri);  
 
   const canViewFile = !pendingPurchase && !pendingUnlockedRestrictions && !isAnonymousFiatContent;
   return canViewFile;
