@@ -191,16 +191,13 @@
         text-overflow: ellipsis;
       }
       .transaction-history__viewblock {
+        flex-shrink: 0;
         margin-left: auto;
         img {
           width: 14px;
           height: 14px;
           border-radius: 50%;
         }
-      }
-
-      @media (max-width: $breakpoint-small) {
-        font-size: var(--font-xxsmall) !important;
       }
 
       @media (max-width: $breakpoint-medium) {
@@ -210,7 +207,10 @@
           min-width: 90px;
         }
         .transaction-history__action {
-          min-width: 30px;
+          min-width: 40px;
+        }
+        .transaction-history__amount{
+          min-width: 44px;
         }
         .transaction-history__token {
           min-width: 30px;
@@ -226,6 +226,18 @@
           min-width: 20px;
         }
       }
+
+      @media (max-width: $breakpoint-small) {
+        font-size: var(--font-xxsmall) !important;
+
+        .transaction-history__date {
+          min-width: 90px;
+        }
+        .transaction-history__action {
+          min-width: 40px;
+        }
+      }
+
     }
   }
 }
