@@ -20,7 +20,7 @@ type Props = {
   removeEditing: () => void,
   onCancel: () => void,
   // -- redux --
-  membershipOdyseePerks: MembershipOdyseePerks,
+  membershipOdyseePerks: MembershipOdyseePerks, // the perks the server knows about, stored in state
   activeChannelClaim: ChannelClaim,
   doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
   doMembershipUpdateTier: (params: MembershipUpdateTierParams) => Promise<MembershipDetails>,
@@ -44,6 +44,10 @@ function MembershipEditTier(props: Props) {
     doMembershipList,
     apiArweaveAddress,
   } = props;
+  console.log('perk props', props)
+
+  console.log('membershipOdyseePerks', membershipOdyseePerks);
+  const isCreatingAMembership = typeof membership.membership_id === 'string';
 
   const isMobile = useIsMobile();
   const roughHeaderHeight = (isMobile ? 56 : 60) + 10; // @see: --header-height
@@ -51,11 +55,19 @@ function MembershipEditTier(props: Props) {
   const nameRef = React.useRef();
   const contributionRef = React.useRef();
 
+  // no guarantee MEMBERSHIP_CONSTS._PERKS is the same as api get perks result. this is dumb.
+  const defaultPerkIds = [...MEMBERSHIP_CONSTS.DEFAULT_TIER_PERKS];
+  const currentPerkIds = [...membership.perks.map((perk) => perk.id)];
+  const editablePerkIds = [...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS];
+  const perksIdsShownInEditForm = Array.from(new Set([...currentPerkIds, ...MEMBERSHIP_CONSTS.EDITABLE_TIER_PERKS]));
+
   const initialState = React.useRef({
     name: membership.name || '',
     description: membership.description || '',
     price: membership.prices[0].amount / 100, // currently a single price
-    perks: Array.from(new Set([...MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS, ...membership.perks.map((perk) => perk.id)])),
+    perks: isCreatingAMembership
+      ? defaultPerkIds
+      : currentPerkIds,
     frequency: 'monthly',
   });
 
@@ -70,13 +82,14 @@ function MembershipEditTier(props: Props) {
   const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
   const [saveError, setSaveError] = React.useState('');
 
+  console.log('selectedPerkIds', selectedPerkIds)
+
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
 
   const priceLowerThanMin = parseFloat(editTierParams.editTierPrice) < parseFloat(MIN_PRICE);
   const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > parseFloat(MAX_PRICE);
   const priceError = !editTierParams.editTierPrice || priceLowerThanMin || priceHigherThanMax;
-
   /**
    * When someone hits the 'Save' button from the edit functionality
    * @param membership - If an existing tier, use the old price and id
@@ -106,7 +119,6 @@ function MembershipEditTier(props: Props) {
     const selectedPerksAsArray = selectedPerkIds.toString();
 
     if (activeChannelClaim) {
-      const isCreatingAMembership = typeof membership.membership_id === 'string';
       const price = Math.round(Number(newTierMonthlyContribution) * 100); // multiply to turn into cents
 
       if (isCreatingAMembership) {
@@ -119,6 +131,7 @@ function MembershipEditTier(props: Props) {
           perks: selectedPerksAsArray,
           frequency: editTierParams.editTierFrequency,
           payment_address: apiArweaveAddress,
+          enable_members_only_chat: selectedPerkIds.includes(7), // selectedPerks has id 7
         };
         doMembershipAddTier(params)
           .then((responseOrError: {response: 'ok', error: string }) => {
@@ -138,6 +151,8 @@ function MembershipEditTier(props: Props) {
               channel_name: activeChannelClaim.name,
               prices: [{ amount: price, currency: 'AR', address: '' }], // HERE PRICES
               perks: selectedPerks,
+              enable_members_only_chat: selectedPerkIds.includes(7), // selectedPerks has id 7
+              enabled: true,
             };
             addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
             removeEditing();
@@ -152,6 +167,7 @@ function MembershipEditTier(props: Props) {
           new_description: editTierParams.editTierDescription,
           new_amount: price,
           membership_id: membership.membership_id,
+          enable_members_only_chat: selectedPerkIds.includes(7), // selectedPerks has id 7
         };
         doMembershipUpdateTier(params)
           .then((responseOrError: { response: 'ok', error: string }) => {
@@ -173,6 +189,8 @@ function MembershipEditTier(props: Props) {
               channel_claim_id: activeChannelClaim.claim_id,
               prices: [{ amount: price, currency: 'usd', address: '' }], // HERE PRICES
               perks: selectedPerks,
+              enable_members_only_chat: selectedPerkIds.includes(7),
+              enabled: true,
             };
 
             addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
@@ -224,39 +242,85 @@ function MembershipEditTier(props: Props) {
       />
 
       <fieldset-section>
-        <label htmlFor="tier_name">{__('Odysee Perks')}</label>
+        <label htmlFor="tier_name">{__('Odysee Perks (Permanent)')}</label>
       </fieldset-section>
+      <div className="membership-tier__perks">
+        <div className="membership-tier__perks-content">
+          <ul>
 
-      {membershipOdyseePerks.map((tierPerk) => {
-        const isPermanent = MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS.includes(tierPerk.id);
-        const isSelected = new Set(selectedPerkIds).has(tierPerk.id);
+        {membershipOdyseePerks.map((tierPerk) => {
+          const isPermanent = MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS.includes(tierPerk.id);
+          const isShownInEdit = perksIdsShownInEditForm.includes(tierPerk.id);
+          const isSelected = new Set(selectedPerkIds).has(tierPerk.id);
+          const isEditable = editablePerkIds.includes(tierPerk.id);
 
-        return (
-          <FormField
-            key={tierPerk.id}
-            type="checkbox"
-            defaultChecked={isPermanent || isSelected}
-            label={__(tierPerk.description)}
-            name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
-            className="membership_perks"
-            disabled={isPermanent}
-            onChange={() =>
-              setSelectedPerkIds((prevPerks) => {
-                const newPrevPerks = new Set(prevPerks);
-                const isSelected = newPrevPerks.has(tierPerk.id);
 
-                if (!isSelected) {
-                  newPrevPerks.add(tierPerk.id);
-                } else {
-                  newPrevPerks.delete(tierPerk.id);
+          if (isCreatingAMembership) {
+            return (
+              <FormField
+                key={tierPerk.id}
+                type="checkbox"
+                defaultChecked={isPermanent || isSelected}
+                label={__(tierPerk.description)}
+                name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
+                className="membership_perks"
+                disabled={isPermanent}
+                onChange={() =>
+                  setSelectedPerkIds((prevPerks) => {
+                    const newPrevPerks = new Set(prevPerks);
+                    const isSelected = newPrevPerks.has(tierPerk.id);
+
+                    if (!isSelected) {
+                      newPrevPerks.add(tierPerk.id);
+                    } else {
+                      newPrevPerks.delete(tierPerk.id);
+                    }
+
+                    return Array.from(newPrevPerks);
+                  })
                 }
+              />
+            );
+          } else {
+            if (isShownInEdit) {
+              if (!isEditable) {
+                return (
+                  <li key={tierPerk.description}>{__(tierPerk.description)}</li>
+                );
+              } else {
+                return (
+                  <FormField
+                    key={tierPerk.id}
+                    type="checkbox"
+                    defaultChecked={isPermanent || isSelected}
+                    label={__(tierPerk.description)}
+                    name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
+                    className="membership_perks"
+                    disabled={isPermanent}
+                    onChange={() =>
+                      setSelectedPerkIds((prevPerks) => {
+                        const newPrevPerks = new Set(prevPerks);
+                        const isSelected = newPrevPerks.has(tierPerk.id);
 
-                return Array.from(newPrevPerks);
-              })
+                        if (!isSelected) {
+                          newPrevPerks.add(tierPerk.id);
+                        } else {
+                          newPrevPerks.delete(tierPerk.id);
+                        }
+
+                        return Array.from(newPrevPerks);
+                      })
+                    }
+                  />
+                );
+              }
             }
-          />
-        );
-      })}
+          }
+
+        })}
+          </ul>
+        </div>
+      </div>
 
       <FormField
         ref={contributionRef}

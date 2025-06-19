@@ -288,6 +288,7 @@ declare type MembershipAddTierParams = {
   perks: string, // csv
   frequency: string,
   payment_address_id: string,
+  enable_members_only_chat?: boolean,
 };
 
 declare type MembershipUpdateTierParams = {
@@ -295,6 +296,7 @@ declare type MembershipUpdateTierParams = {
   new_description?: string,
   new_amount?: number,
   membership_id: number,
+  enable_members_only_chat?: boolean,
 }
 
 declare type MembershipCreateResponse = {
