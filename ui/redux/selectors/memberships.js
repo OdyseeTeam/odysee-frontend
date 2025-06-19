@@ -507,12 +507,14 @@ export const selectProtectedContentMembershipsForClaimId = (state: State, channe
 export const selectProtectedContentMembershipsForContentClaimId = (state: State, claimId: string) => {
   const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
   const protectedClaimsById = claimChannelId && selectProtectedContentClaimsForId(state, claimChannelId);
+  console.log('protectedClaimsById: ', protectedClaimsById)
 
   return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
 };
 
 export const selectContentHasProtectedMembershipIds = (state: State, claimId: string) => {
   const protectedContentMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claimId);
+  console.log('protectedContentMembershipIds: ', protectedContentMembershipIds)
   const claim = selectClaimForId(state, claimId);
   const protectedContentTag = claim && selectProtectedContentTagForUri(state, claim.permanent_url);
 

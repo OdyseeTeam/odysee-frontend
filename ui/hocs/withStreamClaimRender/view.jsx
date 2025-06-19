@@ -108,6 +108,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       doClearPlayingUri,
     } = props;
 
+    console.log('canViewFile: ', canViewFile)
+
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
 
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
@@ -260,8 +262,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         commentId: undefined,
       };
 
-      // console.log('updateClaim: ', trigger);
-
       let check = playingOptions.uri === currentStreamingUri;
 
       if (parentCommentId) {
@@ -301,7 +301,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
-      // console.log('doCheckIfPurchasedClaimId: ', doCheckIfPurchasedClaimId)
+      console.log('pendingUnlockedRestrictions: ', pendingUnlockedRestrictions)
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
           {pendingFiatPayment || sdkFeePending ? (

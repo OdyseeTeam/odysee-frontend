@@ -136,7 +136,7 @@ const WalletBalance = (props: Props) => {
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<Symbol token="lbc" amount={formatCredits(totalBalance, 8, true)} precision={6} isTitle />}
+          title={<Symbol token="lbc" amount={formatCredits(totalBalance, 8, true)} precision={6} isTitle counter />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
@@ -267,10 +267,10 @@ const WalletBalance = (props: Props) => {
         <Card
           title={
             !hasArConnection ? (
-              <Symbol token="wallet" amount="0" precision={2} isTitle />
+              <Symbol token="wallet" amount="0" precision={2} isTitle counter />
             ) : (
               <>
-                <Symbol token="usd" amount={(arBalance*arStatus.exchangeRates.ar)} precision={2} isTitle />
+                <Symbol token="usd" amount={(arBalance*arStatus.exchangeRates.ar)} precision={2} isTitle counter />
                 <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect()} />
               </>
             )
