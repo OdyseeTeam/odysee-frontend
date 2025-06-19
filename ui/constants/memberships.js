@@ -36,7 +36,10 @@ export const ODYSEE_PERKS = Object.freeze({
     id: 7,
     name: 'Members-only chat',
     description: 'Access to members-only chat on public content',
+    editable: true,
   },
 });
 
-export const PERMANENT_TIER_PERKS = [ODYSEE_PERKS.MEMBER_BADGE.id];
+export const DEFAULT_TIER_PERKS = [ODYSEE_PERKS.MEMBER_BADGE.id];
+export const PERMANENT_TIER_PERKS = [ODYSEE_PERKS.MEMBER_BADGE.id, ODYSEE_PERKS.PROTECTED_CONTENT.id, ODYSEE_PERKS.PROTECTED_LIVESTREAM.id];
+export const EDITABLE_TIER_PERKS = [ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id];
