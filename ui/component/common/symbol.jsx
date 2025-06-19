@@ -1,8 +1,9 @@
 // @flow
-import * as ICONS from 'constants/icons';
 import React from 'react';
-import classnames from 'classnames';
+import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import Counter from 'component/counter';
+import classnames from 'classnames';
 
 type Props = {
   withText?: boolean,
@@ -36,8 +37,8 @@ const Symbol = (props: Props) => {
         />
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
       </div>
-      <span>
-        {amount !== null && displayAmount}
+      <span>        
+        {amount !== null && <Counter value={displayAmount} precision={precision} />}        
         {displayLabel}
       </span>
     </>
