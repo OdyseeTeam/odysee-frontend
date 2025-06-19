@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
-import Symbol from 'component/common/symbol';
+import WalletStatus from 'component/walletStatus';
+import { useArStatus } from 'effects/use-ar-status';
 import './style.scss';
 
 type Props = {
@@ -11,7 +12,6 @@ type Props = {
   isChannelTab?: boolean,
   membersOnly?: boolean,
   isLivestream?: ?boolean,
-  exchangeRate: { ar: number },
 };
 
 const MembershipDetails = (props: Props) => {
@@ -23,8 +23,10 @@ const MembershipDetails = (props: Props) => {
     isChannelTab,
     membersOnly,
     isLivestream,
-    exchangeRate,
   } = props;
+  const {
+    activeArStatus
+  } = useArStatus();
 
   const descriptionParagraphs = membership.description.split('\n');
   const selectedMembershipName = membership.name;
@@ -55,46 +57,51 @@ const MembershipDetails = (props: Props) => {
     <>
       {unlockableTierIds && (
         <div className={'access-status' + ' ' + (membershipIsUnlockable ? 'green' : 'red')}>
-          <label>{accessText}</label>
+          <p>{accessText}</p>
         </div>
       )}
 
-      {!isChannelTab && <div className="selected-membership">{selectedMembershipName}</div>}
+      {activeArStatus !== 'connected' ? (
+        <WalletStatus />
+      ) : (
+        <>
+          {!isChannelTab && <div className="selected-membership">{selectedMembershipName}</div>}
 
-      <section className="membership-tier__header">
-        <span>{membership.name}</span>
-      </section>
+          <section className="membership-tier__header">
+            <span>{membership.name}</span>
+          </section>
 
-      <section className="membership-tier__infos">
-        <span className="membership-tier__infos-description">
-          {descriptionParagraphs.map((descriptionLine, i) =>
-            descriptionLine === '' ? <br key={i} /> : <p key={i}>{descriptionLine}</p>
-          )}
-        </span>
-        <label>{__('Pledge')}</label>
-        <span style={{ display: 'flex' }}>${(membership?.prices[0].amount / 100).toFixed(2)}</span> {/* the ui basically supports monthly right now */}
+          <section className="membership-tier__infos">
+            <span className="membership-tier__infos-description">
+              {descriptionParagraphs.map((descriptionLine, i) =>
+                descriptionLine === '' ? <br key={i} /> : <p key={i}>{descriptionLine}</p>
+              )}
+            </span>
+            <label>{__('Pledge')}</label>
+            <span style={{ display: 'flex' }}>${(membership?.prices[0].amount / 100).toFixed(2)}</span>
 
-        <div className="membership-tier__perks">
-          <div className="membership-tier__moon" />
-          <div className="membership-tier__perks-content">
-            {membership.perks && membership.perks.length > 0 ? (
-              <>
-                <label>{__('Perks')}</label>
-                <ul>
-                  {/* $FlowFixMe -- already handled above */}
-                  {membership.perks.map((tierPerk, i) => (
-                    <li key={i}>{__(tierPerk.name)}</li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <label>{__('No Perks...')}</label>
-            )}
-          </div>
-        </div>
-      </section>
+            <div className="membership-tier__perks">
+              <div className="membership-tier__moon" />
+              <div className="membership-tier__perks-content">
+                {membership.perks && membership.perks.length > 0 ? (
+                  <>
+                    <label>{__('Perks')}</label>
+                    <ul>
+                      {membership.perks.map((tierPerk, i) => (
+                        <li key={i}>{__(tierPerk.name)}</li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <label>{__('No Perks...')}</label>
+                )}
+              </div>
+            </div>
+          </section>
 
-      {headerAction && <section className="membership-tier__actions">{headerAction}</section>}
+          {headerAction && <section className="membership-tier__actions">{headerAction}</section>}
+        </>
+      )}
     </>
   );
 };
