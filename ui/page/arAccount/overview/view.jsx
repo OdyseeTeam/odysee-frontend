@@ -8,9 +8,9 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
+import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
 import { LocalStorage } from 'util/storage';
 import './style.scss';
-import ButtonToggleAddressActive from '../../../component/buttonToggleAddressActive';
 
 function Overview(props: Props) {
   const {

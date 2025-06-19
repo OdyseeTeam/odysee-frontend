@@ -58,7 +58,7 @@
   width: fit-content;
   display: inline-block;
   line-height: 0;
-  margin-right: var(--spacing-xxxxs) !important;
+  margin-right: var(--spacing-xs) !important;
   vertical-align: middle;
   flex-shrink: 0;  
 
@@ -107,7 +107,8 @@
 }
 
 .icon__lbc--after-text {
-  margin-right: 2px;
+  // margin-right: 2px;
+  margin-right: var(--spacing-xs)
 }
 
 .icon__lbc--title {
