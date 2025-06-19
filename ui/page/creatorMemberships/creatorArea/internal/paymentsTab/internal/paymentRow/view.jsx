@@ -22,8 +22,6 @@ function View(props: IProps) {
   const { name: recipientName, claim_id: recipientClaimId } =  recipientChannel || {};
   const { name: senderName, claim_id: senderClaimId } =  senderChannel || {};
 
-  console.log('membership: ', membership)
-
   const recipientUri = recipientChannel
     ? buildURI({
       channelName: recipientName,

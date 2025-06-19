@@ -13,10 +13,11 @@ type Props = {
   token?: string,
   chain?: string,
   precision?: number,
+  counter?: boolean,
 };
 
 const Symbol = (props: Props) => {
-  const { token, chain, amount = null, precision = 8, size, isTitle = false } = props;
+  const { token, chain, amount = null, precision = 8, size, isTitle = false, counter = false } = props;
   const displayAmount = Number(amount).toFixed(precision);
   const displayLabel = token !== 'wallet' && token !== null ? ` ${token?.toUpperCase()}` : token === 'wallet' ? ' USD' : null;
 
@@ -38,7 +39,7 @@ const Symbol = (props: Props) => {
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
       </div>
       <span>        
-        {amount !== null && <Counter value={displayAmount} precision={precision} />}        
+        {amount !== null && counter ? <Counter value={displayAmount} precision={precision} /> : displayAmount}
         {displayLabel}
       </span>
     </>
