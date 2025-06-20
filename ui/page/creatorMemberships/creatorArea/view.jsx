@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
-
 import { useHistory } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { lazyImport } from 'util/lazyImport';
 import { formatLbryUrlForWeb } from 'util/url';
@@ -13,9 +13,8 @@ import Page from 'component/page';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
 import TabWrapper from './internal/tabWrapper';
-
-import './style.scss';
 import { FormField } from 'component/common/form';
+import './style.scss';
 
 const OverviewTab = lazyImport(() => import('./internal/overviewTab' /* webpackChunkName: "overviewTab" */));
 const TiersTab = lazyImport(() => import('./internal/tiersTab' /* webpackChunkName: "tiersTab" */));
@@ -199,7 +198,12 @@ const CreatorArea = (props: Props) => {
                       />
                     </div>
                   </div>
-                  {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
+                  {!monetizationEnabled && (
+                    <div className={'help'}>
+                      <p>Your memberships are currently disabled due to your monetization setting.</p>
+                      <NavLink to="/$/wallet">Set up wallet</NavLink>
+                    </div>
+                  )}
 
                   <TiersTab showDisabled={showDisabled} />
                 </>
