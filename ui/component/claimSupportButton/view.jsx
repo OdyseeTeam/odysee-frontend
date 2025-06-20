@@ -16,6 +16,7 @@ type Props = {
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
   canReceiveFiatTips: ?boolean,
+  canReceiveTips2: ?boolean,
 };
 
 export default function ClaimSupportButton(props: Props) {
@@ -28,9 +29,12 @@ export default function ClaimSupportButton(props: Props) {
     doOpenModal,
     preferredCurrency,
     canReceiveFiatTips,
+    canReceiveTips2,
     doTipAccountCheckForUri,
   } = props;
   const isMobile = useIsMobile();
+
+  console.log('canReceiveTips: ', canReceiveTips2)
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {

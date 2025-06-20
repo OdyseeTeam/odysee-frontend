@@ -5,6 +5,7 @@ import { selectArAccountUpdating, selectArweaveAccountForAddress } from 'redux/s
 
 const select = (state, props) => {
   const { address } = props;
+
   return {
     account: selectArweaveAccountForAddress(state, address),
     accountUpdating: selectArAccountUpdating(state),

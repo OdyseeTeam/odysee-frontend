@@ -115,7 +115,7 @@ function ArAccountPage(props: Props) {
             <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
               {__('Buy')}
             </Tab>
-            {arweaveWallets && arweaveWallets.length > 0 ? (
+            {arweaveWallets && arweaveWallets.length > 1 ? (
               <Tab aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>
                 {__('My Wallets')}
               </Tab>
