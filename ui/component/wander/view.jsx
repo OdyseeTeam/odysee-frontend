@@ -47,6 +47,7 @@ export default function Wander(props: Props) {
     doArInit()
     const wanderInstance = new WanderConnect({
       clientId: 'FREE_TRIAL',
+      baseServerURL: "https://connect-api-dev.wander.app",
       theme: theme,
       button: {
         parent: wrapperRef.current,
