@@ -14,7 +14,7 @@ import {
   WANDER_AUTH,
   AR_SEND_STARTED,
   AR_SEND_ERROR,
-  AR_SEND_SUCCESS,
+  AR_SEND_SUCCESS
 } from 'constants/action_types';
 // $FlowIgnore
 import { message, createDataItemSigner } from '@permaweb/aoconnect';
