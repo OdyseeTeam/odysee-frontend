@@ -15,8 +15,7 @@ type Props = {
   doOpenModal: (id: string, {}) => void,
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
-  canReceiveFiatTips: ?boolean,
-  canReceiveTips2: ?boolean,
+  canReceiveTips: ?boolean,
 };
 
 export default function ClaimSupportButton(props: Props) {
@@ -28,19 +27,14 @@ export default function ClaimSupportButton(props: Props) {
     disableSupport,
     doOpenModal,
     preferredCurrency,
-    canReceiveFiatTips,
-    canReceiveTips2,
+    canReceiveTips,
     doTipAccountCheckForUri,
   } = props;
   const isMobile = useIsMobile();
 
-  console.log('canReceiveTips: ', canReceiveTips2)
-
   React.useEffect(() => {
-    if (canReceiveFiatTips === undefined) {
-      doTipAccountCheckForUri(uri);
-    }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+    doTipAccountCheckForUri(uri);
+  }, [canReceiveTips, doTipAccountCheckForUri, uri]);
 
   if (disableSupport) return null;
 
@@ -51,7 +45,7 @@ export default function ClaimSupportButton(props: Props) {
 
   return (
     <FileActionButton
-      className={canReceiveFiatTips ? 'approved-bank-account__button' : undefined}
+      className={canReceiveTips ? 'monetized-account__button' : undefined}
       title={__('Support this content')}
       label={label}
       icon={STRIPE.CURRENCY[preferredCurrency].icon}

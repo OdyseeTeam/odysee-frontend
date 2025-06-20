@@ -50,7 +50,6 @@ export const selectArweaveAccountForAddress = (state: State, address: string) =>
 
 export const selectArweaveTipDataForId = (state: State, id: string) => {
   const byId = selectState(state).canReceiveArweaveTipsById;
-  console.log('byId: ', byId[id])
   return byId[id];
 };
 
