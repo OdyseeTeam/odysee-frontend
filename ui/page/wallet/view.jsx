@@ -106,7 +106,7 @@ const WalletPage = (props: Props) => {
             {/* balances for lbc and fiat */}
             <TabPanel>
               <div className="tmp-lbc-announcement">
-                <img src="https://thumbs.odycdn.com/dcee45614b2798d1a09d2c43dda5fade.webp" />
+                <img src="https://thumbnails.odycdn.com/optimize/s:140:0/quality:95/plain/https://thumbs.odycdn.com/dcee45614b2798d1a09d2c43dda5fade.webp" />
                 <h3><Icon icon={ICONS.LBC} />LBC will be going away soon</h3>
                 <p>Odysee will be using AR cryptocurrency for Payments and Monetization.</p>
               </div>
