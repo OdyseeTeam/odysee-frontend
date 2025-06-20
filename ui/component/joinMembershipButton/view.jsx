@@ -51,6 +51,7 @@ const JoinMembershipButton = (props: Props) => {
   const membershipStatus = validUserMembershipForChannel?.subscription.status;
 
   const shouldRenew = endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days')) && (membershipStatus === 'active' || membershipStatus === 'lapsed');
+  // const shouldRenew = true;
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
@@ -69,8 +70,10 @@ const JoinMembershipButton = (props: Props) => {
     if (isChannelPage) channelPath = channelPath.substr(1);
 
     const membershipIndex =
-      creatorTiers.findIndex((res) => res.name === validUserMembershipForChannel?.name) +
-      1;
+      creatorTiers.findIndex((res) => res.name === validUserMembershipForChannel?.membership.name);
+    /*
+    membershipIndex: index, membershipId: membership.membership_id, passedTierIndex: index,
+     */
 
     if (shouldRenew) {
       return (
@@ -79,7 +82,7 @@ const JoinMembershipButton = (props: Props) => {
           className="button--membership"
           label={__('Renew "%membership_tier_name%"', { membership_tier_name: membershipName })}
           title={__('Renew "%membership_tier_name%"', { membership_tier_name: membershipName })}
-          onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, isRenew: true })}
+          onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, isRenew: true, membershipIndex: membershipIndex, membershipId: validUserMembershipForChannel.membership.id, passedTierIndex: membershipIndex })}
           style={{ filter: (!creatorHasMemberships) ? 'brightness(50%)' : undefined }}
         />
       );
