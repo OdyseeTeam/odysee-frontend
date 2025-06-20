@@ -45,6 +45,7 @@ type Props = {
   uri: string,
   // -- redux --
   claimId: string,
+  canReceiveTips: boolean,
   preferredCurrency: string,
   preorderTag: number,
   purchaseTag: ?number,
@@ -65,6 +66,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   const {
     uri,
     claimId,
+    canReceiveTips,
     preferredCurrency,
     rentalTag,
     purchaseTag,
@@ -169,7 +171,12 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
             { /* confirm purchase - needs to check balance and disable */}
-            <WalletStatus />
+            {!canReceiveTips 
+              ? <div className="monetization-disabled">USD Monetization isn't available. It may not be set up yet or has been disabled by the creator.</div>
+              : activeArStatus !== 'connected' 
+                ? <WalletStatus />
+                : null
+            }
             {pendingSdkPayment ? (
               <Button
                 button="primary"
@@ -194,7 +201,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 rentLabel={STRINGS['rental'].button}
                 rentTipAmount={rentTipAmount}
                 rentDuration={rentDuration}
-                disabled={activeArStatus !== 'connected'}
+                disabled={activeArStatus !== 'connected' || !canReceiveTips}
               />
             )}
           </div>
