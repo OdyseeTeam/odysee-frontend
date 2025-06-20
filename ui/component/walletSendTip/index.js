@@ -34,6 +34,9 @@ const select = (state, props) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
   const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
 
+  const tipData = selectArweaveTipDataForId(state, channelClaimId);
+  const canReceiveTips = tipData?.status === 'active' && tipData?.default;
+
   return {
     activeChannelName,
     activeChannelId,
@@ -51,6 +54,7 @@ const select = (state, props) => {
     title: selectTitleForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
     experimentalUi: selectUserExperimentalUi(state),
+    canReceiveTips,
     arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
     isArweaveTipping: selectArweaveTippingStartedForId(state, claimId),
     arweaveTippingError: selectArweaveTippingErrorForId(state, claimId),

@@ -8,6 +8,14 @@
     }
   }
 
+  .monetization-disabled{
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+    border: 1px solid var(--color-text-error);
+    background: rgba(218, 4, 4, 0.1);
+    text-align:center;
+  }
+
   .fiat-order__claim-preview {
     border-radius: var(--border-radius);
     border: 1px solid var(--color-border);

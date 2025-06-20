@@ -75,7 +75,8 @@ type Props = {
   setAmount?: (number, string) => void,
   preferredCurrency: string,
   modalProps?: any,
-  arweaveTipData?: ArweaveTipDataForId, //
+  canReceiveTips?: boolean,
+  arweaveTipData?: ArweaveTipDataForId,
   doTipAccountCheckForUri: () => void,
   checkingAccount: boolean,
 };
@@ -109,6 +110,7 @@ export default function WalletSendTip(props: Props) {
     setAmount,
     preferredCurrency,
     modalProps,
+    canReceiveTips,
     arweaveTipData,
     doArTip,
     doToast,
@@ -123,7 +125,6 @@ export default function WalletSendTip(props: Props) {
 
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
   const showArweave = ENABLE_ARCONNECT;
-  const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
   const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_USD;
@@ -452,41 +453,47 @@ export default function WalletSendTip(props: Props) {
             </>
           ) : !((activeTab === TAB_LBC || activeTab === TAB_BOOST) && balance === 0) ? (
             <>
-              {activeTab === TAB_USD && activeArStatus !== 'connected'
-                ? <WalletStatus />
-                : (
+              {activeTab === TAB_USD && (
+                !canReceiveTips ? (
+                  <div className="monetization-disabled">USD Monetization isn't available. It may not be set up yet or has been disabled by the creator.</div>
+                ) : activeArStatus !== 'connected' ? (
+                  <WalletStatus />
+                ) : (
                   <>
-                  <ChannelSelector />
-
-                  {/* section to pick tip/boost amount */}
-                  <WalletTipAmountSelector
-                    setTipError={setTipError}
-                    tipError={tipError}
-                    uri={uri}
-                    activeTab={activeTab === TAB_BOOST ? TAB_LBC : activeTab}
-                    amount={tipAmount}
-                    onChange={(amount) => setTipAmount(amount)}
-                    setDisableSubmitButton={setDisableSubmitButton}
-                    modalProps={modalProps}
-                    exchangeRateOverride={undefined} // use this for value that returns from sub call?
-                  />
-
-                  {/* send tip/boost button */}
-                  <div className="section__actions">
-                    <Button
-                      autoFocus
-                      icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
-                      button="primary"
-                      type="submit"
-                      disabled={
-                        checkingAccount || fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
-                      }
-                      label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
+                    <ChannelSelector />
+                    <WalletTipAmountSelector
+                      setTipError={setTipError}
+                      tipError={tipError}
+                      uri={uri}
+                      activeTab={activeTab === TAB_BOOST ? TAB_LBC : activeTab}
+                      amount={tipAmount}
+                      onChange={(amount) => setTipAmount(amount)}
+                      setDisableSubmitButton={setDisableSubmitButton}
+                      modalProps={modalProps}
+                      exchangeRateOverride={undefined}
                     />
-                    {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
-                  </div>
+                    <div className="section__actions">
+                      <Button
+                        autoFocus
+                        icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
+                        button="primary"
+                        type="submit"
+                        disabled={
+                          checkingAccount ||
+                          fetchingChannels ||
+                          isPending ||
+                          tipError ||
+                          !tipAmount ||
+                          disableSubmitButton ||
+                          !canReceiveTips
+                        }
+                        label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
+                      />
+                      {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
+                    </div>
                   </>
-                )}
+                )
+              )}
             </>
           ) : (
             // if it's LBC and there is no balance, you can prompt to purchase LBC
