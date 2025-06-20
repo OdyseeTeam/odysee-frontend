@@ -5,7 +5,7 @@
 
   .page-header {
     position: relative;
-    background-image: url('https://thumbs.odycdn.com/a655210a5610362e238853d3db050538.webp');
+    // background-image: url('https://thumbs.odycdn.com/a655210a5610362e238853d3db050538.webp');
     background-position-y: var(--header-height);
     background-position-x: var(--side-nav-width--micro);
 
@@ -19,17 +19,25 @@
     margin-top: calc(var(--spacing-l) * -1);
 
     @media (min-width: $breakpoint-large) {
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:1600:0/quality:95/plain/https://thumbs.odycdn.com/a655210a5610362e238853d3db050538.webp');
       background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 340px);
       background-size: calc(100% - var(--side-nav-width--micro));
     }
 
     @media (max-width: $breakpoint-large) {
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:1600:0/quality:95/plain/https://thumbs.odycdn.com/a655210a5610362e238853d3db050538.webp');
       background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 220px);
     }
 
+    @media (max-width: $breakpoint-medium) {
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:1600:0/quality:95/plain/https://thumbs.odycdn.com/a655210a5610362e238853d3db050538.webp');
+      background-position: calc(50% + var(--side-nav-width--micro) / 2) calc(0% - 60px);
+    }
+
     @media (max-width: $breakpoint-small) {
-      background-size: auto 522px;
-      background-position: 50% calc(0% - 120px);
+      background-image: url('https://thumbnails.odycdn.com/optimize/s:600:0/quality:95/plain/https://thumbs.odycdn.com/a655210a5610362e238853d3db050538.webp');
+      background-position: 0 0;
+      background-size: 100%;
       margin-left: calc(var(--spacing-xs) * -1);
       margin-right: calc(var(--spacing-xs) * -1);
     }

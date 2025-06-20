@@ -7,7 +7,6 @@
   max-width: unset;
 
   .memberships-header-wrapper{
-    background-image: url('https://thumbs.odycdn.com/9bf7e0c6e616bb988e5a19b6dfa863cd.webp');
     position: relative;
     background-position-y: var(--header-height);
     background-position-x: var(--side-nav-width--micro);
@@ -60,7 +59,7 @@
     
     @media (min-width: $breakpoint-small) {
       background-image: url('https://thumbnails.odycdn.com/optimize/s:600:0/quality:95/plain/https://thumbs.odycdn.com/9bf7e0c6e616bb988e5a19b6dfa863cd.webp');
-      background-position: 0 0;
+      background-position: 0 -200px;
       background-size: 100%;
     }
 
