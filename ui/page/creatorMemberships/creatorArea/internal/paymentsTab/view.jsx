@@ -4,6 +4,7 @@ import PaymentRow from './internal/paymentRow';
 
 interface IProps {
   doMembershipFetchIncomingPayments: () => void,
+  txsFetching: boolean,
   channelsToList?: [],
 }
 
@@ -11,6 +12,7 @@ function PaymentsTab(props: IProps) {
   const {
     doMembershipFetchIncomingPayments,
     transactions,
+    txsFetching,
     channelsToList,
   } = props;
   React.useEffect(() => {
@@ -42,12 +44,13 @@ function PaymentsTab(props: IProps) {
           {transactionsToList &&
             transactionsToList.map((transaction) => {
               return (
-                <PaymentRow key={transaction.transaction_id} transaction={transaction} />
+                <PaymentRow key={transaction.transaction_id} transaction={transaction} longList={transactionsToList.length > 100} />
               );
             })}
           </tbody>
         </table>
-        {transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Membership Payments')}</p>}
+        {!txsFetching && transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Membership Payments')}</p>}
+        {txsFetching && transactions.length === 0 && <p className="wallet__fiat-transactions">{__('Fetching Membership Payments')}</p>}
       </div>
     </>
   );

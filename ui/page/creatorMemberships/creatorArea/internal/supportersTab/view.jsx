@@ -33,14 +33,14 @@ const SupportersTab = (props: Props) => {
 
   // const sl = [
   //   {
-  //     subscriber_channel_name: '@iostest',
-  //     subscriber_channel_claim_id: 'b2de35a63ab37f9c4ec1c65f8135ed0306b7f67f',
+  //     subscriber_channel_name: '@iostest', || 'anonymous'
+  //     subscriber_channel_claim_id: 'b2de35a63ab37f9c4ec1c65f8135ed0306b7f67f', || ''
   //     supported_channel_name: '@shirely',
   //     membership_name: 'The worst',
   //     price: 10,
   //     currency: 'AR',
   //     interval: 'Monthly',
-  //     joined_at: '2025-05-10T04:39:27.822Z', // number or datestring?
+  //     joined_at: '2025-05-10T04:39:27.822Z',
   //   },
   // ];
   //
@@ -84,22 +84,36 @@ const SupportersTab = (props: Props) => {
         subtitle={__('Once you have supporters, they will appear here.')}
       />
     );
-  }  
+  }
 
   return (
     <>
       <div className="membership-table__wrapper">
         {channelsToList &&
           channelsToList.map((listedChannelClaim) => {
-          const supportersForChannel = supportersList
-            ? supportersList
+          const supportersForChannel = supportersList ? supportersList
                 .filter(supporter => listedChannelClaim.name === supporter.supported_channel_name)
                 .sort((a, b) => new Date(b.joined_at).getTime() - new Date(a.joined_at).getTime())
             : [];
 
+          const supportersWithChannel = supportersForChannel
+            ? supportersForChannel
+              .filter(supporter => supporter.subscriber_channel_name !== 'anonymous')
+            : [];
+
+          const anonymousSupporters = supportersForChannel
+            ? supportersForChannel
+              .filter(supporter => supporter.subscriber_channel_name === 'anonymous')
+            : [];
+
+          const totalAnonSupport = anonymousSupporters.reduce((ac, cur) => {
+            const newac = ac + cur.price;
+            return newac;
+          }, 0);
+
             return (
-              supportersForChannel &&
-              supportersForChannel.length > 0 && (
+              supportersWithChannel &&
+              supportersWithChannel.length > 0 && (
                 <React.Fragment key={listedChannelClaim.claim_id}>
                   <div className="table-channel-header">
                     {(!isViewingSingleChannel || !channelMembershipTiers) && (
@@ -108,6 +122,7 @@ const SupportersTab = (props: Props) => {
                     {(!isViewingSingleChannel || !channelMembershipTiers) &&
                       (listedChannelClaim.value.title || listedChannelClaim.name)}
                   </div>
+                  <div>{`${anonymousSupporters.length} anonymous supporters contributed $${(totalAnonSupport / 100).toFixed(2)}!`}</div>
 
                   <div className="membership-table__wrapper">
                     <table className="table">
@@ -124,7 +139,7 @@ const SupportersTab = (props: Props) => {
                       </thead>
 
                       <tbody>
-                        {supportersForChannel.map((supporter, i) => {
+                        {supportersWithChannel.map((supporter, i) => {
                           const supporterUri =
                             supporter.subscriber_channel_name === ''
                               ? undefined
@@ -141,7 +156,8 @@ const SupportersTab = (props: Props) => {
                                     <ChannelThumbnail xsmall link uri={supporterUri} />
                                   </UriIndicator>
                                 ) : (
-                                  <ChannelThumbnail xsmall uri={supporterUri} />
+                                  // <ChannelThumbnail xsmall uri={supporterUri} />
+                                  __('Anonymous')
                                 )}
                               </td>
                               <td>
