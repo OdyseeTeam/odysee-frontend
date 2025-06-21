@@ -16,6 +16,7 @@ import VideoRenderFloating from 'component/videoRenderFloating';
 import { withRouter } from 'react-router';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/nag';
+import Wander from 'component/wander';
 import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
@@ -33,7 +34,6 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
-// import * as MODALS from '../../constants/modal_types';
 
 const DebugLog = lazyImport(() => import('component/debugLog' /* webpackChunkName: "debugLog" */));
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
@@ -133,6 +133,7 @@ function App(props: Props) {
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
     // doOpenModal,
+    doArConnect,
   } = props;
 
   const isMobile = useIsMobile();
@@ -522,6 +523,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <Router uri={uri} />
+          <Wander />
           <ModalRouter />
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
           {!embedPath && <VideoRenderFloating />}

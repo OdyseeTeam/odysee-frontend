@@ -24,8 +24,8 @@ import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguag
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
+import { doArConnect } from 'redux/actions/arwallet';
 import App from './view';
-import { selectArweaveConnected, selectArweaveConnecting } from 'redux/selectors/arwallet';
 
 const select = (state) => ({
   user: selectUser(state),
@@ -46,8 +46,6 @@ const select = (state) => ({
   myChannelClaimIds: selectMyChannelClaimIds(state),
   defaultChannelClaim: selectDefaultChannelClaim(state),
   announcement: selectHomepageAnnouncement(state),
-  arweaveConnected: selectArweaveConnected(state),
-  arweaveConnecting: selectArweaveConnecting(state),
 });
 
 const perform = {
@@ -64,6 +62,7 @@ const perform = {
   doSetDefaultChannel,
   doSetAssignedLbrynetServer,
   doOpenModal,
+  doArConnect,
 };
 
 export default hot(connect(select, perform)(App));

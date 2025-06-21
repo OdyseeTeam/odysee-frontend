@@ -331,7 +331,7 @@ export const selectInsufficientCreditsForUri = (state: State, uri: string) => {
   return !isMine && costInfo && costInfo.cost > 0 && costInfo.cost > balance;
 };
 
-export const selectCanViewFileForUri = (state: State, uri: string) => {
+export const selectCanViewFileForUri = (state: State, uri: string) => {  
   const scheduledButNotReady = selectScheduledStateForUri(state, uri) === 'scheduled';
   const isUnlisted = selectIsUriUnlisted(state, uri);
 
@@ -339,14 +339,18 @@ export const selectCanViewFileForUri = (state: State, uri: string) => {
     return true;
   }
 
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  if (claimIsMine) {
+    return true;
+  }
+
   if (scheduledButNotReady) {
-    const claimIsMine = selectClaimIsMineForUri(state, uri);
     return !!claimIsMine;
   }
 
-  const pendingPurchase = selectPendingPurchaseForUri(state, uri);
+  const pendingPurchase = selectPendingPurchaseForUri(state, uri);  
   const isAnonymousFiatContent = selectIsAnonymousFiatContentForUri(state, uri);
-  const pendingUnlockedRestrictions = selectPendingUnlockedRestrictionsForUri(state, uri);
+  const pendingUnlockedRestrictions = selectPendingUnlockedRestrictionsForUri(state, uri);  
 
   const canViewFile = !pendingPurchase && !pendingUnlockedRestrictions && !isAnonymousFiatContent;
   return canViewFile;

@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
-import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
+import { useIsMobile } from 'effects/use-screensize';
+import * as SETTINGS from 'constants/settings';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
@@ -11,13 +12,17 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-import WalletFiatBalance from 'component/walletFiatBalance';
-import { formatNumberWithCommas } from 'util/number';
+import { LocalStorage } from 'util/storage';
+import { formatCredits } from 'util/format-credits';
+import { useArStatus } from 'effects/use-ar-status';
 
 type Props = {
-  experimentalUi: boolean,
+  clientSettings: any,
   LBCBalance: number,
-  USDCBalance: number,
+  arStatus: any,
+  arBalance: number,
+  arUsdRate: number,
+  wanderAuth: any,
   totalBalance: number,
   claimsBalance: number,
   supportsBalance: number,
@@ -29,11 +34,12 @@ type Props = {
   massClaimingTips: boolean,
   massClaimIsPending: boolean,
   utxoCounts: { [string]: number },
-  accountStatus: any,
   fullArweaveStatus: Array<any>,
   doOpenModal: (string) => void,
   doFetchUtxoCounts: () => void,
   doUtxoConsolidate: () => void,
+  doArConnect: () => void,
+  doArDisconnect: () => void,
   activeAPIArAccountAddress: string,
   activeAPIArAccount: any,
 };
@@ -43,10 +49,14 @@ const LARGE_WALLET_BALANCE = 100;
 
 const WalletBalance = (props: Props) => {
   const {
-    experimentalUi,
+    clientSettings,
     LBCBalance,
-    USDCBalance,
+    wanderAuth,
+    arStatus,
+    arBalance,
+    arUsdRate,
     claimsBalance,
+    totalBalance,
     supportsBalance,
     tipsBalance,
     hasSynced,
@@ -55,18 +65,26 @@ const WalletBalance = (props: Props) => {
     massClaimingTips,
     massClaimIsPending,
     utxoCounts,
-    accountStatus,
-    fullArweaveStatus,
     doOpenModal,
     doUtxoConsolidate,
     doFetchUtxoCounts,
+    doArConnect,
+    doArDisconnect,
   } = props;
 
-  const [detailsExpanded, setDetailsExpanded] = React.useState(false);
+  const {
+    walletType,
+    hasArweaveExtension,
+    hasArSignin,
+    hasArConnection,
+    isSigningIn,
+    hasConnection,
+  } = useArStatus();
 
+  const isMobile = useIsMobile();
+  const isWanderApp = navigator.userAgent.includes('WanderMobile');
+  const [detailsExpanded, setDetailsExpanded] = React.useState(false);
   const { other: otherCount = 0 } = utxoCounts || {};
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
-  const totalBalance = LBCBalance + tipsBalance + supportsBalance + claimsBalance;
   const totalLocked = tipsBalance + claimsBalance + supportsBalance;
   const operationPending = massClaimIsPending || massClaimingTips || consolidateIsPending || consolidatingUtxos;
 
@@ -76,12 +94,17 @@ const WalletBalance = (props: Props) => {
     }
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
 
+  const handleSignIn = () => {
+    const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS]
+    if(showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS)
+    else window.wanderInstance.open();
+  }
 
   return (
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<Symbol token="lbc" amount={formatNumberWithCommas(totalBalance) || 0} isTitle />}
+          title={<Symbol token="lbc" amount={formatCredits(totalBalance, 8, true)} precision={6} isTitle counter />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
@@ -207,49 +230,191 @@ const WalletBalance = (props: Props) => {
           }
         />
       </div>
-      {showArweave && (
-        <div className="column">
-          <Card
-            title={<Symbol token="usdc" amount={USDCBalance} precision={2} isTitle />}
-            subtitle={
-              totalLocked > 0 ? (
-                <I18nMessage tokens={{ usdc: <Symbol token="usdc" /> }}>Your total %usdc%USDC balance.</I18nMessage>
-              ) : (
-                <span>{__('Your total balance.')}</span>
-              )
-            }
-            background
-            actions={
+      {/* ARWEAVE */}
+      <div className="column">
+        <Card
+          title={
+            !hasArConnection ? (
+              <Symbol token="wallet" amount="0" precision={2} isTitle counter />
+            ) : (
               <>
-                <h2 className="section__title--small">
+                <Symbol token="usd" amount={(arBalance*arStatus.exchangeRates.ar)} precision={2} isTitle counter />
+                <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect()} />
+              </>
+            )
+          }
+          subtitle={
+            <>
+              <div className="wallet-check-row">
+                <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
+                <div>
+                  {!hasConnection && !isSigningIn ? (
+                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
+                  ) : isSigningIn ? (
+                    <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
+                  ) : (
+                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" alt="Success" />
+                  )}
+                </div>
+              </div>
+
+              <div className="wallet-check-row">
+                <div>{__('Wander wallet connection')}</div>
+                <div>
+                  {hasArConnection ? (
+                    <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
+                  ) : (
+                    <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
+                  )}
+                </div>
+              </div>
+            </>
+          }
+          background
+          actions={
+            <>
+              {!hasConnection && !isSigningIn ? (
+                <div>
                   <I18nMessage
                     tokens={{
-                      usdc_amount: <Symbol token="usdc" amount={USDCBalance} precision={2} />,
+                      textD: (
+                        <p>
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
+                        </p>
+                      ),
+                      textM: (
+                        <p>
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
+                        </p>
+                      ),
+                      login: (
+                        <a
+                          className="link"
+                          onClick={handleSignIn}
+                        >
+                          Sign in
+                        </a>
+                      ),
+                      extension: (
+                        <a
+                          className="link"
+                          rel="noreferrer"
+                          href="https://www.wander.app/download?tab=download-browser"
+                          target="_blank"
+                        >
+                          install browser extension
+                        </a>
+                      ),
+                      app: (
+                        <a
+                          className="link"
+                          rel="noreferrer"
+                          href="https://www.wander.app/download?tab=download-mobile"
+                          target="_blank"
+                        >
+                          Wander Wallet app
+                        </a>
+                      ),
                     }}
                   >
-                    %usdc_amount%
+                    {`${isMobile ? '%textM% or get the %app%.' : '%textD%'} %login%${
+                      !isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
+                        ? ' or %extension%.'
+                        : ''
+                    }`}
                   </I18nMessage>
-                </h2>
-                <div className="section__actions">
-                  <Button
-                    button="secondary"
-                    label={__('Deposit Funds')}
-                    icon={ICONS.BUY}
-                    navigate={`/$/${PAGES.PAYMENTACCOUNT}?tab=buy`}
-                  />
-                  <Button
-                    button="secondary"
-                    label={__('Payment Account')}
-                    icon={ICONS.SETTINGS}
-                    navigate={`/$/${PAGES.PAYMENTACCOUNT}`}
-                  />
                 </div>
-              </>
-            }
-          />
-        </div>
-      )}
-      {ENABLE_STRIPE && <div className="column">{<WalletFiatBalance />}</div>}
+              ) : isSigningIn ? (
+                <div>
+                  <I18nMessage
+                    tokens={{
+                      text: <p>Odysee is signing you in to your Wander wallet. Please wait...</p>,
+                      status: (
+                        <a
+                          className="link"
+                          onClick={() => {
+                            window.wanderInstance.open();
+                          }}
+                        >
+                          Check status
+                        </a>
+                      ),
+                    }}
+                  >
+                    {`%text% %status%`}
+                  </I18nMessage>
+                </div>
+              ) : !hasArConnection ? (
+                <div>
+                  <I18nMessage
+                    tokens={{
+                      text: <p>To use AR on Odysee, the Wander wallet must be connected.</p>,
+                      link: (
+                        <a
+                          className="link"
+                          onClick={() => doArConnect()}
+                        >
+                          Connect now
+                        </a>
+                      ),
+                      login: (
+                        <a className="link" onClick={() => window.wanderInstance.open()}>
+                          change login
+                        </a>
+                      ),
+                    }}
+                  >
+                    {`%text% %link%${!isWanderApp ? ' or %login%.' : ''}`}
+                  </I18nMessage>
+                </div>
+              ) : (
+                <>
+                  <h2 className="section__title--small">
+                    <I18nMessage
+                      tokens={{
+                        ar_amount: <Symbol token="ar" amount={arBalance} precision={6} />,
+                      }}
+                    >
+                      %ar_amount%
+                    </I18nMessage>
+                  </h2>
+                  <h2 className="section__title--small">
+                    <img src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp" />
+                    AR Price: ${Number(arStatus.exchangeRates.ar).toFixed(2)} USD
+                  </h2>
+                  
+                </>
+              )}
+
+              <div className="section__actions">
+                <Button
+                  button="secondary"
+                  label={__(`Deposit${!isMobile ? ' Funds' : ''}`)}
+                  icon={ICONS.BUY}
+                  navigate={`/$/${PAGES.ARACCOUNT}?tab=buy`}
+                  disabled={!hasArSignin || !hasArConnection}
+                />
+                <Button
+                  button="secondary"
+                  label={__(`${!isMobile ? 'Arweave ' : ''}Account`)}
+                  icon={ICONS.SETTINGS}
+                  navigate={`/$/${PAGES.ARACCOUNT}`}
+                  disabled={!hasArSignin || !hasArConnection}
+                />
+                <Button
+                  button="secondary"
+                  label={__('Wallet')}
+                  icon={ICONS.WANDER}
+                  onClick={() => window.wanderInstance.open()}
+                  disabled={!hasArConnection || walletType === 'extension'}
+                />
+              </div>
+            </>
+          }
+        />
+      </div>
+
+      {/* ENABLE_STRIPE && <div className="column">{<WalletFiatBalance />}</div> */}
     </div>
   );
 };

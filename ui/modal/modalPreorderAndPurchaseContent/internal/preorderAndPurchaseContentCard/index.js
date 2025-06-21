@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import {
   selectClaimForUri,
   selectPreorderTagForUri,
@@ -18,7 +19,8 @@ import { doHideModal } from 'redux/actions/app';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 import { doPurchaseClaimForUri } from 'redux/actions/wallet';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { withRouter } from 'react-router';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { getChannelIdFromClaim } from 'util/claim';
 import PreorderAndPurchaseContent from './view';
 
 const select = (state, props) => {
@@ -27,9 +29,14 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri, false);
   const { claim_id: claimId, value_type: claimType } = claim || {};
 
+  const channelClaimId = getChannelIdFromClaim(claim);
+  const tipData = selectArweaveTipDataForId(state, channelClaimId);
+  const canReceiveTips = tipData?.status === 'active' && tipData?.default;
+
   return {
     claimId,
     claimType,
+    canReceiveTips,
     preferredCurrency: selectPreferredCurrency(state),
     preorderTag: selectPreorderTagForUri(state, uri),
     purchaseTag: selectPurchaseTagForUri(state, uri),

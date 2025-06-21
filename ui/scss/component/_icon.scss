@@ -58,9 +58,14 @@
   width: fit-content;
   display: inline-block;
   line-height: 0;
-  margin-right: var(--spacing-xxs) !important;
+  margin-right: var(--spacing-xxxxs) !important;
   vertical-align: middle;
-  flex-shrink: 0;
+  flex-shrink: 0;  
+
+  svg{
+    width:20px;
+    height:20px;
+  }
 
   svg:nth-of-type(2) {
     position: absolute;
@@ -83,12 +88,15 @@
   margin-left: 4px;
 }
 
+/*
 .icon__symbol--after-text {
   margin-right: 2px;
 }
+*/
 
 .icon__symbol--title {
   margin-bottom: 4px;
+  margin-right: var(--spacing-xxs);
 }
 
 .icon__lbc {
@@ -100,7 +108,7 @@
 }
 
 .icon__lbc--after-text {
-  margin-right: 2px;
+  margin-right: var(--spacing-xxxxs)
 }
 
 .icon__lbc--title {

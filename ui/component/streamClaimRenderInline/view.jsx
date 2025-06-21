@@ -51,7 +51,7 @@ class StreamClaimRenderInline extends React.PureComponent<Props, State> {
 
     (this: any).escapeListener = this.escapeListener.bind(this);
     this.state = { prevUri: undefined };
-  }
+  }    
 
   componentDidMount() {
     const { renderMode, embedded, doAnalyticsViewForUri, uri, claimRewards, streamingUrl } = this.props;

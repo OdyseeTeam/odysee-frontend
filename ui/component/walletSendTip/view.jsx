@@ -1,30 +1,29 @@
 // @flow
 import React from 'react';
-import { ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
-import { Form } from 'component/common/form';
-import LbcMessage from 'component/common/lbc-message';
+import { ENABLE_STRIPE, ENABLE_ARCONNECT, ENABLE_STABLECOIN } from 'config';
 import { Lbryio } from 'lbryinc';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import { Form } from 'component/common/form';
+import LbcMessage from 'component/common/lbc-message';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
-import classnames from 'classnames';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
-import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
+import WalletStatus from 'component/walletStatus';
+import usePersistedState from 'effects/use-persisted-state';
+import { useArStatus } from 'effects/use-ar-status';
 import withCreditCard from 'hocs/withCreditCard';
+import classnames from 'classnames';
+
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
-
-const TAB_BOOST = 'TabBoost';
-const TAB_FIAT = 'TabFiat';
-const TAB_USDC = 'TabUSDC';
-const TAB_LBC = 'TabLBC';
 
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
@@ -43,6 +42,8 @@ type Props = {
   instantTipEnabled: boolean,
   instantTipMax: { amount: number, currency: string },
   isPending: boolean,
+  isArweaveTipping: boolean,
+  arweaveTippingError: string,
   isSupport: boolean,
   title: string,
   uri: string,
@@ -74,7 +75,10 @@ type Props = {
   setAmount?: (number, string) => void,
   preferredCurrency: string,
   modalProps?: any,
-  arweaveTipData?: ArweaveTipDataForId, //
+  canReceiveTips?: boolean,
+  arweaveTipData?: ArweaveTipDataForId,
+  doTipAccountCheckForUri: () => void,
+  checkingAccount: boolean,
 };
 
 export default function WalletSendTip(props: Props) {
@@ -92,6 +96,8 @@ export default function WalletSendTip(props: Props) {
     instantTipEnabled,
     instantTipMax,
     isPending,
+    isArweaveTipping,
+    arweaveTippingError,
     title,
     uri,
     isTipOnly,
@@ -104,18 +110,24 @@ export default function WalletSendTip(props: Props) {
     setAmount,
     preferredCurrency,
     modalProps,
+    canReceiveTips,
     arweaveTipData,
     doArTip,
     doToast,
     doArConnect,
+    doTipAccountCheckForUri,
+    checkingAccount,
   } = props;
 
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
+  const {
+    activeArStatus
+  } = useArStatus();
 
-  const arweaveTipEnabled = arweaveTipData && arweaveTipData.status === 'active';
+  const showStablecoin = ENABLE_STABLECOIN && experimentalUi;
+  const showArweave = ENABLE_ARCONNECT;
   /** WHAT TAB TO SHOW **/
   // if it's your content, we show boost, otherwise default is LBC
-  const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
+  const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_USD;
 
   // loads the default tab if nothing else is there yet
   const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', defaultTabToShow);
@@ -143,9 +155,6 @@ export default function WalletSendTip(props: Props) {
       : boostThisContentText
     : __('Leave a tip for the creator');
 
-  // just do this always or check connection somehow?
-  doArConnect();
-
   let channelName;
   try {
     ({ channelName } = parseURI(uri));
@@ -159,6 +168,7 @@ export default function WalletSendTip(props: Props) {
       break;
     case TAB_FIAT:
     case TAB_LBC:
+    case TAB_USD:
       // explainerText = __('Show this creator your appreciation by sending a donation.');
       break;
   }
@@ -238,7 +248,7 @@ export default function WalletSendTip(props: Props) {
     }
 
     // send an instant tip (no need to go to an exchange first)
-    if (instantTipEnabled && activeTab !== TAB_FIAT) {
+    if (instantTipEnabled && activeTab !== TAB_FIAT && activeTab !== TAB_USD) {
       if (instantTipMax.currency === 'LBC') {
         sendSupportOrConfirm(instantTipMax.amount);
       } else {
@@ -266,30 +276,42 @@ export default function WalletSendTip(props: Props) {
           stripeEnvironment,
           preferredCurrency
         );
-        doHideModal();
       }
       // if it's a boost (?)
-    } else if (activeTab === TAB_USDC) {
+    } else if (activeTab === TAB_USDC || activeTab === TAB_USD) {
       if (!isOnConfirmationPage) {
         setConfirmationPage(true);
       } else {
         const arweaveTipAddress = arweaveTipData.address;
+        const currencyToUse = activeTab === TAB_USD ? 'AR' : 'USD';
         const tipParams: TipParams = {
           tipAmountTwoPlaces: tipAmount,
           tipChannelName: tipChannelName || '',
           channelClaimId: channelClaimId || '',
           recipientAddress: arweaveTipAddress,
+          currency: currencyToUse,
         };
         const userParams: UserParams = { activeChannelName, activeChannelId };
 
         // hit backend to send tip
-        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, 'USD').catch((e) => {
-          console.error(e);
-          doToast({
-            message: __('Tip failed to send.'),
-            subMessage: e?.message || e,
-            isError: true,
-          });
+        doArTip(tipParams, !activeChannelId || incognito, userParams, claimId, stripeEnvironment, currencyToUse)
+          .then(r => {
+            if (r.error) {
+              throw new Error(r.error);
+            }
+            doToast({
+              message: __('Tip sent!'),
+            });
+            doHideModal();
+          }).catch((e) => {
+            console.error(e);
+            doToast({
+              message: __('Tip failed to send.'),
+              subMessage: e?.message || e,
+              isError: true,
+            });
+          throw new Error(e?.message || e);
+            // don't close yet: remove doHideModal()
         });
       }
     } else {
@@ -321,12 +343,18 @@ export default function WalletSendTip(props: Props) {
         return titleText;
       case TAB_FIAT:
         return __('Send a %amount% Tip', { amount: `${fiatSymbolToUse}${displayAmount}` });
+      case TAB_USD:
+        return __('Send a %amount% Tip', { amount: `${displayAmount} USD` });
       case TAB_LBC:
         return __('Send a %amount% Tip', { amount: `${displayAmount} LBC` });
       default:
         return titleText;
     }
   }
+
+  React.useEffect(() => {
+    doTipAccountCheckForUri(uri);
+  }, [doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
     if (!hasSelected && hasSelectedTab) {
@@ -357,9 +385,12 @@ export default function WalletSendTip(props: Props) {
             {!claimIsMine && (
               <div className="section">
                 {showArweave && (
+                  <TabSwitchButton icon={ICONS.USD} label={__('Tip')} name={TAB_USD} {...tabButtonProps} />
+                )}
+                {showStablecoin && (
                   <TabSwitchButton icon={ICONS.USDC} label={__('Tip')} name={TAB_USDC} {...tabButtonProps} />
                 )}
-                {ENABLE_STRIPE && stripeEnvironment && (
+                {ENABLE_STRIPE && stripeEnvironment && false && (
                   <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
                 )}
 
@@ -394,6 +425,8 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">
                     {activeTab === TAB_USDC ? (
                       <p>{`${ICONS.USDC} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    ) : activeTab === TAB_USD ? (
+                      <p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : activeTab === TAB_FIAT ? (
                       <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
                     ) : (
@@ -410,43 +443,57 @@ export default function WalletSendTip(props: Props) {
                     autoFocus
                     onClick={handleSubmit}
                     button="primary"
-                    disabled={isPending}
-                    label={__('Confirm')}
+                    disabled={isArweaveTipping}
+                    label={arweaveTippingError ? __('Retry') : __('Confirm')} // only disable if tipping.
                   />
                 )}
                 <Button button="link" label={__('Cancel')} onClick={() => setConfirmationPage(false)} />
               </div>
+              {arweaveTippingError && <div className={'error'}>{arweaveTippingError}</div>}
             </>
           ) : !((activeTab === TAB_LBC || activeTab === TAB_BOOST) && balance === 0) ? (
             <>
-              <ChannelSelector />
-
-              {/* section to pick tip/boost amount */}
-              <WalletTipAmountSelector
-                setTipError={setTipError}
-                tipError={tipError}
-                uri={uri}
-                activeTab={activeTab === TAB_BOOST ? TAB_LBC : activeTab}
-                amount={tipAmount}
-                onChange={(amount) => setTipAmount(amount)}
-                setDisableSubmitButton={setDisableSubmitButton}
-                modalProps={modalProps}
-              />
-
-              {/* send tip/boost button */}
-              <div className="section__actions">
-                <Button
-                  autoFocus
-                  icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
-                  button="primary"
-                  type="submit"
-                  disabled={
-                    fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton || !arweaveTipEnabled
-                  }
-                  label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
-                />
-                {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
-              </div>
+              {activeTab === TAB_USD && (
+                !canReceiveTips ? (
+                  <div className="monetization-disabled">USD Monetization isn't available. It may not be set up yet or has been disabled by the creator.</div>
+                ) : activeArStatus !== 'connected' ? (
+                  <WalletStatus />
+                ) : (
+                  <>
+                    <ChannelSelector />
+                    <WalletTipAmountSelector
+                      setTipError={setTipError}
+                      tipError={tipError}
+                      uri={uri}
+                      activeTab={activeTab === TAB_BOOST ? TAB_LBC : activeTab}
+                      amount={tipAmount}
+                      onChange={(amount) => setTipAmount(amount)}
+                      setDisableSubmitButton={setDisableSubmitButton}
+                      modalProps={modalProps}
+                      exchangeRateOverride={undefined}
+                    />
+                    <div className="section__actions">
+                      <Button
+                        autoFocus
+                        icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
+                        button="primary"
+                        type="submit"
+                        disabled={
+                          checkingAccount ||
+                          fetchingChannels ||
+                          isPending ||
+                          tipError ||
+                          !tipAmount ||
+                          disableSubmitButton ||
+                          !canReceiveTips
+                        }
+                        label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
+                      />
+                      {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
+                    </div>
+                  </>
+                )
+              )}
             </>
           ) : (
             // if it's LBC and there is no balance, you can prompt to purchase LBC
@@ -507,6 +554,6 @@ const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
 
 const SubmitCashTipButton = withCreditCard(
   ({ isPending, handleSubmit }: { isPending: boolean, handleSubmit: () => void }) => (
-    <Button autoFocus disabled={isPending} onClick={handleSubmit} button="primary" label={__('Confirm')} />
+    <Button autoFocus disabled={false} onClick={handleSubmit} button="primary" label={isPending ? __('Retry') : __('ConfirmC')} />
   )
 );

@@ -268,6 +268,16 @@
     margin-top: Var(--spacing-xs);
   }
 
+  .card__main-actions{
+    .monetization-disabled{
+      border-radius: var(--border-radius);
+      padding:var(--spacing-s);
+      border: 1px solid var(--color-text-error);
+      background: rgba(218,4,4,.1);
+      text-align:center;
+    }
+  }
+
   svg.icon--DollarSign {
     width: 16px;
     height: 16px;

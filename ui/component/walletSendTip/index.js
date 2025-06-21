@@ -15,9 +15,11 @@ import { withRouter } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 import WalletSendTip from './view';
-import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
+import { selectAccountCheckIsFetchingForId, selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { doArConnect, doArTip } from 'redux/actions/arwallet';
-import { doToast } from '../../redux/actions/notifications';
+import { doToast } from 'redux/actions/notifications';
+import { selectArweaveTippingErrorForId, selectArweaveTippingStartedForId } from 'redux/selectors/arwallet';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -31,6 +33,9 @@ const select = (state, props) => {
 
   const activeChannelClaim = selectActiveChannelClaim(state);
   const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
+
+  const tipData = selectArweaveTipDataForId(state, channelClaimId);
+  const canReceiveTips = tipData?.status === 'active' && tipData?.default;
 
   return {
     activeChannelName,
@@ -49,7 +54,11 @@ const select = (state, props) => {
     title: selectTitleForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
     experimentalUi: selectUserExperimentalUi(state),
-    arweaveTipData: selectArweaveTipDataForId(state, claimId),
+    canReceiveTips,
+    arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
+    isArweaveTipping: selectArweaveTippingStartedForId(state, claimId),
+    arweaveTippingError: selectArweaveTippingErrorForId(state, claimId),
+    checkingAccount: selectAccountCheckIsFetchingForId(state, claimId),
   };
 };
 
@@ -60,6 +69,7 @@ const perform = {
   doArTip,
   doToast,
   doArConnect,
+  doTipAccountCheckForUri,
 };
 
 export default withRouter(connect(select, perform)(WalletSendTip));

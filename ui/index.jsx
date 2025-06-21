@@ -249,9 +249,6 @@ function AppWrapper() {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
-        // account status
-        app.store.dispatch(doTipAccountStatus());
-        // extension installed?
         // if EXPERIMENTAL connect to arconnect
         app.store.dispatch(doUpdateIsNightAsync());
         app.store.dispatch(doBlackListedOutpointsSubscribe());

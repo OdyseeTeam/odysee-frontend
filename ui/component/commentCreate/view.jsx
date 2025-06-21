@@ -25,15 +25,20 @@ import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 import './style.lazy.scss';
 
 const stripeEnvironment = getStripeEnvironment();
 
-const TAB_LBC = 'TabLBC';
-const TAB_USDC = 'TabUSDC';
-const TAB_FIAT = 'TabFiat';
-
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type ArTipParams = {
+  tipAmountTwoPlaces: number,
+  tipChannelName: string,
+  channelClaimId: string,
+  recipientAddress: string,
+  currency: string,
+};
+
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
 type Props = {
@@ -80,7 +85,7 @@ type Props = {
     (any) => void
   ) => string,
   doArTip: (
-    TipParams,
+    ArTipParams,
     anonymous: boolean,
     UserParams,
     claimId: string,
@@ -110,6 +115,7 @@ type Props = {
   isLivestreamChatMembersOnly: boolean,
   areCommentsMembersOnly: boolean,
   hasPremiumPlus: boolean,
+  arweaveTippingError: string,
 };
 
 export function CommentCreate(props: Props) {
@@ -162,6 +168,7 @@ export function CommentCreate(props: Props) {
     isLivestreamChatMembersOnly,
     areCommentsMembersOnly,
     hasPremiumPlus,
+    arweaveTippingError,
   } = props;
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
@@ -219,7 +226,8 @@ export function CommentCreate(props: Props) {
   const minAmountMet =
     (activeTab !== TAB_LBC && activeTab !== TAB_FIAT && !minTip && !minUSDCTip) ||
     (activeTab === TAB_LBC && tipAmount >= minAmount) ||
-    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount);
+    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
+    (activeTab === TAB_USD && tipAmount >= minUSDCAmount);
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
   const fiatIcon = STRIPE.CURRENCY[preferredCurrency].icon;
@@ -433,7 +441,7 @@ export function CommentCreate(props: Props) {
         }
 
         // look, this is crazy complex. I just put the dry run inside doSendTip() for USDC instead of here.
-        if (activeTab === TAB_USDC) {
+        if (activeTab === TAB_USDC || activeTab === TAB_USD) {
           doSubmitTip();
           return;
         }
@@ -493,13 +501,15 @@ export function CommentCreate(props: Props) {
         false,
         'comment'
       );
-    } else if (activeTab === TAB_USDC) {
+    } else if (activeTab === TAB_USDC || activeTab === TAB_USD) {
       const arweaveTipAddress = recipientArweaveTipInfo && recipientArweaveTipInfo.address;
-      const tipParams: TipParams = {
+      const transactionCurrency = activeTab === TAB_USD ? 'AR' : 'USD';
+      const tipParams: ArTipParams = {
         tipAmountTwoPlaces: Math.round(tipAmount * 100) / 100,
         tipChannelName,
         channelClaimId,
         recipientAddress: arweaveTipAddress,
+        currency: transactionCurrency,
       };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
 
@@ -513,15 +523,18 @@ export function CommentCreate(props: Props) {
         payment_tx_id: 'dummy_txid',
         environment: stripeEnvironment,
         is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-        amount: 1,
-        currency: 'USD',
+        amount: 1, // dummy amount
+        currency: transactionCurrency, // AR
         dry_run: true,
       };
       doCommentCreate(uri, isLivestream, dryRunCommentParams)
-        .then((res) => {
+        .then((res: { }) => {
           if (res && res.signature) {
+            // tell apis about a tip, get a token and amount
+            // make transaction
+            // notify transaction id
             doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment)
-              .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string }) => {
+              .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string, error?: string }) => {
                 if (arTipResponse.error) {
                   throw new Error(arTipResponse.error);
                 }
@@ -529,7 +542,7 @@ export function CommentCreate(props: Props) {
                 const params = Object.assign({}, dryRunCommentParams);
                 params.payment_tx_id = transferTxid;
                 params.dryrun = undefined;
-                params.amount = tipAmount;
+                params.amount = tipAmount; // dollars
 
                 // ...
                 handleCreateComment(null, null, transferTxid, stripeEnvironment);
@@ -546,6 +559,7 @@ export function CommentCreate(props: Props) {
                   subMessage: e?.message || e,
                   isError: true,
                 });
+                setSubmitting(false);
                 console.log('doartip e', e);
               });
           }
@@ -557,6 +571,7 @@ export function CommentCreate(props: Props) {
             isError: true,
           });
           console.log('do commentcreate e', e);
+          setSubmitting(false);
         });
     } else {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
@@ -628,8 +643,8 @@ export function CommentCreate(props: Props) {
       environment,
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-      amount: !!txid || !!payment_intent_id ? tipAmount : undefined,
-      currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : undefined,
+      amount: !!txid || !!payment_intent_id || !!payment_tx_id ? tipAmount : undefined,
+      currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : activeTab === TAB_USD ? 'AR' : undefined,
       dry_run: dryRun,
     })
       .then((res) => {
@@ -844,14 +859,17 @@ export function CommentCreate(props: Props) {
         {isReviewingSupportComment ? (
           activeChannelUrl &&
           activeTab && (
-            <TipReviewBox
-              activeChannelUrl={activeChannelUrl}
-              tipAmount={tipAmount}
-              activeTab={activeTab}
-              message={commentValue}
-              isReviewingStickerComment={isReviewingStickerComment}
-              stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
-            />
+            <>
+              <TipReviewBox
+                activeChannelUrl={activeChannelUrl}
+                tipAmount={tipAmount}
+                activeTab={activeTab}
+                message={commentValue}
+                isReviewingStickerComment={isReviewingStickerComment}
+                stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
+              />
+              { arweaveTippingError && <div className={'error'}>{arweaveTippingError}</div> }
+            </>
           )
         ) : selectedSticker ? (
           activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
@@ -940,14 +958,14 @@ export function CommentCreate(props: Props) {
                     label={
                       isSubmitting
                         ? __('Sending...')
-                        : commentFailure && tipAmount === successTip.tipAmount
+                        : (commentFailure || arweaveTippingError) && tipAmount === successTip.tipAmount
                         ? __('Re-submit')
                         : __('Send')
                     }
                     onClick={handleSupportComment}
                   />
                 )}
-                {activeTab === TAB_USDC && (
+                {(activeTab === TAB_USDC || activeTab === TAB_USD) && (
                   <Button
                     {...submitButtonProps}
                     autoFocus
@@ -955,7 +973,7 @@ export function CommentCreate(props: Props) {
                     label={
                       isSubmitting
                         ? __('Sending...')
-                        : commentFailure && tipAmount === successTip.tipAmount
+                        : (commentFailure) && tipAmount === successTip.tipAmount
                         ? __('Re-submit')
                         : __('Send')
                     }
@@ -1048,10 +1066,11 @@ export function CommentCreate(props: Props) {
                 {!supportDisabled && !claimIsMine && (
                   <>
                     {showArweave && (
-                      <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
+                      // <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
+                      <TipActionButton {...tipButtonProps} name={__('AR')} icon={ICONS.USD} tab={TAB_USD} />
                     )}
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
-                    {ENABLE_STRIPE && stripeEnvironment && (
+                    {false && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                     )}
                   </>

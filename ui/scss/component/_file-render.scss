@@ -158,6 +158,7 @@
       .media__subtitle {
         .claim-preview__channel-sub-count {
           font-size: var(--font-xsmall) !important;
+          margin-bottom: 4px;
           @media (max-width: $breakpoint-small) {
             font-size: var(--font-xxsmall) !important;
           }

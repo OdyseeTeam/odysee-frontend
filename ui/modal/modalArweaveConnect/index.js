@@ -4,10 +4,16 @@ import { doHideModal, doOpenModal } from 'redux/actions/app';
 import { doArConnect, doArDisconnect } from 'redux/actions/arwallet';
 import {
   selectAPIArweaveDefaultAddress,
-  selectArAccountUpdating,
+  selectArAccountRegistering,
+  selectArAccountRegisteringError,
   selectFullAPIArweaveStatus,
 } from 'redux/selectors/stripe';
-import { doRegisterArweaveAddress, doUpdateArweaveAddressDefault } from 'redux/actions/stripe';
+import {
+  doRegisterArweaveAddress,
+  doRegisterArweaveAddressClear,
+  doUpdateArweaveAddressDefault,
+} from 'redux/actions/stripe';
+import { selectArweaveConnecting } from 'redux/selectors/arwallet';
 
 const select = (state) => ({
   connecting: state.arwallet.connecting,
@@ -16,7 +22,10 @@ const select = (state) => ({
   fullAPIArweaveStatus: selectFullAPIArweaveStatus(state),
   walletAddress: state.arwallet.address,
   walletBalance: state.arwallet.balance,
-  isArAccountUpdating: selectArAccountUpdating(state),
+  isArAccountRegistering: selectArAccountRegistering(state),
+  arAccountRegisteringError: selectArAccountRegisteringError(state),
+  isConnecting: selectArweaveConnecting(state),
+  fullArweaveStatusArray: selectFullAPIArweaveStatus(state),
 });
 
 const perform = {
@@ -26,6 +35,7 @@ const perform = {
   doArDisconnect,
   doRegisterArweaveAddress,
   doUpdateArweaveAddressDefault,
+  doRegisterArweaveAddressClear,
 };
 
 export default connect(select, perform)(ModalArweaveConnect);

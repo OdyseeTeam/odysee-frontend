@@ -9,11 +9,9 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
-const TAB_USDC = 'TabUSDC';
-const TAB_FIAT = 'TabFiat';
-const TAB_LBC = 'TabLBC';
 
 type Props = {
   uri: string,
@@ -21,6 +19,7 @@ type Props = {
   amount: number,
   LBCBalance: number,
   USDCBalance: number,
+  arBalance: number,
   claim: StreamClaim,
   convertedAmount?: number,
   customTipAmount?: number,
@@ -38,6 +37,9 @@ type Props = {
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
   doArConnect: () => void,
+  dollarsPerAr: number,
+  arExchangeRate: any;
+  exchangeRateOverride?: number,
 };
 
 function WalletTipAmountSelector(props: Props) {
@@ -47,6 +49,7 @@ function WalletTipAmountSelector(props: Props) {
     amount,
     LBCBalance,
     USDCBalance,
+    arBalance,
     claim,
     convertedAmount,
     customTipAmount,
@@ -63,13 +66,19 @@ function WalletTipAmountSelector(props: Props) {
     preferredCurrency,
     doTipAccountCheckForUri,
     doArConnect,
+    dollarsPerAr,
+    arExchangeRate,
+    exchangeRateOverride,
   } = props;
+  
 
+  const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
 
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
+  const amountInArEstimated = (amount / arExchangeRate?.ar).toFixed(6);
 
   const tipAmountsToDisplay =
     customTipAmount && fiatConversion && activeTab === TAB_FIAT
@@ -82,6 +91,8 @@ function WalletTipAmountSelector(props: Props) {
   const shouldDisableFiatSelectors = activeTab === TAB_FIAT && !canReceiveFiatTips;
   const shouldDisableUSDCSelectors =
     activeTab === TAB_USDC && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
+  const shouldDisableARSelectors =
+    activeTab === TAB_USD && (!arweaveTipData || (arweaveTipData && arweaveTipData.status !== 'active'));
 
   /**
    * whether tip amount selection/review functionality should be disabled
@@ -89,15 +100,19 @@ function WalletTipAmountSelector(props: Props) {
    * @returns {boolean}
    */
   function shouldDisableAmountSelector(amount: number) {
-    const isLBCCondition = activeTab === 'TabLBC' && (amount > LBCBalance || LBCBalance === 0);
-    const isUSDCCondition = activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0);
+    const isLBCCondition = activeTab === TAB_LBC && (amount > LBCBalance || LBCBalance === 0);
+    const isUSDCCondition = activeTab === TAB_USDC && (amount > USDCBalance || USDCBalance === 0);
+    // const isARCondition = activeTab === TAB_USD && (amount > arBalance || arBalance === 0);
+    const isARCondition = activeTab === TAB_USD && (amount > USDBalance || USDBalance === 0);
+
     const isNotFiatTab = activeTab !== TAB_FIAT;
 
     // if it's LBC but the balance isn't enough, or fiat conditions met
     // $FlowFixMe
     return (
-      ((isLBCCondition || isUSDCCondition) && isNotFiatTab) ||
+      ((isLBCCondition || isUSDCCondition || isARCondition) && isNotFiatTab) ||
       shouldDisableFiatSelectors ||
+      shouldDisableARSelectors ||
       shouldDisableUSDCSelectors ||
       (customTipAmount &&
         fiatConversion &&
@@ -132,12 +147,6 @@ function WalletTipAmountSelector(props: Props) {
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
-    if (activeTab === TAB_USDC) {
-      doArConnect();
-    }
-  }, [activeTab, doArConnect]);
-
-  React.useEffect(() => {
     let regexp;
 
     if (amount === 0) {
@@ -158,6 +167,8 @@ function WalletTipAmountSelector(props: Props) {
           setTipError(__('Not enough Credits'));
         } else if (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)) {
           setTipError(__('Not enough USDC'));
+        } else if (activeTab === 'TabUSD' && (!arBalance || amountInArEstimated > arBalance)) {
+          setTipError(__('Insufficient AR Balance'));
         } else if (amount < MINIMUM_PUBLISH_BID) {
           setTipError(__('Amount must be higher'));
         } else if (
@@ -204,7 +215,7 @@ function WalletTipAmountSelector(props: Props) {
         }
       }
     }
-  }, [activeTab, amount, LBCBalance, USDCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
+  }, [activeTab, amount, LBCBalance, arBalance, USDCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
 
   if (!claim) return null;
 
@@ -232,7 +243,15 @@ function WalletTipAmountSelector(props: Props) {
                   (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+              icon={
+                activeTab === TAB_USDC
+                  ? ICONS.USDC
+                  : activeTab === TAB_USD
+                  ? ICONS.USD
+                  : activeTab === TAB_LBC
+                  ? ICONS.LBC
+                  : ICONS.USD
+              } /* here */
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
@@ -246,7 +265,15 @@ function WalletTipAmountSelector(props: Props) {
           className={classnames('button-toggle button-toggle--expandformobile', {
             'button-toggle--active': useCustomTip,
           })}
-          icon={activeTab === TAB_USDC ? ICONS.USDC : activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+          icon={
+            activeTab === TAB_USDC
+              ? ICONS.USDC
+              : activeTab === TAB_USD
+              ? ICONS.USD
+              : activeTab === TAB_LBC
+              ? ICONS.LBC
+              : ICONS.USD
+          }
           label={__('Custom')}
           onClick={() => setUseCustomTip(true)}
         />
@@ -275,7 +302,7 @@ function WalletTipAmountSelector(props: Props) {
 
       {/* custom number input form */}
       {useCustomTip && (
-        <div className="walletTipSelector__input">
+        <div className="walletTipSelector__input">          
           <FormField
             autoFocus={!isMobile}
             name="tip-input"
@@ -285,10 +312,17 @@ function WalletTipAmountSelector(props: Props) {
             min="0"
             step="any"
             type="number"
-            placeholder="1.23"
+            className={activeTab === 'TabUSD' ? 'usd-tip' : ''}
+            prefix={activeTab === 'TabUSD' ? '$' : null}
+            placeholder={'1.23'}
             value={amount}
             onChange={(event) => handleCustomPriceChange(event.target.value)}
-          />
+          />{' '}
+          {activeTab === TAB_USD ? (
+            <span className={'walletTipSelector__input-conversion help'}>
+              ({amountInArEstimated} AR)
+            </span>
+          ) : ''}
         </div>
       )}
       {activeTab === TAB_USDC &&
@@ -297,6 +331,10 @@ function WalletTipAmountSelector(props: Props) {
 
       {activeTab === TAB_USDC && arweaveTipData && arweaveTipData.status === 'active' && (
         <WalletSpendableBalanceHelp asset="usdc" />
+      )}
+
+      {activeTab === TAB_USD && arweaveTipData && arweaveTipData.status === 'active' && (
+        <WalletSpendableBalanceHelp asset="ar" />
       )}
 
       {/* lbc tab */}

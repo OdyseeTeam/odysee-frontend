@@ -367,7 +367,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       !hideJoin &&
       (!banState.muted || showUserBlocked) && (
         <div className={'membership-button-wrapper' + (type ? ' ' + type : '')}>
-          <JoinMembershipButton uri={uri} />
+          <JoinMembershipButton uri={uri}  />
         </div>
       ),
     [banState.muted, claimIsMine, hideJoin, isChannelUri, showUserBlocked, type, uri]
@@ -609,7 +609,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
             {type !== 'small' && (!pending || !type) && isChannelUri && (
               <div className="claim-preview__actions">
-                {!hideJoin && <JoinButton />}
+                {!hideJoin && <JoinButton uri={uri} />}
                 {!pending && (
                   <>
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (

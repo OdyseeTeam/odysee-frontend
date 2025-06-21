@@ -139,17 +139,16 @@
 
 .MuiDrawer-root {
   .comment-create__min-amount-notice {
-    margin: 2px;
+    display:flex;
+    justify-content: center;
+    align-items: center;
     margin-left: var(--spacing-xxxs);
     margin-right: var(--spacing-xxxs);
-    padding: var(--spacing-xxs);
-    text-align: center !important;
     .credit-amount {
       font-size: var(--font-xsmall);
     }
 
     @media (max-width: $breakpoint-small) {
-      padding-top: calc(var(--spacing-xs) + 3px);
       font-size: var(--font-xsmall);
     }
   }
@@ -275,7 +274,6 @@
 }
 
 .MuiPaper-root {
-  //background-color:rgba(var(--color-header-background-base),1);
   background-color: var(--mui-background);
   .form-field__two-column {
     display: flex;
@@ -284,20 +282,6 @@
     border-top: 1px solid var(--color-border);
     border-bottom: 1px solid var(--color-border);
   }
-  /*
-  .card {
-    &:not(.playlist-card--drawer-header) {
-      padding: var(--spacing-xxs) !important;
-      padding-bottom: 0 !important;
-      @media (max-width: $breakpoint-small) {
-        padding-top: 1px !important;
-      }
-      .card__main-actions {
-        padding-top: 0;
-      }
-    }
-  }
-  */
   .card::-webkit-scrollbar {
     width: 2px !important;
     height: 6px;

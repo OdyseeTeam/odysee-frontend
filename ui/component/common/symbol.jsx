@@ -1,8 +1,9 @@
 // @flow
-import * as ICONS from 'constants/icons';
 import React from 'react';
-import classnames from 'classnames';
+import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import Counter from 'component/counter';
+import classnames from 'classnames';
 
 type Props = {
   withText?: boolean,
@@ -12,10 +13,13 @@ type Props = {
   token?: string,
   chain?: string,
   precision?: number,
+  counter?: boolean,
 };
 
 const Symbol = (props: Props) => {
-  const { token, chain, amount = null, precision = 8, size, isTitle = false } = props;
+  const { token, chain, amount = null, precision = 8, size, isTitle = false, counter = false } = props;
+  const displayAmount = Number(amount).toFixed(precision);
+  const displayLabel = token !== 'wallet' && token !== null ? ` ${token?.toUpperCase()}` : token === 'wallet' ? ' USD' : null;
 
   return (
     <>
@@ -28,15 +32,17 @@ const Symbol = (props: Props) => {
           icon={token ? ICONS[token.toUpperCase()] : ICONS.LBC}
           size={isTitle ? 22 : size}
           className={classnames('icon__symbol', {
-            'icon__symbol--after-text': amount,
+            // 'icon__symbol--after-text': amount,
             'icon__symbol--title': isTitle,
           })}
         />
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
       </div>
-      <span>
-        {amount != null && Number(amount).toFixed(precision)}
-        {amount !== null && token && ` ${token.toUpperCase()}`}
+      <span>        
+        {amount !== null && (
+          counter ? <Counter value={displayAmount} precision={precision} /> : displayAmount
+        )}
+        {displayLabel}
       </span>
     </>
   );

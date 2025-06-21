@@ -213,7 +213,8 @@ export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async
     'post'
   ).then(() => dispatch(doGetCustomerStatus()));
 
-const registerAddress = async (address: string, makeDefault: boolean, currency = 'USD') => {
+// changed currency here to 'AR' because API will currently only return an ar amount to pay if so.
+const registerAddress = async (address: string, makeDefault: boolean, currency = 'AR') => {
   try {
     const pub_key = await window.arweaveWallet.getActivePublicKey();
     const data = new TextEncoder().encode(address);
@@ -221,16 +222,20 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     const hexSig = bufferToHex(signature);
     const params = { currency, pub_key, signature: hexSig };
     if (makeDefault) {
+      // $FlowIgnore
       params.default = true;
     }
     const res = await Lbryio.call('arweave/address', 'add', params, 'post');
+
+    console.log('REG RES: ', res)
     return res;
     // get public key
     // sign the address
     // send to api with
   } catch (e) {
     console.error(e);
-    throw e;
+    return null;
+    // throw e;
   }
 };
 
@@ -255,25 +260,32 @@ const updateDefault = async (id: string) => {
 };
 
 export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.AR_ADDR_REGISTER_STARTED });
+  dispatch({ type: ACTIONS.AR_ADDR_REGISTER_STARTED, data: address });
   try {
-    await registerAddress(address, makeDefault);
+    const res = await registerAddress(address, makeDefault);
+    if (res.error) {
+      throw new Error(res.error);
+    }
     await dispatch(doTipAccountStatus());
-    dispatch({ type: ACTIONS.AR_ADDR_REGISTER_SUCCESS });
+    dispatch({ type: ACTIONS.AR_ADDR_REGISTER_SUCCESS, data: address });
   } catch (e) {
     console.error(e);
     dispatch({ type: ACTIONS.AR_ADDR_REGISTER_ERROR, data: e?.message || e });
   }
 };
 
+export const doRegisterArweaveAddressClear = () => (dispatch) => {
+  dispatch({ type: ACTIONS.AR_ADDR_REGISTER_CLEAR });
+};
+
 export const doUpdateArweaveAddressStatus =
   (id: string, status: 'active' | 'inactive') => async (dispatch: Dispatch) => {
-    dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED });
+    dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED, data: id });
     try {
       await updateAddressStatus(id, status);
       // now do account status
       await dispatch(doTipAccountStatus());
-      dispatch({ type: ACTIONS.AR_ADDR_UPDATE_SUCCESS });
+      dispatch({ type: ACTIONS.AR_ADDR_UPDATE_SUCCESS, data: id });
     } catch (e) {
       console.error(e);
       dispatch({ type: ACTIONS.AR_ADDR_UPDATE_ERROR, data: e?.message || e });
@@ -281,12 +293,12 @@ export const doUpdateArweaveAddressStatus =
   };
 
 export const doUpdateArweaveAddressDefault = (id: string) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_STARTED });
+  dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_STARTED, data: id });
   try {
     await updateDefault(id);
 
     await dispatch(doTipAccountStatus());
-    dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_SUCCESS });
+    dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_SUCCESS, data: id });
   } catch (e) {
     console.error(e);
     dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_ERROR, data: e?.message || e });

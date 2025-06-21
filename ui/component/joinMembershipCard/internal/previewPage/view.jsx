@@ -1,21 +1,25 @@
 // @flow
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 import classnames from 'classnames';
 import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
+import ChannelThumbnail from 'component/channelThumbnail';
+import WalletStatus from 'component/walletStatus';
 import MembershipTier from './internal/membershipTier';
 import MembershipDetails from './internal/membershipDetails';
-import ChannelThumbnail from 'component/channelThumbnail';
-import * as MODALS from 'constants/modal_types';
+import { useArStatus } from 'effects/use-ar-status';
 
 import './style.scss';
+import Spinner from 'component/spinner';
 
 type Props = {
   uri: string,
-  selectedTier: CreatorMembership,
+  selectedCreatorMembership: CreatorMembership,
   selectedMembershipIndex: number,
   unlockableTierIds: Array<number>,
   userHasACreatorMembership: boolean,
@@ -26,6 +30,7 @@ type Props = {
   // -- redux --
   channelId: string,
   canReceiveFiatTips: ?boolean,
+  canReceiveArweaveTips: ?boolean,
   channelIsMine: boolean,
   creatorMemberships: CreatorMemberships,
   doTipAccountCheckForUri: (uri: string) => void,
@@ -33,12 +38,18 @@ type Props = {
   channelUri: string,
   channelName: string,
   doOpenModal: (id: string, props: {}) => void,
+  joinEnabled: boolean,
+  cheapestPlan: CreatorMembership,
+  arweaveWallets: any,
+  arweaveStatus: any,
+  exchangeRate: { ar: number },
+  isFetchingMemberships: boolean,
 };
 
 const PreviewPage = (props: Props) => {
   const {
     uri,
-    selectedTier,
+    selectedCreatorMembership,
     selectedMembershipIndex,
     unlockableTierIds,
     userHasACreatorMembership,
@@ -49,6 +60,7 @@ const PreviewPage = (props: Props) => {
     // -- redux --
     channelId,
     canReceiveFiatTips,
+    canReceiveArweaveTips,
     channelIsMine,
     creatorMemberships,
     doTipAccountCheckForUri,
@@ -56,26 +68,64 @@ const PreviewPage = (props: Props) => {
     channelUri,
     channelName,
     doOpenModal,
+    joinEnabled,
+    cheapestPlan,
+    isFetchingMemberships,
+    exchangeRate,
   } = props;
+
+  const {
+    activeArStatus,
+  } = useArStatus();
 
   const isChannelTab = React.useContext(ChannelPageContext);
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
-  const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false;
+  const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
 
   React.useEffect(() => {
-    if (canReceiveFiatTips === undefined) {
+    if (canReceiveFiatTips === undefined || canReceiveArweaveTips === undefined) {
       doTipAccountCheckForUri(uri);
     }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+  }, [canReceiveFiatTips, canReceiveArweaveTips, doTipAccountCheckForUri, uri]);
 
+  if (isFetchingMemberships) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
+  }
   if (!creatorHasMemberships) {
     // -- On a channel that is mine, the button uses the channel id to set it as active
     // when landing on the memberships page for the given channel --
+
+    // hack to test monetization disabled - memberships come back address = ''
+    if (cheapestPlan && !joinEnabled) {
+      return (
+        <div className="join-membership__empty">
+          <h2 className="header--no-memberships">{__('Closed to New Members')}</h2>
+          <p>
+            {__(
+              'Unfortunately, this membership is not accepting new members at this time.'
+            )}
+          </p>
+          <div>
+            <Button
+              icon={ICONS.MEMBERSHIP}
+              button="primary"
+              type="submit"
+              label={__(`Create Your Channel's Memberships`)}
+              navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+            />
+          </div>
+        </div>
+      );
+    }
     if (channelIsMine) {
       return (
         <div className="join-membership__empty">
-          <h2 className="header--no-memberships">{__('Channel Has No Memberships')}</h2>
+          <h2 className="header--no-memberships">{__('Cannot join own memberships')}</h2>
           <p>
             {__(
               "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
@@ -119,6 +169,7 @@ const PreviewPage = (props: Props) => {
   if (isChannelTab) {
     return (
       <>
+        <WalletStatus />
         {channelIsMine && (
           <div className="button--manage-memberships">
             <ButtonNavigateChannelId
@@ -133,18 +184,20 @@ const PreviewPage = (props: Props) => {
         )}
 
         <div className="join-membership__tab">
-          {creatorMemberships.map((membership, index) => (
+          {creatorMemberships.filter(m => m.enabled === true).map((membership, index) => (
             <MembershipTier
               membership={membership}
               handleSelect={() => {
                 setMembershipIndex(index);
-                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, passedTierIndex: index });
+                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, membershipId: membership.membership_id, passedTierIndex: index, isChannelTab: isChannelTab });
               }}
               index={index}
               length={creatorMemberships.length}
               key={index}
-              disabled={creatorPurchaseDisabled}
+              isOwnChannel={channelIsMine}
+              userHasCreatorMembership={userHasACreatorMembership} // here
               isChannelTab
+              disabled={activeArStatus !== 'connected'}
             />
           ))}
         </div>
@@ -177,30 +230,32 @@ const PreviewPage = (props: Props) => {
       </div>
 
       <div className="join-membership__modal-tabs">
-        {creatorMemberships.map(({ Membership }, index) => (
+        {creatorMemberships.map((m, index) => (
           <Button
-            key={Membership.id}
-            label={Membership.name}
+            key={m.membership_id}
+            label={m.name}
             button="alt"
-            icon={pickIconToUse(Membership.id)}
+            icon={pickIconToUse(m.membership_id)}
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
-              'no-access-button': unlockableTierIds && !unlockableTierIds.includes(Membership.id),
-              'access-button': unlockableTierIds && unlockableTierIds.includes(Membership.id),
+              'no-access-button': unlockableTierIds && !unlockableTierIds.includes(m.membership_id),
+              'access-button': unlockableTierIds && unlockableTierIds.includes(m.membership_id),
             })}
           />
         ))}
       </div>
 
       <div className="join-membership__modal-content">
-        <MembershipDetails
-          membership={selectedTier}
-          unlockableTierIds={unlockableTierIds}
-          userHasACreatorMembership={userHasACreatorMembership}
-          membersOnly={membersOnly}
-          isLivestream={isLivestream}
-        />
+        {selectedCreatorMembership && (
+          <MembershipDetails
+            membership={selectedCreatorMembership}
+            unlockableTierIds={unlockableTierIds}
+            userHasACreatorMembership={userHasACreatorMembership}
+            membersOnly={membersOnly}
+            isLivestream={isLivestream}
+          />
+        )}
       </div>
 
       <div className="join-membership__modal-action">
@@ -209,8 +264,8 @@ const PreviewPage = (props: Props) => {
           button="primary"
           type="submit"
           disabled={userHasACreatorMembership || creatorPurchaseDisabled}
-          label={__('Join for $%membership_price% per month', {
-            membership_price: selectedTier?.NewPrices[0]?.creator_receives_amount / 100,
+          label={__('Join X for $%membership_price% per month', {
+            membership_price: selectedCreatorMembership?.prices[0].amount / 100,
           })}
           requiresAuth
           onClick={handleSelect}
@@ -220,7 +275,7 @@ const PreviewPage = (props: Props) => {
           <span className="error-bubble">
             {channelIsMine
               ? __("You're not able to signup for your own memberships")
-              : __('This creator does not have an active bank account to receive payments.')}
+              : __("You're already a member.")}
           </span>
         )}
       </div>
