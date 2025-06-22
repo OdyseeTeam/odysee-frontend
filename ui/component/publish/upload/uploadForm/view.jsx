@@ -9,7 +9,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, SIMPLE_SITE } from 'config';
+import { SITE_NAME } from 'config';
 import React, { useEffect, useState } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
@@ -34,6 +34,7 @@ import { BITRATE } from 'constants/publish';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
+import * as TAGS from 'constants/tags';
 import Icon from 'component/common/icon';
 
 const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
@@ -459,15 +460,15 @@ function UploadForm(props: Props) {
             body={
               <div className="publish-row">
                 <TagsSelect
-                  suggestMature={!SIMPLE_SITE}
                   disableAutoFocus
                   hideHeader
                   label={__('Selected Tags')}
                   empty={__('No tags added')}
                   limitSelect={TAGS_LIMIT}
                   help={__(
-                    "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+                    "Add tags that are relevant to your content so those who're looking for it can find it more easily."
                   )}
+                  excludedControlTags={[TAGS.AGE_RESTRICED_CHANNEL_IMAGES_TAG]}
                   placeholder={__('gaming, crypto')}
                   onSelect={(newTags) => {
                     const validatedTags = [];

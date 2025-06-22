@@ -22,7 +22,7 @@ import analytics from 'analytics';
 import LbcSymbol from 'component/common/lbc-symbol';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
-import { SIMPLE_SITE, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { sortLanguageMap } from 'util/default-languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import Gerbil from 'component/channelThumbnail/gerbil.png';
@@ -479,7 +479,6 @@ function ChannelForm(props: Props) {
                 body={
                   <div className="publish-row">
                     <TagsSearch
-                      suggestMature={!SIMPLE_SITE}
                       disableAutoFocus
                       limitSelect={MAX_TAG_SELECT}
                       tagsPassedIn={params.tags || []}

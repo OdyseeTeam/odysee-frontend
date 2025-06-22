@@ -58,6 +58,10 @@ export const selectTheme = (state) => {
   return theme;
 };
 
+export const selectIsAgeRestrictedContentAllowed = (state) => {
+  return selectClientSetting(state, SETTINGS.AGE_RESTRICTED_CONTENT_ALLOWED);
+};
+
 export const selectAutomaticDarkModeEnabled = (state) =>
   selectClientSetting(state, SETTINGS.AUTOMATIC_DARK_MODE_ENABLED);
 export const selectIsNight = (state) => selectState(state).isNight;

@@ -6,6 +6,7 @@ import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
+import { selectIsAgeRestrictedContentAllowed } from 'redux/selectors/settings';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { ODYSEE_CHANNEL } from 'constants/channels';
@@ -55,6 +56,12 @@ export const selectLatestByUri = (state: State) => selectState(state).latestByUr
 export const selectResolvedCollectionsById = (state: State) => selectState(state).resolvedCollectionsById;
 export const selectMyCollectionClaimIds = (state: State) => selectState(state).myCollectionClaimIds;
 export const selectHasPublicationClaims = (state: State) => selectState(state).hasPublicationClaims;
+
+export const selectIsAgeRestrictedContentAllowedForClaimId = (state: State, claimId: string) => {
+  return (
+    Boolean(selectState(state).ageRestrictionAllowedByClaimId[claimId]) || selectIsAgeRestrictedContentAllowed(state)
+  );
+};
 
 export const selectMyCollectionClaimsById = createSelector(
   selectResolvedCollectionsById,

@@ -1638,7 +1638,7 @@
   "Syncing %total_videos% videos from your channel with %total_subs% subscriptions.": "Syncing %total_videos% videos from your channel with %total_subs% subscriptions.",
   "Confirm Your Age": "Confirm Your Age",
   "I confirm I am over 18 years old.": "I confirm I am over 18 years old.",
-  "This is only for regulatory compliance and the data will not be stored.": "This is only for regulatory compliance and the data will not be stored.",
+  "This is only for regulatory compliance and the data will be stored in your private settings if you're signed in.": "This is only for regulatory compliance and the data will be stored in your private settings if you're signed in.",
   "Whoa!": "Whoa!",
   "You've already claimed your referrer, but we've followed this channel for you.": "You've already claimed your referrer, but we've followed this channel for you.",
   "You've already claimed your referrer.": "You've already claimed your referrer.",
@@ -2975,6 +2975,15 @@
   "Channel is required for commenting": "Channel is required for commenting",
   "You'll need a channel to comment on this upload.": "You'll need a channel to comment on this upload.",
   "Continue to channel creation": "Continue to channel creation",
-  
+  "This content is marked as mature": "This content is marked as mature",
+  "You are trying to access age restriced content": "You are trying to access age restriced content",
+  "The following content is intended for Mature Audiences aged 18 years and over. Viewer discretion is advised.": "The following content is intended for Mature Audiences aged 18 years and over. Viewer discretion is advised.",
+  "Add tags that are relevant to your content so those who're looking for it can find it more easily.": "Add tags that are relevant to your content so those who're looking for it can find it more easily.",
+  "Contains nudity, violence or other allowed 18+ content. See %community_guidelines%": "Contains nudity, violence or other allowed 18+ content. See %community_guidelines%",
+  "Profile/Cover image contains nudity, violence or other allowed 18+ content. See %community_guidelines%": "Profile/Cover image contains nudity, violence or other allowed 18+ content. See %community_guidelines%",
+  "Don't obscure age restricted content": "Don't obscure age restricted content",
+  "Don't blur thumbnails or warn about age restricted content": "Don't blur thumbnails or warn about age restricted content",
+  "18+": "18+",
+
   "--end--": "--end--"
 }
