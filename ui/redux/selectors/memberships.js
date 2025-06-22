@@ -412,7 +412,7 @@ export const selectAllMembershipTiersForChannelUri = (state: State, uri: string)
   selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
 
 // select enabled, monetized memberships (joinable)
-export const selectMembershipTiersForChannelUri = (state: State, uri: string) => {
+export const selectArEnabledMembershipTiersForChannelUri = (state: State, uri: string) => {
   const tiers = selectMembershipTiersForCreatorId(state, selectChannelClaimIdForUri(state, uri) || '');
   if (!tiers) return null;
   // $FlowIgnore
@@ -443,11 +443,11 @@ export const selectOdyseeMembershipTiers = (state: State) =>
   selectMembershipTiersForCreatorId(state, ODYSEE_CHANNEL.ID);
 
 export const selectCreatorMembershipsFetchedByUri = createSelector(
-  selectMembershipTiersForChannelUri,
+  selectArEnabledMembershipTiersForChannelUri,
   (memberships) => memberships !== undefined
 );
 
-export const selectCreatorHasMembershipsByUri = createSelector(selectMembershipTiersForChannelUri, (memberships) =>
+export const selectCreatorHasMembershipsByUri = createSelector(selectArEnabledMembershipTiersForChannelUri, (memberships) =>
   Boolean(memberships?.length > 0 && memberships.some((m) => (m.enabled = true)))
 );
 

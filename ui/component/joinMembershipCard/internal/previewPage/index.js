@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
-import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri, selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
 import {
   selectCheapestProtectedContentMembershipForId, selectIsMembershipListFetchingForId,
-  selectMembershipTiersForChannelUri,
+  selectArEnabledMembershipTiersForChannelUri,
   selectUserHasValidNonCanceledMembershipForCreatorId,
 } from 'redux/selectors/memberships';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
@@ -10,7 +10,6 @@ import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selector
 import { doOpenModal } from 'redux/actions/app';
 import PreviewPage from './view';
 import { getChannelFromClaim, getChannelTitleFromClaim, getChannelIdFromClaim } from 'util/claim';
-import { selectFullAPIArweaveAccounts } from 'redux/selectors/stripe';
 import { selectArweaveStatus, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
@@ -24,10 +23,12 @@ const select = (state, props) => {
   const { canonical_url: channelUri } = getChannelFromClaim(claim) || {};
   const cheapestPlan = selectCheapestProtectedContentMembershipForId(state, claimId);
   const joinEnabled = cheapestPlan && cheapestPlan.prices.some(p => p.address);
+
   return {
+    paymentsEnabled: selectArweaveTipDataForId(state, channelId),
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     canReceiveArweaveTips: !!selectArweaveTipDataForId(state, channelId),
-    creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
+    creatorMemberships: selectArEnabledMembershipTiersForChannelUri(state, uri),
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
     isFetchingMemberships: selectIsMembershipListFetchingForId(state, claimId),
     joinEnabled,

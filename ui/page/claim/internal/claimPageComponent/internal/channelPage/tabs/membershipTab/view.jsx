@@ -54,11 +54,6 @@ const MembershipTab = (props: Props) => {
           ))}
       </div>
       )}
-      <div className={'membership-tab-item__wrapper'}>
-      <div className={'card__header--between membership-tab-header__wrapper'}>
-        <h2 className={'card__title'}>Available Memberships</h2>
-      </div>
-      </div>
       <JoinMembershipCard uri={uri} />
     </>
   );

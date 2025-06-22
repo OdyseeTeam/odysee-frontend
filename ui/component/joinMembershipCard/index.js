@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import {
-  selectMembershipTiersForChannelUri,
+  selectArEnabledMembershipTiersForChannelUri,
   selectProtectedContentMembershipsForContentClaimId,
   selectMembersOnlyChatMembershipIdsForCreatorId,
   selectCheapestPlanForRestrictedIds,
@@ -48,7 +48,7 @@ const select = (state, props) => {
 
   return {
     activeChannelClaim: selectActiveChannelClaim(state),
-    creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
+    creatorMemberships: selectArEnabledMembershipTiersForChannelUri(state, uri),
     defaultArweaveAddress: selectAPIArweaveDefaultAddress(state),
     channelName: selectChannelNameForUri(state, uri),
     channelClaimId,
