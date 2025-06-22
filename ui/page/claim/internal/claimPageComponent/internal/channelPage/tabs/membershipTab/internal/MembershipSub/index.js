@@ -5,6 +5,7 @@ import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
 import { push } from 'connected-react-router';
 import MembershipSub from './view';
 import { doOpenModal } from 'redux/actions/app';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 
 const select = (state, props) => {
   const { uri, membershipSub } = props;
@@ -15,6 +16,7 @@ const select = (state, props) => {
   const membershipIndex = selectIndexForCreatorMembership(state, channelClaimId, membershipId);
 
   return {
+    tipsEnabled: selectArweaveTipDataForId(state, channelClaimId),
     membershipId: membershipId,
     membershipSub,
     membershipIndex: membershipIndex,

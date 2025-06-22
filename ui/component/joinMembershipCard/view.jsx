@@ -189,7 +189,7 @@ const JoinMembershipCard = (props: Props) => {
         })}
         body={
           <>
-            {isOnConfirmationPage ? (
+            {isOnConfirmationPage && creatorMemberships.length ? (
               <ConfirmationPage {...pageProps} onCancel={isChannelTab ? doHideModal : () => setConfirmationPage(false)} />
             ) : (
               <PreviewPage

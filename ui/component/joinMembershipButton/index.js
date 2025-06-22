@@ -5,7 +5,7 @@ import {
   selectUserValidMembershipForChannelUri,
   selectCreatorHasMembershipsByUri,
   selectMembershipTiersForCreatorId,
-  selectMembershipTiersForChannelUri,
+  selectArEnabledMembershipTiersForChannelUri,
 } from 'redux/selectors/memberships';
 import {
   selectPermanentUrlForUri,
@@ -14,6 +14,7 @@ import {
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import ShareButton from './view';
+import { selectArweaveTipDataForId } from '../../redux/selectors/stripe';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -29,9 +30,10 @@ const select = (state, props) => {
   return {
     validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri), // filtered mine[0]
     creatorHasMemberships: selectCreatorHasMembershipsByUri(state, uri),
-    creatorMembershipsFetched: selectMembershipTiersForChannelUri(state, uri),
+    creatorMembershipsFetched: selectArEnabledMembershipTiersForChannelUri(state, uri),
     creatorTiers: channelId && selectMembershipTiersForCreatorId(state, channelId || channelClaimId), //
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, uri),
+    tipsEnabled: selectArweaveTipDataForId(state, channelClaimId),
     channelName,
     channelClaimId,
     channelUri,

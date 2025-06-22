@@ -13,10 +13,11 @@ interface IProps {
   membershipIndex: number;
   doOpenModal: () => void;
   doOpenCancelationModalForMembership: (MembershipSub) => void;
+  tipsEnabled: boolean; // type?
 }
 
 function MembershipSubscribed(props: IProps) {
-  const { uri, membershipIndex, membershipSub, doOpenCancelationModalForMembership, doOpenModal } = props;
+  const { uri, tipsEnabled, membershipIndex, membershipSub, doOpenCancelationModalForMembership, doOpenModal } = props;
   if (!membershipSub) {
     return null;
   }
@@ -105,9 +106,8 @@ function MembershipSubscribed(props: IProps) {
                 )}
 
                 <div className="membership__plan-actions">
-
-
-                    {isActive && !isCanceled
+                  {tipsEnabled &&
+                    (isActive && !isCanceled
                       ? canRenew
                         ? (<Button
                             icon={ICONS.MEMBERSHIP}
@@ -127,7 +127,12 @@ function MembershipSubscribed(props: IProps) {
                         })}</label>
                       : <label>{__('Your cancelled membership will end on %end_date%.', {
                         end_date: formattedEndOfMembershipDate,
-                      })}</label>}
+                      })}</label>
+                    )
+                  }
+                  {!tipsEnabled && (
+                    <div>Enjoy this legacy membership while the creator onboards the new tip system</div>
+                    )}
                 </div>
               </div>
             </div>

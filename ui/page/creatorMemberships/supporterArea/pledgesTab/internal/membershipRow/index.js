@@ -5,7 +5,7 @@ import MembershipRow from './view';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectClaimForId } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
-import { selectIndexForCreatorMembership, selectMembershipTiersForChannelUri } from 'redux/selectors/memberships';
+import { selectIndexForCreatorMembership, selectArEnabledMembershipTiersForChannelUri } from 'redux/selectors/memberships';
 import { buildURI } from 'util/lbryURI';
 
 const select = (state, props) => {
@@ -25,7 +25,7 @@ const select = (state, props) => {
     creatorChannelClaim,
     membershipIndex: index,
     creatorChannelUri,
-    creatorMemberships: selectMembershipTiersForChannelUri(state, creatorChannelUri),
+    creatorMemberships: selectArEnabledMembershipTiersForChannelUri(state, creatorChannelUri),
   };
 };
 

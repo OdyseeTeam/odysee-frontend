@@ -22,6 +22,7 @@ type Props = {
   creatorMembershipsFetched: boolean,
   creatorTiers: ?CreatorMemberships,
   isOdyseeChannel: boolean,
+  tipsEnabled: any,
   channelName: ?string,
   channelClaimId: ?string,
   doOpenModal: (id: string, {}) => void,
@@ -36,6 +37,7 @@ const JoinMembershipButton = (props: Props) => {
     creatorMembershipsFetched,
     isOdyseeChannel,
     channelName,
+    tipsEnabled,
     channelClaimId,
     doOpenModal,
     doMembershipList,
@@ -61,7 +63,7 @@ const JoinMembershipButton = (props: Props) => {
 
   if (isOdyseeChannel) return null;
 
-  if (userIsActiveMember && creatorTiers) {
+  if (userIsActiveMember && creatorTiers && creatorTiers.length) {
     // build link to membership tab of user's channel
     let channelPath = formatLbryUrlForWeb(uri);
     const urlParams = new URLSearchParams();
@@ -74,6 +76,14 @@ const JoinMembershipButton = (props: Props) => {
     /*
     membershipIndex: index, membershipId: membership.membership_id, passedTierIndex: index,
      */
+    if (!creatorTiers || !creatorTiers.length) {
+      return null;
+    }
+
+    // TODO use new membership.accespts_payments and check first_payment_due_at
+    // if (!tipsEnabled) {
+    //
+    // }
 
     if (shouldRenew) {
       return (

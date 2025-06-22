@@ -44,6 +44,7 @@ type Props = {
   arweaveStatus: any,
   exchangeRate: { ar: number },
   isFetchingMemberships: boolean,
+  paymentsEnabled: boolean,
 };
 
 const PreviewPage = (props: Props) => {
@@ -71,6 +72,7 @@ const PreviewPage = (props: Props) => {
     joinEnabled,
     cheapestPlan,
     isFetchingMemberships,
+    paymentsEnabled,
     exchangeRate,
   } = props;
 
@@ -80,7 +82,7 @@ const PreviewPage = (props: Props) => {
 
   const isChannelTab = React.useContext(ChannelPageContext);
 
-  const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
+  const creatorHasEnabledMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || userHasACreatorMembership;
 
   React.useEffect(() => {
@@ -96,7 +98,7 @@ const PreviewPage = (props: Props) => {
       </div>
     );
   }
-  if (!creatorHasMemberships) {
+  if (!creatorHasEnabledMemberships) {
     // -- On a channel that is mine, the button uses the channel id to set it as active
     // when landing on the memberships page for the given channel --
 
@@ -139,6 +141,28 @@ const PreviewPage = (props: Props) => {
               label={__('Create Memberships For %channel_name%', { channel_name: channelName })}
               navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
               channelId={channelId}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (!paymentsEnabled) {
+      return (
+        <div className="join-membership__empty">
+          <h2 className="header--no-memberships">{__('This channel is not accepting payments at this time')}</h2>
+          <p>
+            {__(
+              "Unfortunately, this creator hasn't migrated to the new payment system yet, but you can create your own tiers with the link below!"
+            )}
+          </p>
+          <div>
+            <Button
+              icon={ICONS.MEMBERSHIP}
+              button="primary"
+              type="submit"
+              label={__('Create Your Memberships')}
+              navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
             />
           </div>
         </div>
@@ -228,7 +252,11 @@ const PreviewPage = (props: Props) => {
           )}
         </p>
       </div>
-
+      <div className={'membership-tab-item__wrapper'}>
+        <div className={'card__header--between membership-tab-header__wrapper'}>
+          <h2 className={'card__title'}>Available Memberships</h2>
+        </div>
+      </div>
       <div className="join-membership__modal-tabs">
         {creatorMemberships.map((m, index) => (
           <Button
