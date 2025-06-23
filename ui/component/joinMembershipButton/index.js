@@ -21,7 +21,7 @@ const select = (state, props) => {
   const channelUri = selectChannelForClaimUri(state, uri);
   const channelId = selectChannelClaimIdForUri(state, uri);
 
-  const channelClaimId = channelClaim.claim_id;
+  const channelClaimId = channelClaim?.claim_id;
 
   return {
     validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri), // filtered mine[0]
@@ -30,9 +30,10 @@ const select = (state, props) => {
     creatorTiers: channelId && selectMembershipTiersForCreatorId(state, channelId || channelClaimId), //
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, uri),
     tipsEnabled: selectArweaveTipDataForId(state, channelClaimId),
-    channelName: channelClaim.name,
-    channelClaimId: channelClaim.claim_id,
+    channelName: channelClaim?.name,
+    channelClaimId: channelClaim?.claim_id,
     channelUri,
+    channelId,
   };
 };
 
