@@ -165,7 +165,7 @@ function MembershipEditTier(props: Props) {
           new_description: editTierParams.editTierDescription,
           new_amount: price,
           membership_id: membership.membership_id,
-          enable_members_only_chat: selectedPerkIds.includes(7), // selectedPerks has id 7
+          new_members_only_chat_enabled: selectedPerkIds.includes(7), // selectedPerks has id 7
         };
         doMembershipUpdateTier(params)
           .then((responseOrError: { response: 'ok', error: string }) => {
