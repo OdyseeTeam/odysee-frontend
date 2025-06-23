@@ -131,7 +131,6 @@ function MembershipEditTier(props: Props) {
           perks: selectedPerksAsArray,
           frequency: editTierParams.editTierFrequency,
           payment_address: apiArweaveAddress,
-          enable_members_only_chat: selectedPerkIds.includes(7), // selectedPerks has id 7
         };
         doMembershipAddTier(params)
           .then((responseOrError: {response: 'ok', error: string }) => {
@@ -151,7 +150,6 @@ function MembershipEditTier(props: Props) {
               channel_name: activeChannelClaim.name,
               prices: [{ amount: price, currency: 'AR', address: '' }], // HERE PRICES
               perks: selectedPerks,
-              enable_members_only_chat: selectedPerkIds.includes(7), // selectedPerks has id 7
               enabled: true,
             };
             addChannelMembership(newMembershipObj); // TODO AR_MEMBERSHIP check this newMembershipObj
@@ -189,7 +187,6 @@ function MembershipEditTier(props: Props) {
               channel_claim_id: activeChannelClaim.claim_id,
               prices: [{ amount: price, currency: 'usd', address: '' }], // HERE PRICES
               perks: selectedPerks,
-              enable_members_only_chat: selectedPerkIds.includes(7),
               enabled: true,
             };
 
@@ -260,7 +257,7 @@ function MembershipEditTier(props: Props) {
               <FormField
                 key={tierPerk.id}
                 type="checkbox"
-                defaultChecked={isPermanent || isSelected}
+                defaultChecked={isSelected}
                 label={__(tierPerk.description)}
                 name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
                 className="membership_perks"
@@ -348,29 +345,35 @@ function MembershipEditTier(props: Props) {
         />
         <Button button="link" label={__('Cancel')} onClick={onCancel} />
       </div>
-      <div className="section__actions">
-        <p className="help">
-          <div className="error__text">
-            {nameError
-              ? __('A membership name is required.')
-              : descriptionError
-              ? __('A membership description is required.')
-              : undefined}
-            {saveError && __(saveError)}
+      {(nameError || descriptionError || saveError || priceLowerThanMin || priceHigherThanMax) &&
+        <div className="section__actions">
+          {/*<p className="help">*/}
+          <div className={"errorColumn"}>
+            <div className="error__text">
+              {nameError
+                ? __('A membership name is required.')
+                : descriptionError
+                  ? __('A membership description is required.')
+                  : undefined}
+              {saveError && __(saveError)}
+            </div>
+            <div className="error__text">
+              {hasSubscribers
+                ? __("This membership has subscribers, you can't update the price currently.")
+                : priceLowerThanMin
+                  ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
+                  : priceHigherThanMax
+                    ? __('Price must be lower or equal than %max%.', { max: MAX_PRICE })
+                    : !editTierParams.editTierPrice
+                      ? __('A price is required.')
+                      : undefined}
+            </div>
           </div>
-          <div className="error__text">
-            {hasSubscribers
-              ? __("This membership has subscribers, you can't update the price currently.")
-              : priceLowerThanMin
-              ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
-              : priceHigherThanMax
-              ? __('Price must be lower or equal than %max%.', { max: MAX_PRICE })
-              : !editTierParams.editTierPrice
-              ? __('A price is required.')
-              : undefined}
-          </div>
-        </p>
-      </div>
+          {/*</p>*/}
+        </div>
+
+      }
+
     </div>
   );
 }
