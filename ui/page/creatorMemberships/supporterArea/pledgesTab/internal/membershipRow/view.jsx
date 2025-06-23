@@ -47,7 +47,7 @@ export default function MembershipRow(props: Props) {
 
   const amountOfMonths = monthsDiff(startDate, endDate);
 
-  const paidMonths = membershipSub.payments.filter(m => m.status && (m.status === 'paid' || m.status === 'submitted')).length
+  const paidMonths = membershipSub.payments.filter(m => m.status && (m.status === 'paid' || m.status === 'submitted')).length;
   const timeAgoInMonths =
     paidMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
   React.useEffect(() => {
