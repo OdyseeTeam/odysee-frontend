@@ -8,24 +8,20 @@ import {
   selectArEnabledMembershipTiersForChannelUri,
 } from 'redux/selectors/memberships';
 import {
-  selectPermanentUrlForUri,
   selectIsClaimOdyseeChannelForUri,
-  selectChannelForClaimUri, selectChannelClaimIdForUri,
+  selectChannelForClaimUri, selectChannelClaimIdForUri, selectClaimForUri,
 } from 'redux/selectors/claims';
-import { parseURI } from 'util/lbryURI';
 import ShareButton from './view';
-import { selectArweaveTipDataForId } from '../../redux/selectors/stripe';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 
 const select = (state, props) => {
   const { uri } = props;
 
+  const channelClaim = selectClaimForUri(state, uri);
   const channelUri = selectChannelForClaimUri(state, uri);
   const channelId = selectChannelClaimIdForUri(state, uri);
-  let channelName, channelClaimId;
-  try {
-    const permanentUrl = selectPermanentUrlForUri(state, channelUri);
-    ({ channelName, channelClaimId } = parseURI(permanentUrl));
-  } catch (error) {}
+
+  const channelClaimId = channelClaim.claim_id;
 
   return {
     validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri), // filtered mine[0]
@@ -34,8 +30,8 @@ const select = (state, props) => {
     creatorTiers: channelId && selectMembershipTiersForCreatorId(state, channelId || channelClaimId), //
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, uri),
     tipsEnabled: selectArweaveTipDataForId(state, channelClaimId),
-    channelName,
-    channelClaimId,
+    channelName: channelClaim.name,
+    channelClaimId: channelClaim.claim_id,
     channelUri,
   };
 };
