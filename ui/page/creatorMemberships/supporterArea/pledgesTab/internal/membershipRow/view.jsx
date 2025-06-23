@@ -23,7 +23,7 @@ type Props = {
 export default function MembershipRow(props: Props) {
   const { membershipSub, creatorChannelClaim, activeChannelClaim, doOpenModal, membershipIndex, doMembershipList } = props;
 
-  }
+
   const memberChannelName = activeChannelClaim.name;
   const creatorChannelId = membershipSub.membership.channel_claim_id;
   const creatorChannelUri = creatorChannelClaim ? buildURI({
@@ -49,6 +49,7 @@ export default function MembershipRow(props: Props) {
       doMembershipList({ channel_claim_id: creatorChannelId });
     }
   }, [creatorChannelId, doMembershipList, membershipIndex]);
+
   // TODO refactor status content
   // let buttonContent;
   //
