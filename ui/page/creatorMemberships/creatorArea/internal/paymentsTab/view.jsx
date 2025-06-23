@@ -1,12 +1,17 @@
 // @flow
 import React from 'react';
 import PaymentRow from './internal/paymentRow';
+import { useLocation } from 'react-router';
+import Paginate from 'component/common/paginate';
 
 interface IProps {
   doMembershipFetchIncomingPayments: () => void,
   txsFetching: boolean,
   channelsToList?: [],
 }
+
+const PAGINATE_PARAM = 'page';
+const PAGE_SIZE = 25;
 
 function PaymentsTab(props: IProps) {
   const {
@@ -15,6 +20,13 @@ function PaymentsTab(props: IProps) {
     txsFetching,
     channelsToList,
   } = props;
+
+  const { search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+  const urlParamPage = Number(urlParams.get(PAGINATE_PARAM));
+  const pageStart = (urlParamPage - 1) * PAGE_SIZE;
+  const pageEnd = urlParamPage * PAGE_SIZE;
+
   React.useEffect(() => {
     doMembershipFetchIncomingPayments();
   }, [doMembershipFetchIncomingPayments]);
@@ -42,13 +54,14 @@ function PaymentsTab(props: IProps) {
           </thead>
           <tbody>
           {transactionsToList &&
-            transactionsToList.map((transaction) => {
+            transactionsToList.slice(pageStart, pageEnd).map((transaction) => {
               return (
                 <PaymentRow key={transaction.transaction_id} transaction={transaction} longList={transactionsToList.length > 100} />
               );
             })}
           </tbody>
         </table>
+        <Paginate totalPages={Math.ceil(transactionsToList.length / PAGE_SIZE)} />
         {!txsFetching && transactions.length === 0 && <p className="wallet__fiat-transactions">{__('No Membership Payments')}</p>}
         {txsFetching && transactions.length === 0 && <p className="wallet__fiat-transactions">{__('Fetching Membership Payments')}</p>}
       </div>
