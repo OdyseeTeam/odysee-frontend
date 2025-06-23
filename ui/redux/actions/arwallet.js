@@ -118,6 +118,7 @@ export function doArConnect() {
         }
       } catch (e) {
         console.log('error:', e);
+        LocalStorage.setItem('WANDER_DISCONNECT', true);
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
     } else {

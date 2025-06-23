@@ -234,7 +234,7 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     // send to api with
   } catch (e) {
     console.error(e);
-    return null;
+    return e;
     // throw e;
   }
 };
