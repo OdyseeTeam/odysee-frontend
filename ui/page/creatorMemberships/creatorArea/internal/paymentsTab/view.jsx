@@ -23,7 +23,7 @@ function PaymentsTab(props: IProps) {
 
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
-  const urlParamPage = Number(urlParams.get(PAGINATE_PARAM));
+  const urlParamPage = Number(urlParams.get(PAGINATE_PARAM)) || 1;
   const pageStart = (urlParamPage - 1) * PAGE_SIZE;
   const pageEnd = urlParamPage * PAGE_SIZE;
 

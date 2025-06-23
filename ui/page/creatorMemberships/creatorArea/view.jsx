@@ -132,7 +132,7 @@ const CreatorArea = (props: Props) => {
             button="liquidass"
           />
           <div>{__('Creator Portal')}</div>
-        </div>        
+        </div>
       </div>
 
       <Tabs onChange={onTabChange} index={tabIndex}>
