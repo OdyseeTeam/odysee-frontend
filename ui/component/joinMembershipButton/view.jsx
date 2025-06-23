@@ -51,9 +51,13 @@ const JoinMembershipButton = (props: Props) => {
   const membershipName = validUserMembershipForChannel?.membership.name;
   const endsAt = validUserMembershipForChannel?.subscription.ends_at;
   const membershipStatus = validUserMembershipForChannel?.subscription.status;
+  const firstPaymentDue = validUserMembershipForChannel?.membership.first_payment_due_at;
+  const acceptsPayments = validUserMembershipForChannel?.membership.accepts_payments;
 
-  const shouldRenew = endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days')) && (membershipStatus === 'active' || membershipStatus === 'lapsed');
-  // const shouldRenew = true;
+  const shouldRenew = firstPaymentDue && acceptsPayments && endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days')) && (membershipStatus === 'active' || membershipStatus === 'lapsed');
+  const renewWithDeadline = firstPaymentDue && (new Date() < new Date(firstPaymentDue));
+  const missedRenewDeadline = firstPaymentDue && (new Date() > new Date(firstPaymentDue));
+  const legacyMembership = !firstPaymentDue;
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched && channelName && channelClaimId) {
@@ -84,14 +88,21 @@ const JoinMembershipButton = (props: Props) => {
     // if (!tipsEnabled) {
     //
     // }
+    const getDescriptor = () => {
+      if (legacyMembership) {
+        return 'Legacy';
+      } else {
+        return membershipName;
+      }
+    };
 
     if (shouldRenew) {
       return (
         <Button
           {...DEFAULT_PROPS}
           className="button--membership"
-          label={__('Renew "%membership_tier_name%"', { membership_tier_name: membershipName })}
-          title={__('Renew "%membership_tier_name%"', { membership_tier_name: membershipName })}
+          label={__('Renew', { membership_tier_name: membershipName })}
+          title={__('Renew "%membership_tier_name%" by %deadline%', { membership_tier_name: membershipName, deadline: moment(endsAt || firstPaymentDue).format('L') })}
           onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, isRenew: true, membershipIndex: membershipIndex, membershipId: validUserMembershipForChannel.membership.id, passedTierIndex: membershipIndex })}
           style={{ filter: (!creatorHasMemberships) ? 'brightness(50%)' : undefined }}
         />
@@ -102,8 +113,8 @@ const JoinMembershipButton = (props: Props) => {
       <Button
         {...DEFAULT_PROPS}
         navigate={`${channelPath}?${urlParams.toString()}`}
-        label={membershipName}
-        title={__('You are a "%membership_tier_name%" member', { membership_tier_name: membershipName })}
+        label={getDescriptor()}
+        title={__('You are a %descriptor% member', { descriptor:  getDescriptor() })}
         className="button--membership-active"
         style={{ backgroundColor: 'rgba(var(--color-membership-' + membershipIndex + '), 1)' }}
       />

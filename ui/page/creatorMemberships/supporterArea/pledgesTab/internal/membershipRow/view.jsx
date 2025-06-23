@@ -5,10 +5,10 @@ import Spinner from 'component/spinner';
 import { formatLbryUrlForWeb } from 'util/url';
 import ChannelThumbnail from 'component/channelThumbnail';
 import UriIndicator from 'component/uriIndicator';
+import JoinMembershipButton from 'component/joinMembershipButton';
 import { toCapitalCase } from 'util/string';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
 import * as moment from 'moment';
 
 type Props = {
@@ -18,15 +18,11 @@ type Props = {
   doOpenModal: (id: string, {}) => void,
   doMembershipList: (params: MembershipListParams) => void,
   membershipIndex: number,
-  memberChannelUri: string,
+  creatorChannelUri: string,
 }
 export default function MembershipRow(props: Props) {
-  const { membershipSub, creatorChannelClaim, activeChannelClaim, doOpenModal, membershipIndex,
-    memberChannelUri, doMembershipList } = props;
-  function monthsDiff(date1, date2) {
-    let d1 = new Date(date1);
-    let d2 = new Date(date2);
-    return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+  const { membershipSub, creatorChannelClaim, activeChannelClaim, doOpenModal, membershipIndex, doMembershipList } = props;
+
   }
   const memberChannelName = activeChannelClaim.name;
   const creatorChannelId = membershipSub.membership.channel_claim_id;
@@ -53,6 +49,41 @@ export default function MembershipRow(props: Props) {
       doMembershipList({ channel_claim_id: creatorChannelId });
     }
   }, [creatorChannelId, doMembershipList, membershipIndex]);
+  // TODO refactor status content
+  // let buttonContent;
+  //
+  // const status = membershipSub.subscription.status;
+  // if (status === 'active' || status === 'lapsed') {
+  //   if (canRenew) {
+  //     buttonContent = (<Button
+  //       icon={ICONS.MEMBERSHIP}
+  //       button="primary"
+  //       label={__('Renew', {
+  //         membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
+  //           membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
+  //         ), // tiers
+  //       })}
+  //       onClick={() => {
+  //         doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri: creatorChannelUri, membershipIndex: membershipIndex, passedTierIndex: membershipIndex, isChannelTab: true, isRenewal: true });
+  //       }}
+  //       disabled={false}
+  //     />)
+  //   } else {
+  //     buttonContent = __('Active');
+  //   }
+  // }
+  //
+  // if (status === 'pending') {
+  //   // check if payment status is submitted...
+  // }
+  //
+  // if (status === 'canceled') {
+  //   buttonContent = __('Canceled');
+  // }
+  //
+  //
+  //
+  //
   if (!creatorChannelClaim || !membershipSub || membershipIndex === -1) {
     return (
       <tr>
@@ -68,7 +99,7 @@ export default function MembershipRow(props: Props) {
         <ChannelThumbnail xsmall uri={creatorChannelUri} />
         <ChannelThumbnail
           xxsmall
-          uri={memberChannelUri === '' ? undefined : memberChannelUri}
+          uri={creatorChannelUri === '' ? undefined : creatorChannelUri}
           tooltipTitle={memberChannelName === '' ? __('Anonymous') : memberChannelName}
         />
       </td>
@@ -88,25 +119,13 @@ export default function MembershipRow(props: Props) {
       <td>
         {membershipSub.subscription.status === 'active'
           ? canRenew
-            ? (<Button
-                icon={ICONS.MEMBERSHIP}
-                button="primary"
-                label={__('Renew', {
-                  membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
-                    membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
-                  ), // tiers
-                })}
-                onClick={() => {
-                  doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri: creatorChannelUri, membershipIndex: membershipIndex, passedTierIndex: membershipIndex, isChannelTab: true, isRenewal: true });
-                }}
-                disabled={false}
-            />)
+            ? (<JoinMembershipButton uri={creatorChannelUri} />)
             : __('Active')
-          : membershipSub.subscription.status === 'past_due'
+          : membershipSub.subscription.status === 'lapsed'
             ? __('Past Due')
             : membershipSub.subscription.status === 'pending'
               ? __('Pending')
-              : __('Cancelled')}
+              : __('Canceled')}
       </td>
       <td>
         <span dir="auto" className="button__label">
