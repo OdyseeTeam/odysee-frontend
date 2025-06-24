@@ -1140,6 +1140,8 @@ svg + .button__label {
 }
 
 .button--membership-active {
+  background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
+  
   .button__content {
     .icon {
       color: white !important;
