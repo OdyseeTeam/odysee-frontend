@@ -97,7 +97,7 @@ function MembershipTier(props: Props) {
       </div>
 
       <div className="membership-tier__infos">
-        <label>{__('PledgeX')}</label>
+        <label>{__('Pledge')}</label>
         <span>${(membership?.prices[0].amount / 100).toFixed(2)} (<Symbol token="ar" amount={(membership?.prices[0].amount / 100).toFixed(2) / exchangeRate.ar} />)</span> {/* the ui basically supports monthly right now */}
 
         <label>{__('Description ')}</label>
