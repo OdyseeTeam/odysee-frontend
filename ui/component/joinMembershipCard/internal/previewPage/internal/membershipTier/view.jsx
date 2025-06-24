@@ -125,7 +125,7 @@ const MembershipTier = (props: Props) => {
       <Button
         icon={ICONS.MEMBERSHIP}
         button="primary"
-        label={__('Join C for $%membership_price% per month', {
+        label={__('Join for $%membership_price% per month', {
           membership_price: (membership?.prices[0].amount / 100).toFixed(
             membership?.prices[0].amount < 100 ? 2 : 0
           ), // tiers
