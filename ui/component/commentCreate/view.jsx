@@ -387,6 +387,15 @@ export function CommentCreate(props: Props) {
     if (onSlimInputClose) onSlimInputClose();
   }
 
+  const getAmount = () => {
+    if (activeTab === TAB_LBC) {
+      return tipAmount;
+    }
+    if (activeTab === TAB_USD) {
+      return tipAmount * 100; // pennies
+    }
+  };
+
   async function handleSupportComment() {
     if (!activeChannelClaimId) return;
 
@@ -519,11 +528,11 @@ export function CommentCreate(props: Props) {
         comment: commentValue,
         claim_id: claimId,
         parent_id: parentId,
-        txid: 'dummy_txid',
-        payment_tx_id: 'dummy_txid',
+        txid: activeTab === TAB_LBC ? 'dummy_txid' : undefined,
+        payment_tx_id: activeTab === TAB_USD ? 'dummy_txid' : undefined,
         environment: stripeEnvironment,
         is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-        amount: 1, // dummy amount
+        amount: getAmount(), // dummy amount
         currency: transactionCurrency, // AR
         dry_run: true,
       };
@@ -643,7 +652,7 @@ export function CommentCreate(props: Props) {
       environment,
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
-      amount: !!txid || !!payment_intent_id || !!payment_tx_id ? tipAmount : undefined,
+      amount: !!txid || !!payment_intent_id || !!payment_tx_id ? getAmount() : undefined,
       currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : activeTab === TAB_USD ? 'AR' : undefined,
       dry_run: dryRun,
     })

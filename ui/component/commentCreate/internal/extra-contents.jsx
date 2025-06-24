@@ -52,10 +52,11 @@ export const HelpText = (helpTextProps: HelpTextProps) => {
             }}
           >
             {(minTip || minUSDCTip ? 'Comment min: ' : minSuper || minUSDCSuper ? 'HyperChat min: ' : '') +
-              (minTip || minSuper ? '%lbc%' : '') +
+              (minTip || minSuper ? ' %lbc% ' : '') +
               (minAmount && minUSDCAmount ? ' or ' : '') +
-              (minUSDCTip || minUSDCSuper ? '%usdc%' : '')}
+              (minUSDCTip || minUSDCSuper ? ' %usdc% ' : '')}
           </I18nMessage>
+          {/* TODO fix above spacing around ' or ' disappearing due to spans etc*/}
 
           <Icon
             customTooltipText={
