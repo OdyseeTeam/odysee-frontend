@@ -51,6 +51,8 @@ const CreatorArea = (props: Props) => {
     myChannelIds,
   } = props;
 
+  const disabledMessage = __('Your memberships are disabled until you set up your wallet or enable monetization.')
+
   const [allSelected, setAllSelected] = React.useState(true);
   const [showDisabled, setShowDisabled] = React.useState(false);
 
@@ -149,7 +151,15 @@ const CreatorArea = (props: Props) => {
           <TabPanel>
             <TabWrapper
               switchToTiersTab={switchToTiersTab}
-              component={<OverviewTab onChannelSelect={onChannelOverviewSelect} />}
+              component={<>
+              {!monetizationEnabled && (
+                <div className={'help'}>
+                  <p>{disabledMessage}</p>
+                  <NavLink to="/$/wallet">Set up wallet</NavLink>
+                </div>
+              )}
+              <OverviewTab onChannelSelect={onChannelOverviewSelect} />
+            </>}
             />
           </TabPanel>
 
@@ -158,12 +168,19 @@ const CreatorArea = (props: Props) => {
               switchToTiersTab={switchToTiersTab}
               component={
                 <>
+                  {!monetizationEnabled && (
+                    <div className={'help'}>
+                      <p>{disabledMessage}</p>
+                      <NavLink to="/$/wallet">Set up wallet</NavLink>
+                    </div>
+                  )}
                   <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
                   <ChannelSelector
                     hideAnon
                     allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
                     onChannelSelect={() => setAllSelected(false)}
                   />
+
                   <SupportersTab channelsToList={channelsToList} switchToTiersTab={switchToTiersTab} />
                 </>
               }
@@ -174,6 +191,12 @@ const CreatorArea = (props: Props) => {
             <TabWrapper
               component={
                 <>
+                  {!monetizationEnabled && (
+                    <div className={'help'}>
+                      <p>{disabledMessage}</p>
+                      <NavLink to="/$/wallet">Set up wallet</NavLink>
+                    </div>
+                  )}
                   <div className="create-tiers-header-buttons">
                     <div className="create-tiers-channel-selector">
                       <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
@@ -198,12 +221,7 @@ const CreatorArea = (props: Props) => {
                       />
                     </div>
                   </div>
-                  {!monetizationEnabled && (
-                    <div className={'help'}>
-                      <p>Your memberships are currently disabled due to your monetization setting.</p>
-                      <NavLink to="/$/wallet">Set up wallet</NavLink>
-                    </div>
-                  )}
+
 
                   <TiersTab showDisabled={showDisabled} />
                 </>
@@ -214,6 +232,12 @@ const CreatorArea = (props: Props) => {
             <TabWrapper
               component={
                 <>
+                  {!monetizationEnabled && (
+                    <div className={'help'}>
+                      <p>{disabledMessage}</p>
+                      <NavLink to="/$/wallet">Set up wallet</NavLink>
+                    </div>
+                  )}
                   <div className="create-tiers-header-buttons">
                     <div className="create-tiers-channel-selector">
                       <span className="section__subtitle ">{__('Memberships for Channel...')}</span>
@@ -226,7 +250,6 @@ const CreatorArea = (props: Props) => {
                       />
                     </div>
                   </div>
-                  {!monetizationEnabled && <div className={'help'}>Your memberships are currently disabled due to your monetization setting.</div>}
 
                   <PaymentsTab channelsToList={channelsToList} />
                 </>
