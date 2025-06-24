@@ -2427,10 +2427,10 @@
     global "~4.4.0"
     is-function "^1.0.1"
 
-"@wanderapp/connect@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@wanderapp/connect/-/connect-0.1.5.tgz#02747a6ba018fefb92ce073dd0b64b5c024ba28a"
-  integrity sha512-INkbYcWUkmmE6nUs7EvimvKbEwfwDuS2bMflJ5gvzljaYotp4rJ/cC9OzOlMb/yo7exWyVz/EnPxPex/34vYiw==
+"@wanderapp/connect@^0.1.9":
+  version "0.1.9"
+  resolved "https://registry.yarnpkg.com/@wanderapp/connect/-/connect-0.1.9.tgz#8ebcd78699396a82e651c05fad798541c5f2a3a0"
+  integrity sha512-5cpaGAzZ4eZeSrkDvAI1XrU+Mc8iqt3aroIELBJnfIhsfSUcm0hKCsrHbHpQDAfhCrXTXwx4J2TYD+WfHSXngA==
   dependencies:
     ts-deepmerge "^7.0.3"
 

@@ -201,8 +201,6 @@ export const doMembershipBuy =
         });
       }
 
-      console.log('transactionId', transactionId);
-
       const notifyParams = {
         token: subscribeToken,
         tx_id: transactionId,
