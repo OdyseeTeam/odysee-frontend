@@ -77,7 +77,7 @@ class FilePrice extends React.PureComponent<Props> {
               amount={''}
               className={className}
               isFiat
-              icon={ICONS.COMPLETED} // icon={ICONS.PURCHASED}
+              icon={ICONS.COMPLETED}              
             />
           ) : (
             <>

@@ -534,18 +534,18 @@ export function CommentCreate(props: Props) {
             // make transaction
             // notify transaction id
             doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment)
-              .then((arTipResponse: { transferTxid: string, currency: string, referenceToken: string, error?: string }) => {
+              .then((arTipResponse: { transactionId: string, currency: string, referenceToken: string, error?: string }) => {
                 if (arTipResponse.error) {
                   throw new Error(arTipResponse.error);
                 }
-                const { transferTxid } = arTipResponse;
+                const { transactionId } = arTipResponse;
                 const params = Object.assign({}, dryRunCommentParams);
-                params.payment_tx_id = transferTxid;
+                params.payment_tx_id = transactionId;
                 params.dryrun = undefined;
                 params.amount = tipAmount; // dollars
 
                 // ...
-                handleCreateComment(null, null, transferTxid, stripeEnvironment);
+                handleCreateComment(null, null, transactionId, stripeEnvironment);
                 setCommentValue('');
                 setReviewingSupportComment(false);
                 setTipSelector(false);
