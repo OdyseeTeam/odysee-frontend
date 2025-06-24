@@ -61,7 +61,7 @@ const MembershipDetails = (props: Props) => {
         </div>
       )}
 
-      {activeArStatus !== 'connected' ? (
+      {activeArStatus !== 'connected' && !isChannelTab ? (
         <WalletStatus />
       ) : (
         <>
