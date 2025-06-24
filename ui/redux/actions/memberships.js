@@ -158,7 +158,7 @@ export const doMembershipBuy =
     let cryptoAmount = '';
     let currencyType = '';
 
-    let transferTxid;
+    let transactionId;
 
     try {
       const walletUnlocked = await doArSign('hello');
@@ -183,9 +183,9 @@ export const doMembershipBuy =
         if (error) { // TODO pass error to redux
           throw new Error(error?.message || error);
         }
-        transferTxid = txid;
+        transactionId = txid;
       } else if (currencyType === 'USD') {
-        transferTxid = await message({
+        transactionId = await message({
           process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
           data: '',
           tags: [
@@ -201,11 +201,11 @@ export const doMembershipBuy =
         });
       }
 
-      console.log('transferTxid', transferTxid);
+      console.log('transactionId', transactionId);
 
       const notifyParams = {
         token: subscribeToken,
-        tx_id: transferTxid,
+        tx_id: transactionId,
       };
 
       await dispatch(doMembershipMine());

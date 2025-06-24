@@ -217,7 +217,7 @@ export const doArTip = (
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: AR_TIP_STATUS_STARTED, data: { claimId: claimId } });
     let referenceToken = '';
-    let transferTxid = '';
+    let transactionId = '';
     let transactionAmount;
     console.log('artip');
     try {
@@ -285,7 +285,7 @@ export const doArTip = (
       if (tipParams.currency === 'AR') {
         try {
           const { transactionId: txid } = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
-          transferTxid = txid;
+          transactionId = txid;
         } catch (error) {
           console.log(error);
           dispatch({
@@ -297,7 +297,7 @@ export const doArTip = (
       } else if (tipParams.currency === 'USD') {
         // This not currently used
         // AO Onramper USDC
-        transferTxid = await message({
+        transactionId = await message({
           process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
           data: '',
           tags: [
@@ -313,7 +313,7 @@ export const doArTip = (
         });
       }
 
-      if (!transferTxid) {
+      if (!transactionId) {
         const er = 'error: arweave transaction failed';
         dispatch({
           type: AR_TIP_STATUS_ERROR,
@@ -339,7 +339,7 @@ export const doArTip = (
           sender_address: senderAddress,
           environment: stripeEnvironment,
           v2: true,
-          tx_id: transferTxid,
+          tx_id: transactionId,
           token: referenceToken,
         },
         'post'
@@ -350,8 +350,8 @@ export const doArTip = (
       return { error: e?.message || e };
     }
     dispatch({ type: AR_TIP_STATUS_SUCCESS, data: { claimId: claimId } });
-    // support comments need the transferTxid, so return that here.
-    return { transferTxid: transferTxid, currency: tipParams.currency, referenceToken: referenceToken };
+    // support comments need the transactionId, so return that here.
+    return { transactionId: transactionId, currency: tipParams.currency, referenceToken: referenceToken };
   };
 };
 
@@ -391,6 +391,7 @@ export const sendWinstons = async (
 
     await arweave.transactions.sign(transaction);
     txResponse = await arweave.transactions.post(transaction);
+
     const { status, statusText } = txResponse;
     if (status !== 200) {
       // statusText = "Invalid Json"
@@ -448,8 +449,7 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
       } else {
         transaction = transactionCheck;
         await arweave.transactions.sign(transaction);
-      }
-      arweave.transactions.sign(transaction);
+      }      
       const response = await arweave.transactions.post(transaction);
 
       dispatch(doToast({
