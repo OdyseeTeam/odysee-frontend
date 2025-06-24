@@ -456,7 +456,7 @@ export default function WalletSendTip(props: Props) {
               {activeTab === TAB_USD && (
                 !canReceiveTips ? (
                   <div className="monetization-disabled">USD Monetization isn't available. It may not be set up yet or has been disabled by the creator.</div>
-                ) : activeArStatus !== 'connected' ? (
+                ) : activeTab === TAB_USD && activeArStatus !== 'connected' ? (
                   <WalletStatus />
                 ) : (
                   <>
