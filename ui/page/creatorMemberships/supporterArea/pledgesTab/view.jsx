@@ -75,6 +75,7 @@ function PledgesTab(props: Props) {
                 <th>{__('Paid Until')}</th>
                 <th>{__('Months Supported')}</th>
                 <th>{__('Amount')}</th>
+                <th>{__('Renew By')}</th>
                 <th>{__('Status')}</th>
                 <th className="membership-table__page">{__('Page')}</th>
               </tr>
