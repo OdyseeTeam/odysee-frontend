@@ -122,7 +122,7 @@ const SupportersTab = (props: Props) => {
                     {(!isViewingSingleChannel || !channelMembershipTiers) &&
                       (listedChannelClaim.value.title || listedChannelClaim.name)}
                   </div>
-                  <div>{`${anonymousSupporters.length} anonymous supporters contributed $${(totalAnonSupport / 100).toFixed(2)}!`}</div>
+                  <div>{anonymousSupporters.length ? `${anonymousSupporters.length} anonymous supporters contributed $${(totalAnonSupport / 100).toFixed(2)}!` : null}</div>
 
                   <div className="membership-table__wrapper">
                     <table className="table">
