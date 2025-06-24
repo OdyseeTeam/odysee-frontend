@@ -2,7 +2,12 @@
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 
-import { filterMembershipTiersWithPerk, getTotalPriceFromSupportersList, membershipIsExpired } from 'util/memberships';
+import {
+  filterMembershipTiersWithPerk,
+  getLastMonthPayments,
+  getTotalPriceFromSupportersList,
+  membershipIsExpired,
+} from 'util/memberships';
 
 import {
   selectChannelClaimIdForUri,
@@ -29,6 +34,7 @@ export const selectChannelMembershipsForCreatorId = (state: State, channelId: st
   selectChannelMembershipsByCreatorId(state)[channelId];
 
 export const selectPendingBuyMembershipIds = (state: State) => selectState(state).pendingBuyIds;
+export const selectMembershipPaymentsIncoming = (state: State) => selectState(state).membershipPaymentsIncoming;
 export const selectPurchaseIsPendingForMembershipId = (state: State, id: string) =>
   new Set(selectPendingBuyMembershipIds(state)).has(id);
 
@@ -67,6 +73,11 @@ export const selectMyTotalMonthlyIncome = createSelector(
   selectMySupportersList,
   (supportersList) => supportersList && getTotalPriceFromSupportersList(supportersList)
 );
+
+export const selectPreviousMonthlyIncome = createSelector(
+  selectMembershipPaymentsIncoming,
+  (payments) => payments && getLastMonthPayments(payments)
+)
 
 export const selectSupportersForChannelId = createSelector(
   selectNameForClaimId,

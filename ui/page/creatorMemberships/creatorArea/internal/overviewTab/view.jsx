@@ -11,11 +11,12 @@ type Props = {
   myChannelClaims: Array<ChannelClaim>,
   totalSupportersAmount: number,
   totalMonthlyIncome: number,
+  previousMonthlyIncome: number,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
 };
 
 function OverviewTab(props: Props) {
-  const { onChannelSelect, myChannelClaims, totalSupportersAmount, totalMonthlyIncome, doSetActiveChannel } = props;
+  const { onChannelSelect, myChannelClaims, totalSupportersAmount, totalMonthlyIncome, previousMonthlyIncome, doSetActiveChannel } = props;
 
   function selectChannel(channelClaim) {
     doSetActiveChannel(channelClaim.claim_id, true);
@@ -33,7 +34,10 @@ function OverviewTab(props: Props) {
             {__('Total Supporters')} <span>{totalSupportersAmount}</span>
           </td>
           <td>
-            {__('Total Monthly Income')} <span>${(totalMonthlyIncome / 100).toFixed(2)}</span>
+            {__('Income Last Month')} <span>${(previousMonthlyIncome / 100).toFixed(2)}</span>
+          </td>
+          <td>
+            {__('Projected Monthly Income')} <span>${(totalMonthlyIncome / 100).toFixed(2)}</span>
           </td>
         </tr>
       </table>

@@ -1,7 +1,14 @@
 // @flow
 
+import * as moment from 'moment';
+
 export const getTotalPriceFromSupportersList = (supportersList: SupportersList) =>
   supportersList.map((supporter) => supporter.price).reduce((total, supporterPledge) => total + supporterPledge, 0);
+
+export const getLastMonthPayments = (payments: any) => {
+  const monthago = moment().subtract(30, 'days');
+  return payments.filter(p => p.completed_at && moment(p.completed_at).diff(monthago) > 0).reduce((total, payment) => { return total + payment.usd_amount }, 0);
+};
 
 /**
  * Given the current form type combination, what is the applicable perk name
