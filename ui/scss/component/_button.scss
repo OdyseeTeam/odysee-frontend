@@ -1142,6 +1142,7 @@ svg + .button__label {
 .button--membership-active {
   .button__content {
     .icon {
+      color: white !important;
       stroke: white !important;
       fill: white !important;
     }
@@ -1149,14 +1150,14 @@ svg + .button__label {
       color: white;
     }
   }
-  &:hover {
-    .button__label {
-      color: white;
-    }
+  &:hover {    
     .icon {
       color: white !important;
       stroke: white !important;
       fill: white !important;
+    }
+    .button__label {
+      color: white !important;
     }
   }
 }
