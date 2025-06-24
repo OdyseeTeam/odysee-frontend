@@ -136,7 +136,7 @@ const WalletBalance = (props: Props) => {
     <div className={'columns'}>
       <div className="column">
         <Card
-          title={<Symbol token="lbc" amount={formatCredits(totalBalance, 8, true)} precision={6} isTitle counter />}
+          title={<Symbol token="lbc" amount={Number(totalBalance).toFixed(8)} precision={6} isTitle counter />}
           subtitle={
             totalLocked > 0 ? (
               <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
