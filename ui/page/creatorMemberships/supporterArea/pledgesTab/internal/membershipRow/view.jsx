@@ -41,6 +41,23 @@ export default function MembershipRow(props: Props) {
   const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);
   const canRenew = membershipSub.subscription.earliest_renewal_at && new Date() > new Date(membershipSub.subscription.earliest_renewal_at);
 
+  const getRenewBy = () => {
+    const fpda = membershipSub.membership.first_payment_due_at;
+    const fpdaMoment = moment(fpda);
+    const endsAtMoment = moment(membershipSub.subscription.ends_at);
+    const nowMoment = moment();
+    const fpdaInFuture = nowMoment.diff(fpdaMoment) < 0;
+    const endsAtInPast = endsAtMoment && nowMoment.diff(endsAtMoment) > 0;
+
+    if (fpda === null && endsAtInPast) {
+      return null;
+    }
+    if (fpdaInFuture) {
+      return fpdaMoment.format('LL');
+    }
+    return endsAtMoment.format('LL');
+  }
+
   const paidMonths = membershipSub.payments.filter(m => m.status && (m.status === 'paid' || m.status === 'submitted')).length;
   const monthsSupported =
     paidMonths === 1 ? __('1 Month') : __('%paid_months% Months', { paid_months: paidMonths });
@@ -88,7 +105,7 @@ export default function MembershipRow(props: Props) {
   if (!creatorChannelClaim || !membershipSub || membershipIndex === -1) {
     return (
       <tr>
-        <td colSpan="7">
+        <td colSpan="9">
           <Spinner />
         </td>
       </tr>
@@ -116,6 +133,9 @@ export default function MembershipRow(props: Props) {
 
       <td>
         {supportAmount ? `$${(supportAmount / 100).toFixed(2)} ${currency} / ${__(toCapitalCase(interval))}` : null}
+      </td>
+      <td>
+        {getRenewBy()}
       </td>
       <td>
         {membershipSub.subscription.status === 'active'
