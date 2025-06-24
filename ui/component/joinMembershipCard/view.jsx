@@ -108,6 +108,7 @@ const JoinMembershipCard = (props: Props) => {
     doMembershipBuy(membershipBuyParams)
       .then(() => {
         isPurchasing.current = false;
+        doMembershipList({ channel_claim_id: channelClaimId });
 
         if (doHideModal) {
           doHideModal();
