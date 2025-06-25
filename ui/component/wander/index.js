@@ -3,7 +3,7 @@ import { doArInit, doArConnect, doArSetAuth } from 'redux/actions/arwallet';
 import { selectArweaveWanderAuth, selectArweaveAddress, selectArweaveConnecting } from 'redux/selectors/arwallet';
 import { selectTheme } from 'redux/selectors/settings';
 import { doArUpdateBalance, doCleanTips } from 'redux/actions/arwallet';
-import { selectUser } from 'redux/selectors/user';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import Wander from './view';
 
 const select = (state) => ({
@@ -11,7 +11,7 @@ const select = (state) => ({
   connecting: selectArweaveConnecting(state),
   theme: selectTheme(state),
   auth: selectArweaveWanderAuth(state),
-  isUser: selectUser(state).is_odysee_user,
+  authenticated: selectUserVerifiedEmail(state),
 });
 
 
