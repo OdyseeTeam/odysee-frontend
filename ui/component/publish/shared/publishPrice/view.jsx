@@ -31,6 +31,7 @@ type Props = {
   fee: Fee,
   memberRestrictionStatus: MemberRestrictionStatus,
   chargesEnabled: ?boolean,
+  monetizationStatus: boolean,
   updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
@@ -55,6 +56,7 @@ function PublishPrice(props: Props) {
     fee,
     memberRestrictionStatus,
     chargesEnabled,
+    monetizationStatus,
     updatePublishForm,
     doTipAccountStatus,
     doCustomerPurchaseCost,
@@ -69,9 +71,6 @@ function PublishPrice(props: Props) {
   const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
-
-  console.log('paywall: ', paywall);
-  console.log('isFiatAllowed: ', fiatAllowed);
 
   // If it's only restricted, the price can be added externally, and they won't be able to change it
   const restrictedWithoutPrice = paywall === PAYWALL.FREE && memberRestrictionStatus.isRestricting;
@@ -136,17 +135,15 @@ function PublishPrice(props: Props) {
                 disabled={disabled}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FREE })}
               />
-              {!noBankAccount ||
-                (ENABLE_ARCONNECT && (
-                  <FormField
-                    type="radio"
-                    name="content_fiat"
-                    label={`${__('Purchase / Rent')} \u{0024}`}
-                    checked={paywall === PAYWALL.FIAT}
-                    disabled={disabled || ((noBankAccount || !fiatAllowed) && !ENABLE_ARCONNECT)}
-                    onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
-                  />
-                ))}
+              
+              <FormField
+                type="radio"
+                name="content_fiat"
+                label={`${__('Purchase / Rent')} \u{0024}`}
+                checked={paywall === PAYWALL.FIAT}
+                disabled={disabled || !monetizationStatus}
+                onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
+              />
               <FormField
                 type="radio"
                 name="content_sdk"
@@ -307,12 +304,14 @@ function PublishPrice(props: Props) {
       return false;
     }
 
-    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType() || ENABLE_ARCONNECT;
+    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType();
     setFiatAllowed(isFiatAllowed);
 
+    /*
     if (paywall === PAYWALL.FIAT && !isFiatAllowed) {
       updatePublishForm({ paywall: PAYWALL.FREE });
     }
+    */
   }, [fileMime, paywall, type, updatePublishForm, streamType]);
 
   if (paymentDisallowed) {
