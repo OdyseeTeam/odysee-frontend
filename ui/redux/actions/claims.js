@@ -28,6 +28,7 @@ import { creditsToString } from 'util/format-credits';
 import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
 import { hasFiatTags } from 'util/tags';
 import { PAGE_SIZE } from 'constants/claim';
+import { doUserHasPremium } from './user';
 
 let onChannelConfirmCallback;
 let checkPendingInterval;
@@ -734,6 +735,7 @@ export const doFetchChannelListMine =
 
     const callback = (response: ChannelListResponse) => {
       dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED, data: { claims: response.items } });
+      dispatch(doUserHasPremium()); // depends on channel list
     };
 
     const failure = (error) => {

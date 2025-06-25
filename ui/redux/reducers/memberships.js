@@ -1,5 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
+import { ODYSEE_CHANNEL } from 'constants/channels';
 
 const reducers = {};
 
@@ -59,11 +60,23 @@ reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
 
   return { ...state, fetchingIdsByCreatorId: { ...currentFetching, [channel]: ids } };
 };
+
+// for a channel, record which channels are members and if so, which membership
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED] = (state, action) => {
   const { channelId, membershipsById } = action.data;
+  // membershipsById: [...{xyz: "MembershipName"}]
 
   const currentFetched = Object.assign({}, state.channelMembershipsByCreatorId);
-  const newFetched = currentFetched[channelId] ? { ...currentFetched[channelId], ...membershipsById } : membershipsById;
+  let newData = Object.assign({}, membershipsById);
+  if (channelId === ODYSEE_CHANNEL.ID) {
+    // don't overwrite with null on a future membership check call
+    // so that we can use this store for has_odysee_premium
+    const oldOdyseePremiumData = currentFetched[channelId] || {};
+    Object.entries(oldOdyseePremiumData).forEach(([k, v]) => {
+      if (v != null) newData[k] = v;
+    });
+  }
+  const newFetched = currentFetched[channelId] ? { ...currentFetched[channelId], ...newData } : membershipsById;
   const newFetchingIdsByCreatorId = Object.assign({}, state.fetchingIdsByCreatorId);
   delete newFetchingIdsByCreatorId[channelId];
 

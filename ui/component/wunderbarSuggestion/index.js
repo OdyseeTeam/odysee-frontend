@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri, selectGeoRestrictionForUri, selectIsUriResolving } from 'redux/selectors/claims';
-import { selectOdyseeMembershipForChannelId } from 'redux/selectors/memberships';
+import { selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 import WunderbarSuggestion from './view';
 
@@ -10,7 +10,7 @@ const select = (state, props) => {
 
   return {
     claim,
-    odyseeMembership: selectOdyseeMembershipForChannelId(state, getChannelIdFromClaim(claim)),
+    odyseeMembership: selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)),
     isResolvingUri: selectIsUriResolving(state, uri),
     geoRestriction: selectGeoRestrictionForUri(state, props.uri),
   };

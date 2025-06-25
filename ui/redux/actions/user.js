@@ -23,6 +23,9 @@ import { LocalStorage, LS } from 'util/storage';
 
 import { doMembershipMine } from 'redux/actions/memberships';
 import { selectDefaultChannelId } from 'redux/selectors/settings';
+import { ODYSEE_CHANNEL } from 'constants/channels';
+import { selectMyChannelClaimIds } from 'redux/selectors/claims';
+import { ODYSEE_TIER_NAMES } from 'constants/memberships';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
@@ -118,21 +121,43 @@ export function doUserHasPremium(channelClaimId) {
   return async (dispatch, getState) => {
     const state = getState();
     const channelClaim = selectDefaultChannelId(state);
+    const myChannelIds = selectMyChannelClaimIds(state);
     dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED });
     if (!channelClaim) {
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: false });
     }
 
     try {
-      const res = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaim}, 'post');
-      if (res[channelClaim]) {
+      const res = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaim }, 'post');
+      const membershipStatus = res[channelClaim];
+
+      const getMembershipStatus = (ms) => {
+        if (ms.has_premium) {
+          return ODYSEE_TIER_NAMES.PREMIUM;
+        } else if (ms.has_premium_plus) {
+          return ODYSEE_TIER_NAMES.PREMIUM_PLUS;
+        } else {
+          return null;
+        }
+      };
+
+      const membershipsById = {};
+      myChannelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(membershipStatus) });
         dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: res[channelClaim] });
-      }
+        dispatch({
+          type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED,
+          data: {
+            channelId: ODYSEE_CHANNEL.ID,
+            membershipsById: membershipsById,
+          },
+        });
     } catch (e) {
+      console.log('e', e)
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });
     }
   };
 }
+
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
 export function doAuthenticate(
   appVersion,
@@ -158,7 +183,6 @@ export function doAuthenticate(
           });
 
           dispatch(doMembershipMine());
-          dispatch(doUserHasPremium());
 
           if (shareUsageData) {
             dispatch(doRewardList());
