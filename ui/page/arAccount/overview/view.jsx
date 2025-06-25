@@ -113,12 +113,34 @@ function Overview(props: Props) {
   }, [showQR]);
 
   function handleCheckForm() {
+    const amountInput = inputAmountRef.current;
+    const addressInput = inputReceivingAddressRef.current;
+
+    const amountCursor = amountInput.selectionStart;
+    const addressCursor = addressInput.selectionStart;
+
+    const rawAmount = amountInput.value;
+    const rawAddress = addressInput.value;
+
+    const trimmedAmount = rawAmount.replace(/\s/g, '');
+    const trimmedAddress = rawAddress.replace(/\s/g, '');
+
+    if (rawAmount !== trimmedAmount) {
+      amountInput.value = trimmedAmount;
+      amountInput.setSelectionRange(amountCursor - (rawAmount.length - trimmedAmount.length), amountCursor - (rawAmount.length - trimmedAmount.length));
+    }
+
+    if (rawAddress !== trimmedAddress) {
+      addressInput.value = trimmedAddress;
+      addressInput.setSelectionRange(addressCursor - (rawAddress.length - trimmedAddress.length), addressCursor - (rawAddress.length - trimmedAddress.length));
+    }
+
     const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(address);
     const check =
-      inputAmountRef.current.value &&
-      Number(inputAmountRef.current.value) <= Number(balance.ar) &&
-      isValidArweaveAddress(inputReceivingAddressRef.current.value) &&
-      inputReceivingAddressRef.current.value !== wallet.address;
+      trimmedAmount &&
+      Number(trimmedAmount) <= Number(balance.ar) &&
+      isValidArweaveAddress(trimmedAddress) &&
+      trimmedAddress !== wallet.address;
     setCanSend(check);
   }
 
