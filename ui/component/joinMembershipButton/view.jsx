@@ -60,8 +60,6 @@ const JoinMembershipButton = (props: Props) => {
   const shouldRenew = firstPaymentDue && acceptsPayments && endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days')) && (membershipStatus === 'active' || membershipStatus === 'lapsed');
   const legacyMembership = !firstPaymentDue && !endsInFuture;
 
-  console.log('valid', validUserMembershipForChannel);
-
   const pending = validUserMembershipForChannel?.payments[0]?.status === 'pending';
 
   const getDeadline = () => {
