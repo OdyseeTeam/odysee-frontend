@@ -62,7 +62,7 @@ const JoinMembershipButton = (props: Props) => {
 
   console.log('valid', validUserMembershipForChannel);
 
-  const pending = validUserMembershipForChannel.payments[0].status === 'pending';
+  const pending = validUserMembershipForChannel?.payments[0]?.status === 'pending';
 
   const getDeadline = () => {
     if (fpdaInFuture) {
