@@ -316,11 +316,11 @@ export const doClearPublish = () => (dispatch: Dispatch) => {
   return dispatch(doResetThumbnailStatus());
 };
 
-export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (dispatch: Dispatch) =>
+export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (dispatch: Dispatch) =>  
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { ...publishFormValue },
-  });
+  });  
 
 export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
   return (dispatch: Dispatch, getState: GetState) => {

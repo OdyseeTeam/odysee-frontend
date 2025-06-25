@@ -141,7 +141,7 @@ export class FormField extends React.PureComponent<Props, State> {
     const labelProps = { name, label };
     const countInfoProps = { charCount, textAreaMaxLength };
     const quickActionProps = { label: quickActionLabel, quickActionHandler };
-    const inputSimpleProps = { name, label, ...inputProps };
+    const inputSimpleProps = { name, label, disabled, ...inputProps };
     const inputSelectProps = { name, error, label, children, ...inputProps };
 
     switch (type) {
