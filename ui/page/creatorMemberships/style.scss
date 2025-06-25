@@ -231,7 +231,7 @@
 
   &.memberships {
     background-image: url('https://static.odycdn.com/images/banner_creatorPortal.jpg');
-    background-position: 60% -170px;
+    background-position: 10% -170px;
     transition: background-position 0.4s;
     border-radius: 0 var(--border-radius) var(--border-radius) 0 ;
     clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
@@ -294,7 +294,7 @@
     }
 
     &.memberships {
-      background-position: 58% -176px;
+      background-position: 8% -196px;
       &:before {
         background-color: rgba(230, 25, 112, 0.1);
       }
