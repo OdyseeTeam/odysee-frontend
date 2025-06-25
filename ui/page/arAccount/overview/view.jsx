@@ -1,6 +1,8 @@
 // @flow
 import React from 'react';
 import { NavLink } from 'react-router-dom';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import QRCode from 'component/common/qr-code';
 import CopyableText from 'component/copyableText';
 import ButtonToggle from 'component/buttonToggle';
@@ -21,6 +23,7 @@ function Overview(props: Props) {
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true');
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
+  const walletType = LocalStorage.getItem('WALLET_TYPE')
 
   React.useEffect(() => {
     (async () => {
@@ -142,30 +145,16 @@ function Overview(props: Props) {
             <div className="payment-options-card">
               <div className="payment-options">
                 <h2 className="section__title--small">
-                  <I18nMessage
-                    tokens={{
-                      learnMore: (
-                        <a
-                          href="https://help.odysee.tv/category-monetization/wander"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {__('Learn more')}
-                        </a>
-                      ),
-                    }}
-                  >
-                    Connected wallet %learnMore%
-                  </I18nMessage>
+                  {__('Receive')}
                 </h2>
                 <div className="payment-options-content">
                   <div className="payment-option">
-                    <div className="sendArLabel">{__('Address')}</div>
+                    {/* <div className="sendArLabel">{__('Address')}</div> */}
                     <CopyableText copyable={wallet?.address} />
                   </div>
                   <div className="payment-option__monetization">
                     {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)} />
-                  </div>                  
+                  </div>
                 </div>
               </div>
               <div className="payment-options">
@@ -173,13 +162,16 @@ function Overview(props: Props) {
                   <I18nMessage
                     tokens={{
                       learnMore: (
-                        <a
-                          href="https://help.odysee.tv/category-monetization/setup"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {__('Learn more')}
-                        </a>
+                        <div className="learn-more">
+                          <Icon icon={ICONS.INFO} />
+                          <a
+                            href="https://help.odysee.tv/category-monetization/setup"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {__('Learn more')}
+                          </a>
+                        </div>                        
                       ),
                     }}
                   >
@@ -255,6 +247,50 @@ function Overview(props: Props) {
               </div>
             </div>
           </div>
+
+          {walletType !== 'NATIVE_WALLET' && (
+            <div>
+              <h2 className="section__title--small">
+                <I18nMessage
+                  tokens={{
+                    learnMore: (
+                      <div className="learn-more">
+                        <Icon icon={ICONS.INFO} />
+                        <a
+                          
+                          href="https://help.odysee.tv/category-monetization/wander"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {__('Learn more')}
+                        </a>
+                      </div>
+                    ),
+                  }}
+                >
+                  Connected wallet %learnMore%
+                </I18nMessage>
+              </h2>
+              <div className="payment-options-content">
+                <div className="payment-option">
+                  <div className="payment-option__wallet">
+                    <div className="payment-option__wallet-info">
+                      {/* <h3>{__('Warning')}</h3> */}
+                      <span>Please make sure you have a complete backup of your wallet and a recovery file, and keep them in a secure place. We do not have access to your wallet and cannot help you if you lose these files.</span>
+                    </div>
+                    <div className="payment-option__wallet-button">
+                      <Button
+                        button="primary"
+                        label={__('Open wallet')}
+                        icon={ICONS.WANDER}
+                        onClick={() => window.wanderInstance.open()}
+                      />        
+                    </div>                
+                  </div>                              
+                </div>
+              </div>
+            </div>
+          )}          
 
           <h2 className="section__title--small">
             {__('Transaction history')}
