@@ -23,7 +23,7 @@ function Overview(props: Props) {
   const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true');
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
-  const walletType = LocalStorage.getItem('WALLET_TYPE')
+  const walletType = LocalStorage.getItem('WALLET_TYPE');
 
   React.useEffect(() => {
     (async () => {
@@ -144,9 +144,7 @@ function Overview(props: Props) {
           <div className="payment-options-wrapper">
             <div className="payment-options-card">
               <div className="payment-options">
-                <h2 className="section__title--small">
-                  {__('Receive')}
-                </h2>
+                <h2 className="section__title--small">{__('Receive')}</h2>
                 <div className="payment-options-content">
                   <div className="payment-option">
                     {/* <div className="sendArLabel">{__('Address')}</div> */}
@@ -165,13 +163,13 @@ function Overview(props: Props) {
                         <div className="learn-more">
                           <Icon icon={ICONS.INFO} />
                           <a
-                            href="https://help.odysee.tv/category-monetization/setup"
+                            href="https://help.odysee.tv/category-monetization"
                             target="_blank"
                             rel="noopener noreferrer"
                           >
                             {__('Learn more')}
                           </a>
-                        </div>                        
+                        </div>
                       ),
                     }}
                   >
@@ -257,7 +255,6 @@ function Overview(props: Props) {
                       <div className="learn-more">
                         <Icon icon={ICONS.INFO} />
                         <a
-                          
                           href="https://help.odysee.tv/category-monetization/wander"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -276,7 +273,12 @@ function Overview(props: Props) {
                   <div className="payment-option__wallet">
                     <div className="payment-option__wallet-info">
                       {/* <h3>{__('Warning')}</h3> */}
-                      <span>Please make sure you have a complete backup of your wallet and a recovery file, and keep them in a secure place. We do not have access to your wallet and cannot help you if you lose these files.</span>
+                      <span>
+                        We highly recommend backing up your wallet and its recovery file, and storing both somewhere
+                        safe. In the Wallet, go to Account › Backup to generate a QR code you can scan to sign in on
+                        other devices. We never see your wallet or recovery file, so if you lose them we can’t restore
+                        your account.
+                      </span>
                     </div>
                     <div className="payment-option__wallet-button">
                       <Button
@@ -284,13 +286,13 @@ function Overview(props: Props) {
                         label={__('Open wallet')}
                         icon={ICONS.WANDER}
                         onClick={() => window.wanderInstance.open()}
-                      />        
-                    </div>                
-                  </div>                              
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          )}          
+          )}
 
           <h2 className="section__title--small">
             {__('Transaction history')}

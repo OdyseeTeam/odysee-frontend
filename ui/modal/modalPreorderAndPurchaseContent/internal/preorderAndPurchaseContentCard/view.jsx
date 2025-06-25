@@ -215,8 +215,8 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                   ),
                 }}
               >
-                By continuing, you accept the %paid_content_terms_and_conditions%. This payment is final and cannot be
-                refunded.
+                By continuing, you accept the %paid_content_terms_and_conditions%. All payments are final and
+                non-refundable.
               </I18nMessage>
             </p>
           </div>
