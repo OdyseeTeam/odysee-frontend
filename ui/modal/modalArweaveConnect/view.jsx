@@ -69,7 +69,7 @@ export default function ModalAnnouncements(props: Props) {
         className="announcement"
         title={__('Unregistered Wallet Address')}
         subtitle={__(
-          'Your Wander address, %address%, is not onboarded with the payments system. You can switch your Wander extension address, or register this one for use.',
+          'Your Wander address, %address%, is not onboarded with the payments system. You can switch your Arweave address, or register this one for use.',
           { address: walletAddress }
         )}
         actions={
