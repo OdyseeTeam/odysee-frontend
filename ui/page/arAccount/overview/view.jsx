@@ -9,25 +9,16 @@ import Symbol from 'component/common/symbol';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 import ButtonToggleAddressActive from 'component/buttonToggleAddressActive';
+import I18nMessage from 'component/i18nMessage';
 import { LocalStorage } from 'util/storage';
 import './style.scss';
 
 function Overview(props: Props) {
-  const {
-    account,
-    cardHeader,
-    wallet,
-    balance,
-    arWalletStatus,
-    doUpdateArweaveAddressStatus,
-    accountUpdating,
-    activeArStatus,
-    doArSend,
-  } = props;
+  const { cardHeader, wallet, balance, arWalletStatus, activeArStatus, doArSend } = props;
 
   const [transactions, setTransactions] = React.useState(null);
   const [canSend, setCanSend] = React.useState(false);
-  const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true' ? true : false);
+  const [showQR, setShowQR] = React.useState(LocalStorage.getItem('WANDER_QR') === 'true');
   const inputAmountRef = React.useRef();
   const inputReceivingAddressRef = React.useRef();
 
@@ -90,9 +81,7 @@ function Overview(props: Props) {
 
           const transactions = [...transactionsA, ...transactionsB];
 
-          if (
-            transactions
-          ) {
+          if (transactions) {
             const newTransactions = [];
             for (let entry of transactions) {
               const transaction = entry.node;
@@ -110,11 +99,11 @@ function Overview(props: Props) {
             setTransactions(sortByDateDesc(newTransactions));
           }
         } catch (e) {
-          console.error(e);
+          console.log(e);
         }
       }
     })();
-  }, [activeArStatus, balance, activeArStatus]);
+  }, [activeArStatus, balance]);
 
   React.useEffect(() => {
     LocalStorage.setItem('WANDER_QR', showQR);
@@ -152,7 +141,24 @@ function Overview(props: Props) {
           <div className="payment-options-wrapper">
             <div className="payment-options-card">
               <div className="payment-options">
-                <h2 className="section__title--small">{__('Connected wallet')}</h2>
+                <h2 className="section__title--small">
+                  <I18nMessage
+                    tokens={{
+                      learnMore: (
+                        <a
+                          href="https://help.odysee.tv/category-monetization/wander"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--color-primary)' }}
+                        >
+                          {__('Learn more')}
+                        </a>
+                      ),
+                    }}
+                  >
+                    Connected wallet %learnMore%
+                  </I18nMessage>
+                </h2>
                 <div className="payment-options-content">
                   <div className="payment-option">
                     <div className="sendArLabel">{__('Address')}</div>
@@ -170,7 +176,24 @@ function Overview(props: Props) {
                     <div className="payment-option__monetization">
                       <div className="payment-option__labels">
                         <h3>{__('Allow monetization')}</h3>
-                        <span>{__('Turning this on enables your account(s) to receive tips and setup memberships.')}</span>
+                        <span>
+                          <I18nMessage
+                            tokens={{
+                              learnMore: (
+                                <a
+                                  href="https://help.odysee.tv/category-monetization/setup"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ color: 'var(--color-primary)' }}
+                                >
+                                  {__('Learn more')}
+                                </a>
+                              ),
+                            }}
+                          >
+                            Turning this on enables your channel(s) to receive tips and setup memberships. %learnMore%
+                          </I18nMessage>
+                        </span>
                       </div>
                       <ButtonToggleAddressActive address={wallet?.address} />
                     </div>
@@ -240,39 +263,42 @@ function Overview(props: Props) {
             <NavLink to={`wallet?tab=fiat-payment-history&currency=fiat&transactionType=tips`}>Tip history</NavLink>
           </h2>
           <div className="transaction-history">
-            {!transactions
-              ? <Spinner type="small" />
-              : transactions.map((transaction, index) => (
-                  <div key={index} className="transaction-history__row">
-                    <div className="transaction-history__date">
-                      {new Date(transaction.date * 1000).toLocaleString('en-US', {
+            {!transactions ? (
+              <Spinner type="small" />
+            ) : (
+              transactions.map((transaction, index) => (
+                <div key={index} className="transaction-history__row">
+                  <div className="transaction-history__date">
+                    {new Date(transaction.date * 1000)
+                      .toLocaleString('en-US', {
                         month: '2-digit',
                         day: '2-digit',
                         year: 'numeric',
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: false,
-                      }).replace(',', '')}
-                    </div>
-                    <div className="transaction-history__action">
-                      {transaction.action === 'sendTip' ? __('Send') : __('Receive')}
-                    </div>
-                    <div className="transaction-history__amount">{transaction.amount.toFixed(6)}</div>
-                    <div className="transaction-history__token">
-                      <Symbol token="ar" />
-                    </div>
-                    <div className="transaction-history__direction">
-                      {transaction.action === 'sendTip' ? __('to') : __('from')}
-                    </div>
-                    <div className="transaction-history__target">{transaction.target}</div>
-                    <div className="transaction-history__viewblock">
-                      <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank" rel="noreferrer">
-                        <img src="https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp" />
-                      </a>
-                    </div>
+                      })
+                      .replace(',', '')}
                   </div>
-                ))
-            }
+                  <div className="transaction-history__action">
+                    {transaction.action === 'sendTip' ? __('Send') : __('Receive')}
+                  </div>
+                  <div className="transaction-history__amount">{transaction.amount.toFixed(6)}</div>
+                  <div className="transaction-history__token">
+                    <Symbol token="ar" />
+                  </div>
+                  <div className="transaction-history__direction">
+                    {transaction.action === 'sendTip' ? __('to') : __('from')}
+                  </div>
+                  <div className="transaction-history__target">{transaction.target}</div>
+                  <div className="transaction-history__viewblock">
+                    <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank" rel="noreferrer">
+                      <img src="https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp" />
+                    </a>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </>
       }

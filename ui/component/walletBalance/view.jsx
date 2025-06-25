@@ -12,8 +12,6 @@ import Card from 'component/common/card';
 import Symbol from 'component/common/symbol';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
-import { LocalStorage } from 'util/storage';
-import { formatCredits } from 'util/format-credits';
 import { useArStatus } from 'effects/use-ar-status';
 
 type Props = {
@@ -51,10 +49,8 @@ const WalletBalance = (props: Props) => {
   const {
     clientSettings,
     LBCBalance,
-    wanderAuth,
     arStatus,
     arBalance,
-    arUsdRate,
     claimsBalance,
     totalBalance,
     supportsBalance,
@@ -72,14 +68,7 @@ const WalletBalance = (props: Props) => {
     doArDisconnect,
   } = props;
 
-  const {
-    walletType,
-    hasArweaveExtension,
-    hasArSignin,
-    hasArConnection,
-    isSigningIn,
-    hasConnection,
-  } = useArStatus();
+  const { walletType, hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection } = useArStatus();
 
   const isMobile = useIsMobile();
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
@@ -95,10 +84,10 @@ const WalletBalance = (props: Props) => {
   }, [doFetchUtxoCounts, LBCBalance, detailsExpanded]);
 
   const handleSignIn = () => {
-    const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS]
-    if(showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS)
+    const showModal = clientSettings[SETTINGS.CRYPTO_DISCLAIMERS];
+    if (showModal) doOpenModal(MODALS.CRYPTO_DISCLAIMERS);
     else window.wanderInstance.open();
-  }
+  };
 
   return (
     <div className={'columns'}>
@@ -238,7 +227,7 @@ const WalletBalance = (props: Props) => {
               <Symbol token="wallet" amount="0" precision={2} isTitle counter />
             ) : (
               <>
-                <Symbol token="usd" amount={(arBalance*arStatus.exchangeRates.ar)} precision={2} isTitle counter />
+                <Symbol token="usd" amount={arBalance * arStatus.exchangeRates.ar} precision={2} isTitle counter />
                 <Button button="alt" label={__('Disconnect Wallet')} onClick={() => doArDisconnect()} />
               </>
             )
@@ -279,19 +268,34 @@ const WalletBalance = (props: Props) => {
                     tokens={{
                       textD: (
                         <p>
-                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet
+                          compatible with AR.{' '}
+                          <a
+                            href="https://help.odysee.tv/category-monetization/setup"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="link"
+                          >
+                            {__('Learn more')}
+                          </a>
                         </p>
                       ),
                       textM: (
                         <p>
-                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.
+                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet
+                          compatible with AR.{' '}
+                          <a
+                            href="https://help.odysee.tv/category-monetization/setup"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="link"
+                          >
+                            {__('Learn more')}
+                          </a>
                         </p>
                       ),
                       login: (
-                        <a
-                          className="link"
-                          onClick={handleSignIn}
-                        >
+                        <a className="link" onClick={handleSignIn}>
                           Sign in
                         </a>
                       ),
@@ -350,10 +354,7 @@ const WalletBalance = (props: Props) => {
                     tokens={{
                       text: <p>To use AR on Odysee, the Wander wallet must be connected.</p>,
                       link: (
-                        <a
-                          className="link"
-                          onClick={() => doArConnect()}
-                        >
+                        <a className="link" onClick={() => doArConnect()}>
                           Connect now
                         </a>
                       ),
@@ -382,7 +383,6 @@ const WalletBalance = (props: Props) => {
                     <img src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp" />
                     AR Price: ${Number(arStatus.exchangeRates.ar).toFixed(2)} USD
                   </h2>
-                  
                 </>
               )}
 
