@@ -104,7 +104,7 @@ const WalletFiatAccountHistory = (props: Props) => {
       return (
         <>
           {symbol}
-          {((transaction.tipped_amount / 100) * rate).toFixed(2)} {currency}
+          {(transaction.tipped_amount / 100).toFixed(2)} {currency}
         </>
       );
     }
@@ -133,7 +133,7 @@ const WalletFiatAccountHistory = (props: Props) => {
       return (
         <>
           {symbol}
-          {((transaction.tipped_amount / 100) * rate).toFixed(2)}{' '}
+          {(transaction.tipped_amount / 100).toFixed(2)}{' '}
           {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
         </>
       );

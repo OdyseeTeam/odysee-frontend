@@ -149,7 +149,6 @@ function Overview(props: Props) {
                           href="https://help.odysee.tv/category-monetization/wander"
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ color: 'var(--color-primary)' }}
                         >
                           {__('Learn more')}
                         </a>
@@ -166,34 +165,33 @@ function Overview(props: Props) {
                   </div>
                   <div className="payment-option__monetization">
                     {__('Show QR code')} <ButtonToggle status={showQR} setStatus={() => setShowQR(!showQR)} />
-                  </div>
+                  </div>                  
                 </div>
               </div>
               <div className="payment-options">
-                <h2 className="section__title--small">{__('Settings')}</h2>
+                <h2 className="section__title--small">
+                  <I18nMessage
+                    tokens={{
+                      learnMore: (
+                        <a
+                          href="https://help.odysee.tv/category-monetization/setup"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {__('Learn more')}
+                        </a>
+                      ),
+                    }}
+                  >
+                    Monetization %learnMore%
+                  </I18nMessage>
+                </h2>
                 <div className="payment-options-content">
                   <div className="payment-option">
                     <div className="payment-option__monetization">
                       <div className="payment-option__labels">
                         <h3>{__('Allow monetization')}</h3>
-                        <span>
-                          <I18nMessage
-                            tokens={{
-                              learnMore: (
-                                <a
-                                  href="https://help.odysee.tv/category-monetization/setup"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ color: 'var(--color-primary)' }}
-                                >
-                                  {__('Learn more')}
-                                </a>
-                              ),
-                            }}
-                          >
-                            Turning this on enables your channel(s) to receive tips and setup memberships. %learnMore%
-                          </I18nMessage>
-                        </span>
+                        <span>Turning this on enables your channel(s) to receive tips and setup memberships.</span>
                       </div>
                       <ButtonToggleAddressActive address={wallet?.address} />
                     </div>
@@ -204,7 +202,7 @@ function Overview(props: Props) {
 
             {showQR && (
               <div className="payment-options">
-                <h2 className="section__title--small">{__('Receive')}</h2>
+                <h2 className="section__title--small">{__('QR Code')}</h2>
                 <div className="payment-options-content">
                   <div className="payment-option" style={{ alignItems: 'center' }}>
                     {wallet && wallet.address && <QRCode value={wallet.address} />}

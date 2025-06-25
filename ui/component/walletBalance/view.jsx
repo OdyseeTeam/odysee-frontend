@@ -233,7 +233,9 @@ const WalletBalance = (props: Props) => {
             )
           }
           subtitle={
-            <>
+            
+            !hasArConnection ? (
+                <>
               <div className="wallet-check-row">
                 <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
                 <div>
@@ -257,7 +259,16 @@ const WalletBalance = (props: Props) => {
                   )}
                 </div>
               </div>
-            </>
+              </>
+              ) : (
+                <I18nMessage tokens={{ 
+                  ar: <Symbol inline token="ar" />,
+                  usd: <Symbol inline token="usd" />,
+                  price: <img style={{ height: '16px' }} src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp" />,
+                }}>
+                Your total %ar% balance in %usd%. The displayed %usd% amount is subject to change and reflects the value based on the current exchange rate (%price%).
+              </I18nMessage>
+              )
           }
           background
           actions={

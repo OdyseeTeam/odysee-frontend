@@ -360,6 +360,15 @@
       // color:var(--color-text);
     }
   }
+
+  .help{
+    a{
+      color:var(--color-primary);
+      &:hover{
+        color:var(--color-secondary);
+      }
+    }
+  }
 }
 
 @keyframes rotate {

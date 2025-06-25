@@ -17,7 +17,7 @@ type Props = {
 };
 
 const Symbol = (props: Props) => {
-  const { token, chain, amount = null, precision = 8, size, isTitle = false, counter = false } = props;
+  const { token, chain, amount = null, precision = 8, size, isTitle = false, counter = false, inline = false } = props;
   const displayAmount = Number(amount).toFixed(precision);
   const displayLabel = token !== 'wallet' && token !== null ? ` ${token?.toUpperCase()}` : token === 'wallet' ? ' USD' : null;
 
@@ -26,6 +26,7 @@ const Symbol = (props: Props) => {
       <div
         className={classnames('icon__symbol-wrapper', {
           'icon__symbol-wrapper--chain': chain,
+          'icon__symbol-wrapper--inline': inline,
         })}
       >
         <Icon
@@ -33,7 +34,7 @@ const Symbol = (props: Props) => {
           size={isTitle ? 22 : size}
           className={classnames('icon__symbol', {
             // 'icon__symbol--after-text': amount,
-            'icon__symbol--title': isTitle,
+            'icon__symbol--title': isTitle,            
           })}
         />
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
