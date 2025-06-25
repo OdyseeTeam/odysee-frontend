@@ -134,7 +134,7 @@ export default function Wander(props: Props) {
 
     return () => {
       try {
-        wanderInstance.destroy();
+        window.wanderInstance.destroy();
       } catch {}
     };
   }, [isUser]);
