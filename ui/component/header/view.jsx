@@ -298,7 +298,7 @@ const Header = (props: Props) => {
             )}
 
             {!authHeader && !canBackout
-              ? userButtons(isMobile)
+              ? userButtons(hideBalance, isMobile)
               : !isVerifyPage &&
                 !hideCancel && (
                   <div className="header__menu--right">
