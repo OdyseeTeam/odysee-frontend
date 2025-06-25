@@ -317,6 +317,11 @@ export const selectMyPurchasedMembershipsForChannelClaimId = (state: State, id: 
 export const selectFetchingIdsForMembershipChannelId = (state: State, channelId: string) =>
   selectMembershipFetchingIdsByChannel(state)[channelId];
 
+export const selectUserOdyseeMembership = (state: State, id: string) => {
+  const odyMemberships = selectChannelMembershipsForCreatorId(state, ODYSEE_CHANNEL.ID);
+  return odyMemberships ? odyMemberships[id] : null;
+}
+
 export const selectMembershipForCreatorIdAndChannelId = createCachedSelector(
   (state, creatorId, channelId) => channelId,
   selectChannelMembershipsForCreatorId,
