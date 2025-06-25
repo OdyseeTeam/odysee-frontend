@@ -60,6 +60,10 @@ const JoinMembershipButton = (props: Props) => {
   const shouldRenew = firstPaymentDue && acceptsPayments && endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days')) && (membershipStatus === 'active' || membershipStatus === 'lapsed');
   const legacyMembership = !firstPaymentDue && !endsInFuture;
 
+  console.log('valid', validUserMembershipForChannel);
+
+  const pending = validUserMembershipForChannel.payments[0].status === 'pending';
+
   const getDeadline = () => {
     if (fpdaInFuture) {
       return moment(firstPaymentDue).format('L');
@@ -103,11 +107,26 @@ const JoinMembershipButton = (props: Props) => {
     const getDescriptor = () => {
       if (legacyMembership) {
         return 'Legacy';
+      } else if (pending) {
+        return 'Verifying';
       } else {
-        return membershipName;
+          return membershipName;
       }
     };
 
+    if (pending) {
+      return (
+        <Button
+          {...DEFAULT_PROPS}
+          navigate={`${channelPath}?${urlParams.toString()}`}
+          label={getDescriptor()}
+          disabled
+          title={__('Verifying Payment')}
+          className="button--membership-active"
+          style={{ backgroundColor: 'rgba(var(--color-membership-' + membershipIndex + '), 1)' }}
+        />
+      );
+    }
     if (shouldRenew) {
       return (
         <Button
