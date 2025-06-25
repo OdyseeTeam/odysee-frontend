@@ -83,9 +83,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doPlayUri,
   } = props;
 
-  const {
-    activeArStatus
-  } = useArStatus();
+  const { activeArStatus } = useArStatus();
 
   const isUrlParamModal = React.useContext(ModalContext).isUrlParamModal;
 
@@ -170,13 +168,14 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
             <div className="fiat-order__claim-preview">
               <ClaimPreview uri={uri} hideMenu hideActions nonClickable type="small" />
             </div>
-            { /* confirm purchase - needs to check balance and disable */}
-            {!canReceiveTips 
-              ? <div className="monetization-disabled">USD Monetization isn't available. It may not be set up yet or has been disabled by the creator.</div>
-              : activeArStatus !== 'connected' 
-                ? <WalletStatus />
-                : null
-            }
+            {/* confirm purchase - needs to check balance and disable */}
+            {!canReceiveTips ? (
+              <div className="monetization-disabled">
+                USD Monetization isn't available. It may not be set up yet or has been disabled by the creator.
+              </div>
+            ) : activeArStatus !== 'connected' ? (
+              <WalletStatus />
+            ) : null}
             {pendingSdkPayment ? (
               <Button
                 button="primary"
@@ -204,6 +203,22 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 disabled={activeArStatus !== 'connected' || !canReceiveTips}
               />
             )}
+            <p className="help">
+              <I18nMessage
+                tokens={{
+                  paid_content_terms_and_conditions: (
+                    <Button
+                      button="link"
+                      href="https://help.odysee.tv/category-monetization/"
+                      label={__('paid-content terms and conditions')}
+                    />
+                  ),
+                }}
+              >
+                By continuing, you accept the %paid_content_terms_and_conditions%. This payment is final and cannot be
+                refunded.
+              </I18nMessage>
+            </p>
           </div>
         }
       />

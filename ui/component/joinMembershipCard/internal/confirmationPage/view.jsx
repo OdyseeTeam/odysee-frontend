@@ -62,7 +62,11 @@ const ConfirmationPage = (props: Props) => {
     <div className="confirm__wrapper">
       <h1>{__('Almost done')}</h1>
       <ConfirmationSection
-        label={isRenewal ? __(`Renew %channelName%'s Membership As`, { channelName }) : __(`Join %channelName%'s Membership As`, { channelName })}
+        label={
+          isRenewal
+            ? __(`Renew %channelName%'s Membership As`, { channelName })
+            : __(`Join %channelName%'s Membership As`, { channelName })
+        }
         value={<ChannelSelector />}
       />
       <section>
@@ -77,7 +81,9 @@ const ConfirmationPage = (props: Props) => {
       <section>
         <label>{__('Total Monthly Cost')}</label>
         <span className="total-membership-price">
-          <span className="total">${total} (<Symbol token="ar" amount={total / exchangeRate.ar} />)</span>
+          <span className="total">
+            ${total} (<Symbol token="ar" amount={total / exchangeRate.ar} />)
+          </span>
         </span>
       </section>
       {selectedCreatorMembership.perks && selectedCreatorMembership.perks.length > 0 && (
@@ -118,22 +124,19 @@ const ConfirmationPage = (props: Props) => {
             )}
             {(!arBalance || (dollarsPerAr && Number(dollarsPerAr) * arBalance < total)) && (
               <p className="help">
-                <div className="error__text">
-                  {__('Insufficient Balance')}
-                </div>
+                <div className="error__text">{__('Insufficient Balance')}</div>
               </p>
             )}
 
-            <SubmitButton isRenewal={isRenewal} disabled={!arBalance} modalState={{ passedTierIndex: selectedMembershipIndex }} />
+            <SubmitButton
+              isRenewal={isRenewal}
+              disabled={!arBalance}
+              modalState={{ passedTierIndex: selectedMembershipIndex }}
+            />
             <Button button="link" label={__('Cancel')} onClick={onCancel} />
           </div>
 
-          {membershipBuyError &&
-            (
-              <p className="error">
-                {membershipBuyError}
-              </p>
-            )}
+          {membershipBuyError && <p className="error">{membershipBuyError}</p>}
           <p className="help">
             <I18nMessage
               tokens={{
@@ -146,7 +149,8 @@ const ConfirmationPage = (props: Props) => {
                 ),
               }}
             >
-              By continuing, you accept the %membership_terms_and_conditions%.
+              By continuing, you accept the %membership_terms_and_conditions%. You will need to make a payment each
+              month to continue the membership, and the payment cannot be refunded.
             </I18nMessage>
           </p>
         </>
@@ -173,6 +177,8 @@ const ConfirmationSection = (props: GroupProps) => {
   );
 };
 
-const SubmitButton = (props: { isRenewal: boolean, disabled: boolean }) => <Submit disabled={props.disabled} autoFocus button="primary" label={props.isRenewal ? __('Renew') : __('Confirm')} />;
+const SubmitButton = (props: { isRenewal: boolean, disabled: boolean }) => (
+  <Submit disabled={props.disabled} autoFocus button="primary" label={props.isRenewal ? __('Renew') : __('Confirm')} />
+);
 
 export default ConfirmationPage;
