@@ -147,10 +147,10 @@ function BuyAr(props: Props) {
                   ),
                 }}
               >
-                Odysee uses Wander's payment provider, Transak, to faciliate this purchase. You will need to go through
-                a Know Your Customer (KYC) process in order to purchase AR. Odysee cannot help with any KYC or payment
-                related issues, please reach out to Transak directly. You may also acquire and cash out AR on
-                Cryptocurrency exchanges. %learnMore%
+                To purchase AR on Odysee you’ll use Transak, Wander’s payment provider. Transak will prompt you to
+                complete a Know Your Customer (KYC) identity-verification step before the transaction can go through. If
+                you run into problems with KYC or payment, please contact Transak directly—Odysee can’t assist with
+                those issues. You can also buy or cash-out AR on most major cryptocurrency exchanges. %learnMore%
               </I18nMessage>
             </p>
           </>

@@ -149,8 +149,9 @@ const ConfirmationPage = (props: Props) => {
                 ),
               }}
             >
-              By continuing, you accept the %membership_terms_and_conditions%. You will need to make a payment each
-              month to continue the membership, and the payment cannot be refunded.
+              By proceeding, you agree to the %membership_terms_and_conditions%. Subscriptions are paid in
+              cryptocurrency, so you’ll need to make a renewal payment every month to stay subscribed. All payments are
+              final and non-refundable.
             </I18nMessage>
           </p>
         </>
