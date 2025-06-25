@@ -117,19 +117,20 @@ function checkAuthBusy() {
     })();
   });
 }
-export function doUserHasPremium(channelClaimId) {
+export function doUserHasPremium(channelClaimIds) {
   return async (dispatch, getState) => {
     const state = getState();
     const channelClaim = selectDefaultChannelId(state);
-    const myChannelIds = selectMyChannelClaimIds(state);
     dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED });
     if (!channelClaim) {
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: false });
     }
 
+    const channelClaimIdsCsv = channelClaimIds.join(',');
+
     try {
-      const res = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaim }, 'post');
-      const membershipStatus = res[channelClaim];
+      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaimIds ? channelClaimIdsCsv : channelClaim }, 'post');
+      const channelIds = Object.keys(resById);
 
       const getMembershipStatus = (ms) => {
         if (ms.has_premium) {
@@ -142,15 +143,19 @@ export function doUserHasPremium(channelClaimId) {
       };
 
       const membershipsById = {};
-      myChannelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(membershipStatus) });
-        dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: res[channelClaim] });
-        dispatch({
-          type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED,
-          data: {
-            channelId: ODYSEE_CHANNEL.ID,
-            membershipsById: membershipsById,
-          },
-        });
+
+      channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
+      if (!channelClaimIds) { // own state
+        dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: resById[channelClaim] });
+      }
+
+      dispatch({
+        type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED,
+        data: {
+          channelId: ODYSEE_CHANNEL.ID,
+          membershipsById: membershipsById,
+        },
+      });
     } catch (e) {
       console.log('e', e)
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });

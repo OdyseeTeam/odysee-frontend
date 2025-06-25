@@ -24,6 +24,7 @@ import { getStripeEnvironment } from 'util/stripe';
 import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
 import { doArSign, sendWinstons } from './arwallet';
 import { doResolveClaimIds } from './claims';
+import { doUserHasPremium } from './user';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
@@ -54,6 +55,7 @@ export const doFetchChannelMembershipsForChannelIds =
     const channelIdsToFetch = channelsToFetch.join(',');
 
     dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED, data: { channel: channelId, ids: channelsToFetch } });
+    dispatch(doUserHasPremium(channelsToFetch));
 
     return await Lbryio.call('membership_v2', 'check', {
       channel_id: channelId,
