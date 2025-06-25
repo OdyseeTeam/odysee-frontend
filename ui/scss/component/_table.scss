@@ -131,10 +131,13 @@ td {
     min-width: 100px;
   }
   .date-header {
-    width: 150px;
+    min-width: 220px;
   }
   .channelName-header {
     width: 160px;
+  }
+  .transactionType-header{
+    max-width: 160px;
   }
   .amount-header {
     width: 130px;

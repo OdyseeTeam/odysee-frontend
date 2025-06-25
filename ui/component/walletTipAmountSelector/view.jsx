@@ -10,6 +10,7 @@ import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import { useArStatus } from 'effects/use-ar-status';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 
@@ -70,7 +71,9 @@ function WalletTipAmountSelector(props: Props) {
     arExchangeRate,
     exchangeRateOverride,
   } = props;
-  
+    const {
+      activeArStatus
+    } = useArStatus();
 
   const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
