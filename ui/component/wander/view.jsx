@@ -23,7 +23,6 @@ export default function Wander(props: Props) {
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
 
-  console.log('isUser: ', isUser)
   React.useEffect(() => {
     if (instance) {
       if (auth?.authStatus === 'onboarding') instance.open();
@@ -130,7 +129,11 @@ export default function Wander(props: Props) {
 
       setInstance(wanderInstance);
       window.wanderInstance = wanderInstance;
-    }    
+    }else{
+      try {
+        window.wanderInstance.destroy();
+      } catch {}
+    }
 
     return () => {
       try {
