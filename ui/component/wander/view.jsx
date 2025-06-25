@@ -10,7 +10,7 @@ type Props = {
   connecting: boolean,
   theme: string,
   auth: any,
-  isUser: any,
+  authenticated: any,
   doArInit: () => void;
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
@@ -19,9 +19,11 @@ type Props = {
 };
 
 export default function Wander(props: Props) {
-  const { theme, auth, isUser, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance, doCleanTips } = props;
+  const { theme, auth, authenticated, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance, doCleanTips } = props;
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
+
+  console.log('authenticated: ', authenticated)
 
   React.useEffect(() => {
     if (instance) {
@@ -46,7 +48,7 @@ export default function Wander(props: Props) {
   }, [auth]);
 
   React.useEffect(() => {
-    if(isUser){
+    if(authenticated){
       doArInit()
       const wanderInstance = new WanderConnect({
         clientId: 'FREE_TRIAL',
@@ -140,7 +142,7 @@ export default function Wander(props: Props) {
         window.wanderInstance.destroy();
       } catch {}
     };
-  }, [isUser]);
+  }, [authenticated]);
 
   React.useEffect(() => {
     if(window.wanderInstance) window.wanderInstance.setTheme(theme);
