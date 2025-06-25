@@ -219,7 +219,7 @@ export const doArTip = (
     let referenceToken = '';
     let transactionId = '';
     let transactionAmount;
-    console.log('artip');
+
     try {
       if (!window.arweaveWallet) {
         dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: claimId, error: 'error: no wallet connection' } });
