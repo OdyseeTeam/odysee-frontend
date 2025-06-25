@@ -81,9 +81,9 @@ function PledgesTab(props: Props) {
               </tr>
             </thead>
             <tbody>
-              {sortedMembershipSubs.map((membershipSub) => {
+              {sortedMembershipSubs.map((membershipSub, index) => {
                   return (
-                    <MembershipRow membershipSub={membershipSub} key={membershipSub.id} />
+                    <MembershipRow membershipSub={membershipSub} key={index} />
                   );
                 }
               )}
