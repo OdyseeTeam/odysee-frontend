@@ -115,7 +115,7 @@
           display:flex;
           width:fit-content;
           .button{
-            margin-left:auto;
+            margin-left:var(--spacing-s);
           }
         }        
 
