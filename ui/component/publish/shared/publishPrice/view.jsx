@@ -143,6 +143,7 @@ function PublishPrice(props: Props) {
                 checked={paywall === PAYWALL.FIAT}
                 disabled={disabled || !monetizationStatus}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FIAT })}
+                helper={!monetizationStatus && 'In order to use this feature, you must set up a wallet and enable monetization first.'}
               />
               <FormField
                 type="radio"
