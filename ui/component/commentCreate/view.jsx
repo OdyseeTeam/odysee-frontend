@@ -26,6 +26,7 @@ import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
 import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
 
 const stripeEnvironment = getStripeEnvironment();
@@ -170,6 +171,10 @@ export function CommentCreate(props: Props) {
     hasPremiumPlus,
     arweaveTippingError,
   } = props;
+
+  const {
+    activeArStatus
+  } = useArStatus();
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
   const fileUri = React.useContext(AppContext)?.uri;
@@ -1084,7 +1089,7 @@ export function CommentCreate(props: Props) {
                   <>
                     {showArweave && (
                       // <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
-                      <TipActionButton {...tipButtonProps} name={__('AR')} icon={ICONS.USD} tab={TAB_USD} />
+                      <TipActionButton {...tipButtonProps} name={__('AR')} icon={ICONS.USD} tab={TAB_USD} disabled={tipButtonProps.disabled || activeArStatus !== 'connected'} />
                     )}
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
                     {false && stripeEnvironment && (
