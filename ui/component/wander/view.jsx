@@ -187,7 +187,7 @@ export default function Wander(props: Props) {
         }
         if (data.type === 'embedded_close') {
           doCleanTips()
-        }        
+        }
       }
     };
 
