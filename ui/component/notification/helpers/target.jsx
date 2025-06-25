@@ -19,7 +19,7 @@ export function getNotificationTarget(notification: WebNotification) {
     case RULE.REWARDS_APPROVAL_PROMPT:
       return `/$/${PAGES.REWARDS_VERIFY}?redirect=/$/${PAGES.REWARDS}`;
     case RULE.FIAT_TIP:
-      return `/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`;
+      return `/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat&transactionType=tips`;
     case RULE.NEW_MEMBER:
       return `/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=supporters`;
     default:
