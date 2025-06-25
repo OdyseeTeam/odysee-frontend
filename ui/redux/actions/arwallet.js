@@ -393,8 +393,12 @@ export const sendWinstons = async (
       recipient: address,
       quantity: amountInWinstons,
     };
-    const transaction = await arweave.createTransaction(createParams);
 
+    const transaction = await arweave.createTransaction(createParams);
+    if(transactionCheck.quantity >= amountInWinstons){
+      return { error: 'Insufficient AR Balance', transactionId: txResponse.transactionId };
+    }
+    
     tags.forEach((t) => {
       transaction.addTag(t.name, t.value);
     });
@@ -455,11 +459,11 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
           quantity: String(amountInWinstons - transactionCheck.reward),
         };
         transaction = await arweave.createTransaction(newParams);
-        await arweave.transactions.sign(transaction);
       } else {
         transaction = transactionCheck;
-        await arweave.transactions.sign(transaction);
-      }      
+        
+      } 
+      await arweave.transactions.sign(transaction);     
       const response = await arweave.transactions.post(transaction);
 
       dispatch(doToast({
