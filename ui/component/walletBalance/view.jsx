@@ -407,6 +407,13 @@ const WalletBalance = (props: Props) => {
                 />
                 <Button
                   button="secondary"
+                  label={__(`${!isMobile ? 'Send Payment' : 'Send'}`)}
+                  icon={ICONS.USD}
+                  navigate={`/$/${PAGES.ARACCOUNT}`}
+                  disabled={!hasArSignin || !hasArConnection}
+                />
+                <Button
+                  button="secondary"
                   label={__(`${!isMobile ? 'Arweave ' : ''}Account`)}
                   icon={ICONS.SETTINGS}
                   navigate={`/$/${PAGES.ARACCOUNT}`}

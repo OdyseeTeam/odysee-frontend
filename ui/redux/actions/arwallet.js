@@ -359,7 +359,7 @@ export const doCleanTips = () => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const currentState = getState();
     if(Object.keys(currentState.arwallet?.tippingStatusById).length === 1){
-      dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'error: arweave transaction failed' } });
+      dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'Modal closed' } });
     }
   }  
 }
@@ -393,12 +393,8 @@ export const sendWinstons = async (
       recipient: address,
       quantity: amountInWinstons,
     };
-
     const transaction = await arweave.createTransaction(createParams);
-    if(transaction.quantity >= amountInWinstons){
-      return { error: 'Insufficient AR Balance', transactionId: txResponse.transactionId };
-    }
-    
+
     tags.forEach((t) => {
       transaction.addTag(t.name, t.value);
     });
@@ -459,11 +455,11 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
           quantity: String(amountInWinstons - transactionCheck.reward),
         };
         transaction = await arweave.createTransaction(newParams);
+        await arweave.transactions.sign(transaction);
       } else {
         transaction = transactionCheck;
-        
-      } 
-      await arweave.transactions.sign(transaction);     
+        await arweave.transactions.sign(transaction);
+      }      
       const response = await arweave.transactions.post(transaction);
 
       dispatch(doToast({
