@@ -10,6 +10,7 @@ type Props = {
   connecting: boolean,
   theme: string,
   auth: any,
+  isUser: any,
   doArInit: () => void;
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
@@ -18,10 +19,11 @@ type Props = {
 };
 
 export default function Wander(props: Props) {
-  const { theme, auth, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance, doCleanTips } = props;
+  const { theme, auth, isUser, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance, doCleanTips } = props;
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
 
+  console.log('isUser: ', isUser)
   React.useEffect(() => {
     if (instance) {
       if (auth?.authStatus === 'onboarding') instance.open();
@@ -45,98 +47,100 @@ export default function Wander(props: Props) {
   }, [auth]);
 
   React.useEffect(() => {
-    doArInit()
-    const wanderInstance = new WanderConnect({
-      clientId: 'FREE_TRIAL',
-      theme: theme,
-      button: {
-        parent: wrapperRef.current,
-        label: false,
-        customStyles: `
-          #wanderConnectButtonHost {
-            display:none;
-          }`,
-      },
-      iframe: {
-        routeLayout: {
-          default: {
-            // type: 'dropdown',
-            type: 'modal',
-          },
-          auth: {
-            type: 'modal',
-          },
-          'auth-request': {
-            type: 'modal',
-          },
+    if(isUser){
+      doArInit()
+      const wanderInstance = new WanderConnect({
+        clientId: 'FREE_TRIAL',
+        theme: theme,
+        button: {
+          parent: wrapperRef.current,
+          label: false,
+          customStyles: `
+            #wanderConnectButtonHost {
+              display:none;
+            }`,
         },
-        cssVars: {
-          light: {
-            shadowBlurred: 'none',
+        iframe: {
+          routeLayout: {
+            default: {
+              // type: 'dropdown',
+              type: 'modal',
+            },
+            auth: {
+              type: 'modal',
+            },
+            'auth-request': {
+              type: 'modal',
+            },
           },
-          dark: {
-            shadowBlurred: 'none',
-            boxShadow: 'none',
+          cssVars: {
+            light: {
+              shadowBlurred: 'none',
+            },
+            dark: {
+              shadowBlurred: 'none',
+              boxShadow: 'none',
+            },
           },
-        },
-        customStyles: `
-          .backdrop {
-            margin-top:var(--header-height);
-            background-color: var(--color-background-overlay);
-            backdrop-filter: blur(2px);
-          }
-
-          .iframe {
-            max-width:400px;
-          }
-
-          .iframe-wrapper {              
-            border-radius: var(--border-radius);
-            border: 2px solid var(--color-border) !important;
-            background:unset;
-
-            /*
-            &[data-layout="dropdown"] {
-              position: fixed;
-              top: var(--header-height) !important;
-              right:1px !important;
-              left:unset !important;
-              min-height: 500px;
-              height: 600px;
-              border-top:unset !important;
-              border-radius: 0 0 var(--border-radius) var(--border-radius);
-              transform: scaleY(0) !important;
-              transform-origin: top;
-              transition: transform .2s !important;
-
-              &.show{
-                transform: scaleY(1) !important;
-              }
-
-              & + .backdrop {
-                backdrop-filter: unset;
-                background-color: unset;
-              }
+          customStyles: `
+            .backdrop {
+              margin-top:var(--header-height);
+              background-color: var(--color-background-overlay);
+              backdrop-filter: blur(2px);
             }
-            */
-          }
-        `,
-      },
-    });
+
+            .iframe {
+              max-width:400px;
+            }
+
+            .iframe-wrapper {              
+              border-radius: var(--border-radius);
+              border: 2px solid var(--color-border) !important;
+              background:unset;
+
+              /*
+              &[data-layout="dropdown"] {
+                position: fixed;
+                top: var(--header-height) !important;
+                right:1px !important;
+                left:unset !important;
+                min-height: 500px;
+                height: 600px;
+                border-top:unset !important;
+                border-radius: 0 0 var(--border-radius) var(--border-radius);
+                transform: scaleY(0) !important;
+                transform-origin: top;
+                transition: transform .2s !important;
+
+                &.show{
+                  transform: scaleY(1) !important;
+                }
+
+                & + .backdrop {
+                  backdrop-filter: unset;
+                  background-color: unset;
+                }
+              }
+              */
+            }
+          `,
+        },
+      });
 
 
-    setInstance(wanderInstance);
-    window.wanderInstance = wanderInstance;
+      setInstance(wanderInstance);
+      window.wanderInstance = wanderInstance;
+    }    
 
     return () => {
-      if (wanderInstance) {
+      try {
         wanderInstance.destroy();
-      }
+      } catch {}
     };
-  }, []);
+  }, [isUser]);
 
   React.useEffect(() => {
-    window.wanderInstance.setTheme(theme);
+    if(window.wanderInstance) window.wanderInstance.setTheme(theme);
   }, [theme]);
 
   React.useEffect(() => {
