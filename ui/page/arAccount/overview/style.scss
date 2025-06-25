@@ -121,11 +121,14 @@
 
         @media (max-width: $breakpoint-small) {
           flex-direction: column;
-          .button{
-            margin-top:var(--spacing-s);
-            margin-left:unset;
-            margin-right:auto;
-          }
+          .payment-option__wallet-button{
+            width:100%;
+            .button{
+              margin-top:var(--spacing-s);
+              margin-left:unset;
+              margin-right:auto;
+            }
+          }          
         }
       }
     }
