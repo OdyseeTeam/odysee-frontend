@@ -355,6 +355,16 @@ export const doArTip = (
   };
 };
 
+export const doCleanTips = () => {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    const currentState = getState();
+    if(Object.keys(currentState.arwallet?.tippingStatusById).length === 1){
+      dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'error: arweave transaction failed' } });
+    }
+  }  
+}
+
+
 function getBalanceEndpoint(wallet: string) {
   return `https://arweave.net/wallet/${wallet}/balance`;
 }

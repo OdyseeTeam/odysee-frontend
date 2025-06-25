@@ -14,10 +14,11 @@ type Props = {
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
   doArUpdateBalance: () => void,
+  doCleanTips: () => void,
 };
 
 export default function Wander(props: Props) {
-  const { theme, auth, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance } = props;
+  const { theme, auth, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance, doCleanTips } = props;
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
 
@@ -155,7 +156,7 @@ export default function Wander(props: Props) {
 
     const onMessage = (event) => {
       const data = event.data;
-      if (data && data.id && !data.id.includes('react')) {
+      if (data && data.id && !data.id.includes('react')) {        
         if (data.type === 'embedded_auth') {
           if (
             data.data.authType ||
@@ -184,6 +185,9 @@ export default function Wander(props: Props) {
         if (data.type === 'embedded_balance') {
           doArUpdateBalance();
         }
+        if (data.type === 'embedded_close') {
+          doCleanTips()
+        }        
       }
     };
 
