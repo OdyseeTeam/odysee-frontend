@@ -395,7 +395,7 @@ export const sendWinstons = async (
     };
 
     const transaction = await arweave.createTransaction(createParams);
-    if(transactionCheck.quantity >= amountInWinstons){
+    if(transaction.quantity >= amountInWinstons){
       return { error: 'Insufficient AR Balance', transactionId: txResponse.transactionId };
     }
     
