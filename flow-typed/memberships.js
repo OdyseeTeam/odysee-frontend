@@ -127,6 +127,7 @@ declare type Membership = {
   name: string,
   enabled: boolean,
   channel_claim_id: string,
+  first_payment_due_at: string,
 }
 
 declare type MembershipUpdateResponse = string;

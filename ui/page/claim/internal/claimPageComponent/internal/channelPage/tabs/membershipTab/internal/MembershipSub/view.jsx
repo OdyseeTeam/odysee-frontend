@@ -32,7 +32,12 @@ function MembershipSubscribed(props: IProps) {
   const perks = membershipSub.perks;
   const isActive = membershipSub.subscription.is_active === true;
   const isCanceled = membershipSub.subscription.status === 'canceled';
-  const canRenew = membershipSub.subscription.earliest_renewal_at && now > new Date(membershipSub.subscription.earliest_renewal_at);
+  const pending = membershipSub?.payments.some((p) => p.status === 'submitted');
+  console.log('membershipSub', membershipSub);
+  const canRenew =
+    membershipSub.subscription.earliest_renewal_at &&
+    now > new Date(membershipSub.subscription.earliest_renewal_at) &&
+    !pending;
   return (
     <>
       <Card
@@ -76,7 +81,7 @@ function MembershipSubscribed(props: IProps) {
                       </MenuItem>
                     </MenuList>
                   </Menu>
-                  )}
+                )}
               </div>
 
               <div className="membership__plan-content">
@@ -107,32 +112,46 @@ function MembershipSubscribed(props: IProps) {
 
                 <div className="membership__plan-actions">
                   {tipsEnabled &&
-                    (isActive && !isCanceled
-                      ? canRenew
-                        ? (<Button
-                            icon={ICONS.MEMBERSHIP}
-                            button="primary"
-                            label={__('Renew for $%membership_price% this month', {
-                              membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
-                                membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
-                              ), // tiers
-                            })}
-                            onClick={() => {
-                              doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: membershipIndex, passedTierIndex: membershipIndex, isChannelTab: true, isRenewal: true });
-                            }}
-                            disabled={false}
-                        />)
-                        : <label>{__('You can renew this membership on or after %renewal_date%', {
-                          renewal_date: formattedRenewalMembershipDate,
-                        })}</label>
-                      : <label>{__('Your cancelled membership will end on %end_date%.', {
-                        end_date: formattedEndOfMembershipDate,
-                      })}</label>
-                    )
-                  }
+                    (isActive && !isCanceled ? (
+                      canRenew ? (
+                        <Button
+                          icon={ICONS.MEMBERSHIP}
+                          button="primary"
+                          label={__('Renew for $%membership_price% this month', {
+                            membership_price: (membershipSub.subscription.current_price.amount / 100).toFixed(
+                              membershipSub?.subscription.current_price.amount < 100 ? 2 : 0
+                            ), // tiers
+                          })}
+                          onClick={() => {
+                            doOpenModal(MODALS.JOIN_MEMBERSHIP, {
+                              uri,
+                              membershipIndex: membershipIndex,
+                              passedTierIndex: membershipIndex,
+                              isChannelTab: true,
+                              isRenewal: true,
+                            });
+                          }}
+                          disabled={false}
+                        />
+                      ) : (
+                        <label>
+                          {pending
+                            ? __('Renewal being processed')
+                            : __('You can renew this membership on or after %renewal_date%', {
+                                renewal_date: formattedRenewalMembershipDate,
+                              })}
+                        </label>
+                      )
+                    ) : (
+                      <label>
+                        {__('Your cancelled membership will end on %end_date%.', {
+                          end_date: formattedEndOfMembershipDate,
+                        })}
+                      </label>
+                    ))}
                   {!tipsEnabled && (
                     <div>Enjoy this legacy membership while the creator onboards the new tip system</div>
-                    )}
+                  )}
                 </div>
               </div>
             </div>
