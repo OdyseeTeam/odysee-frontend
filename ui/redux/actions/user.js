@@ -123,7 +123,7 @@ export function doUserHasPremium() {
     dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED });
 
     try {
-      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: [channelClaim] }, 'post');
+      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaim }, 'post');
 
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: resById[channelClaim] });
     } catch (e) {
