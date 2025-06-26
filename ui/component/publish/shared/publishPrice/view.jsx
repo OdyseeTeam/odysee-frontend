@@ -19,8 +19,6 @@ const CURRENCY_OPTIONS = ['USD']; // ['USD', 'EUR']; // disable EUR until curren
 type Props = {
   disabled: boolean,
   // --- redux ---
-  fileMime: ?string,
-  streamType: ?string,
   fiatPurchaseEnabled: boolean,
   fiatPurchaseFee: Price,
   fiatRentalEnabled: boolean,
@@ -34,14 +32,11 @@ type Props = {
   updatePublishForm: (UpdatePublishState) => void,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
-  type: PublishType,
   visibility: Visibility,
 };
 
 function PublishPrice(props: Props) {
   const {
-    fileMime,
-    streamType,
     // Purchase
     fiatPurchaseEnabled,
     fiatPurchaseFee,
@@ -59,7 +54,6 @@ function PublishPrice(props: Props) {
     doTipAccountStatus,
     doCustomerPurchaseCost,
     disabled,
-    type,
     visibility,
   } = props;
 

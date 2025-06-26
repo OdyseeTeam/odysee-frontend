@@ -68,7 +68,7 @@ const WalletBalance = (props: Props) => {
     doArDisconnect,
   } = props;
 
-  const { walletType, hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection } = useArStatus();
+  const { hasArweaveExtension, hasArSignin, hasArConnection, isSigningIn, hasConnection } = useArStatus();
 
   const isMobile = useIsMobile();
   const isWanderApp = navigator.userAgent.includes('WanderMobile');
@@ -232,10 +232,8 @@ const WalletBalance = (props: Props) => {
               </>
             )
           }
-          subtitle={
-            
-            !hasArConnection ? (
-                <>
+          subtitle={!hasArConnection ? (
+            <>
               <div className="wallet-check-row">
                 <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
                 <div>
@@ -261,7 +259,7 @@ const WalletBalance = (props: Props) => {
               </div>
               </>
               ) : (
-                <I18nMessage tokens={{ 
+                <I18nMessage tokens={{
                   ar: <Symbol inline token="ar" />,
                   usd: <Symbol inline token="usd" />,
                   price: <img style={{ height: '16px' }} src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp" />,

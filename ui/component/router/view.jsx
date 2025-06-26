@@ -53,7 +53,6 @@ const SignInWalletPasswordPage = lazyImport(() =>
 const SignUpPage = lazyImport(() => import('page/signUp' /* webpackChunkName: "signUp" */));
 const SignInVerifyPage = lazyImport(() => import('page/signInVerify' /* webpackChunkName: "signInVerify" */));
 
-const BuyPage = lazyImport(() => import('page/buy' /* webpackChunkName: "buy" */));
 const ReceivePage = lazyImport(() => import('page/receive' /* webpackChunkName: "receive" */));
 const SendPage = lazyImport(() => import('page/send' /* webpackChunkName: "send" */));
 const SwapPage = lazyImport(() => import('page/swap' /* webpackChunkName: "swap" */));
@@ -455,7 +454,6 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM}`} component={LiveStreamSetupPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CURRENT}`} component={LivestreamCurrentPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.HIDDEN_CONTENT}`} component={HiddenContentPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.BUY}`} component={BuyPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.RECEIVE}`} component={ReceivePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SEND}`} component={SendPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SWAP}`} component={SwapPage} />

@@ -117,7 +117,7 @@ export default function WalletSendTip(props: Props) {
   } = props;
 
   const {
-    activeArStatus
+    activeArStatus,
   } = useArStatus();
 
   const showStablecoin = ENABLE_STABLECOIN && experimentalUi;

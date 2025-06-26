@@ -6,8 +6,6 @@ import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEna
 import PublishPrice from './view';
 
 const select = (state) => ({
-  fileMime: selectPublishFormValue(state, 'fileMime'),
-  streamType: selectPublishFormValue(state, 'streamType'),
   paywall: selectPublishFormValue(state, 'paywall'),
   fiatPurchaseEnabled: selectPublishFormValue(state, 'fiatPurchaseEnabled'),
   fiatPurchaseFee: selectPublishFormValue(state, 'fiatPurchaseFee'),
@@ -17,7 +15,6 @@ const select = (state) => ({
   fee: selectPublishFormValue(state, 'fee'),
   chargesEnabled: selectAccountChargesEnabled(state),
   memberRestrictionStatus: selectMemberRestrictionStatus(state),
-  type: state.publish.type,
   visibility: selectPublishFormValue(state, 'visibility'),
   monetizationStatus: selectArweaveDefaultAccountMonetizationEnabled(state),
 });

@@ -19,7 +19,6 @@ import { selectClientSettings, selectHomepageData } from 'redux/selectors/settin
 import { doOpenModal, doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
 import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
-import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
 import { GetLinksData } from 'util/buildHomepage';
 
 // ****************************************************************************

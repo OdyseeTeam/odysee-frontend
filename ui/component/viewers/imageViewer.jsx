@@ -14,7 +14,6 @@ type Props = {
 function ImageViewer(props: Props) {
   const { source, title, onClick } = props;
   const [loadingError, setLoadingError] = React.useState(false);
-  const [loadingErrorMessage, setLoadingErrorMessage] = React.useState('');
 
   return (
     <React.Fragment>
@@ -28,7 +27,6 @@ function ImageViewer(props: Props) {
         <div className={`file-viewer${onClick ? ' file-viewer--download' : ''}`}>
           {!onClick ? (
             <ZoomableImage src={source} onError={(e) => {
-              setLoadingErrorMessage(e?.message || e);
               setLoadingError(true);
             }} />
           ) : (

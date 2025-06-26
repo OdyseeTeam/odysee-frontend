@@ -138,7 +138,7 @@ const JoinMembershipButton = (props: Props) => {
         {...DEFAULT_PROPS}
         navigate={`${channelPath}?${urlParams.toString()}`}
         label={getDescriptor()}
-        title={__('You are a %descriptor% member', { descriptor:  getDescriptor() })}
+        title={__('You are a %descriptor% member', { descriptor: getDescriptor() })}
         className="button--membership-active"
         style={{ backgroundColor: 'rgba(var(--color-membership-' + membershipIndex + '), 1)' }}
       />

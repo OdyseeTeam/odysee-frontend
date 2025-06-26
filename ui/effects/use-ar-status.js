@@ -64,7 +64,7 @@ export const useArStatus = () => {
       const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
       if (!intentionalDisconnect) dispatch(doArConnect());
     }
-    // $FlowIgnore
+    // eslint-disable-next-line
   }, [wanderAuth, walletType, arStatus.connecting]);
 
   return {
