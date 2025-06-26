@@ -227,7 +227,6 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     }
     const res = await Lbryio.call('arweave/address', 'add', params, 'post');
 
-    console.log('REG RES: ', res)
     return res;
     // get public key
     // sign the address

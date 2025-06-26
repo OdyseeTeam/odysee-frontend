@@ -17,7 +17,7 @@ reducers[ACTIONS.FILE_LIST_STARTED] = (state) =>
 reducers[ACTIONS.FILE_LIST_SUCCEEDED] = (state, action) => {
   const { fileInfos } = action.data;
   const newByOutpoint = Object.assign({}, state.byOutpoint);
-  const pendingByOutpoint = Object.assign({}, state.pendingByOutpoint);  
+  const pendingByOutpoint = Object.assign({}, state.pendingByOutpoint);
 
   fileInfos.forEach((fileInfo) => {
     const { outpoint } = fileInfo;
@@ -34,7 +34,7 @@ reducers[ACTIONS.FILE_LIST_SUCCEEDED] = (state, action) => {
 
 reducers[ACTIONS.FETCH_FILE_INFO_STARTED] = (state, action) => {
   const { outpoint } = action.data;
-  
+
   const newFetchingOutpoints = new Set(state.fetchingOutpoints);
   newFetchingOutpoints.add(outpoint);
 

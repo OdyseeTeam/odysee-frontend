@@ -14,7 +14,7 @@ import {
   WANDER_AUTH,
   AR_SEND_STARTED,
   AR_SEND_ERROR,
-  AR_SEND_SUCCESS
+  AR_SEND_SUCCESS,
 } from 'constants/action_types';
 // $FlowIgnore
 import { message, createDataItemSigner } from '@permaweb/aoconnect';
@@ -70,7 +70,7 @@ export function doArInit() {
 }
 
 export function doArConnect() {
-  console.log('doArConnect')
+  console.log('doArConnect');
   LocalStorage.setItem('WANDER_DISCONNECT', false);
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
@@ -163,7 +163,7 @@ export function doArUpdateBalance() {
 }
 
 export function doArDisconnect() {
-  LocalStorage.setItem('WANDER_DISCONNECT', true)
+  LocalStorage.setItem('WANDER_DISCONNECT', true);
 
   return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_STARTED });
@@ -358,12 +358,11 @@ export const doArTip = (
 export const doCleanTips = () => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const currentState = getState();
-    if(Object.keys(currentState.arwallet?.tippingStatusById).length === 1){
+    if (Object.keys(currentState.arwallet?.tippingStatusById).length === 1) {
       dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'Modal closed' } });
     }
   }
-}
-
+};
 
 function getBalanceEndpoint(wallet: string) {
   return `https://arweave.net/wallet/${wallet}/balance`;
@@ -446,8 +445,8 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
       };
 
       const transactionCheck = await arweave.createTransaction(testParams);
-      let transaction = null
-      if(transactionCheck.quantity >= amountInWinstons){
+      let transaction = null;
+      if (transactionCheck.quantity >= amountInWinstons) {
         const newParams = {
           target: recipientAddress,
           recipient: recipientAddress,
@@ -476,5 +475,3 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
     }
   };
 };
-
-

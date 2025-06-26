@@ -5,23 +5,18 @@ import { formatDateToMonthDayAndYear } from 'util/time';
 
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
-import * as STRIPE from 'constants/stripe';
 
 import Button from 'component/button';
 import MembershipBadge from 'component/membershipBadge';
 
 type Props = {
-  membershipPurchase?: CreatorMembership,
   membershipView?: MembershipSub,
   // -- redux --
-  preferredCurrency: CurrencyOption,
-  doOpenModal: (modalId: string, {}) => void,
   doOpenCancelationModalForMembership: (membership: MembershipSub) => void,
 };
 
 const PremiumOption = (props: Props) => {
-  const { membershipPurchase, membershipView, preferredCurrency, doOpenModal, doOpenCancelationModalForMembership } =
+  const { membershipView, doOpenCancelationModalForMembership } =
     props;
 
   //   if (membershipPurchase) {
@@ -103,47 +98,5 @@ const Wrapper = (props: WrapperProps) => {
     </div>
   );
 };
-
-type PurchaseProps = {
-  preferredCurrency: string,
-  membership: CreatorMembership,
-  stripePrice: StripePriceDetails,
-  doOpenModal: (modalId: string, {}) => void,
-};
-
-// OLD ODYSEE PREMIUM
-// const PurchaseFields = (props: PurchaseProps) => {
-//   const { preferredCurrency, membership, prices, doOpenModal } = props;
-//
-//   const {
-//     currency: priceCurrency,
-//     unit_amount: amount,
-//     recurring: { interval },
-//   } = stripePrice;
-//   const currency = priceCurrency.toUpperCase();
-//
-//   return (
-//     currency === preferredCurrency && (
-//       <React.Fragment key={membership.membership_id}>
-//         <h4 className="membership_info">
-//           <b>{__('Interval')}:</b> {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
-//         </h4>
-//
-//         <h4 className="membership_info">
-//           <b>{__('Price')}:</b> {STRIPE.CURRENCY[currency].symbol}
-//           {(amount / 100).toFixed(2)} / {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
-//         </h4>
-//
-//         <Button
-//           button="primary"
-//           onClick={() => doOpenModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, { membership, price: stripePrice })}
-//           className="membership_button"
-//           label={__('Join via %interval% membership', { interval: __(interval) })}
-//           icon={ICONS.FINANCE}
-//         />
-//       </React.Fragment>
-//     )
-//   );
-// };
 
 export default PremiumOption;

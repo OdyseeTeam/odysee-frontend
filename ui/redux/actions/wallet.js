@@ -1010,7 +1010,6 @@ export const doPurchaseClaimForUri =
         dispatch(doToast({ message: __(stringsToUse.title), subMessage: __(stringsToUse.subtitle) }));
         return;
       } catch (error) {
-        console.error('error', error);
         dispatch(
           doToast({
             message: error.message || __('Sorry, there was an error in processing your payment!'),
