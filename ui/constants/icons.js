@@ -161,6 +161,7 @@ export const BASE = 'Base';
 export const ETH = 'ETH';
 export const LBC = 'LBC';
 export const WANDER = 'Wander';
+export const TIMERCHECK = 'Clock'
 export const LIGHT = 'Sun';
 export const DARK = 'Moon';
 export const LIBRARY = 'Folder';

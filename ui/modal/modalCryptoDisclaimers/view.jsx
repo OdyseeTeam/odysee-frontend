@@ -25,8 +25,8 @@ export default function ModalCryptoDisclaimers(props: Props) {
   const handleShowDisclaimers = () => {
 
     doSetClientSetting(SETTINGS.CRYPTO_DISCLAIMERS, !showDisclaimers, true);
-    setShowDisclaimers(!showDisclaimers)
-  }
+    setShowDisclaimers(!showDisclaimers);
+  };
 
   const handleSignIn = () => {
     window.wanderInstance.open();

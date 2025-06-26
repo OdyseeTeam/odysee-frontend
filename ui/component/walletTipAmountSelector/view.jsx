@@ -43,8 +43,6 @@ type Props = {
   exchangeRateOverride?: number,
 };
 
-// const STRIPE_DISABLED = true;
-
 function WalletTipAmountSelector(props: Props) {
   const {
     uri,
@@ -307,7 +305,7 @@ function WalletTipAmountSelector(props: Props) {
 
       {/* custom number input form */}
       {useCustomTip && (
-        <div className="walletTipSelector__input">          
+        <div className="walletTipSelector__input">
           <FormField
             autoFocus={!isMobile}
             name="tip-input"

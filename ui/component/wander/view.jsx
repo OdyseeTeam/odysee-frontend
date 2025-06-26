@@ -32,24 +32,24 @@ export default function Wander(props: Props) {
         // Connected
         if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
           // Has backup
-          console.log('Authenticated A')
+          console.log('Authenticated A');
           const autoconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? false : true;
-          if(autoconnect) connectArWallet();
-        } else if (!window.wanderInstance.balanceInfo){
+          if (autoconnect) connectArWallet();
+        } else if (!window.wanderInstance.balanceInfo) {
           // Missing backup
-          console.log('Authenticated B')
+          console.log('Authenticated B');
           window.wanderInstance.open();
-          connectArWallet()
-        }else {
-          console.log('Authenticated C')
+          connectArWallet();
+        } else {
+          console.log('Authenticated C');
         }
       }
     }
   }, [auth]);
 
   React.useEffect(() => {
-    if(authenticated){
-      doArInit()
+    if (authenticated) {
+      doArInit();
       const wanderInstance = new WanderConnect({
         clientId: 'FREE_TRIAL',
         theme: theme,
@@ -165,7 +165,7 @@ export default function Wander(props: Props) {
 
     const onMessage = (event) => {
       const data = event.data;
-      if (data && data.id && !data.id.includes('react')) {        
+      if (data && data.id && !data.id.includes('react')) {
         if (data.type === 'embedded_auth') {
           if (
             data.data.authType ||
@@ -178,7 +178,7 @@ export default function Wander(props: Props) {
               LocalStorage.setItem('WANDER_DISCONNECT', false);
               window.wanderInstance.close();
               doArSetAuth(data.data);
-            }            
+            }
           }else if(data.data.authStatus === 'not-authenticated'){
             doArSetAuth(data.data);
           }
@@ -195,7 +195,7 @@ export default function Wander(props: Props) {
           doArUpdateBalance();
         }
         if (data.type === 'embedded_close') {
-          doCleanTips()
+          doCleanTips();
         }
       }
     };

@@ -361,7 +361,7 @@ export const doCleanTips = () => {
     if(Object.keys(currentState.arwallet?.tippingStatusById).length === 1){
       dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'Modal closed' } });
     }
-  }  
+  }
 }
 
 
@@ -408,7 +408,6 @@ export const sendWinstons = async (
       // TODO custo errors for status codes?
       return { error: statusText, transactionId: txResponse.transactionId, status };
     }
-
     const { id } = transaction;
     return { transactionId: id, status };
   } catch (e) {
@@ -459,7 +458,7 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
       } else {
         transaction = transactionCheck;
         await arweave.transactions.sign(transaction);
-      }      
+      }
       const response = await arweave.transactions.post(transaction);
 
       dispatch(doToast({
