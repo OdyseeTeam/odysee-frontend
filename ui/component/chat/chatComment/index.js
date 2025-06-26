@@ -7,9 +7,7 @@ import {
   selectDateForUri,
 } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import {
-  selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership,
-} from 'redux/selectors/memberships';
+import { selectMyMembershipNameForCreatorId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 
 import ChatComment from './view';
@@ -30,7 +28,7 @@ const select = (state, props) => {
     stakedLevel: selectStakedLevelForChannelUri(state, authorUri),
     claimsByUri: selectClaimsByUri(state),
     odyseeMembership: selectUserOdyseeMembership(state, channelId),
-    creatorMembership: selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId, channelId),
+    creatorMembership: selectMyMembershipNameForCreatorId(state, creatorId),
     activeChannelClaim,
     authorTitle,
     channelAge,

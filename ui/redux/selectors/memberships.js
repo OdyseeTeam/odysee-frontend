@@ -235,6 +235,14 @@ export const selectMyValidMembershipsForCreatorId = (state: State, id: string) =
   const myValidMembershipsById = selectMyValidMembershipsById(state);
   return myValidMembershipsById[id] || null;
 };
+export const selectMyMembershipNameForCreatorId = (state: State, id: string) => {
+  const memberships = selectMyValidMembershipsForCreatorId(state, id) || [];
+  if (!memberships) return null;
+  const activeMemberships = memberships.filter(
+    (m) => m.subscription.is_active === true && m.subscription.status === 'active'
+  );
+  return activeMemberships[0]?.membership.name;
+};
 
 export const selectIncomingPaymentsBySubscriber = (state: State) => {
   const payments = selectMembershipTxIncoming(state);
