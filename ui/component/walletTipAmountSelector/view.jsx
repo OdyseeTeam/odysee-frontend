@@ -136,7 +136,7 @@ function WalletTipAmountSelector(props: Props) {
       doTipAccountCheckForUri(uri);
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
-  
+
   React.useEffect(() => {
     let regexp;
 

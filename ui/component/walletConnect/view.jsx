@@ -24,11 +24,11 @@ export default function WalletConnect(props: Props) {
     }
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (!arweaveAddress) {
       getAddress();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [arweaveAddress]);
 
   async function handleArConnect() {
