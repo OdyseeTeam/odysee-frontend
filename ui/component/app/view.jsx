@@ -93,7 +93,6 @@ type Props = {
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
   doSetAssignedLbrynetServer: (server: string) => void,
-  doOpenModal: (any) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -132,8 +131,6 @@ function App(props: Props) {
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
     doSetAssignedLbrynetServer,
-    // doOpenModal,
-    doArConnect,
   } = props;
 
   const isMobile = useIsMobile();

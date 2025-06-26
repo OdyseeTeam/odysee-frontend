@@ -77,7 +77,7 @@ export const selectMyTotalMonthlyIncome = createSelector(
 export const selectPreviousMonthlyIncome = createSelector(
   selectMembershipPaymentsIncoming,
   (payments) => payments && getLastMonthPayments(payments)
-)
+);
 
 export const selectSupportersForChannelId = createSelector(
   selectNameForClaimId,
@@ -159,7 +159,12 @@ export const selectHasCanceledMembershipForMembershipId = (state: State, creator
   const mineForCreator = mine[creatorId];
   if (!mineForCreator) return false;
   return (
-    !!mineForCreator.find((m) => m.membership.id === membershipId && m.subscription.status === 'canceled' && !membershipIsExpired(m.subscription.ends_at)) || false
+    !!mineForCreator.find(
+      (m) =>
+        m.membership.id === membershipId &&
+        m.subscription.status === 'canceled' &&
+        !membershipIsExpired(m.subscription.ends_at)
+    ) || false
   );
 };
 
@@ -233,14 +238,14 @@ export const selectIncomingPaymentsBySubscriber = (state) => {
   const payments = selectMembershipTxIncoming(state);
   return payments.reduce((ac, cur) => {
     const currentId = cur.subscriber_channel_claim_id;
-    if ( ac[currentId] ) {
-      ac[currentId].push(cur)
+    if (ac[currentId]) {
+      ac[currentId].push(cur);
     } else {
       ac[currentId] = [cur];
     }
     return ac;
-  }, {})
-}
+  }, {});
+};
 
 export const selectMembershipPaymentsForMemberChannelId = (state: State, id: string) => {
   const payments = selectMembershipTxIncoming(state);
@@ -252,9 +257,9 @@ export const selectMembershipPaymentsForMemberChannelId = (state: State, id: str
     return [];
   }
 
-  selectedPayments = payments.filter(p => p.subscriber_channel_claim_id === id);
+  const selectedPayments = payments.filter((p) => p.subscriber_channel_claim_id === id);
   return selectedPayments;
-}
+};
 export const selectUserHasValidMembershipForCreatorId = (state: State, id: string) => {
   const validMemberships = selectMyValidMembershipsForCreatorId(state, id);
   return Boolean(validMemberships && validMemberships.length > 0);
@@ -262,7 +267,9 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
 
 export const selectUserHasValidNonCanceledMembershipForCreatorId = (state: State, id: string) => {
   const validMemberships = selectMyValidMembershipsForCreatorId(state, id) || [];
-  const memberships = validMemberships.filter((m) => m.subscription.is_active === true && m.subscription.status !== 'canceled'); // possibly 'pending'
+  const memberships = validMemberships.filter(
+    (m) => m.subscription.is_active === true && m.subscription.status !== 'canceled'
+  ); // possibly 'pending'
   return Boolean(memberships && memberships.length > 0);
 };
 
@@ -275,8 +282,8 @@ export const selectMyValidMembershipIds = createSelector(selectMyValidMembership
   Object.entries(validMembershipsById).forEach(([key, value]) => {
     value.forEach((value) => {
       validMembershipIds.add(value.membership.id);
-    })
-  })
+    });
+  });
 
   // $FlowFixMe
   return validMembershipIds.size ? Array.from(validMembershipIds) : null;
@@ -320,7 +327,7 @@ export const selectFetchingIdsForMembershipChannelId = (state: State, channelId:
 export const selectUserOdyseeMembership = (state: State, id: string) => {
   const odyMemberships = selectChannelMembershipsForCreatorId(state, ODYSEE_CHANNEL.ID);
   return odyMemberships ? odyMemberships[id] : null;
-}
+};
 
 export const selectMembershipForCreatorIdAndChannelId = createCachedSelector(
   (state, creatorId, channelId) => channelId,
@@ -463,8 +470,9 @@ export const selectCreatorMembershipsFetchedByUri = createSelector(
   (memberships) => memberships !== undefined
 );
 
-export const selectCreatorHasMembershipsByUri = createSelector(selectArEnabledMembershipTiersForChannelUri, (memberships) =>
-  Boolean(memberships?.length > 0 && memberships.some((m) => (m.enabled = true)))
+export const selectCreatorHasMembershipsByUri = createSelector(
+  selectArEnabledMembershipTiersForChannelUri,
+  (memberships) => Boolean(memberships?.length > 0 && memberships.some((m) => (m.enabled = true)))
 );
 
 // $FlowIgnore
@@ -508,10 +516,10 @@ export const selectUserValidMembershipForChannelUri = createSelector(
   (purchasedMembershipSubsForChannel) => {
     if (!purchasedMembershipSubsForChannel) return purchasedMembershipSubsForChannel;
     // TODO: think about how to handle canceled memberships
-    const activeMemberships = purchasedMembershipSubsForChannel.filter(m => m.subscription.is_active && m.subscription.status !== 'canceled')
+    const activeMemberships = purchasedMembershipSubsForChannel.filter(
+      (m) => m.subscription.is_active && m.subscription.status !== 'canceled'
+    );
     return activeMemberships[0] || null;
-
-
   }
 );
 
@@ -558,9 +566,7 @@ export const selectMyProtectedContentMembershipForId = createSelector(
     if (!protectedContentMemberships) return protectedContentMemberships;
 
     const validMembershipIdsSet = new Set(validMembershipIds);
-    const myMembership = protectedContentMemberships.some((m) =>
-      validMembershipIdsSet.has(m.membership_id)
-    );
+    const myMembership = protectedContentMemberships.some((m) => validMembershipIdsSet.has(m.membership_id));
     if (!myMembership) return null;
 
     return myMembership;
@@ -701,26 +707,26 @@ export const selectChannelHasMembershipTiersForId = (state: State, channelId: st
   return memberships && memberships.length > 0;
 };
 
-export const selectMembershipTxIncoming = (state) => {
-  return  selectState(state).membershipPaymentsIncoming;
-}
+export const selectMembershipTxIncoming = (state: State) => {
+  return selectState(state).membershipPaymentsIncoming;
+};
 
-export const selectMembershipTxIncomingFetching = (state) => {
-  return  selectState(state).membershipPaymentsIncomingFetching;
-}
+export const selectMembershipTxIncomingFetching = (state: State) => {
+  return selectState(state).membershipPaymentsIncomingFetching;
+};
 
-export const selectMembershipTxIncomingError = (state) => {
-  return  selectState(state).membershipPaymentsIncomingError;
-}
+export const selectMembershipTxIncomingError = (state: State) => {
+  return selectState(state).membershipPaymentsIncomingError;
+};
 
-export const selectMembershipTxOutgoing = (state) => {
-  return  selectState(state).membershipPaymentsOutgoing;
-}
+export const selectMembershipTxOutgoing = (state: State) => {
+  return selectState(state).membershipPaymentsOutgoing;
+};
 
-export const selectMembershipTxOutgoingFetching = (state) => {
-  return  selectState(state).membershipPaymentsOutgoingFetching;
-}
+export const selectMembershipTxOutgoingFetching = (state: State) => {
+  return selectState(state).membershipPaymentsOutgoingFetching;
+};
 
-export const selectMembershipTxOutgoingError = (state) => {
-  return  selectState(state).membershipPaymentsOutgoingError;
-}
+export const selectMembershipTxOutgoingError = (state: State) => {
+  return selectState(state).membershipPaymentsOutgoingError;
+};

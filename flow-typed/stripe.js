@@ -13,6 +13,9 @@ declare type StripeState = {
   customerSetupResponse: ?StripeCustomerSetupResponse,
   arAccountUpdating: false,
   arAccountUpdatingError?: string,
+  arAccountRegisteringId?: string,
+  arAccountRegisteringError?: any,
+  arAccountUpdatingId?: string,
 };
 
 declare type StripeAccountInfo = {

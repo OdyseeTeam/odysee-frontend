@@ -22,9 +22,8 @@ import { selectModal, selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer, doOpenModal } from 'redux/actions/app';
+import { doSignIn, doSetIncognito, doSetAssignedLbrynetServer } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
-import { doArConnect } from 'redux/actions/arwallet';
 import App from './view';
 
 const select = (state) => ({
@@ -61,8 +60,6 @@ const perform = {
   doSetLastViewedAnnouncement,
   doSetDefaultChannel,
   doSetAssignedLbrynetServer,
-  doOpenModal,
-  doArConnect,
 };
 
 export default hot(connect(select, perform)(App));
