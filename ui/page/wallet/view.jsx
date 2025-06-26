@@ -67,7 +67,8 @@ const WalletPage = (props: Props) => {
 
   React.useEffect(() => {
     doTipAccountStatus();
-  },[]);
+    // $FlowIgnore
+  }, []);
 
   function onTabChange(newTabIndex) {
     let url = `/$/${PAGES.WALLET}?`;

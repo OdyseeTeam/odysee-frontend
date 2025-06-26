@@ -10,7 +10,7 @@ import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selector
 import { doOpenModal } from 'redux/actions/app';
 import PreviewPage from './view';
 import { getChannelFromClaim, getChannelTitleFromClaim, getChannelIdFromClaim } from 'util/claim';
-import { selectArweaveStatus, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+import { selectArweaveStatus } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -40,7 +40,6 @@ const select = (state, props) => {
     userHasACreatorMembership: selectUserHasValidNonCanceledMembershipForCreatorId(state, channelId),
     arweaveWallets: selectFullAPIArweaveAccounts(state),
     arweaveStatus: selectArweaveStatus(state),
-    exchangeRate: selectArweaveExchangeRates(state),
   };
 };
 

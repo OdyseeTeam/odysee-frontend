@@ -1,3 +1,4 @@
+import React, { Fragment, useState, useEffect } from 'react';
 import 'babel-polyfill';
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
@@ -9,7 +10,6 @@ import moment from 'moment';
 // @endif
 import { ipcRenderer, remote, shell } from 'electron';
 import * as MODALS from 'constants/modal_types';
-import React, { Fragment, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import {
@@ -59,7 +59,6 @@ import 'scss/all.scss';
 // These overrides can't live in web/ because they need to use the same instance of `Lbry`
 import apiPublishCallViaWeb from 'web/setup/publish';
 import { doSendPastRecsysEntries } from 'redux/actions/content';
-import { doTipAccountStatus } from './redux/actions/stripe';
 
 analytics.init();
 

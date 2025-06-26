@@ -177,11 +177,6 @@ export default function ModalAnnouncements(props: Props) {
     }
   };
 
-  const redirectToTopup = () => {
-    push('/$/araccount?tab=buy');
-    doHideModal();
-  };
-
   const ConnectingCard = () => {
     return (
       <Card

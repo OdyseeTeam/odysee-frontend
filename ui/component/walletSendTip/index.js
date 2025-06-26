@@ -16,7 +16,7 @@ import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 import WalletSendTip from './view';
 import { selectAccountCheckIsFetchingForId, selectArweaveTipDataForId } from 'redux/selectors/stripe';
-import { doArConnect, doArTip } from 'redux/actions/arwallet';
+import { doArTip } from 'redux/actions/arwallet';
 import { doToast } from 'redux/actions/notifications';
 import { selectArweaveTippingErrorForId, selectArweaveTippingStartedForId } from 'redux/selectors/arwallet';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
@@ -68,7 +68,6 @@ const perform = {
   doSendCashTip,
   doArTip,
   doToast,
-  doArConnect,
   doTipAccountCheckForUri,
 };
 

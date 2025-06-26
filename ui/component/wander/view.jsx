@@ -30,7 +30,7 @@ export default function Wander(props: Props) {
         // Connected
         if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
           // Has backup
-          const autoconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? false : true;
+          const autoconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
           if (autoconnect) connectArWallet();
         } else if (!window.wanderInstance.balanceInfo) {
           // Missing backup
@@ -39,6 +39,7 @@ export default function Wander(props: Props) {
         }
       }
     }
+    // $FlowIgnore
   }, [auth]);
 
   React.useEffect(() => {
@@ -122,7 +123,6 @@ export default function Wander(props: Props) {
         },
       });
 
-
       setInstance(wanderInstance);
       window.wanderInstance = wanderInstance;
     } else {
@@ -136,6 +136,7 @@ export default function Wander(props: Props) {
         window.wanderInstance.destroy();
       } catch {}
     };
+    // $FlowIgnore
   }, [authenticated]);
 
   React.useEffect(() => {
@@ -173,7 +174,7 @@ export default function Wander(props: Props) {
               window.wanderInstance.close();
               doArSetAuth(data.data);
             }
-          } else if (data.data.authStatus === 'not-authenticated'){
+          } else if (data.data.authStatus === 'not-authenticated') {
             doArSetAuth(data.data);
           }
         }
@@ -206,9 +207,8 @@ export default function Wander(props: Props) {
       window.removeEventListener('message', onMessage);
       clearInterval(balanceUpdate);
     };
+    // $FlowIgnore
   }, [instance, doArSetAuth]);
-
-
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;
 }

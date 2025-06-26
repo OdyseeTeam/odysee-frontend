@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 import classnames from 'classnames';
 import { ChannelPageContext } from 'contexts/channel';
 import * as ICONS from 'constants/icons';
@@ -42,7 +41,6 @@ type Props = {
   cheapestPlan: CreatorMembership,
   arweaveWallets: any,
   arweaveStatus: any,
-  exchangeRate: { ar: number },
   isFetchingMemberships: boolean,
   paymentsEnabled: boolean,
 };
@@ -73,7 +71,6 @@ const PreviewPage = (props: Props) => {
     cheapestPlan,
     isFetchingMemberships,
     paymentsEnabled,
-    exchangeRate,
   } = props;
 
   const {

@@ -9,7 +9,6 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import FormFieldDurationCombo from 'component/formFieldDurationCombo';
 import I18nMessage from 'component/i18nMessage';
 import { PAYWALL } from 'constants/publish';
-import * as PUBLISH_TYPES from 'constants/publish_types';
 import usePersistedState from 'effects/use-persisted-state';
 import { ENABLE_ARCONNECT } from 'config';
 import './style.lazy.scss';
@@ -132,7 +131,7 @@ function PublishPrice(props: Props) {
                 disabled={disabled}
                 onChange={() => updatePublishForm({ paywall: PAYWALL.FREE })}
               />
-              
+
               <FormField
                 type="radio"
                 name="content_fiat"
@@ -148,7 +147,7 @@ function PublishPrice(props: Props) {
                 label={<LbcSymbol prefix={__('Purchase with Credits')} />}
                 checked={paywall === PAYWALL.SDK}
                 disabled={disabled}
-                onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })} 
+                onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
               />
             </React.Fragment>
           </fieldset-section>
@@ -289,25 +288,6 @@ function PublishPrice(props: Props) {
       doTipAccountStatus();
     }
   }, [bankAccountNotFetched, doTipAccountStatus]);
-
-  React.useEffect(() => {
-    function isFiatWhitelistedFileType() {
-      if (fileMime) {
-        // fileMime: the current browsed/selected file (it's empty on edit, but can be changed)
-        return fileMime.startsWith('audio') || fileMime.startsWith('video');
-      } else if (streamType) {
-        // streamType: the original type that we are editing from.
-        return streamType === 'audio' || streamType === 'video' || streamType === 'document';
-      }
-      return false;
-    }
-
-    /*
-    if (paywall === PAYWALL.FIAT && !isFiatAllowed) {
-      updatePublishForm({ paywall: PAYWALL.FREE });
-    }
-    */
-  }, [fileMime, paywall, type, updatePublishForm, streamType]);
 
   if (paymentDisallowed) {
     return (

@@ -6,7 +6,6 @@ const select = (state) => ({
   arweaveStatus: selectArweaveStatus(state),
 });
 
-
 const perform = (dispatch) => ({
 });
 

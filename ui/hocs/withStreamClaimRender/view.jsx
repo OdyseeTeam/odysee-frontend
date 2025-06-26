@@ -189,7 +189,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       }
     }, [claimId, doCheckIfPurchasedClaimId, isAPurchaseOrPreorder, isFetchingPurchases]);
 
-    const streamClaim = React.useCallback(() => {      
+    const streamClaim = React.useCallback(() => {
       updateClaim('callback');
       // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
     }, [

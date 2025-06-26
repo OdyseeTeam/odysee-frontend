@@ -9,8 +9,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
-import { useArStatus } from 'effects/use-ar-status';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD } from 'constants/tip_tabs';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 
@@ -209,6 +208,7 @@ function WalletTipAmountSelector(props: Props) {
         }
       }
     }
+    // $FlowIgnore
   }, [activeTab, amount, LBCBalance, arBalance, USDCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
 
   if (!claim) return null;
@@ -216,8 +216,6 @@ function WalletTipAmountSelector(props: Props) {
   const getHelpMessage = (helpMessage: any, customClassName) => (
     <div className={classnames('help', customClassName)}>{helpMessage}</div>
   );
-
-  if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
 
   return (
     <>

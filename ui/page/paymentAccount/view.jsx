@@ -5,7 +5,6 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import Page from 'component/page';
-import Card from 'component/common/card';
 import Button from 'component/button';
 import Symbol from 'component/common/symbol';
 import WalletConnect from 'component/walletConnect';
@@ -122,7 +121,7 @@ function PaymentAccountPage(props: Props) {
 
   return (
     <Page className="paymentAccountPage-wrapper main--full-width">
-      <header className="page-header"></header>
+      <header className="page-header" />
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
           <TabList className="tabs__list">

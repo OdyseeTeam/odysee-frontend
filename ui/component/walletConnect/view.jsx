@@ -8,18 +8,19 @@ type Props = {
   arweaveAddress: string,
   connecting: boolean,
   connectArWallet: () => void,
+  wanderAuth: () => void,
 };
 
 export default function WalletConnect(props: Props) {
   const { connectArWallet, arweaveAddress, connecting, wanderAuth } = props;
-  const auth = wanderAuth === 'loading' || wanderAuth === 'onboarding' || connecting 
+  const auth = wanderAuth === 'loading' || wanderAuth === 'onboarding' || connecting;
 
   async function getAddress() {
     try {
       const checkPluginConnection = await window.arweaveWallet.getActiveAddress();
       if (checkPluginConnection) connectArWallet();
     } catch (e) {
-      console.log('not connected');
+      console.error('not connected');
     }
   }
 
@@ -27,6 +28,7 @@ export default function WalletConnect(props: Props) {
     if (!arweaveAddress) {
       getAddress();
     }
+    // $FlowIgnore
   }, [arweaveAddress]);
 
   async function handleArConnect() {

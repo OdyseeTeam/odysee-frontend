@@ -17,7 +17,7 @@ export default function WanderButton(props: Props) {
   const { arweaveStatus } = props;
   const {
     activeArStatus,
-  } = useArStatus(); 
+  } = useArStatus();
   const history = useHistory();
 
   const handleWalletClick = () => {
@@ -53,4 +53,3 @@ export default function WanderButton(props: Props) {
     </Tooltip>
   );
 }
-

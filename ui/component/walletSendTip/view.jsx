@@ -21,7 +21,6 @@ import { useArStatus } from 'effects/use-ar-status';
 import withCreditCard from 'hocs/withCreditCard';
 import classnames from 'classnames';
 
-
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
@@ -52,7 +51,6 @@ type Props = {
   customText?: string,
   experimentalUi: boolean,
   doHideModal: () => void,
-  doArConnect: () => void,
   doSendCashTip: (
     TipParams,
     anonymous: boolean,
@@ -114,7 +112,6 @@ export default function WalletSendTip(props: Props) {
     arweaveTipData,
     doArTip,
     doToast,
-    doArConnect,
     doTipAccountCheckForUri,
     checkingAccount,
   } = props;
