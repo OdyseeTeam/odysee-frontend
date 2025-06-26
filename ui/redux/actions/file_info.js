@@ -8,7 +8,7 @@ export function doFetchFileInfo(uri) {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
     const outpoint = claim ? `${claim.txid}:${claim.nout}` : null;
-    const alreadyFetching = !!selectUrisLoading(state)[uri];    
+    const alreadyFetching = !!selectUrisLoading(state)[uri];
 
     if (!alreadyFetching) {
       dispatch({
@@ -57,7 +57,7 @@ export function doFileList(page = 1, pageSize = 99999) {
   };
 }
 
-export function doFetchFileInfos() {  
+export function doFetchFileInfos() {
   return (dispatch, getState) => {
     const state = getState();
     const isFetchingFileInfo = selectIsFetchingFileList(state);

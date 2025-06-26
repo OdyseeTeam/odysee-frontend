@@ -70,7 +70,7 @@ export const doFetchChannelMembershipsForChannelIds =
           // if array was returned for a user (indicating a membership exists), otherwise is null
           if (Number.isInteger(memberships?.length)) {
             for (const membership of memberships) {
-              if (membership.activated || membership.name === "Premium+" || membership.name === "Premium") {
+              if (membership.activated || membership.name === 'Premium+' || membership.name === 'Premium') {
                 // activated?
                 membershipsById[channelId] = membership.name;
               }
@@ -120,7 +120,6 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
   return await Lbryio.call('membership_v2/subscription', 'list', {}, 'post') // { membership,subscription, perks, payments, current_price }
     .then((response: MembershipSubs) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
     .catch((err) => {
-      console.log('err', err);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err });
     });
 };
@@ -135,7 +134,6 @@ after step 3: subscription.status may still be pending if api has not yet verifi
 export const doMembershipBuy =
   (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    console.log('dmb', membershipParams);
 
     const {
       tippedChannelId,
@@ -181,7 +179,7 @@ export const doMembershipBuy =
 
       if (currencyType === 'AR') {
         const tags = [{ name: 'X-O-Ref', value: subscribeToken }]; // here
-        const { transactionId: txid, error, status } = await sendWinstons(payeeAddress, cryptoAmount, tags);
+        const { transactionId: txid, error } = await sendWinstons(payeeAddress, cryptoAmount, tags);
         if (error) { // TODO pass error to redux
           throw new Error(error?.message || error);
         }

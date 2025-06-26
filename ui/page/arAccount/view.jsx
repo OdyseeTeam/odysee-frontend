@@ -14,7 +14,6 @@ import BuyAr from './buyAr';
 import Overview from './overview';
 import ArWallets from './arWallets';
 
-
 import './style.scss';
 
 type Props = {
@@ -42,7 +41,7 @@ function ArAccountPage(props: Props) {
     push,
   } = useHistory();
   const {
-    activeArStatus
+    activeArStatus,
   } = useArStatus();
   const activeWallet = arweaveWallets.find((x) => x.default);
   const urlParams = new URLSearchParams(search);
@@ -74,7 +73,7 @@ function ArAccountPage(props: Props) {
   function cardHeader() {
     return (
       <>
-        <Symbol token="usd" amount={(balance.ar*exchangeRate.ar)} precision={2} />
+        <Symbol token="usd" amount={(balance.ar * exchangeRate.ar)} precision={2} />
         <div
           onClick={handleUpdateBalance}
           className={!fetching ? `refresh-balance` : `refresh-balance refresh-balance--loading`}
@@ -105,7 +104,7 @@ function ArAccountPage(props: Props) {
 
   return (
     <Page className="paymentAccountPage-wrapper main--full-width">
-      <header className="page-header"></header>
+      <header className="page-header" />
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
           <TabList className="tabs__list">

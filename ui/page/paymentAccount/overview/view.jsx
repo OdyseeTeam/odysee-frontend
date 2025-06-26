@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import QRCode from 'component/common/qr-code';
 import CopyableText from 'component/copyableText';
 import ButtonToggle from 'component/buttonToggle';
 import Card from 'component/common/card';
@@ -16,7 +15,6 @@ function Overview(props: Props) {
       if (window.arweaveWallet) {
         try {
           const address = await window.arweaveWallet.getActiveAddress();
-          console.log('address: ', address);
           const sent = await fetch(`https://arweave-search.goldsky.com/graphql`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -48,7 +46,6 @@ function Overview(props: Props) {
           const sentData = await sent.json();
           if (sentData && sentData.data && sentData.data.transactions && sentData.data.transactions.edges) {
             const transactions = sentData.data.transactions.edges;
-            console.log('sent: ', transactions);
             const newTransactions = [];
             for (let entry of transactions) {
               const transaction = entry.node;

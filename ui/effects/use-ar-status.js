@@ -43,7 +43,7 @@ export const useArStatus = () => {
       ? 'authenticating'
       : hasConnection
         ? 'authenticated'
-        : 'not-authenticated'
+        : 'not-authenticated';
 
   useEffect(() => {
     const type = LocalStorage.getItem('WALLET_TYPE');
@@ -61,8 +61,8 @@ export const useArStatus = () => {
       (window.wanderInstance?.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance?.authInfo.authType === 'null') &&
       walletType === 'extension' && !hasArConnection
     ) {
-      const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? true : false;
-      if(!intentionalDisconnect) dispatch(doArConnect());
+      const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
+      if (!intentionalDisconnect) dispatch(doArConnect());
     }
     if (arStatus.connecting) {
       // console.log('connecting');
@@ -78,6 +78,6 @@ export const useArStatus = () => {
     isSigningIn,
     hasConnection,
     hasArAddress,
-    activeArStatus
+    activeArStatus,
   };
 };

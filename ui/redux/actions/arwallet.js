@@ -64,13 +64,12 @@ export function doArInit() {
       const arExchangeRate = await fetchARExchangeRate();
       dispatch({ type: ARSETEXCHANGERATE, data: Number(arExchangeRate) });
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   };
 }
 
 export function doArConnect() {
-  console.log('doArConnect');
   LocalStorage.setItem('WANDER_DISCONNECT', false);
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
@@ -117,7 +116,7 @@ export function doArConnect() {
           return;
         }
       } catch (e) {
-        console.log('error:', e);
+        console.error('error:', e);
         LocalStorage.setItem('WANDER_DISCONNECT', true);
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
@@ -287,7 +286,7 @@ export const doArTip = (
           const { transactionId: txid } = await sendWinstons(tipParams.recipientAddress, transactionAmountString, tags);
           transactionId = txid;
         } catch (error) {
-          console.log(error);
+          console.error(error);
           dispatch({
             type: AR_TIP_STATUS_ERROR,
             data: { claimId: claimId, error: 'error: arweave transaction failed' },
@@ -361,7 +360,7 @@ export const doCleanTips = () => {
     if (Object.keys(currentState.arwallet?.tippingStatusById).length === 1) {
       dispatch({ type: AR_TIP_STATUS_ERROR, data: { claimId: Object.keys(currentState.arwallet?.tippingStatusById)[0], error: 'Modal closed' } });
     }
-  }
+  };
 };
 
 function getBalanceEndpoint(wallet: string) {
