@@ -116,19 +116,31 @@ function checkAuthBusy() {
     })();
   });
 }
-export function doUserHasPremium(channelClaimIds) {
+export function doUserHasPremium() {
   return async (dispatch, getState) => {
     const state = getState();
     const channelClaim = selectDefaultChannelId(state);
     dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED });
-    if (!channelClaim) {
-      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: false });
-    }
-
-    const channelClaimIdsCsv = channelClaimIds.join(',');
 
     try {
-      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaimIds ? channelClaimIdsCsv : channelClaim }, 'post');
+      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: [channelClaim] }, 'post');
+
+      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: resById[channelClaim] });
+    } catch (e) {
+      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });
+    };
+  };
+}
+
+export function doChannelsHavePremium(channelClaimIds) {
+  return async (dispatch) => {
+    dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_STARTED, data: { channelIds: channelClaimIds} });
+    const channelClaimIdsCsv = channelClaimIds.join(',');
+
+    // TODO OPTIMIZE Don't fetch if already fetching ids in state
+
+    try {
+      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaimIdsCsv }, 'post');
       const channelIds = Object.keys(resById);
 
       const getMembershipStatus = (ms) => {
@@ -144,19 +156,9 @@ export function doUserHasPremium(channelClaimIds) {
       const membershipsById = {};
 
       channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
-      if (!channelClaimIds) { // own state
-        dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: resById[channelClaim] });
-      }
-
-      dispatch({
-        type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED,
-        data: {
-          channelId: ODYSEE_CHANNEL.ID,
-          membershipsById: membershipsById,
-        },
-      });
+      dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById} });
     } catch (e) {
-      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });
+      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE, data: channelClaimIds });
     };
   };
 }

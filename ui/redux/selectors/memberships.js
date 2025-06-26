@@ -30,6 +30,8 @@ export const selectMembershipMineFetched = (state: State) => selectMembershipMin
 export const selectMembershipBuyError = (state: State) => selectState(state).membershipBuyError;
 export const selectMembershipFetchingIdsByChannel = (state: State) => selectState(state).fetchingIdsByCreatorId;
 export const selectChannelMembershipsByCreatorId = (state: State) => selectState(state).channelMembershipsByCreatorId;
+export const selectLegacyOdyseePremiumByCreatorId = (state: State) => selectState(state).legacyOdyseePremiumById;
+
 export const selectChannelMembershipsForCreatorId = (state: State, channelId: string) =>
   selectChannelMembershipsByCreatorId(state)[channelId];
 
@@ -325,7 +327,7 @@ export const selectFetchingIdsForMembershipChannelId = (state: State, channelId:
   selectMembershipFetchingIdsByChannel(state)[channelId];
 
 export const selectUserOdyseeMembership = (state: State, id: string) => {
-  const odyMemberships = selectChannelMembershipsForCreatorId(state, ODYSEE_CHANNEL.ID);
+  const odyMemberships = selectLegacyOdyseePremiumByCreatorId(state);
   return odyMemberships ? odyMemberships[id] : null;
 };
 

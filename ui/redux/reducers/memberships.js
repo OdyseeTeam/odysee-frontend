@@ -11,6 +11,8 @@ export type MembershipsState = {
   membershipListFetchingIds: ClaimIds,
   channelMembershipsByCreatorId: ChannelMembershipsByCreatorId,
   fetchingIdsByCreatorId: { [creatorId: string]: ClaimIds },
+  legacyOdyseePremiumById: { [channelId: string]: string | null },
+  fetchingOdyseePremiumIds: Array<string>,
   pendingBuyIds: ClaimIds,
   membershipBuyError: string,
   pendingCancelIds: ClaimIds,
@@ -52,6 +54,42 @@ const defaultState: MembershipsState = {
   membershipPaymentsOutgoing: [],
   membershipPaymentsOutgoingFetching: false,
   membershipPaymentsOutgoingError: '',
+  legacyOdyseePremiumById: {},
+  fetchingOdysePremiumIds: [],
+};
+
+reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_STARTED] = (state, action) => {
+  const { channelIds } = action.data;
+  const { fetchingOdysePremiumIds: currentFetching } = state;
+  const fetchingSet = new Set(currentFetching);
+  channelIds.forEach((id) => {
+    fetchingSet.add(id);
+  });
+  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet)};
+};
+
+reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => {
+  const { membershipsById } = action.data;   // [{ [claimId: string]: 'Premium' | null}]
+  const { fetchingOdysePremiumIds: currentFetching, legacyOdyseePremiumById } = state;
+
+  const newLegacyOdyseePremiumById = Object.assign({}, legacyOdyseePremiumById);
+  const fetchingSet = new Set(currentFetching);
+  Object.entries(membershipsById).forEach(([channelId, premiumValue]) => {
+    newLegacyOdyseePremiumById[channelId] = premiumValue;
+    fetchingSet.delete(channelId);
+  });
+
+  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet), legacyOdyseePremiumById: newLegacyOdyseePremiumById };
+};
+
+reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE] = (state, action) => {
+  const { channelIds } = action.data;
+  const { fetchingOdysePremiumIds: currentFetching } = state;
+  const fetchingSet = new Set(currentFetching);
+  channelIds.forEach((id) => {
+    fetchingSet.delete(id);
+  });
+  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet)};
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
