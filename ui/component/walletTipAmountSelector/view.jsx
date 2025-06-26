@@ -37,10 +37,7 @@ type Props = {
   setTipError: (any) => void,
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
-  doArConnect: () => void,
-  dollarsPerAr: number,
   arExchangeRate: any;
-  exchangeRateOverride?: number,
 };
 
 function WalletTipAmountSelector(props: Props) {
@@ -66,14 +63,8 @@ function WalletTipAmountSelector(props: Props) {
     setTipError,
     preferredCurrency,
     doTipAccountCheckForUri,
-    doArConnect,
-    dollarsPerAr,
     arExchangeRate,
-    exchangeRateOverride,
   } = props;
-    const {
-      activeArStatus
-    } = useArStatus();
 
   const USDBalance = arBalance * arExchangeRate?.ar;
   const isMobile = useIsMobile();
@@ -226,7 +217,6 @@ function WalletTipAmountSelector(props: Props) {
     <div className={classnames('help', customClassName)}>{helpMessage}</div>
   );
 
-  let fiatIconToUse = ICONS.FINANCE;
   if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
 
   return (

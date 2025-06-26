@@ -37,7 +37,6 @@ type Props = {
   doCustomerPurchaseCost: (cost: number) => Promise<StripeCustomerPurchaseCostResponse>,
   type: PublishType,
   visibility: Visibility,
-  accountStatus: any,
 };
 
 function PublishPrice(props: Props) {
@@ -63,11 +62,9 @@ function PublishPrice(props: Props) {
     disabled,
     type,
     visibility,
-    accountStatus,
   } = props;
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
-  const [fiatAllowed, setFiatAllowed] = React.useState(true);
   const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
@@ -151,7 +148,7 @@ function PublishPrice(props: Props) {
                 label={<LbcSymbol prefix={__('Purchase with Credits')} />}
                 checked={paywall === PAYWALL.SDK}
                 disabled={disabled}
-                onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
+                onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })} 
               />
             </React.Fragment>
           </fieldset-section>
@@ -304,9 +301,6 @@ function PublishPrice(props: Props) {
       }
       return false;
     }
-
-    const isFiatAllowed = type === PUBLISH_TYPES.POST || isFiatWhitelistedFileType();
-    setFiatAllowed(isFiatAllowed);
 
     /*
     if (paywall === PAYWALL.FIAT && !isFiatAllowed) {

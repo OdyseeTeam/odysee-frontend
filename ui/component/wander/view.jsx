@@ -23,8 +23,6 @@ export default function Wander(props: Props) {
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
 
-  console.log('authenticated: ', authenticated)
-
   React.useEffect(() => {
     if (instance) {
       if (auth?.authStatus === 'onboarding') instance.open();
@@ -32,16 +30,12 @@ export default function Wander(props: Props) {
         // Connected
         if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
           // Has backup
-          console.log('Authenticated A');
           const autoconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true' ? false : true;
           if (autoconnect) connectArWallet();
         } else if (!window.wanderInstance.balanceInfo) {
           // Missing backup
-          console.log('Authenticated B');
           window.wanderInstance.open();
           connectArWallet();
-        } else {
-          console.log('Authenticated C');
         }
       }
     }
@@ -131,7 +125,7 @@ export default function Wander(props: Props) {
 
       setInstance(wanderInstance);
       window.wanderInstance = wanderInstance;
-    }else{
+    } else {
       try {
         window.wanderInstance.destroy();
       } catch {}
@@ -145,7 +139,7 @@ export default function Wander(props: Props) {
   }, [authenticated]);
 
   React.useEffect(() => {
-    if(window.wanderInstance) window.wanderInstance.setTheme(theme);
+    if (window.wanderInstance) window.wanderInstance.setTheme(theme);
   }, [theme]);
 
   React.useEffect(() => {
@@ -173,13 +167,13 @@ export default function Wander(props: Props) {
               data.data.authType !== 'null' &&
               data.data.authType !== null)
           ) {
-            if(data.data.authStatus !== 'loading'){
+            if (data.data.authStatus !== 'loading'){
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
               LocalStorage.setItem('WANDER_DISCONNECT', false);
               window.wanderInstance.close();
               doArSetAuth(data.data);
             }
-          }else if(data.data.authStatus === 'not-authenticated'){
+          } else if (data.data.authStatus === 'not-authenticated'){
             doArSetAuth(data.data);
           }
         }

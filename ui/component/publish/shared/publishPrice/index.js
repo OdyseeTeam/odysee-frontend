@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectMemberRestrictionStatus, selectPublishFormValue } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { doCustomerPurchaseCost, doTipAccountStatus } from 'redux/actions/stripe';
-import { selectAccountChargesEnabled, selectAccountStatus, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
+import { selectAccountChargesEnabled, selectArweaveDefaultAccountMonetizationEnabled } from 'redux/selectors/stripe';
 import PublishPrice from './view';
 
 const select = (state) => ({
@@ -19,7 +19,6 @@ const select = (state) => ({
   memberRestrictionStatus: selectMemberRestrictionStatus(state),
   type: state.publish.type,
   visibility: selectPublishFormValue(state, 'visibility'),
-  accountStatus: selectAccountStatus(state),
   monetizationStatus: selectArweaveDefaultAccountMonetizationEnabled(state),
 });
 
