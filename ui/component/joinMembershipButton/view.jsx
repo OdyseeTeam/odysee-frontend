@@ -58,7 +58,7 @@ const JoinMembershipButton = (props: Props) => {
   const shouldRenew = firstPaymentDue && acceptsPayments && endsAt && moment().isAfter(moment(endsAt).subtract(7, 'days')) && (membershipStatus === 'active' || membershipStatus === 'lapsed');
   const legacyMembership = !firstPaymentDue && !endsInFuture;
 
-  const pending = validUserMembershipForChannel?.payments[0]?.status === 'pending';
+  const pending = validUserMembershipForChannel?.payments.some(p => p.status === 'submitted');
 
   const getDeadline = () => {
     if (fpdaInFuture) {
