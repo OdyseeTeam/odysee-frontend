@@ -261,7 +261,6 @@ function MembershipEditTier(props: Props) {
                 label={__(tierPerk.description)}
                 name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.membership_id}
                 className="membership_perks"
-                disabled={isPermanent}
                 onChange={() =>
                   setSelectedPerkIds((prevPerks) => {
                     const newPrevPerks = new Set(prevPerks);
