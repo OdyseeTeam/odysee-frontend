@@ -23,7 +23,6 @@ import { LocalStorage, LS } from 'util/storage';
 
 import { doMembershipMine } from 'redux/actions/memberships';
 import { selectDefaultChannelId } from 'redux/selectors/settings';
-import { ODYSEE_CHANNEL } from 'constants/channels';
 import { ODYSEE_TIER_NAMES } from 'constants/memberships';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
