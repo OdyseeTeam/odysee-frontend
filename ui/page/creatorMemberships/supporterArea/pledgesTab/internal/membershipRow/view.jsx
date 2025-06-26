@@ -15,15 +15,12 @@ type Props = {
   membershipSub: MembershipSub,
   creatorChannelClaim: string,
   activeChannelClaim: string,
-  doOpenModal: (id: string, {}) => void,
   doMembershipList: (params: MembershipListParams) => void,
   membershipIndex: number,
   creatorChannelUri: string,
 }
 export default function MembershipRow(props: Props) {
-  const { membershipSub, creatorChannelClaim, activeChannelClaim, doOpenModal, membershipIndex, doMembershipList } = props;
-
-
+  const { membershipSub, creatorChannelClaim, activeChannelClaim, membershipIndex, doMembershipList } = props;
   const memberChannelName = activeChannelClaim.name;
   const creatorChannelId = membershipSub.membership.channel_claim_id;
   const creatorChannelUri = creatorChannelClaim ? buildURI({
@@ -37,8 +34,8 @@ export default function MembershipRow(props: Props) {
   const supportAmount = membershipSub.subscription.current_price ? membershipSub.subscription.current_price.amount : ''; // in cents or 1/100th EUR
   const interval = membershipSub.subscription.current_price ? membershipSub.subscription.current_price.frequency : '';
 
-  const startDate = new Date(membershipSub.subscription.started_at);
-  const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);
+  // const startDate = new Date(membershipSub.subscription.started_at);
+  // const endDate = membershipSub.subscription.ends_at === '0001-01-01T00:00:00Z' ? new Date(Date.now()).toISOString() : new Date(membershipSub.subscription.ends_at);
   const canRenew = membershipSub.subscription.earliest_renewal_at && new Date() > new Date(membershipSub.subscription.earliest_renewal_at);
 
   const getRenewBy = () => {
@@ -56,7 +53,7 @@ export default function MembershipRow(props: Props) {
       return fpdaMoment.format('LL');
     }
     return endsAtMoment.format('LL');
-  }
+  };
 
   const paidMonths = membershipSub.payments.filter(m => m.status && (m.status === 'paid' || m.status === 'submitted')).length;
   const monthsSupported =

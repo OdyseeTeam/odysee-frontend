@@ -155,9 +155,9 @@ function ArAccountPage(props: Props) {
           </TabPanel>
           <TabPanel>
             <>
-              <ArWallets 
-                cardHeader={cardHeader} 
-                activeArStatus={activeArStatus} 
+              <ArWallets
+                cardHeader={cardHeader}
+                activeArStatus={activeArStatus}
                 arweaveWallets={arweaveWallets}
               />
               {activeArStatus !== 'connected' && (

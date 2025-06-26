@@ -34,7 +34,6 @@ type Props = {
   setConvertedAmount?: (number) => void,
   setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
-  preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
   arExchangeRate: any;
 };
@@ -60,7 +59,6 @@ function WalletTipAmountSelector(props: Props) {
     setConvertedAmount,
     setDisableSubmitButton,
     setTipError,
-    preferredCurrency,
     doTipAccountCheckForUri,
     arExchangeRate,
   } = props;

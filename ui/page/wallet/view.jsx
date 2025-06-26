@@ -65,9 +65,9 @@ const WalletPage = (props: Props) => {
       break;
   }
 
+  // eslint-disable-next-line
   React.useEffect(() => {
     doTipAccountStatus();
-    // $FlowIgnore
   }, []);
 
   function onTabChange(newTabIndex) {

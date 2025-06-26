@@ -1,7 +1,5 @@
 // @flow
 import React from 'react';
-import { useHistory } from 'react-router';
-import { ENABLE_ARCONNECT } from 'config';
 import Card from 'component/common/card';
 import './style.scss';
 import { Lbryio } from 'lbryinc';
@@ -19,14 +17,6 @@ type Props = {
 export default function OnRamper(props: Props) {
   const { cardHeader, arWalletStatus, theme, experimentalUi, mode, arweaveAccount } = props;
 
-  // const [targetWallet, setTargetWallet] = React.useState(undefined);
-  const {
-    location: { search },
-    push,
-  } = useHistory();
-
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
-
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   const depositAddress = arweaveAccount ? arweaveAccount.deposit_address : null;
 
@@ -42,7 +32,7 @@ export default function OnRamper(props: Props) {
   };
 
   const rgbaToHexWithBackground = (backgroundRgba, rgba) => {
-    const [rB, gB, bB, aB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
+    const [rB, gB, bB] = backgroundRgba.match(/\d+(\.\d+)?/g).map(Number);
     const [rA, gA, bA, aA] = rgba.match(/\d+(\.\d+)?/g).map(Number);
 
     const r = Math.round(rB * (1 - aA) + rA * aA);

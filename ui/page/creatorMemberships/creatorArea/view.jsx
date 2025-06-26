@@ -51,7 +51,7 @@ const CreatorArea = (props: Props) => {
     myChannelIds,
   } = props;
 
-  const disabledMessage = __('Your memberships are disabled until you set up your wallet or enable monetization.')
+  const disabledMessage = __('Your memberships are disabled until you set up your wallet or enable monetization.');
 
   const [allSelected, setAllSelected] = React.useState(true);
   const [showDisabled, setShowDisabled] = React.useState(false);
@@ -221,7 +221,6 @@ const CreatorArea = (props: Props) => {
                       />
                     </div>
                   </div>
-
 
                   <TiersTab showDisabled={showDisabled} />
                 </>

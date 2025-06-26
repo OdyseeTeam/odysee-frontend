@@ -44,7 +44,7 @@ function MembershipEditTier(props: Props) {
     doMembershipList,
     apiArweaveAddress,
   } = props;
-  console.log('perk props', props)
+  console.log('perk props', props);
 
   console.log('membershipOdyseePerks', membershipOdyseePerks);
   const isCreatingAMembership = typeof membership.membership_id === 'string';
@@ -82,7 +82,7 @@ function MembershipEditTier(props: Props) {
   const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
   const [saveError, setSaveError] = React.useState('');
 
-  console.log('selectedPerkIds', selectedPerkIds)
+  console.log('selectedPerkIds', selectedPerkIds);
 
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
@@ -251,7 +251,6 @@ function MembershipEditTier(props: Props) {
           const isSelected = new Set(selectedPerkIds).has(tierPerk.id);
           const isEditable = editablePerkIds.includes(tierPerk.id);
 
-
           if (isCreatingAMembership) {
             return (
               <FormField
@@ -312,7 +311,6 @@ function MembershipEditTier(props: Props) {
               }
             }
           }
-
         })}
           </ul>
         </div>
@@ -346,8 +344,8 @@ function MembershipEditTier(props: Props) {
       </div>
       {(nameError || descriptionError || saveError || priceLowerThanMin || priceHigherThanMax) &&
         <div className="section__actions">
-          {/*<p className="help">*/}
-          <div className={"errorColumn"}>
+          {/* <p className="help"> */}
+          <div className={'errorColumn'}>
             <div className="error__text">
               {nameError
                 ? __('A membership name is required.')
@@ -358,7 +356,7 @@ function MembershipEditTier(props: Props) {
             </div>
             <div className="error__text">
               {hasSubscribers
-                ? __("This membership has subscribers, you can't update the price currently.")
+                ? __(`This membership has subscribers, you can't update the price currently.`)
                 : priceLowerThanMin
                   ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
                   : priceHigherThanMax
@@ -368,7 +366,7 @@ function MembershipEditTier(props: Props) {
                       : undefined}
             </div>
           </div>
-          {/*</p>*/}
+          {/* </p> */}
         </div>
 
       }

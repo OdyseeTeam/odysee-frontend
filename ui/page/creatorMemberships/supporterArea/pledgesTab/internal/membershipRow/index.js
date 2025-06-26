@@ -4,7 +4,6 @@ import { doMembershipList, doMembershipMine } from 'redux/actions/memberships';
 import MembershipRow from './view';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectClaimForId } from 'redux/selectors/claims';
-import { doOpenModal } from 'redux/actions/app';
 import { selectIndexForCreatorMembership, selectArEnabledMembershipTiersForChannelUri } from 'redux/selectors/memberships';
 import { buildURI } from 'util/lbryURI';
 
@@ -31,7 +30,6 @@ const select = (state, props) => {
 
 const perform = {
   doMembershipMine,
-  doOpenModal,
   doMembershipList,
 };
 

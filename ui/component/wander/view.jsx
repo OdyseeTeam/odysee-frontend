@@ -23,6 +23,7 @@ export default function Wander(props: Props) {
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
 
+  // eslint-disable-next-line
   React.useEffect(() => {
     if (instance) {
       if (auth?.authStatus === 'onboarding') instance.open();
@@ -39,9 +40,9 @@ export default function Wander(props: Props) {
         }
       }
     }
-    // $FlowIgnore
   }, [auth]);
 
+  // eslint-disable-next-line
   React.useEffect(() => {
     if (authenticated) {
       doArInit();
@@ -136,13 +137,13 @@ export default function Wander(props: Props) {
         window.wanderInstance.destroy();
       } catch {}
     };
-    // $FlowIgnore
   }, [authenticated]);
 
   React.useEffect(() => {
     if (window.wanderInstance) window.wanderInstance.setTheme(theme);
   }, [theme]);
 
+  // eslint-disable-next-line
   React.useEffect(() => {
     if (!instance) return;
 
@@ -168,7 +169,7 @@ export default function Wander(props: Props) {
               data.data.authType !== 'null' &&
               data.data.authType !== null)
           ) {
-            if (data.data.authStatus !== 'loading'){
+            if (data.data.authStatus !== 'loading') {
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
               LocalStorage.setItem('WANDER_DISCONNECT', false);
               window.wanderInstance.close();
@@ -207,7 +208,6 @@ export default function Wander(props: Props) {
       window.removeEventListener('message', onMessage);
       clearInterval(balanceUpdate);
     };
-    // $FlowIgnore
   }, [instance, doArSetAuth]);
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;

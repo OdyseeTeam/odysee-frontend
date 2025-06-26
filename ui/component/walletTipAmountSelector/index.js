@@ -2,11 +2,10 @@ import { connect } from 'react-redux';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 import { selectClaimForUri } from 'redux/selectors/claims';
-import WalletTipAmountSelector from './view';
-import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import { getChannelIdFromClaim } from 'util/claim';
+import WalletTipAmountSelector from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -17,7 +16,6 @@ const select = (state, props) => {
     USDCBalance: selectArweaveBalance(state).usdc,
     arBalance: selectArweaveBalance(state).ar,
     claim: selectClaimForUri(state, uri),
-    preferredCurrency: selectPreferredCurrency(state),
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
     arExchangeRate: selectArweaveExchangeRates(state),

@@ -72,7 +72,7 @@ function View(props: IProps) {
         />
         )}
       </td>
-      <td>${(transaction.usd_amount/100).toFixed(2)} USD</td>
+      <td>${(transaction.usd_amount / 100).toFixed(2)} USD</td>
       <td>{transaction.status ? toCapitalCase(transaction.status) : '...'}</td>
     </tr>
   );

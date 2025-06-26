@@ -7,7 +7,6 @@ import React from 'react';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import { Modal } from 'modal/modal';
-import { useHistory } from 'react-router';
 
 type Props = {
   doHideModal: () => void,
@@ -29,7 +28,6 @@ type Props = {
 };
 
 export default function ModalAnnouncements(props: Props) {
-  const { push } = useHistory();
   const {
     doHideModal,
     doOpenModal,

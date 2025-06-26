@@ -105,6 +105,7 @@ function Overview(props: Props) {
     })();
   }, []);
 
+  const address = ''
   return (
     <Card
       className={!arWalletStatus ? `card--overview card--disabled` : `card--overview`}
@@ -119,7 +120,7 @@ function Overview(props: Props) {
             </div>
             <div className="payment-option">
               <div className="payment-option__monetization">
-                {__('Allow monetization')} <ButtonToggle status={true} />
+                {__('Allow monetization')} <ButtonToggle status />
               </div>
             </div>
           </div>
@@ -127,7 +128,7 @@ function Overview(props: Props) {
           <div className="transaction-history">
             {transactions.map((transaction, index) => {
               return (
-                <div className="transaction-history__row">
+                <div className="transaction-history__row" key={index}>
                   <div className="transaction-history__date">
                     {new Date(transaction.date * 1000)
                       .toLocaleString('en-US', {

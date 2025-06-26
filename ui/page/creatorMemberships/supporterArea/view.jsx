@@ -108,7 +108,7 @@ const SupporterArea = (props: Props) => {
             button="liquidass"
           />
           <div>{__('Donor Portal')}</div>
-        </div>        
+        </div>
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">

@@ -25,6 +25,7 @@ function ArWallets(props: Props) {
             {arweaveWallets.map((wallet, index) => {
               return (
                 <div
+                  key={index}
                   className={
                     wallet.address === activeAddress
                       ? `wallet-table-row`
@@ -35,7 +36,7 @@ function ArWallets(props: Props) {
                   <div className="wallet-table-row__address">{wallet.address}</div>
                   <div className="wallet-table-row__deposit">{wallet.deposit_address}</div>
                   <div className="wallet-table-row__status">
-                    <ButtonToggle status={wallet.status === 'active' ? true : false} />
+                    <ButtonToggle status={wallet.status === 'active'} />
                   </div>
                   <div className="wallet-table-row__default">{wallet.default.toString()}</div>
                 </div>

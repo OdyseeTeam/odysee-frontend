@@ -71,7 +71,7 @@ function View(props: IProps) {
           />
         </span>
       </td>
-      <td className="payment-txid">      
+      <td className="payment-txid">
         {!transaction.transaction_id.startsWith('in_') && (
           <CopyableText
             hideValue
@@ -80,7 +80,7 @@ function View(props: IProps) {
         />
         )}
       </td>
-      <td>{membership && ''}${(transaction.usd_amount/100).toFixed(2)} USD</td>
+      <td>{membership && ''}${(transaction.usd_amount / 100).toFixed(2)} USD</td>
       <td>{transaction.status ? toCapitalCase(transaction.status) : '...'}</td>
     </tr>
   );
