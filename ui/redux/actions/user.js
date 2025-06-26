@@ -124,7 +124,22 @@ export function doUserHasPremium() {
 
     try {
       const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaim }, 'post');
+      const channelIds = Object.keys(resById);
 
+      const getMembershipStatus = (ms) => {
+        if (ms.has_premium) {
+          return ODYSEE_TIER_NAMES.PREMIUM;
+        } else if (ms.has_premium_plus) {
+          return ODYSEE_TIER_NAMES.PREMIUM_PLUS;
+        } else {
+          return null;
+        }
+      };
+
+      const membershipsById = {};
+
+      channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
+      dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById} });
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: resById[channelClaim] });
     } catch (e) {
       dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });
