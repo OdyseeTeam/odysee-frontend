@@ -14,6 +14,7 @@ type Props = {
   chain?: string,
   precision?: number,
   counter?: boolean,
+  inline?: boolean,
 };
 
 const Symbol = (props: Props) => {
@@ -33,13 +34,12 @@ const Symbol = (props: Props) => {
           icon={token ? ICONS[token.toUpperCase()] : ICONS.LBC}
           size={isTitle ? 22 : size}
           className={classnames('icon__symbol', {
-            // 'icon__symbol--after-text': amount,
-            'icon__symbol--title': isTitle,            
+            'icon__symbol--title': isTitle,
           })}
         />
         {chain && <Icon icon={ICONS[chain.toUpperCase()]} />}
       </div>
-      <span>        
+      <span>
         {amount !== null && (
           counter ? <Counter value={displayAmount} precision={precision} /> : displayAmount
         )}

@@ -25,7 +25,7 @@ const MembershipDetails = (props: Props) => {
     isLivestream,
   } = props;
   const {
-    activeArStatus
+    activeArStatus,
   } = useArStatus();
 
   const descriptionParagraphs = membership.description.split('\n');

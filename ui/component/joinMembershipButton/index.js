@@ -12,7 +12,6 @@ import {
   selectChannelForClaimUri, selectChannelClaimIdForUri, selectClaimForUri,
 } from 'redux/selectors/claims';
 import ShareButton from './view';
-import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -29,7 +28,6 @@ const select = (state, props) => {
     creatorMembershipsFetched: selectArEnabledMembershipTiersForChannelUri(state, uri),
     creatorTiers: channelId && selectMembershipTiersForCreatorId(state, channelId || channelClaimId), //
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, uri),
-    tipsEnabled: selectArweaveTipDataForId(state, channelClaimId),
     channelName: channelClaim?.name,
     channelClaimId: channelClaim?.claim_id,
     channelUri,

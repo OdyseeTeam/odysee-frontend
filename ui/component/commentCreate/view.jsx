@@ -577,7 +577,6 @@ export function CommentCreate(props: Props) {
                   isError: true,
                 });
                 setSubmitting(false);
-                console.log('doartip e', e);
               });
           }
         })

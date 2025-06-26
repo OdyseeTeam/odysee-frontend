@@ -8,7 +8,6 @@ import {
   selectTierIndexForCreatorIdAndMembershipId,
 } from 'redux/selectors/memberships';
 import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
-import { selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const creatorId = props.membership.channel_claim_id;
@@ -34,7 +33,6 @@ const select = (state, props) => {
       props.membership.membership_id
     ),
     thisMembership: selectMembershipMineForCreatorIdForMembershipId(state, creatorId, props.membership.membership_id),
-    exchangeRate: selectArweaveExchangeRates(state),
   };
 };
 

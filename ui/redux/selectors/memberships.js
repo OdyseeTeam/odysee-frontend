@@ -234,7 +234,7 @@ export const selectMyValidMembershipsForCreatorId = (state: State, id: string) =
   return myValidMembershipsById[id] || null;
 };
 
-export const selectIncomingPaymentsBySubscriber = (state) => {
+export const selectIncomingPaymentsBySubscriber = (state: State) => {
   const payments = selectMembershipTxIncoming(state);
   return payments.reduce((ac, cur) => {
     const currentId = cur.subscriber_channel_claim_id;
