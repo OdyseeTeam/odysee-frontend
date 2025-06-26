@@ -155,17 +155,15 @@ const Header = (props: Props) => {
     }
   }, [canBackout, onBackout]);
 
-  const userButtons = (hideWallet?: boolean, hideProfile?: boolean) => (
+  const userButtons = (hideBalance?: boolean, hideProfile?: boolean) => (
     <div className="header__menu--right">
       {isMobile && !authHeader && !canBackout && <WunderBar />}
 
       {authenticated ? (
         <>
-          {!hideWallet && (
-            <>
-            {arweaveAccounts.length > 0 ? (
-              <WanderButton />
-            ) : (
+          {arweaveAccounts.length > 0 ? (
+            <WanderButton hideBalance={hideBalance} />
+          ) : (
             <Tooltip
               title={
                 balance > 0
@@ -193,10 +191,7 @@ const Header = (props: Props) => {
                 )}
               </div>
             </Tooltip>
-            )}
-            </>
           )}
-
           {!hideProfile && <HeaderProfileMenuButton />}
         </>
       ) : !isMobile ? (
