@@ -105,7 +105,7 @@ function Overview(props: Props) {
     })();
   }, []);
 
-  const address = ''
+  const address = '';
   return (
     <Card
       className={!arWalletStatus ? `card--overview card--disabled` : `card--overview`}

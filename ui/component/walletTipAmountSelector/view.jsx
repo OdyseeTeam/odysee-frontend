@@ -137,6 +137,7 @@ function WalletTipAmountSelector(props: Props) {
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     let regexp;
 
@@ -206,7 +207,6 @@ function WalletTipAmountSelector(props: Props) {
         }
       }
     }
-    // $FlowIgnore
   }, [activeTab, amount, LBCBalance, arBalance, USDCBalance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
 
   if (!claim) return null;

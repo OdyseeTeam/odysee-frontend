@@ -10,12 +10,11 @@ type Props = {
   arWalletStatus: any,
   theme: string,
   balance: number,
-  experimentalUi: boolean,
   arweaveAccount: any,
 };
 
 export default function OnRamper(props: Props) {
-  const { cardHeader, arWalletStatus, theme, experimentalUi, mode, arweaveAccount } = props;
+  const { cardHeader, arWalletStatus, theme, mode, arweaveAccount } = props;
 
   const apiKey = 'pk_test_01JEXX6J49SXFTGBTEXN3S5MEF';
   const depositAddress = arweaveAccount ? arweaveAccount.deposit_address : null;

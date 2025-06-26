@@ -65,7 +65,7 @@ const WalletPage = (props: Props) => {
       break;
   }
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     doTipAccountStatus();
   }, []);

@@ -23,7 +23,7 @@ export default function Wander(props: Props) {
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (instance) {
       if (auth?.authStatus === 'onboarding') instance.open();
@@ -42,7 +42,7 @@ export default function Wander(props: Props) {
     }
   }, [auth]);
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (authenticated) {
       doArInit();
@@ -143,7 +143,7 @@ export default function Wander(props: Props) {
     if (window.wanderInstance) window.wanderInstance.setTheme(theme);
   }, [theme]);
 
-  // eslint-disable-next-line
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (!instance) return;
 
