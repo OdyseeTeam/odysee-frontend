@@ -29,15 +29,9 @@ import {
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import {
-  selectFullAPIArweaveStatus,
-  selectArweaveTipDataForId,
-  selectCanReceiveFiatTipsForUri,
-} from 'redux/selectors/stripe';
+import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
-import {
-  selectUserIsMemberOfMembersOnlyChatForCreatorId,
-} from 'redux/selectors/memberships';
+import { selectUserIsMemberOfMembersOnlyChatForCreatorId } from 'redux/selectors/memberships';
 import { doArTip } from 'redux/actions/arwallet';
 import { CommentCreate } from './view';
 import { selectArweaveTippingErrorForId } from 'redux/selectors/arwallet';
@@ -64,7 +58,6 @@ const select = (state, props) => {
     activeChannelName,
     activeChannelUrl,
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
-    arweaveStatus: selectFullAPIArweaveStatus(state),
     channelClaimId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
     claimId,

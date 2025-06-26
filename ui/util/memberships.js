@@ -57,7 +57,7 @@ export function filterMembershipTiersWithPerk(membershipTiers: Array<CreatorMemb
   return filtered;
 }
 
-export function membershipIsExpired(ends_at) {
+export function membershipIsExpired(ends_at: any) {
   const now = new Date();
   const endsAt = new Date(ends_at);
   return now > endsAt;

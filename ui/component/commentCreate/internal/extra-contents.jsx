@@ -56,7 +56,7 @@ export const HelpText = (helpTextProps: HelpTextProps) => {
               (minAmount && minUSDCAmount ? ' or ' : '') +
               (minUSDCTip || minUSDCSuper ? ' %usdc% ' : '')}
           </I18nMessage>
-          {/* TODO fix above spacing around ' or ' disappearing due to spans etc*/}
+          {/* TODO fix above spacing around ' or ' disappearing due to spans etc */}
 
           <Icon
             customTooltipText={

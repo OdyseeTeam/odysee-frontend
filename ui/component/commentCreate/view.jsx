@@ -5,7 +5,7 @@ import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE, ENABLE_STRIPE, ENABLE_ARCONNECT } from 'config';
+import { SIMPLE_SITE, ENABLE_ARCONNECT } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
@@ -25,7 +25,7 @@ import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD } from 'constants/tip_tabs';
 import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
 
@@ -65,7 +65,6 @@ type Props = {
   uri: string,
   disableInput?: boolean,
   recipientArweaveTipInfo: any,
-  arweaveStatus: any,
   experimentalUi: boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
@@ -127,7 +126,6 @@ export function CommentCreate(props: Props) {
     activeChannelUrl,
     bottom,
     recipientArweaveTipInfo,
-    arweaveStatus,
     experimentalUi,
     channelClaimId,
     claimId,
@@ -172,9 +170,7 @@ export function CommentCreate(props: Props) {
     arweaveTippingError,
   } = props;
 
-  const {
-    activeArStatus
-  } = useArStatus();
+  const { activeArStatus } = useArStatus();
 
   const showArweave = ENABLE_ARCONNECT && experimentalUi;
   const fileUri = React.useContext(AppContext)?.uri;
@@ -542,30 +538,37 @@ export function CommentCreate(props: Props) {
         dry_run: true,
       };
       doCommentCreate(uri, isLivestream, dryRunCommentParams)
-        .then((res: { }) => {
+        .then((res: {}) => {
           if (res && res.signature) {
             // tell apis about a tip, get a token and amount
             // make transaction
             // notify transaction id
             doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment)
-              .then((arTipResponse: { transactionId: string, currency: string, referenceToken: string, error?: string }) => {
-                if (arTipResponse.error) {
-                  throw new Error(arTipResponse.error);
-                }
-                const { transactionId } = arTipResponse;
-                const params = Object.assign({}, dryRunCommentParams);
-                params.payment_tx_id = transactionId;
-                params.dryrun = undefined;
-                params.amount = tipAmount; // dollars
+              .then(
+                (arTipResponse: {
+                  transactionId: string,
+                  currency: string,
+                  referenceToken: string,
+                  error?: string,
+                }) => {
+                  if (arTipResponse.error) {
+                    throw new Error(arTipResponse.error);
+                  }
+                  const { transactionId } = arTipResponse;
+                  const params = Object.assign({}, dryRunCommentParams);
+                  params.payment_tx_id = transactionId;
+                  params.dryrun = undefined;
+                  params.amount = tipAmount; // dollars
 
-                // ...
-                handleCreateComment(null, null, transactionId, stripeEnvironment);
-                setCommentValue('');
-                setReviewingSupportComment(false);
-                setTipSelector(false);
-                setCommentFailure(false);
-                setSubmitting(false);
-              })
+                  // ...
+                  handleCreateComment(null, null, transactionId, stripeEnvironment);
+                  setCommentValue('');
+                  setReviewingSupportComment(false);
+                  setTipSelector(false);
+                  setCommentFailure(false);
+                  setSubmitting(false);
+                }
+              )
               .catch((e) => {
                 // do the error handling
                 doToast({
@@ -658,7 +661,8 @@ export function CommentCreate(props: Props) {
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
       amount: !!txid || !!payment_intent_id || !!payment_tx_id ? getAmount() : undefined,
-      currency: activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : activeTab === TAB_USD ? 'AR' : undefined,
+      currency:
+        activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : activeTab === TAB_USD ? 'AR' : undefined,
       dry_run: dryRun,
     })
       .then((res) => {
@@ -890,7 +894,7 @@ export function CommentCreate(props: Props) {
                 isReviewingStickerComment={isReviewingStickerComment}
                 stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
               />
-              { arweaveTippingError && <div className={'error'}>{arweaveTippingError}</div> }
+              {arweaveTippingError && <div className={'error'}>{arweaveTippingError}</div>}
             </>
           )
         ) : selectedSticker ? (
@@ -995,7 +999,7 @@ export function CommentCreate(props: Props) {
                     label={
                       isSubmitting
                         ? __('Sending...')
-                        : (commentFailure) && tipAmount === successTip.tipAmount
+                        : commentFailure && tipAmount === successTip.tipAmount
                         ? __('Re-submit')
                         : __('Send')
                     }
@@ -1089,7 +1093,13 @@ export function CommentCreate(props: Props) {
                   <>
                     {showArweave && (
                       // <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
-                      <TipActionButton {...tipButtonProps} name={__('AR')} icon={ICONS.USD} tab={TAB_USD} disabled={tipButtonProps.disabled || activeArStatus !== 'connected'} />
+                      <TipActionButton
+                        {...tipButtonProps}
+                        name={__('AR')}
+                        icon={ICONS.USD}
+                        tab={TAB_USD}
+                        disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
+                      />
                     )}
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
                     {false && stripeEnvironment && (
