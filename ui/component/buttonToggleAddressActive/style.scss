@@ -1,0 +1,36 @@
+.toggle-wrapper {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background: color-mix(in srgb, var(--color-text) 70%, #930000 10%);
+  border-radius: 10px;
+
+  .toggle-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #930000;
+    transition: left 0.2s;
+  }
+
+  &.toggle-wrapper--active {
+    background: color-mix(in srgb, var(--color-text) 70%, #00932e 10%);
+    .toggle-status {
+      left: 20px;
+      background: #00932e;
+    }
+  }
+
+  &.toggle-wrapper--disabled {
+    .toggle-status {
+      background: #222222;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+  }
+}

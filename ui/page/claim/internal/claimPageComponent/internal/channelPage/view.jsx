@@ -69,7 +69,6 @@ type Props = {
   unpublishedCollections: CollectionGroup,
   lang: string,
   odyseeMembership: ?string,
-  getMembershipTiersForChannel: any,
   doMembershipMine: () => void,
   myMembershipsFetched: boolean,
   isOdyseeChannel: boolean,
@@ -96,7 +95,6 @@ function ChannelPage(props: Props) {
     unpublishedCollections,
     lang,
     odyseeMembership,
-    getMembershipTiersForChannel,
     doMembershipMine,
     myMembershipsFetched,
     isOdyseeChannel,
@@ -289,11 +287,12 @@ function ChannelPage(props: Props) {
     }
   }, [currentView]);
 
-  React.useEffect(() => {
-    if (claim) getMembershipTiersForChannel(claim.claim_id);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claim]);
+  // Fetch each load? doMembershipContentForStreamClaimIds([claim.claim_id])
+  // React.useEffect(() => {
+  //   if (claim) getMembershipTiersForChannel(claim.claim_id);
+  //
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [claim]);
 
   React.useEffect(() => {
     fetchSubCount(claimId);

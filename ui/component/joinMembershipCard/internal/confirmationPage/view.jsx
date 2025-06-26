@@ -2,18 +2,16 @@
 import React from 'react';
 
 import * as STRIPE from 'constants/stripe';
-
 import BusyIndicator from 'component/common/busy-indicator';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import ErrorBubble from 'component/common/error-bubble';
 import I18nMessage from 'component/i18nMessage';
 import { Submit } from 'component/common/form';
-
-import withCreditCard from 'hocs/withCreditCard';
+import Symbol from 'component/common/symbol';
 
 type Props = {
-  selectedTier: CreatorMembership,
+  selectedCreatorMembership: CreatorMembership,
   selectedMembershipIndex: number,
   onCancel: () => void,
   // -- redux --
@@ -21,66 +19,80 @@ type Props = {
   purchasePending: boolean,
   preferredCurrency: ?string,
   incognito: boolean,
+  isRenewal?: boolean,
+  balance: ArweaveBalance,
+  exchangeRate: { ar: number },
+  doArConnect: () => void,
+  membershipBuyError: string,
+  doMembershipBuyClear: () => void,
 };
 
 const ConfirmationPage = (props: Props) => {
   const {
-    selectedTier,
+    selectedCreatorMembership,
     selectedMembershipIndex,
     onCancel,
     channelName,
     purchasePending,
     preferredCurrency,
     incognito,
+    isRenewal,
+    balance,
+    exchangeRate,
+    doArConnect,
+    membershipBuyError,
+    doMembershipBuyClear,
   } = props;
 
-  const total = (selectedTier.NewPrices[0].Price.amount / 100).toFixed(2);
-  const creatorRevenue = (selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2);
-  const processingFee = (selectedTier.NewPrices[0].fees.stripe_fee / 100).toFixed(2);
-  const odyseeFee = (selectedTier.NewPrices[0].fees.odysee_fee / 100).toFixed(2);
+  const { ar: arBalance } = balance;
+  const { ar: dollarsPerAr } = exchangeRate;
 
+  React.useEffect(() => {
+    doArConnect();
+  }, [doArConnect]);
+
+  React.useEffect(() => {
+    return () => {
+      doMembershipBuyClear();
+    };
+  }, [doMembershipBuyClear]);
+
+  const total = (selectedCreatorMembership.prices[0].amount / 100).toFixed(2);
   return (
     <div className="confirm__wrapper">
       <h1>{__('Almost done')}</h1>
       <ConfirmationSection
-        label={__(`Join %channelName%'s Membership As`, { channelName })}
+        label={
+          isRenewal
+            ? __(`Renew %channelName%'s Membership As`, { channelName })
+            : __(`Join %channelName%'s Membership As`, { channelName })
+        }
         value={<ChannelSelector />}
       />
       <section>
         <label>{__('Membership Tier')}</label>
         <span>
           <div className="dot" />
-          {selectedTier.Membership.name}
+          {selectedCreatorMembership.name}
         </span>
       </section>
-      <ConfirmationSection label={__('Description')} value={selectedTier.Membership.description} />
+      <ConfirmationSection label={__('Description')} value={selectedCreatorMembership.description} />
 
       <section>
         <label>{__('Total Monthly Cost')}</label>
         <span className="total-membership-price">
-          <span className="total">${total}</span>
-          <span className="hide-on-mobile">{' ('}</span>
-          <span>
-            {__('Creator revenue')}: ${creatorRevenue}
+          <span className="total">
+            ${total} (<Symbol token="ar" amount={total / exchangeRate.ar} />)
           </span>
-          <span className="hide-on-mobile">{', '}</span>
-          <span>
-            {__('Payment processing fee')}: ${processingFee}
-          </span>
-          <span className="hide-on-mobile">{', '}</span>
-          <span>
-            {__('Odysee platform fee')}: ${odyseeFee}
-          </span>
-          <span className="hide-on-mobile">{')'}</span>
         </span>
       </section>
-      {selectedTier.Perks && selectedTier.Perks.length > 0 && (
+      {selectedCreatorMembership.perks && selectedCreatorMembership.perks.length > 0 && (
         <ConfirmationSection
           label={__('Features and Perks')}
           value={
             <ul className="ul--no-style membership-tier__perks">
               {/* $FlowFixMe -- already handled above */}
-              {selectedTier.Perks.map((tierPerk, i) => (
+              {selectedCreatorMembership.perks.map((tierPerk, i) => (
                 <li key={i}>{__(tierPerk.name)}</li>
               ))}
             </ul>
@@ -110,11 +122,21 @@ const ConfirmationPage = (props: Props) => {
                 </div>
               </p>
             )}
+            {(!arBalance || (dollarsPerAr && Number(dollarsPerAr) * arBalance < total)) && (
+              <p className="help">
+                <div className="error__text">{__('Insufficient Balance')}</div>
+              </p>
+            )}
 
-            <SubmitButton modalState={{ passedTierIndex: selectedMembershipIndex }} />
+            <SubmitButton
+              isRenewal={isRenewal}
+              disabled={!arBalance}
+              modalState={{ passedTierIndex: selectedMembershipIndex }}
+            />
             <Button button="link" label={__('Cancel')} onClick={onCancel} />
           </div>
 
+          {membershipBuyError && <p className="error">{membershipBuyError}</p>}
           <p className="help">
             <I18nMessage
               tokens={{
@@ -127,7 +149,9 @@ const ConfirmationPage = (props: Props) => {
                 ),
               }}
             >
-              By continuing, you accept the %membership_terms_and_conditions%.
+              By proceeding, you agree to the %membership_terms_and_conditions%. Subscriptions are paid in
+              cryptocurrency, so you’ll need to make a renewal payment every month to stay subscribed. All payments are
+              final and non-refundable.
             </I18nMessage>
           </p>
         </>
@@ -154,6 +178,8 @@ const ConfirmationSection = (props: GroupProps) => {
   );
 };
 
-const SubmitButton = withCreditCard(() => <Submit autoFocus button="primary" label={__('Confirm')} />);
+const SubmitButton = (props: { isRenewal: boolean, disabled: boolean }) => (
+  <Submit disabled={props.disabled} autoFocus button="primary" label={props.isRenewal ? __('Renew') : __('Confirm')} />
+);
 
 export default ConfirmationPage;

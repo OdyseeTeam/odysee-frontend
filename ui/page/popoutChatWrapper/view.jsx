@@ -1,5 +1,5 @@
 // @flow
-import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
+import { getChannelIdFromClaim } from 'util/claim';
 import { formatLbryChannelName } from 'util/url';
 import { lazyImport } from 'util/lazyImport';
 import Page from 'component/page';
@@ -14,7 +14,7 @@ type Props = {
   doCommentSocketConnectAsCommenter: (string, string, string, ?boolean) => void,
   doCommentSocketDisconnectAsCommenter: (string, string) => void,
   doResolveUri: (string, boolean) => void,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   isProtectedContent: boolean,
   contentUnlocked: boolean,
   contentRestrictedFromUser: boolean,
@@ -64,9 +64,8 @@ export default function PopoutChatPage(props: Props) {
 
   React.useEffect(() => {
     if (claim) {
-      const channelName = getChannelNameFromClaim(claim) || 'invalid';
       const channelId = getChannelIdFromClaim(claim) || 'invalid';
-      doMembershipList({ channel_name: channelName, channel_id: channelId });
+      doMembershipList({ channel_claim_id: channelId });
     }
   }, [claim, doMembershipList]);
 

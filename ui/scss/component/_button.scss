@@ -9,6 +9,7 @@
 .button--primary,
 .button--secondary,
 .button--alt,
+.button--liquidass,
 .button--link {
   &:focus {
     z-index: 2; // Ensure focus box-shadow is always visible on every button side
@@ -17,7 +18,8 @@
 
 .button--primary,
 .button--secondary,
-.button--alt {
+.button--alt,
+.button--liquidass {
   height: var(--height-button);
   border-radius: var(--border-radius);
   padding: 0 var(--spacing-m);
@@ -28,6 +30,7 @@
 .button--primary {
   // top: -1px;
   background-color: var(--color-primary) !important;
+  color: var(--color-primary-contrast);
 
   .button__label {
     color: var(--color-primary-contrast);
@@ -123,6 +126,51 @@ a.button--alt {
   }
 }
 
+.button--liquidass {
+  border:1px solid white;
+  background-color:rgba(255,255,255,.1) !important;
+  backdrop-filter:blur(4px);
+  margin-top: var(--spacing-m);
+  transition: background .6s;
+
+  .button__label {
+    color: var(--color-primary-contrast);
+  }
+
+  .icon {
+    color: var(--color-primary-contrast);
+  }
+
+  .credit-amount {
+    color: var(--color-primary-contrast);
+
+    .icon {
+      margin-left: 3px;
+      margin-right: 3px;
+    }
+  }
+
+  &:hover {
+    background-color:rgba(255,255,255,.2) !important;
+    .icon {
+      stroke: var(--color-primary-contrast) !important;
+    }
+  }
+
+  &:focus-visible {
+    background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+
+    .button__label {
+      color: var(--color-text) !important;
+    }
+
+    .icon {
+      stroke: var(--color-text) !important;
+    }
+  }
+}
+
 .button--icon {
   width: 5rem;
   height: 5rem;
@@ -142,7 +190,7 @@ a.button--alt {
   }
 
   &.button--play {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='white' stroke-width='2' fill='white' fill-rule='evenodd' stroke-linejoin='round'%3E %3Cpolygon points='5 21 5 3 21 12'/%3E %3C/g%3E %3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='white' stroke-width='2' fill='white' fillRule='evenodd' stroke-linejoin='round'%3E %3Cpolygon points='5 21 5 3 21 12'/%3E %3C/g%3E %3C/svg%3E");
     background-position: calc(50% + 0.1rem) center;
     opacity: 0.95;
     transition: opacity 0.2s;
@@ -153,7 +201,7 @@ a.button--alt {
   }
 
   &.button--view {
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='white' stroke-width='2' fill='none' fill-rule='evenodd'%3E %3Cpath d='M2, 12 C2, 12 5, 5 12, 5 C19, 5 22, 12 22, 12 C22, 12 19, 19 12, 19 C5, 19 2, 12 2, 12 Z' stroke-linejoin='round'/%3E %3Ccircle cx='12' cy='12' r='3'/%3E %3Cpath d='M12, 5 L12, 3' stroke-linecap='round'/%3E %3Cpath d='M18, 6.5 L19, 5' stroke-linecap='round'/%3E %3Cpath d='M21, 10 L22.5, 9' stroke-linecap='round'/%3E %3Cpath d='M1.5, 10 L3, 9' stroke-linecap='round' transform='translate(2.250000, 9.500000) scale(1, -1) translate(-2.250000, -9.500000)'/%3E %3Cpath d='M5, 6.5 L6, 5' stroke-linecap='round' transform='translate(5.500000, 5.750000) scale(-1, 1) translate(-5.500000, -5.750000)'/%3E %3C/g%3E %3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='white' stroke-width='2' fill='none' fillRule='evenodd'%3E %3Cpath d='M2, 12 C2, 12 5, 5 12, 5 C19, 5 22, 12 22, 12 C22, 12 19, 19 12, 19 C5, 19 2, 12 2, 12 Z' stroke-linejoin='round'/%3E %3Ccircle cx='12' cy='12' r='3'/%3E %3Cpath d='M12, 5 L12, 3' stroke-linecap='round'/%3E %3Cpath d='M18, 6.5 L19, 5' stroke-linecap='round'/%3E %3Cpath d='M21, 10 L22.5, 9' stroke-linecap='round'/%3E %3Cpath d='M1.5, 10 L3, 9' stroke-linecap='round' transform='translate(2.250000, 9.500000) scale(1, -1) translate(-2.250000, -9.500000)'/%3E %3Cpath d='M5, 6.5 L6, 5' stroke-linecap='round' transform='translate(5.500000, 5.750000) scale(-1, 1) translate(-5.500000, -5.750000)'/%3E %3C/g%3E %3C/svg%3E");
     background-position: center calc(50% + 0.1rem);
   }
 }
@@ -1092,8 +1140,11 @@ svg + .button__label {
 }
 
 .button--membership-active {
+  background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
+  
   .button__content {
     .icon {
+      color: white !important;
       stroke: white !important;
       fill: white !important;
     }
@@ -1101,14 +1152,14 @@ svg + .button__label {
       color: white;
     }
   }
-  &:hover {
-    .button__label {
-      color: white;
-    }
+  &:hover {    
     .icon {
       color: white !important;
       stroke: white !important;
       fill: white !important;
+    }
+    .button__label {
+      color: white !important;
     }
   }
 }

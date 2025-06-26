@@ -32,8 +32,10 @@ const defaultState: UserState = {
   referrerSetIsPending: false,
   referrerSetError: '',
   referrerSet: undefined,
-  odyseeMembershipName: undefined,
-  odyseeMembershipsPerClaimIds: undefined,
+  odyseeMembershipName: undefined, // deprecated
+  odyseeMembershipsPerClaimIds: undefined, // deprecated
+  hasLegacyOdyseePremium: false,
+  isCheckingLegacyOdyseePremium: false,
   locale: undefined,
   localeFailed: undefined,
   homepageFetched: false,
@@ -61,6 +63,28 @@ reducers[ACTIONS.AUTHENTICATION_FAILURE] = (state) =>
     user: null,
     user2FAPending: false,
   });
+
+reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = (state) => {
+    return Object.assign({}, state, {
+      isCheckingLegacyOdyseePremium: true,
+    });
+};
+
+reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = (state) => {
+  return Object.assign({}, state, {
+    isCheckingLegacyOdyseePremium: false,
+  });
+};
+
+reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => {
+  const { has_premium_plus, has_premium } = action.data;
+  if (has_premium_plus || has_premium) {
+    return Object.assign({}, state, {
+      hasLegacyOdyseePremium: true,
+      isCheckingLegacyOdyseePremium: false,
+    });
+  }
+};
 
 reducers[ACTIONS.USER_FETCH_STARTED] = (state) =>
   Object.assign({}, state, {

@@ -339,8 +339,12 @@ export const selectCanViewFileForUri = (state: State, uri: string) => {
     return true;
   }
 
+  const claimIsMine = selectClaimIsMineForUri(state, uri);
+  if (claimIsMine) {
+    return true;
+  }
+
   if (scheduledButNotReady) {
-    const claimIsMine = selectClaimIsMineForUri(state, uri);
     return !!claimIsMine;
   }
 

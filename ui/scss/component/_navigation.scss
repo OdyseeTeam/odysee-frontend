@@ -59,6 +59,7 @@
   background-color: var(--color-card-background);
   transform: translateX(0);
   transform-origin: left;
+  scrollbar-width: thin;
 
   .wunderbar__input {
     background-color: var(--color-header-button);

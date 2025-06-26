@@ -13,7 +13,6 @@ type Props = {
   // -- redux --
   myChannelClaims: ?Array<ChannelClaim>,
   bankAccountConfirmed: ?boolean,
-  accountDefaultCurrency: ?string,
   hasTiers?: boolean,
   supportersList: ?SupportersList,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
@@ -26,7 +25,6 @@ const TabWrapper = (props: Props) => {
     // -- redux --
     myChannelClaims,
     bankAccountConfirmed,
-    accountDefaultCurrency,
     hasTiers,
     supportersList,
     doTipAccountStatus,
@@ -64,20 +62,20 @@ const TabWrapper = (props: Props) => {
   }
 
   // SECOND: verify bank account
-  if (!bankAccountConfirmed) {
-    return (
-      <ErrorBubble
-        title={__('Bank Account Status')}
-        subtitle={__('Adding a bank account has been disabled.')}
-        action={<></>}
-      />
-    );
-  }
+  // if (!bankAccountConfirmed) {
+  //   return (
+  //     <ErrorBubble
+  //       title={__('Bank Account Status')}
+  //       subtitle={__('Adding a bank account has been disabled.')}
+  //       action={<></>}
+  //     />
+  //   );
+  // }
 
-  // THIRD: only USD supported. This will be the final message for some.
-  if (accountDefaultCurrency !== 'usd') {
-    return <ErrorBubble>{__('Only USD banking currently supported, please check back later!')}</ErrorBubble>;
-  }
+  // THIRD: only USD supported. This will be the final message for some. <deprecated>
+  // if (accountDefaultCurrency !== 'usd') {
+  //   return <ErrorBubble>{__('Only USD banking currently supported, please check back later!')}</ErrorBubble>;
+  // }
 
   // FOURTH: all that's left for the tabs to be filled in, is some tiers to be created
   if (!hasTiers && !isOnTiersTab) {

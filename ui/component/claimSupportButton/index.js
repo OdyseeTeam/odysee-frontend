@@ -4,7 +4,7 @@ import { makeSelectTagInClaimOrChannelForUri, selectClaimForUri } from 'redux/se
 import { getChannelIdFromClaim } from 'util/claim';
 import ClaimSupportButton from './view';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 
 const DISABLE_SUPPORT_TAG = 'disable-support';
@@ -14,6 +14,7 @@ const select = (state, props) => {
   const { uri } = props;
 
   const claim = selectClaimForUri(state, uri);
+  const claimId = claim.claim_id;
   const isRepost = claim && claim.repost_url;
   const channelClaimId = claim && getChannelIdFromClaim(claim);
 
@@ -21,11 +22,14 @@ const select = (state, props) => {
     makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state) ||
     (channelClaimId && DISABLED_SUPPORT.includes(channelClaimId));
 
+  const tipData = selectArweaveTipDataForId(state, claimId);
+  const canReceiveTips = tipData?.status === 'active' && tipData?.default;
+
   return {
     disableSupport,
     isRepost,
     preferredCurrency: selectPreferredCurrency(state),
-    canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
+    canReceiveTips,
   };
 };
 

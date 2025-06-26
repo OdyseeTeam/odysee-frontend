@@ -64,7 +64,7 @@ $actions-z-index: 2;
     .tab {
       &[aria-selected='true'] {
         &:after {
-          height: 8px;
+          height: 4px;
           background-color: var(--color-link);
         }
       }
@@ -265,7 +265,7 @@ $actions-z-index: 2;
   }
 
   label {
-    margin-top: var(--spacing-m);
+    // margin-top: var(--spacing-m);
     font-size: var(--font-body);
     font-weight: var(--font-weight-bold);
   }

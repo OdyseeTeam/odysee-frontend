@@ -17,13 +17,12 @@ import Button from 'component/button';
 import './style.scss';
 
 const PledgesTab = lazyImport(() => import('./pledgesTab' /* webpackChunkName: "pledgesTab" */));
-
+const PaymentsTab = lazyImport(() => import('./paymentsTab' /* webpackChunkName: "outgoingPaymentsTab" */));
 const TAB_QUERY = 'tab';
 
 const TABS = {
   OVERVIEW: 'overview',
-  SUPPORTERS: 'supporters',
-  TIERS: 'tiers',
+  PAYMENTS: 'payments',
 };
 
 type Props = {
@@ -31,6 +30,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   myChannelClaims: ?Array<ChannelClaim>,
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
+  myChannelIds: Array<string>,
 };
 
 const SupporterArea = (props: Props) => {
@@ -39,6 +39,7 @@ const SupporterArea = (props: Props) => {
     activeChannelClaim,
     myChannelClaims,
     doListAllMyMembershipTiers,
+    myChannelIds,
   } = props;
 
   React.useEffect(() => {
@@ -51,6 +52,15 @@ const SupporterArea = (props: Props) => {
     location: { search },
     push,
   } = useHistory();
+  const [allSelected, setAllSelected] = React.useState(true);
+
+  const channelsToList = React.useMemo(() => {
+    if (!myChannelClaims) return myChannelClaims;
+    if (!activeChannelClaim) return activeChannelClaim;
+
+    if (allSelected) return myChannelClaims;
+    return [activeChannelClaim];
+  }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   if (activeChannelClaim === undefined) {
     return (
@@ -72,11 +82,8 @@ const SupporterArea = (props: Props) => {
     case TABS.OVERVIEW:
       tabIndex = 0;
       break;
-    case TABS.TIERS:
+    case TABS.PAYMENTS:
       tabIndex = 1;
-      break;
-    case TABS.SUPPORTERS:
-      tabIndex = 2;
       break;
   }
 
@@ -86,34 +93,30 @@ const SupporterArea = (props: Props) => {
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2) {
-      url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
+      url += `${TAB_QUERY}=${TABS.PAYMENTS}`;
     }
     push(url);
   }
 
   return (
     <Page className="membershipPage-wrapper">
-      <div className="membership__mypledges-header">
-        <label>{__('Donor Portal')}</label>
+      <div className="supporter-header-wrapper">
+        <div className="supporter-header">
+          <Button
+            navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
+            icon={ICONS.BACK}
+            button="liquidass"
+          />
+          <div>{__('Donor Portal')}</div>
+        </div>
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-          {/* <Tab>{__('Billing History')}</Tab> */}
-          {/* <Tab> {__('Creators To Support')}</Tab> */}
-          <div className="no-after">
-            <Tab>
-              <Button
-                navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
-                label={__('Back To Memberships')}
-                icon={ICONS.BACK}
-                button="secondary"
-              />
-            </Tab>
-          </div>
-        </TabList>
+        <div className="tab__wrapper">
+          <TabList>
+            <Tab aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>{__('Overview')}</Tab>
+            <Tab aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>{__('Payments')}</Tab>
+          </TabList>
+        </div>
 
         <TabPanels>
           <TabPanel>
@@ -127,8 +130,15 @@ const SupporterArea = (props: Props) => {
 
           <TabPanel>
             <>
-              <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-              <ChannelSelector hideAnon />
+              <span className="section__subtitle ">{__('Membership Payments for Channel')}</span>
+              <ChannelSelector
+                channelIds={myChannelIds}
+                hideCreateNew
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                hideAnon
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <PaymentsTab channelsToList={channelsToList} />
             </>
           </TabPanel>
         </TabPanels>

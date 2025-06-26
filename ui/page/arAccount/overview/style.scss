@@ -1,0 +1,279 @@
+@import '~ui/scss/init/breakpoints';
+
+.card--overview {
+  .payment-options-wrapper {
+    display: flex;
+    width: 100%;
+    gap: var(--spacing-m);
+
+    @media (max-width: $breakpoint-medium) {
+      flex-direction: column;
+    }
+  }
+
+  .payment-options-card {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--spacing-s);
+    height: 100%;
+  }
+
+  .payment-options {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+
+    .payment-option-wrapper {
+      display: flex;
+      flex-direction: column;
+    }
+    .payment-option {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+
+      fieldset-section {
+        width: 100%;
+
+        .form-field--copyable {
+          background-color: var(--color-header-button);
+        }
+      }
+
+      .qr-code {
+        width: 200px;
+        height: 200px;
+        canvas {
+          width: 100% !important;
+          height: 100% !important;
+        }
+      }
+    }
+
+    .payment-option__monetization {
+      display: flex;
+      background: var(--color-header-button);
+      gap: var(--spacing-l);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-xs);
+      margin-bottom: var(--spacing-s);
+      align-items: center;
+
+      .toggle-wrapper {
+        margin-left: auto;
+        min-width:40px;
+      }
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .payment-option__labels{
+        display:flex;
+        flex-direction: column;
+        span{
+          display:inline-block;
+          font-size:var(--font-xsmall);
+          opacity:.6;
+        }
+      }
+    }
+  }
+
+  .payment-options-content {
+    display: flex;
+    flex-direction: column;    
+    width: 100%;
+    height: 100%;
+    background: var(--color-background);
+    padding: var(--spacing-s);
+    border-radius: var(--border-radius) 0 var(--border-radius) var(--border-radius);
+    gap: var(--spacing-s);
+
+    .payment-option {
+      flex: 1;
+      justify-content: center;
+
+
+      .payment-option__wallet {
+        display:flex;
+        background: var(--color-header-button);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-xs);
+        align-items: center;
+
+        .payment-option__wallet-info{
+          flex:1;
+          span{
+            font-size: var(--font-xsmall);
+            opacity: 0.6;
+          }          
+        }
+        .payment-option__wallet-button{
+          display:flex;
+          width:fit-content;
+          .button{
+            margin-left:var(--spacing-s);
+          }
+        }        
+
+        @media (max-width: $breakpoint-small) {
+          flex-direction: column;
+          .payment-option__wallet-button{
+            width:100%;
+            .button{
+              margin-top:var(--spacing-s);
+              margin-left:unset;
+              margin-right:auto;
+            }
+          }          
+        }
+      }
+    }
+  }
+
+  .sendAr-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+
+    .sendAr-row__amount,
+    .sendAr-row__receiver {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      // justify-content: center;
+    }
+
+    .sendAr__total {
+      display: flex;
+      width: 100%;
+      margin-bottom: var(--spacing-s);
+
+      span {
+        margin-left: auto;
+        font-size: var(--font-xsmall);
+        cursor: pointer;
+      }
+    }
+
+    .sendArLabel {
+      display: flex;
+      width: 100%;
+      align-items: center;
+    }
+
+    input {
+      background: var(--color-header-button);
+      width: 100%;
+      margin-left: auto;
+    }
+
+    .sendAr-row__send {
+      margin-top: auto;
+
+      @media (max-width: $breakpoint-medium) {
+        margin-top: var(--spacing-m);
+      }
+    }
+  }
+
+  .transaction-history {
+    display:flex;
+    flex-direction: column;
+    padding: var(--spacing-s);
+    background: var(--color-background);
+    border-radius: var(--border-radius);
+    margin-top: calc(var(--spacing-s) * -1);
+
+    .spinner{
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .transaction-history__row {
+      display: flex;        
+      width: 100%;
+      gap: var(--spacing-s);
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      align-items: center;
+
+      .transaction-history__date {
+        min-width: 90px;
+        width: 140px;
+      }
+      .transaction-history__action {
+        min-width: 60px;
+        width: 60px;
+      }
+      .transaction-history__amount{
+        min-width: 70px;
+        width: 70px;
+      }
+      .transaction-history__token{
+        min-width: 56px;
+        width: 56px;
+      }
+      .transaction-history__direction {
+        min-width: 40px;
+        width: 40px;
+      }
+      .transaction-history__target {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .transaction-history__viewblock {
+        flex-shrink: 0;
+        margin-left: auto;
+        img {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+        }
+      }
+
+      @media (max-width: $breakpoint-medium) {
+        font-size: var(--font-small);
+
+        .transaction-history__date {
+          min-width: 90px;
+        }
+        .transaction-history__action {
+          min-width: 40px;
+        }
+        .transaction-history__amount{
+          min-width: 44px;
+        }
+        .transaction-history__token {
+          min-width: 30px;
+          .icon__symbol-wrapper {
+            margin-right: 0 !important;
+            svg {
+              width: 12px;
+              height: 12px;
+            }
+          }
+        }
+        .transaction-history__direction {
+          min-width: 20px;
+        }
+      }
+
+      @media (max-width: $breakpoint-small) {
+        font-size: var(--font-xxsmall) !important;
+
+        .transaction-history__date {
+          min-width: 90px;
+        }
+        .transaction-history__action {
+          min-width: 40px;
+        }
+      }
+
+    }
+  }
+}

@@ -71,6 +71,7 @@ const defaultState = {
       amount: 0.1,
     },
     [SETTINGS.PREFERRED_CURRENCY]: 'USD',
+    [SETTINGS.CRYPTO_DISCLAIMERS]: true,
 
     // Content
     [SETTINGS.SHOW_MATURE]: false,

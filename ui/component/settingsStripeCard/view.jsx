@@ -44,7 +44,6 @@ type Props = WrapperProps & {
 };
 
 const SettingsStripeCard = (props: Props) => {
-  const STRIPE_DISABLED = true;
   const {
     isModal,
     promisePending,
@@ -144,14 +143,9 @@ const SettingsStripeCard = (props: Props) => {
     }
   }
 
-  if (STRIPE_DISABLED) {
-    return <div className={'error'}>{__('Payment Services are temporarily disabled. Please check back later.')}</div>;
-  }
-
   if (cardDetails) {
     return (
       <div className="successCard">
-        {/* back to membership button */}
         {shouldShowBackToMembershipButton && (
           <Button
             button="primary"

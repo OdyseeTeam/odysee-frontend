@@ -35,8 +35,8 @@ export function getSortedRowData(
   rowData: Array<RowDataItem>
 ) {
   let sortedRowData: Array<RowDataItem> = [];
-  const hasBanner = Boolean(homepageData.featured);
-  const hasPortals = Boolean(homepageData.portals);
+  const hasBanner = Boolean(homepageData?.featured);
+  const hasPortals = Boolean(homepageData?.portals);
 
   if (authenticated) {
     if (homepageOrder.active) {

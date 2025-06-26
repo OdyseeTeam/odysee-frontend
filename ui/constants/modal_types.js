@@ -1,6 +1,7 @@
 export const CONFIRM = 'confirm';
 export const CONFIRM_FILE_REMOVE = 'confirm_file_remove';
 export const CONFIRM_EXTERNAL_RESOURCE = 'confirm_external_resource';
+export const CRYPTO_DISCLAIMERS = 'crypto_disclaimers';
 export const CUSTOMIZE_HOMEPAGE = 'customize_homepage';
 export const INCOMPATIBLE_DAEMON = 'incompatible_daemon';
 export const FEATURED_CHANNELS_EDIT = 'featured_channels_edit';
@@ -57,6 +58,7 @@ export const ANNOUNCEMENTS = 'ANNOUNCEMENTS';
 export const ADD_CARD = 'ADD_CARD';
 export const ACCOUNT_DELETE = 'ACCOUNT_DELETE';
 
+export const ARWEAVE_CONNECT = 'ARWEAVE_CONNECT';
 // Memberships
 
 export const MEMBERSHIP_SPLASH = 'MEMBERSHIP_SPLASH';

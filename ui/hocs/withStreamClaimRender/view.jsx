@@ -55,7 +55,7 @@ type Props = {
   doFileGetForUri: (uri: string, opt?: ?FileGetOptions) => void,
   doMembershipMine: () => void,
   doStartFloatingPlayingUri: (playingOptions: PlayingUri) => void,
-  doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doClearPlayingUri: () => void,
 };
 
@@ -173,7 +173,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     React.useEffect(() => {
       if (channelClaimId && channelName) {
-        doMembershipList({ channel_name: channelName, channel_id: channelClaimId });
+        doMembershipList({ channel_claim_id: channelClaimId });
       }
     }, [channelClaimId, channelName, doMembershipList]);
 
@@ -248,7 +248,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         }
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps -- SIGH
-    }, [pathname, sourceLoaded]);
+    }, [pathname, sourceLoaded, canViewFile]);
 
     function updateClaim(trigger: string) {
       const playingOptions: PlayingUri = {
@@ -259,8 +259,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         sourceId: claimLinkId,
         commentId: undefined,
       };
-
-      // console.log('updateClaim: ', trigger);
 
       let check = playingOptions.uri === currentStreamingUri;
 
@@ -301,7 +299,6 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
 
     // -- Restricted State -- render instead of component, until no longer restricted
     if (!canViewFile) {
-      // console.log('doCheckIfPurchasedClaimId: ', doCheckIfPurchasedClaimId)
       return (
         <ClaimCoverRender uri={uri} transparent {...clickProps}>
           {pendingFiatPayment || sdkFeePending ? (

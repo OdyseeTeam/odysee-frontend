@@ -22,6 +22,8 @@ import { getDefaultLanguage } from 'util/default-languages';
 import { LocalStorage, LS } from 'util/storage';
 
 import { doMembershipMine } from 'redux/actions/memberships';
+import { selectDefaultChannelId } from 'redux/selectors/settings';
+import { ODYSEE_TIER_NAMES } from 'constants/memberships';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
@@ -112,6 +114,67 @@ function checkAuthBusy() {
       }
     })();
   });
+}
+export function doUserHasPremium() {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const channelClaim = selectDefaultChannelId(state);
+    dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED });
+
+    try {
+      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaim }, 'post');
+      const channelIds = Object.keys(resById);
+
+      const getMembershipStatus = (ms) => {
+        if (ms.has_premium) {
+          return ODYSEE_TIER_NAMES.PREMIUM;
+        } else if (ms.has_premium_plus) {
+          return ODYSEE_TIER_NAMES.PREMIUM_PLUS;
+        } else {
+          return null;
+        }
+      };
+
+      const membershipsById = {};
+
+      channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
+      dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById} });
+      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS, data: resById[channelClaim] });
+    } catch (e) {
+      dispatch({ type: ACTIONS.USER_ODYSEE_PREMIUM_CHECK_FAILURE });
+    };
+  };
+}
+
+export function doChannelsHavePremium(channelClaimIds) {
+  return async (dispatch) => {
+    dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_STARTED, data: { channelIds: channelClaimIds} });
+    const channelClaimIdsCsv = channelClaimIds.join(',');
+
+    // TODO OPTIMIZE Don't fetch if already fetching ids in state
+
+    try {
+      const resById = await Lbryio.call('user', 'has_premium', { channel_claim_ids: channelClaimIdsCsv }, 'post');
+      const channelIds = Object.keys(resById);
+
+      const getMembershipStatus = (ms) => {
+        if (ms.has_premium) {
+          return ODYSEE_TIER_NAMES.PREMIUM;
+        } else if (ms.has_premium_plus) {
+          return ODYSEE_TIER_NAMES.PREMIUM_PLUS;
+        } else {
+          return null;
+        }
+      };
+
+      const membershipsById = {};
+
+      channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
+      dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById} });
+    } catch (e) {
+      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE, data: channelClaimIds });
+    };
+  };
 }
 
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?

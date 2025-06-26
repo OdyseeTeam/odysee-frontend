@@ -96,7 +96,7 @@ export default function Notification(props: Props) {
       icon = <Icon icon={ICONS.LBC} sectionIcon />;
       break;
     case RULE.FIAT_TIP:
-      icon = <Icon icon={ICONS.FINANCE} sectionIcon />;
+      icon = <Icon icon={ICONS.USD} sectionIcon />;
       break;
     default:
       icon = <Icon icon={ICONS.NOTIFICATION} sectionIcon />;

@@ -1,41 +1,44 @@
 // @flow
 import React from 'react';
-import Button from 'component/button';
-import moment from 'moment';
-
-import { formatLbryUrlForWeb } from 'util/url';
-import { toCapitalCase } from 'util/string';
-import { buildURI } from 'util/lbryURI';
-
-import ChannelThumbnail from 'component/channelThumbnail';
-import * as ICONS from 'constants/icons';
 import Yrbl from 'component/yrbl';
 import Spinner from 'component/spinner';
-import UriIndicator from 'component/uriIndicator';
+import MembershipRow from './internal/membershipRow';
 
 type Props = {
   // -- redux --
-  myPurchasedCreatorMemberships: Array<MembershipTiers>,
-  isFetchingMemberships: boolean,
-  doMembershipMine: () => Promise<MembershipTiers>,
+  myMembershipSubs: Array<MembershipSub>,
+  isFetchingMembershipSubs: boolean,
+  doMembershipMine: () => Promise<MembershipSub>,
+  activeChannelClaim: ChannelClaim,
+  doResolveClaimIds: (claimIds: Array<string>) => Promise<any>,
 };
 
 function PledgesTab(props: Props) {
-  const { myPurchasedCreatorMemberships, isFetchingMemberships, doMembershipMine } = props;
-
+  const { myMembershipSubs, isFetchingMembershipSubs, doMembershipMine, doResolveClaimIds } = props;
   React.useEffect(() => {
-    if (myPurchasedCreatorMemberships === undefined) {
+    if (myMembershipSubs === undefined) {
       doMembershipMine();
     }
-  }, [doMembershipMine, myPurchasedCreatorMemberships]);
+  }, [doMembershipMine, myMembershipSubs]);
+  const subChannelIds = React.useMemo(() => {
+    return myMembershipSubs ? myMembershipSubs.map(sub => sub.membership.channel_claim_id) : [];
+  }, [myMembershipSubs]);
 
-  if (myPurchasedCreatorMemberships === undefined && isFetchingMemberships) {
+  const [resolved, setResolved] = React.useState(false);
+  React.useEffect(() => {
+    if (!resolved && subChannelIds && subChannelIds.length) {
+      setResolved(true);
+      doResolveClaimIds(subChannelIds);
+    }
+  }, [subChannelIds, doResolveClaimIds, resolved]);
+
+  if (myMembershipSubs === undefined && isFetchingMembershipSubs) {
     return (
       <div className="main--empty">
         <Spinner />
       </div>
     );
-  } else if (myPurchasedCreatorMemberships === undefined && !isFetchingMemberships) {
+  } else if (myMembershipSubs === undefined && !isFetchingMembershipSubs) {
     return (
       <div className="main--empty">
         <p>{__('Failed to fetch memberships')}</p>
@@ -43,7 +46,7 @@ function PledgesTab(props: Props) {
     );
   }
 
-  if (!myPurchasedCreatorMemberships || myPurchasedCreatorMemberships.length === 0) {
+  if (!myMembershipSubs || myMembershipSubs.length === 0) {
     return (
       <div className="membership__mypledges-wrapper">
         <div className="membership__mypledges-content">
@@ -56,6 +59,8 @@ function PledgesTab(props: Props) {
     );
   }
 
+  const sortedMembershipSubs = myMembershipSubs.filter(sub => sub.subscription.is_active === true).sort((a, b) => new Date(b.subscription.started_at).getTime() - new Date(a.subscription.started_at).getTime());
+
   return (
     <div className="membership__mypledges-wrapper">
       <div className="membership__mypledges-content">
@@ -67,81 +72,20 @@ function PledgesTab(props: Props) {
                   {__('Channel Name')}
                 </th>
                 <th>{__('Tier')}</th>
-                <th>{__('Total Supporting Time')}</th>
+                <th>{__('Paid Until')}</th>
+                <th>{__('Months Supported')}</th>
                 <th>{__('Amount')}</th>
+                <th>{__('Renew By')}</th>
                 <th>{__('Status')}</th>
                 <th className="membership-table__page">{__('Page')}</th>
               </tr>
             </thead>
             <tbody>
-              {myPurchasedCreatorMemberships.map((memberships) =>
-                memberships.map((membership) => {
-                  const memberChannelName = membership.Membership.channel_name;
-                  const memberChannelUri =
-                    memberChannelName === ''
-                      ? ''
-                      : buildURI({ channelName: memberChannelName, channelClaimId: membership.Membership.channel_id });
-
-                  const creatorChannelId = membership.MembershipDetails.channel_id;
-                  const creatorChannelUri = buildURI({
-                    channelName: membership.MembershipDetails.channel_name,
-                    channelClaimId: creatorChannelId,
-                  });
-                  const creatorChannelPath = formatLbryUrlForWeb(creatorChannelUri);
-
-                  const currency = membership.Subscription.plan.currency.toUpperCase();
-                  const supportAmount = membership.Subscription.plan.amount; // in cents or 1/100th EUR
-                  const interval = membership.Subscription.plan.interval;
-
-                  const startDate = membership.Subscription.start_date * 1000;
-                  const endDate = membership.Subscription.ended_at * 1000 || Date.now();
-                  const amountOfMonths = Math.ceil(moment(endDate).diff(moment(startDate), 'months', true));
-                  const timeAgoInMonths =
-                    amountOfMonths === 1 ? __('1 Month') : __('%time_ago% Months', { time_ago: amountOfMonths });
-
+              {sortedMembershipSubs.map((membershipSub, index) => {
                   return (
-                    <tr key={membership.Membership.id}>
-                      <td className="channelThumbnail">
-                        <ChannelThumbnail xsmall uri={creatorChannelUri} />
-                        <ChannelThumbnail
-                          xxsmall
-                          uri={memberChannelUri === '' ? undefined : memberChannelUri}
-                          tooltipTitle={memberChannelName === '' ? __('Anonymous') : memberChannelName}
-                        />
-                      </td>
-
-                      <td>
-                        <UriIndicator uri={creatorChannelUri} link />
-                      </td>
-
-                      <td>{membership.MembershipDetails.name}</td>
-
-                      <td>{timeAgoInMonths}</td>
-
-                      <td>
-                        ${supportAmount / 100} {currency} / {__(toCapitalCase(interval))}
-                      </td>
-
-                      <td>
-                        {membership.Subscription.status === 'active'
-                          ? __('Active')
-                          : membership.Subscription.status === 'past_due'
-                          ? __('Past Due')
-                          : __('Cancelled')}
-                      </td>
-
-                      <td>
-                        <span dir="auto" className="button__label">
-                          <Button
-                            button="primary"
-                            icon={ICONS.MEMBERSHIP}
-                            navigate={creatorChannelPath + '?view=membership'}
-                          />
-                        </span>
-                      </td>
-                    </tr>
+                    <MembershipRow membershipSub={membershipSub} key={index} />
                   );
-                })
+                }
               )}
             </tbody>
           </table>

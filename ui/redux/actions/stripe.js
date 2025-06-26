@@ -1,6 +1,7 @@
 // @flow
 import { Lbryio } from 'lbryinc';
 import { selectChannelClaimIdForUri, selectChannelNameForUri } from 'redux/selectors/claims';
+import { bufferToHex } from 'util/uint8array-to-hex';
 import {
   selectAccountCheckIsFetchingForId,
   selectCustomerStatusFetching,
@@ -28,7 +29,7 @@ export const doTipAccountCheckForUri = (uri: string) => async (dispatch: Dispatc
   return await Lbryio.call(
     'account',
     'check',
-    { channel_claim_id: channelClaimId, channel_name: channelName, environment: stripeEnvironment },
+    { channel_claim_id: channelClaimId, channel_name: channelName, environment: stripeEnvironment, v2: true },
     'post'
   )
     .then((accountCheckResponse) =>
@@ -50,11 +51,14 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
 
   dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_START });
 
-  return await Lbryio.call('account', 'status', { environment: stripeEnvironment }, 'post')
-    .then((accountStatusResponse: StripeAccountStatus) => {
+  return await Lbryio.call('account', 'status', { environment: stripeEnvironment, v2: true }, 'post')
+    .then((accountStatusResponse: StripeAccountStatus | AccountStatus) => {
       dispatch({ type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE, data: accountStatusResponse });
+      if (accountStatusResponse.arweave || accountStatusResponse.stripe) {
+        return accountStatusResponse;
+      }
 
-      return accountStatusResponse;
+      return { stripe: accountStatusResponse };
     })
     .catch((error) => {
       if (error.message === 'account not linked to user, please link first') {
@@ -208,3 +212,94 @@ export const doRemoveCardForPaymentMethodId = (paymentMethodId: string) => async
     { environment: stripeEnvironment, payment_method_id: paymentMethodId },
     'post'
   ).then(() => dispatch(doGetCustomerStatus()));
+
+// changed currency here to 'AR' because API will currently only return an ar amount to pay if so.
+const registerAddress = async (address: string, makeDefault: boolean, currency = 'AR') => {
+  try {
+    const pub_key = await window.arweaveWallet.getActivePublicKey();
+    const data = new TextEncoder().encode(address);
+    const signature = await window.arweaveWallet.signMessage(data);
+    const hexSig = bufferToHex(signature);
+    const params = { currency, pub_key, signature: hexSig };
+    if (makeDefault) {
+      // $FlowIgnore
+      params.default = true;
+    }
+    const res = await Lbryio.call('arweave/address', 'add', params, 'post');
+
+    return res;
+    // get public key
+    // sign the address
+    // send to api with
+  } catch (e) {
+    console.error(e);
+    return e;
+    // throw e;
+  }
+};
+
+const updateAddressStatus = async (id: string, status: string) => {
+  try {
+    const res = await Lbryio.call('arweave/address', 'update', { id, status }, 'post'); // 'active' | 'inactive'
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+const updateDefault = async (id: string) => {
+  try {
+    const res = await Lbryio.call('arweave/address', 'update', { id, set_default: true }, 'post');
+    return res;
+  } catch (e) {
+    console.error(e);
+    throw e;
+  }
+};
+
+export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.AR_ADDR_REGISTER_STARTED, data: address });
+  try {
+    const res = await registerAddress(address, makeDefault);
+    if (res.error) {
+      throw new Error(res.error);
+    }
+    await dispatch(doTipAccountStatus());
+    dispatch({ type: ACTIONS.AR_ADDR_REGISTER_SUCCESS, data: address });
+  } catch (e) {
+    console.error(e);
+    dispatch({ type: ACTIONS.AR_ADDR_REGISTER_ERROR, data: e?.message || e });
+  }
+};
+
+export const doRegisterArweaveAddressClear = () => (dispatch) => {
+  dispatch({ type: ACTIONS.AR_ADDR_REGISTER_CLEAR });
+};
+
+export const doUpdateArweaveAddressStatus =
+  (id: string, status: 'active' | 'inactive') => async (dispatch: Dispatch) => {
+    dispatch({ type: ACTIONS.AR_ADDR_UPDATE_STARTED, data: id });
+    try {
+      await updateAddressStatus(id, status);
+      // now do account status
+      await dispatch(doTipAccountStatus());
+      dispatch({ type: ACTIONS.AR_ADDR_UPDATE_SUCCESS, data: id });
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: ACTIONS.AR_ADDR_UPDATE_ERROR, data: e?.message || e });
+    }
+  };
+
+export const doUpdateArweaveAddressDefault = (id: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_STARTED, data: id });
+  try {
+    await updateDefault(id);
+
+    await dispatch(doTipAccountStatus());
+    dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_SUCCESS, data: id });
+  } catch (e) {
+    console.error(e);
+    dispatch({ type: ACTIONS.AR_ADDR_DEFAULT_ERROR, data: e?.message || e });
+  }
+};

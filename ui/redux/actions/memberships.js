@@ -1,7 +1,8 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
-
+// $FlowIgnore
+import { message, createDataItemSigner } from '@permaweb/aoconnect';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
 import {
@@ -13,14 +14,20 @@ import {
   selectMembershipTiersForCreatorId,
   selectChannelMembershipsForCreatorId,
 } from 'redux/selectors/memberships';
-import { selectChannelTitleForUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectChannelTitleForUri, selectClaimForId, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import { formatDateToMonthDayAndYear } from 'util/time';
 import { buildURI } from 'util/lbryURI';
 
 import { getStripeEnvironment } from 'util/stripe';
+import { selectAPIArweaveDefaultAddress } from '../selectors/stripe';
+import { doArSign, sendWinstons } from './arwallet';
+import { doResolveClaimIds } from './claims';
+import { doChannelsHavePremium } from './user';
 const stripeEnvironment = getStripeEnvironment();
+const USD_TO_USDC = 1000000;
+const CONVERT_DOLLARS_TO_PENNIES = 100;
 
 export const doFetchChannelMembershipsForChannelIds =
   (channelId: string, channelIds: ClaimIds) => async (dispatch: Dispatch, getState: GetState) => {
@@ -48,11 +55,11 @@ export const doFetchChannelMembershipsForChannelIds =
     const channelIdsToFetch = channelsToFetch.join(',');
 
     dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED, data: { channel: channelId, ids: channelsToFetch } });
+    dispatch(doChannelsHavePremium(channelsToFetch));
 
-    return await Lbryio.call('membership', 'check', {
+    return await Lbryio.call('membership_v2', 'check', {
       channel_id: channelId,
       claim_ids: channelIdsToFetch,
-      environment: stripeEnvironment,
     })
       .then((response) => {
         const membershipsById = {};
@@ -63,7 +70,8 @@ export const doFetchChannelMembershipsForChannelIds =
           // if array was returned for a user (indicating a membership exists), otherwise is null
           if (Number.isInteger(memberships?.length)) {
             for (const membership of memberships) {
-              if (membership.activated) {
+              if (membership.activated || membership.name === 'Premium+' || membership.name === 'Premium') {
+                // activated?
                 membershipsById[channelId] = membership.name;
               }
             }
@@ -80,9 +88,10 @@ export const doFetchChannelMembershipsForChannelIds =
 export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
   dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
+// list available memberships for a channel id
 export const doMembershipList =
   (params: MembershipListParams, forceUpdate: ?boolean) => async (dispatch: Dispatch, getState: GetState) => {
-    const { channel_id: channelId } = params;
+    const { channel_claim_id: channelId } = params;
     const state = getState();
     const isFetching = selectIsMembershipListFetchingForId(state, channelId);
     const alreadyFetched = selectMembershipTiersForCreatorId(state, channelId);
@@ -93,8 +102,8 @@ export const doMembershipList =
 
     dispatch({ type: ACTIONS.MEMBERSHIP_LIST_START, data: channelId });
 
-    return await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
-      .then((response: MembershipTiers) =>
+    return await Lbryio.call('membership_v2', 'list', { ...params }, 'post')
+      .then((response: MembershipSubs) =>
         dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: response } })
       )
       .catch(() => dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: null } }));
@@ -108,93 +117,181 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
 
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
 
-  return await Lbryio.call('v2/membership', 'mine', { environment: stripeEnvironment }, 'post')
-    .then((response: MembershipTiers) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
-    .catch((err) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err }));
+  return await Lbryio.call('membership_v2/subscription', 'list', {}, 'post') // { membership,subscription, perks, payments, current_price }
+    .then((response: MembershipSubs) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
+    .catch((err) => {
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err });
+    });
 };
+/*
+3 Steps: membership_v2/subscribe, arweave.message() to send payment, membership_v2/subscription/transaction_notify
+await dispatch(doMembershipMine()); returns memberships[] which are put into state as a {creatorId: [subscriptions...] map
+after step 1: subscription.status will be pending if new, payments[] will have an item reflecting the placeholder payment
+`{completed_at: null, transaction_id: "", etc}`
+after step 3: subscription.status may still be pending if api has not yet verified the payment on ao
 
-export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch) => {
-  const { membership_id: membershipId } = membershipParams;
+ */
+export const doMembershipBuy =
+  (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
 
-  if (!membershipId) return;
+    const {
+      tippedChannelId,
+      subscriberChannelId, // current url channel id
+      priceId, // memberships.membershipList~.<channelid>[0].prices[n].id
+      membershipId,
+    } = membershipParams;
 
-  dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED, data: membershipId });
+    const source_payment_address = selectAPIArweaveDefaultAddress(state);
+    const subscribeApiParams: MembershipSubscribeParams = {
+      subscriber_channel_claim_id: subscriberChannelId,
+      price_id: String(priceId),
+      source_payment_address: source_payment_address || '',
+    };
 
-  // show the memberships the user is subscribed to
-  return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
-    .then((response) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
-      dispatch(doMembershipMine());
+    if (!priceId) return;
 
-      return response;
-    })
-    .catch((e) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+    dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED, data: membershipId });
+    let subscribeToken = '';
+    let payeeAddress = '';
+    let responseAmount;
+    let cryptoAmount = '';
+    let currencyType = '';
 
-      if (e.message === 'user needs to be linked to a setup customer first') {
-        dispatch(
-          doToast({
-            message: __('You need to link a credit card in order to purchase.'),
-            isError: true,
-            linkText: __('Take me there'),
-            linkTarget: '/settings/card',
-          })
-        );
+    let transactionId;
 
-        throw new Error(e);
+    try {
+      const walletUnlocked = await doArSign('hello');
+      if (!walletUnlocked) {
+        throw new Error('wallet not unlocked');
       }
-
-      if (e.message === 'cannot purchase inactivate membership!') {
-        dispatch(
-          doToast({
-            message: __('Error purchasing. This membership was deleted by the creator.'),
-            isError: true,
-          })
-        );
-
-        throw new Error(e);
-      }
-
-      const genericErrorMessage = __(
-        "Sorry, your purchase wasn't able to be completed. Please contact support for possible next steps."
+      await Lbryio.call('membership_v2', 'subscribe', { ...subscribeApiParams }, 'post').then(
+        (response: MembershipSubscribeResponse) => {
+          const { token, payee_address, price } = response;
+          const { transaction_amount, amount, transaction_currency } = price;
+          responseAmount = (amount / CONVERT_DOLLARS_TO_PENNIES) * USD_TO_USDC;
+          cryptoAmount = String(transaction_amount);
+          subscribeToken = token;
+          payeeAddress = payee_address;
+          currencyType = transaction_currency;
+        }
       );
 
-      dispatch(doToast({ message: genericErrorMessage, isError: true }));
+      if (currencyType === 'AR') {
+        const tags = [{ name: 'X-O-Ref', value: subscribeToken }]; // here
+        const { transactionId: txid, error } = await sendWinstons(payeeAddress, cryptoAmount, tags);
+        if (error) { // TODO pass error to redux
+          throw new Error(error?.message || error);
+        }
+        transactionId = txid;
+      } else if (currencyType === 'USD') {
+        transactionId = await message({
+          process: '7zH9dlMNoxprab9loshv3Y7WG45DOny_Vrq9KrXObdQ',
+          data: '',
+          tags: [
+            { name: 'Action', value: 'Transfer' },
+            { name: 'Quantity', value: String(responseAmount) }, // test/fix
+            { name: 'Recipient', value: payeeAddress }, // get address
+            { name: 'Tip_Type', value: 'tip' },
+            { name: 'Claim_ID', value: tippedChannelId },
+            { name: 'X-O-Ref', value: subscribeToken },
+          ],
+          Owner: source_payment_address, // test/fix
+          signer: createDataItemSigner(window.arweaveWallet),
+        });
+      }
 
-      throw new Error(e);
-    });
+      const notifyParams = {
+        token: subscribeToken,
+        tx_id: transactionId,
+      };
+
+      await dispatch(doMembershipMine());
+
+      await Lbryio.call('membership_v2/subscription', 'transaction_notify', notifyParams, 'post');
+      await dispatch(doMembershipMine());
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
+    } catch (error) {
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: { id: membershipId, error: error?.message || error } });
+      console.error(error?.message || error);
+      return Promise.reject(error);
+    }
+  };
+
+export const doMembershipBuyClear = () => (dispatch) => {
+  dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_CLEAR });
 };
 
-export const doMembershipCancelForMembershipId = (membershipId: number) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
+export const doMembershipCancelForMembershipId =
+  (membershipId: number, revert: boolean) => async (dispatch: Dispatch) => {
+    dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED, data: membershipId });
 
-  return await Lbryio.call(
-    'membership',
-    'cancel',
-    { environment: stripeEnvironment, membership_id: membershipId },
-    'post'
-  )
-    .then((response) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
-      dispatch(doMembershipMine());
-
-      return response;
-    })
-    .catch((e) => {
-      if (e.message === 'this subscription is no longer active') {
+    return await Lbryio.call('membership_v2/subscription', 'cancel', { membership_id: membershipId, revert }, 'post')
+      .then((response) => {
         dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
-      } else {
-        dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
-        throw new Error(e);
-      }
+        dispatch(doMembershipMine());
+
+        return response;
+      })
+      .catch((e) => {
+        if (e.message === 'this subscription is no longer active') {
+          dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+        } else {
+          dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+          throw new Error(e);
+        }
+      });
+  };
+
+export const doMembershipFetchIncomingPayments = () => async (dispatch: Dispatch) => {
+  // start
+  dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_STARTED });
+  try {
+    const inboundTransactions = await Lbryio.call('membership_v2/transactions', 'inbound', {}, 'post');
+    const channelsToResolve = new Set([]);
+    inboundTransactions.forEach(t => {
+      channelsToResolve.add(t.creator_channel_claim_id);
+      channelsToResolve.add(t.subscriber_channel_claim_id);
     });
+    dispatch(doResolveClaimIds(Array.from(channelsToResolve)));
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_SUCCESSFUL, data: inboundTransactions });
+  } catch (error) {
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_INCOMING_FAILED, data: error.message || error });
+    console.log('error', error.message || error);
+  }
+};
+
+export const doMembershipFetchOutgoingPayments = () => async (dispatch: Dispatch) => {
+  // start
+  dispatch({ type: ACTIONS.MEMBERSHIP_TX_OUTGOING_STARTED });
+  try {
+    const outboundTransactions = await Lbryio.call('membership_v2/transactions', 'outbound', {}, 'post');
+    const channelsToResolve = new Set([]);
+    outboundTransactions.forEach(t => {
+      channelsToResolve.add(t.creator_channel_claim_id);
+      channelsToResolve.add(t.subscriber_channel_claim_id);
+    });
+    dispatch(doResolveClaimIds(Array.from(channelsToResolve)));
+    // TODO also resolve memberships?
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_OUTGOING_SUCCESSFUL, data: outboundTransactions });
+  } catch (error) {
+    dispatch({ type: ACTIONS.MEMBERSHIP_TX_OUTGOING_FAILED, data: error.message || error });
+    console.log('error', error.message || error);
+  }
 };
 
 export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
-  await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post')
-    .then((response: Membership) => response)
+  await Lbryio.call('membership_v2', 'create', { ...params }, 'post')
+    .then((response: MembershipCreateResponse) => ({ response: response }))
     .catch((e) => {
-      throw new Error(e);
+      return { error: e?.message || e };
+    });
+
+export const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => async (dispatch: Dispatch) =>
+  await Lbryio.call('membership_v2', 'update', { ...params }, 'post')
+    .then((response: MembershipCreateResponse) => ({ response: response }))
+    .catch((e) => {
+      return { error: e?.message || e };
     });
 
 export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>
@@ -203,34 +300,56 @@ export const doGetMembershipPerks = (params: MembershipListParams) => async (dis
     .catch((e) => e);
 
 export const doOpenCancelationModalForMembership =
-  (membership: MembershipTier) => (dispatch: Dispatch, getState: GetState) => {
-    const { MembershipDetails, Subscription } = membership;
+  (membershipSub: MembershipSub) => (dispatch: Dispatch, getState: GetState) => {
+    const { membership, subscription } = membershipSub;
+    // const isActive = subscription.status === 'active';
+    const isCanceled = subscription.status === 'canceled';
 
     const state = getState();
-    const formattedEndOfMembershipDate = formatDateToMonthDayAndYear(Subscription.current_period_end * 1000);
+    const { name: channelName } = selectClaimForId(state, membership.channel_claim_id);
+    const formattedEndOfMembershipDate = formatDateToMonthDayAndYear(new Date(subscription.ends_at));
     const creatorUri = buildURI({
-      channelName: MembershipDetails.channel_name,
-      channelClaimId: MembershipDetails.channel_id,
+      channelName: channelName,
+      channelClaimId: membership.channel_claim_id,
     });
     const creatorTitleName = selectChannelTitleForUri(state, creatorUri);
 
+    if (isCanceled) {
+      return dispatch(
+        doOpenModal(MODALS.CONFIRM, {
+          title: __('Confirm Restoring %membership_name% Membership', { membership_name: membership.name }),
+          subtitle: __('Are you sure you want to restore your %creator_name%\'s "%membership_name%" membership? ', {
+            membership_name: membership.name,
+          }),
+          busyMsg: __('Restoring your membership...'),
+          onConfirm: (closeModal, setIsBusy) => {
+            setIsBusy(true);
+            dispatch(doMembershipCancelForMembershipId(membership.id, true)).then(() => {
+              setIsBusy(false);
+              dispatch(doToast({ message: __('Your membership was successfully restored.') }));
+              closeModal();
+            });
+          },
+        })
+      );
+    }
     return dispatch(
       doOpenModal(MODALS.CONFIRM, {
-        title: __('Confirm %membership_name% Cancellation', { membership_name: MembershipDetails.name }),
+        title: __('Confirm %membership_name% Cancellation', { membership_name: membership.name }),
         subtitle: __(
           'Are you sure you want to cancel your %creator_name%\'s "%membership_name%" membership? ' +
             'You will still have all your features until %end_date% at which point your purchase will not be renewed ' +
             'and you will lose access to your membership features and perks.',
           {
             creator_name: creatorTitleName,
-            membership_name: MembershipDetails.name,
+            membership_name: membership.name,
             end_date: formattedEndOfMembershipDate,
           }
         ),
         busyMsg: __('Canceling your membership...'),
         onConfirm: (closeModal, setIsBusy) => {
           setIsBusy(true);
-          dispatch(doMembershipCancelForMembershipId(MembershipDetails.id)).then(() => {
+          dispatch(doMembershipCancelForMembershipId(membership.id)).then(() => {
             setIsBusy(false);
             dispatch(
               doToast({ message: __('Your membership was successfully cancelled and will no longer be renewed.') })
@@ -245,7 +364,7 @@ export const doOpenCancelationModalForMembership =
 export const doDeactivateMembershipForId = (membershipId: number) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.DELETE_MEMBERSHIP_STARTED, data: membershipId });
 
-  await Lbryio.call('membership', 'deactivate', { environment: stripeEnvironment, membership_id: membershipId }, 'post')
+  await Lbryio.call('membership_v2', 'deactivate', { membership_id: membershipId }, 'post')
     .then((response) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
       return response;
@@ -300,7 +419,7 @@ export const doSetMembershipTiersForClaimId =
 
 export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_STARTED, data: channelClaimId });
-
+  // get membership tiers for channel
   await Lbryio.call(
     'membership',
     'content',
@@ -334,7 +453,7 @@ export const doMembershipContentForStreamClaimIds =
 
     dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_START, data: idsToFetch });
 
-    await Lbryio.call('membership', 'content', { environment: stripeEnvironment, validate: claimIdsCsv }, 'post')
+    await Lbryio.call('membership_v2/member_content', 'resolve', { claim_ids: claimIdsCsv }, 'post')
       .then((response: MembershipContentResponse) => {
         dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS, data: response });
         return response;
@@ -373,10 +492,9 @@ export const doSaveMembershipRestrictionsForContent =
     });
 
     await Lbryio.call(
-      'membership_content',
+      'membership_v2/member_content',
       'modify',
       {
-        environment: stripeEnvironment,
         claim_id: contentClaimId,
         membership_ids: memberRestrictionTierIds
           .slice()
@@ -384,7 +502,7 @@ export const doSaveMembershipRestrictionsForContent =
           .join(','),
         channel_id: channelClaimId,
         claim_name: contentClaimName,
-        pending_claim: pendingClaim,
+        // pending_claim: pendingClaim,
       },
       'post'
     )
@@ -401,11 +519,12 @@ export const doSaveMembershipRestrictionsForContent =
 export const doMembershipClearData = () => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'clear', { environment: 'test' }, 'post').then(() => dispatch(doMembershipMine()));
 
+// TODO get (paginate?) historical only_active = false
 export const doGetMembershipSupportersList = () => async (dispatch: Dispatch) =>
-  Lbryio.call('membership', 'supporters_list', { environment: stripeEnvironment }, 'post')
-    .then((response: SupportersList) =>
-      dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response })
-    )
+  Lbryio.call('membership_v2', 'subscribers', { only_active: true }, 'post')
+    .then((response: SupportersList) => {
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response });
+    })
     .catch(() => dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: null }));
 
 export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getState: GetState) => {
@@ -422,9 +541,7 @@ export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getSt
 
   const pendingPromises = [];
   myChannelClaims.map((channelClaim, index) => {
-    pendingPromises[index] = dispatch(
-      doMembershipList({ channel_name: channelClaim.name, channel_id: channelClaim.claim_id })
-    );
+    pendingPromises[index] = dispatch(doMembershipList({ channel_claim_id: channelClaim.claim_id }));
   });
 
   return await Promise.all(pendingPromises)

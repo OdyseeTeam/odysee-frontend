@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-
+import Symbol from 'component/common/symbol';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 
 import * as ICONS from 'constants/icons';
@@ -19,6 +19,7 @@ type Props = {
   doToast: (params: { message: string }) => void,
   doDeactivateMembershipForId: (membershipId: number) => Promise<Membership>,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
+  exchangeRate: { ar: number },
 };
 
 function MembershipTier(props: Props) {
@@ -33,13 +34,14 @@ function MembershipTier(props: Props) {
     doToast,
     doDeactivateMembershipForId,
     doMembershipList,
+    exchangeRate,
   } = props;
 
   return (
     <>
       <div className="membership-tier__header">
-        <span className="membership-tier__name">{membership.Membership.name}</span>
-
+        <span className="membership-tier__name">{`${membership.name} ${membership.enabled ? '' : __('(Disabled)')}`}</span>
+        {membership.enabled === true && (
         <Menu>
           <MenuButton className="menu__button">
             <Icon size={18} icon={ICONS.SETTINGS} />
@@ -64,20 +66,19 @@ function MembershipTier(props: Props) {
                   : doOpenModal(MODALS.CONFIRM, {
                       title: __('Confirm Membership Deletion'),
                       subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
-                        membership_name: membership.Membership.name,
+                        membership_name: membership.name,
                       }),
                       busyMsg: __('Deleting your membership...'),
                       onConfirm: (closeModal, setIsBusy) => {
                         setIsBusy(true);
-                        doDeactivateMembershipForId(membership.Membership.id)
+                        doDeactivateMembershipForId(membership.membership_id)
                           .then(() => {
                             setIsBusy(false);
                             doToast({ message: __('Your membership was successfully deleted.') });
                             removeMembership();
                             closeModal();
                             doMembershipList({
-                              channel_name: membership.Membership.channel_name,
-                              channel_id: membership.Membership.channel_id,
+                              channel_claim_id: membership.channel_claim_id,
                             });
                           })
                           .catch(() => setIsBusy(false));
@@ -92,25 +93,21 @@ function MembershipTier(props: Props) {
             </MenuItem>
           </MenuList>
         </Menu>
+          )}
       </div>
 
       <div className="membership-tier__infos">
         <label>{__('Pledge')}</label>
-        <span>${(membership.NewPrices[0].creator_receives_amount / 100).toFixed(2)}</span>
-
-        <label>{__("User's price with Platform and Service fee")}</label>
-        <span>
-          {membership.NewPrices[0].client_pays ? `$${(membership.NewPrices[0].client_pays / 100).toFixed(2)}` : '...'}
-        </span>
+        <span>${(membership?.prices[0].amount / 100).toFixed(2)} (<Symbol token="ar" amount={(membership?.prices[0].amount / 100).toFixed(2) / exchangeRate.ar} />)</span> {/* the ui basically supports monthly right now */}
 
         <label>{__('Description ')}</label>
-        <span className="membership-tier__description">{membership.Membership.description}</span>
+        <span className="membership-tier__description">{membership.description}</span>
 
         <div className="membership-tier__perks">
           <div className="membership-tier__perks-content">
             <label>{__('Odysee Perks')}</label>
             <ul>
-              {membership.Perks && membership.Perks.map((tierPerk, i) => <li key={i}>{__(tierPerk.description)}</li>)}
+              {membership.perks && membership.perks.map((tierPerk, i) => <li key={i}>{__(tierPerk.description)}</li>)}
             </ul>
           </div>
         </div>

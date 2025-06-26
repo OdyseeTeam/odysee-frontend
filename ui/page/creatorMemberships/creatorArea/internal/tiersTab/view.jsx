@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { v4 as uuid } from 'uuid';
 
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
+
 import Button from 'component/button';
 
 import MembershipTier from './internal/membershipTier';
@@ -19,19 +19,21 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   membershipOdyseePermanentPerks: MembershipOdyseePerks,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>,
+  showDisabled: boolean,
+  exchangeRate: { [key: string]: number };
 };
 
 function TiersTab(props: Props) {
   const {
     // -- redux --
-    bankAccountConfirmed,
     channelMemberships: fetchedMemberships,
     activeChannelClaim,
     membershipOdyseePermanentPerks,
     doGetMembershipPerks,
+    showDisabled,
+    exchangeRate,
   } = props;
 
-  const STRIPE_DISABLED = true;
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
 
   const [editingIds, setEditingIds] = React.useState(() => []);
@@ -61,16 +63,14 @@ function TiersTab(props: Props) {
       newChannelMemberships.add(membership);
 
       // sort by price lowest to highest
-      return Array.from(newChannelMemberships).sort(
-        (a, b) => a.NewPrices[0].creator_receives_amount - b.NewPrices[0].creator_receives_amount
-      );
+      return Array.from(newChannelMemberships).sort((a, b) => a.prices[0].amount - b.prices[0].amount);
     });
   }
 
   function removeChannelMembershipForId(membershipId) {
     setChannelMemberships((previousMemberships) => {
       const newChannelMemberships = previousMemberships.filter(
-        (membership) => membership.Membership.id !== membershipId
+        (membership) => membership.membership_id !== membershipId
       );
 
       return newChannelMemberships;
@@ -90,7 +90,7 @@ function TiersTab(props: Props) {
       const newFetchedMemberships = new Set(fetchedMemberships);
 
       previousMemberships.forEach((membership) => {
-        if (newEditingIds.has(membership.Membership.id) && typeof membership.Membership.id === 'string') {
+        if (newEditingIds.has(membership.membership_id) && typeof membership.membership_id === 'string') {
           // after membership/list fetch, in case there are still local editing ids (clicked create tier twice but
           // only published one for ex) keep the unpublished memberships on the state instead of replacing for the
           // new fetched values which would erase them
@@ -104,79 +104,81 @@ function TiersTab(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- no need to listen for editing ids
   }, [fetchedMembershipsStr]);
 
-  if (!bankAccountConfirmed) {
-    return (
-      <>
-        <div className="bank-account-status">
-          <div>
-            <label>{__('Bank Account Status')}</label>
-            <span>{__('You have to connect a bank account before you can create tiers.')}</span>
-          </div>
-          <Button
-            disabled={STRIPE_DISABLED}
-            button="primary"
-            label={__('Connect a bank account')}
-            icon={ICONS.FINANCE}
-            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-          />
-        </div>
-      </>
-    );
-  }
+  // if (!bankAccountConfirmed) {
+  //   return (
+  //     <>
+  //       <div className="bank-account-status">
+  //         <div>
+  //           <label>{__('Bank Account Status')}</label>
+  //           <span>{__('You have to connect a bank account before you can create tiers.')}</span>
+  //         </div>
+  //         <Button
+  //           button="primary"
+  //           label={__('Connect a bank account')}
+  //           icon={ICONS.FINANCE}
+  //           navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+  //         />
+  //       </div>
+  //     </>
+  //   );
+  // }
 
   return (
-    <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
+    <div className={classnames('tier-edit-functionality')}>
       {channelMemberships &&
-        channelMemberships.map((membershipTier, membershipIndex) => {
-          const membershipId = membershipTier.Membership.id;
-          const isEditing = new Set(editingIds).has(membershipId);
-          const hasSubscribers = membershipTier.HasSubscribers;
+        channelMemberships
+          .filter((m) => (showDisabled ? true : m.enabled === true || m.saved === false))
+          .map((membershipTier, membershipIndex) => {
+            const membershipId = membershipTier.membership_id;
+            const isEditing = new Set(editingIds).has(membershipId);
+            const hasSubscribers = membershipTier.has_subscribers;
 
-          return (
-            <div className="membership-tier__wrapper" key={membershipIndex}>
-
-              {isEditing ? (
-                <EditingTier
-                  membership={membershipTier}
-                  hasSubscribers={hasSubscribers}
-                  removeEditing={() => removeEditingForMembershipId(membershipId)}
-                  addChannelMembership={(newMembership) => {
-                    removeChannelMembershipForId(membershipId);
-                    addChannelMembership(newMembership);
-                  }}
-                  onCancel={() => {
-                    removeEditingForMembershipId(membershipId);
-
-                    if (typeof membershipId === 'string') {
+            return (
+              <div className="membership-tier__wrapper" key={membershipIndex}>
+                {isEditing ? (
+                  <EditingTier
+                    membership={membershipTier}
+                    hasSubscribers={hasSubscribers}
+                    removeEditing={() => removeEditingForMembershipId(membershipId)}
+                    addChannelMembership={(newMembership) => {
                       removeChannelMembershipForId(membershipId);
-                    }
-                  }}
-                />
-              ) : (
-                <MembershipTier
-                  membership={membershipTier}
-                  index={membershipIndex}
-                  hasSubscribers={hasSubscribers}
-                  addEditingId={() => addEditingForMembershipId(membershipId)}
-                  removeMembership={() => removeChannelMembershipForId(membershipId)}
-                />
-              )}
-            </div>
-          );
-        })}
+                      addChannelMembership(newMembership);
+                    }}
+                    onCancel={() => {
+                      removeEditingForMembershipId(membershipId);
 
-      {(!channelMemberships || channelMemberships.length < 6) && (
+                      if (typeof membershipId === 'string') {
+                        removeChannelMembershipForId(membershipId);
+                      }
+                    }}
+                  />
+                ) : (
+                  <MembershipTier
+                    membership={membershipTier}
+                    index={membershipIndex}
+                    hasSubscribers={hasSubscribers}
+                    addEditingId={() => addEditingForMembershipId(membershipId)}
+                    removeMembership={() => removeChannelMembershipForId(membershipId)}
+                    exchangeRate={exchangeRate}
+                  />
+                )}
+              </div>
+            );
+          })}
+
+      {(!channelMemberships || channelMemberships.length < 100) /* todo change back to 6? */ && (
         <Button
           button="primary"
-          disabled={STRIPE_DISABLED}
           onClick={(e) => {
             const newestId = uuid(); // --> this will only be used locally when creating a new tier
 
             const newestMembership = {
-              HasSubscribers: false,
-              Membership: { id: newestId, name: __('Example Plan'), description: '' },
-              NewPrices: [{ creator_receives_amount: 500 }],
-              Perks: membershipOdyseePermanentPerks,
+              has_subscribers: false,
+              membership_id: newestId,
+              name: __('Example Plan'),
+              description: '',
+              prices: [{ amount: 500, currency: 'usd', address: '' }],
+              perks: membershipOdyseePermanentPerks,
               saved: false,
             };
 

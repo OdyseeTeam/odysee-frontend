@@ -10,3 +10,20 @@
   white-space: nowrap;
   overflow: hidden;
 }
+
+.missing-wallet-warning{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap:var(--spacing-s);
+  border: 1px solid var(--color-text-error);
+  border-radius: var(--border-radius);
+  padding:var(--spacing-s);
+  margin-bottom:var(--spacing-m);
+  background: rgba(218,4,4,.1);
+
+  a{
+    color: var(--color-primary);
+  }
+}

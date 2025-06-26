@@ -1,56 +1,136 @@
-declare type MembershipBuyParams = {
-  membership_id: number,
-  channel_id?: string,
-  channel_name?: string,
-  price_id: string,
-};
-
 declare type MembershipListParams = {
-  channel_id: string,
-  channel_name: string,
+  id?: string,
+  channel_id?: string,
+  channel_claim_id: string,
 };
 
+declare type Perk = {
+  id: number,
+  name: string,
+  description: string,
+}
 // -- CreatorMembership: data the creator sees for a given membership
 declare type CreatorMembership = {
-  HasSubscribers: boolean,
-  Membership: MembershipDetails,
-  Perks: MembershipOdyseePerks,
-  Prices?: Array<StripePriceDetails>,
-  NewPrices: Array<MembershipNewStripePriceDetails>,
-};
+  membership_id: string,
+  channel_name: string,
+  channel_claim_id: string,
+  name: string,
+  description: string,
+  perks: Array<Perk>,
+  prices: [{id: number, amount: string, currency: string, address: string }],
+  has_subscribers: boolean,
+  enabled: boolean,
+}
+
+declare type MembershipSubscribeParams = {
+  subscriber_channel_claim_id: string,
+  price_id: string,
+  source_payment_address: string,
+}
+
+declare type MembershipBuyParams = {
+  membershipId: string, // just for redux state
+  tippedChannelName: string,
+  tippedChannelId: string,
+  subscriberChannelId: string,
+  priceId: number,
+}
+
+declare type SubscriptionPrice = {
+  "id": number,
+  "amount": number,
+  "currency": string, // 'AR' , 'USD'
+  "frequency": string,
+  "crypto_amount": string,
+  "transaction_amount": number,
+  "transaction_currency": string,
+}
+
+declare type MembershipSubscribeResponse = {
+  "subscription_id": number,
+  "token": string,
+  "payee_address": string,
+  "start_time": number,
+  "end_time": number,
+  "price": SubscriptionPrice,
+}
+
 declare type CreatorMemberships = Array<CreatorMembership>;
 
 // -- MembershipTier: data the supporter sees for a given membership
-declare type MembershipTier = {
-  Membership: Membership,
-  MembershipDetails: MembershipDetails,
-  Subscription: MembershipSubscriptionDetails,
-  Perks: MembershipOdyseePerks,
-};
-declare type MembershipTiers = Array<MembershipTier>;
+// declare type MembershipTier = {
+//   Membership: Membership,
+//   MembershipDetails: MembershipDetails,
+//   Subscription: MembershipSubscriptionDetails,
+//   Perks: MembershipOdyseePerks,
+// };
+
+declare type PaymentDetails = {
+  amount: number,
+  currency: string,
+  frequency: string,
+  initiated_at: number,
+  completed_at: number,
+  transaction_id: string,
+  status: string,
+}
+
+// MembershipSubItem
+declare type MembershipSub = {
+  current_price: { amount: number, currency: "USD", frequency: "monthly", id: number },
+  id: string, // this still?
+  membership: Membership,
+  subscription: {
+    current_price: { amount: number, currency: "USD", frequency: "monthly", id: number },
+    status: string, // 'active' 'lapsed' 'cancelled' ?
+    started_at: number,
+    ends_at: string,
+    earliest_renewal_at: string,
+    is_active: boolean,
+  },
+  perks: Array<any>,
+  payments: Array<PaymentDetails>,
+  name: string,
+  channel_claim_id: string,
+}
+
+/*
+
+completed_at: "2025-05-28T21:12:07Z"
+conversion_rate: 7.29
+creator_channel_claim_id: "bd491cfe1cca4faee2dfaf7e9f10b9ed3495dcf1"
+initiated_at: "2025-05-28T21:12:04Z"
+is_subscriber_anonymous: false
+membership_id: 2754
+status: "paid"
+subscriber_channel_claim_id: "210e284714708d185ac7ac791117608d1f92075f"
+transaction_currency: "AR"
+transaction_id: "4IZHeVbyBd9xHiRAmcgDEL-jBFFk2YBwkOQ_57hc94E"
+usd_amount: 10
+ */
+declare type MembershipPayment = {
+  completed_at: string, // "2025-05-28T21:12:07Z"
+  conversion_rate: number,
+  creator_channel_claim_id: string,
+  initiated_at: string, // "2025-05-28T21:12:04Z"
+  is_subscriber_anonymous: boolean,
+  membership_id: number,
+  status: string,
+  subscriber_channel_claim_id: string,
+  transaction_currency: string,
+  transaction_id: string,
+  usd_amount: number,
+}
 
 declare type Membership = {
-  name: ?string,
-  auto_renew: boolean,
-  badge: ?string,
-  channel_id: string,
-  channel_name: string,
-  created_at: string,
-  expires: string,
-  handle: string,
   id: number,
-  is_live: boolean,
-  membership_id: number,
-  membership_price_id: number,
-  show_public_support: boolean,
-  stripe_sub_id: string,
-  term: string,
-  tx_id: ?number,
-  updated_at: string,
-  user_id: number,
-  verified: boolean,
-};
+  name: string,
+  enabled: boolean,
+  channel_claim_id: string,
+  first_payment_due_at: string,
+}
 
+declare type MembershipUpdateResponse = string;
 declare type MembershipDetails = {
   activated: boolean,
   badge_url: string,
@@ -207,11 +287,28 @@ declare type MembershipAddTierParams = {
   currency: string,
   amount: number,
   perks: string, // csv
-  old_stripe_price?: ?string, // price id
-  membership_id?: ?number,
+  frequency: string,
+  payment_address_id: string,
+  enable_members_only_chat?: boolean,
 };
 
-declare type MembershipMineDataByCreatorId = { [id: ClaimId]: MembershipTiers };
+declare type MembershipUpdateTierParams = {
+  new_name?: string,
+  new_description?: string,
+  new_amount?: number,
+  membership_id: number,
+  enable_members_only_chat?: boolean,
+}
+
+declare type MembershipCreateResponse = {
+  membership_id: number,
+  name: string,
+  description: string,
+}
+
+declare type MembershipSubs = Array<MembershipSub>;
+
+declare type MembershipSubscribedDataByCreatorId = { [id: ClaimId]: Array<MembershipSub> };
 
 declare type MembershipIdByChannelId = {
   [channelId: string]: string,
@@ -219,6 +316,17 @@ declare type MembershipIdByChannelId = {
 declare type ChannelMembershipsByCreatorId = {
   [creatorId: string]: Array<MembershipIdByChannelId>,
 };
+
+declare type MembershipSubscriber = {
+  subscriber_channel_name: string,
+  subscriber_channel_claim_id: string,
+  supported_channel_name: string,
+  membership_name: string,
+  price: number,
+  currency: string,
+  interval: string,
+  joined_at: any, // number or datestring?
+}
 
 declare type MembershipSupporter = {
   ChannelBeingSupported: string,
@@ -229,7 +337,7 @@ declare type MembershipSupporter = {
   MembershipName: string,
   Price: number,
 };
-declare type SupportersList = Array<MembershipSupporter>;
+declare type SupportersList = Array<MembershipSubscriber>;
 
 declare type MembershipContentResponse = Array<MembershipContentResponseItem>;
 declare type MembershipContentResponseItem = {

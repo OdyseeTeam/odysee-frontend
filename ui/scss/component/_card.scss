@@ -329,7 +329,7 @@
   font-weight: var(--font-weight-bold);
 
   & > *:not(:last-child) {
-    margin-right: var(--spacing-m);
+    margin-right: var(--spacing-s);
   }
 
   .badge {
@@ -583,6 +583,10 @@
   margin-top: var(--spacing-s);
   margin-bottom: var(--spacing-s) 0;
   font-size: var(--font-body);
+
+  svg{
+    color: var(--color-text);
+  }
 }
 
 .card__subtitle--small {
@@ -695,7 +699,6 @@
       width: 12px;
       height: 12px;
       margin-bottom: 2px;
-      margin-right: var(--spacing-xxxxxs);
     }
     .button__label {
       margin-top: 0;
