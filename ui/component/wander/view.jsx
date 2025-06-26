@@ -23,7 +23,6 @@ export default function Wander(props: Props) {
   const [instance, setInstance] = React.useState(null);
   const wrapperRef = React.useRef();
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (instance) {
       if (auth?.authStatus === 'onboarding') instance.open();
@@ -40,9 +39,9 @@ export default function Wander(props: Props) {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (authenticated) {
       doArInit();
@@ -137,13 +136,13 @@ export default function Wander(props: Props) {
         window.wanderInstance.destroy();
       } catch {}
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authenticated]);
 
   React.useEffect(() => {
     if (window.wanderInstance) window.wanderInstance.setTheme(theme);
   }, [theme]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     if (!instance) return;
 
@@ -208,6 +207,7 @@ export default function Wander(props: Props) {
       window.removeEventListener('message', onMessage);
       clearInterval(balanceUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance, doArSetAuth]);
 
   return <div className="wanderConnectWrapper" ref={wrapperRef} />;

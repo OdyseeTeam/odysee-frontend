@@ -64,10 +64,10 @@ const WalletPage = (props: Props) => {
       tabIndex = 0;
       break;
   }
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  
   React.useEffect(() => {
     doTipAccountStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function onTabChange(newTabIndex) {
