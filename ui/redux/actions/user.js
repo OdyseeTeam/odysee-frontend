@@ -172,7 +172,7 @@ export function doChannelsHavePremium(channelClaimIds) {
       channelIds.forEach(cid => { membershipsById[cid] = getMembershipStatus(resById[cid]) });
       dispatch({type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById} });
     } catch (e) {
-      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE, data: channelClaimIds });
+      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE, data: { channelIds: channelClaimIds } });
     };
   };
 }
