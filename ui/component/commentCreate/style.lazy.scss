@@ -75,7 +75,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top:var(--spacing-s);
+    margin-top: var(--spacing-s);
 
     .comment__char-count-mde {
       margin-left: auto;
@@ -89,13 +89,13 @@
       height: var(--height-input-slim);
     }
 
-    .form-field__quick-action{
-      display:flex;
-      height:100%;
+    .form-field__quick-action {
+      display: flex;
+      height: 100%;
       justify-content: center;
       align-items: center;
-      margin-left:var(--spacing-s);
-      margin-right:auto;
+      margin-left: var(--spacing-s);
+      margin-right: auto;
     }
   }
 }
@@ -178,7 +178,7 @@
 }
 
 .comment-create__min-amount-notice {
-  display:flex;
+  display: flex;
   justify-content: center;
   align-items: center;
   margin-top: calc(var(--spacing-xxs) - 2px);
@@ -186,6 +186,10 @@
   text-align: center;
   .icon {
     margin-left: var(--spacing-xxs);
+  }
+
+  > * {
+    margin-right: var(--spacing-s);
   }
 
   @media (max-width: $breakpoint-small) {
