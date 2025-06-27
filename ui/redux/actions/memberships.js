@@ -70,8 +70,7 @@ export const doFetchChannelMembershipsForChannelIds =
           // if array was returned for a user (indicating a membership exists), otherwise is null
           if (Number.isInteger(memberships?.length)) {
             for (const membership of memberships) {
-              if (membership.activated || membership.name === 'Premium+' || membership.name === 'Premium') {
-                // activated?
+              if (membership.name) {
                 membershipsById[channelId] = membership.name;
               }
             }

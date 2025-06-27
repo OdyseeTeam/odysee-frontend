@@ -44,18 +44,29 @@ export const HelpText = (helpTextProps: HelpTextProps) => {
 
       {(!!minAmount || !!minUSDCAmount) && (
         <div className="help--notice comment-create__min-amount-notice">
-          <I18nMessage
-            tokens={{
-              usdc: <CreditAmount noFormat isFiat amount={minUSDCAmount} />,
-              minUSDCAmount,
-              lbc: <CreditAmount noFormat amount={minAmount} />,
-            }}
-          >
-            {(minTip || minUSDCTip ? 'Comment min: ' : minSuper || minUSDCSuper ? 'HyperChat min: ' : '') +
-              (minTip || minSuper ? ' %lbc% ' : '') +
-              (minAmount && minUSDCAmount ? ' or ' : '') +
-              (minUSDCTip || minUSDCSuper ? ' %usdc% ' : '')}
-          </I18nMessage>
+          <span>{!!minTip || !!minUSDCTip ? __('Comment minimums: ') : __('HyperChat minimums: ')}</span>
+          {(!!minTip || !!minSuper) && (
+            <>
+              <I18nMessage
+                tokens={{
+                  lbc: <CreditAmount noFormat amount={minAmount} />,
+                }}
+              >
+                {`%lbc%`}
+              </I18nMessage>
+            </>
+          )}
+          {(!!minTip || !!minSuper) && (
+            <>
+              <I18nMessage
+                tokens={{
+                  usdc: <CreditAmount noFormat isFiat amount={minUSDCAmount} />,
+                }}
+              >
+                {`%usdc%`}
+              </I18nMessage>
+            </>
+          )}
           {/* TODO fix above spacing around ' or ' disappearing due to spans etc */}
 
           <Icon
