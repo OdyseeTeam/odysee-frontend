@@ -47,7 +47,7 @@ const SupportersTab = (props: Props) => {
   // const supportersList = sl;
 
   const getDateOfLastPayment = (payments) => {
-    const payment = payments.reverse.find(p => p.status === 'submitted' || p.status === 'paid');
+    const payment = payments.reverse().find(p => p.status === 'submitted' || p.status === 'paid');
     if (payment.status === 'submitted') {
       return payment.initiated_at;
     } else {
