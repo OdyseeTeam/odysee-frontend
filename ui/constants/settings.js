@@ -2,6 +2,7 @@
     be careful about changing the value of a SETTINGS constant, as doing so can invalidate existing SETTINGS */
 export const CREDIT_REQUIRED_ACKNOWLEDGED = 'credit_required_acknowledged';
 export const CRYPTO_DISCLAIMERS = 'crypto_disclaimers';
+export const ARWEAVE_PAYMENTS_INFO_ACK = 'arweave_payments_info_ack';
 export const NEW_USER_ACKNOWLEDGED = 'welcome_acknowledged';
 export const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 export const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
