@@ -145,7 +145,7 @@ const CreatorArea = (props: Props) => {
           <div>{__('Creator Portal')}</div>
         </div>
         <div className={'right-side'}>
-          <Button button={'secondary'} className={!ackInfo ? 'creator-header__ack--active' : 'creator-header__ack--quiet'} label={!ackInfo ? 'X' : 'Help'} onClick={() => { handleAckArPaymentsInfo(false) }} />
+          <Button button={'secondary'} className={!ackInfo ? 'creator-header__ack--active' : 'creator-header__ack--quiet'} label={!ackInfo ? 'X' : 'Help'} onClick={() => { handleAckArPaymentsInfo(!ackInfo) }} />
 
         </div>
 
