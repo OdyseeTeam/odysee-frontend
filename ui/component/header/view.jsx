@@ -155,43 +155,48 @@ const Header = (props: Props) => {
     }
   }, [canBackout, onBackout]);
 
-  const userButtons = (hideBalance?: boolean, hideProfile?: boolean) => (
+  const userButtons = (hideWallet?: boolean, hideProfile?: boolean) => (
     <div className="header__menu--right">
       {isMobile && !authHeader && !canBackout && <WunderBar />}
 
       {authenticated ? (
         <>
-          {arweaveAccounts.length > 0 ? (
-            <WanderButton hideBalance={hideBalance} />
-          ) : (
-            <Tooltip
-              title={
-                balance > 0
-                  ? __('Immediately spendable: %spendable_balance%', { spendable_balance: roundedSpendableBalance })
-                  : __('Your Wallet')
-              }
-            >
-              <div>
-                {balanceLoading ? (
-                  <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
-                ) : (
-                  <Button
-                    navigate={`/$/${PAGES.WALLET}`}
-                    className={classnames('button--file-action header__navigationItem--balance', {
-                      'header__navigationItem--balance-round':
-                        hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady,
-                    })}
-                    label={
-                      hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
-                        ? __(isMobile ? 'Wallet' : 'Your Wallet')
-                        : roundedTotalBalance
-                    }
-                    icon={ICONS.LBC}
-                  />
-                )}
-              </div>
-            </Tooltip>
+          {!hideWallet && (
+            <>
+              {arweaveAccounts.length > 0 ? (
+                <WanderButton hideBalance={hideBalance} />
+              ) : (
+                <Tooltip
+                  title={
+                    balance > 0
+                      ? __('Immediately spendable: %spendable_balance%', { spendable_balance: roundedSpendableBalance })
+                      : __('Your Wallet')
+                  }
+                >
+                  <div>
+                    {balanceLoading ? (
+                      <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
+                    ) : (
+                      <Button
+                        navigate={`/$/${PAGES.WALLET}`}
+                        className={classnames('button--file-action header__navigationItem--balance', {
+                          'header__navigationItem--balance-round':
+                            hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady,
+                        })}
+                        label={
+                          hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
+                            ? __(isMobile ? 'Wallet' : 'Your Wallet')
+                            : roundedTotalBalance
+                        }
+                        icon={ICONS.LBC}
+                      />
+                    )}
+                  </div>
+                </Tooltip>
+              )}
+            </>
           )}
+
           {!hideProfile && <HeaderProfileMenuButton />}
         </>
       ) : !isMobile ? (
@@ -228,7 +233,7 @@ const Header = (props: Props) => {
 
           {backTitle && <h1 className="header__authTitle">{(isMobile && simpleBackTitle) || backTitle}</h1>}
 
-          {userButtons(hideBalance, isMobile)}
+          {userButtons(false, isMobile)}
         </div>
       ) : (
         <>
@@ -293,7 +298,7 @@ const Header = (props: Props) => {
             )}
 
             {!authHeader && !canBackout
-              ? userButtons(hideBalance, isMobile)
+              ? userButtons(isMobile)
               : !isVerifyPage &&
                 !hideCancel && (
                   <div className="header__menu--right">

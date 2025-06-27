@@ -105,7 +105,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         )}
         {notificationsEnabled && !isMobile && <NotificationHeaderButton />}
 
-        {authenticated && (
+        {(isMobile || authenticated) && (
           <Button
             id="basic-button"
             aria-controls={open ? 'basic-menu' : undefined}
