@@ -23,6 +23,23 @@ export const selectClientSetting = (state, setting) => {
   return clientSettings ? clientSettings[setting] : undefined;
 };
 
+export const selectUploadsFilteringSetting = (state) => {
+  let setting = selectClientSetting(state, SETTINGS.UPLOAD_PAGE_FILTERING);
+
+  // Default value. Needed for already logged in users not loading the default client setting changes. Can be removed after sometime.
+  if (!setting) {
+    setting = {
+      isFilteringEnabled: false,
+      sortOption: {
+        key: 'updatedAt',
+        value: 'asc',
+      },
+    };
+  }
+
+  return setting;
+};
+
 // refactor me
 export const selectShowMatureContent = (state) => {
   return !ENABLE_MATURE ? false : selectClientSetting(state, SETTINGS.SHOW_MATURE);
@@ -129,6 +146,18 @@ export const selectHomepageMeme = (state) => {
     }
   }
   return homepages ? homepages['en']?.meme || {} : {};
+};
+
+export const selectHomepageCustomBanners = (state) => {
+  const homepageCode = selectHomepageCode(state);
+  const homepages = selectHomepageDb(state);
+  if (homepages) {
+    const customBanners = homepages[homepageCode]?.customBanners;
+    if (customBanners) {
+      return customBanners;
+    }
+  }
+  return homepages ? homepages['en']?.customBanners || {} : {};
 };
 
 export const selectHomepageDiscover = (state) => {

@@ -1,0 +1,28 @@
+.cryptoDisclaimersModal {
+  padding: var(--spacing-l);
+  max-height: 60%;
+  h2 {
+    font-size: var(--font-large);
+    font-weight: 900;
+    margin-bottom: var(--spacing-m);
+  }
+
+  ul {
+    list-style-type: decimal;
+    margin-bottom: var(--spacing-l);
+
+    li {
+      margin-bottom: var(--spacing-s);
+      b {
+        font-weight: 900;
+      }
+      p {
+        font-size: var(--font-small);
+      }
+    }
+  }
+
+  button {
+    margin-top: var(--spacing-m);
+  }
+}

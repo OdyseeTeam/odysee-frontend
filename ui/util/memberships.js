@@ -1,7 +1,18 @@
 // @flow
 
+import moment from 'moment';
+
 export const getTotalPriceFromSupportersList = (supportersList: SupportersList) =>
-  supportersList.map((supporter) => supporter.Price).reduce((total, supporterPledge) => total + supporterPledge, 0);
+  supportersList.map((supporter) => supporter.price).reduce((total, supporterPledge) => total + supporterPledge, 0);
+
+export const getLastMonthPayments = (payments: any) => {
+  const monthago = moment().subtract(30, 'days');
+  return payments
+    .filter((p) => p.completed_at && moment(p.completed_at).diff(monthago) > 0)
+    .reduce((total, payment) => {
+      return total + payment.usd_amount;
+    }, 0);
+};
 
 /**
  * Given the current form type combination, what is the applicable perk name
@@ -43,9 +54,15 @@ export function getRestrictivePerkName(type: PublishType, liveCreateType: LiveCr
   return EXCLUSIVE_CONTENT;
 }
 
-export function filterMembershipTiersWithPerk(membershipTiers: Array<MembershipTier>, perkName: string) {
-  const filtered: MembershipTiers = membershipTiers.filter((t: MembershipTier) => {
-    return t.Perks && t.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
+export function filterMembershipTiersWithPerk(membershipTiers: Array<CreatorMembership>, perkName: string) {
+  const filtered: Array<CreatorMembership> = membershipTiers.filter((t: CreatorMembership) => {
+    return t.perks && t.perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
   });
   return filtered;
+}
+
+export function membershipIsExpired(ends_at: any) {
+  const now = new Date();
+  const endsAt = new Date(ends_at);
+  return now > endsAt;
 }

@@ -4,6 +4,7 @@ import classnames from 'classnames';
 
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import * as PUBLISH from 'constants/publish';
+import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 
 import { FormField } from 'component/common/form';
 import { handleBidChange, handleLanguageChange } from 'util/publish';
@@ -43,9 +44,17 @@ function CollectionPublishAdditionalOptions(props: Props) {
     setHideSection(!hideSection);
   }
 
+  const isFirstRun = React.useRef(true);
   React.useEffect(() => {
+    let bid = formParams.bid;
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      if (bid < MINIMUM_PUBLISH_BID) {
+        bid = MINIMUM_PUBLISH_BID;
+      }
+    }
     handleBidChange(
-      parseFloat(formParams.bid),
+      parseFloat(bid),
       amount,
       balance,
       (value) => {

@@ -33,6 +33,10 @@
   background-color: var(--color-text);
 }
 
+.MuiDrawer-root {
+  z-index: 10000;
+}
+
 .MuiDrawer-root > .MuiPaper-root {
   overflow: visible;
   color: var(--color-text);

@@ -309,6 +309,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     shouldHide = true;
   }
 
+  // Filter empty reposts
+  if (!shouldHide) {
+    shouldHide = claim?.value_type === 'repost' && !pathname.includes(`/$/${PAGES.UPLOAD}`);
+  }
+
   if (!shouldHide && isPublishSuggestion) {
     shouldHide = true;
   }
@@ -609,7 +614,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
             {type !== 'small' && (!pending || !type) && isChannelUri && (
               <div className="claim-preview__actions">
-                {!hideJoin && <JoinButton />}
+                {!hideJoin && <JoinButton uri={uri} />}
                 {!pending && (
                   <>
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (

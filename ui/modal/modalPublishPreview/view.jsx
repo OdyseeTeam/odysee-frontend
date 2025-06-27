@@ -330,17 +330,11 @@ const ModalPublishPreview = (props: Props) => {
     return (
       <div className="publish-preview__tier-restrictions">
         {myMembershipTiers.map((tier: MembershipTier) => {
-          const tierId = tier?.Membership?.id || '0';
+          const tierId = tier?.membership_id || '0';
           const tierSelected = memberRestrictionTierIds.includes(tierId);
 
           return tierSelected ? (
-            <FormField
-              key={tierId}
-              name={tierId}
-              type="checkbox"
-              defaultChecked
-              label={tier?.Membership?.name || tierId}
-            />
+            <FormField key={tierId} name={tierId} type="checkbox" defaultChecked label={tier?.name || tierId} />
           ) : (
             <div key={tierId} className="dummy-tier" />
           );

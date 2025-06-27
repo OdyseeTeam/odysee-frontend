@@ -1,3 +1,4 @@
+import React, { Fragment, useState, useEffect } from 'react';
 import 'babel-polyfill';
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
@@ -9,7 +10,6 @@ import moment from 'moment';
 // @endif
 import { ipcRenderer, remote, shell } from 'electron';
 import * as MODALS from 'constants/modal_types';
-import React, { Fragment, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import {
@@ -248,7 +248,7 @@ function AppWrapper() {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
-
+        // if EXPERIMENTAL connect to arconnect
         app.store.dispatch(doUpdateIsNightAsync());
         app.store.dispatch(doBlackListedOutpointsSubscribe());
         app.store.dispatch(doFilteredOutpointsSubscribe());

@@ -1,6 +1,7 @@
 /* Many SETTINGS are stored in the localStorage by their name -
     be careful about changing the value of a SETTINGS constant, as doing so can invalidate existing SETTINGS */
 export const CREDIT_REQUIRED_ACKNOWLEDGED = 'credit_required_acknowledged';
+export const CRYPTO_DISCLAIMERS = 'crypto_disclaimers';
 export const NEW_USER_ACKNOWLEDGED = 'welcome_acknowledged';
 export const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 export const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
@@ -50,6 +51,7 @@ export const VIDEO_PLAYBACK_RATE = 'video_playback_rate';
 export const PREFERRED_CURRENCY = 'preferred_currency';
 export const DEFAULT_VIDEO_QUALITY = 'default_video_quality';
 export const ACTIVE_CHANNEL_CLAIM = 'active_channel_claim';
+export const UPLOAD_PAGE_FILTERING = 'upload_page_filtering';
 
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',

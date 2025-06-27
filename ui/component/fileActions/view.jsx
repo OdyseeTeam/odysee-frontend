@@ -5,7 +5,6 @@ import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
-import { isClaimPrivate, isClaimUnlisted } from 'util/claim';
 import { buildURI } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -45,6 +44,7 @@ type Props = {
   isProtectedContent: boolean,
   isFiatRequired: boolean,
   isFiatPaid: ?boolean,
+  isFiatPaidAsPurchase: ?boolean,
   isTierUnlocked: boolean,
   scheduledState: ClaimScheduledState,
 };
@@ -73,6 +73,7 @@ export default function FileActions(props: Props) {
     isProtectedContent,
     isFiatRequired,
     isFiatPaid,
+    isFiatPaidAsPurchase,
     isTierUnlocked,
     scheduledState,
   } = props;
@@ -89,7 +90,6 @@ export default function FileActions(props: Props) {
   const channelName = signingChannel && signingChannel.name;
   const fileName = value && value.source && value.source.name;
   const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
-  const isUnlistedOrPrivate = isClaimUnlisted(claim) || isClaimPrivate(claim);
 
   const webShareable = costInfo && costInfo.cost === 0 && RENDER_MODES.WEB_SHAREABLE_MODES.includes(renderMode);
   const urlParams = new URLSearchParams(search);
@@ -99,10 +99,9 @@ export default function FileActions(props: Props) {
     !isLivestreamClaim &&
     !disableDownloadButton &&
     !isMature &&
-    !isFiatRequired &&
-    !isProtectedContent &&
-    (scheduledState === 'non-scheduled' || scheduledState === 'started') &&
-    !isUnlistedOrPrivate;
+    (!isFiatRequired || isFiatPaidAsPurchase) &&
+    (!isProtectedContent || isTierUnlocked) &&
+    (scheduledState === 'non-scheduled' || scheduledState === 'started');
 
   const showRepost = !hideRepost && !isLivestreamClaim;
 

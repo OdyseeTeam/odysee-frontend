@@ -72,10 +72,8 @@ class HlsQualitySelectorPlugin {
       return;
     }
 
-    if (this.player.claimSrcVhs || this.player.isLivestream) {
+    if (this.player?.appState?.originalVideoHeight || this.player.claimSrcVhs || this.player.isLivestream) {
       this._qualityButton.show();
-    } else {
-      this._qualityButton.hide();
     }
   }
 
@@ -85,6 +83,25 @@ class HlsQualitySelectorPlugin {
       defaultQuality: this.player.appState.defaultQuality,
       originalVideoHeight: this.player.appState.originalVideoHeight,
     };
+  }
+
+  handleNoQualities() {
+    if (
+      this.player?.appState?.originalVideoHeight &&
+      this._qualityButton &&
+      !(this.player?.claimSrcVhs || this.player?.isLivestream)
+    ) {
+      const levelItem = this.getQualityMenuItem.call(this, {
+        label: `${this.player.appState.originalVideoHeight}p`,
+        value: this.player.appState.originalVideoHeight,
+        selected: true,
+      });
+      this._qualityButton.createItems = function () {
+        return [levelItem];
+      };
+      this._qualityButton.update();
+      this.setButtonInnerText(`${this.player.appState.originalVideoHeight}p`);
+    }
   }
 
   /**
@@ -113,6 +130,9 @@ class HlsQualitySelectorPlugin {
     this.player.qualityLevels().on('addqualitylevel', this.onAddQualityLevel.bind(this));
     this.player.on(VJS_EVENTS.SRC_CHANGED, this.updateConfig.bind(this));
     this.player.on(VJS_EVENTS.PLAYER_CLOSED, this.playerClosed.bind(this));
+
+    // Handles quality selector with non-transcoded content (not sure where should be done, but works for now)
+    this.player.on(VJS_EVENTS.SRC_CHANGED, this.handleNoQualities.bind(this));
   }
 
   /**

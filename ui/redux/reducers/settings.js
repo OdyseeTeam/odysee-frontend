@@ -32,12 +32,19 @@ const defaultState = {
     [SETTINGS.ENABLE_SYNC]: IS_WEB,
     [SETTINGS.ENABLE_PUBLISH_PREVIEW]: true,
     [SETTINGS.ACTIVE_CHANNEL_CLAIM]: undefined,
+    [SETTINGS.UPLOAD_PAGE_FILTERING]: {
+      isFilteringEnabled: false,
+      sortOption: {
+        key: 'updatedAt',
+        value: 'asc',
+      },
+    },
 
     // UI
     [SETTINGS.LANGUAGE]: null,
     [SETTINGS.SEARCH_IN_LANGUAGE]: false,
-    [SETTINGS.THEME]: __('system'),
-    [SETTINGS.THEMES]: [__('dark'), __('light'), __('system')],
+    [SETTINGS.THEME]: 'system',
+    [SETTINGS.THEMES]: ['dark', 'light', 'system'],
     [SETTINGS.HOMEPAGE]: null,
     [SETTINGS.HOMEPAGE_ORDER]: { active: null, hidden: null },
     [SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR]: false,
@@ -64,6 +71,7 @@ const defaultState = {
       amount: 0.1,
     },
     [SETTINGS.PREFERRED_CURRENCY]: 'USD',
+    [SETTINGS.CRYPTO_DISCLAIMERS]: true,
 
     // Content
     [SETTINGS.SHOW_MATURE]: false,

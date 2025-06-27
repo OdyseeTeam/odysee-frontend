@@ -9,6 +9,7 @@ import {
   selectProtectedContentTagForUri,
   selectIsFiatRequiredForUri,
   selectIsFiatPaidForUri,
+  selectPurchaseMadeForClaimId,
   selectCostInfoForUri,
   selectScheduledStateForUri,
 } from 'redux/selectors/claims';
@@ -50,6 +51,7 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isFiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFiatPaid: selectIsFiatPaidForUri(state, uri),
+    isFiatPaidAsPurchase: Boolean(selectPurchaseMadeForClaimId(state, claim.claim_id)),
     isTierUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
     scheduledState: selectScheduledStateForUri(state, uri),
   };

@@ -1,0 +1,64 @@
+.wanderButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: var(--height-button);
+  max-width: var(--height-button);
+  height: var(--height-button);
+  background-color: var(--color-header-button);
+  margin-right: var(--spacing-s);
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  transition: border-radius 0.4s, padding 0.4s, max-width 0.4s;
+  padding: 0 0;
+  color: var(--color-text);
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    box-sizing: border-box;
+    mask-image: conic-gradient(from 0deg, black 150%, transparent 250%);
+    -webkit-mask-image: conic-gradient(from 0deg, black 150%, transparent 250%);
+    transition: border-color 0.4s;
+  }
+
+  &.wanderButton--authenticating {
+    &::before {
+      border-top-color: orange;
+    }
+  }
+
+  &.wanderButton--authenticated {
+    &::before {
+      border-top-color: green;
+    }
+  }
+
+  &.wanderButton--connected {
+    border-radius: var(--border-radius);
+    padding: 0 var(--spacing-s);
+    max-width: 100px;
+    &::before {
+      display: none;
+    }
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: var(--color-primary);
+    color: white;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

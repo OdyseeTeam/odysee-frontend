@@ -1,24 +1,48 @@
 @import '~ui/scss/init/breakpoints';
 
 .fiat-order {
-  //max-width: 580px;  ??
-}
-
-.fiat-order__actions {
-  button {
-    margin-top: var(--spacing-s);
-    margin-right: var(--spacing-s);
+  .fiat-order__actions {
+    button {
+      margin-top: var(--spacing-s);
+      margin-right: var(--spacing-s);
+    }
   }
-}
 
-.fiat-order__footer {
-  font-size: var(--font-small);
-  margin-top: var(--spacing-s);
-}
+  .monetization-disabled {
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+    border: 1px solid var(--color-text-error);
+    background: rgba(218, 4, 4, 0.1);
+    text-align: center;
+  }
 
-.fiat-order__claim-preview {
-  border-radius: var(--border-radius);
-  border: 1px solid var(--color-border);
-  padding: var(--spacing-s);
-  margin-bottom: var(--spacing-l);
+  .fiat-order__claim-preview {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-s);
+    margin-bottom: var(--spacing-m);
+  }
+
+  .claim-preview__wrapper--recommendation {
+    margin-bottom: 0;
+  }
+
+  .handle-submit-area {
+    display: flex;
+    gap: var(--spacing-s);
+
+    .button {
+      flex: 1;
+      margin-right: unset;
+
+      .button__content {
+        justify-content: center;
+      }
+    }
+  }
+
+  .fiat-order__footer {
+    font-size: var(--font-small);
+    margin-top: var(--spacing-s);
+  }
 }

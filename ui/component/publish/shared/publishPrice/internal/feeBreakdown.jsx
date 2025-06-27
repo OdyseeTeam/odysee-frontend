@@ -1,8 +1,6 @@
 // @flow
 import React from 'react';
 
-import * as STRIPE from 'constants/stripe';
-
 type Props = {
   amount: number,
   currency: string,
@@ -10,13 +8,9 @@ type Props = {
 };
 
 function FeeBreakdown(props: Props) {
-  const { amount, currency, doCustomerPurchaseCost } = props;
+  const { amount, doCustomerPurchaseCost } = props;
 
   const [fees, setFees] = React.useState();
-
-  function getAmountStr(amount: number) {
-    return amount ? amount.toFixed(2) : '---';
-  }
 
   React.useEffect(() => {
     doCustomerPurchaseCost(amount)
@@ -33,11 +27,14 @@ function FeeBreakdown(props: Props) {
 
   return (
     <>
-      {__('Payment processing fee: %currency%%ppf% • Odysee platform fee: %currency%%opf%', {
+      {/*
+        __('Payment processing fee: %currency%%ppf% • Odysee platform fee: %currency%%opf%', {
         ppf: getAmountStr(fees?.stripe_cut),
         opf: getAmountStr(fees?.odysee_cut),
         currency: STRIPE.CURRENCY[currency].symbol,
-      })}
+      }
+      )
+      */}
     </>
   );
 }

@@ -34,6 +34,8 @@ import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import Lbry from 'lbry';
+import { Lbryio } from 'lbryinc';
+
 import { getStripeEnvironment } from 'util/stripe';
 const canAutoplayVideo = require('./plugins/canAutoplay');
 const stripeEnvironment = getStripeEnvironment();
@@ -513,7 +515,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         trimmedUrl = trimmedUrl.toString();
 
         // change to m3u8 if applicable
-        if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
+        if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8') && response.status < 400) {
           vjsPlayer.claimSrcVhs = { type: HLS_FILETYPE, src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
           if (window.cordova) {
@@ -536,6 +538,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             };
             window.odysee.chromecast.setMediaPayload(payload);
           }
+        }
+
+        // Log possible errors
+        if (response.status >= 400) {
+          Lbryio.call('event', 'desktop_error', {
+            error_message: `PlayerSourceLoadError: Url: ${response.url} 
+            | Redirected: ${String(response.redirected)}
+            | Status: ${response.status}
+            | X-Powered-By: ${playerServerRef.current ? playerServerRef.current : 'header missing'}`,
+          });
         }
       }
 
@@ -715,7 +727,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         button="link"
         icon={ICONS.REFRESH}
         className="video-js--tap-to-unmute"
-        onClick={retryVideoAfterFailure}
+        onClick={() => retryVideoAfterFailure(true)}
         ref={tapToRetryRef}
       />
     </div>

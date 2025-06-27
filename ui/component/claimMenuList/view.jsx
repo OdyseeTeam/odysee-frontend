@@ -12,8 +12,13 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-// import { generateShareUrl, generateRssUrl, generateLbryContentUrl, generateShortShareUrl } from 'util/url';
-import { generateShareUrl, generateRssUrl, generateLbryContentUrl } from 'util/url';
+import {
+  generateShareUrl,
+  generateRssUrl,
+  generateLbryContentUrl,
+  generateShortShareUrl,
+  formatLbryUrlForWeb,
+} from 'util/url';
 import { useHistory } from 'react-router';
 // import { getChannelIdFromClaim } from 'util/claim';
 import { buildURI, parseURI } from 'util/lbryURI';
@@ -151,6 +156,11 @@ function ClaimMenuList(props: Props) {
   const shareUrl: string = generateShareUrl(SHARE_DOMAIN, lbryUrl);
   const rssUrl: string = isChannel ? generateRssUrl(SHARE_DOMAIN, claim) : '';
   const isCollectionClaim = claim && claim.value_type === 'collection';
+
+  const collectionNavigateUrl =
+    collectionId && defaultCollectionAction !== COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW
+      ? `/$/${PAGES.PLAYLIST}/${collectionId}`
+      : `${formatLbryUrlForWeb((claim && claim.canonical_url) || uri || '/')}?lid=${collectionId}`;
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
     const itemUrl = contentClaim?.permanent_url;
@@ -435,17 +445,14 @@ function ClaimMenuList(props: Props) {
                 {/* COLLECTION OPERATIONS */}
                 {collectionId && isCollectionClaim ? (
                   <>
-                    <MenuItem
-                      className="comment__menu-option"
-                      onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}`)}
-                    >
+                    <MenuItem className="comment__menu-option" onSelect={() => push(collectionNavigateUrl)}>
                       {defaultCollectionAction !== COLLECTIONS_CONSTS.DEFAULT_ACTION_VIEW ? (
-                        <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
+                        <a className="menu__link" href={collectionNavigateUrl}>
                           <Icon aria-hidden icon={ICONS.VIEW} />
                           {__('View Playlist')}
                         </a>
                       ) : (
-                        <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
+                        <a className="menu__link" href={collectionNavigateUrl}>
                           <Icon aria-hidden icon={ICONS.PLAY} />
                           {__('Play')}
                         </a>

@@ -28,6 +28,7 @@ import { creditsToString } from 'util/format-credits';
 import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
 import { hasFiatTags } from 'util/tags';
 import { PAGE_SIZE } from 'constants/claim';
+import { doUserHasPremium } from './user';
 
 let onChannelConfirmCallback;
 let checkPendingInterval;
@@ -210,7 +211,7 @@ export function doResolveUris(
  *
  * @param claimIds
  */
-export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: boolean = true, options?: {}) {
+export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: boolean = true, options?: {}) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
 
@@ -273,10 +274,12 @@ export function doFetchClaimListMine(
   fetchViewCount: boolean = false,
   channelIds: Array<?string> = []
 ) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.FETCH_CLAIM_LIST_MINE_STARTED,
     });
+
+    const state = getState();
 
     let claimTypes = ['stream', 'repost'];
     if (filterBy && filterBy.length !== 0) {
@@ -292,6 +295,19 @@ export function doFetchClaimListMine(
       resolve,
     })
       .then(async (result: StreamListResponse) => {
+        // Log stuck claims
+        const claims = result.items;
+        const pendingClaimsById = selectPendingClaimsById(state);
+        for (let i = 0; i < claims.length - 1; i++) {
+          if (Object.keys(pendingClaimsById).includes(claims[i].claim_id)) {
+            continue;
+          }
+          if (claims[i].confirmations > claims[i + 1].confirmations) {
+            Lbryio.call('event', 'desktop_error', { error_message: `CLAIM STUCK IN UPLOADS: ${claims[i].claim_id}` });
+            break;
+          }
+        }
+
         dispatch({
           type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
           data: {
@@ -299,6 +315,7 @@ export function doFetchClaimListMine(
             resolve,
             setNewPageItems: pageSize !== FILE_LIST.PAGE_SIZE_ALL_ITEMS,
             isAllMyClaimsFetched: pageSize === FILE_LIST.PAGE_SIZE_ALL_ITEMS,
+            isPublicationOnlyClaimList: true,
           },
         });
 
@@ -733,6 +750,7 @@ export const doFetchChannelListMine =
 
     const callback = (response: ChannelListResponse) => {
       dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED, data: { claims: response.items } });
+      dispatch(doUserHasPremium()); // depends on channel list
     };
 
     const failure = (error) => {
@@ -1022,45 +1040,34 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
   const checkTxoList = () => {
     const state = getState();
     const pendingById = Object.assign({}, selectPendingClaimsById(state));
-    const pendingTxos = (Object.values(pendingById): any).map((p) => p.txid);
 
-    if (pendingTxos.length) {
-      Lbry.txo_list({ txid: pendingTxos })
-        .then((result) => {
-          const txos = result.items;
-          const idsToConfirm = [];
-          txos.forEach((txo) => {
-            if (txo.claim_id && txo.confirmations > 0) {
-              idsToConfirm.push(txo.claim_id);
-              delete pendingById[txo.claim_id];
-            }
-          });
-          return { idsToConfirm, pendingById };
-        })
-        .then((results) => {
-          const { idsToConfirm, pendingById } = results;
-          if (idsToConfirm.length) {
-            return Lbry.claim_list({ claim_id: idsToConfirm, resolve: true }).then((results) => {
-              const claims = results.items;
-
-              dispatch({
-                type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
-                data: {
-                  claims: claims,
-                  pending: pendingById,
-                },
-              });
-
-              const channelClaims = claims.filter((claim) => claim.value_type === 'channel');
-              if (channelClaims.length && onChannelConfirmCallback) {
-                channelClaims.forEach((claim) => onChannelConfirmCallback(claim));
-              }
-              if (Object.keys(pendingById).length === 0) {
-                clearInterval(checkPendingInterval);
-              }
-            });
+    if (Object.keys(pendingById).length) {
+      return Lbry.claim_list({ claim_id: Object.keys(pendingById), resolve: true }).then((results) => {
+        const claims = results.items;
+        const confirmedClaims = [];
+        claims.forEach((claim) => {
+          if (claim.claim_id && claim.confirmations > 0 && pendingById[claim.claim_id].txid === claim.txid) {
+            confirmedClaims.push(claim);
+            delete pendingById[claim.claim_id];
           }
         });
+
+        dispatch({
+          type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
+          data: {
+            claims: confirmedClaims,
+            pending: pendingById,
+          },
+        });
+
+        const channelClaims = confirmedClaims.filter((claim) => claim.value_type === 'channel');
+        if (channelClaims.length && onChannelConfirmCallback) {
+          channelClaims.forEach((claim) => onChannelConfirmCallback(claim));
+        }
+        if (Object.keys(pendingById).length === 0) {
+          clearInterval(checkPendingInterval);
+        }
+      });
     } else {
       clearInterval(checkPendingInterval);
     }

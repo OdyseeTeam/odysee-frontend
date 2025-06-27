@@ -30,6 +30,7 @@ export const StickerReviewBox = (props: Props) => {
       {Boolean(price && exchangeRate) && (
         <FilePrice
           customPrices={{
+            // TODO PRICE FILE
             priceFiat: price,
             priceLBC: Number(exchangeRate) !== 0 ? price / Number(exchangeRate) : 0,
           }}

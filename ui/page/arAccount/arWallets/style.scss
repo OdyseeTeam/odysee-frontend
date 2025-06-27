@@ -1,0 +1,59 @@
+.card--arwalllets {
+  .wallet-table {
+    width: 100%;
+    background-color: var(--color-background);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+
+    .wallet-table-row {
+      display: flex;
+      width: 100%;
+      padding: var(--spacing-xxxs) var(--spacing-xxs);
+      border-radius: var(--border-radius);
+
+      .wallet-table-row__id {
+        min-width: 30px;
+      }
+
+      .wallet-table-row__address {
+        width: 440px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .wallet-table-row__deposit {
+        width: 440px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .wallet-table-row__status {
+        min-width: 86px;
+        margin-left: auto;
+      }
+      .wallet-table-row__default {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 86px;
+
+        img {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+        }
+      }
+
+      &.wallet-table-row--header {
+        font-weight: bold;
+        border-bottom: 1px solid var(--color-header-button);
+        margin-bottom: var(--spacing-xs);
+      }
+
+      &.wallet-table-row--disconnected {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    }
+  }
+}

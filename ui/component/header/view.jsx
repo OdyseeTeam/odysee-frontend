@@ -17,6 +17,7 @@ import Skeleton from '@mui/material/Skeleton';
 import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import WunderBar from 'component/wunderbar';
+import WanderButton from '../wanderButton';
 
 type Props = {
   authenticated: boolean,
@@ -45,6 +46,7 @@ type Props = {
   totalBalance?: number,
   user: ?User,
   prefsReady: boolean,
+  arweaveAccounts: any,
   doClearClaimSearch: () => void,
   doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
   clearEmailEntry: () => void,
@@ -72,6 +74,7 @@ const Header = (props: Props) => {
     totalBalance,
     user,
     prefsReady,
+    arweaveAccounts,
     doClearClaimSearch,
     doRemoveFromUnsavedChangesCollectionsForCollectionId,
     clearEmailEntry,
@@ -152,13 +155,15 @@ const Header = (props: Props) => {
     }
   }, [canBackout, onBackout]);
 
-  const userButtons = (hideWallet?: boolean, hideProfile?: boolean) => (
+  const userButtons = (hideBalance?: boolean, hideProfile?: boolean) => (
     <div className="header__menu--right">
       {isMobile && !authHeader && !canBackout && <WunderBar />}
 
       {authenticated ? (
         <>
-          {!hideWallet && (
+          {arweaveAccounts.length > 0 ? (
+            <WanderButton hideBalance={hideBalance} />
+          ) : (
             <Tooltip
               title={
                 balance > 0
@@ -187,7 +192,6 @@ const Header = (props: Props) => {
               </div>
             </Tooltip>
           )}
-
           {!hideProfile && <HeaderProfileMenuButton />}
         </>
       ) : !isMobile ? (
@@ -224,7 +228,7 @@ const Header = (props: Props) => {
 
           {backTitle && <h1 className="header__authTitle">{(isMobile && simpleBackTitle) || backTitle}</h1>}
 
-          {userButtons(false, isMobile)}
+          {userButtons(hideBalance, isMobile)}
         </div>
       ) : (
         <>
@@ -289,7 +293,7 @@ const Header = (props: Props) => {
             )}
 
             {!authHeader && !canBackout
-              ? userButtons(isMobile)
+              ? userButtons(hideBalance, isMobile)
               : !isVerifyPage &&
                 !hideCancel && (
                   <div className="header__menu--right">

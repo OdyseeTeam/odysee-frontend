@@ -51,6 +51,16 @@ $INDENT: var(--spacing-xl);
     }
   }
 
+  fieldset-section.radio {
+    margin-top: 0;
+  }
+
+  .form-field__help {
+    margin-top: var(--spacing-xxxs);
+    color: var(--color-text-error);
+    font-size: var(--font-small);
+  }
+
   label {
     margin-top: 0;
   }

@@ -1,9 +1,11 @@
 // @flow
+import React from 'react';
+import type { ElementRef } from 'react';
 import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
+import { SIMPLE_SITE, ENABLE_ARCONNECT } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
@@ -13,8 +15,6 @@ import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CommentSelectors, { SELECTOR_TABS } from './internal/comment-selectors';
-import React from 'react';
-import type { ElementRef } from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import { useIsMobile } from 'effects/use-screensize';
@@ -25,14 +25,21 @@ import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
+import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD } from 'constants/tip_tabs';
+import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
 
 const stripeEnvironment = getStripeEnvironment();
 
-const TAB_FIAT = 'TabFiat';
-const TAB_LBC = 'TabLBC';
-
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type ArTipParams = {
+  tipAmountTwoPlaces: number,
+  tipChannelName: string,
+  channelClaimId: string,
+  recipientAddress: string,
+  currency: string,
+};
+
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
 type Props = {
@@ -57,7 +64,8 @@ type Props = {
   supportDisabled: boolean,
   uri: string,
   disableInput?: boolean,
-  canReceiveFiatTips: ?boolean,
+  recipientArweaveTipInfo: any,
+  experimentalUi: boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
   onCancelReplying?: () => void,
@@ -76,6 +84,15 @@ type Props = {
     preferredCurrency: string,
     (any) => void
   ) => string,
+  doArTip: (
+    ArTipParams,
+    anonymous: boolean,
+    UserParams,
+    claimId: string,
+    stripe: ?string,
+    preferredCurrency: string,
+    (any) => void
+  ) => void,
   doSendTip: (
     params: {},
     isSupport: boolean,
@@ -98,6 +115,7 @@ type Props = {
   isLivestreamChatMembersOnly: boolean,
   areCommentsMembersOnly: boolean,
   hasPremiumPlus: boolean,
+  arweaveTippingError: string,
 };
 
 export function CommentCreate(props: Props) {
@@ -107,7 +125,8 @@ export function CommentCreate(props: Props) {
     activeChannelName,
     activeChannelUrl,
     bottom,
-    canReceiveFiatTips,
+    recipientArweaveTipInfo,
+    experimentalUi,
     channelClaimId,
     claimId,
     claimIsMine,
@@ -119,6 +138,7 @@ export function CommentCreate(props: Props) {
     doOpenModal,
     doSendCashTip,
     doSendTip,
+    doArTip,
     doTipAccountCheckForUri,
     doToast,
     embed,
@@ -147,8 +167,12 @@ export function CommentCreate(props: Props) {
     isLivestreamChatMembersOnly,
     areCommentsMembersOnly,
     hasPremiumPlus,
+    arweaveTippingError,
   } = props;
 
+  const { activeArStatus } = useArStatus();
+
+  const showArweave = ENABLE_ARCONNECT && experimentalUi;
   const fileUri = React.useContext(AppContext)?.uri;
 
   const isMobile = useIsMobile();
@@ -181,6 +205,8 @@ export function CommentCreate(props: Props) {
   const [exchangeRate, setExchangeRate] = React.useState();
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
 
+  const arweaveTipEnabled = recipientArweaveTipInfo && recipientArweaveTipInfo.status === 'active';
+
   const charCount = commentValue ? commentValue.length : 0;
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
   const disabled =
@@ -190,17 +216,27 @@ export function CommentCreate(props: Props) {
     isFetchingChannels ||
     isFetchingCreatorSettings ||
     hasNothingToSumbit ||
+    (activeTab === TAB_USDC && !arweaveTipEnabled) ||
     disableInput;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
+  const minUSDCSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
+  const minUSDCTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;
-  const minAmountMet = activeTab !== TAB_LBC || minAmount === 0 || tipAmount >= minAmount;
+  const minUSDCAmount = minUSDCTip || minUSDCSuper || 0;
+  const minAmountMet =
+    (activeTab !== TAB_LBC && activeTab !== TAB_FIAT && !minTip && !minUSDCTip) ||
+    (activeTab === TAB_LBC && tipAmount >= minAmount) ||
+    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
+    (activeTab === TAB_USD && tipAmount >= minUSDCAmount);
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
   const fiatIcon = STRIPE.CURRENCY[preferredCurrency].icon;
 
   const minAmountRef = React.useRef(minAmount);
   minAmountRef.current = minAmount;
+  const minUSDCAmountRef = React.useRef(minUSDCAmount);
+  minUSDCAmountRef.current = minUSDCAmount;
 
   const addEmoteToComment = React.useCallback((emote: string) => {
     setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
@@ -218,11 +254,11 @@ export function CommentCreate(props: Props) {
       if (onSlimInputClose) onSlimInputClose();
 
       if (sticker.price && sticker.price > 0) {
-        setActiveTab(canReceiveFiatTips ? TAB_FIAT : TAB_LBC);
+        setActiveTab(recipientArweaveTipInfo ? TAB_FIAT : TAB_LBC);
         setTipSelector(true);
       }
     },
-    [canReceiveFiatTips, onSlimInputClose]
+    [recipientArweaveTipInfo, onSlimInputClose]
   );
 
   const commentSelectorsProps = React.useMemo(() => {
@@ -294,7 +330,8 @@ export function CommentCreate(props: Props) {
         isTipOnly: true,
         hasSelectedTab: tab,
         customText: __('Preview Comment Tip'),
-        setAmount: (amount) => {
+        setAmount: (amount, activeTab) => {
+          setActiveTab(activeTab);
           setTipAmount(amount);
           setReviewingSupportComment(true);
         },
@@ -351,6 +388,15 @@ export function CommentCreate(props: Props) {
     if (onSlimInputClose) onSlimInputClose();
   }
 
+  const getAmount = () => {
+    if (activeTab === TAB_LBC) {
+      return tipAmount;
+    }
+    if (activeTab === TAB_USD) {
+      return tipAmount * 100; // pennies
+    }
+  };
+
   async function handleSupportComment() {
     if (!activeChannelClaimId) return;
 
@@ -389,7 +435,13 @@ export function CommentCreate(props: Props) {
         const lockedMinAmount = minAmount; // value during closure.
         const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
 
-        if (lockedMinAmount !== currentMinAmount) {
+        const lockedMinUSDCAmount = minUSDCAmount; // value during closure.
+        const currentMinUSDCAmount = minUSDCAmountRef.current; // value from latest doFetchCreatorSettings().
+
+        if (
+          (activeTab === TAB_LBC && lockedMinAmount !== currentMinAmount) ||
+          (activeTab === TAB_FIAT && lockedMinUSDCAmount !== currentMinUSDCAmount)
+        ) {
           doToast({
             message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
             isError: true,
@@ -398,7 +450,19 @@ export function CommentCreate(props: Props) {
           return;
         }
 
-        doSubmitTip();
+        // look, this is crazy complex. I just put the dry run inside doSendTip() for USDC instead of here.
+        if (activeTab === TAB_USDC || activeTab === TAB_USD) {
+          doSubmitTip();
+          return;
+        }
+        // DryRun comment creation before submitting the tip
+        handleCreateComment(undefined, undefined, undefined, undefined, true).then((res) => {
+          if (res !== 'success') {
+            setSubmitting(false);
+            return;
+          }
+          doSubmitTip();
+        });
       })
       .catch(() => {
         doToast({
@@ -447,6 +511,84 @@ export function CommentCreate(props: Props) {
         false,
         'comment'
       );
+    } else if (activeTab === TAB_USDC || activeTab === TAB_USD) {
+      const arweaveTipAddress = recipientArweaveTipInfo && recipientArweaveTipInfo.address;
+      const transactionCurrency = activeTab === TAB_USD ? 'AR' : 'USD';
+      const tipParams: ArTipParams = {
+        tipAmountTwoPlaces: Math.round(tipAmount * 100) / 100,
+        tipChannelName,
+        channelClaimId,
+        recipientAddress: arweaveTipAddress,
+        currency: transactionCurrency,
+      };
+      const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
+
+      const anonymous = false;
+      // dryrun comment
+      const dryRunCommentParams = {
+        comment: commentValue,
+        claim_id: claimId,
+        parent_id: parentId,
+        txid: activeTab === TAB_LBC ? 'dummy_txid' : undefined,
+        payment_tx_id: activeTab === TAB_USD ? 'dummy_txid' : undefined,
+        environment: stripeEnvironment,
+        is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+        amount: getAmount(), // dummy amount
+        currency: transactionCurrency, // AR
+        dry_run: true,
+      };
+      doCommentCreate(uri, isLivestream, dryRunCommentParams)
+        .then((res: {}) => {
+          if (res && res.signature) {
+            // tell apis about a tip, get a token and amount
+            // make transaction
+            // notify transaction id
+            doArTip(tipParams, anonymous, userParams, claimId, stripeEnvironment)
+              .then(
+                (arTipResponse: {
+                  transactionId: string,
+                  currency: string,
+                  referenceToken: string,
+                  error?: string,
+                }) => {
+                  if (arTipResponse.error) {
+                    throw new Error(arTipResponse.error);
+                  }
+                  const { transactionId } = arTipResponse;
+                  const params = Object.assign({}, dryRunCommentParams);
+                  params.payment_tx_id = transactionId;
+                  params.dryrun = undefined;
+                  params.amount = tipAmount; // dollars
+
+                  // ...
+                  handleCreateComment(null, null, transactionId, stripeEnvironment);
+                  setCommentValue('');
+                  setReviewingSupportComment(false);
+                  setTipSelector(false);
+                  setCommentFailure(false);
+                  setSubmitting(false);
+                }
+              )
+              .catch((e) => {
+                // do the error handling
+                doToast({
+                  message: __('Tip failed to send.'),
+                  subMessage: e?.message || e,
+                  isError: true,
+                });
+                setSubmitting(false);
+              });
+          }
+        })
+        .catch((e) => {
+          doToast({
+            message: __('Comment failed to send.'),
+            subMessage: e?.message || e,
+            isError: true,
+          });
+          console.log('do commentcreate e', e);
+          setSubmitting(false);
+        });
     } else {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
@@ -460,9 +602,7 @@ export function CommentCreate(props: Props) {
         preferredCurrency,
         (customerTipResponse) => {
           const { payment_intent_id } = customerTipResponse;
-
-          handleCreateComment(null, payment_intent_id, stripeEnvironment);
-
+          handleCreateComment(null, payment_intent_id, null, stripeEnvironment);
           setCommentValue('');
           setReviewingSupportComment(false);
           setTipSelector(false);
@@ -477,10 +617,11 @@ export function CommentCreate(props: Props) {
    *
    * @param {string} [txid] Optional transaction id generated by
    * @param {string} [payment_intent_id] Optional payment_intent_id from Stripe payment
+   * @param {string} [payment_tx_id] Optional payment_tx_id from Arweave payment
    * @param {string} [environment] Optional environment for Stripe (test|live)
-   * @param {boolean} [is_protected] Whether are not the content has a protected chat
+   * @param {boolean} [dryRun] Optional flag to simulate the comment creation
    */
-  async function handleCreateComment(txid, payment_intent_id, environment) {
+  async function handleCreateComment(txid, payment_intent_id, payment_tx_id, environment, dryRun = false) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
@@ -500,18 +641,34 @@ export function CommentCreate(props: Props) {
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
-    doCommentCreate(uri, isLivestream, {
+    if (dryRun) {
+      if (activeTab === TAB_LBC) {
+        txid = 'dummy_txid';
+      } else if (activeTab === TAB_FIAT) {
+        payment_intent_id = 'dummy_payment_intent_id';
+      }
+    }
+
+    return doCommentCreate(uri, isLivestream, {
       comment: stickerValue || commentValue,
       claim_id: claimId,
       parent_id: parentId,
       txid,
       payment_intent_id,
+      payment_tx_id,
       environment,
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
+      amount: !!txid || !!payment_intent_id || !!payment_tx_id ? getAmount() : undefined,
+      currency:
+        activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : activeTab === TAB_USD ? 'AR' : undefined,
+      dry_run: dryRun,
     })
       .then((res) => {
         setSubmitting(false);
+        if (dryRun) {
+          return res.comment_id ? 'success' : 'fail';
+        }
         if (setQuickReply) setQuickReply(res);
 
         if (res && res.signature) {
@@ -527,6 +684,9 @@ export function CommentCreate(props: Props) {
       })
       .catch(() => {
         setSubmitting(false);
+        if (dryRun) {
+          return;
+        }
         setCommentFailure(true);
 
         if (channelClaimId) {
@@ -583,10 +743,10 @@ export function CommentCreate(props: Props) {
   }, [exchangeRate, stickerPrice]);
 
   React.useEffect(() => {
-    if (canReceiveFiatTips === undefined) {
+    if (recipientArweaveTipInfo === undefined) {
       doTipAccountCheckForUri(uri);
     }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+  }, [recipientArweaveTipInfo, doTipAccountCheckForUri, uri]);
 
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {
@@ -666,12 +826,20 @@ export function CommentCreate(props: Props) {
             return;
           }
 
-          const pathPlusRedirect = `/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`;
-          if (isLivestream) {
-            window.open(pathPlusRedirect);
-          } else {
-            push(pathPlusRedirect);
-          }
+          doOpenModal(MODALS.CONFIRM, {
+            title: __('Channel is required for commenting'),
+            subtitle: __("You'll need a channel to comment on this upload."),
+            labelOk: __('Continue to channel creation'),
+            onConfirm: (closeModal) => {
+              const pathPlusRedirect = `/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`;
+              if (isLivestream) {
+                window.open(pathPlusRedirect);
+              } else {
+                push(pathPlusRedirect);
+              }
+              closeModal();
+            },
+          });
         }}
       >
         <FormField
@@ -716,14 +884,17 @@ export function CommentCreate(props: Props) {
         {isReviewingSupportComment ? (
           activeChannelUrl &&
           activeTab && (
-            <TipReviewBox
-              activeChannelUrl={activeChannelUrl}
-              tipAmount={tipAmount}
-              activeTab={activeTab}
-              message={commentValue}
-              isReviewingStickerComment={isReviewingStickerComment}
-              stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
-            />
+            <>
+              <TipReviewBox
+                activeChannelUrl={activeChannelUrl}
+                tipAmount={tipAmount}
+                activeTab={activeTab}
+                message={commentValue}
+                isReviewingStickerComment={isReviewingStickerComment}
+                stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
+              />
+              {arweaveTippingError && <div className={'error'}>{arweaveTippingError}</div>}
+            </>
           )
         ) : selectedSticker ? (
           activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
@@ -741,8 +912,16 @@ export function CommentCreate(props: Props) {
               isLivestream={isLivestream}
               label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
               noticeLabel={
-                isMobile && (
-                  <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
+                (isMobile || isLivestream) && (
+                  <HelpText
+                    deletedComment={deletedComment}
+                    minAmount={minAmount}
+                    minSuper={minSuper}
+                    minTip={minTip}
+                    minUSDCAmount={minUSDCAmount}
+                    minUSDCSuper={minUSDCSuper}
+                    minUSDCTip={minUSDCTip}
+                  />
                 )
               }
               name={isReply ? 'create__reply' : 'create__comment'}
@@ -794,72 +973,98 @@ export function CommentCreate(props: Props) {
         {(!isMobile || isReviewingStickerComment || isReviewingSupportComment) && (
           <div className="section__actions">
             {/* Submit Button */}
-            {isReviewingSupportComment ? (
-              activeTab === TAB_LBC ? (
-                <Button
-                  {...submitButtonProps}
-                  autoFocus
-                  disabled={disabled || !minAmountMet}
-                  label={
-                    isSubmitting
-                      ? __('Sending...')
-                      : commentFailure && tipAmount === successTip.tipAmount
-                      ? __('Re-submit')
-                      : __('Send')
-                  }
-                  onClick={handleSupportComment}
-                />
-              ) : (
-                <SubmitCashTipButton
-                  {...submitButtonProps}
-                  autoFocus
-                  disabled={disabled || !minAmountMet}
-                  label={
-                    isSubmitting
-                      ? __('Sending...')
-                      : commentFailure && tipAmount === successTip.tipAmount
-                      ? __('Re-submit')
-                      : __('Send')
-                  }
-                  onClick={handleSupportComment}
-                />
-              )
-            ) : tipSelectorOpen ? (
-              <Button
-                {...submitButtonProps}
-                disabled={disabled || tipSelectorError || !minAmountMet}
-                icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
-                label={__('Review')}
-                onClick={() => {
-                  setReviewingSupportComment(true);
-                  if (onSlimInputClose) onSlimInputClose();
-                }}
-              />
-            ) : (
-              (!isMobile || selectedSticker) &&
-              (!minTip || claimIsMine) && (
-                <Button
-                  {...submitButtonProps}
-                  ref={buttonRef}
-                  disabled={disabled}
-                  label={
-                    isLivestream
-                      ? isSubmitting
+            {isReviewingSupportComment && (
+              <>
+                {activeTab === TAB_LBC && (
+                  <Button
+                    {...submitButtonProps}
+                    autoFocus
+                    disabled={disabled || !minAmountMet}
+                    label={
+                      isSubmitting
                         ? __('Sending...')
-                        : __('Send --[button to send chat message]--')
-                      : isReply
-                      ? isSubmitting
-                        ? __('Replying...')
-                        : __('Reply')
-                      : isSubmitting
-                      ? __('Commenting...')
-                      : __('Comment --[button to submit something]--')
-                  }
-                  onClick={() =>
-                    selectedSticker ? handleSubmitSticker() : handleCreateComment(undefined, undefined, undefined)
-                  }
-                />
-              )
+                        : (commentFailure || arweaveTippingError) && tipAmount === successTip.tipAmount
+                        ? __('Re-submit')
+                        : __('Send')
+                    }
+                    onClick={handleSupportComment}
+                  />
+                )}
+                {(activeTab === TAB_USDC || activeTab === TAB_USD) && (
+                  <Button
+                    {...submitButtonProps}
+                    autoFocus
+                    disabled={disabled || !minAmountMet}
+                    label={
+                      isSubmitting
+                        ? __('Sending...')
+                        : commentFailure && tipAmount === successTip.tipAmount
+                        ? __('Re-submit')
+                        : __('Send')
+                    }
+                    onClick={handleSupportComment}
+                  />
+                )}
+                {activeTab === TAB_FIAT && (
+                  <SubmitCashTipButton
+                    {...submitButtonProps}
+                    autoFocus
+                    disabled={disabled || !minAmountMet}
+                    label={
+                      isSubmitting
+                        ? __('Sending...')
+                        : commentFailure && tipAmount === successTip.tipAmount
+                        ? __('Re-submit')
+                        : __('Send')
+                    }
+                    onClick={handleSupportComment}
+                  />
+                )}
+              </>
+            )}
+            {!isReviewingSupportComment && (
+              <>
+                {tipSelectorOpen ? (
+                  <Button
+                    {...submitButtonProps}
+                    disabled={disabled || tipSelectorError || !minAmountMet}
+                    icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
+                    label={__('Review')}
+                    onClick={() => {
+                      setReviewingSupportComment(true);
+                      if (onSlimInputClose) onSlimInputClose();
+                    }}
+                  />
+                ) : (
+                  <>
+                    {(!isMobile || selectedSticker) && ((!minTip && !minUSDCTip) || claimIsMine) && (
+                      <Button
+                        {...submitButtonProps}
+                        ref={buttonRef}
+                        disabled={disabled}
+                        label={
+                          isLivestream
+                            ? isSubmitting
+                              ? __('Sending...')
+                              : __('Send --[button to send chat message]--')
+                            : isReply
+                            ? isSubmitting
+                              ? __('Replying...')
+                              : __('Reply')
+                            : isSubmitting
+                            ? __('Commenting...')
+                            : __('Comment --[button to submit something]--')
+                        }
+                        onClick={() =>
+                          selectedSticker
+                            ? handleSubmitSticker()
+                            : handleCreateComment(undefined, undefined, undefined, undefined)
+                        }
+                      />
+                    )}
+                  </>
+                )}
+              </>
             )}
 
             {(!isMobile || isReviewingStickerComment) && (
@@ -885,9 +1090,19 @@ export function CommentCreate(props: Props) {
 
                 {!supportDisabled && !claimIsMine && (
                   <>
-                    <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
-
-                    {window.cordova && !window?.odysee?.build?.googlePlay && stripeEnvironment && (
+                    {showArweave && (
+                      // <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
+                      <TipActionButton
+                        {...tipButtonProps}
+                        name={__('AR')}
+                        icon={ICONS.USD}
+                        tab={TAB_USD}
+                        disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
+                      />
+                    )}
+                    {/* window.cordova && !window?.odysee?.build?.googlePlay && stripeEnvironment && ( */}
+                    <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
+                    {false && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                     )}
                   </>
@@ -902,8 +1117,17 @@ export function CommentCreate(props: Props) {
             ) : (
               onCancelReplying && <Button {...cancelButtonProps} onClick={onCancelReplying} />
             )}
-
-            <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
+            {!isLivestream && (
+              <HelpText
+                deletedComment={deletedComment}
+                minAmount={minAmount}
+                minSuper={minSuper}
+                minTip={minTip}
+                minUSDCAmount={minUSDCAmount}
+                minUSDCSuper={minUSDCSuper}
+                minUSDCTip={minUSDCTip}
+              />
+            )}
           </div>
         )}
         <div className="chat-resize">

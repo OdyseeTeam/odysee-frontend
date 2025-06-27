@@ -1,11 +1,14 @@
 // @flow
 const VideoJsFunctions = ({ isAudio }: { isAudio: boolean }) => {
-  // TODO: can remove this function as well
   // Create the video DOM element and wrapper
   function createVideoPlayerDOM(container: any) {
     if (!container) return;
 
-    // This seems like a poor way to generate the DOM for video.js
+    // Prevent multiple wrappers
+    if (container.querySelector('[data-vjs-player]')) {
+      return container.querySelector('video');
+    }
+
     const wrapper = document.createElement('div');
     wrapper.setAttribute('data-vjs-player', 'true');
     var el;

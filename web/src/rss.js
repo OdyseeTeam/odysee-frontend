@@ -77,11 +77,16 @@ function encodeWithSpecialCharEncode(string) {
  */
 function fetchStreamUrls(claims) {
   try {
+    if (!claims || !Array.isArray(claims)) {
+      console.error('Claims is undefined or not an array in fetchStreamUrls.'); // eslint-disable-line no-console
+      return [];
+    }
+
     const results = claims.map((c) => generateContentUrl(c));
     return results;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
-    return null;
+    return [];
   }
 }
 
@@ -319,6 +324,10 @@ async function getRss(ctx) {
   }
 
   const latestClaimsInChannel = await getClaimsFromChannel(channelClaim.claim_id, NUM_ENTRIES);
+  if (!latestClaimsInChannel) {
+    return 'No content found in channel or we cannot fetch it at this time. Please try again later or contact us at hello@odysee.com';
+  }
+
   const feed = await generateFeed(`${URL}${ctx.request.url}`, channelClaim, latestClaimsInChannel);
   return feed.xml();
 }

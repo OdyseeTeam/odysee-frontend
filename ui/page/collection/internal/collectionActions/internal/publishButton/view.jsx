@@ -6,6 +6,7 @@ import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
 
 type Props = {
+  showEdit?: boolean,
   // redux
   collectionHasEdits: boolean,
   claimIsPending: boolean,
@@ -13,7 +14,7 @@ type Props = {
 };
 
 function CollectionPublishButton(props: Props) {
-  const { collectionHasEdits, claimIsPending, collectionLength } = props;
+  const { showEdit, collectionHasEdits, claimIsPending, collectionLength } = props;
 
   const { push } = useHistory();
 
@@ -27,7 +28,7 @@ function CollectionPublishButton(props: Props) {
       onClick={() => push(`?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)}
       icon={ICONS.PUBLISH}
       iconSize={18}
-      disabled={claimIsPending}
+      disabled={claimIsPending || showEdit}
     />
   );
 }

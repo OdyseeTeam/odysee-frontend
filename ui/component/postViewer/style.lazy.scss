@@ -64,7 +64,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  line-height: 0;
+  // line-height: 0;
   margin-bottom: var(--spacing-l);
   font-size: var(--font-small);
 
@@ -100,10 +100,6 @@
     color: var(--color-text-subtitle);
     stroke: var(--color-text-subtitle);
   }
-}
-
-.file-render--post-container {
-  @include font-serif;
 }
 
 .post__info--credit-details {

@@ -31,11 +31,13 @@ type Props = {
   unlockableTierIds: Array<number>,
   cheapestMembership: ?CreatorMembership,
   isLivestream: ?boolean,
-  purchasedChannelMembership: MembershipTier & CreatorMembership,
+  purchasedChannelMembership: MembershipSub,
   membershipMine: any,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
   doToast: (params: { message: string }) => void,
+  isChannelTab?: boolean,
+  isRenewal?: boolean,
 };
 
 const JoinMembershipCard = (props: Props) => {
@@ -60,6 +62,8 @@ const JoinMembershipCard = (props: Props) => {
     doMembershipList,
     doMembershipBuy,
     doToast,
+    isChannelTab,
+    isRenewal,
   } = props;
 
   const isUrlParamModal = React.useContext(ModalContext)?.isUrlParamModal;
@@ -74,7 +78,7 @@ const JoinMembershipCard = (props: Props) => {
     if (cheapestMembership) {
       return (
         creatorMemberships &&
-        creatorMemberships.findIndex((membership) => membership.Membership.id === cheapestMembership.Membership.id)
+        creatorMemberships.findIndex((membership) => membership.membership_id === cheapestMembership.membership_id)
       );
     }
   }, [cheapestMembership, creatorMemberships]);
@@ -83,28 +87,29 @@ const JoinMembershipCard = (props: Props) => {
   const [selectedMembershipIndex, setMembershipIndex] = React.useState(
     passedTierIndex || cheapestPlanIndex || membershipIndex
   );
-  const selectedTier = creatorMemberships && creatorMemberships[selectedMembershipIndex];
+  const selectedCreatorMembership: CreatorMembership =
+    creatorMemberships && creatorMemberships[selectedMembershipIndex];
 
   function handleJoinMembership() {
-    if (!selectedTier || isPurchasing.current) return;
-
+    if (!selectedCreatorMembership || isPurchasing.current) return; // TODO handle error
     isPurchasing.current = true;
 
     const membershipBuyParams: MembershipBuyParams = {
-      membership_id: selectedTier.Membership.id,
-      price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
+      tippedChannelId: channelClaimId,
+      priceId: selectedCreatorMembership.prices[0].id,
+      membershipId: selectedCreatorMembership.membership_id,
     };
 
     if (activeChannelClaim && !incognito) {
       Object.assign(membershipBuyParams, {
-        channel_id: activeChannelClaim.claim_id,
-        channel_name: activeChannelClaim.name,
+        subscriberChannelId: activeChannelClaim.claim_id,
       });
     }
 
     doMembershipBuy(membershipBuyParams)
       .then(() => {
         isPurchasing.current = false;
+        doMembershipList({ channel_claim_id: channelClaimId });
 
         if (doHideModal) {
           doHideModal();
@@ -117,32 +122,37 @@ const JoinMembershipCard = (props: Props) => {
           message: __(
             "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
             {
-              membership_tier_name: selectedTier.Membership.name,
-              creator_channel_name: selectedTier.Membership.channel_name,
+              membership_tier_name: selectedCreatorMembership.name,
+              creator_channel_name: selectedCreatorMembership.channel_name,
             }
           ),
         });
 
-        const purchasingUnlockableContentTier = unlockableTierIds.includes(selectedTier.Membership.id);
+        const purchasingUnlockableContentTier =
+          unlockableTierIds && unlockableTierIds.includes(selectedCreatorMembership.membership_id);
 
         if (shouldNavigate && purchasingUnlockableContentTier) {
           push(formatLbryUrlForWeb(uri));
         }
       })
-      .catch(() => {
+      .catch((e) => {
+        doToast({
+          message: __(e?.message || e),
+          isError: true,
+        });
         isPurchasing.current = false;
       });
   }
 
   React.useEffect(() => {
-    if (channelClaimId && channelName && creatorMemberships === undefined) {
-      doMembershipList({ channel_name: channelName, channel_id: channelClaimId });
+    if (channelClaimId && channelName && !creatorMemberships) {
+      doMembershipList({ channel_claim_id: channelClaimId });
     }
   }, [channelClaimId, channelName, creatorMemberships, doMembershipList]);
 
   const pageProps = React.useMemo(() => {
-    return { uri, selectedTier, selectedMembershipIndex };
-  }, [selectedMembershipIndex, selectedTier, uri]);
+    return { uri, selectedCreatorMembership, selectedMembershipIndex, isRenewal };
+  }, [selectedMembershipIndex, selectedCreatorMembership, uri, isRenewal]);
 
   React.useEffect(() => {
     if (isUrlParamModal && purchasedChannelMembership) {
@@ -180,8 +190,11 @@ const JoinMembershipCard = (props: Props) => {
         })}
         body={
           <>
-            {isOnConfirmationPage ? (
-              <ConfirmationPage {...pageProps} onCancel={() => setConfirmationPage(false)} />
+            {isOnConfirmationPage && creatorMemberships.length ? (
+              <ConfirmationPage
+                {...pageProps}
+                onCancel={isChannelTab ? doHideModal : () => setConfirmationPage(false)}
+              />
             ) : (
               <PreviewPage
                 {...pageProps}

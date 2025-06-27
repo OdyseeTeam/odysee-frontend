@@ -27,7 +27,7 @@ const LbcSymbol = (props: Props) => {
           'icon__lbc--title': isTitle,
         })}
       />
-      {postfix}
+      <span>{postfix} LBC</span>
     </>
   );
 };

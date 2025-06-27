@@ -369,9 +369,6 @@ $thumbnailWidthSmall: 2rem;
     font-size: var(--font-small);
     font-weight: var(--font-weight-bold);
     color: white;
-    svg {
-      margin-bottom: -1.5px;
-    }
   }
 
   .comment__pin {
@@ -414,12 +411,6 @@ $thumbnailWidthSmall: 2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-}
-
-.credit-amount-wrapper {
-  .credit-amount {
-    font-size: var(--font-small);
   }
 }
 

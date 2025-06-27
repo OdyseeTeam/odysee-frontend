@@ -10,7 +10,7 @@
   padding: var(--spacing-s) var(--spacing-m) var(--spacing-s) var(--spacing-m);
   position: fixed;
   transition: all var(--transition-duration) var(--transition-type);
-  z-index: 10000; // hack to get it over react modal
+  z-index: 10001; // hack to get it over react modal
   display: flex;
   flex-direction: column;
   -webkit-backdrop-filter: blur(4px);

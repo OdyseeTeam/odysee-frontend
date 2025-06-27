@@ -11,6 +11,10 @@
     top: var(--spacing-xxxxs);
     right: 0;
     padding: 2px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 50%;
     z-index: 2;
 
@@ -34,7 +38,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
-    margin-right: var(--spacing-m);
+    margin-right: var(--spacing-xl);
     color: rgba(var(--color-text-base), 0.9);
   }
 
@@ -1212,6 +1216,9 @@
     a.button--no-style:first-of-type {
       .button__content {
         align-items: unset;
+        font-size: var(--font-xxsmall);
+        margin-top: -1px;
+        margin-bottom: -2px;
       }
     }
   }

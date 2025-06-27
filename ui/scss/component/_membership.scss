@@ -280,6 +280,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  list-style: none;
 
   ul {
     display: flex;
@@ -526,14 +527,9 @@
       display: block;
     }
     span {
+      display: flex;
       font-size: var(--font-base);
       opacity: 0.8;
-
-      display: -webkit-box;
-      line-clamp: 10;
-      -webkit-line-clamp: 10;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
 
     .section__subtitle--join-membership__perk:last-child {
@@ -763,6 +759,8 @@
     padding-right: 0 !important;
     width: 50px;
     .channel-thumbnail__custom {
+      position: absolute;
+      top: 0;
       height: 100%;
     }
     .channel-thumbnail--xxsmall {
@@ -770,13 +768,10 @@
     }
   }
 
-  .form-field--copyable {
-    display: none;
-  }
-  button.button {
-    border-radius: var(--border-radius);
-    float: right;
-  }
+  //button.button {
+  //  border-radius: var(--border-radius);
+  //  float: right;
+  //}
 
   .membership-table__page {
     width: 60px;
@@ -818,6 +813,69 @@
   }
 }
 
+.membership-payments-table__wrapper {
+  .icon--ExternalLink {
+    margin-top: unset;
+  }
+
+  .channelThumbnail {
+    padding-right: 0 !important;
+    width: 50px;
+    .channel-thumbnail__custom {
+      position: absolute;
+      top: 0;
+      height: 100%;
+    }
+    .channel-thumbnail--xxsmall {
+      margin-left: 10px;
+    }
+  }
+
+  button.button {
+    border-radius: var(--border-radius);
+    float: right;
+  }
+
+  .membership-table__page {
+    width: 60px;
+  }
+
+  .membership-table__url {
+    width: 20px;
+    fieldset-section {
+      flex-direction: row-reverse;
+    }
+  }
+
+  .channel-thumbnail {
+    display: inline-block;
+    margin-right: 0;
+    padding-right: 0;
+
+    &.channel-thumbnail--xxsmall {
+      position: absolute;
+      transform: translate(-150%, 125%);
+    }
+  }
+
+  thead {
+    tr {
+      th {
+        @media (min-width: $breakpoint-small) {
+          padding: 0.8rem;
+          white-space: nowrap;
+        }
+      }
+    }
+  }
+  tbody {
+    tr {
+      &:hover {
+        background-color: rgba(var(--color-header-background-base), 0.2);
+      }
+    }
+  }
+}
 .membership-tab {
   .membership__body {
     border-radius: var(--border-radius);
@@ -845,6 +903,10 @@
           }
         }
       }
+    }
+
+    .button {
+      float: right;
     }
 
     &.membership-tier1 {
@@ -957,7 +1019,12 @@
   }
 
   .membership__plan-content {
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    background-color: rgba(var(--color-header-button-base), 0.6);
     padding: var(--spacing-m);
+    box-sizing: border-box;
+    margin-bottom: var(--spacing-l);
+
     div {
       margin-bottom: var(--spacing-s);
 
@@ -970,21 +1037,20 @@
         font-size: var(--font-base);
         opacity: 0.8;
       }
+
+      .button__content {
+        display: flex;
+        opacity: 1;
+      }
+
+      .button {
+      }
     }
   }
 
   .membership__plan-actions {
+    display: flex;
     margin-top: var(--spacing-l);
-
-    label {
-      display: block;
-    }
-
-    .button {
-      background-color: var(--color-header-background) !important;
-      border: 2px solid var(--color-border);
-      margin-right: var(--spacing-s);
-    }
   }
 }
 
@@ -1104,6 +1170,11 @@ svg.icon--Upgrade {
 }
 
 .membership-tier__description {
+  display: -webkit-box;
+  line-clamp: 10;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   word-break: break-word;
 }
 
@@ -1114,6 +1185,15 @@ svg.icon--Upgrade {
 }
 
 .button--view-memberships {
-  margin-top: var(--spacing-m);
+  //margin-top: var(--spacing-m);
   text-align: center;
+}
+
+.membership-tab-item__wrapper {
+  margin-bottom: var(--spacing-m);
+}
+.membership-tab-header__wrapper {
+  text-align: center;
+  align-items: center;
+  margin-bottom: var(--spacing-m);
 }

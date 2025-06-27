@@ -17,6 +17,7 @@ import { withRouter } from 'react-router';
 // import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/nag';
+import Wander from 'component/wander';
 import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
@@ -61,7 +62,7 @@ type Props = {
   language: string,
   languages: Array<string>,
   theme: string,
-  user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean },
+  user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean, experimental_ui: boolean },
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string, reload: () => void },
   history: { push: (string) => void, location: { pathname: string }, replace: (string) => void },
@@ -93,6 +94,7 @@ type Props = {
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
+  doSetAssignedLbrynetServer: (server: string) => void,
 };
 
 export const AppContext = React.createContext<any>();
@@ -131,6 +133,7 @@ function App(props: Props) {
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
+    doSetAssignedLbrynetServer,
   } = props;
 
   const isMobile = useIsMobile();
@@ -211,7 +214,7 @@ function App(props: Props) {
 
     // Only 1 nag is possible, so show the most important:
 
-    if (user === null) {
+    if (user === null && !embedPath) {
       return <NagNoUser />;
     }
 
@@ -481,7 +484,7 @@ function App(props: Props) {
     }
   }, [hasVerifiedEmail, signIn, hasSignedIn]);
 
-  useDegradedPerformance(setLbryTvApiStatus, user);
+  useDegradedPerformance(setLbryTvApiStatus, user, doSetAssignedLbrynetServer);
 
   // useAdOutbrain(Boolean(hasPremiumPlus), isAuthenticated, history?.location?.pathname);
 
@@ -530,6 +533,7 @@ function App(props: Props) {
       ) : (
         <AppContext.Provider value={{ uri }}>
           <Router uri={uri} />
+          <Wander />
           <ModalRouter />
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
           {!embedPath && <VideoRenderFloating />}

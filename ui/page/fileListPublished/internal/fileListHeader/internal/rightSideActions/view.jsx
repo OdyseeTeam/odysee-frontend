@@ -23,7 +23,8 @@ const RightSideActions = (props: Props) => {
     searchText,
     setSearchText,
     isFilteringEnabled,
-    setIsFilteringEnabled,
+    sortOption,
+    updateFilteringSetting,
     fetching,
     method,
     params,
@@ -85,11 +86,11 @@ const RightSideActions = (props: Props) => {
         )}
         <div className="claim-search__menu-group enable-filters-checkbox">
           <FormField
-            label={__('Enable filters')}
+            label={__('Search & Sort')}
             name="enable_filters"
             type="checkbox"
             checked={isFilteringEnabled}
-            onChange={() => setIsFilteringEnabled(!isFilteringEnabled)}
+            onChange={() => updateFilteringSetting(!isFilteringEnabled, sortOption)}
           />
         </div>
       </div>

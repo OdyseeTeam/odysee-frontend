@@ -16,9 +16,9 @@ import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
 import { selectLanguage } from 'redux/selectors/settings';
-import { selectOdyseeMembershipForChannelId, selectMembershipMineFetched } from 'redux/selectors/memberships';
+import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
-import { doGetMembershipTiersForChannelClaimId, doMembershipMine } from 'redux/actions/memberships';
+import { doMembershipMine } from 'redux/actions/memberships';
 import { PREFERENCE_EMBED } from 'constants/tags';
 import ChannelPage from './view';
 
@@ -40,7 +40,7 @@ const select = (state, props) => {
     mutedChannels: selectMutedChannels(state),
     unpublishedCollections: selectMyUnpublishedCollections(state),
     lang: selectLanguage(state),
-    odyseeMembership: selectOdyseeMembershipForChannelId(state, claim.claim_id),
+    odyseeMembership: selectUserOdyseeMembership(state, claim.claim_id),
     myMembershipsFetched: selectMembershipMineFetched(state),
     isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, props.uri),
     preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
@@ -52,7 +52,6 @@ const select = (state, props) => {
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   fetchSubCount: (claimId) => dispatch(doFetchSubCount(claimId)),
-  getMembershipTiersForChannel: (channelId) => dispatch(doGetMembershipTiersForChannelClaimId(channelId)),
   doMembershipMine: () => dispatch(doMembershipMine()),
 });
 

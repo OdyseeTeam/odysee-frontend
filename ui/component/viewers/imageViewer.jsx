@@ -26,7 +26,12 @@ function ImageViewer(props: Props) {
       {!loadingError && (
         <div className={`file-viewer${onClick ? ' file-viewer--download' : ''}`}>
           {!onClick ? (
-            <ZoomableImage src={source} onError={() => setLoadingError(true)} />
+            <ZoomableImage
+              src={source}
+              onError={(e) => {
+                setLoadingError(true);
+              }}
+            />
           ) : (
             <Tooltip title={title} arrow={false} followCursor enterDelay={100}>
               <img src={source} onError={() => setLoadingError(true)} onClick={onClick} />

@@ -14,12 +14,11 @@ import {
 import { doClearClaimSearch } from 'redux/actions/claims';
 import { doClearPurchasedUriSuccess } from 'redux/actions/file';
 import { selectFollowedTags } from 'redux/selectors/tags';
-import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { selectUserVerifiedEmail, selectUser, hasLegacyOdyseePremium } from 'redux/selectors/user';
 import { selectClientSettings, selectHomepageData } from 'redux/selectors/settings';
 import { doOpenModal, doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
 import { selectClaimsByUri, selectPurchaseUriSuccess } from 'redux/selectors/claims';
-import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
 import { GetLinksData } from 'util/buildHomepage';
 
 // ****************************************************************************
@@ -30,7 +29,7 @@ const selectSidebarCategories = createSelector(
   selectHomepageData,
   selectClientSettings,
   selectUserVerifiedEmail,
-  selectUserHasValidOdyseeMembership,
+  hasLegacyOdyseePremium,
   (homepageData, clientSettings, email, hasMembership) => {
     const applyHomepageOrderToSidebar = clientSettings[SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR];
     const homepageOrder = clientSettings[SETTINGS.HOMEPAGE_ORDER];
@@ -98,7 +97,7 @@ const select = (state) => ({
   purchaseSuccess: selectPurchaseUriSuccess(state),
   unseenCount: selectUnseenNotificationCount(state),
   user: selectUser(state),
-  hasMembership: selectUserHasValidOdyseeMembership(state),
+  hasMembership: hasLegacyOdyseePremium(state),
   subscriptionUris: selectSubscriptionUris(state) || [],
 });
 

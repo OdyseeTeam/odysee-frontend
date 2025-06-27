@@ -64,6 +64,7 @@ type Props = {
   render?: () => React$Node,
   handleTip?: (isLBC: boolean) => any,
   handleSubmit?: () => any,
+  hideValue?: boolean,
 };
 
 type State = {
@@ -100,6 +101,7 @@ export class FormField extends React.PureComponent<Props, State> {
       blockWrap,
       charCount,
       children,
+      disabled,
       error,
       helper,
       hideSuggestions,
@@ -128,6 +130,7 @@ export class FormField extends React.PureComponent<Props, State> {
       render,
       handleTip,
       handleSubmit,
+      hideValue,
       max,
       ...inputProps
     } = this.props;
@@ -138,7 +141,7 @@ export class FormField extends React.PureComponent<Props, State> {
     const labelProps = { name, label };
     const countInfoProps = { charCount, textAreaMaxLength };
     const quickActionProps = { label: quickActionLabel, quickActionHandler };
-    const inputSimpleProps = { name, label, ...inputProps };
+    const inputSimpleProps = { name, label, disabled, ...inputProps };
     const inputSelectProps = { name, error, label, children, ...inputProps };
 
     switch (type) {
@@ -411,15 +414,26 @@ export class FormField extends React.PureComponent<Props, State> {
                 </div>
               )}
 
-              {prefix && <label htmlFor={name}>{prefix}</label>}
+              {/*
+              {prefix && (
+                <label htmlFor={name} className={disabled || error ? 'disabled' : ''}>
+                  {prefix}
+                </label>
+              )}
+                */}
 
               {inputButton ? (
                 <input-submit>
-                  <input {...inputElementProps} />
+                  {!hideValue && <input {...inputElementProps} />}
                   {inputButton}
                 </input-submit>
+              ) : inputElem || !prefix ? (
+                <input {...inputElementProps} />
               ) : (
-                inputElem || <input {...inputElementProps} />
+                <div className="arInput-wrapper">
+                  <span>{prefix}</span>
+                  <input {...inputElementProps} />
+                </div>
               )}
             </fieldset-section>
           </FormFieldWrapper>

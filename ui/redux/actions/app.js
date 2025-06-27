@@ -60,6 +60,7 @@ import { LocalStorage, LS } from 'util/storage';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
 import { getClaimScheduledState, isClaimPrivate, isClaimUnlisted } from 'util/claim';
+import { doTipAccountStatus } from './stripe';
 
 const { lbrySettings: config, version: appVersion } = p;
 
@@ -650,7 +651,7 @@ export function doSignIn() {
     dispatch(doFetchChannelListMine());
     dispatch(doFetchCollectionListMine());
     dispatch(doMembershipMine());
-    // dispatch(doPrepareMigrateCordovaToNative());
+    dispatch(doTipAccountStatus());
   };
 }
 
@@ -932,5 +933,11 @@ export function doSetChronoLocale(language: string) {
           moment.locale('en');
         });
     }
+  };
+}
+
+export function doSetAssignedLbrynetServer(server: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({ type: ACTIONS.SET_ASSIGNED_LBRYNET_SERVER, data: server });
   };
 }

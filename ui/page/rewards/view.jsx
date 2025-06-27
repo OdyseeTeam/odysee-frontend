@@ -76,19 +76,12 @@ class RewardsPage extends PureComponent<Props> {
               <p>
                 <I18nMessage
                   tokens={{
-                    rewards_faq: (
-                      <Button
-                        button="link"
-                        label={__('Receive Credits FAQ')}
-                        href="https://help.odysee.tv/category-monetization/category-rewards/"
-                      />
-                    ),
                     help_email: SITE_HELP_EMAIL,
                     site_name: SITE_NAME,
                   }}
                 >
-                  Please review the %rewards_faq% for eligibility, and send us an email to %help_email% if you continue
-                  to see this message. You can continue to use %site_name% without this feature.
+                  Send us an email to %help_email% if you continue to see this message. You can continue to use
+                  %site_name% without this feature.
                 </I18nMessage>
                 {`${__('Enjoy all the awesome free content in the meantime!')}`}
               </p>

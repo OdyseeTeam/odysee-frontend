@@ -1,9 +1,6 @@
 // @flow
-import * as ICONS from 'constants/icons';
-import { COL_TYPES, SORT_ORDER, SORT_KEYS } from 'constants/collections';
+import { COL_TYPES } from 'constants/collections';
 import React from 'react';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
-import FileActionButton from 'component/common/file-action-button';
 import { useIsMobile } from 'effects/use-screensize';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
@@ -12,11 +9,13 @@ import classnames from 'classnames';
 import { ENABLE_FILE_REACTIONS } from 'config';
 import PlayButton from './internal/playButton';
 import ShuffleButton from './internal/shuffleButton';
+import SortButton from './internal/sortButton';
 
 type Props = {
   uri: string,
   claimId?: string,
   isMyCollection: boolean,
+  disableFileReactions: boolean,
   collectionId: string,
   showEdit: boolean,
   isHeader: boolean,
@@ -27,7 +26,6 @@ type Props = {
   collectionType: string,
   doOpenModal: (id: string, props: {}) => void,
   doToggleCollectionSavedForId: (id: string) => void,
-  doSortCollectionByKey: (collectionId: string, sortByKey: string, sortOrder: string) => void,
 };
 
 function CollectionActions(props: Props) {
@@ -35,6 +33,7 @@ function CollectionActions(props: Props) {
     uri,
     // claimId,
     // isMyCollection,
+    disableFileReactions,
     collectionId,
     isBuiltin,
     showEdit,
@@ -45,7 +44,6 @@ function CollectionActions(props: Props) {
     collectionType,
     // doOpenModal,
     // doToggleCollectionSavedForId,
-    doSortCollectionByKey,
   } = props;
 
   const {
@@ -64,60 +62,12 @@ function CollectionActions(props: Props) {
           {showPlaybackButtons && <PlayButton collectionId={collectionId} />}
           {showPlaybackButtons && <ShuffleButton collectionId={collectionId} />}
 
-          {!isBuiltin && <>{uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}</>}
+          {!isBuiltin && !disableFileReactions && (
+            <>{uri && <>{ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}</>}</>
+          )}
         </SectionElement>
 
-        {!isOnPublicView && showEdit && (
-          <div className="section__actions">
-            <div className="sort-menu__button">
-              <Menu>
-                <MenuButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                >
-                  <FileActionButton className="button-toggle" icon={ICONS.MENU} title={__('Sort')} label={__('Sort')} />
-                </MenuButton>
-
-                <MenuList className="menu__list">
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => {
-                      doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.ASC);
-                    }}
-                  >
-                    <div className="menu__link">{__('Newest first')}</div>
-                  </MenuItem>
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => {
-                      doSortCollectionByKey(collectionId, SORT_KEYS.RELEASED_AT, SORT_ORDER.DESC);
-                    }}
-                  >
-                    <div className="menu__link">{__('Oldest first')}</div>
-                  </MenuItem>
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => {
-                      doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.DESC);
-                    }}
-                  >
-                    <div className="menu__link">{__('A-Z')}</div>
-                  </MenuItem>
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => {
-                      doSortCollectionByKey(collectionId, SORT_KEYS.NAME, SORT_ORDER.ASC);
-                    }}
-                  >
-                    <div className="menu__link">{__('Z-A')}</div>
-                  </MenuItem>
-                </MenuList>
-              </Menu>
-            </div>
-          </div>
-        )}
+        {!isOnPublicView && showEdit && <SortButton collectionId={collectionId} />}
       </div>
     </>
   );

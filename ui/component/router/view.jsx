@@ -53,7 +53,6 @@ const SignInWalletPasswordPage = lazyImport(() =>
 const SignUpPage = lazyImport(() => import('page/signUp' /* webpackChunkName: "signUp" */));
 const SignInVerifyPage = lazyImport(() => import('page/signInVerify' /* webpackChunkName: "signInVerify" */));
 
-const BuyPage = lazyImport(() => import('page/buy' /* webpackChunkName: "buy" */));
 const ReceivePage = lazyImport(() => import('page/receive' /* webpackChunkName: "receive" */));
 const SendPage = lazyImport(() => import('page/send' /* webpackChunkName: "send" */));
 const SwapPage = lazyImport(() => import('page/swap' /* webpackChunkName: "swap" */));
@@ -142,6 +141,8 @@ const TagsFollowingPage = lazyImport(() => import('page/tagsFollowing' /* webpac
 const TopPage = lazyImport(() => import('page/top' /* webpackChunkName: "top" */));
 const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate' /* webpackChunkName: "passwordUpdate" */));
 const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync' /* webpackChunkName: "youtubeSync" */));
+const PaymentAccountPage = lazyImport(() => import('page/paymentAccount' /* webpackChunkName: "paymentAccountSync" */));
+const ArAccountPage = lazyImport(() => import('page/arAccount' /* webpackChunkName: "arAccountPage" */));
 
 // Tell the browser we are handling scroll restoration
 if ('scrollRestoration' in history) {
@@ -457,7 +458,6 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM}`} component={LiveStreamSetupPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CURRENT}`} component={LivestreamCurrentPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.HIDDEN_CONTENT}`} component={HiddenContentPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.BUY}`} component={BuyPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.RECEIVE}`} component={ReceivePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SEND}`} component={SendPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SWAP}`} component={SwapPage} />
@@ -468,6 +468,8 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} component={MembershipsCreatorAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} component={MembershipsSupporterAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_LANDING}`} component={MembershipsLandingPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.PAYMENTACCOUNT}`} component={PaymentAccountPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.ARACCOUNT}`} component={ArAccountPage} />
         <Route path={`/$/${PAGES.PORTAL}/:portalName`} exact component={PortalPage} />
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />

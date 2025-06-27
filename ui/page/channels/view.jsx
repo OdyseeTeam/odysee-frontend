@@ -22,7 +22,6 @@ type Props = {
   fetchingChannels: boolean,
   hasYoutubeChannels: boolean,
   doFetchChannelListMine: () => void,
-  doUserViewRateList: () => void,
   doSetActiveChannel: (string) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
 };
@@ -35,7 +34,6 @@ export default function ChannelsPage(props: Props) {
     fetchingChannels,
     hasYoutubeChannels,
     doFetchChannelListMine,
-    doUserViewRateList,
     doSetActiveChannel,
     doFetchOdyseeMembershipForChannelIds,
   } = props;
@@ -45,11 +43,10 @@ export default function ChannelsPage(props: Props) {
   React.useEffect(() => {
     if (channelIds) {
       doFetchOdyseeMembershipForChannelIds(channelIds);
-      doUserViewRateList();
     } else {
       doFetchChannelListMine();
     }
-  }, [channelIds, doFetchChannelListMine, doFetchOdyseeMembershipForChannelIds, doUserViewRateList]);
+  }, [channelIds, doFetchChannelListMine, doFetchOdyseeMembershipForChannelIds]);
 
   const { push } = useHistory();
 

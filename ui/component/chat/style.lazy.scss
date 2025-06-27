@@ -443,6 +443,9 @@ $recent-msg-button__height: 2rem;
 
     .credit-amount-wrapper {
       .credit-amount {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         font-size: var(--font-small);
       }
     }

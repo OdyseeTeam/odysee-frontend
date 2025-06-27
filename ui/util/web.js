@@ -33,11 +33,14 @@ function generateEmbedUrl(claimUri, startTime, referralLink, newestType, autopla
   return `${embedUrl}${embedUrlParams}`;
 }
 
-function generateEmbedUrlEncoded(claimUri, startTime, referralLink) {
+function generateEmbedUrlEncoded(claimUri, startTime, referralLink, newestType, autoplay, uriAccessKey) {
   const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   const encodedUri = encodeURIComponent(uriPath).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
 
-  return generateEmbedUrl(encodedUri, startTime, referralLink).replace(/\$/g, '%24');
+  return generateEmbedUrl(encodedUri, startTime, referralLink, newestType, autoplay, uriAccessKey).replace(
+    /\$/g,
+    '%24'
+  );
 }
 
 function generateEmbedIframeData(src) {

@@ -130,13 +130,21 @@ td {
   .table-column-lbc-transaction {
     min-width: 100px;
   }
+  .date-header {
+    min-width: 220px;
+  }
+  .channelName-header {
+    width: 160px;
+  }
+  .transactionType-header {
+    max-width: 160px;
+  }
+  .amount-header {
+    width: 130px;
+  }
+  .transactionId-header {
+  }
 
-  td:nth-of-type(1) {
-    // width: 20%;
-  }
-  td:nth-of-type(2) {
-    // width: 15%;
-  }
   td:nth-of-type(3) {
     // Only add ellipsis to the links in the table
     // We still want to show the entire message if a TX includes one
@@ -152,6 +160,16 @@ td {
   }
   td:nth-of-type(5) {
     width: 15%;
+  }
+  tr {
+    td {
+      .button--secondary {
+        background-color: var(--color-button-secondary-bg) !important;
+        &:hover {
+          background-color: var(--color-primary) !important;
+        }
+      }
+    }
   }
 }
 

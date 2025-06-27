@@ -5,9 +5,12 @@ import { getFormattedCreditsAmount, formatFullPrice } from 'util/format-credits'
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import LbcSymbol from 'component/common/lbc-symbol';
+import Symbol from 'component/common/symbol';
 import React from 'react';
 
 type Props = {
+  token?: string,
+  chain?: string,
   amount?: number | '',
   className?: string,
   customAmounts?: { amountFiat: number, amountLBC: number },
@@ -39,6 +42,8 @@ class CreditAmount extends React.PureComponent<Props> {
 
   render() {
     const {
+      token,
+      chain,
       amount,
       className,
       customAmounts,
@@ -54,12 +59,19 @@ class CreditAmount extends React.PureComponent<Props> {
       showPlus,
       size,
       hyperChat,
-      // superChatLight,
       icon,
     } = this.props;
 
     // return null, otherwise it will try and convert undefined to a string
     if (amount === undefined && customAmounts === undefined) return null;
+
+    function getSymbol(amountText, size, chain) {
+      return !token ? (
+        <LbcSymbol postfix={amountText} size={size} />
+      ) : (
+        <Symbol postfix={amountText} size={size} chain={chain} />
+      );
+    }
 
     function getAmountText(amount: number, isFiat?: boolean) {
       const fullPrice = formatFullPrice(amount, 2);
@@ -76,7 +88,8 @@ class CreditAmount extends React.PureComponent<Props> {
         }
 
         if (showLBC && !isFiat) {
-          amountText = <LbcSymbol postfix={amountText} size={size} />;
+          // amountText = <LbcSymbol postfix={amountText} size={size} />;
+          amountText = getSymbol(amountText, size, chain);
         } else if (showLBC && isFiat) {
           amountText = (
             <p style={{ display: 'inline' }}>

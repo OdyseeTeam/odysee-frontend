@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import React, { useRef } from 'react';
-import { generateEmbedUrl, generateEmbedIframeData } from 'util/web';
+import { generateEmbedUrlEncoded, generateEmbedIframeData } from 'util/web';
 
 type Props = {
   copyable: string,
@@ -27,7 +27,7 @@ export default function EmbedTextArea(props: Props) {
   const { canonical_url: canonicalUri } = claim;
   const input = useRef();
 
-  const streamUrl = generateEmbedUrl(
+  const streamUrl = generateEmbedUrlEncoded(
     canonicalUri,
     includeStartTime && startTime,
     referralCode,

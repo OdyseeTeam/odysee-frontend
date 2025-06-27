@@ -64,7 +64,11 @@
 }
 
 .form-field--SimpleMDE {
-  margin-top: var(--spacing-l);
+  margin-top: 4px;
+
+  #create__comment-wrapper {
+    margin-top: var(--spacing-xxxxs);
+  }
 
   .cm-s-easymde {
     border-color: var(--color-input-border);

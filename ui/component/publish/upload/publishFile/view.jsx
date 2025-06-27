@@ -208,7 +208,7 @@ function PublishFile(props: Props) {
         <p className="help--warning">
           <Icon icon={ICONS.INFO} />
           {__(
-            'Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (under 8 Mbps) for more reliable streaming.'
+            "Couldn't detect the video encoding. This video will not be playable in most browsers. We recommend to use H264/AAC encoding with MP4 container."
           )}{' '}
           <Button button="link" label={__('Upload Guide')} href="https://help.odysee.tv/category-uploading/" />
         </p>

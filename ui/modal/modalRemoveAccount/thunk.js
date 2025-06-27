@@ -5,14 +5,15 @@ import { doUserFetch, doUserDeleteAccount } from 'redux/actions/user';
 import { selectTotalBalance } from 'redux/selectors/wallet';
 import { selectMembershipMineFetched, selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipCancelForMembershipId } from 'redux/actions/memberships';
-import { selectCardDetails } from 'redux/selectors/stripe';
-import { doGetCustomerStatus, doRemoveCardForPaymentMethodId } from 'redux/actions/stripe';
+import { selectCustomerStatus, selectAccountStatus } from 'redux/selectors/stripe';
+import { doTipAccountStatus, doGetCustomerStatus, doTipAccountRemove, doCustomerRemove } from 'redux/actions/stripe';
 
 type Status = 'success' | 'error_occurred';
 
 export function doRemoveAccountSequence() {
   return async (dispatch: Dispatch, getState: GetState): Promise<Status> => {
     await dispatch(doGetCustomerStatus());
+    await dispatch(doTipAccountStatus());
     const state = getState();
 
     const isMembershipsMineFetched = selectMembershipMineFetched(state);
@@ -20,14 +21,14 @@ export function doRemoveAccountSequence() {
       analytics.error(`doRemoveAccountSequence: Memberships not fetched`);
       return 'error_occurred';
     }
-
-    const activeMemberships = selectMyActiveMembershipsById(state);
+    // NO AUTORENEW POSSIBLE, WHAT ARE WE DOING HERE
+    const activeMemberships = selectMyActiveMembershipsById(state); // this is autorenew...
     const activeMembershipChannelIds = Object.keys(activeMemberships);
     const activeMembershipIds = [];
 
     activeMembershipChannelIds.map((creatorChannelId) => {
       activeMemberships[creatorChannelId].forEach((membership) => {
-        activeMembershipIds.push(membership.Membership.membership_id);
+        activeMembershipIds.push(membership.membership_id); // TODO CHECK THIS
       });
     });
 
@@ -45,13 +46,22 @@ export function doRemoveAccountSequence() {
     }
 
     try {
-      // Remove credit card
-      const cardDetails = selectCardDetails(state);
-      if (cardDetails) {
-        await dispatch(doRemoveCardForPaymentMethodId(cardDetails.paymentMethodId));
-      } else if (cardDetails === undefined) {
+      // Remove stripe customer/card
+      const customerStatus = selectCustomerStatus(state);
+      if (customerStatus) {
+        await dispatch(doCustomerRemove());
+      } else if (customerStatus === undefined) {
         // Not expecting this part to be ever reached, but would end up here if customerStatus hasn't been fetched, so adding just in case
-        throw new Error('`cardDetails` is undefined');
+        throw new Error('`customer` is undefined');
+      }
+
+      // Remove stripe account
+      const accountStatus = selectAccountStatus(state);
+      if (accountStatus) {
+        await dispatch(doTipAccountRemove());
+      } else if (accountStatus === undefined) {
+        // Not expecting this part to be ever reached, but would end up here if accountStatus hasn't been fetched, so adding just in case
+        throw new Error('`accountStatus` is undefined');
       }
 
       // Wipe content/credits

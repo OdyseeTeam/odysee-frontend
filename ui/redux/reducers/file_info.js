@@ -43,7 +43,6 @@ reducers[ACTIONS.FETCH_FILE_INFO_STARTED] = (state, action) => {
 
 reducers[ACTIONS.FETCH_FILE_INFO_COMPLETED] = (state, action) => {
   const { fileInfo, outpoint } = action.data;
-
   const newFetchingOutpoints = new Set(state.fetchingOutpoints);
   newFetchingOutpoints.delete(outpoint);
 
@@ -55,7 +54,6 @@ reducers[ACTIONS.FETCH_FILE_INFO_COMPLETED] = (state, action) => {
 
 reducers[ACTIONS.FETCH_FILE_INFO_FAILED] = (state, action) => {
   const { outpoint } = action.data;
-
   const newFetchingOutpoints = new Set(state.fetchingOutpoints);
   newFetchingOutpoints.delete(outpoint);
 
