@@ -64,8 +64,6 @@ export const useArStatus = () => {
       const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
       if (!intentionalDisconnect){
         dispatch(doArConnect());
-      } else {
-        console.log('skip connect')
       }
     }
     // eslint-disable-next-line
