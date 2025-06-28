@@ -139,7 +139,10 @@ export default function Wander(props: Props) {
   }, [authenticated]);
 
   React.useEffect(() => {
-    if (window.wanderInstance) window.wanderInstance.setTheme(theme);
+    if (window.wanderInstance) {
+      const newTheme = theme === 'light' ? 'light' : theme === 'dark' ? 'dark' : 'system';
+      window.wanderInstance.setTheme(newTheme)
+    };
   }, [theme]);
 
   React.useEffect(() => {
