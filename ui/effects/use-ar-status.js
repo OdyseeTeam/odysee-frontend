@@ -61,8 +61,8 @@ export const useArStatus = () => {
       (window.wanderInstance?.authInfo.authType === 'NATIVE_WALLET' || window.wanderInstance?.authInfo.authType === 'null') &&
       walletType === 'extension' && !hasArConnection
     ) {
-      // if (!intentionalDisconnect) dispatch(doArConnect());
-      dispatch(doArConnect());
+      const intentionalDisconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
+      if (!intentionalDisconnect) dispatch(doArConnect());
     }
     // eslint-disable-next-line
   }, [wanderAuth, walletType, arStatus.connecting]);

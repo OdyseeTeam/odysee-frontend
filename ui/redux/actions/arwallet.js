@@ -70,6 +70,7 @@ export function doArInit() {
 }
 
 export function doArConnect() {
+  LocalStorage.setItem('WANDER_DISCONNECT', 'false');
   return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
@@ -116,6 +117,10 @@ export function doArConnect() {
         }
       } catch (e) {
         console.error('error:', e);
+        if(e.includes('User cancelled the AuthRequest')){
+          console.log('TRUE')
+          LocalStorage.setItem('WANDER_DISCONNECT', 'true');
+        }          
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
     } else {
