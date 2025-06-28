@@ -179,7 +179,8 @@ export const doMembershipBuy =
       if (currencyType === 'AR') {
         const tags = [{ name: 'X-O-Ref', value: subscribeToken }]; // here
         const { transactionId: txid, error } = await sendWinstons(payeeAddress, cryptoAmount, tags);
-        if (error) { // TODO pass error to redux
+        if (error) {
+          // TODO pass error to redux
           throw new Error(error?.message || error);
         }
         transactionId = txid;
@@ -248,7 +249,7 @@ export const doMembershipFetchIncomingPayments = () => async (dispatch: Dispatch
   try {
     const inboundTransactions = await Lbryio.call('membership_v2/transactions', 'inbound', {}, 'post');
     const channelsToResolve = new Set([]);
-    inboundTransactions.forEach(t => {
+    inboundTransactions.forEach((t) => {
       channelsToResolve.add(t.creator_channel_claim_id);
       channelsToResolve.add(t.subscriber_channel_claim_id);
     });
@@ -266,7 +267,7 @@ export const doMembershipFetchOutgoingPayments = () => async (dispatch: Dispatch
   try {
     const outboundTransactions = await Lbryio.call('membership_v2/transactions', 'outbound', {}, 'post');
     const channelsToResolve = new Set([]);
-    outboundTransactions.forEach(t => {
+    outboundTransactions.forEach((t) => {
       channelsToResolve.add(t.creator_channel_claim_id);
       channelsToResolve.add(t.subscriber_channel_claim_id);
     });
@@ -363,7 +364,7 @@ export const doOpenCancelationModalForMembership =
 export const doDeactivateMembershipForId = (membershipId: number) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.DELETE_MEMBERSHIP_STARTED, data: membershipId });
 
-  await Lbryio.call('membership_v2', 'deactivate', { membership_id: membershipId }, 'post')
+  await Lbryio.call('membership_v2', 'status_set', { membership_id: membershipId, enabled: false }, 'post')
     .then((response) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
       return response;
