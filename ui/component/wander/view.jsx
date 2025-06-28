@@ -30,8 +30,7 @@ export default function Wander(props: Props) {
         // Connected
         if (window.wanderInstance.balanceInfo && !connecting && !arweaveAddress) {
           // Has backup
-          const autoconnect = LocalStorage.getItem('WANDER_DISCONNECT') === 'true';
-          if (autoconnect) connectArWallet();
+          connectArWallet();
         } else if (!window.wanderInstance.balanceInfo) {
           // Missing backup
           window.wanderInstance.open();
@@ -170,7 +169,6 @@ export default function Wander(props: Props) {
           ) {
             if (data.data.authStatus !== 'loading') {
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
-              LocalStorage.setItem('WANDER_DISCONNECT', false);
               window.wanderInstance.close();
               doArSetAuth(data.data);
             }
