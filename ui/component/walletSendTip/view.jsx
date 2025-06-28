@@ -482,7 +482,7 @@ export default function WalletSendTip(props: Props) {
                           tipError ||
                           !tipAmount ||
                           disableSubmitButton ||
-                          !canReceiveTips
+                          (!canReceiveTips && activeTab === TAB_USD)
                         }
                         label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
                       />
