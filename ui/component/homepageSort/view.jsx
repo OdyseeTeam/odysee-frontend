@@ -162,6 +162,10 @@ export default function HomepageSort(props: Props) {
   const draggedItemRef = React.useRef();
 
   const DraggableItem = ({ item, index }: any) => {
+    if (!SECTIONS[item]) {
+      return null;
+    }
+    const label = SECTIONS[item]?.label || item;
     return (
       <Lazy.Draggable draggableId={item} index={index}>
         {(draggableProvided, snapshot) => {
@@ -187,7 +191,7 @@ export default function HomepageSort(props: Props) {
               <div ref={draggedItemRef}>
                 <Icon icon={ICONS.MENU} title={__('Drag')} size={20} />
               </div>
-              {__(SECTIONS[item].label)}
+              {__(label)} {}
             </div>
           );
         }}
