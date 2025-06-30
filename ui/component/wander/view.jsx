@@ -44,86 +44,90 @@ export default function Wander(props: Props) {
   React.useEffect(() => {
     if (authenticated) {
       doArInit();
-      const wanderInstance = new WanderConnect({
-        clientId: 'FREE_TRIAL',
-        theme: theme,
-        button: {
-          parent: wrapperRef.current,
-          label: false,
-          customStyles: `
-            #wanderConnectButtonHost {
-              display:none;
-            }`,
-        },
-        iframe: {
-          routeLayout: {
-            default: {
-              // type: 'dropdown',
-              type: 'modal',
-            },
-            auth: {
-              type: 'modal',
-            },
-            'auth-request': {
-              type: 'modal',
-            },
+      try {
+        const wanderInstance = new WanderConnect({
+          clientId: 'FREE_TRIAL',
+          theme: theme,
+          button: {
+            parent: wrapperRef.current,
+            label: false,
+            customStyles: `
+              #wanderConnectButtonHost {
+                display:none;
+              }`,
           },
-          cssVars: {
-            light: {
-              shadowBlurred: 'none',
+          iframe: {
+            routeLayout: {
+              default: {
+                // type: 'dropdown',
+                type: 'modal',
+              },
+              auth: {
+                type: 'modal',
+              },
+              'auth-request': {
+                type: 'modal',
+              },
             },
-            dark: {
-              shadowBlurred: 'none',
-              boxShadow: 'none',
+            cssVars: {
+              light: {
+                shadowBlurred: 'none',
+              },
+              dark: {
+                shadowBlurred: 'none',
+                boxShadow: 'none',
+              },
             },
-          },
-          customStyles: `
-            .backdrop {
-              margin-top:var(--header-height);
-              background-color: var(--color-background-overlay);
-              backdrop-filter: blur(2px);
-            }
-
-            .iframe {
-              max-width:400px;
-            }
-
-            .iframe-wrapper {              
-              border-radius: var(--border-radius);
-              border: 2px solid var(--color-border) !important;
-              background:unset;
-
-              /*
-              &[data-layout="dropdown"] {
-                position: fixed;
-                top: var(--header-height) !important;
-                right:1px !important;
-                left:unset !important;
-                min-height: 500px;
-                height: 600px;
-                border-top:unset !important;
-                border-radius: 0 0 var(--border-radius) var(--border-radius);
-                transform: scaleY(0) !important;
-                transform-origin: top;
-                transition: transform .2s !important;
-
-                &.show{
-                  transform: scaleY(1) !important;
-                }
-
-                & + .backdrop {
-                  backdrop-filter: unset;
-                  background-color: unset;
-                }
+            customStyles: `
+              .backdrop {
+                margin-top:var(--header-height);
+                background-color: var(--color-background-overlay);
+                backdrop-filter: blur(2px);
               }
-              */
-            }
-          `,
-        },
-      });
 
-      setInstance(wanderInstance);
-      window.wanderInstance = wanderInstance;
+              .iframe {
+                max-width:400px;
+              }
+
+              .iframe-wrapper {              
+                border-radius: var(--border-radius);
+                border: 2px solid var(--color-border) !important;
+                background:unset;
+
+                /*
+                &[data-layout="dropdown"] {
+                  position: fixed;
+                  top: var(--header-height) !important;
+                  right:1px !important;
+                  left:unset !important;
+                  min-height: 500px;
+                  height: 600px;
+                  border-top:unset !important;
+                  border-radius: 0 0 var(--border-radius) var(--border-radius);
+                  transform: scaleY(0) !important;
+                  transform-origin: top;
+                  transition: transform .2s !important;
+
+                  &.show{
+                    transform: scaleY(1) !important;
+                  }
+
+                  & + .backdrop {
+                    backdrop-filter: unset;
+                    background-color: unset;
+                  }
+                }
+                */
+              }
+            `,
+          },
+        });
+
+        setInstance(wanderInstance);
+        window.wanderInstance = wanderInstance;
+      } catch (e) {
+        console.error(e);
+      }
     } else {
       try {
         window.wanderInstance.destroy();
