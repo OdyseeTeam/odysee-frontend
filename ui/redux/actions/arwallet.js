@@ -70,13 +70,13 @@ export function doArInit() {
 }
 
 export function doArConnect() {
-  LocalStorage.setItem('WANDER_DISCONNECT', false);
-  return async (dispatch: Dispatch, getState: GetState) => {
+  LocalStorage.setItem('WANDER_DISCONNECT', 'false');
+  return async (dispatch: Dispatch, getState: GetState) => {    
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
         // $FlowIgnore
-        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
+        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);        
         window.wanderInstance.close();
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
@@ -117,7 +117,9 @@ export function doArConnect() {
         }
       } catch (e) {
         console.error('error:', e);
-        LocalStorage.setItem('WANDER_DISCONNECT', true);
+        if(e.includes('User cancelled the AuthRequest')){
+          LocalStorage.setItem('WANDER_DISCONNECT', 'true');
+        }          
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
     } else {
@@ -162,8 +164,6 @@ export function doArUpdateBalance() {
 }
 
 export function doArDisconnect() {
-  LocalStorage.setItem('WANDER_DISCONNECT', true);
-
   return async (dispatch: Dispatch) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {

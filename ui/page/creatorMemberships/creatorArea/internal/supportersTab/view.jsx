@@ -46,6 +46,15 @@ const SupportersTab = (props: Props) => {
   //
   // const supportersList = sl;
 
+  const getDateOfLastPayment = (payments) => {
+    const payment = payments.reverse().find(p => p.status === 'submitted' || p.status === 'paid');
+    if (payment.status === 'submitted') {
+      return payment.initiated_at;
+    } else {
+      return payment.completed_at;
+    }
+  };
+
   const hasAnySupporters = React.useMemo(() => {
     return Boolean(
       channelsToList &&
@@ -139,6 +148,7 @@ const SupportersTab = (props: Props) => {
                           <th>{__('Tier')}</th>
                           <th>{__('Amount')}</th>
                           <th>{__('Joined On')}</th>
+                          <th>{__('Latest Payment')}</th>
                           <th>{__('Months Supporting')}</th>
                         </tr>
                       </thead>
@@ -177,6 +187,7 @@ const SupportersTab = (props: Props) => {
                               <td>{supporter.membership_name}</td>
                               <td>${supporter.price / 100} USD / Month</td>
                               <td>{moment(new Date(supporter.joined_at)).format('LL')}</td>
+                              <td>{paymentsBySubscriber[supporter.subscriber_channel_claim_id] ? moment(new Date(getDateOfLastPayment(paymentsBySubscriber[supporter.subscriber_channel_claim_id]))).format('LL') : ''}</td>
                               <td>
                                 {/* need to put  */}
                                 {paymentsBySubscriber[supporter.subscriber_channel_claim_id] &&

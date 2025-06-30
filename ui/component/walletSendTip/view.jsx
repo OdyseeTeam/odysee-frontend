@@ -486,9 +486,27 @@ export default function WalletSendTip(props: Props) {
                       }
                       label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
                     />
-                    {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
-                  </div>
-                </>
+                    <div className="section__actions">
+                      <Button
+                        autoFocus
+                        icon={isSupport ? ICONS.TRENDING : ICONS.SUPPORT}
+                        button="primary"
+                        type="submit"
+                        disabled={
+                          checkingAccount ||
+                          fetchingChannels ||
+                          isPending ||
+                          tipError ||
+                          !tipAmount ||
+                          disableSubmitButton ||
+                          (!canReceiveTips && activeTab === TAB_USD)
+                        }
+                        label={<LbcMessage>{customText || buildButtonText()}</LbcMessage>}
+                      />
+                      {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
+                    </div>
+                  </>
+                )
               )}
             </>
           ) : (

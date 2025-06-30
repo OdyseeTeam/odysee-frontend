@@ -1,5 +1,33 @@
 @import '~ui/scss/init/breakpoints';
 
+.membership-explainer {
+  border-radius: var(--border-radius);
+  border: 1px solid white;
+  padding:var(--spacing-l);
+  margin: var(--spacing-l);
+  background-color: rgba(255, 221, 162, 0.1);
+  .membership-explainer__header {
+
+  }
+  > * {
+    margin-bottom: var(--spacing-m);
+  }
+  h1 {
+    font-size: var(--font-large);
+  }
+
+  button & .creator-header__ack--quiet {
+    margin-bottom: 0;
+    border: 1px solid red;
+    opacity: 0.5;
+  }
+
+  button & .creator-header__ack--active {
+    margin-bottom: 0;
+    border: 1px solid rgb(231, 150, 6);
+    opacity: 0.5;
+  }
+}
 .membershipPage-wrapper {
   margin-right: auto;
   margin-left: auto;
@@ -111,6 +139,10 @@
           border-bottom: 2px solid rgba(var(--color-primary-static), 0.4) !important;
         }
       }
+    }
+
+    .button--secondary{
+      border-radius:var(--border-radius) !important;
     }
 
     .button--secondary {
@@ -258,6 +290,8 @@
   position: relative;
   background-position-y: var(--header-height);
   background-position-x: var(--side-nav-width--micro);
+  display: flex;
+  flex-direction: row;
 
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -268,9 +302,23 @@
   width: 100%;
   margin-top: calc(var(--spacing-l) * -1);
 
-  .creator-header {
-    position: relative;
-    margin-left: auto;
+  .right-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    padding: var(--spacing-m);
+
+    button {
+      margin-bottom: var(--spacing-s);
+
+    }
+  }
+
+
+  .creator-header{
+    position:relative;
+    margin-left:auto;
     margin-right: auto;
     width: calc(100% - 2 * var(--spacing-l));
     max-width: var(--page-max-width);

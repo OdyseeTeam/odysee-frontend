@@ -188,6 +188,10 @@
     margin-left: var(--spacing-xxs);
   }
 
+  > * {
+    margin-right: var(--spacing-s);
+  }
+
   @media (max-width: $breakpoint-small) {
     margin: 0px;
     font-size: var(--font-xsmall);

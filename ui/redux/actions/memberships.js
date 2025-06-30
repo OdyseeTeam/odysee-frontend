@@ -70,8 +70,7 @@ export const doFetchChannelMembershipsForChannelIds =
           // if array was returned for a user (indicating a membership exists), otherwise is null
           if (Number.isInteger(memberships?.length)) {
             for (const membership of memberships) {
-              if (membership.activated || membership.name === 'Premium+' || membership.name === 'Premium') {
-                // activated?
+              if (membership.name) {
                 membershipsById[channelId] = membership.name;
               }
             }
@@ -365,7 +364,7 @@ export const doOpenCancelationModalForMembership =
 export const doDeactivateMembershipForId = (membershipId: number) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.DELETE_MEMBERSHIP_STARTED, data: membershipId });
 
-  await Lbryio.call('membership_v2', 'deactivate', { membership_id: membershipId }, 'post')
+  await Lbryio.call('membership_v2', 'status_set', { membership_id: membershipId, enabled: false }, 'post')
     .then((response) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
       return response;

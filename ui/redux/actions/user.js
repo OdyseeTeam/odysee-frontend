@@ -170,8 +170,8 @@ export function doChannelsHavePremium(channelClaimIds) {
       });
       dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS, data: { membershipsById: membershipsById } });
     } catch (e) {
-      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE, data: channelClaimIds });
-    }
+      dispatch({ type: ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE, data: { channelIds: channelClaimIds } });
+    };
   };
 }
 

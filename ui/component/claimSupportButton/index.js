@@ -14,7 +14,7 @@ const select = (state, props) => {
   const { uri } = props;
 
   const claim = selectClaimForUri(state, uri);
-  const claimId = claim.claim_id;
+  const claimId = claim?.claim_id;
   const isRepost = claim && claim.repost_url;
   const channelClaimId = claim && getChannelIdFromClaim(claim);
 
