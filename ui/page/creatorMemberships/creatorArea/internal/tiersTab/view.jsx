@@ -37,7 +37,7 @@ function TiersTab(props: Props) {
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
 
   const [editingIds, setEditingIds] = React.useState(() => []);
-  const [channelMemberships, setChannelMemberships] = React.useState<any>(fetchedMemberships || []);
+  const [channelMemberships, setChannelMemberships] = React.useState < any > (fetchedMemberships || []);
 
   function addEditingForMembershipId(membershipId) {
     setEditingIds((previousEditingIds) => {
