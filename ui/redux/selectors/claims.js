@@ -921,8 +921,15 @@ export const selectTagsRawForUri = (state: State, uri: string) => {
   return selectMetadataForUri(state, uri)?.tags;
 };
 
-export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  return parsePurchaseTag(metadata?.tags);
+export const selectCostInfoForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  if (!claimId) return claimId;
+
+  return state.claims.costInfosById[claimId];
+};
+
+export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, selectCostInfoForUri, (metadata: ?GenericMetadata, costInfo: ?any) => {
+  return parsePurchaseTag(metadata?.tags) || (costInfo?.price_currency === 'USD' && costInfo?.cost);
 })((state, uri) => String(uri));
 
 export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
@@ -1184,13 +1191,6 @@ export const selectClaimHasSupportsForUri = (state: State, uri: string) => {
   const hasSupport = claim && claim.meta && claim.meta.support_amount && Number(claim.meta.support_amount) > 0;
 
   return hasSupport;
-};
-
-export const selectCostInfoForUri = (state: State, uri: string) => {
-  const claimId = selectClaimIdForUri(state, uri);
-  if (!claimId) return claimId;
-
-  return state.claims.costInfosById[claimId];
 };
 
 export const selectSdkFeePendingForUri = (state: State, uri: string) => {

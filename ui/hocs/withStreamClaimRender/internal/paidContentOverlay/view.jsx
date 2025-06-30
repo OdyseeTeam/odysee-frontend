@@ -68,7 +68,7 @@ export default function PaidContentOvelay(props: Props) {
   const isEmbed = React.useContext(EmbedContext);
 
   const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
-  const sdkFeeRequired = costInfo && costInfo.cost > 0;
+  const sdkFeeRequired = !purchaseTag && costInfo && costInfo.cost > 0;
 
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,

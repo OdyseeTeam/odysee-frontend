@@ -34,13 +34,15 @@ const select = (state, props) => {
   const tipData = selectArweaveTipDataForId(state, channelClaimId);
   const canReceiveTips = tipData?.status === 'active' && tipData?.default;
 
+  const purchaseTag = selectPurchaseTagForUri(state, uri);
+
   return {
     claimId,
     claimType,
     canReceiveTips,
     preferredCurrency: selectPreferredCurrency(state),
     preorderTag: selectPreorderTagForUri(state, uri),
-    purchaseTag: selectPurchaseTagForUri(state, uri),
+    purchaseTag,
     rentalTag: selectRentalTagForUri(state, uri),
     costInfo: selectCostInfoForUri(state, uri),
     claimIsMine: selectClaimIsMine(state, claim),
@@ -48,7 +50,7 @@ const select = (state, props) => {
     fiatRequired: selectIsFiatRequiredForUri(state, uri),
     isFetchingPurchases: selectIsFetchingPurchases(state),
     isAuthenticated: selectUserVerifiedEmail(state),
-    pendingSdkPayment: selectSdkFeePendingForUri(state, uri),
+    pendingSdkPayment: !purchaseTag ? selectSdkFeePendingForUri(state, uri) : undefined,
     pendingPurchase: selectPendingPurchaseForUri(state, uri),
     balance: selectArweaveBalance(state) || { ar: 0 },
     exchangeRate: selectArweaveExchangeRates(state),

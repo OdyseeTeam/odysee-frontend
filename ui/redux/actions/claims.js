@@ -38,15 +38,15 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
     return Promise.resolve({ claimId, cost: 0, includesData: true });
   }
 
-  if (fee.currency === 'LBC') {
-    return Promise.resolve({ claimId, cost: fee.amount, includesData: true });
-  }
+  return Promise.resolve({ claimId, cost: fee.amount, includesData: true, price_currency: fee.currency });
 
+  /*
   const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
     claimId,
     cost: Number(fee.amount) / LBC_USD,
     includesData: true,
   }));
+  */
 
   return Promise.resolve(exchangeRate);
 }
