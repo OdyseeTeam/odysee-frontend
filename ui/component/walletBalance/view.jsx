@@ -236,7 +236,7 @@ const WalletBalance = (props: Props) => {
             !hasArConnection ? (
               <>
                 <div className="wallet-check-row">
-                  <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
+                  <div>{__(`Wander login`)}</div>
                   <div>
                     {!hasConnection && !isSigningIn ? (
                       <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
@@ -249,7 +249,7 @@ const WalletBalance = (props: Props) => {
                 </div>
 
                 <div className="wallet-check-row">
-                  <div>{__('Wander wallet connection')}</div>
+                  <div>{__('Wander connection')}</div>
                   <div>
                     {hasArConnection ? (
                       <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
@@ -284,20 +284,6 @@ const WalletBalance = (props: Props) => {
                 <div>
                   <I18nMessage
                     tokens={{
-                      textD: (
-                        <p>
-                          To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet
-                          compatible with AR.{' '}
-                          <a
-                            href="https://help.odysee.tv/category-monetization/setup"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="link"
-                          >
-                            {__('Learn more')}
-                          </a>
-                        </p>
-                      ),
                       textM: (
                         <p>
                           To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet
@@ -317,33 +303,9 @@ const WalletBalance = (props: Props) => {
                           Sign in
                         </a>
                       ),
-                      extension: (
-                        <a
-                          className="link"
-                          rel="noreferrer"
-                          href="https://www.wander.app/download?tab=download-browser"
-                          target="_blank"
-                        >
-                          install browser extension
-                        </a>
-                      ),
-                      app: (
-                        <a
-                          className="link"
-                          rel="noreferrer"
-                          href="https://www.wander.app/download?tab=download-mobile"
-                          target="_blank"
-                        >
-                          Wander Wallet app
-                        </a>
-                      ),
                     }}
                   >
-                    {`${isMobile ? '%textM% or get the %app%.' : '%textD%'} %login%${
-                      !isMobile && !hasArweaveExtension && window.wanderInstance.authInfo.authType === 'NATIVE_WALLET'
-                        ? ' or %extension%.'
-                        : ''
-                    }`}
+                    {`%textM% %login%`}
                   </I18nMessage>
                 </div>
               ) : isSigningIn ? (
