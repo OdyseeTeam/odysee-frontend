@@ -199,7 +199,7 @@ export default function Wander(props: Props) {
               let s = 0;
               loginTimerRef.current = setInterval(() => {
                 s++;
-                if(s>20){
+                if(s>50){
                   if(!window.wanderInstance.openReason) window.wanderInstance.open();
                   s = 0;
                 }                
