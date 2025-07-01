@@ -363,25 +363,20 @@ export const doCleanTips = () => {
   };
 };
 
-function getBalanceEndpoint(wallet: string, endpoint = 0) {
-  const gateway = endpoint === 0 ? 'arweave.net' : 'permagate.io';
+const getBalanceEndpoint = (wallet: string, gateway: string) => {  
   return `https://${gateway}/wallet/${wallet}/balance`;
-}
+}  
 
 const fetchARBalance = async (address: string) => {
-  try {
-    const res = await fetch(getBalanceEndpoint(address));
-    const balance = await res.json();
-    return balance / 1e12;
-  } catch {
+  const gateways = ['arweave.net', 'permagate.io', 'zerosettle.online', 'zigza.xyz', 'ario-gateway.nethermind.dev'];
+  for (const gateway of gateways) {
     try {
-      const fallback = await fetch(getBalanceEndpoint(address, 1));
-      const balance = await fallback.json();
+      const res = await fetch(getBalanceEndpoint(address, gateway));
+      const balance = await res.json();
       return balance / 1e12;
-    } catch {
-      return 0;
-    }
+    } catch {}
   }
+  return -1;
 };
 
 export const sendWinstons = async (
