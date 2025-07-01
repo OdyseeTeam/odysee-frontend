@@ -363,19 +363,24 @@ export const doCleanTips = () => {
   };
 };
 
-function getBalanceEndpoint(wallet: string) {
-  return `https://arweave.net/wallet/${wallet}/balance`;
+function getBalanceEndpoint(wallet: string, endpoint = 0) {
+  const gateway = endpoint === 0 ? 'arweave.net' : 'permagate.io';
+  return `https://${gateway}/wallet/${wallet}/balance`;
 }
 
 const fetchARBalance = async (address: string) => {
   try {
-    const rawBalance = await fetch(getBalanceEndpoint(address));
-    const jsonBalance = await rawBalance.json();
-    const arBalance = jsonBalance / 1e12;
-    return arBalance;
-  } catch (e) {
-    console.error(e);
-    return -1;
+    const res = await fetch(getBalanceEndpoint(address));
+    const balance = await res.json();
+    return balance / 1e12;
+  } catch {
+    try {
+      const fallback = await fetch(getBalanceEndpoint(address, 1));
+      const balance = await fallback.json();
+      return balance / 1e12;
+    } catch {
+      return 0;
+    }
   }
 };
 
