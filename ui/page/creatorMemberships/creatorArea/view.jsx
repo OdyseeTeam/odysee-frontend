@@ -56,15 +56,13 @@ const CreatorArea = (props: Props) => {
   const disabledMessage = __('Your memberships are disabled until you set up your wallet or enable monetization.');
 
   const [allSelected, setAllSelected] = React.useState(true);
-  const [showDisabled, setShowDisabled] = React.useState(false);
-  //        LocalStorage.setItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK, true));
 
-  const [ackInfo, setAckArweavePaymentsInfo] = React.useState(LocalStorage.getItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK) || false)
+  const [ackInfo, setAckArweavePaymentsInfo] = React.useState(LocalStorage.getItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK) || false);
 
   const handleAckArPaymentsInfo = (acked: boolean) => {
     LocalStorage.setItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK, acked);
     setAckArweavePaymentsInfo(acked);
-  }
+  };
   const channelsToList = React.useMemo(() => {
     if (!myChannelClaims) return myChannelClaims;
     if (!activeChannelClaim) return activeChannelClaim;
@@ -175,14 +173,14 @@ const CreatorArea = (props: Props) => {
             <TabWrapper
               switchToTiersTab={switchToTiersTab}
               component={<>
-              {!monetizationEnabled && (
-                <div className={'help'}>
-                  <p>{disabledMessage}</p>
-                  <NavLink to="/$/wallet">Set up wallet</NavLink>
-                </div>
-              )}
-              <OverviewTab onChannelSelect={onChannelOverviewSelect} />
-            </>}
+                {!monetizationEnabled && (
+                  <div className={'help'}>
+                    <p>{disabledMessage}</p>
+                    <NavLink to="/$/wallet">Set up wallet</NavLink>
+                  </div>
+                )}
+                <OverviewTab onChannelSelect={onChannelOverviewSelect} />
+              </>}
             />
           </TabPanel>
 
@@ -235,17 +233,10 @@ const CreatorArea = (props: Props) => {
                         icon={ICONS.BACK}
                         button="secondary"
                       />
-                      <FormField
-                        label={__('Show Disabled')}
-                        name="show_disabled"
-                        type="checkbox"
-                        checked={showDisabled}
-                        onChange={() => setShowDisabled(!showDisabled)}
-                      />
                     </div>
                   </div>
 
-                  <TiersTab showDisabled={showDisabled} />
+                  <TiersTab />
                 </>
               }
             />

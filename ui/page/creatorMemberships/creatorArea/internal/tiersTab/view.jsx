@@ -19,8 +19,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   membershipOdyseePermanentPerks: MembershipOdyseePerks,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>,
-  showDisabled: boolean,
-  exchangeRate: { [key: string]: number };
+  exchangeRate: { [key: string]: number },
 };
 
 function TiersTab(props: Props) {
@@ -30,7 +29,6 @@ function TiersTab(props: Props) {
     activeChannelClaim,
     membershipOdyseePermanentPerks,
     doGetMembershipPerks,
-    showDisabled,
     exchangeRate,
   } = props;
 
@@ -127,7 +125,7 @@ function TiersTab(props: Props) {
     <div className={classnames('tier-edit-functionality')}>
       {channelMemberships &&
         channelMemberships
-          .filter((m) => (showDisabled ? true : m.enabled === true || m.saved === false))
+          .filter((m) => m.enabled === true || m.saved === false)
           .map((membershipTier, membershipIndex) => {
             const membershipId = membershipTier.membership_id;
             const isEditing = new Set(editingIds).has(membershipId);
