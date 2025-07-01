@@ -91,7 +91,7 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
-                <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo.cost.toFixed(2) }}>
+                <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: Number(costInfo.cost).toFixed(2) }}>
                   Purchase for %currency%%amount%
                 </I18nMessage>
               </div>
