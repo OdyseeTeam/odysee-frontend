@@ -11,7 +11,7 @@ type Props = {
   theme: string,
   auth: any,
   authenticated: any,
-  doArInit: () => void;
+  doArInit: () => void,
   connectArWallet: () => void,
   doArSetAuth: (status: string) => void,
   doArUpdateBalance: () => void,
@@ -19,8 +19,20 @@ type Props = {
 };
 
 export default function Wander(props: Props) {
-  const { theme, auth, authenticated, doArInit, doArSetAuth, connecting, connectArWallet, arweaveAddress, doArUpdateBalance, doCleanTips } = props;
+  const {
+    theme,
+    auth,
+    authenticated,
+    doArInit,
+    doArSetAuth,
+    connecting,
+    connectArWallet,
+    arweaveAddress,
+    doArUpdateBalance,
+    doCleanTips,
+  } = props;
   const [instance, setInstance] = React.useState(null);
+  const loginTimerRef = React.useRef(null);
   const wrapperRef = React.useRef();
 
   React.useEffect(() => {
@@ -178,6 +190,20 @@ export default function Wander(props: Props) {
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
               window.wanderInstance.close();
               doArSetAuth(data.data);
+              if(data.data.authStatus === 'authenticated'){
+                // Signed in & has backup, clear Interval
+                clearInterval(loginTimerRef.current);
+                loginTimerRef.current = null;
+              }
+            } else if (!loginTimerRef.current) {
+              let s = 0;
+              loginTimerRef.current = setInterval(() => {
+                s++;
+                if(s>20){
+                  if(!window.wanderInstance.openReason) window.wanderInstance.open();
+                  s = 0;
+                }                
+              },1000);
             }
           } else if (data.data.authStatus === 'not-authenticated') {
             doArSetAuth(data.data);
@@ -211,6 +237,7 @@ export default function Wander(props: Props) {
       window.removeEventListener('arweaveWalletLoaded', onArweaveWalletLoaded);
       window.removeEventListener('message', onMessage);
       clearInterval(balanceUpdate);
+      clearInterval(loginTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance, doArSetAuth]);
