@@ -65,9 +65,9 @@ reducers[ACTIONS.AUTHENTICATION_FAILURE] = (state) =>
   });
 
 reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = (state) => {
-    return Object.assign({}, state, {
-      isCheckingLegacyOdyseePremium: true,
-    });
+  return Object.assign({}, state, {
+    isCheckingLegacyOdyseePremium: true,
+  });
 };
 
 reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_STARTED] = (state) => {
@@ -84,6 +84,7 @@ reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => {
       isCheckingLegacyOdyseePremium: false,
     });
   }
+  return Object.assign({}, state);
 };
 
 reducers[ACTIONS.USER_FETCH_STARTED] = (state) =>
