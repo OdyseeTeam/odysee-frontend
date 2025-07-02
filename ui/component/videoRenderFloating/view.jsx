@@ -394,8 +394,7 @@ function VideoRenderFloating(props: Props) {
   }
 
   const minRatio = videoAspectRatio >= 9 / 16 ? videoAspectRatio : 9 / 16;
-  const heightForViewer = !theaterMode ? fileViewerRect?.height : getPossiblePlayerHeight(minRatio * window.innerWidth, isMobile);
-
+  const heightForViewer = (!theaterMode || isMobile) ? fileViewerRect?.height : getPossiblePlayerHeight(minRatio * window.innerWidth, isMobile);
 
   return (
     <VideoRenderFloatingContext.Provider value={{ draggable }}>
@@ -425,6 +424,7 @@ function VideoRenderFloating(props: Props) {
         disabled={noFloatingPlayer || forceDisable}
       >
         <div
+        id="abcd"
           className={classnames([CONTENT_VIEWER_CLASS], {
             [FLOATING_PLAYER_CLASS]: isFloating,
             'content__viewer--inline': !isFloating,
