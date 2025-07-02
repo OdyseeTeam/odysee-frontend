@@ -227,7 +227,7 @@ export function CommentCreate(props: Props) {
   const minAmountMet =
     (activeTab !== TAB_LBC && activeTab !== TAB_FIAT && !minTip && !minUSDCTip) ||
     (activeTab === TAB_LBC && tipAmount >= minAmount) ||
-    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
+    // (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
     (activeTab === TAB_USD && tipAmount >= minUSDCAmount);
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
@@ -254,7 +254,7 @@ export function CommentCreate(props: Props) {
       if (onSlimInputClose) onSlimInputClose();
 
       if (sticker.price && sticker.price > 0) {
-        setActiveTab(recipientArweaveTipInfo ? TAB_FIAT : TAB_LBC);
+        setActiveTab(recipientArweaveTipInfo ? TAB_USD : TAB_LBC);
         setTipSelector(true);
       }
     },
@@ -926,7 +926,7 @@ export function CommentCreate(props: Props) {
               }
               name={isReply ? 'create__reply' : 'create__comment'}
               onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
-              handleTip={(isLBC) => handleSelectTipComment(isLBC ? TAB_LBC : TAB_FIAT)}
+              handleTip={(isLBC) => handleSelectTipComment(isLBC ? TAB_LBC : TAB_USD)}
               handleSubmit={handleCreateComment}
               slimInput={isMobile && uri} // "uri": make sure it's on a file page
               slimInputButtonRef={slimInputButtonRef}

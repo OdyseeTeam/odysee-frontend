@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { selectUserExperimentalUi } from 'redux/selectors/user';
 import {
   selectTitleForUri,
   selectClaimForUri,
@@ -7,7 +6,7 @@ import {
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
 import { doHideModal } from 'redux/actions/app';
-import { doSendTip, doSendCashTip } from 'redux/actions/wallet';
+import { doSendTip } from 'redux/actions/wallet';
 import { selectClientSetting, selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
@@ -53,7 +52,6 @@ const select = (state, props) => {
     isPending: selectIsSendingSupport(state),
     title: selectTitleForUri(state, uri),
     preferredCurrency: selectPreferredCurrency(state),
-    experimentalUi: selectUserExperimentalUi(state),
     canReceiveTips,
     arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
     isArweaveTipping: selectArweaveTippingStartedForId(state, claimId),
@@ -65,7 +63,6 @@ const select = (state, props) => {
 const perform = {
   doHideModal,
   doSendTip,
-  doSendCashTip,
   doArTip,
   doToast,
   doTipAccountCheckForUri,

@@ -8,8 +8,7 @@
   display: flex;
   justify-content: center;
   position: fixed;
-  z-index: 9999;
-  z-index: 9999;
+  z-index: 99999;
 
   @media (max-width: $breakpoint-small) {
     background-color: rgba(var(--color-header-button-base), 0.3);
