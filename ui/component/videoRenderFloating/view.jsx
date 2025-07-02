@@ -393,6 +393,10 @@ function VideoRenderFloating(props: Props) {
     }
   }
 
+  const minRatio = videoAspectRatio >= 9 / 16 ? videoAspectRatio : 9 / 16;
+  const heightForViewer = !theaterMode ? fileViewerRect?.height : getPossiblePlayerHeight(minRatio * window.innerWidth, isMobile);
+
+
   return (
     <VideoRenderFloatingContext.Provider value={{ draggable }}>
       {!isAutoplayCountdown && ((uri && fileViewerRect && videoAspectRatio) || collectionSidebarId) ? (
@@ -430,11 +434,11 @@ function VideoRenderFloating(props: Props) {
             'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
             'content__viewer--portrait': isPortraitVideo.current,
           })}
-          style={
+          style={            
             !isFloating && fileViewerRect
               ? {
                   width: fileViewerRect.width,
-                  height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : fileViewerRect.height,
+                  height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : heightForViewer,
                   left: fileViewerRect.x,
                   top:
                     isMobile && !playingUriSource
@@ -555,7 +559,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   const isMobilePlayer = isMobile && !isFloating; // to avoid miniplayer -> file page only
 
   const minRatio = videoAspectRatio >= 9 / 16 ? videoAspectRatio : 9 / 16;
-  const heightForViewer = getPossiblePlayerHeight(minRatio * fileViewerRect.width, isMobile);
+  const heightForViewer = getPossiblePlayerHeight(minRatio * (!theaterMode ? fileViewerRect.width : window.innerWidth), isMobile);
   const widthForViewer = heightForViewer / videoAspectRatio;
   const maxLandscapeHeight = getMaxLandscapeHeight(isMobile ? undefined : widthForViewer);
   const heightResult = appDrawerOpen ? `${maxLandscapeHeight}px` : `${heightForViewer}px`;
