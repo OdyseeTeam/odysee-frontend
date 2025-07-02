@@ -175,7 +175,7 @@ function TiersTab(props: Props) {
               membership_id: newestId,
               name: __('Example Plan'),
               description: '',
-              prices: [{ amount: 25, currency: 'usd', address: '' }],
+              prices: [{ amount: 1, currency: 'usd', address: '' }],
               perks: membershipOdyseePermanentPerks,
               saved: false,
             };
