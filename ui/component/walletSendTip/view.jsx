@@ -18,7 +18,6 @@ import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import WalletStatus from 'component/walletStatus';
 import usePersistedState from 'effects/use-persisted-state';
 import { useArStatus } from 'effects/use-ar-status';
-import withCreditCard from 'hocs/withCreditCard';
 import classnames from 'classnames';
 
 import { getStripeEnvironment } from 'util/stripe';
@@ -414,7 +413,13 @@ export default function WalletSendTip(props: Props) {
               </div>
               <div className="section__actions">
                 {activeTab === TAB_USD ? (
-                  <SubmitCashTipButton handleSubmit={handleSubmit} isPending={isPending} />
+                  <>                    
+                  <Button 
+                    button="primary"
+                    label={__('Confirm')}
+                    onClick={handleSubmit}
+                  />
+                  </>
                 ) : (
                   <Button
                     autoFocus
@@ -528,9 +533,3 @@ const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
     />
   );
 };
-
-const SubmitCashTipButton = withCreditCard(
-  ({ isPending, handleSubmit }: { isPending: boolean, handleSubmit: () => void }) => (
-    <Button autoFocus disabled={false} onClick={handleSubmit} button="primary" label={isPending ? __('Retry') : __('ConfirmC')} />
-  )
-);
