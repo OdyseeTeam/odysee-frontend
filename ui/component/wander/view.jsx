@@ -105,6 +105,7 @@ export default function Wander(props: Props) {
                 border-radius: var(--border-radius);
                 border: 2px solid var(--color-border) !important;
                 background:unset;
+                z-index:999999;
 
                 /*
                 &[data-layout="dropdown"] {
