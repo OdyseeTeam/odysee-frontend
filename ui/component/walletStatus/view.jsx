@@ -27,14 +27,14 @@ export default function WalletStatus(props: Props) {
       {activeArStatus === 'not-authenticated' ? (
         arweaveWallets.length > 0 ? (
           <>
-            <p>{__('To join a new membership on Odysee, you need to be signed into Wander.')}</p>
+            <p>{__('To use AR on Odysee, you need to be signed into Wander.')}</p>
             <NavLink to="/$/wallet">Wallet settings</NavLink>
           </>
         ) : (
           <>
             <p>
               {__(
-                'To join a new membership on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.'
+                'To use AR on Odysee, you need to create and/or sign into Wander – a cryptocurrency wallet compatible with AR.'
               )}{' '}
               <a
                 href="https://help.odysee.tv/category-monetization/setup"
