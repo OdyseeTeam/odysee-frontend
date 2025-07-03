@@ -48,7 +48,7 @@ const withCreditCard = (Component: FunctionalComponentParam) => {
           disabled={fetchPending}
           requiresAuth
           button="primary"
-          label={fetchPending ? <Spinner type="small" /> : __('Add a Credit Card')}
+          label={fetchPending ? <Spinner type="small" /> : __('Confirm')}
           onClick={handleOpenAddCardModal}
         />
       );
