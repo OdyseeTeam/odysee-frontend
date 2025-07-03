@@ -22,7 +22,7 @@ const select = (state, props) => {
     makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state) ||
     (channelClaimId && DISABLED_SUPPORT.includes(channelClaimId));
 
-  const tipData = selectArweaveTipDataForId(state, claimId);
+  const tipData = selectArweaveTipDataForId(state, channelClaimId);
   const canReceiveTips = tipData?.status === 'active' && tipData?.default;
 
   return {
