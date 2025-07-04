@@ -1,0 +1,33 @@
+.th-label-with-arrows {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.arrows {
+  display: flex;
+  flex-direction: row;
+  line-height: 1;
+}
+
+.arrow-up {
+  font-size: 16px;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.arrow-up--active {
+  color: var(--color-primary);
+  opacity: 1;
+}
+
+.arrow-down {
+  font-size: 16px;
+  text-align: center;
+  opacity: 0.5;
+}
+
+.arrow-down--active {
+  color: var(--color-primary);
+  opacity: 1;
+}
