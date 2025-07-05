@@ -219,7 +219,7 @@ const Wallpaper = (props: Props) => {
   } else {  */
   return (
     <>
-      {/* <div
+      <div
         className={'background-image'}
         style={{
           backgroundImage:
@@ -227,7 +227,7 @@ const Wallpaper = (props: Props) => {
         }}
       />
       <div className="theme" />
-      */}
+
       {/* <div className="backdrop"/> */}
       <div className="stars">
         <div id="stars" />
