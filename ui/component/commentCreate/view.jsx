@@ -171,10 +171,7 @@ export function CommentCreate(props: Props) {
   } = props;
 
   const { activeArStatus } = useArStatus();
-
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
   const fileUri = React.useContext(AppContext)?.uri;
-
   const isMobile = useIsMobile();
 
   const formFieldRef: ElementRef<any> = React.useRef();
@@ -1090,16 +1087,13 @@ export function CommentCreate(props: Props) {
 
                 {!supportDisabled && !claimIsMine && (
                   <>
-                    {showArweave && (
-                      // <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
-                      <TipActionButton
-                        {...tipButtonProps}
-                        name={__('AR')}
-                        icon={ICONS.USD}
-                        tab={TAB_USD}
-                        disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
-                      />
-                    )}
+                    <TipActionButton
+                      {...tipButtonProps}
+                      name={__('AR')}
+                      icon={ICONS.USD}
+                      tab={TAB_USD}
+                      disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
+                    />
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
                     {false && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
