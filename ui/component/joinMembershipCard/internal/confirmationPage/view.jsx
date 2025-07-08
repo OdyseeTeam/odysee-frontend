@@ -130,7 +130,7 @@ const ConfirmationPage = (props: Props) => {
 
             <SubmitButton
               isRenewal={isRenewal}
-              disabled={!arBalance}
+              disabled={!arBalance || (dollarsPerAr && Number(dollarsPerAr) * arBalance < total)}
               modalState={{ passedTierIndex: selectedMembershipIndex }}
             />
             <Button button="link" label={__('Cancel')} onClick={onCancel} />
