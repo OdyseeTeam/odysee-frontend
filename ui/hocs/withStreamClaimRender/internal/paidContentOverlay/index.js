@@ -10,7 +10,7 @@ import {
 import PaidContentOvelay from './view';
 import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectArweaveExchangeRates } from 'redux/selectors/arwallet';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -23,6 +23,7 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, uri),
     purchaseTag: selectPurchaseTagForUri(state, uri),
     rentalTag: selectRentalTagForUri(state, uri),
+    balance: selectArweaveBalance(state) || { ar: 0 },
     costInfo: selectCostInfoForUri(state, uri),
     exchangeRate: selectArweaveExchangeRates(state),
   };
