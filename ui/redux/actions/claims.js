@@ -38,7 +38,14 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
     return Promise.resolve({ claimId, cost: 0, includesData: true });
   }
 
-  return Promise.resolve({ claimId, cost: fee.amount, includesData: true, price_currency: fee.currency });
+  let usdCost = Number(fee.amount);
+  if (fee.currency === 'LBC') {
+    const { LBC_USD } = await Lbryio.getExchangeRates();
+    usdCost = usdCost / (1 / LBC_USD);
+  }
+  usdCost = Math.max(usdCost, 0.01).toFixed(2);
+
+  return Promise.resolve({ claimId, cost: Number(fee.amount), includesData: true, feeCurrency: fee.currency, usdCost });
 
   /*
   const exchangeRate = await Lbryio.getExchangeRates().then(({ LBC_USD }) => ({
@@ -46,9 +53,9 @@ async function getCostInfoForFee(claimId: string, fee: Fee) {
     cost: Number(fee.amount) / LBC_USD,
     includesData: true,
   }));
-  */
 
   return Promise.resolve(exchangeRate);
+  */
 }
 
 export function doResolveUris(
@@ -842,7 +849,7 @@ export function doClaimSearch(
         dispatch({ type: ACTIONS.SET_COST_INFOS_BY_ID, data: settledCostInfosById });
 
         const sdkPaidClaimIds = settledCostInfosById
-          .filter((costInfo) => Number.isInteger(Number(costInfo.cost)) && Number(costInfo.cost) > 0)
+          .filter((costInfo) => Number(costInfo.cost) > 0)
           .map((costInfo) => costInfo.claimId);
 
         if (sdkPaidClaimIds.length > 0 && !options.include_purchase_receipt) {

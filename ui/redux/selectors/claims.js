@@ -4,6 +4,7 @@ import moment from 'moment';
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
@@ -928,9 +929,31 @@ export const selectCostInfoForUri = (state: State, uri: string) => {
   return state.claims.costInfosById[claimId];
 };
 
-export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, selectCostInfoForUri, (metadata: ?GenericMetadata, costInfo: ?any) => {
-  return parsePurchaseTag(metadata?.tags) || (costInfo?.price_currency === 'USD' && costInfo?.cost);
-})((state, uri) => String(uri));
+export const selectCanReceiveTipsForUri = createCachedSelector(
+  selectClaimForUri,
+  (state: State, uri: string) => state,
+  (claim: ?Claim, state: State) => {
+    const channelClaimId = getChannelIdFromClaim(claim);
+    if (!channelClaimId) return false;
+
+    const tipData = selectArweaveTipDataForId(state, channelClaimId);
+    const canReceiveTips = tipData?.status === 'active' && tipData?.default;
+    return canReceiveTips;
+  }
+)((state, uri) => String(uri));
+
+export const selectPurchaseTagForUri = createCachedSelector(
+  selectMetadataForUri,
+  selectCostInfoForUri,
+  selectCanReceiveTipsForUri,
+  (metadata: ?GenericMetadata, costInfo: ?any, canReceiveTips: ?boolean) => {
+    return (
+      parsePurchaseTag(metadata?.tags) ||
+      (costInfo?.feeCurrency === 'USD' && costInfo?.cost) ||
+      (canReceiveTips && costInfo?.feeCurrency === 'LBC' && costInfo?.usdCost)
+    );
+  }
+)((state, uri) => String(uri));
 
 export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('preorder:'));
@@ -1208,7 +1231,10 @@ export const selectPendingPurchaseForUri = (state: State, uri: string) => {
   const pendingFiatPayment = selectPendingFiatPaymentForUri(state, uri);
   const pendingSdkPayment = selectSdkFeePendingForUri(state, uri);
 
-  return pendingFiatPayment || pendingSdkPayment;
+  const sdkPaid = selectClaimWasPurchasedForUri(state, uri);
+  const fiatPaid = selectIsFiatPaidForUri(state, uri);
+
+  return (pendingFiatPayment || pendingSdkPayment) && !sdkPaid && !fiatPaid;
 };
 
 export const selectScheduledStateForUri = (state: State, uri: string): ClaimScheduledState => {
