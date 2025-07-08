@@ -23,7 +23,8 @@ type Props = {
   purchaseTag: string,
   rentalTag: RentalTagParams,
   costInfo: any,
-  exchangeRate: any,
+  exchangeRate: { ar: number },
+  balance: ArweaveBalance,
   doOpenModal: (string, {}) => void,
 };
 
@@ -39,8 +40,30 @@ export default function PaidContentOvelay(props: Props) {
     rentalTag,
     costInfo,
     exchangeRate,
+    balance,
     doOpenModal,
   } = props;
+  const { ar: arBalance } = balance;
+  const { ar: dollarsPerAr } = exchangeRate;
+
+  const cantAffordPreorder = preorderTag && (dollarsPerAr && Number(dollarsPerAr) * arBalance < preorderTag);
+  const cantAffordRent = rentalTag && (dollarsPerAr && Number(dollarsPerAr) * arBalance < rentalTag);
+  const cantAffordPurchase = purchaseTag && (dollarsPerAr && Number(dollarsPerAr) * arBalance < purchaseTag);
+  const getCanAffordOne = () => {
+    if (rentalTag && !cantAffordRent) {
+      return true;
+    }
+
+    if (purchaseTag && !cantAffordPurchase) {
+      return true;
+    }
+
+    if (preorderTag && !cantAffordPreorder) {
+      return true;
+    }
+    return false;
+  };
+  const canAffordOne = getCanAffordOne();
 
   const isEmbed = React.useContext(EmbedContext);
 
@@ -63,7 +86,8 @@ export default function PaidContentOvelay(props: Props) {
   }, [doOpenModal, isEmbed, sdkFeeRequired, uri]);
 
   const ButtonPurchase = React.useMemo(() => {
-    return ({ label }: { label: string }) => {
+    return ({ label, disabled }: { label: string, disabled: boolean }) => {
+      // const clickprops = disabled ? {} : clickProps;
       return (
         <Button
           className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
@@ -71,6 +95,7 @@ export default function PaidContentOvelay(props: Props) {
           button="primary"
           label={label}
           requiresAuth
+          disabled={disabled}
           {...clickProps}
         />
       );
@@ -78,10 +103,10 @@ export default function PaidContentOvelay(props: Props) {
   }, [clickProps, fiatIconToUse, sdkFeeRequired]);
 
   React.useEffect(() => {
-    if (passClickPropsToParent) {
+    if (passClickPropsToParent && canAffordOne) {
       passClickPropsToParent(clickProps);
     }
-  }, [clickProps, passClickPropsToParent]);
+  }, [clickProps, passClickPropsToParent, canAffordOne]);
 
   return (
     <div className="paid-content-overlay">
@@ -95,7 +120,6 @@ export default function PaidContentOvelay(props: Props) {
                   Purchase for %currency%%amount%
                 </I18nMessage>
               </div>
-
               <ButtonPurchase label={__('Purchase')} />
             </>
           )}
@@ -103,6 +127,7 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
+                {cantAffordPurchase && __('Insufficient funds to')}{cantAffordPurchase && ' '}
                 {__('Purchase for %currency%%amount%', {
                   currency: fiatSymbol,
                   amount: Number(purchaseTag).toFixed(2),
@@ -112,6 +137,7 @@ export default function PaidContentOvelay(props: Props) {
 
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.TIME} />
+                {cantAffordRent && __('Insufficient funds to')}{cantAffordRent && ' '}
                 {__('Rent %duration% for %currency%%amount%', {
                   duration: secondsToDhms(rentalExpirationTimeInSeconds),
                   currency: fiatSymbol,
@@ -119,8 +145,7 @@ export default function PaidContentOvelay(props: Props) {
                 })}{' '}
                 (<Symbol token="ar" amount={rentalPrice / exchangeRate?.ar} precision={4} />)
               </div>
-
-              <ButtonPurchase label={__('Purchase or Rent')} />
+              <ButtonPurchase disabled={cantAffordRent && cantAffordPurchase} label={__('Purchase or Rent')} />
             </>
           )}
 
@@ -128,6 +153,7 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.TIME} />
+                {cantAffordRent && __('Insufficient funds to')}{cantAffordRent && ' '}
                 {__('Rent %duration% for %currency%%amount%', {
                   currency: fiatSymbol,
                   amount: rentalPrice,
@@ -135,20 +161,23 @@ export default function PaidContentOvelay(props: Props) {
                 })}{' '}
                 (<Symbol token="ar" amount={rentalPrice * exchangeRate?.ar} precision={4} />)
               </div>
-              <ButtonPurchase label={__('Rent')} />
+              <ButtonPurchase disabled={cantAffordRent} label={__('Rent')} />
+              {cantAffordRent && <div className={'error'}>Insufficient Funds</div>}
             </>
           )}
           {purchaseTag && !rentalTag && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
+                {cantAffordPurchase && __('Insufficient funds to')}{cantAffordPurchase && ' '}
                 {__('Purchase for %currency%%amount%', {
                   currency: fiatSymbol,
                   amount: Number(purchaseTag).toFixed(2),
                 })}
               </div>
 
-              <ButtonPurchase label={__('Purchase')} />
+              {!cantAffordPurchase && <ButtonPurchase disabled={cantAffordPurchase} label={__('Purchase')} />}
+              {cantAffordPurchase && <div className={'error'}>Insufficient Funds</div>}
             </>
           )}
           {preorderTag && (
@@ -162,7 +191,7 @@ export default function PaidContentOvelay(props: Props) {
                   navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
                 />
               ) : (
-                <ButtonPurchase label={__('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag })} />
+                <ButtonPurchase disabled={cantAffordPreorder} label={__('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag })} />
               )}
             </>
           )}

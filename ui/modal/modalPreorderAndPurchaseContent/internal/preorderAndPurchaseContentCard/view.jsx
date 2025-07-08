@@ -50,6 +50,8 @@ type Props = {
   preorderTag: number,
   purchaseTag: ?number,
   rentalTag: RentalTagParams,
+  balance: ArweaveBalance,
+  exchangeRate: { ar: number },
   costInfo: any,
   fiatRequired: boolean,
   isFetchingPurchases: boolean,
@@ -71,6 +73,8 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     rentalTag,
     purchaseTag,
     preorderTag,
+    balance,
+    exchangeRate,
     costInfo,
     fiatRequired,
     isFetchingPurchases,
@@ -82,6 +86,13 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doCheckIfPurchasedClaimId,
     doPlayUri,
   } = props;
+
+  const { ar: arBalance } = balance;
+  const { ar: dollarsPerAr } = exchangeRate;
+
+  const cantAffordPreorder = preorderTag && (dollarsPerAr && Number(dollarsPerAr) * arBalance < preorderTag);
+  const cantAffordRent = rentalTag && (dollarsPerAr && Number(dollarsPerAr) * arBalance < rentalTag);
+  const cantAffordPurchase = purchaseTag && (dollarsPerAr && Number(dollarsPerAr) * arBalance < purchaseTag);
 
   const { activeArStatus } = useArStatus();
 
@@ -201,6 +212,9 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 rentTipAmount={rentTipAmount}
                 rentDuration={rentDuration}
                 disabled={activeArStatus !== 'connected' || !canReceiveTips}
+                rentDisabled={cantAffordRent}
+                purchaseDisabled={cantAffordPurchase}
+                preorderDisabled={cantAffordPreorder}
               />
             )}
             <p className="help">
@@ -237,7 +251,7 @@ const SubmitArea = (props: any) => (
         duration: props.rentDuration,
       })}
       icon={props.tags.rentalTag ? ICONS.BUY : ICONS.TIME}
-      disabled={props.disabled}
+      disabled={props.disabled || props.purchaseDisabled}
     />
 
     {props.tags.purchaseTag && props.tags.rentalTag && (
@@ -250,7 +264,7 @@ const SubmitArea = (props: any) => (
           duration: props.rentDuration,
         })}
         icon={ICONS.TIME}
-        disabled={props.disabled}
+        disabled={props.disabled || props.rentDisabled}
       />
     )}
   </div>
