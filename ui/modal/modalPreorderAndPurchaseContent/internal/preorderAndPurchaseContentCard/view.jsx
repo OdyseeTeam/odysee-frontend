@@ -236,22 +236,6 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
 const SubmitArea = (props: any) => (
   <div className="handle-submit-area">
-    {props.pendingSdkPayment && (
-      <Button
-        button="primary"
-        requiresAuth
-        onClick={() => {
-          props.setWaitingForBackend(true);
-          props.doPlayUri(props.uri, true, undefined, props.doHideModal);
-        }}
-        label={
-          <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: props.costInfo?.cost || '?' }}>
-            Purchase for %currency%%amount%
-          </I18nMessage>
-        }
-        icon={ICONS.BUY}
-      />
-    )}
 
     <Button
       button="primary"
@@ -276,6 +260,23 @@ const SubmitArea = (props: any) => (
         })}
         icon={ICONS.TIME}
         disabled={props.disabled || props.rentDisabled}
+      />
+    )}
+
+    {props.pendingSdkPayment && (
+      <Button
+        button="primary"
+        requiresAuth
+        onClick={() => {
+          props.setWaitingForBackend(true);
+          props.doPlayUri(props.uri, true, undefined, props.doHideModal);
+        }}
+        label={
+          <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: props.costInfo?.cost || '?' }}>
+            Purchase for %currency%%amount%
+          </I18nMessage>
+        }
+        icon={ICONS.BUY}
       />
     )}
   </div>

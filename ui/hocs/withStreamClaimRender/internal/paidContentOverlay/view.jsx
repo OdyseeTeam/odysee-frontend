@@ -125,7 +125,7 @@ export default function PaidContentOvelay(props: Props) {
                     fiatAmount: Number(purchaseTag).toFixed(2),
                   }}
                 >
-                  Purchase for %currency%%amount% or %fiatSymbol%%fiatAmount%
+                  Purchase for %fiatSymbol%%fiatAmount% or %currency%%amount%
                 </I18nMessage>
               </div>
 
