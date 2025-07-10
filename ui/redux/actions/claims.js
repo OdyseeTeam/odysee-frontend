@@ -159,7 +159,7 @@ export function doResolveUris(
               const isProtected = isClaimProtected(stream);
               if (isProtected) membersOnlyClaimIds.add(stream.claim_id);
 
-              if (hasFiatTags(stream) && stream.claim_id) {
+              if ((hasFiatTags(stream) || stream.value?.fee) && stream.claim_id) {
                 fiatClaimIds.push(stream.claim_id);
               }
 
@@ -825,7 +825,7 @@ export function doClaimSearch(
         const channelId = getChannelIdFromClaim(stream);
         if (channelId) channelClaimIds.add(channelId);
 
-        if (!options.has_no_source && hasFiatTags(stream) && stream.claim_id) {
+        if (!options.has_no_source && stream.claim_id && (hasFiatTags(stream) || stream.value?.fee)) {
           fiatClaimIds.push(stream.claim_id);
         }
       });
