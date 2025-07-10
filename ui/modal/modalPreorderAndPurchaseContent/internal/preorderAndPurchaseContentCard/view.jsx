@@ -118,7 +118,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   let transactionType = '';
   if (tags.purchaseTag && tags.rentalTag) {
     transactionType = 'purchaseOrRent';
-  } else if (tags.purchaseTag) {
+  } else if (tags.purchaseTag || costInfo?.cost) {
     transactionType = 'purchase';
   } else if (tags.rentalTag) {
     transactionType = 'rental';
@@ -187,23 +187,13 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
             ) : activeArStatus !== 'connected' ? (
               <WalletStatus />
             ) : null}
-            {pendingSdkPayment ? (
-              <Button
-                button="primary"
-                requiresAuth
-                onClick={() => doPlayUri(uri, true, undefined, doHideModal)}
-                label={
-                  <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: costInfo?.cost || '?' }}>
-                    Purchase for %currency%%amount%
-                  </I18nMessage>
-                }
-                icon={ICONS.BUY}
-              />
-            ) : waitingForBackend ? (
+            {waitingForBackend ? (
               <BusyIndicator message={__('Processing order...')} />
             ) : (
               <SubmitArea
                 handleSubmit={handleSubmit}
+                pendingSdkPayment={pendingSdkPayment}
+                costInfo={costInfo}
                 label={STRINGS[transactionType].button}
                 fiatSymbol={fiatSymbol}
                 tipAmount={tipAmount}
@@ -215,6 +205,10 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 rentDisabled={cantAffordRent}
                 purchaseDisabled={cantAffordPurchase}
                 preorderDisabled={cantAffordPreorder}
+                uri={uri}
+                setWaitingForBackend={setWaitingForBackend}
+                doPlayUri={doPlayUri}
+                doHideModal={doHideModal}
               />
             )}
             <p className="help">
@@ -242,6 +236,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
 const SubmitArea = (props: any) => (
   <div className="handle-submit-area">
+
     <Button
       button="primary"
       onClick={() => props.handleSubmit()}
@@ -265,6 +260,23 @@ const SubmitArea = (props: any) => (
         })}
         icon={ICONS.TIME}
         disabled={props.disabled || props.rentDisabled}
+      />
+    )}
+
+    {props.pendingSdkPayment && (
+      <Button
+        button="primary"
+        requiresAuth
+        onClick={() => {
+          props.setWaitingForBackend(true);
+          props.doPlayUri(props.uri, true, undefined, props.doHideModal);
+        }}
+        label={
+          <I18nMessage tokens={{ currency: <Icon icon={ICONS.LBC} />, amount: props.costInfo?.cost || '?' }}>
+            Purchase for %currency%%amount%
+          </I18nMessage>
+        }
+        icon={ICONS.BUY}
       />
     )}
   </div>

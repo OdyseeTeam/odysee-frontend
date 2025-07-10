@@ -19,6 +19,7 @@ type Props = {
   // --- redux ---
   preferredCurrency: string,
   preorderContentClaim: Claim,
+  canReceiveTips: boolean,
   preorderTag: number,
   purchaseTag: string,
   rentalTag: RentalTagParams,
@@ -35,6 +36,7 @@ export default function PaidContentOvelay(props: Props) {
     // --- redux ---
     preferredCurrency,
     preorderContentClaim, // populates after doResolveClaimIds
+    canReceiveTips,
     preorderTag, // the price of the preorder
     purchaseTag, // the price of the purchase
     rentalTag,
@@ -68,8 +70,7 @@ export default function PaidContentOvelay(props: Props) {
   const isEmbed = React.useContext(EmbedContext);
 
   const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
-  const sdkFeeRequired = costInfo && costInfo.cost > 0;
-
+  const sdkFeeRequired = costInfo && costInfo.cost > 0 && costInfo.feeCurrency === 'LBC';
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
     rentalExpirationTimeInSeconds = 0;
@@ -79,11 +80,11 @@ export default function PaidContentOvelay(props: Props) {
   }
 
   const clickProps = React.useMemo(() => {
-    const modalId = sdkFeeRequired ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
+    const modalId = sdkFeeRequired && !canReceiveTips ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
     return isEmbed
       ? { href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(modalId, { uri })}` }
       : { onClick: () => doOpenModal(modalId, { uri }) };
-  }, [doOpenModal, isEmbed, sdkFeeRequired, uri]);
+  }, [doOpenModal, isEmbed, sdkFeeRequired, uri, canReceiveTips]);
 
   const ButtonPurchase = React.useMemo(() => {
     return ({ label, disabled }: { label: string, disabled: boolean }) => {
@@ -91,7 +92,7 @@ export default function PaidContentOvelay(props: Props) {
       return (
         <Button
           className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
-          icon={sdkFeeRequired ? ICONS.LBC : fiatIconToUse}
+          icon={sdkFeeRequired && !purchaseTag ? ICONS.LBC : fiatIconToUse}
           button="primary"
           label={label}
           requiresAuth
@@ -100,7 +101,7 @@ export default function PaidContentOvelay(props: Props) {
         />
       );
     };
-  }, [clickProps, fiatIconToUse, sdkFeeRequired]);
+  }, [clickProps, fiatIconToUse, sdkFeeRequired, purchaseTag]);
 
   React.useEffect(() => {
     if (passClickPropsToParent && canAffordOne) {
@@ -112,7 +113,26 @@ export default function PaidContentOvelay(props: Props) {
     <div className="paid-content-overlay">
       <div className="paid-content-overlay__body">
         <div className="paid-content-prompt paid-content-prompt--overlay">
-          {sdkFeeRequired && (
+          {sdkFeeRequired && canReceiveTips && (
+            <>
+              <div className="paid-content-prompt__price">
+                <Icon icon={ICONS.BUY} />
+                <I18nMessage
+                  tokens={{
+                    currency: <Icon icon={ICONS.LBC} />,
+                    amount: Number(costInfo.cost).toFixed(2),
+                    fiatSymbol,
+                    fiatAmount: Number(purchaseTag).toFixed(2),
+                  }}
+                >
+                  Purchase for %fiatSymbol%%fiatAmount% or %currency%%amount%
+                </I18nMessage>
+              </div>
+
+              <ButtonPurchase label={__('Purchase')} />
+            </>
+          )}
+          {sdkFeeRequired && !canReceiveTips && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
@@ -165,7 +185,7 @@ export default function PaidContentOvelay(props: Props) {
               {cantAffordRent && <div className={'error'}>Insufficient Funds</div>}
             </>
           )}
-          {purchaseTag && !rentalTag && (
+          {purchaseTag && !rentalTag && !sdkFeeRequired && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />

@@ -2669,6 +2669,7 @@
   "Payment processing fee: %currency%%ppf% • Odysee platform fee: %currency%%opf%": "Payment processing fee: %currency%%ppf% • Odysee platform fee: %currency%%opf%",
   "processing and platform fees apply": "processing and platform fees apply",
   "Purchase for %currency%%amount%": "Purchase for %currency%%amount%",
+  "Purchase for %fiatSymbol%%fiatAmount% or %currency%%amount%": "Purchase for %fiatSymbol%%fiatAmount% or %currency%%amount%",
   "Rent %duration% for %currency%%amount%": "Rent %duration% for %currency%%amount%",
   "Purchase or Rent": "Purchase or Rent",
   "Purchase completed successfully": "Purchase completed successfully",
