@@ -38,7 +38,7 @@ Lbryio.call = (resource, action, params = {}, method = 'post') => {
         return response.json().then((json) => {
           if (json?.error?.match(/.*Duplicate entry.*membership_v2.idx_user_publish_name_unique'/)) {
             return Promise.reject(
-              "Please try a different name, something you haven't used before on prior, even deleted, memberships"
+              "Please try a different tier name, something you haven't used before on prior (even deleted memberships)."
             );
           }
           return Promise.reject(INTERNAL_APIS_DOWN);
