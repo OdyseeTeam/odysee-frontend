@@ -229,7 +229,7 @@ function MembershipEditTier(props: Props) {
 
       <FormField
         type="textarea"
-        max="400"
+        max="2000"
         lines="3"
         name="tier_description"
         label={__('Tier Description')}
