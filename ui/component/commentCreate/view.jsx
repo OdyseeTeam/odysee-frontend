@@ -5,7 +5,7 @@ import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE, ENABLE_ARCONNECT } from 'config';
+import { SIMPLE_SITE } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
@@ -1095,9 +1095,6 @@ export function CommentCreate(props: Props) {
                       disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
                     />
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
-                    {false && stripeEnvironment && (
-                      <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
-                    )}
                   </>
                 )}
               </>

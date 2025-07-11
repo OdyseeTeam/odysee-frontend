@@ -7,7 +7,7 @@ import {
 } from 'redux/selectors/claims';
 import { doHideModal } from 'redux/actions/app';
 import { doSendTip } from 'redux/actions/wallet';
-import { selectClientSetting, selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
 import { withRouter } from 'react-router';
@@ -51,7 +51,6 @@ const select = (state, props) => {
     instantTipMax: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX),
     isPending: selectIsSendingSupport(state),
     title: selectTitleForUri(state, uri),
-    preferredCurrency: selectPreferredCurrency(state),
     canReceiveTips,
     arweaveTipData: selectArweaveTipDataForId(state, channelClaimId),
     isArweaveTipping: selectArweaveTippingStartedForId(state, claimId),

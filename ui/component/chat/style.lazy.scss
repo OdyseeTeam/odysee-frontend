@@ -445,7 +445,7 @@ $recent-msg-button__height: 2rem;
 
     .credit-amount-wrapper {
       .credit-amount {
-        display:flex;
+        display: flex;
         justify-content: center;
         align-items: center;
         font-size: var(--font-small);
@@ -954,6 +954,7 @@ $recent-msg-button__height: 2rem;
   }
 
   .channel-thumbnail {
+    flex-shrink: 0;
     margin-right: var(--spacing-xxxs);
     @include handleChannelGif(1.6rem);
 
@@ -971,10 +972,11 @@ $recent-msg-button__height: 2rem;
   .channel-name,
   .credit-amount {
     color: white;
-    font-size: var(--font-base);
+    font-size: var(--font-small);
     font-weight: var(--font-weight-bold);
     margin-right: var(--spacing-xxxs);
     margin-top: 3px;
+    min-width: fit-content;
     svg {
       width: 1rem !important;
       height: 1rem !important;
