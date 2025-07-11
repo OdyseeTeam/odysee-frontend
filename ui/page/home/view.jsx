@@ -234,6 +234,7 @@ function HomePage(props: Props) {
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
+        fetchViewCount
       />
     );
 
