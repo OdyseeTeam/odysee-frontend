@@ -34,6 +34,17 @@ Lbryio.call = (resource, action, params = {}, method = 'post') => {
     }
 
     if (response.status === 500) {
+      if (resource === 'membership_v2' && action === 'update') {
+        return response.json().then((json) => {
+          if (json?.error?.match(/.*Duplicate entry.*membership_v2.idx_user_publish_name_unique'/)) {
+            return Promise.reject(
+              "Please try a different name, something you haven't used before on prior, even deleted, memberships"
+            );
+          }
+          return Promise.reject(INTERNAL_APIS_DOWN);
+        });
+      }
+
       return Promise.reject(INTERNAL_APIS_DOWN);
     }
 
