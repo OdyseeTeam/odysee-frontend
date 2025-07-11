@@ -15,8 +15,8 @@ import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
 import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
-import ClaimPreviewTile from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
+import ClaimPreviewTile from './view';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);

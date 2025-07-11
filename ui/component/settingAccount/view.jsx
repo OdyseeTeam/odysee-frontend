@@ -8,7 +8,6 @@ import Card from 'component/common/card';
 import SettingsRow from 'component/settingsRow';
 import SyncToggle from 'component/syncToggle';
 import { getPasswordFromCookie } from 'util/saved-passwords';
-import { getStripeEnvironment } from 'util/stripe';
 
 type Props = {
   // --- redux ---

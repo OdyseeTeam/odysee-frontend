@@ -15,7 +15,7 @@ import { LBRY_WEB_PUBLISH_API } from 'config';
 const ENDPOINT = LBRY_WEB_PUBLISH_API;
 const ENDPOINT_METHOD = 'publish';
 
-const PUBLISH_FETCH_TIMEOUT_MS = 600000;
+const PUBLISH_FETCH_TIMEOUT_MS = 1800000;
 const PREVIEW_FETCH_TIMEOUT_MS = 10000;
 
 export function makeUploadRequest(

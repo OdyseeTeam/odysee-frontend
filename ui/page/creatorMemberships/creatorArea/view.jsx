@@ -56,15 +56,15 @@ const CreatorArea = (props: Props) => {
   const disabledMessage = __('Your memberships are disabled until you set up your wallet or enable monetization.');
 
   const [allSelected, setAllSelected] = React.useState(true);
-  const [showDisabled, setShowDisabled] = React.useState(false);
-  //        LocalStorage.setItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK, true));
 
-  const [ackInfo, setAckArweavePaymentsInfo] = React.useState(LocalStorage.getItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK) || false)
+  const [ackInfo, setAckArweavePaymentsInfo] = React.useState(
+    LocalStorage.getItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK) || false
+  );
 
   const handleAckArPaymentsInfo = (acked: boolean) => {
     LocalStorage.setItem(SETTINGS.ARWEAVE_PAYMENTS_INFO_ACK, acked);
     setAckArweavePaymentsInfo(acked);
-  }
+  };
   const channelsToList = React.useMemo(() => {
     if (!myChannelClaims) return myChannelClaims;
     if (!activeChannelClaim) return activeChannelClaim;
@@ -141,20 +141,44 @@ const CreatorArea = (props: Props) => {
           <div>{__('Creator Portal')}</div>
         </div>
         <div className={'right-side'}>
-          <Button button={'secondary'} className={!ackInfo ? 'creator-header__ack--active' : 'creator-header__ack--quiet'} label={!ackInfo ? 'X' : 'Help'} onClick={() => { handleAckArPaymentsInfo(!ackInfo) }} />
-
+          <Button
+            button={'secondary'}
+            className={!ackInfo ? 'creator-header__ack--active' : 'creator-header__ack--quiet'}
+            label={!ackInfo ? 'X' : 'Help'}
+            onClick={() => {
+              handleAckArPaymentsInfo(!ackInfo);
+            }}
+          />
         </div>
-
       </div>
-      {!ackInfo && (<div className={'membership-explainer'}>
-        <h1>New Payments Info</h1>
-        <div>
-          <p>{__('Once you connect a new payment wallet, your subscribers will have one week to renew their membership.')}</p>
-          <p> {__('You can now edit your existing tiers with a lower price, down to $0.1. Cannot make it higher.')}</p>
-          <p>{__('If you need help bulk re-setting up members only content after adding new tiers or making changes, email us at hello@odysee.com')}</p>
+      {!ackInfo && (
+        <div className={'membership-explainer'}>
+          <h1>New Payments Info</h1>
+          <div>
+            <p>
+              {__(
+                'Once you connect a new payment wallet, your subscribers will have one week to renew their membership.'
+              )}
+            </p>
+            <p>
+              {' '}
+              {__('You can now edit your existing tiers with a lower price, down to $0.1. Cannot make it higher.')}
+            </p>
+            <p>
+              {__(
+                'If you need help bulk re-setting up members only content after adding new tiers or making changes, email us at hello@odysee.com'
+              )}
+            </p>
+          </div>
+          <Button
+            button={'primary'}
+            label={'Got it'}
+            onClick={() => {
+              handleAckArPaymentsInfo(true);
+            }}
+          />
         </div>
-        <Button button={'primary'} label={'Got it'} onClick={() => { handleAckArPaymentsInfo(true) }} />
-      </div>)}
+      )}
 
       <Tabs onChange={onTabChange} index={tabIndex}>
         <div className="tab__wrapper">
@@ -246,17 +270,10 @@ const CreatorArea = (props: Props) => {
                         icon={ICONS.BACK}
                         button="secondary"
                       />
-                      <FormField
-                        label={__('Show Disabled')}
-                        name="show_disabled"
-                        type="checkbox"
-                        checked={showDisabled}
-                        onChange={() => setShowDisabled(!showDisabled)}
-                      />
                     </div>
                   </div>
 
-                  <TiersTab showDisabled={showDisabled} />
+                  <TiersTab />
                 </>
               }
             />

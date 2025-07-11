@@ -3,6 +3,8 @@ import React from 'react';
 import Yrbl from 'component/yrbl';
 import Spinner from 'component/spinner';
 import MembershipRow from './internal/membershipRow';
+import ButtonSort from 'component/buttonSort';
+import { getRenewByMoment } from 'util/memberships';
 
 type Props = {
   // -- redux --
@@ -32,6 +34,42 @@ function PledgesTab(props: Props) {
     }
   }, [subChannelIds, doResolveClaimIds, resolved]);
 
+  const [sortKey, setSortKey] = React.useState(null);
+  const [order, setOrder] = React.useState('desc');
+
+  const RENEW_KEY = 'renewBy';
+  // const STARTED_AT_KEY = 'startedAt';
+  const AMOUNT_KEY = 'amount';
+  const ORDER_ASC = 'asc';
+  // const ORDER_DESC = 'desc';
+
+  const sortedMembershipSubs = React.useMemo(() => {
+    // let startedAtSort = (a, b) => new Date(b.subscription.started_at).getTime() - new Date(a.subscription.started_at).getTime();
+    let amountSortAsc = (a, b) => a.subscription.current_price.amount - b.subscription.current_price.amount;
+    let amountSortDesc = (a, b) => b.subscription.current_price.amount - a.subscription.current_price.amount;
+    let renewBySortAsc = (a, b) => getRenewByMoment(a) - (getRenewByMoment(b) || 999999999999999); // if null, make it really big so it's last
+    let renewBySortDesc = (a, b) => (getRenewByMoment(b) || 999999999999999) - getRenewByMoment(a); // if null, make it really big so it's last
+
+    const defaultSort = renewBySortAsc;
+    let sortFn;
+    if (!sortKey) {
+      sortFn = defaultSort;
+    } else if (sortKey === RENEW_KEY) {
+      if (order === ORDER_ASC) {
+        sortFn = renewBySortAsc;
+      } else {
+        sortFn = renewBySortDesc;
+      }
+    } else if (sortKey === AMOUNT_KEY) {
+      if (order === ORDER_ASC) {
+        sortFn = amountSortAsc;
+      } else {
+        sortFn = amountSortDesc;
+      }
+    }
+    return myMembershipSubs ? myMembershipSubs.filter((sub) => sub.subscription.is_active === true).sort(sortFn) : [];
+  }, [myMembershipSubs, sortKey, order]);
+
   if (myMembershipSubs === undefined && isFetchingMembershipSubs) {
     return (
       <div className="main--empty">
@@ -59,10 +97,6 @@ function PledgesTab(props: Props) {
     );
   }
 
-  const sortedMembershipSubs = myMembershipSubs
-    .filter((sub) => sub.subscription.is_active === true)
-    .sort((a, b) => new Date(b.subscription.started_at).getTime() - new Date(a.subscription.started_at).getTime());
-
   return (
     <div className="membership__mypledges-wrapper">
       <div className="membership__mypledges-content">
@@ -76,8 +110,22 @@ function PledgesTab(props: Props) {
                 <th>{__('Tier')}</th>
                 <th>{__('Paid Until')}</th>
                 <th>{__('Months Supported')}</th>
-                <th>{__('Amount')}</th>
-                <th>{__('Renew By')}</th>
+                <ButtonSort
+                  label={'Amount'}
+                  sortKey={sortKey}
+                  ownKey={AMOUNT_KEY}
+                  setKey={setSortKey}
+                  setOrder={setOrder}
+                  order={order}
+                />
+                <ButtonSort
+                  label={'Renew By'}
+                  sortKey={sortKey}
+                  ownKey={RENEW_KEY}
+                  setKey={setSortKey}
+                  setOrder={setOrder}
+                  order={order}
+                />
                 <th>{__('Status')}</th>
                 <th className="membership-table__page">{__('Page')}</th>
               </tr>

@@ -22,6 +22,7 @@ import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { getChannelIdFromClaim } from 'util/claim';
 import PreorderAndPurchaseContent from './view';
+import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -49,6 +50,8 @@ const select = (state, props) => {
     isAuthenticated: selectUserVerifiedEmail(state),
     pendingSdkPayment: selectSdkFeePendingForUri(state, uri),
     pendingPurchase: selectPendingPurchaseForUri(state, uri),
+    balance: selectArweaveBalance(state) || { ar: 0 },
+    exchangeRate: selectArweaveExchangeRates(state),
   };
 };
 

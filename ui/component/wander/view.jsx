@@ -32,6 +32,7 @@ export default function Wander(props: Props) {
     doCleanTips,
   } = props;
   const [instance, setInstance] = React.useState(null);
+  const loginTimerRef = React.useRef(null);
   const wrapperRef = React.useRef();
 
   React.useEffect(() => {
@@ -104,6 +105,7 @@ export default function Wander(props: Props) {
                 border-radius: var(--border-radius);
                 border: 2px solid var(--color-border) !important;
                 background:unset;
+                z-index:999999;
 
                 /*
                 &[data-layout="dropdown"] {
@@ -156,8 +158,8 @@ export default function Wander(props: Props) {
   React.useEffect(() => {
     if (window.wanderInstance) {
       const newTheme = theme === 'light' ? 'light' : theme === 'dark' ? 'dark' : 'system';
-      window.wanderInstance.setTheme(newTheme)
-    };
+      window.wanderInstance.setTheme(newTheme);
+    }
   }, [theme]);
 
   React.useEffect(() => {
@@ -189,6 +191,20 @@ export default function Wander(props: Props) {
               LocalStorage.setItem('WALLET_TYPE', data.data.authType);
               window.wanderInstance.close();
               doArSetAuth(data.data);
+              if (data.data.authStatus === 'authenticated') {
+                // Signed in & has backup, clear Interval
+                clearInterval(loginTimerRef.current);
+                loginTimerRef.current = null;
+              }
+            } else if (!loginTimerRef.current) {
+              let s = 0;
+              loginTimerRef.current = setInterval(() => {
+                s++;
+                if (s > 50) {
+                  if (!window.wanderInstance.openReason) window.wanderInstance.open();
+                  s = 0;
+                }
+              }, 1000);
             }
           } else if (data.data.authStatus === 'not-authenticated') {
             doArSetAuth(data.data);
@@ -222,6 +238,7 @@ export default function Wander(props: Props) {
       window.removeEventListener('arweaveWalletLoaded', onArweaveWalletLoaded);
       window.removeEventListener('message', onMessage);
       clearInterval(balanceUpdate);
+      clearInterval(loginTimerRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [instance, doArSetAuth]);

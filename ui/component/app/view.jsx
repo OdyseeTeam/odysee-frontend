@@ -52,7 +52,7 @@ export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
 // const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
-const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
+// const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
 
 const LATEST_PATH = `/$/${PAGES.LATEST}/`;
 const LIVE_PATH = `/$/${PAGES.LIVE_NOW}/`;
@@ -403,6 +403,7 @@ function App(props: Props) {
     }
     if (inIframe()) return;
 
+    /*
     const useProductionOneTrust = process.env.NODE_ENV === 'production' && window?.location?.hostname === 'odysee.com';
 
     const script = document.createElement('script');
@@ -434,6 +435,7 @@ function App(props: Props) {
         // console.log(err); <-- disabling this ... it's clogging up Sentry logs.
       }
     };
+    */
     // eslint-disable-next-line react-hooks/exhaustive-deps -- one time after locale is fetched
   }, [locale]);
 

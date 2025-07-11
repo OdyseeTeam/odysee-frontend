@@ -26,7 +26,7 @@ reach-portal {
 [data-reach-menu] {
   display: block;
   position: absolute;
-  z-index: calc(var(--floating-player-z-index) + 1);
+  z-index: 999999;
   font-size: var(--font-body);
   max-width: calc(100% - var(--height-button) - var(--spacing-xs));
 }

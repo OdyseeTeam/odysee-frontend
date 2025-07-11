@@ -66,3 +66,32 @@ export function membershipIsExpired(ends_at: any) {
   const endsAt = new Date(ends_at);
   return now > endsAt;
 }
+
+export const getRenewByMoment = (membershipSub) => {
+  const fpda = membershipSub.membership.first_payment_due_at;
+  const fpdaMoment = moment(fpda);
+  const endsAtMoment = moment(membershipSub.subscription.ends_at);
+  const nowMoment = moment();
+  const fpdaInFuture = nowMoment.diff(fpdaMoment) < 0;
+  const endsAtInPast = endsAtMoment && nowMoment.diff(endsAtMoment) > 0;
+  const hasPendingPayment = membershipSub.payments.some((m) => m.status === 'submitted');
+  if (hasPendingPayment) {
+    return null;
+  }
+  if (fpda === null && endsAtInPast) {
+    return null;
+  }
+  if (fpdaInFuture && endsAtInPast) {
+    return fpdaMoment;
+  }
+  return endsAtMoment;
+};
+
+export const getFormattedRenewBy = (membershipSub) => {
+  const renewByMoment = getRenewByMoment(membershipSub);
+  if (renewByMoment === null) {
+    return null;
+  }
+
+  return renewByMoment.format('LL');
+};

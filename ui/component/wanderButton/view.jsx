@@ -51,7 +51,13 @@ export default function WanderButton(props: Props) {
       >
         $
         {!hideBalance && activeArStatus === 'connected' ? (
-          <Counter value={arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar} />
+          <Counter
+            value={
+              arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar >= 0
+                ? arweaveStatus.balance.ar * arweaveStatus.exchangeRates.ar
+                : 0
+            }
+          />
         ) : (
           ''
         )}

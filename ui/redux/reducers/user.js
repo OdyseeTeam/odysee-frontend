@@ -84,6 +84,7 @@ reducers[ACTIONS.USER_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => {
       isCheckingLegacyOdyseePremium: false,
     });
   }
+  return Object.assign({}, state);
 };
 
 reducers[ACTIONS.USER_FETCH_STARTED] = (state) =>

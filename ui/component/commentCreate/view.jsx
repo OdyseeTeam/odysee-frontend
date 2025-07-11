@@ -5,7 +5,7 @@ import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE, ENABLE_ARCONNECT } from 'config';
+import { SIMPLE_SITE } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
@@ -171,10 +171,7 @@ export function CommentCreate(props: Props) {
   } = props;
 
   const { activeArStatus } = useArStatus();
-
-  const showArweave = ENABLE_ARCONNECT && experimentalUi;
   const fileUri = React.useContext(AppContext)?.uri;
-
   const isMobile = useIsMobile();
 
   const formFieldRef: ElementRef<any> = React.useRef();
@@ -227,7 +224,7 @@ export function CommentCreate(props: Props) {
   const minAmountMet =
     (activeTab !== TAB_LBC && activeTab !== TAB_FIAT && !minTip && !minUSDCTip) ||
     (activeTab === TAB_LBC && tipAmount >= minAmount) ||
-    (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
+    // (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
     (activeTab === TAB_USD && tipAmount >= minUSDCAmount);
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
@@ -254,7 +251,7 @@ export function CommentCreate(props: Props) {
       if (onSlimInputClose) onSlimInputClose();
 
       if (sticker.price && sticker.price > 0) {
-        setActiveTab(recipientArweaveTipInfo ? TAB_FIAT : TAB_LBC);
+        setActiveTab(recipientArweaveTipInfo ? TAB_USD : TAB_LBC);
         setTipSelector(true);
       }
     },
@@ -926,7 +923,7 @@ export function CommentCreate(props: Props) {
               }
               name={isReply ? 'create__reply' : 'create__comment'}
               onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
-              handleTip={(isLBC) => handleSelectTipComment(isLBC ? TAB_LBC : TAB_FIAT)}
+              handleTip={(isLBC) => handleSelectTipComment(isLBC ? TAB_LBC : TAB_USD)}
               handleSubmit={handleCreateComment}
               slimInput={isMobile && uri} // "uri": make sure it's on a file page
               slimInputButtonRef={slimInputButtonRef}
@@ -1090,21 +1087,14 @@ export function CommentCreate(props: Props) {
 
                 {!supportDisabled && !claimIsMine && (
                   <>
-                    {showArweave && (
-                      // <TipActionButton {...tipButtonProps} name={__('USDC')} icon={ICONS.USDC} tab={TAB_USDC} />
-                      <TipActionButton
-                        {...tipButtonProps}
-                        name={__('AR')}
-                        icon={ICONS.USD}
-                        tab={TAB_USD}
-                        disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
-                      />
-                    )}
-                    {/* window.cordova && !window?.odysee?.build?.googlePlay && stripeEnvironment && ( */}
+                    <TipActionButton
+                      {...tipButtonProps}
+                      name={__('AR')}
+                      icon={ICONS.USD}
+                      tab={TAB_USD}
+                      disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
+                    />
                     <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
-                    {false && stripeEnvironment && (
-                      <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
-                    )}
                   </>
                 )}
               </>

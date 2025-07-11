@@ -71,12 +71,12 @@ export function doArInit() {
 
 export function doArConnect() {
   LocalStorage.setItem('WANDER_DISCONNECT', 'false');
-  return async (dispatch: Dispatch, getState: GetState) => {    
+  return async (dispatch: Dispatch, getState: GetState) => {
     dispatch({ type: ARCONNECT_STARTED });
     if (window.arweaveWallet) {
       try {
         // $FlowIgnore
-        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);        
+        await global.window?.arweaveWallet?.connect(WALLET_PERMISSIONS);
         window.wanderInstance.close();
 
         if (!gFlags.arconnectWalletSwitchListenerAdded) {
@@ -117,9 +117,9 @@ export function doArConnect() {
         }
       } catch (e) {
         console.error('error:', e);
-        if(e.includes('User cancelled the AuthRequest')){
+        if (e.includes('User cancelled the AuthRequest')) {
           LocalStorage.setItem('WANDER_DISCONNECT', 'true');
-        }          
+        }
         dispatch({ type: ARCONNECT_FAILURE, data: { error: e?.message || 'Error connecting to Arconnect.' } });
       }
     } else {
@@ -366,20 +366,20 @@ export const doCleanTips = () => {
   };
 };
 
-function getBalanceEndpoint(wallet: string) {
-  return `https://arweave.net/wallet/${wallet}/balance`;
-}
+const getBalanceEndpoint = (wallet: string, gateway: string) => {
+  return `https://${gateway}/wallet/${wallet}/balance`;
+};
 
 const fetchARBalance = async (address: string) => {
-  try {
-    const rawBalance = await fetch(getBalanceEndpoint(address));
-    const jsonBalance = await rawBalance.json();
-    const arBalance = jsonBalance / 1e12;
-    return arBalance;
-  } catch (e) {
-    console.error(e);
-    return -1;
+  const gateways = ['arweave.net', 'permagate.io', 'zerosettle.online', 'zigza.xyz', 'ario-gateway.nethermind.dev'];
+  for (const gateway of gateways) {
+    try {
+      const res = await fetch(getBalanceEndpoint(address, gateway));
+      const balance = await res.json();
+      return balance / 1e12;
+    } catch {}
   }
+  return -1;
 };
 
 export const sendWinstons = async (
