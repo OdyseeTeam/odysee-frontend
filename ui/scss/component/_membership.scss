@@ -1174,14 +1174,17 @@ svg.icon--Upgrade {
   line-clamp: 10;
   -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
-  overflow: hidden;
+  overflow-y: scroll;
   word-break: break-word;
+  white-space: pre-line;
+  max-height: 300px;
 }
 
 .membership-tier__infos-description {
   display: block;
   max-height: 144px;
   overflow-y: scroll;
+  white-space: pre-line;
 }
 
 .button--view-memberships {

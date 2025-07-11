@@ -17,7 +17,7 @@ type Props = {
 export default function FileViewCountInline(props: Props) {
   const { isLivestream, claim, viewCount, lang, user } = props;
   const formattedViewCount = toCompactNotation(viewCount, lang);
-  const userIsMod = user?.groups.includes('mod') || user?.groups.includes('admin');
+  const userIsMod = user?.groups?.includes('mod') || user?.groups?.includes('admin');
 
   // Limit the view-count visibili ty to specific pages for now. We'll eventually
   // show it everywhere, so this band-aid would be the easiest to clean up

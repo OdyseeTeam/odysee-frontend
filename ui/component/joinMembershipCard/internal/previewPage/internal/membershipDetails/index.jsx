@@ -26,7 +26,6 @@ const MembershipDetails = (props: Props) => {
   } = props;
   const { activeArStatus } = useArStatus();
 
-  const descriptionParagraphs = membership.description.split('\n');
   const selectedMembershipName = membership.name;
   const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.membership_id);
 
@@ -70,11 +69,7 @@ const MembershipDetails = (props: Props) => {
           </section>
 
           <section className="membership-tier__infos">
-            <span className="membership-tier__infos-description">
-              {descriptionParagraphs.map((descriptionLine, i) =>
-                descriptionLine === '' ? <br key={i} /> : <p key={i}>{descriptionLine}</p>
-              )}
-            </span>
+            <span className="membership-tier__infos-description">{membership.description}</span>
             <label>{__('Pledge')}</label>
             <span style={{ display: 'flex' }}>${(membership?.prices[0].amount / 100).toFixed(2)}</span>
 
