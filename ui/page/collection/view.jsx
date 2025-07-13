@@ -11,6 +11,7 @@ import CollectionHeader from './internal/collectionHeader';
 import Spinner from 'component/spinner';
 import Card from 'component/common/card';
 import Button from 'component/button';
+import Yrbl from 'component/yrbl';
 import '../playlists/style.scss';
 
 type Props = {
@@ -18,6 +19,7 @@ type Props = {
   collectionId: string,
   // -- redux --
   hasClaim: ?boolean,
+  geoRestriction: ?GeoRestriction,
   collection: Collection,
   brokenUrls: ?Array<any>,
   isCollectionMine: boolean,
@@ -35,6 +37,7 @@ const CollectionPage = (props: Props) => {
     // -- path match --
     collectionId,
     // -- redux --
+    geoRestriction,
     hasClaim,
     collection,
     brokenUrls,
@@ -91,6 +94,21 @@ const CollectionPage = (props: Props) => {
       doResolveClaimId(collectionId, true, { include_is_my_output: true });
     }
   }, [collectionId, doResolveClaimId, isPrivate]);
+
+  if (geoRestriction) {
+    return (
+      <Page>
+        <div className="main--empty">
+          <Yrbl
+            title={__('Content unavailable')}
+            subtitle={geoRestriction.message ? __(geoRestriction.message) : ''}
+            type="sad"
+            alwaysShow
+          />
+        </div>
+      </Page>
+    );
+  }
 
   if (!hasPrivate && isResolvingCollection) {
     return (

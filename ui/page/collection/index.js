@@ -1,6 +1,11 @@
 import { connect } from 'react-redux';
 
-import { selectHasClaimForId, selectClaimIsPendingForId } from 'redux/selectors/claims';
+import {
+  selectHasClaimForId,
+  selectClaimIsPendingForId,
+  selectClaimForId,
+  selectGeoRestrictionForUri,
+} from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectBrokenUrlsForCollectionId,
@@ -19,8 +24,11 @@ const select = (state, props) => {
   const { params } = match;
   const { collectionId } = params;
 
+  const claim = selectClaimForId(state, collectionId);
+
   return {
     collectionId,
+    geoRestiction: selectGeoRestrictionForUri(state, claim?.permanent_url),
     hasClaim: selectHasClaimForId(state, collectionId),
     collection: selectCollectionForId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
