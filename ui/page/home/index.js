@@ -15,6 +15,7 @@ import {
   selectHomepageData,
   selectClientSetting,
   selectHomepageMeme,
+  selectHomepageCommentCards,
   selectHomepageCustomBanners,
 } from 'redux/selectors/settings';
 
@@ -34,6 +35,7 @@ const select = (state) => ({
   userHasOdyseeMembership: hasLegacyOdyseePremium(state),
   activeLivestreamByCreatorId: selectActiveLivestreamByCreatorId(state),
   livestreamViewersById: selectViewersById(state),
+  homepageCommentCards: selectHomepageCommentCards(state),
   homepageCustomBanners: selectHomepageCustomBanners(state),
 });
 
