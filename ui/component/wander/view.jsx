@@ -179,7 +179,7 @@ export default function Wander(props: Props) {
 
     const onMessage = (event) => {
       const data = event.data;
-      if (data && data.id && !data.id.includes('react')) {
+      if (data && data.id && !data.id.includes('react')) {        
         if (data.type === 'embedded_auth') {
           if (
             data.data.authType ||
@@ -210,7 +210,7 @@ export default function Wander(props: Props) {
             doArSetAuth(data.data);
           }
         }
-        if (data.type === 'embedded_request') {
+        else if (data.type === 'embedded_request') {
           if (window.wanderInstance.pendingRequests !== 0) {
             window.wanderInstance.close();
             window.wanderInstance.open();
@@ -218,11 +218,14 @@ export default function Wander(props: Props) {
             window.wanderInstance.close();
           }
         }
-        if (data.type === 'embedded_balance') {
+        else if (data.type === 'embedded_balance') {
           doArUpdateBalance();
         }
-        if (data.type === 'embedded_close') {
+        else if (data.type === 'embedded_close') {
           doCleanTips();
+        }
+        else if (data.type === 'embedded_backup') {
+          doArUpdateBalance();
         }
       }
     };

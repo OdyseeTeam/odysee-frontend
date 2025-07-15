@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectArweaveStatus } from 'redux/selectors/arwallet';
+import { selectArweaveStatus, selectArweaveBalance } from 'redux/selectors/arwallet';
 import WanderButton from './view';
 
 const select = (state) => ({

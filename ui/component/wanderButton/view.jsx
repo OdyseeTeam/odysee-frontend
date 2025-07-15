@@ -1,6 +1,8 @@
 // @flow
 import React from 'react';
 // $FlowIgnore
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 import { useArStatus } from 'effects/use-ar-status';
 import Tooltip from 'component/common/tooltip';
 import Counter from 'component/counter';
@@ -17,9 +19,16 @@ export default function WanderButton(props: Props) {
   const { hideBalance, arweaveStatus } = props;
   const { activeArStatus } = useArStatus();
   const history = useHistory();
+  const [backups, setBackups] = React.useState(window?.wanderInstance?.backupInfo?.backupsNeeded || 0);
+
+  React.useEffect(() => {
+    if(!window?.wanderInstance?.backupInfo) setBackups(0);
+    else setBackups(window?.wanderInstance?.backupInfo?.backupsNeeded);
+  },[arweaveStatus])
 
   const handleWalletClick = () => {
-    history.push(`/$/${PAGES.WALLET}`);
+    if(backups > 0) window.wanderInstance.open('backup');
+    else history.push(`/$/${PAGES.WALLET}`);
   };
 
   return (
@@ -46,7 +55,7 @@ export default function WanderButton(props: Props) {
             : !hideBalance && activeArStatus === 'connected'
             ? ' wanderButton--connected'
             : ''
-        }`}
+        }${backups > 0 ? ' wanderButton--warning' : ''}`}
         onClick={handleWalletClick}
       >
         $
@@ -55,6 +64,7 @@ export default function WanderButton(props: Props) {
         ) : (
           ''
         )}
+        {backups > 0 && activeArStatus === 'connected' && <Icon icon={ICONS.WARNING} />}
       </div>
     </Tooltip>
   );

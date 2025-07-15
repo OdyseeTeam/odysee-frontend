@@ -117,6 +117,7 @@ export const EURO = 'EUR';
 export const REWARDS = 'Award';
 export const ALERT = 'AlertCircle';
 export const INFO = 'InfoCircle';
+export const WARNING = 'Warning';
 export const COPY = 'Clipboard';
 export const ARROW_LEFT = 'ChevronLeft';
 export const ARROW_RIGHT = 'ChevronRight';

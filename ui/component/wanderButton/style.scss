@@ -50,6 +50,24 @@
     }
   }
 
+  &.wanderButton--warning{
+    outline:1px solid red;
+    outline-offset: -1px;
+    background: rgba(255,0,0,.1);
+
+    svg{
+      color:red;
+      margin-left: var(--spacing-xxxs);
+    }
+
+    &:hover{
+      outline: unset;
+      svg{
+        color:white;
+      }
+    }
+  }
+
   &:hover{
     cursor:pointer;
     background:var(--color-primary);
