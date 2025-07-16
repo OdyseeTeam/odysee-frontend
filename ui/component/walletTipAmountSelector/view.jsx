@@ -118,12 +118,6 @@ function WalletTipAmountSelector(props: Props) {
     } else {
       // if it's not fiat, aka it's boost or lbc tip
       if (activeTab !== TAB_FIAT) {
-        regexp = RegExp(/^(\d*([.]\d{0,8})?)$/);
-        const validTipInput = regexp.test(String(amount));
-
-        console.log('TAB: ', activeTab);
-        console.log('Amount: ', amount);
-        console.log('MINIMUM_PUBLISH_BID: ', MINIMUM_PUBLISH_BID);
         if (activeTab === 'TabUSD' && (!arBalance || amountInArEstimated > arBalance)) {
           setTipError(__('Insufficient AR Balance'));
         } else if (amount < MINIMUM_PUBLISH_BID) {
