@@ -33,20 +33,22 @@ type HelpTextProps = {
 };
 
 export const HelpText = (helpTextProps: HelpTextProps) => {
-  const { deletedComment, minUSDAmount, minUSDSuper, minUSDTip } = helpTextProps;
+  const { deletedComment, minAmount, minTip, minSuper, minUSDAmount, minUSDSuper, minUSDTip } = helpTextProps;
+  console.log('minAmount: ',minAmount)
+  console.log('minUSDAmount: ',minUSDAmount)
 
   return (
     <>
       {deletedComment && <div className="error__text">{__('This comment has been deleted.')}</div>}
 
-      {!!minUSDAmount && (
+      {(!!minAmount || !!minUSDAmount) && (        
         <div className="help--notice comment-create__min-amount-notice">
-          <span>{!!minUSDTip ? __('Comment minimums: ') : __('HyperChat minimums: ')}</span>
-          {(!!minUSDTip || !!minUSDSuper) && (
+          <span>{!!minTip || !!minUSDTip ? __('Comment minimums: ') : __('HyperChat minimums: ')}</span>
+          {(!!minTip || !!minSuper || !!minUSDTip || !!minUSDSuper) && (
             <>
               <I18nMessage
                 tokens={{
-                  usd: <CreditAmount noFormat isFiat amount={minUSDAmount} />,
+                  usd: <CreditAmount noFormat isFiat amount={minUSDAmount ? minUSDAmount : '0.01'} />,
                 }}
               >
                 {`%usd%`}
@@ -57,9 +59,9 @@ export const HelpText = (helpTextProps: HelpTextProps) => {
 
           <Icon
             customTooltipText={
-              minUSDTip
+              minTip || minUSDTip
                 ? __('This channel requires a minimum tip for each comment.')
-                : minUSDSuper
+                : minSuper || minUSDSuper
                 ? __('This channel requires a minimum amount for HyperChats to be visible.')
                 : ''
             }

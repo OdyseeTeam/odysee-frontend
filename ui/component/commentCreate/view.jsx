@@ -214,6 +214,9 @@ export function CommentCreate(props: Props) {
     isFetchingCreatorSettings ||
     hasNothingToSumbit ||
     disableInput;
+  const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
+  const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
+  const minAmount = minTip || minSuper || 0;
   const minUSDSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
   const minUSDTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
   const minUSDAmount = minUSDTip || minUSDSuper || 0;
@@ -856,6 +859,9 @@ export function CommentCreate(props: Props) {
               noticeLabel={
                 (isMobile || isLivestream) && (
                   <HelpText
+                    minAmount={minAmount}
+                    minTip={minTip}
+                    minSuper={minSuper}
                     deletedComment={deletedComment}
                     minUSDAmount={minUSDAmount}
                     minUSDSuper={minUSDSuper}
@@ -1020,6 +1026,9 @@ export function CommentCreate(props: Props) {
             {!isLivestream && (
               <HelpText
                 deletedComment={deletedComment}
+                minAmount={minAmount}
+                minTip={minTip}
+                minSuper={minSuper}
                 minUSDAmount={minUSDAmount}
                 minUSDSuper={minUSDSuper}
                 minUSDTip={minUSDTip}
