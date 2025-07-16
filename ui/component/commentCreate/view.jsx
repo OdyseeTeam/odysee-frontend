@@ -202,10 +202,17 @@ export function CommentCreate(props: Props) {
   const [exchangeRate, setExchangeRate] = React.useState();
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
 
-  const arweaveTipEnabled = recipientArweaveTipInfo && recipientArweaveTipInfo.status === 'active';
-
   const charCount = commentValue ? commentValue.length : 0;
-  const hasNothingToSumbit = !commentValue.length && !selectedSticker;
+  const hasNothingToSumbit = !commentValue.length && !selectedSticker;  
+  const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
+  const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
+  const minAmount = minTip || minSuper || 0;  
+  const minUSDSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
+  const minUSDTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
+  const minUSDAmount = minUSDTip || minUSDSuper || 0;
+  const minAmountMet = activeTab === TAB_USD && (tipAmount >= minUSDAmount || (minAmount && tipAmount > 0.01));
+  const stickerPrice = selectedSticker && selectedSticker.price;
+  const tipSelectorError = tipError || disableReviewButton;
   const disabled =
     commentSettingDisabled ||
     deletedComment ||
@@ -213,16 +220,8 @@ export function CommentCreate(props: Props) {
     isFetchingChannels ||
     isFetchingCreatorSettings ||
     hasNothingToSumbit ||
+    minAmountMet ||
     disableInput;
-  const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
-  const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
-  const minAmount = minTip || minSuper || 0;
-  const minUSDSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
-  const minUSDTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
-  const minUSDAmount = minUSDTip || minUSDSuper || 0;
-  const minAmountMet = activeTab === TAB_USD && tipAmount >= minUSDAmount;
-  const stickerPrice = selectedSticker && selectedSticker.price;
-  const tipSelectorError = tipError || disableReviewButton;
 
   const minUSDAmountRef = React.useRef(minUSDAmount);
   minUSDAmountRef.current = minUSDAmount;

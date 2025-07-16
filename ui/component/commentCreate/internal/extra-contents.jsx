@@ -34,8 +34,6 @@ type HelpTextProps = {
 
 export const HelpText = (helpTextProps: HelpTextProps) => {
   const { deletedComment, minAmount, minTip, minSuper, minUSDAmount, minUSDSuper, minUSDTip } = helpTextProps;
-  console.log('minAmount: ',minAmount)
-  console.log('minUSDAmount: ',minUSDAmount)
 
   return (
     <>
@@ -43,7 +41,7 @@ export const HelpText = (helpTextProps: HelpTextProps) => {
 
       {(!!minAmount || !!minUSDAmount) && (        
         <div className="help--notice comment-create__min-amount-notice">
-          <span>{!!minTip || !!minUSDTip ? __('Comment minimums: ') : __('HyperChat minimums: ')}</span>
+          <span>{(!!minTip || !!minUSDTip) ? __('Comment minimum: ') : __('HyperChat minimum: ')}</span>
           {(!!minTip || !!minSuper || !!minUSDTip || !!minUSDSuper) && (
             <>
               <I18nMessage
@@ -55,7 +53,6 @@ export const HelpText = (helpTextProps: HelpTextProps) => {
               </I18nMessage>
             </>
           )}
-          {/* TODO fix above spacing around ' or ' disappearing due to spans etc */}
 
           <Icon
             customTooltipText={
