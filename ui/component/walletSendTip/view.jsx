@@ -396,7 +396,7 @@ export default function WalletSendTip(props: Props) {
                     setTipError={setTipError}
                     tipError={tipError}
                     uri={uri}
-                    activeTab={activeTab === TAB_BOOST ? TAB_USD : activeTab}
+                    activeTab={activeTab === TAB_USD ? TAB_USD : activeTab}
                     amount={tipAmount}
                     onChange={(amount) => setTipAmount(amount)}
                     setDisableSubmitButton={setDisableSubmitButton}

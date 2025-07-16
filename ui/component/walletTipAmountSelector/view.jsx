@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import * as ICONS from 'constants/icons';
 import 'scss/component/_wallet-tip-selector.scss';
 import { FormField } from 'component/common/form';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
@@ -29,7 +30,6 @@ type Props = {
   arweaveTipData: ArweaveTipDataForId,
   isComment?: boolean,
   onChange: (number) => void,
-  setConvertedAmount?: (number) => void,
   setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
   doTipAccountCheckForUri: (uri: string) => void,
@@ -54,7 +54,6 @@ function WalletTipAmountSelector(props: Props) {
     arweaveTipData,
     isComment,
     onChange,
-    setConvertedAmount,
     setDisableSubmitButton,
     setTipError,
     doTipAccountCheckForUri,
@@ -82,7 +81,6 @@ function WalletTipAmountSelector(props: Props) {
    */
   function shouldDisableAmountSelector(amount: number) {
     const isARCondition = activeTab === TAB_USD && (amount > USDBalance || USDBalance === 0);
-    const isNotFiatTab = activeTab !== TAB_FIAT;
 
     // if it's LBC but the balance isn't enough, or fiat conditions met
     // $FlowFixMe
@@ -183,11 +181,10 @@ function WalletTipAmountSelector(props: Props) {
                 'button-toggle--active':
                   convertToTwoDecimalsOrMore(defaultAmount) === convertToTwoDecimalsOrMore(amount) && !useCustomTip,
                 'button-toggle--disabled':
-                  (activeTab === 'TabLBC' && amount > LBCBalance) ||
                   (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
               })}
               label={defaultAmount}
-              icon={TAB_USD}
+              icon={activeTab === TAB_USD ? ICONS.USD : ICONS.LBC}
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
