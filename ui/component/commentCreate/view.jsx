@@ -11,7 +11,7 @@ import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
-import * as STRIPE from 'constants/stripe';
+// import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CommentSelectors, { SELECTOR_TABS } from './internal/comment-selectors';
@@ -25,7 +25,7 @@ import ErrorBubble from 'component/common/error-bubble';
 import { AppContext } from 'component/app/view';
 import withCreditCard from 'hocs/withCreditCard';
 import { getStripeEnvironment } from 'util/stripe';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD } from 'constants/tip_tabs';
+import { TAB_USD } from 'constants/tip_tabs';
 import { useArStatus } from 'effects/use-ar-status';
 import './style.lazy.scss';
 
@@ -213,27 +213,16 @@ export function CommentCreate(props: Props) {
     isFetchingChannels ||
     isFetchingCreatorSettings ||
     hasNothingToSumbit ||
-    (activeTab === TAB_USDC && !arweaveTipEnabled) ||
     disableInput;
-  const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
-  const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
-  const minUSDCSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
-  const minUSDCTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
-  const minAmount = minTip || minSuper || 0;
-  const minUSDCAmount = minUSDCTip || minUSDCSuper || 0;
-  const minAmountMet =
-    (activeTab !== TAB_LBC && activeTab !== TAB_FIAT && !minTip && !minUSDCTip) ||
-    (activeTab === TAB_LBC && tipAmount >= minAmount) ||
-    // (activeTab === TAB_FIAT && tipAmount >= minUSDCAmount) ||
-    (activeTab === TAB_USD && tipAmount >= minUSDCAmount);
+  const minUSDSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
+  const minUSDTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
+  const minUSDAmount = minUSDTip || minUSDSuper || 0;
+  const minAmountMet = activeTab === TAB_USD && tipAmount >= minUSDAmount;
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
-  const fiatIcon = STRIPE.CURRENCY[preferredCurrency].icon;
 
-  const minAmountRef = React.useRef(minAmount);
-  minAmountRef.current = minAmount;
-  const minUSDCAmountRef = React.useRef(minUSDCAmount);
-  minUSDCAmountRef.current = minUSDCAmount;
+  const minUSDAmountRef = React.useRef(minUSDAmount);
+  minUSDAmountRef.current = minUSDAmount;
 
   const addEmoteToComment = React.useCallback((emote: string) => {
     setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
@@ -251,7 +240,7 @@ export function CommentCreate(props: Props) {
       if (onSlimInputClose) onSlimInputClose();
 
       if (sticker.price && sticker.price > 0) {
-        setActiveTab(recipientArweaveTipInfo ? TAB_USD : TAB_LBC);
+        setActiveTab(TAB_USD);
         setTipSelector(true);
       }
     },
@@ -386,9 +375,6 @@ export function CommentCreate(props: Props) {
   }
 
   const getAmount = () => {
-    if (activeTab === TAB_LBC) {
-      return tipAmount;
-    }
     if (activeTab === TAB_USD) {
       return tipAmount * 100; // pennies
     }
@@ -429,16 +415,13 @@ export function CommentCreate(props: Props) {
     // !! Beware of stale closure when editing the then-block, including doSubmitTip().
     doFetchCreatorSettings(channelClaimId)
       .then(() => {
-        const lockedMinAmount = minAmount; // value during closure.
-        const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
+        // const lockedMinAmount = minAmount; // value during closure.
+        // const currentMinAmount = minAmountRef.current; // value from latest doFetchCreatorSettings().
 
-        const lockedMinUSDCAmount = minUSDCAmount; // value during closure.
-        const currentMinUSDCAmount = minUSDCAmountRef.current; // value from latest doFetchCreatorSettings().
+        const lockedMinUSDAmount = minUSDAmount; // value during closure.
+        const currentMinUSDAmount = minUSDAmountRef.current; // value from latest doFetchCreatorSettings().
 
-        if (
-          (activeTab === TAB_LBC && lockedMinAmount !== currentMinAmount) ||
-          (activeTab === TAB_FIAT && lockedMinUSDCAmount !== currentMinUSDCAmount)
-        ) {
+        if (activeTab === TAB_USD && lockedMinUSDAmount !== currentMinUSDAmount) {
           doToast({
             message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
             isError: true,
@@ -448,7 +431,7 @@ export function CommentCreate(props: Props) {
         }
 
         // look, this is crazy complex. I just put the dry run inside doSendTip() for USDC instead of here.
-        if (activeTab === TAB_USDC || activeTab === TAB_USD) {
+        if (activeTab === TAB_USD) {
           doSubmitTip();
           return;
         }
@@ -479,36 +462,7 @@ export function CommentCreate(props: Props) {
 
     const params = { amount: tipAmount, claim_id: claimId, channel_id: activeChannelClaimId };
 
-    if (activeTab === TAB_LBC) {
-      // call doSendTip and then run the callback from the response
-      // second parameter is callback
-      doSendTip(
-        params,
-        false,
-        (response) => {
-          const { txid } = response;
-          // todo: why the setTimeout?
-          setTimeout(() => {
-            handleCreateComment(txid);
-          }, 1500);
-
-          doToast({
-            message: __('Tip successfully sent.'),
-            subMessage: __("I'm sure they appreciate it!"),
-            linkText: `${tipAmount} LBC ⇒ ${tipChannelName}`, // force show decimal places
-            linkTarget: `/${PAGES.WALLET}?tab=fiat-payment-history`,
-          });
-
-          setSuccessTip({ txid, tipAmount });
-        },
-        () => {
-          // reset the frontend so people can send a new comment
-          setSubmitting(false);
-        },
-        false,
-        'comment'
-      );
-    } else if (activeTab === TAB_USDC || activeTab === TAB_USD) {
+    if (activeTab === TAB_USD) {
       const arweaveTipAddress = recipientArweaveTipInfo && recipientArweaveTipInfo.address;
       const transactionCurrency = activeTab === TAB_USD ? 'AR' : 'USD';
       const tipParams: ArTipParams = {
@@ -526,7 +480,7 @@ export function CommentCreate(props: Props) {
         comment: commentValue,
         claim_id: claimId,
         parent_id: parentId,
-        txid: activeTab === TAB_LBC ? 'dummy_txid' : undefined,
+        txid: undefined,
         payment_tx_id: activeTab === TAB_USD ? 'dummy_txid' : undefined,
         environment: stripeEnvironment,
         is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
@@ -638,14 +592,6 @@ export function CommentCreate(props: Props) {
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
-    if (dryRun) {
-      if (activeTab === TAB_LBC) {
-        txid = 'dummy_txid';
-      } else if (activeTab === TAB_FIAT) {
-        payment_intent_id = 'dummy_payment_intent_id';
-      }
-    }
-
     return doCommentCreate(uri, isLivestream, {
       comment: stickerValue || commentValue,
       claim_id: claimId,
@@ -657,8 +603,7 @@ export function CommentCreate(props: Props) {
       sticker: !!stickerValue,
       is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
       amount: !!txid || !!payment_intent_id || !!payment_tx_id ? getAmount() : undefined,
-      currency:
-        activeTab === TAB_LBC ? 'LBC' : activeTab === TAB_FIAT ? 'USDC' : activeTab === TAB_USD ? 'AR' : undefined,
+      currency: 'AR',
       dry_run: dryRun,
     })
       .then((res) => {
@@ -912,18 +857,15 @@ export function CommentCreate(props: Props) {
                 (isMobile || isLivestream) && (
                   <HelpText
                     deletedComment={deletedComment}
-                    minAmount={minAmount}
-                    minSuper={minSuper}
-                    minTip={minTip}
-                    minUSDCAmount={minUSDCAmount}
-                    minUSDCSuper={minUSDCSuper}
-                    minUSDCTip={minUSDCTip}
+                    minUSDAmount={minUSDAmount}
+                    minUSDSuper={minUSDSuper}
+                    minUSDTip={minUSDTip}
                   />
                 )
               }
               name={isReply ? 'create__reply' : 'create__comment'}
               onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
-              handleTip={(isLBC) => handleSelectTipComment(isLBC ? TAB_LBC : TAB_USD)}
+              handleTip={() => handleSelectTipComment(TAB_USD)}
               handleSubmit={handleCreateComment}
               slimInput={isMobile && uri} // "uri": make sure it's on a file page
               slimInputButtonRef={slimInputButtonRef}
@@ -951,7 +893,7 @@ export function CommentCreate(props: Props) {
         {(!isMobile || isReviewingStickerComment) &&
           (tipSelectorOpen || (isReviewingStickerComment && stickerPrice)) && (
             <WalletTipAmountSelector
-              activeTab={activeTab}
+              activeTab={TAB_USD}
               amount={tipAmount}
               uri={uri}
               convertedAmount={convertedAmount}
@@ -959,7 +901,6 @@ export function CommentCreate(props: Props) {
               exchangeRate={exchangeRate}
               fiatConversion={selectedSticker && !!selectedSticker.price}
               onChange={(amount) => setTipAmount(amount)}
-              setConvertedAmount={setConvertedAmount}
               setDisableSubmitButton={setDisableReviewButton}
               setTipError={setTipError}
               tipError={tipError}
@@ -972,38 +913,8 @@ export function CommentCreate(props: Props) {
             {/* Submit Button */}
             {isReviewingSupportComment && (
               <>
-                {activeTab === TAB_LBC && (
+                {activeTab === TAB_USD && (
                   <Button
-                    {...submitButtonProps}
-                    autoFocus
-                    disabled={disabled || !minAmountMet}
-                    label={
-                      isSubmitting
-                        ? __('Sending...')
-                        : (commentFailure || arweaveTippingError) && tipAmount === successTip.tipAmount
-                        ? __('Re-submit')
-                        : __('Send')
-                    }
-                    onClick={handleSupportComment}
-                  />
-                )}
-                {(activeTab === TAB_USDC || activeTab === TAB_USD) && (
-                  <Button
-                    {...submitButtonProps}
-                    autoFocus
-                    disabled={disabled || !minAmountMet}
-                    label={
-                      isSubmitting
-                        ? __('Sending...')
-                        : commentFailure && tipAmount === successTip.tipAmount
-                        ? __('Re-submit')
-                        : __('Send')
-                    }
-                    onClick={handleSupportComment}
-                  />
-                )}
-                {activeTab === TAB_FIAT && (
-                  <SubmitCashTipButton
                     {...submitButtonProps}
                     autoFocus
                     disabled={disabled || !minAmountMet}
@@ -1025,7 +936,7 @@ export function CommentCreate(props: Props) {
                   <Button
                     {...submitButtonProps}
                     disabled={disabled || tipSelectorError || !minAmountMet}
-                    icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
+                    icon={ICONS.USD}
                     label={__('Review')}
                     onClick={() => {
                       setReviewingSupportComment(true);
@@ -1034,7 +945,7 @@ export function CommentCreate(props: Props) {
                   />
                 ) : (
                   <>
-                    {(!isMobile || selectedSticker) && ((!minTip && !minUSDCTip) || claimIsMine) && (
+                    {(!isMobile || selectedSticker) && (!minUSDTip || claimIsMine) && (
                       <Button
                         {...submitButtonProps}
                         ref={buttonRef}
@@ -1094,7 +1005,6 @@ export function CommentCreate(props: Props) {
                       tab={TAB_USD}
                       disabled={tipButtonProps.disabled || activeArStatus !== 'connected'}
                     />
-                    <TipActionButton {...tipButtonProps} name={__('LBC')} icon={ICONS.LBC} tab={TAB_LBC} />
                   </>
                 )}
               </>
@@ -1110,12 +1020,9 @@ export function CommentCreate(props: Props) {
             {!isLivestream && (
               <HelpText
                 deletedComment={deletedComment}
-                minAmount={minAmount}
-                minSuper={minSuper}
-                minTip={minTip}
-                minUSDCAmount={minUSDCAmount}
-                minUSDCSuper={minUSDCSuper}
-                minUSDCTip={minUSDCTip}
+                minUSDAmount={minUSDAmount}
+                minUSDSuper={minUSDSuper}
+                minUSDTip={minUSDTip}
               />
             )}
           </div>

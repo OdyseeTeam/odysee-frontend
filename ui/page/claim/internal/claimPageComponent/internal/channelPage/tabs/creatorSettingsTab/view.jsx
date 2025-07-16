@@ -398,92 +398,7 @@ export default function CreatorSettingsTab(props: Props) {
                   </SettingsRow>
 
                   <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for comments</I18nMessage>
-                    }
-                    subtitle={__(HELP.MIN_TIP)}
-                    warning={
-                      !minTip &&
-                      !!minUSDCTip && (
-                        <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                          All %lbc% comments allowed, please set a value if you want to limit this.
-                        </I18nMessage>
-                      )
-                    }
-                  >
-                    <FormField
-                      name="min_tip_amount_comment"
-                      className="form-field--price-amount"
-                      max={LBC_MAX}
-                      min={LBC_MIN}
-                      step={LBC_STEP}
-                      type="number"
-                      placeholder="0"
-                      value={minTip}
-                      onChange={(e) => {
-                        const newMinTip = parseFloat(e.target.value);
-                        setMinTip(newMinTip);
-                        pushMinTipDebounced(newMinTip || 0, activeChannelClaim);
-                        if (newMinTip !== 0) {
-                          if (minSuper !== 0) {
-                            setMinSuper(0);
-                            pushMinSuperDebounced(0, activeChannelClaim);
-                          }
-                          if (minUSDCSuper !== 0) {
-                            setMinUSDCSuper(0);
-                            pushMinUSDCSuperDebounced(0, activeChannelClaim);
-                          }
-                        }
-                      }}
-                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_TIP)}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for hyperchats</I18nMessage>
-                    }
-                    subtitle={
-                      <>
-                        {__(HELP.MIN_SUPER)}
-                        {minTip !== 0 && (
-                          <p className="help--inline">
-                            <em>{__(HELP.MIN_SUPER_OFF)}</em>
-                          </p>
-                        )}
-                      </>
-                    }
-                    warning={
-                      !minSuper &&
-                      !!minUSDCSuper && (
-                        <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                          All %lbc% hyperchats allowed, please set a value if you want to limit this.
-                        </I18nMessage>
-                      )
-                    }
-                  >
-                    <FormField
-                      name="min_tip_amount_super_chat"
-                      className="form-field--price-amount"
-                      min={0}
-                      step="any"
-                      type="number"
-                      placeholder="0"
-                      value={minSuper}
-                      disabled={!!minTip || !!minUSDCTip}
-                      onChange={(e) => {
-                        const newMinSuper = parseFloat(e.target.value);
-                        setMinSuper(newMinSuper);
-                        pushMinSuperDebounced(newMinSuper || 0, activeChannelClaim);
-                      }}
-                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_SUPER)}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={<I18nMessage tokens={{ lbc: '$' }}>Minimum %lbc% tip amount for comments</I18nMessage>}
+                    title={<I18nMessage tokens={{ usd: '$' }}>Minimum %usd% tip amount for comments</I18nMessage>}
                     subtitle={__(HELP.MIN_TIP)}
                     warning={
                       !!minTip &&
@@ -524,7 +439,7 @@ export default function CreatorSettingsTab(props: Props) {
                   </SettingsRow>
 
                   <SettingsRow
-                    title={<I18nMessage tokens={{ lbc: '$' }}>Minimum %lbc% tip amount for hyperchats</I18nMessage>}
+                    title={<I18nMessage tokens={{ usd: '$' }}>Minimum %usd% tip amount for hyperchats</I18nMessage>}
                     subtitle={
                       <>
                         {__(HELP.MIN_SUPER)}
