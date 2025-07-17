@@ -65,7 +65,6 @@ type Props = {
   uri: string,
   disableInput?: boolean,
   recipientArweaveTipInfo: any,
-  experimentalUi: boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
   onCancelReplying?: () => void,
@@ -93,14 +92,6 @@ type Props = {
     preferredCurrency: string,
     (any) => void
   ) => void,
-  doSendTip: (
-    params: {},
-    isSupport: boolean,
-    successCb: (any) => void,
-    errorCb: (any) => void,
-    boolean,
-    string
-  ) => void,
   doOpenModal: (id: string, any) => void,
   preferredCurrency: string,
   myChannelClaimIds: ?Array<string>,
@@ -126,7 +117,6 @@ export function CommentCreate(props: Props) {
     activeChannelUrl,
     bottom,
     recipientArweaveTipInfo,
-    experimentalUi,
     channelClaimId,
     claimId,
     claimIsMine,
@@ -137,7 +127,6 @@ export function CommentCreate(props: Props) {
     doFetchMyCommentedChannels,
     doOpenModal,
     doSendCashTip,
-    doSendTip,
     doArTip,
     doTipAccountCheckForUri,
     doToast,
@@ -203,14 +192,19 @@ export function CommentCreate(props: Props) {
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
 
   const charCount = commentValue ? commentValue.length : 0;
-  const hasNothingToSumbit = !commentValue.length && !selectedSticker;  
+  const hasNothingToSumbit = !commentValue.length && !selectedSticker;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
-  const minAmount = minTip || minSuper || 0;  
+  const minAmount = minTip || minSuper || 0;
   const minUSDSuper = (channelSettings && channelSettings.min_usdc_tip_amount_super_chat) || 0;
   const minUSDTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
   const minUSDAmount = minUSDTip || minUSDSuper || 0;
-  const minAmountMet = activeTab === TAB_USD && (tipAmount >= minUSDAmount || (minAmount && tipAmount > 0.01));
+
+  // For regular comments: only check minUSDTip (and legacy minTip)
+  // For hyperchat comments: check minUSDAmount (includes both minUSDTip and minUSDSuper)
+  const isHyperchat = activeTab === TAB_USD;
+  const minAmountMet = isHyperchat ? tipAmount >= (minUSDAmount || minAmount || 0) : !(minUSDTip || minTip); // Regular comments are blocked only if minUSDTip/minTip is set
+
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
   const disabled =
@@ -220,7 +214,7 @@ export function CommentCreate(props: Props) {
     isFetchingChannels ||
     isFetchingCreatorSettings ||
     hasNothingToSumbit ||
-    minAmountMet ||
+    !minAmountMet ||
     disableInput;
 
   const minUSDAmountRef = React.useRef(minUSDAmount);
@@ -1044,5 +1038,3 @@ export function CommentCreate(props: Props) {
     </>
   );
 }
-
-const SubmitCashTipButton = withCreditCard((props: any) => <Button {...props} />);
