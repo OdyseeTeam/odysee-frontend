@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import * as ICONS from 'constants/icons';
 import 'scss/component/_wallet-tip-selector.scss';
 import { FormField } from 'component/common/form';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
@@ -184,7 +183,7 @@ function WalletTipAmountSelector(props: Props) {
                   (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_USD ? ICONS.USD : ICONS.LBC}
+              icon={TAB_USD}
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
