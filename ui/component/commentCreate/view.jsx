@@ -66,6 +66,7 @@ type Props = {
   disableInput?: boolean,
   recipientArweaveTipInfo: any,
   experimentalUi: boolean,
+  canReceiveTips: boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
   onCancelReplying?: () => void,
@@ -127,6 +128,7 @@ export function CommentCreate(props: Props) {
     bottom,
     recipientArweaveTipInfo,
     experimentalUi,
+    canReceiveTips,
     channelClaimId,
     claimId,
     claimIsMine,
@@ -246,7 +248,7 @@ export function CommentCreate(props: Props) {
         setTipSelector(true);
       }
     },
-    [recipientArweaveTipInfo, onSlimInputClose]
+    [canReceiveTips, onSlimInputClose]
   );
 
   const commentSelectorsProps = React.useMemo(() => {
@@ -940,7 +942,7 @@ export function CommentCreate(props: Props) {
                 {tipSelectorOpen ? (
                   <Button
                     {...submitButtonProps}
-                    disabled={disabled || tipSelectorError || !minAmountMet}
+                    disabled={disabled || tipSelectorError || !minAmountMet || !canReceiveTips}
                     icon={ICONS.USD}
                     label={__('Review')}
                     onClick={() => {
