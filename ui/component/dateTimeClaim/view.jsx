@@ -5,7 +5,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { formatDateStr } from './helper';
-import { SCHEDULED_TAGS } from 'constants/tags';
+import { SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 
 type Props = {
   uri: ?string,
@@ -26,7 +26,8 @@ function DateTimeClaim(props: Props) {
 
   function resolveDate(tags: ?Array<string>, claimTsList: ClaimTsList): ?Date {
     // Defaults should match selectDateForUri()
-    const defaultTs = claimTsList.released || claimTsList.created;
+    const forceCreationTimestamp = tags?.includes(VISIBILITY_TAGS.UNLISTED);
+    const defaultTs = !forceCreationTimestamp ? claimTsList.released || claimTsList.created : claimTsList.created;
     return defaultTs ? new Date(defaultTs * 1000) : undefined;
   }
 

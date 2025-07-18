@@ -220,6 +220,7 @@ const PAYLOAD = {
     const isEditing = Boolean(claimToEdit);
     const { liveEditType } = publishData;
 
+    const unlistedFixedPublishDate = 2147483647; // Backend relies to future dates to skip sending of new content notifications
     const past = {};
 
     if (isEditing && claimToEdit) {
@@ -237,6 +238,9 @@ const PAYLOAD = {
       case 'private':
       case 'unlisted':
         if (isEditing) {
+          if (Number(past.release_time) === unlistedFixedPublishDate) {
+            return past.creation_timestamp || nowTs; // The future date was used to skip notification about new content, so it's not needed on edit. Reseting also helps when switching to public.
+          }
           if (past.isStreamPlaceholder) {
             assert(liveEditType === 'use_replay' || liveEditType === 'upload_replay' || liveEditType === 'update_only');
 
@@ -254,6 +258,9 @@ const PAYLOAD = {
             return userEnteredTs;
           }
         } else {
+          if (publishData.visibility === 'unlisted') {
+            return unlistedFixedPublishDate;
+          }
           if (userEnteredTs === undefined) {
             return nowTs;
           } else {
