@@ -238,9 +238,6 @@ const PAYLOAD = {
       case 'private':
       case 'unlisted':
         if (isEditing) {
-          if (Number(past.release_time) === unlistedFixedPublishDate) {
-            return past.creation_timestamp || nowTs; // The future date was used to skip notification about new content, so it's not needed on edit. Reseting also helps when switching to public.
-          }
           if (past.isStreamPlaceholder) {
             assert(liveEditType === 'use_replay' || liveEditType === 'upload_replay' || liveEditType === 'update_only');
 
@@ -253,6 +250,9 @@ const PAYLOAD = {
           }
 
           if (userEnteredTs === undefined) {
+            if (Number(past.release_time) === unlistedFixedPublishDate && publishData.visibility !== 'unlisted') {
+              return past.creation_timestamp || nowTs; // Auto reset the future timestamp if switching away from unlisted
+            }
             return past.wasScheduled ? past.creation_timestamp : Number(past.release_time || past.timestamp);
           } else {
             return userEnteredTs;
