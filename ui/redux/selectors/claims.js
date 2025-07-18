@@ -543,10 +543,11 @@ export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {
+    const forceCreationTimestamp = claim.value.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED);
     const timestamp =
       claim &&
       claim.value &&
-      (claim.value.release_time
+      (claim.value.release_time && !forceCreationTimestamp
         ? claim.value.release_time * 1000
         : claim.meta && claim.meta.creation_timestamp
         ? claim.meta.creation_timestamp * 1000
