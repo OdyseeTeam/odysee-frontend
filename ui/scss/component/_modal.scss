@@ -285,4 +285,10 @@
   .section {
     display:flex;
   }
+
+  .confirm__wrapper{
+    .section {
+      display:inline-block;
+    }
+  }
 }

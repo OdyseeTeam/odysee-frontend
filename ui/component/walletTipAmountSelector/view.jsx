@@ -183,7 +183,7 @@ function WalletTipAmountSelector(props: Props) {
                   (activeTab === 'TabUSDC' && (amount > USDCBalance || USDCBalance === 0)),
               })}
               label={defaultAmount}
-              icon={TAB_USD}
+              icon={activeTab === TAB_USD ? 'USD' : 'LBC'}
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);

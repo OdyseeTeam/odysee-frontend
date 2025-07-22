@@ -359,7 +359,10 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">{(!incognito && activeChannelName) || __('Anonymous')}</div>
                   <div className="confirm__label">{__('Amount')}</div>
                   <div className="confirm__value">
-                    <p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    {activeTab === TAB_USD 
+                      ? (<p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>)
+                      : (<p>{`${(Math.round(tipAmount * 100) / 100).toFixed(2)} ${ICONS.LBC}`}</p>)
+                    }
                   </div>
                 </div>
               </div>
