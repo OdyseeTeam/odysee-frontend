@@ -204,10 +204,15 @@ export function CommentCreate(props: Props) {
   const minUSDTip = (channelSettings && channelSettings.min_usdc_tip_amount_comment) || 0;
   const minUSDAmount = minUSDTip || minUSDSuper || 0;
 
+  // Convert legacy LBC minimums to 1 cent USD if they exist
+  const legacyMinAsUSD = minAmount > 0 ? 0.01 : 0;
+
   // For regular comments: only check minUSDTip (and legacy minTip)
   // For hyperchat comments: check minUSDAmount (includes both minUSDTip and minUSDSuper)
   const isHyperchat = activeTab === TAB_USD;
-  const minAmountMet = claimIsMine || (isHyperchat ? tipAmount >= (minUSDAmount || minAmount || 0) : !(minUSDTip || minTip)); // Regular comments are blocked only if minUSDTip/minTip is set
+
+  const minAmountMet =
+    claimIsMine || (isHyperchat ? tipAmount >= (minUSDAmount || legacyMinAsUSD) : !(minUSDTip || minTip)); // Regular comments are blocked only if minUSDTip/minTip is set
 
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
