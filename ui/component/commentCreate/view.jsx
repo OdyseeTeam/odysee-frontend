@@ -207,7 +207,7 @@ export function CommentCreate(props: Props) {
   // For regular comments: only check minUSDTip (and legacy minTip)
   // For hyperchat comments: check minUSDAmount (includes both minUSDTip and minUSDSuper)
   const isHyperchat = activeTab === TAB_USD;
-  const minAmountMet = isHyperchat ? tipAmount >= (minUSDAmount || minAmount || 0) : !(minUSDTip || minTip); // Regular comments are blocked only if minUSDTip/minTip is set
+  const minAmountMet = claimIsMine || (isHyperchat ? tipAmount >= (minUSDAmount || minAmount || 0) : !(minUSDTip || minTip)); // Regular comments are blocked only if minUSDTip/minTip is set
 
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
