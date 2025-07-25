@@ -2,6 +2,7 @@
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import type { Node } from 'react';
 import * as CS from 'constants/claim_search';
+import * as TAGS from 'constants/tags';
 import React from 'react';
 import { withRouter } from 'react-router';
 import { MATURE_TAGS } from 'constants/tags';
@@ -339,7 +340,16 @@ function ClaimListDiscover(props: Props) {
   }
 
   if (feeAmountParam && claimType !== CS.CLAIM_CHANNEL) {
-    options.fee_amount = feeAmountParam;
+    if (feeAmountParam === CS.FEE_ONLY_PURCHASE) {
+      options.all_tags = [TAGS.PURCHASE_TAG];
+    } else if (feeAmountParam === CS.FEE_ONLY_RENT) {
+      options.all_tags = [TAGS.RENTAL_TAG];
+    } else if (feeAmountParam === CS.FEE_AMOUNT_ONLY_FREE) {
+      options.not_tags = [TAGS.PURCHASE_TAG, TAGS.RENTAL_TAG];
+      options.fee_amount = feeAmountParam;
+    } else {
+      options.fee_amount = feeAmountParam;
+    }
   }
 
   if (claimIds) {
