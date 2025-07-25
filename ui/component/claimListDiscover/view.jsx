@@ -345,7 +345,8 @@ function ClaimListDiscover(props: Props) {
     } else if (feeAmountParam === CS.FEE_ONLY_RENT) {
       options.all_tags = [TAGS.RENTAL_TAG];
     } else if (feeAmountParam === CS.FEE_AMOUNT_ONLY_FREE) {
-      options.not_tags = [TAGS.PURCHASE_TAG, TAGS.RENTAL_TAG];
+      if (!options.not_tags) options.not_tags = [];
+      options.not_tags = options.not_tags.concat([TAGS.PURCHASE_TAG, TAGS.RENTAL_TAG]);
       options.fee_amount = feeAmountParam;
     } else {
       options.fee_amount = feeAmountParam;
