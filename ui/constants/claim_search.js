@@ -18,6 +18,8 @@ export const FEE_AMOUNT_KEY = 'fee_amount';
 export const FEE_AMOUNT_ANY = '>=0';
 export const FEE_AMOUNT_ONLY_PAID = '>0';
 export const FEE_AMOUNT_ONLY_FREE = '<=0';
+export const FEE_ONLY_RENT = 'purchase';
+export const FEE_ONLY_PURCHASE = 'rent';
 
 export const LANGUAGES_ALL = 'all';
 
