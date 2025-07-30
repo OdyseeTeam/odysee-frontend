@@ -13,6 +13,8 @@ import {
   selectMyUnlistedClaims,
   selectMyScheduledClaims,
   selectIsAllMyClaimsFetched,
+  selectMyPaidClaims,
+  selectMyPaidClaimsLegacy,
 } from 'redux/selectors/claims';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doFetchClaimListMine, doCheckPendingClaims, doClearClaimSearch } from 'redux/actions/claims';
@@ -45,6 +47,8 @@ const select = (state, props) => {
     myRepostClaims: selectMyRepostClaims(state),
     myUnlistedClaims: selectMyUnlistedClaims(state),
     myScheduledClaims: selectMyScheduledClaims(state),
+    myPaidClaims: selectMyPaidClaims(state),
+    myPaidClaimsLegacy: selectMyPaidClaimsLegacy(state),
     error: selectFetchingMyClaimsPageError(state),
     uploadCount: selectUploadCount(state),
     myChannelIds: selectMyChannelClaimIds(state),

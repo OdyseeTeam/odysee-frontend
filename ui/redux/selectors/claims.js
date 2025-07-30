@@ -693,6 +693,16 @@ export const selectMyUnlistedClaims = createSelector(selectMyClaims, (myClaims) 
   myClaims.filter((claim) => claim && claim.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED))
 );
 
+export const selectMyPaidClaims = createSelector(selectMyClaims, (myClaims) =>
+  // $FlowFixMe
+  myClaims.filter((claim) => claim && claim.value?.tags?.includes(TAG.PURCHASE_TAG, TAG.RENTAL_TAG))
+);
+
+export const selectMyPaidClaimsLegacy = createSelector(selectMyClaims, (myClaims) =>
+  // $FlowFixMe
+  myClaims.filter((claim) => claim && claim.value?.fee)
+);
+
 export const selectMyScheduledClaims = createSelector(selectMyClaims, (myClaims) =>
   myClaims.filter((claim) => {
     return (
