@@ -445,6 +445,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       vjsPlayer.controlBar?.show();
 
       vjsPlayer.poster(poster);
+      // Ensure the poster gets shown (sometimes audio player stays blank with autoplay media files enabled)
+      setTimeout(() => {
+        const setPoster = () => {
+          if (vjsPlayer && typeof vjsPlayer.poster === 'function') {
+            vjsPlayer.poster('');
+            vjsPlayer.poster(poster);
+          }
+        };
+        setPoster();
+        // One extra try just in case
+        setTimeout(setPoster, 2000);
+      }, 1500);
 
       vjsPlayer.el().childNodes[0].setAttribute('playsinline', '');
 
