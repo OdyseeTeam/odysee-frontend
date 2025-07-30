@@ -72,15 +72,17 @@ function ContentTab(props: Props) {
     activeLivestreamForChannel,
   } = props;
 
+  const {
+    push,
+    location: { pathname, search },
+  } = useHistory();
+  const urlParams = new URLSearchParams(search);
+
   const claimsInChannel = 9999;
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchQuery, setSearchQuery] = React.useState(urlParams.get('search') || '');
   const [isSearching, setIsSearching] = React.useState(false);
 
-  const {
-    location: { search },
-  } = useHistory();
-  const urlParams = new URLSearchParams(search).get('order');
-  const orderBy = urlParams;
+  const orderBy = urlParams.get('order');
 
   // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
@@ -106,13 +108,18 @@ function ContentTab(props: Props) {
 
   function handleInputChange(e) {
     const { value } = e.target;
+    const newUrlParams = new URLSearchParams(search);
 
+    newUrlParams.set('search', value);
+    push(`${pathname}?${newUrlParams.toString()}`);
     setSearchQuery(value);
   }
 
-  React.useEffect(() => {
-    setSearchQuery('');
-  }, [claimId]);
+  /* Not sure what this was for (leaving commented out instead of deleting for now)
+    React.useEffect(() => {
+      setSearchQuery('');
+    }, [claimId]);
+  */
 
   return (
     <Fragment>
