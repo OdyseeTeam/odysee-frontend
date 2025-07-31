@@ -4,11 +4,12 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
+import * as ICONS from 'constants/icons';
 
 import './style.scss';
 
 function BuyAr(props: Props) {
-  const { cardHeader, wallet, activeArStatus } = props;
+  const { cardHeader, wallet, activeArStatus, doToast } = props;
   const fiatAmountRef = React.useRef(null);
   const paymentOptionRef = React.useRef(null);
   const [fiatAmount, setFiatAmount] = React.useState(10);
@@ -82,80 +83,293 @@ function BuyAr(props: Props) {
     );
   };
 
+  // Credit card providers data
+  const creditCardProviders = [
+    {
+      name: 'Onramp.money',
+      url: `https://onramp.money/main/buy/?appId=390678${wallet?.address ? `&walletAddress=${wallet.address}` : ''}`,
+      note: 'Select Arweave (AR) as your cryptocurrency',
+    },
+    {
+      name: 'Ramp (Alchemy Pay)',
+      url: `https://ramp.alchemypay.org/#/${wallet?.address ? `?userAddress=${wallet.address}` : ''}`,
+      note: 'Select Arweave (AR) as your asset',
+    },
+    {
+      name: 'OnRamper',
+      url: `https://www.onramper.com/widget${wallet?.address ? `?walletAddress=${wallet.address}` : ''}`,
+      note: 'Search for and select Arweave (AR)',
+    },
+    {
+      name: 'ChangeNOW',
+      url: 'https://changenow.io/buy/ar?amount=10',
+      note: 'Pre-configured for AR purchase',
+    },
+  ];
+
+  // Crypto swap services data
+  const cryptoSwapServices = [
+    {
+      name: 'ChangeNOW',
+      url: 'https://changenow.io/?from=btc&to=ar',
+    },
+    {
+      name: 'SimpleSwap',
+      url: 'https://simpleswap.io/coins/ar',
+    },
+    {
+      name: 'SwapSpace',
+      url: 'https://swapspace.co/?to=ar&toNetwork=ar&from=btc&fromNetwork=btc&amount=0.01&direction=direct',
+    },
+    {
+      name: 'LetsExchange',
+      url: 'https://letsexchange.io/exchange/btc-to-ar',
+    },
+  ];
+
+  // Exchange platforms data
+  const exchanges = [
+    {
+      name: 'Binance',
+      url: 'https://www.binance.com/en/trade/AR_USDT',
+      icon: ICONS.EXTERNAL,
+    },
+    {
+      name: 'KuCoin',
+      url: 'https://www.kucoin.com/trade/AR-USDT',
+      icon: ICONS.EXTERNAL,
+    },
+    {
+      name: 'MEXC',
+      url: 'https://www.mexc.com/exchange/AR_USDT',
+      icon: ICONS.EXTERNAL,
+    },
+    {
+      name: 'Kraken',
+      url: 'https://www.kraken.com/prices/arweave',
+      icon: ICONS.EXTERNAL,
+    },
+    {
+      name: 'Bitget',
+      url: 'https://www.bitget.com/spot/ARUSDT',
+      icon: ICONS.EXTERNAL,
+    },
+    {
+      name: 'Crypto.com',
+      url: 'https://crypto.com/price/arweave',
+      icon: ICONS.EXTERNAL,
+    },
+    {
+      name: 'Uphold',
+      url: 'https://uphold.com/en-us/assets/crypto/buy-arweave',
+      icon: ICONS.EXTERNAL,
+    },
+  ];
+
   return (
     fiats.length > 0 && (
-      <Card
-        className={activeArStatus !== 'connected' ? `card--buyAr card--disabled` : `card--buyAr`}
-        title={cardHeader()}
-        background
-        actions={
-          <>
-            <div className="buyAr-wrapper">
-              <div className="buyAr-card">
-                <h3>{__('You spend')}</h3>
-                <div className="buyAr-input">
-                  <input ref={fiatAmountRef} onChange={onFiatAmountChange} placeholder={`0 ${activeFiat.symbol}`} />
-                  <Menu>
-                    <MenuButton className="">
-                      <FiatOption fiat={activeFiat} />
-                    </MenuButton>
+      <>
+        <Card
+          className={activeArStatus !== 'connected' ? `card--buyAr card--disabled` : `card--buyAr`}
+          title={cardHeader()}
+          background
+          actions={
+            <>
+              <div className="buyAr-wrapper">
+                <div className="buyAr-card">
+                  <h3>{__('You spend')}</h3>
+                  <div className="buyAr-input">
+                    <input ref={fiatAmountRef} onChange={onFiatAmountChange} placeholder={`0 ${activeFiat.symbol}`} />
+                    <Menu>
+                      <MenuButton className="">
+                        <FiatOption fiat={activeFiat} />
+                      </MenuButton>
 
-                    <MenuList className="menu__list channel-selector">
-                      {fiats &&
-                        fiats.map((fiat: any) => (
-                          <MenuItem key={fiat.symbol} onSelect={() => handleSetActiveFiat(fiat)}>
-                            <FiatOption fiat={fiat} />
-                          </MenuItem>
-                        ))}
-                    </MenuList>
-                  </Menu>
+                      <MenuList className="menu__list channel-selector">
+                        {fiats &&
+                          fiats.map((fiat: any) => (
+                            <MenuItem key={fiat.symbol} onSelect={() => handleSetActiveFiat(fiat)}>
+                              <FiatOption fiat={fiat} />
+                            </MenuItem>
+                          ))}
+                      </MenuList>
+                    </Menu>
+                  </div>
+                </div>
+                <div className="buyAr-card">
+                  <h3>{__('Pay with')}</h3>
+                  <select ref={paymentOptionRef} onChange={handleSelectPaymentOption}>
+                    {paymentOptions.map((option: any) => {
+                      return (
+                        <option key={option.id} value={option.id}>
+                          {option.name}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
               </div>
-              <div className="buyAr-card">
-                <h3>{__('Pay with')}</h3>
-                <select ref={paymentOptionRef} onChange={handleSelectPaymentOption}>
-                  {paymentOptions.map((option: any) => {
-                    return (
-                      <option key={option.id} value={option.id}>
-                        {option.name}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
+              <Button
+                button="primary"
+                label={__('Review Purchase on Transak')}
+                onClick={() =>
+                  window.open(
+                    `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${activeFiat.symbol}&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption}`,
+                    '_blank'
+                  )
+                }
+                disabled={!fiatAmount}
+              />
+              <p className="help">
+                <I18nMessage
+                  tokens={{
+                    learnMore: (
+                      <Button
+                        button="link"
+                        href="https://help.odysee.tv/category-monetization/exchanges"
+                        label={__('Learn more')}
+                      />
+                    ),
+                  }}
+                >
+                  To purchase AR on Odysee you’ll use Transak, Wander’s payment provider. Transak will prompt you to
+                  complete a Know Your Customer (KYC) identity-verification step before the transaction can go through.
+                  If you run into problems with KYC or payment, please contact Transak directly—Odysee can’t assist with
+                  those issues. You can also buy or cash-out AR on most major cryptocurrency exchanges. %learnMore%
+                </I18nMessage>
+              </p>
+            </>
+          }
+        />
+
+        {/* Additional Purchase Options */}
+        <Card
+          className="card--buyAr-alternatives"
+          title={
+            <div className="buyAr-alternatives-header">
+              <span>{__('Alternative Purchase Options')}</span>
+              {wallet?.address && (
+                <div className="buyAr-header-address">
+                  <span className="buyAr-address-label">Your AR Address:</span>
+                  <code className="buyAr-address-code">{wallet.address}</code>
+                  <Button
+                    button="alt"
+                    icon={ICONS.COPY}
+                    title={__('Copy Address')}
+                    onClick={() => {
+                      navigator.clipboard.writeText(wallet.address);
+                      doToast({ message: __('Address copied to clipboard') });
+                    }}
+                    className="buyAr-copy-button"
+                  />
+                </div>
+              )}
             </div>
-            <Button
-              button="primary"
-              label={__('Review')}
-              onClick={() =>
-                window.open(
-                  `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${activeFiat.symbol}&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption}`,
-                  '_blank'
-                )
-              }
-              disabled={!fiatAmount}
-            />
-            <p className="help">
-              <I18nMessage
-                tokens={{
-                  learnMore: (
-                    <Button
-                      button="link"
-                      href="https://help.odysee.tv/category-monetization/exchanges"
-                      label={__('Learn more')}
-                    />
-                  ),
-                }}
-              >
-                To purchase AR on Odysee you’ll use Transak, Wander’s payment provider. Transak will prompt you to
-                complete a Know Your Customer (KYC) identity-verification step before the transaction can go through. If
-                you run into problems with KYC or payment, please contact Transak directly—Odysee can’t assist with
-                those issues. You can also buy or cash-out AR on most major cryptocurrency exchanges. %learnMore%
-              </I18nMessage>
-            </p>
-          </>
-        }
-      />
+          }
+          background
+          actions={
+            <>
+              <div className="buyAr-disclaimer">
+                <div className="buyAr-disclaimer-icon">
+                  <div className="icon-wrapper">⚠️</div>
+                </div>
+                <p className="buyAr-disclaimer-text">
+                  {__('Availability varies by country and region. Some services may require identity verification.')}
+                </p>
+              </div>
+
+              {/* Credit Card Providers */}
+              <div className="buyAr-section">
+                <h3 className="buyAr-section-title">
+                  <span className="buyAr-section-icon">💳</span>
+                  {__('Credit & Debit Card Providers')}
+                </h3>
+                <div className="buyAr-providers-grid">
+                  {creditCardProviders.map((provider, index) => (
+                    <a
+                      key={index}
+                      href={provider.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="buyAr-provider-card"
+                    >
+                      <div className="buyAr-provider-content">
+                        <h4 className="buyAr-provider-name">
+                          {provider.name}
+                          <span className="buyAr-external-icon">↗</span>
+                        </h4>
+                        {provider.note && <p className="buyAr-provider-note">💡 {__(provider.note)}</p>}
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Crypto Swap Services */}
+              <div className="buyAr-section">
+                <h3 className="buyAr-section-title">
+                  <span className="buyAr-section-icon">🔄</span>
+                  {__('Crypto Swap Services')}
+                </h3>
+                <p className="buyAr-section-subtitle">{__('Exchange your existing cryptocurrencies for AR tokens.')}</p>
+                <div className="buyAr-providers-grid">
+                  {cryptoSwapServices.map((service, index) => (
+                    <a
+                      key={index}
+                      href={service.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="buyAr-provider-card"
+                    >
+                      <div className="buyAr-provider-content">
+                        <h4 className="buyAr-provider-name">
+                          {service.name}
+                          <span className="buyAr-external-icon">↗</span>
+                        </h4>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cryptocurrency Exchanges */}
+              <div className="buyAr-section">
+                <h3 className="buyAr-section-title">
+                  <span className="buyAr-section-icon">🏦</span>
+                  {__('Cryptocurrency Exchanges')}
+                </h3>
+                <p className="buyAr-section-subtitle">
+                  {__(
+                    'Trade AR on established cryptocurrency exchanges. Requires account registration. Withdraw to your AR Address after purchase.'
+                  )}
+                </p>
+                <div className="buyAr-exchanges-grid">
+                  {exchanges.map((exchange, index) => (
+                    <a
+                      key={index}
+                      href={exchange.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="buyAr-exchange-link"
+                    >
+                      {exchange.name}
+                      <span className="buyAr-external-icon">↗</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="buyAr-footer-note">
+                <p>
+                  {__(
+                    'Odysee does not endorse any specific provider or exchange. Please do your own research and ensure you understand the risks before making any purchase.'
+                  )}
+                </p>
+              </div>
+            </>
+          }
+        />
+      </>
     )
   );
 }
