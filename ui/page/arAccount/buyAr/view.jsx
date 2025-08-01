@@ -253,7 +253,7 @@ function BuyAr(props: Props) {
               {wallet?.address && (
                 <div className="buyAr-header-address">
                   <span className="buyAr-address-label">Your AR Address:</span>
-                  <div className="f"><CopyableText copyable={wallet.address} /></div>
+                  <CopyableText copyable={wallet.address} />
                 </div>
               )}
             </div>

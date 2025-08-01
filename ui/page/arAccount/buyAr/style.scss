@@ -65,7 +65,7 @@
 }
 
 .card--buyAr-alternatives {
-  margin-top: var(--spacing-s);
+  margin-top: var(--spacing-s);  
 
   .buyAr-disclaimer {
     display: flex;
@@ -95,6 +95,8 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
+    width: 100%;
+    max-width: 100%;
 
     .buyAr-header-address {
       display: flex;
@@ -107,13 +109,30 @@
         opacity: 0.8;
       }
 
+
       input-submit {
         height:28px;
+        
         input {
-          width: 350px;
+          width: 350px !important;
           height:100%;
         }
-      }      
+      }
+
+      @media (max-width: $breakpoint-small) {       
+        flex-direction: column;
+        align-items: start;
+
+        fieldset-section {
+          width: 100%;
+        }
+        input-submit {
+          input {
+            width: 100% !important;
+            max-width: unset !important;
+          }
+        }        
+      }
     }
   }
 
