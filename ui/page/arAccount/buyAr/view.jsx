@@ -1,10 +1,12 @@
 // @flow
 import React from 'react';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import CopyableText from 'component/copyableText';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
-import * as ICONS from 'constants/icons';
 
 import './style.scss';
 
@@ -251,17 +253,7 @@ function BuyAr(props: Props) {
               {wallet?.address && (
                 <div className="buyAr-header-address">
                   <span className="buyAr-address-label">Your AR Address:</span>
-                  <code className="buyAr-address-code">{wallet.address}</code>
-                  <Button
-                    button="alt"
-                    icon={ICONS.COPY}
-                    title={__('Copy Address')}
-                    onClick={() => {
-                      navigator.clipboard.writeText(wallet.address);
-                      doToast({ message: __('Address copied to clipboard') });
-                    }}
-                    className="buyAr-copy-button"
-                  />
+                  <div className="f"><CopyableText copyable={wallet.address} /></div>
                 </div>
               )}
             </div>
@@ -271,7 +263,7 @@ function BuyAr(props: Props) {
             <>
               <div className="buyAr-disclaimer">
                 <div className="buyAr-disclaimer-icon">
-                  <div className="icon-wrapper">⚠️</div>
+                  <Icon icon={ICONS.WARNING} />
                 </div>
                 <p className="buyAr-disclaimer-text">
                   {__('Availability varies by country and region. Some services may require identity verification.')}
@@ -281,7 +273,7 @@ function BuyAr(props: Props) {
               {/* Credit Card Providers */}
               <div className="buyAr-section">
                 <h3 className="buyAr-section-title">
-                  <span className="buyAr-section-icon">💳</span>
+                  <Icon icon={ICONS.CREDITCARD} size={20} />
                   {__('Credit & Debit Card Providers')}
                 </h3>
                 <div className="buyAr-providers-grid">
@@ -296,9 +288,9 @@ function BuyAr(props: Props) {
                       <div className="buyAr-provider-content">
                         <h4 className="buyAr-provider-name">
                           {provider.name}
-                          <span className="buyAr-external-icon">↗</span>
+                          <Icon icon={ICONS.EXTERNAL} />  
                         </h4>
-                        {provider.note && <p className="buyAr-provider-note">💡 {__(provider.note)}</p>}
+                        {provider.note && <p className="buyAr-provider-note">{__(provider.note)}</p>}
                       </div>
                     </a>
                   ))}
@@ -308,7 +300,7 @@ function BuyAr(props: Props) {
               {/* Crypto Swap Services */}
               <div className="buyAr-section">
                 <h3 className="buyAr-section-title">
-                  <span className="buyAr-section-icon">🔄</span>
+                  <Icon icon={ICONS.SWAP} size={20} />
                   {__('Crypto Swap Services')}
                 </h3>
                 <p className="buyAr-section-subtitle">{__('Exchange your existing cryptocurrencies for AR tokens.')}</p>
@@ -324,7 +316,7 @@ function BuyAr(props: Props) {
                       <div className="buyAr-provider-content">
                         <h4 className="buyAr-provider-name">
                           {service.name}
-                          <span className="buyAr-external-icon">↗</span>
+                          <Icon icon={ICONS.EXTERNAL} />
                         </h4>
                       </div>
                     </a>
@@ -335,7 +327,7 @@ function BuyAr(props: Props) {
               {/* Cryptocurrency Exchanges */}
               <div className="buyAr-section">
                 <h3 className="buyAr-section-title">
-                  <span className="buyAr-section-icon">🏦</span>
+                  <Icon icon={ICONS.EXCHANGE} size={20} />
                   {__('Cryptocurrency Exchanges')}
                 </h3>
                 <p className="buyAr-section-subtitle">
@@ -353,7 +345,7 @@ function BuyAr(props: Props) {
                       className="buyAr-exchange-link"
                     >
                       {exchange.name}
-                      <span className="buyAr-external-icon">↗</span>
+                      <Icon icon={ICONS.EXTERNAL} />
                     </a>
                   ))}
                 </div>
