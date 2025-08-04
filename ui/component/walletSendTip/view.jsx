@@ -110,7 +110,7 @@ export default function WalletSendTip(props: Props) {
 
   // loads the default tab if nothing else is there yet
   const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', defaultTabToShow);
-  const [activeTab, setActiveTab] = React.useState(persistentTab);
+  const [activeTab, setActiveTab] = React.useState(claimIsMine ? TAB_BOOST : persistentTab);
   const [hasSelected, setSelected] = React.useState(false);
 
   /** STATE **/
