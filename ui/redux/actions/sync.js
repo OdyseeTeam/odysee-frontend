@@ -247,6 +247,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
       .catch((syncAttemptError) => {
         const badPasswordError =
           syncAttemptError && syncAttemptError.data && syncAttemptError.data.name === BAD_PASSWORD_ERROR_NAME;
+        const tooBigDataError = Boolean(syncAttemptError?.message.match(/rpc call sync_apply\(\) on.*?status code: 413. could not decode body to rpc response: invalid character/))
 
         if (data.unlockFailed) {
           dispatch({ type: ACTIONS.GET_SYNC_FAILED, data: { error: syncAttemptError } });
@@ -256,7 +257,7 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
           }
 
           handleCallback(syncAttemptError);
-        } else if (data.hasSyncedWallet) {
+        } else if (!tooBigDataError && data.hasSyncedWallet) {
           const error = (syncAttemptError && syncAttemptError.message) || 'Error getting synced wallet';
           dispatch({
             type: ACTIONS.GET_SYNC_FAILED,
@@ -282,6 +283,10 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
               fatalError: !noWalletError,
             },
           });
+
+          if (tooBigDataError && !noWalletError) {
+            handleCallback(false, true, 0);
+          }
 
           // user doesn't have a synced wallet
           //   call sync_apply to get data to sync
@@ -544,6 +549,7 @@ export function doPreferenceGet(key: string, success: Function, fail?: Function)
       key,
     };
 
+    console.log
     return Lbry.preference_get(options)
       .then((result) => {
         if (result) {
