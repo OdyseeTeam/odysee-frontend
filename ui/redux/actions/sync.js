@@ -549,7 +549,6 @@ export function doPreferenceGet(key: string, success: Function, fail?: Function)
       key,
     };
 
-    console.log
     return Lbry.preference_get(options)
       .then((result) => {
         if (result) {
