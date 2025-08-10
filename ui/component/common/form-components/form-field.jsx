@@ -392,7 +392,7 @@ export class FormField extends React.PureComponent<Props, State> {
           </FormFieldWrapper>
         );
       default:
-        const inputElementProps = { type, name, maxLength: max, ref: this.input, ...inputProps };
+        const inputElementProps = { type, name, disabled, maxLength: max, ref: this.input, ...inputProps };
 
         return (
           <FormFieldWrapper {...wrapperProps}>
