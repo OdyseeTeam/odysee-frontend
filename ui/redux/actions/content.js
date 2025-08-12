@@ -597,17 +597,17 @@ export const doEnableCollectionShuffle =
       dispatch(doChangePlayingUri(newPlayingCollectionObj));
     } else {
       dispatch(doStartFloatingPlayingUri({ uri: newUrls[0], ...newPlayingCollectionObj }));
+
+      const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
+
+      dispatch(
+        push({
+          pathname: navigateUrl,
+          search: generateListSearchUrlParams(collectionId),
+          state: { collectionId, forceAutoplay: true },
+        })
+      );
     }
-
-    const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
-
-    dispatch(
-      push({
-        pathname: navigateUrl,
-        search: generateListSearchUrlParams(collectionId),
-        state: { collectionId, forceAutoplay: true },
-      })
-    );
   };
 
 export const doToggleShuffleList =
@@ -619,7 +619,7 @@ export const doToggleShuffleList =
     if (!listIsShuffledForId) {
       dispatch(doEnableCollectionShuffle({ collectionId, currentUri }));
     } else {
-      dispatch(doChangePlayingUri({ collection: { shuffle: undefined } }));
+      dispatch(doChangePlayingUri({ collection: { collectionId, shuffle: undefined } }));
     }
 
     if (!hideToast) {
