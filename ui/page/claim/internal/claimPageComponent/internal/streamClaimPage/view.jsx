@@ -85,7 +85,7 @@ const StreamClaimPage = (props: Props) => {
     return () => doSetPrimaryUri(null);
   }, [doSetContentHistoryItem, doSetPrimaryUri, uri]);
 
-  if (isMarkdown) {
+  if (!isClaimBlackListed && isMarkdown) {
     return (
       <React.Suspense fallback={null}>
         <MarkdownPostPage uri={uri} accessStatus={accessStatus} />
@@ -93,7 +93,7 @@ const StreamClaimPage = (props: Props) => {
     );
   }
 
-  if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
+  if (!isClaimBlackListed && RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
     if (isLivestream) {
       return (
         <React.Suspense fallback={null}>
@@ -181,7 +181,7 @@ const StreamClaimPage = (props: Props) => {
   return (
     <>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
-        {renderClaimLayout()}
+        {!isClaimBlackListed && renderClaimLayout()}
         {isClaimBlackListed && dmcaInfo()}
 
         <FileTitleSection uri={uri} accessStatus={accessStatus} />
