@@ -67,7 +67,7 @@ const StreamClaimPage = (props: Props) => {
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
 
-  const hideContent = isClaimFiltered || isClaimBlackListed;
+  const isHidden = isClaimFiltered || isClaimBlackListed;
 
   const cost = costInfo ? costInfo.cost : null;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
@@ -89,7 +89,7 @@ const StreamClaimPage = (props: Props) => {
     return () => doSetPrimaryUri(null);
   }, [doSetContentHistoryItem, doSetPrimaryUri, uri]);
 
-  if (!hideContent && isMarkdown) {
+  if (!isHidden && isMarkdown) {
     return (
       <React.Suspense fallback={null}>
         <MarkdownPostPage uri={uri} accessStatus={accessStatus} />
@@ -97,7 +97,7 @@ const StreamClaimPage = (props: Props) => {
     );
   }
 
-  if (!hideContent && RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
+  if (!isHidden && RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
     if (isLivestream) {
       return (
         <React.Suspense fallback={null}>
@@ -205,7 +205,7 @@ const StreamClaimPage = (props: Props) => {
   return (
     <>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
-        {!hideContent && renderClaimLayout()}
+        {!isHidden && renderClaimLayout()}
         {(isClaimBlackListed && dmcaInfo()) || (isClaimFiltered && filteredInfo())}
 
         <FileTitleSection uri={uri} accessStatus={accessStatus} />
