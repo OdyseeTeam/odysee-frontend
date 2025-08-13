@@ -30,7 +30,7 @@ export default function Portals(props: Props) {
   const [index, setIndex] = React.useState(1);
   const [pause, setPause] = React.useState(false);
   const [hover, setHover] = React.useState(undefined);
-  const rotate = portals.mainPortal.portals.length > tileNum;
+  const rotate = portals?.mainPortal?.portals?.length > tileNum;
 
   const [kill, setKill] = React.useState(false);
   const wrapper = React.useRef(null);
