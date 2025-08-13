@@ -182,7 +182,7 @@ const StreamClaimPage = (props: Props) => {
         <div className="section__actions">
           <Button
             button="link"
-            href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+            href="https://help.odysee.tv/communityguidelines/"
             label={__('Read More')}
           />
         </div>
