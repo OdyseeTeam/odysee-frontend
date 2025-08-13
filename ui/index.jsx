@@ -33,7 +33,7 @@ import {
   doLoadBuiltInHomepageData,
 } from 'redux/actions/settings';
 import { doFetchUserLocale } from 'redux/actions/user';
-import { Lbryio, doBlackListedOutpointsSubscribe, doFilteredOutpointsSubscribe } from 'lbryinc';
+import { Lbryio, doBlackListedDataSubscribe, doFilteredDataSubscribe } from 'lbryinc';
 import rewards from 'rewards';
 import { store, persistor, history } from 'store';
 import app from './app';
@@ -250,8 +250,8 @@ function AppWrapper() {
         }
         // if EXPERIMENTAL connect to arconnect
         app.store.dispatch(doUpdateIsNightAsync());
-        app.store.dispatch(doBlackListedOutpointsSubscribe());
-        app.store.dispatch(doFilteredOutpointsSubscribe());
+        app.store.dispatch(doBlackListedDataSubscribe());
+        app.store.dispatch(doFilteredDataSubscribe());
         app.store.dispatch(doFetchUserLocale());
         app.store.dispatch(doResolveSubscriptions());
       }, 25);

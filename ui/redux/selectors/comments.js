@@ -5,7 +5,7 @@ import { selectGeoBlockLists, selectMutedChannels } from 'redux/selectors/blocke
 import { selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMentionSearchResults, selectMentionQuery } from 'redux/selectors/search';
 import { selectUserLocale } from 'redux/selectors/user';
-import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
+import { selectBlackListedData, selectFilteredData } from 'lbryinc';
 import {
   selectClaimsById,
   selectMyClaimIdsRaw,
@@ -168,8 +168,8 @@ const filterCommentsDepOnList = {
   myChannelClaimIds: selectMyChannelClaimIds,
   mutedChannels: selectMutedChannels,
   personalBlockList: selectModerationBlockList,
-  blacklistedMap: selectBlacklistedOutpointMap,
-  filteredMap: selectFilteredOutpointMap,
+  blackListedData: selectBlackListedData,
+  filteredData: selectFilteredData,
   showMatureContent: selectShowMatureContent,
   geoBlockList: selectGeoBlockLists,
   locale: selectUserLocale,
@@ -296,8 +296,8 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
     myChannelClaimIds,
     mutedChannels,
     personalBlockList,
-    blacklistedMap,
-    filteredMap,
+    blackListedData,
+    filteredData,
     showMatureContent,
     geoBlockList,
     locale,
@@ -343,8 +343,7 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
             }
           }
 
-          const outpoint = `${channelClaim.txid}:${channelClaim.nout}`;
-          if (blacklistedMap[outpoint] || filteredMap[outpoint]) {
+          if (blackListedData[channelClaim.claim_id] || filteredData[channelClaim.claim_id]) {
             return false;
           }
 

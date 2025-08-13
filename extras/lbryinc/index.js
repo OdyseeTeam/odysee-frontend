@@ -13,8 +13,8 @@ export { doTransifexUpload } from 'util/transifex-upload';
 
 // actions
 export { doGenerateAuthToken } from './redux/actions/auth';
-export { doBlackListedOutpointsSubscribe } from './redux/actions/blacklist';
-export { doFilteredOutpointsSubscribe } from './redux/actions/filtered';
+export { doBlackListedDataSubscribe } from './redux/actions/blacklist';
+export { doFilteredDataSubscribe } from './redux/actions/filtered';
 // export { doFetchFeaturedUris, doFetchTrendingUris } from './redux/actions/homepage';
 export { doFetchViewCount, doFetchSubCount } from './redux/actions/stats';
 export {
@@ -37,16 +37,8 @@ export { syncReducer } from './redux/reducers/sync';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from './redux/selectors/auth';
-export {
-  selectBlackListedOutpoints,
-  selectBlacklistedOutpointMap,
-  selectIsClaimBlackListedForUri,
-} from './redux/selectors/blacklist';
-export {
-  selectFilteredOutpoints,
-  selectFilteredOutpointMap,
-  selectIsClaimFilteredForUri,
-} from './redux/selectors/filtered';
+export { selectBlackListedData, selectIsClaimBlackListedForUri } from './redux/selectors/blacklist';
+export { selectFilteredData, selectIsClaimFilteredForUri } from './redux/selectors/filtered';
 // export {
 //   selectFeaturedUris,
 //   selectFetchingFeaturedUris,
