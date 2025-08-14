@@ -8,7 +8,7 @@ import { createCachedSelector } from 're-reselect';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectModerationBlockList } from 'redux/selectors/comments';
-import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
+import { selectBlacklistedOutpointMap, selectFilteredData, selectBlackListedData } from 'lbryinc';
 import { getChannelFromClaim } from 'util/claim';
 import { isURIEqual } from 'util/lbryURI';
 
@@ -16,11 +16,11 @@ const ALL_CLEAR_STATE = Object.freeze({});
 
 export const selectBanStateForUri = createCachedSelector(
   selectClaimForUri,
-  selectBlacklistedOutpointMap,
-  selectFilteredOutpointMap,
+  selectBlackListedData,
+  selectFilteredData,
   selectMutedChannels,
   selectModerationBlockList,
-  (claim, blackListedOutpointMap, filteredOutpointMap, mutedChannelUris, personalBlocklist) => {
+  (claim, blackListedData, filteredData, mutedChannelUris, personalBlocklist) => {
     if (!claim) {
       return ALL_CLEAR_STATE;
     }
@@ -29,22 +29,16 @@ export const selectBanStateForUri = createCachedSelector(
     const banState = {};
 
     // This will be replaced once blocking is done at the wallet server level.
-    if (blackListedOutpointMap) {
-      if (
-        (channelClaim && blackListedOutpointMap[`${channelClaim.txid}:${channelClaim.nout}`]) ||
-        blackListedOutpointMap[`${claim.txid}:${claim.nout}`]
-      ) {
+    if (blackListedData) {
+      if ((channelClaim && blackListedData[channelClaim.claim_id]) || blackListedData[claim.claim_id]) {
         banState['blacklisted'] = true;
       }
     }
 
-    // We're checking to see if the stream outpoint or signing channel outpoint
+    // We're checking to see if the stream claim_id or signing channel claim_id
     // is in the filter list.
-    if (filteredOutpointMap) {
-      if (
-        (channelClaim && filteredOutpointMap[`${channelClaim.txid}:${channelClaim.nout}`]) ||
-        filteredOutpointMap[`${claim.txid}:${claim.nout}`]
-      ) {
+    if (filteredData) {
+      if ((channelClaim && filteredData[channelClaim.claim_id]) || filteredData[claim.claim_id]) {
         banState['filtered'] = true;
       }
     }

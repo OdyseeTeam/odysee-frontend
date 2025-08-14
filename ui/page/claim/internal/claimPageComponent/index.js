@@ -21,7 +21,6 @@ import { doOpenModal } from 'redux/actions/app';
 import { getChannelIdFromClaim } from 'util/claim';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
-import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
 import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { doFetchCreatorSettings } from 'redux/actions/comments';
@@ -62,8 +61,6 @@ const select = (state, props) => {
     latestClaimUrl,
     preferEmbed,
     isResolvingUri: selectIsUriResolving(state, uri),
-    blackListedOutpointMap: selectBlacklistedOutpointMap(state),
-    filteredOutpointMap: selectFilteredOutpointMap(state),
     isSubscribed: selectIsSubscribedForUri(state, uri),
     claimIsMine: selectClaimIsMine(state, claim),
     claimIsPending: makeSelectClaimIsPending(uri)(state),

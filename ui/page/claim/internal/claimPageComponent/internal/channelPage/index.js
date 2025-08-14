@@ -9,17 +9,14 @@ import {
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
-import { selectBlacklistedOutpointMap, doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
+import { selectBlackListedData, doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
 import { selectYoutubeChannels } from 'redux/selectors/user';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
 import { selectLanguage } from 'redux/selectors/settings';
-import {
-  selectMembershipMineFetched,
-  selectUserOdyseeMembership,
-} from 'redux/selectors/memberships';
+import { selectMembershipMineFetched, selectUserOdyseeMembership } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim, isClaimNsfw } from 'util/claim';
 import { doMembershipMine } from 'redux/actions/memberships';
 import { PREFERENCE_EMBED } from 'constants/tags';
@@ -35,7 +32,7 @@ const select = (state, props) => {
     channelIsMine: selectClaimIsMine(state, claim),
     claim,
     isSubscribed: selectIsSubscribedForUri(state, props.uri),
-    blackListedOutpointMap: selectBlacklistedOutpointMap(state),
+    blackListedData: selectBlackListedData(state),
     subCount: selectSubCountForUri(state, props.uri),
     pending: makeSelectClaimIsPending(props.uri)(state),
     youtubeChannels: selectYoutubeChannels(state),
