@@ -8,7 +8,7 @@ import { createCachedSelector } from 're-reselect';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectModerationBlockList } from 'redux/selectors/comments';
-import { selectBlacklistedOutpointMap, selectFilteredData, selectBlackListedData } from 'lbryinc';
+import { selectFilteredData, selectBlackListedData } from 'lbryinc';
 import { getChannelFromClaim } from 'util/claim';
 import { isURIEqual } from 'util/lbryURI';
 
@@ -30,7 +30,10 @@ export const selectBanStateForUri = createCachedSelector(
 
     // This will be replaced once blocking is done at the wallet server level.
     if (blackListedData) {
-      if ((channelClaim && blackListedData[channelClaim.claim_id]) || blackListedData[claim.claim_id]) {
+      if (
+        (channelClaim && blackListedData[channelClaim.claim_id || channelClaim.channel_id]) ||
+        blackListedData[claim.claim_id]
+      ) {
         banState['blacklisted'] = true;
       }
     }
@@ -38,7 +41,10 @@ export const selectBanStateForUri = createCachedSelector(
     // We're checking to see if the stream claim_id or signing channel claim_id
     // is in the filter list.
     if (filteredData) {
-      if ((channelClaim && filteredData[channelClaim.claim_id]) || filteredData[claim.claim_id]) {
+      if (
+        (channelClaim && filteredData[channelClaim.claim_id || channelClaim.channel_id]) ||
+        filteredData[claim.claim_id]
+      ) {
         banState['filtered'] = true;
       }
     }

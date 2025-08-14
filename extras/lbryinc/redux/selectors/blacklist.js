@@ -1,4 +1,3 @@
-import { createSelector } from 'reselect';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { getChannelFromClaim } from 'util/claim';
 
@@ -12,5 +11,5 @@ export const selectIsClaimBlackListedForUri = (state, uri) => {
 
   const blackListedData = selectBlackListedData(state);
 
-  return blackListedData[claim?.claim_id] || blackListedData[channelClaim?.claim_id];
+  return blackListedData[claim?.claim_id] || blackListedData[channelClaim?.claim_id || channelClaim?.channel_id];
 };

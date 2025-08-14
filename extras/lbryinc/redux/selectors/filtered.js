@@ -1,4 +1,3 @@
-import { createSelector } from 'reselect';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { getChannelFromClaim } from 'util/claim';
 
@@ -12,5 +11,5 @@ export const selectIsClaimFilteredForUri = (state, uri) => {
 
   const filteredData = selectFilteredData(state);
 
-  return filteredData[claim?.claim_id] || filteredData[channelClaim?.claim_id];
+  return filteredData[claim?.claim_id] || filteredData[channelClaim?.claim_id || channelClaim?.channel_id];
 };
