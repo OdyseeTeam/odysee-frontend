@@ -36,6 +36,7 @@ type Props = {
   contentUnlocked: boolean,
   isLivestream: boolean,
   isClaimBlackListed: boolean,
+  isClaimFiltered: boolean,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
@@ -57,6 +58,7 @@ const StreamClaimPage = (props: Props) => {
     contentUnlocked,
     isLivestream,
     isClaimBlackListed,
+    isClaimFiltered,
     doSetContentHistoryItem,
     doSetPrimaryUri,
     doToggleAppDrawer,
@@ -64,6 +66,8 @@ const StreamClaimPage = (props: Props) => {
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
+
+  const isHidden = isClaimFiltered || isClaimBlackListed;
 
   const cost = costInfo ? costInfo.cost : null;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
@@ -85,7 +89,7 @@ const StreamClaimPage = (props: Props) => {
     return () => doSetPrimaryUri(null);
   }, [doSetContentHistoryItem, doSetPrimaryUri, uri]);
 
-  if (!isClaimBlackListed && isMarkdown) {
+  if (!isHidden && isMarkdown) {
     return (
       <React.Suspense fallback={null}>
         <MarkdownPostPage uri={uri} accessStatus={accessStatus} />
@@ -93,7 +97,7 @@ const StreamClaimPage = (props: Props) => {
     );
   }
 
-  if (!isClaimBlackListed && RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
+  if (!isHidden && RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
     if (isLivestream) {
       return (
         <React.Suspense fallback={null}>
@@ -166,6 +170,26 @@ const StreamClaimPage = (props: Props) => {
     );
   }
 
+  function filteredInfo() {
+    return (
+      <section className="card--section dmca-info">
+        <p>{__('This content violates the terms and conditions of Odysee and has been filtered.')}</p>
+        <p>
+          {__('Please remove the content, or reach out to %email% if you think there has been a mistake.', {
+            email: 'help@odysee.com',
+          })}
+        </p>
+        <div className="section__actions">
+          <Button
+            button="link"
+            href="https://help.odysee.tv/communityguidelines/"
+            label={__('Read More')}
+          />
+        </div>
+      </section>
+    );
+  }
+
   if (isMature) {
     return (
       <>
@@ -181,8 +205,8 @@ const StreamClaimPage = (props: Props) => {
   return (
     <>
       <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
-        {!isClaimBlackListed && renderClaimLayout()}
-        {isClaimBlackListed && dmcaInfo()}
+        {!isHidden && renderClaimLayout()}
+        {(isClaimBlackListed && dmcaInfo()) || (isClaimFiltered && filteredInfo())}
 
         <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
