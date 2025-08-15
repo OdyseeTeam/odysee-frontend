@@ -327,7 +327,7 @@ function HomePage(props: Props) {
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
             // Check if there is a banner that should appear in this position
-            const bannerForPosition = homepageCustomBanners?.find((banner) => banner.position === index);
+            const bannerForPosition = homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
 
             return (
               <React.Fragment key={id}>
