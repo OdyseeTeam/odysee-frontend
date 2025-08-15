@@ -4,6 +4,7 @@ import moment from 'moment';
 import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
+import { selectArweaveTipDataForId } from 'redux/selectors/stripe';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
@@ -542,10 +543,11 @@ export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
 export const selectDateForUri = createCachedSelector(
   selectClaimForUri, // input: (state, uri, ?returnRepost)
   (claim) => {
+    const forceCreationTimestamp = claim?.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED);
     const timestamp =
       claim &&
       claim.value &&
-      (claim.value.release_time
+      (claim.value.release_time && !forceCreationTimestamp
         ? claim.value.release_time * 1000
         : claim.meta && claim.meta.creation_timestamp
         ? claim.meta.creation_timestamp * 1000
@@ -693,6 +695,16 @@ export const selectMyRepostClaims = createSelector(selectMyClaims, (myClaims) =>
 export const selectMyUnlistedClaims = createSelector(selectMyClaims, (myClaims) =>
   // $FlowFixMe
   myClaims.filter((claim) => claim && claim.value?.tags?.includes(TAG.VISIBILITY_TAGS.UNLISTED))
+);
+
+export const selectMyPaidClaims = createSelector(selectMyClaims, (myClaims) =>
+  // $FlowFixMe
+  myClaims.filter((claim) => claim && claim.value?.tags?.includes(TAG.PURCHASE_TAG, TAG.RENTAL_TAG))
+);
+
+export const selectMyPaidClaimsLegacy = createSelector(selectMyClaims, (myClaims) =>
+  // $FlowFixMe
+  myClaims.filter((claim) => claim && claim.value?.fee)
 );
 
 export const selectMyScheduledClaims = createSelector(selectMyClaims, (myClaims) =>
@@ -925,9 +937,38 @@ export const selectTagsRawForUri = (state: State, uri: string) => {
   return selectMetadataForUri(state, uri)?.tags;
 };
 
-export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  return parsePurchaseTag(metadata?.tags);
-})((state, uri) => String(uri));
+export const selectCostInfoForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  if (!claimId) return claimId;
+
+  return state.claims.costInfosById[claimId];
+};
+
+export const selectCanReceiveTipsForUri = createCachedSelector(
+  selectClaimForUri,
+  (state: State, uri: string) => state,
+  (claim: ?Claim, state: State) => {
+    const channelClaimId = getChannelIdFromClaim(claim);
+    if (!channelClaimId) return false;
+
+    const tipData = selectArweaveTipDataForId(state, channelClaimId);
+    const canReceiveTips = tipData?.status === 'active' && tipData?.default;
+    return canReceiveTips;
+  }
+)((state, uri) => String(uri));
+
+export const selectPurchaseTagForUri = createCachedSelector(
+  selectMetadataForUri,
+  selectCostInfoForUri,
+  selectCanReceiveTipsForUri,
+  (metadata: ?GenericMetadata, costInfo: ?any, canReceiveTips: ?boolean) => {
+    return (
+      parsePurchaseTag(metadata?.tags) ||
+      (costInfo?.feeCurrency === 'USD' && costInfo?.cost) ||
+      (canReceiveTips && costInfo?.feeCurrency === 'LBC' && costInfo?.usdCost)
+    );
+  }
+)((state, uri) => String(uri));
 
 export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('preorder:'));
@@ -1190,13 +1231,6 @@ export const selectClaimHasSupportsForUri = (state: State, uri: string) => {
   return hasSupport;
 };
 
-export const selectCostInfoForUri = (state: State, uri: string) => {
-  const claimId = selectClaimIdForUri(state, uri);
-  if (!claimId) return claimId;
-
-  return state.claims.costInfosById[claimId];
-};
-
 export const selectSdkFeePendingForUri = (state: State, uri: string) => {
   const claimIsMine = selectClaimIsMineForUri(state, uri);
   const costInfo = selectCostInfoForUri(state, uri);
@@ -1212,7 +1246,10 @@ export const selectPendingPurchaseForUri = (state: State, uri: string) => {
   const pendingFiatPayment = selectPendingFiatPaymentForUri(state, uri);
   const pendingSdkPayment = selectSdkFeePendingForUri(state, uri);
 
-  return pendingFiatPayment || pendingSdkPayment;
+  const sdkPaid = selectClaimWasPurchasedForUri(state, uri);
+  const fiatPaid = selectIsFiatPaidForUri(state, uri);
+
+  return (pendingFiatPayment || pendingSdkPayment) && !sdkPaid && !fiatPaid;
 };
 
 export const selectScheduledStateForUri = (state: State, uri: string): ClaimScheduledState => {

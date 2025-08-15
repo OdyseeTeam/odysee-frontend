@@ -573,6 +573,18 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     <div className="dmca-info">{__('DMCA flagged')}</div>
                   </a>
                 )}
+                {banState.filtered && claimIsMine && (
+                  <a
+                    href="https://help.odysee.tv/category-uploading/dmca-content/#receiving-a-dmca-notice"
+                    target="_blank"
+                    rel="noreferrer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <div className="dmca-info">{__('Filtered')}</div>
+                  </a>
+                )}
                 {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
               </div>
               <div className="claim-tile__info">

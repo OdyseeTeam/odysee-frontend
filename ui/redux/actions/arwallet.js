@@ -447,8 +447,11 @@ export const doArSend = (recipientAddress: string, amountAr: number) => {
       };
 
       const transactionCheck = await arweave.createTransaction(testParams);
+      const address = await global.window.arweaveWallet.getActiveAddress();
+      const balance = await fetchARBalance(address);
+      const balanceInWinston = arweave.ar.arToWinston(balance.toString());
       let transaction = null;
-      if (transactionCheck.quantity >= amountInWinstons) {
+      if (transactionCheck.quantity >= balanceInWinston) {
         const newParams = {
           target: recipientAddress,
           recipient: recipientAddress,

@@ -10,22 +10,17 @@ import SearchChannelField from 'component/searchChannelField';
 import SettingsRow from 'component/settingsRow';
 import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form-components/form-field';
-import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
 
 const DEBOUNCE_REFRESH_MS = 1000;
 
-const LBC_MAX = 21000000;
-const LBC_MIN = 0;
-const LBC_STEP = 1.0;
-
 const FIELD_NAMES = {
   MIN_TIP: 'minTip',
   MIN_SUPER: 'minSuper',
-  MIN_USDC_TIP: 'minUSDCTip',
-  MIN_USDC_SUPER: 'minUSDCSuper',
+  MIN_USD_TIP: 'minUSDTip',
+  MIN_USD_SUPER: 'minUSDSuper',
   SLOW_MODE: 'slowMode',
 };
 
@@ -79,18 +74,17 @@ export default function CreatorSettingsTab(props: Props) {
   const [moderatorUris, setModeratorUris] = React.useState([]);
   const [minTip, setMinTip] = React.useState(0);
   const [minSuper, setMinSuper] = React.useState(0);
-  const [minUSDCTip, setMinUSDCTip] = React.useState(0);
-  const [minUSDCSuper, setMinUSDCSuper] = React.useState(0);
+  const [minUSDTip, setMinUSDTip] = React.useState(0);
+  const [minUSDSuper, setMinUSDSuper] = React.useState(0);
   const [slowModeMin, setSlowModeMin] = React.useState(0);
   const [minChannelAgeMinutes, setMinChannelAgeMinutes] = React.useState(0);
   const [lastUpdated, setLastUpdated] = React.useState(1);
   const focusedField = React.useRef('');
 
   const pushSlowModeMinDebounced = React.useMemo(() => debounce(pushSlowModeMin, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const pushMinTipDebounced = React.useMemo(() => debounce(pushMinTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
   const pushMinSuperDebounced = React.useMemo(() => debounce(pushMinSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const pushMinUSDCTipDebounced = React.useMemo(() => debounce(pushMinUSDCTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
-  const pushMinUSDCSuperDebounced = React.useMemo(() => debounce(pushMinUSDCSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const pushMinUSDTipDebounced = React.useMemo(() => debounce(pushMinUSDTip, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const pushMinUSDSuperDebounced = React.useMemo(() => debounce(pushMinUSDSuper, 1000), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // **************************************************************************
   // **************************************************************************
@@ -116,11 +110,9 @@ export default function CreatorSettingsTab(props: Props) {
 
     if (fullSync) {
       setCommentsEnabled(settings.comments_enabled || false);
-      focusedField.current !== FIELD_NAMES.MIN_TIP && setMinTip(settings.min_tip_amount_comment || 0);
-      focusedField.current !== FIELD_NAMES.MIN_SUPER && setMinSuper(settings.min_tip_amount_super_chat || 0);
-      focusedField.current !== FIELD_NAMES.MIN_USDC_TIP && setMinUSDCTip(settings.min_usdc_tip_amount_comment || 0);
-      focusedField.current !== FIELD_NAMES.MIN_USDC_SUPER &&
-        setMinUSDCSuper(settings.min_usdc_tip_amount_super_chat || 0);
+      focusedField.current !== FIELD_NAMES.MIN_USD_TIP && setMinUSDTip(settings.min_usdc_tip_amount_comment || 0);
+      focusedField.current !== FIELD_NAMES.MIN_USD_SUPER &&
+        setMinUSDSuper(settings.min_usdc_tip_amount_super_chat || 0);
       focusedField.current !== FIELD_NAMES.SLOW_MODE && setSlowModeMin(settings.slow_mode_min_gap || 0);
       setMinChannelAgeMinutes(settings.time_since_first_comment || 0);
       setCommentsMembersOnly(settings.comments_members_only);
@@ -137,10 +129,10 @@ export default function CreatorSettingsTab(props: Props) {
         setMinSuper(settings.min_tip_amount_super_chat);
       }
       if (settings.min_usdc_tip_amount_comment !== undefined) {
-        setMinUSDCTip(settings.min_usdc_tip_amount_comment);
+        setMinUSDTip(settings.min_usdc_tip_amount_comment);
       }
       if (settings.min_usdc_tip_amount_super_chat !== undefined) {
-        setMinUSDCSuper(settings.min_usdc_tip_amount_super_chat);
+        setMinUSDSuper(settings.min_usdc_tip_amount_super_chat);
       }
       if (settings.slow_mode_min_gap !== undefined) {
         setSlowModeMin(settings.slow_mode_min_gap);
@@ -170,11 +162,7 @@ export default function CreatorSettingsTab(props: Props) {
     updateCreatorSettings(activeChannelClaim, { slow_mode_min_gap: value });
   }
 
-  function pushMinTip(value: number, activeChannelClaim: ChannelClaim) {
-    updateCreatorSettings(activeChannelClaim, { min_tip_amount_comment: value });
-  }
-
-  function pushMinUSDCTip(value: number, activeChannelClaim: ChannelClaim) {
+  function pushMinUSDTip(value: number, activeChannelClaim: ChannelClaim) {
     updateCreatorSettings(activeChannelClaim, { min_usdc_tip_amount_comment: value });
   }
 
@@ -182,7 +170,7 @@ export default function CreatorSettingsTab(props: Props) {
     updateCreatorSettings(activeChannelClaim, { min_tip_amount_super_chat: value });
   }
 
-  function pushMinUSDCSuper(value: number, activeChannelClaim: ChannelClaim) {
+  function pushMinUSDSuper(value: number, activeChannelClaim: ChannelClaim) {
     updateCreatorSettings(activeChannelClaim, { min_usdc_tip_amount_super_chat: value });
   }
 
@@ -398,52 +386,37 @@ export default function CreatorSettingsTab(props: Props) {
                   </SettingsRow>
 
                   <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for comments</I18nMessage>
-                    }
+                    title={<I18nMessage tokens={{ usd: '$' }}>Minimum %usd% tip amount for comments</I18nMessage>}
                     subtitle={__(HELP.MIN_TIP)}
-                    warning={
-                      !minTip &&
-                      !!minUSDCTip && (
-                        <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                          All %lbc% comments allowed, please set a value if you want to limit this.
-                        </I18nMessage>
-                      )
-                    }
                   >
                     <FormField
                       name="min_tip_amount_comment"
                       className="form-field--price-amount"
-                      max={LBC_MAX}
-                      min={LBC_MIN}
-                      step={LBC_STEP}
                       type="number"
                       placeholder="0"
-                      value={minTip}
+                      value={minUSDTip}
                       onChange={(e) => {
-                        const newMinTip = parseFloat(e.target.value);
-                        setMinTip(newMinTip);
-                        pushMinTipDebounced(newMinTip || 0, activeChannelClaim);
-                        if (newMinTip !== 0) {
+                        const newMinUSDTip = parseFloat(e.target.value);
+                        setMinUSDTip(newMinUSDTip);
+                        pushMinUSDTipDebounced(newMinUSDTip || 0, activeChannelClaim);
+                        if (newMinUSDTip !== 0) {
                           if (minSuper !== 0) {
                             setMinSuper(0);
                             pushMinSuperDebounced(0, activeChannelClaim);
                           }
-                          if (minUSDCSuper !== 0) {
-                            setMinUSDCSuper(0);
-                            pushMinUSDCSuperDebounced(0, activeChannelClaim);
+                          if (minUSDSuper !== 0) {
+                            setMinUSDSuper(0);
+                            pushMinUSDSuperDebounced(0, activeChannelClaim);
                           }
                         }
                       }}
-                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_TIP)}
+                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_USD_TIP)}
                       onBlur={() => setLastUpdated(Date.now())}
                     />
                   </SettingsRow>
 
                   <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for hyperchats</I18nMessage>
-                    }
+                    title={<I18nMessage tokens={{ usd: '$' }}>Minimum %usd% tip amount for hyperchats</I18nMessage>}
                     subtitle={
                       <>
                         {__(HELP.MIN_SUPER)}
@@ -454,14 +427,6 @@ export default function CreatorSettingsTab(props: Props) {
                         )}
                       </>
                     }
-                    warning={
-                      !minSuper &&
-                      !!minUSDCSuper && (
-                        <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                          All %lbc% hyperchats allowed, please set a value if you want to limit this.
-                        </I18nMessage>
-                      )
-                    }
                   >
                     <FormField
                       name="min_tip_amount_super_chat"
@@ -470,95 +435,14 @@ export default function CreatorSettingsTab(props: Props) {
                       step="any"
                       type="number"
                       placeholder="0"
-                      value={minSuper}
-                      disabled={!!minTip || !!minUSDCTip}
+                      value={minUSDSuper}
+                      disabled={!!minTip || !!minUSDTip}
                       onChange={(e) => {
-                        const newMinSuper = parseFloat(e.target.value);
-                        setMinSuper(newMinSuper);
-                        pushMinSuperDebounced(newMinSuper || 0, activeChannelClaim);
+                        const newMinUSDSuper = parseFloat(e.target.value);
+                        setMinUSDSuper(newMinUSDSuper);
+                        pushMinUSDSuperDebounced(newMinUSDSuper || 0, activeChannelClaim);
                       }}
-                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_SUPER)}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={<I18nMessage tokens={{ lbc: '$' }}>Minimum %lbc% tip amount for comments</I18nMessage>}
-                    subtitle={__(HELP.MIN_TIP)}
-                    warning={
-                      !!minTip &&
-                      !minUSDCTip && (
-                        <I18nMessage tokens={{ lbc: '$' }}>
-                          All %lbc% comments allowed, please set a value if you want to limit this.
-                        </I18nMessage>
-                      )
-                    }
-                  >
-                    <FormField
-                      name="min_tip_amount_comment"
-                      className="form-field--price-amount"
-                      max={LBC_MAX}
-                      min={LBC_MIN}
-                      step={LBC_STEP}
-                      type="number"
-                      placeholder="0"
-                      value={minUSDCTip}
-                      onChange={(e) => {
-                        const newMinUSDCTip = parseFloat(e.target.value);
-                        setMinUSDCTip(newMinUSDCTip);
-                        pushMinUSDCTipDebounced(newMinUSDCTip || 0, activeChannelClaim);
-                        if (newMinUSDCTip !== 0) {
-                          if (minSuper !== 0) {
-                            setMinSuper(0);
-                            pushMinSuperDebounced(0, activeChannelClaim);
-                          }
-                          if (minUSDCSuper !== 0) {
-                            setMinUSDCSuper(0);
-                            pushMinUSDCSuperDebounced(0, activeChannelClaim);
-                          }
-                        }
-                      }}
-                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_USDC_TIP)}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={<I18nMessage tokens={{ lbc: '$' }}>Minimum %lbc% tip amount for hyperchats</I18nMessage>}
-                    subtitle={
-                      <>
-                        {__(HELP.MIN_SUPER)}
-                        {minTip !== 0 && (
-                          <p className="help--inline">
-                            <em>{__(HELP.MIN_SUPER_OFF)}</em>
-                          </p>
-                        )}
-                      </>
-                    }
-                    warning={
-                      !!minSuper &&
-                      !minUSDCSuper && (
-                        <I18nMessage tokens={{ lbc: '$' }}>
-                          All %lbc% hyperchats allowed, please set a value if you want to limit this.
-                        </I18nMessage>
-                      )
-                    }
-                  >
-                    <FormField
-                      name="min_tip_amount_super_chat"
-                      className="form-field--price-amount"
-                      min={0}
-                      step="any"
-                      type="number"
-                      placeholder="0"
-                      value={minUSDCSuper}
-                      disabled={!!minTip || !!minUSDCTip}
-                      onChange={(e) => {
-                        const newMinUSDCSuper = parseFloat(e.target.value);
-                        setMinUSDCSuper(newMinUSDCSuper);
-                        pushMinUSDCSuperDebounced(newMinUSDCSuper || 0, activeChannelClaim);
-                      }}
-                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_USDC_SUPER)}
+                      onFocus={() => (focusedField.current = FIELD_NAMES.MIN_USD_SUPER)}
                       onBlur={() => setLastUpdated(Date.now())}
                     />
                   </SettingsRow>

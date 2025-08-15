@@ -51,6 +51,11 @@ export const CHEF = 'Chef';
 export const STAR = 'star';
 export const DISCOVER = 'Compass';
 export const HOLIDAY = 'Holiday';
+export const COMEDY = 'Comedy';
+export const LIFESTYLE = 'Lifestyle';
+export const GHOST = 'Ghost';
+export const SPIRITUALITY = 'Spirituality';
+export const HORROR = 'Horror';
 
 // Badges
 export const BADGE_MOD = 'BadgeMod';
@@ -90,13 +95,11 @@ export const SHARE_LINK = 'ShareLink';
 
 // Other
 export const ARRANGE = 'Arrange';
-export const COMEDY = 'Comedy';
-export const LIFESTYLE = 'Lifestyle';
+export const CREDITCARD = 'Credit Card';
+export const SWAP = 'Swap';
+export const EXCHANGE = 'Exchange';
 export const MEMBERSHIP = 'Membership';
 export const GOLIVE = 'GOLIVE';
-export const GHOST = 'Ghost';
-export const SPIRITUALITY = 'Spirituality';
-export const HORROR = 'Horror';
 export const VIEW_TILES = 'TileView';
 export const VIEW_LIST = 'ListView';
 export const EMOJI = 'Emoji';
@@ -117,6 +120,7 @@ export const EURO = 'EUR';
 export const REWARDS = 'Award';
 export const ALERT = 'AlertCircle';
 export const INFO = 'InfoCircle';
+export const WARNING = 'Warning';
 export const COPY = 'Clipboard';
 export const ARROW_LEFT = 'ChevronLeft';
 export const ARROW_RIGHT = 'ChevronRight';

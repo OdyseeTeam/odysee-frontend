@@ -31,6 +31,8 @@ import {
   selectCollectionForIdHasClaimUrl,
   selectFirstItemUrlForCollection,
   selectIsLastCollectionItemForIdAndUri,
+  selectHasPrivateCollectionForId,
+  selectCollectionHasItemsResolvedForId,
 } from 'redux/selectors/collections';
 import { doCollectionEdit, doLocalCollectionCreate, doFetchItemsInCollection } from 'redux/actions/collections';
 import { doToast } from 'redux/actions/notifications';
@@ -377,15 +379,23 @@ export function doPlaylistAddAndAllowPlaying({
         }
       }
     } else {
+      const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+      const isPrivateVersion = selectHasPrivateCollectionForId(state, collectionId);
+      let collectionUrls;
+      if (hasItemsResolved || isPrivateVersion) {
+        collectionUrls = selectUrlsForCollectionId(state, collectionId);
+      }
+
       const handleEdit = () =>
         // $FlowFixMe
         dispatch(push({ pathname: `/$/${PAGES.PLAYLIST}/${collectionId}`, state: { showEdit: true } }));
 
       dispatch(
         doToast({
-          message: __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
-            playlist_name: collectionName,
-          }),
+          message:
+            __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
+              playlist_name: collectionName,
+            }) + (collectionUrls?.length ? ` (${remove ? collectionUrls.length - 1 : collectionUrls.length + 1})` : ''),
           actionText: isPlayingCollection || hasItemPlaying || remove ? __('Edit Playlist') : __('Start Playing'),
           action: isPlayingCollection || hasItemPlaying || remove ? handleEdit : startPlaying,
           secondaryActionText: isPlayingCollection || hasItemPlaying || remove ? undefined : __('Edit Playlist'),
@@ -589,17 +599,17 @@ export const doEnableCollectionShuffle =
       dispatch(doChangePlayingUri(newPlayingCollectionObj));
     } else {
       dispatch(doStartFloatingPlayingUri({ uri: newUrls[0], ...newPlayingCollectionObj }));
+
+      const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
+
+      dispatch(
+        push({
+          pathname: navigateUrl,
+          search: generateListSearchUrlParams(collectionId),
+          state: { collectionId, forceAutoplay: true },
+        })
+      );
     }
-
-    const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
-
-    dispatch(
-      push({
-        pathname: navigateUrl,
-        search: generateListSearchUrlParams(collectionId),
-        state: { collectionId, forceAutoplay: true },
-      })
-    );
   };
 
 export const doToggleShuffleList =
@@ -611,7 +621,7 @@ export const doToggleShuffleList =
     if (!listIsShuffledForId) {
       dispatch(doEnableCollectionShuffle({ collectionId, currentUri }));
     } else {
-      dispatch(doChangePlayingUri({ collection: { shuffle: undefined } }));
+      dispatch(doChangePlayingUri({ collection: { collectionId, shuffle: undefined } }));
     }
 
     if (!hideToast) {

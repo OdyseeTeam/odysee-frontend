@@ -2,24 +2,24 @@ import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
 
 const defaultState = {
-  fetchingBlackListedOutpoints: false,
-  fetchingBlackListedOutpointsSucceed: undefined,
-  blackListedOutpoints: undefined,
+  fetchingBlackListedData: false,
+  fetchingBlackListedDataSucceed: undefined,
+  blackListedData: {},
 };
 
 export const blacklistReducer = handleActions(
   {
-    [ACTIONS.FETCH_BLACK_LISTED_CONTENT_STARTED]: state => ({
+    [ACTIONS.FETCH_BLACK_LISTED_CONTENT_STARTED]: (state) => ({
       ...state,
-      fetchingBlackListedOutpoints: true,
+      fetchingBlackListedData: true,
     }),
     [ACTIONS.FETCH_BLACK_LISTED_CONTENT_COMPLETED]: (state, action) => {
-      const { outpoints, success } = action.data;
+      const { blackListedData, success } = action.data;
       return {
         ...state,
-        fetchingBlackListedOutpoints: false,
-        fetchingBlackListedOutpointsSucceed: success,
-        blackListedOutpoints: outpoints,
+        fetchingBlackListedData: false,
+        fetchingBlackListedDataSucceed: success,
+        blackListedData,
       };
     },
     [ACTIONS.FETCH_BLACK_LISTED_CONTENT_FAILED]: (state, action) => {
@@ -27,9 +27,9 @@ export const blacklistReducer = handleActions(
 
       return {
         ...state,
-        fetchingBlackListedOutpoints: false,
-        fetchingBlackListedOutpointsSucceed: success,
-        fetchingBlackListedOutpointsError: error,
+        fetchingBlackListedData: false,
+        fetchingBlackListedDataSucceed: success,
+        fetchingBlackListedDataError: error,
       };
     },
   },

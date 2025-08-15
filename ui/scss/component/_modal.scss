@@ -281,4 +281,14 @@
     width: 16px;
     height: 16px;
   }
+
+  .section {
+    display:flex;
+  }
+
+  .confirm__wrapper{
+    .section {
+      display:inline-block;
+    }
+  }
 }

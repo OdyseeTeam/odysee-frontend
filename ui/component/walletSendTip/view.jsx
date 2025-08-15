@@ -5,7 +5,7 @@ import { Lbryio } from 'lbryinc';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import { TAB_LBC, TAB_USDC, TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
+import { TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 import { Form } from 'component/common/form';
 import LbcMessage from 'component/common/lbc-message';
 import Button from 'component/button';
@@ -110,7 +110,7 @@ export default function WalletSendTip(props: Props) {
 
   // loads the default tab if nothing else is there yet
   const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', defaultTabToShow);
-  const [activeTab, setActiveTab] = React.useState(persistentTab);
+  const [activeTab, setActiveTab] = React.useState(claimIsMine ? TAB_BOOST : persistentTab);
   const [hasSelected, setSelected] = React.useState(false);
 
   /** STATE **/
@@ -223,7 +223,7 @@ export default function WalletSendTip(props: Props) {
     }
 
     // send an instant tip (no need to go to an exchange first)
-    if (instantTipEnabled && activeTab !== TAB_FIAT && activeTab !== TAB_USD) {
+    if (instantTipEnabled && activeTab !== TAB_USD) {
       if (instantTipMax.currency === 'LBC') {
         sendSupportOrConfirm(instantTipMax.amount);
       } else {
@@ -231,29 +231,7 @@ export default function WalletSendTip(props: Props) {
         Lbryio.getExchangeRates().then(({ LBC_USD }) => sendSupportOrConfirm(instantTipMax.amount / LBC_USD));
       }
       // sending fiat tip
-    } /* else if (activeTab === TAB_FIAT) {
-      if (!isOnConfirmationPage) {
-        setConfirmationPage(true);
-      } else {
-        const tipParams: TipParams = {
-          tipAmount,
-          tipChannelName: tipChannelName || '',
-          channelClaimId: channelClaimId || '',
-        };
-        const userParams: UserParams = { activeChannelName, activeChannelId };
-
-        // hit backend to send tip
-        doSendCashTip(
-          tipParams,
-          !activeChannelId || incognito,
-          userParams,
-          claimId,
-          stripeEnvironment,
-          preferredCurrency
-        );
-      }
-      // if it's a boost (?)
-    } */ else if (activeTab === TAB_USDC || activeTab === TAB_USD) {
+    } else if (activeTab === TAB_USD) {
       if (!isOnConfirmationPage) {
         setConfirmationPage(true);
       } else {
@@ -308,19 +286,12 @@ export default function WalletSendTip(props: Props) {
       return (Math.round(number * 100) / 100).toFixed(2);
     }
 
-    const amountToShow = activeTab === TAB_FIAT ? convertToTwoDecimals(tipAmount) : tipAmount;
-
-    // if it's a valid number display it, otherwise do an empty string
-    const displayAmount = !isNan(tipAmount) ? amountToShow : '';
-
     // build button text based on tab
     switch (activeTab) {
       case TAB_BOOST:
         return titleText;
-      // case TAB_FIAT:
-      //  return __('Send a %amount% Tip', { amount: `${fiatSymbolToUse}${displayAmount}` });
       case TAB_USD:
-        return __('Send a %amount% Tip', { amount: `${displayAmount} USD` });
+        return __('Send a %amount% Tip', { amount: `${tipAmount} USD` });
       default:
         return titleText;
     }
@@ -388,7 +359,10 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__value">{(!incognito && activeChannelName) || __('Anonymous')}</div>
                   <div className="confirm__label">{__('Amount')}</div>
                   <div className="confirm__value">
-                    <p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                    {activeTab === TAB_USD 
+                      ? (<p>{`${ICONS.USD} $ ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>)
+                      : (<p>{`${(Math.round(tipAmount * 100) / 100).toFixed(2)} ${ICONS.LBC}`}</p>)
+                    }
                   </div>
                 </div>
               </div>
@@ -425,7 +399,7 @@ export default function WalletSendTip(props: Props) {
                     setTipError={setTipError}
                     tipError={tipError}
                     uri={uri}
-                    activeTab={activeTab === TAB_BOOST ? TAB_LBC : activeTab}
+                    activeTab={activeTab === TAB_USD ? TAB_USD : activeTab}
                     amount={tipAmount}
                     onChange={(amount) => setTipAmount(amount)}
                     setDisableSubmitButton={setDisableSubmitButton}

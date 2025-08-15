@@ -544,7 +544,9 @@ function ClaimListHeader(props: Props) {
                 >
                   <option value={CS.FEE_AMOUNT_ANY}>{__('Any')}</option>
                   <option value={CS.FEE_AMOUNT_ONLY_FREE}>{__('Free')}</option>
-                  <option value={CS.FEE_AMOUNT_ONLY_PAID}>{__('Paid')}</option>
+                  <option value={CS.FEE_ONLY_PURCHASE}>{__('Paid')}</option>
+                  <option value={CS.FEE_AMOUNT_ONLY_PAID}>{__('Paid (Legacy/LBC)')}</option>
+                  <option value={CS.FEE_ONLY_RENT}>{__('For Rent')}</option>
                 </FormField>
               </div>
 

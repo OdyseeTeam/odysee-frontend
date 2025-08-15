@@ -19,12 +19,12 @@ type Props = {
   // --- redux ---
   preferredCurrency: string,
   preorderContentClaim: Claim,
+  canReceiveTips: boolean,
   preorderTag: number,
   purchaseTag: string,
   rentalTag: RentalTagParams,
   costInfo: any,
   exchangeRate: { ar: number },
-  balance: ArweaveBalance,
   doOpenModal: (string, {}) => void,
 };
 
@@ -35,41 +35,19 @@ export default function PaidContentOvelay(props: Props) {
     // --- redux ---
     preferredCurrency,
     preorderContentClaim, // populates after doResolveClaimIds
+    canReceiveTips,
     preorderTag, // the price of the preorder
     purchaseTag, // the price of the purchase
     rentalTag,
     costInfo,
     exchangeRate,
-    balance,
     doOpenModal,
   } = props;
-  const { ar: arBalance } = balance;
-  const { ar: dollarsPerAr } = exchangeRate;
-
-  const cantAffordPreorder = preorderTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < preorderTag;
-  const cantAffordRent = rentalTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < rentalTag;
-  const cantAffordPurchase = purchaseTag && dollarsPerAr && Number(dollarsPerAr) * arBalance < purchaseTag;
-  const getCanAffordOne = () => {
-    if (rentalTag && !cantAffordRent) {
-      return true;
-    }
-
-    if (purchaseTag && !cantAffordPurchase) {
-      return true;
-    }
-
-    if (preorderTag && !cantAffordPreorder) {
-      return true;
-    }
-    return false;
-  };
-  const canAffordOne = getCanAffordOne();
 
   const isEmbed = React.useContext(EmbedContext);
 
   const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
-  const sdkFeeRequired = costInfo && costInfo.cost > 0;
-
+  const sdkFeeRequired = costInfo && costInfo.cost > 0 && costInfo.feeCurrency === 'LBC';
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
     rentalExpirationTimeInSeconds = 0;
@@ -79,40 +57,58 @@ export default function PaidContentOvelay(props: Props) {
   }
 
   const clickProps = React.useMemo(() => {
-    const modalId = sdkFeeRequired ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
+    const modalId = sdkFeeRequired && !canReceiveTips ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
     return isEmbed
       ? { href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(modalId, { uri })}` }
       : { onClick: () => doOpenModal(modalId, { uri }) };
-  }, [doOpenModal, isEmbed, sdkFeeRequired, uri]);
+  }, [doOpenModal, isEmbed, sdkFeeRequired, uri, canReceiveTips]);
 
   const ButtonPurchase = React.useMemo(() => {
-    return ({ label, disabled }: { label: string, disabled: boolean }) => {
+    return ({ label }: { label: string }) => {
       // const clickprops = disabled ? {} : clickProps;
       return (
         <Button
           className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
-          icon={sdkFeeRequired ? ICONS.LBC : fiatIconToUse}
+          icon={sdkFeeRequired && !purchaseTag ? ICONS.LBC : fiatIconToUse}
           button="primary"
           label={label}
           requiresAuth
-          disabled={disabled}
           {...clickProps}
         />
       );
     };
-  }, [clickProps, fiatIconToUse, sdkFeeRequired]);
+  }, [clickProps, fiatIconToUse, sdkFeeRequired, purchaseTag]);
 
   React.useEffect(() => {
-    if (passClickPropsToParent && canAffordOne) {
+    if (passClickPropsToParent) {
       passClickPropsToParent(clickProps);
     }
-  }, [clickProps, passClickPropsToParent, canAffordOne]);
+  }, [clickProps, passClickPropsToParent]);
 
   return (
     <div className="paid-content-overlay">
       <div className="paid-content-overlay__body">
         <div className="paid-content-prompt paid-content-prompt--overlay">
-          {sdkFeeRequired && (
+          {sdkFeeRequired && canReceiveTips && (
+            <>
+              <div className="paid-content-prompt__price">
+                <Icon icon={ICONS.BUY} />
+                <I18nMessage
+                  tokens={{
+                    currency: <Icon icon={ICONS.LBC} />,
+                    amount: Number(costInfo.cost).toFixed(2),
+                    fiatSymbol,
+                    fiatAmount: Number(purchaseTag).toFixed(2),
+                  }}
+                >
+                  Purchase for %fiatSymbol%%fiatAmount% or %currency%%amount%
+                </I18nMessage>
+              </div>
+
+              <ButtonPurchase label={__('Purchase')} />
+            </>
+          )}
+          {sdkFeeRequired && !canReceiveTips && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
@@ -127,8 +123,6 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
-                {cantAffordPurchase && __('Insufficient funds to')}
-                {cantAffordPurchase && ' '}
                 {__('Purchase for %currency%%amount%', {
                   currency: fiatSymbol,
                   amount: Number(purchaseTag).toFixed(2),
@@ -138,8 +132,6 @@ export default function PaidContentOvelay(props: Props) {
 
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.TIME} />
-                {cantAffordRent && __('Insufficient funds to')}
-                {cantAffordRent && ' '}
                 {__('Rent %duration% for %currency%%amount%', {
                   duration: secondsToDhms(rentalExpirationTimeInSeconds),
                   currency: fiatSymbol,
@@ -147,7 +139,7 @@ export default function PaidContentOvelay(props: Props) {
                 })}{' '}
                 (<Symbol token="ar" amount={rentalPrice / exchangeRate?.ar} precision={4} />)
               </div>
-              <ButtonPurchase disabled={cantAffordRent && cantAffordPurchase} label={__('Purchase or Rent')} />
+              <ButtonPurchase label={__('Purchase or Rent')} />
             </>
           )}
 
@@ -155,33 +147,26 @@ export default function PaidContentOvelay(props: Props) {
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.TIME} />
-                {cantAffordRent && __('Insufficient funds to')}
-                {cantAffordRent && ' '}
                 {__('Rent %duration% for %currency%%amount%', {
                   currency: fiatSymbol,
                   amount: rentalPrice,
                   duration: secondsToDhms(rentalExpirationTimeInSeconds),
                 })}{' '}
-                (<Symbol token="ar" amount={rentalPrice * exchangeRate?.ar} precision={4} />)
+                (<Symbol token="ar" amount={rentalPrice / exchangeRate?.ar} precision={4} />)
               </div>
-              <ButtonPurchase disabled={cantAffordRent} label={__('Rent')} />
-              {cantAffordRent && <div className={'error'}>Insufficient Funds</div>}
+              <ButtonPurchase label={__('Rent')} />
             </>
           )}
-          {purchaseTag && !rentalTag && (
+          {purchaseTag && !rentalTag && !sdkFeeRequired && (
             <>
               <div className="paid-content-prompt__price">
                 <Icon icon={ICONS.BUY} />
-                {cantAffordPurchase && __('Insufficient funds to')}
-                {cantAffordPurchase && ' '}
                 {__('Purchase for %currency%%amount%', {
                   currency: fiatSymbol,
                   amount: Number(purchaseTag).toFixed(2),
                 })}
               </div>
-
-              {!cantAffordPurchase && <ButtonPurchase disabled={cantAffordPurchase} label={__('Purchase')} />}
-              {cantAffordPurchase && <div className={'error'}>Insufficient Funds</div>}
+              <ButtonPurchase label={__('Purchase')} />
             </>
           )}
           {preorderTag && (
@@ -195,10 +180,7 @@ export default function PaidContentOvelay(props: Props) {
                   navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
                 />
               ) : (
-                <ButtonPurchase
-                  disabled={cantAffordPreorder}
-                  label={__('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag })}
-                />
+                <ButtonPurchase label={__('Preorder now for %fiatSymbol%%preorderTag%', { fiatSymbol, preorderTag })} />
               )}
             </>
           )}

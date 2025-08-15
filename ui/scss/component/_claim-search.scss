@@ -274,6 +274,10 @@
   display: flex;
   flex-direction: row;
 
+  .uploads__dropdown {
+    margin-right: var(--spacing-xs);
+  }
+
   .claim-search__dropdown {
     margin-top: 0;
     font-size: var(--font-base);
@@ -283,7 +287,6 @@
   }
 
   &:nth-of-type(2) {
-    width: 100%;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xs);

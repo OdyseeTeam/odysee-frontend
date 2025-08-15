@@ -27,53 +27,38 @@ export const FormChannelSelector = (selectorProps: SelectorProps) => {
 
 type HelpTextProps = {
   deletedComment: boolean,
-  minAmount: number,
-  minSuper: number,
-  minTip: number,
-  minUSDCAmount: number,
-  minUSDCSuper: number,
-  minUSDCTip: number,
+  minUSDAmount: number,
+  minUSDSuper: number,
+  minUSDTip: number,
 };
 
 export const HelpText = (helpTextProps: HelpTextProps) => {
-  const { deletedComment, minAmount, minSuper, minTip, minUSDCAmount, minUSDCSuper, minUSDCTip } = helpTextProps;
+  const { deletedComment, minAmount, minTip, minSuper, minUSDAmount, minUSDSuper, minUSDTip } = helpTextProps;
 
   return (
     <>
       {deletedComment && <div className="error__text">{__('This comment has been deleted.')}</div>}
 
-      {(!!minAmount || !!minUSDCAmount) && (
+      {(!!minAmount || !!minUSDAmount) && (        
         <div className="help--notice comment-create__min-amount-notice">
-          <span>{!!minTip || !!minUSDCTip ? __('Comment minimums: ') : __('HyperChat minimums: ')}</span>
-          {(!!minTip || !!minSuper) && (
+          <span>{(!!minTip || !!minUSDTip) ? __('Comment minimum: ') : __('HyperChat minimum: ')}</span>
+          {(!!minTip || !!minSuper || !!minUSDTip || !!minUSDSuper) && (
             <>
               <I18nMessage
                 tokens={{
-                  lbc: <CreditAmount noFormat amount={minAmount} />,
+                  usd: <CreditAmount noFormat isFiat amount={minUSDAmount ? minUSDAmount : '0.01'} />,
                 }}
               >
-                {`%lbc%`}
+                {`%usd%`}
               </I18nMessage>
             </>
           )}
-          {(!!minTip || !!minSuper) && (
-            <>
-              <I18nMessage
-                tokens={{
-                  usdc: <CreditAmount noFormat isFiat amount={minUSDCAmount} />,
-                }}
-              >
-                {`%usdc%`}
-              </I18nMessage>
-            </>
-          )}
-          {/* TODO fix above spacing around ' or ' disappearing due to spans etc */}
 
           <Icon
             customTooltipText={
-              minTip
+              minTip || minUSDTip
                 ? __('This channel requires a minimum tip for each comment.')
-                : minSuper
+                : minSuper || minUSDSuper
                 ? __('This channel requires a minimum amount for HyperChats to be visible.')
                 : ''
             }

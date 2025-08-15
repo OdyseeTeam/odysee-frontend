@@ -58,6 +58,7 @@ function PublishPrice(props: Props) {
   } = props;
 
   const [expanded, setExpanded] = usePersistedState('publish:price:extended', true);
+  const [hadSDKPaywallSelected] = React.useState(paywall === PAYWALL.SDK);
   const paymentDisallowed = visibility !== 'public';
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
@@ -138,14 +139,23 @@ function PublishPrice(props: Props) {
                   'In order to use this feature, you must set up a wallet and enable monetization first.'
                 }
               />
-              <FormField
-                type="radio"
-                name="content_sdk"
-                label={<LbcSymbol prefix={__('Purchase with Credits')} />}
-                checked={paywall === PAYWALL.SDK}
-                disabled={disabled}
-                onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
-              />
+              {hadSDKPaywallSelected && (
+                <>
+                  <FormField
+                    type="radio"
+                    name="content_sdk"
+                    label={<LbcSymbol prefix={__('Purchase with Credits')} />}
+                    checked={paywall === PAYWALL.SDK}
+                    disabled={disabled}
+                    onChange={() => updatePublishForm({ paywall: PAYWALL.SDK })}
+                  />
+                  {paywall === PAYWALL.SDK && (
+                    <p className="help--warning" style={{ 'margin-top': '10px' }}>
+                      LBC will be sunset in the future, we recommend using other content pricing methods
+                    </p>
+                  )}
+                </>
+              )}
             </React.Fragment>
           </fieldset-section>
         </div>

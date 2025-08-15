@@ -35,25 +35,28 @@
     }
   }
 
-  &.wanderButton--authenticated {
-    &::before {
-      border-top-color: green;
+  &.wanderButton--warning{
+    outline:1px solid red;
+    outline-offset: -1px;
+    background: rgba(255,0,0,.1);
+
+    svg{
+      color:red;
+      margin-left: var(--spacing-xxxs);
+    }
+
+    &:hover{
+      outline: unset;
+      svg{
+        color:white;
+      }
     }
   }
 
-  &.wanderButton--connected {
-    border-radius: var(--border-radius);
-    padding: 0 var(--spacing-s);
-    max-width: 100px;
-    &::before {
-      display: none;
-    }
-  }
-
-  &:hover {
-    cursor: pointer;
-    background: var(--color-primary);
-    color: white;
+  &:hover{
+    cursor:pointer;
+    background:var(--color-primary);
+    color:white;
   }
 }
 

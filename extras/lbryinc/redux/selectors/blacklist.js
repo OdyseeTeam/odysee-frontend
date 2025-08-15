@@ -1,28 +1,15 @@
-import { createSelector } from 'reselect';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { getChannelFromClaim } from 'util/claim';
 
 export const selectState = (state) => state.blacklist || {};
 
-export const selectBlackListedOutpoints = (state) => selectState(state).blackListedOutpoints;
-
-export const selectBlacklistedOutpointMap = createSelector(selectBlackListedOutpoints, (outpoints) =>
-  outpoints
-    ? outpoints.reduce((acc, val) => {
-        const outpoint = `${val.txid}:${val.nout}`;
-        acc[outpoint] = 1;
-        return acc;
-      }, {})
-    : {}
-);
+export const selectBlackListedData = (state) => selectState(state).blackListedData;
 
 export const selectIsClaimBlackListedForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const channelClaim = getChannelFromClaim(claim);
 
-  const blackListedOutpointMap = selectBlacklistedOutpointMap(state);
-  const claimOutpoint = claim ? `${claim.txid}:${claim.nout}` : '';
-  const channelOutpoint = channelClaim ? `${channelClaim.txid}:${channelClaim.nout}` : '';
+  const blackListedData = selectBlackListedData(state);
 
-  return blackListedOutpointMap[channelOutpoint] || blackListedOutpointMap[claimOutpoint];
+  return blackListedData[claim?.claim_id] || blackListedData[channelClaim?.claim_id || channelClaim?.channel_id];
 };

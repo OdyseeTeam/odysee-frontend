@@ -220,6 +220,7 @@ const PAYLOAD = {
     const isEditing = Boolean(claimToEdit);
     const { liveEditType } = publishData;
 
+    const unlistedFixedPublishDate = 2147483647; // Backend relies to future dates to skip sending of new content notifications
     const past = {};
 
     if (isEditing && claimToEdit) {
@@ -249,11 +250,17 @@ const PAYLOAD = {
           }
 
           if (userEnteredTs === undefined) {
+            if (Number(past.release_time) === unlistedFixedPublishDate && publishData.visibility !== 'unlisted') {
+              return past.creation_timestamp || nowTs; // Auto reset the future timestamp if switching away from unlisted
+            }
             return past.wasScheduled ? past.creation_timestamp : Number(past.release_time || past.timestamp);
           } else {
             return userEnteredTs;
           }
         } else {
+          if (publishData.visibility === 'unlisted') {
+            return unlistedFixedPublishDate;
+          }
           if (userEnteredTs === undefined) {
             return nowTs;
           } else {

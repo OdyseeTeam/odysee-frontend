@@ -196,9 +196,6 @@ export default function ModalAnnouncements(props: Props) {
     return null;
   }
 
-  console.log('hasArweaveEntry: ', hasArweaveEntry);
-  console.log('apiEntryWithAddress: ', apiEntryWithAddress);
-
   // if you don't already have
   return (
     <Modal type="card" isOpen onAborted={doHideModal} disableOutsideClick>

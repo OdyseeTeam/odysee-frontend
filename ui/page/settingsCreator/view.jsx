@@ -12,16 +12,10 @@ import SearchChannelField from 'component/searchChannelField';
 import SettingsRow from 'component/settingsRow';
 import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form-components/form-field';
-import LbcSymbol from 'component/common/lbc-symbol';
-import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
 
 const DEBOUNCE_REFRESH_MS = 1000;
-
-const LBC_MAX = 21000000;
-const LBC_MIN = 0;
-const LBC_STEP = 1.0;
 
 // ****************************************************************************
 // ****************************************************************************
@@ -377,67 +371,6 @@ export default function SettingsCreatorPage(props: Props) {
                         }
                       />
                     </div>
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for comments</I18nMessage>
-                    }
-                    subtitle={__(HELP.MIN_TIP)}
-                  >
-                    <FormField
-                      name="min_tip_amount_comment"
-                      className="form-field--price-amount"
-                      max={LBC_MAX}
-                      min={LBC_MIN}
-                      step={LBC_STEP}
-                      type="number"
-                      placeholder="1"
-                      value={minTip}
-                      onChange={(e) => {
-                        const newMinTip = parseFloat(e.target.value);
-                        setMinTip(newMinTip);
-                        pushMinTipDebounced(newMinTip, activeChannelClaim);
-                        if (newMinTip !== 0 && minSuper !== 0) {
-                          setMinSuper(0);
-                          pushMinSuperDebounced(0, activeChannelClaim);
-                        }
-                      }}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
-                  </SettingsRow>
-
-                  <SettingsRow
-                    title={
-                      <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Minimum %lbc% tip amount for hyperchats</I18nMessage>
-                    }
-                    subtitle={
-                      <>
-                        {__(HELP.MIN_SUPER)}
-                        {minTip !== 0 && (
-                          <p className="help--inline">
-                            <em>{__(HELP.MIN_SUPER_OFF)}</em>
-                          </p>
-                        )}
-                      </>
-                    }
-                  >
-                    <FormField
-                      name="min_tip_amount_super_chat"
-                      className="form-field--price-amount"
-                      min={0}
-                      step="any"
-                      type="number"
-                      placeholder="1"
-                      value={minSuper}
-                      disabled={minTip !== 0}
-                      onChange={(e) => {
-                        const newMinSuper = parseFloat(e.target.value);
-                        setMinSuper(newMinSuper);
-                        pushMinSuperDebounced(newMinSuper, activeChannelClaim);
-                      }}
-                      onBlur={() => setLastUpdated(Date.now())}
-                    />
                   </SettingsRow>
 
                   <SettingsRow title={__('Moderators')} subtitle={__(HELP.MODERATORS)} multirow>

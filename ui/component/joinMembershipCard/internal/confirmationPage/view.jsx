@@ -76,7 +76,11 @@ const ConfirmationPage = (props: Props) => {
           {selectedCreatorMembership.name}
         </span>
       </section>
-      <ConfirmationSection label={__('Description')} value={selectedCreatorMembership.description} />
+      <ConfirmationSection
+        className={'membership-tier__description'}
+        label={__('Description')}
+        value={selectedCreatorMembership.description}
+      />
 
       <section>
         <label>{__('Total Monthly Cost')}</label>
@@ -168,12 +172,12 @@ type GroupProps = {
 };
 
 const ConfirmationSection = (props: GroupProps) => {
-  const { label, value } = props;
+  const { label, value, className } = props;
 
   return (
     <section>
       <label>{label}</label>
-      <span>{value}</span>
+      <span className={className}>{value}</span>
     </section>
   );
 };
