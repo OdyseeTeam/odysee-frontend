@@ -20,6 +20,7 @@ declare type HomepagesDb = {
     discover: Array<string>,
     discoverNew: Array<string>,
     customBanners: Array<string>,
+    commentCards: Array<string>,
     announcement: string,
   }
 };
