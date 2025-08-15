@@ -333,7 +333,7 @@ export const doUpdateTitle = (title: string) => (dispatch: Dispatch, getState: G
 
   // Keep the name matching the title, if the name was already matching
   let newName = title.replace(regexInvalidURI, '-');
-  if (!claimToEdit && (name === newName.slice(0, -1) || newName === name.slice(0, -1) || title === '')) {
+  if (!claimToEdit && (name === newName.slice(0, -1) || newName === name.slice(0, -1) || !title || !name)) {
     publishFormValue.name = newName.replace(regexInvalidURI, '-');
   }
 
