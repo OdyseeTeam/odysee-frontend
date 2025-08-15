@@ -322,6 +322,27 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (di
     data: { ...publishFormValue },
   });
 
+export const doUpdateTitle = (title: string) => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const { name, claimToEdit } = state.publish;
+
+  const regexInvalidURI =
+    /[ =&#:$@%?;/\\\n"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/gu;
+
+  const publishFormValue = { name, title };
+
+  // Keep the name matching the title, if the name was already matching
+  let newName = title.replace(regexInvalidURI, '-');
+  if (!claimToEdit && (name === newName.slice(0, -1) || newName === name.slice(0, -1) || !title || !name)) {
+    publishFormValue.name = newName.replace(regexInvalidURI, '-');
+  }
+
+  dispatch({
+    type: ACTIONS.UPDATE_PUBLISH_FORM,
+    data: { ...publishFormValue },
+  });
+};
+
 export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();

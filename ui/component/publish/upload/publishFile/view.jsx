@@ -35,7 +35,7 @@ type Props = {
   fileSource: string,
   myClaimForUri: ?StreamClaim,
   activeChannelClaim: ?ChannelClaim,
-  doUpdatePublishForm: (UpdatePublishState) => void,
+  doUpdateTitle: (string) => void,
   doUpdateFile: (file: WebFile, clearName: boolean) => void,
 };
 
@@ -49,7 +49,7 @@ function PublishFile(props: Props) {
     fileBitrate,
     fileSizeTooBig,
     isStillEditing,
-    doUpdatePublishForm: updatePublishForm,
+    doUpdateTitle,
     doUpdateFile,
     disabled,
     duration,
@@ -240,7 +240,7 @@ function PublishFile(props: Props) {
   }
 
   function handleTitleChange(event) {
-    updatePublishForm({ title: event.target.value });
+    doUpdateTitle(event.target.value);
   }
 
   function handleFileChange(file: WebFile, clearName = true) {

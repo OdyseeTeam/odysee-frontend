@@ -34,6 +34,7 @@ type Props = {
   duration: number,
   isVid: boolean,
   doUpdatePublishForm: (UpdatePublishState) => void,
+  doUpdateTitle: (string) => void,
   doUpdateFile: (file: WebFile, clearName: boolean) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
 };
@@ -50,6 +51,7 @@ function PublishLivestream(props: Props) {
     liveEditType,
     isStillEditing,
     doUpdatePublishForm: updatePublishForm,
+    doUpdateTitle,
     doUpdateFile,
     duration,
     isVid,
@@ -108,7 +110,7 @@ function PublishLivestream(props: Props) {
   }
 
   function handleTitleChange(event) {
-    updatePublishForm({ title: event.target.value });
+    doUpdateTitle(event.target.value);
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
