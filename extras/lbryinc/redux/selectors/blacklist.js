@@ -5,7 +5,7 @@ export const selectState = (state) => state.blacklist || {};
 
 export const selectBlackListedData = (state) => selectState(state).blackListedData;
 
-export const selectIsClaimBlackListedForUri = (state, uri) => {
+export const selectBlackListedDataForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const channelClaim = getChannelFromClaim(claim);
 
