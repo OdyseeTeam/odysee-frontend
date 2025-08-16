@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import Comments from 'comments';
 import withResolvedClaimRender from './view';
 
-import { selectBlackListDataForUri, selectFilterDataForUri } from 'lbryinc';
+import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
 
 import { selectGblAvailable } from 'redux/selectors/blocked';
 import {
@@ -24,14 +24,14 @@ const select = (state, props) => {
 
   const claim = selectClaimForUri(state, uri);
 
-  const filterData = selectFilterDataForUri(state, uri);
+  const filterData = selectFilteredDataForUri(state, uri);
   const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
 
   return {
     uri,
     claim,
     hasClaim: selectHasClaimForUri(state, uri),
-    isClaimBlackListed: Boolean(selectBlackListDataForUri(state, uri)),
+    isClaimBlackListed: Boolean(selectBlackListedDataForUri(state, uri)),
     isClaimFiltered,
     claimIsMine: selectClaimIsMine(state, claim),
     isUnlisted: selectIsUriUnlisted(state, uri),
