@@ -2,8 +2,7 @@ import { connect } from 'react-redux';
 import Comments from 'comments';
 import withResolvedClaimRender from './view';
 
-import { PREFERENCE_EMBED } from 'constants/tags';
-import { selectIsClaimBlackListedForUri, selectIsClaimFilteredForUri } from 'lbryinc';
+import { selectIsClaimBlackListedForUri, selectFilterDataForUri } from 'lbryinc';
 
 import { selectGblAvailable } from 'redux/selectors/blocked';
 import {
@@ -12,7 +11,6 @@ import {
   selectClaimIsMine,
   selectGeoRestrictionForUri,
   selectIsUriUnlisted,
-  makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
 import { selectContentStates } from 'redux/selectors/content';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -26,14 +24,15 @@ const select = (state, props) => {
 
   const claim = selectClaimForUri(state, uri);
 
-  const preferEmbed = makeSelectTagInClaimOrChannelForUri(uri, PREFERENCE_EMBED)(state);
+  const filterData = selectFilterDataForUri(state, uri);
+  const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
 
   return {
     uri,
     claim,
     hasClaim: selectHasClaimForUri(state, uri),
     isClaimBlackListed: selectIsClaimBlackListedForUri(state, uri),
-    isClaimFiltered: selectIsClaimFilteredForUri(state, uri),
+    isClaimFiltered,
     claimIsMine: selectClaimIsMine(state, claim),
     isUnlisted: selectIsUriUnlisted(state, uri),
     isAuthenticated: selectUserVerifiedEmail(state),
@@ -41,7 +40,6 @@ const select = (state, props) => {
     uriAccessKey: selectContentStates(state).uriAccessKeys[uri],
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     gblAvailable: selectGblAvailable(state),
-    preferEmbed,
     verifyClaimSignature: Comments.verify_claim_signature,
   };
 };

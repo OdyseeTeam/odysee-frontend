@@ -5,7 +5,7 @@ export const selectState = (state) => state.filtered || {};
 
 export const selectFilteredData = (state) => selectState(state).filteredData;
 
-export const selectIsClaimFilteredForUri = (state, uri) => {
+export const selectFilterDataForUri = (state, uri) => {
   const claim = selectClaimForUri(state, uri);
   const channelClaim = getChannelFromClaim(claim);
 
