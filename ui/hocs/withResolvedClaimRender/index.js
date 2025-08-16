@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import Comments from 'comments';
 import withResolvedClaimRender from './view';
 
-import { selectIsClaimBlackListedForUri, selectFilterDataForUri } from 'lbryinc';
+import { selectBlackListDataForUri, selectFilterDataForUri } from 'lbryinc';
 
 import { selectGblAvailable } from 'redux/selectors/blocked';
 import {
@@ -31,7 +31,7 @@ const select = (state, props) => {
     uri,
     claim,
     hasClaim: selectHasClaimForUri(state, uri),
-    isClaimBlackListed: selectIsClaimBlackListedForUri(state, uri),
+    isClaimBlackListed: Boolean(selectBlackListDataForUri(state, uri)),
     isClaimFiltered,
     claimIsMine: selectClaimIsMine(state, claim),
     isUnlisted: selectIsUriUnlisted(state, uri),

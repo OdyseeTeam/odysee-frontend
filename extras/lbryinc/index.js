@@ -37,7 +37,7 @@ export { syncReducer } from './redux/reducers/sync';
 
 // selectors
 export { selectAuthToken, selectIsAuthenticating } from './redux/selectors/auth';
-export { selectBlackListedData, selectIsClaimBlackListedForUri } from './redux/selectors/blacklist';
+export { selectBlackListedData, selectBlackListDataForUri } from './redux/selectors/blacklist';
 export { selectFilteredData, selectFilterDataForUri } from './redux/selectors/filtered';
 // export {
 //   selectFeaturedUris,
