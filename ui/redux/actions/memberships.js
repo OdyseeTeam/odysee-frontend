@@ -511,6 +511,18 @@ export const doSaveMembershipRestrictionsForContent =
         return response;
       })
       .catch((e) => {
+        if (memberRestrictionTierIds?.length > 0) {
+          dispatch(
+            doToast({
+              isError: true,
+              message: __(
+                'Failed to apply membership tiers. Access to the content may still be restricted.' +
+                  ' Error: ' +
+                  (e?.message || e)
+              ),
+            })
+          );
+        }
         // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
         return e;
       });
