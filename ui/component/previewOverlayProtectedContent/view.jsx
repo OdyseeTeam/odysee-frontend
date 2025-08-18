@@ -48,7 +48,11 @@ const PreviewOverlayProtectedContent = (props: Props) => {
           <div className="protected-content__label-container">
             <div className="protected-content__label">
               {__('Members Only')}
-              <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
+              {cheapestPlanPrice ? (
+                <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
+              ) : (
+                <span>{__('Waiting for tier info...')}</span>
+              )}
             </div>
           </div>
         </div>

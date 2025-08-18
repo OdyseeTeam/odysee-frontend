@@ -516,9 +516,11 @@ export const doSaveMembershipRestrictionsForContent =
             doToast({
               isError: true,
               message: __(
-                'Failed to apply membership tiers. Access to the content may still be restricted.' +
+                __('Failed to apply membership tiers. Access to the content may still be restricted.') +
                   ' Error: ' +
-                  (e?.message || e)
+                  (e?.message || e) +
+                  '\n' +
+                  __('If the issue persists, please reach out to help@odysee.com')
               ),
             })
           );
