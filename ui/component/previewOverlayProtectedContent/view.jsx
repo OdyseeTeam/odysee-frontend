@@ -38,7 +38,7 @@ const PreviewOverlayProtectedContent = (props: Props) => {
     );
   }
 
-  if (protectedMembershipIds && userIsAMember !== undefined && cheapestPlanPrice && hasProtectedContentTag) {
+  if (userIsAMember !== undefined && hasProtectedContentTag) {
     return (
       <div className="protected-content__wrapper">
         <div className="protected-content__lock">
