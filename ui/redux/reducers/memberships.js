@@ -254,7 +254,7 @@ reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS] = (state, action) => {
   const newProtectedContentClaims = Object.assign({}, state.protectedContentClaimsByCreatorId);
   const newClaimMembershipTiersFetchingIds = new Set(state.claimMembershipTiersFetchingIds);
 
-  for (const claimId in idsToFetch) {
+  for (const claimId of idsToFetch) {
     newClaimMembershipTiersFetchingIds.delete(claimId);
   }
 
