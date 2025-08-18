@@ -65,11 +65,11 @@ reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_STARTED] = (state, action) => 
   channelIds.forEach((id) => {
     fetchingSet.add(id);
   });
-  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet)};
+  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet) };
 };
 
 reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => {
-  const { membershipsById } = action.data;   // [{ [claimId: string]: 'Premium' | null}]
+  const { membershipsById } = action.data; // [{ [claimId: string]: 'Premium' | null}]
   const { fetchingOdysePremiumIds: currentFetching, legacyOdyseePremiumById } = state;
 
   const newLegacyOdyseePremiumById = Object.assign({}, legacyOdyseePremiumById);
@@ -79,7 +79,11 @@ reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_SUCCESS] = (state, action) => 
     fetchingSet.delete(channelId);
   });
 
-  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet), legacyOdyseePremiumById: newLegacyOdyseePremiumById };
+  return {
+    ...state,
+    fetchingOdysePremiumIds: Array.from(fetchingSet),
+    legacyOdyseePremiumById: newLegacyOdyseePremiumById,
+  };
 };
 
 reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE] = (state, action) => {
@@ -89,7 +93,7 @@ reducers[ACTIONS.USER_LEGACY_ODYSEE_PREMIUM_CHECK_FAILURE] = (state, action) => 
   channelIds.forEach((id) => {
     fetchingSet.delete(id);
   });
-  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet)};
+  return { ...state, fetchingOdysePremiumIds: Array.from(fetchingSet) };
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
@@ -152,10 +156,10 @@ reducers[ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL] = (state, action) => {
   return { ...state, pendingBuyIds: Array.from(newPendingBuyIds) };
 };
 reducers[ACTIONS.SET_MEMBERSHIP_BUY_FAILED] = (state, action) => {
-  const { id, error }  = action.data;
+  const { id, error } = action.data;
   const newPendingBuyIds = new Set(state.pendingBuyIds);
   newPendingBuyIds.delete(id);
-  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds), membershipBuyError: error  };
+  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds), membershipBuyError: error };
 };
 
 reducers[ACTIONS.SET_MEMBERSHIP_CANCEL_STARTED] = (state, action) => {
@@ -244,16 +248,19 @@ reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_START] = (state, action) => {
   return { ...state, claimMembershipTiersFetchingIds: newClaimMembershipTiersFetchingIds };
 };
 reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS] = (state, action) => {
-  const response: MembershipContentResponse = action.data;
+  const response: MembershipContentResponse = action.data.response;
+  const idsToFetch = action.data.idsToFetch;
 
   const newProtectedContentClaims = Object.assign({}, state.protectedContentClaimsByCreatorId);
   const newClaimMembershipTiersFetchingIds = new Set(state.claimMembershipTiersFetchingIds);
 
+  for (const claimId in idsToFetch) {
+    newClaimMembershipTiersFetchingIds.delete(claimId);
+  }
+
   if (response && response.length > 0) {
     response.forEach((membershipContent: MembershipContentResponseItem) => {
       const { channel_id: creatorId, claim_id: claimId, membership_id: membershipId } = membershipContent;
-
-      newClaimMembershipTiersFetchingIds.delete(claimId);
 
       const creatorContentMemberships = newProtectedContentClaims[creatorId];
       const newCreatorContentMemberships = Object.assign({}, creatorContentMemberships);

@@ -455,7 +455,7 @@ export const doMembershipContentForStreamClaimIds =
 
     await Lbryio.call('membership_v2/member_content', 'resolve', { claim_ids: claimIdsCsv }, 'post')
       .then((response: MembershipContentResponse) => {
-        dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS, data: response });
+        dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS, data: { idsToFetch, response } });
         return response;
       })
       .catch((e) => {
