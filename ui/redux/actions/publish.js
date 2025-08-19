@@ -17,8 +17,10 @@ import {
   selectMyClaims,
   selectMyChannelClaims,
   selectReflectingById,
+  makeSelectMetadataItemForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectDefaultChannelClaim } from 'redux/selectors/settings';
 import {
   selectPublishFormValue,
   selectPublishFormValues,
@@ -311,8 +313,13 @@ export const doBeginPublish = (type: PublishType, name: string = '', customPath:
   };
 };
 
-export const doClearPublish = () => (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.CLEAR_PUBLISH });
+export const doClearPublish = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const defaultChannelClaim = selectDefaultChannelClaim(state);
+  const channelLanguages = makeSelectMetadataItemForUri(defaultChannelClaim.permanent_url, 'languages')(state);
+  const channelPrimaryLanguage = channelLanguages ? channelLanguages[0] : null;
+
+  dispatch({ type: ACTIONS.CLEAR_PUBLISH, data: { language: channelPrimaryLanguage } });
   return dispatch(doResetThumbnailStatus());
 };
 
