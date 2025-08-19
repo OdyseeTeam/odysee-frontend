@@ -540,7 +540,7 @@ export const selectProtectedContentMembershipsForContentClaimId = (state: State,
     }
   }
 
-  return undefined;
+  return null;
 };
 
 export const selectContentHasProtectedMembershipIds = (state: State, claimId: string) => {

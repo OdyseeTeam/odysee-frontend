@@ -46,13 +46,13 @@ const ProtectedContentOverlay = (props: Props) => {
   const isEmbed = React.useContext(EmbedContext);
   const membershipFetching = myMembership === undefined;
 
-  const clickProps = React.useMemo(
-    () =>
-      isEmbed
-        ? { href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}` }
-        : { onClick: () => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri }) },
-    [doOpenModal, fileUri, isEmbed, uri]
-  );
+  const clickProps = React.useMemo(() => {
+    if (!joinEnabled) return;
+
+    return isEmbed
+      ? { href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}` }
+      : { onClick: () => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri }) };
+  }, [doOpenModal, fileUri, isEmbed, uri, joinEnabled]);
 
   React.useEffect(() => {
     if (passClickPropsToParent) {
@@ -74,7 +74,7 @@ const ProtectedContentOverlay = (props: Props) => {
         <>
           <span>{__('Only @%channel_name% members can view this content.', { channel_name: channelName })}</span>
           <span>{__('New members are not currently accepted.')}</span>
-          </>
+        </>
       )}
       {joinEnabled && (
         <>
@@ -96,7 +96,7 @@ const ProtectedContentOverlay = (props: Props) => {
             {...clickProps}
           />
         </>
-    )}
+      )}
     </div>
   );
 };
