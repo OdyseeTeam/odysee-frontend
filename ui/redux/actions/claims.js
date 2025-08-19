@@ -1048,6 +1048,8 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
     const state = getState();
     const pendingById = Object.assign({}, selectPendingClaimsById(state));
 
+    dispatch(doMembershipContentForStreamClaimIds(Object.keys(pendingById)));
+
     if (Object.keys(pendingById).length) {
       return Lbry.claim_list({ claim_id: Object.keys(pendingById), resolve: true }).then((results) => {
         const claims = results.items;
