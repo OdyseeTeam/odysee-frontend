@@ -2,6 +2,8 @@
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
 import * as FILE_LIST from 'constants/file_list';
+import * as TAGS from 'constants/tags';
+
 import { Lbryio, doFetchViewCount } from 'lbryinc';
 import Lbry from 'lbry';
 import { normalizeURI } from 'util/lbryURI';
@@ -1052,10 +1054,15 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
       return Lbry.claim_list({ claim_id: Object.keys(pendingById), resolve: true }).then((results) => {
         const claims = results.items;
         const confirmedClaims = [];
+        const membershipCheckClaimIds = [];
         claims.forEach((claim) => {
           if (claim.claim_id && claim.confirmations > 0 && pendingById[claim.claim_id].txid === claim.txid) {
             confirmedClaims.push(claim);
             delete pendingById[claim.claim_id];
+          }
+
+          if (claim.value?.tags?.includes(TAGS.MEMBERS_ONLY_CONTENT_TAG)) {
+            membershipCheckClaimIds.push(claim.claim_id);
           }
         });
 
@@ -1066,6 +1073,8 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
             pending: pendingById,
           },
         });
+
+        dispatch(doMembershipContentForStreamClaimIds(membershipCheckClaimIds));
 
         const channelClaims = confirmedClaims.filter((claim) => claim.value_type === 'channel');
         if (channelClaims.length && onChannelConfirmCallback) {

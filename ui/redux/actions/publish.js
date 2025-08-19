@@ -9,7 +9,7 @@ import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
-import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
+import { selectProtectedContentMembershipsForContentClaimId } from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
@@ -715,16 +715,15 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
       if (channelId) {
         // Repopulate membership restriction IDs
-        let protectedMembershipIds: Array<number> = selectProtectedContentMembershipsForClaimId(
+        let protectedMembershipIds: Array<number> = selectProtectedContentMembershipsForContentClaimId(
           state,
-          channelId,
           claim.claim_id
         );
 
         if (protectedMembershipIds === undefined) {
           await dispatch(doMembershipContentforStreamClaimId(claim.claim_id));
           state = getState();
-          protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
+          protectedMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claim.claim_id);
         }
 
         if (protectedMembershipIds && protectedMembershipIds.length > 0) {

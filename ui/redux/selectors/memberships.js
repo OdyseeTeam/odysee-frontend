@@ -18,7 +18,6 @@ import {
   selectClaimIsMineForId,
   selectClaimIdForUri,
 } from 'redux/selectors/claims';
-import { getChannelIdFromClaim } from 'util/claim';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
@@ -337,8 +336,6 @@ export const selectMembershipForCreatorIdAndChannelId = createCachedSelector(
   selectMyValidMembershipsForCreatorId,
   selectMyChannelClaimIds,
   (channelId, creatorMemberships, myValidCreatorMemberships, myChannelClaimIds) => {
-    const channelIsMine = new Set(myChannelClaimIds).has(channelId);
-
     // if (channelIsMine) {
     //   if (!myValidCreatorMemberships) return myValidCreatorMemberships;
     //
@@ -531,10 +528,19 @@ export const selectProtectedContentMembershipsForClaimId = (state: State, channe
   return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships; // array of mids ['1234']
 };
 export const selectProtectedContentMembershipsForContentClaimId = (state: State, claimId: string) => {
-  const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
-  const protectedClaimsById = claimChannelId && selectProtectedContentClaimsForId(state, claimChannelId);
+  // Prefer resolving purely by content-claim id to avoid issues when channel id is incorrect
+  const protectedByCreator = selectProtectedContentClaimsById(state);
 
-  return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
+  if (!protectedByCreator) return undefined;
+
+  for (const creatorId in protectedByCreator) {
+    const claimsForCreator = protectedByCreator[creatorId];
+    if (claimsForCreator && claimsForCreator[claimId] && claimsForCreator[claimId].memberships) {
+      return claimsForCreator[claimId].memberships;
+    }
+  }
+
+  return null;
 };
 
 export const selectContentHasProtectedMembershipIds = (state: State, claimId: string) => {
@@ -548,17 +554,22 @@ export const selectContentHasProtectedMembershipIds = (state: State, claimId: st
 };
 
 export const selectProtectedContentMembershipsForId = (state: State, claimId: ClaimId) => {
-  const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
-  const protectedContentMembershipIds = new Set(
-    claimChannelId && selectProtectedContentMembershipsForClaimId(state, claimChannelId, claimId)
-  );
-  const creatorMemberships = claimChannelId && selectMembershipTiersForCreatorId(state, claimChannelId);
+  const membershipIds = selectProtectedContentMembershipsForContentClaimId(state, claimId);
+  if (!membershipIds) return membershipIds;
 
-  return (
-    creatorMemberships &&
-    // $FlowIgnore
-    creatorMemberships.filter((membership) => protectedContentMembershipIds.has(membership.membership_id)) // m.Membership.id
-  );
+  const membershipIdsSet = new Set(membershipIds);
+  const membershipsById = selectMembershipsById(state);
+
+  if (!membershipsById) return undefined;
+
+  // Map the restricted membership IDs to their full membership objects if available
+  const result = [];
+  membershipIdsSet.forEach((id) => {
+    const membership = membershipsById[id];
+    if (membership) result.push(membership);
+  });
+
+  return result;
 };
 
 export const selectMyProtectedContentMembershipForId = createSelector(
@@ -625,9 +636,7 @@ export const selectCheapestPlanForRestrictedIds = (state: State, restrictedIds: 
 };
 
 export const selectCheapestProtectedContentMembershipForId = (state: State, claimId: ClaimId) => {
-  const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
-  const protectedContentMembershipIds =
-    claimChannelId && selectProtectedContentMembershipsForClaimId(state, claimChannelId, claimId);
+  const protectedContentMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claimId);
 
   return protectedContentMembershipIds && selectCheapestPlanForRestrictedIds(state, protectedContentMembershipIds);
 };

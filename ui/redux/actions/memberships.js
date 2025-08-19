@@ -455,7 +455,7 @@ export const doMembershipContentForStreamClaimIds =
 
     await Lbryio.call('membership_v2/member_content', 'resolve', { claim_ids: claimIdsCsv }, 'post')
       .then((response: MembershipContentResponse) => {
-        dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS, data: response });
+        dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS, data: { idsToFetch, response } });
         return response;
       })
       .catch((e) => {
@@ -511,6 +511,20 @@ export const doSaveMembershipRestrictionsForContent =
         return response;
       })
       .catch((e) => {
+        if (memberRestrictionTierIds?.length > 0) {
+          dispatch(
+            doToast({
+              isError: true,
+              message: __(
+                __('Failed to apply membership tiers. Access to the content may still be restricted.') +
+                  ' Error: ' +
+                  (e?.message || e) +
+                  '\n' +
+                  __('If the issue persists, please reach out to help@odysee.com')
+              ),
+            })
+          );
+        }
         // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
         return e;
       });

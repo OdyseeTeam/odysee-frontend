@@ -5,7 +5,7 @@ import { selectClaimForUri, selectClaimIsMine, selectProtectedContentTagForUri }
 import {
   selectUserIsMemberOfProtectedContentForId,
   selectPriceOfCheapestPlanForClaimId,
-  selectProtectedContentMembershipsForClaimId,
+  selectProtectedContentMembershipsForContentClaimId,
 } from 'redux/selectors/memberships';
 
 import { doMembershipList } from 'redux/actions/memberships';
@@ -21,7 +21,7 @@ const select = (state, props) => {
   return {
     channel,
     claimIsMine: selectClaimIsMine(state, claim),
-    protectedMembershipIds: channel && selectProtectedContentMembershipsForClaimId(state, channel.claim_id, claimId), // TODO Protected Content
+    protectedMembershipIds: claimId && selectProtectedContentMembershipsForContentClaimId(state, claimId),
     userIsAMember: selectUserIsMemberOfProtectedContentForId(state, claimId),
     cheapestPlanPrice: selectPriceOfCheapestPlanForClaimId(state, claimId),
     hasProtectedContentTag: Boolean(selectProtectedContentTagForUri(state, props.uri)),
