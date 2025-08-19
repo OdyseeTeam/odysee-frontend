@@ -1,9 +1,14 @@
 import { connect } from 'react-redux';
 import { makeSelectDownloadPathForUri, selectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { makeSelectClaimForUri, selectThumbnailForUri, makeSelectContentTypeForUri } from 'redux/selectors/claims';
+import {
+  makeSelectClaimForUri,
+  selectThumbnailForUri,
+  makeSelectContentTypeForUri,
+  makeSelectFileExtensionForUri,
+} from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting, selectTheme } from 'redux/selectors/settings';
-import { makeSelectFileRenderModeForUri, makeSelectFileExtensionForUri } from 'redux/selectors/content';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { doAnalyticsViewForUri } from 'redux/actions/app';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import withStreamClaimRender from 'hocs/withStreamClaimRender';
