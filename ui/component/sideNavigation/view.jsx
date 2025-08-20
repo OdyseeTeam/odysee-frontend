@@ -194,16 +194,16 @@ function SideNavigation(props: Props) {
 
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
-      title: 'Go Live',
-      icon: ICONS.GOLIVE,
-      hideForUnauth: true,
-      onClick: () => doBeginPublish('livestream'),
-    },
-    {
       title: 'Upload',
       icon: ICONS.PUBLISH,
       hideForUnauth: true,
       onClick: () => doBeginPublish('file'),
+    },
+    {
+      title: 'Go Live',
+      icon: ICONS.GOLIVE,
+      hideForUnauth: true,
+      onClick: () => doBeginPublish('livestream'),
     },
     {
       title: 'Post',
