@@ -163,7 +163,7 @@ const Header = (props: Props) => {
         <>
           {!hideWallet && (
             <>
-              {arweaveAccounts.length > 0 ? (
+              {hideBalance || Number(roundedTotalBalance) === 0 || arweaveAccounts.length > 0 ? (
                 <WanderButton hideBalance={hideBalance} />
               ) : (
                 <Tooltip
