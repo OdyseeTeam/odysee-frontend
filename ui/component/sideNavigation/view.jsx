@@ -61,6 +61,13 @@ const NOTIFICATIONS: SideNavLink = {
   hideForUnauth: true,
 };
 
+const WALLET: SideNavLink = {
+  title: 'Wallet',
+  link: `/$/${PAGES.WALLET}`,
+  icon: ICONS.WALLET,
+  hideForUnauth: true,
+};
+
 const WATCH_LATER: SideNavLink = {
   title: 'Watch Later',
   link: `/$/${PAGES.PLAYLIST}/watchlater`,
@@ -236,12 +243,6 @@ function SideNavigation(props: Props) {
       title: 'Creator Analytics',
       link: `/$/${PAGES.CREATOR_DASHBOARD}`,
       icon: ICONS.ANALYTICS,
-      hideForUnauth: true,
-    },
-    {
-      title: 'Wallet',
-      link: `/$/${PAGES.WALLET}`,
-      icon: ICONS.WALLET,
       hideForUnauth: true,
     },
     {
@@ -625,7 +626,10 @@ function SideNavigation(props: Props) {
       >
         {(!canDisposeMenu || sidebarOpen) && (
           <div className="navigation-inner-container">
-            <ul className="navigation-links--absolute mobile-only">{notificationsEnabled && getLink(NOTIFICATIONS)}</ul>
+            <ul className="navigation-links--absolute mobile-only">
+              {notificationsEnabled && getLink(NOTIFICATIONS)}
+              {getLink(WALLET)}
+            </ul>
 
             <ul
               className={classnames('navigation-links', {
@@ -637,7 +641,9 @@ function SideNavigation(props: Props) {
               {getLink(RECENT_FROM_FOLLOWING)}
               {!hasMembership && getLink(PREMIUM)}
             </ul>
-
+            <ul className="navigation-links--absolute mobile-only">
+              {email && MOBILE_PUBLISH.map((linkProps) => getLink(linkProps))}
+            </ul>
             <ul
               className={classnames('navigation-links', {
                 'navigation-links--micro': showMicroMenu,
@@ -671,9 +677,6 @@ function SideNavigation(props: Props) {
               )}
             </ul>
 
-            <ul className="navigation-links--absolute mobile-only">
-              {email && MOBILE_PUBLISH.map((linkProps) => getLink(linkProps))}
-            </ul>
             <ul className="navigation-links--absolute mobile-only">
               {email && MOBILE_LINKS.map((linkProps) => getLink(linkProps))}
               {!email && UNAUTH_LINKS.map((linkProps) => getLink(linkProps))}
