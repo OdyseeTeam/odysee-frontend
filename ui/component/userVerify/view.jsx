@@ -3,8 +3,8 @@ import { SITE_NAME } from 'config';
 import * as ICONS from 'constants/icons';
 import React, { Fragment } from 'react';
 import Button from 'component/button';
-import CardVerify from 'component/cardVerify';
-import { Lbryio } from 'lbryinc';
+// import CardVerify from 'component/cardVerify';
+// import { Lbryio } from 'lbryinc';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import LbcSymbol from 'component/common/lbc-symbol';
@@ -40,7 +40,7 @@ class UserVerify extends React.PureComponent<Props> {
   }
 
   render() {
-    const { errorMessage, isPending, fetchUser, onSkip } = this.props;
+    const { /* errorMessage, isPending, */ fetchUser, onSkip } = this.props;
     const skipButtonProps = {
       onClick: onSkip,
     };
@@ -81,6 +81,7 @@ class UserVerify extends React.PureComponent<Props> {
         </section>
 
         <div className="section">
+          {/*
           <Card
             icon={ICONS.WALLET}
             title={__('Verify via credit card')}
@@ -103,6 +104,7 @@ class UserVerify extends React.PureComponent<Props> {
             <hr />
             <p>{__('OR')}</p>
           </div>
+          */}
 
           <Card
             icon={ICONS.HELP}
