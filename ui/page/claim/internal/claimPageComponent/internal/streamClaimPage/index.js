@@ -31,7 +31,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
 
-  const claimId = claim.claim_id;
+  const claimId = claim?.claim_id;
 
   const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
 

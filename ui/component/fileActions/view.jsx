@@ -86,7 +86,7 @@ export default function FileActions(props: Props) {
   const isMobile = useIsMobile();
   const [downloadClicked, setDownloadClicked] = React.useState(false);
 
-  const { claim_id: claimId, signing_channel: signingChannel, value, meta: claimMeta } = claim;
+  const { claim_id: claimId, signing_channel: signingChannel, value, meta: claimMeta } = claim || {};
   const channelName = signingChannel && signingChannel.name;
   const fileName = value && value.source && value.source.name;
   const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
