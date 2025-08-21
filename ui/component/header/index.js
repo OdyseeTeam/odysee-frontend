@@ -9,6 +9,7 @@ import { selectHasNavigated } from 'redux/selectors/app';
 import { selectTotalBalance, selectBalance } from 'redux/selectors/wallet';
 import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from 'redux/selectors/user';
 import { selectAPIArweaveActiveAccounts } from 'redux/selectors/stripe';
+import { selectIsPlayerFloating } from 'redux/selectors/content';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import Header from './view';
@@ -24,6 +25,7 @@ const select = (state) => ({
   user: selectUser(state),
   prefsReady: selectPrefsReady(state),
   arweaveAccounts: selectAPIArweaveActiveAccounts(state),
+  isFloatingPlayerOpen: selectIsPlayerFloating(state),
 });
 
 const perform = (dispatch) => ({

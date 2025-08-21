@@ -47,6 +47,7 @@ type Props = {
   user: ?User,
   prefsReady: boolean,
   arweaveAccounts: any,
+  isFloatingPlayerOpen: boolean,
   doClearClaimSearch: () => void,
   doRemoveFromUnsavedChangesCollectionsForCollectionId: (collectionId: string) => void,
   clearEmailEntry: () => void,
@@ -75,6 +76,7 @@ const Header = (props: Props) => {
     user,
     prefsReady,
     arweaveAccounts,
+    isFloatingPlayerOpen,
     doClearClaimSearch,
     doRemoveFromUnsavedChangesCollectionsForCollectionId,
     clearEmailEntry,
@@ -107,6 +109,7 @@ const Header = (props: Props) => {
   const canBackout = Boolean(backout);
   const { backLabel, backNavDefault, title: backTitle, simpleTitle: simpleBackTitle } = backout || {};
 
+  const hideWallet = isMobile && isFloatingPlayerOpen;
   const balanceLoading = totalBalance === undefined;
   const roundedSpendableBalance = formatCredits(balance, 2, true);
   const roundedTotalBalance = formatCredits(totalBalance, 2, true);
@@ -298,7 +301,7 @@ const Header = (props: Props) => {
             )}
 
             {!authHeader && !canBackout
-              ? userButtons(false, false)
+              ? userButtons(hideWallet, false)
               : !isVerifyPage &&
                 !hideCancel && (
                   <div className="header__menu--right">
