@@ -1,5 +1,5 @@
 // @flow
-import { SITE_NAME, SITE_HELP_EMAIL } from 'config';
+import { SITE_HELP_EMAIL } from 'config';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import classnames from 'classnames';
@@ -23,6 +23,7 @@ type Props = {
   alwaysShow: boolean,
   addNewChannel?: boolean,
   doResolveUris: (uris: Array<string>) => void,
+  experimentalUi: boolean,
 };
 
 export default function YoutubeTransferStatus(props: Props) {
@@ -36,12 +37,21 @@ export default function YoutubeTransferStatus(props: Props) {
     alwaysShow = false,
     addNewChannel,
     doResolveUris,
+    experimentalUi,
   } = props;
   const hasChannels = youtubeChannels && youtubeChannels.length > 0;
   const transferEnabled = youtubeChannels.some((status) => status.transferable);
   const hasPendingTransfers = youtubeChannels.some(
     (status) => status.transfer_state === YOUTUBE_STATUSES.YOUTUBE_SYNC_PENDING_TRANSFER
   );
+
+  // Get the first available status token for self-sync
+  const firstAvailableToken = hasChannels
+    ? youtubeChannels.find((channel) => channel.status_token)?.status_token
+    : null;
+
+  // State for token visibility
+  const [isTokenVisible, setIsTokenVisible] = React.useState(false);
   const isYoutubeTransferComplete =
     hasChannels &&
     youtubeChannels.every(
@@ -223,13 +233,12 @@ export default function YoutubeTransferStatus(props: Props) {
                   label={youtubeChannels.length > 1 ? __('Claim Channels') : __('Claim Channel')}
                 />
               )}
-              {addNewChannel && <Button button="link" label={__('Add Another Channel')} onClick={addNewChannel} />}
-              <Button
-                button={isYoutubeTransferComplete ? 'primary' : 'link'}
-                label={__('Explore %SITE_NAME%', { SITE_NAME })}
-                navigate="/"
-              />
             </div>
+            {addNewChannel && (
+              <div className="section__actions section__actions--above-list">
+                <Button button="primary" label={__('Add Another Channel')} onClick={addNewChannel} />
+              </div>
+            )}
 
             <p className="help">
               {youtubeChannels.length > 1
@@ -239,6 +248,104 @@ export default function YoutubeTransferStatus(props: Props) {
                 __('You will not be able to edit the channel or content until the transfer process completes.')}{' '}
               <Button button="link" label={__('Learn More')} href="https://help.odysee.tv/category-syncprogram/" />
             </p>
+
+            {/* Self-Sync Alternative - Only show for experimental UI users */}
+            {experimentalUi && (
+              <div className="card card--self-sync">
+                <div className="card__header">
+                  <h4>
+                    {__('Want to sync more content?')}{' '}
+                    <Button
+                      button="link"
+                      label={__('Try Self-Sync')}
+                      href="https://sync.odysee.tv/"
+                      className="header-link"
+                    />
+                  </h4>
+                </div>
+                <div className="card__body">
+                  <p>
+                    {__(
+                      'Use our desktop sync tool to transfer content from any of your YouTube channels, including inactive or never-synced channels. Even if you have already synced channels, you can still use this tool to sync more content, even those outside of our default sync limits, e.g. longer videos.'
+                    )}
+                  </p>
+
+                  {firstAvailableToken && (
+                    <div className="token-section">
+                      <div className="token-section__header">
+                        <strong>{__('Your token:')}</strong>
+                      </div>
+                      <div className="token-display">
+                        <div className="token-display__value">
+                          <code
+                            className={`token-code ${!isTokenVisible ? 'token-code--hidden' : ''}`}
+                            onClick={() => setIsTokenVisible(!isTokenVisible)}
+                            title={isTokenVisible ? __('Click to hide token') : __('Click to reveal token')}
+                          >
+                            {isTokenVisible ? firstAvailableToken : '••••••••••••••••••••••••••••••••'}
+                          </code>
+                          <Button
+                            button="secondary"
+                            icon={ICONS.COPY}
+                            aria-label={__('Copy token')}
+                            title={__('Copy token to clipboard')}
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(firstAvailableToken);
+                              } catch (err) {
+                                console.log('Failed to copy token:', err);
+                              }
+                            }}
+                          />
+                        </div>
+                        <p className="help">
+                          {isTokenVisible
+                            ? __(
+                                'This token is private and you should not share it. Copy this token and paste it into the sync tool when prompted. Click the token to hide it.'
+                              )
+                            : __(
+                                'This token is private and you should not share it. Click the copy button to copy your token, or click the token field to reveal it.'
+                              )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="help-section">
+                    <p className="help">
+                      <strong>{__('Additional Instructions:')}</strong>
+                    </p>
+                    <ul className="help-list help-list--detailed">
+                      <li>
+                        {__(
+                          'For existing synced channels, you may need to adjust the settings (right click > preferences from the taskbar), to set the sync cut off date to a date further in the past. Quit and restart after.'
+                        )}
+                      </li>
+                      <li>{__("To retry any failures, you'll need to quit and restart the app at this time.")}</li>
+                      <li>
+                        {__(
+                          'The sync tool will run in the background on startup afterwards - check your system tray for the Odysee icon.'
+                        )}
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="card__actions card__actions--inline">
+                    <Button
+                      button="secondary"
+                      label={__('Download Sync Tool')}
+                      href="https://sync.odysee.tv/"
+                      iconRight="EXTERNAL"
+                    />
+                    <Button
+                      button="link"
+                      label={__('How to use')}
+                      href="https://help.odysee.tv/category-syncprogram/"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         }
       />

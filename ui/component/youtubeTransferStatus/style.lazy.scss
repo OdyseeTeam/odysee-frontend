@@ -21,3 +21,182 @@
   @extend .progress__complete-icon;
   stroke: var(--color-primary);
 }
+
+// Section actions above list
+.section__actions--above-list {
+  margin-bottom: var(--spacing-s);
+  padding-bottom: var(--spacing-s);
+  border-bottom: 1px solid var(--color-border);
+}
+
+// Self-sync card styling
+.card--self-sync {
+  margin-top: var(--spacing-m);
+  border: 1px solid var(--color-border);
+  background: var(--color-card-background-highlighted);
+  border-radius: var(--border-radius);
+
+  .card__header {
+    padding: var(--spacing-s);
+    border-bottom: 1px solid var(--color-border);
+
+    h4 {
+      margin: 0;
+      color: var(--color-text);
+      font-size: var(--font-base);
+      font-weight: 600;
+
+      .header-link {
+        font-size: var(--font-base);
+        font-weight: 600;
+        text-decoration: none;
+        color: var(--color-primary);
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .card__body {
+    padding: var(--spacing-s);
+
+    > p {
+      margin-bottom: var(--spacing-s);
+      color: var(--color-text-subtitle);
+      font-size: var(--font-small);
+      line-height: 1.5;
+    }
+  }
+
+  .help-section {
+    margin-top: var(--spacing-s);
+
+    .help {
+      margin-bottom: var(--spacing-xs);
+    }
+  }
+
+  .help-list--detailed {
+    margin: 0;
+    padding-left: var(--spacing-m);
+
+    li {
+      margin-bottom: var(--spacing-xs);
+      font-size: var(--font-small);
+      color: var(--color-text-subtitle);
+      line-height: 1.5;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .card__actions--inline {
+    display: flex;
+    gap: var(--spacing-s);
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: var(--spacing-s);
+    padding-top: var(--spacing-s);
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+// Token display styling
+.token-section {
+  margin: var(--spacing-s) 0;
+  padding: var(--spacing-s);
+  background: var(--color-card-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+
+  .token-section__header {
+    margin-bottom: var(--spacing-s);
+    color: var(--color-text);
+    font-size: var(--font-base);
+    font-weight: 600;
+  }
+}
+
+.token-display {
+  margin-bottom: var(--spacing-s);
+
+  .token-display__value {
+    display: flex;
+    align-items: stretch;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-s);
+
+    .token-code {
+      background: var(--color-input-bg);
+      padding: var(--spacing-s);
+      border-radius: var(--border-radius);
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: var(--font-small);
+      word-break: break-all;
+      flex: 1;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      min-height: 2.5rem;
+      display: flex;
+      align-items: center;
+      font-weight: 400;
+      user-select: all;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: var(--color-primary);
+        background: var(--color-card-background-highlighted);
+      }
+
+      &--hidden {
+        font-family: system-ui, -apple-system, sans-serif;
+        letter-spacing: 2px;
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+          background: var(--color-primary);
+          color: var(--color-primary-alt);
+          border-color: var(--color-primary);
+        }
+      }
+    }
+
+    .button {
+      flex-shrink: 0;
+      min-width: 2.5rem;
+      height: 2.5rem;
+      width: 2.5rem;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--border-radius);
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .icon {
+        stroke-width: 2.5;
+        width: 1.1rem;
+        height: 1.1rem;
+      }
+    }
+  }
+
+  .help {
+    margin: 0;
+    font-size: var(--font-small);
+    color: var(--color-text-subtitle);
+    line-height: 1.5;
+    font-style: italic;
+  }
+}

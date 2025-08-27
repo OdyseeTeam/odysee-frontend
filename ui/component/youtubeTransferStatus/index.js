@@ -5,6 +5,7 @@ import {
   selectYouTubeImportVideosComplete,
   selectYouTubeImportPending,
   selectUserIsPending,
+  selectUserExperimentalUi,
 } from 'redux/selectors/user';
 import { doResolveUris } from 'redux/actions/claims';
 import YoutubeChannelList from './view';
@@ -14,6 +15,7 @@ const select = (state) => ({
   youtubeImportPending: selectYouTubeImportPending(state),
   userFetchPending: selectUserIsPending(state),
   videosImported: selectYouTubeImportVideosComplete(state),
+  experimentalUi: selectUserExperimentalUi(state),
 });
 
 const perform = (dispatch) => ({
