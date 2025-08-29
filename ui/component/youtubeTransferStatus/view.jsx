@@ -150,6 +150,7 @@ export default function YoutubeTransferStatus(props: Props) {
                 total_subs: totalSubs,
                 total_videos: totalVideos,
                 vip: isVip,
+                reviewed: isReviewed,
               } = channel;
               const url = buildURI({ channelName, channelClaimId: claimId });
               doResolveUris([url]);
@@ -204,7 +205,12 @@ export default function YoutubeTransferStatus(props: Props) {
                             <Icon icon={ICONS.COMPLETED} className="progress__complete-icon--completed" />
                           </div>
                           <div className="progress__item">
-                            {isAutomatedSync ? (
+                            {isReviewed === 0 ? (
+                              <>
+                                {__('Automated sync status is still under review')}
+                                <Icon icon={ICONS.NOT_COMPLETED} className={classnames('progress__complete-icon')} />
+                              </>
+                            ) : isAutomatedSync ? (
                               <>
                                 {__('Wait for your videos to be synced')}
                                 {isWaitingForSync ? (
