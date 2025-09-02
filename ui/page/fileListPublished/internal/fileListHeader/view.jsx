@@ -55,7 +55,9 @@ export default function ClaimListHeader(props: Props) {
                     label={__(info.label)}
                     aria-label={info.ariaLabel}
                     onClick={() => handleFilterTypeChange(info.key)}
-                    className={classnames(`button-toggle`, { 'button-toggle--active': filterType === info.key })}
+                    className={classnames(`button-toggle`, `button-toggle__upload-type-filter`, {
+                      'button-toggle--active': filterType === info.key,
+                    })}
                   />
                 ))}
               </div>
