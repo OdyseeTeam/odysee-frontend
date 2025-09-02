@@ -217,7 +217,8 @@ function BuyAr(props: Props) {
                 onClick={() =>
                   window.open(
                     `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${activeFiat.symbol}&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption}`,
-                    '_blank'
+                    '_blank',
+                    'noopener,noreferrer'
                   )
                 }
                 disabled={!fiatAmount}
