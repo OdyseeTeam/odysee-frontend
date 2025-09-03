@@ -162,8 +162,8 @@ export default function YoutubeTransferStatus(props: Props) {
                 syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_PENDINGUPGRADE ||
                 syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_SYNCING;
 
-              const isAutomatedSync = isVip;
-              const isNotEligible = syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED;
+              const isAutomatedSync = isVip === true;
+              const isNotEligible = syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED && isReviewed === true;
 
               return (
                 <div key={url} className="card--inline sync-state">
@@ -205,7 +205,7 @@ export default function YoutubeTransferStatus(props: Props) {
                             <Icon icon={ICONS.COMPLETED} className="progress__complete-icon--completed" />
                           </div>
                           <div className="progress__item">
-                            {isReviewed === 0 ? (
+                            {isReviewed === false ? (
                               <>
                                 {__('Automated sync status is still under review')}
                                 <Icon icon={ICONS.NOT_COMPLETED} className={classnames('progress__complete-icon')} />
