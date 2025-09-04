@@ -27,7 +27,6 @@ type Props = {
   uriAccessKey: ?UriAccessKey,
   geoRestriction: ?GeoRestriction,
   gblAvailable: boolean,
-  preferEmbed: boolean,
   verifyClaimSignature: (params: VerifyClaimSignatureParams) => Promise<VerifyClaimSignatureResponse>,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (type: PublishType, name: ?string) => void,
@@ -59,7 +58,6 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
       uriAccessKey,
       geoRestriction,
       gblAvailable,
-      preferEmbed,
       verifyClaimSignature,
       doResolveUri,
       doBeginPublish,
@@ -70,8 +68,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
 
     const { streamName, /* channelName, */ isChannel } = parseURI(uri);
 
-    const claimIsRestricted =
-      !claimIsMine && (geoRestriction !== null || isClaimBlackListed || (isClaimFiltered && !preferEmbed));
+    const claimIsRestricted = !claimIsMine && (geoRestriction !== null || isClaimBlackListed || isClaimFiltered);
 
     const resolveRequired =
       claim === undefined || (claim && claim.value?.fee && claim.purchase_receipt === undefined && isAuthenticated);
@@ -247,7 +244,7 @@ const withResolvedClaimRender = (ClaimRenderComponent: FunctionalComponentParam)
         );
       }
 
-      if (isClaimFiltered && !preferEmbed) {
+      if (isClaimFiltered) {
         return (
           <Wrapper>
             <div className="main--empty">

@@ -199,7 +199,7 @@ export const publishReducer = handleActions(
       // Finalize
       return { ...state, ...data, ...auto };
     },
-    [ACTIONS.CLEAR_PUBLISH]: (state: PublishState): PublishState => ({
+    [ACTIONS.CLEAR_PUBLISH]: (state: PublishState, action): PublishState => ({
       ...defaultState,
       type: state.type,
       uri: undefined,
@@ -207,7 +207,7 @@ export const publishReducer = handleActions(
       channelId: state.channelId,
       bid: state.bid,
       optimize: state.optimize,
-      language: state.language,
+      languages: [action.data.language || state.language],
       currentUploads: state.currentUploads,
     }),
     [ACTIONS.PUBLISH_START]: (state: PublishState): PublishState => ({

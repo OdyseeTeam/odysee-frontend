@@ -296,6 +296,12 @@
   }
 }
 
+.button-toggle__upload-type-filter {
+  @media (max-width: $breakpoint-small) {
+    font-size: var(--font-xxsmall);
+  }
+}
+
 .claim-search__tags-link {
   margin-left: var(--spacing-s);
   .button__label {

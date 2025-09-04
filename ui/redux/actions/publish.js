@@ -9,7 +9,7 @@ import * as PUBLISH_TYPES from 'constants/publish_types';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
-import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
+import { selectProtectedContentMembershipsForContentClaimId } from 'redux/selectors/memberships';
 import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
@@ -17,8 +17,10 @@ import {
   selectMyClaims,
   selectMyChannelClaims,
   selectReflectingById,
+  makeSelectMetadataItemForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectDefaultChannelClaim } from 'redux/selectors/settings';
 import {
   selectPublishFormValue,
   selectPublishFormValues,
@@ -311,8 +313,13 @@ export const doBeginPublish = (type: PublishType, name: string = '', customPath:
   };
 };
 
-export const doClearPublish = () => (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.CLEAR_PUBLISH });
+export const doClearPublish = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const defaultChannelClaim = selectDefaultChannelClaim(state);
+  const channelLanguages = makeSelectMetadataItemForUri(defaultChannelClaim?.permanent_url, 'languages')(state);
+  const channelPrimaryLanguage = channelLanguages ? channelLanguages[0] : null;
+
+  dispatch({ type: ACTIONS.CLEAR_PUBLISH, data: { language: channelPrimaryLanguage } });
   return dispatch(doResetThumbnailStatus());
 };
 
@@ -321,6 +328,27 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishState) => (di
     type: ACTIONS.UPDATE_PUBLISH_FORM,
     data: { ...publishFormValue },
   });
+
+export const doUpdateTitle = (title: string) => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const { name, claimToEdit } = state.publish;
+
+  const regexInvalidURI =
+    /[ =&#:$@%?;/\\\n"<>%{}|^~[\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}\u{D800}-\u{DFFF}\u{FFFE}-\u{FFFF}]/gu;
+
+  const publishFormValue = { name, title };
+
+  // Keep the name matching the title, if the name was already matching
+  let newName = title.replace(regexInvalidURI, '-');
+  if (!claimToEdit && (name === newName.slice(0, -1) || newName === name.slice(0, -1) || !title || !name)) {
+    publishFormValue.name = newName;
+  }
+
+  dispatch({
+    type: ACTIONS.UPDATE_PUBLISH_FORM,
+    data: { ...publishFormValue },
+  });
+};
 
 export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -694,16 +722,15 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     if (publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG)) {
       if (channelId) {
         // Repopulate membership restriction IDs
-        let protectedMembershipIds: Array<number> = selectProtectedContentMembershipsForClaimId(
+        let protectedMembershipIds: Array<number> = selectProtectedContentMembershipsForContentClaimId(
           state,
-          channelId,
           claim.claim_id
         );
 
         if (protectedMembershipIds === undefined) {
           await dispatch(doMembershipContentforStreamClaimId(claim.claim_id));
           state = getState();
-          protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
+          protectedMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claim.claim_id);
         }
 
         if (protectedMembershipIds && protectedMembershipIds.length > 0) {

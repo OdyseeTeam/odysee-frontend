@@ -608,6 +608,14 @@ export const makeSelectContentTypeForUri = (uri: string) =>
     return source ? source.media_type : undefined;
   });
 
+export const makeSelectFileExtensionForUri = (uri: string) =>
+  createSelector(makeSelectClaimForUri(uri), (claim) => {
+    const source = claim && claim.value && claim.value.source;
+    const fileName = source?.name;
+    const fileExtension = fileName && fileName.split('.')[1];
+    return fileExtension;
+  });
+
 export const selectThumbnailForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return getThumbnailFromClaim(claim);

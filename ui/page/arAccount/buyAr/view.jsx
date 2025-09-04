@@ -217,7 +217,8 @@ function BuyAr(props: Props) {
                 onClick={() =>
                   window.open(
                     `https://global.transak.com/?apiKey=${apiKey}&defaultCryptoCurrency=AR&defaultFiatAmount=${fiatAmount}&defaultFiatCurrency=${activeFiat.symbol}&walletAddress=${wallet.address}&defaultPaymentMethod=${paymentOption}`,
-                    '_blank'
+                    '_blank',
+                    'noopener,noreferrer'
                   )
                 }
                 disabled={!fiatAmount}
@@ -288,7 +289,7 @@ function BuyAr(props: Props) {
                       <div className="buyAr-provider-content">
                         <h4 className="buyAr-provider-name">
                           {provider.name}
-                          <Icon icon={ICONS.EXTERNAL} />  
+                          <Icon icon={ICONS.EXTERNAL} />
                         </h4>
                         {provider.note && <p className="buyAr-provider-note">{__(provider.note)}</p>}
                       </div>

@@ -1482,6 +1482,7 @@
   "You only watched content for %1% days in the last week. It needs to be at least %2% to get the credit.": "You only watched content for %1% days in the last week. It needs to be at least %2% to get the credit.",
   "You will receive an SMS text message confirming your phone number is valid. May not be available in all regions.": "You will receive an SMS text message confirming your phone number is valid. May not be available in all regions.",
   "Verified accounts are eligible to receive Credits for using %SITE_NAME%. Verifying also helps us keep the %SITE_NAME% community safe too! %Refresh% or %Skip%.": "Verified accounts are eligible to receive Credits for using %SITE_NAME%. Verifying also helps us keep the %SITE_NAME% community safe too! %Refresh% or %Skip%.",
+  "Verified accounts are eligible to receive Credits for using %SITE_NAME%. Verifying also helps us keep the %SITE_NAME% community safe! %Skip%.": "Verified accounts are eligible to receive Credits for using %SITE_NAME%. Verifying also helps us keep the %SITE_NAME% community safe! %Skip%.",
   "Your First Nickel": "Your First Nickel",
   "Your First Credit": "Your First Credit",
   "Go for a Stream": "Go for a Stream",
@@ -2975,6 +2976,8 @@
   "Channel is required for commenting": "Channel is required for commenting",
   "You'll need a channel to comment on this upload.": "You'll need a channel to comment on this upload.",
   "Continue to channel creation": "Continue to channel creation",
+  "Failed to apply membership tiers. Access to the content may still be restricted.": "Failed to apply membership tiers. Access to the content may still be restricted.",
+  "If the issue persists, please reach out to help@odysee.com": "If the issue persists, please reach out to help@odysee.com",
   
   "--end--": "--end--"
 }

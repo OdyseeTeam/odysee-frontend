@@ -110,7 +110,8 @@ function UserSignUp(props: Props) {
   // The possible screens for the sign in flow
   const showEmail = !hasVerifiedEmail;
   const showEmailVerification = (emailToVerify && !hasVerifiedEmail) || (!hasVerifiedEmail && passwordSet);
-  const showUserVerification = hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
+  const showUserVerification =
+    balance === 0 && hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
   const showChannelCreation =
     hasVerifiedEmail &&
     ((balance !== undefined &&

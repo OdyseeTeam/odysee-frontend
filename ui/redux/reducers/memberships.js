@@ -248,16 +248,19 @@ reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_START] = (state, action) => {
   return { ...state, claimMembershipTiersFetchingIds: newClaimMembershipTiersFetchingIds };
 };
 reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS] = (state, action) => {
-  const response: MembershipContentResponse = action.data;
+  const response: MembershipContentResponse = action.data.response;
+  const idsToFetch = action.data.idsToFetch;
 
   const newProtectedContentClaims = Object.assign({}, state.protectedContentClaimsByCreatorId);
   const newClaimMembershipTiersFetchingIds = new Set(state.claimMembershipTiersFetchingIds);
 
+  for (const claimId of idsToFetch) {
+    newClaimMembershipTiersFetchingIds.delete(claimId);
+  }
+
   if (response && response.length > 0) {
     response.forEach((membershipContent: MembershipContentResponseItem) => {
       const { channel_id: creatorId, claim_id: claimId, membership_id: membershipId } = membershipContent;
-
-      newClaimMembershipTiersFetchingIds.delete(claimId);
 
       const creatorContentMemberships = newProtectedContentClaims[creatorId];
       const newCreatorContentMemberships = Object.assign({}, creatorContentMemberships);

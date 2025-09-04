@@ -72,6 +72,112 @@
   font-size: var(--font-small);
 }
 
+// Help list styling for instructional content
+.help-list {
+  padding-left: var(--spacing-m);
+  margin: var(--spacing-s) 0;
+
+  li {
+    margin-bottom: var(--spacing-s);
+    line-height: 1.5;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  strong {
+    color: var(--color-text);
+  }
+}
+
+.help-sublist {
+  margin-top: var(--spacing-xs);
+  margin-left: var(--spacing-s);
+  padding-left: var(--spacing-m);
+
+  li {
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-xsmall);
+    color: var(--color-text-subtitle);
+  }
+}
+
+.help--notice {
+  background: var(--color-card-background-highlighted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-s);
+  margin-top: var(--spacing-s);
+
+  p {
+    margin: 0 0 var(--spacing-xs) 0;
+  }
+
+  ul {
+    margin: 0;
+  }
+}
+
+.section__subtitle--top-border {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--spacing-m);
+  margin-top: var(--spacing-l);
+
+  h3 {
+    margin-bottom: var(--spacing-s);
+    color: var(--color-text);
+  }
+}
+
+// Token display styling for YouTube sync page
+.token-display {
+  background: var(--color-card-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-s);
+  margin-top: var(--spacing-s);
+
+  .token-display__label {
+    font-size: var(--font-xsmall);
+    color: var(--color-text-subtitle);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+  }
+
+  .token-display__value {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
+
+    code {
+      background: var(--color-gray-2);
+      padding: var(--spacing-xs);
+      border-radius: var(--border-radius);
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: var(--font-xsmall);
+      word-break: break-all;
+      flex: 1;
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+    }
+
+    .button {
+      flex-shrink: 0;
+      min-width: auto;
+      padding: var(--spacing-xs);
+    }
+  }
+
+  .token-display__help {
+    font-size: var(--font-xsmall);
+    color: var(--color-text-subtitle);
+    font-style: italic;
+    margin: 0;
+  }
+}
+
 @media (min-width: $breakpoint-small) {
   .md\:items-center {
     align-items: center;

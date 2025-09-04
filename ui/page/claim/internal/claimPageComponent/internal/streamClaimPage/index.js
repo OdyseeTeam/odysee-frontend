@@ -10,7 +10,7 @@ import {
   selectThumbnailForUri,
   makeSelectTagInClaimOrChannelForUri,
 } from 'redux/selectors/claims';
-import { selectIsClaimBlackListedForUri, selectIsClaimFilteredForUri } from 'lbryinc';
+import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
@@ -31,9 +31,12 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const channelId = getChannelIdFromClaim(claim);
 
-  const claimId = claim.claim_id;
+  const claimId = claim?.claim_id;
 
   const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
+
+  const filterData = selectFilteredDataForUri(state, uri);
+  const isClaimFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
@@ -48,8 +51,8 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
-    isClaimBlackListed: selectIsClaimBlackListedForUri(state, uri),
-    isClaimFiltered: selectIsClaimFilteredForUri(state, uri),
+    isClaimBlackListed: Boolean(selectBlackListedDataForUri(state, uri)),
+    isClaimFiltered,
   };
 };
 

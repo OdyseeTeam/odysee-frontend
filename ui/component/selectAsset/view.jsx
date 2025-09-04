@@ -39,15 +39,40 @@ function SelectAsset(props: Props) {
   const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
   const imgRef = React.useRef(null);
   const previewCanvasRef = React.useRef(null);
+  const [cordovaFileData, setCordovaFileData] = React.useState(null);
+  const [actualFileBlob, setActualFileBlob] = React.useState(null);
   const isAnimated =
     // $FlowIgnore
-    (fileSelected && (fileSelected.type.includes('gif') || fileSelected.type.includes('webm'))) || false;
+    (fileSelected && fileSelected.type && (fileSelected.type.includes('gif') || fileSelected.type.includes('webm'))) ||
+    false;
 
   const [cropInit, setCropInit] = React.useState(false);
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
   const [imageTitle, setImageTitle] = React.useState();
+
+  // Polyfill for canvas.toBlob for older WebViews
+  React.useEffect(() => {
+    if (!HTMLCanvasElement.prototype.toBlob) {
+      HTMLCanvasElement.prototype.toBlob = function (callback, type, quality) {
+        const dataURL = this.toDataURL(type || 'image/png', quality);
+        let data = dataURL.split(',')[1];
+        const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+
+        // Decode base64
+        const byteString = atob(data);
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const intArray = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < byteString.length; i++) {
+          intArray[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([intArray], { type: mimeString });
+
+        setTimeout(() => callback(blob), 0);
+      };
+    }
+  }, []);
 
   React.useEffect(() => {
     if (useUrl) {
@@ -60,6 +85,32 @@ function SelectAsset(props: Props) {
   React.useEffect(() => {
     if (fileSelected) {
       setCropInit(false);
+
+      // Handle file reading for Cordova and web
+      if (window.cordova) {
+        // In Cordova, even regular File objects need special handling
+        // Use FileReader to convert to data URL for display
+        if (fileSelected instanceof Blob || fileSelected instanceof File) {
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            setCordovaFileData(reader.result);
+            setImagePreview(reader.result);
+          };
+          reader.onerror = function (error) {
+            console.error('FileReader error:', error);
+          };
+          reader.readAsDataURL(fileSelected);
+
+          // Store the actual file for upload
+          setActualFileBlob(fileSelected);
+        }
+      } else {
+        // For web, we can use URL.createObjectURL
+        if (fileSelected instanceof Blob) {
+          setImagePreview(URL.createObjectURL(fileSelected));
+          setActualFileBlob(fileSelected);
+        }
+      }
     }
   }, [fileSelected]);
 
@@ -160,7 +211,8 @@ function SelectAsset(props: Props) {
         console.log(e);
       }
     } else {
-      data.append('file-input', fileSelected);
+      // Use actualFileBlob if available (for Cordova), otherwise use fileSelected
+      data.append('file-input', actualFileBlob || fileSelected);
     }
 
     data.append('upload', 'Upload');
@@ -223,13 +275,36 @@ function SelectAsset(props: Props) {
     );
 
     return new Promise<File>((resolve, reject) => {
-      offscreen.toBlob((blob) => {
-        if (blob) {
-          resolve(new File([blob], 'image.png', { type: 'image/png' }));
-        } else {
-          reject(new Error('Blob creation failed.'));
-        }
-      }, 'image/png');
+      try {
+        offscreen.toBlob(
+          (blob) => {
+            if (blob) {
+              // In Cordova, File constructor might not work properly
+              // So we'll just return the blob with file-like properties
+              if (window.cordova) {
+                // Add file-like properties to the blob
+                blob.name = 'image.png';
+                blob.lastModified = Date.now();
+                blob.lastModifiedDate = new Date();
+                resolve(blob);
+              } else {
+                // For web, create a proper File object
+                const file = new File([blob], 'image.png', {
+                  type: 'image/png',
+                  lastModified: Date.now(),
+                });
+                resolve(file);
+              }
+            } else {
+              reject(new Error('Blob creation failed.'));
+            }
+          },
+          'image/png',
+          0.95
+        );
+      } catch (error) {
+        reject(error);
+      }
     });
   }
 
@@ -381,15 +456,22 @@ function SelectAsset(props: Props) {
               name="assetSelector"
               currentPath={pathSelected}
               onFileChosen={(file) => {
-                if (file.name) {
+                // Handle both regular files and Cordova file objects
+                const fileName = file.name || file.fullPath || file.localURL || 'image';
+                if (fileName) {
                   setFileSelected(file);
                   // what why? why not target=WEB this?
                   // file.path is undefined in web but available in electron
-                  setPathSelected(file.name || file.path);
+                  setPathSelected(fileName || file.path);
                   setUploadErrorMsg('');
-                  setImagePreview(URL.createObjectURL(file));
 
-                  if (file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
+                  // Don't use URL.createObjectURL for Cordova
+                  if (!window.cordova && file instanceof Blob) {
+                    setImagePreview(URL.createObjectURL(file));
+                  }
+                  // Cordova file handling is done in useEffect
+
+                  if (file.size && file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
                     const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
                     setUploadErrorMsg(
                       __('Thumbnail size over %max_size%MB, please edit and reupload.', { max_size: maxSizeMB })
@@ -425,7 +507,7 @@ function SelectAsset(props: Props) {
             )}
             {(assetName === 'Cover Image' || assetName === 'Thumbnail') && (
               <>
-                {fileSelected && !isAnimated && (
+                {fileSelected && !isAnimated && (window.cordova ? cordovaFileData : true) && (
                   <div className="cropCanvas">
                     <ReactCrop
                       crop={crop}
@@ -438,7 +520,7 @@ function SelectAsset(props: Props) {
                     >
                       <img
                         ref={imgRef}
-                        src={URL.createObjectURL(new Blob([fileSelected], { type: fileSelected.type }))}
+                        src={cordovaFileData || imagePreview || ''}
                         onLoad={!cropInit ? onImageLoad : () => {}}
                       />
                     </ReactCrop>

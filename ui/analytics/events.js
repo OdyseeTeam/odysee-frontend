@@ -61,23 +61,12 @@ export type Events = {
 
 export const events: Events = {
   setState: (enable: boolean) => {
-    gGoogleAnalyticsOn = enable && isProduction && window.gtag;
-
-    if (gGoogleAnalyticsOn) {
-      window.gtag('consent', 'update', {
-        ad_storage: 'granted',
-        analytics_storage: 'granted',
-      });
-    }
-
-    // TODO: If we turn off at runtime, do we need to toggle window.gtag?
-    // Not thinking about it now since we are removing GA anyway.
+    // Google Analytics disabled
+    gGoogleAnalyticsOn = false;
   },
 
   setUser: (userId: string) => {
-    if (gGoogleAnalyticsOn && userId) {
-      window.gtag('set', { user_id: userId });
-    }
+    // Google Analytics disabled
   },
 
   // --------------------------------------------------------------------------
@@ -212,7 +201,5 @@ export const events: Events = {
 // ****************************************************************************
 
 function sendGaEvent(event: string, params?: { [string]: string | number }) {
-  if (gGoogleAnalyticsOn) {
-    window.gtag('event', event, params);
-  }
+  // Google Analytics disabled - no events sent
 }

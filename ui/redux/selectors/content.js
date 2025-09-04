@@ -11,13 +11,13 @@ import {
   selectClaimIsNsfwForUri,
   selectScheduledStateForUri,
   selectIsUriUnlisted,
+  makeSelectFileExtensionForUri,
 } from 'redux/selectors/claims';
-import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
+import { makeSelectMediaTypeForUri } from 'redux/selectors/file_info';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPendingUnlockedRestrictionsForUri } from 'redux/selectors/memberships';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import path from 'path';
 import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/claim';
 
 const RECENT_HISTORY_AMOUNT = 10;
@@ -191,10 +191,11 @@ export const selectWatchHistoryUris = createSelector(selectHistory, (history) =>
 });
 
 // should probably be in lbry-redux, yarn link was fighting me
-export const makeSelectFileExtensionForUri = (uri: string) =>
+/* export const makeSelectFileExtensionForUri = (uri: string) =>
   createSelector(makeSelectFileNameForUri(uri), (fileName) => {
     return fileName && path.extname(fileName).substring(1);
   });
+*/
 
 export const makeSelectFileRenderModeForUri = (uri: string) =>
   createSelector(
@@ -202,7 +203,11 @@ export const makeSelectFileRenderModeForUri = (uri: string) =>
     makeSelectMediaTypeForUri(uri),
     makeSelectFileExtensionForUri(uri),
     (contentType, mediaType, extension) => {
-      if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) || mediaType === 'livestream') {
+      if (
+        mediaType === 'video' ||
+        (FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe') ||
+        mediaType === 'livestream'
+      ) {
         return RENDER_MODES.VIDEO;
       }
       if (mediaType === 'audio') {
@@ -261,7 +266,11 @@ export const selectFileRenderModeForUri = createSelector(
   (state, uri) => makeSelectMediaTypeForUri(uri)(state),
   (state, uri) => makeSelectFileExtensionForUri(uri)(state),
   (contentType, mediaType, extension) => {
-    if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) || mediaType === 'livestream') {
+    if (
+      mediaType === 'video' ||
+      (FORCE_CONTENT_TYPE_PLAYER.includes(contentType) && extension !== 'exe') ||
+      mediaType === 'livestream'
+    ) {
       return RENDER_MODES.VIDEO;
     }
     if (mediaType === 'audio') {

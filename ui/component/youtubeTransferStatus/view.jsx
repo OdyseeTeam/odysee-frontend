@@ -1,5 +1,5 @@
 // @flow
-import { SITE_NAME, SITE_HELP_EMAIL } from 'config';
+import { SITE_HELP_EMAIL } from 'config';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import classnames from 'classnames';
@@ -23,6 +23,7 @@ type Props = {
   alwaysShow: boolean,
   addNewChannel?: boolean,
   doResolveUris: (uris: Array<string>) => void,
+  experimentalUi: boolean,
 };
 
 export default function YoutubeTransferStatus(props: Props) {
@@ -36,12 +37,21 @@ export default function YoutubeTransferStatus(props: Props) {
     alwaysShow = false,
     addNewChannel,
     doResolveUris,
+    experimentalUi,
   } = props;
   const hasChannels = youtubeChannels && youtubeChannels.length > 0;
   const transferEnabled = youtubeChannels.some((status) => status.transferable);
   const hasPendingTransfers = youtubeChannels.some(
     (status) => status.transfer_state === YOUTUBE_STATUSES.YOUTUBE_SYNC_PENDING_TRANSFER
   );
+
+  // Get the first available status token for self-sync
+  const firstAvailableToken = hasChannels
+    ? youtubeChannels.find((channel) => channel.status_token)?.status_token
+    : null;
+
+  // State for token visibility
+  const [isTokenVisible, setIsTokenVisible] = React.useState(false);
   const isYoutubeTransferComplete =
     hasChannels &&
     youtubeChannels.every(
@@ -139,6 +149,8 @@ export default function YoutubeTransferStatus(props: Props) {
                 sync_status: syncStatus,
                 total_subs: totalSubs,
                 total_videos: totalVideos,
+                vip: isVip,
+                reviewed: isReviewed,
               } = channel;
               const url = buildURI({ channelName, channelClaimId: claimId });
               doResolveUris([url]);
@@ -150,21 +162,38 @@ export default function YoutubeTransferStatus(props: Props) {
                 syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_PENDINGUPGRADE ||
                 syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_SYNCING;
 
-              const isNotEligible = syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED;
+              const isAutomatedSync = isVip === true;
+              const isNotEligible = syncStatus === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED && isReviewed === true;
 
               return (
                 <div key={url} className="card--inline sync-state">
                   {claimId ? (
                     <ClaimPreview
                       uri={url}
-                      actions={<span className="help">{transferState}</span>}
+                      actions={
+                        <div className="help">
+                          <div>{transferState}</div>
+                          {!isAutomatedSync && (
+                            <div className="help--inline">
+                              {__(
+                                'This channel is not automatically syncing right now. Reach out to hello@odysee.com to try our self sync tool.'
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      }
                       properties={false}
                       hideJoin
                     />
                   ) : (
                     <div className="error">
                       {isNotEligible ? (
-                        <div>{__('%channelName% is not eligible to be synced', { channelName })}</div>
+                        <div>
+                          {__(
+                            '%channelName% is not eligible to be synced, reach out to hello@odysee.com for access to the self sync tool.',
+                            { channelName }
+                          )}
+                        </div>
                       ) : (
                         <div className="progress">
                           <div className="progress__item">
@@ -176,11 +205,25 @@ export default function YoutubeTransferStatus(props: Props) {
                             <Icon icon={ICONS.COMPLETED} className="progress__complete-icon--completed" />
                           </div>
                           <div className="progress__item">
-                            {__('Wait for your videos to be synced')}
-                            {isWaitingForSync ? (
-                              <Spinner type="small" />
+                            {isReviewed === false ? (
+                              <>
+                                {__('Automated sync status is still under review')}
+                                <Icon icon={ICONS.NOT_COMPLETED} className={classnames('progress__complete-icon')} />
+                              </>
+                            ) : isAutomatedSync ? (
+                              <>
+                                {__('Wait for your videos to be synced')}
+                                {isWaitingForSync ? (
+                                  <Spinner type="small" />
+                                ) : (
+                                  <Icon icon={ICONS.COMPLETED} className="progress__complete-icon--completed" />
+                                )}
+                              </>
                             ) : (
-                              <Icon icon={ICONS.COMPLETED} className="progress__complete-icon--completed" />
+                              <>
+                                {__('Reach out to hello@odysee.com to try our self sync tool')}
+                                <Icon icon={ICONS.NOT_COMPLETED} className={classnames('progress__complete-icon')} />
+                              </>
                             )}
                           </div>
                           <div className="help--inline">
@@ -192,7 +235,7 @@ export default function YoutubeTransferStatus(props: Props) {
                           <div className="help--inline">
                             {' '}
                             {__(
-                              '*Not all content may be processed, there are limitations based on both Youtube and Odysee activity. Click Learn More at the bottom to see the latest requirements and limits. '
+                              '*Not all content may be processed, there are limitations based on both Youtube and Odysee activity. Click Learn More at the bottom to see the latest requirements and limits. We have a self sync tool to process the rest, reach out to hello@odysee.com to get access. '
                             )}{' '}
                           </div>
 
@@ -223,13 +266,12 @@ export default function YoutubeTransferStatus(props: Props) {
                   label={youtubeChannels.length > 1 ? __('Claim Channels') : __('Claim Channel')}
                 />
               )}
-              {addNewChannel && <Button button="link" label={__('Add Another Channel')} onClick={addNewChannel} />}
-              <Button
-                button={isYoutubeTransferComplete ? 'primary' : 'link'}
-                label={__('Explore %SITE_NAME%', { SITE_NAME })}
-                navigate="/"
-              />
             </div>
+            {addNewChannel && (
+              <div className="section__actions section__actions--above-list">
+                <Button button="primary" label={__('Add Another Channel')} onClick={addNewChannel} />
+              </div>
+            )}
 
             <p className="help">
               {youtubeChannels.length > 1
@@ -239,6 +281,109 @@ export default function YoutubeTransferStatus(props: Props) {
                 __('You will not be able to edit the channel or content until the transfer process completes.')}{' '}
               <Button button="link" label={__('Learn More')} href="https://help.odysee.tv/category-syncprogram/" />
             </p>
+
+            {/* Self-Sync Alternative - Only show for experimental UI users */}
+            {experimentalUi && (
+              <div className="card card--self-sync">
+                <div className="card__header">
+                  <h4>
+                    {__('Want to sync more content?')}{' '}
+                    <Button
+                      button="link"
+                      label={__('Try Self-Sync')}
+                      href="https://sync.odysee.tv/"
+                      className="header-link"
+                    />
+                  </h4>
+                </div>
+                <div className="card__body">
+                  <p>
+                    {__(
+                      'Use our desktop sync tool to transfer content from any of your YouTube channels, including inactive or never-synced channels. Even if you have already synced channels, you can still use this tool to sync more content, even those outside of our default sync limits, e.g. longer videos.'
+                    )}
+                  </p>
+
+                  {firstAvailableToken && (
+                    <div className="token-section">
+                      <div className="token-section__header">
+                        <strong>{__('Your token:')}</strong>
+                      </div>
+                      <div className="token-display">
+                        <div className="token-display__value">
+                          <code
+                            className={`token-code ${!isTokenVisible ? 'token-code--hidden' : ''}`}
+                            onClick={() => setIsTokenVisible(!isTokenVisible)}
+                            title={isTokenVisible ? __('Click to hide token') : __('Click to reveal token')}
+                          >
+                            {isTokenVisible ? firstAvailableToken : '••••••••••••••••••••••••••••••••'}
+                          </code>
+                          <Button
+                            button="secondary"
+                            icon={ICONS.COPY}
+                            aria-label={__('Copy token')}
+                            title={__('Copy token to clipboard')}
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(firstAvailableToken);
+                              } catch (err) {
+                                console.log('Failed to copy token:', err);
+                              }
+                            }}
+                          />
+                        </div>
+                        <p className="help">
+                          {isTokenVisible
+                            ? __(
+                                'This token is private and you should not share it. Copy this token and paste it into the sync tool when prompted. Click the token to hide it.'
+                              )
+                            : __(
+                                'This token is private and you should not share it. Click the copy button to copy your token, or click the token field to reveal it.'
+                              )}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="help-section">
+                    <p className="help">
+                      <strong>{__('Important Notes:')}</strong>
+                    </p>
+                    <ul className="help-list help-list--detailed">
+                      <li>
+                        {__(
+                          'For channels with many videos, you may need to use the "Use browser cookies" option (right click > preferences from the taskbar). We find that Firefox works the best on Windows. You\'ll want to Download and sign into YouTube on Firefox, and then set this option. This works well for age-gated videos too.  '
+                        )}
+                      </li>
+                      <li>{__("To retry any failures, you'll need to quit and restart the app at this time.")}</li>
+                      <li>
+                        {__(
+                          'For new users, the sync tool will make a new channel for you. To sync into an existing Odysee channel, please reach out to hello@odysee.com. '
+                        )}
+                      </li>
+                      <li>
+                        {__(
+                          'Existing synced channels that have uploaded content manually while sync was turned off, content will not be de-duplicated. Reach out to hello@odysee.com for help first if you have many manual uploads.'
+                        )}
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="card__actions card__actions--inline">
+                    <Button
+                      button="secondary"
+                      label={__('Download Sync Tool')}
+                      href="https://sync.odysee.tv/"
+                      iconRight="EXTERNAL"
+                    />
+                    <Button
+                      button="link"
+                      label={__('How to use')}
+                      href="https://help.odysee.tv/category-syncprogram/"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         }
       />

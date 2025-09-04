@@ -46,6 +46,7 @@ import { doToast } from 'redux/actions/notifications';
 import { getAuthToken, setAuthToken, doAuthTokenRefresh } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
+import { setupCordovaConsoleFilter } from 'util/cordova-console-filter';
 
 // Import 3rd-party styles before ours for the current way we are code-splitting.
 import 'scss/third-party.scss';
@@ -209,6 +210,8 @@ function AppWrapper() {
   const [persistDone, setPersistDone] = useState(false);
 
   useEffect(() => {
+    // Setup console filtering for Cordova
+    setupCordovaConsoleFilter();
     // @if TARGET='app'
     moment.locale(remote.app.getLocale());
 

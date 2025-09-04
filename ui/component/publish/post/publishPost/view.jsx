@@ -14,22 +14,14 @@ type Props = {
   // --- redux ---
   title: ?string,
   balance: number,
-  doUpdatePublishForm: (UpdatePublishState) => void,
+  doUpdateTitle: (string) => void,
 };
 
 function PublishPost(props: Props) {
-  const {
-    uri,
-    title,
-    balance,
-    fileMimeType,
-    doUpdatePublishForm: updatePublishForm,
-    disabled,
-    setPrevFileText,
-  } = props;
+  const { uri, title, balance, fileMimeType, doUpdateTitle, disabled, setPrevFileText } = props;
 
   function handleTitleChange(event) {
-    updatePublishForm({ title: event.target.value });
+    doUpdateTitle(event.target.value);
   }
 
   return (
