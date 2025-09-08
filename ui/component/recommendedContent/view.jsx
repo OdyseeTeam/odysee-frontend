@@ -142,6 +142,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               pageSize={20}
               infiniteScroll={false}
               hideFilters
+              hasSource
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
               empty={__('No related content found')}
