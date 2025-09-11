@@ -86,6 +86,7 @@ export function useIsLandscapeScreen() {
 }
 
 export function useIsMediumScreen() {
+  console.log('tmp')
   return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1151);
 }
 
