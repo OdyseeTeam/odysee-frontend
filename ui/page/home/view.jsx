@@ -16,7 +16,7 @@ import Icon from 'component/common/icon';
 import WaitUntilOnPage from 'component/common/wait-until-on-page';
 import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
-import { useIsLargeScreen } from 'effects/use-screensize';
+import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
@@ -90,12 +90,16 @@ function HomePage(props: Props) {
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
+  const isSmallScreen = useIsSmallScreen();
+  const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
   const { push } = useHistory();
 
   const sortedRowData: Array<RowDataItem> = React.useMemo(() => {
     const rowData: Array<RowDataItem> = GetLinksData(
       homepageData,
+      isSmallScreen,
+      isMediumScreen,
       isLargeScreen,
       true,
       authenticated,
@@ -112,6 +116,8 @@ function HomePage(props: Props) {
     followedTags,
     homepageData,
     homepageOrder,
+    isSmallScreen,
+    isMediumScreen,
     isLargeScreen,
     showIndividualTags,
     showNsfw,

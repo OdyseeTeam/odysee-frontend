@@ -34,8 +34,10 @@ const selectSidebarCategories = createSelector(
     const applyHomepageOrderToSidebar = clientSettings[SETTINGS.HOMEPAGE_ORDER_APPLY_TO_SIDEBAR];
     const homepageOrder = clientSettings[SETTINGS.HOMEPAGE_ORDER];
 
-    const isLargeScreen = false; // we don't care about tile count, just want categories.
-    const rowData = GetLinksData(homepageData || {}, isLargeScreen);
+    const isSmallScreen = false; // we don't care about tile count, just want categories.
+    const isMediumScreen = false;
+    const isLargeScreen = false;
+    const rowData = GetLinksData(homepageData || {}, isSmallScreen, isMediumScreen, isLargeScreen);
     let categories = rowData;
 
     if (applyHomepageOrderToSidebar) {

@@ -6,7 +6,7 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import { useIsLargeScreen, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsLargeScreen, useIsSmallScreen } from 'effects/use-screensize';
 
 // TODO: recsysFyp will be moved into 'RecSys', so the redux import in a jsx
 // violation is just temporary.
@@ -18,9 +18,9 @@ import { recsysFyp } from 'redux/actions/search';
 
 const VIEW = { ALL_VISIBLE: 0, COLLAPSED: 1, EXPANDED: 2 };
 
-function getSuitablePageSizeForScreen(defaultSize, isLargeScreen, isMediumScreen) {
-  // return isMediumScreen ? 6 : isLargeScreen ? Math.ceil(defaultSize * (3 / 2)) : defaultSize;
-  return isMediumScreen ? 12 : isLargeScreen ? Math.ceil(24) : 12;
+function getSuitablePageSizeForScreen(defaultSize, isLargeScreen, isSmallScreen) {
+  // return isSmallScreen ? 6 : isLargeScreen ? Math.ceil(defaultSize * (3 / 2)) : defaultSize;
+  return isSmallScreen ? 12 : isLargeScreen ? Math.ceil(24) : 12;
 }
 
 type Props = {
@@ -41,10 +41,10 @@ export default function RecommendedPersonal(props: Props) {
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
   const isLargeScreen = useIsLargeScreen();
-  const isMediumScreen = useIsMediumScreen();
+  const isSmallScreen = useIsSmallScreen();
 
   const count = personalRecommendations.uris.length;
-  const countCollapsed = getSuitablePageSizeForScreen(12, isLargeScreen, isMediumScreen);
+  const countCollapsed = getSuitablePageSizeForScreen(12, isLargeScreen, isSmallScreen);
   const finalCount = view === VIEW.ALL_VISIBLE ? count : view === VIEW.COLLAPSED ? countCollapsed : 36;
   const [hiddenArray, setHiddenArray] = useState([]);
 

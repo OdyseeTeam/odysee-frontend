@@ -24,7 +24,7 @@ import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import usePersistedState from 'effects/use-persisted-state';
 import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
-import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
 import { getLocalizedNameForCollectionId } from 'util/collections';
 import './style.lazy.scss';
 
@@ -143,7 +143,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   } = props;
 
   const isMobile = useIsMobile();
-  const isMediumScreen = useIsMediumScreen() && !isMobile;
+  const isSmallScreen = useIsSmallScreen() && !isMobile;
 
   const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
 
@@ -204,14 +204,14 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         }
 
         try {
-          bodyRef.scrollTo({ top: topToScroll, behavior: isMediumScreen ? 'instant' : 'smooth' });
+          bodyRef.scrollTo({ top: topToScroll, behavior: isSmallScreen ? 'instant' : 'smooth' });
         } catch (error) {}
 
         setScrolledPast(false);
         scrollRestorePending.current = true;
       }
     },
-    [bodyRef, collectionLength, isMediumScreen, playingItemIndex]
+    [bodyRef, collectionLength, isSmallScreen, playingItemIndex]
   );
 
   React.useEffect(() => {

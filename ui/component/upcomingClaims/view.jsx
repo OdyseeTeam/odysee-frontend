@@ -5,7 +5,7 @@ import ClaimList from 'component/claimList';
 import Icon from 'component/common/icon';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import * as ICONS from 'constants/icons';
-import { useIsMobile, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsSmallScreen, useIsLargeScreen } from 'effects/use-screensize';
 import Button from 'component/button';
 import * as SETTINGS from 'constants/settings';
 
@@ -58,7 +58,7 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
   } = props;
 
   const isMobileScreen = useIsMobile();
-  const isMediumScreen = useIsMediumScreen();
+  const isSmallScreen = useIsSmallScreen();
   const isLargeScreen = useIsLargeScreen();
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
 
@@ -66,9 +66,9 @@ const UpcomingClaims = (props: Props & StateProps & DispatchProps) => {
     let multiply = 1;
     if (showAllUpcoming) multiply = 2;
     if (isLargeScreen) return 6 * multiply;
-    if (isMobileScreen || isMediumScreen) return 3 * multiply;
+    if (isMobileScreen || isSmallScreen) return 3 * multiply;
     return 4 * multiply;
-  }, [showAllUpcoming, isMobileScreen, isMediumScreen, isLargeScreen]);
+  }, [showAllUpcoming, isMobileScreen, isSmallScreen, isLargeScreen]);
 
   const list = React.useMemo(() => {
     let uris = (livestreamUris || []).concat(scheduledUris || []);

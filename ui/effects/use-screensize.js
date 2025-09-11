@@ -85,9 +85,12 @@ export function useIsLandscapeScreen() {
   return landscape;
 }
 
-export function useIsMediumScreen() {
-  console.log('tmp')
+export function useIsSmallScreen() {
   return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1151);
+}
+
+export function useIsMediumScreen() {
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize >= 1151 && windowSize <= 1600);
 }
 
 export function useIsLargeScreen() {

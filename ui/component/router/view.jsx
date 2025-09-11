@@ -4,7 +4,7 @@ import { Route, Redirect, Switch, withRouter } from 'react-router-dom';
 
 import * as PAGES from 'constants/pages';
 import { PAGE_TITLE } from 'constants/pageTitles';
-import { useIsLargeScreen } from 'effects/use-screensize';
+import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import { lazyImport } from 'util/lazyImport';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { parseURI } from 'util/lbryURI';
@@ -235,6 +235,8 @@ function AppRouter(props: Props) {
   const resetScroll = urlParams.get('reset_scroll');
   const hasLinkedCommentInUrl = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const tagParams = urlParams.get(CS.TAGS_KEY);
+  const isSmallScreen = useIsSmallScreen();
+  const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
   const ClaimPageRender = React.useMemo(() => () => <ClaimPage uri={uri} />, [uri]);
@@ -244,7 +246,7 @@ function AppRouter(props: Props) {
   const categoryPages = React.useMemo(() => {
     if (!homepageData) return null;
 
-    const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
+    const dynamicRoutes = GetLinksData(homepageData, isSmallScreen, isMediumScreen, isLargeScreen).filter(
       (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
     );
 
