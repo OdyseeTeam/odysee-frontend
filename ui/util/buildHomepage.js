@@ -160,7 +160,7 @@ export function GetLinksData(
           subscribedChannelIds.length > 20
             ? `>${Math.floor(moment().subtract(9, 'months').startOf('week').unix())}`
             : `>${Math.floor(moment().subtract(1, 'year').startOf('week').unix())}`,
-        pageSize: getPageSize(subscribedChannelIds.length > 3 ? (subscribedChannelIds.length > 6 ? 12 : 8) : 4),
+        pageSize: getPageSize(subscribedChannelIds.length > 8 ? (subscribedChannelIds.length > 6 ? 12 : 8) : 8),
         streamTypes: null,
         channelIds: subscribedChannelIds,
       },
