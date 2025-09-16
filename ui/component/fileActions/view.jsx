@@ -97,7 +97,7 @@ export default function FileActions(props: Props) {
 
   const showDownload =
     !isLivestreamClaim &&
-    !disableDownloadButton &&
+    !(disableDownloadButton && !claimIsMine) &&
     !isMature &&
     (!isFiatRequired || isFiatPaidAsPurchase) &&
     (!isProtectedContent || isTierUnlocked) &&
@@ -226,6 +226,9 @@ export default function FileActions(props: Props) {
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />
                   {__('Download')}
+                  {' ('}
+                  {__('Creator only')}
+                  {')'}
                 </div>
               </MenuItem>
             )}
