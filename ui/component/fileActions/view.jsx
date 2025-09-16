@@ -226,9 +226,7 @@ export default function FileActions(props: Props) {
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />
                   {__('Download')}
-                  {' ('}
-                  {__('Creator only')}
-                  {')'}
+                  {disableDownloadButton && claimIsMine && ' (' + __('Creator only') + ')'}
                 </div>
               </MenuItem>
             )}
