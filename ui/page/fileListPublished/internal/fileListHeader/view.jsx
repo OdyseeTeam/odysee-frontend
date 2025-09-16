@@ -21,8 +21,16 @@ type Props = {
 export default function ClaimListHeader(props: Props) {
   const { filterType, setFilterType, fetchClaimListMine, doClearClaimSearch } = props;
 
-  const { fetching, method, params, channelIdsClaimList, sortOption, isFilteringEnabled, updateFilteringSetting } =
-    React.useContext(FileListContext);
+  const {
+    fetching,
+    method,
+    params,
+    channelIdsClaimList,
+    sortOption,
+    isFilteringEnabled,
+    updateFilteringSetting,
+    setFilterParamsChanged,
+  } = React.useContext(FileListContext);
 
   const history = useHistory();
   const {
@@ -34,6 +42,7 @@ export default function ClaimListHeader(props: Props) {
   function handleFilterTypeChange(value) {
     urlParams.set(FILE_LIST.FILTER_TYPE_KEY, value);
     setFilterType(value);
+    setFilterParamsChanged(true);
 
     const url = `?${urlParams.toString()}`;
     history.push(url);
@@ -98,7 +107,10 @@ export default function ClaimListHeader(props: Props) {
                       name="enable_filters"
                       type="checkbox"
                       checked={isFilteringEnabled}
-                      onChange={() => updateFilteringSetting(!isFilteringEnabled, sortOption)}
+                      onChange={() => {
+                        updateFilteringSetting(!isFilteringEnabled, sortOption);
+                        setFilterParamsChanged(true);
+                      }}
                     />
                   </div>
                 </div>
