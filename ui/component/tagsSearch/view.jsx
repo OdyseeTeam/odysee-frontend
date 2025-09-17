@@ -254,6 +254,11 @@ export default function TagsSearch(props: Props) {
               value={newTag}
               disabled={disabled}
               label={labelAddNew || __('Add Tags')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleSubmit(e);
+                }
+              }}
             />
           )}
           {!hideSuggestions && (
