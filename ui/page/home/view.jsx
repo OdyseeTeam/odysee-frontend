@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { lazy } from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
 
@@ -135,6 +135,8 @@ function HomePage(props: Props) {
     },
   };
 
+  console.log(sortedRowData);
+
   const cache: Cache = React.useMemo(() => {
     const cache = { topGrid: -1, hasBanner: false };
     if (homepageFetched) {
@@ -199,6 +201,7 @@ function HomePage(props: Props) {
   }
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
+    console.log(id);
     if (id === 'BANNER') {
       if (index === undefined) {
         return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;
@@ -219,6 +222,66 @@ function HomePage(props: Props) {
             showHideSetting={false}
           />
         </React.Fragment>
+      );
+    } else if (id === 'SHORTS') {
+      const ShortsHeaderArea = () => {
+        return (
+          <>
+            {index === cache.topGrid && <Meme meme={homepageMeme} />}
+            {title && typeof title === 'string' && (
+              <div className="homePage-wrapper__section-title">
+                <SectionHeader title={__(title)} navigate={route || link} icon={icon} help={help} />
+                {(index === cache.topGrid ||
+                  (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING')) && (
+                  <CustomizeHomepage />
+                )}
+              </div>
+            )}
+          </>
+        );
+      };
+
+      const shortsClaimTiles = (
+        <ClaimTilesDiscover
+          {...options}
+          showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+          hasSource
+          hideMembersOnly
+          forceShowReposts={false}
+          fetchViewCount
+          pageSize={24}
+          isShorts
+          excludeShorts={false}
+        />
+      );
+
+      const shortsTilePlaceholder = (
+        <ul className="claim-grid">
+          {new Array(24).fill(1).map((x, i) => (
+            <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />
+          ))}
+        </ul>
+      );
+
+      return (
+        <div key={id} className={classnames('claim-grid__wrapper', 'shorts-section')}>
+          <ShortsHeaderArea />
+          {index === 0 && <>{shortsClaimTiles}</>}
+          {index !== 0 && (
+            <WaitUntilOnPage name={title} placeholder={shortsTilePlaceholder} yOffset={800}>
+              {shortsClaimTiles}
+            </WaitUntilOnPage>
+          )}
+          {(route || link) && (
+            <Button
+              className="claim-grid__title--secondary"
+              button="link"
+              navigate={route || link}
+              iconRight={ICONS.ARROW_RIGHT}
+              label={__('View More Shorts')}
+            />
+          )}
+        </div>
       );
     }
 
@@ -283,6 +346,11 @@ function HomePage(props: Props) {
                 {claimTiles}
               </WaitUntilOnPage>
             )}
+            {/* {index !== 0 && (
+          <WaitUntilOnPage name={title} placeholder={tilePlaceholder} yOffset={800}>
+            {shortsClaimTiles}
+          </WaitUntilOnPage>
+        )} */}
             {(route || link) && (
               <Button
                 className="claim-grid__title--secondary"
@@ -333,7 +401,8 @@ function HomePage(props: Props) {
         sortedRowData.map(
           ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
             // Check if there is a banner that should appear in this position
-            const bannerForPosition = homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
+            const bannerForPosition =
+              homepageCustomBanners?.find && homepageCustomBanners.find((banner) => banner.position === index);
 
             return (
               <React.Fragment key={id}>

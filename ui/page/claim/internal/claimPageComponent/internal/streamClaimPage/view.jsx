@@ -15,11 +15,13 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
+import { useHistory } from 'react-router';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const MarkdownPostPage = lazyImport(() => import('./internal/markdownPost' /* webpackChunkName: "markdownPost" */));
 const VideoPlayersPage = lazyImport(() => import('./internal/videoPlayers' /* webpackChunkName: "videoPlayersPage" */));
 const LivestreamPage = lazyImport(() => import('./internal/livestream' /* webpackChunkName: "livestream" */));
+const ShortsPage = lazyImport(() => import('./internal/shorts'));
 
 type Props = {
   uri: string,
@@ -73,6 +75,13 @@ const StreamClaimPage = (props: Props) => {
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
 
+  const {
+    location: { search },
+  } = useHistory();
+
+  const urlParams = new URLSearchParams(search);
+  const isShortVideo = urlParams.get('view') === 'shorts';
+
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
       doToggleAppDrawer(DRAWERS.CHAT);
@@ -102,6 +111,14 @@ const StreamClaimPage = (props: Props) => {
       return (
         <React.Suspense fallback={null}>
           <LivestreamPage uri={uri} accessStatus={accessStatus} />
+        </React.Suspense>
+      );
+    }
+
+    if (isShortVideo) {
+      return (
+        <React.Suspense fallback={null}>
+          <ShortsPage uri={uri} accessStatus={accessStatus} />
         </React.Suspense>
       );
     }
@@ -180,11 +197,7 @@ const StreamClaimPage = (props: Props) => {
           })}
         </p>
         <div className="section__actions">
-          <Button
-            button="link"
-            href="https://help.odysee.tv/communityguidelines/"
-            label={__('Read More')}
-          />
+          <Button button="link" href="https://help.odysee.tv/communityguidelines/" label={__('Read More')} />
         </div>
       </section>
     );

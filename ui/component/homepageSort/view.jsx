@@ -16,6 +16,7 @@ const NON_CATEGORY = Object.freeze({
   BANNER: { label: 'Banner' },
   UPCOMING: { label: 'Upcoming' },
   FOLLOWING: { label: 'Following' },
+  SHORTS: { label: 'Shorts' },
   FYP: { label: 'Recommended' },
   PORTALS: { label: 'Portals' },
 });
@@ -56,7 +57,6 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
   sectionKeys.forEach((key: string) => {
     if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
       if (homepageSections[key].hideByDefault) {
-        // ... unless it is a 'hideByDefault' category.
         hiddenOrder.push(key);
       } else {
         if (key === 'BANNER') {
@@ -66,6 +66,10 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
         } else if (key === 'UPCOMING') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
           if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
+          else activeOrder.push(key);
+        } else if (key === 'SHORTS') {
+          let followingIndex = activeOrder.indexOf('FOLLOWING');
+          if (followingIndex !== -1) activeOrder.splice(followingIndex + 1, 0, key);
           else activeOrder.push(key);
         } else if (key === 'DISCOVERY_CHANNEL' || key === 'EXPLORABLE_CHANNEL') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');

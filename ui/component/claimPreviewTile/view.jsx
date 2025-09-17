@@ -27,6 +27,7 @@ import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import { FYP_ID } from 'constants/urlParams';
 import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
+import { isClaimShort } from '../../util/claim';
 
 type Props = {
   uri: string,
@@ -58,6 +59,7 @@ type Props = {
   defaultCollectionAction: string,
   onlyThumb?: boolean,
   onClickHandledByParent?: boolean,
+  isShort?: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -92,6 +94,7 @@ function ClaimPreviewTile(props: Props) {
     defaultCollectionAction,
     onlyThumb,
     onClickHandledByParent,
+    isShort,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -104,6 +107,7 @@ function ClaimPreviewTile(props: Props) {
   const showCollectionContext = isClaimAllowedForCollection(claim);
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
+  console.log(thumbnailUrl);
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId || '';
@@ -112,7 +116,8 @@ function ClaimPreviewTile(props: Props) {
       ? `/$/${PAGES.PLAYLIST}/${listId}`
       : formatLbryUrlForWeb(canonicalUrl || uri || '/') +
         (listId ? generateListSearchUrlParams(listId) : '') +
-        (fypId ? `?${FYP_ID}=${fypId}` : ''); // sigh...
+        (claim && isClaimShort(claim) ? '?view=shorts' : '') +
+        (fypId ? `${claim && isClaimShort(claim) ? '&' : '?'}${FYP_ID}=${fypId}` : ''); // sigh...
   const navLinkProps = {
     to: navigateUrl,
     onClick: (e) => {
@@ -208,10 +213,18 @@ function ClaimPreviewTile(props: Props) {
       className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__wrapper--live': isLivestreamActive,
+        'claim-preview__wrapper--short': isShort,
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>
-        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
+        <FileThumbnail
+          isShort={isShort}
+          thumbnail={thumbnailUrl}
+          allowGifs
+          tileLayout
+          uri={uri}
+          secondaryUri={firstCollectionItemUrl}
+        >
           {!isChannel && (
             <React.Fragment>
               {((fypId && isStream) || showCollectionContext) && (

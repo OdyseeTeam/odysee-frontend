@@ -249,7 +249,7 @@ export const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
 };
 
 export const doFetchRecommendedContent =
-  (uri: string, fyp: ?FypParam = null) =>
+  (uri: string, fyp: ?FypParam = null, isShorts: boolean = false) =>
   (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
@@ -260,12 +260,28 @@ export const doFetchRecommendedContent =
     const language = searchInLanguage ? languageSetting : null;
 
     if (claim && claim.value && claim.claim_id) {
-      const options: SearchOptions = getRecommendationSearchOptions(
-        matureEnabled,
-        claimIsMature,
-        claim.claim_id,
-        language
-      );
+      let options: SearchOptions;
+
+      if (isShorts) {
+        options = {
+          size: 20,
+          nsfw: matureEnabled,
+          related_to: claim.claim_id,
+          duration: '<180',
+          max_aspect_ratio: 0.999,
+          isBackgroundSearch: false,
+        };
+
+        if (language) {
+          options['language'] = language;
+        }
+
+        if (claimIsMature && !matureEnabled) {
+          options['nsfw'] = true;
+        }
+      } else {
+        options = getRecommendationSearchOptions(matureEnabled, claimIsMature, claim.claim_id, language);
+      }
 
       if (fyp) {
         options['gid'] = fyp.gid;

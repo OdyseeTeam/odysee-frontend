@@ -12,6 +12,7 @@ import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
+import { useHistory } from 'react-router';
 
 const Draggable = React.lazy(() =>
   import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))
@@ -124,6 +125,10 @@ export default function ClaimList(props: Props) {
   } = props;
 
   const isMobile = useIsMobile();
+  const { location } = useHistory();
+
+  const queryParams = new URLSearchParams(location.search);
+  const isShorts = queryParams.get('t') === 'shorts';
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
   const uriBuffer = React.useRef([]);
@@ -289,7 +294,7 @@ export default function ClaimList(props: Props) {
 
   return tileLayout && !header ? (
     <>
-      <section ref={listRef} className="claim-grid">
+      <section ref={listRef} className={`claim-grid ${isShorts ? 'claim-shorts-grid' : ''}`}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
             if (uri) {

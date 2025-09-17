@@ -24,6 +24,7 @@ import livestreamReducer from 'redux/reducers/livestream';
 import searchReducer from 'redux/reducers/search';
 import reactionsReducer from 'redux/reducers/reactions';
 import syncReducer from 'redux/reducers/sync';
+import shortsReducer from 'redux/reducers/shorts';
 
 export default (history) =>
   combineReducers({
@@ -54,4 +55,5 @@ export default (history) =>
     wallet: walletReducer,
     sync: syncReducer,
     collections: collectionsReducer,
+    shorts: shortsReducer,
   });
