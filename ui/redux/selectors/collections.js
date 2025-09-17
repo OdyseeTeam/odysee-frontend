@@ -35,7 +35,7 @@ export const selectMyCollectionsWithUnSavedChanges = (state: State) => selectSta
 export const selectMyUpdatedCollections = (state: State) => selectState(state).updated;
 export const selectCollectionItemsFetchingIds = (state: State) => selectState(state).collectionItemsFetchingIds;
 export const selectQueueCollection = (state: State) => selectState(state).queue;
-export const selectLastUsedCollection = (state: State) => selectState(state).lastUsedCollection;
+export const selectLastUsedCollectionIds = (state: State) => selectState(state).lastUsedCollectionIds;
 export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
 export const selectThumbnailClaimsFetchingCollectionIds = (state: State) =>
