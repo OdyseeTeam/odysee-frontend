@@ -7,7 +7,7 @@ import {
   selectCollectionForIdHasClaimUrl,
   selectCollectionIsMine,
   selectCollectionHasEditsForId,
-  selectLastUsedCollection,
+  selectLastUsedCollectionIds,
   selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
@@ -56,8 +56,18 @@ const select = (state, props) => {
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
   const contentChannelUri = (contentSigningChannel && contentSigningChannel.permanent_url) || contentPermanentUri;
-  const lastUsedCollectionId = selectLastUsedCollection(state);
-  const lastUsedCollection = lastUsedCollectionId && selectCollectionForId(state, lastUsedCollectionId);
+  const lastUsedCollectionIds = selectLastUsedCollectionIds(state);
+  const lastUsedCollections = lastUsedCollectionIds
+    ?.map((lastUsedCollectionId) => {
+      const collection = selectCollectionForId(state, lastUsedCollectionId);
+      return collection
+        ? {
+            ...collection,
+            hasClaim: selectCollectionForIdHasClaimUrl(state, lastUsedCollectionId, contentPermanentUri),
+          }
+        : null;
+    })
+    .filter(Boolean);
   const isLivestreamClaim = isStreamPlaceholderClaim(claim);
   const permanentUrl = (claim && claim.permanent_url) || '';
   const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
@@ -91,11 +101,7 @@ const select = (state, props) => {
     isUnlisted: selectIsUriUnlisted(state, uri),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
-    lastUsedCollection,
-    hasClaimInLastUsedCollection: selectCollectionForIdHasClaimUrl(state, lastUsedCollectionId, contentPermanentUri),
-    lastUsedCollectionIsNotBuiltin:
-      lastUsedCollectionId !== COLLECTIONS_CONSTS.WATCH_LATER_ID &&
-      lastUsedCollectionId !== COLLECTIONS_CONSTS.FAVORITES_ID,
+    lastUsedCollections,
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     isContentProtectedAndLocked:
       contentClaim && selectIsProtectedContentLockedFromUserForId(state, contentClaim.claim_id),
