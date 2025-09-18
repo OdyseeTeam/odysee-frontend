@@ -266,6 +266,36 @@ export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
   return claimSaved && claimInQueue;
 };
 
+export const makeSelectClaimMenuCollectionsForUrl = () =>
+  createSelector(
+    [selectLastUsedCollectionIds, selectCollectionsById, (state, url) => url],
+    (lastUsedCollectionIds, collectionsById, url) => {
+      // $FlowFixMe
+      const claimId = url.match(/[a-f0-9]{40}/)?.[0];
+
+      const lastUsedCollections = lastUsedCollectionIds
+        .map((id) => {
+          const collection = collectionsById[id];
+          return collection
+            ? { ...collection, hasClaim: collection.items.some((item) => item === url || item === claimId) }
+            : null;
+        })
+        .filter(Boolean);
+
+      const collectionsContainingClaim = Object.entries(collectionsById)
+        .filter(
+          ([id, collection]) =>
+            collection.items.some((item) => item === url || item === claimId) &&
+            !lastUsedCollections.some((lastUsedCollection) => lastUsedCollection.id === collection.id)
+        )
+        .map(([id, collection]) => ({ ...collection, hasClaim: true }));
+
+      const claimMenuCollections = lastUsedCollections.concat(collectionsContainingClaim);
+
+      return claimMenuCollections;
+    }
+  );
+
 export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) =>
   Boolean(selectCollectionForIdClaimForUriItem(state, id, uri));
 

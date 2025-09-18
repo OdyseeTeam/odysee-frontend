@@ -3,12 +3,11 @@ import { selectClaimForUri, selectClaimIsMine, selectIsUriUnlisted } from 'redux
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
-  selectCollectionForId,
   selectCollectionForIdHasClaimUrl,
   selectCollectionIsMine,
   selectCollectionHasEditsForId,
-  selectLastUsedCollectionIds,
   selectCollectionIsEmptyForId,
+  makeSelectClaimMenuCollectionsForUrl,
 } from 'redux/selectors/collections';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -56,18 +55,7 @@ const select = (state, props) => {
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
   const contentChannelUri = (contentSigningChannel && contentSigningChannel.permanent_url) || contentPermanentUri;
-  const lastUsedCollectionIds = selectLastUsedCollectionIds(state);
-  const lastUsedCollections = lastUsedCollectionIds
-    ?.map((lastUsedCollectionId) => {
-      const collection = selectCollectionForId(state, lastUsedCollectionId);
-      return collection
-        ? {
-            ...collection,
-            hasClaim: selectCollectionForIdHasClaimUrl(state, lastUsedCollectionId, contentPermanentUri),
-          }
-        : null;
-    })
-    .filter(Boolean);
+  const lastUsedCollections = makeSelectClaimMenuCollectionsForUrl()(state, contentPermanentUri);
   const isLivestreamClaim = isStreamPlaceholderClaim(claim);
   const permanentUrl = (claim && claim.permanent_url) || '';
   const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
