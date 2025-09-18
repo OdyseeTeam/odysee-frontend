@@ -11,6 +11,9 @@ import { doToast } from 'redux/actions/notifications';
 
 import * as ACTIONS from 'constants/action_types';
 import * as STRIPE from 'constants/stripe';
+import * as MODALS from 'constants/modal_types';
+
+import { doOpenModal } from 'redux/actions/app';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
@@ -233,8 +236,8 @@ const registerAddress = async (address: string, makeDefault: boolean, currency =
     // send to api with
   } catch (e) {
     console.error(e);
-    return e;
-    // throw e;
+    throw e;
+    // return e;
   }
 };
 
@@ -269,7 +272,13 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
     dispatch({ type: ACTIONS.AR_ADDR_REGISTER_SUCCESS, data: address });
   } catch (e) {
     console.error(e);
+    dispatch(
+      doOpenModal(MODALS.ERROR, {
+        error: e.message || e,
+      })
+    );
     dispatch({ type: ACTIONS.AR_ADDR_REGISTER_ERROR, data: e?.message || e });
+    throw e; // Throw again so .then() closing the modal is skipped
   }
 };
 
