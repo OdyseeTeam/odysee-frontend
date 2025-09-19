@@ -135,8 +135,6 @@ function HomePage(props: Props) {
     },
   };
 
-  console.log(sortedRowData);
-
   const cache: Cache = React.useMemo(() => {
     const cache = { topGrid: -1, hasBanner: false };
     if (homepageFetched) {
@@ -201,7 +199,6 @@ function HomePage(props: Props) {
   }
 
   function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
-    console.log(id);
     if (id === 'BANNER') {
       if (index === undefined) {
         return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;

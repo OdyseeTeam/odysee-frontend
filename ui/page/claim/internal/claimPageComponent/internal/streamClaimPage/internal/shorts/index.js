@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
-import { getChannelIdFromClaim, isClaimShort } from 'util/claim';
+import { getChannelIdFromClaim } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
 import {
@@ -21,44 +21,53 @@ import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelI
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { clearPosition } from 'redux/actions/content';
 import { doFetchRecommendedContent } from 'redux/actions/search';
-import {
-  selectRecommendedContentForUri,
-  selectIsSearching,
-  selectRecommendedMetaForClaimId,
-} from 'redux/selectors/search';
+import { selectIsSearching, selectRecommendedMetaForClaimId } from 'redux/selectors/search';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 
 import ShortsPage from './view';
-import { selectShortsSidePanelOpen } from '../../../../../../../../redux/selectors/shorts';
-import { doSetShortsSidePanel, doToggleShortsSidePanel } from '../../../../../../../../redux/actions/shorts';
+import { selectShortsSidePanelOpen, selectShortsPlaylist } from '../../../../../../../../redux/selectors/shorts';
+import {
+  doSetShortsSidePanel,
+  doToggleShortsSidePanel,
+  doSetShortsPlaylist,
+} from '../../../../../../../../redux/actions/shorts';
 
+// Updated selector to get shorts playlist from Redux state, but fall back to search results if needed
 const selectShortsRecommendedContent = createSelector(
-  (state, props) => selectRecommendedContentForUri(state, props.uri),
-  (state) => state.claims && state.claims.byUri,
-  (recommendedUris, claimsByUri) => {
-    if (!recommendedUris || !claimsByUri) return [];
+  [
+    selectShortsPlaylist,
+    (state, props) => {
+      // Safety check for props
+      if (!props || !props.uri) return [];
 
-    const filtered = recommendedUris.filter((uri) => {
-      if (!uri || !claimsByUri) return false;
+      // Fallback: try to get from search results if playlist is empty
+      const claim = selectClaimForUri(state, props.uri);
+      if (!claim || !claim.value || !claim.value.title) return [];
 
-      const claim = claimsByUri[uri];
-      if (!claim || !claim.value) return false;
+      console.log('claim:', claim);
 
-      const { stream_type, video, audio } = claim.value || {};
-      if (stream_type !== 'video' && !video) {
-        return false;
-      }
-      if (typeof isClaimShort === 'function') {
-        const isShort = isClaimShort(claim);
-        if (!isShort) {
-          return false;
+      const shortsQuery = `shorts:${claim.value.title}`;
+      const searchResults = state.search.resultsByQuery;
+
+      console.log('searchResults:', searchResults);
+
+      for (const queryKey in searchResults) {
+        console.log('queryKey: ', queryKey);
+        const decodedQuery = decodeURIComponent(queryKey);
+        if (decodedQuery.startsWith(`s=${shortsQuery}`) || decodedQuery.startsWith(`s="${shortsQuery}"`)) {
+          const result = searchResults[queryKey];
+          console.log(result);
+          return result && result.uris ? result.uris : [];
         }
       }
 
-      return true;
-    });
-    return filtered;
+      return [];
+    },
+  ],
+  (shortsPlaylist, searchUris) => {
+    // Return playlist if it exists, otherwise return search results
+    return shortsPlaylist.length > 0 ? shortsPlaylist : searchUris;
   }
 );
 
@@ -73,8 +82,20 @@ const select = (state, props) => {
 
   const commentSettingDisabled = selectCommentsDisabledSettingForChannelId(state, channelId);
 
-  const allRecommendedUris = selectRecommendedContentForUri(state, uri);
-  const shortsRecommendedUris = selectShortsRecommendedContent(state, props);
+  const shortsRecommendedUris = selectShortsRecommendedContent(state, { uri });
+
+  console.log(shortsRecommendedUris);
+
+  // Find current index in the shorts playlist
+  const currentIndex = shortsRecommendedUris.findIndex((shortUri) => shortUri === uri);
+
+  // Determine next and previous videos
+  const nextRecommendedShort =
+    currentIndex >= 0 && currentIndex < shortsRecommendedUris.length - 1
+      ? shortsRecommendedUris[currentIndex + 1]
+      : null;
+
+  const previousRecommendedShort = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
@@ -91,7 +112,9 @@ const select = (state, props) => {
     isAutoplayCountdownForUri: selectIsAutoplayCountdownForUri(state, uri),
     sidePanelOpen: selectShortsSidePanelOpen(state),
     shortsRecommendedUris,
-    allRecommendedUris,
+    nextRecommendedShort,
+    previousRecommendedShort,
+    currentIndex,
     isSearchingRecommendations: selectIsSearching(state),
     searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
     recommendedMetadata: claimId ? selectRecommendedMetaForClaimId(state, claimId) : null,
@@ -116,6 +139,7 @@ const perform = (dispatch, ownProps) => ({
   doSetShortsSidePanel: (isOpen) => dispatch(doSetShortsSidePanel(isOpen)),
   doFetchRecommendedContent: (uri, fypParam, isShorts = true) =>
     dispatch(doFetchRecommendedContent(uri, fypParam, isShorts)),
+  doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
 });
 
 export default withRouter(connect(select, perform)(ShortsPage));

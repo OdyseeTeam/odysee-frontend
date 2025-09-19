@@ -96,8 +96,6 @@ function ClaimTilesDiscover(props: Props) {
     isShorts,
   } = props;
 
-  console.log(claimSearchResults);
-
   const listRef = React.useRef();
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
   const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);

@@ -26,3 +26,18 @@ export function doCloseShortsSidePanelOnEscape() {
     }
   };
 }
+
+export function doSetShortsPlaylist(uris: Array<string>) {
+  return {
+    type: ACTIONS.SET_SHORTS_PLAYLIST,
+    data: {
+      uris,
+    },
+  };
+}
+
+export function doClearShortsPlaylist() {
+  return {
+    type: ACTIONS.CLEAR_SHORTS_PLAYLIST,
+  };
+}

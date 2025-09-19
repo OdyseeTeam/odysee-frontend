@@ -20,6 +20,18 @@ export default handleActions(
         sidePanelOpen: action.data.isOpen,
       };
     },
+    [ACTIONS.SET_SHORTS_PLAYLIST]: (state: ShortsState, action: { data: { uris: Array<string> } }): ShortsState => {
+      return {
+        ...state,
+        playlist: action.data.uris,
+      };
+    },
+    [ACTIONS.CLEAR_SHORTS_PLAYLIST]: (state: ShortsState): ShortsState => {
+      return {
+        ...state,
+        playlist: [],
+      };
+    },
   },
   defaultState
 );

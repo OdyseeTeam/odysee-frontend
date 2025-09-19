@@ -248,9 +248,52 @@ export const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
   });
 };
 
+export const doFetchShortsRecommendedContent =
+  (uri: string, fyp: ?FypParam = null) =>
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const claim = selectClaimForUri(state, uri);
+    const matureEnabled = selectShowMatureContent(state);
+    const claimIsMature = selectClaimIsNsfwForUri(state, uri);
+    const languageSetting = selectLanguage(state);
+    const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
+    const language = searchInLanguage ? languageSetting : null;
+
+    if (claim && claim.value && claim.claim_id && claim.value.title) {
+      const options: SearchOptions = {
+        size: 20,
+        nsfw: matureEnabled || claimIsMature,
+        related_to: claim.claim_id,
+        duration: '<180',
+        max_aspect_ratio: 0.999,
+        isBackgroundSearch: false,
+      };
+
+      if (language) {
+        options['language'] = language;
+      }
+
+      if (fyp) {
+        options['gid'] = fyp.gid;
+        options['uuid'] = fyp.uuid;
+      }
+
+      const { title } = claim.value;
+
+      if (title && options) {
+        const shortsQuery = `shorts:${title}`;
+        dispatch(doSearch(shortsQuery, options));
+      }
+    }
+  };
+
 export const doFetchRecommendedContent =
   (uri: string, fyp: ?FypParam = null, isShorts: boolean = false) =>
   (dispatch: Dispatch, getState: GetState) => {
+    if (isShorts) {
+      return dispatch(doFetchShortsRecommendedContent(uri, fyp));
+    }
+
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const matureEnabled = selectShowMatureContent(state);

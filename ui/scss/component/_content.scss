@@ -598,7 +598,7 @@
 }
 
 .shorts__viewer {
-  width: 350px !important;
+  width: 28vw !important;
   height: 90vh !important;
   max-height: 90vh !important;
 
@@ -618,7 +618,7 @@
   // }
 
   .content__wrapper {
-    width: 350px !important;
+    width: 28vw !important;
     border-radius: 10px;
     position: relative !important;
 
@@ -652,7 +652,8 @@
 
       .vjs-current-time,
       .vjs-duration,
-      .vjs-time-divider {
+      .vjs-time-divider,
+      .vjs-button--play-next {
         display: none;
       }
 
@@ -730,20 +731,15 @@
     top: var(--spacing-s);
     right: var(--spacing-s);
     background-color: rgba(0, 0, 0, 0.7) !important;
-    z-index: 1001; // Higher than side panel
+    z-index: 1001;
 
     &:hover {
       background-color: rgba(0, 0, 0, 0.9) !important;
     }
   }
 
-  // Handle autoplay countdown for shorts
   .content__autoplay-countdown {
-    border-radius: 0;
-
-    &.playing {
-      z-index: 5;
-    }
+    display: none;
   }
 
   &.shorts__viewer--panel-open {
@@ -783,4 +779,9 @@
       }
     }
   }
+  // @media (min-width: 1500px) {
+  //   .content__wrapper {
+  //      width: 50vw !important;
+  //   }
+  // }
 }
