@@ -272,6 +272,12 @@ export const doRegisterArweaveAddress = (address: string, makeDefault: boolean) 
     dispatch({ type: ACTIONS.AR_ADDR_REGISTER_SUCCESS, data: address });
   } catch (e) {
     console.error(e);
+
+    // Re-registering address to current account, different from "address already exists for another user" error
+    if (e.message === "address already exists") {
+      return;
+    }
+
     dispatch(
       doOpenModal(MODALS.ERROR, {
         error: e.message || e,
