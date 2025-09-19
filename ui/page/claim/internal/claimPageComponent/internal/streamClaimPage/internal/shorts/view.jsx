@@ -9,7 +9,7 @@ import ShortsNavigation from 'component/shortsNavigation';
 import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
-import SwipeNavigationPortal from '../../../../../../../../component/shortsNavigation/swipeNavigation';
+import SwipeNavigationPortal from 'component/shortsNavigation/swipeNavigation';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
@@ -236,7 +236,6 @@ export default function ShortsPage(props: Props) {
         isEnabled={isSwipeEnabled && hasPlaylist}
         isMobile={isMobile}
         className="shorts-swipe-overlay"
-        all
       />
       <div className="shorts-page" ref={shortsContainerRef}>
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>

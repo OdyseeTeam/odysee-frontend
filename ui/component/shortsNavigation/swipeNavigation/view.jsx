@@ -23,7 +23,6 @@ const SwipeNavigationPortal = React.memo<Props>(
     className = '',
     containerSelector,
     isMobile,
-    allowVideoInteraction = true,
   }: Props) => {
     const overlayRef = React.useRef();
     const touchStartRef = React.useRef(null);
@@ -178,13 +177,7 @@ const SwipeNavigationPortal = React.memo<Props>(
     return createPortal(
       <div
         ref={overlayRef}
-        className={`swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''} ${
-          allowVideoInteraction ? 'swipe-navigation-overlay--allow-interaction' : ''
-        }`}
-        style={{
-          touchAction: isMobile ? 'manipulation' : 'auto',
-          userSelect: 'none',
-        }}
+        className={`swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''}`}
       >
         {children}
       </div>,
