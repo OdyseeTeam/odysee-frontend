@@ -277,7 +277,7 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
         .map((id) => {
           const collection = collectionsById[id];
           return collection
-            ? { ...collection, hasClaim: collection.items.some((item) => item === url || item === claimId) }
+            ? { ...collection, hasClaim: collection.items?.some((item) => item === url || item === claimId) }
             : null;
         })
         .filter(Boolean);
@@ -285,7 +285,7 @@ export const makeSelectClaimMenuCollectionsForUrl = () =>
       const collectionsContainingClaim = Object.entries(collectionsById)
         .filter(
           ([id, collection]) =>
-            collection.items.some((item) => item === url || item === claimId) &&
+            collection.items?.some((item) => item === url || item === claimId) &&
             !lastUsedCollections.some((lastUsedCollection) => lastUsedCollection.id === collection.id)
         )
         .map(([id, collection]) => ({ ...collection, hasClaim: true }));
