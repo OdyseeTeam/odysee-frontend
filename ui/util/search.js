@@ -32,6 +32,32 @@ export function createNormalizedSearchKey(query: string) {
   return normalizedQuery;
 }
 
+export const getShortsRecommendationSearchOptions = (
+  matureEnabled: boolean,
+  claimIsMature: boolean,
+  claimId: string,
+  language?: string
+) => {
+  const options = {
+    size: 20,
+    nsfw: matureEnabled,
+    related_to: claimId,
+    duration: '<180',
+    max_aspect_ratio: 0.999,
+    isBackgroundSearch: false,
+  };
+
+  if (language) {
+    options['language'] = language;
+  }
+
+  if (claimIsMature && !matureEnabled) {
+    options['nsfw'] = true;
+  }
+
+  return options;
+};
+
 /**
  * getUriForSearchTerm
  * @param term
@@ -114,8 +140,13 @@ export function getRecommendationSearchOptions(
   matureEnabled: boolean,
   claimIsMature: boolean,
   claimId: string,
-  language: ?string
+  language: ?string,
+  isShorts: ?boolean
 ) {
+  if (isShorts) {
+    return getShortsRecommendationSearchOptions(matureEnabled, claimIsMature, claimId, language);
+  }
+
   const options = { size: 20, nsfw: matureEnabled, isBackgroundSearch: true };
 
   if (SIMPLE_SITE) {

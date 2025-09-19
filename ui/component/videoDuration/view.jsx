@@ -9,6 +9,8 @@ type Props = {
 function VideoDuration(props: Props) {
   const { claim, className } = props;
 
+  console.log(claim);
+
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
   let duration;
   if (media && media.duration) {

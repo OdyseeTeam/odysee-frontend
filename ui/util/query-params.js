@@ -121,7 +121,7 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
   }
 
   const additionalOptions = {};
-  const { related_to, nsfw, free_only, language, gid, uuid } = options;
+  const { related_to, nsfw, free_only, language, gid, uuid, max_aspect_ratio } = options;
 
   if (related_to) {
     additionalOptions[SEARCH_OPTIONS.RELATED_TO] = related_to;
@@ -142,6 +142,10 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
 
   if (language) {
     additionalOptions[SEARCH_OPTIONS.LANGUAGE] = language;
+  }
+
+  if (max_aspect_ratio) {
+    additionalOptions['max_aspect_ratio'] = max_aspect_ratio;
   }
 
   const { store } = window;

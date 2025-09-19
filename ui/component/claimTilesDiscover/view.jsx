@@ -6,6 +6,7 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
+import classNames from 'classnames';
 
 const SHOW_TIMEOUT_MSG = false;
 
@@ -54,6 +55,7 @@ type Props = {
   hideMembersOnly?: boolean, // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
   loading: boolean,
   duration?: string,
+  isShorts?: boolean,
   // --- select ---
   location: { search: string },
   claimSearchResults: Array<string>,
@@ -67,6 +69,7 @@ type Props = {
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
+  excludeShorts: boolean,
 };
 
 function ClaimTilesDiscover(props: Props) {
@@ -90,6 +93,7 @@ function ClaimTilesDiscover(props: Props) {
     doResolveClaimIds,
     doResolveUris,
     loading,
+    isShorts,
   } = props;
 
   const listRef = React.useRef();
@@ -180,6 +184,9 @@ function ClaimTilesDiscover(props: Props) {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
       const searchSettings = fetchViewCount ? { fetch: { viewCount: true } } : null;
+      //   if (searchOptions.isShort) {
+      //   //add a tag
+      // }
       doClaimSearch(searchOptions, searchSettings);
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringified, fetchViewCount]);
@@ -209,7 +216,12 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   return (
-    <ul ref={listRef} className="claim-grid">
+    <ul
+      ref={listRef}
+      className={classNames('claim-grid', {
+        'claim-shorts-grid': props.isShorts,
+      })}
+    >
       {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {

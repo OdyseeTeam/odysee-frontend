@@ -1,0 +1,30 @@
+.swipe-navigation-overlay {
+  position: fixed;
+  z-index: 9998;
+  pointer-events: none;
+  background: transparent;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  &--enabled {
+    pointer-events: auto;
+  }
+
+  &.shorts-swipe-overlay {
+    width: 28vw;
+    height: 80vh;
+    top: 60px;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translateX(-50%);
+
+    @media (max-width: 768px) {
+      width: 100vw;
+      left: 0;
+      transform: none;
+    }
+  }
+}

@@ -142,7 +142,8 @@ export function GetLinksData(
   showNsfw?: boolean
 ) {
   function getPageSize(originalSize, following) {
-    if(following) return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
+    if (following)
+      return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
     return isLargeScreen ? originalSize * (3 / 2) : originalSize;
   }
 
@@ -166,10 +167,30 @@ export function GetLinksData(
         pageSize: getPageSize(subscribedChannelIds.length > 3 ? (subscribedChannelIds.length > 6 ? 12 : 8) : 4, true),
         streamTypes: null,
         channelIds: subscribedChannelIds,
+        excludeShorts: true,
       },
     };
     // $FlowFixMe flow thinks this might not be Array<string>
     rowData.push(RECENT_FROM_FOLLOWING);
+
+    const SHORTS_SECTION = {
+      id: 'SHORTS',
+      title: __('Shorts'),
+      route: `/$/${PAGES.DISCOVER}?t=shorts`,
+      icon: ICONS.VIDEO,
+      hideSort: false,
+      options: {
+        claimType: ['stream'],
+        orderBy: CS.ORDER_BY_NEW,
+        pageSize: getPageSize(24),
+        limitClaimsPerChannel: 1,
+        releaseTime: `>${Math.floor(moment().subtract(1, 'months').startOf('week').unix())}`,
+        duration: '<=180',
+        excludeShorts: false,
+        // channelIds: subscribedChannelIds,
+      },
+    };
+    rowData.push(SHORTS_SECTION);
   }
 
   // **************************************************************************
@@ -285,6 +306,7 @@ export function GetLinksData(
       claimType: ['stream'],
       limitClaimsPerChannel: 2,
       releaseTime: `>${Math.floor(moment().subtract(1, 'day').startOf('day').unix())}`,
+      excludeShorts: true,
     },
   };
 
@@ -294,6 +316,7 @@ export function GetLinksData(
     options: {
       orderBy: CS.ORDER_BY_TOP,
       claimType: ['channel'],
+      excludeShorts: true,
     },
   };
 
@@ -304,6 +327,7 @@ export function GetLinksData(
       orderBy: CS.ORDER_BY_NEW,
       pageSize: getPageSize(4),
       channelIds: ['3fda836a92faaceedfe398225fb9b2ee2ed1f01a'],
+      excludeShorts: true,
     },
   };
 
@@ -320,6 +344,7 @@ export function GetLinksData(
           tags: followedTags.map((tag) => tag.name),
           claimType: ['stream'],
           limitClaimsPerChannel: 2,
+          excludeShorts: true,
         },
       };
       followedTags.forEach((tag: Tag) => {
@@ -332,6 +357,7 @@ export function GetLinksData(
             pageSize: 4,
             tags: [tag.name],
             claimType: ['stream'],
+            excludeShorts: true,
           },
         });
       });
