@@ -21,7 +21,7 @@ function PublishBid(props: Props) {
   const { name, myClaimForUri, bid, isResolvingUri, amountNeededForTakeover, updatePublishForm, balance } = props;
   const [bidError, setBidError] = useState(undefined);
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
-  const [shouldShow] = React.useState(previousBidAmount && previousBidAmount > MINIMUM_PUBLISH_BID);
+  const [bidHasExceededDefaultAmount] = React.useState(previousBidAmount && previousBidAmount > MINIMUM_PUBLISH_BID);
 
   useEffect(() => {
     if (!previousBidAmount || bid < MINIMUM_PUBLISH_BID) {
@@ -50,7 +50,7 @@ function PublishBid(props: Props) {
     updatePublishForm({ bidError: bidError });
   }, [bid, previousBidAmount, balance, updatePublishForm]);
 
-  return shouldShow ? (
+  return bidHasExceededDefaultAmount ? (
     <Card
       className={!name ? 'disabled' : ''}
       actions={
