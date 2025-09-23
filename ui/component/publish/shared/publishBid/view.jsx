@@ -21,9 +21,10 @@ function PublishBid(props: Props) {
   const { name, myClaimForUri, bid, isResolvingUri, amountNeededForTakeover, updatePublishForm, balance } = props;
   const [bidError, setBidError] = useState(undefined);
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
+  const [shouldShow] = React.useState(previousBidAmount && previousBidAmount > MINIMUM_PUBLISH_BID);
 
   useEffect(() => {
-    if (bid < MINIMUM_PUBLISH_BID) {
+    if (!previousBidAmount || bid < MINIMUM_PUBLISH_BID) {
       updatePublishForm({ bid: parseFloat(MINIMUM_PUBLISH_BID) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -50,34 +51,36 @@ function PublishBid(props: Props) {
   }, [bid, previousBidAmount, balance, updatePublishForm]);
 
   return (
-    <Card
-      className={!name ? 'disabled' : ''}
-      actions={
-        <FormField
-          type="number"
-          name="content_bid"
-          min="0"
-          step="any"
-          placeholder="0.123"
-          className="form-field--price-amount"
-          label={<LbcSymbol disabled={!name} postfix={__('Deposit')} size={12} />}
-          value={bid}
-          error={bidError}
-          onChange={(event) => updatePublishForm({ bid: parseFloat(event.target.value) })}
-          onWheel={(e) => e.stopPropagation()}
-          helper={
-            <>
-              <BidHelpText
-                uri={'lbry://' + name}
-                amountNeededForTakeover={amountNeededForTakeover}
-                isResolvingUri={isResolvingUri}
-              />
-              <WalletSpendableBalanceHelp inline />
-            </>
-          }
-        />
-      }
-    />
+    shouldShow && (
+      <Card
+        className={!name ? 'disabled' : ''}
+        actions={
+          <FormField
+            type="number"
+            name="content_bid"
+            min="0"
+            step="any"
+            placeholder="0.123"
+            className="form-field--price-amount"
+            label={<LbcSymbol disabled={!name} postfix={__('Deposit')} size={12} />}
+            value={bid}
+            error={bidError}
+            onChange={(event) => updatePublishForm({ bid: parseFloat(event.target.value) })}
+            onWheel={(e) => e.stopPropagation()}
+            helper={
+              <>
+                <BidHelpText
+                  uri={'lbry://' + name}
+                  amountNeededForTakeover={amountNeededForTakeover}
+                  isResolvingUri={isResolvingUri}
+                />
+                <WalletSpendableBalanceHelp inline />
+              </>
+            }
+          />
+        }
+      />
+    )
   );
 }
 
