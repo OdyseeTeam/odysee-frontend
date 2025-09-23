@@ -50,38 +50,36 @@ function PublishBid(props: Props) {
     updatePublishForm({ bidError: bidError });
   }, [bid, previousBidAmount, balance, updatePublishForm]);
 
-  return (
-    shouldShow && (
-      <Card
-        className={!name ? 'disabled' : ''}
-        actions={
-          <FormField
-            type="number"
-            name="content_bid"
-            min="0"
-            step="any"
-            placeholder="0.123"
-            className="form-field--price-amount"
-            label={<LbcSymbol disabled={!name} postfix={__('Deposit')} size={12} />}
-            value={bid}
-            error={bidError}
-            onChange={(event) => updatePublishForm({ bid: parseFloat(event.target.value) })}
-            onWheel={(e) => e.stopPropagation()}
-            helper={
-              <>
-                <BidHelpText
-                  uri={'lbry://' + name}
-                  amountNeededForTakeover={amountNeededForTakeover}
-                  isResolvingUri={isResolvingUri}
-                />
-                <WalletSpendableBalanceHelp inline />
-              </>
-            }
-          />
-        }
-      />
-    )
-  );
+  return shouldShow ? (
+    <Card
+      className={!name ? 'disabled' : ''}
+      actions={
+        <FormField
+          type="number"
+          name="content_bid"
+          min="0"
+          step="any"
+          placeholder="0.123"
+          className="form-field--price-amount"
+          label={<LbcSymbol disabled={!name} postfix={__('Deposit')} size={12} />}
+          value={bid}
+          error={bidError}
+          onChange={(event) => updatePublishForm({ bid: parseFloat(event.target.value) })}
+          onWheel={(e) => e.stopPropagation()}
+          helper={
+            <>
+              <BidHelpText
+                uri={'lbry://' + name}
+                amountNeededForTakeover={amountNeededForTakeover}
+                isResolvingUri={isResolvingUri}
+              />
+              <WalletSpendableBalanceHelp inline />
+            </>
+          }
+        />
+      }
+    />
+  ) : null;
 }
 
 export default PublishBid;
