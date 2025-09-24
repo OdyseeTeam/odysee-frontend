@@ -75,5 +75,5 @@ const HELP = {
   FLOATING_PLAYER: 'Keep content playing in the corner when navigating to a different page.',
   AUTOPLAY_MEDIA: 'Autoplay video and audio files when navigating to a file.',
   AUTOPLAY_NEXT: 'Autoplay the next related item when a file (video or audio) finishes playing.',
-  DEFAULT_VIDEO_QUALITY: 'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts.',
+  DEFAULT_VIDEO_QUALITY: 'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts. At this time, not all videos have multiple quality options, in which case the original quality will be used.',
 };
