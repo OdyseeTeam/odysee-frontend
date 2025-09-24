@@ -11,12 +11,19 @@
     top: var(--spacing-xxxxs);
     right: 0;
     padding: 2px;
-    padding-bottom: 20px;
-    padding-left: 20px;
-    min-width: 40px;
-    min-height: 40px;
     border-radius: 50%;
     z-index: 2;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+    }
 
     &[aria-expanded='true'] {
       opacity: 1;

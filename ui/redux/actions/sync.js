@@ -489,6 +489,7 @@ export function doPopulateSharedUserState(sharedSettings: any) {
       savedCollectionIds,
       lastViewedAnnouncement,
     } = extractUserState(sharedSettings);
+
     dispatch({
       type: ACTIONS.USER_STATE_POPULATE,
       data: {

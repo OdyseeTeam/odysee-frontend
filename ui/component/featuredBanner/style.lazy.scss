@@ -35,24 +35,64 @@
       width: 100%;
     }
   }
-  .featured-banner-remove {
+  .banner-context-menu {
     position: absolute;
     top: var(--spacing-m);
     right: 40px;
-    background-color: var(--color-primary);
-    padding: 0.3rem;
-    border-radius: var(--border-radius);
-    display: flex;
+    z-index: 10;
     opacity: 0;
+  }
 
-    svg {
-      width: 1rem;
-      height: 1rem;
-      stroke: white;
-    }
+  .banner-menu-button {
+    background: var(--color-dropdown-background);
+    border: none;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    padding: 0;
 
     &:hover {
-      cursor: pointer;
+      background: var(--color-dropdown-background);
+      color: var(--color-primary);
+    }
+  }
+
+  .banner-menu-dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background-color: var(--color-dropdown-background);
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    min-width: 150px;
+    backdrop-filter: blur(8px);
+    z-index: 20;
+    padding: 2px 0;
+  }
+
+  .banner-menu-item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--color-menu-item-color);
+
+    &:hover {
+      background-color: var(--color-menu-item-hover);
     }
   }
 
@@ -130,7 +170,7 @@
 
   &:hover {
     .banner-browse,
-    .featured-banner-remove {
+    .banner-context-menu {
       opacity: 1;
     }
   }
@@ -139,7 +179,7 @@
     margin-top: calc(var(--spacing-xs) * -1);
     margin-bottom: var(--spacing-s);
     .banner-browse,
-    .featured-banner-remove {
+    .banner-context-menu {
       opacity: 1;
     }
 
@@ -150,7 +190,7 @@
       top: unset;
       bottom: var(--spacing-xxxs);
     }
-    .featured-banner-remove {
+    .banner-context-menu {
       top: var(--spacing-xxxs);
     }
   }

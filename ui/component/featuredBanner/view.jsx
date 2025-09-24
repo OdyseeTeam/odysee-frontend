@@ -3,33 +3,32 @@ import React from 'react';
 import { useOnResize } from 'effects/use-on-resize';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
-import * as SETTINGS from 'constants/settings';
 import classnames from 'classnames';
 import { NavLink } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import './style.lazy.scss';
 
-type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
-
 type Props = {
   homepageData: any,
-  homepageOrder: HomepageOrder,
   authenticated: boolean,
-  // --- perform ---
-  doSetClientSetting: (key: string, value: any, push: boolean) => void,
 };
 
 export default function FeaturedBanner(props: Props) {
-  const { homepageData, homepageOrder, authenticated, doSetClientSetting } = props;
-  const { featured, categories } = homepageData;
+  const { homepageData, authenticated } = props;
+  const { featured } = homepageData;
   const [marginLeft, setMarginLeft] = React.useState(0);
   const [width, setWidth] = React.useState(0);
   const [index, setIndex] = React.useState(1);
   const [pause, setPause] = React.useState(false);
-  const [kill, setKill] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [localBannerHidden, setLocalBannerHidden] = React.useState(
+    () => sessionStorage.getItem('bannerHidden') === 'true'
+  );
   const wrapper = React.useRef(null);
+  const menuRef = React.useRef(null);
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
   const { push } = useHistory();
+
 
   React.useEffect(() => {
     if (featured && width) {
@@ -53,6 +52,22 @@ export default function FeaturedBanner(props: Props) {
       setWidth(wrapper.current.offsetWidth);
     }
   });
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   function getUriTo(uri) {
     if (uri.includes('odysee.com')) {
@@ -84,63 +99,22 @@ export default function FeaturedBanner(props: Props) {
     }
   }
 
-  const NON_CATEGORY = Object.freeze({
-    BANNER: { label: 'Banner' },
-    FOLLOWING: { label: 'Following' },
-    PORTALS: { label: 'Portals' },
-    FYP: { label: 'Recommended' },
-  });
-
-  function getInitialList(listId, savedOrder, homepageSections) {
-    const savedActiveOrder = savedOrder.active || [];
-    const savedHiddenOrder = savedOrder.hidden || [];
-    const sectionKeys = Object.keys(homepageSections);
-
-    let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
-    let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
-
-    sectionKeys.forEach((key: string) => {
-      if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
-        if (homepageSections[key].hideByDefault) {
-          hiddenOrder.push(key);
-        } else {
-          if (key === 'BANNER') {
-            // Skip
-          } else if (key === 'PORTALS') {
-            activeOrder.splice(2, 0, key);
-          } else {
-            activeOrder.push(key);
-          }
-        }
-      }
-    });
-    activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
-    return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
+  function toggleMenu(e) {
+    e.stopPropagation();
+    setIsMenuOpen(!isMenuOpen);
   }
 
   function removeBanner() {
-    let orderToSave = homepageOrder;
-    if (orderToSave.active && orderToSave.active.includes('BANNER')) {
-      orderToSave.active.splice(orderToSave.active.indexOf('BANNER'), 1);
-      if (orderToSave.hidden) {
-        orderToSave.hidden.push('BANNER');
-      }
-    } else if (!orderToSave.hidden) {
-      const SECTIONS = { ...NON_CATEGORY, ...categories };
-      orderToSave = { active: [], hidden: [] };
-      orderToSave.active = getInitialList('ACTIVE', homepageOrder, SECTIONS);
-      orderToSave.hidden = getInitialList('HIDDEN', homepageOrder, SECTIONS);
-      orderToSave.hidden.push('BANNER');
-    } else if (orderToSave.hidden && !orderToSave.hidden.includes('BANNER')) {
-      orderToSave.hidden.push('BANNER');
-    }
-    doSetClientSetting(SETTINGS.HOMEPAGE_ORDER, orderToSave, true);
-    setKill(true);
+    setLocalBannerHidden(true);
+    sessionStorage.setItem('bannerHidden', 'true');
+    setIsMenuOpen(false);
   }
+
+  if (localBannerHidden) return null;
 
   return (
     <div
-      className={classnames('featured-banner-wrapper', { kill: kill })}
+      className="featured-banner-wrapper"
       ref={wrapper}
       onMouseEnter={() => setPause(true)}
       onMouseLeave={() => setPause(false)}
@@ -186,8 +160,17 @@ export default function FeaturedBanner(props: Props) {
             })}
         </div>
         {authenticated && (
-          <div className="featured-banner-remove" onClick={() => removeBanner()}>
-            <Icon icon={ICONS.REMOVE} />
+          <div className="banner-context-menu" ref={menuRef}>
+            <button className="banner-menu-button" onClick={toggleMenu} aria-label="More options">
+              <Icon icon={ICONS.MORE} />
+            </button>
+            {isMenuOpen && (
+              <div className="banner-menu-dropdown">
+                <button className="banner-menu-item" onClick={removeBanner}>
+                  Close the banner
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

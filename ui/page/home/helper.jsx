@@ -36,23 +36,18 @@ export function getSortedRowData(
 ) {
   let sortedRowData: Array<RowDataItem> = [];
   const hasBanner = Boolean(homepageData?.featured);
-  const hasPortals = Boolean(homepageData?.portals);
 
   if (authenticated) {
     if (homepageOrder.active) {
-      // Grab categories that are still valid in the latest homepage:
       homepageOrder.active.forEach((key) => {
         const dataIndex = rowData.findIndex((data) => data.id === key);
         if (dataIndex !== -1) {
           sortedRowData.push(rowData[dataIndex]);
           rowData.splice(dataIndex, 1);
         } else if (key === 'FYP' && hasMembership) {
-          // Special-case injection (not part of category definition):
           sortedRowData.push(FYP_SECTION);
         } else if (key === 'BANNER' && hasBanner) {
           sortedRowData.push({ id: 'BANNER', title: undefined });
-        } else if (key === 'PORTALS' && hasPortals) {
-          sortedRowData.push({ id: 'PORTALS', title: undefined });
         } else if (key === 'UPCOMING') {
           let followingIndex = sortedRowData.indexOf('FOLLOWING');
           if (followingIndex !== -1) sortedRowData.splice(followingIndex, 0, { id: 'UPCOMING', title: 'Upcoming' });
@@ -60,7 +55,6 @@ export function getSortedRowData(
         }
       });
 
-      // For remaining 'rowData', display it if it's a new category:
       let discoveryChannel;
       rowData.forEach((data: RowDataItem) => {
         if (!data.hideByDefault) {
@@ -91,23 +85,13 @@ export function getSortedRowData(
       ) {
         sortedRowData.unshift({ id: 'BANNER', title: undefined });
       }
-      if (
-        homepageOrder.active &&
-        !homepageOrder.active.includes('PORTALS') &&
-        homepageOrder.hidden &&
-        !homepageOrder.hidden.includes('PORTALS')
-      ) {
-        sortedRowData.splice(2, 0, { id: 'PORTALS', title: undefined });
-      }
     } else {
       if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
       sortedRowData = pushAllValidCategories(rowData, hasMembership);
       if (authenticated) sortedRowData.splice(1, 0, { id: 'UPCOMING', title: 'Upcoming' });
-      if (hasPortals) sortedRowData.splice(4, 0, { id: 'PORTALS', title: undefined });
     }
   } else {
     if (hasBanner) rowData.unshift({ id: 'BANNER', title: undefined });
-    if (hasPortals) rowData.splice(2, 0, { id: 'PORTALS', title: undefined });
     sortedRowData = pushAllValidCategories(rowData, hasMembership);
   }
 

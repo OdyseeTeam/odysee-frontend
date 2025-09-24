@@ -1,7 +1,6 @@
 // @flow
 import React, { useState } from 'react';
 import classnames from 'classnames';
-import { FormField } from 'component/common/form';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 
@@ -13,11 +12,9 @@ const Lazy = {
 };
 
 const NON_CATEGORY = Object.freeze({
-  BANNER: { label: 'Banner' },
   UPCOMING: { label: 'Upcoming' },
   FOLLOWING: { label: 'Following' },
   FYP: { label: 'Recommended' },
-  PORTALS: { label: 'Portals' },
 });
 
 // ****************************************************************************
@@ -48,21 +45,15 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
   const savedHiddenOrder = savedOrder.hidden || [];
   const sectionKeys = Object.keys(homepageSections);
 
-  // From the saved entries, trim those that no longer exists in the latest (or different) Homepage.
-  let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
-  let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
+  let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS');
+  let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x) && x !== 'BANNER' && x !== 'PORTALS');
 
-  // Add any new categories found into 'active' ...
   sectionKeys.forEach((key: string) => {
     if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
       if (homepageSections[key].hideByDefault) {
-        // ... unless it is a 'hideByDefault' category.
         hiddenOrder.push(key);
       } else {
-        if (key === 'BANNER') {
-          activeOrder.unshift(key);
-        } else if (key === 'PORTALS') {
-          activeOrder.splice(4, 0, key);
+        if (key === 'BANNER' || key === 'PORTALS') {
         } else if (key === 'UPCOMING') {
           let followingIndex = activeOrder.indexOf('FOLLOWING');
           if (followingIndex !== -1) activeOrder.splice(followingIndex, 0, key);
@@ -78,10 +69,8 @@ function getInitialList(listId, savedOrder, homepageSections, userHasOdyseeMembe
     }
   });
 
-  // Final check to exclude items that were previously moved to Hidden.
   activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
 
-  // Clean categories in case premium section has accidentally been added
   if (!userHasOdyseeMembership) {
     if (activeOrder.indexOf('FYP') !== -1) {
       activeOrder.splice(activeOrder.indexOf('FYP'), 1);
@@ -125,8 +114,6 @@ export default function HomepageSort(props: Props) {
     HIDDEN: { id: 'HIDDEN', title: 'Hidden', list: listHidden, setList: setListHidden },
   };
 
-  const [showBanner, setShowBanner] = React.useState(BINS['ACTIVE'].list.includes('BANNER'));
-
   function onDragEnd(result) {
     const { source, destination } = result;
 
@@ -140,23 +127,6 @@ export default function HomepageSort(props: Props) {
         BINS[destination.droppableId].setList(result[destination.droppableId]);
       }
     }
-  }
-
-  function toggleBanner() {
-    const result = BINS;
-    if (result['ACTIVE'].list.indexOf('BANNER') !== -1) {
-      result['ACTIVE'].list.splice(result['ACTIVE'].list.indexOf('BANNER'), 1);
-      result['HIDDEN'].list.push('BANNER');
-      setShowBanner(false);
-    } else {
-      result['HIDDEN'].list.splice(result['HIDDEN'].list.indexOf('BANNER'), 1);
-      result['ACTIVE'].list.push('BANNER');
-      setShowBanner(true);
-    }
-    BINS['ACTIVE'].setList(result['ACTIVE'].list);
-    BINS['HIDDEN'].setList(result['HIDDEN'].list);
-
-    onUpdate({ active: BINS['ACTIVE'].list, hidden: BINS['HIDDEN'].list });
   }
 
   const draggedItemRef = React.useRef();
@@ -181,9 +151,7 @@ export default function HomepageSort(props: Props) {
           }
           return (
             <div
-              className={classnames('homepage-sort__entry', {
-                'homepage-sort__entry--special': item === 'BANNER' || item === 'PORTALS',
-              })}
+              className="homepage-sort__entry"
               ref={draggableProvided.innerRef}
               {...draggableProvided.draggableProps}
               {...draggableProvided.dragHandleProps}
@@ -212,21 +180,8 @@ export default function HomepageSort(props: Props) {
           >
             <div className="homepage-sort__bin-header">{__(bin.title)}</div>
 
-            {bin.id === 'ACTIVE' && (
-              <div className="homepage-sort__entry homepage-sort__entry--special">
-                <FormField
-                  type="checkbox"
-                  name="homepage_banner"
-                  label={__('Banner')}
-                  checked={showBanner}
-                  onChange={() => toggleBanner()}
-                />
-              </div>
-            )}
             {bin.list.map((item, index) => (
-              <React.Fragment key={index}>
-                {item !== 'BANNER' && <DraggableItem key={item} item={item} index={index} />}
-              </React.Fragment>
+              <DraggableItem key={item} item={item} index={index} />
             ))}
             {provided.placeholder}
           </div>

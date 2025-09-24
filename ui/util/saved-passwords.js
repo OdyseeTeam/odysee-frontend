@@ -124,6 +124,7 @@ function doSignOutCleanup() {
   return new Promise((resolve) => {
     deleteAuthToken();
     deleteSavedPassword();
+    sessionStorage.removeItem('bannerHidden');
     resolve();
   });
 }
