@@ -221,7 +221,9 @@ export default function YoutubeTransferStatus(props: Props) {
                               </>
                             ) : (
                               <>
-                                {__('Reach out to hello@odysee.com to try our self sync tool')}
+                                {__(
+                                  'Wait for sync to start or reach out to hello@odysee.com to try our self sync tool'
+                                )}
                                 <Icon icon={ICONS.NOT_COMPLETED} className={classnames('progress__complete-icon')} />
                               </>
                             )}
