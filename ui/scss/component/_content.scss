@@ -761,10 +761,14 @@
         border-radius: 0;
 
         video {
-          width: 100vw !important;
-          height: 100vh !important;
-          object-fit: cover;
-          border-radius: 10px !important;
+          max-width: 100vw;
+          max-height: 100vh;
+          width: 100vw;
+          height: auto;
+          margin-top: 70px;
+          // object-fit: ;
+          border-radius: 0px !important;
+          width: 100%;
         }
       }
     }

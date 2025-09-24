@@ -44,20 +44,12 @@ const selectShortsRecommendedContent = createSelector(
       // Fallback: try to get from search results if playlist is empty
       const claim = selectClaimForUri(state, props.uri);
       if (!claim || !claim.value || !claim.value.title) return [];
-
-      console.log('claim:', claim);
-
       const shortsQuery = `shorts:${claim.value.title}`;
       const searchResults = state.search.resultsByQuery;
-
-      console.log('searchResults:', searchResults);
-
       for (const queryKey in searchResults) {
-        console.log('queryKey: ', queryKey);
         const decodedQuery = decodeURIComponent(queryKey);
         if (decodedQuery.startsWith(`s=${shortsQuery}`) || decodedQuery.startsWith(`s="${shortsQuery}"`)) {
           const result = searchResults[queryKey];
-          console.log(result);
           return result && result.uris ? result.uris : [];
         }
       }

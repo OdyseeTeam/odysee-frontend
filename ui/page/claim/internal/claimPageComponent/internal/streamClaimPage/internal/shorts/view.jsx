@@ -72,7 +72,18 @@ export default function ShortsPage(props: Props) {
   const [uuid] = React.useState(Uuidv4());
   const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
   const scrollLockRef = React.useRef(false);
-  const playlistRefInitialized = React.useRef(false);
+  const hasInitializedPlaylist = React.useRef(false);
+
+  const handlePlayPause = React.useCallback(() => {
+    const videoElement = document.querySelector('.vjs-tech');
+    if (videoElement) {
+      if (videoElement.paused) {
+        videoElement.play();
+      } else {
+        videoElement.pause();
+      }
+    }
+  }, []);
 
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
 
@@ -80,33 +91,36 @@ export default function ShortsPage(props: Props) {
   const isAtStart = currentIndex <= 0;
   const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
 
+  const doFetchRecommendedContentRef = React.useRef(doFetchRecommendedContent);
+  const uriRef = React.useRef(uri);
+  const uuidRef = React.useRef(uuid);
+
   React.useEffect(() => {
-    if (!hasPlaylist && !playlistRefInitialized.current && doFetchRecommendedContent) {
-      playlistRefInitialized.current = true;
-      const fypParam = uuid ? { uuid } : null;
-      doFetchRecommendedContent(uri, fypParam, true);
+    doFetchRecommendedContentRef.current = doFetchRecommendedContent;
+    uriRef.current = uri;
+    uuidRef.current = uuid;
+  });
+
+  React.useEffect(() => {
+    const shouldFetchInitialPlaylist = !hasPlaylist && !hasInitializedPlaylist.current && !isSearchingRecommendations;
+
+    if (shouldFetchInitialPlaylist && doFetchRecommendedContentRef.current) {
+      hasInitializedPlaylist.current = true;
+      const fypParam = uuidRef.current ? { uuid: uuidRef.current } : null;
+      doFetchRecommendedContentRef.current(uriRef.current, fypParam, true);
     }
-  }, [hasPlaylist, doFetchRecommendedContent, uri, uuid]);
+  }, [hasPlaylist, isSearchingRecommendations]);
 
   React.useEffect(() => {
     if (shortsRecommendedUris && shortsRecommendedUris.length > 0) {
       const currentUriInPlaylist = shortsRecommendedUris.includes(uri);
+
       if (!currentUriInPlaylist) {
         const playlistUris = [uri, ...shortsRecommendedUris];
         doSetShortsPlaylist(playlistUris);
-      } else if (currentIndex === -1) {
-        doSetShortsPlaylist(shortsRecommendedUris);
       }
     }
-  }, [shortsRecommendedUris, uri, currentIndex, doSetShortsPlaylist]);
-
-  React.useEffect(() => {
-    if (currentIndex === -1 && !playlistRefInitialized.current && doFetchRecommendedContent) {
-      playlistRefInitialized.current = true;
-      const fypParam = uuid ? { uuid } : null;
-      doFetchRecommendedContent(uri, fypParam, true);
-    }
-  }, [currentIndex, uri, doFetchRecommendedContent, uuid]);
+  }, [shortsRecommendedUris, uri, doSetShortsPlaylist]);
 
   React.useEffect(() => {
     const claim = fileInfo?.claim;
@@ -179,7 +193,7 @@ export default function ShortsPage(props: Props) {
 
   const handleScroll = React.useCallback(
     (e) => {
-      if (mobileModalOpen || (sidePanelOpen && !isMobile)) return;
+      if (mobileModalOpen) return;
       if (scrollLockRef.current) return;
 
       e.preventDefault();
@@ -195,7 +209,7 @@ export default function ShortsPage(props: Props) {
         scrollLockRef.current = false;
       }, 500);
     },
-    [sidePanelOpen, isMobile, goToNext, goToPrevious, mobileModalOpen]
+    [goToNext, goToPrevious, mobileModalOpen]
   );
 
   React.useEffect(() => {
@@ -206,7 +220,7 @@ export default function ShortsPage(props: Props) {
     return () => container.removeEventListener('wheel', handleScroll);
   }, [handleScroll]);
 
-  const isSwipeEnabled = !mobileModalOpen && (!sidePanelOpen || isMobile);
+  const isSwipeEnabled = !mobileModalOpen;
 
   if (isMature) {
     return (
@@ -231,11 +245,13 @@ export default function ShortsPage(props: Props) {
   return (
     <>
       <SwipeNavigationPortal
+        onPlayPause={handlePlayPause}
         onNext={goToNext}
         onPrevious={goToPrevious}
         isEnabled={isSwipeEnabled && hasPlaylist}
         isMobile={isMobile}
         className="shorts-swipe-overlay"
+        sidePanelOpen={sidePanelOpen}
       />
       <div className="shorts-page" ref={shortsContainerRef}>
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>

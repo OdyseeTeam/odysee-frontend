@@ -35,6 +35,7 @@ import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
 
 import { getStripeEnvironment } from 'util/stripe';
+import { useHistory } from 'react-router';
 const stripeEnvironment = getStripeEnvironment();
 
 require('@silvermine/videojs-chromecast')(videojs);
@@ -211,6 +212,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const { videoUrl: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIOS();
 
+  const {
+    location: { pathname, search },
+  } = useHistory();
+
   // initiate keyboard shortcuts
   const { createKeyDownShortcutsHandler, createVideoScrollShortcutsHandler, createVolumePanelScrollShortcutsHandler } =
     keyboardShorcuts({
@@ -224,6 +229,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const [reload, setReload] = useState('initial');
 
   const { createVideoPlayerDOM } = functions({ isAudio });
+  const urlParams = new URLSearchParams(search);
+  const isShortsParam = urlParams.get('view') === 'shorts';
 
   const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
     tapToUnmuteRef,
@@ -241,6 +248,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playerServerRef,
     isLivestreamClaim,
     channelTitle,
+    isShortsParam,
   });
 
   const videoJsOptions = {
@@ -679,14 +687,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   return (
     <div className={classnames('video-js-parent', { 'video-js-parent--ios': IS_IOS })} ref={containerRef}>
-      <Button
-        label={__('Tap to unmute')}
-        button="link"
-        icon={ICONS.VOLUME_MUTED}
-        className="video-js--tap-to-unmute"
-        onClick={unmuteAndHideHint}
-        ref={tapToUnmuteRef}
-      />
+      {!isShortsParam && (
+        <Button
+          label={__('Tap to unmute')}
+          button="link"
+          icon={ICONS.VOLUME_MUTED}
+          className="video-js--tap-to-unmute"
+          onClick={unmuteAndHideHint}
+          ref={tapToUnmuteRef}
+        />
+      )}
       <Button
         label={__('Retry')}
         button="link"

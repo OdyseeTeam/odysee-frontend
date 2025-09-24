@@ -146,6 +146,7 @@ function Page(props: Props) {
               'main--livestream': livestream && !theaterMode,
               'main--livestream--theater-mode': livestream && theaterMode,
               'main--popout-chat': isPopoutWindow,
+              'main--shorts-page': isShortVideo,
             })}
           >
             {children}

@@ -12,6 +12,8 @@ type Props = {
   containerSelector?: string,
   isMobile: boolean,
   allowVideoInteraction?: boolean,
+  onPlayPause?: () => void,
+  sidePanelOpen?: boolean,
 };
 
 const SwipeNavigationPortal = React.memo<Props>(
@@ -20,9 +22,11 @@ const SwipeNavigationPortal = React.memo<Props>(
     onNext,
     onPrevious,
     isEnabled,
+    onPlayPause,
     className = '',
     containerSelector,
     isMobile,
+    sidePanelOpen,
   }: Props) => {
     const overlayRef = React.useRef();
     const touchStartRef = React.useRef(null);
@@ -176,8 +180,12 @@ const SwipeNavigationPortal = React.memo<Props>(
 
     return createPortal(
       <div
+        onClick={onPlayPause}
         ref={overlayRef}
-        className={`swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''}`}
+        className={`
+          swipe-navigation-overlay ${className} ${isEnabled ? 'swipe-navigation-overlay--enabled' : ''} 
+          ${sidePanelOpen ? 'shorts__viewer--panel-open' : ''}
+        `}
       >
         {children}
       </div>,

@@ -310,9 +310,10 @@ export const doFetchRecommendedContent =
           size: 20,
           nsfw: matureEnabled,
           related_to: claim.claim_id,
-          duration: '<180',
           max_aspect_ratio: 0.999,
           isBackgroundSearch: false,
+          free_only: true,
+          max_duration: 3,
         };
 
         if (language) {

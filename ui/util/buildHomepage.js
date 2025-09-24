@@ -392,5 +392,6 @@ export function GetLinksData(
     rowData.push(getHomepageRowForCat(key, val));
   }
 
+  console.log(rowData);
   return rowData;
 }

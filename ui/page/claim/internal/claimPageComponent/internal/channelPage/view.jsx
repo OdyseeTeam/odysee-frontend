@@ -239,6 +239,9 @@ function ChannelPage(props: Props) {
     case CHANNEL_PAGE.VIEWS.SETTINGS:
       tabIndex = 7;
       break;
+    case CHANNEL_PAGE.VIEWS.SHORTS:
+      tabIndex = 8;
+      break;
     default:
       tabIndex = 0;
       break;
@@ -276,6 +279,9 @@ function ChannelPage(props: Props) {
         break;
       case 7:
         search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
+        break;
+      case 8:
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
         break;
     }
     push(`${url}${search}`);
@@ -492,6 +498,9 @@ function ChannelPage(props: Props) {
               <Tab aria-selected={tabIndex === 7} disabled={editing} onClick={() => onTabChange(7)}>
                 {channelIsMine && __('Settings')}
               </Tab>
+              <Tab aria-selected={tabIndex === 8} disabled={editing || !showClaims} onClick={() => onTabChange(8)}>
+                {__('Shorts')}
+              </Tab>
             </TabList>
           </div>
 
@@ -541,6 +550,19 @@ function ChannelPage(props: Props) {
             <TabPanel>
               {channelIsMine && currentView === CHANNEL_PAGE.VIEWS.SETTINGS && (
                 <CreatorSettingsTab activeChannelClaim={claim} />
+              )}
+            </TabPanel>
+            <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.SHORTS && (
+                <ContentTab
+                  uri={uri}
+                  channelIsBlackListed={channelIsBlackListed}
+                  viewHiddenChannels
+                  claimType={['stream']}
+                  empty={<section className="main--empty">{__('No Shorts Found')}</section>}
+                  filters={filters}
+                  shortsOnly
+                />
               )}
             </TabPanel>
           </TabPanels>
