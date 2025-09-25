@@ -8,7 +8,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
-import { TAB_FIAT, TAB_USD } from 'constants/tip_tabs';
+import { TAB_FIAT, TAB_USD, TAB_BOOST } from 'constants/tip_tabs';
 
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 
@@ -16,7 +16,6 @@ type Props = {
   uri: string,
   activeTab: string,
   amount: number,
-  LBCBalance: number,
   USDCBalance: number,
   arBalance: number,
   claim: StreamClaim,
@@ -29,7 +28,6 @@ type Props = {
   arweaveTipData: ArweaveTipDataForId,
   isComment?: boolean,
   onChange: (number) => void,
-  setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
   doTipAccountCheckForUri: (uri: string) => void,
   arExchangeRate: any,
@@ -40,7 +38,6 @@ function WalletTipAmountSelector(props: Props) {
     uri,
     activeTab,
     amount,
-    LBCBalance,
     USDCBalance,
     arBalance,
     claim,
@@ -53,7 +50,6 @@ function WalletTipAmountSelector(props: Props) {
     arweaveTipData,
     isComment,
     onChange,
-    setDisableSubmitButton,
     setTipError,
     doTipAccountCheckForUri,
     arExchangeRate,
@@ -243,6 +239,7 @@ function WalletTipAmountSelector(props: Props) {
       {activeTab === TAB_USD && arweaveTipData && arweaveTipData.status === 'active' && (
         <WalletSpendableBalanceHelp asset="ar" />
       )}
+      {activeTab === TAB_BOOST && <WalletSpendableBalanceHelp asset="lbc" />}
 
       {/* help message */}
       {activeTab === TAB_FIAT &&
