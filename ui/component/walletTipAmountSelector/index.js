@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { selectBalance } from 'redux/selectors/wallet';
 import { selectArweaveBalance, selectArweaveExchangeRates } from 'redux/selectors/arwallet';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectArweaveTipDataForId, selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
@@ -12,7 +11,6 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri, false);
   const channelClaimId = getChannelIdFromClaim(claim);
   return {
-    LBCBalance: selectBalance(state),
     USDCBalance: selectArweaveBalance(state).usdc,
     arBalance: selectArweaveBalance(state).ar,
     claim: selectClaimForUri(state, uri),
