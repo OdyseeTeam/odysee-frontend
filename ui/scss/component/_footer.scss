@@ -22,7 +22,9 @@
 }
 
 .footer--shorts {
-  display: none!important;
+  @media (max-width: $breakpoint-small) {
+    display: none !important;
+  }
 }
 
 .footer__links {
