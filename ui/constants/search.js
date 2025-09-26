@@ -38,6 +38,8 @@ export const SEARCH_OPTIONS = {
   TIME_FILTER_THIS_YEAR: 'thisyear',
   MIN_DURATION: 'min_duration',
   MAX_DURATION: 'max_duration',
+  DEBOOST_SAME_CREATOR: 'deboost_same_creator',
+  MAX_ASPECT_RATIO: 'max_aspect_ratio',
 };
 
 export const SEARCH_PAGE_SIZE = 20;
