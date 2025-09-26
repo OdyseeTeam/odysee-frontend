@@ -444,15 +444,7 @@ function FileListPublished(props: Props) {
     fetchClaimListMine(1, FILE_LIST.PAGE_SIZE_ALL_ITEMS, true, [], true);
   }, [isFilteringEnabled, isAllMyClaimsFetched, fetchClaimListMine]);
 
-  const firstUpdate = React.useRef(true);
-  React.useLayoutEffect(() => {
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
-    }
-    setFilterParamsChanged(true);
-  }, [searchText, filterType, memoizedSortOption]);
-
+  // Always reset filterParamsChanged for the next render.
   React.useEffect(() => {
     if (filterParamsChanged) {
       setFilterParamsChanged(false);
@@ -491,6 +483,7 @@ function FileListPublished(props: Props) {
             isAllSelected,
             params,
             channelIdsClaimList,
+            setFilterParamsChanged,
           }}
         >
           <ClaimListHeader filterType={filterType} setFilterType={setFilterType} />

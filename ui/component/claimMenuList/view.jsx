@@ -71,9 +71,7 @@ type Props = {
   hasEdits: Collection,
   isAuthenticated: boolean,
   doEnableCollectionShuffle: (params: { collectionId: string }) => void,
-  lastUsedCollection: ?Collection,
-  hasClaimInLastUsedCollection: boolean,
-  lastUsedCollectionIsNotBuiltin: boolean,
+  lastUsedCollections: ?Array<any>,
   doRemovePersonalRecommendation: (uri: string) => void,
   collectionEmpty: boolean,
   doPlaylistAddAndAllowPlaying: (params: { uri: string, collectionName: string, collectionId: string }) => void,
@@ -120,9 +118,7 @@ function ClaimMenuList(props: Props) {
     hasEdits,
     isAuthenticated,
     doEnableCollectionShuffle,
-    lastUsedCollection,
-    hasClaimInLastUsedCollection,
-    lastUsedCollectionIsNotBuiltin,
+    lastUsedCollections,
     doRemovePersonalRecommendation,
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
@@ -344,20 +340,23 @@ function ClaimMenuList(props: Props) {
       );
     };
 
-    const ToggleLastUsedCollectionMenuItem = () => {
-      return lastUsedCollection && lastUsedCollectionIsNotBuiltin ? (
-        <MenuItem
-          className="comment__menu-option"
-          onSelect={() => handleAdd(hasClaimInLastUsedCollection, lastUsedCollection.name, lastUsedCollection.id)}
-        >
-          <div className="menu__link">
-            {!hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.ADD} />}
-            {hasClaimInLastUsedCollection && <Icon aria-hidden icon={ICONS.DELETE} />}
-            {!hasClaimInLastUsedCollection && __('Add to %collection%', { collection: lastUsedCollection.name })}
-            {hasClaimInLastUsedCollection && __('In %collection%', { collection: lastUsedCollection.name })}
-          </div>
-        </MenuItem>
-      ) : null;
+    const ToggleLastUsedCollectionMenuItems = () => {
+      return lastUsedCollections.map((lastUsedCollection) => {
+        return (
+          <MenuItem
+            key={lastUsedCollection.id}
+            className="comment__menu-option"
+            onSelect={() => handleAdd(lastUsedCollection.hasClaim, lastUsedCollection.name, lastUsedCollection.id)}
+          >
+            <div className="menu__link">
+              {!lastUsedCollection.hasClaim && <Icon aria-hidden icon={ICONS.ADD} />}
+              {lastUsedCollection.hasClaim && <Icon aria-hidden icon={ICONS.DELETE} />}
+              {!lastUsedCollection.hasClaim && __('Add to %collection%', { collection: lastUsedCollection.name })}
+              {lastUsedCollection.hasClaim && __('In %collection%', { collection: lastUsedCollection.name })}
+            </div>
+          </MenuItem>
+        );
+      });
     };
 
     const RemoveFromCollectionMenuItem = () => {
@@ -399,7 +398,7 @@ function ClaimMenuList(props: Props) {
             <WatchLaterMenuItem />
             <FavoritesMenuItem />
             <AddToPlaylistMenuItem />
-            <ToggleLastUsedCollectionMenuItem />
+            <ToggleLastUsedCollectionMenuItems />
             <hr className="menu__separator" />
           </>
         )}

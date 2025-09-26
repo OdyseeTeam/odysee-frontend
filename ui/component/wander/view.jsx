@@ -59,8 +59,8 @@ export default function Wander(props: Props) {
       try {
         const wanderInstance = new WanderConnect({
           clientId: 'FREE_TRIAL',
-          // baseURL: 'https://test.com',
           theme: theme,
+          skipStorageAccessWarning: true,
           button: {
             parent: wrapperRef.current,
             label: false,

@@ -3,12 +3,11 @@ import { selectClaimForUri, selectClaimIsMine, selectIsUriUnlisted } from 'redux
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
-  selectCollectionForId,
   selectCollectionForIdHasClaimUrl,
   selectCollectionIsMine,
   selectCollectionHasEditsForId,
-  selectLastUsedCollection,
   selectCollectionIsEmptyForId,
+  makeSelectClaimMenuCollectionsForUrl,
 } from 'redux/selectors/collections';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -56,8 +55,7 @@ const select = (state, props) => {
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
   const contentChannelUri = (contentSigningChannel && contentSigningChannel.permanent_url) || contentPermanentUri;
-  const lastUsedCollectionId = selectLastUsedCollection(state);
-  const lastUsedCollection = lastUsedCollectionId && selectCollectionForId(state, lastUsedCollectionId);
+  const lastUsedCollections = makeSelectClaimMenuCollectionsForUrl()(state, contentPermanentUri);
   const isLivestreamClaim = isStreamPlaceholderClaim(claim);
   const permanentUrl = (claim && claim.permanent_url) || '';
   const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
@@ -91,11 +89,7 @@ const select = (state, props) => {
     isUnlisted: selectIsUriUnlisted(state, uri),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
-    lastUsedCollection,
-    hasClaimInLastUsedCollection: selectCollectionForIdHasClaimUrl(state, lastUsedCollectionId, contentPermanentUri),
-    lastUsedCollectionIsNotBuiltin:
-      lastUsedCollectionId !== COLLECTIONS_CONSTS.WATCH_LATER_ID &&
-      lastUsedCollectionId !== COLLECTIONS_CONSTS.FAVORITES_ID,
+    lastUsedCollections,
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     isContentProtectedAndLocked:
       contentClaim && selectIsProtectedContentLockedFromUserForId(state, contentClaim.claim_id),

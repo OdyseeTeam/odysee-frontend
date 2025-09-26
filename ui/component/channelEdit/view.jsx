@@ -98,6 +98,8 @@ function ChannelForm(props: Props) {
   const [coverError, setCoverError] = React.useState(false);
   const [thumbError, setThumbError] = React.useState(false);
 
+  const [bidHasExceededDefaultAmount] = React.useState(Boolean(amount && amount > MINIMUM_PUBLISH_BID));
+
   const { claim_id: claimId } = claim || {};
   const [params, setParams]: [any, (any) => void] = React.useState(getChannelParams());
   const { channelName } = parseURI(uri);
@@ -551,33 +553,35 @@ function ChannelForm(props: Props) {
               />
             </TabPanel>
             <TabPanel>
-              <Card
-                background
-                title={__('Credit Details')}
-                body={
-                  <div className="publish-row publish-row--no-margin">
-                    <FormField
-                      className="form-field--price-amount"
-                      type="number"
-                      name="content_bid2"
-                      step="any"
-                      label={<LbcSymbol postfix={__('Deposit')} size={14} />}
-                      value={params.amount}
-                      error={bidError}
-                      min="0.0"
-                      disabled={false}
-                      onChange={(event) => handleBidChange(parseFloat(event.target.value))}
-                      placeholder={0.1}
-                      helper={
-                        <>
-                          {__('Increasing your deposit can help your channel be discovered more easily.')}
-                          <WalletSpendableBalanceHelp inline />
-                        </>
-                      }
-                    />
-                  </div>
-                }
-              />
+              {bidHasExceededDefaultAmount && (
+                <Card
+                  background
+                  title={__('Credit Details')}
+                  body={
+                    <div className="publish-row publish-row--no-margin">
+                      <FormField
+                        className="form-field--price-amount"
+                        type="number"
+                        name="content_bid2"
+                        step="any"
+                        label={<LbcSymbol postfix={__('Deposit')} size={14} />}
+                        value={params.amount}
+                        error={bidError}
+                        min="0.0"
+                        disabled={false}
+                        onChange={(event) => handleBidChange(parseFloat(event.target.value))}
+                        placeholder={0.1}
+                        helper={
+                          <>
+                            {__('Increasing your deposit can help your channel be discovered more easily.')}
+                            <WalletSpendableBalanceHelp inline />
+                          </>
+                        }
+                      />
+                    </div>
+                  }
+                />
+              )}
               {!isNewChannel && (
                 <>
                   <Card

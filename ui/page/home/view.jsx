@@ -16,7 +16,7 @@ import Icon from 'component/common/icon';
 import WaitUntilOnPage from 'component/common/wait-until-on-page';
 import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
-import { useIsLargeScreen } from 'effects/use-screensize';
+import { useIsSmallScreen, useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { filterActiveLivestreamUris } from 'util/livestream';
 import UpcomingClaims from 'component/upcomingClaims';
@@ -24,7 +24,6 @@ import Meme from 'web/component/meme';
 import { useHistory } from 'react-router-dom';
 
 const FeaturedBanner = lazyImport(() => import('component/featuredBanner' /* webpackChunkName: "featuredBanner" */));
-const Portals = lazyImport(() => import('component/portals' /* webpackChunkName: "portals" */));
 const CustomBanner = lazyImport(() => import('component/customBanner' /* webpackChunkName: "customBanner" */));
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
@@ -90,12 +89,16 @@ function HomePage(props: Props) {
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
+  const isSmallScreen = useIsSmallScreen();
+  const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
   const { push } = useHistory();
 
   const sortedRowData: Array<RowDataItem> = React.useMemo(() => {
     const rowData: Array<RowDataItem> = GetLinksData(
       homepageData,
+      isSmallScreen,
+      isMediumScreen,
       isLargeScreen,
       true,
       authenticated,
@@ -112,6 +115,8 @@ function HomePage(props: Props) {
     followedTags,
     homepageData,
     homepageOrder,
+    isSmallScreen,
+    isMediumScreen,
     isLargeScreen,
     showIndividualTags,
     showNsfw,
@@ -130,16 +135,12 @@ function HomePage(props: Props) {
   };
 
   const cache: Cache = React.useMemo(() => {
-    const cache = { topGrid: -1, hasBanner: false };
+    const cache = { topGrid: -1, hasBanner: true };
     if (homepageFetched) {
       sortedRowData.forEach((row: RowDataItem, index: number) => {
         // -- Find index of first row with a title if not already:
         if (cache.topGrid === -1 && Boolean(row.title) && row.id !== 'UPCOMING') {
           cache.topGrid = index;
-        }
-        // -- Find Bruce Banner if not already:
-        if (!cache.hasBanner && row.id === 'BANNER') {
-          cache.hasBanner = true;
         }
         // -- Find livestreams related to the category:
         const rowChannelIds = row.options?.channelIds;
@@ -198,7 +199,7 @@ function HomePage(props: Props) {
         return <FeaturedBanner key={id} homepageData={homepageData} authenticated={authenticated} />;
       } else return null;
     } else if (id === 'PORTALS') {
-      return <Portals key={id} homepageData={homepageData} authenticated={authenticated} />;
+      return null;
     } else if (id === 'UPCOMING') {
       return (
         <React.Fragment key={id}>

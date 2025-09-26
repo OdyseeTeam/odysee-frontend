@@ -10,7 +10,7 @@ import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
 const RightSideActions = (props: Props) => {
-  const { searchText, setSearchText, isFilteringEnabled, sortOption, updateFilteringSetting } =
+  const { searchText, setSearchText, isFilteringEnabled, sortOption, updateFilteringSetting, setFilterParamsChanged } =
     React.useContext(FileListContext);
 
   const history = useHistory();
@@ -21,6 +21,7 @@ const RightSideActions = (props: Props) => {
 
   function handleSearchTextChange(value) {
     setSearchText(value);
+    setFilterParamsChanged(true);
 
     if (value === '') {
       urlParams.get(FILE_LIST.SEARCH_TERM_KEY) && urlParams.delete(FILE_LIST.SEARCH_TERM_KEY);
@@ -53,6 +54,7 @@ const RightSideActions = (props: Props) => {
 
     urlParams.set(sortObj.key, sortObj.value);
     updateFilteringSetting(isFilteringEnabled, sortObj);
+    setFilterParamsChanged(true);
 
     const url = `?${urlParams.toString()}`;
     history.push(url);

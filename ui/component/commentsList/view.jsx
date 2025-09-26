@@ -6,7 +6,7 @@ import {
   THREAD_COMMENT_QUERY_PARAM,
 } from 'constants/comment';
 import { ENABLE_COMMENT_REACTIONS } from 'config';
-import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
 import { getCommentsListTitle } from 'util/comments';
 import * as ICONS from 'constants/icons';
 import * as REACTION_TYPES from 'constants/reactions';
@@ -137,7 +137,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   } = useHistory();
 
   const isMobile = useIsMobile();
-  const isMediumScreen = useIsMediumScreen();
+  const isSmallScreen = useIsSmallScreen();
 
   const currentFetchedPage = Math.ceil(topLevelComments.length / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const spinnerRef = React.useRef();
@@ -146,7 +146,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
   const [sort, setSort] = usePersistedState('comment-sort-by', DEFAULT_SORT);
   const [page, setPage] = React.useState(currentFetchedPage > 0 ? currentFetchedPage : 1);
   const [didInitialPageFetch, setInitialPageFetch] = React.useState(false);
-  const hasDefaultExpansion = commentsAreExpanded || !isMediumScreen || isMobile;
+  const hasDefaultExpansion = commentsAreExpanded || !isSmallScreen || isMobile;
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
   const [debouncedUri, setDebouncedUri] = React.useState();
 
@@ -459,7 +459,7 @@ export default function CommentList(props: Props & StateProps & DispatchProps) {
           <ul
             ref={commentListRef}
             className={classnames('comments', {
-              'comments--contracted': isMediumScreen && !expandedComments && totalUnfilteredComments > 1,
+              'comments--contracted': isSmallScreen && !expandedComments && totalUnfilteredComments > 1,
             })}
           >
             {readyToDisplayComments && (

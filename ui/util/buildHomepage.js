@@ -129,6 +129,8 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
 
 export function GetLinksData(
   all: any, // HomepageData type?
+  isSmallScreen: boolean,
+  isMediumScreen: boolean,
   isLargeScreen: boolean,
   isHomepage?: boolean,
   authenticated?: boolean,
@@ -139,7 +141,9 @@ export function GetLinksData(
   showIndividualTags?: boolean,
   showNsfw?: boolean
 ) {
-  function getPageSize(originalSize) {
+  function getPageSize(originalSize, following) {
+    if (following)
+      return isLargeScreen ? originalSize * (3 / 2) : isMediumScreen ? 8 : isSmallScreen ? 6 : originalSize;
     return isLargeScreen ? originalSize * (3 / 2) : originalSize;
   }
 
@@ -160,7 +164,7 @@ export function GetLinksData(
           subscribedChannelIds.length > 20
             ? `>${Math.floor(moment().subtract(9, 'months').startOf('week').unix())}`
             : `>${Math.floor(moment().subtract(1, 'year').startOf('week').unix())}`,
-        pageSize: getPageSize(subscribedChannelIds.length > 3 ? (subscribedChannelIds.length > 6 ? 12 : 8) : 4),
+        pageSize: getPageSize(subscribedChannelIds.length > 3 ? (subscribedChannelIds.length > 6 ? 12 : 8) : 4, true),
         streamTypes: null,
         channelIds: subscribedChannelIds,
       },

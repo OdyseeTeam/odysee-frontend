@@ -54,9 +54,11 @@ export default function ModalAnnouncements(props: Props) {
   React.useEffect(() => {
     // automatically register first address if there isn't one
     if (!hasArweaveEntry) {
-      doRegisterArweaveAddress(walletAddress, true).then(() => {
-        doHideModal();
-      });
+      doRegisterArweaveAddress(walletAddress, true)
+        .then(() => {
+          doHideModal();
+        })
+        .catch((e) => {});
     }
   }, [walletAddress, doRegisterArweaveAddress, doHideModal, hasArweaveEntry, apiEntryWithAddress]);
 

@@ -10,7 +10,7 @@ import Button from 'component/button';
 // @if TARGET='app'
 import { IS_MAC } from 'component/app/view';
 // @endif
-import { useIsMediumScreen } from 'effects/use-screensize';
+import { useIsSmallScreen } from 'effects/use-screensize';
 
 type SideNavLink = {
   title: string,
@@ -52,9 +52,9 @@ const SIDE_LINKS: Array<SideNavLink> = [
 
 export default function SettingsSideNavigation() {
   const sidebarOpen = true;
-  const isMediumScreen = useIsMediumScreen();
-  const isAbsolute = isMediumScreen;
-  const microNavigation = !sidebarOpen || isMediumScreen;
+  const isSmallScreen = useIsSmallScreen();
+  const isAbsolute = isSmallScreen;
+  const microNavigation = !sidebarOpen || isSmallScreen;
   const { location, goBack } = useHistory();
 
   function scrollToSection(section: string) {
@@ -84,7 +84,7 @@ export default function SettingsSideNavigation() {
     return undefined;
   }
 
-  if (isMediumScreen) {
+  if (isSmallScreen) {
     // I think it's ok to hide it for now on medium/small screens given that
     // we are using a scrolling Settings Page that displays everything. If we
     // really need this, most likely we can display it as a Tab at the top
@@ -134,7 +134,7 @@ export default function SettingsSideNavigation() {
         </div>
       </nav>
 
-      {isMediumScreen && sidebarOpen && (
+      {isSmallScreen && sidebarOpen && (
         <>
           <nav
             className={classnames('navigation--absolute', {

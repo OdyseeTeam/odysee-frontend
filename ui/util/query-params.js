@@ -71,6 +71,8 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
     return (!hasMediaTypeParam || mediaTypeHasDuration) && (!hasClaimTypeParam || claimTypeHasDuration);
   }
 
+  isDurationFilterSupported = checkQuerySupportsDurationFilter();
+
   if (includeUserOptions) {
     const claimType = options[SEARCH_OPTIONS.CLAIM_TYPE];
     if (claimType) {
@@ -92,8 +94,6 @@ export const getSearchQueryString = (query: string, options: any = {}) => {
         );
       }
     }
-
-    isDurationFilterSupported = checkQuerySupportsDurationFilter();
 
     const sortBy = options[SEARCH_OPTIONS.SORT];
     if (sortBy) {
