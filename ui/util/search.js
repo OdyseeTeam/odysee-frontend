@@ -140,6 +140,12 @@ export function getRecommendationSearchKey(title: string, options: {}) {
   return createNormalizedSearchKey(searchQuery);
 }
 
+export function getShortsRecommendationSearchKey(title: string, options: {}) {
+  const query = title;
+  const queryString = getSearchQueryString(query, options);
+  return createNormalizedSearchKey(queryString);
+}
+
 export function tagSearchCsOptionsHook(options: any) {
   if (options.any_tags && options.any_tags.length > 0) {
     // -- When doing a specific tag search, these restrictions should be lifted to make sense.

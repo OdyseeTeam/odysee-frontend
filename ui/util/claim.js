@@ -223,5 +223,17 @@ export const getThumbnailFromClaim = (claim: ?Claim) => {
   return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : null;
 };
 
+export const isClaimShort = (claim: ?Claim): boolean => {
+  if (!claim || !claim.value) return false;
+
+  const media = claim.value.video || claim.value.audio;
+  if (!media) return false;
+
+  const SHORTS_MAX_DURATION = 180;
+  const isShortDuration = media.duration && media.duration <= SHORTS_MAX_DURATION;
+  const isVertical = media.height && media.width && media.height > media.width;
+  return isShortDuration && isVertical;
+};
+
 export const getClaimMeta = (claim: ?Claim) => claim && claim.meta;
 export const getClaimRepostedAmount = (claim: ?Claim) => getClaimMeta(claim)?.reposted;

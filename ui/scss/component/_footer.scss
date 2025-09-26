@@ -21,6 +21,12 @@
   }
 }
 
+.footer--shorts {
+  @media (max-width: $breakpoint-small) {
+    display: none !important;
+  }
+}
+
 .footer__links {
   display: flex;
   flex-direction: column;

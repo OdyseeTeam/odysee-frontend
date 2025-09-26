@@ -17,6 +17,8 @@ import { CsOptHelper } from 'util/claim-search';
 import * as CS from 'constants/claim_search';
 
 import ClaimListDiscover from './view';
+import { selectClaimForUri } from '../../redux/selectors/claims';
+import { isClaimShort } from '../../util/claim';
 
 function resolveHideMembersOnly(global, override) {
   return override === undefined || override === null ? global : override;
@@ -40,10 +42,26 @@ const select = (state, props) => {
     pageSize: 8,
     ...props,
   });
+
   const searchKey = createNormalizedClaimSearchKey(options);
+  let claimSearchResults = selectClaimSearchByQuery(state)[searchKey];
+
+  if (claimSearchResults) {
+    if (props.isShorts) {
+      claimSearchResults = claimSearchResults.filter((uri) => {
+        const claim = selectClaimForUri(state, uri);
+        return claim && isClaimShort(claim);
+      });
+    } else if (props.excludeShorts !== false) {
+      claimSearchResults = claimSearchResults.filter((uri) => {
+        const claim = selectClaimForUri(state, uri);
+        return claim && !isClaimShort(claim);
+      });
+    }
+  }
 
   return {
-    claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
+    claimSearchResults,
     claimSearchLastPageReached: selectClaimSearchByQueryLastPageReached(state)[searchKey],
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     showNsfw,
