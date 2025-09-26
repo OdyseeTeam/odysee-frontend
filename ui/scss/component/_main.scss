@@ -281,6 +281,9 @@ body {
 
 .main--shorts-page {
   height: 85vh;
+  @media (min-width: $breakpoint-small) {
+    height: fit-content !important;
+  }
 }
 
 .main--video-page {

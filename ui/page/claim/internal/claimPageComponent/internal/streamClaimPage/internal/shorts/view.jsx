@@ -10,6 +10,8 @@ import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsNavigation/swipeNavigation';
+import classnames from 'classnames';
+import Button from '../../../../../../../../component/button';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
@@ -39,6 +41,11 @@ type Props = {
   doSetShortsSidePanel: (isOpen: boolean) => void,
   doFetchRecommendedContent: (uri: string, fypParam?: ?FypParam, isShorts?: boolean) => void,
   doSetShortsPlaylist: (uris: Array<string>) => void,
+  channelId: ?string,
+  channelName: ?string,
+  doFetchChannelShorts: (channelId: string) => void,
+  viewMode: string,
+  doSetShortsViewMode: (mode: string) => void,
 };
 
 export default function ShortsPage(props: Props) {
@@ -65,6 +72,11 @@ export default function ShortsPage(props: Props) {
     doFetchRecommendedContent,
     doSetShortsPlaylist,
     sidePanelOpen,
+    channelId,
+    channelName,
+    doFetchChannelShorts,
+    viewMode: reduxViewMode,
+    doSetShortsViewMode,
   } = props;
 
   const isMobile = useIsMobile();
@@ -72,7 +84,10 @@ export default function ShortsPage(props: Props) {
   const [uuid] = React.useState(Uuidv4());
   const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
   const scrollLockRef = React.useRef(false);
+  const [localViewMode, setLocalViewMode] = React.useState(reduxViewMode || 'related');
   const hasInitializedPlaylist = React.useRef(false);
+
+  console.log(localViewMode);
 
   const handlePlayPause = React.useCallback(() => {
     const videoElement = document.querySelector('.vjs-tech');
@@ -95,6 +110,21 @@ export default function ShortsPage(props: Props) {
   const uriRef = React.useRef(uri);
   const uuidRef = React.useRef(uuid);
 
+  const handleViewModeChange = React.useCallback(
+    (mode) => {
+      setLocalViewMode(mode);
+      doSetShortsViewMode(mode);
+      doSetShortsPlaylist([]);
+      if (mode === 'channel' && channelId) {
+        doFetchChannelShorts(channelId);
+      } else {
+        const fypParam = uuid ? { uuid } : null;
+        doFetchRecommendedContent(uri, fypParam);
+      }
+    },
+    [channelId, uuid, uri, doFetchChannelShorts, doFetchRecommendedContent, doSetShortsPlaylist, doSetShortsViewMode]
+  );
+
   React.useEffect(() => {
     doFetchRecommendedContentRef.current = doFetchRecommendedContent;
     uriRef.current = uri;
@@ -102,14 +132,12 @@ export default function ShortsPage(props: Props) {
   });
 
   React.useEffect(() => {
-    const shouldFetchInitialPlaylist = !hasPlaylist && !hasInitializedPlaylist.current && !isSearchingRecommendations;
-
-    if (shouldFetchInitialPlaylist && doFetchRecommendedContentRef.current) {
+    if (!hasPlaylist && !hasInitializedPlaylist.current && !isSearchingRecommendations) {
       hasInitializedPlaylist.current = true;
-      const fypParam = uuidRef.current ? { uuid: uuidRef.current } : null;
-      doFetchRecommendedContentRef.current(uriRef.current, fypParam, true);
+      const fypParam = uuid ? { uuid } : null;
+      doFetchRecommendedContent(uri, fypParam);
     }
-  }, [hasPlaylist, isSearchingRecommendations]);
+  }, [hasPlaylist, isSearchingRecommendations, uri, uuid, doFetchRecommendedContent]);
 
   React.useEffect(() => {
     if (shortsRecommendedUris && shortsRecommendedUris.length > 0) {
@@ -244,6 +272,24 @@ export default function ShortsPage(props: Props) {
 
   return (
     <>
+      {channelId && (
+        <div className="shorts-page__view-toggle">
+          <Button
+            className={classnames('button-bubble', {
+              'button-bubble--active': localViewMode === 'related',
+            })}
+            label={__('Related')}
+            onClick={() => handleViewModeChange('related')}
+          />
+          <Button
+            className={classnames('button-bubble', {
+              'button-bubble--active': localViewMode === 'channel',
+            })}
+            label={__('From %channel%', { channel: channelName || 'Channel' })}
+            onClick={() => handleViewModeChange('channel')}
+          />
+        </div>
+      )}
       <SwipeNavigationPortal
         onPlayPause={handlePlayPause}
         onNext={goToNext}

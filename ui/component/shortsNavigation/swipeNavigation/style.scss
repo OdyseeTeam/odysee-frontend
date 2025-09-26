@@ -31,3 +31,11 @@
     }
   }
 }
+
+@media (min-width: 786px) and (max-width: 1180px) {
+  .swipe-navigation-overlay {
+    &.shorts-swipe-overlay {
+      width: 350px !important;
+    }
+  }
+}

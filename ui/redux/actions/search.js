@@ -264,9 +264,10 @@ export const doFetchShortsRecommendedContent =
         size: 20,
         nsfw: matureEnabled || claimIsMature,
         related_to: claim.claim_id,
-        duration: '<180',
         max_aspect_ratio: 0.999,
         isBackgroundSearch: false,
+        max_duration: 3,
+        deboost_same_creator: 0.1,
       };
 
       if (language) {
@@ -281,8 +282,7 @@ export const doFetchShortsRecommendedContent =
       const { title } = claim.value;
 
       if (title && options) {
-        const shortsQuery = `shorts:${title}`;
-        dispatch(doSearch(shortsQuery, options));
+        dispatch(doSearch(title, options));
       }
     }
   };
@@ -293,7 +293,6 @@ export const doFetchRecommendedContent =
     if (isShorts) {
       return dispatch(doFetchShortsRecommendedContent(uri, fyp));
     }
-
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const matureEnabled = selectShowMatureContent(state);
@@ -303,29 +302,12 @@ export const doFetchRecommendedContent =
     const language = searchInLanguage ? languageSetting : null;
 
     if (claim && claim.value && claim.claim_id) {
-      let options: SearchOptions;
-
-      if (isShorts) {
-        options = {
-          size: 20,
-          nsfw: matureEnabled,
-          related_to: claim.claim_id,
-          max_aspect_ratio: 0.999,
-          isBackgroundSearch: false,
-          free_only: true,
-          max_duration: 3,
-        };
-
-        if (language) {
-          options['language'] = language;
-        }
-
-        if (claimIsMature && !matureEnabled) {
-          options['nsfw'] = true;
-        }
-      } else {
-        options = getRecommendationSearchOptions(matureEnabled, claimIsMature, claim.claim_id, language);
-      }
+      const options: SearchOptions = getRecommendationSearchOptions(
+        matureEnabled,
+        claimIsMature,
+        claim.claim_id,
+        language
+      );
 
       if (fyp) {
         options['gid'] = fyp.gid;

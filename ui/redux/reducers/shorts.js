@@ -4,6 +4,7 @@ import { handleActions } from 'util/redux-utils';
 
 const defaultState: ShortsState = {
   sidePanelOpen: false,
+  viewMode: 'related',
 };
 
 export default handleActions(
@@ -30,6 +31,12 @@ export default handleActions(
       return {
         ...state,
         playlist: [],
+      };
+    },
+    [ACTIONS.SET_SHORTS_VIEW_MODE]: (state: ShortsState, action: any): ShortsState => {
+      return {
+        ...state,
+        viewMode: action.data,
       };
     },
   },

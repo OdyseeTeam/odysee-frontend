@@ -41,3 +41,8 @@ export function doClearShortsPlaylist() {
     type: ACTIONS.CLEAR_SHORTS_PLAYLIST,
   };
 }
+
+export const doSetShortsViewMode = (mode: string) => ({
+  type: 'SET_SHORTS_VIEW_MODE',
+  data: mode,
+});
