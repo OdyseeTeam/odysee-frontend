@@ -12,6 +12,7 @@ export const CHANNEL_PAGE = Object.freeze({
     ABOUT: 'about',
     SETTINGS: 'settings',
     EDIT: 'edit',
+    SHORTS: 'shortsTab',
   },
 });
 

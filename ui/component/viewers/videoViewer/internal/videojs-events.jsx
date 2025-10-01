@@ -31,6 +31,7 @@ const VideoJsEvents = ({
   claimRewards,
   playerServerRef,
   isLivestreamClaim,
+  isShortsParam,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
@@ -47,6 +48,7 @@ const VideoJsEvents = ({
   claimRewards: () => void,
   playerServerRef: any,
   isLivestreamClaim: boolean,
+  isShortsParam?: boolean,
 }) => {
   let lastPlaybackTime = 0;
 
@@ -362,6 +364,19 @@ const VideoJsEvents = ({
     }, 500);
   }
 
+  function onVideoEnded() {
+    console.log('video ended');
+    const player = playerRef.current;
+    if (player && isShortsParam && !isLivestreamClaim) {
+      setTimeout(() => {
+        player.currentTime(0);
+        player.play().catch((error) => {
+          console.log('Shorts auto-restart failed:', error);
+        });
+      }, 500);
+    }
+  }
+
   function initializeEvents() {
     const player = playerRef.current;
 
@@ -415,6 +430,10 @@ const VideoJsEvents = ({
       player.on('timeupdate', liveEdgeRestoreSpeed);
     } else {
       window.liveSeeking = false;
+    }
+
+    if (isShortsParam && !isLivestreamClaim) {
+      player.on('ended', onVideoEnded);
     }
   }
 

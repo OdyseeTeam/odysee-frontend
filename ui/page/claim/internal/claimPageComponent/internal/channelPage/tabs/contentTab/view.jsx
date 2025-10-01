@@ -49,6 +49,7 @@ type Props = {
   claimType: string,
   empty?: string,
   activeLivestreamForChannel: ?LivestreamActiveClaim,
+  shortsOnly?: boolean,
 };
 
 function ContentTab(props: Props) {
@@ -70,6 +71,7 @@ function ContentTab(props: Props) {
     claimType,
     empty,
     activeLivestreamForChannel,
+    shortsOnly,
   } = props;
 
   const {
@@ -191,6 +193,12 @@ function ContentTab(props: Props) {
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
+            {...(shortsOnly && {
+              duration: '<180',
+              maxDuration: 3,
+              contentType: CS.FILE_VIDEO,
+              orderBy: CS.ORDER_BY_NEW,
+            })}
             meta={
               showFilters && (
                 <Form onSubmit={() => {}} className="wunderbar--inline">

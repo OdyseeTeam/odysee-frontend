@@ -23,6 +23,7 @@ import { getVideoClaimAspectRatio } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import VideoRenderFloating from './view';
+import { selectShortsSidePanelOpen } from '../../redux/selectors/shorts';
 
 const select = (state, props) => {
   const { location } = props;
@@ -73,6 +74,7 @@ const select = (state, props) => {
     isAutoplayCountdown: !playingUri.uri && autoplayCountdownUri,
     autoplayCountdownUri,
     canViewFile: selectCanViewFileForUri(state, uri),
+    sidePanelOpen: selectShortsSidePanelOpen(state),
   };
 };
 
