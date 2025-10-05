@@ -110,16 +110,21 @@ function ChannelPage(props: Props) {
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
+  const hideAboutTab = !showClaims;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
 
   const urlParams = new URLSearchParams(search);
   const viewParam = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW);
   const isHomeTab = !viewParam;
-  const currentView =
-    !showClaims && (isHomeTab || TABS_FOR_CHANNELS_WITH_CONTENT.includes(viewParam))
-      ? CHANNEL_PAGE.VIEWS.ABOUT
-      : viewParam || CHANNEL_PAGE.VIEWS.HOME;
+  let currentView = viewParam || CHANNEL_PAGE.VIEWS.HOME;
+
+  if (
+    !showClaims &&
+    (isHomeTab || TABS_FOR_CHANNELS_WITH_CONTENT.includes(viewParam) || viewParam === CHANNEL_PAGE.VIEWS.ABOUT)
+  ) {
+    currentView = hideAboutTab ? CHANNEL_PAGE.VIEWS.DISCUSSION : CHANNEL_PAGE.VIEWS.ABOUT;
+  }
 
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = currentView === CHANNEL_PAGE.VIEWS.EDIT;
@@ -272,7 +277,9 @@ function ChannelPage(props: Props) {
         search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
         break;
       case 6:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        if (!hideAboutTab) {
+          search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        }
         break;
       case 7:
         search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
@@ -486,7 +493,11 @@ function ChannelPage(props: Props) {
               <Tab aria-selected={tabIndex === 5} disabled={editing} onClick={() => onTabChange(5)}>
                 {__('Community')}
               </Tab>
-              <Tab aria-selected={tabIndex === 6} onClick={() => onTabChange(6)}>
+              <Tab
+                className={classnames({ 'tab--hidden': hideAboutTab })}
+                aria-selected={tabIndex === 6}
+                onClick={() => onTabChange(6)}
+              >
                 {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
               </Tab>
               <Tab aria-selected={tabIndex === 7} disabled={editing} onClick={() => onTabChange(7)}>
@@ -534,7 +545,7 @@ function ChannelPage(props: Props) {
               {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
             </TabPanel>
             <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.ABOUT && (
+              {!hideAboutTab && currentView === CHANNEL_PAGE.VIEWS.ABOUT && (
                 <AboutTab uri={uri} channelIsBlackListed={channelIsBlackListed} />
               )}
             </TabPanel>
