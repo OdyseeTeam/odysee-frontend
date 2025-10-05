@@ -408,7 +408,7 @@ export function doAbandonTxo(txo: Txo, cb: (string) => void) {
 
       let abandonMessage;
       if (isClaim) {
-        abandonMessage = __('Successfully abandoned your claim.');
+        abandonMessage = __('Successfully removed your upload.');
       } else if (isSupport) {
         abandonMessage = __('Successfully abandoned your support.');
       } else {
@@ -505,7 +505,7 @@ export function doAbandonClaim(claim: Claim, cb: (string) => any) {
 
       let abandonMessage;
       if (isClaim) {
-        abandonMessage = __('Successfully abandoned your claim.');
+        abandonMessage = __('Successfully removed your upload.');
       } else if (supportToAbandon) {
         abandonMessage = __('Successfully abandoned your support.');
       } else {
