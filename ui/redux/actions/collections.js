@@ -298,6 +298,7 @@ const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (
   };
 
   try {
+    const state = getState();
     const batchSize = pageSize || FETCH_BATCH_SIZE;
     const uriBatches: Array<Promise<any>> = [];
     const idBatches: Array<Promise<any>> = [];
@@ -337,7 +338,6 @@ const doFetchCollectionItems = (items: Array<any>, pageSize?: number) => async (
     // Related to above. Collection with deleted items would never get "resolved: true" status.
     // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
     if (itemsWereFetching) {
-      const state = getState();
       const resolvingIds = selectResolvingIds(state);
       const resolvingUris = selectResolvingUris(state);
       const failedToResolveUris = selectFailedToResolveUris(state);
