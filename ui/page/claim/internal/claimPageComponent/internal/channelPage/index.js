@@ -10,7 +10,7 @@ import {
 } from 'redux/selectors/claims';
 import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
 import { selectBlackListedData, doFetchSubCount, selectSubCountForUri, selectBanStateForUri } from 'lbryinc';
-import { selectYoutubeChannels } from 'redux/selectors/user';
+import { selectYoutubeChannels,selectUser } from 'redux/selectors/user';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
@@ -46,6 +46,7 @@ const select = (state, props) => {
     preferEmbed: makeSelectTagInClaimOrChannelForUri(props.uri, PREFERENCE_EMBED)(state),
     banState: selectBanStateForUri(state, props.uri),
     isMature: claim ? isClaimNsfw(claim) : false,
+    isGlobalMod: Boolean(selectUser(state)?.global_mod),
   };
 };
 

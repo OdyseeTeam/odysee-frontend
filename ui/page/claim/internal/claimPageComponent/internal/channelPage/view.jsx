@@ -75,6 +75,7 @@ type Props = {
   preferEmbed: boolean,
   banState: any,
   isMature: boolean,
+  isGlobalMod: boolean,
 };
 
 function ChannelPage(props: Props) {
@@ -101,6 +102,7 @@ function ChannelPage(props: Props) {
     preferEmbed,
     banState,
     isMature,
+    isGlobalMod,
   } = props;
   const {
     push,
@@ -110,7 +112,7 @@ function ChannelPage(props: Props) {
   const { meta } = claim;
   const { claims_in_channel } = meta;
   const showClaims = Boolean(claims_in_channel) && !preferEmbed && !banState.filtered && !banState.blacklisted;
-  const hideAboutTab = !showClaims;
+  const hideAboutTab = !showClaims && !isGlobalMod;
 
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
 
