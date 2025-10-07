@@ -754,22 +754,23 @@
 
   @media (max-width: $breakpoint-small) {
     width: 100% !important;
+    height: 100% !important;
     
     .content__wrapper {
       width: 100vw !important;
-      height: 100vh !important;
+      height: 100% !important;
 
       .file-render--video {
         width: 100vw !important;
-        height: 100vh !important;
+        height: 100% !important;
         border-radius: 0;
 
         video {
           max-width: 100vw;
-          max-height: 90vh;
+          max-height: 100%;
           width: 100vw;
           height: auto;
-          margin-top: 66px;
+          // margin-top: 66px;
           border-radius: 0px !important;
           width: 100%;
         }
