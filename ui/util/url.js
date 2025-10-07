@@ -159,9 +159,8 @@ export const generateShareUrl = (
 
   const encodedUrl = buildURI(uriParts, false, false);
   const lbryWebUrl = encodedUrl.replace(/#/g, ':');
-  const encodedLbryWebUrl = lbryWebUrl.replace(/@/g, '%40');
 
-  const url = `${domain}/${encodedLbryWebUrl}` + (urlParamsString === '' ? '' : `?${urlParamsString}`);
+  const url = `${domain}/${lbryWebUrl}` + (urlParamsString === '' ? '' : `?${urlParamsString}`);
   return url;
 };
 
@@ -199,8 +198,7 @@ export const generateShortShareUrl = async (
 
   const encodedUrl = buildURI(uriParts, false, false);
   const lbryWebUrl = encodedUrl.replace(/#/g, ':');
-  const encodedLbryWebUrl = lbryWebUrl.replace(/@/g, '%40');
-  const baseUrl = `${domain}/${encodedLbryWebUrl}`;
+  const baseUrl = `${domain}/${lbryWebUrl}`;
 
   // -- Append params that we want to shorten:
   const urlToShorten = new URL(baseUrl);
