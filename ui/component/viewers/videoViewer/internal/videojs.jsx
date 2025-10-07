@@ -124,6 +124,7 @@ type Props = {
   isDownloadDisabled: boolean,
   isUnlisted: boolean,
   doSetVideoSourceLoaded: (uri: string) => void,
+  autoPlayNextShort: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -194,9 +195,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isDownloadDisabled,
     isUnlisted,
     doSetVideoSourceLoaded,
+    autoPlayNextShort,
   } = props;
 
   const isMobile = useIsMobile();
+
+  console.log(autoPlayNextShort);
 
   const playerRef = useRef();
   const containerRef = useRef();
@@ -249,6 +253,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestreamClaim,
     channelTitle,
     isShortsParam,
+    autoPlayNextShort,
   });
 
   const videoJsOptions = {

@@ -118,6 +118,7 @@ type Props = {
   maxClaimRender?: number,
   useSkeletonScreen?: boolean,
   excludeUris?: Array<string>,
+  isShortFromChannelPage?: boolean
 };
 
 function ClaimListDiscover(props: Props) {
@@ -198,6 +199,7 @@ function ClaimListDiscover(props: Props) {
     doFetchThumbnailClaimsForCollectionIds,
     doResolveUris,
     doResolveClaimIds,
+    isShortFromChannelPage,
   } = props;
 
   const hasPins = pins && (pins.claimIds || pins.urls);
@@ -820,6 +822,7 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
           />
 
           {claimListLoading && useSkeletonScreen && (
@@ -859,6 +862,7 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
+            isShortFromChannelPage={isShortFromChannelPage}
           />
 
           {claimListLoading &&

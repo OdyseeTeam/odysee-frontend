@@ -40,6 +40,7 @@ import { parseURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 
 import withPlaybackUris from 'hocs/withPlaybackUris';
+import { selectShortsAutoplay } from '../../../redux/selectors/shorts';
 
 const select = (state, props) => {
   const { location } = props;
@@ -93,6 +94,7 @@ const select = (state, props) => {
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     isDownloadDisabled: makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     recomendedContent: selectRecommendedContentForUri(state, props.uri),
+    autoPlayNextShort: selectShortsAutoplay(state),
   };
 };
 

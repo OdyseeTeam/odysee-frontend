@@ -221,25 +221,25 @@ function ChannelPage(props: Props) {
     case CHANNEL_PAGE.VIEWS.CONTENT:
       tabIndex = 1;
       break;
-    case CHANNEL_PAGE.VIEWS.PLAYLISTS:
+    case CHANNEL_PAGE.VIEWS.SHORTS:
       tabIndex = 2;
       break;
-    case CHANNEL_PAGE.VIEWS.CHANNELS:
+    case CHANNEL_PAGE.VIEWS.PLAYLISTS:
       tabIndex = 3;
       break;
+    case CHANNEL_PAGE.VIEWS.CHANNELS:
+      tabIndex = 4;
+      break;
     case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
-      if (!isOdyseeChannel) tabIndex = 4;
+      if (!isOdyseeChannel) tabIndex = 5;
       break;
     case CHANNEL_PAGE.VIEWS.DISCUSSION:
-      tabIndex = 5;
-      break;
-    case CHANNEL_PAGE.VIEWS.ABOUT:
       tabIndex = 6;
       break;
-    case CHANNEL_PAGE.VIEWS.SETTINGS:
+    case CHANNEL_PAGE.VIEWS.ABOUT:
       tabIndex = 7;
       break;
-    case CHANNEL_PAGE.VIEWS.SHORTS:
+    case CHANNEL_PAGE.VIEWS.SETTINGS:
       tabIndex = 8;
       break;
     default:
@@ -261,27 +261,27 @@ function ChannelPage(props: Props) {
         search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
         break;
       case 2:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
         break;
       case 3:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
         break;
       case 4:
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        break;
+      case 5:
         if (!isOdyseeChannel) {
           search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
         }
         break;
-      case 5:
+      case 6:
         search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
         break;
-      case 6:
+      case 7:
         search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
         break;
-      case 7:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
-        break;
       case 8:
-        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SHORTS}`;
+        search += `?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
         break;
     }
     push(`${url}${search}`);
@@ -476,30 +476,30 @@ function ChannelPage(props: Props) {
                 {__('Content')}
               </Tab>
               <Tab aria-selected={tabIndex === 2} disabled={editing || !showClaims} onClick={() => onTabChange(2)}>
-                {__('Playlists')}
+                {__('Shorts')}
               </Tab>
               <Tab aria-selected={tabIndex === 3} disabled={editing || !showClaims} onClick={() => onTabChange(3)}>
+                {__('Playlists')}
+              </Tab>
+              <Tab aria-selected={tabIndex === 4} disabled={editing || !showClaims} onClick={() => onTabChange(4)}>
                 {__('Channels')}
               </Tab>
               <Tab
                 className="tab--membership"
-                aria-selected={tabIndex === 4}
+                aria-selected={tabIndex === 5}
                 disabled={editing || isOdyseeChannel}
-                onClick={() => onTabChange(4)}
+                onClick={() => onTabChange(5)}
               >
                 {__('Membership')}
               </Tab>
-              <Tab aria-selected={tabIndex === 5} disabled={editing} onClick={() => onTabChange(5)}>
+              <Tab aria-selected={tabIndex === 6} disabled={editing} onClick={() => onTabChange(6)}>
                 {__('Community')}
               </Tab>
-              <Tab aria-selected={tabIndex === 6} onClick={() => onTabChange(6)}>
+              <Tab aria-selected={tabIndex === 7} onClick={() => onTabChange(7)}>
                 {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
               </Tab>
-              <Tab aria-selected={tabIndex === 7} disabled={editing} onClick={() => onTabChange(7)}>
+              <Tab aria-selected={tabIndex === 8} disabled={editing} onClick={() => onTabChange(8)}>
                 {channelIsMine && __('Settings')}
-              </Tab>
-              <Tab aria-selected={tabIndex === 8} disabled={editing || !showClaims} onClick={() => onTabChange(8)}>
-                {__('Shorts')}
               </Tab>
             </TabList>
           </div>
@@ -519,6 +519,19 @@ function ChannelPage(props: Props) {
                   claimType={['stream', 'repost']}
                   empty={<section className="main--empty">{__('No Content Found')}</section>}
                   filters={filters}
+                />
+              )}
+            </TabPanel>
+             <TabPanel>
+              {currentView === CHANNEL_PAGE.VIEWS.SHORTS && (
+                <ContentTab
+                  uri={uri}
+                  channelIsBlackListed={channelIsBlackListed}
+                  viewHiddenChannels
+                  claimType={['stream']}
+                  empty={<section className="main--empty">{__('No Shorts Found')}</section>}
+                  filters={filters}
+                  shortsOnly
                 />
               )}
             </TabPanel>
@@ -550,19 +563,6 @@ function ChannelPage(props: Props) {
             <TabPanel>
               {channelIsMine && currentView === CHANNEL_PAGE.VIEWS.SETTINGS && (
                 <CreatorSettingsTab activeChannelClaim={claim} />
-              )}
-            </TabPanel>
-            <TabPanel>
-              {currentView === CHANNEL_PAGE.VIEWS.SHORTS && (
-                <ContentTab
-                  uri={uri}
-                  channelIsBlackListed={channelIsBlackListed}
-                  viewHiddenChannels
-                  claimType={['stream']}
-                  empty={<section className="main--empty">{__('No Shorts Found')}</section>}
-                  filters={filters}
-                  shortsOnly
-                />
               )}
             </TabPanel>
           </TabPanels>

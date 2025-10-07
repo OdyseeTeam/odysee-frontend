@@ -60,6 +60,7 @@ type Props = {
   onlyThumb?: boolean,
   onClickHandledByParent?: boolean,
   isShort?: boolean,
+  isShortFromChannelPage?: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -95,6 +96,7 @@ function ClaimPreviewTile(props: Props) {
     onlyThumb,
     onClickHandledByParent,
     isShort,
+    isShortFromChannelPage,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
@@ -114,9 +116,10 @@ function ClaimPreviewTile(props: Props) {
     isCollection && defaultCollectionAction === COLLECTIONS.DEFAULT_ACTION_VIEW
       ? `/$/${PAGES.PLAYLIST}/${listId}`
       : formatLbryUrlForWeb(canonicalUrl || uri || '/') +
-        (listId ? generateListSearchUrlParams(listId) : '') +
-        (claim && isClaimShort(claim) ? '?view=shorts' : '') +
-        (fypId ? `${claim && isClaimShort(claim) ? '&' : '?'}${FYP_ID}=${fypId}` : ''); // sigh...
+       (listId ? generateListSearchUrlParams(listId) : '') +
+      (claim && isClaimShort(claim) ? '?view=shorts' : '') +
+      (fypId ? `${claim && isClaimShort(claim) ? '&' : '?'}${FYP_ID}=${fypId}` : '') +
+      (isShort && isShortFromChannelPage ? `${(claim && isClaimShort(claim)) || fypId ? '&' : '?'}from=channel` : ''); // sigh...
   const navLinkProps = {
     to: navigateUrl,
     onClick: (e) => {

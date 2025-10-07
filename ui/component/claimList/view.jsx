@@ -13,6 +13,7 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
 import { useHistory } from 'react-router';
+import { is } from 'bluebird';
 
 const Draggable = React.lazy(() =>
   import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))
@@ -72,6 +73,7 @@ type Props = {
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
+  isShortFromChannelPage?: boolean,
 };
 
 export default function ClaimList(props: Props) {
@@ -122,6 +124,7 @@ export default function ClaimList(props: Props) {
     doDisablePlayerDrag,
     restoreScrollPos,
     setHasActive,
+    isShortFromChannelPage,
   } = props;
 
   const isMobile = useIsMobile();
@@ -318,6 +321,7 @@ export default function ClaimList(props: Props) {
                       collectionId={collectionId}
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
+                      isShortFromChannelPage={isShortFromChannelPage}
                     />
                   )}
                 </React.Fragment>
@@ -440,7 +444,7 @@ export default function ClaimList(props: Props) {
                       );
                     }}
                   </Draggable>
-                </React.Suspense>
+                  </React.Suspense>
               ))}
               {droppableProvided.placeholder}
             </>

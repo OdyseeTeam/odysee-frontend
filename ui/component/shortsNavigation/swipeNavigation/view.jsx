@@ -1,6 +1,10 @@
 // @flow
 import * as React from 'react';
 import { createPortal } from 'react-dom';
+import classnames from 'classnames';
+import Button from 'component/button';
+import ChannelThumbnail from 'component/channelThumbnail';
+import { Link } from 'react-router-dom';
 import './style.scss';
 
 type Props = {
@@ -14,6 +18,14 @@ type Props = {
   allowVideoInteraction?: boolean,
   onPlayPause?: () => void,
   sidePanelOpen?: boolean,
+  // View mode props
+  showViewToggle?: boolean,
+  viewMode?: string,
+  channelName?: string,
+  onViewModeChange?: (mode: string) => void,
+  title?: string,
+  channelUri?: string,
+  thumbnailUrl?: string,
 };
 
 const SwipeNavigationPortal = React.memo<Props>(
@@ -27,6 +39,13 @@ const SwipeNavigationPortal = React.memo<Props>(
     containerSelector,
     isMobile,
     sidePanelOpen,
+    showViewToggle = false,
+    viewMode = 'related',
+    channelName,
+    onViewModeChange,
+    title,
+    channelUri,
+    thumbnailUrl,
   }: Props) => {
     const overlayRef = React.useRef();
     const touchStartRef = React.useRef(null);
@@ -187,6 +206,55 @@ const SwipeNavigationPortal = React.memo<Props>(
           ${sidePanelOpen ? 'shorts__viewer--panel-open' : ''}
         `}
       >
+        {(title || channelName) && (
+          <div className="swipe-navigation-overlay__content-info">
+            <div className="swipe-navigation-overlay__text-info">
+              {title && <h2 className="swipe-navigation-overlay__title">{title}</h2>}
+              {channelUri && channelName && (
+                <Link
+                  to={channelUri.replace('lbry://', '/').replace(/#/g, ':')}
+                  className="swipe-navigation-overlay__channel"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                >
+                  <ChannelThumbnail uri={channelUri} xsmall checkMembership={false} />
+                  <span className="swipe-navigation-overlay__channel-name">{channelName}</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+
+        {showViewToggle && onViewModeChange && (
+          <div className="shorts-page__view-toggle--overlay">
+            <Button
+              className={classnames('button-bubble', {
+                'button-bubble--active': viewMode === 'related',
+              })}
+              label={__('Related')}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewModeChange('related');
+              }}
+            />
+            <Button
+              className={classnames('button-bubble', {
+                'button-bubble--active': viewMode === 'channel',
+              })}
+              label={__('From %channel%', {
+                channel:
+                  channelName && channelName.length > 15
+                    ? channelName.substring(0, 15) + '...'
+                    : channelName || 'Channel',
+              })}
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewModeChange('channel');
+              }}
+            />
+          </div>
+        )}
         {children}
       </div>,
       targetContainer

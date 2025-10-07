@@ -43,6 +43,15 @@ export function doClearShortsPlaylist() {
 }
 
 export const doSetShortsViewMode = (mode: string) => ({
-  type: 'SET_SHORTS_VIEW_MODE',
+  type: ACTIONS.SET_SHORTS_VIEW_MODE,
   data: mode,
+});
+
+export const doToggleShortsAutoplay = () => ({
+  type: ACTIONS.TOGGLE_SHORTS_AUTOPLAY,
+});
+
+export const doSetShortsAutoplay = (enabled) => ({
+  type: ACTIONS.SET_SHORTS_AUTOPLAY,
+  data: enabled,
 });

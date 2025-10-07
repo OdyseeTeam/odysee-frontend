@@ -32,6 +32,7 @@ const VideoJsEvents = ({
   playerServerRef,
   isLivestreamClaim,
   isShortsParam,
+  autoPlayNextShort,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
@@ -49,6 +50,7 @@ const VideoJsEvents = ({
   playerServerRef: any,
   isLivestreamClaim: boolean,
   isShortsParam?: boolean,
+  autoPlayNextShort: boolean,
 }) => {
   let lastPlaybackTime = 0;
 
@@ -433,6 +435,9 @@ const VideoJsEvents = ({
     }
 
     if (isShortsParam && !isLivestreamClaim) {
+      if (autoPlayNextShort) {
+        return;
+      }
       player.on('ended', onVideoEnded);
     }
   }

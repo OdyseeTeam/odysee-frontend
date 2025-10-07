@@ -193,6 +193,7 @@ function ContentTab(props: Props) {
             defaultOrderBy={filters ? filters.order_by : CS.ORDER_BY_NEW}
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
+            isShortFromChannelPage={shortsOnly}
             {...(shortsOnly && {
               duration: '<180',
               maxDuration: 3,

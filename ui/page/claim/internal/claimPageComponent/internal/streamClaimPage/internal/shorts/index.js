@@ -32,12 +32,15 @@ import {
   selectShortsSidePanelOpen,
   selectShortsPlaylist,
   selectShortsViewMode,
+  selectShortsAutoplay,
 } from '../../../../../../../../redux/selectors/shorts';
 import {
   doSetShortsSidePanel,
   doToggleShortsSidePanel,
   doSetShortsPlaylist,
   doSetShortsViewMode,
+  doToggleShortsAutoplay,
+  doSetShortsAutoplay,
 } from '../../../../../../../../redux/actions/shorts';
 
 const selectShortsRecommendedContent = createSelector(
@@ -96,7 +99,15 @@ const select = (state, props) => {
   const shortsRecommendedUris = selectShortsRecommendedContent(state, props);
   const currentIndex = shortsRecommendedUris.findIndex((shortUri) => shortUri === uri);
 
+  const title = claim?.value?.title;
+  const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
+
+  const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
+
   console.log(shortsRecommendedUris);
+  console.log(claim);
+  console.log(doToggleShortsAutoplay);
+  console.log(selectShortsAutoplay(state));
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
@@ -124,6 +135,10 @@ const select = (state, props) => {
     isSearchingRecommendations: selectIsSearching(state),
     searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
     viewMode: selectShortsViewMode(state),
+    title,
+    channelUri,
+    thumbnail,
+    autoPlayNextShort: selectShortsAutoplay(state),
   };
 };
 
@@ -159,6 +174,8 @@ const perform = (dispatch) => ({
     ),
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
+  doToggleShortsAutoplay: () => dispatch(doToggleShortsAutoplay()),
+  doSetShortsAutoplay: (enabled) => dispatch(doSetShortsAutoplay(enabled)),
 });
 
 export default withRouter(connect(select, perform)(ShortsPage));
