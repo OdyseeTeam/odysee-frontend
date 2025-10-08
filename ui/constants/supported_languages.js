@@ -35,6 +35,7 @@ const SUPPORTED_LANGUAGES = {
   ml: getLanguageName('ml'),
   mr: getLanguageName('mr'),
   ms: getLanguageName('ms'),
+  ne: getLanguageName('ne'),
   nl: getLanguageName('nl'),
   nn: getLanguageName('nn'),
   no: getLanguageName('no'),
