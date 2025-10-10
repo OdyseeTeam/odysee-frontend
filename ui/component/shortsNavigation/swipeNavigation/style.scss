@@ -3,7 +3,6 @@
   z-index: 9998;
   pointer-events: none;
   background: transparent;
-  transition: all 0.3s ease-in-out;
 
   &--enabled {
     pointer-events: auto;
@@ -17,6 +16,8 @@
     transform: translateX(-50%);
      @media (max-width: 900px) {
       width: 100%;
+      height: 83%;
+      overflow: hidden;
     }
     @media (min-width: 1600px) {
       width: 28vw !important;
@@ -27,7 +28,7 @@
     
   }
   &.shorts__viewer--panel-open {
-    transform: translate(-122%, 0%) !important;
+    transform: translate(-130%, 0%) !important;
 
     @media (max-width: 786px) {
       transform: translate(-50%, 0%) !important;
@@ -41,7 +42,7 @@
 
 .swipe-navigation-overlay__content-info {
   position: absolute;
-  bottom: 0px;
+  top: 0px;
   right: 20px;
   z-index: 10000!important;
   display: flex;
@@ -94,7 +95,7 @@
 
 @media (max-width: 768px) {
   .swipe-navigation-overlay__content-info {
-    bottom: 60px!important;
+    top: 90%;
     left: 5px;
     right: 16px;
     padding: 16px;

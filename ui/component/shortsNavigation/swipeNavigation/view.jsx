@@ -206,10 +206,9 @@ const SwipeNavigationPortal = React.memo<Props>(
           ${sidePanelOpen ? 'shorts__viewer--panel-open' : ''}
         `}
       >
-        {(title || channelName) && (
+        {channelName && (
           <div className="swipe-navigation-overlay__content-info">
             <div className="swipe-navigation-overlay__text-info">
-              {title && <h2 className="swipe-navigation-overlay__title">{title}</h2>}
               {channelUri && channelName && (
                 <Link
                   to={channelUri.replace('lbry://', '/').replace(/#/g, ':')}

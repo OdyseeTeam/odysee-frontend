@@ -44,7 +44,7 @@ const ShortsNavigation = React.memo<Props>(
           className={classnames('shorts-page__nav-button button-bubble', {
             'button-bubble--active': autoPlayNextShort,
           })}
-          title={__('Autoplay')}
+          title={__('Autoplay Next')}
           onClick={doToggleShortsAutoplay}
           icon={ICONS.AUTOPLAY_NEXT}
           iconSize={24}

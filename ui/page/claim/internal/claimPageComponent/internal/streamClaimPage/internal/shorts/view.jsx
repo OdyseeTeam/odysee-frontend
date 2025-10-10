@@ -10,8 +10,6 @@ import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsNavigation/swipeNavigation';
-import classnames from 'classnames';
-import Button from '../../../../../../../../component/button';
 import { useHistory } from 'react-router';
 
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
@@ -91,7 +89,7 @@ export default function ShortsPage(props: Props) {
     doToggleShortsAutoplay,
   } = props;
 
-      const {
+  const {
     location: { search },
   } = useHistory();
 
@@ -104,18 +102,7 @@ export default function ShortsPage(props: Props) {
   const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
   const scrollLockRef = React.useRef(false);
   const [localViewMode, setLocalViewMode] = React.useState(isShortFromChannelPage ? 'channel' : reduxViewMode || 'related');
-  const hasInitializedPlaylist = React.useRef(false);
-
-
-  console.log('Current shortsRecommendedUris:', shortsRecommendedUris);
-  console.log('autoPlayNextShort:', autoPlayNextShort);
-  console.log('localViewMode:', localViewMode);
-
-  // React.useEffect(() => {
-  //   return () => {
-  //     doSetShortsPlaylist([]);
-  //   };
-  // }, [doSetShortsPlaylist]);
+  const hasInitializedRef = React.useRef(false);
 
   const handlePlayPause = React.useCallback(() => {
     const videoElement = document.querySelector('.vjs-tech');
@@ -134,33 +121,37 @@ export default function ShortsPage(props: Props) {
   const isAtStart = currentIndex <= 0;
   const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
 
+  const fetchForMode = React.useCallback((mode) => {
+    if (mode === 'channel' && channelId) {
+      doFetchChannelShorts(channelId);
+    } else {
+      const fypParam = uuid ? { uuid } : null;
+      doFetchRecommendedContent(uri, fypParam);
+    }
+  }, [channelId, uri, uuid, doFetchChannelShorts, doFetchRecommendedContent]);
+
   const handleViewModeChange = React.useCallback(
     (mode) => {
-      console.log('Changing view mode to:', mode);
       setLocalViewMode(mode);
       doSetShortsViewMode(mode);
-      hasInitializedPlaylist.current = false;
-      if (mode === 'channel' && channelId) {
-        doFetchChannelShorts(channelId);
-      } else {
-        const fypParam = uuid ? { uuid } : null;
-        doFetchRecommendedContent(uri, fypParam);
-      }
+      doSetShortsPlaylist([]);
+      fetchForMode(mode);
     },
-    [channelId, uuid, uri, doFetchChannelShorts, doFetchRecommendedContent, doSetShortsViewMode]
+    [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode]
   );
 
   React.useEffect(() => {
-    if (!hasInitializedPlaylist.current && !isSearchingRecommendations) {
-      hasInitializedPlaylist.current = true;
-      if (localViewMode === 'channel' && channelId) {
-        doFetchChannelShorts(channelId);
-      } else {
-        const fypParam = uuid ? { uuid } : null;
-        doFetchRecommendedContent(uri, fypParam);
-      }
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      fetchForMode(localViewMode);
     }
-  }, [hasInitializedPlaylist, isSearchingRecommendations, localViewMode, channelId, uri, uuid, doFetchChannelShorts, doFetchRecommendedContent]);
+  }, [fetchForMode, localViewMode]);
+
+  React.useEffect(() => {
+    if (hasInitializedRef.current && reduxViewMode !== localViewMode) {
+      setLocalViewMode(reduxViewMode);
+    }
+  }, [reduxViewMode, localViewMode]);
 
   React.useEffect(() => {
     const claim = fileInfo?.claim;
@@ -276,10 +267,16 @@ export default function ShortsPage(props: Props) {
 
     const handleEnded = () => {
       if (autoPlayNextShort && nextRecommendedShort && !isAtEnd) {
-        console.log('Autoplay active: moving to next short');
-        goToNext();
+        setTimeout(() => {
+          goToNext();
+        }, 500);
       } else {
-        console.log('Autoplay off or no next video');
+        setTimeout(() => {
+          videoElement.currentTime = 0;
+          videoElement.play().catch((error) => {
+            console.log(error);
+          });
+        }, 500);
       }
     };
 
@@ -316,29 +313,6 @@ export default function ShortsPage(props: Props) {
 
   return (
     <>
-      {channelId && (
-        <div data-panelopen={sidePanelOpen} className="shorts-page__view-toggle">
-          <Button
-            className={classnames('button-bubble', {
-              'button-bubble--active': localViewMode === 'related',
-            })}
-            label={__('Related')}
-            onClick={() => handleViewModeChange('related')}
-          />
-          <Button
-            className={classnames('button-bubble', {
-              'button-bubble--active': localViewMode === 'channel',
-            })}
-            label={__('From %channel%', {
-              channel:
-                channelName && channelName.length > 15
-                  ? channelName.substring(0, 15) + '...'
-                  : channelName || 'Channel',
-            })}
-            onClick={() => handleViewModeChange('channel')}
-          />
-        </div>
-      )}
       <SwipeNavigationPortal
         onPlayPause={handlePlayPause}
         onNext={goToNext}
@@ -368,6 +342,11 @@ export default function ShortsPage(props: Props) {
                 onNext={goToNext}
                 onPrevious={goToPrevious}
                 onScroll={handleScroll}
+                viewMode={localViewMode}
+                channelName={channelName}
+                onViewModeChange={handleViewModeChange}
+                hasChannel={!!channelId}
+                hasPlaylist={hasPlaylist}
               />
 
               {!isMobile && (

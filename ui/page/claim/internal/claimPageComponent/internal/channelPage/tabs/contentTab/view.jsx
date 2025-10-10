@@ -195,7 +195,6 @@ function ContentTab(props: Props) {
             infiniteScroll={defaultInfiniteScroll}
             isShortFromChannelPage={shortsOnly}
             {...(shortsOnly && {
-              duration: '<180',
               maxDuration: 3,
               contentType: CS.FILE_VIDEO,
               orderBy: CS.ORDER_BY_NEW,

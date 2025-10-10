@@ -32,7 +32,6 @@ import {
   selectShortsSidePanelOpen,
   selectShortsPlaylist,
   selectShortsViewMode,
-  selectShortsAutoplay,
 } from '../../../../../../../../redux/selectors/shorts';
 import {
   doSetShortsSidePanel,
@@ -71,7 +70,7 @@ const selectShortsRecommendedContent = createSelector(
       const claimSearchByQuery = selectClaimSearchByQuery(state);
       const searchKey = createNormalizedClaimSearchKey({
         channel_ids: [channelId],
-        duration: '<180',
+        max_duration: 3,
         max_aspect_ratio: 0.999,
         order_by: ['release_time'],
         page_size: 20,
@@ -101,13 +100,7 @@ const select = (state, props) => {
 
   const title = claim?.value?.title;
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
-
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
-
-  console.log(shortsRecommendedUris);
-  console.log(claim);
-  console.log(doToggleShortsAutoplay);
-  console.log(selectShortsAutoplay(state));
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
@@ -138,7 +131,7 @@ const select = (state, props) => {
     title,
     channelUri,
     thumbnail,
-    autoPlayNextShort: selectShortsAutoplay(state),
+    autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
   };
 };
 
@@ -159,11 +152,11 @@ const perform = (dispatch) => ({
   doToggleShortsSidePanel: () => dispatch(doToggleShortsSidePanel()),
   doSetShortsSidePanel: (isOpen) => dispatch(doSetShortsSidePanel(isOpen)),
   doFetchRecommendedContent: (uri, fypParam) => dispatch(doFetchRecommendedContent(uri, fypParam, true)),
-  doFetchChannelShorts: (channelId) =>
-    dispatch(
+  doFetchChannelShorts: (channelId) => {
+    return dispatch(
       doClaimSearch({
         channel_ids: [channelId],
-        duration: '<180',
+        max_duration: 3,
         max_aspect_ratio: 0.999,
         order_by: ['release_time'],
         page_size: 20,
@@ -171,7 +164,8 @@ const perform = (dispatch) => ({
         claim_type: ['stream'],
         has_source: true,
       })
-    ),
+    );
+  },
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
   doToggleShortsAutoplay: () => dispatch(doToggleShortsAutoplay()),

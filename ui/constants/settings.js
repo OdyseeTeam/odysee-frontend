@@ -53,6 +53,7 @@ export const PREFERRED_CURRENCY = 'preferred_currency';
 export const DEFAULT_VIDEO_QUALITY = 'default_video_quality';
 export const ACTIVE_CHANNEL_CLAIM = 'active_channel_claim';
 export const UPLOAD_PAGE_FILTERING = 'upload_page_filtering';
+export const AUTOPLAY_NEXT_SHORTS = 'autoplay_next_shorts';
 
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',
