@@ -672,6 +672,11 @@
       {
         display: none;
       }
+      @media screen and (max-width:$breakpoint-small) {
+        position: fixed!important;
+        bottom: 0px;
+        left: 0px;
+      }
     }
 
     .vjs-big-play-button {
@@ -755,23 +760,30 @@
   @media (max-width: $breakpoint-small) {
     width: 100% !important;
     height: 100vh !important;
+    height: 100svh !important;
+    overflow: hidden;
 
-    
     .content__wrapper {
       width: 100vw !important;
       height: 100vh !important;
+      height: 100svh !important;
+      overflow: hidden;
 
       .file-render--video {
         width: 100vw !important;
-        height: 100% !important;
+        height: 100vh !important;
+        height: 100svh !important;
         border-radius: 0;
+        overflow: hidden;
 
         video {
           max-width: 100vw;
           max-height: 100vh;
+          max-height: 100svh;
           width: 100vw;
-          height: 100vh;
-          margin-top: 46px;
+          height: 100vh !important;
+          height: 100svh !important;
+          margin-top: 56px;
           border-radius: 0px !important;
           overflow: hidden;
         }
