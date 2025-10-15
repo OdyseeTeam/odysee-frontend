@@ -149,28 +149,20 @@ export default function ShortsPage(props: Props) {
 
   const history = useHistory();
 
-  // FIX 2: Clear playlist when navigating AWAY from shorts page
   React.useEffect(() => {
-    // Listen to route changes
     const unlisten = history.listen((location, action) => {
       const isNavigatingToShorts = location.search.includes('view=shorts');
       const isNavigatingFromShorts = search.includes('view=shorts');
 
-      // If we were on shorts but now we're not, clear the playlist
       if (isNavigatingFromShorts && !isNavigatingToShorts) {
-        console.log('🧹 Navigating away from shorts, clearing playlist');
         doClearShortsPlaylist();
       }
     });
 
-    // Cleanup listener on unmount
     return () => {
       unlisten();
-
-      // Also clear on actual unmount if not going to another short
       const currentUrl = window.location.search;
       if (!currentUrl.includes('view=shorts')) {
-        console.log('🧹 Component unmounting (not on shorts), clearing playlist');
         doClearShortsPlaylist();
       }
     };
@@ -179,9 +171,13 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     if (!hasInitializedRef.current) {
       hasInitializedRef.current = true;
+
+      if (isShortFromChannelPage) {
+        doSetShortsViewMode('channel');
+      }
       fetchForMode(localViewMode);
     }
-  }, [fetchForMode, localViewMode]);
+  }, [fetchForMode, localViewMode, doSetShortsViewMode, isShortFromChannelPage]);
 
   React.useEffect(() => {
     if (hasInitializedRef.current && reduxViewMode !== localViewMode) {

@@ -104,6 +104,11 @@ const select = (state, props) => {
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
 
+  const isFromChannelPage = urlParams.get('from') === 'channel';
+  const storedViewMode = selectShortsViewMode(state);
+
+  const effectiveViewMode = isFromChannelPage && !storedViewMode ? 'channel' : (storedViewMode || 'related');
+
   console.log(shortsRecommendedUris);
 
   return {
