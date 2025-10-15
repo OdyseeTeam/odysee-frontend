@@ -5,7 +5,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import RecSys from 'recsys';
 import { v4 as Uuidv4 } from 'uuid';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
-import  ShortsNavigation from 'component/shortsNavigation';
+import ShortsNavigation from 'component/shortsNavigation';
 import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
 import MobilePanel from 'component/shortsMobileSidePanel';
@@ -40,6 +40,7 @@ type Props = {
   doSetShortsSidePanel: (isOpen: boolean) => void,
   doFetchRecommendedContent: (uri: string, fypParam?: ?FypParam, isShorts?: boolean) => void,
   doSetShortsPlaylist: (uris: Array<string>) => void,
+  doClearShortsPlaylist: () => void,
   channelId: ?string,
   channelName: ?string,
   doFetchChannelShorts: (channelId: string) => void,
@@ -76,6 +77,7 @@ export default function ShortsPage(props: Props) {
     doToggleShortsSidePanel,
     doFetchRecommendedContent,
     doSetShortsPlaylist,
+    doClearShortsPlaylist,
     sidePanelOpen,
     channelId,
     channelName,
@@ -101,7 +103,9 @@ export default function ShortsPage(props: Props) {
   const [uuid] = React.useState(Uuidv4());
   const [mobileModalOpen, setMobileModalOpen] = React.useState(false);
   const scrollLockRef = React.useRef(false);
-  const [localViewMode, setLocalViewMode] = React.useState(isShortFromChannelPage ? 'channel' : reduxViewMode || 'related');
+  const [localViewMode, setLocalViewMode] = React.useState(
+    isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
+  );
   const hasInitializedRef = React.useRef(false);
 
   const handlePlayPause = React.useCallback(() => {
@@ -121,14 +125,17 @@ export default function ShortsPage(props: Props) {
   const isAtStart = currentIndex <= 0;
   const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
 
-  const fetchForMode = React.useCallback((mode) => {
-    if (mode === 'channel' && channelId) {
-      doFetchChannelShorts(channelId);
-    } else {
-      const fypParam = uuid ? { uuid } : null;
-      doFetchRecommendedContent(uri, fypParam);
-    }
-  }, [channelId, uri, uuid, doFetchChannelShorts, doFetchRecommendedContent]);
+  const fetchForMode = React.useCallback(
+    (mode) => {
+      if (mode === 'channel' && channelId) {
+        doFetchChannelShorts(channelId);
+      } else {
+        const fypParam = uuid ? { uuid } : null;
+        doFetchRecommendedContent(uri, fypParam);
+      }
+    },
+    [channelId, uri, uuid, doFetchChannelShorts, doFetchRecommendedContent]
+  );
 
   const handleViewModeChange = React.useCallback(
     (mode) => {
@@ -139,6 +146,35 @@ export default function ShortsPage(props: Props) {
     },
     [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode]
   );
+
+  const history = useHistory();
+
+  // FIX 2: Clear playlist when navigating AWAY from shorts page
+  React.useEffect(() => {
+    // Listen to route changes
+    const unlisten = history.listen((location, action) => {
+      const isNavigatingToShorts = location.search.includes('view=shorts');
+      const isNavigatingFromShorts = search.includes('view=shorts');
+
+      // If we were on shorts but now we're not, clear the playlist
+      if (isNavigatingFromShorts && !isNavigatingToShorts) {
+        console.log('🧹 Navigating away from shorts, clearing playlist');
+        doClearShortsPlaylist();
+      }
+    });
+
+    // Cleanup listener on unmount
+    return () => {
+      unlisten();
+
+      // Also clear on actual unmount if not going to another short
+      const currentUrl = window.location.search;
+      if (!currentUrl.includes('view=shorts')) {
+        console.log('🧹 Component unmounting (not on shorts), clearing playlist');
+        doClearShortsPlaylist();
+      }
+    };
+  }, [history, search, doClearShortsPlaylist]);
 
   React.useEffect(() => {
     if (!hasInitializedRef.current) {
@@ -163,19 +199,20 @@ export default function ShortsPage(props: Props) {
   }, [shortsRecommendedUris, fileInfo, onRecommendationsLoaded, uuid, hasPlaylist]);
 
   React.useEffect(() => {
-  if (shortsRecommendedUris && shortsRecommendedUris.length > 0) {
-    const currentUriInPlaylist = shortsRecommendedUris.includes(uri);
-    if (!currentUriInPlaylist) {
-      const playlistUris = [uri, ...shortsRecommendedUris];
-      doSetShortsPlaylist(playlistUris);
+    if (shortsRecommendedUris && shortsRecommendedUris.length > 0) {
+      const currentUriInPlaylist = shortsRecommendedUris.includes(uri);
+      if (!currentUriInPlaylist) {
+        const playlistUris = [uri, ...shortsRecommendedUris];
+        doSetShortsPlaylist(playlistUris);
+      }
     }
-  }
-}, [shortsRecommendedUris, uri, doSetShortsPlaylist]);
+  }, [shortsRecommendedUris, uri, doSetShortsPlaylist]);
 
   const goToNext = React.useCallback(() => {
     if (!nextRecommendedShort || isAtEnd || isSearchingRecommendations) {
       return;
     }
+
     clearPosition(uri);
     doNavigateToNextShort(nextRecommendedShort);
 

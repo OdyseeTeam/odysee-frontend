@@ -72,7 +72,6 @@ export default function VideoPlayersPage(props: Props) {
   const { search } = location;
   const urlParams = new URLSearchParams(search);
   const colParam = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
-  console.log('uri:', uri);
 
   const collectionId = React.useMemo(() => {
     const startedPlayingOtherPlaylist =

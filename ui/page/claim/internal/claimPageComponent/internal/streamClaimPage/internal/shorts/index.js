@@ -40,7 +40,9 @@ import {
   doSetShortsViewMode,
   doToggleShortsAutoplay,
   doSetShortsAutoplay,
+  doClearShortsPlaylist,
 } from '../../../../../../../../redux/actions/shorts';
+import { toggleAutoplayNextShort } from '../../../../../../../../redux/actions/settings';
 
 const selectShortsRecommendedContent = createSelector(
   [
@@ -101,6 +103,8 @@ const select = (state, props) => {
   const title = claim?.value?.title;
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
   const thumbnail = claim?.value?.thumbnail?.url || claim?.value?.thumbnail || null;
+
+  console.log(shortsRecommendedUris);
 
   return {
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
@@ -168,8 +172,9 @@ const perform = (dispatch) => ({
   },
   doSetShortsPlaylist: (uris) => dispatch(doSetShortsPlaylist(uris)),
   doSetShortsViewMode: (mode) => dispatch(doSetShortsViewMode(mode)),
-  doToggleShortsAutoplay: () => dispatch(doToggleShortsAutoplay()),
+  doToggleShortsAutoplay: () => dispatch(toggleAutoplayNextShort()),
   doSetShortsAutoplay: (enabled) => dispatch(doSetShortsAutoplay(enabled)),
+  doClearShortsPlaylist: () => dispatch(doClearShortsPlaylist()),
 });
 
 export default withRouter(connect(select, perform)(ShortsPage));

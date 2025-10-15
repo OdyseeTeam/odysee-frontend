@@ -9,7 +9,6 @@ import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
   const recommendedContentUris = selectRecommendedContentForUri(state, props.uri);
-  console.log(recommendedContentUris);
   const nextRecommendedUri = recommendedContentUris && recommendedContentUris[0];
 
   return {

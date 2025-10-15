@@ -200,8 +200,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const isMobile = useIsMobile();
 
-  console.log(autoPlayNextShort);
-
   const playerRef = useRef();
   const containerRef = useRef();
   const tapToUnmuteRef = useRef();

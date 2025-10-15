@@ -50,12 +50,12 @@ const ShortsVideoPlayer = React.memo<Props>(
         {!isMobile && hasChannel && hasPlaylist && (
           <Menu>
             <MenuButton
-              className="shorts-page__info-button menu__button"
+              className="shorts-page__info-button shorts-page-menu__button"
               onClick={(e) => {
                 e.stopPropagation();
               }}
             >
-              <Icon size={20} icon={ICONS.MORE_VERTICAL} />
+              <Icon size={20} icon={ICONS.MORE} />
             </MenuButton>
 
             <MenuList className="menu__list shorts-page__view-menu">

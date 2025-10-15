@@ -83,7 +83,6 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
       onRecommendationClicked(claim.claim_id, clickedClaim.claim_id);
     }
   }
-  console.log(claim);
 
   return (
     <Card
