@@ -21,13 +21,23 @@ export default function FeaturedBanner(props: Props) {
   const [index, setIndex] = React.useState(1);
   const [pause, setPause] = React.useState(false);
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [localBannerHidden, setLocalBannerHidden] = React.useState(
-    () => sessionStorage.getItem('bannerHidden') === 'true'
-  );
+  // Use localStorage for Cordova to persist across app restarts, sessionStorage for web
+  const storage = window.cordova ? localStorage : sessionStorage;
+  const storageKey = 'bannerHidden';
+  const [localBannerHidden, setLocalBannerHidden] = React.useState(() => storage.getItem(storageKey) === 'true');
   const wrapper = React.useRef(null);
   const menuRef = React.useRef(null);
   const imageWidth = width >= 1600 ? 1700 : width >= 1150 ? 1150 : width >= 900 ? 900 : width >= 600 ? 600 : 400;
   const { push } = useHistory();
+
+  // Clear banner state when user logs out (for Cordova)
+  React.useEffect(() => {
+    if (window.cordova && !authenticated) {
+      // User logged out, clear the banner hidden state
+      localStorage.removeItem(storageKey);
+      setLocalBannerHidden(false);
+    }
+  }, [authenticated]);
 
   React.useEffect(() => {
     if (featured && width) {
@@ -105,7 +115,7 @@ export default function FeaturedBanner(props: Props) {
 
   function removeBanner() {
     setLocalBannerHidden(true);
-    sessionStorage.setItem('bannerHidden', 'true');
+    storage.setItem(storageKey, 'true');
     setIsMenuOpen(false);
   }
 

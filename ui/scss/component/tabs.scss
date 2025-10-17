@@ -115,6 +115,10 @@
   }
 }
 
+.tab--hidden {
+  display: none !important;
+}
+
 .tab__divider {
   position: absolute;
   margin-top: -46px;

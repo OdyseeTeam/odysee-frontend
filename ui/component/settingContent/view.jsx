@@ -109,23 +109,6 @@ export default function SettingContent(props: Props) {
               </fieldset-section>
             </SettingsRow>
 
-            {!SIMPLE_SITE && (
-              <>
-                <SettingsRow title={__('Show mature content')} subtitle={__(HELP.SHOW_MATURE)}>
-                  <FormField
-                    type="checkbox"
-                    name="show_nsfw"
-                    checked={showNsfw}
-                    onChange={() =>
-                      !IS_WEB || showNsfw
-                        ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw)
-                        : openModal(MODALS.CONFIRM_AGE)
-                    }
-                  />
-                </SettingsRow>
-              </>
-            )}
-
             {(isAuthenticated || !IS_WEB) && (
               <>
                 <SettingsRow title={__('Notifications')}>
