@@ -166,6 +166,8 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    margin-bottom: var(--spacing-s);
+
     $width: 100%;
     width: $width;
     @include handleClaimTileGifThumbnail($width);
@@ -496,7 +498,7 @@
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
     }
-    .claim-preview-metadata {
+    .claim-preview-metadata {      
       .claim-tile__info {
         margin-top: auto;
         align-items: flex-end;
@@ -565,6 +567,15 @@
 
       .membership-button-wrapper {
         margin-top: 0;
+      }
+
+      a.button-following {
+        .button__content {
+          width:100%;
+        }
+      }
+      button.button-following {
+        max-width:fit-content;
       }
 
       span {
@@ -665,6 +676,21 @@
   @media (max-width: $breakpoint-small) {
     .claim-preview__text {
       flex-direction: column;
+
+      .claim-preview-metadata {
+        .claim-tile__info {          
+          .media__subtitle {
+            margin-top:2px;
+            .button--uri-indicator{
+              .button__content{
+                .channel-name{
+                  font-size: var(--font-xxsmall) !important;
+                }
+              }
+            }
+          }
+        }
+      }
       .claim-preview__actions {
         flex-direction: row;
         justify-content: flex-start !important;
@@ -826,7 +852,6 @@
 
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-small);
-
     .claim-preview-metadata {
       .claim-tile__info {
         .channel-thumbnail {

@@ -47,6 +47,7 @@
                 }
 
                 @media (max-width: $breakpoint-xsmall) {
+                  padding-top:4px;
                   width: calc(100% + calc(2.75rem + var(--spacing-s)));
                   margin-left: calc(-2.75rem + calc(var(--spacing-s) * -1));
                 }
@@ -98,6 +99,8 @@
     }
 
     @media (max-width: $breakpoint-small) {
+      .media__subtitle {
+      }
       .claim__menu-button {
         margin-top: -6px;
         right: 0;
@@ -153,7 +156,6 @@
   .card__main-actions {
     .claim-tile__info {
       display: unset;
-      margin-top: -2px;
       padding-bottom: 0;
       .media__subtitle {
         margin-top: -3px;
@@ -182,7 +184,7 @@
       line-height: 1.3;
 
       .claim-tile__info {
-        margin-top: -2px !important;
+        // margin-top: 0px !important;
       }
 
       .button--no-style {
