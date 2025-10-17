@@ -19,6 +19,9 @@
         color: var(--color-text);
       }
     }
+    li {
+        min-width: 0;
+    }
   }
 
   .claim-grid__wrapper:last-of-type {
