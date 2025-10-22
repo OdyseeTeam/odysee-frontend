@@ -50,6 +50,7 @@ type Props = {
   empty?: string,
   activeLivestreamForChannel: ?LivestreamActiveClaim,
   shortsOnly?: boolean,
+  excludeShorts?: boolean,
 };
 
 function ContentTab(props: Props) {
@@ -72,6 +73,7 @@ function ContentTab(props: Props) {
     empty,
     activeLivestreamForChannel,
     shortsOnly,
+    excludeShorts,
   } = props;
 
   const {
@@ -194,10 +196,15 @@ function ContentTab(props: Props) {
             pageSize={dynamicPageSize}
             infiniteScroll={defaultInfiniteScroll}
             isShortFromChannelPage={shortsOnly}
+            {...(excludeShorts &&
+              !shortsOnly && {
+                duration: '>180',
+              })}
             {...(shortsOnly && {
-              maxDuration: 3,
+              duration: '<=180',
               contentType: CS.FILE_VIDEO,
-              orderBy: CS.ORDER_BY_NEW,
+              contentAspectRatio: '<1',
+              sectionTitle: 'Shorts',
             })}
             meta={
               showFilters && (

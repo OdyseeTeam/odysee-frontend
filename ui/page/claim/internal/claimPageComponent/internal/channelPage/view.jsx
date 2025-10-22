@@ -519,6 +519,7 @@ function ChannelPage(props: Props) {
                   claimType={['stream', 'repost']}
                   empty={<section className="main--empty">{__('No Content Found')}</section>}
                   filters={filters}
+                  excludeShorts
                 />
               )}
             </TabPanel>

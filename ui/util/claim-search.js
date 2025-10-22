@@ -41,7 +41,7 @@ export const CsOptHelper = {
     duration: Duration,
     durationVal?: string,
     minMinutes?: number,
-    maxMinutes?: number
+    maxMinutes?: number,
   ) => {
     const claimTypesWithDurations = [CS.CLAIM_STREAM, CS.CLAIM_REPOST];
     const claimTypesArray = Array.isArray(claimTypes) ? claimTypes : [claimTypes];

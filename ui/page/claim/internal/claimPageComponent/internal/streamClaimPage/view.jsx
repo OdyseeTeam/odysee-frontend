@@ -39,6 +39,7 @@ type Props = {
   isLivestream: boolean,
   isClaimBlackListed: boolean,
   isClaimFiltered: boolean,
+  isClaimShort: boolean,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
@@ -64,6 +65,7 @@ const StreamClaimPage = (props: Props) => {
     doSetContentHistoryItem,
     doSetPrimaryUri,
     doToggleAppDrawer,
+    isClaimShort,
   } = props;
 
   const isMobile = useIsMobile();
@@ -80,7 +82,7 @@ const StreamClaimPage = (props: Props) => {
   } = useHistory();
 
   const urlParams = new URLSearchParams(search);
-  const isShortVideo = urlParams.get('view') === 'shorts';
+  const isShortVideo = urlParams.get('view') === 'shorts' || isClaimShort;
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {

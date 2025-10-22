@@ -220,67 +220,68 @@ function HomePage(props: Props) {
           />
         </React.Fragment>
       );
-    } else if (id === 'SHORTS') {
-      const ShortsHeaderArea = () => {
-        return (
-          <>
-            {index === cache.topGrid && <Meme meme={homepageMeme} />}
-            {title && typeof title === 'string' && (
-              <div className="homePage-wrapper__section-title">
-                <SectionHeader title={__(title)} navigate={route || link} icon={icon} help={help} />
-                {(index === cache.topGrid ||
-                  (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING')) && (
-                  <CustomizeHomepage />
-                )}
-              </div>
-            )}
-          </>
-        );
-      };
-
-      const shortsClaimTiles = (
-        <ClaimTilesDiscover
-          {...options}
-          showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
-          hasSource
-          hideMembersOnly
-          forceShowReposts={false}
-          fetchViewCount
-          pageSize={24}
-          isShorts
-          excludeShorts={false}
-        />
-      );
-
-      const shortsTilePlaceholder = (
-        <ul className="claim-grid">
-          {new Array(24).fill(1).map((x, i) => (
-            <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />
-          ))}
-        </ul>
-      );
-
-      return (
-        <div key={id} className={classnames('claim-grid__wrapper', 'shorts-section')}>
-          <ShortsHeaderArea />
-          {index === 0 && <>{shortsClaimTiles}</>}
-          {index !== 0 && (
-            <WaitUntilOnPage name={title} placeholder={shortsTilePlaceholder} yOffset={800}>
-              {shortsClaimTiles}
-            </WaitUntilOnPage>
-          )}
-          {(route || link) && (
-            <Button
-              className="claim-grid__title--secondary"
-              button="link"
-              navigate={route || link}
-              iconRight={ICONS.ARROW_RIGHT}
-              label={__('View More Shorts')}
-            />
-          )}
-        </div>
-      );
     }
+    // } else if (id === 'SHORTS') {
+    //   const ShortsHeaderArea = () => {
+    //     return (
+    //       <>
+    //         {index === cache.topGrid && <Meme meme={homepageMeme} />}
+    //         {title && typeof title === 'string' && (
+    //           <div className="homePage-wrapper__section-title">
+    //             <SectionHeader title={__(title)} navigate={route || link} icon={icon} help={help} />
+    //             {(index === cache.topGrid ||
+    //               (index && index - 1 === cache.topGrid && sortedRowData[cache.topGrid].id === 'UPCOMING')) && (
+    //               <CustomizeHomepage />
+    //             )}
+    //           </div>
+    //         )}
+    //       </>
+    //     );
+    //   };
+
+    //   const shortsClaimTiles = (
+    //     <ClaimTilesDiscover
+    //       {...options}
+    //       showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
+    //       hasSource
+    //       hideMembersOnly
+    //       forceShowReposts={false}
+    //       fetchViewCount
+    //       pageSize={24}
+    //       isShorts
+    //       excludeShorts={false}
+    //     />
+    //   );
+
+    //   const shortsTilePlaceholder = (
+    //     <ul className="claim-grid">
+    //       {new Array(24).fill(1).map((x, i) => (
+    //         <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />
+    //       ))}
+    //     </ul>
+    //   );
+
+    //   return (
+    //     <div key={id} className={classnames('claim-grid__wrapper', 'shorts-section')}>
+    //       <ShortsHeaderArea />
+    //       {index === 0 && <>{shortsClaimTiles}</>}
+    //       {index !== 0 && (
+    //         <WaitUntilOnPage name={title} placeholder={shortsTilePlaceholder} yOffset={800}>
+    //           {shortsClaimTiles}
+    //         </WaitUntilOnPage>
+    //       )}
+    //       {(route || link) && (
+    //         <Button
+    //           className="claim-grid__title--secondary"
+    //           button="link"
+    //           navigate={route || link}
+    //           iconRight={ICONS.ARROW_RIGHT}
+    //           label={__('View More Shorts')}
+    //         />
+    //       )}
+    //     </div>
+    //   );
+    // }
 
     const tilePlaceholder = (
       <ul className="claim-grid">
@@ -289,6 +290,11 @@ function HomePage(props: Props) {
         ))}
       </ul>
     );
+
+    function resolveTitleOverride(title: string) {
+        return title === 'Recent From Following' ? 'Following' : title;
+    }
+    const sectionTitle = resolveTitleOverride(title);
 
     const claimTiles = (
       <ClaimTilesDiscover
@@ -301,14 +307,11 @@ function HomePage(props: Props) {
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
         fetchViewCount
+        sectionTitle={sectionTitle}
       />
     );
 
     const HeaderArea = () => {
-      function resolveTitleOverride(title: string) {
-        return title === 'Recent From Following' ? 'Following' : title;
-      }
-
       return (
         <>
           {index === cache.topGrid && <Meme meme={homepageMeme} />}

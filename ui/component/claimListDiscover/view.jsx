@@ -20,6 +20,7 @@ import ClaimListHeader from 'component/claimListHeader';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
+import {HomepageTitles} from 'util/buildHomepage';
 
 type Props = {
   uris: Array<string>,
@@ -118,7 +119,9 @@ type Props = {
   maxClaimRender?: number,
   useSkeletonScreen?: boolean,
   excludeUris?: Array<string>,
-  isShortFromChannelPage?: boolean
+  isShortFromChannelPage?: boolean,
+  sectionTitle?: HomepageTitles,
+  contentAspectRatio?: string,
 };
 
 function ClaimListDiscover(props: Props) {
@@ -200,6 +203,8 @@ function ClaimListDiscover(props: Props) {
     doResolveUris,
     doResolveClaimIds,
     isShortFromChannelPage,
+    sectionTitle,
+    contentAspectRatio,
   } = props;
 
   const hasPins = pins && (pins.claimIds || pins.urls);
@@ -461,6 +466,10 @@ function ClaimListDiscover(props: Props) {
 
   if (csOptionsHook) {
     options = csOptionsHook(options);
+  }
+
+  if (contentAspectRatio) {
+    options.content_aspect_ratio = contentAspectRatio;
   }
 
   const hasMatureTags = tagsParam && tagsParam.split(',').some((t) => MATURE_TAGS.includes(t));
@@ -823,6 +832,7 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
           />
 
           {claimListLoading && useSkeletonScreen && (
@@ -863,6 +873,7 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             isShortFromChannelPage={isShortFromChannelPage}
+            sectionTitle={sectionTitle}
           />
 
           {claimListLoading &&

@@ -108,7 +108,7 @@
 
 .shorts-page-menu__button {
   position: fixed;
-  top: 10vh;
+  top: 70px;
   right: calc(50% - 450px / 2 - 60px);
   background: rgba(45, 44, 44, 0.895) !important;
   border: none !important;
@@ -246,6 +246,11 @@
   .shorts-page__navigation {
     right: calc(50% - 330px / 2 + 270px - 60px);
   }
+
+  .shorts-page__back-button{
+    right: calc(50% + 330px / 2 + 270px - 60px);
+  }
+  
   @media (max-width: 1180px) and (min-width: $breakpoint-small) {
     .shorts-page__info-button {
     right: calc(50% - 500px / 2 + 270px - 60px);
@@ -371,7 +376,7 @@
 
 .shorts-page__view-toggle {
   position: absolute;
-  top: 20px;
+  top: 0px;
   left: 20px;
   z-index: 10;
   display: flex;
@@ -488,4 +493,22 @@
   .shorts-page__navigation {
     right: calc(50% - 28vw / 2 - 60px);
   }
+}
+
+.shorts-page__back-button {
+  position: fixed;
+  top: 70px;
+  right: calc(50% + 550px / 2 - 60px);
+  z-index: 100;
+  background: rgba(45, 44, 44, 0.895) !important;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shorts-page__back-button:hover {
+  background: rgba(0, 0, 0, 0.7);
 }

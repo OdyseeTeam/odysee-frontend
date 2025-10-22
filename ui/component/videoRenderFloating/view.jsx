@@ -86,6 +86,7 @@ type Props = {
   doClearPlayingSource: () => void,
   doSetShowAutoplayCountdownForUri: (params: { uri: ?string, show: boolean }) => void,
   sidePanelOpen: boolean,
+  isClaimShort?: boolean,
 };
 
 function VideoRenderFloating(props: Props) {
@@ -123,10 +124,14 @@ function VideoRenderFloating(props: Props) {
     doSetShowAutoplayCountdownForUri,
     sidePanelOpen,
     contentUnlocked,
+    isClaimShort,
   } = props;
 
   const { state } = location;
   const { overrideFloating } = state || {};
+
+  const urlParams = new URLSearchParams(location.search);
+  const isShortVideo = urlParams.get('view') === 'shorts' || isClaimShort;
 
   const isMobile = useIsMobile();
   const isTabletLandscape = useIsLandscapeScreen() && !isMobile;
@@ -140,7 +145,7 @@ function VideoRenderFloating(props: Props) {
 
   const isComment = playingUriSource === 'comment';
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
-  const noFloatingPlayer = !overrideFloating && (!isFloating || !floatingPlayerEnabled);
+  const noFloatingPlayer = !overrideFloating && (!isFloating || !floatingPlayerEnabled || isShortVideo);
 
   const [cancelledAutoPlayCountdown, setCancelledAutoPlayCountdown] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
@@ -160,10 +165,6 @@ function VideoRenderFloating(props: Props) {
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   // const [isPortraitVideo, setIsPortraitVideo] = React.useState(false);
   const isPortraitVideo = React.useRef(false);
-
-  const urlParams = new URLSearchParams(location.search);
-  const isShortVideo = urlParams.get('view') === 'shorts';
-
   // ****************************************************************************
   // FUNCTIONS
   // ****************************************************************************

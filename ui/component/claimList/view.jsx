@@ -14,6 +14,7 @@ import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
 import { useHistory } from 'react-router';
 import { is } from 'bluebird';
+import {HomepageTitles} from 'util/buildHomepage';
 
 const Draggable = React.lazy(() =>
   import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Draggable }))
@@ -74,6 +75,7 @@ type Props = {
   restoreScrollPos?: () => void,
   setHasActive?: (has: boolean) => void,
   isShortFromChannelPage?: boolean,
+  sectionTitle?: HomepageTitles,
 };
 
 export default function ClaimList(props: Props) {
@@ -125,6 +127,7 @@ export default function ClaimList(props: Props) {
     restoreScrollPos,
     setHasActive,
     isShortFromChannelPage,
+    sectionTitle,
   } = props;
 
   const isMobile = useIsMobile();
@@ -322,6 +325,7 @@ export default function ClaimList(props: Props) {
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
                       isShortFromChannelPage={isShortFromChannelPage}
+                      sectionTitle={sectionTitle}
                     />
                   )}
                 </React.Fragment>

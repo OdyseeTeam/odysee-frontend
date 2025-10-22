@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { createSelector } from 'reselect';
 import * as TAGS from 'constants/tags';
-import { getChannelIdFromClaim, createNormalizedClaimSearchKey } from 'util/claim';
+import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort } from 'util/claim';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
 import {
@@ -21,8 +21,6 @@ import {
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { clearPosition } from 'redux/actions/content';
-import { doFetchRecommendedContent } from 'redux/actions/search';
-import { doClaimSearch } from 'redux/actions/claims';
 import { selectIsSearching } from 'redux/selectors/search';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
@@ -38,11 +36,12 @@ import {
   doToggleShortsSidePanel,
   doSetShortsPlaylist,
   doSetShortsViewMode,
-  doToggleShortsAutoplay,
   doSetShortsAutoplay,
   doClearShortsPlaylist,
 } from '../../../../../../../../redux/actions/shorts';
-import { toggleAutoplayNextShort } from '../../../../../../../../redux/actions/settings';
+import { doClaimSearch } from 'redux/actions/claims';
+import { toggleAutoplayNextShort } from 'redux/actions/settings';
+import { doFetchShortsRecommendedContent } from 'redux/actions/search';
 
 const selectShortsRecommendedContent = createSelector(
   [
@@ -72,10 +71,10 @@ const selectShortsRecommendedContent = createSelector(
       const claimSearchByQuery = selectClaimSearchByQuery(state);
       const searchKey = createNormalizedClaimSearchKey({
         channel_ids: [channelId],
-        max_duration: 3,
-        max_aspect_ratio: 0.999,
+        duration: '<=180',
+        content_aspect_ratio: '<1',
         order_by: ['release_time'],
-        page_size: 20,
+        page_size: 50,
         page: 1,
         claim_type: ['stream'],
         has_source: true,
@@ -136,6 +135,7 @@ const select = (state, props) => {
     channelUri,
     thumbnail,
     autoPlayNextShort: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS),
+    isClaimShort: isClaimShort(claim),
   };
 };
 
@@ -155,15 +155,15 @@ const perform = (dispatch) => ({
   },
   doToggleShortsSidePanel: () => dispatch(doToggleShortsSidePanel()),
   doSetShortsSidePanel: (isOpen) => dispatch(doSetShortsSidePanel(isOpen)),
-  doFetchRecommendedContent: (uri, fypParam) => dispatch(doFetchRecommendedContent(uri, fypParam, true)),
+  doFetchRecommendedContent: (uri, fypParam) => dispatch(doFetchShortsRecommendedContent(uri, fypParam)),
   doFetchChannelShorts: (channelId) => {
     return dispatch(
       doClaimSearch({
         channel_ids: [channelId],
-        max_duration: 3,
-        max_aspect_ratio: 0.999,
+        duration: '<=180',
+        content_aspect_ratio: '<1',
         order_by: ['release_time'],
-        page_size: 20,
+        page_size: 50,
         page: 1,
         claim_type: ['stream'],
         has_source: true,

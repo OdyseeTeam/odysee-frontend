@@ -135,15 +135,37 @@ export function getRecommendationSearchOptions(
   return options;
 }
 
+export function getShortsRecommendationSearchOptions(
+  matureEnabled: boolean,
+  claimIsMature: boolean,
+  claimId: string,
+  language: ?string,
+  forChannel: ?string
+) {
+  const options = { size: 50, nsfw: matureEnabled, isBackgroundSearch: false };
+
+    options[SEARCH_OPTIONS.CLAIM_TYPE] = 'stream';
+    options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;
+    options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
+    options[SEARCH_OPTIONS.MAX_DURATION] = 3;
+    options[SEARCH_OPTIONS.MAX_ASPECT_RATIO] = 0.999;
+    options[SEARCH_OPTIONS.DEBOOST_SAME_CREATOR] = 0.1;
+
+  if (forChannel) {
+    options[SEARCH_OPTIONS.CHANNEL_IDS] = [claimId];
+  } else if (matureEnabled || !claimIsMature) {
+    options[SEARCH_OPTIONS.RELATED_TO] = claimId;
+  }
+  if (language) {
+    options[SEARCH_OPTIONS.LANGUAGE] = language;
+  }
+
+  return options;
+}
+
 export function getRecommendationSearchKey(title: string, options: {}) {
   const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
   return createNormalizedSearchKey(searchQuery);
-}
-
-export function getShortsRecommendationSearchKey(title: string, options: {}) {
-  const query = title;
-  const queryString = getSearchQueryString(query, options);
-  return createNormalizedSearchKey(queryString);
 }
 
 export function tagSearchCsOptionsHook(options: any) {

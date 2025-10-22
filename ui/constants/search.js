@@ -40,6 +40,7 @@ export const SEARCH_OPTIONS = {
   MAX_DURATION: 'max_duration',
   DEBOOST_SAME_CREATOR: 'deboost_same_creator',
   MAX_ASPECT_RATIO: 'max_aspect_ratio',
+  CONTENT_ASPECT_RATIO: 'content_aspect_ratio',
 };
 
 export const SEARCH_PAGE_SIZE = 20;

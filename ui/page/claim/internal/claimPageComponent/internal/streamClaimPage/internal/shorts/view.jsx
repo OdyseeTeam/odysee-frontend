@@ -52,6 +52,7 @@ type Props = {
   autoPlayNextShort: boolean,
   doToggleShortsAutoplay: () => void,
   doSetShortsAutoplay: (enabled: boolean) => void,
+  isClaimShort: boolean,
 };
 
 export default function ShortsPage(props: Props) {
@@ -89,6 +90,7 @@ export default function ShortsPage(props: Props) {
     thumbnail,
     autoPlayNextShort,
     doToggleShortsAutoplay,
+    isClaimShort,
   } = props;
 
   const {
@@ -97,7 +99,7 @@ export default function ShortsPage(props: Props) {
 
   const urlParams = new URLSearchParams(search);
   const isShortFromChannelPage = urlParams.get('from') === 'channel';
-
+  const history = useHistory();
   const isMobile = useIsMobile();
   const shortsContainerRef = React.useRef();
   const [uuid] = React.useState(Uuidv4());
@@ -106,7 +108,24 @@ export default function ShortsPage(props: Props) {
   const [localViewMode, setLocalViewMode] = React.useState(
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
+  const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
+
+  const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
+  const isAtStart = currentIndex <= 0;
+  const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
   const hasInitializedRef = React.useRef(false);
+
+  const fetchForMode = React.useCallback(
+    (mode) => {
+      const fypParam = uuid ? { uuid } : null;
+      if (mode === 'channel' && channelId) {
+        doFetchChannelShorts(channelId);
+      } else {
+        doFetchRecommendedContent(uri, fypParam);
+      }
+    },
+    [channelId, uri, uuid, doFetchChannelShorts, doFetchRecommendedContent]
+  );
 
   const handlePlayPause = React.useCallback(() => {
     const videoElement = document.querySelector('.vjs-tech');
@@ -119,24 +138,6 @@ export default function ShortsPage(props: Props) {
     }
   }, []);
 
-  const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
-
-  const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
-  const isAtStart = currentIndex <= 0;
-  const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
-
-  const fetchForMode = React.useCallback(
-    (mode) => {
-      if (mode === 'channel' && channelId) {
-        doFetchChannelShorts(channelId);
-      } else {
-        const fypParam = uuid ? { uuid } : null;
-        doFetchRecommendedContent(uri, fypParam);
-      }
-    },
-    [channelId, uri, uuid, doFetchChannelShorts, doFetchRecommendedContent]
-  );
-
   const handleViewModeChange = React.useCallback(
     (mode) => {
       setLocalViewMode(mode);
@@ -147,7 +148,12 @@ export default function ShortsPage(props: Props) {
     [doSetShortsViewMode, doSetShortsPlaylist, fetchForMode]
   );
 
-  const history = useHistory();
+  React.useEffect(() => {
+    if (isClaimShort && !search.includes('view=shorts')) {
+      const shortsUrl = uri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+      history.replace(shortsUrl);
+    }
+  }, [isClaimShort, search, uri, history]);
 
   React.useEffect(() => {
     const unlisten = history.listen((location, action) => {
@@ -210,7 +216,7 @@ export default function ShortsPage(props: Props) {
     }
 
     clearPosition(uri);
-    doNavigateToNextShort(nextRecommendedShort);
+    doNavigateToNextShort(nextRecommendedShort, history);
 
     const claim = fileInfo?.claim;
     const currentClaimId = claim?.claim_id;
@@ -227,14 +233,15 @@ export default function ShortsPage(props: Props) {
     doNavigateToNextShort,
     fileInfo,
     onRecommendationClicked,
+    history,
   ]);
 
   const goToPrevious = React.useCallback(() => {
     if (!previousRecommendedShort || isAtStart || isSearchingRecommendations) return;
 
     clearPosition(uri);
-    doNavigateToPreviousShort(previousRecommendedShort);
-  }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, doNavigateToPreviousShort]);
+    doNavigateToPreviousShort(previousRecommendedShort, history);
+  }, [previousRecommendedShort, isAtStart, isSearchingRecommendations, uri, clearPosition, doNavigateToPreviousShort, history]);
 
   const handleInfoButtonClick = React.useCallback(() => {
     if (isMobile) {
@@ -320,6 +327,19 @@ export default function ShortsPage(props: Props) {
     };
   }, [autoPlayNextShort, nextRecommendedShort, isAtEnd, goToNext]);
 
+const handleBackButton = React.useCallback(() => {
+  const urlParams = new URLSearchParams(search);
+  const fromChannel = urlParams.get('from') === 'channel';
+
+  if (fromChannel && channelUri) {
+    let channelPath = channelUri.replace('lbry://', '/').replace(/#/g, ':');
+    channelPath += '?view=shortsTab';
+    history.push(channelPath);
+  } else {
+    history.push('/');
+  }
+}, [search, channelUri, history]);
+
   const isSwipeEnabled = !mobileModalOpen;
 
   if (isMature) {
@@ -380,6 +400,7 @@ export default function ShortsPage(props: Props) {
                 onViewModeChange={handleViewModeChange}
                 hasChannel={!!channelId}
                 hasPlaylist={hasPlaylist}
+                handleBackButton={handleBackButton}
               />
 
               {!isMobile && (

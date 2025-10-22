@@ -27,7 +27,8 @@ import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import { FYP_ID } from 'constants/urlParams';
 import * as PAGES from 'constants/pages';
 import { EmbedContext } from 'contexts/embed';
-import { isClaimShort } from '../../util/claim';
+import { isClaimShort } from 'util/claim';
+import {HomepageTitles} from 'util/buildHomepage';
 
 type Props = {
   uri: string,
@@ -61,6 +62,7 @@ type Props = {
   onClickHandledByParent?: boolean,
   isShort?: boolean,
   isShortFromChannelPage?: boolean,
+  sectionTitle?: HomepageTitles,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -97,9 +99,12 @@ function ClaimPreviewTile(props: Props) {
     onClickHandledByParent,
     isShort,
     isShortFromChannelPage,
+    sectionTitle,
   } = props;
 
   const isEmbed = React.useContext(EmbedContext);
+
+  console.log(claim);
 
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -209,13 +214,14 @@ function ClaimPreviewTile(props: Props) {
     );
   }
 
+  console.log(sectionTitle);
   return (
     <li
       onClick={handleClick}
       className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__wrapper--live': isLivestreamActive,
-        'claim-preview__wrapper--short': isShort,
+        'claim-preview__wrapper--short': isShort && (sectionTitle === 'Shorts'),
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden target={isEmbed && '_blank'}>

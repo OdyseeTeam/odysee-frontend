@@ -46,19 +46,19 @@ const select = (state, props) => {
   const searchKey = createNormalizedClaimSearchKey(options);
   let claimSearchResults = selectClaimSearchByQuery(state)[searchKey];
 
-  if (claimSearchResults) {
-    if (props.isShorts) {
-      claimSearchResults = claimSearchResults.filter((uri) => {
-        const claim = selectClaimForUri(state, uri);
-        return claim && isClaimShort(claim);
-      });
-    } else if (props.excludeShorts !== false) {
-      claimSearchResults = claimSearchResults.filter((uri) => {
-        const claim = selectClaimForUri(state, uri);
-        return claim && !isClaimShort(claim);
-      });
-    }
-  }
+  // if (claimSearchResults) {
+  //   if (props.isShorts) {
+  //     claimSearchResults = claimSearchResults.filter((uri) => {
+  //       const claim = selectClaimForUri(state, uri);
+  //       return claim && isClaimShort(claim);
+  //     });
+  //   } else if (props.excludeShorts !== false) {
+  //     claimSearchResults = claimSearchResults.filter((uri) => {
+  //       const claim = selectClaimForUri(state, uri);
+  //       return claim && !isClaimShort(claim);
+  //     });
+  //   }
+  // }
 
   return {
     claimSearchResults,
@@ -107,6 +107,7 @@ function resolveSearchOptions(props) {
     timestamp,
     claimIds,
     duration,
+    contentAspectRatio,
   } = props;
 
   const urlParams = new URLSearchParams(location.search);
@@ -202,6 +203,10 @@ function resolveSearchOptions(props) {
 
   if (duration) {
     options.duration = duration;
+  }
+
+  if (contentAspectRatio) {
+    options.content_aspect_ratio = contentAspectRatio;
   }
 
   return options;

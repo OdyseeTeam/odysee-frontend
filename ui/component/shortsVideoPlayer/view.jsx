@@ -6,7 +6,6 @@ import * as ICONS from 'constants/icons';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import classnames from 'classnames';
-
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 
 type Props = {
@@ -19,7 +18,8 @@ type Props = {
   channelName?: string,
   onViewModeChange?: (mode: string) => void,
   hasChannel?: boolean,
-  hasPlaylist?: boolean
+  hasPlaylist?: boolean,
+  handleBackButton?: ()=>void;
 };
 
 const ShortsVideoPlayer = React.memo<Props>(
@@ -34,15 +34,22 @@ const ShortsVideoPlayer = React.memo<Props>(
     onViewModeChange,
     hasChannel = false,
     hasPlaylist,
+    handleBackButton,
   }: Props) => {
     const handleViewModeSelect = (mode: string) => {
       if (onViewModeChange) {
         onViewModeChange(mode);
       }
     };
-
     return (
       <div className="shorts-page__video-section">
+        <Button
+          button="close"
+          icon={ICONS.BACK}
+          className="shorts-page__back-button"
+          onClick={handleBackButton}
+          aria-label={__('Go back')}
+        />
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
           <VideoClaimInitiator uri={uri} />
         </div>
@@ -66,10 +73,7 @@ const ShortsVideoPlayer = React.memo<Props>(
                 onSelect={() => handleViewModeSelect('related')}
               >
                 <div className="menu__link">
-                  <Icon
-                    aria-hidden
-                    iconColor={viewMode === 'related' ? 'var(--color-primary)' : undefined}
-                  />
+                  <Icon aria-hidden iconColor={viewMode === 'related' ? 'var(--color-primary)' : undefined} />
                   {__('Related')}
                 </div>
               </MenuItem>
@@ -81,9 +85,7 @@ const ShortsVideoPlayer = React.memo<Props>(
                 onSelect={() => handleViewModeSelect('channel')}
               >
                 <div className="menu__link">
-                  <Icon
-                    iconColor={viewMode === 'channel' ? 'var(--color-primary)' : undefined}
-                  />
+                  <Icon iconColor={viewMode === 'channel' ? 'var(--color-primary)' : undefined} />
                   {__('From %channel%', {
                     channel:
                       channelName && channelName.length > 20

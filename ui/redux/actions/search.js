@@ -13,7 +13,7 @@ import { makeSelectSearchUrisForQuery, selectPersonalRecommendations, selectSear
 import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
-import { getRecommendationSearchOptions } from 'util/search';
+import { getRecommendationSearchOptions, getShortsRecommendationSearchOptions } from 'util/search';
 import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
@@ -249,7 +249,7 @@ export const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
 };
 
 export const doFetchShortsRecommendedContent =
-  (uri: string, fyp: ?FypParam = null) =>
+  (uri: string, fyp: ?FypParam = null, forChannel: ?boolean = false) =>
   (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
@@ -259,20 +259,25 @@ export const doFetchShortsRecommendedContent =
     const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
     const language = searchInLanguage ? languageSetting : null;
 
-    if (claim && claim.value && claim.claim_id && claim.value.title) {
-      const options: SearchOptions = {
-        size: 20,
-        nsfw: matureEnabled || claimIsMature,
-        related_to: claim.claim_id,
-        max_aspect_ratio: 0.999,
-        isBackgroundSearch: false,
-        max_duration: 3,
-        deboost_same_creator: 0.1,
-      };
-
-      if (language) {
-        options['language'] = language;
+    if (claim && claim.value && claim.claim_id) {
+    let idToUse;
+    if (forChannel) {
+      const channelClaim = claim.signing_channel;
+      idToUse = channelClaim?.claim_id;
+      if (!idToUse) {
+        console.error('No channel ID found for channel shorts mode');
+        return;
       }
+    } else {
+      idToUse = claim.claim_id;
+    }
+      const options: SearchOptions = getShortsRecommendationSearchOptions(
+        matureEnabled,
+        claimIsMature,
+        idToUse,
+        language,
+        forChannel
+      );
 
       if (fyp) {
         options['gid'] = fyp.gid;
@@ -281,6 +286,8 @@ export const doFetchShortsRecommendedContent =
 
       const { title } = claim.value;
 
+      console.log('options', options);
+
       if (title && options) {
         dispatch(doSearch(title, options));
       }
@@ -288,11 +295,8 @@ export const doFetchShortsRecommendedContent =
   };
 
 export const doFetchRecommendedContent =
-  (uri: string, fyp: ?FypParam = null, isShorts: boolean = false) =>
+  (uri: string, fyp: ?FypParam = null) =>
   (dispatch: Dispatch, getState: GetState) => {
-    if (isShorts) {
-      return dispatch(doFetchShortsRecommendedContent(uri, fyp));
-    }
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const matureEnabled = selectShowMatureContent(state);
