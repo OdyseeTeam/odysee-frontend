@@ -6,6 +6,7 @@ const {
   PROXY_URL,
   SITE_CANONICAL_URL,
   SITE_DESCRIPTION,
+  FARCASTER_ICON_URL,
   SITE_NAME,
   SITE_TITLE,
   URL,
@@ -91,10 +92,11 @@ function getCategoryMeta(path) {
 // Normal metadata with option to override certain values
 //
 function buildOgMetadata(overrideOptions = {}) {
-  const { title, description, image, path, urlQueryString } = overrideOptions;
+  const { title, description, image, path, urlQueryString, baseUrl } = overrideOptions;
+  const BASE = baseUrl || URL;
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
-  const url = (path ? `${URL}${path}` : URL) + (urlQueryString ? `?${urlQueryString}` : '');
+  const url = (path ? `${BASE}${path}` : BASE) + (urlQueryString ? `?${urlQueryString}` : '');
 
   const head =
     `<title>${SITE_TITLE}</title>\n` +
@@ -105,7 +107,7 @@ function buildOgMetadata(overrideOptions = {}) {
     `<meta property="og:site_name" content="${SITE_NAME || SITE_TITLE}"/>\n` +
     `<meta property="og:description" content="${cleanDescription}" />\n` +
     `<meta property="og:image" content="${
-      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${URL}/public/v2-og.png`
+      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`
     }" />\n` +
     `<meta property="og:type" content="website"/>\n` +
     '<meta name="twitter:card" content="summary_large_image"/>\n' +
@@ -114,14 +116,57 @@ function buildOgMetadata(overrideOptions = {}) {
     }" />\n` +
     `<meta name="twitter:description" content="${cleanDescription}" />\n` +
     `<meta name="twitter:image" content="${
-      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${URL}/public/v2-og.png`
+      getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`
     }"/>\n` +
     '<meta property="fb:app_id" content="1673146449633983" />\n' +
     `<link rel="canonical" content="${SITE_CANONICAL_URL || URL}"/>` +
     `<link rel="search" type="application/opensearchdescription+xml" title="${
       SITE_NAME || SITE_TITLE
     }" href="${URL}/opensearch.xml">`;
-  return head;
+  // Add Farcaster Mini App embed meta for generic pages
+  const splashImageUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
+  try {
+    const miniApp = {
+      version: '1',
+      imageUrl: splashImageUrl,
+      button: {
+        title: 'Open on Odysee',
+        action: {
+          type: 'launch_miniapp',
+          name: SITE_NAME || 'Odysee',
+          url: url,
+          splashImageUrl: splashImageUrl,
+          splashBackgroundColor: '#ffffff',
+        },
+      },
+    };
+    const miniAppJson = JSON.stringify(miniApp);
+    let out = head + `\n<meta name="fc:miniapp" content='${miniAppJson}'/>`;
+    // Frames JSON (v2-style) for clients expecting fc:frame as an object
+    const frameJsonGeneric = JSON.stringify({
+      version: 'next',
+      imageUrl: splashImageUrl,
+      button: {
+        title: 'Open on Odysee',
+        action: {
+          type: 'launch_frame',
+          name: SITE_NAME || 'Odysee',
+          url: url,
+          splashImageUrl: splashImageUrl,
+          splashBackgroundColor: '#ffffff',
+        },
+      },
+    });
+    out += `\n<meta name="fc:frame" content='${frameJsonGeneric}'/>`;
+    // Legacy Frames meta (basic link action)
+    out += `\n<meta name="fc:frame:image" content="${splashImageUrl}"/>`;
+    out += `\n<meta name="fc:frame:button:1" content="Open on Odysee"/>`;
+    out += `\n<meta name="fc:frame:button:1:action" content="link"/>`;
+    out += `\n<meta name="fc:frame:button:1:target" content="${url}"/>`;
+    return out;
+  } catch (e) {
+    return head;
+  }
 }
 
 function addPWA() {
@@ -164,7 +209,8 @@ function buildBasicOgMetadata() {
 //
 async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
-  const { userAgent } = overrideOptions;
+  const { userAgent, baseUrl } = overrideOptions;
+  const BASE = baseUrl || URL;
   const { claimName } = parseURI(uri);
   const { meta, value, signing_channel } = claim;
   const fee = value && value.fee && (Number(value.fee.amount) || 0);
@@ -222,7 +268,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const title = overrideOptions.title || claimTitle;
   const description = overrideOptions.description || claimDescription;
   const cleanDescription = removeMd(description);
-  const claimPath = `${URL}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
+  const claimPath = `${BASE}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
 
   let head = '';
 
@@ -248,10 +294,10 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   head += `<meta property="og:url" content="${claimPath}"/>`;
 
   head += `<link rel="canonical" content="${claimPath}"/>`;
-  head += `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
+  head += `<link rel="alternate" type="application/json+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(
     claimPath
   )}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
-  head += `<link rel="alternate" type="text/xml+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
+  head += `<link rel="alternate" type="text/xml+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(
     claimPath
   )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
 
@@ -291,6 +337,106 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta name="twitter:card" content="summary_large_image"/>`;
   }
 
+  // Farcaster: Mini App embed meta
+  try {
+    const splashImageUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
+    // Use a literal, unencoded embed URL (clients seem to prefer this format)
+    const embedUriPath = claim.canonical_url.replace('lbry://', '').replace(/#/g, ':');
+    const embedUrl = `${BASE}/$/embed/${embedUriPath}`;
+    const miniApp = {
+      version: '1',
+      imageUrl: claimThumbnail,
+      button: {
+        title: isStream ? 'Watch on Odysee' : 'Open on Odysee',
+        action: {
+          type: 'launch_miniapp',
+          name: SITE_NAME,
+          url: embedUrl,
+          splashImageUrl: splashImageUrl,
+          splashBackgroundColor: '#ffffff',
+        },
+      },
+    };
+    const miniAppJson = JSON.stringify(miniApp);
+    head += `<meta name="fc:miniapp" content='${miniAppJson}'/>`;
+    // Frames JSON (v2-style) for clients expecting fc:frame as an object
+    const frameJson = JSON.stringify({
+      version: 'next',
+      imageUrl: claimThumbnail,
+      button: {
+        title: isStream ? 'Watch on Odysee' : 'Open on Odysee',
+        action: {
+          type: 'launch_frame',
+          name: SITE_NAME,
+          url: embedUrl,
+          splashImageUrl: splashImageUrl,
+          splashBackgroundColor: '#ffffff',
+        },
+      },
+    });
+    head += `<meta name="fc:frame" content='${frameJson}'/>`;
+    // Legacy Frames meta (link + post button) for clients that still rely on v1 tags
+    head += `<meta name="fc:frame:image" content="${claimThumbnail}"/>`;
+    head += `<meta name="fc:frame:button:1" content="${isStream ? 'Watch on Odysee' : 'Open on Odysee'}"/>`;
+    head += `<meta name="fc:frame:button:1:action" content="link"/>`;
+    head += `<meta name="fc:frame:button:1:target" content="${embedUrl}"/>`;
+    head += `<meta name="fc:frame:button:2" content="Next ▶"/>`;
+    head += `<meta name="fc:frame:button:2:action" content="post"/>`;
+    head += `<meta name="fc:frame:post_url" content="${BASE}/$/frame"/>`;
+    head += `<script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.min.js"></script>`;
+
+    // Ready signal script - runs after SDK loads
+    head += `<script>
+(function() {
+   function signalReady() {
+    try {
+      // Try multiple SDK locations
+       const sdk = (window.miniapp && window.miniapp.sdk) || window.sdk || (window.frame && window.frame.sdk);
+      
+      if (sdk && sdk.actions && typeof sdk.actions.ready === 'function') {
+        sdk.actions.ready();
+        console.log('MiniApp ready signal sent via SDK');
+      }
+      
+      // Also send postMessage as fallback
+      if (window.parent && window.parent.postMessage) {
+        window.parent.postMessage({ type: 'miniapp-ready' }, '*');
+        console.log('MiniApp ready signal sent via postMessage');
+      }
+      
+      return true;
+    } catch (e) {
+      console.error('MiniApp ready signal failed:', e);
+      return false;
+    }
+  }
+  
+  // Wait for SDK to be available
+  let attempts = 0;
+  const maxAttempts = 50;
+  
+  const checkAndSignal = setInterval(function() {
+    attempts++;
+    
+    if (signalReady()) {
+      clearInterval(checkAndSignal);
+    } else if (attempts >= maxAttempts) {
+      console.warn('MiniApp ready timeout after', attempts * 100, 'ms');
+      clearInterval(checkAndSignal);
+      
+      // Send timeout signal
+      try {
+        if (window.parent && window.parent.postMessage) {
+          window.parent.postMessage({ type: 'miniapp-ready-timeout' }, '*');
+        }
+      } catch (e) {}
+    }
+  }, 100);
+})();
+</script>`;
+  } catch (e) {
+    console.error('MiniApp embed meta failed:', e);
+  }
   return head;
 }
 
@@ -390,6 +536,7 @@ async function getHtml(ctx) {
         title: `Join ${claim.name} on ${SITE_NAME}`,
         description: `Join ${claim.name} on ${SITE_NAME}, a content wonderland owned by everyone (and no one).`,
         userAgent: userAgent,
+        baseUrl: ctx.origin,
       });
 
       return insertToHead(html, invitePageMetadata);
@@ -399,6 +546,7 @@ async function getHtml(ctx) {
       const invitePageMetadata = buildOgMetadata({
         title: `Join a friend on ${SITE_NAME}`,
         description: `Join a friend on ${SITE_NAME}, a content wonderland owned by everyone (and no one).`,
+        baseUrl: ctx.origin,
       });
       return insertToHead(html, invitePageMetadata);
     }
@@ -411,6 +559,8 @@ async function getHtml(ctx) {
     if (claim) {
       const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
         userAgent: userAgent,
+        baseUrl: ctx.origin,
+        miniAppReady: true,
       });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
@@ -426,6 +576,7 @@ async function getHtml(ctx) {
     if (claim) {
       const ogMetadata = await buildClaimOgMetadata(claim.canonical_url, claim, {
         userAgent: userAgent,
+        baseUrl: ctx.origin,
       });
       return insertToHead(html, ogMetadata);
     }
@@ -462,6 +613,7 @@ async function getHtml(ctx) {
         claim,
         {
           userAgent: userAgent,
+          baseUrl: ctx.origin,
         },
         referrerQuery
       );

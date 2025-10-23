@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 
-import { useHistory } from 'react-router';
+import { useLocation } from 'react-router';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import { parseURI } from 'util/lbryURI';
 
@@ -23,9 +23,7 @@ const ClaimPage = (props: Props) => {
 
   const { isChannel } = parseURI(uri);
 
-  const {
-    location: { search },
-  } = useHistory();
+  const { search } = useLocation();
 
   const ClaimRenderWrapper = React.useMemo(
     () =>
