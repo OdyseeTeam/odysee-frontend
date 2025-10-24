@@ -560,7 +560,6 @@ async function getHtml(ctx) {
       const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
         userAgent: userAgent,
         baseUrl: ctx.origin,
-        miniAppReady: true,
       });
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
