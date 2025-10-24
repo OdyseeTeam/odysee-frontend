@@ -14,14 +14,16 @@ type Props = {
   // --- redux ---
   title: ?string,
   balance: number,
-  doUpdateTitle: (string) => void,
+  doUpdateTitle: (string, boolean) => void,
 };
 
 function PublishPost(props: Props) {
   const { uri, title, balance, fileMimeType, doUpdateTitle, disabled, setPrevFileText } = props;
 
+  const [urlChangedManually, setUrlChangedManually] = React.useState(false);
+
   function handleTitleChange(event) {
-    doUpdateTitle(event.target.value);
+    doUpdateTitle(event.target.value, urlChangedManually);
   }
 
   return (
@@ -44,7 +46,7 @@ function PublishPost(props: Props) {
             autoFocus
             autoComplete="off"
           />
-          <PublishName uri={uri} />
+          <PublishName uri={uri} onChange={() => setUrlChangedManually(true)} />
           <PostEditor
             label={__('Post --[noun, markdown post tab button]--')}
             uri={uri}

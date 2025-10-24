@@ -35,7 +35,7 @@ type Props = {
   fileSource: string,
   myClaimForUri: ?StreamClaim,
   activeChannelClaim: ?ChannelClaim,
-  doUpdateTitle: (string) => void,
+  doUpdateTitle: (string, boolean) => void,
   doUpdateFile: (file: WebFile, clearName: boolean) => void,
 };
 
@@ -64,6 +64,8 @@ function PublishFile(props: Props) {
     SITE_NAME,
     limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
   });
+
+  const [urlChangedManually, setUrlChangedManually] = React.useState(false);
 
   const [livestreamData, setLivestreamData] = React.useState([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
@@ -240,7 +242,7 @@ function PublishFile(props: Props) {
   }
 
   function handleTitleChange(event) {
-    doUpdateTitle(event.target.value);
+    doUpdateTitle(event.target.value, urlChangedManually);
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
@@ -294,7 +296,7 @@ function PublishFile(props: Props) {
                 ref={titleInput}
               />
             </div>
-            <PublishName uri={uri} />
+            <PublishName uri={uri} onChange={() => setUrlChangedManually(true)} />
           </React.Fragment>
         </>
       }
