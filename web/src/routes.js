@@ -4,6 +4,8 @@ const { getHtml } = require('./html');
 const { getMinVersion } = require('./minVersion');
 const { getOEmbed } = require('./oEmbed');
 const { getRss } = require('./rss');
+const { getFarcasterManifest } = require('./farcaster');
+const { handleFramePost } = require('./frame');
 const { getTempFile } = require('./tempfile');
 
 const fetch = require('node-fetch');
@@ -37,6 +39,12 @@ const tempfileMiddleware = async (ctx) => {
   ctx.body = temp;
 };
 
+const fcManifestMiddleware = async (ctx) => {
+  const manifest = await getFarcasterManifest(ctx);
+  ctx.set('Content-Type', 'application/json');
+  ctx.body = manifest;
+};
+
 router.get(`/$/minVersion/v1/get`, async (ctx) => getMinVersion(ctx));
 
 router.get(`/$/api/content/v1/get`, async (ctx) => getHomepage(ctx, 1));
@@ -62,12 +70,33 @@ router.get(`/$/activate`, async (ctx) => {
   ctx.redirect(`https://sso.odysee.com/auth/realms/Users/device`);
 });
 // to add a path for a temp file on the server, customize this path
+router.get('/.well-known/farcaster.json', fcManifestMiddleware);
 router.get('/.well-known/:filename', tempfileMiddleware);
 
 router.get(`/$/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
 
 router.get(`/$/oembed`, oEmbedMiddleware);
+
+router.post(`/$/frame`, async (ctx) => {
+  // Minimal JSON parser to avoid external dependencies
+  try {
+    const chunks = [];
+    await new Promise((resolve) => {
+      ctx.req.on('data', (c) => chunks.push(c));
+      ctx.req.on('end', resolve);
+    });
+    const raw = Buffer.concat(chunks).toString('utf8');
+    try {
+      ctx.request.body = raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      ctx.request.body = {};
+    }
+  } catch (e) {
+    ctx.request.body = {};
+  }
+  await handleFramePost(ctx);
+});
 
 router.get('*', async (ctx) => {
   const requestedUrl = ctx.url;
